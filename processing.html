@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Answer guided questions to refine your app idea and generate a detailed specification with specifys.ai.">
+  <meta name="keywords" content="processing app idea, guided questions, AI specification, app development, specifys.ai">
+  <meta name="author" content="specifys.ai Team">
+  <meta name="robots" content="index, follow">
+  <!-- Open Graph Tags for Social Sharing -->
+  <meta property="og:title" content="specifys.ai - Processing Your Idea">
+  <meta property="og:description" content="Answer guided questions to refine your app idea and generate a detailed specification with specifys.ai.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://specifys.ai/processing.html">
+  <meta property="og:image" content="https://specifys.ai/assets/og-image.jpg">
+  <!-- Twitter Card Tags -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="specifys.ai - Processing Your Idea">
+  <meta name="twitter:description" content="Answer guided questions to refine your app idea and generate a detailed specification with specifys.ai.">
+  <meta name="twitter:image" content="https://specifys.ai/assets/og-image.jpg">
+  <title>specifys.ai - Processing Your Idea</title>
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"></script>
+</head>
+<body class="page-default">
+  <header class="thematic-header" role="banner">
+    <div class="logo"><a href="index.html" aria-label="specifys.ai homepage">specifys.ai</a></div>
+  </header>
+
+  <div class="instructions">
+    <h1>Refine Your App Idea</h1>
+    <p>To get the best result, describe your idea in as much detail as possible.</p>
+    <p>The more effort you put into defining your app, the better the final result will be.</p>
+  </div>
+
+  <div class="carousel-container">
+    <button id="prevButton" class="carousel-button" onclick="prevStep()" aria-label="Previous step">←</button>
+    <div id="carouselContent" class="carousel-content">
+      <div class="step-container">
+        <h3 id="stepTitle">Step 1</h3>
+        <p id="stepQuestion" class="question-label">Describe the typical workflow of a user using your app.</p>
+        <textarea id="stepTextarea" class="step-textarea" maxlength="2500" placeholder="Enter your response here..." aria-label="Answer the current question"></textarea>
+        <span id="charCount" class="char-count">0/2500</span>
+        <div id="errorMessage" style="color: red; margin-top: 10px; display: none;" role="alert"></div>
+        <div class="progress-container">
+          <div class="progress-bar">
+            <div id="progressFill" class="progress-fill"></div>
+          </div>
+          <div class="discipline-indicators" role="group" aria-label="Progress indicators by category">
+            <div class="indicator-item">
+              <span class="indicator-circle" id="workflow-indicator" aria-label="User Workflow progress"></span>
+              <span>User Workflow</span>
+            </div>
+            <div class="indicator-item">
+              <span class="indicator-circle" id="design-indicator" aria-label="Design progress"></span>
+              <span>Design</span>
+            </div>
+            <div class="indicator-item">
+              <span class="indicator-circle" id="features-indicator" aria-label="Features progress"></span>
+              <span>Features</span>
+            </div>
+            <div class="indicator-item">
+              <span class="indicator-circle" id="target-audience-indicator" aria-label="Target Audience progress"></span>
+              <span>Target Audience</span>
+            </div>
+            <div class="indicator-item">
+              <span class="indicator-circle" id="technical-requirements-indicator" aria-label="Technical requirements progress"></span>
+              <span>Technical</span>
+            </div>
+            <div class="indicator-item">
+              <span class="indicator-circle" id="integrations-indicator" aria-label="Integrations progress"></span>
+              <span>Integrations</span>
+            </div>
+            <div class="indicator-item">
+              <span class="indicator-circle" id="monetization-indicator" aria-label="Monetization progress"></span>
+              <span>Monetization</span>
+            </div>
+            <div class="indicator-item">
+              <span class="indicator-circle" id="notifications-indicator" aria-label="Notifications progress"></span>
+              <span>Notifications</span>
+            </div>
+            <div class="indicator-item">
+              <span class="indicator-circle" id="authentication-indicator" aria-label="Authentication progress"></span>
+              <span>Authentication</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button id="nextButton" class="carousel-button" onclick="nextStep()" aria-label="Next step">→</button>
+  </div>
+
+  <div id="submitButtonContainer" class="submit-button-container" style="display: none;">
+    <button id="generateSpecButton" class="generate-spec-button" onclick="generateSpecification()" disabled aria-label="Generate your app specification">Generate Specification</button>
+    <div id="loadingSpinner" style="display: none; text-align: center; margin-top: 15px;">
+      <div style="border: 4px solid #f3f3f3; border-top: 4px solid #23a6d5; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 0 auto;"></div>
+      <p style="color: #333;">Generating your specification...</p>
+    </div>
+  </div>
+
+  <footer style="text-align: center; padding: 20px; color: #fff;">
+    <a href="how.html" style="color: #fff; text-decoration: underline;" aria-label="Learn how specifys.ai works">How It Works</a>
+  </footer>
+
+  <script defer src="config.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <script type="module" src="processing.js"></script>
+  <script>
+    // Define questions for each step
+    const questions = [
+      "Describe the typical workflow of a user using your app.",
+      "What design elements are most important for your app?",
+      "What key features do you want your app to have?",
+      "Who is your target audience?",
+      "What technical requirements does your app need?",
+      "What integrations should your app support?",
+      "How do you plan to monetize your app?",
+      "What notifications should your app send?",
+      "What authentication methods will your app use?"
+    ];
+
+    // Initialize state
+    let currentStep = 0;
+    const totalSteps = questions.length;
+    let textarea, stepTitle, stepQuestion, prevButton, nextButton, submitButtonContainer, progressFill, charCount, generateSpecButton;
+    const answers = JSON.parse(localStorage.getItem('processingAnswers')) || {};
+    const indicators = [
+      'workflow-indicator',
+      'design-indicator',
+      'features-indicator',
+      'target-audience-indicator',
+      'technical-requirements-indicator',
+      'integrations-indicator',
+      'monetization-indicator',
+      'notifications-indicator',
+      'authentication-indicator'
+    ];
+
+    // Update UI function
+    function updateUI() {
+      stepTitle.textContent = `Step ${currentStep + 1}`;
+      stepQuestion.textContent = questions[currentStep];
+      textarea.value = answers[currentStep] || '';
+      charCount.textContent = `${textarea.value.length}/2500`;
+      
+      // Update progress bar
+      const progress = ((currentStep + 1) / totalSteps) * 100;
+      progressFill.style.width = `${progress}%`;
+      
+      // Update indicators
+      indicators.forEach((indicator, index) => {
+        const element = document.getElementById(indicator);
+        if (answers[index] && answers[index].trim()) {
+          element.classList.add('active');
+        } else {
+          element.classList.remove('active');
+        }
+      });
+
+      // Update button visibility
+      prevButton.style.display = currentStep === 0 ? 'none' : 'block';
+      nextButton.style.display = currentStep === totalSteps - 1 ? 'none' : 'block';
+      submitButtonContainer.style.display = currentStep === totalSteps - 1 ? 'block' : 'none';
+
+      // Enable/disable Generate Specification button based on indicator status
+      const allIndicatorsGreen = indicators.every(indicator => {
+        const element = document.getElementById(indicator);
+        return element && element.classList.contains('active');
+      });
+      if (generateSpecButton) {
+        generateSpecButton.disabled = !allIndicatorsGreen;
+        console.log('Generate button state:', generateSpecButton.disabled);
+      }
+    }
+
+    // Load saved answers and update UI on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      textarea = document.getElementById('stepTextarea');
+      stepTitle = document.getElementById('stepTitle');
+      stepQuestion = document.getElementById('stepQuestion');
+      prevButton = document.getElementById('prevButton');
+      nextButton = document.getElementById('nextButton');
+      submitButtonContainer = document.getElementById('submitButtonContainer');
+      progressFill = document.getElementById('progressFill');
+      charCount = document.getElementById('charCount');
+      generateSpecButton = document.getElementById('generateSpecButton');
+
+      updateUI();
+
+      textarea.addEventListener('input', () => {
+        answers[currentStep] = textarea.value;
+        localStorage.setItem('processingAnswers', JSON.stringify(answers));
+        charCount.textContent = `${textarea.value.length}/2500`;
+        
+        const currentIndicator = document.getElementById(indicators[currentStep]);
+        if (textarea.value.trim()) {
+          currentIndicator.classList.add('active');
+        } else {
+          currentIndicator.classList.remove('active');
+        }
+        updateUI();
+      });
+    });
+
+    window.prevStep = function() {
+      if (currentStep > 0) {
+        currentStep--;
+        updateUI();
+      }
+    };
+
+    window.nextStep = function() {
+      const textareaValue = textarea.value.trim();
+      const errorMessage = document.getElementById('errorMessage');
+      
+      if (!textareaValue) {
+        errorMessage.textContent = 'Please answer the current question before proceeding.';
+        errorMessage.style.display = 'block';
+        return;
+      }
+      
+      errorMessage.style.display = 'none';
+      answers[currentStep] = textareaValue;
+      localStorage.setItem('processingAnswers', JSON.stringify(answers));
+      
+      if (currentStep < totalSteps - 1) {
+        currentStep++;
+        updateUI();
+      }
+    };
+
+    window.generateSpecification = function() {
+      console.log('Generate Specification clicked');
+      const answers = JSON.parse(localStorage.getItem('processingAnswers')) || {};
+      const errorMessage = document.getElementById('errorMessage');
+      
+      console.log('Answers length:', Object.keys(answers).length);
+      if (Object.keys(answers).length < 9) {
+        errorMessage.textContent = 'Please complete all steps before generating the specification.';
+        errorMessage.style.display = 'block';
+        console.log('Error: Not all steps completed');
+        return;
+      }
+      
+      errorMessage.style.display = 'none';
+      document.getElementById('loadingSpinner').style.display = 'block';
+      generateSpecButton.disabled = true;
+      console.log('Loading spinner shown, button disabled');
+      
+      setTimeout(() => {
+        console.log('Checking generateSpecificationOriginal');
+        if (typeof window.generateSpecificationOriginal === 'function') {
+          console.log('Calling generateSpecificationOriginal');
+          window.generateSpecificationOriginal();
+        } else {
+          console.error('generateSpecificationOriginal not found');
+          window.location.href = 'result.html';
+        }
+      }, 2000);
+    };
+  </script>
+
+  <style>
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .indicator-circle {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background-color: red;
+      margin-right: 5px;
+    }
+    .indicator-circle.active {
+      background-color: green;
+    }
+    .carousel-button {
+      background-color: #23a6d5;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      cursor: pointer;
+      font-size: 18px;
+      border-radius: 5px;
+    }
+    .generate-spec-button {
+      background-color: #23a6d5;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .generate-spec-button:disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
+    }
+    .submit-button-container {
+      text-align: center;
+      margin-top: 20px;
+    }
+  </style>
+
+  <noscript>
+    <div style="text-align: center; padding: 20px; background: #fff; color: #333;">
+      <p>This website requires JavaScript to function properly. Please enable JavaScript in your browser settings.</p>
+    </div>
+  </noscript>
+</body>
+</html>

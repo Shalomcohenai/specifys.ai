@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Turn your ideas into detailed application specifications with specifys.ai. Build your next code project now!">
+  <meta name="keywords" content="application specification, AI development, code project, specifys.ai">
+  <meta name="author" content="specifys.ai Team">
+  <meta name="robots" content="index, follow">
+  <!-- Open Graph Tags for Social Sharing -->
+  <meta property="og:title" content="specifys.ai - Turn Ideas into Apps">
+  <meta property="og:description" content="Turn your ideas into detailed application specifications with specifys.ai. Build your next code project now!">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://specifys.ai/index.html">
+  <meta property="og:image" content="https://specifys.ai/assets/og-image.jpg">
+  <!-- Twitter Card Tags -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="specifys.ai - Turn Ideas into Apps">
+  <meta name="twitter:description" content="Turn your ideas into detailed application specifications with specifys.ai. Build your next code project now!">
+  <meta name="twitter:image" content="https://specifys.ai/assets/og-image.jpg">
+  <title>specifys.ai - Turn Ideas into Apps</title>
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"></script>
+</head>
+<body class="page-default">
+  <header class="thematic-header" role="banner">
+    <div class="logo"><a href="index.html" aria-label="specifys.ai homepage">specifys.ai</a></div>
+  </header>
+
+  <div class="header-text">
+    <h1>Build Your Next Code Project</h1>
+    <p>We help you harness AI to bring your idea to life</p>
+  </div>
+
+  <div class="content-box">
+    <div class="selection-container" id="topicSelector" role="radiogroup" aria-label="Select a topic for your application">
+      <button onclick="selectTopic(this, 'Productivity')" aria-label="Select Productivity topic">Productivity</button>
+      <button onclick="selectTopic(this, 'Health')" aria-label="Select Health topic">Health</button>
+      <button onclick="selectTopic(this, 'Education')" aria-label="Select Education topic">Education</button>
+      <button onclick="selectTopic(this, 'Entertainment')" aria-label="Select Entertainment topic">Entertainment</button>
+      <button onclick="selectTopic(this, 'Tools')" aria-label="Select Tools topic">Tools</button>
+      <button onclick="selectTopic(this, 'Finance')" aria-label="Select Finance topic">Finance</button>
+      <button onclick="selectTopic(this, 'Social')" aria-label="Select Social topic">Social</button>
+      <button onclick="selectTopic(this, 'Games')" aria-label="Select Games topic">Games</button>
+      <button onclick="selectTopic(this, 'Design')" aria-label="Select Design topic">Design</button>
+      <button onclick="selectTopic(this, 'AI')" aria-label="Select AI topic">AI</button>
+    </div>
+
+    <div class="idea-input-container">
+      <textarea id="ideaInput" placeholder="" maxlength="2500" aria-label="App idea input"></textarea>
+      <button class="send-button" onclick="saveAndProceed()" aria-label="Send your app idea">Send Idea</button>
+      <div id="errorMessage" style="color: red; margin-top: 10px; display: none;" role="alert"></div>
+    </div>
+  </div>
+
+  <footer style="text-align: center; padding: 20px; color: #fff;">
+    <a href="how.html" style="color: #fff; text-decoration: underline;" aria-label="Learn how specifys.ai works">How It Works</a>
+  </footer>
+
+  <script defer src="config.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <script defer src="script.js"></script>
+  <script defer src="typingEffect.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      localStorage.clear();
+    });
+
+    function saveAndProceed() {
+      const ideaInput = document.getElementById('ideaInput').value.trim();
+      const errorMessage = document.getElementById('errorMessage');
+      
+      if (!ideaInput) {
+        errorMessage.textContent = 'Please enter your app idea before proceeding.';
+        errorMessage.style.display = 'block';
+        return;
+      }
+      
+      errorMessage.style.display = 'none';
+      const topic = localStorage.getItem('selectedTopic') || 'Not specified';
+      localStorage.setItem('formData', JSON.stringify({ idea: ideaInput, topic }));
+      window.location.href = 'processing.html';
+    }
+  </script>
+
+  <noscript>
+    <div style="text-align: center; padding: 20px; background: #fff; color: #333;">
+      <p>This website requires JavaScript to function properly. Please enable JavaScript in your browser settings.</p>
+    </div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>specifys.ai - Admin Dashboard</title>
+  <meta name="description" content="Admin dashboard for specifys.ai to view statistics and user feedback.">
+  <meta name="keywords" content="admin dashboard, specifys.ai, statistics, feedback">
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@latest"></script>
+</head>
+<body class="page-default">
+  <header class="thematic-header" role="banner">
+    <div class="logo"><a href="index.html" aria-label="specifys.ai homepage">specifys.ai</a></div>
+  </header>
+
+  <div id="authContainer" style="text-align: center; margin-top: 50px;">
+    <h2>Admin Dashboard</h2>
+    <input type="password" id="passwordInput" placeholder="Enter password" style="padding: 10px; margin: 10px;" aria-label="Enter dashboard password">
+    <button onclick="checkPassword()" class="styled-button" aria-label="Access dashboard">Access Dashboard</button>
+  </div>
+
+  <div id="dashboardContainer" style="display: none; padding: 20px; text-align: center;">
+    <h2>Dashboard</h2>
+
+    <h3>Statistics</h3>
+    <div id="stats" style="margin-bottom: 30px;">
+      <p>Total Specifications Created: <span id="specCount">0</span></p>
+      <p>Unique Users: <span id="uniqueUsers">0</span></p>
+      <p>Today's Usage: <span id="dailyUsage">0</span></p>
+    </div>
+
+    <h3>User Feedback</h3>
+    <table style="width: 80%; margin: 0 auto; border-collapse: collapse;" aria-label="User feedback table">
+      <thead>
+        <tr style="background: #f0f0f0;">
+          <th style="border: 1px solid #ddd; padding: 8px;">Rating</th>
+          <th style="border: 1px solid #ddd; padding: 8px;">Comments</th>
+          <th style="border: 1px solid #ddd; padding: 8px;">User ID</th>
+          <th style="border: 1px solid #ddd; padding: 8px;">Date</th>
+        </tr>
+      </thead>
+      <tbody id="feedbackTable">
+      </tbody>
+    </table>
+  </div>
+
+  <footer style="text-align: center; padding: 20px; color: #fff;">
+    <a href="how.html" style="color: #fff; text-decoration: underline;" aria-label="Learn how specifys.ai works">How It Works</a>
+  </footer>
+
+  <script>
+    // Initialize Supabase
+    const supabaseUrl = 'YOUR_SUPABASE_URL'; // Replace with your Supabase URL
+    const supabaseKey = 'YOUR_SUPABASE_KEY'; // Replace with your Supabase Key
+    const supabase = Supabase.createClient(supabaseUrl, supabaseKey);
+
+    const ADMIN_PASSWORD = 'admin123'; // Simple password protection
+
+    function checkPassword() {
+      const password = document.getElementById('passwordInput').value;
+      if (password === ADMIN_PASSWORD) {
+        document.getElementById('authContainer').style.display = 'none';
+        document.getElementById('dashboardContainer').style.display = 'block';
+        loadDashboardData();
+      } else {
+        alert('Incorrect password. Please try again.');
+      }
+    }
+
+    async function loadDashboardData() {
+      // Load Statistics
+      const specCount = parseInt(localStorage.getItem('specCount')) || 0;
+      document.getElementById('specCount').textContent = specCount;
+
+      const uniqueUsers = new Set();
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key.startsWith('rateLimitData_')) {
+          uniqueUsers.add(key.replace('rateLimitData_', ''));
+        }
+      }
+      document.getElementById('uniqueUsers').textContent = uniqueUsers.size;
+
+      const today = new Date().toISOString().split('T')[0];
+      let dailyUsage = 0;
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key.startsWith('rateLimitData_')) {
+          const data = JSON.parse(localStorage.getItem(key));
+          if (data.date === today) {
+            dailyUsage += data.count || 0;
+          }
+        }
+      }
+      document.getElementById('dailyUsage').textContent = dailyUsage;
+
+      // Load Feedback
+      const { data, error } = await supabase
+        .from('feedback')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error loading feedback:', error);
+        alert('Failed to load feedback.');
+        return;
+      }
+
+      const feedbackTable = document.getElementById('feedbackTable');
+      feedbackTable.innerHTML = '';
+      data.forEach(feedback => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td style="border: 1px solid #ddd; padding: 8px;">${feedback.rating}</td>
+          <td style="border: 1px solid #ddd; padding: 8px;">${feedback.comments}</td>
+          <td style="border: 1px solid #ddd; padding: 8px;">${feedback.user_id}</td>
+          <td style="border: 1px solid #ddd; padding: 8px;">${new Date(feedback.created_at).toLocaleString()}</td>
+        `;
+        feedbackTable.appendChild(row);
+      });
+    }
+  </script>
+
+  <noscript>
+    <div style="text-align: center; padding: 20px; background: #fff; color: #333;">
+      <p>This website requires JavaScript to function properly. Please enable JavaScript in your browser settings.</p>
+    </div>
+  </noscript>
+</body>
+</html>
