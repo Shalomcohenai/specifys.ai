@@ -1,4 +1,3 @@
-import { API_KEY, API_URL } from './config.js';
 
 const { jsPDF } = window.jspdf;
 
@@ -130,7 +129,7 @@ ${details}`;
     // Call the API with the API Key, adjusted for OpenAI format
     console.log('Making API call to:', API_URL);
     console.log('Using API Key:', API_KEY);
-    const response = await fetch(API_URL, {
+    const response = await fetch(https://web-qp56.onrender.com, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
