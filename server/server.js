@@ -37,8 +37,8 @@ app.post('/api/generate-spec', async (req, res) => {
   }
 
   try {
-    console.log('Sending request to Grok API...');
-    const response = await fetch('https://api.x.ai/v1/chat/completions', {
+    console.log('Sending request to openai api API...');
+    const response = await fetch('ttps://api.openai.com/v1/models', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
