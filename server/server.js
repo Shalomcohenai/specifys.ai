@@ -74,10 +74,4 @@ app.post('/api/generate-spec', async (req, res) => {
   }
 });
 
-// Start the server
 console.log('Attempting to start server on port', port);
-app.listen(port, () => {
-  console.log(`Server running on http://localhost:${port}`);
-}).on('error', (err) => {
-  console.error('Failed to start server:', err.message);
-});
