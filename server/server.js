@@ -4,15 +4,11 @@ const express = require('express');
 const fetch = require('node-fetch');
 const dotenv = require('dotenv');
 
-// Load environment variables from .env file
 console.log('Loading environment variables...');
 dotenv.config();
 
 const app = express();
-const port = process.env.PORT || 3001;
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
-});
+const port = process.env.PORT || 10000;
 // Middleware to parse JSON bodies
 console.log('Setting up middleware...');
 app.use(express.json());
@@ -20,12 +16,11 @@ app.use(express.json());
 // CORS middleware to allow requests from your frontend
 app.use((req, res, next) => {
   console.log('Applying CORS middleware...');
-  res.header('Access-Control-Allow-Origin', 'http://localhost:8080');
+  res.header('Access-Control-Allow-Origin', '*'); // שנה ל-* לטובת GitHub Pages
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
   next();
 });
 
-// Endpoint to handle API requests to Grok
 app.post('/api/generate-spec', async (req, res) => {
   console.log('Received request:', req.body);
   const { userInput } = req.body;
@@ -75,3 +70,6 @@ app.post('/api/generate-spec', async (req, res) => {
 });
 
 console.log('Attempting to start server on port', port);
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
+});
