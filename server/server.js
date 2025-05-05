@@ -1,7 +1,7 @@
 console.log('Starting server setup...');
 
 const express = require('express');
-import fetch from 'node-fetch';
+const fetch = require('node-fetch');
 const dotenv = require('dotenv');
 
 console.log('Loading environment variables...');
