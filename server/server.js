@@ -9,8 +9,10 @@ console.log('Loading environment variables...');
 dotenv.config();
 
 const app = express();
-const port = 3001; // Changed to 3001 to avoid potential port conflicts
-
+const port = process.env.PORT || 3001;
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
+});
 // Middleware to parse JSON bodies
 console.log('Setting up middleware...');
 app.use(express.json());
