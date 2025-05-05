@@ -1,5 +1,4 @@
-
-const { jsPDF } = window.jspdf;
+import { jsPDF } from './jspdf.min.js';
 
 async function generateSpecificationFromProcessingJs() {
   try {
@@ -126,19 +125,14 @@ Details:
 ${details}`;
     console.log('Full prompt:', fullPrompt);
 
-    // Call the API with the API Key, adjusted for OpenAI format
-    console.log('Making API call to:', API_URL);
-    console.log('Using API Key:', API_KEY);
-    const response = await fetch(https://web-qp56.onrender.com, {
+    // Call the local server instead of the OpenAI API directly
+    console.log('Making API call to local server: http://localhost:3000/generate-spec');
+    const response = await fetch('http://localhost:3000/generate-spec', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${API_KEY}`,
       },
-      body: JSON.stringify({
-        model: 'gpt-3.5-turbo',
-        messages: [{ role: 'user', content: fullPrompt }],
-      }),
+      body: JSON.stringify({ prompt: fullPrompt }),
     });
 
     console.log('API response status:', response.status);
@@ -149,8 +143,8 @@ ${details}`;
       throw new Error(`API Error: ${data.error?.message || 'Unknown error'}`);
     }
 
-    // OpenAI מחזיר את התגובה בתוך choices[0].message.content
-    const generatedContent = data.choices?.[0]?.message?.content || 'No specification generated';
+    // OpenAI response is processed by the server, so use the content directly
+    const generatedContent = data || 'No specification generated';
     console.log('Generated content:', generatedContent);
 
     // Save to localStorage without generating PDF here
