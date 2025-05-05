@@ -18,7 +18,7 @@ app.use(express.json());
 // CORS middleware to allow requests from your frontend
 app.use((req, res, next) => {
   console.log('Applying CORS middleware...');
-  res.header('Access-Control-Allow-Origin', 'http://localhost:8080');
+  res.header('*', 'http://localhost:8080');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
   next();
 });
