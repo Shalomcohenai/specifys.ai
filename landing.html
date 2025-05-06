@@ -3,16 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <!-- SEO: Added meta description and keywords -->
   <meta name="description" content="Turn your ideas into detailed application specifications with specifys.ai. Start now!">
   <meta name="keywords" content="application specification, AI development, specifys.ai">
   <title>Welcome to specifys.ai</title>
-
-  <!-- Font -->
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
-
-  <!-- Analytics: Added Google Analytics -->
-  <!-- Note: Replace G-XXXXXXXXXX with your actual Google Analytics Measurement ID -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -20,7 +14,6 @@
     gtag('js', new Date());
     gtag('config', 'G-XXXXXXXXXX');
   </script>
-
   <style>
     body {
       margin: 0;
@@ -42,7 +35,7 @@
 
     header {
       display: flex;
-      justify-content: center; /* Changed to center the logo since nav-links are removed */
+      justify-content: center;
       align-items: center;
       padding: 16px 24px;
     }
@@ -109,11 +102,10 @@
     @media (max-width: 480px) {
       header {
         flex-direction: column;
-        align-items: center; /* Changed to center for mobile */
+        align-items: center;
       }
     }
 
-    /* Accessibility: Improved focus styles for keyboard navigation */
     .cta-button:focus {
       outline: 3px solid #23a6d5;
       outline-offset: 2px;
@@ -121,21 +113,15 @@
   </style>
 </head>
 <body>
-  <!-- Accessibility: Added role to header -->
   <header role="banner">
-    <!-- Accessibility: Added aria-label to logo link -->
-    <div class="logo"><a href="landing.html" aria-label="specifys.ai homepage">specifys.ai</a></div>
-    <!-- Removed nav-links section with Sign Up and Log In buttons -->
+    <div class="logo"><a href="index.html" aria-label="specifys.ai homepage">specifys.ai</a></div>
   </header>
 
   <div class="landing-container">
-    <!-- Accessibility: h1 already exists, which is good for SEO -->
     <h1>Let AI help you develop your next big idea.</h1>
-    <!-- Accessibility: Added aria-label to CTA button -->
     <button class="cta-button" onclick="window.location.href='index.html'" aria-label="Get Started with specifys.ai">Get Started</button>
   </div>
 
-  <!-- JavaScript Disabled Fallback -->
   <noscript>
     <div style="text-align: center; padding: 20px; background: #fff; color: #333;">
       <p>This website requires JavaScript to function properly. Please enable JavaScript in your browser settings.</p>
