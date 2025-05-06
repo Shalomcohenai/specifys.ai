@@ -62,7 +62,11 @@
   <script type="module" src="processing.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      localStorage.clear();
+      // Check if user has visited before
+      if (!localStorage.getItem('visited')) {
+        window.location.href = 'landing.html';
+        localStorage.setItem('visited', 'true');
+      }
     });
 
     function saveAndProceed() {
