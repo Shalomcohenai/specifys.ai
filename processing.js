@@ -35,83 +35,92 @@ async function generateSpecificationFromProcessingJs() {
       }
     });
 
-    const fullPrompt = `You are a professional product manager and UX architect.
+    const fullPrompt = `You are a professional product manager, UX architect, and market research expert.
 
-Your task is to generate a clear, structured **Application Specification Document** based on a short description of an app idea.
+Your task is to generate a clear, structured **Application Specification Document** based on a short description of an app idea, followed by general information about the app's topic/industry.
 
-The output should follow this markdown structure:
+The output should follow this structure, using simple headings without markdown symbols like ##:
 
-# Application Specification Document
+Application Specification Document
 
-## General Information
+General Information
 **Topic**:  
 **Platform**:  
 **Title**:  
 **General Idea**:  
 
-## Problem Statement  
+Problem Statement  
 (Describe the main problem the app solves.)
 
-## Core Features  
+Core Features  
 (Numbered list of the main features.)
 
-## User Flow  
+User Flow  
 (Simple step-by-step flow from onboarding to final use.)
 
-## Screens  
+Screens  
 (List of all major screens.)
 
-## UI Components per Screen  
-### [Screen Name]  
+UI Components per Screen  
+[Screen Name]  
 - (UI elements for each screen)
 
-## Navigation Map  
+Navigation Map  
 (Which screen links to which)
 
-## Data Models  
+Data Models  
 1. **[Model Name]**  
 - Fields: …
 
-## API Requirements / Storage Logic  
+API Requirements / Storage Logic  
 (Brief explanation of backend needs, storage, and authentication.)
 
-## Offline Mode
+Offline Mode  
 - What data is available offline and how it syncs when back online.
 
-## User Scenarios  
+User Scenarios  
 1. **Scenario Name**  
 - Description
 
-## Visual Guidelines / Style Tokens  
+Visual Guidelines / Style Tokens  
 (Colors, layout, icons, visual feel.)
 
-## Design Guidelines  
+Design Guidelines  
 (UX principles and interaction style.)
 
-## Technical Requirements  
+Technical Requirements  
 (Platform, tools, frameworks.)
 
-## User Roles and Permissions  
+User Roles and Permissions  
 (Who uses the app and what they can access.)
 
-## Notifications  
+Notifications  
 (Types of notifications and when they appear.)
 
-## Monetization Plan  
+Monetization Plan  
 (Optional)
 
-## Legal Requirements  
+Legal Requirements  
 (Privacy and compliance)
 
-## Roadmap & Phases  
+Roadmap & Phases  
 1. Phase 1  
 2. Phase 2  
 3. Phase 3
 
-## Appendix  
+Appendix  
 - (Wireframes, competitor insights, optional features)
 
-Now, based on this structure, generate a full application specification document for the following app idea:
+General Topic Information  
+Provide general information about the app's topic/industry, including:  
+- Similar applications: List a few similar apps (if any), along with their advantages and disadvantages according to users (if available).  
+- Existing solutions: Describe other existing solutions in this field (if any).  
+- Search volume: Provide search volume data for the topic over months or years (if available).  
+- Social media hype: Describe the level of buzz or hype around this topic on social media platforms.  
+- Additional statistics: Include market share, estimated revenue, trends, or other relevant statistics (if available).  
+- Popular keywords: List popular keywords related to this topic.
+
+Now, based on this structure, generate a full application specification document followed by general topic information for the following app idea:
 
 **App Idea Details:**
 Topic: ${topic}
