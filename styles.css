@@ -1,3 +1,146 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap');
+
+/* General styles */
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  font-family: 'Montserrat', sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+/* Gradient background - can be customized per page */
+body.page-default {
+  background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+  background-size: 400% 400%;
+  animation: gradient 15s ease infinite;
+}
+
+@keyframes gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Header */
+.thematic-header {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  z-index: 10;
+  background: transparent;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.thematic-header .logo {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+}
+
+.thematic-header .logo a {
+  text-decoration: none;
+  color: #ffffff;
+  font-size: clamp(1.5rem, 2.5vw, 2rem);
+  font-weight: bold;
+}
+
+.nav-links {
+  display: flex;
+  gap: 15px;
+  margin-left: auto;
+  margin-right: 20px;
+}
+
+.auth-button {
+  padding: 8px 16px;
+  background-color: transparent;
+  border: 2px solid white;
+  color: white;
+  cursor: pointer;
+  border-radius: 5px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: clamp(0.8rem, 1.5vw, 1rem);
+  transition: background-color 0.3s, color 0.3s, transform 0.3s ease;
+}
+
+.auth-button:hover {
+  background-color: #ffffff;
+  color: #23a6d5;
+  transform: translateX(5px);
+}
+
+/* Content boxes */
+.content-box {
+  text-align: center;
+  margin-top: 140px;
+  margin-bottom: 10px;
+  background-color: rgba(255, 255, 255, 0.95);
+  padding: 10px;
+  border-radius: 15px;
+  width: 85%;
+  max-width: 700px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  display: block;
+}
+
+.content-box > * {
+  display: block;
+  margin: 0 auto;
+}
+
+/* General buttons */
+.styled-button {
+  padding: 10px 20px;
+  background-color: #23a6d5;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: 'Montserrat', sans-serif;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.styled-button:hover:not(:disabled) {
+  background-color: #1e90ff;
+  transform: translateX(5px);
+}
+
+.styled-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* Styles specific to index.html */
+.selection-container {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  max-width: 1200px;
+  flex-wrap: wrap;
+  margin-bottom: 15px;
+}
+
+.selection-container button {
+  padding: 10px 20px;
+  border: 1px solid #ccc;
+  border-radius: 20px;
+  background-color: #fff;
+  cursor: pointer;
+  color: #333;
+  font-weight: 500;
+  transition: transform 0.2s ease, background-color 0.3s ease, color 0.3s ease;
+}
+
 .selection-container button.active {
   background-color: #23a6d5;
   color: #fff;
@@ -78,14 +221,14 @@
 }
 
 .header-text h1 {
-  font-size: 3.25em; /* 2.5em * 1.3 = 3.25em (הגדלה ב-30%) */
+  font-size: 2.5em;
   margin: 0;
   white-space: nowrap;
 }
 
 .header-text p {
-  font-size: 1.56em; /* 1.2em * 1.3 = 1.56em (הגדלה ב-30%) */
-  margin: 6.5px 0 0; /* 5px * 1.3 = 6.5px (שמירה על פרופורציה) */
+  font-size: 1.2em;
+  margin: 5px 0 0;
   white-space: nowrap;
 }
 
