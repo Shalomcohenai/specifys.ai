@@ -127,7 +127,7 @@ ${details}`;
 
     // Call the local server instead of the OpenAI API directly
     console.log('Making API call to local server: http://localhost:3000/generate-spec');
-    const response = await fetch('https://web-qp56.onrender.com', {
+    const response = await fetch('https://worker1.shalom-cohen-111.workers.dev/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
