@@ -210,7 +210,7 @@ body.page-default {
 /* Header text for index.html */
 .header-text {
   position: absolute;
-  top: 100px;
+  top: 60px;
   left: 50%;
   transform: translateX(-50%);
   text-align: center;
@@ -221,13 +221,13 @@ body.page-default {
 }
 
 .header-text h1 {
-  font-size: 2.5em;
+  font-size: 3.5em;
   margin: 0;
   white-space: nowrap;
 }
 
 .header-text p {
-  font-size: 1.2em;
+  font-size: 1.5em;
   margin: 5px 0 0;
   white-space: nowrap;
 }
