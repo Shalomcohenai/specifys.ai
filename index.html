@@ -47,7 +47,7 @@
 
     <div class="idea-input-container">
       <textarea id="ideaInput" placeholder="" maxlength="2500" aria-label="App idea input"></textarea>
-      <button class="send-button" onclick="saveAndProceed()" aria-label="Send your app idea">Send Idea</button>
+      <button class="send-button" onclick="saveAndProceed()" aria-label="Start generating your app specification">Start Generate</button>
       <div id="errorMessage" style="color: red; margin-top: 10px; display: none;" role="alert"></div>
     </div>
   </div>
@@ -62,7 +62,6 @@
   <script type="module" src="processing.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // Check if user has visited before
       if (!localStorage.getItem('visited')) {
         window.location.href = 'landing.html';
         localStorage.setItem('visited', 'true');
