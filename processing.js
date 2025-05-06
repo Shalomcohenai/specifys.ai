@@ -1,16 +1,12 @@
-import { jsPDF } from './jspdf.min.js';
-
 async function generateSpecificationFromProcessingJs() {
   try {
     console.log('Starting generateSpecificationFromProcessingJs');
-    // Retrieve form data from localStorage
     const formData = JSON.parse(localStorage.getItem('formData')) || {};
     const idea = formData.idea || 'Not provided';
     const topic = formData.topic || 'Not specified';
     const platform = formData.platform || 'Not specified';
     console.log('Form data:', { idea, topic, platform });
 
-    // Retrieve answers from localStorage
     const answers = JSON.parse(localStorage.getItem('processingAnswers')) || {};
     console.log('Answers:', answers);
     let details = '';
@@ -125,9 +121,8 @@ Details:
 ${details}`;
     console.log('Full prompt:', fullPrompt);
 
-    // Call the local server instead of the OpenAI API directly
-    console.log('Making API call to local server: http://localhost:3000/generate-spec');
-    const response = await fetch('https://worker1.shalom-cohen-111.workers.dev/', {
+    console.log('Sending request with prompt:', fullPrompt);
+    const response = await fetch('https://worker1.shalom-cohen-111.workers.dev', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -140,18 +135,15 @@ ${details}`;
     console.log('API response data:', data);
 
     if (!response.ok) {
-      throw new Error(`API Error: ${data.error?.message || 'Unknown error'}`);
+      throw new Error(`API Error: ${data.error || 'Unknown error'}`);
     }
 
-    // OpenAI response is processed by the server, so use the content directly
-    const generatedContent = data || 'No specification generated';
+    const generatedContent = data.specification || 'No specification generated';
     console.log('Generated content:', generatedContent);
 
-    // Save to localStorage without generating PDF here
     console.log('Saving generated content to localStorage');
     localStorage.setItem('generatedContent', generatedContent);
 
-    // Show confetti if available
     if (typeof confetti === 'function') {
       console.log('Triggering confetti');
       confetti({
