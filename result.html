@@ -25,15 +25,15 @@
     <div class="logo"><a href="index.html" aria-label="specifys.ai homepage">specifys.ai</a></div>
   </header>
 
-  <div class="result-container" style="max-width: 800px; margin: 50px auto; text-align: center;">
-    <h1>Your App Specification</h1>
-    <p>Congratulations! Your detailed app specification has been generated.</p>
+  <div class="result-container" style="max-width: 900px; margin: 50px auto; padding: 30px; background: #ffffff; border-radius: 15px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); text-align: left;">
+    <h1 style="font-family: 'Arial', sans-serif; font-size: 36px; color: #2c3e50; text-align: center; margin-bottom: 30px;">Your App Specification</h1>
+    <p style="font-family: 'Arial', sans-serif; font-size: 18px; color: #7f8c8d; text-align: center; margin-bottom: 40px;">Congratulations! Here’s your detailed app specification along with industry insights.</p>
 
-    <div id="resultContent" style="margin-top: 20px; padding: 20px; border: 1px solid #ccc; text-align: left; white-space: pre-wrap;" aria-live="polite">
-      <p id="specText">Loading specification...</p>
+    <div id="resultContent" style="font-family: 'Arial', sans-serif; font-size: 16px; color: #34495e; line-height: 1.8;" aria-live="polite">
+      <p id="specText" style="white-space: pre-wrap;">Loading specification...</p>
     </div>
 
-    <button id="downloadPdfButton" style="background-color: #23a6d5; color: white; padding: 10px 20px; border: none; border-radius: 5px; margin-top: 20px; cursor: pointer;" onclick="downloadPdf()" aria-label="Download specification as PDF">Download as PDF</button>
+    <button id="downloadPdfButton" style="display: block; margin: 40px auto 0; background-color: #23a6d5; color: white; padding: 12px 30px; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; transition: background-color 0.3s;" onmouseover="this.style.backgroundColor='#1e87b0'" onmouseout="this.style.backgroundColor='#23a6d5'" onclick="downloadPdf()" aria-label="Download specification as PDF">Download as PDF</button>
   </div>
 
   <footer style="text-align: center; padding: 20px; color: #fff;">
@@ -49,7 +49,44 @@
       console.log('Generated content found:', generatedContent);
 
       if (generatedContent) {
-        specText.textContent = generatedContent;
+        const sections = generatedContent.split('\n\n');
+        let formattedContent = '';
+        let isFirstSection = true;
+
+        sections.forEach(section => {
+          const lines = section.trim().split('\n');
+          const firstLine = lines[0].trim();
+
+          if (firstLine === 'Application Specification Document') {
+            return;
+          } else if (firstLine === 'General Topic Information') {
+            formattedContent += `<h2 style="font-family: 'Arial', sans-serif; font-size: 28px; color: #e74c3c; margin-top: 50px; margin-bottom: 20px; border-bottom: 2px solid #e74c3c; padding-bottom: 10px;">${firstLine}</h2>`;
+            formattedContent += lines.slice(1).map(line => {
+              if (line.startsWith('- ')) {
+                return `<p style="margin: 10px 0; font-size: 16px; color: #34495e;"><strong style="color: #e74c3c;">${line.substring(2, line.indexOf(':'))}:</strong>${line.substring(line.indexOf(':') + 1)}</p>`;
+              }
+              return `<p style="margin: 10px 0; font-size: 16px; color: #34495e;">${line}</p>`;
+            }).join('');
+          } else {
+            if (!isFirstSection) {
+              formattedContent += '<hr style="border: 0; border-top: 1px solid #ecf0f1; margin: 30px 0;">';
+            }
+            formattedContent += `<h2 style="font-family: 'Arial', sans-serif; font-size: 28px; color: #2c3e50; margin-top: 30px; margin-bottom: 15px; border-bottom: 2px solid #3498db; padding-bottom: 8px;">${firstLine}</h2>`;
+            formattedContent += lines.slice(1).map(line => {
+              if (line.startsWith('**') && line.endsWith('**')) {
+                return `<p style="margin: 8px 0; font-size: 16px; color: #34495e;"><strong>${line.replace(/\*\*/g, '')}</strong></p>`;
+              } else if (line.match(/^\d+\.\s/)) {
+                return `<p style="margin: 5px 0 5px 20px; font-size: 16px; color: #34495e;">${line}</p>`;
+              } else if (line.startsWith('- ')) {
+                return `<p style="margin: 5px 0 5px 20px; font-size: 16px; color: #34495e;">• ${line.substring(2)}</p>`;
+              }
+              return `<p style="margin: 5px 0; font-size: 16px; color: #34495e;">${line}</p>`;
+            }).join('');
+            isFirstSection = false;
+          }
+        });
+
+        specText.innerHTML = formattedContent;
       } else {
         specText.textContent = 'No specification available';
         console.log('No generated content found in localStorage');
