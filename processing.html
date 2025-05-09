@@ -1,293 +1,312 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Processing Idea</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Answer guided questions to refine your app idea and generate a detailed specification with specifys.ai.">
+  <meta name="keywords" content="processing app idea, guided questions, AI specification, app development, specifys.ai">
+  <meta name="author" content="specifys.ai Team">
+  <meta name="robots" content="index, follow">
+  <!-- Open Graph Tags for Social Sharing -->
+  <meta property="og:title" content="specifys.ai - Processing Your Idea">
+  <meta property="og:description" content="Answer guided questions to refine your app idea and generate a detailed specification with specifys.ai.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://specifys.ai/processing.html">
+  <meta property="og:image" content="https://specifys.ai/assets/og-image.jpg">
+  <!-- Twitter Card Tags -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="specifys.ai - Processing Your Idea">
+  <meta name="twitter:description" content="Answer guided questions to refine your app idea and generate a detailed specification with specifys.ai.">
+  <meta name="twitter:image" content="https://specifys.ai/assets/og-image.jpg">
+  <title>specifys.ai - Processing Your Idea</title>
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"></script>
 </head>
 <body class="page-default">
-    <header class="thematic-header">
-        <div class="logo">
-            <a href="index.html">Thematic</a>
-        </div>
-        <div class="nav-links">
-            <button class="auth-button" onclick="window.location.href='login.html'">Login</button>
-            <button class="auth-button" onclick="window.location.href='register.html'">Register</button>
-        </div>
-    </header>
+  <header class="thematic-header" role="banner">
+    <div class="logo"><a href="index.html" aria-label="specifys.ai homepage">specifys.ai</a></div>
+  </header>
 
-    <div class="instructions">
-        <h1>Answer the Following Questions</h1>
-        <p>Please provide details about your app idea to generate a development plan.</p>
+  <div class="instructions">
+    <h1>Refine Your App Idea</h1>
+    <p>To get the best result, describe your idea in as much detail as possible.</p>
+    <p>The more effort you put into defining your app, the better the final result will be.</p>
+  </div>
+
+  <div class="carousel-container">
+    <button id="prevButton" class="carousel-button" onclick="prevStep()" aria-label="Previous step">←</button>
+    <div id="carouselContent" class="carousel-content">
+      <div class="step-container">
+        <h3 id="stepTitle">Step 1</h3>
+        <p id="stepQuestion" class="question-label">Describe the typical workflow of a user using your app.</p>
+        <textarea id="stepTextarea" class="step-textarea" maxlength="2500" placeholder="Enter your response here..." aria-label="Answer the current question"></textarea>
+        <span id="charCount" class="char-count">0/2500</span>
+        <div id="errorMessage" style="color: red; margin-top: 10px; display: none;" role="alert"></div>
+        <div class="progress-container">
+          <div class="progress-bar">
+            <div id="progressFill" class="progress-fill"></div>
+          </div>
+          <div class="discipline-indicators" role="group" aria-label="Progress indicators by category">
+            <div class="indicator-item">
+              <span class="indicator-circle" id="workflow-indicator" aria-label="User Workflow progress"></span>
+              <span>User Workflow</span>
+            </div>
+            <div class="indicator-item">
+              <span class="indicator-circle" id="design-indicator" aria-label="Design progress"></span>
+              <span>Design</span>
+            </div>
+            <div class="indicator-item">
+              <span class="indicator-circle" id="features-indicator" aria-label="Features progress"></span>
+              <span>Features</span>
+            </div>
+            <div class="indicator-item">
+              <span class="indicator-circle" id="target-audience-indicator" aria-label="Target Audience progress"></span>
+              <span>Target Audience</span>
+            </div>
+            <div class="indicator-item">
+              <span class="indicator-circle" id="technical-requirements-indicator" aria-label="Technical requirements progress"></span>
+              <span>Technical</span>
+            </div>
+            <div class="indicator-item">
+              <span class="indicator-circle" id="integrations-indicator" aria-label="Integrations progress"></span>
+              <span>Integrations</span>
+            </div>
+            <div class="indicator-item">
+              <span class="indicator-circle" id="monetization-indicator" aria-label="Monetization progress"></span>
+              <span>Monetization</span>
+            </div>
+            <div class="indicator-item">
+              <span class="indicator-circle" id="notifications-indicator" aria-label="Notifications progress"></span>
+              <span>Notifications</span>
+            </div>
+            <div class="indicator-item">
+              <span class="indicator-circle" id="authentication-indicator" aria-label="Authentication progress"></span>
+              <span>Authentication</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+    <button id="nextButton" class="carousel-button" onclick="nextStep()" aria-label="Next step">→</button>
+  </div>
 
-    <form id="detailsForm" onsubmit="submitForm(event)">
-        <!-- Hidden fields for idea, topic, platform -->
-        <input type="hidden" id="idea" name="idea">
-        <input type="hidden" id="topic" name="topic">
-        <input type="hidden" id="platform" name="platform">
+  <div id="submitButtonContainer" class="submit-button-container" style="display: none;">
+    <button id="generateSpecButton" class="generate-spec-button" onclick="generateSpecification()" disabled aria-label="Generate your app specification">Generate Specification</button>
+    <div id="loadingSpinner" style="display: none; text-align: center; margin-top: 15px;">
+      <div style="border: 4px solid #f3f3f3; border-top: 4px solid #23a6d5; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 0 auto;"></div>
+      <p style="color: #333;">Generating your specification...</p>
+    </div>
+  </div>
 
-        <div class="carousel-container">
-            <div class="progress-container">
-                <div class="progress-bar">
-                    <div class="progress-fill" id="progressFill"></div>
-                </div>
-            </div>
-            <button type="button" id="prevButton" class="carousel-button" disabled>←</button>
-            <button type="button" id="nextButton" class="carousel-button">→</button>
-            <div class="carousel-content">
-                <!-- Question 1 -->
-                <div class="step-container">
-                    <h3>Question 1</h3>
-                    <label class="question-label" for="q1">What is the basic purpose of your app, and what problem does it solve?</label>
-                    <textarea id="q1" name="q1" class="step-textarea" maxlength="500" placeholder="Enter your answer here..."></textarea>
-                    <span class="char-count" id="charCount1">0/500</span>
-                    <label class="question-label" for="q1_details">Add details or examples (optional):</label>
-                    <textarea id="q1_details" name="q1_details" class="step-textarea" maxlength="500" placeholder="Add details..."></textarea>
-                    <span class="char-count" id="charCount1_details">0/500</span>
-                </div>
+  <footer style="text-align: center; padding: 20px; color: #fff;">
+    <a href="how.html" style="color: #fff; text-decoration: underline;" aria-label="Learn how specifys.ai works">How It Works</a>
+  </footer>
 
-                <!-- Question 2 -->
-                <div class="step-container" style="display: none;">
-                    <h3>Question 2</h3>
-                    <label class="question-label" for="q2">How will users interact with your app in a typical scenario (e.g., from opening the app to completing a task)?</label>
-                    <textarea id="q2" name="q2" class="step-textarea" maxlength="500" placeholder="Enter your answer here..."></textarea>
-                    <span class="char-count" id="charCount2">0/500</span>
-                    <label class="question-label" for="q2_details">Add specific steps (optional):</label>
-                    <textarea id="q2_details" name="q2_details" class="step-textarea" maxlength="500" placeholder="Add details..."></textarea>
-                    <span class="char-count" id="charCount2_details">0/500</span>
-                </div>
+  <script defer src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <script type="module" src="processing.js"></script>
+  <script>
+    // Define questions for each step
+    const questions = [
+      "Describe the typical workflow of a user using your app.",
+      "What design elements are most important for your app?",
+      "What key features do you want your app to have?",
+      "Who is your target audience?",
+      "What technical requirements does your app need?",
+      "What integrations should your app support?",
+      "How do you plan to monetize your app?",
+      "What notifications should your app send?",
+      "What authentication methods will your app use?"
+    ];
 
-                <!-- Question 3 -->
-                <div class="step-container" style="display: none;">
-                    <h3>Question 3</h3>
-                    <label class="question-label" for="q3">What are the 3-5 most important features your app must have?</label>
-                    <textarea id="q3" name="q3" class="step-textarea" maxlength="500" placeholder="Enter your answer here..."></textarea>
-                    <span class="char-count" id="charCount3">0/500</span>
-                    <label class="question-label" for="q3_details">Add technical details if relevant (optional):</label>
-                    <textarea id="q3_details" name="q3_details" class="step-textarea" maxlength="500" placeholder="Add details..."></textarea>
-                    <span class="char-count" id="charCount3_details">0/500</span>
-                </div>
+    // Initialize state
+    let currentStep = 0;
+    const totalSteps = questions.length;
+    let textarea, stepTitle, stepQuestion, prevButton, nextButton, submitButtonContainer, progressFill, charCount, generateSpecButton;
+    const answers = JSON.parse(localStorage.getItem('processingAnswers')) || {};
+    const indicators = [
+      'workflow-indicator',
+      'design-indicator',
+      'features-indicator',
+      'target-audience-indicator',
+      'technical-requirements-indicator',
+      'integrations-indicator',
+      'monetization-indicator',
+      'notifications-indicator',
+      'authentication-indicator'
+    ];
 
-                <!-- Question 4 -->
-                <div class="step-container" style="display: none;">
-                    <h3>Question 4</h3>
-                    <label class="question-label" for="q4">What programming languages or frameworks would you prefer for the app’s core functionality?</label>
-                    <textarea id="q4" name="q4" class="step-textarea" maxlength="500" placeholder="Enter your answer here..."></textarea>
-                    <span class="char-count" id="charCount4">0/500</span>
-                    <label class="question-label" for="q4_details">Add specific requirements (optional):</label>
-                    <textarea id="q4_details" name="q4_details" class="step-textarea" maxlength="500" placeholder="Add details..."></textarea>
-                    <span class="char-count" id="charCount4_details">0/500</span>
-                </div>
-
-                <!-- Question 5 -->
-                <div class="step-container" style="display: none;">
-                    <h3>Question 5</h3>
-                    <label class="question-label" for="q5">Which development methodology will you use (e.g., Agile, Waterfall, Scrum)?</label>
-                    <textarea id="q5" name="q5" class="step-textarea" maxlength="500" placeholder="Enter your answer here..."></textarea>
-                    <span class="char-count" id="charCount5">0/500</span>
-                    <label class="question-label" for="q5_details">Add details (optional):</label>
-                    <textarea id="q5_details" name="q5_details" class="step-textarea" maxlength="500" placeholder="Add details..."></textarea>
-                    <span class="char-count" id="charCount5_details">0/500</span>
-                </div>
-
-                <!-- Question 6 -->
-                <div class="step-container" style="display: none;">
-                    <h3>Question 6</h3>
-                    <label class="question-label" for="q6">What tech stack or tools do you prefer (e.g., frontend, backend, database)?</label>
-                    <textarea id="q6" name="q6" class="step-textarea" maxlength="500" placeholder="Enter your answer here..."></textarea>
-                    <span class="char-count" id="charCount6">0/500</span>
-                    <label class="question-label" for="q6_details">Specify versions or constraints (optional):</label>
-                    <textarea id="q6_details" name="q6_details" class="step-textarea" maxlength="500" placeholder="Add details..."></textarea>
-                    <span class="char-count" id="charCount6_details">0/500</span>
-                </div>
-
-                <!-- Question 7 -->
-                <div class="step-container" style="display: none;">
-                    <h3>Question 7</h3>
-                    <label class="question-label" for="q7">How will you design the data architecture (e.g., relational database, NoSQL, caching)?</label>
-                    <textarea id="q7" name="q7" class="step-textarea" maxlength="500" placeholder="Enter your answer here..."></textarea>
-                    <span class="char-count" id="charCount7">0/500</span>
-                    <label class="question-label" for="q7_details">Add details (optional):</label>
-                    <textarea id="q7_details" name="q7_details" class="step-textarea" maxlength="500" placeholder="Add details..."></textarea>
-                    <span class="char-count" id="charCount7_details">0/500</span>
-                </div>
-
-                <!-- Question 8 -->
-                <div class="step-container" style="display: none;">
-                    <h3>Question 8</h3>
-                    <label class="question-label" for="q8">What APIs or external services will you integrate, and how?</label>
-                    <textarea id="q8" name="q8" class="step-textarea" maxlength="500" placeholder="Enter your answer here..."></textarea>
-                    <span class="char-count" id="charCount8">0/500</span>
-                    <label class="question-label" for="q8_details">Specify protocols (optional):</label>
-                    <textarea id="q8_details" name="q8_details" class="step-textarea" maxlength="500" placeholder="Add details..."></textarea>
-                    <span class="char-count" id="charCount8_details">0/500</span>
-                </div>
-
-                <!-- Question 9 -->
-                <div class="step-container" style="display: none;">
-                    <h3>Question 9</h3>
-                    <label class="question-label" for="q9">What security protocols or tools will you implement (e.g., OAuth, HTTPS, firewall)?</label>
-                    <textarea id="q9" name="q9" class="step-textarea" maxlength="500" placeholder="Enter your answer here..."></textarea>
-                    <span class="char-count" id="charCount9">0/500</span>
-                    <label class="question-label" for="q9_details">Add specifics (optional):</label>
-                    <textarea id="q9_details" name="q9_details" class="step-textarea" maxlength="500" placeholder="Add details..."></textarea>
-                    <span class="char-count" id="charCount9_details">0/500</span>
-                </div>
-
-                <!-- Question 10 -->
-                <div class="step-container" style="display: none;">
-                    <h3>Question 10</h3>
-                    <label class="question-label" for="q10">What notification system will you implement (e.g., WebSocket, email server)?</label>
-                    <textarea id="q10" name="q10" class="step-textarea" maxlength="500" placeholder="Enter your answer here..."></textarea>
-                    <span class="char-count" id="charCount10">0/500</span>
-                    <label class="question-label" for="q10_details">Add tools (optional):</label>
-                    <textarea id="q10_details" name="q10_details" class="step-textarea" maxlength="500" placeholder="Add details..."></textarea>
-                    <span class="char-count" id="charCount10_details">0/500</span>
-                </div>
-
-                <!-- Question 11 -->
-                <div class="step-container" style="display: none;">
-                    <h3>Question 11</h3>
-                    <label class="question-label" for="q11">What scalability strategy will you use (e.g., load balancing, microservices)?</label>
-                    <textarea id="q11" name="q11" class="step-textarea" maxlength="500" placeholder="Enter your answer here..."></textarea>
-                    <span class="char-count" id="charCount11">0/500</span>
-                    <label class="question-label" for="q11_details">Add specifics (optional):</label>
-                    <textarea id="q11_details" name="q11_details" class="step-textarea" maxlength="500" placeholder="Add details..."></textarea>
-                    <span class="char-count" id="charCount11_details">0/500</span>
-                </div>
-
-                <!-- Question 12 -->
-                <div class="step-container" style="display: none;">
-                    <h3>Question 12</h3>
-                    <label class="question-label" for="q12">What performance optimization techniques will you apply (e.g., lazy loading, CDN)?</label>
-                    <textarea id="q12" name="q12" class="step-textarea" maxlength="500" placeholder="Enter your answer here..."></textarea>
-                    <span class="char-count" id="charCount12">0/500</span>
-                    <label class="question-label" for="q12_details">Add benchmarks (optional):</label>
-                    <textarea id="q12_details" name="q12_details" class="step-textarea" maxlength="500" placeholder="Add details..."></textarea>
-                    <span class="char-count" id="charCount12_details">0/500</span>
-                </div>
-
-                <!-- Question 13 -->
-                <div class="step-container" style="display: none;">
-                    <h3>Question 13</h3>
-                    <label class="question-label" for="q13">What error management strategy will you use (e.g., try-catch, logging)?</label>
-                    <textarea id="q13" name="q13" class="step-textarea" maxlength="500" placeholder="Enter your answer here..."></textarea>
-                    <span class="char-count" id="charCount13">0/500</span>
-                    <label class="question-label" for="q13_details">Add tools (optional):</label>
-                    <textarea id="q13_details" name="q13_details" class="step-textarea" maxlength="500" placeholder="Add details..."></textarea>
-                    <span class="char-count" id="charCount13_details">0/500</span>
-                </div>
-
-                <!-- Question 14 -->
-                <div class="step-container" style="display: none;">
-                    <h3>Question 14</h3>
-                    <label class="question-label" for="q14">What testing framework or approach will you use (e.g., Jest, Selenium)?</label>
-                    <textarea id="q14" name="q14" class="step-textarea" maxlength="500" placeholder="Enter your answer here..."></textarea>
-                    <span class="char-count" id="charCount14">0/500</span>
-                    <label class="question-label" for="q14_details">Add test types (optional):</label>
-                    <textarea id="q14_details" name="q14_details" class="step-textarea" maxlength="500" placeholder="Add details..."></textarea>
-                    <span class="char-count" id="charCount14_details">0/500</span>
-                </div>
-
-                <!-- Question 15 -->
-                <div class="step-container" style="display: none;">
-                    <h3>Question 15</h3>
-                    <label class="question-label" for="q15">What deployment strategy will you use (e.g., cloud provider, CI/CD tools)?</label>
-                    <textarea id="q15" name="q15" class="step-textarea" maxlength="500" placeholder="Enter your answer here..."></textarea>
-                    <span class="char-count" id="charCount15">0/500</span>
-                    <label class="question-label" for="q15_details">Add details (optional):</label>
-                    <textarea id="q15_details" name="q15_details" class="step-textarea" maxlength="500" placeholder="Add details..."></textarea>
-                    <span class="char-count" id="charCount15_details">0/500</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="submit-button-container">
-            <button type="submit" id="generateSpecButton" class="generate-spec-button">Generate Development Plan</button>
-        </div>
-    </form>
-
-    <script src="processing.js"></script>
-    <script>
-        // Populate hidden fields with data from localStorage
-        document.getElementById('idea').value = localStorage.getItem('idea') || '';
-        document.getElementById('topic').value = localStorage.getItem('topic') || '';
-        document.getElementById('platform').value = localStorage.getItem('platform') || '';
-
-        let currentStep = 0;
-        const steps = document.querySelectorAll('.step-container');
-        const prevButton = document.getElementById('prevButton');
-        const nextButton = document.getElementById('nextButton');
-        const progressFill = document.getElementById('progressFill');
-        const generateButton = document.getElementById('generateSpecButton');
-
-        function updateCarousel() {
-            steps.forEach((step, index) => {
-                step.style.display = index === currentStep ? 'block' : 'none';
-            });
-
-            prevButton.disabled = currentStep === 0;
-            nextButton.style.display = currentStep === steps.length - 1 ? 'none' : 'block';
-            generateButton.style.display = currentStep === steps.length - 1 ? 'block' : 'none';
-            updateProgress();
+    // Update UI function
+    function updateUI() {
+      stepTitle.textContent = `Step ${currentStep + 1}`;
+      stepQuestion.textContent = questions[currentStep];
+      textarea.value = answers[currentStep] || '';
+      charCount.textContent = `${textarea.value.length}/2500`;
+      
+      // Update progress bar
+      const progress = ((currentStep + 1) / totalSteps) * 100;
+      progressFill.style.width = `${progress}%`;
+      
+      // Update indicators
+      indicators.forEach((indicator, index) => {
+        const element = document.getElementById(indicator);
+        if (answers[index] && answers[index].trim()) {
+          element.classList.add('active');
+        } else {
+          element.classList.remove('active');
         }
+      });
 
-        function updateProgress() {
-            const progress = ((currentStep + 1) / steps.length) * 100;
-            progressFill.style.width = `${progress}%`;
+      // Update button visibility
+      prevButton.style.display = currentStep === 0 ? 'none' : 'block';
+      nextButton.style.display = currentStep === totalSteps - 1 ? 'none' : 'block';
+      submitButtonContainer.style.display = currentStep === totalSteps - 1 ? 'block' : 'none';
+
+      // Enable/disable Generate Specification button based on indicator status
+      const allIndicatorsGreen = indicators.every(indicator => {
+        const element = document.getElementById(indicator);
+        return element && element.classList.contains('active');
+      });
+      if (generateSpecButton) {
+        generateSpecButton.disabled = !allIndicatorsGreen;
+        console.log('Generate button state:', generateSpecButton.disabled);
+      }
+    }
+
+    // Load saved answers and update UI on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      textarea = document.getElementById('stepTextarea');
+      stepTitle = document.getElementById('stepTitle');
+      stepQuestion = document.getElementById('stepQuestion');
+      prevButton = document.getElementById('prevButton');
+      nextButton = document.getElementById('nextButton');
+      submitButtonContainer = document.getElementById('submitButtonContainer');
+      progressFill = document.getElementById('progressFill');
+      charCount = document.getElementById('charCount');
+      generateSpecButton = document.getElementById('generateSpecButton');
+
+      updateUI();
+
+      textarea.addEventListener('input', () => {
+        answers[currentStep] = textarea.value;
+        localStorage.setItem('processingAnswers', JSON.stringify(answers));
+        charCount.textContent = `${textarea.value.length}/2500`;
+        
+        const currentIndicator = document.getElementById(indicators[currentStep]);
+        if (textarea.value.trim()) {
+          currentIndicator.classList.add('active');
+        } else {
+          currentIndicator.classList.remove('active');
         }
+        updateUI();
+      });
+    });
 
-        function updateCharCount(textarea, charCountElement) {
-            const textLength = textarea.value.length;
-            const maxLength = textarea.maxLength;
-            charCountElement.textContent = `${textLength}/${maxLength}`;
+    window.prevStep = function() {
+      if (currentStep > 0) {
+        currentStep--;
+        updateUI();
+      }
+    };
 
-            if (textLength >= maxLength) {
-                charCountElement.classList.add('red');
-            } else if (textLength >= maxLength * 0.8) {
-                charCountElement.classList.add('orange');
-            } else {
-                charCountElement.classList.add('green');
-            }
+    window.nextStep = function() {
+      const textareaValue = textarea.value.trim();
+      const errorMessage = document.getElementById('errorMessage');
+      
+      if (!textareaValue) {
+        errorMessage.textContent = 'Please answer the current question before proceeding.';
+        errorMessage.style.display = 'block';
+        return;
+      }
+      
+      errorMessage.style.display = 'none';
+      answers[currentStep] = textareaValue;
+      localStorage.setItem('processingAnswers', JSON.stringify(answers));
+      
+      if (currentStep < totalSteps - 1) {
+        currentStep++;
+        updateUI();
+      }
+    };
+
+    window.generateSpecification = function() {
+      console.log('Generate Specification clicked');
+      const answers = JSON.parse(localStorage.getItem('processingAnswers')) || {};
+      const errorMessage = document.getElementById('errorMessage');
+      
+      console.log('Answers length:', Object.keys(answers).length);
+      if (Object.keys(answers).length < 9) {
+        errorMessage.textContent = 'Please complete all steps before generating the specification.';
+        errorMessage.style.display = 'block';
+        console.log('Error: Not all steps completed');
+        return;
+      }
+      
+      errorMessage.style.display = 'none';
+      document.getElementById('loadingSpinner').style.display = 'block';
+      generateSpecButton.disabled = true;
+      console.log('Loading spinner shown, button disabled');
+      
+      setTimeout(() => {
+        console.log('Checking generateSpecificationOriginal');
+        if (typeof window.generateSpecificationOriginal === 'function') {
+          console.log('Calling generateSpecificationOriginal');
+          window.generateSpecificationOriginal();
+        } else {
+          console.error('generateSpecificationOriginal not found');
+          window.location.href = 'result.html';
         }
+      }, 2000);
+    };
+  </script>
 
-        steps.forEach((step, index) => {
-            const textarea = step.querySelector('textarea[id^="q"]');
-            const detailsTextarea = step.querySelector('textarea[id$="_details"]');
-            const charCount = step.querySelector(`#charCount${index + 1}`);
-            const detailsCharCount = step.querySelector(`#charCount${index + 1}_details`);
+  <style>
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .indicator-circle {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background-color: red;
+      margin-right: 5px;
+    }
+    .indicator-circle.active {
+      background-color: green;
+    }
+    .carousel-button {
+      background-color: #23a6d5;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      cursor: pointer;
+      font-size: 18px;
+      border-radius: 5px;
+    }
+    .generate-spec-button {
+      background-color: #23a6d5;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .generate-spec-button:disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
+    }
+    .submit-button-container {
+      text-align: center;
+      margin-top: 20px;
+    }
+  </style>
 
-            textarea.addEventListener('input', () => updateCharCount(textarea, charCount));
-            detailsTextarea.addEventListener('input', () => updateCharCount(detailsTextarea, detailsCharCount));
-        });
-
-        prevButton.addEventListener('click', () => {
-            if (currentStep > 0) {
-                currentStep--;
-                updateCarousel();
-            }
-        });
-
-        nextButton.addEventListener('click', () => {
-            if (currentStep < steps.length - 1) {
-                currentStep++;
-                updateCarousel();
-            }
-        });
-
-        function submitForm(event) {
-            event.preventDefault();
-            const formData = new FormData(document.getElementById('detailsForm'));
-            const details = {};
-            formData.forEach((value, key) => {
-                details[key] = value;
-            });
-            processIdea(details);
-        }
-
-        updateCarousel();
-    </script>
+  <noscript>
+    <div style="text-align: center; padding: 20px; background: #fff; color: #333;">
+      <p>This website requires JavaScript to function properly. Please enable JavaScript in your browser settings.</p>
+    </div>
+  </noscript>
 </body>
 </html>
