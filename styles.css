@@ -695,3 +695,83 @@ body.page-default {
 .dark-mode .indicator-item span:not(.indicator-circle) {
   color: #ccc;
 }
+
+/* Additional styles for result.html tables and code blocks */
+.result-container table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 10px 0;
+    background-color: #fff;
+}
+
+.result-container table, 
+.result-container th, 
+.result-container td {
+    border: 1px solid #ccc;
+}
+
+.result-container th, 
+.result-container td {
+    padding: 10px;
+    text-align: left;
+}
+
+.result-container th {
+    background-color: #f4f4f4;
+}
+
+.result-container pre {
+    background-color: #f4f4f4;
+    padding: 10px;
+    border-radius: 5px;
+    overflow-x: auto;
+}
+
+.result-container code {
+    font-family: 'Courier New', Courier, monospace;
+    color: #d63384;
+}
+
+.result-container ol, 
+.result-container ul {
+    margin: 10px 0;
+    padding-left: 20px;
+}
+
+.result-container button {
+    padding: 10px 20px;
+    background-color: #23a6d5;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 10px 5px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.result-container button:hover {
+    background-color: #1e90ff;
+    transform: translateX(5px);
+}
+
+/* Dark Mode adjustments for tables and code */
+.dark-mode .result-container table {
+    background-color: #444;
+}
+
+.dark-mode .result-container th {
+    background-color: #555;
+}
+
+.dark-mode .result-container th,
+.dark-mode .result-container td {
+    border-color: #666;
+}
+
+.dark-mode .result-container pre {
+    background-color: #555;
+}
+
+.dark-mode .result-container code {
+    color: #ff79c6;
+}
