@@ -9,127 +9,68 @@ async function generateSpecificationFromProcessingJs() {
 
     const answers = JSON.parse(localStorage.getItem('processingAnswers')) || {};
     console.log('Answers:', answers);
-    let details = '';
-    const steps = [
-      { name: 'User Workflow', question: 'Describe the typical workflow of a user using your app.' },
-      { name: 'Design', question: 'What design elements are most important for your app?' },
-      { name: 'Features', question: 'What key features do you want your app to have?' },
-      { name: 'Target Audience', question: 'Who is your target audience?' },
-      { name: 'Technical Requirements', question: 'What technical requirements does your app need?' },
-      { name: 'Integrations', question: 'What integrations should your app support?', type: 'yesno' },
-      { name: 'Monetization', question: 'How do you plan to monetize your app?', type: 'yesno' },
-      { name: 'Notifications', question: 'What notifications should your app send?', type: 'yesno' },
-      { name: 'Authentication', question: 'What authentication methods will your app use?', type: 'yesno' },
-    ];
 
-    steps.forEach((step, index) => {
-      const response = answers[index] || 'Not provided';
-      if (step.type === 'yesno') {
-        const enabled = response.toLowerCase().includes('yes');
-        details += `${step.question}: ${enabled ? 'Yes' : 'No'}\n`;
-        if (enabled) {
-          details += `${step.name}: ${response}\n`;
-        }
-      } else {
-        details += `${step.name}: ${response}\n`;
-      }
-    });
+    const userInput = `
+      1. App Purpose: ${answers[0] || 'Not provided'}
+      2. User Workflow: ${answers[1] || 'Not provided'}
+      3. Development Preferences: ${answers[2] || 'Not provided'}
+      4. Technologies: ${answers[3] || 'Not provided'}
+      5. Data Information: ${answers[4] || 'Not provided'}
+    `;
 
-    const fullPrompt = `You are a professional product manager, UX architect, and market research expert.
+    const fullPrompt = `
+You are a senior software architect, tech lead, and documentation specialist. Your job is to turn incomplete or rough app ideas into detailed and comprehensive software architecture plans, proactively filling in gaps where the user input is missing or vague. Follow a professional tone and assume standard best practices where relevant.
 
-Your task is to generate a clear, structured **Application Specification Document** based on a short description of an app idea, followed by general information about the app's topic/industry.
+Output a structured **Architecture Planning Document** in plain text. Each section MUST start on a new line with a clear title followed by a colon (e.g., "App Purpose:") and must appear in the exact order listed below. DO NOT skip any section. DO NOT use Markdown headers.
 
-The output should follow this structure, using simple headings without markdown symbols like ##:
+If user input is missing or incomplete, make educated assumptions based on typical apps of this type. Avoid placeholders like "TBD". Provide complete, usable, high-quality output suitable for immediate use by developers.
 
-Application Specification Document
+Sections to include (in exact order):
 
-General Information
-**Topic**:  
-**Platform**:  
-**Title**:  
-**General Idea**:  
+- App Purpose: Provide a concise description of the app's goal and at least 5 core features. Include one measurable success metric (e.g., "users will complete 80% of tasks within 30 days"). Focus only on features based on the user input or logical extensions.
 
-Problem Statement  
-(Describe the main problem the app solves.)
+- User Workflow: Describe a detailed step-by-step user journey. Include edge cases, alternate flows (e.g., offline mode), and an ASCII flowchart to visualize logic and branches.
 
-Core Features  
-(Numbered list of the main features.)
+- Development Preferences: Specify development methodologies (e.g., Agile, Scrum), environments (e.g., VS Code, Docker), tools (e.g., GitHub, Jira), CI/CD pipeline, and coding conventions.
 
-User Flow  
-(Simple step-by-step flow from onboarding to final use.)
+- Technical Stack: List all languages, frameworks, libraries, services, and at least 3 API or third-party integrations (e.g., Firebase, Stripe, OpenAI). Justify every tech choice (e.g., "React for reusable UI and community support") and specify compatibility versions (e.g., "Node.js 18+").
 
-Screens  
-(List of all major screens.)
+- Data Architecture: Must include:
+  1. **Mermaid.js ERD** with at least 3 entities, proper attributes with data types, primary/foreign keys labeled as PK_ / FK_.
+  2. Description of the data flow, caching (e.g., Redis, with time-to-live), performance considerations, and database optimization techniques (e.g., indexes, denormalization).
+  3. If user data is missing, suggest logical entities based on the app's purpose.
 
-UI Components per Screen  
-[Screen Name]  
-- (UI elements for each screen)
+- File Structure: Include a detailed folder and file hierarchy (in ASCII tree format). Describe the purpose of each folder. Define at least 5 key variables (name, type, purpose) and explain how they relate. Suggest 5+ utility functions with input/output.
 
-Navigation Map  
-(Which screen links to which)
+- State Management Strategy: Explain how application state is handled (e.g., local state, global store, client-server sync). If applicable, mention tools like Redux, Riverpod, Zustand – or explain custom strategies. Address persistence, consistency, and rollback strategies.
 
-Data Models  
-1. **[Model Name]**  
-- Fields: …
+- API Design: List expected API endpoints (name, method, inputs, outputs), authentication requirements, and error handling. If using REST, GraphQL, or gRPC, explain reasoning.
 
-API Requirements / Storage Logic  
-(Brief explanation of backend needs, storage, and authentication.)
+- Security: Define protocols (e.g., HTTPS, OAuth2), password handling (e.g., bcrypt, Argon2), threat models (e.g., XSS, SQL injection), and prevention strategies.
 
-Offline Mode  
-- What data is available offline and how it syncs when back online.
+- Notification System: Describe what triggers notifications, what type (push, email, in-app), scheduling logic, and tools used (e.g., Firebase Cloud Messaging, cron jobs).
 
-User Scenarios  
-1. **Scenario Name**  
-- Description
+- Testing Strategy: Explain test types (unit, integration, e2e), tools (e.g., Jest, Cypress), test coverage goals, and CI test integration. Include example scenarios.
 
-Visual Guidelines / Style Tokens  
-(Colors, layout, icons, visual feel.)
+- Deployment Strategy: Explain environment setup, hosting solution (e.g., Vercel, AWS), deployment flow (e.g., build → test → release), and rollback plans.
 
-Design Guidelines  
-(UX principles and interaction style.)
+- Version Control & Workflow: Recommend Git branching strategy (e.g., Git Flow, trunk-based), commit conventions, pull request process, and review rules.
 
-Technical Requirements  
-(Platform, tools, frameworks.)
+- Accessibility & Internationalization: Mention how to handle screen reader support, color contrast, tab ordering, and multilingual content (e.g., using JSON translation files).
 
-User Roles and Permissions  
-(Who uses the app and what they can access.)
+- Bash Script: Provide a bash script that sets up the suggested file structure with correct folders and starter files.
 
-Notifications  
-(Types of notifications and when they appear.)
+- Additional Notes: Add any recommendations, technical caveats, potential risks, or ideas that could help developers build the app better.
 
-Monetization Plan  
-(Optional)
+Your response should be fully detailed and use the **maximum token length possible**. Expand deeply on every section. If the response is cut off, continue from where you left off without summarizing. Include ALL sections regardless of how minimal the user input is.
 
-Legal Requirements  
-(Privacy and compliance)
+### User Input
+${userInput}
+`;
 
-Roadmap & Phases  
-1. Phase 1  
-2. Phase 2  
-3. Phase 3
 
-Appendix  
-- (Wireframes, competitor insights, optional features)
-
-General Topic Information  
-Provide general information about the app's topic/industry, including:  
-- Similar applications: List a few similar apps (if any), along with their advantages and disadvantages according to users (if available).  
-- Existing solutions: Describe other existing solutions in this field (if any).  
-- Search volume: Provide search volume data for the topic over months or years (if available).  
-- Social media hype: Describe the level of buzz or hype around this topic on social media platforms.  
-- Additional statistics: Include market share, estimated revenue, trends, or other relevant statistics (if available).  
-- Popular keywords: List popular keywords related to this topic.
-
-Now, based on this structure, generate a full application specification document followed by general topic information for the following app idea:
-
-**App Idea Details:**
-Topic: ${topic}
-Platform: ${platform}
-General Idea: ${idea}
-Details:
-${details}`;
-    console.log('Full prompt:', fullPrompt);
-
+    console.log('Full prompt constructed:', fullPrompt);
+    console.log('Prompt length (characters):', fullPrompt.length);
     console.log('Sending request with prompt:', fullPrompt);
     const response = await fetch('https://worker1.shalom-cohen-111.workers.dev', {
       method: 'POST',
@@ -139,16 +80,16 @@ ${details}`;
       body: JSON.stringify({ prompt: fullPrompt }),
     });
 
-    console.log('API response status:', response.status);
+    console.log('API response status received:', response.status);
     const data = await response.json();
-    console.log('API response data:', data);
+    console.log('API response data received:', data);
 
     if (!response.ok) {
       throw new Error(`API Error: ${data.error || 'Unknown error'}`);
     }
 
     const generatedContent = data.specification || 'No specification generated';
-    console.log('Generated content:', generatedContent);
+    console.log('Generated content extracted:', generatedContent);
 
     console.log('Saving generated content to localStorage');
     localStorage.setItem('generatedContent', generatedContent);

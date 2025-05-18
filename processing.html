@@ -7,13 +7,11 @@
   <meta name="keywords" content="processing app idea, guided questions, AI specification, app development, specifys.ai">
   <meta name="author" content="specifys.ai Team">
   <meta name="robots" content="index, follow">
-  <!-- Open Graph Tags for Social Sharing -->
   <meta property="og:title" content="specifys.ai - Processing Your Idea">
   <meta property="og:description" content="Answer guided questions to refine your app idea and generate a detailed specification with specifys.ai.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://specifys.ai/processing.html">
   <meta property="og:image" content="https://specifys.ai/assets/og-image.jpg">
-  <!-- Twitter Card Tags -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="specifys.ai - Processing Your Idea">
   <meta name="twitter:description" content="Answer guided questions to refine your app idea and generate a detailed specification with specifys.ai.">
@@ -27,21 +25,14 @@
   <header class="thematic-header" role="banner">
     <div class="logo"><a href="index.html" aria-label="specifys.ai homepage">specifys.ai</a></div>
   </header>
-
-  <div class="instructions">
-    <h1>Refine Your App Idea</h1>
-    <p>To get the best result, describe your idea in as much detail as possible.</p>
-    <p>The more effort you put into defining your app, the better the final result will be.</p>
-  </div>
-
   <div class="carousel-container">
     <button id="prevButton" class="carousel-button" onclick="prevStep()" aria-label="Previous step">←</button>
     <div id="carouselContent" class="carousel-content">
       <div class="step-container">
-        <h3 id="stepTitle">Step 1</h3>
-        <p id="stepQuestion" class="question-label">Describe the typical workflow of a user using your app.</p>
-        <textarea id="stepTextarea" class="step-textarea" maxlength="2500" placeholder="Enter your response here..." aria-label="Answer the current question"></textarea>
-        <span id="charCount" class="char-count">0/2500</span>
+        <h3 id="stepTitle">App Purpose</h3>
+        <p id="stepQuestion" class="question-label">What is the main goal of your app, who is the target audience, and what specific needs or challenges does it aim to address?</p>
+        <textarea id="stepTextarea" class="step-textarea" maxlength="300" placeholder="Enter your response here (max 300 characters)..." aria-label="Answer the current question"></textarea>
+        <span id="charCount" class="char-count">0/300</span>
         <div id="errorMessage" style="color: red; margin-top: 10px; display: none;" role="alert"></div>
         <div class="progress-container">
           <div class="progress-bar">
@@ -49,53 +40,35 @@
           </div>
           <div class="discipline-indicators" role="group" aria-label="Progress indicators by category">
             <div class="indicator-item">
-              <span class="indicator-circle" id="workflow-indicator" aria-label="User Workflow progress"></span>
+              <span class="indicator-circle" id="app-purpose-indicator" aria-label="App Purpose progress"></span>
+              <span>App Purpose</span>
+            </div>
+            <div class="indicator-item">
+              <span class="indicator-circle" id="user-workflow-indicator" aria-label="User Workflow progress"></span>
               <span>User Workflow</span>
             </div>
             <div class="indicator-item">
-              <span class="indicator-circle" id="design-indicator" aria-label="Design progress"></span>
-              <span>Design</span>
+              <span class="indicator-circle" id="development-preferences-indicator" aria-label="Development Preferences progress"></span>
+              <span>Dev Preferences</span>
             </div>
             <div class="indicator-item">
-              <span class="indicator-circle" id="features-indicator" aria-label="Features progress"></span>
-              <span>Features</span>
+              <span class="indicator-circle" id="technologies-indicator" aria-label="Technologies progress"></span>
+              <span>Technologies</span>
             </div>
             <div class="indicator-item">
-              <span class="indicator-circle" id="target-audience-indicator" aria-label="Target Audience progress"></span>
-              <span>Target Audience</span>
-            </div>
-            <div class="indicator-item">
-              <span class="indicator-circle" id="technical-requirements-indicator" aria-label="Technical requirements progress"></span>
-              <span>Technical</span>
-            </div>
-            <div class="indicator-item">
-              <span class="indicator-circle" id="integrations-indicator" aria-label="Integrations progress"></span>
-              <span>Integrations</span>
-            </div>
-            <div class="indicator-item">
-              <span class="indicator-circle" id="monetization-indicator" aria-label="Monetization progress"></span>
-              <span>Monetization</span>
-            </div>
-            <div class="indicator-item">
-              <span class="indicator-circle" id="notifications-indicator" aria-label="Notifications progress"></span>
-              <span>Notifications</span>
-            </div>
-            <div class="indicator-item">
-              <span class="indicator-circle" id="authentication-indicator" aria-label="Authentication progress"></span>
-              <span>Authentication</span>
+              <span class="indicator-circle" id="data-structure-indicator" aria-label="Data Structure progress"></span>
+              <span>Data Structure</span>
             </div>
           </div>
         </div>
       </div>
     </div>
-    <button id="nextButton" class="carousel-button" onclick="nextStep()" aria-label="Next step">→</button>
-  </div>
-
-  <div id="submitButtonContainer" class="submit-button-container" style="display: none;">
-    <button id="generateSpecButton" class="generate-spec-button" onclick="generateSpecification()" disabled aria-label="Generate your app specification">Generate Specification</button>
-    <div id="loadingSpinner" style="display: none; text-align: center; margin-top: 15px;">
-      <div style="border: 4px solid #f3f3f3; border-top: 4px solid #23a6d5; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 0 auto;"></div>
-      <p style="color: #333;">Generating your specification...</p>
+    <div class="button-wrapper-right">
+      <button id="nextButton" class="carousel-button" onclick="nextStep()" aria-label="Next step">→</button>
+      <button id="generateSpecButton" class="carousel-button generate-spec-button" onclick="generateSpecification()" style="display: none;" disabled aria-label="Generate your app specification">Go</button>
+      <div id="loadingSpinner" class="loading-spinner" style="display: none;">
+        <div class="spinner-circle"></div>
+      </div>
     </div>
   </div>
 
@@ -106,42 +79,41 @@
   <script defer src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <script type="module" src="processing.js"></script>
   <script>
-    // Define questions for each step
+    // Define questions and titles for each step
+    const stepTitles = [
+      "App Purpose",
+      "User Workflow",
+      "Dev Preferences",
+      "Technologies",
+      "Data Structure"
+    ];
     const questions = [
-      "Describe the typical workflow of a user using your app.",
-      "What design elements are most important for your app?",
-      "What key features do you want your app to have?",
-      "Who is your target audience?",
-      "What technical requirements does your app need?",
-      "What integrations should your app support?",
-      "How do you plan to monetize your app?",
-      "What notifications should your app send?",
-      "What authentication methods will your app use?"
+      "What is the main goal of your app, who is the target audience, and what specific needs or challenges does it aim to address?",
+      "Describe the main user flow: what steps does a user go through from start to completing a core action (include conditions or exceptions)?",
+      "What are your preferences for development in terms of tools, environments, or methodologies? (e.g., IDE, CI/CD, Agile)",
+      "What technologies, programming languages, or frameworks would you like to use, and why?",
+      "What are the main types of information your app needs to store (e.g., users, tasks, products), and what are the key relationships between them (e.g., a user creates tasks)?"
     ];
 
     // Initialize state
     let currentStep = 0;
     const totalSteps = questions.length;
-    let textarea, stepTitle, stepQuestion, prevButton, nextButton, submitButtonContainer, progressFill, charCount, generateSpecButton;
+    let textarea, stepTitle, stepQuestion, prevButton, nextButton, generateSpecButton, progressFill, charCount, loadingSpinner;
     const answers = JSON.parse(localStorage.getItem('processingAnswers')) || {};
     const indicators = [
-      'workflow-indicator',
-      'design-indicator',
-      'features-indicator',
-      'target-audience-indicator',
-      'technical-requirements-indicator',
-      'integrations-indicator',
-      'monetization-indicator',
-      'notifications-indicator',
-      'authentication-indicator'
+      'app-purpose-indicator',
+      'user-workflow-indicator',
+      'development-preferences-indicator',
+      'technologies-indicator',
+      'data-structure-indicator'
     ];
 
     // Update UI function
     function updateUI() {
-      stepTitle.textContent = `Step ${currentStep + 1}`;
+      stepTitle.textContent = stepTitles[currentStep];
       stepQuestion.textContent = questions[currentStep];
       textarea.value = answers[currentStep] || '';
-      charCount.textContent = `${textarea.value.length}/2500`;
+      charCount.textContent = `${textarea.value.length}/300`;
       
       // Update progress bar
       const progress = ((currentStep + 1) / totalSteps) * 100;
@@ -160,7 +132,8 @@
       // Update button visibility
       prevButton.style.display = currentStep === 0 ? 'none' : 'block';
       nextButton.style.display = currentStep === totalSteps - 1 ? 'none' : 'block';
-      submitButtonContainer.style.display = currentStep === totalSteps - 1 ? 'block' : 'none';
+      generateSpecButton.style.display = currentStep === totalSteps - 1 ? 'block' : 'none';
+      loadingSpinner.style.display = 'none';
 
       // Enable/disable Generate Specification button based on indicator status
       const allIndicatorsGreen = indicators.every(indicator => {
@@ -173,6 +146,11 @@
       }
     }
 
+    // Close popup function
+    function closePopup() {
+      document.getElementById('instructionsPopup').style.display = 'none';
+    }
+
     // Load saved answers and update UI on page load
     document.addEventListener('DOMContentLoaded', () => {
       textarea = document.getElementById('stepTextarea');
@@ -180,17 +158,17 @@
       stepQuestion = document.getElementById('stepQuestion');
       prevButton = document.getElementById('prevButton');
       nextButton = document.getElementById('nextButton');
-      submitButtonContainer = document.getElementById('submitButtonContainer');
+      generateSpecButton = document.getElementById('generateSpecButton');
       progressFill = document.getElementById('progressFill');
       charCount = document.getElementById('charCount');
-      generateSpecButton = document.getElementById('generateSpecButton');
+      loadingSpinner = document.getElementById('loadingSpinner');
 
       updateUI();
 
       textarea.addEventListener('input', () => {
         answers[currentStep] = textarea.value;
         localStorage.setItem('processingAnswers', JSON.stringify(answers));
-        charCount.textContent = `${textarea.value.length}/2500`;
+        charCount.textContent = `${textarea.value.length}/300`;
         
         const currentIndicator = document.getElementById(indicators[currentStep]);
         if (textarea.value.trim()) {
@@ -235,7 +213,7 @@
       const errorMessage = document.getElementById('errorMessage');
       
       console.log('Answers length:', Object.keys(answers).length);
-      if (Object.keys(answers).length < 9) {
+      if (Object.keys(answers).length < totalSteps) {
         errorMessage.textContent = 'Please complete all steps before generating the specification.';
         errorMessage.style.display = 'block';
         console.log('Error: Not all steps completed');
@@ -243,9 +221,9 @@
       }
       
       errorMessage.style.display = 'none';
-      document.getElementById('loadingSpinner').style.display = 'block';
-      generateSpecButton.disabled = true;
-      console.log('Loading spinner shown, button disabled');
+      generateSpecButton.style.display = 'none';
+      loadingSpinner.style.display = 'block';
+      console.log('Loading spinner shown, button hidden');
       
       setTimeout(() => {
         console.log('Checking generateSpecificationOriginal');
@@ -265,16 +243,51 @@
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
+    @keyframes gentleBounce {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-10px) scale(1.1); }
+    }
+    
+    .popup-content h1 {
+      font-size: 1.8em;
+      color: #333;
+      margin-bottom: 10px;
+    }
+    .popup-content p {
+      color: #333;
+      font-size: 1.1em;
+      margin: 5px 0;
+    }
+    .popup-content button {
+      margin-top: 15px;
+      padding: 10px 20px;
+      background-color: #23a6d5;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .popup-content button:hover {
+      background-color: #1e90ff;
+    }
+    #stepTitle {
+      color: #00b4d8;
+      font-size: 2em;
+    }
+    .question-label {
+      font-size: 1.2em;
+    }
     .indicator-circle {
       display: inline-block;
       width: 10px;
       height: 10px;
       border-radius: 50%;
-      background-color: red;
+      background-color: #28a745;
       margin-right: 5px;
     }
     .indicator-circle.active {
-      background-color: green;
+      background-color: #23a6d5;
     }
     .carousel-button {
       background-color: #23a6d5;
@@ -288,18 +301,50 @@
     .generate-spec-button {
       background-color: #23a6d5;
       color: white;
-      padding: 10px 20px;
       border: none;
-      border-radius: 5px;
+      padding: 10px 15px;
       cursor: pointer;
+      font-size: 18px;
+      border-radius: 5px;
+      animation: gentleBounce 2s ease-in-out infinite;
     }
     .generate-spec-button:disabled {
       background-color: #cccccc;
       cursor: not-allowed;
+      animation: none;
     }
-    .submit-button-container {
-      text-align: center;
-      margin-top: 20px;
+    .carousel-container {
+      position: relative;
+      max-width: 900px;
+      width: 100%;
+      margin: 80px auto 20px auto;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 15px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      box-sizing: border-box;
+    }
+    .button-wrapper-right {
+      position: absolute;
+      top: 50%;
+      right: 20px;
+      transform: translateY(-50%);
+    }
+    .loading-spinner {
+      position: absolute;
+      top: 50%;
+      right: 20px;
+      transform: translateY(-50%);
+      width: 30px;
+      height: 30px;
+    }
+    .spinner-circle {
+      width: 100%;
+      height: 100%;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #23a6d5;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
     }
   </style>
 
