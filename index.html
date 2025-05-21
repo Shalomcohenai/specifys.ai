@@ -95,7 +95,18 @@
           aria-label="App idea input"
           style="position: relative"
         ></textarea>
-
+        <div
+          id="errorMessage"
+          role="alert"
+          style="
+            color: red;
+            text-align: center;
+            margin-top: 1vh;
+            display: none;
+            position: absolute;
+            bottom: 25%;
+          "
+        ></div>
         <div class="button-wrapper-center">
           <button
             class="go-button"
@@ -106,13 +117,6 @@
           </button>
         </div>
       </div>
-
-      <div
-        id="errorMessage"
-        role="alert"
-        style="color: red; text-align: center; margin-top: 1vh; display: none"
-      ></div>
-
       <div class="stats-section">
         <h2 class="stats-title">Created with specifys.ai so far:</h2>
         <div class="stats-container">

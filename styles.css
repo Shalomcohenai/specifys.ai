@@ -148,7 +148,7 @@ body.page-default {
   /* padding-bottom: 80px; */
   /* font-size: 24px; */
   font-size: clamp(1.4rem, 2vw, 1.6rem);
-
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   font-family: "Montserrat", sans-serif;
   background-color: rgba(255, 255, 255, 0.9);
   color: #333;
@@ -156,13 +156,6 @@ body.page-default {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   overflow: hidden;
   position: relative;
-}
-#ideaInput {
-  /* min-height: clamp(12rem, 20vh, 20rem); */
-  /* padding: 1.5rem; */
-
-  /* transition: all 0.3s ease; */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 #ideaInput:focus {
@@ -1089,6 +1082,7 @@ body.market .section-title {
   align-items: center;
   justify-content: center;
   z-index: 5;
+  margin-bottom: clamp(3rem, 5vh, 5rem);
 }
 
 /* Input field styles */
@@ -1105,7 +1099,6 @@ body.market .section-title {
   resize: none;
   transition: all 0.3s ease;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  margin-bottom: clamp(3rem, 5vh, 5rem);
 }
 
 #ideaInput:focus {
