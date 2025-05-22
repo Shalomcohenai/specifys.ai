@@ -3,21 +3,153 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>About Us - Promptsy</title>
-  <link rel="stylesheet" href="styles.css">
+  <meta name="description" content="Learn about the story behind specifys.ai, a tool built to create clear app specifications using AI, inspired by the principles of Vibe Coding.">
+  <meta name="keywords" content="about specifys.ai, app specification, AI development, vibe coding">
+  <meta name="author" content="specifys.ai Team">
+  <meta name="robots" content="index, follow">
+  <meta property="og:title" content="About Us - specifys.ai">
+  <meta property="og:description" content="Learn about the story behind specifys.ai, a tool built to create clear app specifications using AI, inspired by the principles of Vibe Coding.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://specifys.ai/about.html">
+  <meta property="og:image" content="https://specifys.ai/assets/og-image.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="About Us - specifys.ai">
+  <meta name="twitter:description" content="Learn about the story behind specifys.ai, a tool built to create clear app specifications using AI, inspired by the principles of Vibe Coding.">
+  <meta name="twitter:image" content="https://specifys.ai/assets/og-image.jpg">
+  <title>About Us - specifys.ai</title>
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Montserrat", sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+      background-size: 400% 400%;
+      animation: gradient 15s ease infinite;
+      color: #333;
+    }
+    @keyframes gradient {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .thematic-header {
+      background: none;
+      padding: 20px;
+      text-align: center;
+    }
+    .thematic-header .logo a {
+      color: #fff;
+      font-size: 28px;
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .content-box {
+      max-width: 900px;
+      margin: 80px auto 40px;
+      padding: 30px;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 15px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    .content-box h1 {
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .content-box h2 {
+      font-size: 1.8rem;
+      margin: 30px 0 15px;
+      color: #23a6d5;
+    }
+    .content-box p {
+      font-size: 1rem;
+      color: #666;
+      line-height: 1.6;
+      margin-bottom: 15px;
+    }
+    .content-box .btn {
+      display: inline-block;
+      padding: 10px 20px;
+      background-color: #23a6d5;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 5px;
+      font-weight: 500;
+      transition: background-color 0.3s ease, transform 0.3s ease;
+      margin: 10px 5px;
+    }
+    .content-box .btn:hover {
+      background-color: #1e90ff;
+      transform: translateY(-2px);
+    }
+    footer {
+      text-align: center;
+      padding: 20px;
+      color: #fff;
+    }
+    footer a {
+      color: #fff;
+      text-decoration: underline;
+      margin: 0 10px;
+    }
+    @media (max-width: 768px) {
+      .content-box {
+        margin: 40px 15px;
+        padding: 20px;
+      }
+      .content-box h1 {
+        font-size: 2rem;
+      }
+      .content-box h2 {
+        font-size: 1.5rem;
+      }
+      .content-box p {
+        font-size: 0.9rem;
+      }
+      .content-box .btn {
+        padding: 8px 16px;
+        font-size: 0.9rem;
+      }
+    }
+  </style>
 </head>
 <body class="page-default">
-  <header class="thematic-header">
-    <div class="logo"><a href="index.html">Promptsy</a></div>
-    <nav class="nav-links">
-      <button onclick="window.location.href='register.html'" class="auth-button">Sign Up</button>
-      <button onclick="window.location.href='login.html'" class="auth-button">Log In</button>
-    </nav>
+  <header class="thematic-header" role="banner">
+    <div class="logo">
+      <a href="index.html" aria-label="specifys.ai homepage">specifys.ai</a>
+    </div>
   </header>
 
   <div class="content-box">
     <h1>About Us</h1>
-    <p>We are a team passionate about helping innovators turn their ideas into reality. Promptsy provides tools to structure and refine app ideas, making it easy for anyone to create a clear plan.</p>
+    <h2>The Story Behind Specifys.ai</h2>
+    <p>I built Specifys.ai out of personal frustration.</p>
+    <p>As someone who loves building and experimenting with AI tools, I tried to create an app idea using ChatGPT. But I quickly noticed a recurring problem: the AI would jump straight into coding — before it really understood the full scope of the idea.</p>
+    <p>It felt like building a house by immediately laying bricks without a blueprint.</p>
+    <p>Whenever I wanted to add new features later — like user authentication or admin roles — it felt like patchwork on top of an unstable base. The result was always messy, hard to maintain, and far from my original vision.</p>
+    <p>That’s when I realized what was missing: a specification phase. A way to describe the vibe of the app, the user flow, the features, and the logic — before writing any code.</p>
+    <p>So I built Specifys.ai — a lightweight tool that asks the right questions and generates a clear, structured spec document using AI. The goal is simple: To help creators and developers start smarter, not faster.</p>
+    <p>Specifys is based on the principles of Vibe Coding — a mindset that prioritizes clarity, flow, and intention before code.</p>
+    <p>I built this tool entirely on my own using AI — no backend, no user data stored. It’s designed to be fast, simple, and focused on one thing: helping you turn your idea into a clean plan you can actually build on.</p>
+    <div style="text-align: center; margin-top: 30px;">
+      <a href="index.html" class="btn" aria-label="Start building your app specification now">Start Building Your App Now</a>
+      <a href="https://www.linkedin.com/in/shalom-cohen-884491227/" class="btn" aria-label="Contact Shalom Cohen on LinkedIn">Contact Me</a>    </div>
   </div>
+
+  <footer>
+    <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
+    <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
+  </footer>
+
+  <noscript>
+    <div style="text-align: center; padding: 20px; background: #fff; color: #333;">
+      <p>This website requires JavaScript to function properly. Please enable JavaScript in your browser settings.</p>
+    </div>
+  </noscript>
 </body>
 </html>

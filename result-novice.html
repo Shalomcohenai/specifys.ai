@@ -91,15 +91,15 @@
         border-radius: 5px;
         color: #333;
         box-sizing: border-box;
-        white-space: normal; /* Allows natural line wrapping */
-        word-break: break-word; /* Breaks long words to wrap naturally */
-        overflow-x: hidden; /* Removes horizontal scrolling for text */
+        white-space: normal;
+        word-break: break-word;
+        overflow-x: hidden;
         position: relative;
       }
       .section-title {
         font-size: 24px;
         color: #fff;
-        background-color: #23a6d5;
+        background-color: #00b4d8;
         padding: 5px 10px;
         border-radius: 5px 5px 0 0;
         margin: -15px -15px 15px -15px;
@@ -122,33 +122,6 @@
       }
       .copy-button.copied {
         background-color: #23a6d5;
-      }
-      .submit-button-container {
-        text-align: center;
-        margin: 20px 0;
-        background: rgba(255, 255, 255, 0.95);
-        padding: 15px;
-        border-radius: 15px;
-        width: 95%;
-        max-width: 900px;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-      }
-      .export-btn {
-        padding: 10px 20px;
-        border: none;
-        border-radius: 5px;
-        font-size: 16px;
-        cursor: pointer;
-        transition: background-color 0.3s, transform 0.3s ease;
-        margin: 0 10px;
-      }
-      .export-pdf-btn {
-        background-color: #00b4d8;
-        color: white;
-      }
-      .export-pdf-btn:hover {
-        background-color: #00b4d8;
-        transform: translateX(5px);
       }
       .popup {
         position: fixed;
@@ -196,7 +169,6 @@
         background: rgba(0, 0, 0, 0.5);
         z-index: 999;
       }
-      /* יישור טקסט לשמאל עבור אנגלית */
       .section p,
       .section pre {
         font-family: "Montserrat", sans-serif;
@@ -221,15 +193,20 @@
       <div class="sections-grid" id="specContent"></div>
     </div>
 
-    <div class="submit-button-container">
-      <button
-        id="downloadPdfButton"
-        class="export-btn export-pdf-btn"
-        onclick="downloadPdf()"
-        aria-label="Download specification as PDF"
-      >
-        <i class="fas fa-file-pdf"></i> Download as PDF
-      </button>
+    <div class="platform-container">
+      <h3>Start now with:</h3>
+      <p class="platform-instructions">The specification has been copied. Visit one of the platforms and paste it there.</p>
+      <div class="platform-boxes">
+        <a href="https://flutterflow.io/" target="_blank" class="platform-box" onclick="copyAllSpecContent()" data-tooltip="Recommended for rapid prototyping of mobile apps with visual development.">FlutterFlow</a>
+        <a href="https://bubble.io/" target="_blank" class="platform-box" onclick="copyAllSpecContent()" data-tooltip="Recommended for building complex web applications without coding.">Bubble</a>
+        <a href="https://adalo.com/" target="_blank" class="platform-box" onclick="copyAllSpecContent()" data-tooltip="Recommended for creating user-friendly mobile apps with drag-and-drop.">Adalo</a>
+        <a href="https://chat.openai.com/" target="_blank" class="platform-box" onclick="copyAllSpecContent()" data-tooltip="Recommended for generating code snippets or app logic with AI assistance.">ChatGPT</a>
+        <a href="https://base44.io/" target="_blank" class="platform-box" onclick="copyAllSpecContent()" data-tooltip="Recommended for streamlined app development with integrated tools.">Base44</a>
+        <a href="https://lovable.dev/" target="_blank" class="platform-box" onclick="copyAllSpecContent()" data-tooltip="Recommended for AI-driven app creation with minimal setup.">Lovable</a>
+        <a href="https://bolt.new/" target="_blank" class="platform-box" onclick="copyAllSpecContent()" data-tooltip="Recommended for quick app ideation and prototyping with AI.">Bolt</a>
+        <button class="platform-box" onclick="downloadPdf()" data-tooltip="Recommended for saving your specification as a portable document.">PDF</button>
+      </div>
+      <p class="platform-details">Click a platform to open it in a new tab and automatically copy your app specification.<br>Paste the specification into the platform’s project setup or AI assistant to start building.</p>
     </div>
 
     <footer style="text-align: center; padding: 20px; color: #fff">
@@ -259,12 +236,10 @@
       document.addEventListener("DOMContentLoaded", () => {
         const specContent = document.getElementById("specContent");
         const generatedContent = localStorage.getItem("generatedContent");
-        console.log("Generated content:", generatedContent); // לוג לבדיקה
 
         if (!generatedContent) {
           specContent.innerHTML =
             '<div class="section"><div class="section-title">Error</div><p>No specification available</p></div>';
-          console.log("No generated content found in localStorage");
           return;
         }
 
@@ -279,21 +254,14 @@
         lines.forEach((line, index) => {
           if (!line) return;
 
-          // ניקוי השורה והתחשבות בתווים נוספים כמו נקודותיים, רווחים, או תווים מיוחדים
           const normalizedLine = line
             .replace(/[:\s]+$/g, "")
             .replace(/^[\s]+/g, "")
             .trim();
-          console.log(`Line ${index}: "${normalizedLine}"`); // לוג לבדיקה
 
-          // זיהוי גמיש של שמות הסקציות
           if (normalizedLine.match(/^(General Information|מידע כללי)$/i)) {
             if (currentSection && sectionContent.length > 0) {
               sections[currentSection] = sectionContent.join("\n");
-              console.log(
-                `Section "${currentSection}" saved with content:`,
-                sectionContent
-              );
             }
             currentSection = "general-information";
             sectionContent = [];
@@ -302,40 +270,24 @@
           ) {
             if (currentSection && sectionContent.length > 0) {
               sections[currentSection] = sectionContent.join("\n");
-              console.log(
-                `Section "${currentSection}" saved with content:`,
-                sectionContent
-              );
             }
             currentSection = "problem-statement";
             sectionContent = [];
           } else if (normalizedLine.match(/^(Core Features|תכונות ליבה)$/i)) {
             if (currentSection && sectionContent.length > 0) {
               sections[currentSection] = sectionContent.join("\n");
-              console.log(
-                `Section "${currentSection}" saved with content:`,
-                sectionContent
-              );
             }
             currentSection = "core-features";
             sectionContent = [];
           } else if (normalizedLine.match(/^(User Flow|זרימת משתמש)$/i)) {
             if (currentSection && sectionContent.length > 0) {
               sections[currentSection] = sectionContent.join("\n");
-              console.log(
-                `Section "${currentSection}" saved with content:`,
-                sectionContent
-              );
             }
             currentSection = "user-flow";
             sectionContent = [];
           } else if (normalizedLine.match(/^(Screens|מסכים)$/i)) {
             if (currentSection && sectionContent.length > 0) {
               sections[currentSection] = sectionContent.join("\n");
-              console.log(
-                `Section "${currentSection}" saved with content:`,
-                sectionContent
-              );
             }
             currentSection = "screens";
             sectionContent = [];
@@ -346,20 +298,12 @@
           ) {
             if (currentSection && sectionContent.length > 0) {
               sections[currentSection] = sectionContent.join("\n");
-              console.log(
-                `Section "${currentSection}" saved with content:`,
-                sectionContent
-              );
             }
             currentSection = "ui-components";
             sectionContent = [];
           } else if (normalizedLine.match(/^(Navigation Map|מפת ניווט)$/i)) {
             if (currentSection && sectionContent.length > 0) {
               sections[currentSection] = sectionContent.join("\n");
-              console.log(
-                `Section "${currentSection}" saved with content:`,
-                sectionContent
-              );
             }
             currentSection = "navigation-map";
             sectionContent = [];
@@ -368,10 +312,6 @@
           ) {
             if (currentSection && sectionContent.length > 0) {
               sections[currentSection] = sectionContent.join("\n");
-              console.log(
-                `Section "${currentSection}" saved with content:`,
-                sectionContent
-              );
             }
             currentSection = "data-models";
             sectionContent = [];
@@ -382,20 +322,12 @@
           ) {
             if (currentSection && sectionContent.length > 0) {
               sections[currentSection] = sectionContent.join("\n");
-              console.log(
-                `Section "${currentSection}" saved with content:`,
-                sectionContent
-              );
             }
             currentSection = "storage-backend-logic";
             sectionContent = [];
           } else if (normalizedLine.match(/^(Offline Mode|מצב לא מקוון)$/i)) {
             if (currentSection && sectionContent.length > 0) {
               sections[currentSection] = sectionContent.join("\n");
-              console.log(
-                `Section "${currentSection}" saved with content:`,
-                sectionContent
-              );
             }
             currentSection = "offline-mode";
             sectionContent = [];
@@ -406,20 +338,12 @@
           ) {
             if (currentSection && sectionContent.length > 0) {
               sections[currentSection] = sectionContent.join("\n");
-              console.log(
-                `Section "${currentSection}" saved with content:`,
-                sectionContent
-              );
             }
             currentSection = "user-roles";
             sectionContent = [];
           } else if (normalizedLine.match(/^(Notifications|התראות)$/i)) {
             if (currentSection && sectionContent.length > 0) {
               sections[currentSection] = sectionContent.join("\n");
-              console.log(
-                `Section "${currentSection}" saved with content:`,
-                sectionContent
-              );
             }
             currentSection = "notifications";
             sectionContent = [];
@@ -430,10 +354,6 @@
           ) {
             if (currentSection && sectionContent.length > 0) {
               sections[currentSection] = sectionContent.join("\n");
-              console.log(
-                `Section "${currentSection}" saved with content:`,
-                sectionContent
-              );
             }
             currentSection = "visual-style-guidelines";
             sectionContent = [];
@@ -444,10 +364,6 @@
           ) {
             if (currentSection && sectionContent.length > 0) {
               sections[currentSection] = sectionContent.join("\n");
-              console.log(
-                `Section "${currentSection}" saved with content:`,
-                sectionContent
-              );
             }
             currentSection = "design-ux-principles";
             sectionContent = [];
@@ -456,10 +372,6 @@
           ) {
             if (currentSection && sectionContent.length > 0) {
               sections[currentSection] = sectionContent.join("\n");
-              console.log(
-                `Section "${currentSection}" saved with content:`,
-                sectionContent
-              );
             }
             currentSection = "technical-requirements";
             sectionContent = [];
@@ -468,20 +380,12 @@
           ) {
             if (currentSection && sectionContent.length > 0) {
               sections[currentSection] = sectionContent.join("\n");
-              console.log(
-                `Section "${currentSection}" saved with content:`,
-                sectionContent
-              );
             }
             currentSection = "development-phases";
             sectionContent = [];
           } else if (normalizedLine.match(/^(Appendix|נספח)$/i)) {
             if (currentSection && sectionContent.length > 0) {
               sections[currentSection] = sectionContent.join("\n");
-              console.log(
-                `Section "${currentSection}" saved with content:`,
-                sectionContent
-              );
             }
             currentSection = "appendix";
             sectionContent = [];
@@ -492,13 +396,7 @@
 
         if (currentSection && sectionContent.length > 0) {
           sections[currentSection] = sectionContent.join("\n");
-          console.log(
-            `Final section "${currentSection}" saved with content:`,
-            sectionContent
-          );
         }
-
-        console.log("Parsed sections:", sections); // לוג לבדיקה
 
         const orderedSections = [
           "general-information",
@@ -546,13 +444,11 @@
 
         orderedSections.forEach((section) => {
           if (!sections[section]) {
-            console.log(`Section "${section}" not found in parsed sections`);
             return;
           }
 
           let content = sections[section].trim();
           if (!content) {
-            console.log(`Section "${section}" is empty after trimming`);
             return;
           }
 
@@ -578,7 +474,6 @@
           hasContent = true;
         });
 
-        // הצגת Raw Content רק אם לא זוהו סקציות כלל
         if (!hasContent) {
           let rawContent = generatedContent.trim();
           rawContent = rawContent.replace(
@@ -624,6 +519,24 @@
             })
             .catch((err) => {
               alert("Failed to copy content. Please copy it manually.");
+              console.error("Copy failed:", err);
+            });
+        };
+
+        window.copyAllSpecContent = function () {
+          const generatedContent = localStorage.getItem("generatedContent") || "";
+          if (!generatedContent) {
+            alert("No specification available to copy.");
+            return;
+          }
+
+          navigator.clipboard
+            .writeText(generatedContent)
+            .then(() => {
+              alert("Specification copied to clipboard!");
+            })
+            .catch((err) => {
+              alert("Failed to copy specification. Please copy it manually.");
               console.error("Copy failed:", err);
             });
         };

@@ -52,7 +52,6 @@
       href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css" />
     <style>
       body {
         margin: 0;
@@ -73,6 +72,17 @@
         100% {
           background-position: 0% 50%;
         }
+      }
+      .thematic-header {
+        background: none;
+        padding: 20px;
+        text-align: center;
+      }
+      .thematic-header .logo a {
+        color: #fff;
+        font-size: 28px;
+        font-weight: 700;
+        text-decoration: none;
       }
       .carousel-container {
         max-width: 900px;
@@ -95,9 +105,9 @@
         border-radius: 5px;
         color: #333;
         box-sizing: border-box;
-        white-space: normal; /* Allows natural line wrapping */
-        word-break: break-word; /* Breaks long words to wrap naturally */
-        overflow-x: hidden; /* Removes horizontal scrolling for text */
+        white-space: normal;
+        word-break: break-word;
+        overflow-x: hidden;
         position: relative;
       }
       .section-title {
@@ -121,11 +131,11 @@
         transition: all 0.3s ease;
       }
       .copy-button:hover {
-        background-color: #1e87b0;
+        background-color: #1e90ff;
         transform: translateY(-2px);
       }
       .copy-button.copied {
-        background-color: #23a6d5;
+        background-color: #28a745;
       }
       .file-structure-table {
         width: 100%;
@@ -142,42 +152,78 @@
       .file-structure-table th {
         background-color: #f4f4f4;
       }
-      .submit-button-container {
+      .platform-container {
         text-align: center;
-        margin: 20px 0;
+        margin: 20px auto;
         background: rgba(255, 255, 255, 0.95);
-        padding: 15px;
+        padding: 20px;
         border-radius: 15px;
         width: 95%;
         max-width: 900px;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        animation: fadeIn 0.5s ease-in;
       }
-      .export-btn {
-        padding: 10px 20px;
+      .platform-container h3 {
+        font-size: 24px;
+        color: #333;
+        margin-bottom: 10px;
+      }
+      .platform-instructions {
+        color: #666;
+        font-size: 14px;
+        margin-bottom: 15px;
+      }
+      .platform-boxes {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 15px;
+        margin: 15px 0;
+      }
+      .platform-box {
+        padding: 12px;
         border: none;
-        border-radius: 5px;
-        font-size: 16px;
-        cursor: pointer;
-        transition: background-color 0.3s, transform 0.3s ease;
-        margin: 0 10px;
-      }
-      .export-pdf-btn {
+        border-radius: 8px;
         background-color: #23a6d5;
         color: white;
+        font-size: 16px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 48px;
+        animation: fadeIn 0.5s ease-in;
       }
-      .export-pdf-btn:hover {
+      .platform-box:hover {
         background-color: #1e90ff;
-        transform: translateX(5px);
+        transform: translateY(-3px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
       }
-      .export-bash-btn {
-        background-color: #e67e22;
+      .platform-box[data-tooltip]:hover::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #333;
         color: white;
+        padding: 8px 12px;
+        border-radius: 4px;
+        font-size: 12px;
+        white-space: nowrap;
+        z-index: 10;
+        margin-bottom: 8px;
+        animation: fadeInTooltip 0.2s ease-in;
       }
-      .export-bash-btn:hover {
-        background-color: #d35400;
-        transform: translateX(5px);
+      .platform-details {
+        color: #666;
+        font-size: 14px;
+        margin-top: 15px;
+        line-height: 1.5;
       }
-      .popup {
+      .popup, .instructions-popup {
         position: fixed;
         top: 50%;
         left: 50%;
@@ -191,28 +237,28 @@
         max-width: 500px;
         width: 90%;
       }
-      .popup h1 {
+      .popup h1, .instructions-popup h1 {
         font-size: 36px;
         margin-bottom: 10px;
         color: #333;
       }
-      .popup p {
+      .popup p, .instructions-popup p {
         font-size: 18px;
-        color: #333;
+        color: #666;
         margin-bottom: 20px;
       }
-      .popup .close-btn {
+      .popup .close-btn, .instructions-popup .close-btn {
         padding: 10px 20px;
         background-color: #23a6d5;
         color: #fff;
         border: none;
-        border-radius: 4px;
+        border-radius: 8px;
         cursor: pointer;
         transition: background-color 0.3s ease, transform 0.3s ease;
       }
-      .popup .close-btn:hover {
+      .popup .close-btn:hover, .instructions-popup .close-btn:hover {
         background-color: #1e90ff;
-        transform: translateX(5px);
+        transform: translateY(-2px);
       }
       .popup-overlay {
         position: fixed;
@@ -222,6 +268,24 @@
         height: 100%;
         background: rgba(0, 0, 0, 0.5);
         z-index: 999;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      @keyframes fadeInTooltip {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
       }
     </style>
   </head>
@@ -236,23 +300,32 @@
       <div class="sections-grid" id="specContent"></div>
     </div>
 
-    <div class="submit-button-container">
-      <button
-        id="downloadPdfButton"
-        class="export-btn export-pdf-btn"
-        onclick="downloadPdf()"
-        aria-label="Download specification as PDF"
-      >
-        <i class="fas fa-file-pdf"></i> Download as PDF
-      </button>
-      <button
-        id="exportBashButton"
-        class="export-btn export-bash-btn"
-        onclick="exportBash()"
-        aria-label="Export file structure as Bash script"
-      >
-        <i class="fas fa-terminal"></i> Export File Structure (Bash)
-      </button>
+    <div class="platform-container">
+      <h3>Setup Your Programming Environment</h3>
+      <p class="platform-instructions">Select a platform to set up your project or export the specification.</p>
+      <div class="platform-boxes">
+        <button class="platform-box" onclick="copySpecAndOpen('https://replit.com/new')" data-tooltip="Copy the specification and code in an online IDE.">
+          Replit
+        </button>
+        <button class="platform-box" onclick="copySpecAndOpen('https://gitpod.io/#')" data-tooltip="Copy the specification and develop in a cloud-based IDE with GitHub integration.">
+          Gitpod
+        </button>
+        <button class="platform-box" onclick="copySpecAndShowInstructions()" data-tooltip="Copy the specification and set up the project on your local machine.">
+          Local Setup
+        </button>
+        <button class="platform-box" onclick="exportAsZip()" data-tooltip="Download the file structure as a ZIP archive for quick setup.">
+          ZIP
+        </button>
+        <button class="platform-box" onclick="downloadPdf()" data-tooltip="Download the specification as a PDF file.">
+          PDF
+        </button>
+        <button class="platform-box" onclick="exportBash()" data-tooltip="Copy the Bash script to create the file structure.">
+          Bash
+        </button>
+      </div>
+      <p class="platform-details">
+        Choose a platform to copy the full specification and start coding, or export it as a PDF, Bash script, or ZIP file.
+      </p>
     </div>
 
     <footer style="text-align: center; padding: 20px; color: #fff">
@@ -274,11 +347,27 @@
       <button class="close-btn" onclick="closePopup()">Close</button>
     </div>
 
+    <div class="popup-overlay" id="instructionsOverlay" style="display: none"></div>
+    <div class="instructions-popup" id="instructionsPopup" style="display: none">
+      <h1>Local Setup Instructions</h1>
+      <p>
+        The full specification has been copied to your clipboard. Follow these steps to set up your project locally:
+        <br><br>
+        1. Open your terminal and navigate to your project directory (e.g., <code>cd ~/my-project</code>).<br>
+        2. Paste the specification into a text editor (e.g., VS Code, PyCharm) for reference.<br>
+        3. To create the file structure, use the "Bash" button to copy the Bash script from the "Bash Script" section, then paste and run it in your terminal.<br>
+        4. Alternatively, manually create the file structure based on the "File Structure" section.<br>
+        5. Open your preferred IDE (e.g., VS Code, PyCharm) and start coding, using the specification as your guide.
+      </p>
+      <button class="close-btn" onclick="closeInstructions()">Close</button>
+    </div>
+
     <script
       defer
       src="https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js"
     ></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script>
       document.addEventListener("DOMContentLoaded", () => {
         console.log("Result page loaded");
@@ -614,9 +703,112 @@
           }
         };
 
+        window.copySpecAndOpen = function (url) {
+          const specText = generatedContent || "No specification available";
+          navigator.clipboard
+            .writeText(specText)
+            .then(() => {
+              alert("Specification copied to clipboard!");
+              window.open(url, "_blank");
+            })
+            .catch((err) => {
+              console.error("Failed to copy specification:", err);
+              alert(
+                "Failed to copy specification. Please copy it manually from the sections below."
+              );
+            });
+        };
+
+        window.copySpecAndShowInstructions = function () {
+          const specText = generatedContent || "No specification available";
+          navigator.clipboard
+            .writeText(specText)
+            .then(() => {
+              document.getElementById("instructionsOverlay").style.display = "block";
+              document.getElementById("instructionsPopup").style.display = "block";
+            })
+            .catch((err) => {
+              console.error("Failed to copy specification:", err);
+              alert(
+                "Failed to copy specification. Please copy it manually from the sections below."
+              );
+            });
+        };
+
+        window.exportAsZip = function () {
+          const fileStructureMatch = generatedContent.match(
+            /File Structure:([\s\S]*?)(?=(?:^Bash Script:|^Additional Notes:|\Z))/i
+          );
+          if (!fileStructureMatch) {
+            alert("No file structure found in the specification.");
+            console.error("File Structure section not found in generatedContent.");
+            return;
+          }
+
+          const zip = new JSZip();
+          const fileStructure = fileStructureMatch[1].trim();
+          const lines = fileStructure.split("\n");
+          let inTable = false;
+          let fileCount = 0;
+
+          console.log("Parsing File Structure:\n", fileStructure);
+
+          lines.forEach((line, index) => {
+            line = line.trim();
+            if (!line) return;
+            if (line.includes("|") && !line.includes("Directory|Files|Purpose")) {
+              inTable = true;
+              const parts = line.split("|").map((s) => s.trim());
+              if (parts.length < 3) {
+                console.warn(`Invalid table row at line ${index}: ${line}`);
+                return;
+              }
+              const [dir, files, _] = parts;
+              if (dir && files) {
+                console.log(`Processing row ${index}: dir=${dir}, files=${files}`);
+                const fileList = files.split(",").map((f) => f.trim()).filter(f => f);
+                fileList.forEach((file) => {
+                  const filePath = dir === "/" ? file : `${dir}/${file}`;
+                  zip.file(filePath, `Placeholder file for ${filePath}\nCreated by specifys.ai\n`);
+                  fileCount++;
+                  console.log(`Added file: ${filePath}`);
+                });
+              } else {
+                console.warn(`Skipping row ${index}: Missing dir or files - dir=${dir}, files=${files}`);
+              }
+            } else if (inTable && line) {
+              inTable = false;
+            }
+          });
+
+          if (fileCount === 0) {
+            alert("No valid files found in the file structure. Please check the 'File Structure' section for a valid table format.");
+            console.error("No files added to ZIP. Check table format in File Structure.");
+            return;
+          }
+
+          zip.generateAsync({ type: "blob" }).then((content) => {
+            console.log(`Generated ZIP with ${fileCount} files.`);
+            const url = window.URL.createObjectURL(content);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "project-structure.zip";
+            a.click();
+            window.URL.revokeObjectURL(url);
+          }).catch((err) => {
+            console.error("Failed to generate ZIP:", err);
+            alert("Failed to generate ZIP file. Please try again.");
+          });
+        };
+
         window.closePopup = function () {
           document.getElementById("popupOverlay").style.display = "none";
           document.getElementById("welcomePopup").style.display = "none";
+        };
+
+        window.closeInstructions = function () {
+          document.getElementById("instructionsOverlay").style.display = "none";
+          document.getElementById("instructionsPopup").style.display = "none";
         };
       });
     </script>

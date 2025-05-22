@@ -1,255 +1,467 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta
-      name="description"
-      content="Turn your ideas into detailed application specifications with specifys.ai. Build your next code project now!"
-    />
-    <meta
-      name="keywords"
-      content="application specification, AI development, code project, specifys.ai"
-    />
-    <meta name="author" content="specifys.ai Team" />
-    <meta name="robots" content="index, follow" />
-    <meta property="og:title" content="specifys.ai - Turn Ideas into Apps" />
-    <meta
-      property="og:description"
-      content="Turn your ideas into detailed application specifications with specifys.ai. Build your next code project now!"
-    />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://specifys.ai/index.html" />
-    <meta
-      property="og:image"
-      content="https://specifys.ai/assets/og-image.jpg"
-    />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="specifys.ai - Turn Ideas into Apps" />
-    <meta
-      name="twitter:description"
-      content="Turn your ideas into detailed application specifications with specifys.ai. Build your next code project now!"
-    />
-    <meta
-      name="twitter:image"
-      content="https://specifys.ai/assets/og-image.jpg"
-    />
-    <title>specifys.ai - Turn Ideas into Apps</title>
-    <link rel="icon" type="image/x-icon" href="favicon.ico" />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="styles.css" />
-    <script
-      defer
-      src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
-    ></script>
-  </head>
-  <body class="page-default">
-    <header class="thematic-header" role="banner">
-      <div class="logo">
-        <a href="index.html" aria-label="specifys.ai homepage">specifys.ai</a>
-      </div>
-    </header>
-    <div class="main-content-wrapper">
-      <div class="header-text">
-        <h1>AI-Powered App Planning for Vibe Coding</h1>
-        <p>
-          Use specifys.ai to create detailed specifications for your next code
-          project.
-        </p>
-      </div>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Choose your track to create detailed app specifications, technical infrastructure, or market research with AI and Vibe Coding for non-programmers, developers, and entrepreneurs.">
+  <meta name="keywords" content="app specification, AI development, Vibe Coding, non-programmers, developers, entrepreneurs, specifys.ai">
+  <meta name="author" content="specifys.ai Team">
+  <meta name="robots" content="index, follow">
+  <meta property="og:title" content="specifys.ai - Turn Ideas into Apps">
+  <meta property="og:description" content="Choose your track to create detailed app specifications, technical infrastructure, or market research with AI and Vibe Coding.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://specifys.ai/index.html">
+  <meta property="og:image" content="https://specifys.ai/assets/og-image.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="specifys.ai - Turn Ideas into Apps">
+  <meta name="twitter:description" content="Choose your track to create detailed app specifications, technical infrastructure, or market research with AI and Vibe Coding.">
+  <meta name="twitter:image" content="https://specifys.ai/assets/og-image.jpg">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-RWBT69JCM7"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-RWBT69JCM7');
+  </script>
+  <title>specifys.ai - Turn Ideas into Apps</title>
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap");
 
-      <div class="input-container">
-        <div class="mode-buttons-container" id="modeButtons">
-          <button
-            class="mode-button"
-            data-mode="novice"
-            onclick="selectMode(this)"
-            aria-label="Select novice mode for easy guide"
-          >
-            Start-Easy
-          </button>
-          <button
-            class="mode-button"
-            data-mode="developers"
-            onclick="selectMode(this)"
-            aria-label="Select developers mode for detailed specs"
-          >
-            Dev-Tools
-          </button>
-          <button
-            class="mode-button"
-            data-mode="market"
-            onclick="selectMode(this)"
-            aria-label="Select market mode for research insights"
-          >
-            Explore
-          </button>
-        </div>
-        <textarea
-          id="ideaInput"
-          placeholder="Enter your app idea here..."
-          maxlength="2500"
-          aria-label="App idea input"
-          style="position: relative"
-        ></textarea>
-        <div
-          id="errorMessage"
-          role="alert"
-          style="color: red; text-align: center; margin-top: 1vh; display: none"
-          class="error-absolute"
-        ></div>
-        <div class="button-wrapper-center">
-          <button
-            class="go-button"
-            onclick="startProcess()"
-            aria-label="Go to processing"
-          >
-            go
-          </button>
-        </div>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      font-family: "Montserrat", sans-serif;
+      position: relative;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    body.page-default {
+      background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+      background-size: 400% 400%;
+      animation: gradient 30s ease infinite;
+    }
+
+    @keyframes gradient {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .thematic-header {
+      position: absolute;
+      top: 0;
+      width: 100%;
+      padding: 30px 24px 16px;
+      display: flex;
+      align-items: center;
+      z-index: 10;
+      background: transparent;
+    }
+
+    .thematic-header .logo {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+    }
+
+    .thematic-header .logo a {
+      text-decoration: none;
+      color: #fff;
+      font-size: 1.75rem;
+      font-weight: 700;
+    }
+
+    .main-content-wrapper {
+      position: relative;
+      width: 100%;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 8rem 2rem 6rem;
+      box-sizing: border-box;
+    }
+
+    .header-text {
+      width: 100%;
+      max-width: 800px;
+      text-align: center;
+      margin-bottom: 4rem;
+      padding: 0 1rem;
+      animation: fadeIn 1s ease-in;
+    }
+
+    .header-text h1 {
+      color: #fff;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      line-height: 1.2;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .track-container {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      width: 100%;
+      max-width: 800px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 200px;
+    }
+
+    .track-container h2 {
+      font-size: 1.6em;
+      font-weight: 700;
+      color: #23a6d5;
+      margin-bottom: 20px;
+      text-transform: none;
+    }
+
+    .mode-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .mode-button {
+      background: #fff;
+      color: #23a6d5;
+      border: 2px solid #23a6d5;
+      border-radius: 30px;
+      padding: 10px 20px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 140px;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .mode-button:hover, .mode-button.active {
+      background: #23a6d5;
+      color: #fff;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      border: 2px solid #23a6d5;
+    }
+
+    .mode-button i {
+      font-size: 0.8rem;
+      margin-right: 6px;
+    }
+
+    .track-info {
+      margin-top: 15px;
+      font-size: 0.85rem;
+      color: #666;
+      min-height: 40px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .track-info.show {
+      opacity: 1;
+    }
+
+    .stats-section {
+      text-align: center;
+      margin-top: 30px;
+      width: 100%;
+      max-width: 800px;
+    }
+
+    .stats-title {
+      color: #fff;
+      font-size: 1.8em;
+      font-weight: 700;
+      margin-bottom: 15px;
+      text-transform: uppercase;
+    }
+
+    .stats-container {
+      display: flex;
+      width: 100%;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .stat-box {
+      background: rgba(255, 255, 255, 0.9);
+      border: 2px solid #fff;
+      border-radius: 15px;
+      padding: 20px;
+      text-align: center;
+      width: 200px;
+      transition: transform 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .stat-box:hover {
+      transform: scale(1.05);
+    }
+
+    .stat-box h3 {
+      color: #666;
+      font-size: 1.2em;
+      margin: 0 0 10px 0;
+      text-transform: uppercase;
+    }
+
+    .stat-box .stat-number {
+      color: #23a6d5;
+      font-size: 2.5em;
+      font-weight: 700;
+    }
+
+    footer {
+      opacity: 0;
+      animation: fadeIn 1s ease forwards 1s;
+      padding: 20px;
+      text-align: center;
+      width: 100%;
+    }
+
+    footer a {
+      color: #fff;
+      text-decoration: none;
+      font-size: 0.9rem;
+      margin: 0 10px;
+      font-weight: 500;
+      transition: color 0.3s ease;
+    }
+
+    footer a:hover {
+      color: #23a6d5;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 768px) {
+      .main-content-wrapper {
+        padding: 6rem 1.5rem 4rem;
+      }
+      .header-text {
+        margin-bottom: 3rem;
+      }
+      .header-text h1 {
+        font-size: clamp(1.6rem, 3.5vw, 2.2rem);
+      }
+      .track-container {
+        padding: 20px;
+        min-height: 180px;
+      }
+      .track-container h2 {
+        font-size: 1.5em;
+      }
+      .mode-buttons {
+        flex-direction: column;
+        gap: 10px;
+      }
+      .mode-button {
+        width: 100%;
+        padding: 8px 15px;
+        font-size: 0.85rem;
+      }
+      .track-info {
+        font-size: 0.8rem;
+      }
+      .stats-container {
+        gap: 8px;
+      }
+      .stat-box {
+        width: 140px;
+        padding: 10px;
+      }
+      .stat-box .stat-number {
+        font-size: 1.5em;
+      }
+      .stats-title {
+        font-size: 1.5em;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .thematic-header .logo a {
+        font-size: 1.5rem;
+      }
+      .track-container {
+        padding: 15px;
+        min-height: 160px;
+      }
+      .stats-title {
+        font-size: 1.2em;
+      }
+      .stat-box {
+        width: 120px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      body.page-default {
+        animation: none;
+      }
+      .mode-button, .stat-box, .header-text, footer {
+        transition: none;
+        animation: none;
+        opacity: 1;
+      }
+    }
+  </style>
+</head>
+<body class="page-default">
+  <header class="thematic-header" role="banner">
+    <div class="logo">
+      <a href="index.html" aria-label="specifys.ai homepage">specifys.ai</a>
+    </div>
+  </header>
+
+  <div class="main-content-wrapper">
+    <div class="header-text">
+      <h1>AI-Powered App Planning for Vibe Coding</h1>
+    </div>
+
+    <div class="track-container">
+      <h2>Choose Your Track</h2>
+      <div class="mode-buttons" id="modeButtons">
+        <button class="mode-button" data-mode="novice" onmouseover="showTrackInfo('novice')" onmouseout="hideTrackInfo()" onclick="selectMode('novice')" aria-label="Select Start-Easy mode for non-programmers"><i class="fas fa-edit"></i>Start-Easy</button>
+        <button class="mode-button" data-mode="developers" onmouseover="showTrackInfo('developers')" onmouseout="hideTrackInfo()" onclick="selectMode('developers')" aria-label="Select Dev-Tools mode for developers"><i class="fas fa-code"></i>Dev-Tools</button>
+        <button class="mode-button" data-mode="market" onmouseover="showTrackInfo('market')" onmouseout="hideTrackInfo()" onclick="selectMode('market')" aria-label="Select Explore mode for entrepreneurs"><i class="fas fa-chart-bar"></i>Explore</button>
       </div>
-      <div class="stats-section">
-        <h2 class="stats-title">Created with specifys.ai so far:</h2>
-        <div class="stats-container">
-          <div class="stat-box">
-            <h3>Start-Easy</h3>
-            <div class="stat-number" id="noviceCount">0</div>
-          </div>
-          <div class="stat-box">
-            <h3>Dev-Tools</h3>
-            <div class="stat-number" id="developersCount">0</div>
-          </div>
-          <div class="stat-box">
-            <h3>Explore</h3>
-            <div class="stat-number" id="marketCount">0</div>
-          </div>
+      <div class="track-info" id="trackInfo"></div>
+    </div>
+
+    <div class="stats-section">
+      <h2 class="stats-title">Created with specifys.ai so far:</h2>
+      <div class="stats-container">
+        <div class="stat-box">
+          <h3>Start-Easy</h3>
+          <div class="stat-number" id="noviceCount">0</div>
+        </div>
+        <div class="stat-box">
+          <h3>Dev-Tools</h3>
+          <div class="stat-number" id="developersCount">0</div>
+        </div>
+        <div class="stat-box">
+          <h3>Explore</h3>
+          <div class="stat-number" id="marketCount">0</div>
         </div>
       </div>
     </div>
-    <footer
-      style="
-        text-align: center;
-        padding: 2vh;
-        color: #fff;
-        position: absolute;
-        bottom: 0;
-        width: 100%;
-      "
-    >
-      <a
-        href="how.html"
-        style="color: #fff; text-decoration: underline"
-        aria-label="Learn how specifys.ai works"
-        >How It Works</a
-      >
-    </footer>
+  </div>
 
-    <script
-      defer
-      src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"
-    ></script>
-    <script defer src="script.js"></script>
-    <script defer src="typingEffect.js"></script>
-    <script>
-      document.addEventListener("DOMContentLoaded", () => {
-        if (!localStorage.getItem("visited")) {
-          window.location.href = "landing.html";
-          localStorage.setItem("visited", "true");
-        }
+  <footer>
+    <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
+    <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
+  </footer>
 
-        localStorage.setItem("selectedMode", "novice");
-        document.body.classList.add("novice");
-        const defaultButton = document.querySelector(
-          '.mode-button[data-mode="novice"]'
-        );
-        if (defaultButton) defaultButton.classList.add("active");
-
-        setTimeout(() => {
-          const modeButtons = document.getElementById("modeButtons");
-          if (modeButtons) modeButtons.classList.add("visible");
-        }, 1000);
-
-        const ideaInput = document.getElementById("ideaInput");
-        function animateCounter(element, target, duration) {
-          let start = 0;
-          const increment = target / (duration / 16);
-          const interval = setInterval(() => {
-            start += increment;
-            if (start >= target) {
-              start = target;
-              clearInterval(interval);
-            }
-            element.textContent = Math.round(start);
-          }, 16);
-        }
-
-        const noviceTarget = Math.floor(Math.random() * 50) + 10;
-        const developersTarget = Math.floor(Math.random() * 50) + 10;
-        const marketTarget = Math.floor(Math.random() * 50) + 10;
-
-        const noviceCount = document.getElementById("noviceCount");
-        const developersCount = document.getElementById("developersCount");
-        const marketCount = document.getElementById("marketCount");
-        if (noviceCount) animateCounter(noviceCount, noviceTarget, 2000);
-        if (developersCount)
-          animateCounter(developersCount, developersTarget, 2000);
-        if (marketCount) animateCounter(marketCount, marketTarget, 2000);
-      });
-
-      function selectMode(button) {
-        const buttons = document.querySelectorAll(".mode-button");
-        buttons.forEach((btn) => btn.classList.remove("active"));
-        button.classList.add("active");
-        const mode = button.getAttribute("data-mode");
-        localStorage.setItem("selectedMode", mode);
-        document.body.className = "page-default " + mode;
+  <script defer src="script.js"></script>
+  <script defer src="typingEffect.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      if (!localStorage.getItem("visited")) {
+        window.location.href = "landing.html";
+        localStorage.setItem("visited", "true");
       }
 
-      function startProcess() {
-        const ideaInput = document.getElementById("ideaInput");
-        const errorMessage = document.getElementById("errorMessage");
-        if (!ideaInput || !errorMessage) return;
-
-        const ideaValue = ideaInput.value.trim();
-        if (!ideaValue) {
-          errorMessage.textContent =
-            "Please enter your app idea before proceeding.";
-          errorMessage.style.display = "block";
-          return;
-        }
-        errorMessage.style.display = "none";
-        const mode = localStorage.getItem("selectedMode") || "novice";
-        localStorage.setItem("formData", JSON.stringify({ idea: ideaValue }));
-        if (mode === "novice") {
-          window.location.href = "./processing-novice.html";
-        } else if (mode === "market") {
-          window.location.href = "./processing-market.html";
-        } else {
-          window.location.href = "./processing.html";
-        }
+      function animateCounter(element, target, duration) {
+        let start = 0;
+        const increment = target / (duration / 16);
+        const interval = setInterval(() => {
+          start += increment;
+          if (start >= target) {
+            start = target;
+            clearInterval(interval);
+          }
+          element.textContent = Math.round(start);
+        }, 16);
       }
-    </script>
-    <!-- /* JavaScript to activate send-button when mode is selected */ -->
-    <script>
-      document.querySelectorAll(".mode-button").forEach((button) => {
-        button.addEventListener("click", () => {
-          document.querySelector(".send-button").classList.add("active");
-        });
-      });
-    </script>
 
-    <noscript>
-      <div
-        style="text-align: center; padding: 2vh; background: #fff; color: #333"
-      >
-        <p>
-          This website requires JavaScript to function properly. Please enable
-          JavaScript in your browser settings.
-        </p>
-      </div>
-    </noscript>
-  </body>
+      const noviceTarget = Math.floor(Math.random() * 50) + 10;
+      const developersTarget = Math.floor(Math.random() * 50) + 10;
+      const marketTarget = Math.floor(Math.random() * 50) + 10;
+
+      const noviceCount = document.getElementById("noviceCount");
+      const developersCount = document.getElementById("developersCount");
+      const marketCount = document.getElementById("marketCount");
+      if (noviceCount) animateCounter(noviceCount, noviceTarget, 2000);
+      if (developersCount) animateCounter(developersCount, developersTarget, 2000);
+      if (marketCount) animateCounter(marketCount, marketTarget, 2000);
+    });
+
+    function selectMode(mode) {
+      const buttons = document.querySelectorAll(".mode-button");
+      buttons.forEach((btn) => btn.classList.remove("active"));
+      document.querySelector(`.mode-button[data-mode="${mode}"]`).classList.add("active");
+      localStorage.setItem("selectedMode", mode);
+      if (mode === "novice") {
+        window.location.href = "./processing-novice.html";
+      } else if (mode === "market") {
+        window.location.href = "./processing-market.html";
+      } else {
+        window.location.href = "./processing.html";
+      }
+    }
+
+    function showTrackInfo(mode) {
+      const trackInfo = document.getElementById("trackInfo");
+      trackInfo.classList.add("show");
+      if (mode === "novice") {
+        trackInfo.textContent = "For non-coders with big ideas. Craft an AI-driven app specification to create your app without writing a single line of code.";
+      } else if (mode === "developers") {
+        trackInfo.textContent = "For developers building robust apps. Get a detailed technical blueprint with file structures, APIs, and scripts to streamline your coding.";
+      } else if (mode === "market") {
+        trackInfo.textContent = "For entrepreneurs who want in-depth market research to validate their app idea and pitch to investors.";
+      }
+    }
+
+    function hideTrackInfo() {
+      const trackInfo = document.getElementById("trackInfo");
+      trackInfo.classList.remove("show");
+      trackInfo.textContent = "";
+    }
+  </script>
+
+  <noscript>
+    <div style="text-align: center; padding: 20px; background: #fff; color: #333;">
+      <p>This website requires JavaScript to function properly. Please enable JavaScript in your browser settings.</p>
+    </div>
+  </noscript>
+</body>
 </html>
