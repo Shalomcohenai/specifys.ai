@@ -34,6 +34,18 @@
       name="twitter:image"
       content="https://specifys.ai/assets/og-image.jpg"
     />
+    <!-- NEW: Canonical tag -->
+    <link rel="canonical" href="https://specifys.ai/processing-market.html">
+    <!-- NEW: Schema Markup -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Market Research Mode - specifys.ai",
+      "url": "https://specifys.ai/processing-market.html",
+      "description": "Analyze your app idea's market potential with specifys.ai."
+    }
+    </script>
     <title>specifys.ai - Market Research Mode</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
     <link rel="stylesheet" href="styles.css" />
@@ -223,7 +235,6 @@
           aria-label="Previous step"
           style="display: none"
         >
-          <!-- left -->
           ←
         </button>
         <button
@@ -232,7 +243,6 @@
           onclick="nextStep()"
           aria-label="Next step"
         >
-          <!-- right -->
           →
         </button>
         <button
@@ -463,7 +473,7 @@
         font-family: "Montserrat", sans-serif;
         position: relative;
         overflow-x: hidden;
-        -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+        -webkit-overflow-scrolling: touch;
       }
       @keyframes spin {
         0% {
