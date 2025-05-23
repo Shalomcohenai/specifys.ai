@@ -1,43 +1,46 @@
 async function generateSpecificationFromProcessingNoviceJs() {
-    try {
-      console.log('Starting generateSpecificationFromProcessingNoviceJs');
-      const formData = JSON.parse(localStorage.getItem('formData')) || {};
-      const idea = formData.idea || 'Not provided';
-      const topic = formData.topic || 'Not specified';
-      const platform = formData.platform || 'Not specified';
-      const currentMode = localStorage.getItem('currentMode') || 'nocode';
-      console.log('Form data:', { idea, topic, platform, currentMode });
-  
-      const answers = JSON.parse(localStorage.getItem('processingAnswers')) || {};
-      console.log('Answers:', answers);
-  
-      let details = '';
-      const steps = [
-        { name: 'User Workflow', question: 'Describe the typical workflow of a user using your app.' },
-        { name: 'Design', question: 'What design elements are most important for your app?' },
-        { name: 'Features', question: 'What key features do you want your app to have?' },
-        { name: 'Target Audience', question: 'Who is your target audience?' },
-        { name: 'Technical Requirements', question: 'What technical requirements does your app need?' },
-        { name: 'Integrations', question: 'What integrations should your app support?', type: 'yesno' },
-        { name: 'Monetization', question: 'How do you plan to monetize your app?', type: 'yesno' },
-        { name: 'Notifications', question: 'What notifications should your app send?', type: 'yesno' },
-        { name: 'Authentication', question: 'What authentication methods will your app use?', type: 'yesno' },
-      ];
-  
-      steps.forEach((step, index) => {
-        const response = answers[index] || 'Not provided';
-        if (step.type === 'yesno') {
-          const enabled = response.toLowerCase().includes('yes');
-          details += `${step.question}: ${enabled ? 'Yes' : 'No'}\n`;
-          if (enabled) {
-            details += `${step.name}: ${response}\n`;
-          }
-        } else {
-          details += `${step.name}: ${response}\n`;
-        }
-      });
-  
-      const fullPrompt = `You are a professional product manager and UX architect.  
+  try {
+    console.log('Starting generateSpecificationFromProcessingNoviceJs');
+    const formData = JSON.parse(localStorage.getItem('formData')) || {};
+    const idea = formData.idea || 'Not provided';
+    const topic = formData.topic || 'Not specified';
+    const platform = formData.platform || 'Not specified';
+    const currentMode = localStorage.getItem('currentMode') || 'nocode';
+    console.log('Form data:', { idea, topic, platform, currentMode });
+
+    const answers = JSON.parse(localStorage.getItem('processingAnswers')) || {};
+    console.log('Answers:', answers);
+
+    let details = '';
+    const steps = [
+      { name: 'App Overview', question: 'What is the general purpose and idea of your app?' },
+      { name: 'User Workflow', question: 'Describe the typical workflow of a user using your app.' },
+      { name: 'Design', question: 'What design elements are most important for your app?' },
+      { name: 'Features', question: 'What key features do you want your app to have?' },
+      { name: 'Target Audience', question: 'Who is your target audience?' },
+      { name: 'User Account System', question: 'Does your app require a user account system?', type: 'yesno' },
+      { name: 'AI Features', question: 'Does your app use or integrate with AI features?', type: 'yesno' },
+      { name: 'Free to Use', question: 'Will your app be free to use?', type: 'yesno' },
+      { name: 'Notifications', question: 'Does your app need to send notifications?', type: 'yesno' },
+      { name: 'Offline Mode', question: 'Does your app need to work offline?', type: 'yesno' },
+      { name: 'Multiple Languages', question: 'Will your app support multiple languages?', type: 'yesno' },
+      { name: 'Social Media Integration', question: 'Does your app require integration with social media?', type: 'yesno' },
+      { name: 'Analytics', question: 'Will your app collect user data for analytics?', type: 'yesno' },
+      { name: 'Additional Notes', question: 'Any additional notes or requirements for your app?' }
+    ];
+
+    steps.forEach((step, index) => {
+      const response = index < 5 ? answers[index] || 'Not provided' : 
+                      index < 13 ? answers[`yesNo_${index - 5}`] || 'Not specified' : 
+                      answers[index] || 'Not provided';
+      if (step.type === 'yesno') {
+        details += `${step.question}: ${response}\n`;
+      } else {
+        details += `${step.name}: ${response}\n`;
+      }
+    });
+
+    const fullPrompt = `You are a professional product manager and UX architect.  
 
 Your task is to generate a clear, structured, and highly detailed **Application Specification Document** written in the language and mindset of software developers.  
 
@@ -134,54 +137,53 @@ Details:
 ${details}
 `;
 
-  
-      console.log('Full prompt constructed:', fullPrompt);
-      console.log('Prompt length (characters):', fullPrompt.length);
-      console.log('Sending request with prompt:', fullPrompt);
-      const response = await fetch('https://worker1.shalom-cohen-111.workers.dev', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ prompt: fullPrompt }),
-      });
-  
-      console.log('API response status received:', response.status);
-      const data = await response.json();
-      console.log('API response data received:', data);
-  
-      if (!response.ok) {
-        throw new Error(`API Error: ${data.error || 'Unknown error'}`);
-      }
-  
-      const generatedContent = data.specification || 'No specification generated';
-      console.log('Generated content extracted:', generatedContent);
-  
-      console.log('Saving generated content to localStorage');
-      localStorage.setItem('generatedContent', generatedContent);
-  
-      if (typeof confetti === 'function') {
-        console.log('Triggering confetti');
-        confetti({
-          particleCount: 100,
-          spread: 70,
-          origin: { y: 0.6 }
-        });
-      }
-  
-      console.log('Redirecting to result-novice.html');
-      window.location.href = 'result-novice.html';
-    } catch (err) {
-      console.error('Error in generateSpecificationFromProcessingNoviceJs:', err.message);
-      alert('Failed to generate specification: ' + err.message);
-      const generateSpecButton = document.getElementById('generateSpecButton');
-      const loadingSpinner = document.getElementById('loadingSpinner');
-      if (generateSpecButton) generateSpecButton.disabled = false;
-      if (loadingSpinner) loadingSpinner.style.display = 'none';
+    console.log('Full prompt constructed:', fullPrompt);
+    console.log('Prompt length (characters):', fullPrompt.length);
+    console.log('Sending request with prompt:', fullPrompt);
+    const response = await fetch('https://worker1.shalom-cohen-111.workers.dev', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ prompt: fullPrompt }),
+    });
+
+    console.log('API response status received:', response.status);
+    const data = await response.json();
+    console.log('API response data received:', data);
+
+    if (!response.ok) {
+      throw new Error(`API Error: ${data.error || 'Unknown error'}`);
     }
+
+    const generatedContent = data.specification || 'No specification generated';
+    console.log('Generated content extracted:', generatedContent);
+
+    console.log('Saving generated content to localStorage');
+    localStorage.setItem('generatedContent', generatedContent);
+
+    if (typeof confetti === 'function') {
+      console.log('Triggering confetti');
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 }
+      });
+    }
+
+    console.log('Redirecting to result-novice.html');
+    window.location.href = 'result-novice.html';
+  } catch (err) {
+    console.error('Error in generateSpecificationFromProcessingNoviceJs:', err.message);
+    alert('Failed to generate specification: ' + err.message);
+    const goButton = document.getElementById("goButton");
+    const loadingSpinner = document.getElementById("loadingSpinner");
+    if (goButton) goButton.disabled = false;
+    if (loadingSpinner) loadingSpinner.style.display = "none";
   }
-  
-  document.addEventListener('DOMContentLoaded', () => {
-    console.log('processing-novice.js loaded, setting generateSpecificationOriginal');
-    window.generateSpecificationOriginal = generateSpecificationFromProcessingNoviceJs;
-  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+console.log('processing-novice.js loaded, setting generateSpecificationOriginal');
+window.generateSpecificationOriginal = generateSpecificationFromProcessingNoviceJs;
+});

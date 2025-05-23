@@ -55,10 +55,8 @@
     <div class="carousel-container">
       <div id="carouselContent" class="carousel-content">
         <div class="step-container">
-          <h3 id="stepTitle" style="color: #00b4d8">Workflow</h3>
-          <p id="stepQuestion" class="question-label">
-            Describe the typical workflow of a user using your app.
-          </p>
+          <h3 id="stepTitle" style="color: #00b4d8">App Overview</h3>
+          <p id="stepQuestion" class="question-label"></p>
           <textarea
             id="stepTextarea"
             class="step-textarea"
@@ -67,6 +65,64 @@
             aria-label="Answer the current question"
           ></textarea>
           <span id="charCount" class="char-count">0/2500</span>
+          <div id="yesNoContainer" style="display: none;">
+            <div class="yes-no-question">
+              <label>Does your app require a user account system?</label>
+              <div class="button-group">
+                <button class="yes-button" data-question="0" data-value="Yes">Yes</button>
+                <button class="no-button" data-question="0" data-value="No">No</button>
+              </div>
+            </div>
+            <div class="yes-no-question">
+              <label>Does your app use or integrate with AI features?</label>
+              <div class="button-group">
+                <button class="yes-button" data-question="1" data-value="Yes">Yes</button>
+                <button class="no-button" data-question="1" data-value="No">No</button>
+              </div>
+            </div>
+            <div class="yes-no-question">
+              <label>Will your app be free to use?</label>
+              <div class="button-group">
+                <button class="yes-button" data-question="2" data-value="Yes">Yes</button>
+                <button class="no-button" data-question="2" data-value="No">No</button>
+              </div>
+            </div>
+            <div class="yes-no-question">
+              <label>Does your app need to send notifications?</label>
+              <div class="button-group">
+                <button class="yes-button" data-question="3" data-value="Yes">Yes</button>
+                <button class="no-button" data-question="3" data-value="No">No</button>
+              </div>
+            </div>
+            <div class="yes-no-question">
+              <label>Does your app need to work offline?</label>
+              <div class="button-group">
+                <button class="yes-button" data-question="4" data-value="Yes">Yes</button>
+                <button class="no-button" data-question="4" data-value="No">No</button>
+              </div>
+            </div>
+            <div class="yes-no-question">
+              <label>Will your app support multiple languages?</label>
+              <div class="button-group">
+                <button class="yes-button" data-question="5" data-value="Yes">Yes</button>
+                <button class="no-button" data-question="5" data-value="No">No</button>
+              </div>
+            </div>
+            <div class="yes-no-question">
+              <label>Does your app require integration with social media?</label>
+              <div class="button-group">
+                <button class="yes-button" data-question="6" data-value="Yes">Yes</button>
+                <button class="no-button" data-question="6" data-value="No">No</button>
+              </div>
+            </div>
+            <div class="yes-no-question">
+              <label>Will your app collect user data for analytics?</label>
+              <div class="button-group">
+                <button class="yes-button" data-question="7" data-value="Yes">Yes</button>
+                <button class="no-button" data-question="7" data-value="No">No</button>
+              </div>
+            </div>
+          </div>
           <div
             id="errorMessage"
             style="color: red; margin-top: 10px; display: none"
@@ -81,6 +137,14 @@
               role="group"
               aria-label="Progress indicators by category"
             >
+              <div class="indicator-item">
+                <span
+                  class="indicator-circle"
+                  id="overview-indicator"
+                  aria-label="App Overview progress"
+                ></span>
+                <span>App Overview</span>
+              </div>
               <div class="indicator-item">
                 <span
                   class="indicator-circle"
@@ -108,7 +172,7 @@
               <div class="indicator-item">
                 <span
                   class="indicator-circle"
-                  id="target-audience-indicator"
+                  id="audience-indicator"
                   aria-label="Target Audience progress"
                 ></span>
                 <span>Target Audience</span>
@@ -116,42 +180,18 @@
               <div class="indicator-item">
                 <span
                   class="indicator-circle"
-                  id="technical-requirements-indicator"
-                  aria-label="Technical requirements progress"
+                  id="settings-indicator"
+                  aria-label="App Settings progress"
                 ></span>
-                <span>Technical</span>
+                <span>App Settings</span>
               </div>
               <div class="indicator-item">
                 <span
                   class="indicator-circle"
-                  id="integrations-indicator"
-                  aria-label="Integrations progress"
+                  id="notes-indicator"
+                  aria-label="Additional Notes progress"
                 ></span>
-                <span>Integrations</span>
-              </div>
-              <div class="indicator-item">
-                <span
-                  class="indicator-circle"
-                  id="monetization-indicator"
-                  aria-label="Monetization progress"
-                ></span>
-                <span>Monetization</span>
-              </div>
-              <div class="indicator-item">
-                <span
-                  class="indicator-circle"
-                  id="notifications-indicator"
-                  aria-label="Notifications progress"
-                ></span>
-                <span>Notifications</span>
-              </div>
-              <div class="indicator-item">
-                <span
-                  class="indicator-circle"
-                  id="authentication-indicator"
-                  aria-label="Authentication progress"
-                ></span>
-                <span>Authentication</span>
+                <span>Additional Notes</span>
               </div>
             </div>
           </div>
@@ -207,31 +247,38 @@
     <script type="module" src="processing-novice.js"></script>
     <script>
       const questions = [
+        "What is the general purpose and idea of your app?",
         "Describe the typical workflow of a user using your app.",
         "What design elements are most important for your app?",
         "What key features do you want your app to have?",
         "Who is your target audience?",
-        "What technical requirements does your app need?",
-        "What integrations should your app support?",
-        "How do you plan to monetize your app?",
-        "What notifications should your app send?",
-        "What authentication methods will your app use?",
+        "Configure your app settings below.",
+        "Any additional notes or requirements for your app?"
       ];
 
       const stepTitles = [
-        "Workflow",
+        "App Overview",
+        "User Workflow",
         "Design",
         "Features",
         "Target Audience",
-        "Technical",
-        "Integrations",
-        "Monetization",
-        "Notifications",
-        "Authentication",
+        "App Settings",
+        "Additional Notes"
+      ];
+
+      const yesNoQuestions = [
+        "Does your app require a user account system?",
+        "Does your app use or integrate with AI features?",
+        "Will your app be free to use?",
+        "Does your app need to send notifications?",
+        "Does your app need to work offline?",
+        "Will your app support multiple languages?",
+        "Does your app require integration with social media?",
+        "Will your app collect user data for analytics?"
       ];
 
       let currentStep = 0;
-      const totalSteps = questions.length;
+      const totalSteps = stepTitles.length;
       let textarea,
         stepTitle,
         stepQuestion,
@@ -240,47 +287,73 @@
         goButton,
         progressFill,
         charCount,
-        loadingSpinner;
-      const answers =
-        JSON.parse(localStorage.getItem("processingAnswers")) || {};
+        loadingSpinner,
+        yesNoContainer;
+      const answers = JSON.parse(localStorage.getItem("processingAnswers")) || {};
       const indicators = [
+        "overview-indicator",
         "workflow-indicator",
         "design-indicator",
         "features-indicator",
-        "target-audience-indicator",
-        "technical-requirements-indicator",
-        "integrations-indicator",
-        "monetization-indicator",
-        "notifications-indicator",
-        "authentication-indicator",
+        "audience-indicator",
+        "settings-indicator",
+        "notes-indicator"
       ];
 
       function updateUI() {
         stepTitle.textContent = stepTitles[currentStep];
         stepQuestion.textContent = questions[currentStep];
-        textarea.value = answers[currentStep] || "";
-        charCount.textContent = `${textarea.value.length}/2500`;
+        if (currentStep < 5 || currentStep === 6) {
+          textarea.style.display = "block";
+          charCount.style.display = "block";
+          yesNoContainer.style.display = "none";
+          textarea.value = answers[currentStep] || "";
+          charCount.textContent = `${textarea.value.length}/2500`;
+        } else {
+          textarea.style.display = "none";
+          charCount.style.display = "none";
+          yesNoContainer.style.display = "block";
+          const yesButtons = document.querySelectorAll(".yes-button");
+          const肃
+          const noButtons = document.querySelectorAll(".no-button");
+          yesNoQuestions.forEach((_, index) => {
+            const yesButton = yesButtons[index];
+            const noButton = noButtons[index];
+            const value = answers[`yesNo_${index}`];
+            yesButton.classList.toggle("active", value === "Yes");
+            noButton.classList.toggle("active", value === "No");
+          });
+        }
 
         const progress = ((currentStep + 1) / totalSteps) * 100;
         progressFill.style.width = `${progress}%`;
 
         indicators.forEach((indicator, index) => {
           const element = document.getElementById(indicator);
-          if (answers[index] && answers[index].trim()) {
-            element.classList.add("active");
+          if (index < 5) {
+            if (answers[index] && answers[index].trim()) {
+              element.classList.add("active");
+            } else {
+              element.classList.remove("active");
+            }
+          } else if (index === 5) {
+            const allYesNoAnswered = yesNoQuestions.every((_, i) => answers[`yesNo_${i}`]);
+            if (allYesNoAnswered) {
+              element.classList.add("active");
+            } else {
+              element.classList.remove("active");
+            }
           } else {
-            element.classList.remove("active");
+            element.classList.add("active"); // Notes are optional
           }
         });
 
         prevButton.style.display = currentStep === 0 ? "none" : "block";
-        nextButton.style.display =
-          currentStep === totalSteps - 1 ? "none" : "block";
-        goButton.style.display =
-          currentStep === totalSteps - 1 ? "block" : "none";
+        nextButton.style.display = currentStep === totalSteps - 1 ? "none" : "block";
+        goButton.style.display = currentStep === totalSteps - 1 ? "block" : "none";
         loadingSpinner.style.display = "none";
 
-        const allIndicatorsGreen = indicators.every((indicator) => {
+        const allIndicatorsGreen = indicators.slice(0, -1).every((indicator) => {
           const element = document.getElementById(indicator);
           return element && element.classList.contains("active");
         });
@@ -297,6 +370,7 @@
         progressFill = document.getElementById("progressFill");
         charCount = document.getElementById("charCount");
         loadingSpinner = document.getElementById("loadingSpinner");
+        yesNoContainer = document.getElementById("yesNoContainer");
 
         localStorage.setItem("currentMode", "nocode");
         updateUI();
@@ -305,16 +379,32 @@
           answers[currentStep] = textarea.value;
           localStorage.setItem("processingAnswers", JSON.stringify(answers));
           charCount.textContent = `${textarea.value.length}/2500`;
-
-          const currentIndicator = document.getElementById(
-            indicators[currentStep]
-          );
-          if (textarea.value.trim()) {
-            currentIndicator.classList.add("active");
-          } else {
-            currentIndicator.classList.remove("active");
-          }
           updateUI();
+        });
+
+        const yesButtons = document.querySelectorAll(".yes-button");
+        const noButtons = document.querySelectorAll(".no-button");
+        yesButtons.forEach((button) => {
+          button.addEventListener("click", () => {
+            const questionIndex = button.getAttribute("data-question");
+            const noButton = document.querySelector(`.no-button[data-question="${questionIndex}"]`);
+            answers[`yesNo_${questionIndex}`] = "Yes";
+            button.classList.add("active");
+            noButton.classList.remove("active");
+            localStorage.setItem("processingAnswers", JSON.stringify(answers));
+            updateUI();
+          });
+        });
+        noButtons.forEach((button) => {
+          button.addEventListener("click", () => {
+            const questionIndex = button.getAttribute("data-question");
+            const yesButton = document.querySelector(`.yes-button[data-question="${questionIndex}"]`);
+            answers[`yesNo_${questionIndex}`] = "No";
+            button.classList.add("active");
+            yesButton.classList.remove("active");
+            localStorage.setItem("processingAnswers", JSON.stringify(answers));
+            updateUI();
+          });
         });
       });
 
@@ -326,20 +416,29 @@
       };
 
       window.nextStep = function () {
-        const textareaValue = textarea.value.trim();
         const errorMessage = document.getElementById("errorMessage");
-
-        if (!textareaValue) {
-          errorMessage.textContent =
-            "Please answer the current question before proceeding.";
-          errorMessage.style.display = "block";
-          return;
+        if (currentStep < 5) {
+          const textareaValue = textarea.value.trim();
+          if (!textareaValue) {
+            errorMessage.textContent = "Please answer the current question before proceeding.";
+            errorMessage.style.display = "block";
+            return;
+          }
+          errorMessage.style.display = "none";
+          answers[currentStep] = textareaValue;
+        } else if (currentStep === 5) {
+          const allYesNoAnswered = yesNoQuestions.every((_, i) => answers[`yesNo_${i}`]);
+          if (!allYesNoAnswered) {
+            errorMessage.textContent = "Please answer all settings questions before proceeding.";
+            errorMessage.style.display = "block";
+            return;
+          }
+          errorMessage.style.display = "none";
+        } else {
+          answers[currentStep] = textarea.value; // Save notes even if empty
+          errorMessage.style.display = "none";
         }
-
-        errorMessage.style.display = "none";
-        answers[currentStep] = textareaValue;
         localStorage.setItem("processingAnswers", JSON.stringify(answers));
-
         if (currentStep < totalSteps - 1) {
           currentStep++;
           updateUI();
@@ -347,13 +446,13 @@
       };
 
       window.generateSpecification = function () {
-        const answers =
-          JSON.parse(localStorage.getItem("processingAnswers")) || {};
+        const answers = JSON.parse(localStorage.getItem("processingAnswers")) || {};
         const errorMessage = document.getElementById("errorMessage");
 
-        if (Object.keys(answers).length < 9) {
-          errorMessage.textContent =
-            "Please complete all steps before generating the specification.";
+        const allOpenQuestionsAnswered = [0, 1, 2, 3, 4].every((i) => answers[i] && answers[i].trim());
+        const allYesNoAnswered = yesNoQuestions.every((_, i) => answers[`yesNo_${i}`]);
+        if (!allOpenQuestionsAnswered || !allYesNoAnswered) {
+          errorMessage.textContent = "Please complete all required steps before generating the specification.";
           errorMessage.style.display = "block";
           return;
         }
@@ -370,235 +469,21 @@
           }
         }, 2000);
       };
-
-      async function generateSpecificationFromProcessingJs() {
-        try {
-          const formData = JSON.parse(localStorage.getItem("formData")) || {};
-          const idea = formData.idea || "Not provided";
-          const topic = formData.topic || "Not specified";
-          const platform = formData.platform || "Not specified";
-          const currentMode =
-            localStorage.getItem("currentMode") || "developers";
-
-          const answers =
-            JSON.parse(localStorage.getItem("processingAnswers")) || {};
-          let details = "";
-          const steps = [
-            {
-              name: "User Workflow",
-              question:
-                "Describe the typical workflow of a user using your app.",
-            },
-            {
-              name: "Design",
-              question: "What design elements are most important for your app?",
-            },
-            {
-              name: "Features",
-              question: "What key features do you want your app to have?",
-            },
-            {
-              name: "Target Audience",
-              question: "Who is your target audience?",
-            },
-            {
-              name: "Technical Requirements",
-              question: "What technical requirements does your app need?",
-            },
-            {
-              name: "Integrations",
-              question: "What integrations should your app support?",
-              type: "yesno",
-            },
-            {
-              name: "Monetization",
-              question: "How do you plan to monetize your app?",
-              type: "yesno",
-            },
-            {
-              name: "Notifications",
-              question: "What notifications should your app send?",
-              type: "yesno",
-            },
-            {
-              name: "Authentication",
-              question: "What authentication methods will your app use?",
-              type: "yesno",
-            },
-          ];
-
-          steps.forEach((step, index) => {
-            const response = answers[index] || "Not provided";
-            if (step.type === "yesno") {
-              const enabled = response.toLowerCase().includes("yes");
-              details += `${step.question}: ${enabled ? "Yes" : "No"}\n`;
-              if (enabled) {
-                details += `${step.name}: ${response}\n`;
-              }
-            } else {
-              details += `${step.name}: ${response}\n`;
-            }
-          });
-
-          const fullPrompt = `You are a professional product manager, UX architect, and market research expert.
-
-Your task is to generate a clear, structured **Application Specification Document** based on a short description of an app idea, followed by general information about the app's topic/industry. The document should be tailored to the "${currentMode}" mode, where:
-- For "developers" mode, provide a technical and detailed specification.
-- For "nocode" mode, provide a simple, non-technical guide with a focus on user-friendly design and basic functionality.
-- For "market" mode, emphasize market analysis and business potential.
-
-The output should follow this structure, using simple headings without markdown symbols like ##:
-
-Application Specification Document
-
-General Information
-**Topic**:  
-**Platform**:  
-**Title**: (Suggest a title based on the idea)
-**General Idea**:  
-**Mode**: ${currentMode}
-
-Problem Statement  
-(Describe the main problem the app solves.)
-
-Core Features  
-(Numbered list of the main features.)
-
-User Flow  
-(Simple step-by-step flow from onboarding to final use.)
-
-Screens  
-(List of all major screens.)
-
-UI Components per Screen  
-[Screen Name]  
-- (UI elements for each screen)
-
-Navigation Map  
-(Which screen links to which)
-
-Data Models  
-1. **[Model Name]**  
-- Fields: … (Skip technical details in nocode mode)
-
-API Requirements / Storage Logic  
-(Brief explanation of backend needs, storage, and authentication. Skip in nocode mode unless specified.)
-
-Offline Mode  
-- What data is available offline and how it syncs when back online. (Skip in nocode mode unless specified.)
-
-User Scenarios  
-1. **Scenario Name**  
-- Description
-
-Visual Guidelines / Style Tokens  
-(Colors, layout, icons, visual feel.)
-
-Design Guidelines  
-(UX principles and interaction style.)
-
-Technical Requirements  
-(Platform, tools, frameworks. Keep simple in nocode mode.)
-
-User Roles and Permissions  
-(Who uses the app and what they can access. Keep simple in nocode mode.)
-
-Notifications  
-(Types of notifications and when they appear.)
-
-Monetization Plan  
-(Optional)
-
-Legal Requirements  
-(Privacy and compliance)
-
-Roadmap & Phases  
-1. Phase 1  
-2. Phase 2  
-3. Phase 3
-
-Appendix  
-- (Wireframes, competitor insights, optional features)
-
-General Topic Information  
-Provide general information about the app's topic/industry, including:  
-- Similar applications: List a few similar apps (if any), along with their advantages and disadvantages according to users (if available).  
-- Existing solutions: Describe other existing solutions in this field (if any).  
-- Search volume: Provide search volume data for the topic over months or years (if available).  
-- Social media hype: Describe the level of buzz or hype around this topic on social media platforms.  
-- Additional statistics: Include market share, estimated revenue, trends, or other relevant statistics (if available).  
-- Popular keywords: List popular keywords related to this topic.
-
-Now, based on this structure, generate a full application specification document followed by general topic information for the following app idea:
-
-**App Idea Details:**
-Topic: ${topic}
-Platform: ${platform}
-General Idea: ${idea}
-Details:
-${details}`;
-
-          const response = await fetch(
-            "https://worker1.shalom-cohen-111.workers.dev",
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({ prompt: fullPrompt }),
-            }
-          );
-
-          const data = await response.json();
-          if (!response.ok) {
-            throw new Error(`API Error: ${data.error || "Unknown error"}`);
-          }
-
-          const generatedContent =
-            data.specification || "No specification generated";
-          localStorage.setItem("generatedContent", generatedContent);
-
-          if (typeof confetti === "function") {
-            confetti({
-              particleCount: 100,
-              spread: 70,
-              origin: { y: 0.6 },
-            });
-          }
-
-          window.location.href = "result-novice.html";
-        } catch (err) {
-          alert("Failed to generate specification: " + err.message);
-          const goButton = document.getElementById("goButton");
-          const loadingSpinner = document.getElementById("loadingSpinner");
-          if (goButton) goButton.disabled = false;
-          if (loadingSpinner) loadingSpinner.style.display = "none";
-        }
-      }
-
-      document.addEventListener("DOMContentLoaded", () => {
-        window.generateSpecificationOriginal =
-          generateSpecificationFromProcessingJs;
-      });
     </script>
 
     <style>
       @keyframes spin {
-        0% {
-          transform: rotate(0deg);
-        }
-        100% {
-          transform: rotate(360deg);
-        }
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
       }
       @keyframes gentleBounce {
-        0%,
-        100% {
-          transform: translateY(0) scale(1);
-        }
-        50% {
-          transform: translateY(-10px) scale(1.1);
-        }
+        0%, 100% { transform: translateY(0) scale(1); }
+        50% { transform: translateY(-10px) scale(1.1); }
+      }
+      @keyframes toggleSlide {
+        0% { transform: translateY(0); }
+        50% { transform: translateY(-2px); }
+        100% { transform: translateY(0); }
       }
       .question-label {
         font-size: 1.2em;
@@ -614,11 +499,9 @@ ${details}`;
       .indicator-circle.active {
         background-color: #00b4d8;
       }
-
       .generate-spec-button {
         animation: gentleBounce 2s ease-in-out infinite;
       }
-
       .loading-spinner {
         position: absolute;
         top: 50%;
@@ -660,6 +543,43 @@ ${details}`;
         display: flex;
         align-items: center;
         margin: 5px;
+      }
+      .yes-no-question {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 10px 0;
+      }
+      .yes-no-question label {
+        font-size: 1em;
+        color: #333;
+      }
+      .button-group {
+        display: flex;
+        gap: 10px;
+      }
+      .yes-button, .no-button {
+        background: #fff;
+        color: #23a6d5;
+        border: 2px solid #23a6d5;
+        border-radius: 20px;
+        padding: 8px 16px;
+        font-size: 0.9rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        min-width: 80px;
+        text-align: center;
+      }
+      .yes-button.active, .no-button.active {
+        background: #23a6d5;
+        color: #fff;
+        animation: toggleSlide 0.3s ease;
+      }
+      .yes-button:hover, .no-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
       }
     </style>
 
