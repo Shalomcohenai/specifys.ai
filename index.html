@@ -70,7 +70,7 @@
       position: absolute;
       top: 0;
       width: 100%;
-      padding: 30px 24px 16px;
+      padding: 20px 24px 10px;
       display: flex;
       align-items: center;
       z-index: 10;
@@ -87,7 +87,7 @@
     .thematic-header .logo a {
       text-decoration: none;
       color: #fff;
-      font-size: 1.75rem;
+      font-size: 1.5rem;
       font-weight: 700;
     }
 
@@ -99,24 +99,24 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      padding: 8rem 2rem 6rem;
+      padding: 4rem 1.5rem 2rem;
       box-sizing: border-box;
     }
 
     .header-text {
       width: 100%;
-      max-width: 800px;
+      max-width: 600px;
       text-align: center;
-      margin-bottom: 4rem;
+      margin-bottom: 2rem;
       padding: 0 1rem;
       animation: fadeIn 1s ease-in;
     }
 
     .header-text h1 {
       color: #fff;
-      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-size: clamp(1.4rem, 3vw, 2rem);
       font-weight: 700;
-      margin-bottom: 1.5rem;
+      margin-bottom: 1rem;
       line-height: 1.2;
       text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
     }
@@ -124,30 +124,30 @@
     .track-container {
       background: rgba(255, 255, 255, 0.95);
       border-radius: 15px;
-      padding: 25px;
+      padding: 20px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       text-align: center;
       width: 100%;
-      max-width: 800px;
+      max-width: 600px;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      min-height: 200px;
+      min-height: 150px;
     }
 
     .track-container h2 {
-      font-size: 1.6em;
+      font-size: 1.4em;
       font-weight: 700;
       color: #23a6d5;
-      margin-bottom: 20px;
+      margin-bottom: 15px;
       text-transform: none;
     }
 
     .mode-buttons {
       display: flex;
       justify-content: center;
-      gap: 15px;
+      gap: 10px;
       flex-wrap: wrap;
     }
 
@@ -156,19 +156,19 @@
       color: #23a6d5;
       border: 2px solid #23a6d5;
       border-radius: 30px;
-      padding: 10px 20px;
-      font-size: 0.9rem;
+      padding: 8px 15px;
+      font-size: 0.85rem;
       font-weight: 700;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      min-width: 140px;
+      min-width: 120px;
       transition: all 0.3s ease;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
-    .mode-button:hover, .mode-button.active {
+    .mode-button:hover, .mode-button.active, .mode-button.highlighted {
       background: #23a6d5;
       color: #fff;
       transform: translateY(-2px);
@@ -177,15 +177,15 @@
     }
 
     .mode-button i {
-      font-size: 0.8rem;
-      margin-right: 6px;
+      font-size: 0.75rem;
+      margin-right: 5px;
     }
 
     .track-info {
-      margin-top: 15px;
-      font-size: 0.85rem;
+      margin-top: 10px;
+      font-size: 0.8rem;
       color: #666;
-      min-height: 40px;
+      min-height: 30px;
       opacity: 0;
       transition: opacity 0.3s ease;
     }
@@ -196,16 +196,16 @@
 
     .stats-section {
       text-align: center;
-      margin-top: 30px;
+      margin-top: 15px;
       width: 100%;
-      max-width: 800px;
+      max-width: 600px;
     }
 
     .stats-title {
       color: #fff;
-      font-size: 1.8em;
+      font-size: 1.4em;
       font-weight: 700;
-      margin-bottom: 15px;
+      margin-bottom: 10px;
       text-transform: uppercase;
     }
 
@@ -213,17 +213,17 @@
       display: flex;
       width: 100%;
       justify-content: center;
-      gap: 10px;
-      margin-bottom: 20px;
+      gap: 8px;
+      margin-bottom: 15px;
     }
 
     .stat-box {
       background: rgba(255, 255, 255, 0.9);
       border: 2px solid #fff;
       border-radius: 15px;
-      padding: 20px;
+      padding: 15px;
       text-align: center;
-      width: 200px;
+      width: 160px;
       transition: transform 0.3s ease;
       display: flex;
       flex-direction: column;
@@ -236,30 +236,33 @@
 
     .stat-box h3 {
       color: #666;
-      font-size: 1.2em;
-      margin: 0 0 10px 0;
+      font-size: 1em;
+      margin: 0 0 8px 0;
       text-transform: uppercase;
     }
 
     .stat-box .stat-number {
       color: #23a6d5;
-      font-size: 2.5em;
+      font-size: 2em;
       font-weight: 700;
     }
 
     footer {
       opacity: 0;
       animation: fadeIn 1s ease forwards 1s;
-      padding: 20px;
+      padding: 10px;
       text-align: center;
       width: 100%;
+      position: absolute;
+      bottom: 0;
+      left: 0;
     }
 
     footer a {
       color: #fff;
       text-decoration: none;
-      font-size: 0.9rem;
-      margin: 0 10px;
+      font-size: 0.85rem;
+      margin: 0 8px;
       font-weight: 500;
       transition: color 0.3s ease;
     }
@@ -275,61 +278,75 @@
 
     @media (max-width: 768px) {
       .main-content-wrapper {
-        padding: 6rem 1.5rem 4rem;
+        padding: 3rem 1rem 1.5rem;
       }
       .header-text {
-        margin-bottom: 3rem;
+        margin-bottom: 1.5rem;
       }
       .header-text h1 {
-        font-size: clamp(1.6rem, 3.5vw, 2.2rem);
+        font-size: clamp(1.2rem, 2.5vw, 1.8rem);
       }
       .track-container {
-        padding: 20px;
-        min-height: 180px;
+        padding: 15px;
+        min-height: 120px;
+        max-width: 500px;
       }
       .track-container h2 {
-        font-size: 1.5em;
+        font-size: 1.2em;
       }
       .mode-buttons {
         flex-direction: column;
-        gap: 10px;
+        gap: 8px;
       }
       .mode-button {
         width: 100%;
-        padding: 8px 15px;
-        font-size: 0.85rem;
+        padding: 6px 12px;
+        font-size: 0.8rem;
+        min-width: 100px;
       }
       .track-info {
-        font-size: 0.8rem;
+        font-size: 0.75rem;
+        min-height: 25px;
+      }
+      .stats-section {
+        margin-top: 10px;
       }
       .stats-container {
-        gap: 8px;
+        gap: 6px;
       }
       .stat-box {
-        width: 140px;
+        width: 120px;
         padding: 10px;
       }
       .stat-box .stat-number {
         font-size: 1.5em;
       }
       .stats-title {
-        font-size: 1.5em;
+        font-size: 1.2em;
+      }
+      footer {
+        padding: 8px;
+      }
+      footer a {
+        font-size: 0.8rem;
+        margin: 0 6px;
       }
     }
 
     @media (max-width: 480px) {
       .thematic-header .logo a {
-        font-size: 1.5rem;
+        font-size: 1.2rem;
       }
       .track-container {
-        padding: 15px;
-        min-height: 160px;
+        padding: 10px;
+        min-height: 100px;
+        max-width: 400px;
       }
       .stats-title {
-        font-size: 1.2em;
+        font-size: 1em;
       }
       .stat-box {
-        width: 120px;
+        width: 100px;
       }
     }
 
@@ -360,9 +377,9 @@
     <div class="track-container">
       <h2>Choose Your Track</h2>
       <div class="mode-buttons" id="modeButtons">
-        <button class="mode-button" data-mode="novice" onmouseover="showTrackInfo('novice')" onmouseout="hideTrackInfo()" onclick="selectMode('novice')" aria-label="Select Start-Easy mode for non-programmers"><i class="fas fa-edit"></i>Start-Easy</button>
-        <button class="mode-button" data-mode="developers" onmouseover="showTrackInfo('developers')" onmouseout="hideTrackInfo()" onclick="selectMode('developers')" aria-label="Select Dev-Tools mode for developers"><i class="fas fa-code"></i>Dev-Tools</button>
-        <button class="mode-button" data-mode="market" onmouseover="showTrackInfo('market')" onmouseout="hideTrackInfo()" onclick="selectMode('market')" aria-label="Select Explore mode for entrepreneurs"><i class="fas fa-chart-bar"></i>Explore</button>
+        <button class="mode-button" data-mode="novice" onmouseover="specifys.showTrackInfo('novice')" onmouseout="specifys.resumeAutoCycle()" ontouchstart="specifys.showTrackInfo('novice')" ontouchend="specifys.resumeAutoCycle()" onclick="specifys.selectMode('novice')" aria-label="Select Start-Easy mode for non-programmers"><i class="fas fa-edit"></i>Start-Easy</button>
+        <button class="mode-button" data-mode="developers" onmouseover="specifys.showTrackInfo('developers')" onmouseout="specifys.resumeAutoCycle()" ontouchstart="specifys.showTrackInfo('developers')" ontouchend="specifys.resumeAutoCycle()" onclick="specifys.selectMode('developers')" aria-label="Select Dev-Tools mode for developers"><i class="fas fa-code"></i>Dev-Tools</button>
+        <button class="mode-button" data-mode="market" onmouseover="specifys.showTrackInfo('market')" onmouseout="specifys.resumeAutoCycle()" ontouchstart="specifys.showTrackInfo('market')" ontouchend="specifys.resumeAutoCycle()" onclick="specifys.selectMode('market')" aria-label="Select Explore mode for entrepreneurs"><i class="fas fa-chart-bar"></i>Explore</button>
       </div>
       <div class="track-info" id="trackInfo"></div>
     </div>
@@ -394,68 +411,133 @@
   <script defer src="script.js"></script>
   <script defer src="typingEffect.js"></script>
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      if (!localStorage.getItem("visited")) {
-        window.location.href = "landing.html";
-        localStorage.setItem("visited", "true");
-      }
+    (function() {
+      // Namespace to avoid conflicts
+      window.specifys = window.specifys || {};
 
-      function animateCounter(element, target, duration) {
-        let start = 0;
-        const increment = target / (duration / 16);
-        const interval = setInterval(() => {
-          start += increment;
-          if (start >= target) {
-            start = target;
-            clearInterval(interval);
+      document.addEventListener("DOMContentLoaded", () => {
+        if (!localStorage.getItem("visited")) {
+          window.location.href = "landing.html";
+          localStorage.setItem("visited", "true");
+        }
+
+        function animateCounter(element, target, duration) {
+          let start = 0;
+          const increment = target / (duration / 16);
+          const interval = setInterval(() => {
+            start += increment;
+            if (start >= target) {
+              start = target;
+              clearInterval(interval);
+            }
+            element.textContent = Math.round(start);
+          }, 16);
+        }
+
+        const noviceTarget = Math.floor(Math.random() * 50) + 10;
+        const developersTarget = Math.floor(Math.random() * 50) + 10;
+        const marketTarget = Math.floor(Math.random() * 50) + 10;
+
+        const noviceCount = document.getElementById("noviceCount");
+        const developersCount = document.getElementById("developersCount");
+        const marketCount = document.getElementById("marketCount");
+        if (noviceCount) animateCounter(noviceCount, noviceTarget, 2000);
+        if (developersCount) animateCounter(developersCount, developersTarget, 2000);
+        if (marketCount) animateCounter(marketCount, marketTarget, 2000);
+
+        // Auto-cycle through track info
+        const modes = ['novice', 'developers', 'market'];
+        let currentModeIndex = 0;
+        let autoCycleInterval;
+
+        function startAutoCycle() {
+          autoCycleInterval = setInterval(() => {
+            currentModeIndex = (currentModeIndex + 1) % modes.length;
+            specifys.showTrackInfo(modes[currentModeIndex], true);
+          }, 3000); // Change every 3 seconds
+        }
+
+        function stopAutoCycle() {
+          if (autoCycleInterval) {
+            clearInterval(autoCycleInterval);
           }
-          element.textContent = Math.round(start);
-        }, 16);
-      }
+          // Remove highlighted class from all buttons
+          document.querySelectorAll('.mode-button').forEach(btn => btn.classList.remove('highlighted'));
+        }
 
-      const noviceTarget = Math.floor(Math.random() * 50) + 10;
-      const developersTarget = Math.floor(Math.random() * 50) + 10;
-      const marketTarget = Math.floor(Math.random() * 50) + 10;
+        specifys.showTrackInfo = function(mode, isAuto = false) {
+          const trackInfo = document.getElementById("trackInfo");
+          if (!trackInfo) return;
+          trackInfo.classList.add("show");
 
-      const noviceCount = document.getElementById("noviceCount");
-      const developersCount = document.getElementById("developersCount");
-      const marketCount = document.getElementById("marketCount");
-      if (noviceCount) animateCounter(noviceCount, noviceTarget, 2000);
-      if (developersCount) animateCounter(developersCount, developersTarget, 2000);
-      if (marketCount) animateCounter(marketCount, marketTarget, 2000);
-    });
+          // Update button highlight only for auto-cycle
+          if (isAuto) {
+            document.querySelectorAll('.mode-button').forEach(btn => btn.classList.remove('highlighted'));
+            const button = document.querySelector(`.mode-button[data-mode="${mode}"]`);
+            if (button) button.classList.add('highlighted');
+          }
 
-    function selectMode(mode) {
-      const buttons = document.querySelectorAll(".mode-button");
-      buttons.forEach((btn) => btn.classList.remove("active"));
-      document.querySelector(`.mode-button[data-mode="${mode}"]`).classList.add("active");
-      localStorage.setItem("selectedMode", mode);
-      if (mode === "novice") {
-        window.location.href = "./processing-novice.html";
-      } else if (mode === "market") {
-        window.location.href = "./processing-market.html";
-      } else {
-        window.location.href = "./processing.html";
-      }
-    }
+          if (mode === "novice") {
+            trackInfo.textContent = "For non-coders with big ideas. Craft an AI-driven app specification to create your app without writing a single line of code.";
+          } else if (mode === "developers") {
+            trackInfo.textContent = "For developers building robust apps. Get a detailed technical blueprint with file structures, APIs, and scripts to streamline your coding.";
+          } else if (mode === "market") {
+            trackInfo.textContent = "For entrepreneurs who want in-depth market research to validate their app idea and pitch to investors.";
+          }
+        };
 
-    function showTrackInfo(mode) {
-      const trackInfo = document.getElementById("trackInfo");
-      trackInfo.classList.add("show");
-      if (mode === "novice") {
-        trackInfo.textContent = "For non-coders with big ideas. Craft an AI-driven app specification to create your app without writing a single line of code.";
-      } else if (mode === "developers") {
-        trackInfo.textContent = "For developers building robust apps. Get a detailed technical blueprint with file structures, APIs, and scripts to streamline your coding.";
-      } else if (mode === "market") {
-        trackInfo.textContent = "For entrepreneurs who want in-depth market research to validate their app idea and pitch to investors.";
-      }
-    }
+        specifys.resumeAutoCycle = function() {
+          stopAutoCycle();
+          startAutoCycle();
+        };
 
-    function hideTrackInfo() {
-      const trackInfo = document.getElementById("trackInfo");
-      trackInfo.classList.remove("show");
-      trackInfo.textContent = "";
-    }
+        specifys.selectMode = function(mode) {
+          try {
+            stopAutoCycle();
+            const buttons = document.querySelectorAll(".mode-button");
+            buttons.forEach((btn) => btn.classList.remove("active"));
+            const selectedButton = document.querySelector(`.mode-button[data-mode="${mode}"]`);
+            if (selectedButton) selectedButton.classList.add("active");
+            localStorage.setItem("selectedMode", mode);
+            let redirectUrl;
+            switch (mode) {
+              case "novice":
+                redirectUrl = "./processing-novice.html";
+                break;
+              case "developers":
+                redirectUrl = "./processing.html";
+                break;
+              case "market":
+                redirectUrl = "./processing-market.html";
+                break;
+              default:
+                console.error("Invalid mode:", mode);
+                return;
+            }
+            window.location.href = redirectUrl;
+          } catch (error) {
+            console.error("Error in selectMode:", error);
+            alert("Failed to navigate to the selected track. Please try again.");
+          }
+        };
+
+        // Start auto-cycle on page load
+        startAutoCycle();
+
+        // Add touch event listeners to buttons to ensure touch support
+        document.querySelectorAll('.mode-button').forEach(button => {
+          button.addEventListener('touchstart', (e) => {
+            // Only prevent default for touch-specific behavior, allow click
+            const mode = button.getAttribute('data-mode');
+            stopAutoCycle();
+            specifys.showTrackInfo(mode);
+          });
+          button.addEventListener('touchend', () => {
+            specifys.resumeAutoCycle();
+          });
+        });
+      });
+    })();
   </script>
 
   <noscript>

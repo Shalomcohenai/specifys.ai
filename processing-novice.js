@@ -52,6 +52,12 @@ Please follow these instructions:
 - Write the specification **as if it was prepared by a professional product team for software developers**.
 - Use structured, technical vocabulary (but no actual code).
 - **If the user input is vague or incomplete, proactively fill in missing parts** using reasonable assumptions based on standard UX and software design best practices.
+- **Strictly respect explicit user answers, especially 'No' responses for features like AI integration. Do not add features that were explicitly declined.**
+- **In case of contradictions between open-ended text answers (App Overview, User Workflow, Design, Features, Target Audience, Additional Notes) and yes/no choice answers (App Settings), prioritize the open-ended text answers.**
+- **For 'Not specified' responses to 'Will your app support multiple languages?', assume the app supports English only. Do not suggest additional languages.**
+- **Include detailed edge cases for user flows, such as network failures, invalid inputs, or conflicting actions.**
+- **Specify validation rules for all data model attributes, including minimum/maximum lengths, formats, and required fields.**
+- **Include a comprehensive list of screens, including settings and profile screens, even if not explicitly mentioned.**
 - **Your response must be extremely detailed, verbose, and comprehensive. Use the maximum possible output length**. Expand every section with examples, edge cases, user scenarios, and functional notes.
 - Do not summarize. Do not simplify. Go deep.
 
