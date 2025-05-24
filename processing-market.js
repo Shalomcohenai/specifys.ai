@@ -102,7 +102,7 @@ ${details}
 `;
 
       
-      const response = await fetch('https://worker1.shalom-cohen-111.workers.dev', {
+      const response = await fetch('https://super-dream-62b3.shalom-cohen-111.workers.dev/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
