@@ -299,7 +299,8 @@
         charCount,
         loadingSpinner,
         yesNoContainer;
-      const answers = JSON.parse(localStorage.getItem("processingAnswers")) || {};
+      const storageKey = "noCodeAnswers";
+      let answers = JSON.parse(localStorage.getItem(storageKey)) || {};
       const indicators = [
         "overview-indicator",
         "workflow-indicator",
@@ -370,6 +371,13 @@
       }
 
       document.addEventListener("DOMContentLoaded", () => {
+        if (localStorage.getItem("currentMode") !== "nocode") {
+          localStorage.removeItem("marketAnswers");
+          localStorage.setItem("currentMode", "nocode");
+          answers = {};
+          localStorage.setItem(storageKey, JSON.stringify(answers));
+        }
+
         textarea = document.getElementById("stepTextarea");
         stepTitle = document.getElementById("stepTitle");
         stepQuestion = document.getElementById("stepQuestion");
@@ -381,12 +389,11 @@
         loadingSpinner = document.getElementById("loadingSpinner");
         yesNoContainer = document.getElementById("yesNoContainer");
 
-        localStorage.setItem("currentMode", "nocode");
         updateUI();
 
         textarea.addEventListener("input", () => {
           answers[currentStep] = textarea.value;
-          localStorage.setItem("processingAnswers", JSON.stringify(answers));
+          localStorage.setItem(storageKey, JSON.stringify(answers));
           charCount.textContent = `${textarea.value.length}/2500`;
           updateUI();
         });
@@ -400,7 +407,7 @@
             answers[`yesNo_${questionIndex}`] = "Yes";
             button.classList.add("active");
             noButton.classList.remove("active");
-            localStorage.setItem("processingAnswers", JSON.stringify(answers));
+            localStorage.setItem(storageKey, JSON.stringify(answers));
             updateUI();
           });
         });
@@ -411,7 +418,7 @@
             answers[`yesNo_${questionIndex}`] = "No";
             button.classList.add("active");
             yesButton.classList.remove("active");
-            localStorage.setItem("processingAnswers", JSON.stringify(answers));
+            localStorage.setItem(storageKey, JSON.stringify(answers));
             updateUI();
           });
         });
@@ -447,7 +454,7 @@
           answers[currentStep] = textarea.value; // Save notes even if empty
           errorMessage.style.display = "none";
         }
-        localStorage.setItem("processingAnswers", JSON.stringify(answers));
+        localStorage.setItem(storageKey, JSON.stringify(answers));
         if (currentStep < totalSteps - 1) {
           currentStep++;
           updateUI();
@@ -455,7 +462,7 @@
       };
 
       window.generateSpecification = function () {
-        const answers = JSON.parse(localStorage.getItem("processingAnswers")) || {};
+        const answers = JSON.parse(localStorage.getItem(storageKey)) || {};
         const errorMessage = document.getElementById("errorMessage");
 
         const allOpenQuestionsAnswered = [0, 1, 2, 3, 4].every((i) => answers[i] && answers[i].trim());

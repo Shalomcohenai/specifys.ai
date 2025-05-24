@@ -34,9 +34,7 @@
       name="twitter:image"
       content="https://specifys.ai/assets/og-image.jpg"
     />
-    <!-- NEW: Canonical tag -->
     <link rel="canonical" href="https://specifys.ai/processing-market.html">
-    <!-- NEW: Schema Markup -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -53,6 +51,95 @@
       defer
       src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"
     ></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 100%;
+        overflow-x: hidden;
+        position: relative;
+      }
+      body {
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        font-family: "Montserrat", sans-serif;
+        position: relative;
+        overflow-x: hidden;
+        -webkit-overflow-scrolling: touch;
+      }
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      @keyframes gentleBounce {
+        0%, 100% { transform: translateY(0) scale(1); }
+        50% { transform: translateY(-10px) scale(1.1); }
+      }
+      .question-label {
+        font-size: 1.2em;
+      }
+      .indicator-circle {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background-color: #23a6d5;
+        margin-right: 5px;
+      }
+      .indicator-circle.active {
+        background-color: #00b4d8;
+      }
+      .generate-spec-button {
+        animation: gentleBounce 2s ease-in-out infinite;
+      }
+      .loading-spinner {
+        position: absolute;
+        top: 50%;
+        right: 20px;
+        transform: translateY(-50%);
+        width: 30px;
+        height: 30px;
+      }
+      .spinner-circle {
+        width: 100%;
+        height: 100%;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #23a6d5;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+      .progress-container {
+        margin-bottom: 20px;
+      }
+      .progress-bar {
+        width: 100%;
+        background-color: #f0f0f0;
+        border-radius: 5px;
+        overflow: hidden;
+      }
+      .progress-fill {
+        height: 10px;
+        background-color: #23a6d5;
+        width: 0%;
+        transition: width 0.3s ease;
+      }
+      .discipline-indicators {
+        display: flex;
+        justify-content: space-around;
+        margin-top: 10px;
+        flex-wrap: wrap;
+      }
+      .indicator-item {
+        display: flex;
+        align-items: center;
+        margin: 5px;
+      }
+    </style>
   </head>
   <body class="page-default market">
     <header class="thematic-header" role="banner">
@@ -286,29 +373,16 @@
 
       let currentStep = 0;
       const totalSteps = questions.length;
-      let textareas = [],
-        charCounts = [],
-        prevButton,
-        nextButton,
-        goButton,
-        loadingSpinner;
-      const answers =
-        JSON.parse(localStorage.getItem("processingAnswers")) || {};
-      const indicators = [
-        "name-indicator",
-        "description-indicator",
-        "features-indicator",
-      ];
+      let textareas = [], charCounts = [], prevButton, nextButton, goButton, loadingSpinner;
+      const storageKey = "marketAnswers"; // מפתח ייחודי למסלול Explore
+      let answers = JSON.parse(localStorage.getItem(storageKey)) || {};
+      const indicators = ["name-indicator", "description-indicator", "features-indicator"];
 
       function updateUI() {
-        document.getElementById("stepTitle").textContent =
-          stepTitles[currentStep];
-        document.getElementById("stepQuestion").textContent =
-          questions[currentStep];
+        document.getElementById("stepTitle").textContent = stepTitles[currentStep];
+        document.getElementById("stepQuestion").textContent = questions[currentStep];
         textareas[currentStep].value = answers[currentStep] || "";
-        charCounts[
-          currentStep
-        ].textContent = `${textareas[currentStep].value.length}/2500`;
+        charCounts[currentStep].textContent = `${textareas[currentStep].value.length}/2500`;
 
         const progress = ((currentStep + 1) / totalSteps) * 100;
         document.querySelectorAll(".progress-fill").forEach((fill) => {
@@ -327,10 +401,8 @@
         });
 
         prevButton.style.display = currentStep === 0 ? "none" : "block";
-        nextButton.style.display =
-          currentStep === totalSteps - 1 ? "none" : "block";
-        goButton.style.display =
-          currentStep === totalSteps - 1 ? "block" : "none";
+        nextButton.style.display = currentStep === totalSteps - 1 ? "none" : "block";
+        goButton.style.display = currentStep === totalSteps - 1 ? "block" : "none";
         loadingSpinner.style.display = "none";
 
         const allIndicatorsGreen = indicators.every((indicator) => {
@@ -341,6 +413,14 @@
       }
 
       document.addEventListener("DOMContentLoaded", () => {
+        // נקה תשובות ממסלולים אחרים
+        if (localStorage.getItem("currentMode") !== "market") {
+          localStorage.removeItem("processingAnswers"); // נקה תשובות ממסלול No-Code
+          localStorage.setItem("currentMode", "market");
+          answers = {};
+          localStorage.setItem(storageKey, JSON.stringify(answers));
+        }
+
         textareas = [
           document.getElementById("stepTextarea0"),
           document.getElementById("stepTextarea1"),
@@ -356,13 +436,12 @@
         goButton = document.getElementById("goButton");
         loadingSpinner = document.getElementById("loadingSpinner");
 
-        localStorage.setItem("currentMode", "market");
         updateUI();
 
         textareas.forEach((textarea, index) => {
           textarea.addEventListener("input", () => {
             answers[index] = textarea.value;
-            localStorage.setItem("processingAnswers", JSON.stringify(answers));
+            localStorage.setItem(storageKey, JSON.stringify(answers));
             charCounts[index].textContent = `${textarea.value.length}/2500`;
 
             const currentIndicator = document.getElementById(indicators[index]);
@@ -384,56 +463,41 @@
 
       window.prevStep = function () {
         if (currentStep > 0) {
-          document.querySelectorAll(".step-container")[
-            currentStep
-          ].style.display = "none";
+          document.querySelectorAll(".step-container")[currentStep].style.display = "none";
           currentStep--;
-          document.querySelectorAll(".step-container")[
-            currentStep
-          ].style.display = "block";
+          document.querySelectorAll(".step-container")[currentStep].style.display = "block";
           updateUI();
         }
       };
 
       window.nextStep = function () {
         const textareaValue = textareas[currentStep].value.trim();
-        const errorMessage = document
-          .querySelectorAll(".step-container")
-          [currentStep].querySelector("#errorMessage");
+        const errorMessage = document.querySelectorAll(".step-container")[currentStep].querySelector("#errorMessage");
 
         if (!textareaValue) {
-          errorMessage.textContent =
-            "Please answer the current question before proceeding.";
+          errorMessage.textContent = "Please answer the current question before proceeding.";
           errorMessage.style.display = "block";
           return;
         }
 
         errorMessage.style.display = "none";
         answers[currentStep] = textareaValue;
-        localStorage.setItem("processingAnswers", JSON.stringify(answers));
+        localStorage.setItem(storageKey, JSON.stringify(answers));
 
         if (currentStep < totalSteps - 1) {
-          document.querySelectorAll(".step-container")[
-            currentStep
-          ].style.display = "none";
+          document.querySelectorAll(".step-container")[currentStep].style.display = "none";
           currentStep++;
-          document.querySelectorAll(".step-container")[
-            currentStep
-          ].style.display = "block";
+          document.querySelectorAll(".step-container")[currentStep].style.display = "block";
           updateUI();
         }
       };
 
       window.generateSpecification = function () {
-        const answers =
-          JSON.parse(localStorage.getItem("processingAnswers")) || {};
-        const errorMessage = document
-          .querySelectorAll(".step-container")
-          [currentStep].querySelector("#errorMessage");
+        const answers = JSON.parse(localStorage.getItem(storageKey)) || {};
+        const errorMessage = document.querySelectorAll(".step-container")[currentStep].querySelector("#errorMessage");
 
         if (Object.keys(answers).length < totalSteps) {
-          errorMessage.textContent =
-            "Please complete all steps before generating the market research.";
+          errorMessage.textContent = "Please complete all steps before generating the market research.";
           errorMessage.style.display = "block";
           return;
         }
@@ -451,109 +515,6 @@
         }, 2000);
       };
     </script>
-
-    <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-
-      html,
-      body {
-        width: 100%;
-        overflow-x: hidden;
-        position: relative;
-      }
-
-      body {
-        margin: 0;
-        padding: 0;
-        min-height: 100vh;
-        font-family: "Montserrat", sans-serif;
-        position: relative;
-        overflow-x: hidden;
-        -webkit-overflow-scrolling: touch;
-      }
-      @keyframes spin {
-        0% {
-          transform: rotate(0deg);
-        }
-        100% {
-          transform: rotate(360deg);
-        }
-      }
-      @keyframes gentleBounce {
-        0%,
-        100% {
-          transform: translateY(0) scale(1);
-        }
-        50% {
-          transform: translateY(-10px) scale(1.1);
-        }
-      }
-      .question-label {
-        font-size: 1.2em;
-      }
-      .indicator-circle {
-        display: inline-block;
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        background-color: #23a6d5;
-        margin-right: 5px;
-      }
-      .indicator-circle.active {
-        background-color: #00b4d8;
-      }
-
-      .generate-spec-button {
-        animation: gentleBounce 2s ease-in-out infinite;
-      }
-
-      .loading-spinner {
-        position: absolute;
-        top: 50%;
-        right: 20px;
-        transform: translateY(-50%);
-        width: 30px;
-        height: 30px;
-      }
-      .spinner-circle {
-        width: 100%;
-        height: 100%;
-        border: 4px solid #f3f3f3;
-        border-top: 4px solid #23a6d5;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-      }
-      .progress-container {
-        margin-bottom: 20px;
-      }
-      .progress-bar {
-        width: 100%;
-        background-color: #f0f0f0;
-        border-radius: 5px;
-        overflow: hidden;
-      }
-      .progress-fill {
-        height: 10px;
-        background-color: #23a6d5;
-        width: 0%;
-        transition: width 0.3s ease;
-      }
-      .discipline-indicators {
-        display: flex;
-        justify-content: space-around;
-        margin-top: 10px;
-        flex-wrap: wrap;
-      }
-      .indicator-item {
-        display: flex;
-        align-items: center;
-        margin: 5px;
-      }
-    </style>
 
     <noscript>
       <div

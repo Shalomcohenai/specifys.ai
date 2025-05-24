@@ -1,21 +1,21 @@
 async function generateSpecificationFromProcessingJs() {
-    try {
-      const answers = JSON.parse(localStorage.getItem('processingAnswers')) || {};
-      const currentMode = localStorage.getItem('currentMode') || 'market';
-  
-      let details = '';
-      const steps = [
-        { name: 'App Name and Platform', question: 'What is the name of your app idea and which platform will it be on (e.g., iOS, Android, Web)?' },
-        { name: 'Description', question: 'Describe your app’s purpose, key features, and target audience.' },
-        { name: 'Key Features', question: 'What are the main features you want your app to have?' }
-      ];
-  
-      steps.forEach((step, index) => {
-        const response = answers[index] || 'Not provided';
-        details += `${step.name}: ${response}\n`;
-      });
-  
-      const fullPrompt = `You are a professional product manager, market research expert, and business analyst with expertise in app-based ventures and digital products.
+  try {
+    const answers = JSON.parse(localStorage.getItem('marketAnswers')) || {};
+    const currentMode = localStorage.getItem('currentMode') || 'market';
+
+    let details = '';
+    const steps = [
+      { name: 'App Name and Platform', question: 'What is the name of your app idea and which platform will it be on (e.g., iOS, Android, Web)?' },
+      { name: 'Description', question: 'Describe your app’s purpose, key features, and target audience.' },
+      { name: 'Key Features', question: 'What are the main features you want your app to have?' }
+    ];
+
+    steps.forEach((step, index) => {
+      const response = answers[index] || 'Not provided';
+      details += `${step.name}: ${response}\n`;
+    });
+
+    const fullPrompt = `You are a professional product manager, market research expert, and business analyst with expertise in app-based ventures and digital products.
 
 Your task is to generate a detailed and comprehensive **Market Research Document** for the given app idea. The document should be tailored to the "${currentMode}" mode, focusing on market analysis, business potential, and actionable insights for early-stage product validation.
 
@@ -101,43 +101,42 @@ Details:
 ${details}
 `;
 
-      
-      const response = await fetch('https://super-dream-62b3.shalom-cohen-111.workers.dev/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ prompt: fullPrompt }),
-      });
-  
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(`API Error: ${data.error || 'Unknown error'}`);
-      }
-  
-      const generatedContent = data.specification || 'No market research generated';
-      console.log('Generated content extracted:', generatedContent);
-      localStorage.setItem('generatedContent', generatedContent);
-  
-      if (typeof confetti === 'function') {
-        confetti({
-          particleCount: 100,
-          spread: 70,
-          origin: { y: 0.6 }
-        });
-      }
-  
-      window.location.href = 'result-market.html';
-    } catch (err) {
-      console.error('Error generating specification:', err);
-      alert('Failed to generate market research: ' + err.message);
-      const generateSpecButton = document.getElementById('generateSpecButton');
-      const loadingSpinner = document.getElementById('loadingSpinner');
-      if (generateSpecButton) generateSpecButton.disabled = false;
-      if (loadingSpinner) loadingSpinner.style.display = 'none';
+    const response = await fetch('https://super-dream-62b3.shalom-cohen-111.workers.dev/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ prompt: fullPrompt }),
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(`API Error: ${data.error || 'Unknown error'}`);
     }
+
+    const generatedContent = data.specification || 'No market research generated';
+    console.log('Generated content extracted:', generatedContent);
+    localStorage.setItem('generatedContent', generatedContent);
+
+    if (typeof confetti === 'function') {
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 }
+      });
+    }
+
+    window.location.href = 'result-market.html';
+  } catch (err) {
+    console.error('Error generating specification:', err);
+    alert('Failed to generate market research: ' + err.message);
+    const generateSpecButton = document.getElementById('goButton');
+    const loadingSpinner = document.getElementById('loadingSpinner');
+    if (generateSpecButton) generateSpecButton.disabled = false;
+    if (loadingSpinner) loadingSpinner.style.display = 'none';
   }
-  
-  document.addEventListener('DOMContentLoaded', () => {
-    window.generateSpecificationOriginal = generateSpecificationFromProcessingJs;
-  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  window.generateSpecificationOriginal = generateSpecificationFromProcessingJs;
+});

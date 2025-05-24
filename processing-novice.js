@@ -8,7 +8,7 @@ async function generateSpecificationFromProcessingNoviceJs() {
     const currentMode = localStorage.getItem('currentMode') || 'nocode';
     console.log('Form data:', { idea, topic, platform, currentMode });
 
-    const answers = JSON.parse(localStorage.getItem('processingAnswers')) || {};
+    const answers = JSON.parse(localStorage.getItem('noCodeAnswers')) || {};
     console.log('Answers:', answers);
 
     let details = '';
@@ -190,6 +190,6 @@ ${details}
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-console.log('processing-novice.js loaded, setting generateSpecificationOriginal');
-window.generateSpecificationOriginal = generateSpecificationFromProcessingNoviceJs;
+  console.log('processing-novice.js loaded, setting generateSpecificationOriginal');
+  window.generateSpecificationOriginal = generateSpecificationFromProcessingNoviceJs;
 });

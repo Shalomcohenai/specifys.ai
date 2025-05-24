@@ -7,7 +7,7 @@ async function generateSpecificationFromProcessingJs() {
     const platform = formData.platform || 'Not specified';
     console.log('Form data:', { idea, topic, platform });
 
-    const answers = JSON.parse(localStorage.getItem('processingAnswers')) || {};
+    const answers = JSON.parse(localStorage.getItem('devAnswers')) || {};
     console.log('Answers:', answers);
 
     const userInput = `
@@ -67,7 +67,6 @@ Your response should be fully detailed and use the **maximum token length possib
 ### User Input
 ${userInput}
 `;
-
 
     console.log('Full prompt constructed:', fullPrompt);
     console.log('Prompt length (characters):', fullPrompt.length);

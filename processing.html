@@ -34,9 +34,7 @@
       name="twitter:image"
       content="https://specifys.ai/assets/og-image.jpg"
     />
-    <!-- NEW: Canonical tag -->
     <link rel="canonical" href="https://specifys.ai/processing.html">
-    <!-- NEW: Schema Markup -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -182,7 +180,6 @@
     ></script>
     <script type="module" src="processing.js"></script>
     <script>
-      // Define questions and titles for each step
       const stepTitles = [
         "App Purpose",
         "User Workflow",
@@ -198,7 +195,6 @@
         "What are the main types of information your app needs to store (e.g., users, tasks, products), and what are the key relationships between them (e.g., a user creates tasks)?",
       ];
 
-      // Initialize state
       let currentStep = 0;
       const totalSteps = questions.length;
       let textarea,
@@ -210,8 +206,8 @@
         progressFill,
         charCount,
         loadingSpinner;
-      const answers =
-        JSON.parse(localStorage.getItem("processingAnswers")) || {};
+      const storageKey = "devAnswers";
+      let answers = JSON.parse(localStorage.getItem(storageKey)) || {};
       const indicators = [
         "app-purpose-indicator",
         "user-workflow-indicator",
@@ -220,18 +216,15 @@
         "data-structure-indicator",
       ];
 
-      // Update UI function
       function updateUI() {
         stepTitle.textContent = stepTitles[currentStep];
         stepQuestion.textContent = questions[currentStep];
         textarea.value = answers[currentStep] || "";
         charCount.textContent = `${textarea.value.length}/300`;
 
-        // Update progress bar
         const progress = ((currentStep + 1) / totalSteps) * 100;
         progressFill.style.width = `${progress}%`;
 
-        // Update indicators
         indicators.forEach((indicator, index) => {
           const element = document.getElementById(indicator);
           if (answers[index] && answers[index].trim()) {
@@ -241,7 +234,6 @@
           }
         });
 
-        // Update button visibility
         prevButton.style.display = currentStep === 0 ? "none" : "block";
         nextButton.style.display =
           currentStep === totalSteps - 1 ? "none" : "block";
@@ -249,24 +241,28 @@
           currentStep === totalSteps - 1 ? "block" : "none";
         loadingSpinner.style.display = "none";
 
-        // Enable/disable Generate Specification button based on indicator status
         const allIndicatorsGreen = indicators.every((indicator) => {
           const element = document.getElementById(indicator);
           return element && element.classList.contains("active");
         });
         if (generateSpecButton) {
           generateSpecButton.disabled = !allIndicatorsGreen;
-          console.log("Generate button state:", generateSpecButton.disabled);
         }
       }
 
-      // Close popup function
       function closePopup() {
         document.getElementById("instructionsPopup").style.display = "none";
       }
 
-      // Load saved answers and update UI on page load
       document.addEventListener("DOMContentLoaded", () => {
+        if (localStorage.getItem("currentMode") !== "dev") {
+          localStorage.removeItem("marketAnswers");
+          localStorage.removeItem("noCodeAnswers");
+          localStorage.setItem("currentMode", "dev");
+          answers = {};
+          localStorage.setItem(storageKey, JSON.stringify(answers));
+        }
+
         textarea = document.getElementById("stepTextarea");
         stepTitle = document.getElementById("stepTitle");
         stepQuestion = document.getElementById("stepQuestion");
@@ -281,7 +277,7 @@
 
         textarea.addEventListener("input", () => {
           answers[currentStep] = textarea.value;
-          localStorage.setItem("processingAnswers", JSON.stringify(answers));
+          localStorage.setItem(storageKey, JSON.stringify(answers));
           charCount.textContent = `${textarea.value.length}/300`;
 
           const currentIndicator = document.getElementById(
@@ -316,7 +312,7 @@
 
         errorMessage.style.display = "none";
         answers[currentStep] = textareaValue;
-        localStorage.setItem("processingAnswers", JSON.stringify(answers));
+        localStorage.setItem(storageKey, JSON.stringify(answers));
 
         if (currentStep < totalSteps - 1) {
           currentStep++;
@@ -325,32 +321,24 @@
       };
 
       window.generateSpecification = function () {
-        console.log("Generate Specification clicked");
-        const answers =
-          JSON.parse(localStorage.getItem("processingAnswers")) || {};
+        const answers = JSON.parse(localStorage.getItem(storageKey)) || {};
         const errorMessage = document.getElementById("errorMessage");
 
-        console.log("Answers length:", Object.keys(answers).length);
         if (Object.keys(answers).length < totalSteps) {
           errorMessage.textContent =
             "Please complete all steps before generating the specification.";
           errorMessage.style.display = "block";
-          console.log("Error: Not all steps completed");
           return;
         }
 
         errorMessage.style.display = "none";
         generateSpecButton.style.display = "none";
         loadingSpinner.style.display = "block";
-        console.log("Loading spinner shown, button hidden");
 
         setTimeout(() => {
-          console.log("Checking generateSpecificationOriginal");
           if (typeof window.generateSpecificationOriginal === "function") {
-            console.log("Calling generateSpecificationOriginal");
             window.generateSpecificationOriginal();
           } else {
-            console.error("generateSpecificationOriginal not found");
             window.location.href = "result.html";
           }
         }, 2000);
@@ -411,7 +399,7 @@
         width: 10px;
         height: 10px;
         border-radius: 50%;
-        background-color: #28a745;
+        background-color: #23a6d5;
         margin-right: 5px;
       }
       .indicator-circle.active {
