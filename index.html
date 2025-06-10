@@ -16,14 +16,13 @@
   <meta name="twitter:title" content="specifys.ai - Turn Ideas into Apps">
   <meta name="twitter:description" content="Choose your track to create detailed app specifications, technical infrastructure, or market research with AI and Vibe Coding.">
   <meta name="twitter:image" content="https://specifys.ai/assets/og-image.jpg">
-  <!-- MODIFIED: Google tag (gtag.js) for Analytics and Ads -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-RWBT69JCM7"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-    gtag('config', 'G-RWBT69JCM7'); // Analytics
-    gtag('config', 'AW-1000505244'); // Ads
+    gtag('config', 'G-RWBT69JCM7');
+    gtag('config', 'AW-1000505244');
   </script>
   <title>specifys.ai - Turn Ideas into Apps</title>
   <link rel="icon" type="image/x-icon" href="favicon.ico">
@@ -195,81 +194,70 @@
       opacity: 1;
     }
 
-    .stats-section {
-      text-align: center;
-      margin-top: 15px;
-      width: 100%;
-      max-width: 600px;
-    }
-
-    .stats-title {
-      color: #fff;
-      font-size: 1.4em;
-      font-weight: 700;
-      margin-bottom: 10px;
-      text-transform: uppercase;
-    }
-
-    .stats-container {
-      display: flex;
-      width: 100%;
-      justify-content: center;
-      gap: 8px;
-      margin-bottom: 15px;
-    }
-
-    .stat-box {
-      background: rgba(255, 255, 255, 0.9);
-      border: 2px solid #fff;
-      border-radius: 15px;
-      padding: 15px;
-      text-align: center;
-      width: 160px;
-      transition: transform 0.3s ease;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
-
-    .stat-box:hover {
-      transform: scale(1.05);
-    }
-
-    .stat-box h3 {
-      color: #666;
-      font-size: 1em;
-      margin: 0 0 8px 0;
-      text-transform: uppercase;
-    }
-
-    .stat-box .stat-number {
-      color: #23a6d5;
-      font-size: 2em;
-      font-weight: 700;
-    }
-
     footer {
       opacity: 0;
       animation: fadeIn 1s ease forwards 1s;
-      padding: 10px;
+      padding: 20px 10px;
       text-align: center;
       width: 100%;
       position: absolute;
       bottom: 0;
       left: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
     }
 
-    footer a {
+    .footer-content {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .footer-links a {
       color: #fff;
       text-decoration: none;
       font-size: 0.85rem;
-      margin: 0 8px;
       font-weight: 500;
       transition: color 0.3s ease;
     }
 
-    footer a:hover {
-      color: #23a6d5;
+    .footer-links a:hover {
+      color: #23d5ab;
+    }
+
+    .footer-divider {
+      color: #fff;
+      font-size: 1.2rem;
+      font-weight: 300;
+    }
+
+    .footer-social {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .footer-social a {
+      color: #fff;
+      font-size: 1.2rem;
+      transition: transform 0.3s ease;
+    }
+
+    .footer-social a:hover {
+      transform: translateY(-2px);
     }
 
     @keyframes fadeIn {
@@ -277,9 +265,171 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
+    /* Popup Gallery Styles */
+    .popup-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 20;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .popup {
+      background: #fff;
+      width: 80%;
+      max-width: 700px;
+      padding: 2rem;
+      border-radius: 15px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .popup-close {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 1.5rem;
+      color: #666;
+      cursor: pointer;
+      border: none;
+      background: none;
+      transition: color 0.3s ease;
+    }
+
+    .popup-close:hover {
+      color: #23a6d5;
+    }
+
+    .popup-gallery {
+      position: relative;
+      height: 180px;
+    }
+
+    .popup-step {
+      position: absolute;
+      width: 100%;
+      opacity: 0;
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+
+    .popup-step.active {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .popup-step:not(.active) {
+      transform: translateX(100%);
+    }
+
+    .popup-step i {
+      font-size: 2rem;
+      color: #23a6d5;
+      margin-bottom: 0.5rem;
+    }
+
+    .step-1 i {
+      animation: zoomPulse 1.5s ease-in-out infinite;
+    }
+
+    .step-2 i {
+      animation: float 1.8s ease-in-out infinite;
+    }
+
+    .step-3 i {
+      animation: spinPop 2s ease-in-out infinite;
+    }
+
+    .popup-step h3 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #23a6d5;
+      margin: 0.5rem 0;
+    }
+
+    .popup-step p {
+      font-size: 1rem;
+      color: #666;
+      margin-bottom: 0.5rem;
+    }
+
+    .popup-dots {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      margin-top: 1rem;
+    }
+
+    .popup-dot {
+      width: 10px;
+      height: 10px;
+      background: #ccc;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .popup-dot.active {
+      width: 14px;
+      height: 14px;
+      background: #23a6d5;
+      transform: scale(1.2);
+    }
+
+    .popup-start {
+      background: #23a6d5;
+      color: #fff;
+      border: none;
+      border-radius: 30px;
+      padding: 0.8rem 2rem;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 1rem;
+      animation: pulseGlow 1.5s ease-in-out infinite;
+    }
+
+    .popup-start:hover {
+      background: #1d8bb8;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    @keyframes zoomPulse {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.3); opacity: 0.8; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes float {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+      100% { transform: translateY(0); }
+    }
+
+    @keyframes spinPop {
+      0% { transform: rotate(0deg) scale(1); }
+      50% { transform: rotate(180deg) scale(1.2); }
+      100% { transform: rotate(360deg) scale(1); }
+    }
+
+    @keyframes pulseGlow {
+      0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(35, 166, 213, 0.7); }
+      50% { transform: scale(1.05); box-shadow: 0 0 10px 5px rgba(35, 166, 213, 0.7); }
+      100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(35, 166, 213, 0.7); }
+    }
+
     @media (max-width: 768px) {
       .main-content-wrapper {
-        padding: 3rem 1rem 1.5rem;
+        padding: 3rem 1rem 3rem;
       }
       .header-text {
         margin-bottom: 1.5rem;
@@ -309,28 +459,59 @@
         font-size: 0.75rem;
         min-height: 25px;
       }
-      .stats-section {
-        margin-top: 10px;
-      }
-      .stats-container {
-        gap: 6px;
-      }
-      .stat-box {
-        width: 120px;
-        padding: 10px;
-      }
-      .stat-box .stat-number {
-        font-size: 1.5em;
-      }
-      .stats-title {
-        font-size: 1.2em;
-      }
       footer {
-        padding: 8px;
+        padding: 15px 8px;
+        gap: 12px;
       }
-      footer a {
+      .footer-content {
+        flex-direction: column;
+        gap: 12px;
+      }
+      .footer-links {
+        gap: 12px;
+      }
+      .footer-links a {
         font-size: 0.8rem;
-        margin: 0 6px;
+      }
+      .footer-divider {
+        font-size: 1rem;
+      }
+      .footer-social {
+        gap: 12px;
+      }
+      .footer-social a {
+        font-size: 1rem;
+      }
+      .popup {
+        width: 90%;
+        padding: 1.5rem;
+      }
+      .popup-gallery {
+        height: 160px;
+      }
+      .popup-step h3 {
+        font-size: 1rem;
+      }
+      .popup-step p {
+        font-size: 0.9rem;
+      }
+      .popup-step i {
+        font-size: 1.8rem;
+      }
+      .popup-dots {
+        gap: 8px;
+      }
+      .popup-dot {
+        width: 8px;
+        height: 8px;
+      }
+      .popup-dot.active {
+        width: 12px;
+        height: 12px;
+      }
+      .popup-start {
+        padding: 0.6rem 1.5rem;
+        font-size: 0.9rem;
       }
     }
 
@@ -343,11 +524,48 @@
         min-height: 100px;
         max-width: 400px;
       }
-      .stats-title {
-        font-size: 1em;
+      .footer-content {
+        gap: 10px;
       }
-      .stat-box {
-        width: 100px;
+      .footer-links a {
+        font-size: 0.75rem;
+      }
+      .footer-divider {
+        font-size: 0.9rem;
+      }
+      .footer-social a {
+        font-size: 0.9rem;
+      }
+      .popup {
+        width: 95%;
+        padding: 1rem;
+      }
+      .popup-gallery {
+        height: 140px;
+      }
+      .popup-step h3 {
+        font-size: 0.9rem;
+      }
+      .popup-step p {
+        font-size: 0.8rem;
+      }
+      .popup-step i {
+        font-size: 1.5rem;
+      }
+      .popup-dots {
+        gap: 6px;
+      }
+      .popup-dot {
+        width: 6px;
+        height: 6px;
+      }
+      .popup-dot.active {
+        width: 10px;
+        height: 10px;
+      }
+      .popup-start {
+        padding: 0.5rem 1.2rem;
+        font-size: 0.8rem;
       }
     }
 
@@ -355,7 +573,7 @@
       body.page-default {
         animation: none;
       }
-      .mode-button, .stat-box, .header-text, footer {
+      .mode-button, .header-text, footer, .popup, .step-1 i, .step-2 i, .step-3 i, .popup-start {
         transition: none;
         animation: none;
         opacity: 1;
@@ -375,6 +593,35 @@
       <h1>AI-Powered App Planning for Vibe Coding</h1>
     </div>
 
+    <div class="popup-overlay" id="popupOverlay">
+      <div class="popup">
+        <button class="popup-close" aria-label="Close popup">×</button>
+        <div class="popup-gallery">
+          <div class="popup-step step-1 active">
+            <i class="fas fa-edit"></i>
+            <h3>Choose Your Mode</h3>
+            <p>Select your perfect track: Start-Easy for beginners, Dev-Tools for coders, or Explore for market research.</p>
+          </div>
+          <div class="popup-step step-2">
+            <i class="fas fa-question-circle"></i>
+            <h3>Answer Questions</h3>
+            <p>Share your vision by answering a few simple questions to kickstart your app journey.</p>
+          </div>
+          <div class="popup-step step-3">
+            <i class="fas fa-file-alt"></i>
+            <h3>Create Specification</h3>
+            <p>Receive a precise blueprint you can integrate with Vibe Coding tools for success.</p>
+          </div>
+        </div>
+        <div class="popup-dots">
+          <div class="popup-dot active" data-step="0"></div>
+          <div class="popup-dot" data-step="1"></div>
+          <div class="popup-dot" data-step="2"></div>
+        </div>
+        <button class="popup-start" id="popupStart">Start Now</button>
+      </div>
+    </div>
+
     <div class="track-container">
       <h2>Choose Your Track</h2>
       <div class="mode-buttons" id="modeButtons">
@@ -384,36 +631,34 @@
       </div>
       <div class="track-info" id="trackInfo"></div>
     </div>
-
-    <div class="stats-section">
-      <h2 class="stats-title">Created with specifys.ai so far:</h2>
-      <div class="stats-container">
-        <div class="stat-box">
-          <h3>Start-Easy</h3>
-          <div class="stat-number" id="noviceCount">0</div>
-        </div>
-        <div class="stat-box">
-          <h3>Dev-Tools</h3>
-          <div class="stat-number" id="developersCount">0</div>
-        </div>
-        <div class="stat-box">
-          <h3>Explore</h3>
-          <div class="stat-number" id="marketCount">0</div>
-        </div>
-      </div>
-    </div>
   </div>
 
   <footer>
-    <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
-    <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
+    <div class="footer-content">
+      <div class="footer-links">
+        <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
+        <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
+      </div>
+      <span class="footer-divider">|</span>
+      <div class="footer-social">
+        <!-- Insert your LinkedIn profile or page URL here -->
+        <a href="https://www.linkedin.com/company/specifys-ai/" aria-label="Follow us on LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+        <!-- Insert your Facebook profile or page URL here -->
+        <a href="https://www.facebook.com/profile.php?id=61576402600129&locale=he_IL" aria-label="Follow us on Facebook"><i class="fab fa-facebook-f"></i></a>
+        <!-- Insert your Instagram profile URL here -->
+        <a href="https://www.instagram.com/YOUR_PROFILE" aria-label="Follow us on Instagram"><i class="fab fa-instagram"></i></a>
+        <!-- Insert your email address here for contact -->
+        <a href="mailto:specifysai@gmail.com" aria-label="Send us an email"><i class="fas fa-envelope"></i></a>
+        <!-- Insert your Product Hunt profile or product page URL here -->
+        <a href="https://www.producthunt.com/products/specifys-ai" aria-label="Check us out on Product Hunt"><i class="fab fa-product-hunt"></i></a>
+      </div>
+    </div>
   </footer>
 
   <script defer src="script.js"></script>
   <script defer src="typingEffect.js"></script>
   <script>
     (function() {
-      // Namespace to avoid conflicts
       window.specifys = window.specifys || {};
 
       document.addEventListener("DOMContentLoaded", () => {
@@ -422,31 +667,6 @@
           localStorage.setItem("visited", "true");
         }
 
-        function animateCounter(element, target, duration) {
-          let start = 0;
-          const increment = target / (duration / 16);
-          const interval = setInterval(() => {
-            start += increment;
-            if (start >= target) {
-              start = target;
-              clearInterval(interval);
-            }
-            element.textContent = Math.round(start);
-          }, 16);
-        }
-
-        const noviceTarget = Math.floor(Math.random() * 50) + 10;
-        const developersTarget = Math.floor(Math.random() * 50) + 10;
-        const marketTarget = Math.floor(Math.random() * 50) + 10;
-
-        const noviceCount = document.getElementById("noviceCount");
-        const developersCount = document.getElementById("developersCount");
-        const marketCount = document.getElementById("marketCount");
-        if (noviceCount) animateCounter(noviceCount, noviceTarget, 2000);
-        if (developersCount) animateCounter(developersCount, developersTarget, 2000);
-        if (marketCount) animateCounter(marketCount, marketTarget, 2000);
-
-        // Auto-cycle through track info
         const modes = ['novice', 'developers', 'market'];
         let currentModeIndex = 0;
         let autoCycleInterval;
@@ -455,14 +675,13 @@
           autoCycleInterval = setInterval(() => {
             currentModeIndex = (currentModeIndex + 1) % modes.length;
             specifys.showTrackInfo(modes[currentModeIndex], true);
-          }, 3000); // Change every 3 seconds
+          }, 3000);
         }
 
         function stopAutoCycle() {
           if (autoCycleInterval) {
             clearInterval(autoCycleInterval);
           }
-          // Remove highlighted class from all buttons
           document.querySelectorAll('.mode-button').forEach(btn => btn.classList.remove('highlighted'));
         }
 
@@ -471,7 +690,6 @@
           if (!trackInfo) return;
           trackInfo.classList.add("show");
 
-          // Update button highlight only for auto-cycle
           if (isAuto) {
             document.querySelectorAll('.mode-button').forEach(btn => btn.classList.remove('highlighted'));
             const button = document.querySelector(`.mode-button[data-mode="${mode}"]`);
@@ -483,7 +701,7 @@
           } else if (mode === "developers") {
             trackInfo.textContent = "For developers building robust apps. Get a detailed technical blueprint with file structures, APIs, and scripts to streamline your coding.";
           } else if (mode === "market") {
-            trackInfo.textContent = "For entrepreneurs who want in-depth market research to validate their app idea and pitch to investors.";
+            trackInfo.textContent = "For entrepreneurs who need in-depth market research to validate their app idea and pitch to investors.";
           }
         };
 
@@ -522,19 +740,77 @@
           }
         };
 
-        // Start auto-cycle on page load
         startAutoCycle();
 
-        // Add touch event listeners to buttons to ensure touch support
         document.querySelectorAll('.mode-button').forEach(button => {
           button.addEventListener('touchstart', (e) => {
-            // Only prevent default for touch-specific behavior, allow click
             const mode = button.getAttribute('data-mode');
             stopAutoCycle();
             specifys.showTrackInfo(mode);
           });
           button.addEventListener('touchend', () => {
             specifys.resumeAutoCycle();
+          });
+        });
+
+        // Popup Gallery Logic
+        const popupOverlay = document.getElementById("popupOverlay");
+        const popupStart = document.getElementById("popupStart");
+        const popupClose = document.querySelector(".popup-close");
+        const popupSteps = document.querySelectorAll(".popup-step");
+        const popupDots = document.querySelectorAll(".popup-dot");
+        let currentStepIndex = 0;
+        let galleryInterval;
+
+        function showStep(index) {
+          popupSteps.forEach((step, i) => {
+            step.classList.remove("active");
+            if (i === index) {
+              step.classList.add("active");
+            }
+          });
+          popupDots.forEach((dot, i) => {
+            dot.classList.remove("active");
+            if (i === index) {
+              dot.classList.add("active");
+            }
+          });
+        }
+
+        function startGalleryCycle() {
+          galleryInterval = setInterval(() => {
+            currentStepIndex = (currentStepIndex + 1) % popupSteps.length;
+            showStep(currentStepIndex);
+          }, 5000);
+        }
+
+        popupOverlay.style.display = "flex";
+        showStep(currentStepIndex);
+        startGalleryCycle();
+
+        popupStart.addEventListener("click", () => {
+          clearInterval(galleryInterval);
+          popupOverlay.style.display = "none";
+        });
+
+        popupClose.addEventListener("click", () => {
+          clearInterval(galleryInterval);
+          popupOverlay.style.display = "none";
+        });
+
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "Escape" && popupOverlay.style.display === "flex") {
+            clearInterval(galleryInterval);
+            popupOverlay.style.display = "none";
+          }
+        });
+
+        popupDots.forEach((dot, index) => {
+          dot.addEventListener("click", () => {
+            clearInterval(galleryInterval);
+            currentStepIndex = parseInt(dot.getAttribute("data-step"));
+            showStep(currentStepIndex);
+            startGalleryCycle();
           });
         });
       });
