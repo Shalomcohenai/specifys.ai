@@ -22,15 +22,20 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
+    html {
+      height: 100%;
+    }
     body {
       margin: 0;
       padding: 0;
       font-family: "Montserrat", sans-serif;
-      min-height: 100vh;
+      min-height: 100%;
       background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
       background-size: 400% 400%;
       animation: gradient 15s ease infinite;
       color: #333;
+      display: flex;
+      flex-direction: column;
     }
     @keyframes gradient {
       0% { background-position: 0% 50%; }
@@ -55,6 +60,7 @@
       background: rgba(255, 255, 255, 0.95);
       border-radius: 15px;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      flex-grow: 1; /* Allows content to grow and push footer down */
     }
     .content-box h1 {
       font-size: 2.5rem;
@@ -88,14 +94,60 @@
       transform: translateY(-2px);
     }
     footer {
+      opacity: 0;
+      animation: fadeIn 1s ease forwards 1s;
+      padding: 20px 10px;
       text-align: center;
-      padding: 20px;
+      width: 100%;
       color: #fff;
+      flex-shrink: 0; /* Prevents footer from shrinking */
     }
-    footer a {
+    .footer-content {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+    .footer-links a {
       color: #fff;
-      text-decoration: underline;
-      margin: 0 10px;
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: color 0.3s ease;
+    }
+    .footer-links a:hover {
+      color: #23d5ab;
+    }
+    .footer-divider {
+      color: #fff;
+      font-size: 1.2rem;
+      font-weight: 300;
+    }
+    .footer-social {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+    .footer-social a {
+      color: #fff;
+      font-size: 1.2rem;
+      transition: transform 0.3s ease;
+    }
+    .footer-social a:hover {
+      transform: translateY(-2px);
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
     @media (max-width: 768px) {
       .content-box {
@@ -114,6 +166,59 @@
       .content-box .btn {
         padding: 8px 16px;
         font-size: 0.9rem;
+      }
+      footer {
+        padding: 15px 8px;
+        gap: 12px;
+      }
+      .footer-content {
+        flex-direction: column;
+        gap: 12px;
+      }
+      .footer-links {
+        gap: 12px;
+      }
+      .footer-links a {
+        font-size: 0.8rem;
+      }
+      .footer-divider {
+        font-size: 1rem;
+      }
+      .footer-social {
+        gap: 12px;
+      }
+      .footer-social a {
+        font-size: 1rem;
+      }
+    }
+    @media (max-width: 480px) {
+      .thematic-header .logo a {
+        font-size: 1.2rem;
+      }
+      .content-box {
+        margin: 40px 10px;
+        padding: 15px;
+      }
+      .footer-content {
+        gap: 10px;
+      }
+      .footer-links a {
+        font-size: 0.75rem;
+      }
+      .footer-divider {
+        font-size: 0.9rem;
+      }
+      .footer-social a {
+        font-size: 0.9rem;
+      }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      body {
+        animation: none;
+      }
+      footer {
+        animation: none;
+        opacity: 1;
       }
     }
   </style>
@@ -138,12 +243,25 @@
     <p>I built this tool entirely on my own using AI — no backend, no user data stored. It’s designed to be fast, simple, and focused on one thing: helping you turn your idea into a clean plan you can actually build on.</p>
     <div style="text-align: center; margin-top: 30px;">
       <a href="index.html" class="btn" aria-label="Start building your app specification now">Start Building Your App Now</a>
-      <a href="https://www.linkedin.com/in/shalom-cohen-884491227/" class="btn" aria-label="Contact Shalom Cohen on LinkedIn">Contact Me</a>    </div>
+      <a href="https://www.linkedin.com/in/shalom-cohen-884491227/" class="btn" aria-label="Contact Shalom Cohen on LinkedIn">Contact Me</a>
+    </div>
   </div>
 
   <footer>
-    <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
-    <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
+    <div class="footer-content">
+      <div class="footer-links">
+        <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
+        <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
+      </div>
+      <span class="footer-divider">|</span>
+      <div class="footer-social">
+        <a href="https://www.linkedin.com/company/specifys-ai/" aria-label="Follow us on LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+        <a href="https://www.facebook.com/profile.php?id=61576402600129&locale=he_IL" aria-label="Follow us on Facebook"><i class="fab fa-facebook-f"></i></a>
+        <a href="https://www.instagram.com/YOUR_PROFILE" aria-label="Follow us on Instagram"><i class="fab fa-instagram"></i></a>
+        <a href="mailto:specifysai@gmail.com" aria-label="Send us an email"><i class="fas fa-envelope"></i></a>
+        <a href="https://www.producthunt.com/products/specifys-ai" aria-label="Check us out on Product Hunt"><i class="fab fa-product-hunt"></i></a>
+      </div>
+    </div>
   </footer>
 
   <noscript>

@@ -1,588 +1,893 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Choose your track to create detailed app specifications, technical infrastructure, or market research with AI and Vibe Coding for non-programmers, developers, and entrepreneurs.">
-  <meta name="keywords" content="app specification, AI development, Vibe Coding, non-programmers, developers, entrepreneurs, specifys.ai">
-  <meta name="author" content="specifys.ai Team">
-  <meta name="robots" content="index, follow">
-  <meta property="og:title" content="specifys.ai - Turn Ideas into Apps">
-  <meta property="og:description" content="Choose your track to create detailed app specifications, technical infrastructure, or market research with AI and Vibe Coding.">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://specifys.ai/index.html">
-  <meta property="og:image" content="https://specifys.ai/assets/og-image.jpg">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="specifys.ai - Turn Ideas into Apps">
-  <meta name="twitter:description" content="Choose your track to create detailed app specifications, technical infrastructure, or market research with AI and Vibe Coding.">
-  <meta name="twitter:image" content="https://specifys.ai/assets/og-image.jpg">
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-RWBT69JCM7"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-RWBT69JCM7');
-    gtag('config', 'AW-1000505244');
-  </script>
-  <title>specifys.ai - Turn Ideas into Apps</title>
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <style>
-    @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap");
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Specifys.ai: Plan your app idea with a free AI tool! 100% free, no coding needed, just Vibe Coding for non-programmers, developers, and entrepreneurs.">
+    <meta name="keywords" content="app specification, AI development, Vibe Coding, free, non-programmers, developers, entrepreneurs, specifys.ai">
+    <meta name="author" content="specifys.ai Team">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="specifys.ai - Plan Your App Idea for Free">
+    <meta property="og:description" content="Plan your app with a 100% free AI-powered tool. No coding, just Vibe Coding vibes!">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://specifys.ai/index.html">
+    <meta property="og:image" content="https://specifys.ai/assets/og-image.jpg">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="specifys.ai - Plan Your App Idea for Free">
+    <meta name="twitter:description" content="Plan your app with a 100% free AI-powered tool. No coding, just Vibe Coding vibes!">
+    <meta name="twitter:image" content="https://specifys.ai/assets/og-image.jpg">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-RWBT69JCM7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-RWBT69JCM7');
+      gtag('config', 'AW-1000505244');
+    </script>
+    <title>specifys.ai - Plan Your App Idea for Free</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap");
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    html,
-    body {
-      width: 100%;
-      overflow-x: hidden;
-      position: relative;
-    }
-
-    body {
-      margin: 0;
-      padding: 0;
-      min-height: 100vh;
-      font-family: "Montserrat", sans-serif;
-      position: relative;
-      overflow-x: hidden;
-      -webkit-overflow-scrolling: touch;
-    }
-
-    body.page-default {
-      background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
-      background-size: 400% 400%;
-      animation: gradient 30s ease infinite;
-    }
-
-    @keyframes gradient {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-
-    .thematic-header {
-      position: absolute;
-      top: 0;
-      width: 100%;
-      padding: 20px 24px 10px;
-      display: flex;
-      align-items: center;
-      z-index: 10;
-      background: transparent;
-    }
-
-    .thematic-header .logo {
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-      text-align: center;
-    }
-
-    .thematic-header .logo a {
-      text-decoration: none;
-      color: #fff;
-      font-size: 1.5rem;
-      font-weight: 700;
-    }
-
-    .main-content-wrapper {
-      position: relative;
-      width: 100%;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      padding: 4rem 1.5rem 2rem;
-      box-sizing: border-box;
-    }
-
-    .header-text {
-      width: 100%;
-      max-width: 600px;
-      text-align: center;
-      margin-bottom: 2rem;
-      padding: 0 1rem;
-      animation: fadeIn 1s ease-in;
-    }
-
-    .header-text h1 {
-      color: #fff;
-      font-size: clamp(1.4rem, 3vw, 2rem);
-      font-weight: 700;
-      margin-bottom: 1rem;
-      line-height: 1.2;
-      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-    }
-
-    .track-container {
-      background: rgba(255, 255, 255, 0.95);
-      border-radius: 15px;
-      padding: 20px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      text-align: center;
-      width: 100%;
-      max-width: 600px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      min-height: 150px;
-    }
-
-    .track-container h2 {
-      font-size: 1.4em;
-      font-weight: 700;
-      color: #23a6d5;
-      margin-bottom: 15px;
-      text-transform: none;
-    }
-
-    .mode-buttons {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .mode-button {
-      background: #fff;
-      color: #23a6d5;
-      border: 2px solid #23a6d5;
-      border-radius: 30px;
-      padding: 8px 15px;
-      font-size: 0.85rem;
-      font-weight: 700;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 120px;
-      transition: all 0.3s ease;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-
-    .mode-button:hover, .mode-button.active, .mode-button.highlighted {
-      background: #23a6d5;
-      color: #fff;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-      border: 2px solid #23a6d5;
-    }
-
-    .mode-button i {
-      font-size: 0.75rem;
-      margin-right: 5px;
-    }
-
-    .track-info {
-      margin-top: 10px;
-      font-size: 0.8rem;
-      color: #666;
-      min-height: 30px;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-
-    .track-info.show {
-      opacity: 1;
-    }
-
-    footer {
-      opacity: 0;
-      animation: fadeIn 1s ease forwards 1s;
-      padding: 20px 10px;
-      text-align: center;
-      width: 100%;
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 15px;
-    }
-
-    .footer-content {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: center;
-      gap: 20px;
-      flex-wrap: wrap;
-    }
-
-    .footer-links {
-      display: flex;
-      justify-content: center;
-      gap: 15px;
-      flex-wrap: wrap;
-    }
-
-    .footer-links a {
-      color: #fff;
-      text-decoration: none;
-      font-size: 0.85rem;
-      font-weight: 500;
-      transition: color 0.3s ease;
-    }
-
-    .footer-links a:hover {
-      color: #23d5ab;
-    }
-
-    .footer-divider {
-      color: #fff;
-      font-size: 1.2rem;
-      font-weight: 300;
-    }
-
-    .footer-social {
-      display: flex;
-      justify-content: center;
-      gap: 15px;
-      flex-wrap: wrap;
-    }
-
-    .footer-social a {
-      color: #fff;
-      font-size: 1.2rem;
-      transition: transform 0.3s ease;
-    }
-
-    .footer-social a:hover {
-      transform: translateY(-2px);
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* Popup Gallery Styles */
-    .popup-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.7);
-      z-index: 20;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .popup {
-      background: #fff;
-      width: 80%;
-      max-width: 700px;
-      padding: 2rem;
-      border-radius: 15px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .popup-close {
-      position: absolute;
-      top: 10px;
-      right: 15px;
-      font-size: 1.5rem;
-      color: #666;
-      cursor: pointer;
-      border: none;
-      background: none;
-      transition: color 0.3s ease;
-    }
-
-    .popup-close:hover {
-      color: #23a6d5;
-    }
-
-    .popup-gallery {
-      position: relative;
-      height: 180px;
-    }
-
-    .popup-step {
-      position: absolute;
-      width: 100%;
-      opacity: 0;
-      transition: opacity 0.5s ease, transform 0.5s ease;
-    }
-
-    .popup-step.active {
-      opacity: 1;
-      transform: translateX(0);
-    }
-
-    .popup-step:not(.active) {
-      transform: translateX(100%);
-    }
-
-    .popup-step i {
-      font-size: 2rem;
-      color: #23a6d5;
-      margin-bottom: 0.5rem;
-    }
-
-    .step-1 i {
-      animation: zoomPulse 1.5s ease-in-out infinite;
-    }
-
-    .step-2 i {
-      animation: float 1.8s ease-in-out infinite;
-    }
-
-    .step-3 i {
-      animation: spinPop 2s ease-in-out infinite;
-    }
-
-    .popup-step h3 {
-      font-size: 1.2rem;
-      font-weight: 700;
-      color: #23a6d5;
-      margin: 0.5rem 0;
-    }
-
-    .popup-step p {
-      font-size: 1rem;
-      color: #666;
-      margin-bottom: 0.5rem;
-    }
-
-    .popup-dots {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 10px;
-      margin-top: 1rem;
-    }
-
-    .popup-dot {
-      width: 10px;
-      height: 10px;
-      background: #ccc;
-      border-radius: 50%;
-      transition: all 0.3s ease;
-      cursor: pointer;
-    }
-
-    .popup-dot.active {
-      width: 14px;
-      height: 14px;
-      background: #23a6d5;
-      transform: scale(1.2);
-    }
-
-    .popup-start {
-      background: #23a6d5;
-      color: #fff;
-      border: none;
-      border-radius: 30px;
-      padding: 0.8rem 2rem;
-      font-size: 1rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      margin-top: 1rem;
-      animation: pulseGlow 1.5s ease-in-out infinite;
-    }
-
-    .popup-start:hover {
-      background: #1d8bb8;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    }
-
-    @keyframes zoomPulse {
-      0% { transform: scale(1); opacity: 1; }
-      50% { transform: scale(1.3); opacity: 0.8; }
-      100% { transform: scale(1); opacity: 1; }
-    }
-
-    @keyframes float {
-      0% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
-      100% { transform: translateY(0); }
-    }
-
-    @keyframes spinPop {
-      0% { transform: rotate(0deg) scale(1); }
-      50% { transform: rotate(180deg) scale(1.2); }
-      100% { transform: rotate(360deg) scale(1); }
-    }
-
-    @keyframes pulseGlow {
-      0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(35, 166, 213, 0.7); }
-      50% { transform: scale(1.05); box-shadow: 0 0 10px 5px rgba(35, 166, 213, 0.7); }
-      100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(35, 166, 213, 0.7); }
-    }
-
-    @media (max-width: 768px) {
-      .main-content-wrapper {
-        padding: 3rem 1rem 3rem;
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
       }
+
+      html {
+        height: 100%;
+      }
+
+      body {
+        font-family: "Montserrat", sans-serif;
+        position: relative;
+        overflow-x: hidden;
+        -webkit-overflow-scrolling: touch;
+        display: flex;
+        flex-direction: column;
+        min-height: 100%;
+        background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #fff);
+        background-size: 400% 400%;
+        background-attachment: fixed;
+        animation: gradient 30s ease infinite;
+      }
+
+      @keyframes gradient {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+      }
+
+      .thematic-header {
+        position: absolute;
+        top: 0;
+        width: 100%;
+        padding: 20px 24px 10px;
+        display: flex;
+        align-items: center;
+        z-index: 10;
+        background: transparent;
+      }
+
+      .thematic-header .logo {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        text-align: center;
+      }
+
+      .thematic-header .logo a {
+        text-decoration: none;
+        color: #fff;
+        font-size: 1.5rem;
+        font-weight: 700;
+      }
+
+      .main-content-wrapper {
+        width: 100%;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 8rem 1.5rem 2rem;
+        box-sizing: border-box;
+        position: relative;
+      }
+
       .header-text {
+        width: 100%;
+        max-width: 800px;
+        text-align: center;
+        padding: 0 1rem;
+        animation: fadeIn 1s ease-in;
+        position: absolute;
+        top: 4rem;
+        color: #fff;
+      }
+
+      .header-text h1 {
+        font-size: clamp(1.8rem, 4vw, 2.5rem);
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        line-height: 1.2;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+      }
+
+      .track-container {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+        text-align: center;
+        width: 100%;
+        max-width: 800px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        min-height: 250px;
+        animation: slideUp 1.2s ease-in, pulse 6s ease-in-out infinite;
+        margin: auto;
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
+      }
+
+      @supports not (backdrop-filter: blur(5px)) {
+        .track-container {
+          background: rgba(255, 255, 255, 0.9);
+        }
+      }
+
+      .track-container h2 {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #23a6d5;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        margin-bottom: 20px;
+        text-transform: none;
+      }
+
+      .mode-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        flex-wrap: wrap;
+      }
+
+      .mode-button {
+        background: #fff;
+        color: #23a6d5;
+        border: 2px solid #23a6d5;
+        border-radius: 30px;
+        padding: 12px 20px;
+        font-size: 1.1rem;
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 180px;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        letter-spacing: 0.05em;
+      }
+
+      .mode-button:hover, .mode-button.active, .mode-button.highlighted {
+        background: #23a6d5;
+        color: #fff;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        border: 2px solid #23a6d5;
+      }
+
+      .mode-button i {
+        font-size: 1rem;
+        margin-right: 5px;
+      }
+
+      .track-info {
+        margin-top: 15px;
+        font-size: 1rem;
+        color: #333;
+        min-height: 40px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .track-info.show {
+        opacity: 1;
+      }
+
+      .extra-sections {
+        width: 100%;
+        max-width: 1200px;
+        padding: 4rem 1.5rem;
+        color: #fff;
+        text-align: center;
+        background: transparent;
+      }
+
+      .section {
+        margin-bottom: 4rem;
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeInUp 1s ease forwards;
+        animation-delay: calc(0.2s * var(--section-index));
+      }
+
+      .section h2 {
+        font-size: clamp(2rem, 5vw, 3rem);
+        font-weight: 700;
+        color: #fff;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
         margin-bottom: 1.5rem;
       }
-      .header-text h1 {
-        font-size: clamp(1.2rem, 2.5vw, 1.8rem);
+
+      .section p {
+        font-size: clamp(1rem, 2vw, 1.2rem);
+        color: #fff;
+        max-width: 800px;
+        margin: 0 auto 1rem;
+        line-height: 1.6;
       }
-      .track-container {
-        padding: 15px;
-        min-height: 120px;
-        max-width: 500px;
+
+      .stats-list, .use-cases-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin: 2rem 0;
       }
-      .track-container h2 {
-        font-size: 1.2em;
+
+      .benefits-gallery {
+        position: relative;
+        max-width: 800px;
+        margin: 2rem auto;
+        height: 120px;
       }
-      .mode-buttons {
-        flex-direction: column;
-        gap: 8px;
-      }
-      .mode-button {
+
+      .benefit-slide {
+        position: absolute;
         width: 100%;
-        padding: 6px 12px;
-        font-size: 0.8rem;
-        min-width: 100px;
+        opacity: 0;
+        transition: opacity 0.5s ease;
+        text-align: center;
       }
-      .track-info {
-        font-size: 0.75rem;
-        min-height: 25px;
+
+      .benefit-slide.active {
+        opacity: 1;
       }
-      footer {
-        padding: 15px 8px;
-        gap: 12px;
+
+      .benefit-slide h3 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 0.5rem;
       }
-      .footer-content {
-        flex-direction: column;
-        gap: 12px;
-      }
-      .footer-links {
-        gap: 12px;
-      }
-      .footer-links a {
-        font-size: 0.8rem;
-      }
-      .footer-divider {
+
+      .benefit-slide p {
         font-size: 1rem;
+        color: #fff;
+        max-width: 600px;
+        margin: 0 auto;
+        line-height: 1.6;
       }
-      .footer-social {
-        gap: 12px;
+
+      .benefits-dots {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        margin-top: 1rem;
       }
-      .footer-social a {
-        font-size: 1rem;
+
+      .benefit-dot {
+        width: 8px;
+        height: 8px;
+        background: rgba(255, 255, 255, 0.5);
+        border-radius: 50%;
+        transition: all 0.3s ease;
+        cursor: pointer;
       }
-      .popup {
-        width: 90%;
+
+      .benefit-dot.active {
+        width: 12px;
+        height: 12px;
+        background: #fff;
+        transform: scale(1.2);
+      }
+
+      .stat-item, .use-case-item {
         padding: 1.5rem;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        transition: transform 0.3s ease;
       }
-      .popup-gallery {
-        height: 160px;
+
+      .stat-item:hover, .use-case-item:hover {
+        transform: translateY(-5px);
       }
-      .popup-step h3 {
+
+      .stat-item h3, .use-case-item h3 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 0.5rem;
+      }
+
+      .stat-item .stat-number {
+        font-size: 4rem;
+        font-weight: 700;
+        color: #ffffff;
+        margin-bottom: 0.5rem;
+      }
+
+      .stat-item p, .use-case-item p {
         font-size: 1rem;
+        color: #fff;
       }
-      .popup-step p {
-        font-size: 0.9rem;
+
+      .faq-list {
+        max-width: 800px;
+        margin: 2rem auto;
+        text-align: left;
       }
+
+      .faq-item {
+        margin-bottom: 1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .faq-question {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 0;
+        cursor: pointer;
+        font-size: 1.1rem;
+        font-weight: 500;
+        color: #fff;
+        transition: color 0.3s ease;
+      }
+
+      .faq-question:hover {
+        color: #fff;
+      }
+
+      .faq-question i {
+        transition: transform 0.3s ease;
+      }
+
+      .faq-question.open i {
+        transform: rotate(180deg);
+      }
+
+      .faq-answer {
+        max-height: 0;
+        overflow: hidden;
+        font-size: 1rem;
+        color: #fff;
+        padding: 0 1rem;
+        transition: max-height 0.3s ease, padding 0.3s ease;
+      }
+
+      .faq-answer.open {
+        max-height: 200px;
+        padding: 1rem;
+      }
+
+      .cta-button {
+        display: inline-block;
+        background: #23a6d5;
+        color: #fff;
+        border: none;
+        border-radius: 30px;
+        padding: 0.8rem 2rem;
+        font-size: 1rem;
+        font-weight: 700;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        margin-top: 1rem;
+        animation: pulseGlow 1.5s ease-in-out infinite;
+      }
+
+      .cta-button:hover {
+        background: #1d8bb8;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+
+      .final-cta {
+        padding: 3rem 1.5rem;
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 15px;
+        margin: 2rem 0;
+      }
+
+      footer {
+        padding: 20px 10px;
+        text-align: center;
+        width: 100%;
+        color: #fff;
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+        background: transparent;
+      }
+
+      .footer-content {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+        flex-wrap: wrap;
+      }
+
+      .footer-links {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        flex-wrap: wrap;
+      }
+
+      .footer-links a {
+        color: #fff;
+        text-decoration: none;
+        font-size: 0.85rem;
+        font-weight: 500;
+        transition: color 0.3s ease;
+      }
+
+      .footer-links a:hover {
+        color: #fff;
+      }
+
+      .footer-divider {
+        color: #fff;
+        font-size: 1.2rem;
+        font-weight: 300;
+      }
+
+      .footer-social {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        flex-wrap: wrap;
+      }
+
+      .footer-social a {
+        color: #fff;
+        font-size: 1.2rem;
+        transition: transform 0.3s ease;
+      }
+
+      .footer-social a:hover {
+        transform: translateY(-2px);
+      }
+
+      .footer-copyright {
+        font-size: 0.8rem;
+        color: #fff;
+        opacity: 0.7;
+        margin-top: 1rem;
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      @keyframes slideUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.02); }
+        100% { transform: scale(1); }
+      }
+
+      @keyframes pulseGlow {
+        0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(35, 166, 213, 0.7); }
+        50% { transform: scale(1.05); box-shadow: 0 0 10px 5px rgba(35, 166, 213, 0.7); }
+        100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(35, 166, 213, 0.7); }
+      }
+
+      @keyframes zoomPulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.2); }
+        100% { transform: scale(1); }
+      }
+
+      @keyframes float {
+        0% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+        100% { transform: translateY(0); }
+      }
+
+      @keyframes spinPop {
+        0% { transform: rotate(0deg) scale(1); }
+        50% { transform: rotate(180deg) scale(1.2); }
+        100% { transform: rotate(360deg) scale(1); }
+      }
+
+      .popup-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 20;
+        display: none;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .popup {
+        background: #fff;
+        width: 80%;
+        max-width: 700px;
+        padding: 2rem;
+        border-radius: 15px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .popup-close {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        font-size: 1.5rem;
+        color: #666;
+        cursor: pointer;
+        border: none;
+        background: none;
+        transition: color 0.3s ease;
+      }
+
+      .popup-close:hover {
+        color: #23a6d5;
+      }
+
+      .popup-gallery {
+        position: relative;
+        height: 180px;
+      }
+
+      .popup-step {
+        position: absolute;
+        width: 100%;
+        opacity: 0;
+        transition: opacity 0.5s ease, transform 0.5s ease;
+      }
+
+      .popup-step.active {
+        opacity: 1;
+        transform: translateX(0);
+      }
+
+      .popup-step:not(.active) {
+        transform: translateX(100%);
+      }
+
       .popup-step i {
-        font-size: 1.8rem;
+        font-size: 2rem;
+        color: #23a6d5;
+        margin-bottom: 0.5rem;
       }
+
+      .popup-step h3 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #23a6d5;
+        margin: 0.5rem 0;
+      }
+
+      .popup-step p {
+        font-size: 1rem;
+        color: #666;
+        margin-bottom: 0.5rem;
+      }
+
       .popup-dots {
-        gap: 8px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        margin-top: 1rem;
       }
+
       .popup-dot {
         width: 8px;
         height: 8px;
+        background: #ccc;
+        border-radius: 50%;
+        transition: all 0.3s ease;
+        cursor: pointer;
       }
+
       .popup-dot.active {
         width: 12px;
         height: 12px;
+        background: #23a6d5;
+        transform: scale(1.2);
       }
-      .popup-start {
-        padding: 0.6rem 1.5rem;
-        font-size: 0.9rem;
-      }
-    }
 
-    @media (max-width: 480px) {
-      .thematic-header .logo a {
-        font-size: 1.2rem;
-      }
-      .track-container {
-        padding: 10px;
-        min-height: 100px;
-        max-width: 400px;
-      }
-      .footer-content {
-        gap: 10px;
-      }
-      .footer-links a {
-        font-size: 0.75rem;
-      }
-      .footer-divider {
-        font-size: 0.9rem;
-      }
-      .footer-social a {
-        font-size: 0.9rem;
-      }
-      .popup {
-        width: 95%;
-        padding: 1rem;
-      }
-      .popup-gallery {
-        height: 140px;
-      }
-      .popup-step h3 {
-        font-size: 0.9rem;
-      }
-      .popup-step p {
-        font-size: 0.8rem;
-      }
-      .popup-step i {
-        font-size: 1.5rem;
-      }
-      .popup-dots {
-        gap: 6px;
-      }
-      .popup-dot {
-        width: 6px;
-        height: 6px;
-      }
-      .popup-dot.active {
-        width: 10px;
-        height: 10px;
-      }
       .popup-start {
-        padding: 0.5rem 1.2rem;
-        font-size: 0.8rem;
+        background: #23a6d5;
+        color: #fff;
+        border: none;
+        border-radius: 30px;
+        padding: 0.8rem 2rem;
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 1rem;
+        animation: pulseGlow 1.5s ease-in-out infinite;
       }
-    }
 
-    @media (prefers-reduced-motion: reduce) {
-      body.page-default {
-        animation: none;
+      .popup-start:hover {
+        background: #1d8bb8;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
       }
-      .mode-button, .header-text, footer, .popup, .step-1 i, .step-2 i, .step-3 i, .popup-start {
-        transition: none;
-        animation: none;
-        opacity: 1;
+
+      @media (max-width: 768px) {
+        .main-content-wrapper {
+          padding: 6rem 1rem 2rem;
+        }
+        .header-text {
+          top: 3rem;
+        }
+        .header-text h1 {
+          font-size: clamp(1.4rem, 3vw, 1.8rem);
+        }
+        .track-container {
+          padding: 20px;
+          min-height: 200px;
+          max-width: 650px;
+        }
+        .track-container h2 {
+          font-size: 1.6rem;
+        }
+        .mode-buttons {
+          flex-direction: column;
+          gap: 10px;
+        }
+        .mode-button {
+          width: 100%;
+          padding: 10px 15px;
+          font-size: 1rem;
+          min-width: 150px;
+        }
+        .mode-button i {
+          font-size: 0.9rem;
+        }
+        .track-info {
+          font-size: 0.9rem;
+          min-height: 35px;
+        }
+        .extra-sections {
+          padding: 2rem 1rem;
+        }
+        .section h2 {
+          font-size: clamp(1.5rem, 4vw, 2.5rem);
+        }
+        .section p {
+          font-size: clamp(0.9rem, 1.8vw, 1rem);
+        }
+        .stats-list, .use-cases-list {
+          grid-template-columns: 1fr;
+        }
+        .benefits-gallery {
+          height: 100px;
+        }
+        .benefit-slide h3 {
+          font-size: 1rem;
+        }
+        .benefit-slide p {
+          font-size: 0.9rem;
+        }
+        .benefits-dots {
+          gap: 8px;
+        }
+        .benefit-dot {
+          width: 8px;
+          height: 8px;
+        }
+        .benefit-dot.active {
+          width: 12px;
+          height: 12px;
+        }
+        .stat-item .stat-number {
+          font-size: 1.8rem;
+        }
+        .faq-question {
+          font-size: 1rem;
+        }
+        .faq-answer.open {
+          max-height: 300px;
+        }
+        footer {
+          padding: 15px 1rem;
+          gap: 12px;
+        }
+        .footer-content {
+          flex-direction: column;
+          gap: 10px;
+        }
+        .footer-links a {
+          font-size: 0.8rem;
+        }
+        .footer-divider {
+          font-size: 1rem;
+        }
+        .footer-social a {
+          font-size: 1rem;
+        }
+        .popup {
+          width: 90%;
+          padding: 1.5rem;
+        }
+        .popup-gallery {
+          height: 160px;
+        }
+        .popup-step h3 {
+          font-size: 1rem;
+        }
+        .popup-step p {
+          font-size: 0.9rem;
+        }
+        .popup-step i {
+          font-size: 1.8rem;
+        }
+        .popup-dots {
+          gap: 8px;
+        }
+        .popup-dot {
+          width: 8px;
+          height: 8px;
+        }
+        .popup-dot.active {
+          width: 12px;
+          height: 12px;
+        }
+        .popup-start {
+          padding: 0.6rem 1.5rem;
+          font-size: 0.9rem;
+        }
       }
-    }
-  </style>
+
+      @media (max-width: 480px) {
+        .thematic-header .logo a {
+          font-size: 1.2rem;
+        }
+        .main-content-wrapper {
+          padding: 5rem 0.5rem 2rem;
+        }
+        .header-text {
+          top: 2.5rem;
+        }
+        .track-container {
+          padding: 15px;
+          min-height: 180px;
+          max-width: 90%;
+        }
+        .track-container h2 {
+          font-size: 1.4rem;
+        }
+        .mode-button {
+          padding: 8px 12px;
+          font-size: 0.9rem;
+          min-width: 120px;
+        }
+        .mode-button i {
+          font-size: 0.8rem;
+        }
+        .track-info {
+          font-size: 0.85rem;
+          min-height: 30px;
+        }
+        .section h2 {
+          font-size: clamp(1.2rem, 3vw, 2rem);
+        }
+        .benefits-gallery {
+          height: 90px;
+        }
+        .benefit-slide h3 {
+          font-size: 0.9rem;
+        }
+        .benefit-slide p {
+          font-size: 0.8rem;
+        }
+        .benefits-dots {
+          gap: 6px;
+        }
+        .benefit-dot {
+          width: 6px;
+          height: 6px;
+        }
+        .benefit-dot.active {
+          width: 10px;
+          height: 10px;
+        }
+        .stat-item .stat-number {
+          font-size: 1.6rem;
+        }
+        .use-case-item, .stat-item {
+          padding: 1rem;
+        }
+        .footer-content {
+          gap: 8px;
+        }
+        .footer-links a {
+          font-size: 0.75rem;
+        }
+        .footer-divider {
+          font-size: 0.9rem;
+        }
+        .footer-social a {
+          font-size: 0.9rem;
+        }
+        .popup {
+          width: 95%;
+          padding: 1rem;
+        }
+        .popup-gallery {
+          height: 140px;
+        }
+        .popup-step h3 {
+          font-size: 0.9rem;
+        }
+        .popup-step p {
+          font-size: 0.8rem;
+        }
+        .popup-step i {
+          font-size: 1.5rem;
+        }
+        .popup-dots {
+          gap: 6px;
+        }
+        .popup-dot {
+          width: 6px;
+          height: 6px;
+        }
+        .popup-dot.active {
+          width: 10px;
+          height: 10px;
+        }
+        .popup-start {
+          padding: 0.5rem 1rem;
+          font-size: 0.8rem;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        body, .track-container, .mode-button, .cta-button, .section, .header-text, .popup-start, .popup-step i, .benefit-slide {
+          animation: none;
+          transition: none;
+        }
+      }
+    </style>
 </head>
 <body class="page-default">
-  <header class="thematic-header" role="banner">
+  <header class="thematic-header">
     <div class="logo">
       <a href="index.html" aria-label="specifys.ai homepage">specifys.ai</a>
     </div>
@@ -590,7 +895,7 @@
 
   <div class="main-content-wrapper">
     <div class="header-text">
-      <h1>AI-Powered App Planning for Vibe Coding</h1>
+      <h1></h1>
     </div>
 
     <div class="popup-overlay" id="popupOverlay">
@@ -631,6 +936,144 @@
       </div>
       <div class="track-info" id="trackInfo"></div>
     </div>
+
+    <div class="extra-sections">
+      <div class="section" style="--section-index: 1;">
+        <h2>Our Impact</h2>
+        <p>Thousands have created app specifications with Specifys.ai. Join the vibe!</p>
+        <div class="stats-list">
+          <div class="stat-item">
+            <div class="stat-number" data-target="78">0</div>
+            <h3>Start-Easy Specs</h3>
+            <p>Non-coders planning their dream apps.</p>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number" data-target="40">0</div>
+            <h3>Dev-Tools Specs</h3>
+            <p>Developers streamlining their coding process.</p>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number" data-target="90">0</div>
+            <h3>Explore Specs</h3>
+            <p>Entrepreneurs validating their startup ideas.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="section" style="--section-index: 2;">
+        <h2>Why Specifys.ai Rocks</h2>
+        <p>It’s your free, AI-powered sidekick for planning apps—no coding, just vibes! Here’s why you’ll love it.</p>
+        <div class="benefits-gallery">
+          <div class="benefit-slide active">
+            <h3>Keeps Things Organized</h3>
+            <p>Plan your app with a clear, step-by-step process that makes everything super tidy.</p>
+          </div>
+          <div class="benefit-slide">
+            <h3>Levels Up Your Dev Game</h3>
+            <p>Get AI-crafted specs and blueprints to build smarter, more advanced apps.</p>
+          </div>
+          <div class="benefit-slide">
+            <h3>Easy Tweaks Anytime</h3>
+            <p>Change features or flows without a headache—our specs make updates a breeze.</p>
+          </div>
+          <div class="benefit-slide">
+            <h3>Saves 60% of Your Time</h3>
+            <p>Slash app-planning time with our Vibe Coding approach, totally free!</p>
+          </div>
+        </div>
+        <div class="benefits-dots">
+          <div class="benefit-dot active" data-slide="0"></div>
+          <div class="benefit-dot" data-slide="1"></div>
+          <div class="benefit-dot" data-slide="2"></div>
+          <div class="benefit-dot" data-slide="3"></div>
+        </div>
+        <a href="./processing-novice.html" class="cta-button">Try It Free Now</a>
+      </div>
+
+      <div class="section" style="--section-index: 3;">
+        <h2>Who's Vibing with Specifys.ai?</h2>
+        <p>Our free AI tool helps anyone plan apps without building them—perfect for all kinds of dreamers!</p>
+        <div class="use-cases-list">
+          <div class="use-case-item">
+            <h3>Dreamers with Big Ideas</h3>
+            <p>No coding skills? No problem! Get a clear app plan to share with devs.</p>
+          </div>
+          <div class="use-case-item">
+            <h3>Coders Wanting Speed</h3>
+            <p>Grab AI-made tech blueprints with file setups and scripts to code faster.</p>
+          </div>
+          <div class="use-case-item">
+            <h3>Startup Stars</h3>
+            <p>Validate your idea with a market research report to wow investors, all with AI magic.</p>
+          </div>
+          <div class="use-case-item">
+            <h3>App-Building Strugglers</h3>
+            <p>Stuck planning apps? Our free tool organizes your ideas into pro-level specs.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="section" style="--section-index: 4;">
+        <h2>Got Questions? We Got You!</h2>
+        <p>Curious about Specifys.ai? Check out these quick answers, and yes, it’s all free!</p>
+        <div class="faq-list">
+          <div class="faq-item">
+            <div class="faq-question">
+              What’s Specifys.ai all about? <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="faq-answer">
+              It’s a free AI tool that whips up clear app plans, tech setups, or market reports—no coding needed!
+            </div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-question">
+              Who can use it? <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="faq-answer">
+              Literally anyone! Newbies, coders, or startup folks looking to plan apps with AI, 100% free.
+            </div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-question">
+              Do I need to know coding? <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="faq-answer">
+              Nope! It’s super easy, even if you’ve never touched code. Plus, it’s free!
+            </div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-question">
+              Is my info safe? <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="faq-answer">
+              Totally! We don’t store your data, and there’s no backend. Oh, and it’s free.
+            </div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-question">
+              How fast can I get a plan? <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="faq-answer">
+              In minutes, you’ll have a slick, AI-made spec ready to roll—free, of course!
+            </div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-question">
+              How do I start? <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="faq-answer">
+              Just click “Start Planning Free” and tell us your idea. Did we mention it’s free?
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section final-cta" style="--section-index: 5;">
+        <h2>Ready to Make Your App?</h2>
+        <p>Jump in and create a pro-level app plan in minutes! It’s 100% free, powered by AI, and all about planning, not building.</p>
+        <a href="./processing-novice.html" class="cta-button">Start Planning Free</a>
+      </div>
+    </div>
   </div>
 
   <footer>
@@ -641,27 +1084,27 @@
       </div>
       <span class="footer-divider">|</span>
       <div class="footer-social">
-        <!-- Insert your LinkedIn profile or page URL here -->
         <a href="https://www.linkedin.com/company/specifys-ai/" aria-label="Follow us on LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-        <!-- Insert your Facebook profile or page URL here -->
-        <a href="https://www.facebook.com/profile.php?id=61576402600129&locale=he_IL" aria-label="Follow us on Facebook"><i class="fab fa-facebook-f"></i></a>
-        <!-- Insert your Instagram profile URL here -->
+        <a href="https://www.facebook.com/profile.php?id=61576402600129&locale=he_IL" target="_blank" aria-label="Follow us on Facebook"><i class="fab fa-facebook-f"></i></a>
         <a href="https://www.instagram.com/YOUR_PROFILE" aria-label="Follow us on Instagram"><i class="fab fa-instagram"></i></a>
-        <!-- Insert your email address here for contact -->
         <a href="mailto:specifysai@gmail.com" aria-label="Send us an email"><i class="fas fa-envelope"></i></a>
-        <!-- Insert your Product Hunt profile or product page URL here -->
-        <a href="https://www.producthunt.com/products/specifys-ai" aria-label="Check us out on Product Hunt"><i class="fab fa-product-hunt"></i></a>
+        <a href="https://www.producthunt.com/products/specifys-ai" target="_blank" aria-label="Check us out on Product Hunt"><i class="fab fa-product-hunt"></i></a>
       </div>
+    </div>
+    <div class="footer-copyright">
+      © 2025 specifys.ai. All rights reserved.
     </div>
   </footer>
 
-  <script defer src="script.js"></script>
-  <script defer src="typingEffect.js"></script>
   <script>
     (function() {
       window.specifys = window.specifys || {};
 
-  
+      document.addEventListener("DOMContentLoaded", () => {
+        if (!localStorage.getItem("visited")) {
+          localStorage.setItem("visited", "true");
+          window.location.href = "index.html";
+        }
 
         const modes = ['novice', 'developers', 'market'];
         let currentModeIndex = 0;
@@ -675,9 +1118,7 @@
         }
 
         function stopAutoCycle() {
-          if (autoCycleInterval) {
-            clearInterval(autoCycleInterval);
-          }
+          if (autoCycleInterval) clearInterval(autoCycleInterval);
           document.querySelectorAll('.mode-button').forEach(btn => btn.classList.remove('highlighted'));
         }
 
@@ -692,12 +1133,14 @@
             if (button) button.classList.add('highlighted');
           }
 
-          if (mode === "novice") {
-            trackInfo.textContent = "For non-coders with big ideas. Craft an AI-driven app specification to create your app without writing a single line of code.";
+          if (mode === "true") return;
+
+ if (mode === "novice") {
+            trackInfo.textContent = "For non-coders with big ideas. Craft an AI-driven app specification to plan your app without writing a single line of code.";
           } else if (mode === "developers") {
             trackInfo.textContent = "For developers building robust apps. Get a detailed technical blueprint with file structures, APIs, and scripts to streamline your coding.";
           } else if (mode === "market") {
-            trackInfo.textContent = "For entrepreneurs who need in-depth market research to validate their app idea and pitch to investors.";
+            trackInfo.textContent = "For entrepreneurs who need in-depth market research to validate their startup ideas and pitch to investors.";
           }
         };
 
@@ -709,25 +1152,16 @@
         specifys.selectMode = function(mode) {
           try {
             stopAutoCycle();
-            const buttons = document.querySelectorAll(".mode-button");
-            buttons.forEach((btn) => btn.classList.remove("active"));
+            document.querySelectorAll(".mode-button").forEach(btn => btn.classList.remove("active"));
             const selectedButton = document.querySelector(`.mode-button[data-mode="${mode}"]`);
             if (selectedButton) selectedButton.classList.add("active");
             localStorage.setItem("selectedMode", mode);
             let redirectUrl;
             switch (mode) {
-              case "novice":
-                redirectUrl = "./processing-novice.html";
-                break;
-              case "developers":
-                redirectUrl = "./processing.html";
-                break;
-              case "market":
-                redirectUrl = "./processing-market.html";
-                break;
-              default:
-                console.error("Invalid mode:", mode);
-                return;
+              case "novice": redirectUrl = "./processing-novice.html"; break;
+              case "developers": redirectUrl = "./processing.html"; break;
+              case "market": redirectUrl = "./processing-market.html"; break;
+              default: throw new Error("Invalid mode");
             }
             window.location.href = redirectUrl;
           } catch (error) {
@@ -760,16 +1194,10 @@
 
         function showStep(index) {
           popupSteps.forEach((step, i) => {
-            step.classList.remove("active");
-            if (i === index) {
-              step.classList.add("active");
-            }
+            step.classList.toggle("active", i === index);
           });
           popupDots.forEach((dot, i) => {
-            dot.classList.remove("active");
-            if (i === index) {
-              dot.classList.add("active");
-            }
+            dot.classList.toggle("active", i === index);
           });
         }
 
@@ -777,11 +1205,11 @@
           galleryInterval = setInterval(() => {
             currentStepIndex = (currentStepIndex + 1) % popupSteps.length;
             showStep(currentStepIndex);
-          }, 5000);
+          }, 100);
         }
 
-        popupOverlay.style.display = "flex";
-        showStep(currentStepIndex);
+        popupOverlay.style.display = "none";
+        showStep(0);
         startGalleryCycle();
 
         popupStart.addEventListener("click", () => {
@@ -809,6 +1237,89 @@
             startGalleryCycle();
           });
         });
+
+        // Benefits Gallery Logic
+        const benefitSlides = document.querySelectorAll(".benefit-slide");
+        const benefitDots = document.querySelectorAll(".benefit-dot");
+        let currentBenefitIndex = 0;
+        let benefitsInterval;
+
+        function showBenefit(index) {
+          benefitSlides.forEach((slide, i) => {
+            slide.classList.toggle("active", i === index);
+          });
+          benefitDots.forEach((dot, i) => {
+            dot.classList.toggle("active", i === index);
+          });
+        }
+
+        function startBenefitsCycle() {
+          benefitsInterval = setInterval(() => {
+            currentBenefitIndex = (currentBenefitIndex + 1) % benefitSlides.length;
+            showBenefit(currentBenefitIndex);
+          }, 5000);
+        }
+
+        showBenefit(0);
+        startBenefitsCycle();
+
+        benefitDots.forEach((dot, index) => {
+          dot.addEventListener("click", () => {
+            clearInterval(benefitsInterval);
+            currentBenefitIndex = parseInt(dot.getAttribute("data-slide"));
+            showBenefit(currentBenefitIndex);
+            startBenefitsCycle();
+          });
+        });
+
+        // FAQ Toggle Logic
+        document.querySelectorAll('.faq-question').forEach(question => {
+          question.addEventListener("click", () => {
+            const answer = question.nextElementSibling;
+            const isOpen = answer.classList.contains("open");
+            document.querySelectorAll(".faq-answer").forEach(ans => {
+              ans.classList.remove("open");
+              ans.previousElementSibling.classList.remove("open");
+            });
+            if (!isOpen) {
+              answer.classList.add("open");
+              question.classList.add("open");
+            }
+          });
+        });
+
+        // Stats Counter Logic
+        const statNumbers = document.querySelectorAll('.stat-number');
+        let hasAnimated = false;
+
+        function animateCounter(element, target, duration = 2000) {
+          let start = 0;
+          const increment = target / (duration / 16);
+          function updateCounter() {
+            if (start < target) {
+              start += increment;
+              element.textContent = Math.floor(start);
+              requestAnimationFrame(updateCounter);
+            } else {
+              element.textContent = target;
+            }
+          }
+          requestAnimationFrame(updateCounter);
+        }
+
+        const statsSection = document.querySelector(".stats-list").parentElement;
+        const observer = new IntersectionObserver((entries) => {
+          if (entries[0].isIntersecting && !hasAnimated) {
+            statNumbers.forEach(stat => {
+              const target = parseInt(stat.getAttribute("data-target"));
+              animateCounter(stat, target);
+            });
+            hasAnimated = true;
+            observer.unobserve(statsSection);
+          }
+        }, { threshold: 0.5 });
+
+        observer.observe(statsSection);
       });
     })();
   </script>
