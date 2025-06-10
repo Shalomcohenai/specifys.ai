@@ -242,62 +242,44 @@
         margin: 2rem 0;
       }
 
-      .benefits-gallery {
-        position: relative;
-        max-width: 800px;
-        margin: 2rem auto;
-        height: 120px;
+      .benefit-card {
+        display: flex;
+        align-items: center;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        transition: transform 0.3s ease;
       }
 
-      .benefit-slide {
-        position: absolute;
-        width: 100%;
-        opacity: 0;
-        transition: opacity 0.5s ease;
-        text-align: center;
+      .benefit-card:hover {
+        transform: translateY(-5px);
       }
 
-      .benefit-slide.active {
-        opacity: 1;
+      .benefit-icon {
+        font-size: 2rem;
+        color: #ffffff;
+        margin-right: 1rem;
       }
 
-      .benefit-slide h3 {
-        font-size: 1.2rem;
+      .benefit-content h3 {
+        font-size: 1.5rem;
         font-weight: 700;
         color: #fff;
         margin-bottom: 0.5rem;
       }
 
-      .benefit-slide p {
+      .benefit-content p {
         font-size: 1rem;
         color: #fff;
-        max-width: 600px;
-        margin: 0 auto;
         line-height: 1.6;
       }
 
-      .benefits-dots {
+      .benefits-container {
+        max-width: 800px;
+        margin: 2rem auto;
         display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 10px;
-        margin-top: 1rem;
-      }
-
-      .benefit-dot {
-        width: 8px;
-        height: 8px;
-        background: rgba(255, 255, 255, 0.5);
-        border-radius: 50%;
-        transition: all 0.3s ease;
-        cursor: pointer;
-      }
-
-      .benefit-dot.active {
-        width: 12px;
-        height: 12px;
-        background: #fff;
-        transform: scale(1.2);
+        flex-direction: column;
       }
 
       .stat-item, .use-case-item {
@@ -695,25 +677,20 @@
         .stats-list, .use-cases-list {
           grid-template-columns: 1fr;
         }
-        .benefits-gallery {
-          height: 100px;
+        .benefits-container {
+          max-width: 100%;
         }
-        .benefit-slide h3 {
-          font-size: 1rem;
+        .benefit-card {
+          padding: 1rem;
         }
-        .benefit-slide p {
+        .benefit-icon {
+          font-size: 1.5rem;
+        }
+        .benefit-content h3 {
+          font-size: 1.2rem;
+        }
+        .benefit-content p {
           font-size: 0.9rem;
-        }
-        .benefits-dots {
-          gap: 8px;
-        }
-        .benefit-dot {
-          width: 8px;
-          height: 8px;
-        }
-        .benefit-dot.active {
-          width: 12px;
-          height: 12px;
         }
         .stat-item .stat-number {
           font-size: 1.8rem;
@@ -807,25 +784,20 @@
         .section h2 {
           font-size: clamp(1.2rem, 3vw, 2rem);
         }
-        .benefits-gallery {
-          height: 90px;
+        .benefits-container {
+          max-width: 90%;
         }
-        .benefit-slide h3 {
-          font-size: 0.9rem;
+        .benefit-card {
+          padding: 0.8rem;
         }
-        .benefit-slide p {
+        .benefit-icon {
+          font-size: 1.2rem;
+        }
+        .benefit-content h3 {
+          font-size: 1rem;
+        }
+        .benefit-content p {
           font-size: 0.8rem;
-        }
-        .benefits-dots {
-          gap: 6px;
-        }
-        .benefit-dot {
-          width: 6px;
-          height: 6px;
-        }
-        .benefit-dot.active {
-          width: 10px;
-          height: 10px;
         }
         .stat-item .stat-number {
           font-size: 1.6rem;
@@ -879,7 +851,7 @@
       }
 
       @media (prefers-reduced-motion: reduce) {
-        body, .track-container, .mode-button, .cta-button, .section, .header-text, .popup-start, .popup-step i, .benefit-slide {
+        body, .track-container, .mode-button, .cta-button, .section, .header-text, .popup-start, .popup-step i, .benefit-card {
           animation: none;
           transition: none;
         }
@@ -943,17 +915,17 @@
         <p>Thousands have created app specifications with Specifys.ai. Join the vibe!</p>
         <div class="stats-list">
           <div class="stat-item">
-            <div class="stat-number" data-target="78">0</div>
+            <div class="stat-number" data-target="780">0</div>
             <h3>Start-Easy Specs</h3>
             <p>Non-coders planning their dream apps.</p>
           </div>
           <div class="stat-item">
-            <div class="stat-number" data-target="40">0</div>
+            <div class="stat-number" data-target="400">0</div>
             <h3>Dev-Tools Specs</h3>
             <p>Developers streamlining their coding process.</p>
           </div>
           <div class="stat-item">
-            <div class="stat-number" data-target="90">0</div>
+            <div class="stat-number" data-target="900">0</div>
             <h3>Explore Specs</h3>
             <p>Entrepreneurs validating their startup ideas.</p>
           </div>
@@ -963,29 +935,35 @@
       <div class="section" style="--section-index: 2;">
         <h2>Why Specifys.ai Rocks</h2>
         <p>It’s your free, AI-powered sidekick for planning apps—no coding, just vibes! Here’s why you’ll love it.</p>
-        <div class="benefits-gallery">
-          <div class="benefit-slide active">
-            <h3>Keeps Things Organized</h3>
-            <p>Plan your app with a clear, step-by-step process that makes everything super tidy.</p>
+        <div class="benefits-container">
+          <div class="benefit-card">
+            <div class="benefit-icon"><i class="fas fa-check-circle"></i></div>
+            <div class="benefit-content">
+              <h3>Keeps Things Organized</h3>
+              <p>Plan your app with a clear, step-by-step process that makes everything super tidy.</p>
+            </div>
           </div>
-          <div class="benefit-slide">
-            <h3>Levels Up Your Dev Game</h3>
-            <p>Get AI-crafted specs and blueprints to build smarter, more advanced apps.</p>
+          <div class="benefit-card">
+            <div class="benefit-icon"><i class="fas fa-code"></i></div>
+            <div class="benefit-content">
+              <h3>Levels Up Your Dev Game</h3>
+              <p>Get AI-crafted specs and blueprints to build smarter, more advanced apps.</p>
+            </div>
           </div>
-          <div class="benefit-slide">
-            <h3>Easy Tweaks Anytime</h3>
-            <p>Change features or flows without a headache—our specs make updates a breeze.</p>
+          <div class="benefit-card">
+            <div class="benefit-icon"><i class="fas fa-sync-alt"></i></div>
+            <div class="benefit-content">
+              <h3>Easy Tweaks Anytime</h3>
+              <p>Change features or flows without a headache—our specs make updates a breeze.</p>
+            </div>
           </div>
-          <div class="benefit-slide">
-            <h3>Saves 60% of Your Time</h3>
-            <p>Slash app-planning time with our Vibe Coding approach, totally free!</p>
+          <div class="benefit-card">
+            <div class="benefit-icon"><i class="fas fa-clock"></i></div>
+            <div class="benefit-content">
+              <h3>Saves 60% of Your Time</h3>
+              <p>Slash app-planning time with our Vibe Coding approach, totally free!</p>
+            </div>
           </div>
-        </div>
-        <div class="benefits-dots">
-          <div class="benefit-dot active" data-slide="0"></div>
-          <div class="benefit-dot" data-slide="1"></div>
-          <div class="benefit-dot" data-slide="2"></div>
-          <div class="benefit-dot" data-slide="3"></div>
         </div>
         <a href="./processing-novice.html" class="cta-button">Try It Free Now</a>
       </div>
@@ -1235,40 +1213,6 @@
             currentStepIndex = parseInt(dot.getAttribute("data-step"));
             showStep(currentStepIndex);
             startGalleryCycle();
-          });
-        });
-
-        // Benefits Gallery Logic
-        const benefitSlides = document.querySelectorAll(".benefit-slide");
-        const benefitDots = document.querySelectorAll(".benefit-dot");
-        let currentBenefitIndex = 0;
-        let benefitsInterval;
-
-        function showBenefit(index) {
-          benefitSlides.forEach((slide, i) => {
-            slide.classList.toggle("active", i === index);
-          });
-          benefitDots.forEach((dot, i) => {
-            dot.classList.toggle("active", i === index);
-          });
-        }
-
-        function startBenefitsCycle() {
-          benefitsInterval = setInterval(() => {
-            currentBenefitIndex = (currentBenefitIndex + 1) % benefitSlides.length;
-            showBenefit(currentBenefitIndex);
-          }, 5000);
-        }
-
-        showBenefit(0);
-        startBenefitsCycle();
-
-        benefitDots.forEach((dot, index) => {
-          dot.addEventListener("click", () => {
-            clearInterval(benefitsInterval);
-            currentBenefitIndex = parseInt(dot.getAttribute("data-slide"));
-            showBenefit(currentBenefitIndex);
-            startBenefitsCycle();
           });
         });
 
