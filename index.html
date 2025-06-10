@@ -660,7 +660,11 @@
   <script>
     (function() {
       window.specifys = window.specifys || {};
-
+      document.addEventListener("DOMContentLoaded", () => {Add commentMore actions
+        if (!localStorage.getItem("visited")) {Add commentMore actions
+          window.location.href = "landing.html";
+          localStorage.setItem("visited", "true");
+        }
         const modes = ['novice', 'developers', 'market'];
         let currentModeIndex = 0;
         let autoCycleInterval;
