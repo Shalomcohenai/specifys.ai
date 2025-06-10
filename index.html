@@ -661,11 +661,7 @@
     (function() {
       window.specifys = window.specifys || {};
 
-      document.addEventListener("DOMContentLoaded", () => {
-        if (!localStorage.getItem("visited")) {
-          window.location.href = "landing.html";
-          localStorage.setItem("visited", "true");
-        }
+  
 
         const modes = ['novice', 'developers', 'market'];
         let currentModeIndex = 0;
