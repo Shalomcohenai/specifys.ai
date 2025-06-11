@@ -1365,27 +1365,31 @@ body.market .section-title {
 }
 
 .platform-box {
-  width: 100px;
-  height: 40px;
-  display: flex;
+  display: inline-block;
+  padding: 0.5rem 1.2rem;
+  margin: 5px;
+  background-color: #fff;
+  color: #333;
+  text-decoration: none;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-align: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  border: none;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 8px;
-  background-color: #23a6d5;
-  color: #fff;
-  text-decoration: none;
-  border-radius: 5px;
-  font-size: 0.9em;
-  font-weight: 500;
-  cursor: pointer;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  animation: fadeInBox 0.5s ease forwards;
-  position: relative;
+  gap: 0.4rem;
 }
 
 .platform-box:hover {
-  transform: scale(1.05);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  background-color: #e73c7e;
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
 }
 
 .platform-box[data-tooltip] {
@@ -1398,7 +1402,7 @@ body.market .section-title {
   bottom: -40px;
   left: 50%;
   transform: translateX(-50%);
-  background-color: rgba(0, 0, 0, 0.8);
+  background-color: rgba(0, 0, 0, 0.888);
   color: #fff;
   padding: 5px 10px;
   border-radius: 4px;
