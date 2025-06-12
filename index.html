@@ -1079,11 +1079,6 @@
       window.specifys = window.specifys || {};
 
       document.addEventListener("DOMContentLoaded", () => {
-        if (!localStorage.getItem("visited")) {
-          localStorage.setItem("visited", "true");
-          window.location.href = "index.html";
-        }
-
         const modes = ['novice', 'developers', 'market'];
         let currentModeIndex = 0;
         let autoCycleInterval;
@@ -1113,7 +1108,7 @@
 
           if (mode === "true") return;
 
- if (mode === "novice") {
+          if (mode === "novice") {
             trackInfo.textContent = "For non-coders with big ideas. Craft an AI-driven app specification to plan your app without writing a single line of code.";
           } else if (mode === "developers") {
             trackInfo.textContent = "For developers building robust apps. Get a detailed technical blueprint with file structures, APIs, and scripts to streamline your coding.";
@@ -1163,6 +1158,9 @@
 
         // Popup Gallery Logic
         const popupOverlay = document.getElementById("popupOverlay");
+        if (popupOverlay) {
+          popupOverlay.style.display = "flex";
+        }
         const popupStart = document.getElementById("popupStart");
         const popupClose = document.querySelector(".popup-close");
         const popupSteps = document.querySelectorAll(".popup-step");
@@ -1183,10 +1181,9 @@
           galleryInterval = setInterval(() => {
             currentStepIndex = (currentStepIndex + 1) % popupSteps.length;
             showStep(currentStepIndex);
-          }, 100);
+          }, 3000);
         }
 
-        popupOverlay.style.display = "none";
         showStep(0);
         startGalleryCycle();
 
