@@ -7,16 +7,57 @@
   <meta name="keywords" content="processing app idea, guided questions, AI specification, app development, nocode creators, specifys.ai">
   <meta name="author" content="specifys.ai Team">
   <meta name="robots" content="index, follow">
+  <meta name="googlebot" content="index, follow">
+  <meta name="bingbot" content="index, follow">
+  <meta name="revisit-after" content="7 days">
+  <meta name="language" content="English">
+  <meta name="copyright" content="© 2025 specifys.ai">
+  <meta name="publisher" content="specifys.ai">
+  <meta name="distribution" content="global">
+  <meta name="rating" content="general">
+  <meta name="theme-color" content="#0078d4">
+  <meta name="canonical" content="https://specifys.ai/processing-novice.html">
   <meta property="og:title" content="specifys.ai - NoCode Creators Mode">
   <meta property="og:description" content="Answer guided questions to refine your app idea and generate a detailed specification with specifys.ai for NoCode Creators.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://specifys.ai/processing-novice.html">
   <meta property="og:image" content="https://specifys.ai/assets/og-image.jpg">
+  <meta property="og:image:alt" content="NoCode Creators Mode with specifys.ai">
+  <meta property="og:site_name" content="Specifys.ai">
+  <meta property="og:locale" content="en_US">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="specifys.ai - NoCode Creators Mode">
   <meta name="twitter:description" content="Answer guided questions to refine your app idea and generate a detailed specification with specifys.ai for NoCode Creators.">
   <meta name="twitter:image" content="https://specifys.ai/assets/og-image.jpg">
-  <link rel="canonical" href="https://specifys.ai/processing-novice.html">
+  <meta name="twitter:site" content="@specifys_ai">
+  <meta name="twitter:creator" content="@specifys_ai">
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "headline": "specifys.ai - NoCode Creators Mode",
+      "description": "Answer guided questions to refine your app idea and generate a detailed specification with specifys.ai for NoCode Creators.",
+      "image": "https://specifys.ai/assets/og-image.jpg",
+      "author": {
+        "@type": "Organization",
+        "name": "specifys.ai Team"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "Specifys.ai",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://specifys.ai/assets/logo.png"
+        }
+      },
+      "url": "https://specifys.ai/processing-novice.html",
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "https://specifys.ai/processing-novice.html"
+      },
+      "keywords": "processing app idea, guided questions, AI specification, app development, nocode creators, specifys.ai"
+    }
+  </script>
   <title>specifys.ai - NoCode Creators Mode</title>
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -42,16 +83,7 @@
       display: flex;
       flex-direction: column;
       min-height: 100%;
-      background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23a6d5);
-      background-size: 600% 600%;
-      background-attachment: fixed;
-      animation: gradient 25s ease infinite;
-    }
-
-    @keyframes gradient {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
+      background: #f5f5f5;
     }
 
     .thematic-header {
@@ -62,16 +94,20 @@
       display: flex;
       justify-content: center;
       z-index: 1000;
-      background: transparent;
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
     .thematic-header .logo a {
       text-decoration: none;
-      color: #fff;
+      color: #333;
       font-size: 1.6rem;
       font-weight: 700;
-      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-      animation: none;
+      transition: color 0.3s ease;
+    }
+
+    .thematic-header .logo a:hover {
+      color: #0078d4;
     }
 
     .carousel-container {
@@ -84,22 +120,14 @@
     }
 
     .carousel-content {
-      background: rgba(255, 255, 255, 0.2);
+      background: #fff;
       border-radius: 20px;
       padding: 2rem;
-      box-shadow: 0 8px 24px rgba(0, 255, 255, 0.2);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
       width: 100%;
       max-width: 900px;
       min-height: 400px;
-      animation: none;
-      backdrop-filter: none;
       z-index: 1000;
-    }
-
-    @supports not (backdrop-filter: none) {
-      .carousel-content {
-        background: rgba(255, 255, 255, 0.3);
-      }
     }
 
     .step-container {
@@ -112,9 +140,13 @@
     #stepTitle {
       font-size: 2.2rem;
       font-weight: 700;
-      color: #fff;
-      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      color: #333;
       margin-bottom: 1rem;
+      transition: color 0.3s ease;
+    }
+
+    #stepTitle:hover {
+      color: #0078d4;
     }
 
     .question-wrapper {
@@ -128,22 +160,22 @@
 
     .question-label {
       font-size: 1.2rem;
-      color: #fff;
+      color: #333;
       line-height: 1.5;
-      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
       flex: 1;
     }
 
     .tip-icon {
-      color: #fff;
+      color: #666;
       font-size: 1.4rem;
       cursor: pointer;
       margin-left: 0.8rem;
-      transition: transform 0.3s ease;
+      transition: color 0.3s ease, transform 0.3s ease;
     }
 
     .tip-icon:hover {
-      transform: scale(1.2) rotate(10deg);
+      color: #0078d4;
+      transform: scale(1.2);
     }
 
     .tip-tooltip {
@@ -154,7 +186,7 @@
       transform: translateX(-50%);
       font-size: 0.85rem;
       color: #fff;
-      background: #23a6d5;
+      background: #333;
       padding: 0.8rem;
       border-radius: 8px;
       width: 90%;
@@ -166,10 +198,7 @@
       overflow-y: auto;
     }
 
-    .tip-icon:hover + .tip-tooltip {
-      display: block;
-    }
-
+    .tip-icon:hover + .tip-tooltip,
     .tip-tooltip:hover {
       display: block;
     }
@@ -187,31 +216,30 @@
       width: 100%;
       min-height: 160px;
       padding: 1rem;
-      border: 2px solid #23a6d5;
+      border: 2px solid #ddd;
       border-radius: 12px;
       font-size: 1rem;
       resize: vertical;
-      background: rgba(255, 255, 255, 0.9);
-      transition: all 0.3s ease;
+      background: #fff;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
     }
 
     .step-textarea:focus {
       outline: none;
-      border-color: #23a6d5;
-      box-shadow: 0 0 8px rgba(19, 170, 203, 0.6);
-      transform: scale(1.02);
+      border-color: #0078d4;
+      box-shadow: 0 0 8px rgba(0, 120, 212, 0.2);
     }
 
     .example-button {
       background: #fff;
       color: #333;
-      border: none;
+      border: 2px solid #ddd;
       border-radius: 20px;
       padding: 0.5rem 1.2rem;
       font-size: 0.9rem;
       font-weight: 700;
       cursor: pointer;
-      transition: all 0.3s ease;
+      transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
       margin-top: 1rem;
       display: inline-flex;
       align-items: center;
@@ -219,10 +247,10 @@
     }
 
     .example-button:hover {
-      background: #23a6d5;
+      background: #0078d4;
       color: #fff;
+      border-color: #0078d4;
       transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
     }
 
     .example-button i {
@@ -231,10 +259,9 @@
 
     .char-count {
       font-size: 0.85rem;
-      color: #fff;
+      color: #666;
       margin-top: 0.5rem;
       align-self: flex-end;
-      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
     }
 
     .yes-no-question {
@@ -243,7 +270,7 @@
       align-items: center;
       margin: 0.6rem;
       width: 100%;
-      background: rgba(255, 255, 255, 0.1);
+      background: #f5f5f5;
       padding: 0.6rem;
       border-radius: 8px;
       transition: transform 0.3s ease;
@@ -255,10 +282,9 @@
 
     .yes-no-question label {
       font-size: 1rem;
-      color: #fff;
+      color: #333;
       flex: 1;
       margin-right: 0.8rem;
-      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
     }
 
     .button-group {
@@ -267,47 +293,44 @@
     }
 
     .yes-button, .no-button {
-      background: rgba(255, 255, 255, 0.1);
-      color: #fff;
-      border: 1px solid rgba(255, 255, 255, 0.3);
+      background: #fff;
+      color: #333;
+      border: 2px solid #ddd;
       border-radius: 20px;
       padding: 0.5rem 1.2rem;
       font-size: 0.9rem;
       font-weight: 700;
       cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
       min-width: 80px;
       text-align: center;
-      opacity: 0.7;
-      outline: none;
     }
 
     .yes-button.active, .no-button.active {
-      background: #23a6d5;
-      border: 1px solid #fff;
-      opacity: 1;
+      background: #0078d4;
+      color: #fff;
+      border-color: #0078d4;
     }
 
     .yes-button:hover, .no-button:hover {
+      background: #0078d4;
+      color: #fff;
+      border-color: #0078d4;
       transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-      opacity: 1;
     }
 
     .yes-button:focus, .no-button:focus {
-      outline: 2px solid #e73c7e;
+      outline: 2px solid #0078d4;
       outline-offset: 2px;
     }
 
     #errorMessage {
       font-size: 0.9rem;
-      color: #ee7752;
+      color: #fff;
       margin-top: 1rem;
-      background-color: #ffffff;
+      background-color: #d32f2f;
       padding: 0.5rem;
       border-radius: 4px;
-      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
       display: none;
     }
 
@@ -318,16 +341,16 @@
 
     .progress-bar {
       width: 100%;
-      background: rgba(255, 255, 255, 0.3);
+      background: #ddd;
       border-radius: 12px;
       overflow: hidden;
       height: 12px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
     }
 
     .progress-fill {
       height: 100%;
-      background: #23a6d5;
+      background: #0078d4;
       transition: width 0.5s ease;
     }
 
@@ -343,10 +366,9 @@
       display: flex;
       align-items: center;
       margin: 0.5rem;
-      color: #fff;
+      color: #333;
       font-size: 0.9rem;
       font-weight: 600;
-      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
     }
 
     .indicator-item:last-child {
@@ -357,16 +379,16 @@
       width: 24px;
       height: 24px;
       border-radius: 50%;
-      background: rgba(255, 255, 255, 0.5);
+      background: #ddd;
       margin-right: 0.5rem;
-      transition: none;
       display: flex;
       align-items: center;
       justify-content: center;
+      transition: background-color 0.3s ease;
     }
 
     .indicator-circle.active {
-      background: #23a6d5;
+      background: #0078d4;
     }
 
     .indicator-circle::before {
@@ -384,11 +406,11 @@
     #settings-indicator::before { content: '\f013'; }
     #notes-indicator::before { content: '\f15c'; }
 
-    .carousel-button-left, .carousel-button-right {
+    .carousel-button-left, .carousel-button-right, .generate-spec-button {
       position: absolute;
       top: 50%;
       transform: translateY(-50%);
-      background: #23a6d5;
+      background: #0078d4;
       color: #fff;
       border: none;
       border-radius: 50%;
@@ -396,12 +418,11 @@
       height: 45px;
       font-size: 1.4rem;
       cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      transition: background-color 0.3s ease, transform 0.3s ease;
       display: flex;
       align-items: center;
       justify-content: center;
-      animation: none;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
       z-index: 1100;
     }
 
@@ -413,34 +434,18 @@
       right: 1.5rem;
     }
 
-    .carousel-button-left:hover, .carousel-button-right:hover {
-      background: #e73c7e;
+    .carousel-button-left:hover, .carousel-button-right:hover, .generate-spec-button:hover {
+      background: #005ea2;
       transform: translateY(-3px);
-      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-    }
-
-    .generate-spec-button {
-      background: #23a6d5;
-      border-radius: 50%;
-      width: 45px;
-      height: 45px;
-      font-size: 1.4rem;
-      animation: none;
-      z-index: 1100;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
     }
 
     .generate-spec-button:disabled {
-      background: rgba(255, 255, 255, 0.5);
+      background: #ddd;
+      color: #666;
       cursor: not-allowed;
-      animation: none;
-    }
-
-    @media (max-width: 480px) {
-      .generate-spec-button {
-        width: 40px;
-        height: 40px;
-        font-size: 1.2rem;
-      }
+      transform: none;
+      box-shadow: none;
     }
 
     .loading-container {
@@ -460,7 +465,7 @@
     .loading-bar {
       width: 80%;
       max-width: 500px;
-      background: rgba(255, 255, 255, 0.3);
+      background: #ddd;
       border-radius: 10px;
       overflow: hidden;
       height: 20px;
@@ -469,7 +474,7 @@
 
     .loading-fill {
       height: 100%;
-      background: #23a6d5;
+      background: #0078d4;
       width: 0;
       transition: width 0.05s linear;
     }
@@ -478,15 +483,15 @@
       color: #fff;
       font-size: 1.2rem;
       font-weight: 700;
-      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
     }
 
     footer {
       padding: 20px;
       text-align: center;
-      color: #fff;
+      color: #333;
       flex-shrink: 0;
-      margin-top: auto;
+      background: #fff;
+      box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
     }
 
     .footer-content {
@@ -499,7 +504,7 @@
     }
 
     .footer-links a {
-      color: #ffffff;
+      color: #333;
       text-decoration: none;
       font-weight: 600;
       margin: 0 10px;
@@ -507,27 +512,30 @@
     }
 
     .footer-links a:hover {
-      color: #ffffff;
-      text-decoration: underline;
+      color: #0078d4;
     }
 
     .footer-divider {
-      color: #fff;
+      color: #333;
+      font-size: 1.2rem;
+      font-weight: 300;
     }
 
     .footer-social a {
-      color: #fff;
+      color: #333;
       font-size: 1.2rem;
       margin: 0 10px;
-      transition: color 0.3s ease;
+      transition: color 0.3s ease, transform 0.3s ease;
     }
 
     .footer-social a:hover {
-      color: #e73c7e;
+      color: #0078d4;
+      transform: scale(1.2);
     }
 
     .footer-copyright {
       font-size: 0.9rem;
+      color: #666;
       margin-top: 10px;
     }
 
@@ -586,7 +594,7 @@
         min-width: 70px;
       }
 
-      .carousel-button-left, .carousel-button-right {
+      .carousel-button-left, .carousel-button-right, .generate-spec-button {
         width: 40px;
         height: 40px;
         font-size: 1.2rem;
@@ -629,14 +637,6 @@
         flex-direction: column;
         gap: 10px;
       }
-
-      .footer-links a {
-        margin: 0 5px;
-      }
-
-      .footer-social a {
-        margin: 0 5px;
-      }
     }
 
     @media (max-width: 480px) {
@@ -651,6 +651,10 @@
       .carousel-content {
         padding: 1rem;
         min-height: 300px;
+      }
+
+      #stepTitle {
+        font-size: 1.6rem;
       }
 
       .question-label {
@@ -686,7 +690,7 @@
         min-width: 60px;
       }
 
-      .carousel-button-left, .carousel-button-right {
+      .carousel-button-left, .carousel-button-right, .generate-spec-button {
         width: 35px;
         height: 35px;
         font-size: 1rem;
@@ -716,19 +720,10 @@
       .footer-content {
         gap: 5px;
       }
-
-      .footer-links a {
-        margin: 0 3px;
-      }
-
-      .footer-social a {
-        margin: 0 3px;
-      }
     }
 
     @media (prefers-reduced-motion: reduce) {
-      body, .carousel-content, .carousel-button-left, .carousel-button-right, .yes-button, .no-button, .generate-spec-button, .indicator-circle, .thematic-header .logo a, .tip-icon, .example-button {
-        animation: none;
+      .carousel-button-left, .carousel-button-right, .yes-button, .no-button, .generate-spec-button, .tip-icon, .example-button {
         transition: none;
       }
     }
@@ -873,6 +868,8 @@
       <div class="footer-links">
         <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
         <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
+        <a href="/blog.html" aria-label="Visit our blog">Blog</a>
+        <a href="map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
       </div>
       <span class="footer-divider">|</span>
       <div class="footer-social">
@@ -936,7 +933,7 @@
       "The app should have a clean, modern interface with a calming color palette (blues and greens). Large, bold typography ensures readability, and intuitive navigation with a bottom tab bar is key. Interactive charts for progress tracking and minimalistic icons enhance the user experience.",
       "Key features include: 1) AI-driven workout and meal suggestions, 2) Barcode scanner for food logging, 3) Social sharing to connect with friends, 4) Progress tracking with visual charts, 5) In-app reminders, and 6) Integration with wearables like Fitbit for real-time data.",
       "The target audience is health-conscious individuals aged 18-45, primarily fitness enthusiasts and beginners looking to improve their lifestyle. They are tech-savvy, use smartphones daily, and value convenience and personalization in their fitness journey.",
-      "", // No example for settings
+      "",
       "The app should support a freemium model with premium features like advanced analytics. It needs to comply with GDPR for user data privacy and should be optimized for both iOS and Android platforms."
     ];
 
@@ -994,7 +991,7 @@
     function updateUI() {
       stepTitle.textContent = stepTitles[currentStep];
       stepQuestion.textContent = questions[currentStep];
-      tipText.textContent = tips[currentStep];
+      tipText.innerHTML = tips[currentStep] + '<span class="close-tip" onclick="this.parentElement.style.display=\'none\'">×</span>';
 
       if (currentStep < 5 || currentStep === 6) {
         textarea.style.display = "block";
@@ -1063,13 +1060,11 @@
     }
 
     document.addEventListener("DOMContentLoaded", () => {
-      // Load existing answers from localStorage
       const savedAnswers = localStorage.getItem(storageKey);
       if (savedAnswers) {
         answers = JSON.parse(savedAnswers);
       }
 
-      // Clear all previous data to avoid conflicts
       localStorage.removeItem("marketAnswers");
       localStorage.removeItem("currentMode");
       localStorage.setItem("currentMode", "nocode");
@@ -1182,7 +1177,6 @@
       goButton.style.display = "none";
       loadingContainer.style.display = "flex";
 
-      // Simulate loading bar progress
       let progress = 0;
       const loadingInterval = setInterval(() => {
         progress += 1;
@@ -1191,13 +1185,11 @@
         loadingText.textContent = `${progress}%`;
       }, 300);
 
-      // Save raw content as backup
       const rawContent = generateContentFromAnswers(answers);
       localStorage.setItem("rawContent", rawContent);
       localStorage.setItem(storageKey, JSON.stringify(answers));
 
       try {
-        // Check if external JS is loaded
         if (typeof window.generateSpecificationOriginal !== "function") {
           throw new Error("External script (processing-novice.js) failed to load or function is missing.");
         }
@@ -1206,7 +1198,7 @@
         console.error("Error calling API:", error);
         errorMessage.textContent = `Failed to generate specification: ${error.message}. Using raw content as fallback.`;
         errorMessage.style.display = "block";
-        localStorage.setItem("generatedContent", rawContent); // Fallback
+        localStorage.setItem("generatedContent", rawContent);
         clearInterval(loadingInterval);
         loadingFill.style.width = "100%";
         loadingText.textContent = "100%";

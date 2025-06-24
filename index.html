@@ -3,32 +3,111 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Specifys.ai: Plan your app idea with a free AI tool! 100% free, no coding needed, just Vibe Coding for non-programmers, developers, and entrepreneurs.">
-    <meta name="keywords" content="app specification, AI development, Vibe Coding, free, non-programmers, developers, entrepreneurs, specifys.ai">
-    <meta name="author" content="specifys.ai Team">
-    <meta name="robots" content="index, follow">
-    <meta property="og:title" content="specifys.ai - Plan Your App Idea for Free">
-    <meta property="og:description" content="Plan your app with a 100% free AI-powered tool. No coding, just Vibe Coding vibes!">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://specifys.ai/index.html">
-    <meta property="og:image" content="https://specifys.ai/assets/og-image.jpg">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="specifys.ai - Plan Your App Idea for Free">
-    <meta name="twitter:description" content="Plan your app with a 100% free AI-powered tool. No coding, just Vibe Coding vibes!">
-    <meta name="twitter:image" content="https://specifys.ai/assets/og-image.jpg">
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-RWBT69JCM7"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-RWBT69JCM7');
-      gtag('config', 'AW-1000505244');
-    </script>
-    <title>specifys.ai - Plan Your App Idea for Free</title>
+    <title>Specifys.ai - Plan Your App Idea for Free</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
+      /*
+      Design Guidelines for Specifys.ai
+      ==============================
+
+      Color Palette
+      -------------
+      - Primary (text, logo, links): #333 (dark gray)
+      - Secondary (copyright, popup text): #666 (light gray)
+      - Accent (hover, buttons): #0078d4 (Microsoft blue)
+      - Accent hover: #005ea2 (darker blue)
+      - Body background: #f5f5f5 (very light gray)
+      - Header background: rgba(255, 255, 255, 0.9) (semi-transparent white)
+      - Footer background: #fff (white)
+      - Track container: rgba(255, 255, 255, 0.95) (semi-transparent white)
+      - Benefit/FAQ cards: rgba(255, 255, 255, 0.95) (semi-transparent white)
+      - Popup overlay: rgba(0, 0, 0, 0.7) (dark overlay)
+      - Popup background: #fff (white)
+      - Popup dots (inactive): #ccc (light gray)
+
+      Typography
+      ----------
+      - Primary font: Montserrat (400, 500, 700) from Google Fonts
+        - 400: Regular text (paragraphs, FAQ answers)
+        - 500: Footer links, FAQ questions
+        - 700: Headings, logo, buttons
+      - Font sizes:
+        - Logo (.thematic-header .logo a): 1.65rem (increased by 10%), 1.32rem on mobile (≤480px)
+        - Main heading (h1): clamp(1.8rem, 4vw, 2.5rem), shrinks to clamp(1.4rem, 3vw, 1.8rem) at ≤768px
+        - Track container h2: 2rem (1.6rem at ≤768px, 1.4rem at ≤480px)
+        - Section h2: clamp(2rem, 5vw, 3rem), shrinks to clamp(1.5rem, 4vw, 2.5rem) at ≤768px
+        - Footer links: 0.85rem (0.8rem at ≤768px, 0.75rem at ≤480px)
+        - Social icons: 1.2rem (1rem at ≤768px, 0.9rem at ≤480px)
+        - Copyright: 0.8rem
+        - Mode buttons: 1.1rem (1rem at ≤768px, 0.9rem at ≤480px)
+        - Popup h3: 1.2rem (1rem at ≤768px, 0.9rem at ≤480px)
+      - Line height: 1.2 for headings, 1.6 for paragraphs
+
+      Layout and Structure
+      --------------------
+      - Header (.thematic-header):
+        - Position: Fixed at top (position: absolute)
+        - Width: 100%
+        - Padding: 20px vertical, 24px horizontal
+        - Background: Semi-transparent white with subtle shadow
+        - Logo: Centered
+      - Main content (.main-content-wrapper):
+        - Layout: Flexbox, centered (justify-content: center, align-items: center)
+        - Padding: 8rem top on desktop, reduces to 6rem (≤768px) and 5rem (≤480px)
+        - Max heading width: 800px
+      - Track container:
+        - Background: Semi-transparent white
+        - Max width: 800px
+        - Padding: 30px (20px at ≤768px, 15px at ≤480px)
+      - Footer:
+        - Layout: Flexbox, centered with 20px gaps (10px at ≤768px, 8px at ≤480px)
+        - Background: White with subtle upward shadow
+      - Popup:
+        - Overlay: Full-screen with dark overlay
+        - Popup: Max-width 700px, 80% width (90% at ≤768px, 95% at ≤480px)
+        - Gallery height: 180px (160px at ≤768px, 140px at ≤480px)
+
+      Animations and Interactions
+      --------------------------
+      - Heading hover (h1): Color change to #0078d4
+      - Button hover (.mode-button, .cta-button): Color change to #0078d4, slight lift (translateY(-2px)), shadow
+      - Social icon hover: Color change to #0078d4, slight scale-up (transform: scale(1.2))
+      - Track container: Slide-up animation
+      - Sections: Fade-in-up animation with staggered delays
+      - Popup: Slide transitions for steps
+      - FAQ: Toggle with smooth max-height transition
+      - Stats: Counter animation on scroll (IntersectionObserver)
+      - Reduced motion support for accessibility
+
+      Responsiveness
+      --------------
+      - ≤768px:
+        - Main content padding reduced
+        - Font sizes reduced
+        - Mode buttons stack vertically
+        - Footer switches to column layout
+        - Popup size and gallery height reduced
+      - ≤480px:
+        - Logo font size reduced to 1.32rem
+        - Smaller paddings and font sizes for mobile
+        - Track container and popup further optimized
+
+      External Libraries
+      -----------------
+      - Bootstrap: v5.3.0 (CSS only)
+      - Font Awesome: v6.5.1 (for social and track icons)
+      - Google Fonts: Montserrat (400, 500, 700)
+
+      Additional Notes
+      ----------------
+      - Subtle shadows for depth
+      - clamp() ensures flexible font sizes
+      - Accessibility supported with aria-label tags
+      - JavaScript required for interactive elements
+      */
+
       @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap");
 
       * {
@@ -45,65 +124,29 @@
         font-family: "Montserrat", sans-serif;
         position: relative;
         overflow-x: hidden;
-        -webkit-overflow-scrolling: touch;
         display: flex;
         flex-direction: column;
         min-height: 100%;
-        background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #fff);
-        background-size: 400% 400%;
-        background-attachment: fixed;
-        animation: gradient 30s ease infinite;
-      }
-
-      @keyframes gradient {
-        0% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-        100% { background-position: 0% 50%; }
+        background: #f5f5f5;
       }
 
       .thematic-header {
         position: absolute;
         top: 0;
         width: 100%;
-        padding: 20px 24px 10px;
+        padding: 20px 24px;
         display: flex;
-        align-items: center;
-        justify-content: space-between;
+        justify-content: center;
         z-index: 10;
-        background: transparent;
-      }
-
-      .thematic-header .logo {
-        position: absolute;
-        left: 50%;
-        transform: translateX(-50%);
-        text-align: center;
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       }
 
       .thematic-header .logo a {
         text-decoration: none;
-        color: #fff;
-        font-size: 1.5rem;
+        color: #333;
+        font-size: 1.65rem; /* Increased by 10% from 1.5rem */
         font-weight: 700;
-      }
-
-      .thematic-header .tools-map-link {
-        margin-right: 20px;
-        background: #23a6d5;
-        color: #fff;
-        border-radius: 30px;
-        padding: 8px 16px;
-        font-size: 1rem;
-        font-weight: 700;
-        text-decoration: none;
-        transition: all 0.3s ease;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-      }
-
-      .thematic-header .tools-map-link:hover {
-        background: #1d8bb8;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
       }
 
       .main-content-wrapper {
@@ -113,7 +156,7 @@
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        padding: 30vh 1.5rem 2rem;
+        padding: 8rem 1.5rem 2rem;
         box-sizing: border-box;
         position: relative;
       }
@@ -123,8 +166,7 @@
         max-width: 800px;
         text-align: center;
         padding: 0 1rem;
-        animation: fadeIn 1s ease-in;
-        color: #fff;
+        color: #333;
       }
 
       .header-text h1 {
@@ -132,7 +174,12 @@
         font-weight: 700;
         margin-bottom: 0.5rem;
         line-height: 1.2;
-        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        cursor: pointer;
+        transition: color 0.3s ease;
+      }
+
+      .header-text h1:hover {
+        color: #0078d4;
       }
 
       .track-container {
@@ -148,25 +195,20 @@
         justify-content: center;
         align-items: center;
         min-height: 250px;
-        animation: slideUp 1.2s ease-in, pulse 6s ease-in-out infinite;
-        margin: auto;
-        backdrop-filter: blur(5px);
-        -webkit-backdrop-filter: blur(5px);
+        margin: 10rem auto;
+        animation: slideUp 1.2s ease-in;
       }
 
-      @supports not (backdrop-filter: blur(5px)) {
-        .track-container {
-          background: rgba(255, 255, 255, 0.9);
-        }
+      @keyframes slideUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
       }
 
       .track-container h2 {
         font-size: 2rem;
         font-weight: 700;
-        color: #23a6d5;
-        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        color: #333;
         margin-bottom: 20px;
-        text-transform: none;
       }
 
       .mode-buttons {
@@ -178,8 +220,8 @@
 
       .mode-button {
         background: #fff;
-        color: #23a6d5;
-        border: 2px solid #23a6d5;
+        color: #333;
+        border: 2px solid #333;
         border-radius: 30px;
         padding: 12px 20px;
         font-size: 1.1rem;
@@ -191,15 +233,14 @@
         min-width: 180px;
         transition: all 0.3s ease;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        letter-spacing: 0.05em;
       }
 
       .mode-button:hover, .mode-button.active, .mode-button.highlighted {
-        background: #23a6d5;
+        background: #0078d4;
         color: #fff;
+        border: 2px solid #0078d4;
         transform: translateY(-2px);
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        border: 2px solid #23a6d5;
       }
 
       .mode-button i {
@@ -224,9 +265,7 @@
         width: 100%;
         max-width: 1200px;
         padding: 4rem 1.5rem;
-        color: #fff;
         text-align: center;
-        background: transparent;
       }
 
       .section {
@@ -237,17 +276,21 @@
         animation-delay: calc(0.2s * var(--section-index));
       }
 
+      @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
       .section h2 {
         font-size: clamp(2rem, 5vw, 3rem);
         font-weight: 700;
-        color: #fff;
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        color: #333;
         margin-bottom: 1.5rem;
       }
 
       .section p {
         font-size: clamp(1rem, 2vw, 1.2rem);
-        color: #fff;
+        color: #333;
         max-width: 800px;
         margin: 0 auto 1rem;
         line-height: 1.6;
@@ -263,7 +306,7 @@
       .benefit-card {
         display: flex;
         align-items: center;
-        background: rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.95);
         border-radius: 10px;
         padding: 1.5rem;
         margin-bottom: 1rem;
@@ -276,20 +319,20 @@
 
       .benefit-icon {
         font-size: 2rem;
-        color: #ffffff;
+        color: #333;
         margin-right: 1rem;
       }
 
       .benefit-content h3 {
         font-size: 1.5rem;
         font-weight: 700;
-        color: #fff;
+        color: #333;
         margin-bottom: 0.5rem;
       }
 
       .benefit-content p {
         font-size: 1rem;
-        color: #fff;
+        color: #333;
         line-height: 1.6;
       }
 
@@ -302,7 +345,7 @@
 
       .stat-item, .use-case-item {
         padding: 1.5rem;
-        background: rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.95);
         border-radius: 10px;
         transition: transform 0.3s ease;
       }
@@ -314,20 +357,20 @@
       .stat-item h3, .use-case-item h3 {
         font-size: 1.2rem;
         font-weight: 700;
-        color: #fff;
+        color: #333;
         margin-bottom: 0.5rem;
       }
 
       .stat-item .stat-number {
-        font-size: 4rem;
+        font-size: 2rem;
         font-weight: 700;
-        color: #ffffff;
+        color: #333;
         margin-bottom: 0.5rem;
       }
 
       .stat-item p, .use-case-item p {
         font-size: 1rem;
-        color: #fff;
+        color: #333;
       }
 
       .faq-list {
@@ -338,7 +381,7 @@
 
       .faq-item {
         margin-bottom: 1rem;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.2);
       }
 
       .faq-question {
@@ -349,12 +392,12 @@
         cursor: pointer;
         font-size: 1.1rem;
         font-weight: 500;
-        color: #fff;
+        color: #333;
         transition: color 0.3s ease;
       }
 
       .faq-question:hover {
-        color: #fff;
+        color: #0078d4;
       }
 
       .faq-question i {
@@ -369,7 +412,7 @@
         max-height: 0;
         overflow: hidden;
         font-size: 1rem;
-        color: #fff;
+        color: #333;
         padding: 0 1rem;
         transition: max-height 0.3s ease, padding 0.3s ease;
       }
@@ -381,7 +424,7 @@
 
       .cta-button {
         display: inline-block;
-        background: #23a6d5;
+        background: #0078d4;
         color: #fff;
         border: none;
         border-radius: 30px;
@@ -391,18 +434,17 @@
         text-decoration: none;
         transition: all 0.3s ease;
         margin-top: 1rem;
-        animation: pulseGlow 1.5s ease-in-out infinite;
       }
 
       .cta-button:hover {
-        background: #1d8bb8;
+        background: #005ea2;
         transform: translateY(-2px);
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
       }
 
       .final-cta {
         padding: 3rem 1.5rem;
-        background: rgba(0, 0, 0, 0.2);
+        background: rgba(255, 255, 255, 0.95);
         border-radius: 15px;
         margin: 2rem 0;
       }
@@ -411,13 +453,10 @@
         padding: 20px 10px;
         text-align: center;
         width: 100%;
-        color: #fff;
+        color: #333;
         flex-shrink: 0;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 15px;
-        background: transparent;
+        background: #fff;
+        box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
       }
 
       .footer-content {
@@ -437,7 +476,7 @@
       }
 
       .footer-links a {
-        color: #fff;
+        color: #333;
         text-decoration: none;
         font-size: 0.85rem;
         font-weight: 500;
@@ -445,11 +484,11 @@
       }
 
       .footer-links a:hover {
-        color: #fff;
+        color: #0078d4;
       }
 
       .footer-divider {
-        color: #fff;
+        color: #333;
         font-size: 1.2rem;
         font-weight: 300;
       }
@@ -462,65 +501,20 @@
       }
 
       .footer-social a {
-        color: #fff;
+        color: #333;
         font-size: 1.2rem;
-        transition: transform 0.3s ease;
+        transition: transform 0.3s ease, color 0.3s ease;
       }
 
       .footer-social a:hover {
-        transform: translateY(-2px);
+        color: #0078d4;
+        transform: scale(1.2);
       }
 
       .footer-copyright {
         font-size: 0.8rem;
-        color: #fff;
-        opacity: 0.7;
+        color: #666;
         margin-top: 1rem;
-      }
-
-      @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-      }
-
-      @keyframes fadeInUp {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
-      }
-
-      @keyframes slideUp {
-        from { opacity: 0; transform: translateY(30px); }
-        to { opacity: 1; transform: translateY(0); }
-      }
-
-      @keyframes pulse {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.02); }
-        100% { transform: scale(1); }
-      }
-
-      @keyframes pulseGlow {
-        0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(35, 166, 213, 0.7); }
-        50% { transform: scale(1.05); box-shadow: 0 0 10px 5px rgba(35, 166, 213, 0.7); }
-        100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(35, 166, 213, 0.7); }
-      }
-
-      @keyframes zoomPulse {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.2); }
-        100% { transform: scale(1); }
-      }
-
-      @keyframes float {
-        0% { transform: translateY(0); }
-        50% { transform: translateY(-10px); }
-        100% { transform: translateY(0); }
-      }
-
-      @keyframes spinPop {
-        0% { transform: rotate(0deg) scale(1); }
-        50% { transform: rotate(180deg) scale(1.2); }
-        100% { transform: rotate(360deg) scale(1); }
       }
 
       .popup-overlay {
@@ -561,7 +555,7 @@
       }
 
       .popup-close:hover {
-        color: #23a6d5;
+        color: #0078d4;
       }
 
       .popup-gallery {
@@ -587,14 +581,14 @@
 
       .popup-step i {
         font-size: 2rem;
-        color: #23a6d5;
+        color: #0078d4;
         margin-bottom: 0.5rem;
       }
 
       .popup-step h3 {
         font-size: 1.2rem;
         font-weight: 700;
-        color: #23a6d5;
+        color: #333;
         margin: 0.5rem 0;
       }
 
@@ -624,12 +618,12 @@
       .popup-dot.active {
         width: 12px;
         height: 12px;
-        background: #23a6d5;
+        background: #0078d4;
         transform: scale(1.2);
       }
 
       .popup-start {
-        background: #23a6d5;
+        background: #0078d4;
         color: #fff;
         border: none;
         border-radius: 30px;
@@ -639,11 +633,10 @@
         cursor: pointer;
         transition: all 0.3s ease;
         margin-top: 1rem;
-        animation: pulseGlow 1.5s ease-in-out infinite;
       }
 
       .popup-start:hover {
-        background: #1d8bb8;
+        background: #005ea2;
         transform: translateY(-2px);
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
       }
@@ -651,9 +644,6 @@
       @media (max-width: 768px) {
         .main-content-wrapper {
           padding: 6rem 1rem 2rem;
-        }
-        .header-text {
-          top: 3rem;
         }
         .header-text h1 {
           font-size: clamp(1.4rem, 3vw, 1.8rem);
@@ -721,7 +711,6 @@
         }
         footer {
           padding: 15px 1rem;
-          gap: 12px;
         }
         .footer-content {
           flex-direction: column;
@@ -767,25 +756,18 @@
           padding: 0.6rem 1.5rem;
           font-size: 0.9rem;
         }
-        .thematic-header .tools-map-link {
-          font-size: 0.9rem;
-          padding: 6px 12px;
-        }
       }
 
       @media (max-width: 480px) {
         .thematic-header .logo a {
-          font-size: 1.2rem;
+          font-size: 1.32rem; /* Increased by 10% from 1.2rem */
         }
         .main-content-wrapper {
           padding: 5rem 0.5rem 2rem;
         }
-        .header-text {
-          top: 2.5rem;
-        }
         .track-container {
           padding: 15px;
-          min-height: 180px;
+          min-height: 580rem;
           max-width: 90%;
         }
         .track-container h2 {
@@ -870,14 +852,10 @@
           padding: 0.5rem 1rem;
           font-size: 0.8rem;
         }
-        .thematic-header .tools-map-link {
-          font-size: 0.8rem;
-          padding: 5px 10px;
-        }
       }
 
       @media (prefers-reduced-motion: reduce) {
-        body, .track-container, .mode-button, .cta-button, .section, .header-text, .popup-start, .popup-step i, .benefit-card {
+        .track-container, .mode-button, .cta-button, .section, .header-text, .popup-start {
           animation: none;
           transition: none;
         }

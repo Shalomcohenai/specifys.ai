@@ -1,503 +1,484 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Specifys.ai Blog: Explore our gallery of articles with insights on app planning using our free AI tool.">
-    <meta name="keywords" content="app planning, AI tools, Specifys.ai blog, free resources, Vibe Coding">
-    <meta name="author" content="specifys.ai Team">
-    <meta name="robots" content="index, follow">
-    <meta property="og:title" content="Specifys.ai Blog - Article Index">
-    <meta property="og:description" content="Discover a gallery of articles with tips and updates on app planning with Specifys.ai's free AI tool.">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://specifys-ai.com/blog.html">
-    <meta property="og:image" content="https://specifys-ai.com/assets/og-image.jpg">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Specifys.ai Blog - Article Index">
-    <meta name="twitter:description" content="Discover a gallery of articles with tips and updates on app planning with Specifys.ai's free AI tool.">
-    <meta name="twitter:image" content="https://specifys-ai.com/assets/og-image.jpg">
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-RWBT69JCM7"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-RWBT69JCM7');
-      gtag('config', 'AW-1000505244');
-    </script>
-    <title>Specifys.ai Blog - Article Index</title>
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <style>
-      @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap");
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Specifys.ai Blog - Article Index</title>
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-RWBT69JCM7"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-RWBT69JCM7');
+    gtag('config', 'AW-1000505244');
+  </script>
+  <style>
+    /*
+    Design Guidelines for Specifys.ai Blog Page
+    ==========================================
 
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
+    Color Palette
+    -------------
+    - Primary (text, logo, links): #333 (dark gray)
+    - Secondary (copyright, secondary text): #666 (light gray)
+    - Accent (hover, buttons, article-title): #0078d4 (Microsoft blue)
+    - Accent hover: #005ea2 (darker blue)
+    - Body background: #f5f5f5 (very light gray)
+    - Header background: rgba(255, 255, 255, 0.9) (semi-transparent white)
+    - Footer background: #fff (white)
+    - Content box: rgba(255, 255, 255, 0.95) (semi-transparent white)
+    - Article preview: #fff (white)
+
+    Typography
+    ----------
+    - Primary font: Montserrat (400, 500, 700) from Google Fonts
+      - 400: Regular text (paragraphs, article-intro, article-date, reader-count)
+      - 500: Footer links
+      - 700: Headings, logo, buttons
+    - Font sizes:
+      - Logo (.thematic-header .logo a): 1.925rem, 1.32rem on mobile (≤480px)
+      - Main heading (h1): clamp(1.8rem, 4vw, 2.5rem), shrinks to clamp(1.4rem, 3vw, 2rem) at ≤768px
+      - Article title (.article-title): 1.4rem (1.2rem at ≤768px, 1.1rem at ≤480px)
+      - Footer links: 0.85rem (0.8rem at ≤768px, 0.75rem at ≤480px)
+      - Social icons: 1.2rem (1rem at ≤768px, 0.9rem at ≤480px)
+      - Copyright: 0.8rem
+      - Button (.read-more-btn): 1rem (0.9rem at ≤768px, 0.85rem at ≤480px)
+    - Line height: 1.2 for headings, 1.5 for article-intro
+
+    Layout and Structure
+    --------------------
+    - Header (.thematic-header):
+      - Position: Fixed at top (position: absolute)
+      - Width: 100%
+      - Padding: 20px vertical, 24px horizontal
+      - Background: Semi-transparent white with subtle shadow
+      - Logo: Centered
+    - Content box (.content-box):
+      - Max width: 800px
+      - Padding: 30px (20px at ≤768px, 15px at ≤480px)
+      - Background: Semi-transparent white with shadow
+      - Margin: 80px top on desktop, reduces to 40px (≤768px)
+    - Gallery grid (.gallery-grid):
+      - Grid layout with auto-fit columns, min 200px
+      - Gap: 20px (15px at ≤768px, 10px at ≤480px)
+    - Article preview (.article-preview):
+      - Background: White with shadow
+      - Padding: 15px (12px at ≤768px, 10px at ≤480px)
+    - Footer:
+      - Layout: Flexbox, centered with 20px gaps (10px at ≤768px, 8px at ≤480px)
+      - Background: White with subtle upward shadow
+
+    Animations and Interactions
+    --------------------------
+    - Article preview hover: Slight lift (translateY(-2px))
+    - Button hover (.read-more-btn): Color change to #005ea2, shadow
+    - Social icon hover: Color change to #0078d4, slight scale-up (transform: scale(1.2))
+    - Reduced motion support for accessibility
+
+    Responsiveness
+    --------------
+    - ≤768px:
+      - Content box margin and padding reduced
+      - Font sizes reduced
+      - Gallery grid columns reduced
+      - Footer switches to column layout
+    - ≤480px:
+      - Logo font size reduced to 1.32rem
+      - Gallery grid switches to single column
+      - Smaller paddings and font sizes
+
+    External Libraries
+    -----------------
+    - Bootstrap: v5.3.0 (CSS only)
+    - Font Awesome: v6.5.1 (for social icons)
+    - Google Fonts: Montserrat (400, 500, 700)
+
+    Additional Notes
+    ----------------
+    - Subtle shadows for depth
+    - clamp() ensures flexible font sizes
+    - Accessibility supported with aria-label tags
+    - Google Tag Manager scripts retained for analytics
+    */
+
+    @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap");
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      height: 100%;
+    }
+
+    body {
+      font-family: "Montserrat", sans-serif;
+      position: relative;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      min-height: 100%;
+      background: #f5f5f5;
+    }
+
+    .thematic-header {
+      position: absolute;
+      top: 0;
+      width: 100%;
+      padding: 20px 24px;
+      display: flex;
+      justify-content: center;
+      z-index: 10;
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .thematic-header .logo a {
+      text-decoration: none;
+      color: #333;
+      font-size: 1.925rem;
+      font-weight: 700;
+    }
+
+    .content-box {
+      max-width: 800px;
+      margin: 80px auto 40px;
+      padding: 30px;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 15px;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+      flex-grow: 1;
+    }
+
+    .content-box h1 {
+      font-size: clamp(1.8rem, 4vw, 2.5rem);
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      width: 100%;
+    }
+
+    .article-preview {
+      background: #fff;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease;
+      padding: 15px;
+    }
+
+    .article-preview:hover {
+      transform: translateY(-2px);
+    }
+
+    .article-title {
+      font-size: 1.4rem;
+      color: #0078d4;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .article-date {
+      font-size: 0.9rem;
+      color: #666;
+      margin-bottom: 0.5rem;
+    }
+
+    .article-intro {
+      font-size: 1rem;
+      color: #333;
+      line-height: 1.5;
+      margin-bottom: 1rem;
+    }
+
+    .reader-count {
+      font-size: 0.9rem;
+      color: #666;
+      margin-bottom: 0.5rem;
+    }
+
+    .read-more-btn {
+      display: inline-block;
+      padding: 8px 16px;
+      background: #0078d4;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 5px;
+      font-size: 1rem;
+      font-weight: 700;
+      transition: background-color 0.3s ease;
+    }
+
+    .read-more-btn:hover {
+      background: #005ea2;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    footer {
+      padding: 20px 10px;
+      text-align: center;
+      width: 100%;
+      color: #333;
+      flex-shrink: 0;
+      background: #fff;
+      box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .footer-content {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .footer-links a {
+      color: #333;
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: color 0.3s ease;
+    }
+
+    .footer-links a:hover {
+      color: #0078d4;
+    }
+
+    .footer-divider {
+      color: #333;
+      font-size: 1.2rem;
+      font-weight: 300;
+    }
+
+    .footer-social {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .footer-social a {
+      color: #333;
+      font-size: 1.2rem;
+      transition: transform 0.3s ease, color 0.3s ease;
+    }
+
+    .footer-social a:hover {
+      color: #0078d4;
+      transform: scale(1.2);
+    }
+
+    .footer-copyright {
+      font-size: 0.8rem;
+      color: #666;
+      margin-top: 1rem;
+    }
+
+    @media (max-width: 768px) {
+      .content-box {
+        margin: 40px 15px;
+        padding: 20px;
       }
-
-      html {
-        height: 100%;
+      .content-box h1 {
+        font-size: clamp(1.4rem, 3vw, 2rem);
       }
-
-      body {
-        font-family: "Montserrat", sans-serif;
-        position: relative;
-        overflow-x: hidden;
-        -webkit-overflow-scrolling: touch;
-        display: flex;
-        flex-direction: column;
-        min-height: 100%;
-        background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #fff);
-        background-size: 400% 400%;
-        background-attachment: fixed;
-        animation: gradient 30s ease infinite;
-      }
-
-      @keyframes gradient {
-        0% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-        100% { background-position: 0% 50%; }
-      }
-
-      .thematic-header {
-        position: absolute;
-        top: 0;
-        width: 100%;
-        padding: 20px 24px 10px;
-        display: flex;
-        align-items: center;
-        z-index: 10;
-        background: transparent;
-      }
-
-      .thematic-header .logo {
-        position: absolute;
-        left: 50%;
-        transform: translateX(-50%);
-        text-align: center;
-      }
-
-      .thematic-header .logo a {
-        text-decoration: none;
-        color: #fff;
-        font-size: 1.5rem;
-        font-weight: 700;
-      }
-
-      .main-content-wrapper {
-        width: 100%;
-        flex-grow: 1;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        padding: 8rem 1.5rem 2rem;
-        box-sizing: border-box;
-        position: relative;
-      }
-
-      .header-text {
-        width: 100%;
-        max-width: 800px;
-        text-align: center;
-        padding: 0 1rem;
-        animation: fadeIn 1s ease-in;
-        position: absolute;
-        top: 4rem;
-        color: #ffffff;
-      }
-
-      .header-text h1 {
-        font-size: clamp(1.8rem, 4vw, 2.5rem);
-        font-weight: 700;
-        margin-bottom: 0.5rem;
-        line-height: 1.2;
-        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
-      }
-
-      .gallery-container {
-        background: rgba(255, 255, 255, 0.2);
-        border-radius: 15px;
-        padding: 30px;
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-        text-align: left;
-        width: 100%;
-        max-width: 800px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        min-height: 250px;
-        animation: slideUp 1.2s ease-in, pulse 6s ease-in-out infinite;
-        margin: auto;
-        backdrop-filter: blur(5px);
-        -webkit-backdrop-filter: blur(5px);
-      }
-
-      @supports not (backdrop-filter: blur(5px)) {
-        .gallery-container {
-          background: rgba(255, 255, 255, 0.2);
-        }
-      }
-
       .gallery-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 20px;
-        margin-top: 1rem;
-        width: 100%;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 15px;
       }
-
       .article-preview {
-        background: #fff;
-        border: 2px solid #ddd;
-        border-radius: 10px;
-        overflow: hidden;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        transition: transform 0.3s ease;
+        padding: 12px;
+      }
+      .article-title {
+        font-size: 1.2rem;
+      }
+      .article-date {
+        font-size: 0.85rem;
+      }
+      .article-intro {
+        font-size: 0.9rem;
+      }
+      .reader-count {
+        font-size: 0.85rem;
+      }
+      .read-more-btn {
+        padding: 6px 12px;
+        font-size: 0.9rem;
+      }
+      footer {
+        padding: 15px 8px;
+      }
+      .footer-content {
+        flex-direction: column;
+        gap: 10px;
+      }
+      .footer-links a {
+        font-size: 0.8rem;
+      }
+      .footer-divider {
+        font-size: 1rem;
+      }
+      .footer-social a {
+        font-size: 1rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .thematic-header .logo a {
+        font-size: 1.32rem;
+      }
+      .content-box {
+        margin: 40px 10px;
         padding: 15px;
       }
-
-      .article-preview:hover {
-        transform: translateY(-2px);
+      .content-box h1 {
+        font-size: clamp(1.2rem, 3vw, 1.8rem);
       }
-
+      .gallery-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+      .article-preview {
+        padding: 10px;
+      }
       .article-title {
-        font-size: 1.4rem;
-        color: #333;
-        margin-bottom: 0.5rem;
-        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+        font-size: 1.1rem;
       }
-
       .article-date {
-        font-size: 0.9rem;
-        color: #666;
-        margin-bottom: 0.5rem;
-        opacity: 0.8;
-      }
-
-      .article-intro {
-        font-size: 1rem;
-        color: #333;
-        line-height: 1.5;
-        margin-bottom: 1rem;
-      }
-
-      .reader-count {
-        font-size: 0.9rem;
-        color: #666;
-        margin-bottom: 0.5rem;
-        opacity: 0.8;
-      }
-
-      .read-more-btn {
-        display: inline-block;
-        padding: 8px 16px;
-        background-color: #23a6d5;
-        color: #fff;
-        text-decoration: none;
-        border-radius: 5px;
-        font-weight: 500;
-        transition: background-color 0.3s ease;
-      }
-
-      .read-more-btn:hover {
-        background-color: #1d8bb8;
-      }
-
-      @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-      }
-
-      @keyframes slideUp {
-        from { opacity: 0; transform: translateY(30px); }
-        to { opacity: 1; transform: translateY(0); }
-      }
-
-      @keyframes pulse {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.02); }
-        100% { transform: scale(1); }
-      }
-
-      footer {
-        padding: 20px 10px;
-        text-align: center;
-        width: 100%;
-        color: #fff;
-        flex-shrink: 0;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 15px;
-        background: transparent;
-      }
-
-      .footer-content {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: center;
-        gap: 20px;
-        flex-wrap: wrap;
-      }
-
-      .footer-links {
-        display: flex;
-        justify-content: center;
-        gap: 15px;
-        flex-wrap: wrap;
-      }
-
-      .footer-links a {
-        color: #fff;
-        text-decoration: none;
-        font-size: 0.85rem;
-        font-weight: 500;
-        transition: color 0.3s ease;
-      }
-
-      .footer-links a:hover {
-        color: #23a6d5;
-      }
-
-      .footer-divider {
-        color: #fff;
-        font-size: 1.2rem;
-        font-weight: 300;
-      }
-
-      .footer-social {
-        display: flex;
-        justify-content: center;
-        gap: 15px;
-        flex-wrap: wrap;
-      }
-
-      .footer-social a {
-        color: #fff;
-        font-size: 1.2rem;
-        transition: transform 0.3s ease;
-      }
-
-      .footer-social a:hover {
-        color: #23a6d5;
-        transform: translateY(-2px);
-      }
-
-      .footer-copyright {
         font-size: 0.8rem;
-        color: #fff;
-        opacity: 0.7;
-        margin-top: 1rem;
       }
+      .article-intro {
+        font-size: 0.85rem;
+      }
+      .reader-count {
+        font-size: 0.8rem;
+      }
+      .read-more-btn {
+        padding: 5px 10px;
+        font-size: 0.85rem;
+      }
+      .footer-content {
+        gap: 8px;
+      }
+      .footer-links a {
+        font-size: 0.75rem;
+      }
+      .footer-divider {
+        font-size: 0.9rem;
+      }
+      .footer-social a {
+        font-size: 0.9rem;
+      }
+    }
 
-      @media (max-width: 768px) {
-        .main-content-wrapper {
-          padding: 6rem 1rem 2rem;
-        }
-        .header-text {
-          top: 3rem;
-        }
-        .header-text h1 {
-          font-size: clamp(1.4rem, 3vw, 1.8rem);
-        }
-        .gallery-container {
-          padding: 20px;
-          min-height: 200px;
-          max-width: 650px;
-        }
-        .gallery-grid {
-          grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-          gap: 15px;
-        }
-        .article-preview {
-          padding: 12px;
-        }
-        .article-title {
-          font-size: 1.2rem;
-        }
-        .article-date {
-          font-size: 0.85rem;
-        }
-        .article-intro {
-          font-size: 0.9rem;
-        }
-        .reader-count {
-          font-size: 0.85rem;
-        }
-        .read-more-btn {
-          padding: 6px 12px;
-          font-size: 0.9rem;
-        }
-        footer {
-          padding: 15px 1rem;
-          gap: 12px;
-        }
-        .footer-content {
-          flex-direction: column;
-          gap: 10px;
-        }
-        .footer-links a {
-          font-size: 0.8rem;
-        }
-        .footer-divider {
-          font-size: 1rem;
-        }
-        .footer-social a {
-          font-size: 1rem;
-        }
+    @media (prefers-reduced-motion: reduce) {
+      .article-preview, .read-more-btn, .footer-social a {
+        transition: none;
       }
-
-      @media (max-width: 480px) {
-        .thematic-header .logo a {
-          font-size: 1.2rem;
-        }
-        .main-content-wrapper {
-          padding: 5rem 0.5rem 2rem;
-        }
-        .header-text {
-          top: 2.5rem;
-        }
-        .gallery-container {
-          padding: 15px;
-          min-height: 180px;
-          max-width: 90%;
-        }
-        .gallery-grid {
-          grid-template-columns: 1fr;
-          gap: 10px;
-        }
-        .article-preview {
-          padding: 10px;
-        }
-        .article-title {
-          font-size: 1.1rem;
-        }
-        .article-date {
-          font-size: 0.8rem;
-        }
-        .article-intro {
-          font-size: 0.85rem;
-        }
-        .reader-count {
-          font-size: 0.8rem;
-        }
-        .read-more-btn {
-          padding: 5px 10px;
-          font-size: 0.85rem;
-        }
-        .footer-content {
-          gap: 8px;
-        }
-        .footer-links a {
-          font-size: 0.75rem;
-        }
-        .footer-divider {
-          font-size: 0.9rem;
-        }
-        .footer-social a {
-          font-size: 0.9rem;
-        }
-      }
-
-      @media (prefers-reduced-motion: reduce) {
-        body, .gallery-container, .header-text {
-          animation: none;
-          transition: none;
-        }
-      }
-    </style>
+    }
+  </style>
 </head>
 <body class="page-default">
-  <header class="thematic-header">
+  <header class="thematic-header" role="banner">
     <div class="logo">
       <a href="index.html" aria-label="specifys.ai homepage">specifys.ai</a>
     </div>
   </header>
 
-  <div class="main-content-wrapper">
-    <div class="header-text">
-      <h1>Our new blog</h1>
-    </div>
-
-    <div class="gallery-container">
-      <div class="gallery-grid">
-        <div class="article-preview">
-          <h2 class="article-title">Meet the New Vibe-Coding Strategy</h2>
-          <div class="article-date">12 June 2025, 07:21 PM IDT</div>
-          <div class="article-intro">
-            The era of typing every line of code is giving way to a more intuitive, conversational approach where prompts and voice directions replace syntax-heavy development...
-          </div>
-          <div class="reader-count">Readers: 528</div>
-          <a href="article1.html" class="read-more-btn">Read More</a>
+  <div class="content-box">
+    <h1>Our New Blog</h1>
+    <div class="gallery-grid">
+      <div class="article-preview">
+        <h2 class="article-title">Meet the New Vibe-Coding Strategy</h2>
+        <div class="article-date">12 June 2025, 07:21 PM IDT</div>
+        <div class="article-intro">
+          The era of typing every line of code is giving way to a more intuitive, conversational approach where prompts and voice directions replace syntax-heavy development...
         </div>
-        <div class="article-preview">
-          <h2 class="article-title">Revolutionize MVPs with Prompt-to-App AI Tools</h2>
-          <div class="article-date">12 June 2025, 07:21 PM IDT</div>
-          <div class="article-intro">
-            Non-technical founders and product managers face a familiar challenge: turning a brilliant idea into a functioning MVP without writing a single line of code...
-          </div>
-          <div class="reader-count">Readers: 794</div>
-          <a href="article2.html" class="read-more-btn">Read More</a>
+        <div class="reader-count">Readers: 528</div>
+        <a href="blog/article1.html" class="read-more-btn">Read More</a>
+      </div>
+      <div class="article-preview">
+        <h2 class="article-title">Revolutionize MVPs with Prompt-to-App AI Tools</h2>
+        <div class="article-date">12 June 2025, 07:21 PM IDT</div>
+        <div class="article-intro">
+          Non-technical founders and product managers face a familiar challenge: turning a brilliant idea into a functioning MVP without writing a single line of code...
         </div>
-        <div class="article-preview">
-          <h2 class="article-title">Boost Developer Productivity with AI-Agent Coding</h2>
-          <div class="article-date">12 June 2025, 07:21 PM IDT</div>
-          <div class="article-intro">
-            The rise of AI coding agents is transforming how technical teams work. Instead of typing boilerplate or repetitive code, developers now guide intelligent assistants...
-          </div>
-          <div class="reader-count">Readers: 362</div>
-          <a href="article3.html" class="read-more-btn">Read More</a>
+        <div class="reader-count">Readers: 794</div>
+        <a href="blog/article2.html" class="read-more-btn">Read More</a>
+      </div>
+      <div class="article-preview">
+        <h2 class="article-title">Boost Developer Productivity with AI-Agent Coding</h2>
+        <div class="article-date">12 June 2025, 07:21 PM IDT</div>
+        <div class="article-intro">
+          The rise of AI coding agents is transforming how technical teams work. Instead of typing boilerplate or repetitive code, developers now guide intelligent assistants...
         </div>
-        <div class="article-preview">
-          <h2 class="article-title">Ensuring Code Quality in AI-Generated Apps</h2>
-          <div class="article-date">12 June 2025, 07:21 PM IDT</div>
-          <div class="article-intro">
-            As vibe-coding penetrates enterprise development, organizations are embracing unprecedented speed, yet they face growing risks...
-          </div>
-          <div class="reader-count">Readers: 647</div>
-          <a href="article4.html" class="read-more-btn">Read More</a>
+        <div class="reader-count">Readers: 362</div>
+        <a href="blog/article3.html" class="read-more-btn">Read More</a>
+      </div>
+      <div class="article-preview">
+        <h2 class="article-title">Ensuring Code Quality in AI-Generated Apps</h2>
+        <div class="article-date">12 June 2025, 07:21 PM IDT</div>
+        <div class="article-intro">
+          As vibe-coding penetrates enterprise development, organizations are embracing unprecedented speed, yet they face growing risks...
         </div>
-        <div class="article-preview">
-          <h2 class="article-title">Ultimate Review of Vibe-Coding Platforms: Lovable, Bolt, Base44 & More</h2>
-          <div class="article-date">12 June 2025, 07:21 PM IDT</div>
-          <div class="article-intro">
-            For developers, product managers, and non-tech founders diving into vibe-coding, the landscape is thriving with platforms designed to translate natural language...
-          </div>
-          <div class="reader-count">Readers: 893</div>
-          <a href="article5.html" class="read-more-btn">Read More</a>
+        <div class="reader-count">Readers: 647</div>
+        <a href="blog/article4.html" class="read-more-btn">Read More</a>
+      </div>
+      <div class="article-preview">
+        <h2 class="article-title">Ultimate Review of Vibe-Coding Platforms: Lovable, Bolt, Base44 & More</h2>
+        <div class="article-date">12 June 2025, 07:21 PM IDT</div>
+        <div class="article-intro">
+          For developers, product managers, and non-tech founders diving into vibe-coding, the landscape is thriving with platforms designed to translate natural language...
         </div>
-        <div class="article-preview">
-          <h2 class="article-title">The Global Market for AI-App Development: Trends & Forecasts</h2>
-          <div class="article-date">12 June 2025, 07:21 PM IDT</div>
-          <div class="article-intro">
-            In just a few years, AI has transformed from a niche R&D topic into a central engine of software innovation...
-          </div>
-          <div class="reader-count">Readers: 419</div>
-          <a href="article6.html" class="read-more-btn">Read More</a>
+        <div class="reader-count">Readers: 893</div>
+        <a href="blog/article5.html" class="read-more-btn">Read More</a>
+      </div>
+      <div class="article-preview">
+        <h2 class="article-title">The Global Market for AI-App Development: Trends & Forecasts</h2>
+        <div class="article-date">12 June 2025, 07:21 PM IDT</div>
+        <div class="article-intro">
+          In just a few years, AI has transformed from a niche R&D topic into a central engine of software innovation...
         </div>
-        <div class="article-preview">
-          <h2 class="article-title">Vibe Coding: A New Era in Software Development with AI-Powered Programming</h2>
-          <div class="article-date">22 June 2025, 10:45 AM IDT</div>
-          <div class="article-intro">
-            Imagine being able to build a complete app just by describing your idea in natural language. That’s the promise of Vibe Coding—a next-generation software development approach with AI-powered programming...
-          </div>
-          <div class="reader-count">Readers: 998</div>
-          <a href="article7.html" class="read-more-btn">Read More</a>
+        <div class="reader-count">Readers: 419</div>
+        <a href="blog/article6.html" class="read-more-btn">Read More</a>
+      </div>
+      <div class="article-preview">
+        <h2 class="article-title">Vibe Coding: A New Era in Software Development with AI-Powered Programming</h2>
+        <div class="article-date">22 June 2025, 10:45 AM IDT</div>
+        <div class="article-intro">
+          Imagine being able to build a complete app just by describing your idea in natural language. That’s the promise of Vibe Coding—a next-generation software development approach with AI-powered programming...
         </div>
-        <div class="article-preview">
-          <h2 class="article-title">Mastering the Vibe: Key Trends and Keywords Shaping AI Programming in 2025</h2>
-          <div class="article-date">22 June 2025, 12:25 PM IDT</div>
-          <div class="article-intro">
-            The rise of vibe coding in 2025 is transforming development into an AI-driven, intuitive process. Explore the top keywords and trends shaping this new era...
-          </div>
-          <div class="reader-count">Readers: 0</div>
-          <a href="article8.html" class="read-more-btn">Read More</a>
+        <div class="reader-count">Readers: 998</div>
+        <a href="blog/article7.html" class="read-more-btn">Read More</a>
+      </div>
+      <div class="article-preview">
+        <h2 class="article-title">Mastering the Vibe: Key Trends and Keywords Shaping AI Programming in 2025</h2>
+        <div class="article-date">22 June 2025, 12:25 PM IDT</div>
+        <div class="article-intro">
+          The rise of vibe coding in 2025 is transforming development into an AI-driven, intuitive process. Explore the top keywords and trends shaping this new era...
         </div>
+        <div class="reader-count">Readers: 0</div>
+        <a href="blog/article8.html" class="read-more-btn">Read More</a>
       </div>
     </div>
   </div>
@@ -508,6 +489,7 @@
         <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
         <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
         <a href="blog.html" aria-label="Try our Blog">Blog</a>
+        <a href="map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
       </div>
       <span class="footer-divider">|</span>
       <div class="footer-social">
@@ -519,17 +501,9 @@
       </div>
     </div>
     <div class="footer-copyright">
-      © 2025 specifys.ai. All rights reserved.
+      © 2025 specifys.ai. All rights reserved.xf
     </div>
   </footer>
-
-  <script>
-    (function() {
-      document.addEventListener("DOMContentLoaded", () => {
-        // No dynamic content since no backend
-      });
-    })();
-  </script>
 
   <noscript>
     <div style="text-align: center; padding: 20px; background: #fff; color: #333;">

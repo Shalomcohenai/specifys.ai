@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+  <meta charset="UTF-8" />
+  <title>סיפור עם OpenAI</title>
+  <style>
+    body { font-family: sans-serif; direction: rtl; max-width: 600px; margin: 50px auto; }
+    textarea { width: 100%; height: 80px; margin-bottom: 10px; }
+    #story { white-space: pre-wrap; border: 1px solid #ccc; padding: 10px; min-height: 150px; }
+  </style>
+</head>
+<body>
+  <h1>קבל סיפור מ־OpenAI</h1>
+  <textarea id="input" placeholder="כתוב נושא לסיפור..."></textarea>
+  <button onclick="send()">שלח</button>
+  <div id="story"></div>
+
+  <script>
+    async function send() {
+      const input = document.getElementById("input").value;
+      const storyDiv = document.getElementById("story");
+      storyDiv.textContent = "";
+
+      const response = await fetch("https://testworker.shalom-cohen-111.workers.dev/api/story", {
+        method: "POST",
+        body: JSON.stringify({ topic: input }),
+        headers: { "Content-Type": "application/json" }
+      });
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder("utf-8");
+
+      let done = false;
+      while (!done) {
+        const { value, done: doneReading } = await reader.read();
+        done = doneReading;
+        const chunk = decoder.decode(value, { stream: true });
+        storyDiv.textContent += chunk;
+        window.scrollTo(0, document.body.scrollHeight);
+      }
+    }
+  </script>
+</body>
+</html>
