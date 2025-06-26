@@ -128,6 +128,7 @@
       max-width: 900px;
       min-height: 400px;
       z-index: 1000;
+      position: relative;
     }
 
     .step-container {
@@ -427,62 +428,29 @@
     }
 
     .carousel-button-left {
-      left: 1.5rem;
+      left: -22.5px;
     }
 
     .carousel-button-right {
-      right: 1.5rem;
+      right: -22.5px;
     }
 
     .carousel-button-left:hover, .carousel-button-right:hover, .generate-spec-button:hover {
       background: #005ea2;
-      transform: translateY(-3px);
+      transform: translateY(-50%) translateY(-3px);
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .generate-spec-button {
+      right: -22.5px;
     }
 
     .generate-spec-button:disabled {
       background: #ddd;
       color: #666;
       cursor: not-allowed;
-      transform: none;
+      transform: translateY(-50%);
       box-shadow: none;
-    }
-
-    .loading-container {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.7);
-      z-index: 2000;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .loading-bar {
-      width: 80%;
-      max-width: 500px;
-      background: #ddd;
-      border-radius: 10px;
-      overflow: hidden;
-      height: 20px;
-      margin-bottom: 1rem;
-    }
-
-    .loading-fill {
-      height: 100%;
-      background: #0078d4;
-      width: 0;
-      transition: width 0.05s linear;
-    }
-
-    .loading-text {
-      color: #fff;
-      font-size: 1.2rem;
-      font-weight: 700;
     }
 
     footer {
@@ -601,11 +569,11 @@
       }
 
       .carousel-button-left {
-        left: 1rem;
+        left: -20px;
       }
 
-      .carousel-button-right {
-        right: 1rem;
+      .carousel-button-right, .generate-spec-button {
+        right: -20px;
       }
 
       .progress-bar {
@@ -623,14 +591,6 @@
 
       .indicator-circle::before {
         font-size: 0.9rem;
-      }
-
-      .loading-bar {
-        width: 90%;
-      }
-
-      .loading-text {
-        font-size: 1rem;
       }
 
       .footer-content {
@@ -697,11 +657,11 @@
       }
 
       .carousel-button-left {
-        left: 0.5rem;
+        left: -17.5px;
       }
 
-      .carousel-button-right {
-        right: 0.5rem;
+      .carousel-button-right, .generate-spec-button {
+        right: -17.5px;
       }
 
       .indicator-item {
@@ -737,10 +697,10 @@
   </header>
 
   <div class="carousel-container">
-    <button id="prevButton" class="carousel-button-left" onclick="prevStep()" aria-label="Previous step" style="display: none;">
-      <i class="fas fa-arrow-left"></i>
-    </button>
     <div id="carouselContent" class="carousel-content">
+      <button id="prevButton" class="carousel-button-left" onclick="prevStep()" aria-label="Previous step" style="display: none;">
+        <i class="fas fa-arrow-left"></i>
+      </button>
       <div class="step-container">
         <h3 id="stepTitle">App Overview</h3>
         <div class="question-wrapper">
@@ -848,18 +808,12 @@
           </div>
         </div>
       </div>
-    </div>
-    <button id="nextButton" class="carousel-button-right" onclick="nextStep()" aria-label="Next step">
-      <i class="fas fa-arrow-right"></i>
-    </button>
-    <button id="goButton" class="carousel-button-right generate-spec-button" onclick="generateSpecification()" style="display: none;" disabled aria-label="Generate specification">
-      <i class="fas fa-rocket"></i>
-    </button>
-    <div id="loadingContainer" class="loading-container">
-      <div class="loading-bar">
-        <div id="loadingFill" class="loading-fill"></div>
-      </div>
-      <div id="loadingText" class="loading-text">0%</div>
+      <button id="nextButton" class="carousel-button-right" onclick="nextStep()" aria-label="Next step">
+        <i class="fas fa-arrow-right"></i>
+      </button>
+      <button id="goButton" class="carousel-button-right generate-spec-button" onclick="generateSpecification()" style="display: none;" disabled aria-label="Generate specification">
+        <i class="fas fa-rocket"></i>
+      </button>
     </div>
   </div>
 
@@ -939,7 +893,7 @@
 
     let currentStep = 0;
     const totalSteps = stepTitles.length;
-    let textarea, stepTitle, stepQuestion, prevButton, nextButton, goButton, progressFill, charCount, yesNoContainer, tipText, exampleButton, errorMessage, loadingContainer, loadingFill, loadingText;
+    let textarea, stepTitle, stepQuestion, prevButton, nextButton, goButton, progressFill, charCount, yesNoContainer, tipText, exampleButton, errorMessage;
     const storageKey = "noCodeAnswers";
     let answers = {};
     let originalAnswer = "";
@@ -1050,13 +1004,7 @@
       prevButton.style.display = currentStep === 0 ? "none" : "flex";
       nextButton.style.display = currentStep === totalSteps - 1 ? "none" : "flex";
       goButton.style.display = currentStep === totalSteps - 1 ? "flex" : "none";
-      loadingContainer.style.display = "none";
-
-      const allRequiredAnswered = indicators.slice(0, 6).every((indicator) => {
-        const element = document.getElementById(indicator);
-        return element.classList.contains("active");
-      });
-      goButton.disabled = !allRequiredAnswered;
+      goButton.disabled = !([0, 1, 2, 3, 4].every((i) => answers[i] && answers[i].trim()) && yesNoQuestions.every((_, i) => answers[`yesNo_${i}`]));
     }
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -1081,9 +1029,6 @@
       tipText = document.getElementById("tipText");
       exampleButton = document.getElementById("exampleButton");
       errorMessage = document.getElementById("errorMessage");
-      loadingContainer = document.getElementById("loadingContainer");
-      loadingFill = document.getElementById("loadingFill");
-      loadingText = document.getElementById("loadingText");
 
       updateUI();
 
@@ -1175,15 +1120,6 @@
 
       errorMessage.style.display = "none";
       goButton.style.display = "none";
-      loadingContainer.style.display = "flex";
-
-      let progress = 0;
-      const loadingInterval = setInterval(() => {
-        progress += 1;
-        if (progress > 100) progress = 100;
-        loadingFill.style.width = `${progress}%`;
-        loadingText.textContent = `${progress}%`;
-      }, 300);
 
       const rawContent = generateContentFromAnswers(answers);
       localStorage.setItem("rawContent", rawContent);
@@ -1199,18 +1135,8 @@
         errorMessage.textContent = `Failed to generate specification: ${error.message}. Using raw content as fallback.`;
         errorMessage.style.display = "block";
         localStorage.setItem("generatedContent", rawContent);
-        clearInterval(loadingInterval);
-        loadingFill.style.width = "100%";
-        loadingText.textContent = "100%";
-        setTimeout(() => {
-          window.location.href = "result-novice.html";
-        }, 2000);
-        return;
-      } finally {
-        clearInterval(loadingInterval);
-        loadingFill.style.width = "100%";
-        loadingText.textContent = "100%";
       }
+      window.location.href = "result-novice.html";
     };
   </script>
 
