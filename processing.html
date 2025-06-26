@@ -127,6 +127,7 @@
       max-width: 900px;
       min-height: 400px;
       z-index: 1000;
+      position: relative;
     }
 
     .step-container {
@@ -360,48 +361,29 @@
     }
 
     .carousel-button-left {
-      left: 1.5rem;
+      left: -22.5px;
     }
 
     .carousel-button-right {
-      right: 1.5rem;
+      right: -22.5px;
     }
 
     .carousel-button-left:hover, .carousel-button-right:hover, .generate-spec-button:hover {
       background: #005ea2;
-      transform: translateY(-3px);
+      transform: translateY(-50%) translateY(-3px);
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .generate-spec-button {
+      right: -22.5px;
     }
 
     .generate-spec-button:disabled {
       background: #ddd;
       color: #666;
       cursor: not-allowed;
-      transform: none;
-      box-shadow: none;
-    }
-
-    .loading-spinner {
-      position: absolute;
-      top: 50%;
-      right: 1.5rem;
       transform: translateY(-50%);
-      width: 45px;
-      height: 45px;
-    }
-
-    .spinner-circle {
-      width: 100%;
-      height: 100%;
-      border: 4px solid #f3f3f3;
-      border-top: 4px solid #0078d4;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+      box-shadow: none;
     }
 
     footer {
@@ -503,11 +485,11 @@
       }
 
       .carousel-button-left {
-        left: 1rem;
+        left: -20px;
       }
 
-      .carousel-button-right {
-        right: 1rem;
+      .carousel-button-right, .generate-spec-button {
+        right: -20px;
       }
 
       .progress-bar {
@@ -581,11 +563,11 @@
       }
 
       .carousel-button-left {
-        left: 0.5rem;
+        left: -17.5px;
       }
 
-      .carousel-button-right {
-        right: 0.5rem;
+      .carousel-button-right, .generate-spec-button {
+        right: -17.5px;
       }
 
       .indicator-item {
@@ -607,9 +589,8 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .carousel-button-left, .carousel-button-right, .generate-spec-button, .tip-icon, .example-button, .spinner-circle {
+      .carousel-button-left, .carousel-button-right, .generate-spec-button, .tip-icon, .example-button {
         transition: none;
-        animation: none;
       }
     }
   </style>
@@ -622,10 +603,10 @@
   </header>
 
   <div class="carousel-container">
-    <button id="prevButton" class="carousel-button-left" onclick="prevStep()" aria-label="Previous step" style="display: none;">
-      <i class="fas fa-arrow-left"></i>
-    </button>
     <div id="carouselContent" class="carousel-content">
+      <button id="prevButton" class="carousel-button-left" onclick="prevStep()" aria-label="Previous step" style="display: none;">
+        <i class="fas fa-arrow-left"></i>
+      </button>
       <div class="step-container">
         <h3 id="stepTitle">App Purpose</h3>
         <div class="question-wrapper">
@@ -638,7 +619,7 @@
         <button id="exampleButton" class="example-button" onmouseover="showExample()" onmouseout="restoreAnswer()" aria-label="Show example answer">
           <i class="fas fa-eye"></i> Example
         </button>
-        <div id="errorMessage" role="alert"></div>
+        <div id="errorMessage" class="error-message" role="alert"></div>
         <div class="progress-container">
           <div class="progress-bar">
             <div id="progressFill" class="progress-fill"></div>
@@ -667,15 +648,12 @@
           </div>
         </div>
       </div>
-    </div>
-    <button id="nextButton" class="carousel-button-right" onclick="nextStep()" aria-label="Next step">
-      <i class="fas fa-arrow-right"></i>
-    </button>
-    <button id="generateSpecButton" class="carousel-button-right generate-spec-button" onclick="generateSpecification()" style="display: none;" disabled aria-label="Generate your app specification">
-      <i class="fas fa-rocket"></i>
-    </button>
-    <div id="loadingSpinner" class="loading-spinner" style="display: none;">
-      <div class="spinner-circle"></div>
+      <button id="nextButton" class="carousel-button-right" onclick="nextStep()" aria-label="Next step">
+        <i class="fas fa-arrow-right"></i>
+      </button>
+      <button id="generateSpecButton" class="carousel-button-right generate-spec-button" onclick="generateSpecification()" style="display: none;" disabled aria-label="Generate your app specification">
+        <i class="fas fa-rocket"></i>
+      </button>
     </div>
   </div>
 
@@ -736,7 +714,7 @@
 
     let currentStep = 0;
     const totalSteps = questions.length;
-    let textarea, stepTitle, stepQuestion, prevButton, nextButton, generateSpecButton, progressFill, charCount, loadingSpinner, tipText, exampleButton, errorMessage;
+    let textarea, stepTitle, stepQuestion, prevButton, nextButton, generateSpecButton, progressFill, charCount, tipText, exampleButton, errorMessage;
     const storageKey = "devAnswers";
     let answers = JSON.parse(localStorage.getItem(storageKey)) || {};
     let originalAnswer = "";
@@ -781,7 +759,6 @@
       prevButton.style.display = currentStep === 0 ? "none" : "flex";
       nextButton.style.display = currentStep === totalSteps - 1 ? "none" : "flex";
       generateSpecButton.style.display = currentStep === totalSteps - 1 ? "flex" : "none";
-      loadingSpinner.style.display = "none";
 
       const allIndicatorsGreen = indicators.every((indicator) => {
         const element = document.getElementById(indicator);
@@ -807,7 +784,6 @@
       generateSpecButton = document.getElementById("generateSpecButton");
       progressFill = document.getElementById("progressFill");
       charCount = document.getElementById("charCount");
-      loadingSpinner = document.getElementById("loadingSpinner");
       tipText = document.getElementById("tipText");
       exampleButton = document.getElementById("exampleButton");
       errorMessage = document.getElementById("errorMessage");
@@ -864,7 +840,6 @@
 
       errorMessage.style.display = "none";
       generateSpecButton.style.display = "none";
-      loadingSpinner.style.display = "block";
 
       // Generate raw content as fallback
       let rawContent = "# App Specification\n\n";
@@ -894,10 +869,8 @@
         errorMessage.textContent = `Failed to generate specification: ${error.message}. Using raw content as fallback.`;
         errorMessage.style.display = "block";
         localStorage.setItem("generatedContent", rawContent);
-        setTimeout(() => {
-          window.location.href = "result.html";
-        }, 2000);
       }
+      window.location.href = "result.html";
     };
   </script>
 

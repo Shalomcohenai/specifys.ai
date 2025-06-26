@@ -71,7 +71,7 @@
 
       Animations and Interactions
       --------------------------
-      - Heading hover (h1): Color change to #0078d4
+      - Heading hover (h1): Removed hover effect
       - Button hover (.mode-button, .cta-button): Color change to #0078d4, slight lift (translateY(-2px)), shadow
       - Social icon hover: Color change to #0078d4, slight scale-up (transform: scale(1.2))
       - Track container: Slide-up animation
@@ -118,6 +118,7 @@
 
       html {
         height: 100%;
+        scroll-behavior: smooth;
       }
 
       body {
@@ -145,7 +146,7 @@
       .thematic-header .logo a {
         text-decoration: none;
         color: #333;
-        font-size: 1.65rem; /* Increased by 10% from 1.5rem */
+        font-size: 1.65rem;
         font-weight: 700;
       }
 
@@ -174,12 +175,11 @@
         font-weight: 700;
         margin-bottom: 0.5rem;
         line-height: 1.2;
-        cursor: pointer;
-        transition: color 0.3s ease;
       }
 
-      .header-text h1:hover {
-        color: #0078d4;
+      .header-text h1 strong {
+        font-size: clamp(2rem, 5vw, 3rem);
+        font-weight: 700;
       }
 
       .track-container {
@@ -641,6 +641,32 @@
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
       }
 
+      .scroll-to-top {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: #0078d4;
+        color: #fff;
+        border: none;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+        cursor: pointer;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .scroll-to-top:hover {
+        background: #005ea2;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      }
+
       @media (max-width: 768px) {
         .main-content-wrapper {
           padding: 6rem 1rem 2rem;
@@ -648,9 +674,13 @@
         .header-text h1 {
           font-size: clamp(1.4rem, 3vw, 1.8rem);
         }
+        .header-text h1 strong {
+          font-size: clamp(1.6rem, 4vw, 2rem);
+        }
         .track-container {
           padding: 20px;
-          min-height: 200px;
+          min-height: auto;
+          max-height: 400px;
           max-width: 650px;
         }
         .track-container h2 {
@@ -756,18 +786,26 @@
           padding: 0.6rem 1.5rem;
           font-size: 0.9rem;
         }
+        .scroll-to-top {
+          bottom: 15px;
+          right: 15px;
+          width: 35px;
+          height: 35px;
+          font-size: 1rem;
+        }
       }
 
       @media (max-width: 480px) {
         .thematic-header .logo a {
-          font-size: 1.32rem; /* Increased by 10% from 1.2rem */
+          font-size: 1.32rem;
         }
         .main-content-wrapper {
           padding: 5rem 0.5rem 2rem;
         }
         .track-container {
           padding: 15px;
-          min-height: 580rem;
+          min-height: auto;
+          max-height: 400px;
           max-width: 90%;
         }
         .track-container h2 {
@@ -852,10 +890,17 @@
           padding: 0.5rem 1rem;
           font-size: 0.8rem;
         }
+        .scroll-to-top {
+          bottom: 10px;
+          right: 10px;
+          width: 30px;
+          height: 30px;
+          font-size: 0.9rem;
+        }
       }
 
       @media (prefers-reduced-motion: reduce) {
-        .track-container, .mode-button, .cta-button, .section, .header-text, .popup-start {
+        .track-container, .mode-button, .cta-button, .section, .header-text, .popup-start, .scroll-to-top {
           animation: none;
           transition: none;
         }
@@ -871,7 +916,7 @@
 
   <div class="main-content-wrapper">
     <div class="header-text">
-      <h1>Plan Your App with Specifys.ai</h1>
+      <h1>Specifys.ai Makes You a <strong>One-Man Show</strong></h1>
     </div>
 
     <div class="popup-overlay" id="popupOverlay">
@@ -995,10 +1040,6 @@
             <p>Validate your idea with a market research report to wow investors, all with AI magic.</p>
           </div>
           <div class="use-case-item">
-            <h3>App-Building Strugglers</h3>
-            <p>Stuck planning apps? Our free tool organizes your ideas into pro-level specs.</p>
-          </div>
-          <div class="use-case-item">
             <h3>MVP Builders</h3>
             <p>Turn your vision into a Minimum Viable Product (MVP) with an AI-crafted specification to test and launch fast.</p>
           </div>
@@ -1075,6 +1116,8 @@
       </div>
     </div>
   </div>
+
+  <button class="scroll-to-top" id="scrollToTop"><i class="fas fa-arrow-up"></i></button>
 
   <footer>
     <div class="footer-content">
@@ -1285,6 +1328,20 @@
         }, { threshold: 0.5 });
 
         observer.observe(statsSection);
+
+        // Scroll to Top Button Logic
+        const scrollToTopBtn = document.getElementById("scrollToTop");
+        window.addEventListener("scroll", () => {
+          if (window.scrollY > 100) {
+            scrollToTopBtn.style.display = "flex";
+          } else {
+            scrollToTopBtn.style.display = "none";
+          }
+        });
+
+        scrollToTopBtn.addEventListener("click", () => {
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        });
       });
     })();
   </script>
