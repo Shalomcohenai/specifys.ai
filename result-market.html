@@ -314,61 +314,6 @@
       margin-top: 1.5rem;
     }
 
-    .popup {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: #fff;
-      padding: 20px;
-      border-radius: 15px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-      z-index: 1000;
-      text-align: center;
-      max-width: 500px;
-      width: 90%;
-    }
-
-    .popup h1 {
-      font-size: 2rem;
-      font-weight: 700;
-      color: #333;
-      margin-bottom: 1rem;
-    }
-
-    .popup p {
-      font-size: 1rem;
-      color: #666;
-      margin-bottom: 1.5rem;
-    }
-
-    .popup .close-btn {
-      background: #0078d4;
-      color: #fff;
-      border: none;
-      border-radius: 20px;
-      padding: 0.5rem 1.2rem;
-      font-size: 0.9rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: background-color 0.3s ease, transform 0.3s ease;
-    }
-
-    .popup .close-btn:hover {
-      background: #005ea2;
-      transform: translateY(-2px);
-    }
-
-    .popup-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      z-index: 999;
-    }
-
     footer {
       padding: 20px;
       text-align: center;
@@ -474,14 +419,6 @@
         font-size: 0.8rem;
       }
 
-      .popup h1 {
-        font-size: 1.8rem;
-      }
-
-      .popup p {
-        font-size: 0.9rem;
-      }
-
       .footer-content {
         flex-direction: column;
         gap: 10px;
@@ -541,14 +478,6 @@
         font-size: 0.75rem;
       }
 
-      .popup h1 {
-        font-size: 1.6rem;
-      }
-
-      .popup p {
-        font-size: 0.85rem;
-      }
-
       .footer-content {
         gap: 5px;
       }
@@ -587,13 +516,6 @@
     <p class="platform-details">Click a button to copy or download your market research or explore tools to start building your app.</p>
   </div>
 
-  <div class="popup-overlay" id="popupOverlay" style="display: none"></div>
-  <div class="popup" id="welcomePopup" style="display: none">
-    <h1>Your Market Research Overview</h1>
-    <p>Here’s a detailed market-focused guide to your app idea. Check it out below!</p>
-    <button class="close-btn" onclick="closePopup()">Close</button>
-  </div>
-
   <footer>
     <div class="footer-content">
       <div class="footer-links">
@@ -621,8 +543,6 @@
       const chatContainer = document.getElementById("chatContainer");
       const errorMessage = document.getElementById("errorMessage");
       const platformContainer = document.getElementById("platformContainer");
-      const popupOverlay = document.getElementById("popupOverlay");
-      const welcomePopup = document.getElementById("welcomePopup");
       let fullContent = localStorage.getItem("generatedContent") || "No market research available.";
       let hasLoaded = false;
 
@@ -774,22 +694,10 @@
         doc.save("market-research.pdf");
       };
 
-      window.closePopup = function() {
-        popupOverlay.style.display = "none";
-        welcomePopup.style.display = "none";
-        if (!hasLoaded && fullContent) {
-          hasLoaded = true;
-          showIntroMessages();
-        } else if (!fullContent) {
-          errorMessage.textContent = "No market research content found. Please try again.";
-          errorMessage.style.display = "block";
-        }
-      };
-
-      if (fullContent) {
-        popupOverlay.style.display = "block";
-        welcomePopup.style.display = "block";
-      } else {
+      if (!hasLoaded && fullContent) {
+        hasLoaded = true;
+        showIntroMessages();
+      } else if (!fullContent) {
         errorMessage.textContent = "No market research content found. Please try again.";
         errorMessage.style.display = "block";
       }

@@ -453,6 +453,26 @@
       box-shadow: none;
     }
 
+    .loading-spinner {
+      position: absolute;
+      top: 50%;
+      right: -22.5px;
+      transform: translateY(-50%);
+      width: 45px;
+      height: 45px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #0078d4;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      display: none;
+      z-index: 1100;
+    }
+
+    @keyframes spin {
+      0% { transform: translateY(-50%) rotate(0deg); }
+      100% { transform: translateY(-50%) rotate(360deg); }
+    }
+
     footer {
       padding: 20px;
       text-align: center;
@@ -593,6 +613,12 @@
         font-size: 0.9rem;
       }
 
+      .loading-spinner {
+        width: 40px;
+        height: 40px;
+        right: -20px;
+      }
+
       .footer-content {
         flex-direction: column;
         gap: 10px;
@@ -677,13 +703,20 @@
         font-size: 0.8rem;
       }
 
+      .loading-spinner {
+        width: 35px;
+        height: 35px;
+        right: -17.5px;
+      }
+
       .footer-content {
         gap: 5px;
       }
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .carousel-button-left, .carousel-button-right, .yes-button, .no-button, .generate-spec-button, .tip-icon, .example-button {
+      .carousel-button-left, .carousel-button-right, .yes-button, .no-button, .generate-spec-button, .tip-icon, .example-button, .loading-spinner {
+        animation: none;
         transition: none;
       }
     }
@@ -814,6 +847,7 @@
       <button id="goButton" class="carousel-button-right generate-spec-button" onclick="generateSpecification()" style="display: none;" disabled aria-label="Generate specification">
         <i class="fas fa-rocket"></i>
       </button>
+      <div id="loadingSpinner" class="loading-spinner"></div>
     </div>
   </div>
 
@@ -893,7 +927,7 @@
 
     let currentStep = 0;
     const totalSteps = stepTitles.length;
-    let textarea, stepTitle, stepQuestion, prevButton, nextButton, goButton, progressFill, charCount, yesNoContainer, tipText, exampleButton, errorMessage;
+    let textarea, stepTitle, stepQuestion, prevButton, nextButton, goButton, progressFill, charCount, yesNoContainer, tipText, exampleButton, errorMessage, loadingSpinner;
     const storageKey = "noCodeAnswers";
     let answers = {};
     let originalAnswer = "";
@@ -1029,6 +1063,7 @@
       tipText = document.getElementById("tipText");
       exampleButton = document.getElementById("exampleButton");
       errorMessage = document.getElementById("errorMessage");
+      loadingSpinner = document.getElementById("loadingSpinner");
 
       updateUI();
 
@@ -1120,6 +1155,7 @@
 
       errorMessage.style.display = "none";
       goButton.style.display = "none";
+      loadingSpinner.style.display = "block";
 
       const rawContent = generateContentFromAnswers(answers);
       localStorage.setItem("rawContent", rawContent);
@@ -1136,6 +1172,7 @@
         errorMessage.style.display = "block";
         localStorage.setItem("generatedContent", rawContent);
       }
+      loadingSpinner.style.display = "none";
       window.location.href = "result-novice.html";
     };
   </script>
