@@ -128,6 +128,7 @@
       max-width: 900px;
       min-height: 400px;
       z-index: 1000;
+      position: relative;
     }
 
     .step-container {
@@ -359,48 +360,29 @@
     }
 
     .carousel-button-left {
-      left: 1.5rem;
+      left: -22.5px;
     }
 
     .carousel-button-right {
-      right: 1.5rem;
+      right: -22.5px;
     }
 
     .carousel-button-left:hover, .carousel-button-right:hover, .generate-spec-button:hover {
       background: #005ea2;
-      transform: translateY(-3px);
+      transform: translateY(-50%) translateY(-3px);
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .generate-spec-button {
+      right: -22.5px;
     }
 
     .generate-spec-button:disabled {
       background: #ddd;
       color: #666;
       cursor: not-allowed;
-      transform: none;
-      box-shadow: none;
-    }
-
-    .loading-spinner {
-      position: absolute;
-      top: 50%;
-      right: 1.5rem;
       transform: translateY(-50%);
-      width: 45px;
-      height: 45px;
-    }
-
-    .spinner-circle {
-      width: 100%;
-      height: 100%;
-      border: 4px solid #f3f3f3;
-      border-top: 4px solid #0078d4;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+      box-shadow: none;
     }
 
     footer {
@@ -502,11 +484,11 @@
       }
 
       .carousel-button-left {
-        left: 1rem;
+        left: -20px;
       }
 
-      .carousel-button-right {
-        right: 1rem;
+      .carousel-button-right, .generate-spec-button {
+        right: -20px;
       }
 
       .progress-bar {
@@ -580,11 +562,11 @@
       }
 
       .carousel-button-left {
-        left: 0.5rem;
+        left: -17.5px;
       }
 
-      .carousel-button-right {
-        right: 0.5rem;
+      .carousel-button-right, .generate-spec-button {
+        right: -17.5px;
       }
 
       .indicator-item {
@@ -606,9 +588,8 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .carousel-button-left, .carousel-button-right, .generate-spec-button, .tip-icon, .example-button, .spinner-circle {
+      .carousel-button-left, .carousel-button-right, .generate-spec-button, .tip-icon, .example-button {
         transition: none;
-        animation: none;
       }
     }
   </style>
@@ -621,10 +602,10 @@
   </header>
 
   <div class="carousel-container">
-    <button id="prevButton" class="carousel-button-left" onclick="prevStep()" aria-label="Previous step" style="display: none;">
-      <i class="fas fa-arrow-left"></i>
-    </button>
     <div id="carouselContent" class="carousel-content">
+      <button id="prevButton" class="carousel-button-left" onclick="prevStep()" aria-label="Previous step" style="display: none;">
+        <i class="fas fa-arrow-left"></i>
+      </button>
       <div class="step-container">
         <h3 id="stepTitle">Name</h3>
         <div class="question-wrapper">
@@ -695,7 +676,7 @@
         <h3 id="stepTitle">Features</h3>
         <div class="question-wrapper">
           <p id="stepQuestion" class="question-label"></p>
-          <i class="fas fa-lightbulb" aria-label="Show tip"></i>
+          <i class="fas fa-lightbulb tip-icon" aria-label="Show tip"></i>
           <div id="tipText2" class="tip-tooltip"><span class="close-tip" onclick="this.parentElement.style.display='none'">×</span></div>
         </div>
         <textarea id="stepTextarea2" class="step-textarea" maxlength="2500" placeholder="Enter your app’s key features..." aria-label="Answer the current question"></textarea>
@@ -724,15 +705,12 @@
           </div>
         </div>
       </div>
-    </div>
-    <button id="nextButton" class="carousel-button-right" onclick="nextStep()" aria-label="Next step">
-      <i class="fas fa-arrow-right"></i>
-    </button>
-    <button id="goButton" class="carousel-button-right generate-spec-button" onclick="generateSpecification()" style="display: none;" disabled aria-label="Go to generate market research">
-      <i class="fas fa-rocket"></i>
-    </button>
-    <div id="loadingSpinner" class="loading-spinner" style="display: none;">
-      <div class="spinner-circle"></div>
+      <button id="nextButton" class="carousel-button-right" onclick="nextStep()" aria-label="Next step">
+        <i class="fas fa-arrow-right"></i>
+      </button>
+      <button id="goButton" class="carousel-button-right generate-spec-button" onclick="generateSpecification()" style="display: none;" disabled aria-label="Go to generate market research">
+        <i class="fas fa-rocket"></i>
+      </button>
     </div>
   </div>
 
@@ -746,11 +724,11 @@
       </div>
       <span class="footer-divider">|</span>
       <div class="footer-social">
-        <a href="https://www.linkedin.com/company/supersy-ai/" aria-label="Follow us on LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+        <a href="https://www.linkedin.com/company/specifys-ai/" aria-label="Follow us on LinkedIn"><i class="fab fa-linkedin-in"></i></a>
         <a href="https://www.facebook.com/profile.php?id=61576402600129&locale=he_IL" target="_blank" aria-label="Follow us on Facebook"><i class="fab fa-facebook-f"></i></a>
         <a href="https://www.instagram.com/YOUR_PROFILE" aria-label="Follow us on Instagram"><i class="fab fa-instagram"></i></a>
         <a href="mailto:specifysai@gmail.com" aria-label="Send us an email"><i class="fas fa-envelope"></i></a>
-        <a href="https://www.producthunt.com/products/supersy-ai" target="_blank" aria-label="Check us out on Product Hunt"><i class="fab fa-product-hunt"></i></a>
+        <a href="https://www.producthunt.com/products/specifys-ai" target="_blank" aria-label="Check us out on Product Hunt"><i class="fab fa-product-hunt"></i></a>
       </div>
     </div>
     <div class="footer-copyright">
@@ -781,7 +759,7 @@
 
     let currentStep = 0;
     const totalSteps = questions.length;
-    let textareas, charCounts, prevButton, nextButton, goButton, loadingSpinner, tipTexts, exampleButtons, errorMessages;
+    let textareas, charCounts, prevButton, nextButton, goButton, tipTexts, exampleButtons, errorMessages;
     const storageKey = "marketAnswers";
     let answers = JSON.parse(localStorage.getItem(storageKey)) || {};
     let originalAnswers = ["", "", ""];
@@ -822,7 +800,6 @@
       prevButton.style.display = currentStep === 0 ? "none" : "flex";
       nextButton.style.display = currentStep === totalSteps - 1 ? "none" : "flex";
       goButton.style.display = currentStep === totalSteps - 1 ? "flex" : "none";
-      loadingSpinner.style.display = "none";
 
       document.querySelectorAll(".step-container").forEach((step, index) => {
         step.style.display = index === currentStep ? "block" : "none";
@@ -872,7 +849,6 @@
       prevButton = document.getElementById("prevButton");
       nextButton = document.getElementById("nextButton");
       goButton = document.getElementById("goButton");
-      loadingSpinner = document.getElementById("loadingSpinner");
 
       updateUI();
 
@@ -927,7 +903,6 @@
 
       errorMessages[currentStep].style.display = "none";
       goButton.style.display = "none";
-      loadingSpinner.style.display = "block";
 
       try {
         if (typeof window.generateSpecificationOriginal !== "function") {
@@ -938,10 +913,9 @@
         console.error("Error calling API:", error);
         errorMessages[currentStep].textContent = `Failed to generate market research: ${error.message}.`;
         errorMessages[currentStep].style.display = "block";
-        setTimeout(() => {
-          window.location.href = "result-market.html";
-        }, 2000);
+        localStorage.setItem("generatedContent", JSON.stringify(answers));
       }
+      window.location.href = "result-market.html";
     };
   </script>
 
