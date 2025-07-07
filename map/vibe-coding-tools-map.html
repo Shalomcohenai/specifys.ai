@@ -764,6 +764,11 @@
     const ToolCard = ({ tool }) => {
       const handleClick = () => {
         if (tool.link !== "#") {
+          gtag('event', 'click', {
+            'event_category': 'Tool Link',
+            'event_label': tool.name,
+            'value': tool.link
+          });
           window.open(tool.link, '_blank', 'noopener,noreferrer');
         }
       };
