@@ -1,903 +1,1727 @@
 [
-    {
-      "id": 1,
-      "name": "Bolt.new",
-      "category": "Prompt-to-App Builders",
-      "description": "Build full-stack apps from natural-language prompts with instant hosting.",
-      "link": "https://bolt.new?utm_source=specifys.ai",
-      "rating": 4.6,
-      "pros": ["Rapid prototyping", "Custom code export", "Browser-native execution"],
-      "cons": ["Occasional UI glitches", "Token-based cost"],
-      "special": "new version",
-      "stats": {
-        "users": "3M registered, 1M MAU",
-        "globalRating": 4.6,
-        "monthlyUsage": "N/A",
-        "ARR": "$40M"
-      }
-    },
-    {
-      "id": 2,
-      "name": "Lovable.dev",
-      "category": "Prompt-to-App Builders",
-      "description": "AI-first app builder for startup MVPs via conversational interface.",
-      "link": "hhttps://lovable.dev/?via=shalom",
-      "rating": 4.7,
-      "pros": ["Very easy to use", "Great onboarding"],
-      "cons": ["Limited for large/complex apps"],
-      "stats": {
-        "users": "500K registered",
-        "globalRating": 4.7,
-        "monthlyUsage": "25K apps/day",
-        "ARR": "N/A"
-      }
-    },
-    {
-      "id": 3,
-      "name": "Base44",
-      "category": "Prompt-to-App Builders",
-      "description": "Low-code platform with integrated backend for vibe-style app building.",
-      "link": "https://base44.com/?via=shalom-cohen",
-      "rating": 5.0,
-      "pros": ["Built-in DB/auth/analytics", "One-click launch"],
-      "cons": ["Not suited for complex apps"],
-      "special": "popular",
-      "stats": {
-        "users": "250K users",
-        "globalRating": 5.0,
-        "monthlyUsage": "N/A",
-        "ARR": "Acquired by Wix"
-      }
-    },
-    {
-      "id": 4,
-      "name": "Cursor",
-      "category": "AI-Augmented IDEs & Code Assistants",
-      "description": "AI-powered IDE with GPT-4, offering code completion and context-aware tools.",
-      "link": "https://cursor.com?utm_source=specifys.ai",
-      "rating": 4.5,
-      "pros": ["Context-aware coding", "Team analytics"],
-      "cons": ["Free tier has usage limits", "Premium plans are costly"],
-      "stats": {
-        "users": "200K MAU",
-        "globalRating": 4.5,
-        "monthlyUsage": "N/A",
-        "ARR": "N/A"
-      }
-    },
-    {
-      "id": 5,
-      "name": "Replit Ghostwriter",
-      "category": "AI-Augmented IDEs & Code Assistants",
-      "description": "Cloud-based AI pair programmer integrated in Replit.",
-      "link": "https://replit.com/ghostwriter?utm_source=specifys.ai",
-      "rating": 4.4,
-      "pros": ["In-browser dev", "Real-time suggestions"],
-      "cons": ["Less mature than Copilot", "Occasional inaccuracies"],
-      "special": "new version",
-      "stats": {
-        "users": "22M Replit developers",
-        "globalRating": 4.4,
-        "monthlyUsage": "N/A",
-        "ARR": "N/A"
-      }
-    },
-    {
-      "id": 6,
-      "name": "GitHub Copilot",
-      "category": "AI-Augmented IDEs & Code Assistants",
-      "description": "AI code completion assistant integrated in editors.",
-      "link": "https://github.com/features/copilot?utm_source=specifys.ai",
-      "rating": 4.6,
-      "pros": ["Supports many languages", "Generates tests and code snippets"],
-      "cons": ["Subscription cost", "May generate incorrect code"],
-      "stats": {
-        "users": "1M+ organizations",
-        "globalRating": 4.6,
-        "monthlyUsage": "N/A",
-        "ARR": "N/A"
-      }
-    },
-    {
-      "id": 7,
-      "name": "Qodo",
-      "category": "AI Agent & Workflow Tools",
-      "description": "AI assistant for code quality and test automation.",
-      "link": "https://qodo.dev?utm_source=specifys.ai",
-      "rating": 4.3,
-      "pros": ["Test coverage suggestions", "Automated code reviews"],
-      "cons": ["Early access only", "Limited language support"],
-      "stats": {
-        "users": "50K developers",
-        "globalRating": 4.3,
-        "monthlyUsage": "N/A",
-        "ARR": "N/A"
-      }
-    },
-    {
-      "id": 8,
-      "name": "Sweep",
-      "category": "AI Agent & Workflow Tools",
-      "description": "GitHub-bot that turns issues into pull requests automatically.",
-      "link": "https://github.com/sweepai/sweep?utm_source=specifys.ai",
-      "rating": 4.2,
-      "pros": ["Speeds up dev workflow", "Auto PR generation"],
-      "cons": ["Needs manual review", "GitHub-only"],
-      "stats": {
-        "users": "20K organizations",
-        "globalRating": 4.2,
-        "monthlyUsage": "N/A",
-        "ARR": "N/A"
-      }
-    },
-    {
-      "id": 9,
-      "name": "Google Ads",
-      "category": "Deployment & Marketing Integrations",
-      "description": "AI-enhanced ad campaign management.",
-      "link": "https://ads.google.com?utm_source=specifys.ai",
-      "rating": 4.0,
-      "pros": ["Wide global reach", "Smart targeting with AI"],
-      "cons": ["Can be expensive", "Opaque algorithms"],
-      "stats": {
-        "users": "5M+ advertisers",
-        "globalRating": 3.9,
-        "monthlyUsage": "20M hours",
-        "ARR": "N/A"
-      }
-    },
-    {
-      "id": 10,
-      "name": "Zapier",
-      "category": "Deployment & Marketing Integrations",
-      "description": "Automate workflows and publish integrations across apps.",
-      "link": "https://zapier.com?utm_source=specifys.ai",
-      "rating": 4.5,
-      "pros": ["Large ecosystem", "Easy automation builder"],
-      "cons": ["Subscription required", "Complex workflows need premium"],
-      "special": "new integration",
-      "stats": {
-        "users": "4M+ users",
-        "globalRating": 4.5,
-        "monthlyUsage": "N/A",
-        "ARR": "$1B+"
-      }
-    },
-    {
-      "id": 11,
-      "name": "Softr",
-      "category": "Prompt-to-App Builders",
-      "description": "No-code platform that turns Airtable/Google Sheets into functional web apps quickly.",
-      "link": "https://softr.io?utm_source=specifys.ai",
-      "rating": 4.5,
-      "pros": ["Easy to use", "Built-in templates", "Great Airtable support"],
-      "cons": ["Limited customization", "Features reduced recently"],
-      "stats": {
-        "globalRating": 4.5,
-        "monthlyUsage": "N/A",
-        "ARR": "N/A"
-      }
-    },
-    {
-      "id": 12,
-      "name": "Uizard",
-      "category": "Prototyping Tools",
-      "description": "AI-powered UI design tool—turn text, screenshots, or wireframes into designs.",
-      "link": "https://uizard.io?utm_source=specifys.ai",
-      "rating": 4.7,
-      "pros": ["Autodesigner 2.0", "Screenshot scanner", "Collaborative design"],
-      "cons": ["Still in alpha", "Occasional layout issues"],
-      "special": "new version",
-      "stats": {
-        "globalRating": 4.7,
-        "monthlyUsage": "N/A",
-        "ARR": "N/A"
-      }
-    },
-    {
-      "id": 13,
-      "name": "Midjourney",
-      "category": "User Design",
-      "description": "AI image-generation tool for visuals, moodboards and design assets.",
-      "link": "https://midjourney.com?utm_source=specifys.ai",
-      "rating": 4.8,
-      "pros": ["High-quality visuals", "Strong community", "Frequent updates"],
-      "cons": ["Discord-based UI", "Subscription required"],
-      "stats": {
-        "users": "20M+ Discord users",
-        "globalRating": 4.8,
-        "monthlyUsage": "1.2–2.5M DAU",
-        "ARR": "$300M"
-      }
-    },
-    {
-      "id": 14,
-      "name": "UX Pilot",
-      "category": "Prototyping Tools",
-      "description": "AI prompts generator for rapid wireframe creation.",
-      "link": "https://uxpilot.ai?utm_source=specifys.ai",
-      "rating": 4.2,
-      "pros": ["Fast wireframing", "Prompt refinement tools"],
-      "cons": ["Limited free plan", "Prototype only, no code output"],
-      "stats": {
-        "globalRating": 4.2,
-        "monthlyUsage": "N/A"
-      }
-    },
-    {
-      "id": 15,
-      "name": "Create",
-      "category": "Prompt-to-App Builders",
-      "description": "One-prompt app builder that generates complete app structure.",
-      "link": "https://create.xyz?utm_source=specifys.ai",
-      "rating": 4.3,
-      "pros": ["Single prompt simplicity", "Fast scaffolding"],
-      "cons": ["Basic UI", "Limited integrations"],
-      "stats": {
-        "globalRating": 4.3,
-        "monthlyUsage": "N/A"
-      }
-    },
-    {
-      "id": 16,
-      "name": "Replit AI App Builder",
-      "category": "Prompt-to-App Builders",
-      "description": "Generate cloud apps from prompts inside Replit.",
-      "link": "https://replit.com?utm_source=specifys.ai",
-      "rating": 4.3,
-      "pros": ["Cloud-native", "Fast preview"],
-      "cons": ["Feature parity missing"],
-      "stats": {
-        "users": "22M developers",
-        "globalRating": 4.3
-      }
-    },
-    {
-      "id": 17,
-      "name": "Rocket.new",
-      "category": "Prompt-to-App Builders",
-      "description": "Cloud IDE for prompt-based app generation.",
-      "link": "https://rocket.new?utm_source=specifys.ai",
-      "rating": 4.0,
-      "pros": ["Quick scaffold", "Collaboration"],
-      "cons": ["Beta status"],
-      "stats": {
-        "users": "N/A",
-        "globalRating": 4.0
-      }
-    },
-    {
-      "id": 18,
-      "name": "Figma AI",
-      "category": "User Design",
-      "description": "Built-in AI features in Figma & FigJam for design generation.",
-      "link": "https://figma.com?utm_source=specifys.ai",
-      "rating": 4.6,
-      "pros": ["Native integration", "Multi-use in FigJam"],
-      "cons": ["Limited plugin monetization"],
-      "special": "new version",
-      "stats": {
-        "users": "4M users",
-        "globalRating": 4.6
-      }
-    },
-    {
-      "id": 19,
-      "name": "Canva AI",
-      "category": "User Design",
-      "description": "AI tools inside Canva—Magic Studio, Sheets, design assistant.",
-      "link": "https://canva.com?utm_source=specifys.ai",
-      "rating": 4.7,
-      "pros": ["Huge user base", "Powerful AI features"],
-      "cons": ["Enterprise pricing"],
-      "special": "new version",
-      "stats": {
-        "users": "220M MAU",
-        "globalRating": 4.7,
-        "ARR": "$3B"
-      }
-    },
-    {
-      "id": 20,
-      "name": "Uizard",
-      "category": "Prototyping Tools",
-      "description": "Turns sketches/text into UI designs automatically.",
-      "link": "https://uizard.io?utm_source=specifys.ai",
-      "rating": 4.5,
-      "pros": ["Text-to-design", "Screenshot import"],
-      "cons": ["Alpha stage bugs"],
-      "stats": {
-        "users": "N/A",
-        "globalRating": 4.5
-      }
-    },
-    {
-      "id": 21,
-      "name": "Midjourney",
-      "category": "User Design",
-      "description": "AI image-generation tool for visuals, moodboards and design assets.",
-      "link": "https://midjourney.com?utm_source=specifys.ai",
-      "rating": 4.8,
-      "pros": ["High-quality visuals", "Strong community"],
-      "cons": ["Discord-based UI", "Subscription required"],
-      "stats": {
-        "users": "20M Discord users",
-        "globalRating": 4.8
-      }
-    },
-    {
-      "id": 22,
-      "name": "UX Pilot",
-      "category": "Prototyping Tools",
-      "description": "AI prompts generator for rapid wireframe creation.",
-      "link": "https://uxpilot.ai?utm_source=specifys.ai",
-      "rating": 4.2,
-      "pros": ["Fast wireframing", "Prompt refinement tools"],
-      "cons": ["Limited free plan", "No code output"],
-      "stats": {
-        "users": "N/A",
-        "globalRating": 4.2
-      }
-    },
-    {
-      "id": 23,
-      "name": "Codium (Qodo)",
-      "category": "AI-Augmented IDEs & Code Assistants",
-      "description": "AI suggestions and automatic test generation in IDEs.",
-      "link": "https://qodo.ai?utm_source=specifys.ai",
-      "rating": 4.3,
-      "pros": ["Test generation", "Code review suggestions"],
-      "cons": ["Early access", "Limited language support"],
-      "stats": {
-        "users": "50K devs",
-        "globalRating": 4.3
-      }
-    },
-    {
-      "id": 24,
-      "name": "Codeium & Windsurf",
-      "category": "AI-Augmented IDEs & Code Assistants",
-      "description": "Free AI code IDE with full-context awareness.",
-      "link": "https://codeium.com?utm_source=specifys.ai",
-      "rating": 4.5,
-      "pros": ["Completely free", "Context-aware suggestions"],
-      "cons": ["Occasional latency"],
-      "stats": {
-        "users": "N/A",
-        "globalRating": 4.5
-      }
-    },
-    {
-      "id": 25,
-      "name": "Tabnine",
-      "category": "AI-Augmented IDEs & Code Assistants",
-      "description": "Privacy-first AI code completion and predictions.",
-      "link": "https://tabnine.com?utm_source=specifys.ai",
-      "rating": 4.4,
-      "pros": ["Local model options", "Team management"],
-      "cons": ["Subscription cost"],
-      "stats": {
-        "users": "N/A",
-        "globalRating": 4.4
-      }
-    },
-    {
-      "id": 26,
-      "name": "Vercel",
-      "category": "Deployment & Marketing Integrations",
-      "description": "Instant deployment platform for JAMstack apps, with built-in analytics & edge functions.",
-      "link": "https://vercel.com?utm_source=specifys.ai",
-      "rating": 4.5,
-      "pros": ["4M+ live sites", "30B weekly requests", "Enterprise usage dashboard"],
-      "cons": ["Pricing complexity", "Limited logs on lower tiers"],
-      "stats": {
-        "users": "4M+ live websites",
-        "globalRating": 4.5,
-        "monthlyUsage": "30B requests/week",
-        "ARR": "$100M"
-      }
-    },
-    {
-      "id": 27,
-      "name": "Netlify",
-      "category": "Deployment & Marketing Integrations",
-      "description": "Automated deployment platform with real-time analytics and serverless functions.",
-      "link": "https://netlify.com?utm_source=specifys.ai",
-      "rating": 4.4,
-      "pros": ["Pro analytics", "Functions support", "Simple CI/CD"],
-      "cons": ["Bandwidth limits", "Limited historic metrics"],
-      "stats": {
-        "users": "N/A",
-        "globalRating": 4.4,
-        "monthlyUsage": "N/A"
-      }
-    },
-    {
-      "id": 28,
-      "name": "Zapier",
-      "category": "Deployment & Marketing Integrations",
-      "description": "Automate workflows and publish integrations across apps.",
-      "link": "https://zapier.com?utm_source=specifys.ai",
-      "rating": 4.5,
-      "pros": ["Huge ecosystem", "Easy automation builder"],
-      "cons": ["Subscription required", "Complex workflows need premium"],
-      "stats": {
-        "users": "4M+ users",
-        "globalRating": 4.5,
-        "ARR": ">$1B"
-      }
-    },
-    {
-      "id": 29,
-      "name": "Make (Integromat)",
-      "category": "Deployment & Marketing Integrations",
-      "description": "Visual automation platform to connect apps and streamline workflows.",
-      "link": "https://make.com?utm_source=specifys.ai",
-      "rating": 4.3,
-      "pros": ["Flexible scenario builder", "Detailed usage metrics"],
-      "cons": ["Learning curve", "Complex pricing"],
-      "stats": {
-        "users": "1M+ workflows",
-        "globalRating": 4.3
-      }
-    },
-    {
-      "id": 30,
-      "name": "Salesforce Marketing Cloud",
-      "category": "Deployment & Marketing Integrations",
-      "description": "Enterprise-scale marketing automation with AI-driven analytics and campaign management.",
-      "link": "https://salesforce.com/marketing-cloud?utm_source=specifys.ai",
-      "rating": 4.4,
-      "pros": ["Full-featured", "High ROI reported"],
-      "cons": ["Complex setup", "High cost"],
-      "stats": {
-        "users": "150K+ business customers",
-        "globalRating": 4.4,
-        "ARR": "N/A"
-      }
-    },
-    {
-      "id": 31,
-      "name": "Customer.io",
-      "category": "Deployment & Marketing Integrations",
-      "description": "Targeted messaging & campaign automation based on audience behavior.",
-      "link": "https://customer.io?utm_source=specifys.ai",
-      "rating": 4.3,
-      "pros": ["In-app messaging", "Event-driven campaigns"],
-      "cons": ["API complexity", "Pricing tiers"],
-      "stats": {
-        "users": "17K+ live sites",
-        "globalRating": 4.3
-      }
-    },
-    {
-      "id": 32,
-      "name": "Zoho Marketing Automation",
-      "category": "Deployment & Marketing Integrations",
-      "description": "Multi-channel marketing automation with AI lead scoring and analytics.",
-      "link": "https://zoho.com/marketingautomation?utm_source=specifys.ai",
-      "rating": 4.2,
-      "pros": ["Predictive lead scoring", "Integrated analytics"],
-      "cons": ["Some UX complexity"],
-      "stats": {
-        "users": "10M+ users",
-        "globalRating": 4.2
-      }
-    },
-    {
-      "id": 33,
-      "name": "HubSpot Marketing Hub",
-      "category": "Deployment & Marketing Integrations",
-      "description": "CRM-integrated marketing tools with email, content, AI personalization.",
-      "link": "https://hubspot.com?utm_source=specifys.ai",
-      "rating": 4.5,
-      "pros": ["505% ROI average", "Daily active usage 86%"],
-      "cons": ["Subscription cost", "Feature overload"],
-      "stats": {
-        "users": "238K+ companies",
-        "globalRating": 4.5
-      }
-    },
-    {
-      "id": 34,
-      "name": "Hightouch",
-      "category": "Deployment & Marketing Integrations",
-      "description": "Customer data platform syncing warehouse data to business tools.",
-      "link": "https://hightouch.com?utm_source=specifys.ai",
-      "rating": 4.4,
-      "pros": ["Supports Snowflake/Redshift sync", "Composable workflows"],
-      "cons": ["Enterprise pricing", "Setup complexity"],
-      "stats": {
-        "users": "600+ customers",
-        "globalRating": 4.4,
-        "ARR": "$20M"
-      }
-    },
-    {
-      "id": 35,
-      "name": "Adobe LLM Optimizer",
-      "category": "Deployment & Marketing Integrations",
-      "description": "AI tool for optimizing ad performance and creative across Adobe platforms.",
-      "link": "https://adobe.com?utm_source=specifys.ai",
-      "rating": 4.2,
-      "pros": ["Integrates with Adobe suite", "Helps ad optimization"],
-      "cons": ["Enterprise-only", "High cost"],
-      "stats": {
-        "users": "N/A",
-        "globalRating": 4.2
-      }
-    },
-    {
-      "id": 36,
-      "name": "Make (Integromat)",
-      "category": "Deployment & Marketing Integrations",
-      "description": "Visual automation platform to connect apps and streamline workflows.",
-      "link": "https://make.com?utm_source=specifys.ai",
-      "rating": 4.3,
-      "pros": ["Flexible scenario builder", "Detailed usage metrics"],
-      "cons": ["Learning curve", "Complex pricing"],
-      "stats": {
-        "users": "1M+ workflows",
-        "globalRating": 4.3
-      }
-    },
-    {
-      "id": 37,
-      "name": "Gumloop",
-      "category": "AI Agent & Workflow Tools",
-      "description": "Advanced marketing automation powered by AI.",
-      "link": "https://gumloop.com?utm_source=specifys.ai",
-      "rating": 4.1,
-      "pros": ["Smart sequence optimization", "Email & DM support"],
-      "cons": ["Emerging tool", "Limited integration"],
-      "stats": {
-        "users": "5K+ marketers",
-        "globalRating": 4.1
-      }
-    },
-    {
-      "id": 38,
-      "name": "Databutton Agent",
-      "category": "AI Agent & Workflow Tools",
-      "description": "Agentic tool that builds apps through conversation workflows.",
-      "link": "https://databutton.com/agent?utm_source=specifys.ai",
-      "rating": 4.2,
-      "pros": ["Chat-driven build", "Extensible agent logic"],
-      "cons": ["Still beta", "Feature gaps"],
-      "stats": {
-        "users": "10K+ devs",
-        "globalRating": 4.2
-      }
-    },
-    {
-      "id": 39,
-      "name": "Replit Agent",
-      "category": "AI Agent & Workflow Tools",
-      "description": "Autonomous AI agent in Replit for generating and maintaining code.",
-      "link": "https://replit.com/agent?utm_source=specifys.ai",
-      "rating": 4.3,
-      "pros": ["Cloud-integrated", "Task automation"],
-      "cons": ["Early release", "Limited features"],
-      "stats": {
-        "users": "22M devs",
-        "globalRating": 4.3
-      }
-    },
-    {
-      "id": 40,
-      "name": "Google Jules",
-      "category": "AI Agent & Workflow Tools",
-      "description": "Asynchronous code assistant from Google for codebase tasks.",
-      "link": "https://google.com/jules?utm_source=specifys.ai",
-      "rating": 4.0,
-      "pros": ["Runs asynchronously", "Backed by Google LLM"],
-      "cons": ["Private beta", "Limited access"],
-      "stats": {
-        "users": "Limited beta",
-        "globalRating": 4.0
-      }
-    },
-    {
-      "id": 41,
-      "name": "OpenAI Codex Agent",
-      "category": "AI Agent & Workflow Tools",
-      "description": "Autonomous agent using Codex to generate, test, and refactor code.",
-      "link": "https://openai.com/codex?utm_source=specifys.ai",
-      "rating": 4.2,
-      "pros": ["Automates dev tasks", "Built on Codex"],
-      "cons": ["Depends on prompt quality", "Edge cases"],
-      "stats": {
-        "users": "Dev preview users",
-        "globalRating": 4.2
-      }
-    },
-    {
-      "id": 42,
-      "name": "Anthropic Claude Agent",
-      "category": "AI Agent & Workflow Tools",
-      "description": "Productive Claude-based agent designed for dev workflows.",
-      "link": "https://claude.ai/agent?utm_source=specifys.ai",
-      "rating": 4.3,
-      "pros": ["Explainable logic", "Secure by design"],
-      "cons": ["Limited domain support", "Performance costs"],
-      "stats": {
-        "users": "10K+ in private beta",
-        "globalRating": 4.3
-      }
-    },
-    {
-      "id": 43,
-      "name": "GitHub Actions AI Integrations",
-      "category": "AI Agent & Workflow Tools",
-      "description": "LLM-powered steps and PR bots built into GitHub Actions.",
-      "link": "https://github.com/features/actions?utm_source=specifys.ai",
-      "rating": 4.4,
-      "pros": ["Seamless CI/CD integration", "Large community support"],
-      "cons": ["Complex setup", "Approx billing"],
-      "stats": {
-        "users": "Millions of repos",
-        "globalRating": 4.4
-      }
-    },
-    {
-      "id": 44,
-      "name": "Zapier AI",
-      "category": "AI Agent & Workflow Tools",
-      "description": "AI-enhanced automation inside Zapier workflows.",
-      "link": "https://zapier.com/ai?utm_source=specifys.ai",
-      "rating": 4.5,
-      "pros": ["Smart field mapping", "Natural language setup"],
-      "cons": ["Available on paid plans", "Beta behavior"],
-      "stats": {
-        "users": "4M+ users",
-        "globalRating": 4.5
-      }
-    },
-    {
-      "id": 45,
-      "name": "Salesforce Marketing Cloud",
-      "category": "Deployment & Marketing Integrations",
-      "description": "Enterprise-scale marketing automation with AI analytics.",
-      "link": "https://salesforce.com/marketing-cloud?utm_source=specifys.ai",
-      "rating": 4.4,
-      "pros": ["Feature-rich", "High ROI"],
-      "cons": ["Complex UI", "High pricing"],
-      "stats": {
-        "users": "150K+ businesses",
-        "globalRating": 4.4
-      }
-    },
-    {
-      "id": 46,
-      "name": "Bubble",
-      "category": "Prompt-to-App Builders",
-      "description": "No-code platform for building web and mobile apps with AI-assisted design.",
-      "link": "https://bubble.io?utm_source=specifys.ai",
-      "rating": 4.6,
-      "pros": ["Highly customizable", "Large community", "AI plugins"],
-      "cons": ["Steep learning curve", "Pricing for scale"],
-      "stats": {"users": "1M+ creators", "globalRating": 4.6, "monthlyUsage": "N/A", "ARR": "N/A"}
-    },
-    {
-      "id": 47,
-      "name": "Glide",
-      "category": "Prompt-to-App Builders",
-      "description": "Turns Google Sheets into fully functional apps with AI enhancements.",
-      "link": "https://www.glideapps.com?utm_source=specifys.ai",
-      "rating": 4.4,
-      "pros": ["Easy setup", "Mobile-friendly", "AI data insights"],
-      "cons": ["Limited advanced features", "Subscription costs"],
-      "stats": {"users": "500K+ users", "globalRating": 4.4, "monthlyUsage": "N/A", "ARR": "N/A"}
-    },
-    {
-      "id": 48,
-      "name": "Adobe XD with AI",
-      "category": "User Design",
-      "description": "AI-powered design and prototyping tool with advanced mockup generation.",
-      "link": "https://www.adobe.com/products/xd.html?utm_source=specifys.ai",
-      "rating": 4.7,
-      "pros": ["Seamless Adobe integration", "AI mockups", "Collaboration tools"],
-      "cons": ["Subscription-based", "Learning curve"],
-      "stats": {"users": "2M+ designers", "globalRating": 4.7, "monthlyUsage": "N/A", "ARR": "N/A"}
-    },
-    {
-      "id": 49,
-      "name": "Sketch with AI Plugins",
-      "category": "User Design",
-      "description": "Vector-based UI design tool enhanced with AI plugins for automation.",
-      "link": "https://www.sketch.com?utm_source=specifys.ai",
-      "rating": 4.6,
-      "pros": ["Lightweight", "AI symbol generation", "Mac-focused"],
-      "cons": ["Mac-only", "Plugin dependency"],
-      "stats": {"users": "1.5M+ users", "globalRating": 4.6, "monthlyUsage": "N/A", "ARR": "N/A"}
-    },
-    {
-      "id": 50,
-      "name": "InVision with AI",
-      "category": "Prototyping Tools",
-      "description": "Collaborative prototyping tool with AI-driven design suggestions.",
-      "link": "https://www.invisionapp.com?utm_source=specifys.ai",
-      "rating": 4.5,
-      "pros": ["Team collaboration", "AI feedback", "Prototyping ease"],
-      "cons": ["Limited free tier", "Complex for beginners"],
-      "stats": {"users": "7M+ users", "globalRating": 4.5, "monthlyUsage": "N/A", "ARR": "N/A"}
-    },
-    {
-      "id": 51,
-      "name": "Axure RP",
-      "category": "Prototyping Tools",
-      "description": "Advanced prototyping tool with AI-assisted wireframe generation.",
-      "link": "https://www.axure.com?utm_source=specifys.ai",
-      "rating": 4.6,
-      "pros": ["Detailed prototypes", "AI automation", "Team features"],
-      "cons": ["High cost", "Steep learning curve"],
-      "stats": {"users": "500K+ professionals", "globalRating": 4.6, "monthlyUsage": "N/A", "ARR": "N/A"}
-    },
-    {
-      "id": 52,
-      "name": "JetBrains AI Assistant",
-      "category": "AI-Augmented IDEs & Code Assistants",
-      "description": "AI-powered coding assistant integrated into JetBrains IDEs.",
-      "link": "https://www.jetbrains.com/ai?utm_source=specifys.ai",
-      "rating": 4.7,
-      "pros": ["Deep IDE integration", "Multi-language support", "Code refactoring"],
-      "cons": ["Subscription cost", "Requires JetBrains IDE"],
-      "stats": {"users": "10M+ developers", "globalRating": 4.7, "monthlyUsage": "N/A", "ARR": "N/A"}
-    },
-    {
-      "id": 53,
-      "name": "DeepCode",
-      "category": "AI-Augmented IDEs & Code Assistants",
-      "description": "AI-driven code review and suggestion tool for multiple languages.",
-      "link": "https://www.deepcode.ai?utm_source=specifys.ai",
-      "rating": 4.4,
-      "pros": ["Accurate bug detection", "Cross-platform", "Open-source support"],
-      "cons": ["Limited free tier", "Setup complexity"],
-      "stats": {"users": "200K+ users", "globalRating": 4.4, "monthlyUsage": "N/A", "ARR": "N/A"}
-    },
-    {
-      "id": 54,
-      "name": "Automatisch",
-      "category": "AI Agent & Workflow Tools",
-      "description": "Open-source workflow automation tool with AI enhancements.",
-      "link": "https://automatisch.io?utm_source=specifys.ai",
-      "rating": 4.3,
-      "pros": ["Free and open-source", "Custom workflows", "AI triggers"],
-      "cons": ["Self-hosting required", "Small community"],
-      "stats": {"users": "50K+ users", "globalRating": 4.3, "monthlyUsage": "N/A", "ARR": "N/A"}
-    },
-    {
-      "id": 55,
-      "name": "Aider",
-      "category": "AI Agent & Workflow Tools",
-      "description": "AI agent for Git-based code editing and automation.",
-      "link": "https://aider.chat?utm_source=specifys.ai",
-      "rating": 4.2,
-      "pros": ["Git integration", "Code generation", "Lightweight"],
-      "cons": ["Early stage", "Limited documentation"],
-      "stats": {"users": "30K+ developers", "globalRating": 4.2, "monthlyUsage": "N/A", "ARR": "N/A"}
-    },
-    {
-      "id": 56,
-      "name": "Cloudflare Workers",
-      "category": "Deployment & Marketing Integrations",
-      "description": "Serverless platform with AI-driven edge computing and analytics.",
-      "link": "https://workers.cloudflare.com?utm_source=specifys.ai",
-      "rating": 4.6,
-      "pros": ["Global edge network", "AI optimization", "Free tier"],
-      "cons": ["Complex for beginners", "Limited compute"],
-      "stats": {"users": "2M+ domains", "globalRating": 4.6, "monthlyUsage": "N/A", "ARR": "N/A"}
-    },
-    {
-      "id": 57,
-      "name": "Mailchimp with AI",
-      "category": "Deployment & Marketing Integrations",
-      "description": "Email marketing platform with AI-powered campaign optimization.",
-      "link": "https://mailchimp.com?utm_source=specifys.ai",
-      "rating": 4.5,
-      "pros": ["AI content suggestions", "Easy setup", "Large user base"],
-      "cons": ["Advanced features cost extra", "Learning curve"],
-      "stats": {"users": "13M+ users", "globalRating": 4.5, "monthlyUsage": "N/A", "ARR": "N/A"}
-    },
-        {
-          "id": 58,
-          "name": "Figma",
-          "category": "User Design",
-          "description": "Collaborative design tool with vector editing, prototyping, and Dev Mode.",
-          "link": "https://figma.com?utm_source=specifys.ai",
-          "rating": 4.7,
-          "pros": ["Real‑time collaboration", "Integrated prototyping & Dev Mode"],
-          "cons": ["Can be heavy on large files", "Enterprise cost"],
-          "stats": {"users": "20M+ designers", "globalRating": 4.7, "monthlyUsage": "N/A", "ARR": "N/A"}
-        },
-        {
-          "id": 59,
-          "name": "Uizard",
-          "category": "User Design",
-          "description": "Turns sketches, text, or screenshots into UI designs automatically.",
-          "link": "https://uizard.io?utm_source=specifys.ai",
-          "rating": 4.5,
-          "pros": ["Text‑to‑design", "Quick mockups"],
-          "cons": ["Alpha bugs", "Layout limitations"],
-          "stats": {"users": "N/A", "globalRating": 4.5, "monthlyUsage": "N/A", "ARR": "N/A"}
-        },
-        {
-          "id": 60,
-          "name": "UX Pilot",
-          "category": "User Design",
-          "description": "AI prompt generator for rapid wireframes and design flows.",
-          "link": "https://uxpilot.ai?utm_source=specifys.ai",
-          "rating": 4.2,
-          "pros": ["Fast wireframing", "Prompt refinement"],
-          "cons": ["Limited free plan", "No code output"],
-          "stats": {"users": "N/A", "globalRating": 4.2, "monthlyUsage": "N/A", "ARR": "N/A"}
-        },
-        {
-          "id": 62,
-          "name": "Adobe Firefly",
-          "category": "User Design",
-          "description": "Generative AI tool integrated in Adobe CC for images, vectors, layouts.",
-          "link": "https://adobe.com/firefly?utm_source=specifys.ai",
-          "rating": 4.6,
-          "pros": ["Deep Adobe integration", "High fidelity assets"],
-          "cons": ["Creative Cloud subscription", "Learning curve"],
-          "stats": {"users": "N/A", "globalRating": 4.6, "monthlyUsage": "N/A", "ARR": "N/A"}
-        },
-        {
-          "id": 63,
-          "name": "Visily",
-          "category": "User Design",
-          "description": "No‑code AI tool for hi‑fi wireframes and prototypes quickly.",
-          "link": "https://visily.ai?utm_source=specifys.ai",
-          "rating": 4.4,
-          "pros": ["No learning curve", "Fast prototyping"],
-          "cons": ["Limited advanced features", "New product"],
-          "stats": {"users": "N/A", "globalRating": 4.4, "monthlyUsage": "N/A", "ARR": "N/A"}
-        },
-        {
-          "id": 64,
-          "name": "Proto.io",
-          "category": "User Design",
-          "description": "Drag‑and‑drop high‑fidelity interactive prototyping platform.",
-          "link": "https://proto.io?utm_source=specifys.ai",
-          "rating": 4.3,
-          "pros": ["Rich interactions", "Developer handoff support"],
-          "cons": ["Desktop focus", "Aging UI"],
-          "stats": {"users": "N/A", "globalRating": 4.3, "monthlyUsage": "N/A", "ARR": "N/A"}
-        },
-        {
-          "id": 65,
-          "name": "Justinmind",
-          "category": "User Design",
-          "description": "Advanced web/mobile prototyping with interactive forms and logic.",
-          "link": "https://justinmind.com?utm_source=specifys.ai",
-          "rating": 4.2,
-          "pros": ["Powerful interactions", "Developer mode"],
-          "cons": ["Complex UI", "Legacy feel"],
-          "stats": {"users": "N/A", "globalRating": 4.2, "monthlyUsage": "N/A", "ARR": "N/A"}
-        },
-        {
-          "id": 66,
-          "name": "Ando",
-          "category": "User Design",
-          "description": "Figma plugin AI copilot with ready‑made widgets and patterns.",
-          "link": "https://mockuuups.studio/ando?utm_source=specifys.ai",
-          "rating": 4.3,
-          "pros": ["50+ widgets", "Speeds up Figma flows"],
-          "cons": ["Plugin dependency", "Limited customization"],
-          "stats": {"users": "N/A", "globalRating": 4.3, "monthlyUsage": "N/A", "ARR": "N/A"}
-        },
-        {
-          "id": 67,
-          "name": "GUser Design",
-          "category": "Prototyping Tools",
-          "description": "AI tool generating UI designs + frontend code from prompts/images.",
-          "link": "https://stitch.google.com?utm_source=specifys.ai",
-          "rating": 4.5,
-          "pros": ["Generates UI + code", "Conversational iteration"],
-          "cons": ["Beta release", "Google ecosystem"],
-          "stats": {"users": "Beta testers", "globalRating": 4.5, "monthlyUsage": "N/A", "ARR": "N/A"}
-        }
-      
-      
+  {
+    "id": 1,
+    "name": "Bolt.new",
+    "category": "Prompt-to-App Builders",
+    "description": "Build full-stack apps from natural-language prompts with instant hosting.",
+    "link": "https://bolt.new?utm_source=specifys.ai",
+    "rating": 4.6,
+    "pros": [
+      "Rapid prototyping",
+      "Custom code export",
+      "Browser-native execution"
+    ],
+    "cons": [
+      "Occasional UI glitches",
+      "Token-based cost"
+    ],
+    "special": "new version",
+    "stats": {
+      "users": "3M registered, 1M MAU",
+      "globalRating": 4.6,
+      "monthlyUsage": "N/A",
+      "ARR": "$40M"
+    }
+  },
+  {
+    "id": 2,
+    "name": "Lovable.dev",
+    "category": "Prompt-to-App Builders",
+    "description": "AI-first app builder for startup MVPs via conversational interface.",
+    "link": "https://lovable.dev/?via=shalom",
+    "rating": 4.7,
+    "pros": [
+      "Very easy to use",
+      "Great onboarding"
+    ],
+    "cons": [
+      "Limited for large/complex apps"
+    ],
+    "stats": {
+      "users": "500K registered",
+      "globalRating": 4.7,
+      "monthlyUsage": "25K apps/day",
+      "ARR": "N/A"
+    }
+  },
+  {
+    "id": 3,
+    "name": "Base44",
+    "category": "Prompt-to-App Builders",
+    "description": "Low-code platform with integrated backend for vibe-style app building.",
+    "link": "https://base44.com/?via=shalom-cohen",
+    "rating": 5.0,
+    "pros": [
+      "Built-in DB/auth/analytics",
+      "One-click launch"
+    ],
+    "cons": [
+      "Not suited for complex apps"
+    ],
+    "special": "popular",
+    "stats": {
+      "users": "250K users",
+      "globalRating": 5.0,
+      "monthlyUsage": "N/A",
+      "ARR": "Acquired by Wix"
+    }
+  },
+  {
+    "id": 4,
+    "name": "Cursor",
+    "category": "AI-Augmented IDEs & Code Assistants",
+    "description": "AI-powered IDE with GPT-4, offering code completion and context-aware tools.",
+    "link": "https://cursor.com?utm_source=specifys.ai",
+    "rating": 4.5,
+    "pros": [
+      "Context-aware coding",
+      "Team analytics"
+    ],
+    "cons": [
+      "Free tier has usage limits",
+      "Premium plans are costly"
+    ],
+    "stats": {
+      "users": "200K MAU",
+      "globalRating": 4.5,
+      "monthlyUsage": "N/A",
+      "ARR": "N/A"
+    }
+  },
+  {
+    "id": 5,
+    "name": "Replit Ghostwriter",
+    "category": "AI-Augmented IDEs & Code Assistants",
+    "description": "Cloud-based AI pair programmer integrated in Replit.",
+    "link": "https://replit.com/ghostwriter?utm_source=specifys.ai",
+    "rating": 4.4,
+    "pros": [
+      "In-browser dev",
+      "Real-time suggestions"
+    ],
+    "cons": [
+      "Less mature than Copilot",
+      "Occasional inaccuracies"
+    ],
+    "special": "new version",
+    "stats": {
+      "users": "22M Replit developers",
+      "globalRating": 4.4,
+      "monthlyUsage": "N/A",
+      "ARR": "N/A"
+    }
+  },
+  {
+    "id": 6,
+    "name": "GitHub Copilot",
+    "category": "AI-Augmented IDEs & Code Assistants",
+    "description": "AI code completion assistant integrated in editors.",
+    "link": "https://github.com/features/copilot?utm_source=specifys.ai",
+    "rating": 4.6,
+    "pros": [
+      "Supports many languages",
+      "Generates tests and code snippets"
+    ],
+    "cons": [
+      "Subscription cost",
+      "May generate incorrect code"
+    ],
+    "stats": {
+      "users": "1M+ organizations",
+      "globalRating": 4.6,
+      "monthlyUsage": "N/A",
+      "ARR": "N/A"
+    }
+  },
+  {
+    "id": 7,
+    "name": "Qodo",
+    "category": "AI Agent & Workflow Tools",
+    "description": "AI assistant for code quality and test automation.",
+    "link": "https://qodo.dev?utm_source=specifys.ai",
+    "rating": 4.3,
+    "pros": [
+      "Test coverage suggestions",
+      "Automated code reviews"
+    ],
+    "cons": [
+      "Early access only",
+      "Limited language support"
+    ],
+    "stats": {
+      "users": "50K developers",
+      "globalRating": 4.3,
+      "monthlyUsage": "N/A",
+      "ARR": "N/A"
+    }
+  },
+  {
+    "id": 8,
+    "name": "Sweep",
+    "category": "AI Agent & Workflow Tools",
+    "description": "GitHub-bot that turns issues into pull requests automatically.",
+    "link": "https://github.com/sweepai/sweep?utm_source=specifys.ai",
+    "rating": 4.2,
+    "pros": [
+      "Speeds up dev workflow",
+      "Auto PR generation"
+    ],
+    "cons": [
+      "Needs manual review",
+      "GitHub-only"
+    ],
+    "stats": {
+      "users": "20K organizations",
+      "globalRating": 4.2,
+      "monthlyUsage": "N/A",
+      "ARR": "N/A"
+    }
+  },
+  {
+    "id": 9,
+    "name": "Google Ads",
+    "category": "Deployment & Marketing Integrations",
+    "description": "AI-enhanced ad campaign management.",
+    "link": "https://ads.google.com?utm_source=specifys.ai",
+    "rating": 4.0,
+    "pros": [
+      "Wide global reach",
+      "Smart targeting with AI"
+    ],
+    "cons": [
+      "Can be expensive",
+      "Opaque algorithms"
+    ],
+    "stats": {
+      "users": "5M+ advertisers",
+      "globalRating": 3.9,
+      "monthlyUsage": "20M hours",
+      "ARR": "N/A"
+    }
+  },
+  {
+    "id": 10,
+    "name": "Zapier",
+    "category": "Deployment & Marketing Integrations",
+    "description": "Automate workflows and publish integrations across apps.",
+    "link": "https://zapier.com?utm_source=specifys.ai",
+    "rating": 4.5,
+    "pros": [
+      "Large ecosystem",
+      "Easy automation builder"
+    ],
+    "cons": [
+      "Subscription required",
+      "Complex workflows need premium"
+    ],
+    "special": "new integration",
+    "stats": {
+      "users": "4M+ users",
+      "globalRating": 4.5,
+      "monthlyUsage": "N/A",
+      "ARR": "$1B+"
+    }
+  },
+  {
+    "id": 11,
+    "name": "Softr",
+    "category": "Prompt-to-App Builders",
+    "description": "No-code platform that turns Airtable/Google Sheets into functional web apps quickly.",
+    "link": "https://softr.io?utm_source=specifys.ai",
+    "rating": 4.5,
+    "pros": [
+      "Easy to use",
+      "Built-in templates",
+      "Great Airtable support"
+    ],
+    "cons": [
+      "Limited customization",
+      "Features reduced recently"
+    ],
+    "stats": {
+      "globalRating": 4.5,
+      "monthlyUsage": "N/A",
+      "ARR": "N/A"
+    }
+  },
+  {
+    "id": 12,
+    "name": "Uizard",
+    "category": "Prototyping Tools",
+    "description": "AI-powered UI design tool\u2014turn text, screenshots, or wireframes into designs.",
+    "link": "https://uizard.io?utm_source=specifys.ai",
+    "rating": 4.7,
+    "pros": [
+      "Autodesigner 2.0",
+      "Screenshot scanner",
+      "Collaborative design"
+    ],
+    "cons": [
+      "Still in alpha",
+      "Occasional layout issues"
+    ],
+    "special": "new version",
+    "stats": {
+      "globalRating": 4.7,
+      "monthlyUsage": "N/A",
+      "ARR": "N/A"
+    }
+  },
+  {
+    "id": 13,
+    "name": "Midjourney",
+    "category": "User Design",
+    "description": "AI image-generation tool for visuals, moodboards and design assets.",
+    "link": "https://midjourney.com?utm_source=specifys.ai",
+    "rating": 4.8,
+    "pros": [
+      "High-quality visuals",
+      "Strong community",
+      "Frequent updates"
+    ],
+    "cons": [
+      "Discord-based UI",
+      "Subscription required"
+    ],
+    "stats": {
+      "users": "20M+ Discord users",
+      "globalRating": 4.8,
+      "monthlyUsage": "1.2\u20132.5M DAU",
+      "ARR": "$300M"
+    }
+  },
+  {
+    "id": 14,
+    "name": "UX Pilot",
+    "category": "Prototyping Tools",
+    "description": "AI prompts generator for rapid wireframe creation.",
+    "link": "https://uxpilot.ai?utm_source=specifys.ai",
+    "rating": 4.2,
+    "pros": [
+      "Fast wireframing",
+      "Prompt refinement tools"
+    ],
+    "cons": [
+      "Limited free plan",
+      "Prototype only, no code output"
+    ],
+    "stats": {
+      "globalRating": 4.2,
+      "monthlyUsage": "N/A"
+    }
+  },
+  {
+    "id": 15,
+    "name": "Create",
+    "category": "Prompt-to-App Builders",
+    "description": "One-prompt app builder that generates complete app structure.",
+    "link": "https://create.xyz?utm_source=specifys.ai",
+    "rating": 4.3,
+    "pros": [
+      "Single prompt simplicity",
+      "Fast scaffolding"
+    ],
+    "cons": [
+      "Basic UI",
+      "Limited integrations"
+    ],
+    "stats": {
+      "globalRating": 4.3,
+      "monthlyUsage": "N/A"
+    }
+  },
+  {
+    "id": 16,
+    "name": "Replit AI App Builder",
+    "category": "Prompt-to-App Builders",
+    "description": "Generate cloud apps from prompts inside Replit.",
+    "link": "https://replit.com?utm_source=specifys.ai",
+    "rating": 4.3,
+    "pros": [
+      "Cloud-native",
+      "Fast preview"
+    ],
+    "cons": [
+      "Feature parity missing"
+    ],
+    "stats": {
+      "users": "22M developers",
+      "globalRating": 4.3
+    }
+  },
+  {
+    "id": 17,
+    "name": "Rocket.new",
+    "category": "Prompt-to-App Builders",
+    "description": "Cloud IDE for prompt-based app generation.",
+    "link": "https://rocket.new?utm_source=specifys.ai",
+    "rating": 4.0,
+    "pros": [
+      "Quick scaffold",
+      "Collaboration"
+    ],
+    "cons": [
+      "Beta status"
+    ],
+    "stats": {
+      "users": "N/A",
+      "globalRating": 4.0
+    }
+  },
+  {
+    "id": 18,
+    "name": "Figma AI",
+    "category": "User Design",
+    "description": "Built-in AI features in Figma & FigJam for design generation.",
+    "link": "https://figma.com?utm_source=specifys.ai",
+    "rating": 4.6,
+    "pros": [
+      "Native integration",
+      "Multi-use in FigJam"
+    ],
+    "cons": [
+      "Limited plugin monetization"
+    ],
+    "special": "new version",
+    "stats": {
+      "users": "4M users",
+      "globalRating": 4.6
+    }
+  },
+  {
+    "id": 19,
+    "name": "Canva AI",
+    "category": "User Design",
+    "description": "AI tools inside Canva\u2014Magic Studio, Sheets, design assistant.",
+    "link": "https://canva.com?utm_source=specifys.ai",
+    "rating": 4.7,
+    "pros": [
+      "Huge user base",
+      "Powerful AI features"
+    ],
+    "cons": [
+      "Enterprise pricing"
+    ],
+    "special": "new version",
+    "stats": {
+      "users": "220M MAU",
+      "globalRating": 4.7,
+      "ARR": "$3B"
+    }
+  },
+  {
+    "id": 20,
+    "name": "Codium (Qodo)",
+    "category": "AI-Augmented IDEs & Code Assistants",
+    "description": "AI suggestions and automatic test generation in IDEs.",
+    "link": "https://qodo.ai?utm_source=specifys.ai",
+    "rating": 4.3,
+    "pros": [
+      "Test generation",
+      "Code review suggestions"
+    ],
+    "cons": [
+      "Early access",
+      "Limited language support"
+    ],
+    "stats": {
+      "users": "50K devs",
+      "globalRating": 4.3
+    }
+  },
+  {
+    "id": 21,
+    "name": "Codeium & Windsurf",
+    "category": "AI-Augmented IDEs & Code Assistants",
+    "description": "Free AI code IDE with full-context awareness.",
+    "link": "https://codeium.com?utm_source=specifys.ai",
+    "rating": 4.5,
+    "pros": [
+      "Completely free",
+      "Context-aware suggestions"
+    ],
+    "cons": [
+      "Occasional latency"
+    ],
+    "stats": {
+      "users": "N/A",
+      "globalRating": 4.5
+    }
+  },
+  {
+    "id": 22,
+    "name": "Tabnine",
+    "category": "AI-Augmented IDEs & Code Assistants",
+    "description": "Privacy-first AI code completion and predictions.",
+    "link": "https://tabnine.com?utm_source=specifys.ai",
+    "rating": 4.4,
+    "pros": [
+      "Local model options",
+      "Team management"
+    ],
+    "cons": [
+      "Subscription cost"
+    ],
+    "stats": {
+      "users": "N/A",
+      "globalRating": 4.4
+    }
+  },
+  {
+    "id": 23,
+    "name": "Vercel",
+    "category": "Deployment & Marketing Integrations",
+    "description": "Instant deployment platform for JAMstack apps, with built-in analytics & edge functions.",
+    "link": "https://vercel.com?utm_source=specifys.ai",
+    "rating": 4.5,
+    "pros": [
+      "4M+ live sites",
+      "30B weekly requests",
+      "Enterprise usage dashboard"
+    ],
+    "cons": [
+      "Pricing complexity",
+      "Limited logs on lower tiers"
+    ],
+    "stats": {
+      "users": "4M+ live websites",
+      "globalRating": 4.5,
+      "monthlyUsage": "30B requests/week",
+      "ARR": "$100M"
+    }
+  },
+  {
+    "id": 24,
+    "name": "Netlify",
+    "category": "Deployment & Marketing Integrations",
+    "description": "Automated deployment platform with real-time analytics and serverless functions.",
+    "link": "https://netlify.com?utm_source=specifys.ai",
+    "rating": 4.4,
+    "pros": [
+      "Pro analytics",
+      "Functions support",
+      "Simple CI/CD"
+    ],
+    "cons": [
+      "Bandwidth limits",
+      "Limited historic metrics"
+    ],
+    "stats": {
+      "users": "N/A",
+      "globalRating": 4.4,
+      "monthlyUsage": "N/A"
+    }
+  },
+  {
+    "id": 25,
+    "name": "Make (Integromat)",
+    "category": "Deployment & Marketing Integrations",
+    "description": "Visual automation platform to connect apps and streamline workflows.",
+    "link": "https://make.com?utm_source=specifys.ai",
+    "rating": 4.3,
+    "pros": [
+      "Flexible scenario builder",
+      "Detailed usage metrics"
+    ],
+    "cons": [
+      "Learning curve",
+      "Complex pricing"
+    ],
+    "stats": {
+      "users": "1M+ workflows",
+      "globalRating": 4.3
+    }
+  },
+  {
+    "id": 26,
+    "name": "Salesforce Marketing Cloud",
+    "category": "Deployment & Marketing Integrations",
+    "description": "Enterprise-scale marketing automation with AI-driven analytics and campaign management.",
+    "link": "https://salesforce.com/marketing-cloud?utm_source=specifys.ai",
+    "rating": 4.4,
+    "pros": [
+      "Full-featured",
+      "High ROI reported"
+    ],
+    "cons": [
+      "Complex setup",
+      "High cost"
+    ],
+    "stats": {
+      "users": "150K+ business customers",
+      "globalRating": 4.4,
+      "ARR": "N/A"
+    }
+  },
+  {
+    "id": 27,
+    "name": "Customer.io",
+    "category": "Deployment & Marketing Integrations",
+    "description": "Targeted messaging & campaign automation based on audience behavior.",
+    "link": "https://customer.io?utm_source=specifys.ai",
+    "rating": 4.3,
+    "pros": [
+      "In-app messaging",
+      "Event-driven campaigns"
+    ],
+    "cons": [
+      "API complexity",
+      "Pricing tiers"
+    ],
+    "stats": {
+      "users": "17K+ live sites",
+      "globalRating": 4.3
+    }
+  },
+  {
+    "id": 28,
+    "name": "Zoho Marketing Automation",
+    "category": "Deployment & Marketing Integrations",
+    "description": "Multi-channel marketing automation with AI lead scoring and analytics.",
+    "link": "https://zoho.com/marketingautomation?utm_source=specifys.ai",
+    "rating": 4.2,
+    "pros": [
+      "Predictive lead scoring",
+      "Integrated analytics"
+    ],
+    "cons": [
+      "Some UX complexity"
+    ],
+    "stats": {
+      "users": "10M+ users",
+      "globalRating": 4.2
+    }
+  },
+  {
+    "id": 29,
+    "name": "HubSpot Marketing Hub",
+    "category": "Deployment & Marketing Integrations",
+    "description": "CRM-integrated marketing tools with email, content, AI personalization.",
+    "link": "https://hubspot.com?utm_source=specifys.ai",
+    "rating": 4.5,
+    "pros": [
+      "505% ROI average",
+      "Daily active usage 86%"
+    ],
+    "cons": [
+      "Subscription cost",
+      "Feature overload"
+    ],
+    "stats": {
+      "users": "238K+ companies",
+      "globalRating": 4.5
+    }
+  },
+  {
+    "id": 30,
+    "name": "Hightouch",
+    "category": "Deployment & Marketing Integrations",
+    "description": "Customer data platform syncing warehouse data to business tools.",
+    "link": "https://hightouch.com?utm_source=specifys.ai",
+    "rating": 4.4,
+    "pros": [
+      "Supports Snowflake/Redshift sync",
+      "Composable workflows"
+    ],
+    "cons": [
+      "Enterprise pricing",
+      "Setup complexity"
+    ],
+    "stats": {
+      "users": "600+ customers",
+      "globalRating": 4.4,
+      "ARR": "$20M"
+    }
+  },
+  {
+    "id": 31,
+    "name": "Adobe LLM Optimizer",
+    "category": "Deployment & Marketing Integrations",
+    "description": "AI tool for optimizing ad performance and creative across Adobe platforms.",
+    "link": "https://adobe.com?utm_source=specifys.ai",
+    "rating": 4.2,
+    "pros": [
+      "Integrates with Adobe suite",
+      "Helps ad optimization"
+    ],
+    "cons": [
+      "Enterprise-only",
+      "High cost"
+    ],
+    "stats": {
+      "users": "N/A",
+      "globalRating": 4.2
+    }
+  },
+  {
+    "id": 32,
+    "name": "Gumloop",
+    "category": "AI Agent & Workflow Tools",
+    "description": "Advanced marketing automation powered by AI.",
+    "link": "https://gumloop.com?utm_source=specifys.ai",
+    "rating": 4.1,
+    "pros": [
+      "Smart sequence optimization",
+      "Email & DM support"
+    ],
+    "cons": [
+      "Emerging tool",
+      "Limited integration"
+    ],
+    "stats": {
+      "users": "5K+ marketers",
+      "globalRating": 4.1
+    }
+  },
+  {
+    "id": 33,
+    "name": "Databutton Agent",
+    "category": "AI Agent & Workflow Tools",
+    "description": "Agentic tool that builds apps through conversation workflows.",
+    "link": "https://databutton.com/agent?utm_source=specifys.ai",
+    "rating": 4.2,
+    "pros": [
+      "Chat-driven build",
+      "Extensible agent logic"
+    ],
+    "cons": [
+      "Still beta",
+      "Feature gaps"
+    ],
+    "stats": {
+      "users": "10K+ devs",
+      "globalRating": 4.2
+    }
+  },
+  {
+    "id": 34,
+    "name": "Replit Agent",
+    "category": "AI Agent & Workflow Tools",
+    "description": "Autonomous AI agent in Replit for generating and maintaining code.",
+    "link": "https://replit.com/agent?utm_source=specifys.ai",
+    "rating": 4.3,
+    "pros": [
+      "Cloud-integrated",
+      "Task automation"
+    ],
+    "cons": [
+      "Early release",
+      "Limited features"
+    ],
+    "stats": {
+      "users": "22M devs",
+      "globalRating": 4.3
+    }
+  },
+  {
+    "id": 35,
+    "name": "Google Jules",
+    "category": "AI Agent & Workflow Tools",
+    "description": "Asynchronous code assistant from Google for codebase tasks.",
+    "link": "https://google.com/jules?utm_source=specifys.ai",
+    "rating": 4.0,
+    "pros": [
+      "Runs asynchronously",
+      "Backed by Google LLM"
+    ],
+    "cons": [
+      "Private beta",
+      "Limited access"
+    ],
+    "stats": {
+      "users": "Limited beta",
+      "globalRating": 4.0
+    }
+  },
+  {
+    "id": 36,
+    "name": "OpenAI Codex Agent",
+    "category": "AI Agent & Workflow Tools",
+    "description": "Autonomous agent using Codex to generate, test, and refactor code.",
+    "link": "https://openai.com/codex?utm_source=specifys.ai",
+    "rating": 4.2,
+    "pros": [
+      "Automates dev tasks",
+      "Built on Codex"
+    ],
+    "cons": [
+      "Depends on prompt quality",
+      "Edge cases"
+    ],
+    "stats": {
+      "users": "Dev preview users",
+      "globalRating": 4.2
+    }
+  },
+  {
+    "id": 37,
+    "name": "Anthropic Claude Agent",
+    "category": "AI Agent & Workflow Tools",
+    "description": "Productive Claude-based agent designed for dev workflows.",
+    "link": "https://claude.ai/agent?utm_source=specifys.ai",
+    "rating": 4.3,
+    "pros": [
+      "Explainable logic",
+      "Secure by design"
+    ],
+    "cons": [
+      "Limited domain support",
+      "Performance costs"
+    ],
+    "stats": {
+      "users": "10K+ in private beta",
+      "globalRating": 4.3
+    }
+  },
+  {
+    "id": 38,
+    "name": "GitHub Actions AI Integrations",
+    "category": "AI Agent & Workflow Tools",
+    "description": "LLM-powered steps and PR bots built into GitHub Actions.",
+    "link": "https://github.com/features/actions?utm_source=specifys.ai",
+    "rating": 4.4,
+    "pros": [
+      "Seamless CI/CD integration",
+      "Large community support"
+    ],
+    "cons": [
+      "Complex setup",
+      "Approx billing"
+    ],
+    "stats": {
+      "users": "Millions of repos",
+      "globalRating": 4.4
+    }
+  },
+  {
+    "id": 39,
+    "name": "Zapier AI",
+    "category": "AI Agent & Workflow Tools",
+    "description": "AI-enhanced automation inside Zapier workflows.",
+    "link": "https://zapier.com/ai?utm_source=specifys.ai",
+    "rating": 4.5,
+    "pros": [
+      "Smart field mapping",
+      "Natural language setup"
+    ],
+    "cons": [
+      "Available on paid plans",
+      "Beta behavior"
+    ],
+    "stats": {
+      "users": "4M+ users",
+      "globalRating": 4.5
+    }
+  },
+  {
+    "id": 40,
+    "name": "Bubble",
+    "category": "Prompt-to-App Builders",
+    "description": "No-code platform for building web and mobile apps with AI-assisted design.",
+    "link": "https://bubble.io?utm_source=specifys.ai",
+    "rating": 4.6,
+    "pros": [
+      "Highly customizable",
+      "Large community",
+      "AI plugins"
+    ],
+    "cons": [
+      "Steep learning curve",
+      "Pricing for scale"
+    ],
+    "stats": {
+      "users": "1M+ creators",
+      "globalRating": 4.6,
+      "monthlyUsage": "N/A",
+      "ARR": "N/A"
+    }
+  },
+  {
+    "id": 41,
+    "name": "Glide",
+    "category": "Prompt-to-App Builders",
+    "description": "Turns Google Sheets into fully functional apps with AI enhancements.",
+    "link": "https://www.glideapps.com?utm_source=specifys.ai",
+    "rating": 4.4,
+    "pros": [
+      "Easy setup",
+      "Mobile-friendly",
+      "AI data insights"
+    ],
+    "cons": [
+      "Limited advanced features",
+      "Subscription costs"
+    ],
+    "stats": {
+      "users": "500K+ users",
+      "globalRating": 4.4,
+      "monthlyUsage": "N/A",
+      "ARR": "N/A"
+    }
+  },
+  {
+    "id": 42,
+    "name": "Adobe XD with AI",
+    "category": "User Design",
+    "description": "AI-powered design and prototyping tool with advanced mockup generation.",
+    "link": "https://www.adobe.com/products/xd.html?utm_source=specifys.ai",
+    "rating": 4.7,
+    "pros": [
+      "Seamless Adobe integration",
+      "AI mockups",
+      "Collaboration tools"
+    ],
+    "cons": [
+      "Subscription-based",
+      "Learning curve"
+    ],
+    "stats": {
+      "users": "2M+ designers",
+      "globalRating": 4.7,
+      "monthlyUsage": "N/A",
+      "ARR": "N/A"
+    }
+  },
+  {
+    "id": 43,
+    "name": "Sketch with AI Plugins",
+    "category": "User Design",
+    "description": "Vector-based UI design tool enhanced with AI plugins for automation.",
+    "link": "https://www.sketch.com?utm_source=specifys.ai",
+    "rating": 4.6,
+    "pros": [
+      "Lightweight",
+      "AI symbol generation",
+      "Mac-focused"
+    ],
+    "cons": [
+      "Mac-only",
+      "Plugin dependency"
+    ],
+    "stats": {
+      "users": "1.5M+ users",
+      "globalRating": 4.6,
+      "monthlyUsage": "N/A",
+      "ARR": "N/A"
+    }
+  },
+  {
+    "id": 44,
+    "name": "InVision with AI",
+    "category": "Prototyping Tools",
+    "description": "Collaborative prototyping tool with AI-driven design suggestions.",
+    "link": "https://www.invisionapp.com?utm_source=specifys.ai",
+    "rating": 4.5,
+    "pros": [
+      "Team collaboration",
+      "AI feedback",
+      "Prototyping ease"
+    ],
+    "cons": [
+      "Limited free tier",
+      "Complex for beginners"
+    ],
+    "stats": {
+      "users": "7M+ users",
+      "globalRating": 4.5,
+      "monthlyUsage": "N/A",
+      "ARR": "N/A"
+    }
+  },
+  {
+    "id": 45,
+    "name": "Axure RP",
+    "category": "Prototyping Tools",
+    "description": "Advanced prototyping tool with AI-assisted wireframe generation.",
+    "link": "https://www.axure.com?utm_source=specifys.ai",
+    "rating": 4.6,
+    "pros": [
+      "Detailed prototypes",
+      "AI automation",
+      "Team features"
+    ],
+    "cons": [
+      "High cost",
+      "Steep learning curve"
+    ],
+    "stats": {
+      "users": "500K+ professionals",
+      "globalRating": 4.6,
+      "monthlyUsage": "N/A",
+      "ARR": "N/A"
+    }
+  },
+  {
+    "id": 46,
+    "name": "JetBrains AI Assistant",
+    "category": "AI-Augmented IDEs & Code Assistants",
+    "description": "AI-powered coding assistant integrated into JetBrains IDEs.",
+    "link": "https://www.jetbrains.com/ai?utm_source=specifys.ai",
+    "rating": 4.7,
+    "pros": [
+      "Deep IDE integration",
+      "Multi-language support",
+      "Code refactoring"
+    ],
+    "cons": [
+      "Subscription cost",
+      "Requires JetBrains IDE"
+    ],
+    "stats": {
+      "users": "10M+ developers",
+      "globalRating": 4.7,
+      "monthlyUsage": "N/A",
+      "ARR": "N/A"
+    }
+  },
+  {
+    "id": 47,
+    "name": "DeepCode",
+    "category": "AI-Augmented IDEs & Code Assistants",
+    "description": "AI-driven code review and suggestion tool for multiple languages.",
+    "link": "https://www.deepcode.ai?utm_source=specifys.ai",
+    "rating": 4.4,
+    "pros": [
+      "Accurate bug detection",
+      "Cross-platform",
+      "Open-source support"
+    ],
+    "cons": [
+      "Limited free tier",
+      "Setup complexity"
+    ],
+    "stats": {
+      "users": "200K+ users",
+      "globalRating": 4.4,
+      "monthlyUsage": "N/A",
+      "ARR": "N/A"
+    }
+  },
+  {
+    "id": 48,
+    "name": "Automatisch",
+    "category": "AI Agent & Workflow Tools",
+    "description": "Open-source workflow automation tool with AI enhancements.",
+    "link": "https://automatisch.io?utm_source=specifys.ai",
+    "rating": 4.3,
+    "pros": [
+      "Free and open-source",
+      "Custom workflows",
+      "AI triggers"
+    ],
+    "cons": [
+      "Self-hosting required",
+      "Small community"
+    ],
+    "stats": {
+      "users": "50K+ users",
+      "globalRating": 4.3,
+      "monthlyUsage": "N/A",
+      "ARR": "N/A"
+    }
+  },
+  {
+    "id": 49,
+    "name": "Aider",
+    "category": "AI Agent & Workflow Tools",
+    "description": "AI agent for Git-based code editing and automation.",
+    "link": "https://aider.chat?utm_source=specifys.ai",
+    "rating": 4.2,
+    "pros": [
+      "Git integration",
+      "Code generation",
+      "Lightweight"
+    ],
+    "cons": [
+      "Early stage",
+      "Limited documentation"
+    ],
+    "stats": {
+      "users": "30K+ developers",
+      "globalRating": 4.2,
+      "monthlyUsage": "N/A",
+      "ARR": "N/A"
+    }
+  },
+  {
+    "id": 50,
+    "name": "Cloudflare Workers",
+    "category": "Deployment & Marketing Integrations",
+    "description": "Serverless platform with AI-driven edge computing and analytics.",
+    "link": "https://workers.cloudflare.com?utm_source=specifys.ai",
+    "rating": 4.6,
+    "pros": [
+      "Global edge network",
+      "AI optimization",
+      "Free tier"
+    ],
+    "cons": [
+      "Complex for beginners",
+      "Limited compute"
+    ],
+    "stats": {
+      "users": "2M+ domains",
+      "globalRating": 4.6,
+      "monthlyUsage": "N/A",
+      "ARR": "N/A"
+    }
+  },
+  {
+    "id": 51,
+    "name": "Mailchimp with AI",
+    "category": "Deployment & Marketing Integrations",
+    "description": "Email marketing platform with AI-powered campaign optimization.",
+    "link": "https://mailchimp.com?utm_source=specifys.ai",
+    "rating": 4.5,
+    "pros": [
+      "AI content suggestions",
+      "Easy setup",
+      "Large user base"
+    ],
+    "cons": [
+      "Advanced features cost extra",
+      "Learning curve"
+    ],
+    "stats": {
+      "users": "13M+ users",
+      "globalRating": 4.5,
+      "monthlyUsage": "N/A",
+      "ARR": "N/A"
+    }
+  },
+  {
+    "id": 52,
+    "name": "Figma",
+    "category": "User Design",
+    "description": "Collaborative design tool with vector editing, prototyping, and Dev Mode.",
+    "link": "https://figma.com?utm_source=specifys.ai",
+    "rating": 4.7,
+    "pros": [
+      "Real-time collaboration",
+      "Integrated prototyping & Dev Mode"
+    ],
+    "cons": [
+      "Can be heavy on large files",
+      "Enterprise cost"
+    ],
+    "stats": {
+      "users": "20M+ designers",
+      "globalRating": 4.7,
+      "monthlyUsage": "N/A",
+      "ARR": "N/A"
+    }
+  },
+  {
+    "id": 53,
+    "name": "Adobe Firefly",
+    "category": "User Design",
+    "description": "Generative AI tool integrated in Adobe CC for images, vectors, layouts.",
+    "link": "https://adobe.com/firefly?utm_source=specifys.ai",
+    "rating": 4.6,
+    "pros": [
+      "Deep Adobe integration",
+      "High fidelity assets"
+    ],
+    "cons": [
+      "Creative Cloud subscription",
+      "Learning curve"
+    ],
+    "stats": {
+      "users": "N/A",
+      "globalRating": 4.6,
+      "monthlyUsage": "N/A",
+      "ARR": "N/A"
+    }
+  },
+  {
+    "id": 54,
+    "name": "Visily",
+    "category": "User Design",
+    "description": "No-code AI tool for hi-fi wireframes and prototypes quickly.",
+    "link": "https://visily.ai?utm_source=specifys.ai",
+    "rating": 4.4,
+    "pros": [
+      "No learning curve",
+      "Fast prototyping"
+    ],
+    "cons": [
+      "Limited advanced features",
+      "New product"
+    ],
+    "stats": {
+      "users": "N/A",
+      "globalRating": 4.4,
+      "monthlyUsage": "N/A",
+      "ARR": "N/A"
+    }
+  },
+  {
+    "id": 55,
+    "name": "Proto.io",
+    "category": "User Design",
+    "description": "Drag-and-drop high-fidelity interactive prototyping platform.",
+    "link": "https://proto.io?utm_source=specifys.ai",
+    "rating": 4.3,
+    "pros": [
+      "Rich interactions",
+      "Developer handoff support"
+    ],
+    "cons": [
+      "Desktop focus",
+      "Aging UI"
+    ],
+    "stats": {
+      "users": "N/A",
+      "globalRating": 4.3,
+      "monthlyUsage": "N/A",
+      "ARR": "N/A"
+    }
+  },
+  {
+    "id": 56,
+    "name": "Justinmind",
+    "category": "User Design",
+    "description": "Advanced web/mobile prototyping with interactive forms and logic.",
+    "link": "https://justinmind.com?utm_source=specifys.ai",
+    "rating": 4.2,
+    "pros": [
+      "Powerful interactions",
+      "Developer mode"
+    ],
+    "cons": [
+      "Complex UI",
+      "Legacy feel"
+    ],
+    "stats": {
+      "users": "N/A",
+      "globalRating": 4.2,
+      "monthlyUsage": "N/A",
+      "ARR": "N/A"
+    }
+  },
+  {
+    "id": 57,
+    "name": "Ando",
+    "category": "User Design",
+    "description": "Figma plugin AI copilot with ready-made widgets and patterns.",
+    "link": "https://mockuuups.studio/ando?utm_source=specifys.ai",
+    "rating": 4.3,
+    "pros": [
+      "50+ widgets",
+      "Speeds up Figma flows"
+    ],
+    "cons": [
+      "Plugin dependency",
+      "Limited customization"
+    ],
+    "stats": {
+      "users": "N/A",
+      "globalRating": 4.3,
+      "monthlyUsage": "N/A",
+      "ARR": "N/A"
+    }
+  },
+  {
+    "id": 58,
+    "name": "GUser Design",
+    "category": "Prototyping Tools",
+    "description": "AI tool generating UI designs + frontend code from prompts/images.",
+    "link": "https://stitch.google.com?utm_source=specifys.ai",
+    "rating": 4.5,
+    "pros": [
+      "Generates UI + code",
+      "Conversational iteration"
+    ],
+    "cons": [
+      "Beta release",
+      "Google ecosystem"
+    ],
+    "stats": {
+      "users": "Beta testers",
+      "globalRating": 4.5,
+      "monthlyUsage": "N/A",
+      "ARR": "N/A"
+    }
+  },
+  {
+    "id": 59,
+    "name": "AppSheet AI",
+    "category": "Data-Driven App Builders",
+    "description": "Create data-driven apps from Google Sheets or databases using natural-language prompts.",
+    "link": "https://www.appsheet.com/ai",
+    "rating": 4.5,
+    "pros": [
+      "Seamless Google ecosystem integration",
+      "No-code interface",
+      "Mobile and web support"
+    ],
+    "cons": [
+      "Limited customization for complex logic",
+      "Subscription-based pricing"
+    ],
+    "special": "Google-backed",
+    "stats": {
+      "users": "2M registered, 800K MAU",
+      "globalRating": 4.5,
+      "monthlyUsage": "N/A",
+      "ARR": "$25M"
+    }
+  },
+  {
+    "id": 60,
+    "name": "Zoho Creator AI",
+    "category": "Data-Driven App Builders",
+    "description": "Build business apps with AI-generated logic and database integrations from natural-language inputs.",
+    "link": "https://www.zoho.com/creator/ai",
+    "rating": 4.4,
+    "pros": [
+      "Zoho ecosystem integration",
+      "Customizable workflows",
+      "Free tier available"
+    ],
+    "cons": [
+      "Learning curve for advanced features",
+      "Limited offline support"
+    ],
+    "special": "Enterprise-ready",
+    "stats": {
+      "users": "1.5M registered, 600K MAU",
+      "globalRating": 4.4,
+      "monthlyUsage": "N/A",
+      "ARR": "$20M"
+    }
+  },
+  {
+    "id": 61,
+    "name": "N8n AI",
+    "category": "Business Process Automation",
+    "description": "Automate workflows with AI-generated scripts from natural-language prompts, supporting 300+ apps.",
+    "link": "https://n8n.io/ai",
+    "rating": 4.7,
+    "pros": [
+      "Open-source option",
+      "Highly flexible integrations",
+      "Local deployment support"
+    ],
+    "cons": [
+      "Complex setup for self-hosted",
+      "Limited free tier"
+    ],
+    "special": "Open-source",
+    "stats": {
+      "users": "500K registered, 200K MAU",
+      "globalRating": 4.7,
+      "monthlyUsage": "N/A",
+      "ARR": "$10M"
+    }
+  },
+  {
+    "id": 62,
+    "name": "Pipedream AI",
+    "category": "Business Process Automation",
+    "description": "Create automated workflows with AI-generated Node.js scripts from natural-language prompts.",
+    "link": "https://pipedream.com/ai",
+    "rating": 4.6,
+    "pros": [
+      "Supports custom code snippets",
+      "Fast execution",
+      "Free tier for small projects"
+    ],
+    "cons": [
+      "Limited debugging tools",
+      "Node.js knowledge helpful"
+    ],
+    "special": "Developer-friendly",
+    "stats": {
+      "users": "800K registered, 300K MAU",
+      "globalRating": 4.6,
+      "monthlyUsage": "N/A",
+      "ARR": "$15M"
+    }
+  },
+  {
+    "id": 63,
+    "name": "GameMaker AI",
+    "category": "Game Development Tools",
+    "description": "Build 2D games from natural-language prompts with AI-assisted logic and asset creation.",
+    "link": "https://gamemaker.io/ai",
+    "rating": 4.3,
+    "pros": [
+      "Beginner-friendly interface",
+      "Pre-built templates",
+      "Web and PC publishing"
+    ],
+    "cons": [
+      "Limited to 2D games",
+      "Premium features costly"
+    ],
+    "special": "Community-driven",
+    "stats": {
+      "users": "1M registered, 400K MAU",
+      "globalRating": 4.3,
+      "monthlyUsage": "N/A",
+      "ARR": "$12M"
+    }
+  },
+  {
+    "id": 64,
+    "name": "RPG Maker AI",
+    "category": "Game Development Tools",
+    "description": "Create RPG games with AI-generated dialogues, characters, and maps from natural-language prompts.",
+    "link": "https://www.rpgmakerweb.com/ai",
+    "rating": 4.4,
+    "pros": [
+      "Ideal for story-driven games",
+      "JavaScript support",
+      "Mobile and PC publishing"
+    ],
+    "cons": [
+      "Niche focus on RPGs",
+      "Limited 3D support"
+    ],
+    "special": "Story-focused",
+    "stats": {
+      "users": "700K registered, 250K MAU",
+      "globalRating": 4.4,
+      "monthlyUsage": "N/A",
+      "ARR": "$8M"
+    }
+  },
+  {
+    "id": 65,
+    "name": "Checkmarx AI",
+    "category": "Code Security Tools",
+    "description": "Analyze code for vulnerabilities with AI-driven static analysis from natural-language prompts.",
+    "link": "https://www.checkmarx.com/ai",
+    "rating": 4.8,
+    "pros": [
+      "CI/CD integration",
+      "Supports 30+ languages",
+      "Real-time scanning"
+    ],
+    "cons": [
+      "Enterprise-focused pricing",
+      "Steep learning curve"
+    ],
+    "special": "Security-first",
+    "stats": {
+      "users": "200K registered, 100K MAU",
+      "globalRating": 4.8,
+      "monthlyUsage": "N/A",
+      "ARR": "$30M"
+    }
+  },
+  {
+    "id": 66,
+    "name": "GitGuardian AI",
+    "category": "Code Security Tools",
+    "description": "Detect secrets in code with AI-driven suggestions for fixes from natural-language inputs.",
+    "link": "https://www.gitguardian.com/ai",
+    "rating": 4.7,
+    "pros": [
+      "GitHub integration",
+      "Real-time secret detection",
+      "Team collaboration"
+    ],
+    "cons": [
+      "Limited free tier",
+      "Focus on secrets detection"
+    ],
+    "special": "Secret protection",
+    "stats": {
+      "users": "300K registered, 150K MAU",
+      "globalRating": 4.7,
+      "monthlyUsage": "N/A",
+      "ARR": "$18M"
+    }
+  },
+  {
+    "id": 67,
+    "name": "Uizard AI",
+    "category": "UI/UX + Code Tools",
+    "description": "Design and code web apps from natural-language prompts with real-time UI previews.",
+    "link": "https://uizard.io/ai",
+    "rating": 4.5,
+    "pros": [
+      "Drag-and-drop interface",
+      "React and HTML/CSS export",
+      "Fast prototyping"
+    ],
+    "cons": [
+      "Limited advanced animations",
+      "Subscription-based"
+    ],
+    "special": "Design-to-code",
+    "stats": {
+      "users": "1.2M registered, 500K MAU",
+      "globalRating": 4.5,
+      "monthlyUsage": "N/A",
+      "ARR": "$14M"
+    }
+  },
+  {
+    "id": 68,
+    "name": "Anima AI",
+    "category": "UI/UX + Code Tools",
+    "description": "Convert Figma/Sketch designs to HTML/CSS/React code using AI-driven prompts.",
+    "link": "https://www.animaapp.com/ai",
+    "rating": 4.6,
+    "pros": [
+      "Figma integration",
+      "Clean code export",
+      "Real-time previews"
+    ],
+    "cons": [
+      "Requires design tool knowledge",
+      "Premium pricing"
+    ],
+    "special": "Designer-friendly",
+    "stats": {
+      "users": "900K registered, 350K MAU",
+      "globalRating": 4.6,
+      "monthlyUsage": "N/A",
+      "ARR": "$10M"
+    }
+  },
+  {
+    "id": 69,
+    "name": "Code.org AI",
+    "category": "Educational Coding Tools",
+    "description": "Learn coding with AI-guided tutorials and natural-language prompts for beginners.",
+    "link": "https://code.org/ai",
+    "rating": 4.8,
+    "pros": [
+      "Free for all users",
+      "Kid-friendly interface",
+      "Partial Hebrew support"
+    ],
+    "cons": [
+      "Basic project scope",
+      "Limited advanced features"
+    ],
+    "special": "Free education",
+    "stats": {
+      "users": "10M registered, 4M MAU",
+      "globalRating": 4.8,
+      "monthlyUsage": "N/A",
+      "ARR": "N/A"
+    }
+  },
+  {
+    "id": 70,
+    "name": "EdX AI Coding",
+    "category": "Educational Coding Tools",
+    "description": "Learn Python, JavaScript, and SQL with AI-driven interactive coding exercises.",
+    "link": "https://www.edx.org/learn/ai-coding",
+    "rating": 4.7,
+    "pros": [
+      "Certified courses",
+      "Interactive exercises",
+      "University-backed"
+    ],
+    "cons": [
+      "Some courses paid",
+      "Requires self-discipline"
+    ],
+    "special": "Certified learning",
+    "stats": {
+      "users": "5M registered, 2M MAU",
+      "globalRating": 4.7,
+      "monthlyUsage": "N/A",
+      "ARR": "N/A"
+    }
+  },
+  {
+    "id": 71,
+    "name": "Lens Studio AI",
+    "category": "AR/VR Development Tools",
+    "description": "Create AR experiences for Snapchat with AI-generated scripts and assets from prompts.",
+    "link": "https://ar.snap.com/lens-studio-ai",
+    "rating": 4.5,
+    "pros": [
+      "Snapchat integration",
+      "Beginner-friendly",
+      "Community support"
+    ],
+    "cons": [
+      "Platform-specific",
+      "Limited to AR"
+    ],
+    "special": "AR-focused",
+    "stats": {
+      "users": "1.5M registered, 600K MAU",
+      "globalRating": 4.5,
+      "monthlyUsage": "N/A",
+      "ARR": "$12M"
+    }
+  },
+  {
+    "id": 72,
+    "name": "Spark AR AI",
+    "category": "AR/VR Development Tools",
+    "description": "Build AR/VR experiences for Meta platforms with AI-generated code and 3D models.",
+    "link": "https://sparkar.meta.com/ai",
+    "rating": 4.6,
+    "pros": [
+      "Meta platform support",
+      "Web and mobile publishing",
+      "3D model generation"
+    ],
+    "cons": [
+      "Platform-specific",
+      "Learning curve for VR"
+    ],
+    "special": "AR/VR hybrid",
+    "stats": {
+      "users": "2M registered, 800K MAU",
+      "globalRating": 4.6,
+      "monthlyUsage": "N/A",
+      "ARR": "$15M"
+    }
+  },
+  {
+    "name": "Devv AI",
+    "category": "Prompt-to-App Builders",
+    "description": "React/Next.js app generator with Supabase support and interactive chat.",
+    "link": "https://devv.ai",
+    "rating": 4.4,
+    "pros": [
+      "Supports Supabase",
+      "Great UI",
+      "Fast iteration"
+    ],
+    "cons": [
+      "Limited backend flexibility"
+    ],
+    "added": "2025-07-07",
+    "id": 73
+  },
+  {
+    "name": "Builder.io AI",
+    "category": "Prompt-to-App Builders",
+    "description": "Visual builder with AI generation and CMS integration.",
+    "link": "https://builder.io",
+    "rating": 4.5,
+    "pros": [
+      "CMS integration",
+      "AI layout generation"
+    ],
+    "cons": [
+      "Enterprise pricing"
+    ],
+    "added": "2025-07-07",
+    "id": 74
+  },
+  {
+    "name": "Magician (Figma Plugin)",
+    "category": "Prototyping Tools",
+    "description": "Figma plugin to generate icons, UI, and content with AI.",
+    "link": "https://magician.design",
+    "rating": 4.6,
+    "pros": [
+      "Creative AI",
+      "Fits Figma flow"
+    ],
+    "cons": [
+      "Plugin dependency"
+    ],
+    "added": "2025-07-07",
+    "id": 75
+  },
+  {
+    "name": "Galileo AI",
+    "category": "Prototyping Tools",
+    "description": "Transforms prompts into polished UI screens.",
+    "link": "https://www.usegalileo.ai",
+    "rating": 4.4,
+    "pros": [
+      "Polished UI results",
+      "Easy to use"
+    ],
+    "cons": [
+      "Limited control on structure"
+    ],
+    "added": "2025-07-07",
+    "id": 76
+  },
+  {
+    "name": "CodeGeeX",
+    "category": "AI-Augmented IDEs & Code Assistants",
+    "description": "Free AI assistant supporting multiple programming languages.",
+    "link": "https://codegeex.cn",
+    "rating": 4.3,
+    "pros": [
+      "Multilingual",
+      "Free"
+    ],
+    "cons": [
+      "Less known ecosystem"
+    ],
+    "added": "2025-07-07",
+    "id": 77
+  },
+  {
+    "name": "Continue.dev",
+    "category": "AI-Augmented IDEs & Code Assistants",
+    "description": "Chat-based open source AI assistant for local IDE use.",
+    "link": "https://continue.dev",
+    "rating": 4.4,
+    "pros": [
+      "Open source",
+      "Custom model support"
+    ],
+    "cons": [
+      "Early stage"
+    ],
+    "added": "2025-07-07",
+    "id": 78
+  },
+  {
+    "name": "Smol Developer",
+    "category": "AI Agent & Workflow Tools",
+    "description": "LLM-based agent that generates full projects from prompts.",
+    "link": "https://github.com/smol-ai/developer",
+    "rating": 4.5,
+    "pros": [
+      "Autonomous project generation",
+      "Open source"
+    ],
+    "cons": [
+      "Limited language support"
+    ],
+    "added": "2025-07-07",
+    "id": 79
+  },
+  {
+    "name": "Diagram AI",
+    "category": "Misc Tools",
+    "description": "Generate diagrams and system designs from natural language.",
+    "link": "https://diagram.com",
+    "rating": 4.4,
+    "pros": [
+      "Fast ERD generation",
+      "Natural text input"
+    ],
+    "cons": [
+      "Limited export options"
+    ],
+    "added": "2025-07-07",
+    "id": 80
+  },
+  {
+    "name": "AskUI",
+    "category": "AI Agent & Workflow Tools",
+    "description": "Automates UI tasks with text commands.",
+    "link": "https://www.askui.com",
+    "rating": 4.2,
+    "pros": [
+      "Cross-platform automation",
+      "Rich SDK"
+    ],
+    "cons": [
+      "Learning curve"
+    ],
+    "added": "2025-07-07",
+    "id": 81
+  }
 ]
