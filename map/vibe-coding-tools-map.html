@@ -114,6 +114,7 @@
       position: absolute;
       top: 6rem;
       color: #333;
+      z-index: 5;
     }
 
     .header-text h1 {
@@ -123,13 +124,37 @@
       line-height: 1.2;
     }
 
+    .header-text p {
+      max-width: 700px;
+      margin: 1rem auto 0;
+      text-align: center;
+      color: #444;
+      font-size: 1rem;
+      font-weight: 500;
+      line-height: 1.5;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .header-text p a {
+      color: #0078d4;
+      text-decoration: underline;
+      font-weight: 600;
+    }
+
+    .header-text p a:hover {
+      color: #005ea2;
+    }
+
     .category-filter {
       background: rgba(255, 255, 255, 0.95);
       padding: 20px;
       text-align: center;
       width: 100%;
       max-width: 850px;
-      margin: 2rem auto 0;
+      margin: 8rem auto 0;
       border-radius: 15px;
       box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
       display: flex;
@@ -137,6 +162,7 @@
       gap: 15px;
       margin-bottom: 10px;
       flex-wrap: wrap;
+      z-index: 4;
     }
 
     .category-filter button {
@@ -260,6 +286,7 @@
       box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
       width: fit-content;
       transition: transform 0.3s ease, box-shadow 0.3s ease;
+      animation: gentleBounce 2s ease infinite;
     }
 
     .show-more-btn:hover {
@@ -267,13 +294,9 @@
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
     }
 
-    @keyframes bounce {
+    @keyframes gentleBounce {
       0%, 100% { transform: translateY(0); }
       50% { transform: translateY(-3px); }
-    }
-
-    .show-more-btn:hover {
-      animation: bounce 0.4s ease infinite;
     }
 
     .tool-card {
@@ -358,20 +381,20 @@
       transform: scale(1.2);
     }
 
-    .tool-card.prompt-to-app-builders .tool-link-icon { color: #23a6d5; }
-    .tool-card.prototyping-tools .tool-link-icon { color: #e57373; }
-    .tool-card.user-design .tool-link-icon { color: #888; }
-    .tool-card.ai-augmented-ides-code-assistants .tool-link-icon { color: #e73c7e; }
-    .tool-card.ai-agent-workflow-tools .tool-link-icon { color: #ee7752; }
-    .tool-card.deployment-marketing-integrations .tool-link-icon { color: #2e7d32; }
-    .tool-card.data-driven-app-builders .tool-link-icon { color: #0288d1; }
-    .tool-card.business-process-automation .tool-link-icon { color: #7b1fa2; }
-    .tool-card.game-development-tools .tool-link-icon { color: #d81b60; }
-    .tool-card.code-security-tools .tool-link-icon { color: #388e3c; }
-    .tool-card.ui-ux-code-tools .tool-link-icon { color: #f57c00; }
-    .tool-card.educational-coding-tools .tool-link-icon { color: #00838f; }
-    .tool-card.ar-vr-development-tools .tool-link-icon { color: #c2185b; }
-    .tool-card.misc-tools .tool-link-icon { color: #6b7280; }
+    .tool-card.prompt-to-app-builders .tool-link-icon { color: #23a6d5 !important; }
+    .tool-card.prototyping-tools .tool-link-icon { color: #e57373 !important; }
+    .tool-card.user-design .tool-link-icon { color: #888 !important; }
+    .tool-card.ai-augmented-ides-code-assistants .tool-link-icon { color: #e73c7e !important; }
+    .tool-card.ai-agent-workflow-tools .tool-link-icon { color: #ee7752 !important; }
+    .tool-card.deployment-marketing-integrations .tool-link-icon { color: #2e7d32 !important; }
+    .tool-card.data-driven-app-builders .tool-link-icon { color: #0288d1 !important; }
+    .tool-card.business-process-automation .tool-link-icon { color: #7b1fa2 !important; }
+    .tool-card.game-development-tools .tool-link-icon { color: #d81b60 !important; }
+    .tool-card.code-security-tools .tool-link-icon { color: #388e3c !important; }
+    .tool-card.ui-ux-code-tools .tool-link-icon { color: #f57c00 !important; }
+    .tool-card.educational-coding-tools .tool-link-icon { color: #00838f !important; }
+    .tool-card.ar-vr-development-tools .tool-link-icon { color: #c2185b !important; }
+    .tool-card.misc-tools .tool-link-icon { color: #6b7280 !important; }
 
     .tool-tooltip {
       visibility: hidden;
@@ -420,6 +443,34 @@
       color: #ff4444;
       font-size: 1rem;
       margin-top: 20px;
+    }
+
+    .cta-box {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 20px;
+      text-align: center;
+      width: 100%;
+      max-width: 850px;
+      margin: 2rem auto;
+      border-radius: 15px;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    }
+
+    .cta-box p {
+      font-size: 1.1rem;
+      color: #333;
+      font-weight: 500;
+      line-height: 1.5;
+    }
+
+    .cta-box a {
+      color: #0078d4;
+      text-decoration: underline;
+      font-weight: 600;
+    }
+
+    .cta-box a:hover {
+      color: #005ea2;
     }
 
     footer {
@@ -496,7 +547,7 @@
       left: 50%;
       transform: translateX(-50%);
       background: #fff;
-      padding: 1rem 2rem;
+      padding: 0.6rem 1rem;
       border-radius: 10px;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
       z-index: 10;
@@ -509,58 +560,75 @@
     }
 
     .newsletter-container h3 {
-      font-size: 1.2rem;
+      font-size: 1rem;
       font-weight: 600;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.3rem;
       color: #333;
+      line-height: 1.2;
+      display: inline-block;
     }
 
     .newsletter-container p {
-      font-size: 0.9rem;
+      font-size: 0.8rem;
       color: #666;
-      margin-bottom: 1rem;
+      margin-bottom: 0.5rem;
+      line-height: 1.3;
+    }
+
+    .newsletter-container form {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
     }
 
     .newsletter-container input {
-      padding: 0.5rem;
+      padding: 0.3rem;
       border-radius: 5px;
       border: 1px solid #ddd;
       outline: none;
-      margin-right: 0.5rem;
       background: #f5f5f5;
       color: #333;
-      width: 200px;
+      width: 250px;
     }
 
     .newsletter-container button {
-      padding: 0.5rem 1rem;
+      padding: 0.3rem 0.8rem;
       background: #0078d4;
       color: white;
       border-radius: 5px;
       border: none;
       cursor: pointer;
       transition: background 0.3s ease;
+      position: relative;
+      overflow: hidden;
     }
 
     .newsletter-container button:hover {
       background: #005ea2;
     }
 
-    .newsletter-close {
+    .newsletter-container button.loading::after {
+      content: '';
       position: absolute;
-      top: 5px;
-      right: 5px;
-      background: transparent;
-      border: none;
-      font-size: 0.8rem;
-      cursor: pointer;
-      color: #666;
-      line-height: 1;
-      padding: 5px;
+      width: 20px;
+      height: 20px;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      border: 2px solid #fff;
+      border-top: 2px solid transparent;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
     }
 
-    .newsletter-close:hover {
-      color: #333;
+    .newsletter-container button.loading {
+      pointer-events: none;
+      color: transparent;
+    }
+
+    @keyframes spin {
+      0% { transform: translate(-50%, -50%) rotate(0deg); }
+      100% { transform: translate(-50%, -50%) rotate(360deg); }
     }
 
     .scroll-to-top {
@@ -594,30 +662,41 @@
 
     @media (max-width: 768px) {
       .main-content-wrapper { padding: 8rem 1rem 2rem; max-width: 650px; padding-left: 15px; padding-right: 15px; }
-      .header-text { top: 6rem; }
+      .header-text { top: 5rem; }
       .header-text h1 { font-size: clamp(1.4rem, 3vw, 1.8rem); }
-      .category-filter { padding: 15px; max-width: 650px; flex-direction: column; gap: 10px; }
+      .header-text p { font-size: 0.9rem; padding: 10px; }
+      .category-filter { padding: 15px; max-width: 650px; flex-direction: column; gap: 10px; margin-top: 9rem; }
       .category-filter button { width: 100%; text-align: center; }
       .show-more-btn { width: 50%; }
       .tool-card { padding: 10px; min-height: 160px; }
       .tool-tooltip { top: -40px; right: 0; }
+      .cta-box { padding: 15px; max-width: 650px; }
+      .cta-box p { font-size: 1rem; }
       footer { padding: 15px 1rem; }
       .footer-content { flex-direction: column; gap: 10px; }
       .footer-links a { font-size: 0.8rem; }
       .footer-divider { font-size: 1rem; }
       .footer-social a { font-size: 1rem; }
-      .newsletter-container { width: 90%; bottom: 4rem; }
-      .newsletter-container input { width: 100%; margin-bottom: 0.5rem; }
+      .newsletter-container { width: 90%; bottom: 4rem; padding: 0.4rem 0.8rem; }
+      .newsletter-container input { width: 100%; margin-bottom: 0.4rem; }
+      .newsletter-container h3 { font-size: 0.9rem; }
+      .newsletter-container p { font-size: 0.75rem; }
+      .newsletter-container form { flex-direction: column; gap: 0.2rem; }
+      .newsletter-container input { padding: 0.3rem; }
+      .newsletter-container button { padding: 0.3rem 0.8rem; }
     }
 
     @media (max-width: 480px) {
       .thematic-header .logo a { font-size: 1.2rem; }
       .main-content-wrapper { padding: 7rem 0.5rem 2rem; max-width: 90%; padding-left: 10px; padding-right: 10px; }
-      .header-text { top: 5rem; }
-      .category-filter { padding: 10px; max-width: 90%; }
+      .header-text { top: 4.5rem; }
+      .header-text p { font-size: 0.85rem; padding: 8px; }
+      .category-filter { padding: 10px; max-width: 90%; margin-top: 8.5rem; }
       .show-more-btn { width: 70%; }
       .tool-card { padding: 8px; min-height: 140px; }
       .tool-tooltip { top: -35px; font-size: 0.75rem; right: 0; }
+      .cta-box { padding: 10px; max-width: 90%; }
+      .cta-box p { font-size: 0.9rem; }
       .footer-content { gap: 8px; }
       .footer-links a { font-size: 0.75rem; }
       .footer-divider { font-size: 0.9rem; }
@@ -650,14 +729,16 @@
   <div class="main-content-wrapper">
     <div class="header-text">
       <h1>Vibe Coding Tools Map</h1>
+      <p>
+        This handpicked directory showcases the most innovative AI coding tools used by founders and makers. All tools here reflect the new wave of prompt-based app creation — the same vision that powers <a href="https://specifys-ai.com?utm_source=toolsmap_intro" target="_blank">Specifys.ai</a>.
+      </p>
     </div>
 
     <div id="root"></div>
 
-    <div class="newsletter-container" id="newsletter-container">
-      <button class="newsletter-close" onclick="closeNewsletter()" aria-label="Close newsletter form">✕</button>
+    <div class="newsletter-container hidden" id="newsletter-container">
       <h3>Join Our Newsletter</h3>
-      <p>Get weekly updates on new AI tools!</p>
+      <p>Get weekly updates on trending AI tools!</p>
       <form id="newsletter-form" onsubmit="submitNewsletterForm(event)">
         <input type="email" name="email" placeholder="Enter your email" aria-label="Email for newsletter" required>
         <button type="submit">Subscribe</button>
@@ -667,6 +748,10 @@
     <button class="scroll-to-top" id="scroll-to-top" onclick="scrollToTop()" aria-label="Scroll to top">
       <i class="fas fa-arrow-up"></i>
     </button>
+  </div>
+
+  <div class="cta-box">
+    <p>Looking to turn your app idea into a real plan? Try <a href="https://specifys-ai.com?utm_source=toolsmap_cta" target="_blank">Specifys.ai</a> — the AI-powered spec generator trusted by indie makers.</p>
   </div>
 
   <footer role="contentinfo">
@@ -717,10 +802,6 @@
       }
     }
 
-    function closeNewsletter() {
-      document.getElementById('newsletter-container').classList.add('hidden');
-    }
-
     function scrollToTop() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -729,6 +810,8 @@
       event.preventDefault();
       const form = event.target;
       const email = form.querySelector('input[name="email"]').value;
+      const submitButton = form.querySelector('button[type="submit"]');
+      submitButton.classList.add('loading');
       const url = 'https://script.google.com/macros/s/AKfycbzRv07wfY5DRmhXKTeELv0GXgTyGYFan6XYbzd5a6cH-tpju_3q7L1Y4ByWA5SI4RFRBQ/exec';
 
       fetch(url, {
@@ -738,6 +821,7 @@
       })
       .then(response => response.json())
       .then(data => {
+        submitButton.classList.remove('loading');
         if (data.result === 'success') {
           alert('Successfully subscribed to the newsletter!');
           form.reset();
@@ -747,6 +831,7 @@
         }
       })
       .catch(error => {
+        submitButton.classList.remove('loading');
         console.error('Error:', error);
         alert('An error occurred. Please try again.');
       });
@@ -759,6 +844,24 @@
       } else {
         scrollButton.classList.remove('visible');
       }
+    });
+
+    // Show newsletter after 10 seconds
+    setTimeout(() => {
+      const newsletterContainer = document.getElementById('newsletter-container');
+      if (newsletterContainer) {
+        newsletterContainer.classList.remove('hidden');
+      }
+    }, 10000);
+
+    document.querySelectorAll('a[href*="utm_source=toolsmap"]').forEach(link => {
+      link.addEventListener('click', () => {
+        gtag('event', 'click', {
+          'event_category': 'CTA Link',
+          'event_label': link.getAttribute('href').includes('toolsmap_intro') ? 'Intro CTA' : 'Bottom CTA',
+          'value': link.getAttribute('href')
+        });
+      });
     });
 
     const ToolCard = ({ tool }) => {
