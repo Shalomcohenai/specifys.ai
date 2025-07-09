@@ -9,20 +9,17 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
       /*
-      Design Guidelines for Specifys.ai
+      Updated Design for Specifys.ai Homepage
       ==============================
 
       Color Palette
       -------------
       - Primary (text, logo, links): #333 (dark gray)
       - Secondary (copyright, popup text): #666 (light gray)
-      - Accent (hover, buttons): #0078d4 (Microsoft blue)
+      - Accent (hover, buttons, rotating text): #0078d4 (Microsoft blue)
       - Accent hover: #005ea2 (darker blue)
       - Body background: #f5f5f5 (very light gray)
-      - Header background: rgba(255, 255, 255, 0.9) (semi-transparent white)
-      - Footer background: #fff (white)
       - Track container: rgba(255, 255, 255, 0.95) (semi-transparent white)
-      - Benefit/FAQ cards: rgba(255, 255, 255, 0.95) (semi-transparent white)
       - Popup overlay: rgba(0, 0, 0, 0.7) (dark overlay)
       - Popup background: #fff (white)
       - Popup dots (inactive): #ccc (light gray)
@@ -30,82 +27,40 @@
       Typography
       ----------
       - Primary font: Montserrat (400, 500, 700) from Google Fonts
-        - 400: Regular text (paragraphs, FAQ answers)
+        - 400: Regular text (paragraphs, FAQ answers, track info)
         - 500: Footer links, FAQ questions
         - 700: Headings, logo, buttons
       - Font sizes:
-        - Logo (.thematic-header .logo a): 1.65rem (increased by 10%), 1.32rem on mobile (≤480px)
-        - Main heading (h1): clamp(1.8rem, 4vw, 2.5rem), shrinks to clamp(1.4rem, 3vw, 1.8rem) at ≤768px
+        - Logo: 6rem (4.8rem at ≤768px, 4rem at ≤480px)
+        - Slogan: 1.5rem (1.2rem at ≤768px, 1rem at ≤480px)
         - Track container h2: 2rem (1.6rem at ≤768px, 1.4rem at ≤480px)
+        - Mode buttons: 1.1rem (1rem at ≤768px, 0.9rem at ≤480px)
+        - Track info: 1rem (0.9rem at ≤768px, 0.85rem at ≤480px)
         - Section h2: clamp(2rem, 5vw, 3rem), shrinks to clamp(1.5rem, 4vw, 2.5rem) at ≤768px
         - Footer links: 0.85rem (0.8rem at ≤768px, 0.75rem at ≤480px)
         - Social icons: 1.2rem (1rem at ≤768px, 0.9rem at ≤480px)
         - Copyright: 0.8rem
-        - Mode buttons: 1.1rem (1rem at ≤768px, 0.9rem at ≤480px)
-        - Popup h3: 1.2rem (1rem at ≤768px, 0.9rem at ≤480px)
-      - Line height: 1.2 for headings, 1.6 for paragraphs
 
       Layout and Structure
       --------------------
-      - Header (.thematic-header):
-        - Position: Fixed at top (position: absolute)
-        - Width: 100%
-        - Padding: 20px vertical, 24px horizontal
-        - Background: Semi-transparent white with subtle shadow
-        - Logo: Centered
       - Main content (.main-content-wrapper):
-        - Layout: Flexbox, centered (justify-content: center, align-items: center)
-        - Padding: 8rem top on desktop, reduces to 6rem (≤768px) and 5rem (≤480px)
-        - Max heading width: 800px
-      - Track container:
-        - Background: Semi-transparent white
-        - Max width: 800px
-        - Padding: 30px (20px at ≤768px, 15px at ≤480px)
-      - Footer:
-        - Layout: Flexbox, centered with 20px gaps (10px at ≤768px, 8px at ≤480px)
-        - Background: White with subtle upward shadow
-      - Popup:
-        - Overlay: Full-screen with dark overlay
-        - Popup: Max-width 700px, 80% width (90% at ≤768px, 95% at ≤480px)
-        - Gallery height: 180px (160px at ≤768px, 140px at ≤480px)
+        - Centered flexbox layout, full viewport height for hero section
+        - Logo centered, followed by slogan, then mode selection
+      - Extra sections: Appear after scrolling with margin-top
+      - Footer: Appears after scrolling
+      - Popup: Displays on page load
+      - Scroll-to-top: Appears on scroll
 
-      Animations and Interactions
-      --------------------------
-      - Heading hover (h1): Removed hover effect
-      - Button hover (.mode-button, .cta-button): Color change to #0078d4, slight lift (translateY(-2px)), shadow
-      - Social icon hover: Color change to #0078d4, slight scale-up (transform: scale(1.2))
-      - Track container: Slide-up animation
-      - Sections: Fade-in-up animation with staggered delays
-      - Popup: Slide transitions for steps
-      - FAQ: Toggle with smooth max-height transition
-      - Stats: Counter animation on scroll (IntersectionObserver)
+      Animations
+      ----------
+      - Slogan text rotation: Fade-in/out every 3 seconds
+      - Mode button hover: Lift and shadow effect
       - Reduced motion support for accessibility
 
       Responsiveness
       --------------
-      - ≤768px:
-        - Main content padding reduced
-        - Font sizes reduced
-        - Mode buttons stack vertically
-        - Footer switches to column layout
-        - Popup size and gallery height reduced
-      - ≤480px:
-        - Logo font size reduced to 1.32rem
-        - Smaller paddings and font sizes for mobile
-        - Track container and popup further optimized
-
-      External Libraries
-      -----------------
-      - Bootstrap: v5.3.0 (CSS only)
-      - Font Awesome: v6.5.1 (for social and track icons)
-      - Google Fonts: Montserrat (400, 500, 700)
-
-      Additional Notes
-      ----------------
-      - Subtle shadows for depth
-      - clamp() ensures flexible font sizes
-      - Accessibility supported with aria-label tags
-      - JavaScript required for interactive elements
+      - ≤768px: Stack mode buttons vertically, reduce font sizes
+      - ≤480px: Further reduce font sizes and paddings
       */
 
       @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap");
@@ -123,31 +78,11 @@
 
       body {
         font-family: "Montserrat", sans-serif;
-        position: relative;
-        overflow-x: hidden;
         display: flex;
         flex-direction: column;
-        min-height: 100%;
+        min-height: 100vh;
         background: #f5f5f5;
-      }
-
-      .thematic-header {
-        position: absolute;
-        top: 0;
-        width: 100%;
-        padding: 20px 24px;
-        display: flex;
-        justify-content: center;
-        z-index: 10;
-        background: rgba(255, 255, 255, 0.9);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      }
-
-      .thematic-header .logo a {
-        text-decoration: none;
-        color: #333;
-        font-size: 1.65rem;
-        font-weight: 700;
+        overflow-x: hidden;
       }
 
       .main-content-wrapper {
@@ -157,35 +92,79 @@
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        padding: 8rem 1.5rem 2rem;
-        box-sizing: border-box;
-        position: relative;
+        padding: 2rem 1.5rem;
+        min-height: 100vh;
       }
 
-      .header-text {
+      .hero-section {
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
         width: 100%;
         max-width: 800px;
-        text-align: center;
         padding: 0 1rem;
-        color: #333;
       }
 
-      .header-text h1 {
-        font-size: clamp(1.8rem, 4vw, 2.5rem);
+      .logo a {
+        text-decoration: none;
+        color: #333;
+
+        font-size: 5rem;
         font-weight: 700;
         margin-bottom: 0.5rem;
-        line-height: 1.2;
+        text-transform: none;
       }
 
-      .header-text h1 strong {
-        font-size: clamp(2rem, 5vw, 3rem);
+      .slogan {
+        font-size: 1.5rem;
         font-weight: 700;
+        color: #333;
+        margin-bottom: 1.5rem;
+        line-height: 1.2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: nowrap;
+      }
+
+      .slogan .rotating-text {
+        color: #0078d4;
+        display: inline-block;
+        min-width: 150px;
+        text-align: left;
+        position: relative;
+        height: 100%;
+        margin-left: 1rem;
+      }
+
+      .rotating-text span {
+        display: inline-block;
+        opacity: 0;
+        transform: translateY(20px);
+        animation: rotateText 9s infinite;
+        position: absolute;
+        white-space: nowrap;
+      }
+
+      .rotating-text span:nth-child(1) { animation-delay: 0s; }
+      .rotating-text span:nth-child(2) { animation-delay: 3s; }
+      .rotating-text span:nth-child(3) { animation-delay: 6s; }
+
+      @keyframes rotateText {
+        0% { opacity: 0; transform: translateY(20px); }
+        11% { opacity: 1; transform: translateY(0); }
+        33% { opacity: 1; transform: translateY(0); }
+        44% { opacity: 0; transform: translateY(-20px); }
+        100% { opacity: 0; transform: translateY(-20px); }
       }
 
       .track-container {
         background: rgba(255, 255, 255, 0.95);
         border-radius: 15px;
-        padding: 30px;
+        padding: 90px;
         box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
         text-align: center;
         width: 100%;
@@ -195,13 +174,6 @@
         justify-content: center;
         align-items: center;
         min-height: 250px;
-        margin: 10rem auto;
-        animation: slideUp 1.2s ease-in;
-      }
-
-      @keyframes slideUp {
-        from { opacity: 0; transform: translateY(30px); }
-        to { opacity: 1; transform: translateY(0); }
       }
 
       .track-container h2 {
@@ -669,18 +641,18 @@
 
       @media (max-width: 768px) {
         .main-content-wrapper {
-          padding: 6rem 1rem 2rem;
+          padding: 1.5rem 1rem;
+          min-height: 100vh;
         }
-        .header-text h1 {
-          font-size: clamp(1.4rem, 3vw, 1.8rem);
+        .logo a {
+          font-size: 3.8rem;
         }
-        .header-text h1 strong {
-          font-size: clamp(1.6rem, 4vw, 2rem);
+        .slogan {
+          font-size: 1.2rem;
         }
         .track-container {
           padding: 20px;
           min-height: auto;
-          max-height: 400px;
           max-width: 650px;
         }
         .track-container h2 {
@@ -796,16 +768,17 @@
       }
 
       @media (max-width: 480px) {
-        .thematic-header .logo a {
-          font-size: 1.32rem;
+        .logo a {
+          font-size: 2rem;
         }
         .main-content-wrapper {
-          padding: 5rem 0.5rem 2rem;
+          padding: 1rem 0.5rem;
+        }
+        .slogan {
+          font-size: 1rem;
         }
         .track-container {
           padding: 15px;
-          min-height: auto;
-          max-height: 400px;
           max-width: 90%;
         }
         .track-container h2 {
@@ -900,7 +873,7 @@
       }
 
       @media (prefers-reduced-motion: reduce) {
-        .track-container, .mode-button, .cta-button, .section, .header-text, .popup-start, .scroll-to-top {
+        .track-container, .mode-button, .section, .rotating-text span, .popup-start, .scroll-to-top {
           animation: none;
           transition: none;
         }
@@ -908,15 +881,28 @@
     </style>
 </head>
 <body class="page-default">
-  <header class="thematic-header">
-    <div class="logo">
-      <a href="index.html" aria-label="specifys.ai homepage">specifys.ai</a>
-    </div>
-  </header>
-
   <div class="main-content-wrapper">
-    <div class="header-text">
-      <h1>Specifys.ai Makes You a <strong>One-Man Show</strong></h1>
+    <div class="hero-section">
+      <div class="logo">
+        <a href="index.html" aria-label="specifys.ai homepage">Specifys.ai</a>
+      </div>
+      <div class="slogan">
+        Specifys.ai helps you
+        <span class="rotating-text">
+          <span>save money</span>
+          <span>save time</span>
+          <span>be more effective</span>
+        </span>
+      </div>
+      <div class="track-container">
+        <h2>Choose Your Track</h2>
+        <div class="mode-buttons" id="modeButtons">
+          <button class="mode-button" data-mode="novice" onmouseover="specifys.showTrackInfo('novice')" onmouseout="specifys.resumeAutoCycle()" ontouchstart="specifys.showTrackInfo('novice')" ontouchend="specifys.resumeAutoCycle()" onclick="specifys.selectMode('novice')" aria-label="Select Start-Easy mode for non-programmers"><i class="fas fa-edit"></i>Start-Easy</button>
+          <button class="mode-button" data-mode="developers" onmouseover="specifys.showTrackInfo('developers')" onmouseout="specifys.resumeAutoCycle()" ontouchstart="specifys.showTrackInfo('developers')" ontouchend="specifys.resumeAutoCycle()" onclick="specifys.selectMode('developers')" aria-label="Select Dev-Tools mode for developers"><i class="fas fa-code"></i>Dev-Tools</button>
+          <button class="mode-button" data-mode="market" onmouseover="specifys.showTrackInfo('market')" onmouseout="specifys.resumeAutoCycle()" ontouchstart="specifys.showTrackInfo('market')" ontouchend="specifys.resumeAutoCycle()" onclick="specifys.selectMode('market')" aria-label="Select Explore mode for entrepreneurs"><i class="fas fa-chart-bar"></i>Explore</button>
+        </div>
+        <div class="track-info" id="trackInfo"></div>
+      </div>
     </div>
 
     <div class="popup-overlay" id="popupOverlay">
@@ -946,16 +932,6 @@
         </div>
         <button class="popup-start" id="popupStart">Start Now</button>
       </div>
-    </div>
-
-    <div class="track-container">
-      <h2>Choose Your Track</h2>
-      <div class="mode-buttons" id="modeButtons">
-        <button class="mode-button" data-mode="novice" onmouseover="specifys.showTrackInfo('novice')" onmouseout="specifys.resumeAutoCycle()" ontouchstart="specifys.showTrackInfo('novice')" ontouchend="specifys.resumeAutoCycle()" onclick="specifys.selectMode('novice')" aria-label="Select Start-Easy mode for non-programmers"><i class="fas fa-edit"></i>Start-Easy</button>
-        <button class="mode-button" data-mode="developers" onmouseover="specifys.showTrackInfo('developers')" onmouseout="specifys.resumeAutoCycle()" ontouchstart="specifys.showTrackInfo('developers')" ontouchend="specifys.resumeAutoCycle()" onclick="specifys.selectMode('developers')" aria-label="Select Dev-Tools mode for developers"><i class="fas fa-code"></i>Dev-Tools</button>
-        <button class="mode-button" data-mode="market" onmouseover="specifys.showTrackInfo('market')" onmouseout="specifys.resumeAutoCycle()" ontouchstart="specifys.showTrackInfo('market')" ontouchend="specifys.resumeAutoCycle()" onclick="specifys.selectMode('market')" aria-label="Select Explore mode for entrepreneurs"><i class="fas fa-chart-bar"></i>Explore</button>
-      </div>
-      <div class="track-info" id="trackInfo"></div>
     </div>
 
     <div class="extra-sections">
@@ -1115,31 +1091,31 @@
         <a href="./processing-novice.html" class="cta-button">Start Planning Free</a>
       </div>
     </div>
+
+    <button class="scroll-to-top" id="scrollToTop"><i class="fas fa-arrow-up"></i></button>
+
+    <footer>
+      <div class="footer-content">
+        <div class="footer-links">
+          <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
+          <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
+          <a href="blog.html" aria-label="Try our Blog">Blog</a>
+          <a href="map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
+        </div>
+        <span class="footer-divider">|</span>
+        <div class="footer-social">
+          <a href="https://www.linkedin.com/company/specifys-ai/" aria-label="Follow us on LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+          <a href="https://www.facebook.com/profile.php?id=61576402600129&locale=he_IL" target="_blank" aria-label="Follow us on Facebook"><i class="fab fa-facebook-f"></i></a>
+          <a href="https://www.instagram.com/YOUR_PROFILE" aria-label="Follow us on Instagram"><i class="fab fa-instagram"></i></a>
+          <a href="mailto:specifysai@gmail.com" aria-label="Send us an email"><i class="fas fa-envelope"></i></a>
+          <a href="https://www.producthunt.com/products/specifys-ai" target="_blank" aria-label="Check us out on Product Hunt"><i class="fab fa-product-hunt"></i></a>
+        </div>
+      </div>
+      <div class="footer-copyright">
+        © 2025 specifys.ai. All rights reserved.
+      </div>
+    </footer>
   </div>
-
-  <button class="scroll-to-top" id="scrollToTop"><i class="fas fa-arrow-up"></i></button>
-
-  <footer>
-    <div class="footer-content">
-      <div class="footer-links">
-        <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
-        <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
-        <a href="blog.html" aria-label="Try our Blog">Blog</a>
-        <a href="map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
-      </div>
-      <span class="footer-divider">|</span>
-      <div class="footer-social">
-        <a href="https://www.linkedin.com/company/specifys-ai/" aria-label="Follow us on LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-        <a href="https://www.facebook.com/profile.php?id=61576402600129&locale=he_IL" target="_blank" aria-label="Follow us on Facebook"><i class="fab fa-facebook-f"></i></a>
-        <a href="https://www.instagram.com/YOUR_PROFILE" aria-label="Follow us on Instagram"><i class="fab fa-instagram"></i></a>
-        <a href="mailto:specifysai@gmail.com" aria-label="Send us an email"><i class="fas fa-envelope"></i></a>
-        <a href="https://www.producthunt.com/products/specifys-ai" target="_blank" aria-label="Check us out on Product Hunt"><i class="fab fa-product-hunt"></i></a>
-      </div>
-    </div>
-    <div class="footer-copyright">
-      © 2025 specifys.ai. All rights reserved.
-    </div>
-  </footer>
 
   <script>
     (function() {
