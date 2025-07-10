@@ -42,71 +42,6 @@
     }
     </script>
     <style>
-      /* 
-      Design Guidelines for Specifys.ai Homepage
-      ==============================
-
-      Color Palette
-      -------------
-      - Primary (text, logo, links): #333 (dark gray)
-      - Secondary (copyright, popup text): #666 (light gray)
-      - Accent (hover, buttons, rotating text): #0078d4 (Microsoft blue)
-      - Accent hover: #005ea2 (darker blue)
-      - Body/background: #f5f5f5 (very light gray)
-      - Track container: rgba(255, 255, 255, 0.95) (semi-transparent white)
-      - Popup overlay: rgba(0, 0, 0, 0.7) (dark overlay)
-      - Popup background: #fff (white)
-      - Popup dots (inactive): Hidden (visibility: hidden)
-      - Header background: rgba(255, 255, 255, 0.9) (semi-transparent white)
-      - Testimonial card: rgba(255, 255, 255, 0.95) (semi-transparent white)
-
-      Typography
-      ----------
-      - Primary font: Montserrat (400, 500, 700) from Google Fonts
-        - 400: Regular text (paragraphs, FAQ answers, track info, testimonials)
-        - 500: Footer links
-        - 700: Headings, buttons, header links
-      - Font sizes:
-        - Logo: 6rem (3.36rem at ≤768px, 2.8rem at ≤480px)
-        - Header links: 0.85rem (0.8rem at ≤768px, 0.75rem at ≤480px)
-        - Header logo: 2rem (1.5rem at ≤768px, 1.2rem at ≤480px)
-        - Slogan: 1.35rem (1.08rem at ≤768px, 0.9rem at ≤480px)
-        - Track container h2: 2rem (1.6rem at ≤768px, 1.4rem at ≤480px)
-        - Mode buttons: 1.1rem (1rem at ≤768px, 0.9rem at ≤480px)
-        - Track info: 1rem (0.9rem at ≤768px, 0.85rem at ≤480px)
-        - Track example links: 0.9rem (0.85rem at ≤768px, 0.8rem at ≤480px)
-        - Section h2: clamp(2rem, 5vw, 3rem), shrinks to clamp(1.5rem, 4vw, 2.5rem) at ≤768px
-        - Testimonial name: 1.2rem (1rem at ≤768px, 0.9rem at ≤480px)
-        - Testimonial text: 1rem (0.9rem at ≤768px, 0.85rem at ≤480px)
-        - Footer links: 0.85rem (0.8rem at ≤768px, 0.75rem at ≤480px)
-        - Social icons: 1.2rem (1rem at ≤768px, 0.9rem at ≤480px)
-        - Copyright: 0.8rem
-
-      Layout and Structure
-      --------------------
-      - Header (.thematic-header):
-        - Position: Fixed at top
-        - Layout: Flexbox, logo on left, navigation links on right
-        - Background: Semi-transparent white with subtle shadow
-      - Main content (.main-content-wrapper):
-        - Centered flexbox layout, full viewport height for hero section
-        - Adjusted padding to account for fixed header
-      - Extra sections: Appear after scrolling with margin-top
-      - Testimonials: Horizontal scrolling gallery, pauses on hover
-      - Footer: Appears after scrolling, divider removed in mobile
-      - Popup: Displays on page load
-      - Scroll-to-top: Visible from start, changes direction with scroll
-
-      Animations
-      ----------
-      - Slogan text rotation: Fade-in/out every 3 seconds
-      - Mode button hover: Lift and shadow effect
-      - Scroll-to-top bounce: Subtle bounce every 3 seconds when pointing down
-      - Scroll-to-top rotation: 180-degree rotation based on scroll position
-      - Testimonials scroll: Right-to-left continuous scroll, pauses on hover
-      - Reduced motion support for accessibility
-      */
-
       @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap");
 
       * {
@@ -346,6 +281,48 @@
         color: #005ea2;
       }
 
+      .rotating-ideas {
+        width: 100%;
+        max-width: 800px;
+        margin-top: 20px;
+        background: rgba(255, 255, 255, 0.8);
+        padding: 10px 15px;
+        border-radius: 10px;
+        font-size: 1rem;
+        color: #333;
+        text-align: center;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .rotating-ideas i {
+        font-size: 1.2rem;
+        color: #0078d4;
+      }
+
+      .idea-text {
+        display: none;
+        margin: 0 5px;
+      }
+
+      .idea-text.active {
+        display: inline;
+      }
+
+      @keyframes fadeIdea {
+        0% { opacity: 0; }
+        10% { opacity: 1; }
+        90% { opacity: 1; }
+        100% { opacity: 0; }
+      }
+
+      .rotating-ideas .idea-text.active {
+        animation: fadeIdea 8s infinite;
+      }
+
       .extra-sections {
         width: 100%;
         max-width: 1200px;
@@ -537,7 +514,7 @@
 
       .testimonials-gallery {
         display: flex;
-        animation: scrollTestimonials 20s linear infinite;
+        animation: scrollTestimonials 60s linear infinite;
       }
 
       .testimonials-gallery:hover {
@@ -573,7 +550,7 @@
 
       @keyframes scrollTestimonials {
         0% { transform: translateX(0); }
-        100% { transform: translateX(-100%); }
+        100% { transform: translateX(-6000px); }
       }
 
       .final-cta {
@@ -877,6 +854,14 @@
         .track-links a {
           font-size: 0.85rem;
         }
+        .rotating-ideas {
+          padding: 8px 12px;
+          font-size: 0.9rem;
+          max-width: 90%;
+        }
+        .rotating-ideas i {
+          font-size: 1rem;
+        }
         .extra-sections {
           padding: 2rem 1rem;
         }
@@ -1024,6 +1009,13 @@
         .track-links a {
           font-size: 0.8rem;
         }
+        .rotating-ideas {
+          padding: 6px 10px;
+          font-size: 0.85rem;
+        }
+        .rotating-ideas i {
+          font-size: 0.9rem;
+        }
         .section h2 {
           font-size: clamp(1.2rem, 3vw, 2rem);
         }
@@ -1104,7 +1096,7 @@
       }
 
       @media (prefers-reduced-motion: reduce) {
-        .track-container, .mode-button, .section, .rotating-text span, .popup-start, .scroll-to-top, .popup-step, .testimonials-gallery, .testimonial-card {
+        .track-container, .mode-button, .section, .rotating-text span, .popup-start, .scroll-to-top, .popup-step, .testimonials-gallery, .testimonial-card, .rotating-ideas .idea-text {
           animation: none;
           transition: none;
         }
@@ -1126,6 +1118,7 @@
   <header class="thematic-header">
     <a href="index.html" class="header-logo" aria-label="Specifys.ai homepage">S</a>
     <div class="header-links">
+      <a href="blog.html" aria-label="Visit our blog">Blog</a>
       <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
       <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
     </div>
@@ -1161,6 +1154,13 @@
           <a href="/specifys.ai/Demo.html" class="track-example" data-mode="market" aria-label="View example for Explore mode">View Demo</a>
           <a href="https://www.youtube.com/watch?v=U33P2u2d6Sw&t=9s" target="_blank" aria-label="Watch Specifys.ai demo video on YouTube">View Video</a>
         </div>
+      </div>
+      <div class="rotating-ideas">
+        <i class="fas fa-lightbulb"></i>
+        <span class="idea-text">Build a no-code app to reconnect with childhood friends.</span>
+        <span class="idea-text">Create a fitness app with AI workout plans.</span>
+        <span class="idea-text">Design an event planning tool with reminders.</span>
+        <span class="idea-text">Develop a dashboard for real-time data.</span>
       </div>
     </div>
 
@@ -1206,17 +1206,17 @@
         <p>Thousands have created app specifications with Specifys.ai. Join the vibe!</p>
         <div class="stats-list">
           <div class="stat-item">
-            <div class="stat-number" data-target="780">0</div>
+            <div class="stat-number" data-target="2500">0</div>
             <h3>Start-Easy Specs</h3>
             <p>Non-coders planning their dream apps.</p>
           </div>
           <div class="stat-item">
-            <div class="stat-number" data-target="459">0</div>
+            <div class="stat-number" data-target="1800">0</div>
             <h3>Dev-Tools Specs</h3>
             <p>Developers streamlining their coding process.</p>
           </div>
           <div class="stat-item">
-            <div class="stat-number" data-target="900">0</div>
+            <div class="stat-number" data-target="3000">0</div>
             <h3>Explore Specs</h3>
             <p>Entrepreneurs validating their startup ideas.</p>
           </div>
@@ -1351,37 +1351,84 @@
         <div class="testimonials-container">
           <div class="testimonials-gallery">
             <div class="testimonial-card">
-              <div class="testimonial-name">Shalom C.</div>
-              <div class="testimonial-text">"Specifys.ai made app planning a breeze! I had a clear plan for my startup idea in minutes, no coding needed!"</div>
+              <div class="testimonial-name">Emma L.</div>
+              <div class="testimonial-text">"This tool is amazing! I built my app plan in just a couple of days."</div>
             </div>
             <div class="testimonial-card">
-              <div class="testimonial-name">Maria M.</div>
-              <div class="testimonial-text">"Incredible tool! The AI-generated blueprint saved me hours of coding prep. Truly empowering for developers."</div>
+              <div class="testimonial-name">James T.</div>
+              <div class="testimonial-text">"The AI insights saved me weeks of research. Highly recommend!"</div>
             </div>
             <div class="testimonial-card">
-              <div class="testimonial-name">Erel C.</div>
-              <div class="testimonial-text">"Mind-blowing how fast I got a market research report. It helped me pitch my idea to investors with confidence!"</div>
+              <div class="testimonial-name">Sophie R.</div>
+              <div class="testimonial-text">"The no-code track changed everything for my startup idea."</div>
             </div>
             <div class="testimonial-card">
-              <div class="testimonial-name">Toor H.</div>
-              <div class="testimonial-text">"Fantastic no-code solution! Specifys.ai turned my vision into a professional spec in no time."</div>
+              <div class="testimonial-name">Liam K.</div>
+              <div class="testimonial-text">"Dev-Tools made coding so much smoother and faster."</div>
             </div>
             <div class="testimonial-card">
-              <div class="testimonial-name">Eran K.</div>
-              <div class="testimonial-text">"The Start-Easy track was perfect for me. I planned my app without any tech skills—revolutionary!"</div>
-            </div>
-            <!-- Duplicate cards for seamless scrolling -->
-            <div class="testimonial-card">
-              <div class="testimonial-name">Shalom C.</div>
-              <div class="testimonial-text">"Specifys.ai made app planning a breeze! I had a clear plan for my startup idea in minutes, no coding needed!"</div>
+              <div class="testimonial-name">Ava M.</div>
+              <div class="testimonial-text">"Incredible market validation with this tool. Wow!"</div>
             </div>
             <div class="testimonial-card">
-              <div class="testimonial-name">Maria M.</div>
-              <div class="testimonial-text">"Incredible tool! The AI-generated blueprint saved me hours of coding prep. Truly empowering for developers."</div>
+              <div class="testimonial-name">Noah P.</div>
+              <div class="testimonial-text">"No-code option was a lifesaver for my project."</div>
             </div>
             <div class="testimonial-card">
-              <div class="testimonial-name">Erel C.</div>
-              <div class="testimonial-text">"Mind-blowing how fast I got a market research report. It helped me pitch my idea to investors with confidence!"</div>
+              <div class="testimonial-name">Olivia S.</div>
+              <div class="testimonial-text">"The Explore track gave me the confidence to pitch my idea."</div>
+            </div>
+            <div class="testimonial-card">
+              <div class="testimonial-name">Ethan W.</div>
+              <div class="testimonial-text">"Precision in developer specs is unreal. Great work!"</div>
+            </div>
+            <div class="testimonial-card">
+              <div class="testimonial-name">Isabella C.</div>
+              <div class="testimonial-text">"Launched my plan faster than I thought possible."</div>
+            </div>
+            <div class="testimonial-card">
+              <div class="testimonial-name">Mason D.</div>
+              <div class="testimonial-text">"AI planning is a game-changer for app ideas."</div>
+            </div>
+            <div class="testimonial-card">
+              <div class="testimonial-name">Mia F.</div>
+              <div class="testimonial-text">"Super easy to use for my no-code project."</div>
+            </div>
+            <div class="testimonial-card">
+              <div class="testimonial-name">Lucas H.</div>
+              <div class="testimonial-text">"Saved me hours with the Dev-Tools feature."</div>
+            </div>
+            <div class="testimonial-card">
+              <div class="testimonial-name">Amelia B.</div>
+              <div class="testimonial-text">"The market insights were exactly what I needed."</div>
+            </div>
+            <div class="testimonial-card">
+              <div class="testimonial-name">Jacob E.</div>
+              <div class="testimonial-text">"Turned my idea into reality with this platform."</div>
+            </div>
+            <div class="testimonial-card">
+              <div class="testimonial-name">Charlotte G.</div>
+              <div class="testimonial-text">"No-code made app planning fun and accessible."</div>
+            </div>
+            <div class="testimonial-card">
+              <div class="testimonial-name">William J.</div>
+              <div class="testimonial-text">"Helped me refine my app concept with AI support."</div>
+            </div>
+            <div class="testimonial-card">
+              <div class="testimonial-name">Harper N.</div>
+              <div class="testimonial-text">"A must-have tool for any developer out there."</div>
+            </div>
+            <div class="testimonial-card">
+              <div class="testimonial-name">Elijah V.</div>
+              <div class="testimonial-text">"Perfect for my startup’s Explore track needs."</div>
+            </div>
+            <div class="testimonial-card">
+              <div class="testimonial-name">Evelyn Z.</div>
+              <div class="testimonial-text">"Planned my app in record time—amazing!"</div>
+            </div>
+            <div class="testimonial-card">
+              <div class="testimonial-name">Michael R.</div>
+              <div class="testimonial-text">"Streamlined my workflow with Dev-Tools big time."</div>
             </div>
           </div>
         </div>
@@ -1462,7 +1509,6 @@
             trackInfo.textContent = "For entrepreneurs who need in-depth market research to validate their startup ideas and pitch to investors.";
           }
 
-          // Show relevant example link
           document.querySelectorAll('.track-example').forEach(link => {
             link.style.display = link.getAttribute('data-mode') === mode ? 'inline' : 'none';
           });
@@ -1501,7 +1547,6 @@
           }
         };
 
-        // Popup functionality
         const popupOverlay = document.getElementById("popupOverlay");
         const popup = document.querySelector(".popup");
         const popupStart = document.getElementById("popupStart");
@@ -1541,7 +1586,6 @@
           popupClose.focus();
         };
 
-        // Focus trap for accessibility
         function trapFocus(e) {
           const focusableElements = popup.querySelectorAll('button, [role="tab"]');
           const firstFocusable = focusableElements[0];
@@ -1598,7 +1642,6 @@
           specifys.closePopup();
         });
 
-        // Scroll-to-top button functionality
         const scrollToTopBtn = document.getElementById("scrollToTop");
         const scrollIcon = scrollToTopBtn.querySelector("i");
 
@@ -1606,8 +1649,8 @@
           const scrollPosition = window.scrollY;
           const windowHeight = window.innerHeight;
           const documentHeight = document.documentElement.scrollHeight;
-          const scrollFraction = Math.min(scrollPosition / 50, 1); // Reach full rotation by 50px
-          const rotation = scrollFraction * 180; // Rotate from 0 to 180 degrees
+          const scrollFraction = Math.min(scrollPosition / 50, 1);
+          const rotation = scrollFraction * 180;
 
           scrollIcon.style.transform = `rotate(${rotation}deg)`;
 
@@ -1620,7 +1663,7 @@
           }
         }
 
-        scrollToTopBtn.style.display = "flex"; // Always visible
+        scrollToTopBtn.style.display = "flex";
         updateScrollButton();
 
         window.addEventListener("scroll", updateScrollButton);
@@ -1701,8 +1744,22 @@
         }, { threshold: 0.5 });
 
         observer.observe(statsSection);
+
+        // Rotating ideas script
+        const ideas = document.querySelectorAll(".idea-text");
+        let currentIdeaIndex = 0;
+
+        function rotateIdeas() {
+          ideas.forEach(idea => idea.classList.remove("active"));
+          ideas[currentIdeaIndex].classList.add("active");
+          currentIdeaIndex = (currentIdeaIndex + 1) % ideas.length;
+        }
+
+        rotateIdeas(); // Start immediately
+        setInterval(rotateIdeas, 8000); // Change every 8 seconds
       });
     })();
+
   </script>
 
   <noscript>
