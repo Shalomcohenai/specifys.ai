@@ -3,13 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Specifys.ai - Plan your dream app for free with smart AI tools. Choose an easy track for beginners, tools for developers, or market research for entrepreneurs.">
+    <meta name="keywords" content="app planning, AI, developers, beginners, market research, entrepreneurship, free software">
+    <meta name="robots" content="index, follow">
+    <meta name="author" content="Specifys.ai">
     <title>Specifys.ai - Plan Your App Idea for Free</title>
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" type="image/x-icon" href="favicon.ico" alt="Specifys.ai logo icon">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-RWBT69JCM7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-RWBT69JCM7');
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Specifys.ai",
+      "url": "https://www.specifys.ai",
+      "description": "Free AI tool for planning apps for beginners, developers, and entrepreneurs.",
+      "publisher": {
+        "@type": "Organization",
+        "name": "Specifys.ai",
+        "url": "https://www.specifys.ai",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://www.specifys.ai/favicon.ico"
+        }
+      },
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://www.specifys.ai/search?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
     <style>
-      /*
-      Updated Design for Specifys.ai Homepage
+      /* 
+      Design Guidelines for Specifys.ai Homepage
       ==============================
 
       Color Palette
@@ -18,49 +52,59 @@
       - Secondary (copyright, popup text): #666 (light gray)
       - Accent (hover, buttons, rotating text): #0078d4 (Microsoft blue)
       - Accent hover: #005ea2 (darker blue)
-      - Body background: #f5f5f5 (very light gray)
+      - Body/background: #f5f5f5 (very light gray)
       - Track container: rgba(255, 255, 255, 0.95) (semi-transparent white)
       - Popup overlay: rgba(0, 0, 0, 0.7) (dark overlay)
       - Popup background: #fff (white)
-      - Popup dots (inactive): #ccc (light gray)
+      - Popup dots (inactive): Hidden (visibility: hidden)
+      - Header background: rgba(255, 255, 255, 0.9) (semi-transparent white)
+      - Testimonial card: rgba(255, 255, 255, 0.95) (semi-transparent white)
 
       Typography
       ----------
       - Primary font: Montserrat (400, 500, 700) from Google Fonts
-        - 400: Regular text (paragraphs, FAQ answers, track info)
-        - 500: Footer links, FAQ questions
-        - 700: Headings, logo, buttons
+        - 400: Regular text (paragraphs, FAQ answers, track info, testimonials)
+        - 500: Footer links
+        - 700: Headings, buttons, header links
       - Font sizes:
-        - Logo: 6rem (4.8rem at ≤768px, 4rem at ≤480px)
-        - Slogan: 1.5rem (1.2rem at ≤768px, 1rem at ≤480px)
+        - Logo: 6rem (3.36rem at ≤768px, 2.8rem at ≤480px)
+        - Header links: 0.85rem (0.8rem at ≤768px, 0.75rem at ≤480px)
+        - Header logo: 2rem (1.5rem at ≤768px, 1.2rem at ≤480px)
+        - Slogan: 1.35rem (1.08rem at ≤768px, 0.9rem at ≤480px)
         - Track container h2: 2rem (1.6rem at ≤768px, 1.4rem at ≤480px)
         - Mode buttons: 1.1rem (1rem at ≤768px, 0.9rem at ≤480px)
         - Track info: 1rem (0.9rem at ≤768px, 0.85rem at ≤480px)
+        - Track example links: 0.9rem (0.85rem at ≤768px, 0.8rem at ≤480px)
         - Section h2: clamp(2rem, 5vw, 3rem), shrinks to clamp(1.5rem, 4vw, 2.5rem) at ≤768px
+        - Testimonial name: 1.2rem (1rem at ≤768px, 0.9rem at ≤480px)
+        - Testimonial text: 1rem (0.9rem at ≤768px, 0.85rem at ≤480px)
         - Footer links: 0.85rem (0.8rem at ≤768px, 0.75rem at ≤480px)
         - Social icons: 1.2rem (1rem at ≤768px, 0.9rem at ≤480px)
         - Copyright: 0.8rem
 
       Layout and Structure
       --------------------
+      - Header (.thematic-header):
+        - Position: Fixed at top
+        - Layout: Flexbox, logo on left, navigation links on right
+        - Background: Semi-transparent white with subtle shadow
       - Main content (.main-content-wrapper):
         - Centered flexbox layout, full viewport height for hero section
-        - Logo centered, followed by slogan, then mode selection
+        - Adjusted padding to account for fixed header
       - Extra sections: Appear after scrolling with margin-top
-      - Footer: Appears after scrolling
+      - Testimonials: Horizontal scrolling gallery, pauses on hover
+      - Footer: Appears after scrolling, divider removed in mobile
       - Popup: Displays on page load
-      - Scroll-to-top: Appears on scroll
+      - Scroll-to-top: Visible from start, changes direction with scroll
 
       Animations
       ----------
       - Slogan text rotation: Fade-in/out every 3 seconds
       - Mode button hover: Lift and shadow effect
+      - Scroll-to-top bounce: Subtle bounce every 3 seconds when pointing down
+      - Scroll-to-top rotation: 180-degree rotation based on scroll position
+      - Testimonials scroll: Right-to-left continuous scroll, pauses on hover
       - Reduced motion support for accessibility
-
-      Responsiveness
-      --------------
-      - ≤768px: Stack mode buttons vertically, reduce font sizes
-      - ≤480px: Further reduce font sizes and paddings
       */
 
       @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap");
@@ -85,6 +129,54 @@
         overflow-x: hidden;
       }
 
+      .thematic-header {
+        position: fixed;
+        top: 0;
+        width: 100%;
+        padding: 20px 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        z-index: 10;
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .header-logo {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        background: #333;
+        border-radius: 8px;
+        color: #fff;
+        font-size: 2rem;
+        font-weight: 700;
+        text-decoration: none;
+      }
+
+      .header-logo:hover {
+        background: #0078d4;
+      }
+
+      .thematic-header .header-links {
+        display: flex;
+        gap: 15px;
+      }
+
+      .thematic-header .header-links a {
+        color: #333;
+        text-decoration: none;
+        font-size: 0.85rem;
+        font-weight: 700;
+        transition: color 0.3s ease;
+      }
+
+      .thematic-header .header-links a:hover {
+        color: #0078d4;
+      }
+
       .main-content-wrapper {
         width: 100%;
         flex-grow: 1;
@@ -92,7 +184,7 @@
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        padding: 2rem 1.5rem;
+        padding: 4rem 1.5rem 2rem;
         min-height: 100vh;
       }
 
@@ -111,23 +203,21 @@
       .logo a {
         text-decoration: none;
         color: #333;
-
-        font-size: 5rem;
+        font-size: 6rem;
         font-weight: 700;
         margin-bottom: 0.5rem;
         text-transform: none;
+        letter-spacing: 0.05em;
       }
 
       .slogan {
-        font-size: 1.5rem;
+        font-size: 1.35rem;
         font-weight: 700;
         color: #333;
         margin-bottom: 1.5rem;
         line-height: 1.2;
         display: flex;
         align-items: center;
-        justify-content: center;
-        flex-wrap: nowrap;
       }
 
       .slogan .rotating-text {
@@ -144,7 +234,7 @@
         display: inline-block;
         opacity: 0;
         transform: translateY(20px);
-        animation: rotateText 9s infinite;
+        animation: rotateText 18s infinite;
         position: absolute;
         white-space: nowrap;
       }
@@ -152,12 +242,15 @@
       .rotating-text span:nth-child(1) { animation-delay: 0s; }
       .rotating-text span:nth-child(2) { animation-delay: 3s; }
       .rotating-text span:nth-child(3) { animation-delay: 6s; }
+      .rotating-text span:nth-child(4) { animation-delay: 9s; }
+      .rotating-text span:nth-child(5) { animation-delay: 12s; }
+      .rotating-text span:nth-child(6) { animation-delay: 15s; }
 
       @keyframes rotateText {
         0% { opacity: 0; transform: translateY(20px); }
-        11% { opacity: 1; transform: translateY(0); }
-        33% { opacity: 1; transform: translateY(0); }
-        44% { opacity: 0; transform: translateY(-20px); }
+        5.5% { opacity: 1; transform: translateY(0); }
+        16.5% { opacity: 1; transform: translateY(0); }
+        22% { opacity: 0; transform: translateY(-20px); }
         100% { opacity: 0; transform: translateY(-20px); }
       }
 
@@ -231,6 +324,26 @@
 
       .track-info.show {
         opacity: 1;
+      }
+
+      .track-links {
+        margin-top: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      .track-links a {
+        color: #0078d4;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 700;
+        transition: color 0.3s ease;
+      }
+
+      .track-links a:hover {
+        color: #005ea2;
       }
 
       .extra-sections {
@@ -414,6 +527,55 @@
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
       }
 
+      .testimonials-container {
+        overflow: hidden;
+        position: relative;
+        width: 100%;
+        max-width: 1200px;
+        margin: 2rem auto;
+      }
+
+      .testimonials-gallery {
+        display: flex;
+        animation: scrollTestimonials 20s linear infinite;
+      }
+
+      .testimonials-gallery:hover {
+        animation-play-state: paused;
+      }
+
+      .testimonial-card {
+        flex: 0 0 300px;
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-right: 1.5rem;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+      }
+
+      .testimonial-card:hover {
+        transform: translateY(-5px);
+      }
+
+      .testimonial-name {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 0.5rem;
+      }
+
+      .testimonial-text {
+        font-size: 1rem;
+        color: #333;
+        line-height: 1.6;
+      }
+
+      @keyframes scrollTestimonials {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-100%); }
+      }
+
       .final-cta {
         padding: 3rem 1.5rem;
         background: rgba(255, 255, 255, 0.95);
@@ -500,6 +662,7 @@
         display: none;
         justify-content: center;
         align-items: center;
+        cursor: pointer;
       }
 
       .popup {
@@ -512,6 +675,7 @@
         text-align: center;
         position: relative;
         overflow: hidden;
+        cursor: default;
       }
 
       .popup-close {
@@ -539,6 +703,7 @@
         position: absolute;
         width: 100%;
         opacity: 0;
+        transform: translateX(100%);
         transition: opacity 0.5s ease, transform 0.5s ease;
       }
 
@@ -581,7 +746,7 @@
       .popup-dot {
         width: 8px;
         height: 8px;
-        background: #ccc;
+        visibility: hidden;
         border-radius: 50%;
         transition: all 0.3s ease;
         cursor: pointer;
@@ -590,8 +755,13 @@
       .popup-dot.active {
         width: 12px;
         height: 12px;
+        visibility: visible;
         background: #0078d4;
-        transform: scale(1.2);
+      }
+
+      .popup-dot:focus {
+        outline: 2px solid #0078d4;
+        outline-offset: 2px;
       }
 
       .popup-start {
@@ -613,6 +783,11 @@
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
       }
 
+      .popup-start:focus {
+        outline: 2px solid #0078d4;
+        outline-offset: 2px;
+      }
+
       .scroll-to-top {
         position: fixed;
         bottom: 20px;
@@ -625,12 +800,16 @@
         height: 40px;
         font-size: 1.2rem;
         cursor: pointer;
-        display: none;
+        display: flex;
         align-items: center;
         justify-content: center;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         z-index: 1000;
         transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .scroll-to-top.down {
+        animation: bounce 3s infinite;
       }
 
       .scroll-to-top:hover {
@@ -639,16 +818,36 @@
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
       }
 
+      @keyframes bounce {
+        0%, 20%, 50%, 80%, 100% {
+          transform: translateY(0);
+        }
+        40% {
+          transform: translateY(-5px);
+        }
+        60% {
+          transform: translateY(-2px);
+        }
+      }
+
       @media (max-width: 768px) {
+        .thematic-header {
+          padding: 15px 1rem;
+        }
+        .header-logo {
+          width: 35px;
+          height: 35px;
+          font-size: 1.5rem;
+        }
         .main-content-wrapper {
-          padding: 1.5rem 1rem;
+          padding: 3rem 1rem 2rem;
           min-height: 100vh;
         }
         .logo a {
-          font-size: 3.8rem;
+          font-size: 3.36rem;
         }
         .slogan {
-          font-size: 1.2rem;
+          font-size: 1.08rem;
         }
         .track-container {
           padding: 20px;
@@ -674,6 +873,9 @@
         .track-info {
           font-size: 0.9rem;
           min-height: 35px;
+        }
+        .track-links a {
+          font-size: 0.85rem;
         }
         .extra-sections {
           padding: 2rem 1rem;
@@ -705,6 +907,21 @@
         .stat-item .stat-number {
           font-size: 1.8rem;
         }
+        .testimonials-gallery {
+          flex-direction: column;
+          animation: none;
+        }
+        .testimonial-card {
+          flex: 0 0 auto;
+          margin-bottom: 1rem;
+          margin-right: 0;
+        }
+        .testimonial-name {
+          font-size: 1rem;
+        }
+        .testimonial-text {
+          font-size: 0.9rem;
+        }
         .faq-question {
           font-size: 1rem;
         }
@@ -722,7 +939,7 @@
           font-size: 0.8rem;
         }
         .footer-divider {
-          font-size: 1rem;
+          display: none;
         }
         .footer-social a {
           font-size: 1rem;
@@ -768,14 +985,22 @@
       }
 
       @media (max-width: 480px) {
-        .logo a {
-          font-size: 3rem;
+        .thematic-header .header-links a {
+          font-size: 0.75rem;
+        }
+        .header-logo {
+          width: 30px;
+          height: 30px;
+          font-size: 1.2rem;
         }
         .main-content-wrapper {
-          padding: 1rem 0.5rem;
+          padding: 2.5rem 0.5rem 2rem;
+        }
+        .logo a {
+          font-size: 2.8rem;
         }
         .slogan {
-          font-size: 0.85rem;;
+          font-size: 0.9rem;
         }
         .track-container {
           padding: 15px;
@@ -795,6 +1020,9 @@
         .track-info {
           font-size: 0.85rem;
           min-height: 30px;
+        }
+        .track-links a {
+          font-size: 0.8rem;
         }
         .section h2 {
           font-size: clamp(1.2rem, 3vw, 2rem);
@@ -820,14 +1048,17 @@
         .use-case-item, .stat-item {
           padding: 1rem;
         }
+        .testimonial-name {
+          font-size: 0.9rem;
+        }
+        .testimonial-text {
+          font-size: 0.85rem;
+        }
         .footer-content {
           gap: 8px;
         }
         .footer-links a {
           font-size: 0.75rem;
-        }
-        .footer-divider {
-          font-size: 0.9rem;
         }
         .footer-social a {
           font-size: 0.9rem;
@@ -873,14 +1104,33 @@
       }
 
       @media (prefers-reduced-motion: reduce) {
-        .track-container, .mode-button, .section, .rotating-text span, .popup-start, .scroll-to-top {
+        .track-container, .mode-button, .section, .rotating-text span, .popup-start, .scroll-to-top, .popup-step, .testimonials-gallery, .testimonial-card {
           animation: none;
           transition: none;
         }
       }
+
+      .visually-hidden {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        border: 0;
+      }
     </style>
 </head>
 <body class="page-default">
+  <header class="thematic-header">
+    <a href="index.html" class="header-logo" aria-label="Specifys.ai homepage">S</a>
+    <div class="header-links">
+      <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
+      <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
+    </div>
+  </header>
+
   <div class="main-content-wrapper">
     <div class="hero-section">
       <div class="logo">
@@ -892,6 +1142,9 @@
           <span>save money</span>
           <span>save time</span>
           <span>be more effective</span>
+          <span>plan smarter</span>
+          <span>build faster</span>
+          <span>launch confidently</span>
         </span>
       </div>
       <div class="track-container">
@@ -902,35 +1155,42 @@
           <button class="mode-button" data-mode="market" onmouseover="specifys.showTrackInfo('market')" onmouseout="specifys.resumeAutoCycle()" ontouchstart="specifys.showTrackInfo('market')" ontouchend="specifys.resumeAutoCycle()" onclick="specifys.selectMode('market')" aria-label="Select Explore mode for entrepreneurs"><i class="fas fa-chart-bar"></i>Explore</button>
         </div>
         <div class="track-info" id="trackInfo"></div>
+        <div class="track-links">
+          <a href="/specifys.ai/Demo.html" class="track-example" data-mode="novice" aria-label="View example for Start-Easy mode">View Demo</a>
+          <a href="/specifys.ai/Demo.html" class="track-example" data-mode="developers" aria-label="View example for Dev-Tools mode">View Demo</a>
+          <a href="/specifys.ai/Demo.html" class="track-example" data-mode="market" aria-label="View example for Explore mode">View Demo</a>
+          <a href="https://www.youtube.com/watch?v=U33P2u2d6Sw&t=9s" target="_blank" aria-label="Watch Specifys.ai demo video on YouTube">View Video</a>
+        </div>
       </div>
     </div>
 
-    <div class="popup-overlay" id="popupOverlay">
-      <div class="popup">
-        <button class="popup-close" aria-label="Close popup">×</button>
+    <div class="popup-overlay" id="popupOverlay" role="dialog" aria-labelledby="popupTitle" aria-modal="true">
+      <div class="popup" role="document">
+        <h2 id="popupTitle" class="visually-hidden">Welcome to Specifys.ai</h2>
+        <button class="popup-close" aria-label="Close welcome popup" onclick="specifys.closePopup()">×</button>
         <div class="popup-gallery">
-          <div class="popup-step step-1 active">
+          <div class="popup-step step-1 active" id="step-1">
             <i class="fas fa-edit"></i>
             <h3>Choose Your Mode</h3>
             <p>Select your perfect track: Start-Easy for beginners, Dev-Tools for coders, or Explore for market research.</p>
           </div>
-          <div class="popup-step step-2">
+          <div class="popup-step step-2" id="step-2">
             <i class="fas fa-question-circle"></i>
             <h3>Answer Questions</h3>
             <p>Share your vision by answering a few simple questions to kickstart your app journey.</p>
           </div>
-          <div class="popup-step step-3">
+          <div class="popup-step step-3" id="step-3">
             <i class="fas fa-file-alt"></i>
             <h3>Create Specification</h3>
             <p>Receive a precise blueprint you can integrate with Vibe Coding tools for success.</p>
           </div>
         </div>
-        <div class="popup-dots">
-          <div class="popup-dot active" data-step="0"></div>
-          <div class="popup-dot" data-step="1"></div>
-          <div class="popup-dot" data-step="2"></div>
+        <div class="popup-dots" role="tablist">
+          <button class="popup-dot active" data-step="0" role="tab" aria-selected="true" aria-controls="step-1" tabindex="0"></button>
+          <button class="popup-dot" data-step="1" role="tab" aria-selected="false" aria-controls="step-2" tabindex="-1"></button>
+          <button class="popup-dot" data-step="2" role="tab" aria-selected="false" aria-controls="step-3" tabindex="-1"></button>
         </div>
-        <button class="popup-start" id="popupStart">Start Now</button>
+        <button class="popup-start" id="popupStart" onclick="specifys.closePopup('start')">Start Now</button>
       </div>
     </div>
 
@@ -1085,21 +1345,64 @@
         </div>
       </div>
 
-      <div class="section final-cta" style="--section-index: 5;">
+      <div class="section" style="--section-index: 5;">
+        <h2>Our Users Say</h2>
+        <p>Hear from dreamers, coders, and entrepreneurs who planned their apps with Specifys.ai!</p>
+        <div class="testimonials-container">
+          <div class="testimonials-gallery">
+            <div class="testimonial-card">
+              <div class="testimonial-name">Shalom C.</div>
+              <div class="testimonial-text">"Specifys.ai made app planning a breeze! I had a clear plan for my startup idea in minutes, no coding needed!"</div>
+            </div>
+            <div class="testimonial-card">
+              <div class="testimonial-name">Maria M.</div>
+              <div class="testimonial-text">"Incredible tool! The AI-generated blueprint saved me hours of coding prep. Truly empowering for developers."</div>
+            </div>
+            <div class="testimonial-card">
+              <div class="testimonial-name">Erel C.</div>
+              <div class="testimonial-text">"Mind-blowing how fast I got a market research report. It helped me pitch my idea to investors with confidence!"</div>
+            </div>
+            <div class="testimonial-card">
+              <div class="testimonial-name">Toor H.</div>
+              <div class="testimonial-text">"Fantastic no-code solution! Specifys.ai turned my vision into a professional spec in no time."</div>
+            </div>
+            <div class="testimonial-card">
+              <div class="testimonial-name">Eran K.</div>
+              <div class="testimonial-text">"The Start-Easy track was perfect for me. I planned my app without any tech skills—revolutionary!"</div>
+            </div>
+            <!-- Duplicate cards for seamless scrolling -->
+            <div class="testimonial-card">
+              <div class="testimonial-name">Shalom C.</div>
+              <div class="testimonial-text">"Specifys.ai made app planning a breeze! I had a clear plan for my startup idea in minutes, no coding needed!"</div>
+            </div>
+            <div class="testimonial-card">
+              <div class="testimonial-name">Maria M.</div>
+              <div class="testimonial-text">"Incredible tool! The AI-generated blueprint saved me hours of coding prep. Truly empowering for developers."</div>
+            </div>
+            <div class="testimonial-card">
+              <div class="testimonial-name">Erel C.</div>
+              <div class="testimonial-text">"Mind-blowing how fast I got a market research report. It helped me pitch my idea to investors with confidence!"</div>
+            </div>
+          </div>
+        </div>
+        <p>Want to join the revolution? <a href="./processing-novice.html" class="cta-button">Start here!</a></p>
+      </div>
+
+      <div class="section final-cta" style="--section-index: 6;">
         <h2>Ready to Make Your App?</h2>
         <p>Jump in and create a pro-level app plan in minutes! It’s 100% free, powered by AI, and all about planning, not building.</p>
         <a href="./processing-novice.html" class="cta-button">Start Planning Free</a>
       </div>
     </div>
 
-    <button class="scroll-to-top" id="scrollToTop"><i class="fas fa-arrow-up"></i></button>
+    <button class="scroll-to-top down" id="scrollToTop"><i class="fas fa-arrow-down"></i></button>
 
     <footer>
       <div class="footer-content">
         <div class="footer-links">
           <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
           <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
-          <a href="blog.html" aria-label="Try our Blog">Blog</a>
+          <a href="blog.html" aria-label="Visit our blog">Blog</a>
           <a href="map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
         </div>
         <span class="footer-divider">|</span>
@@ -1158,6 +1461,11 @@
           } else if (mode === "market") {
             trackInfo.textContent = "For entrepreneurs who need in-depth market research to validate their startup ideas and pitch to investors.";
           }
+
+          // Show relevant example link
+          document.querySelectorAll('.track-example').forEach(link => {
+            link.style.display = link.getAttribute('data-mode') === mode ? 'inline' : 'none';
+          });
         };
 
         specifys.resumeAutoCycle = function() {
@@ -1168,9 +1476,14 @@
         specifys.selectMode = function(mode) {
           try {
             stopAutoCycle();
-            document.querySelectorAll(".mode-button").forEach(btn => btn.classList.remove("active"));
             const selectedButton = document.querySelector(`.mode-button[data-mode="${mode}"]`);
-            if (selectedButton) selectedButton.classList.add("active");
+            if (selectedButton) {
+              selectedButton.classList.add("active");
+            }
+            gtag('event', 'click', {
+              'event_category': 'Mode Selection',
+              'event_label': mode
+            });
             localStorage.setItem("selectedMode", mode);
             let redirectUrl;
             switch (mode) {
@@ -1179,12 +1492,146 @@
               case "market": redirectUrl = "./processing-market.html"; break;
               default: throw new Error("Invalid mode");
             }
-            window.location.href = redirectUrl;
+            setTimeout(() => {
+              window.location.href = redirectUrl;
+            }, 300);
           } catch (error) {
             console.error("Error in selectMode:", error);
             alert("Failed to navigate to the selected track. Please try again.");
           }
         };
+
+        // Popup functionality
+        const popupOverlay = document.getElementById("popupOverlay");
+        const popup = document.querySelector(".popup");
+        const popupStart = document.getElementById("popupStart");
+        const popupClose = document.querySelector(".popup-close");
+        const popupSteps = document.querySelectorAll(".popup-step");
+        const popupDots = document.querySelectorAll(".popup-dot");
+        let currentStepIndex = 0;
+
+        function showStep(index) {
+          popupSteps.forEach((step, i) => {
+            step.classList.toggle("active", i === index);
+          });
+          popupDots.forEach((dot, i) => {
+            dot.classList.toggle("active", i === index);
+            dot.setAttribute("aria-selected", i === index);
+            dot.setAttribute("tabindex", i === index ? "0" : "-1");
+          });
+        }
+
+        function startPopupCycle() {
+          return setInterval(() => {
+            currentStepIndex = (currentStepIndex + 1) % popupSteps.length;
+            showStep(currentStepIndex);
+          }, 3000);
+        }
+
+        let popupCycleInterval = startPopupCycle();
+
+        specifys.closePopup = function(action = 'close') {
+          popupOverlay.style.display = "none";
+          clearInterval(popupCycleInterval);
+          gtag('event', 'click', {
+            'event_category': 'Popup Interaction',
+            'event_label': action === 'start' ? 'Popup Start Button' : 'Popup Close'
+          });
+          document.removeEventListener("keydown", trapFocus);
+          popupClose.focus();
+        };
+
+        // Focus trap for accessibility
+        function trapFocus(e) {
+          const focusableElements = popup.querySelectorAll('button, [role="tab"]');
+          const firstFocusable = focusableElements[0];
+          const lastFocusable = focusableElements[focusableElements.length - 1];
+
+          if (e.key === "Tab") {
+            if (e.shiftKey && document.activeElement === firstFocusable) {
+              e.preventDefault();
+              lastFocusable.focus();
+            } else if (!e.shiftKey && document.activeElement === lastFocusable) {
+              e.preventDefault();
+              firstFocusable.focus();
+            }
+          } else if (e.key === "Escape") {
+            specifys.closePopup();
+          }
+        }
+
+        if (popupOverlay) {
+          popupOverlay.style.display = "flex";
+          popupStart.focus();
+          document.addEventListener("keydown", trapFocus);
+        }
+
+        popupOverlay.addEventListener("click", (e) => {
+          if (e.target === popupOverlay) {
+            specifys.closePopup();
+          }
+        });
+
+        popupDots.forEach((dot, index) => {
+          dot.addEventListener("click", () => {
+            clearInterval(popupCycleInterval);
+            currentStepIndex = parseInt(dot.getAttribute("data-step"));
+            showStep(currentStepIndex);
+            popupCycleInterval = startPopupCycle();
+          });
+          dot.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" || e.key === "Space") {
+              e.preventDefault();
+              clearInterval(popupCycleInterval);
+              currentStepIndex = parseInt(dot.getAttribute("data-step"));
+              showStep(currentStepIndex);
+              popupCycleInterval = startPopupCycle();
+            }
+          });
+        });
+
+        popupStart.addEventListener("click", () => {
+          specifys.closePopup('start');
+        });
+
+        popupClose.addEventListener("click", () => {
+          specifys.closePopup();
+        });
+
+        // Scroll-to-top button functionality
+        const scrollToTopBtn = document.getElementById("scrollToTop");
+        const scrollIcon = scrollToTopBtn.querySelector("i");
+
+        function updateScrollButton() {
+          const scrollPosition = window.scrollY;
+          const windowHeight = window.innerHeight;
+          const documentHeight = document.documentElement.scrollHeight;
+          const scrollFraction = Math.min(scrollPosition / 50, 1); // Reach full rotation by 50px
+          const rotation = scrollFraction * 180; // Rotate from 0 to 180 degrees
+
+          scrollIcon.style.transform = `rotate(${rotation}deg)`;
+
+          if (scrollPosition > 50) {
+            scrollToTopBtn.classList.remove("down");
+            scrollToTopBtn.setAttribute("aria-label", "Scroll to top");
+          } else {
+            scrollToTopBtn.classList.add("down");
+            scrollToTopBtn.setAttribute("aria-label", "Scroll to bottom");
+          }
+        }
+
+        scrollToTopBtn.style.display = "flex"; // Always visible
+        updateScrollButton();
+
+        window.addEventListener("scroll", updateScrollButton);
+
+        scrollToTopBtn.addEventListener("click", () => {
+          if (scrollToTopBtn.classList.contains("down")) {
+            window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "smooth" });
+          } else {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }
+        });
 
         startAutoCycle();
 
@@ -1199,64 +1646,6 @@
           });
         });
 
-        // Popup Gallery Logic
-        const popupOverlay = document.getElementById("popupOverlay");
-        if (popupOverlay) {
-          popupOverlay.style.display = "flex";
-        }
-        const popupStart = document.getElementById("popupStart");
-        const popupClose = document.querySelector(".popup-close");
-        const popupSteps = document.querySelectorAll(".popup-step");
-        const popupDots = document.querySelectorAll(".popup-dot");
-        let currentStepIndex = 0;
-        let galleryInterval;
-
-        function showStep(index) {
-          popupSteps.forEach((step, i) => {
-            step.classList.toggle("active", i === index);
-          });
-          popupDots.forEach((dot, i) => {
-            dot.classList.toggle("active", i === index);
-          });
-        }
-
-        function startGalleryCycle() {
-          galleryInterval = setInterval(() => {
-            currentStepIndex = (currentStepIndex + 1) % popupSteps.length;
-            showStep(currentStepIndex);
-          }, 3000);
-        }
-
-        showStep(0);
-        startGalleryCycle();
-
-        popupStart.addEventListener("click", () => {
-          clearInterval(galleryInterval);
-          popupOverlay.style.display = "none";
-        });
-
-        popupClose.addEventListener("click", () => {
-          clearInterval(galleryInterval);
-          popupOverlay.style.display = "none";
-        });
-
-        document.addEventListener("keydown", (e) => {
-          if (e.key === "Escape" && popupOverlay.style.display === "flex") {
-            clearInterval(galleryInterval);
-            popupOverlay.style.display = "none";
-          }
-        });
-
-        popupDots.forEach((dot, index) => {
-          dot.addEventListener("click", () => {
-            clearInterval(galleryInterval);
-            currentStepIndex = parseInt(dot.getAttribute("data-step"));
-            showStep(currentStepIndex);
-            startGalleryCycle();
-          });
-        });
-
-        // FAQ Toggle Logic
         document.querySelectorAll('.faq-question').forEach(question => {
           question.addEventListener("click", () => {
             const answer = question.nextElementSibling;
@@ -1272,7 +1661,15 @@
           });
         });
 
-        // Stats Counter Logic
+        document.querySelectorAll('.track-example').forEach(link => {
+          link.addEventListener('click', () => {
+            gtag('event', 'click', {
+              'event_category': 'Track Example',
+              'event_label': link.getAttribute('data-mode')
+            });
+          });
+        });
+
         const statNumbers = document.querySelectorAll('.stat-number');
         let hasAnimated = false;
 
@@ -1304,20 +1701,6 @@
         }, { threshold: 0.5 });
 
         observer.observe(statsSection);
-
-        // Scroll to Top Button Logic
-        const scrollToTopBtn = document.getElementById("scrollToTop");
-        window.addEventListener("scroll", () => {
-          if (window.scrollY > 100) {
-            scrollToTopBtn.style.display = "flex";
-          } else {
-            scrollToTopBtn.style.display = "none";
-          }
-        });
-
-        scrollToTopBtn.addEventListener("click", () => {
-          window.scrollTo({ top: 0, behavior: "smooth" });
-        });
       });
     })();
   </script>
