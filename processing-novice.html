@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Answer guided questions to refine your app idea and generate a detailed specification with specifys.ai for NoCode Creators.">
-  <meta name="keywords" content="processing app idea, guided questions, AI specification, app development, nocode creators, specifys.ai">
+  <meta name="keywords" content="processing app idea, guided questions, AI specification, app development, nocode creators, specifys.ai, NoCode app builder, app specification tool, create app without coding">
   <meta name="author" content="specifys.ai Team">
   <meta name="robots" content="index, follow">
   <meta name="googlebot" content="index, follow">
@@ -55,15 +55,21 @@
         "@type": "WebPage",
         "@id": "https://specifys.ai/processing-novice.html"
       },
-      "keywords": "processing app idea, guided questions, AI specification, app development, nocode creators, specifys.ai"
+      "keywords": "processing app idea, guided questions, AI specification, app development, nocode creators, specifys.ai, NoCode app builder, app specification tool, create app without coding"
     }
+  </script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-RWBT69JCM7');
+    gtag('config', 'AW-1000505244');
   </script>
   <title>specifys.ai - NoCode Creators Mode</title>
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <script defer src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <script defer src="processing-novice.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap');
@@ -93,7 +99,7 @@
       padding: 15px 20px;
       display: flex;
       justify-content: center;
-      z-index: 1000;
+      z-index: 2000;
       background: rgba(255, 255, 255, 0.9);
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
@@ -117,6 +123,7 @@
       align-items: center;
       padding: 5rem 1rem;
       position: relative;
+      z-index: 1000;
     }
 
     .carousel-content {
@@ -129,6 +136,12 @@
       min-height: 400px;
       z-index: 1000;
       position: relative;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .step-container {
@@ -223,6 +236,7 @@
       resize: vertical;
       background: #fff;
       transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      white-space: pre-wrap;
     }
 
     .step-textarea:focus {
@@ -265,74 +279,51 @@
       align-self: flex-end;
     }
 
-    .yes-no-question {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin: 0.6rem;
-      width: 100%;
-      background: #f5f5f5;
-      padding: 0.6rem;
-      border-radius: 8px;
-      transition: transform 0.3s ease;
-    }
-
-    .yes-no-question:hover {
-      transform: translateY(-2px);
-    }
-
-    .yes-no-question label {
-      font-size: 1rem;
-      color: #333;
-      flex: 1;
-      margin-right: 0.8rem;
-    }
-
-    .button-group {
-      display: flex;
-      gap: 10px;
-    }
-
-    .yes-button, .no-button {
-      background: #fff;
-      color: #333;
-      border: 2px solid #ddd;
-      border-radius: 20px;
-      padding: 0.5rem 1.2rem;
-      font-size: 0.9rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
-      min-width: 80px;
-      text-align: center;
-    }
-
-    .yes-button.active, .no-button.active {
-      background: #0078d4;
-      color: #fff;
-      border-color: #0078d4;
-    }
-
-    .yes-button:hover, .no-button:hover {
-      background: #0078d4;
-      color: #fff;
-      border-color: #0078d4;
-      transform: translateY(-2px);
-    }
-
-    .yes-button:focus, .no-button:focus {
-      outline: 2px solid #0078d4;
-      outline-offset: 2px;
-    }
-
     #errorMessage {
       font-size: 0.9rem;
       color: #fff;
       margin-top: 1rem;
-      background-color: #d32f2f;
       padding: 0.5rem;
       border-radius: 4px;
       display: none;
+      opacity: 0;
+      transform: translateY(5px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    #errorMessage.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    #errorMessage.analyzing {
+      background-color: #666;
+    }
+
+    #errorMessage.feedback {
+      background-color: #ff9800;
+    }
+
+    #errorMessage.success {
+      background-color: #28a745;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #28a745;
+      color: #fff;
+      padding: 0.8rem 1.2rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      z-index: 2000;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .toast.show {
+      opacity: 1;
     }
 
     .progress-container {
@@ -372,40 +363,29 @@
       font-weight: 600;
     }
 
-    .indicator-item:last-child {
-      margin-left: 2rem;
-    }
-
-    .indicator-circle {
+    .indicator-status {
       width: 24px;
       height: 24px;
-      border-radius: 50%;
-      background: #ddd;
       margin-right: 0.5rem;
-      display: flex;
+      display: none;
       align-items: center;
       justify-content: center;
-      transition: background-color 0.3s ease;
+      font-size: 1rem;
+      color: #fff;
+      background: #28a745;
+      transition: transform 0.3s ease;
     }
 
-    .indicator-circle.active {
-      background: #0078d4;
+    .indicator-status.completed {
+      display: flex;
+      transform: scale(1.15);
     }
 
-    .indicator-circle::before {
+    .indicator-status::before {
       font-family: 'Font Awesome 6 Free';
       font-weight: 900;
-      color: #fff;
-      font-size: 1rem;
+      content: '\f00c';
     }
-
-    #overview-indicator::before { content: '\f05a'; }
-    #workflow-indicator::before { content: '\f021'; }
-    #design-indicator::before { content: '\f53f'; }
-    #features-indicator::before { content: '\f0c3'; }
-    #audience-indicator::before { content: '\f0c0'; }
-    #settings-indicator::before { content: '\f013'; }
-    #notes-indicator::before { content: '\f15c'; }
 
     .carousel-button-left, .carousel-button-right, .generate-spec-button {
       position: absolute;
@@ -480,6 +460,7 @@
       flex-shrink: 0;
       background: #fff;
       box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
     }
 
     .footer-content {
@@ -494,7 +475,7 @@
     .footer-links a {
       color: #333;
       text-decoration: none;
-      font-weight: 600;
+      font-weight: 400;
       margin: 0 10px;
       transition: color 0.3s ease;
     }
@@ -565,23 +546,6 @@
         font-size: 0.8rem;
       }
 
-      .yes-no-question {
-        flex-direction: column;
-        align-items: flex-start;
-        padding: 0.5rem;
-      }
-
-      .yes-no-question label {
-        font-size: 0.9rem;
-        margin-bottom: 0.5rem;
-      }
-
-      .yes-button, .no-button {
-        padding: 0.4rem 1rem;
-        font-size: 0.8rem;
-        min-width: 70px;
-      }
-
       .carousel-button-left, .carousel-button-right, .generate-spec-button {
         width: 40px;
         height: 40px;
@@ -604,12 +568,12 @@
         font-size: 0.8rem;
       }
 
-      .indicator-circle {
+      .indicator-status {
         width: 20px;
         height: 20px;
       }
 
-      .indicator-circle::before {
+      .indicator-status::before {
         font-size: 0.9rem;
       }
 
@@ -666,16 +630,6 @@
         font-size: 0.75rem;
       }
 
-      .yes-no-question label {
-        font-size: 0.85rem;
-      }
-
-      .yes-button, .no-button {
-        padding: 0.3rem 0.8rem;
-        font-size: 0.75rem;
-        min-width: 60px;
-      }
-
       .carousel-button-left, .carousel-button-right, .generate-spec-button {
         width: 35px;
         height: 35px;
@@ -694,12 +648,12 @@
         font-size: 0.75rem;
       }
 
-      .indicator-circle {
+      .indicator-status {
         width: 18px;
         height: 18px;
       }
 
-      .indicator-circle::before {
+      .indicator-status::before {
         font-size: 0.8rem;
       }
 
@@ -715,7 +669,7 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .carousel-button-left, .carousel-button-right, .yes-button, .no-button, .generate-spec-button, .tip-icon, .example-button, .loading-spinner {
+      .carousel-button-left, .carousel-button-right, .generate-spec-button, .tip-icon, .example-button, .loading-spinner, .carousel-content, #errorMessage, .indicator-status {
         animation: none;
         transition: none;
       }
@@ -737,7 +691,7 @@
       <div class="step-container">
         <h3 id="stepTitle">App Overview</h3>
         <div class="question-wrapper">
-          <p id="stepQuestion" class="question-label"></p>
+          <p id="stepQuestion" class="question-label" aria-describedby="tipText"></p>
           <i class="fas fa-lightbulb tip-icon" aria-label="Show tip"></i>
           <div id="tipText" class="tip-tooltip"><span class="close-tip" onclick="this.parentElement.style.display='none'">×</span></div>
         </div>
@@ -746,64 +700,6 @@
         <button id="exampleButton" class="example-button" onmouseover="showExample()" onmouseout="restoreAnswer()" aria-label="Show example answer">
           <i class="fas fa-eye"></i> Example
         </button>
-        <div id="yesNoContainer" style="display: none;">
-          <div class="yes-no-question">
-            <label>Does your app require a user account system?</label>
-            <div class="button-group">
-              <button class="yes-button" data-question="0" data-value="Yes" aria-pressed="false">Yes</button>
-              <button class="no-button" data-question="0" data-value="No" aria-pressed="false">No</button>
-            </div>
-          </div>
-          <div class="yes-no-question">
-            <label>Does your app use or integrate with AI features?</label>
-            <div class="button-group">
-              <button class="yes-button" data-question="1" data-value="Yes" aria-pressed="false">Yes</button>
-              <button class="no-button" data-question="1" data-value="No" aria-pressed="false">No</button>
-            </div>
-          </div>
-          <div class="yes-no-question">
-            <label>Will your app be free to use?</label>
-            <div class="button-group">
-              <button class="yes-button" data-question="2" data-value="Yes" aria-pressed="false">Yes</button>
-              <button class="no-button" data-question="2" data-value="No" aria-pressed="false">No</button>
-            </div>
-          </div>
-          <div class="yes-no-question">
-            <label>Does your app need to send notifications?</label>
-            <div class="button-group">
-              <button class="yes-button" data-question="3" data-value="Yes" aria-pressed="false">Yes</button>
-              <button class="no-button" data-question="3" data-value="No" aria-pressed="false">No</button>
-            </div>
-          </div>
-          <div class="yes-no-question">
-            <label>Does your app need to work offline?</label>
-            <div class="button-group">
-              <button class="yes-button" data-question="4" data-value="Yes" aria-pressed="false">Yes</button>
-              <button class="no-button" data-question="4" data-value="No" aria-pressed="false">No</button>
-            </div>
-          </div>
-          <div class="yes-no-question">
-            <label>Will your app support multiple languages?</label>
-            <div class="button-group">
-              <button class="yes-button" data-question="5" data-value="Yes" aria-pressed="false">Yes</button>
-              <button class="no-button" data-question="5" data-value="No" aria-pressed="false">No</button>
-            </div>
-          </div>
-          <div class="yes-no-question">
-            <label>Does your app require integration with social media?</label>
-            <div class="button-group">
-              <button class="yes-button" data-question="6" data-value="Yes" aria-pressed="false">Yes</button>
-              <button class="no-button" data-question="6" data-value="No" aria-pressed="false">No</button>
-            </div>
-          </div>
-          <div class="yes-no-question">
-            <label>Will your app collect user data for analytics?</label>
-            <div class="button-group">
-              <button class="yes-button" data-question="7" data-value="Yes" aria-pressed="false">Yes</button>
-              <button class="no-button" data-question="7" data-value="No" aria-pressed="false">No</button>
-            </div>
-          </div>
-        </div>
         <div id="errorMessage" role="alert"></div>
         <div class="progress-container">
           <div class="progress-bar">
@@ -811,32 +707,24 @@
           </div>
           <div class="discipline-indicators" role="group" aria-label="Progress indicators by category">
             <div class="indicator-item">
-              <span class="indicator-circle" id="overview-indicator" aria-label="App Overview progress"></span>
+              <span class="indicator-status" id="overview-indicator" aria-label="App Overview progress"></span>
               <span>App Overview</span>
             </div>
             <div class="indicator-item">
-              <span class="indicator-circle" id="workflow-indicator" aria-label="User Workflow progress"></span>
+              <span class="indicator-status" id="workflow-indicator" aria-label="User Workflow progress"></span>
               <span>User Workflow</span>
             </div>
             <div class="indicator-item">
-              <span class="indicator-circle" id="design-indicator" aria-label="Design progress"></span>
+              <span class="indicator-status" id="design-indicator" aria-label="Design progress"></span>
               <span>Design</span>
             </div>
             <div class="indicator-item">
-              <span class="indicator-circle" id="features-indicator" aria-label="Features progress"></span>
+              <span class="indicator-status" id="features-indicator" aria-label="Features progress"></span>
               <span>Features</span>
             </div>
             <div class="indicator-item">
-              <span class="indicator-circle" id="audience-indicator" aria-label="Target Audience progress"></span>
+              <span class="indicator-status" id="audience-indicator" aria-label="Target Audience progress"></span>
               <span>Target Audience</span>
-            </div>
-            <div class="indicator-item">
-              <span class="indicator-circle" id="settings-indicator" aria-label="App Settings progress"></span>
-              <span>App Settings</span>
-            </div>
-            <div class="indicator-item">
-              <span class="indicator-circle" id="notes-indicator" aria-label="Additional Notes progress"></span>
-              <span>Additional Notes</span>
             </div>
           </div>
         </div>
@@ -844,11 +732,12 @@
       <button id="nextButton" class="carousel-button-right" onclick="nextStep()" aria-label="Next step">
         <i class="fas fa-arrow-right"></i>
       </button>
-      <button id="goButton" class="carousel-button-right generate-spec-button" onclick="generateSpecification()" style="display: none;" disabled aria-label="Generate specification">
+      <button id="goButton" class="carousel-button-right generate-spec-button" onclick="generateSpecification()" style="display: none;" disabled aria-label="Generate specification, disabled until all required questions are answered">
         <i class="fas fa-rocket"></i>
       </button>
       <div id="loadingSpinner" class="loading-spinner"></div>
     </div>
+    <div id="toast" class="toast">Answers saved successfully!</div>
   </div>
 
   <footer>
@@ -879,9 +768,7 @@
       "Describe the typical workflow of a user using your app.",
       "What design elements are most important for your app?",
       "What key features do you want your app to have?",
-      "Who is your target audience?",
-      "Configure your app settings below.",
-      "Any additional notes or requirements for your app?"
+      "Who is your target audience?"
     ];
 
     const stepTitles = [
@@ -889,20 +776,7 @@
       "User Workflow",
       "Design",
       "Features",
-      "Target Audience",
-      "App Settings",
-      "Additional Notes"
-    ];
-
-    const yesNoQuestions = [
-      "Does your app require a user account system?",
-      "Does your app use or integrate with AI features?",
-      "Will your app be free to use?",
-      "Does your app need to send notifications?",
-      "Does your app need to work offline?",
-      "Will your app support multiple languages?",
-      "Does your app require integration with social media?",
-      "Will your app collect user data for analytics?"
+      "Target Audience"
     ];
 
     const tips = [
@@ -910,9 +784,7 @@
       "Break down the user journey into clear steps, from onboarding to key actions.",
       "Consider aspects like color scheme, typography, and user interface simplicity.",
       "List specific functionalities that make your app stand out, e.g., chat or payments.",
-      "Define your audience by age, interests, or behaviors to tailor your app.",
-      "Select settings that align with your app's goals and user needs.",
-      "Include any extra details, like monetization plans or technical requirements."
+      "Define your audience by age, interests, or behaviors to tailor your app."
     ];
 
     const exampleAnswers = [
@@ -920,14 +792,12 @@
       "A typical user starts by creating a profile and setting goals (e.g., weight loss or muscle gain). They log daily meals via a barcode scanner or manual input and record workouts by selecting exercises from a library. The app suggests meal plans and workout routines based on their progress. Users can review weekly reports to track trends and adjust goals.",
       "The app should have a clean, modern interface with a calming color palette (blues and greens). Large, bold typography ensures readability, and intuitive navigation with a bottom tab bar is key. Interactive charts for progress tracking and minimalistic icons enhance the user experience.",
       "Key features include: 1) AI-driven workout and meal suggestions, 2) Barcode scanner for food logging, 3) Social sharing to connect with friends, 4) Progress tracking with visual charts, 5) In-app reminders, and 6) Integration with wearables like Fitbit for real-time data.",
-      "The target audience is health-conscious individuals aged 18-45, primarily fitness enthusiasts and beginners looking to improve their lifestyle. They are tech-savvy, use smartphones daily, and value convenience and personalization in their fitness journey.",
-      "",
-      "The app should support a freemium model with premium features like advanced analytics. It needs to comply with GDPR for user data privacy and should be optimized for both iOS and Android platforms."
+      "The target audience is health-conscious individuals aged 18-45, primarily fitness enthusiasts and beginners looking to improve their lifestyle. They are tech-savvy, use smartphones daily, and value convenience and personalization in their fitness journey."
     ];
 
     let currentStep = 0;
     const totalSteps = stepTitles.length;
-    let textarea, stepTitle, stepQuestion, prevButton, nextButton, goButton, progressFill, charCount, yesNoContainer, tipText, exampleButton, errorMessage, loadingSpinner;
+    let textarea, stepTitle, stepQuestion, prevButton, nextButton, goButton, progressFill, charCount, tipText, exampleButton, errorMessage, loadingSpinner, toast;
     const storageKey = "noCodeAnswers";
     let answers = {};
     let originalAnswer = "";
@@ -936,10 +806,12 @@
       "workflow-indicator",
       "design-indicator",
       "features-indicator",
-      "audience-indicator",
-      "settings-indicator",
-      "notes-indicator"
+      "audience-indicator"
     ];
+    let typingTimer;
+    let feedbackTimer;
+    let dotsTimer;
+    let dotsCount = 0;
 
     function generateContentFromAnswers(answers) {
       let content = "";
@@ -954,26 +826,53 @@
       content += answers[3] ? `${answers[3].replace(/^\d+\)\s*/gm, "- ")}\n\n` : "No features specified.\n\n";
       content += "## Target Audience\n\n";
       content += answers[4] ? `${answers[4]}\n\n` : "No target audience specified.\n\n";
-      content += "## Technical Requirements\n\n";
-      content += yesNoQuestions.map((q, i) => `- ${q}: ${answers[`yesNo_${i}`] || "No"}`).join("\n") + "\n\n";
-      content += "## Additional Notes\n\n";
-      content += answers[6] ? `${answers[6]}\n` : "No additional notes provided.\n";
       return content;
     }
 
     function showExample() {
-      if (currentStep < 5 || currentStep === 6) {
-        originalAnswer = textarea.value;
-        textarea.value = exampleAnswers[currentStep];
-        charCount.textContent = `${textarea.value.length}/2500`;
-      }
+      originalAnswer = textarea.value;
+      textarea.value = exampleAnswers[currentStep];
+      charCount.textContent = `${textarea.value.length}/2500`;
     }
 
     function restoreAnswer() {
-      if (currentStep < 5 || currentStep === 6) {
-        textarea.value = originalAnswer;
-        charCount.textContent = `${textarea.value.length}/2500`;
+      textarea.value = originalAnswer;
+      charCount.textContent = `${textarea.value.length}/2500`;
+    }
+
+    function showToast() {
+      toast.classList.add("show");
+      setTimeout(() => {
+        toast.classList.remove("show");
+      }, 3000);
+    }
+
+    function showFeedbackMessage(message, type) {
+      errorMessage.textContent = message;
+      errorMessage.className = "show";
+      if (type === "analyzing") {
+        errorMessage.classList.add("analyzing");
+        errorMessage.classList.remove("feedback", "success");
+      } else if (type === "short") {
+        errorMessage.classList.add("feedback");
+        errorMessage.classList.remove("analyzing", "success");
+      } else {
+        errorMessage.classList.add("success");
+        errorMessage.classList.remove("analyzing", "feedback");
       }
+      errorMessage.style.display = "block";
+    }
+
+    function hideFeedbackMessage() {
+      errorMessage.style.display = "none";
+      errorMessage.classList.remove("show", "analyzing", "feedback", "success");
+      clearInterval(dotsTimer);
+    }
+
+    function updateDots() {
+      dotsCount = (dotsCount + 1) % 4;
+      const dots = ".".repeat(dotsCount);
+      errorMessage.textContent = `Analyzing answer${dots}`;
     }
 
     function updateUI() {
@@ -981,64 +880,29 @@
       stepQuestion.textContent = questions[currentStep];
       tipText.innerHTML = tips[currentStep] + '<span class="close-tip" onclick="this.parentElement.style.display=\'none\'">×</span>';
 
-      if (currentStep < 5 || currentStep === 6) {
-        textarea.style.display = "block";
-        charCount.style.display = "block";
-        yesNoContainer.style.display = "none";
-        exampleButton.style.display = "inline-flex";
-        textarea.value = answers[currentStep] || "";
-        charCount.textContent = `${textarea.value.length}/2500`;
-      } else {
-        textarea.style.display = "none";
-        charCount.style.display = "none";
-        yesNoContainer.style.display = "block";
-        exampleButton.style.display = "none";
-        const yesButtons = document.querySelectorAll(".yes-button");
-        const noButtons = document.querySelectorAll(".no-button");
-        yesNoQuestions.forEach((_, index) => {
-          const yesButton = yesButtons[index];
-          const noButton = noButtons[index];
-          const value = answers[`yesNo_${index}`];
-          yesButton.classList.toggle("active", value === "Yes");
-          noButton.classList.toggle("active", value === "No");
-          yesButton.setAttribute("aria-pressed", value === "Yes" ? "true" : "false");
-          noButton.setAttribute("aria-pressed", value === "No" ? "true" : "false");
-          yesButton.setAttribute("aria-label", value === "Yes" ? "Selected: Yes" : "Select Yes");
-          noButton.setAttribute("aria-label", value === "No" ? "Selected: No" : "Select No");
-        });
-      }
+      textarea.style.display = "block";
+      charCount.style.display = "block";
+      exampleButton.style.display = "inline-flex";
+      textarea.value = answers[currentStep] || "";
+      charCount.textContent = `${textarea.value.length}/2500`;
 
       const progress = ((currentStep + 1) / totalSteps) * 100;
       progressFill.style.width = `${progress}%`;
 
       indicators.forEach((indicator, index) => {
         const element = document.getElementById(indicator);
-        if (index < 5) {
-          if (answers[index] && answers[index].trim()) {
-            element.classList.add("active");
-          } else {
-            element.classList.remove("active");
-          }
-        } else if (index === 5) {
-          const allYesNoAnswered = yesNoQuestions.every((_, i) => answers[`yesNo_${i}`]);
-          if (allYesNoAnswered) {
-            element.classList.add("active");
-          } else {
-            element.classList.remove("active");
-          }
+        if (answers[index] && answers[index].trim()) {
+          element.classList.add("completed");
         } else {
-          if (answers[6] && answers[6].trim()) {
-            element.classList.add("active");
-          } else {
-            element.classList.remove("active");
-          }
+          element.classList.remove("completed");
         }
       });
 
       prevButton.style.display = currentStep === 0 ? "none" : "flex";
       nextButton.style.display = currentStep === totalSteps - 1 ? "none" : "flex";
       goButton.style.display = currentStep === totalSteps - 1 ? "flex" : "none";
-      goButton.disabled = !([0, 1, 2, 3, 4].every((i) => answers[i] && answers[i].trim()) && yesNoQuestions.every((_, i) => answers[`yesNo_${i}`]));
+      goButton.disabled = ![0, 1, 2, 3, 4].every((i) => answers[i] && answers[i].trim());
+      goButton.setAttribute("aria-label", goButton.disabled ? "Generate specification, disabled until all required questions are answered" : "Generate specification");
     }
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -1059,53 +923,52 @@
       goButton = document.getElementById("goButton");
       progressFill = document.getElementById("progressFill");
       charCount = document.getElementById("charCount");
-      yesNoContainer = document.getElementById("yesNoContainer");
       tipText = document.getElementById("tipText");
       exampleButton = document.getElementById("exampleButton");
       errorMessage = document.getElementById("errorMessage");
       loadingSpinner = document.getElementById("loadingSpinner");
+      toast = document.getElementById("toast");
 
       updateUI();
 
       textarea.addEventListener("input", () => {
+        const value = textarea.value.trim();
         answers[currentStep] = textarea.value;
-        localStorage.setItem(storageKey, JSON.stringify(answers));
         charCount.textContent = `${textarea.value.length}/2500`;
+
+        clearTimeout(typingTimer);
+        clearTimeout(feedbackTimer);
+        clearInterval(dotsTimer);
+
+        showFeedbackMessage("Analyzing answer.", "analyzing");
+        dotsTimer = setInterval(updateDots, 500);
+
+        typingTimer = setTimeout(() => {
+          localStorage.setItem(storageKey, JSON.stringify(answers));
+          showToast();
+        }, 10000);
+
+        feedbackTimer = setTimeout(() => {
+          clearInterval(dotsTimer);
+          if (value.length === 0) {
+            hideFeedbackMessage();
+          } else if (value.length < 50) {
+            showFeedbackMessage("Your answer is a bit short. Try adding more details!", "short");
+          } else if (value.length < 100) {
+            showFeedbackMessage("Your answer length is okay, but could use more depth.", "success");
+          } else {
+            showFeedbackMessage("Great job! Your answer length is good.", "success");
+          }
+        }, 1500);
+
         updateUI();
       });
 
-      const yesButtons = document.querySelectorAll(".yes-button");
-      const noButtons = document.querySelectorAll(".no-button");
-      yesButtons.forEach((button) => {
-        button.addEventListener("click", () => {
-          const questionIndex = button.getAttribute("data-question");
-          const noButton = document.querySelector(`.no-button[data-question="${questionIndex}"]`);
-          answers[`yesNo_${questionIndex}`] = "Yes";
-          button.classList.add("active");
-          noButton.classList.remove("active");
-          button.setAttribute("aria-pressed", "true");
-          noButton.setAttribute("aria-pressed", "false");
-          button.setAttribute("aria-label", "Selected: Yes");
-          noButton.setAttribute("aria-label", "Select No");
-          localStorage.setItem(storageKey, JSON.stringify(answers));
-          updateUI();
-        });
-      });
-
-      noButtons.forEach((button) => {
-        button.addEventListener("click", () => {
-          const questionIndex = button.getAttribute("data-question");
-          const yesButton = document.querySelector(`.yes-button[data-question="${questionIndex}"]`);
-          answers[`yesNo_${questionIndex}`] = "No";
-          button.classList.add("active");
-          yesButton.classList.remove("active");
-          button.setAttribute("aria-pressed", "true");
-          yesButton.setAttribute("aria-pressed", "false");
-          button.setAttribute("aria-label", "Selected: No");
-          yesButton.setAttribute("aria-label", "Select Yes");
-          localStorage.setItem(storageKey, JSON.stringify(answers));
-          updateUI();
-        });
+      textarea.addEventListener("keydown", () => {
+        clearTimeout(feedbackTimer);
+        clearInterval(dotsTimer);
+        showFeedbackMessage("Analyzing answer.", "analyzing");
+        dotsTimer = setInterval(updateDots, 500);
       });
     });
 
@@ -1113,53 +976,44 @@
       if (currentStep > 0) {
         currentStep--;
         errorMessage.style.display = "none";
+        clearInterval(dotsTimer);
         updateUI();
       }
     };
 
     window.nextStep = function() {
-      if (currentStep < 5) {
-        const textareaValue = textarea.value.trim();
-        if (!textareaValue) {
-          errorMessage.textContent = "Please answer the current question before proceeding.";
-          errorMessage.style.display = "block";
-          return;
-        }
-        answers[currentStep] = textareaValue;
-      } else if (currentStep === 5) {
-        const allYesNoClicked = yesNoQuestions.every((_, i) => answers[`yesNo_${i}`]);
-        if (!allYesNoClicked) {
-          errorMessage.textContent = "Please answer all settings questions before proceeding.";
-          errorMessage.style.display = "block";
-          return;
-        }
-      } else {
-        answers[currentStep] = textarea.value;
+      const textareaValue = textarea.value.trim();
+      if (!textareaValue) {
+        showFeedbackMessage("Please answer the current question before proceeding.", "short");
+        return;
       }
-      errorMessage.style.display = "none";
+      answers[currentStep] = textareaValue;
       localStorage.setItem(storageKey, JSON.stringify(answers));
+      showToast();
       if (currentStep < totalSteps - 1) {
         currentStep++;
+        errorMessage.style.display = "none";
+        clearInterval(dotsTimer);
         updateUI();
       }
     };
 
     window.generateSpecification = async function() {
       const allOpenQuestionsAnswered = [0, 1, 2, 3, 4].every((i) => answers[i] && answers[i].trim());
-      const allYesNoAnswered = yesNoQuestions.every((_, i) => answers[`yesNo_${i}`]);
-      if (!allOpenQuestionsAnswered || !allYesNoAnswered) {
-        errorMessage.textContent = "Please complete all required steps before generating the specification.";
-        errorMessage.style.display = "block";
+      if (!allOpenQuestionsAnswered) {
+        showFeedbackMessage("Please complete all required steps before generating the specification.", "short");
         return;
       }
 
       errorMessage.style.display = "none";
+      clearInterval(dotsTimer);
       goButton.style.display = "none";
       loadingSpinner.style.display = "block";
 
       const rawContent = generateContentFromAnswers(answers);
       localStorage.setItem("rawContent", rawContent);
       localStorage.setItem(storageKey, JSON.stringify(answers));
+      showToast();
 
       try {
         if (typeof window.generateSpecificationOriginal !== "function") {
@@ -1168,8 +1022,7 @@
         await window.generateSpecificationOriginal();
       } catch (error) {
         console.error("Error calling API:", error);
-        errorMessage.textContent = `Failed to generate specification: ${error.message}. Using raw content as fallback.`;
-        errorMessage.style.display = "block";
+        showFeedbackMessage(`Failed to generate specification: ${error.message}. Using raw content as fallback.`, "short");
         localStorage.setItem("generatedContent", rawContent);
       }
       loadingSpinner.style.display = "none";
