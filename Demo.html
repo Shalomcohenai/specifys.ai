@@ -30,6 +30,7 @@
       min-height: 100%;
       background: #f5f5f5;
       overflow-x: auto;
+      position: relative;
     }
 
     .thematic-header {
@@ -86,11 +87,6 @@
       white-space: pre-wrap;
       word-break: break-word;
       padding: 20px;
-      transition: opacity 0.3s ease;
-    }
-
-    .chat-message.result.fade {
-      opacity: 0;
     }
 
     .chat-message.result h1 {
@@ -288,6 +284,31 @@
       margin-top: 1rem;
     }
 
+    #scrollToTop {
+      display: none;
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #0078d4;
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      z-index: 1000;
+      transition: opacity 0.3s ease;
+    }
+
+    #scrollToTop:hover {
+      background-color: #005ea2;
+    }
+
+    #scrollToTop.show {
+      display: block;
+    }
+
     @media (max-width: 768px) {
       .thematic-header .logo a {
         font-size: 1.4rem;
@@ -361,6 +382,14 @@
         font-size: 1rem;
         margin: 0 10px;
       }
+
+      #scrollToTop {
+        bottom: 15px;
+        right: 15px;
+        width: 35px;
+        height: 35px;
+        font-size: 1rem;
+      }
     }
 
     @media (max-width: 480px) {
@@ -427,6 +456,14 @@
         font-size: 0.9rem;
         margin: 0 8px;
       }
+
+      #scrollToTop {
+        bottom: 10px;
+        right: 10px;
+        width: 30px;
+        height: 30px;
+        font-size: 0.9rem;
+      }
     }
   </style>
 </head>
@@ -465,6 +502,8 @@
     <p class="platform-details">Click a platform to open it in a new tab and automatically copy your app specification. Paste the specification into the platform’s project setup or AI assistant to start building.</p>
   </div>
 
+  <button id="scrollToTop" title="Scroll to Top"><i class="fas fa-arrow-up"></i></button>
+
   <footer>
     <div class="footer-content">
       <div class="footer-links">
@@ -494,68 +533,58 @@
       const chatContainer = document.getElementById("chatContainer");
       const resultDiv = document.getElementById("resultDiv");
       const modeButtons = document.querySelectorAll(".mode-button");
+      const scrollToTopBtn = document.getElementById("scrollToTop");
 
-      const modeContents = {
-        "easy-start": `
-# Sample Specification: Easy Start
-This is a sample content for the **-dot: **Easy Start** mode.
-- Simple and quick app planning.
-- Suitable for beginners with no prior experience.
-- Includes basic user interface and minimal functionality.
-`,
-        "dev-tools": `
-# Sample Specification: Dev Tools
-This is a sample content for the **Dev Tools** mode.
-- Detailed planning with developer tools.
-- Includes API, technical documentation, and code examples.
-- Suitable for those seeking full technical control.
-`,
-        "explore": `
-# Sample Specification: Explore
-This is a sample content for the **Explore** mode.
-- Creative planning with innovative ideas.
-- Includes suggestions for design and advanced user experience.
-- Suitable for those seeking inspiration and flexibility.
-`
-      };
-
-      function displayTypingEffect(content) {
-        resultDiv.classList.add("fade");
-        setTimeout(() => {
-          resultDiv.innerHTML = "";
-          let charIndex = 0;
-          const typingSpeed = 10;
-          let currentContent = "";
-
-          function typeCharacter() {
-            if (charIndex < content.length) {
-              currentContent += content.charAt(charIndex);
-              resultDiv.textContent = currentContent;
-              charIndex++;
-              chatContainer.scrollTop = chatContainer.scrollHeight;
-              setTimeout(typeCharacter, typingSpeed);
-            } else {
-              resultDiv.innerHTML = marked.parse(content);
-              resultDiv.classList.remove("fade");
-              hljs.highlightAll();
-              chatContainer.scrollTop = chatContainer.scrollHeight;
-            }
+      // Fetch JSON data
+      fetch('data.json')
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok ' + response.statusText);
           }
-          typeCharacter();
-        }, 300);
-      }
+          return response.json();
+        })
+        .then(data => {
+          const modeContents = data;
 
-      modeButtons.forEach(button => {
-        button.addEventListener("click", () => {
-          modeButtons.forEach(btn => btn.classList.remove("active"));
-          button.classList.add("active");
-          const mode = button.getAttribute("data-mode");
-          displayTypingEffect(modeContents[mode]);
+          function displayContent(mode) {
+            resultDiv.innerHTML = ''; // Clear existing content
+            const content = modeContents[mode].content;
+            resultDiv.insertAdjacentHTML('afterbegin', `<h1>${modeContents[mode].title}</h1>`);
+            resultDiv.insertAdjacentHTML('beforeend', marked.parse(content));
+            hljs.highlightAll();
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+          }
+
+          modeButtons.forEach(button => {
+            button.addEventListener("click", () => {
+              modeButtons.forEach(btn => btn.classList.remove("active"));
+              button.classList.add("active");
+              const mode = button.getAttribute("data-mode");
+              displayContent(mode);
+            });
+          });
+
+          // Display initial content
+          const initialMode = "easy-start";
+          displayContent(initialMode);
+
+          // Scroll to top functionality
+          window.addEventListener("scroll", () => {
+            if (window.pageYOffset > 300) {
+              scrollToTopBtn.classList.add("show");
+            } else {
+              scrollToTopBtn.classList.remove("show");
+            }
+          });
+
+          scrollToTopBtn.addEventListener("click", () => {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          });
+        })
+        .catch(error => {
+          console.error('Error fetching data:', error);
+          resultDiv.innerHTML = '<p>Error loading content. Check console for details.</p>';
         });
-      });
-
-      // Display initial content
-      displayTypingEffect(modeContents["easy-start"]);
     });
   </script>
 </body>
