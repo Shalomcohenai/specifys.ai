@@ -129,16 +129,26 @@
       min-height: 400px;
       z-index: 1000;
       position: relative;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .step-container {
-      display: flex;
+      display: none;
       flex-direction: column;
       align-items: center;
       text-align: center;
     }
 
-    #stepTitle {
+    .step-container.active {
+      display: flex;
+    }
+
+    .step-title {
       font-size: 2.2rem;
       font-weight: 700;
       color: #333;
@@ -146,7 +156,7 @@
       transition: color 0.3s ease;
     }
 
-    #stepTitle:hover {
+    .step-title:hover {
       color: #0078d4;
     }
 
@@ -261,7 +271,7 @@
     .char-count {
       font-size: 0.85rem;
       color: #666;
-      margin-top: 0.5rem;
+      margin-bottom: 0.5rem;
       align-self: flex-end;
     }
 
@@ -269,10 +279,49 @@
       font-size: 0.9rem;
       color: #fff;
       margin-top: 1rem;
-      background-color: #d32f2f;
       padding: 0.5rem;
       border-radius: 4px;
       display: none;
+      opacity: 0;
+      transform: translateY(5px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      max-width: 90%;
+      text-align: center;
+    }
+
+    .error-message.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .error-message.analyzing {
+      background-color: #666;
+    }
+
+    .error-message.feedback {
+      background-color: #ff9800;
+    }
+
+    .error-message.success {
+      background-color: #28a745;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #28a745;
+      color: #fff;
+      padding: 0.8rem 1.2rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      z-index: 2000;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .toast.show {
+      opacity: 1;
     }
 
     .progress-container {
@@ -312,32 +361,29 @@
       font-weight: 600;
     }
 
-    .indicator-circle {
+    .indicator-status {
       width: 24px;
       height: 24px;
-      border-radius: 50%;
-      background: #ddd;
       margin-right: 0.5rem;
-      display: flex;
+      display: none;
       align-items: center;
       justify-content: center;
-      transition: background-color 0.3s ease;
+      font-size: 1rem;
+      color: #fff;
+      background: #28a745;
+      transition: transform 0.3s ease;
     }
 
-    .indicator-circle.active {
-      background: #0078d4;
+    .indicator-status.completed {
+      display: flex;
+      transform: scale(1.15);
     }
 
-    .indicator-circle::before {
+    .indicator-status::before {
       font-family: 'Font Awesome 6 Free';
       font-weight: 900;
-      color: #fff;
-      font-size: 1rem;
+      content: '\f00c';
     }
-
-    #name-indicator::before { content: '\f111'; }
-    #description-indicator::before { content: '\f15c'; }
-    #features-indicator::before { content: '\f0c3'; }
 
     .carousel-button-left, .carousel-button-right, .generate-spec-button {
       position: absolute;
@@ -470,7 +516,7 @@
         max-width: 95%;
       }
 
-      #stepTitle {
+      .step-title {
         font-size: 1.8rem;
       }
 
@@ -519,12 +565,12 @@
         font-size: 0.8rem;
       }
 
-      .indicator-circle {
+      .indicator-status {
         width: 20px;
         height: 20px;
       }
 
-      .indicator-circle::before {
+      .indicator-status::before {
         font-size: 0.9rem;
       }
 
@@ -554,7 +600,7 @@
         min-height: 300px;
       }
 
-      #stepTitle {
+      .step-title {
         font-size: 1.6rem;
       }
 
@@ -599,12 +645,12 @@
         font-size: 0.75rem;
       }
 
-      .indicator-circle {
+      .indicator-status {
         width: 18px;
         height: 18px;
       }
 
-      .indicator-circle::before {
+      .indicator-status::before {
         font-size: 0.8rem;
       }
 
@@ -620,7 +666,7 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .carousel-button-left, .carousel-button-right, .generate-spec-button, .tip-icon, .example-button, .loading-spinner {
+      .carousel-button-left, .carousel-button-right, .generate-spec-button, .tip-icon, .example-button, .loading-spinner, .carousel-content, .error-message, .indicator-status {
         animation: none;
         transition: none;
       }
@@ -639,14 +685,14 @@
       <button id="prevButton" class="carousel-button-left" onclick="prevStep()" aria-label="Previous step" style="display: none;">
         <i class="fas fa-arrow-left"></i>
       </button>
-      <div class="step-container">
-        <h3 id="stepTitle">Name</h3>
+      <div class="step-container active" id="step0">
+        <h3 class="step-title">Description</h3>
         <div class="question-wrapper">
-          <p id="stepQuestion" class="question-label"></p>
+          <p class="question-label" id="stepQuestion0" aria-describedby="tipText0"></p>
           <i class="fas fa-lightbulb tip-icon" aria-label="Show tip"></i>
           <div id="tipText0" class="tip-tooltip"><span class="close-tip" onclick="this.parentElement.style.display='none'">×</span></div>
         </div>
-        <textarea id="stepTextarea0" class="step-textarea" maxlength="2500" placeholder="Enter your app name and platform..." aria-label="Answer the current question"></textarea>
+        <textarea id="stepTextarea0" class="step-textarea" maxlength="2500" placeholder="Enter your app description, features, and audience..." aria-label="Answer the current question"></textarea>
         <span id="charCount0" class="char-count">0/2500</span>
         <button id="exampleButton0" class="example-button" onmouseover="showExample(0)" onmouseout="restoreAnswer(0)" aria-label="Show example answer">
           <i class="fas fa-eye"></i> Example
@@ -658,28 +704,24 @@
           </div>
           <div class="discipline-indicators" role="group" aria-label="Progress indicators by category">
             <div class="indicator-item">
-              <span class="indicator-circle" id="name-indicator" aria-label="Name progress"></span>
-              <span>Name</span>
-            </div>
-            <div class="indicator-item">
-              <span class="indicator-circle" id="description-indicator" aria-label="Description progress"></span>
+              <span class="indicator-status" id="description-indicator" aria-label="Description progress"></span>
               <span>Description</span>
             </div>
             <div class="indicator-item">
-              <span class="indicator-circle" id="features-indicator" aria-label="Features progress"></span>
+              <span class="indicator-status" id="features-indicator" aria-label="Features progress"></span>
               <span>Features</span>
             </div>
           </div>
         </div>
       </div>
-      <div class="step-container" style="display: none;">
-        <h3 id="stepTitle">Description</h3>
+      <div class="step-container" id="step1">
+        <h3 class="step-title">Features</h3>
         <div class="question-wrapper">
-          <p id="stepQuestion" class="question-label"></p>
+          <p class="question-label" id="stepQuestion1" aria-describedby="tipText1"></p>
           <i class="fas fa-lightbulb tip-icon" aria-label="Show tip"></i>
           <div id="tipText1" class="tip-tooltip"><span class="close-tip" onclick="this.parentElement.style.display='none'">×</span></div>
         </div>
-        <textarea id="stepTextarea1" class="step-textarea" maxlength="2500" placeholder="Enter your app description, features, and audience..." aria-label="Answer the current question"></textarea>
+        <textarea id="stepTextarea1" class="step-textarea" maxlength="2500" placeholder="Enter your app’s key features..." aria-label="Answer the current question"></textarea>
         <span id="charCount1" class="char-count">0/2500</span>
         <button id="exampleButton1" class="example-button" onmouseover="showExample(1)" onmouseout="restoreAnswer(1)" aria-label="Show example answer">
           <i class="fas fa-eye"></i> Example
@@ -691,48 +733,11 @@
           </div>
           <div class="discipline-indicators" role="group" aria-label="Progress indicators by category">
             <div class="indicator-item">
-              <span class="indicator-circle" id="name-indicator" aria-label="Name progress"></span>
-              <span>Name</span>
-            </div>
-            <div class="indicator-item">
-              <span class="indicator-circle" id="description-indicator" aria-label="Description progress"></span>
+              <span class="indicator-status" id="description-indicator" aria-label="Description progress"></span>
               <span>Description</span>
             </div>
             <div class="indicator-item">
-              <span class="indicator-circle" id="features-indicator" aria-label="Features progress"></span>
-              <span>Features</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="step-container" style="display: none;">
-        <h3 id="stepTitle">Features</h3>
-        <div class="question-wrapper">
-          <p id="stepQuestion" class="question-label"></p>
-          <i class="fas fa-lightbulb tip-icon" aria-label="Show tip"></i>
-          <div id="tipText2" class="tip-tooltip"><span class="close-tip" onclick="this.parentElement.style.display='none'">×</span></div>
-        </div>
-        <textarea id="stepTextarea2" class="step-textarea" maxlength="2500" placeholder="Enter your app’s key features..." aria-label="Answer the current question"></textarea>
-        <span id="charCount2" class="char-count">0/2500</span>
-        <button id="exampleButton2" class="example-button" onmouseover="showExample(2)" onmouseout="restoreAnswer(2)" aria-label="Show example answer">
-          <i class="fas fa-eye"></i> Example
-        </button>
-        <div id="errorMessage2" class="error-message" role="alert"></div>
-        <div class="progress-container">
-          <div class="progress-bar">
-            <div class="progress-fill"></div>
-          </div>
-          <div class="discipline-indicators" role="group" aria-label="Progress indicators by category">
-            <div class="indicator-item">
-              <span class="indicator-circle" id="name-indicator" aria-label="Name progress"></span>
-              <span>Name</span>
-            </div>
-            <div class="indicator-item">
-              <span class="indicator-circle" id="description-indicator" aria-label="Description progress"></span>
-              <span>Description</span>
-            </div>
-            <div class="indicator-item">
-              <span class="indicator-circle" id="features-indicator" aria-label="Features progress"></span>
+              <span class="indicator-status" id="features-indicator" aria-label="Features progress"></span>
               <span>Features</span>
             </div>
           </div>
@@ -741,11 +746,12 @@
       <button id="nextButton" class="carousel-button-right" onclick="nextStep()" aria-label="Next step">
         <i class="fas fa-arrow-right"></i>
       </button>
-      <button id="goButton" class="carousel-button-right generate-spec-button" onclick="generateSpecification()" style="display: none;" disabled aria-label="Go to generate market research">
+      <button id="goButton" class="carousel-button-right generate-spec-button" onclick="generateSpecification()" style="display: none;" disabled aria-label="Go to generate market research, disabled until all required questions are answered">
         <i class="fas fa-rocket"></i>
       </button>
       <div id="loadingSpinner" class="loading-spinner"></div>
     </div>
+    <div id="toast" class="toast">Answers saved successfully!</div>
   </div>
 
   <footer>
@@ -771,33 +777,34 @@
   </footer>
 
   <script>
-    const stepTitles = ["Name", "Description", "Features"];
+    const stepTitles = ["Description", "Features"];
 
     const questions = [
-      "What is the name of your app idea and which platform will it be on (e.g., iOS, Android, Web)?",
       "What is the purpose of your app, its key features, and who is the target audience (e.g., age, interests, needs)?",
       "What are the key features that make your app unique or valuable in the market?"
     ];
 
     const tips = [
-      "Choose a clear, memorable name that reflects your app’s purpose. Specify the platform (e.g., iOS, Android, Web) to guide market analysis.",
       "Explain the core problem your app solves, list 2-3 key features, and identify the target audience (e.g., age, interests, needs).",
       "List specific features that make your app unique, such as real-time tracking, social integration, or personalized recommendations."
     ];
 
     const exampleAnswers = [
-      "FitTrack, a mobile app for iOS and Android, focused on fitness tracking.",
       "FitTrack helps fitness enthusiasts track workouts and progress. Features: workout logging, progress charts, community challenges. Target: adults 18-40 who exercise regularly.",
       "Workout logging with voice input, real-time progress charts, social sharing, personalized plans, and integration with wearables."
     ];
 
     let currentStep = 0;
     const totalSteps = questions.length;
-    let textareas, charCounts, prevButton, nextButton, goButton, tipTexts, exampleButtons, errorMessages, loadingSpinner;
+    let textareas, charCounts, stepQuestions, tipTexts, exampleButtons, errorMessages, prevButton, nextButton, goButton, loadingSpinner, toast;
     const storageKey = "marketAnswers";
     let answers = JSON.parse(localStorage.getItem(storageKey)) || {};
-    let originalAnswers = ["", "", ""];
-    const indicators = ["name-indicator", "description-indicator", "features-indicator"];
+    let originalAnswers = ["", ""];
+    const indicators = ["description-indicator", "features-indicator"];
+    let typingTimer;
+    let feedbackTimer;
+    let dotsTimer;
+    let dotsCount = 0;
 
     function showExample(index) {
       originalAnswers[index] = textareas[index].value;
@@ -810,40 +817,73 @@
       charCounts[index].textContent = `${textareas[index].value.length}/2500`;
     }
 
+    function showToast() {
+      toast.classList.add("show");
+      setTimeout(() => {
+        toast.classList.remove("show");
+      }, 3000);
+    }
+
+    function showFeedbackMessage(index, message, type) {
+      errorMessages[index].textContent = message;
+      errorMessages[index].className = "error-message show";
+      if (type === "analyzing") {
+        errorMessages[index].classList.add("analyzing");
+        errorMessages[index].classList.remove("feedback", "success");
+      } else if (type === "short") {
+        errorMessages[index].classList.add("feedback");
+        errorMessages[index].classList.remove("analyzing", "success");
+      } else {
+        errorMessages[index].classList.add("success");
+        errorMessages[index].classList.remove("analyzing", "feedback");
+      }
+      errorMessages[index].style.display = "block";
+    }
+
+    function hideFeedbackMessage(index) {
+      errorMessages[index].style.display = "none";
+      errorMessages[index].classList.remove("show", "analyzing", "feedback", "success");
+      clearInterval(dotsTimer);
+    }
+
+    function updateDots(index) {
+      dotsCount = (dotsCount + 1) % 4;
+      const dots = ".".repeat(dotsCount);
+      errorMessages[index].textContent = `Analyzing answer${dots}`;
+    }
+
     function updateUI() {
-      document.getElementById("stepTitle").textContent = stepTitles[currentStep];
-      document.getElementById("stepQuestion").textContent = questions[currentStep];
+      document.querySelectorAll(".step-container").forEach((step, index) => {
+        step.classList.toggle("active", index === currentStep);
+      });
+
+      stepQuestions[currentStep].textContent = questions[currentStep];
       tipTexts[currentStep].innerHTML = tips[currentStep] + '<span class="close-tip" onclick="this.parentElement.style.display=\'none\'">×</span>';
       textareas[currentStep].value = answers[currentStep] || "";
       charCounts[currentStep].textContent = `${textareas[currentStep].value.length}/2500`;
 
       const progress = ((currentStep + 1) / totalSteps) * 100;
-      document.querySelectorAll(".progress-fill").forEach((fill) => {
+      document.querySelectorAll(".progress-fill").forEach(fill => {
         fill.style.width = `${progress}%`;
       });
 
       indicators.forEach((indicator, index) => {
         const element = document.getElementById(indicator);
         if (answers[index] && answers[index].trim()) {
-          element.classList.add("active");
+          element.classList.add("completed");
         } else {
-          element.classList.remove("active");
+          element.classList.remove("completed");
         }
       });
 
       prevButton.style.display = currentStep === 0 ? "none" : "flex";
       nextButton.style.display = currentStep === totalSteps - 1 ? "none" : "flex";
       goButton.style.display = currentStep === totalSteps - 1 ? "flex" : "none";
-
-      document.querySelectorAll(".step-container").forEach((step, index) => {
-        step.style.display = index === currentStep ? "block" : "none";
-      });
-
-      const allIndicatorsGreen = indicators.every((indicator) => {
+      goButton.disabled = !indicators.every(indicator => {
         const element = document.getElementById(indicator);
-        return element.classList.contains("active");
+        return element.classList.contains("completed");
       });
-      goButton.disabled = !allIndicatorsGreen;
+      goButton.setAttribute("aria-label", goButton.disabled ? "Go to generate market research, disabled until all required questions are answered" : "Go to generate market pred-market.html");
     }
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -857,33 +897,33 @@
 
       textareas = [
         document.getElementById("stepTextarea0"),
-        document.getElementById("stepTextarea1"),
-        document.getElementById("stepTextarea2")
+        document.getElementById("stepTextarea1")
       ];
       charCounts = [
         document.getElementById("charCount0"),
-        document.getElementById("charCount1"),
-        document.getElementById("charCount2")
+        document.getElementById("charCount1")
+      ];
+      stepQuestions = [
+        document.getElementById("stepQuestion0"),
+        document.getElementById("stepQuestion1")
       ];
       tipTexts = [
         document.getElementById("tipText0"),
-        document.getElementById("tipText1"),
-        document.getElementById("tipText2")
+        document.getElementById("tipText1")
       ];
       exampleButtons = [
         document.getElementById("exampleButton0"),
-        document.getElementById("exampleButton1"),
-        document.getElementById("exampleButton2")
+        document.getElementById("exampleButton1")
       ];
       errorMessages = [
         document.getElementById("errorMessage0"),
-        document.getElementById("errorMessage1"),
-        document.getElementById("errorMessage2")
+        document.getElementById("errorMessage1")
       ];
       prevButton = document.getElementById("prevButton");
       nextButton = document.getElementById("nextButton");
       goButton = document.getElementById("goButton");
       loadingSpinner = document.getElementById("loadingSpinner");
+      toast = document.getElementById("toast");
 
       updateUI();
 
@@ -892,20 +932,48 @@
           answers[index] = textarea.value;
           localStorage.setItem(storageKey, JSON.stringify(answers));
           charCounts[index].textContent = `${textarea.value.length}/2500`;
-          const currentIndicator = document.getElementById(indicators[index]);
-          if (textarea.value.trim()) {
-            currentIndicator.classList.add("active");
-          } else {
-            currentIndicator.classList.remove("active");
-          }
+
+          clearTimeout(typingTimer);
+          clearTimeout(feedbackTimer);
+          clearInterval(dotsTimer);
+
+          showFeedbackMessage(index, "Analyzing answer.", "analyzing");
+          dotsTimer = setInterval(() => updateDots(index), 500);
+
+          typingTimer = setTimeout(() => {
+            localStorage.setItem(storageKey, JSON.stringify(answers));
+            showToast();
+          }, 10000);
+
+          feedbackTimer = setTimeout(() => {
+            clearInterval(dotsTimer);
+            const value = textarea.value.trim();
+            if (value.length === 0) {
+              hideFeedbackMessage(index);
+            } else if (value.length < 50) {
+              showFeedbackMessage(index, "Your answer is a bit short. Try adding more details!", "short");
+            } else if (value.length < 100) {
+              showFeedbackMessage(index, "Your answer length is okay, but could use more depth.", "success");
+            } else {
+              showFeedbackMessage(index, "Great job! Your answer length is good.", "success");
+            }
+          }, 1500);
+
           updateUI();
+        });
+
+        textarea.addEventListener("keydown", () => {
+          clearTimeout(feedbackTimer);
+          clearInterval(dotsTimer);
+          showFeedbackMessage(index, "Analyzing answer.", "analyzing");
+          dotsTimer = setInterval(() => updateDots(index), 500);
         });
       });
     });
 
     window.prevStep = function() {
       if (currentStep > 0) {
-        errorMessages[currentStep].style.display = "none";
+        hideFeedbackMessage(currentStep);
         currentStep--;
         updateUI();
       }
@@ -914,15 +982,16 @@
     window.nextStep = function() {
       const textareaValue = textareas[currentStep].value.trim();
       if (!textareaValue) {
-        errorMessages[currentStep].textContent = "Please answer the current question before proceeding.";
-        errorMessages[currentStep].style.display = "block";
+        showFeedbackMessage(currentStep, "Please answer the current question before proceeding.", "short");
         return;
       }
 
-      errorMessages[currentStep].style.display = "none";
       answers[currentStep] = textareaValue;
       localStorage.setItem(storageKey, JSON.stringify(answers));
+      showToast();
+
       if (currentStep < totalSteps - 1) {
+        hideFeedbackMessage(currentStep);
         currentStep++;
         updateUI();
       }
@@ -931,14 +1000,27 @@
     window.generateSpecification = async function() {
       const answers = JSON.parse(localStorage.getItem(storageKey)) || {};
       if (Object.keys(answers).length < totalSteps) {
-        errorMessages[currentStep].textContent = "Please complete all steps before generating the market research.";
-        errorMessages[currentStep].style.display = "block";
+        showFeedbackMessage(currentStep, "Please complete all steps before generating the market research.", "short");
         return;
       }
 
-      errorMessages[currentStep].style.display = "none";
+      hideFeedbackMessage(currentStep);
       goButton.style.display = "none";
       loadingSpinner.style.display = "block";
+
+      let rawContent = "# Market Research\n\n";
+      rawContent += "## Description\n\n" + (answers[0] || "No description provided.") + "\n\n";
+      rawContent += "## Features\n\n" + (answers[1] || "No features provided.") + "\n";
+      localStorage.setItem("rawContent", rawContent);
+
+      const formData = {
+        idea: answers[0] || '',
+        topic: 'Market Research',
+        platform: 'Mobile (iOS and Android)',
+        answers: answers
+      };
+      localStorage.setItem("formData", JSON.stringify(formData));
+      showToast();
 
       try {
         if (typeof window.generateSpecificationOriginal !== "function") {
@@ -947,9 +1029,8 @@
         await window.generateSpecificationOriginal();
       } catch (error) {
         console.error("Error calling API:", error);
-        errorMessages[currentStep].textContent = `Failed to generate market research: ${error.message}.`;
-        errorMessages[currentStep].style.display = "block";
-        localStorage.setItem("generatedContent", JSON.stringify(answers));
+        showFeedbackMessage(currentStep, `Failed to generate market research: ${error.message}.`, "short");
+        localStorage.setItem("generatedContent", rawContent);
       }
       loadingSpinner.style.display = "none";
       window.location.href = "result-market.html";

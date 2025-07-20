@@ -128,6 +128,12 @@
       min-height: 400px;
       z-index: 1000;
       position: relative;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .step-container {
@@ -268,10 +274,47 @@
       font-size: 0.9rem;
       color: #fff;
       margin-top: 1rem;
-      background-color: #d32f2f;
       padding: 0.5rem;
       border-radius: 4px;
       display: none;
+      opacity: 0;
+      transform: translateY(5px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    #errorMessage.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    #errorMessage.analyzing {
+      background-color: #666;
+    }
+
+    #errorMessage.feedback {
+      background-color: #ff9800;
+    }
+
+    #errorMessage.success {
+      background-color: #28a745;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #28a745;
+      color: #fff;
+      padding: 0.8rem 1.2rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      z-index: 2000;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .toast.show {
+      opacity: 1;
     }
 
     .progress-container {
@@ -311,34 +354,29 @@
       font-weight: 600;
     }
 
-    .indicator-circle {
+    .indicator-status {
       width: 24px;
       height: 24px;
-      border-radius: 50%;
-      background: #ddd;
       margin-right: 0.5rem;
-      display: flex;
+      display: none;
       align-items: center;
       justify-content: center;
-      transition: background-color 0.3s ease;
+      font-size: 1rem;
+      color: #fff;
+      background: #28a745;
+      transition: transform 0.3s ease;
     }
 
-    .indicator-circle.active {
-      background: #0078d4;
+    .indicator-status.completed {
+      display: flex;
+      transform: scale(1.15);
     }
 
-    .indicator-circle::before {
+    .indicator-status::before {
       font-family: 'Font Awesome 6 Free';
       font-weight: 900;
-      color: #fff;
-      font-size: 1rem;
+      content: '\f00c';
     }
-
-    #app-purpose-indicator::before { content: '\f05a'; }
-    #user-workflow-indicator::before { content: '\f021'; }
-    #development-preferences-indicator::before { content: '\f013'; }
-    #technologies-indicator::before { content: '\f120'; }
-    #data-structure-indicator::before { content: '\f1c0'; }
 
     .carousel-button-left, .carousel-button-right, .generate-spec-button {
       position: absolute;
@@ -384,6 +422,26 @@
       cursor: not-allowed;
       transform: translateY(-50%);
       box-shadow: none;
+    }
+
+    .loading-spinner {
+      position: absolute;
+      top: 50%;
+      right: -22.5px;
+      transform: translateY(-50%);
+      width: 45px;
+      height: 45px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #0078d4;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      display: none;
+      z-index: 1100;
+    }
+
+    @keyframes spin {
+      0% { transform: translateY(-50%) rotate(0deg); }
+      100% { transform: translateY(-50%) rotate(360deg); }
     }
 
     footer {
@@ -500,13 +558,19 @@
         font-size: 0.8rem;
       }
 
-      .indicator-circle {
+      .indicator-status {
         width: 20px;
         height: 20px;
       }
 
-      .indicator-circle::before {
+      .indicator-status::before {
         font-size: 0.9rem;
+      }
+
+      .loading-spinner {
+        width: 40px;
+        height: 40px;
+        right: -20px;
       }
 
       .footer-content {
@@ -574,13 +638,19 @@
         font-size: 0.75rem;
       }
 
-      .indicator-circle {
+      .indicator-status {
         width: 18px;
         height: 18px;
       }
 
-      .indicator-circle::before {
+      .indicator-status::before {
         font-size: 0.8rem;
+      }
+
+      .loading-spinner {
+        width: 35px;
+        height: 35px;
+        right: -17.5px;
       }
 
       .footer-content {
@@ -589,7 +659,8 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .carousel-button-left, .carousel-button-right, .generate-spec-button, .tip-icon, .example-button {
+      .carousel-button-left, .carousel-button-right, .generate-spec-button, .tip-icon, .example-button, .loading-spinner, .carousel-content, #errorMessage, .indicator-status {
+        animation: none;
         transition: none;
       }
     }
@@ -610,7 +681,7 @@
       <div class="step-container">
         <h3 id="stepTitle">App Purpose</h3>
         <div class="question-wrapper">
-          <p id="stepQuestion" class="question-label"></p>
+          <p id="stepQuestion" class="question-label" aria-describedby="tipText"></p>
           <i class="fas fa-lightbulb tip-icon" aria-label="Show tip"></i>
           <div id="tipText" class="tip-tooltip"><span class="close-tip" onclick="this.parentElement.style.display='none'">×</span></div>
         </div>
@@ -619,30 +690,30 @@
         <button id="exampleButton" class="example-button" onmouseover="showExample()" onmouseout="restoreAnswer()" aria-label="Show example answer">
           <i class="fas fa-eye"></i> Example
         </button>
-        <div id="errorMessage" class="error-message" role="alert"></div>
+        <div id="errorMessage" role="alert"></div>
         <div class="progress-container">
           <div class="progress-bar">
             <div id="progressFill" class="progress-fill"></div>
           </div>
           <div class="discipline-indicators" role="group" aria-label="Progress indicators by category">
             <div class="indicator-item">
-              <span class="indicator-circle" id="app-purpose-indicator" aria-label="App Purpose progress"></span>
+              <span class="indicator-status" id="app-purpose-indicator" aria-label="App Purpose progress"></span>
               <span>App Purpose</span>
             </div>
             <div class="indicator-item">
-              <span class="indicator-circle" id="user-workflow-indicator" aria-label="User Workflow progress"></span>
+              <span class="indicator-status" id="user-workflow-indicator" aria-label="User Workflow progress"></span>
               <span>User Workflow</span>
             </div>
             <div class="indicator-item">
-              <span class="indicator-circle" id="development-preferences-indicator" aria-label="Development Preferences progress"></span>
+              <span class="indicator-status" id="development-preferences-indicator" aria-label="Development Preferences progress"></span>
               <span>Dev Preferences</span>
             </div>
             <div class="indicator-item">
-              <span class="indicator-circle" id="technologies-indicator" aria-label="Technologies progress"></span>
+              <span class="indicator-status" id="technologies-indicator" aria-label="Technologies progress"></span>
               <span>Technologies</span>
             </div>
             <div class="indicator-item">
-              <span class="indicator-circle" id="data-structure-indicator" aria-label="Data Structure progress"></span>
+              <span class="indicator-status" id="data-structure-indicator" aria-label="Data Structure progress"></span>
               <span>Data Structure</span>
             </div>
           </div>
@@ -651,10 +722,12 @@
       <button id="nextButton" class="carousel-button-right" onclick="nextStep()" aria-label="Next step">
         <i class="fas fa-arrow-right"></i>
       </button>
-      <button id="generateSpecButton" class="carousel-button-right generate-spec-button" onclick="generateSpecification()" style="display: none;" disabled aria-label="Generate your app specification">
+      <button id="generateSpecButton" class="carousel-button-right generate-spec-button" onclick="generateSpecification()" style="display: none;" disabled aria-label="Generate your app specification, disabled until all required questions are answered">
         <i class="fas fa-rocket"></i>
       </button>
+      <div id="loadingSpinner" class="loading-spinner"></div>
     </div>
+    <div id="toast" class="toast">Answers saved successfully!</div>
   </div>
 
   <footer>
@@ -714,7 +787,7 @@
 
     let currentStep = 0;
     const totalSteps = questions.length;
-    let textarea, stepTitle, stepQuestion, prevButton, nextButton, generateSpecButton, progressFill, charCount, tipText, exampleButton, errorMessage;
+    let textarea, stepTitle, stepQuestion, prevButton, nextButton, generateSpecButton, progressFill, charCount, tipText, exampleButton, errorMessage, loadingSpinner, toast;
     const storageKey = "devAnswers";
     let answers = JSON.parse(localStorage.getItem(storageKey)) || {};
     let originalAnswer = "";
@@ -725,6 +798,10 @@
       "technologies-indicator",
       "data-structure-indicator"
     ];
+    let typingTimer;
+    let feedbackTimer;
+    let dotsTimer;
+    let dotsCount = 0;
 
     function showExample() {
       originalAnswer = textarea.value;
@@ -735,6 +812,41 @@
     function restoreAnswer() {
       textarea.value = originalAnswer;
       charCount.textContent = `${textarea.value.length}/1000`;
+    }
+
+    function showToast() {
+      toast.classList.add("show");
+      setTimeout(() => {
+        toast.classList.remove("show");
+      }, 3000);
+    }
+
+    function showFeedbackMessage(message, type) {
+      errorMessage.textContent = message;
+      errorMessage.className = "show";
+      if (type === "analyzing") {
+        errorMessage.classList.add("analyzing");
+        errorMessage.classList.remove("feedback", "success");
+      } else if (type === "short") {
+        errorMessage.classList.add("feedback");
+        errorMessage.classList.remove("analyzing", "success");
+      } else {
+        errorMessage.classList.add("success");
+        errorMessage.classList.remove("analyzing", "feedback");
+      }
+      errorMessage.style.display = "block";
+    }
+
+    function hideFeedbackMessage() {
+      errorMessage.style.display = "none";
+      errorMessage.classList.remove("show", "analyzing", "feedback", "success");
+      clearInterval(dotsTimer);
+    }
+
+    function updateDots() {
+      dotsCount = (dotsCount + 1) % 4;
+      const dots = ".".repeat(dotsCount);
+      errorMessage.textContent = `Analyzing answer${dots}`;
     }
 
     function updateUI() {
@@ -750,21 +862,20 @@
       indicators.forEach((indicator, index) => {
         const element = document.getElementById(indicator);
         if (answers[index] && answers[index].trim()) {
-          element.classList.add("active");
+          element.classList.add("completed");
         } else {
-          element.classList.remove("active");
+          element.classList.remove("completed");
         }
       });
 
       prevButton.style.display = currentStep === 0 ? "none" : "flex";
       nextButton.style.display = currentStep === totalSteps - 1 ? "none" : "flex";
       generateSpecButton.style.display = currentStep === totalSteps - 1 ? "flex" : "none";
-
-      const allIndicatorsGreen = indicators.every((indicator) => {
+      generateSpecButton.disabled = !indicators.every((indicator) => {
         const element = document.getElementById(indicator);
-        return element.classList.contains("active");
+        return element.classList.contains("completed");
       });
-      generateSpecButton.disabled = !allIndicatorsGreen;
+      generateSpecButton.setAttribute("aria-label", generateSpecButton.disabled ? "Generate your app specification, disabled until all required questions are answered" : "Generate your app specification");
     }
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -787,6 +898,8 @@
       tipText = document.getElementById("tipText");
       exampleButton = document.getElementById("exampleButton");
       errorMessage = document.getElementById("errorMessage");
+      loadingSpinner = document.getElementById("loadingSpinner");
+      toast = document.getElementById("toast");
 
       updateUI();
 
@@ -794,13 +907,41 @@
         answers[currentStep] = textarea.value;
         localStorage.setItem(storageKey, JSON.stringify(answers));
         charCount.textContent = `${textarea.value.length}/1000`;
-        const currentIndicator = document.getElementById(indicators[currentStep]);
-        if (textarea.value.trim()) {
-          currentIndicator.classList.add("active");
-        } else {
-          currentIndicator.classList.remove("active");
-        }
+
+        clearTimeout(typingTimer);
+        clearTimeout(feedbackTimer);
+        clearInterval(dotsTimer);
+
+        showFeedbackMessage("Analyzing answer.", "analyzing");
+        dotsTimer = setInterval(updateDots, 500);
+
+        typingTimer = setTimeout(() => {
+          localStorage.setItem(storageKey, JSON.stringify(answers));
+          showToast();
+        }, 10000);
+
+        feedbackTimer = setTimeout(() => {
+          clearInterval(dotsTimer);
+          const value = textarea.value.trim();
+          if (value.length === 0) {
+            hideFeedbackMessage();
+          } else if (value.length < 50) {
+            showFeedbackMessage("Your answer is a bit short. Try adding more details!", "short");
+          } else if (value.length < 100) {
+            showFeedbackMessage("Your answer length is okay, but could use more depth.", "success");
+          } else {
+            showFeedbackMessage("Great job! Your answer length is good.", "success");
+          }
+        }, 1500);
+
         updateUI();
+      });
+
+      textarea.addEventListener("keydown", () => {
+        clearTimeout(feedbackTimer);
+        clearInterval(dotsTimer);
+        showFeedbackMessage("Analyzing answer.", "analyzing");
+        dotsTimer = setInterval(updateDots, 500);
       });
     });
 
@@ -808,6 +949,7 @@
       if (currentStep > 0) {
         currentStep--;
         errorMessage.style.display = "none";
+        clearInterval(dotsTimer);
         updateUI();
       }
     };
@@ -815,17 +957,18 @@
     window.nextStep = function() {
       const textareaValue = textarea.value.trim();
       if (!textareaValue) {
-        errorMessage.textContent = "Please answer the current question before proceeding.";
-        errorMessage.style.display = "block";
+        showFeedbackMessage("Please answer the current question before proceeding.", "short");
         return;
       }
 
-      errorMessage.style.display = "none";
       answers[currentStep] = textareaValue;
       localStorage.setItem(storageKey, JSON.stringify(answers));
+      showToast();
 
       if (currentStep < totalSteps - 1) {
         currentStep++;
+        errorMessage.style.display = "none";
+        clearInterval(dotsTimer);
         updateUI();
       }
     };
@@ -833,15 +976,15 @@
     window.generateSpecification = async function() {
       const answers = JSON.parse(localStorage.getItem(storageKey)) || {};
       if (Object.keys(answers).length < totalSteps) {
-        errorMessage.textContent = "Please complete all steps before generating the specification.";
-        errorMessage.style.display = "block";
+        showFeedbackMessage("Please complete all steps before generating the specification.", "short");
         return;
       }
 
       errorMessage.style.display = "none";
+      clearInterval(dotsTimer);
       generateSpecButton.style.display = "none";
+      loadingSpinner.style.display = "block";
 
-      // Generate raw content as fallback
       let rawContent = "# App Specification\n\n";
       rawContent += "## App Purpose\n\n" + (answers[0] || "No purpose provided.") + "\n\n";
       rawContent += "## User Workflow\n\n" + (answers[1] || "No workflow provided.") + "\n\n";
@@ -850,7 +993,6 @@
       rawContent += "## Data Structure\n\n" + (answers[4] || "No data structure specified.") + "\n";
       localStorage.setItem("rawContent", rawContent);
 
-      // Save formData for processing.js
       const formData = {
         idea: answers[0] || '',
         topic: 'App Development',
@@ -858,6 +1000,7 @@
         answers: answers
       };
       localStorage.setItem("formData", JSON.stringify(formData));
+      showToast();
 
       try {
         if (typeof window.generateSpecificationOriginal !== "function") {
@@ -866,10 +1009,10 @@
         await window.generateSpecificationOriginal();
       } catch (error) {
         console.error("Error calling API:", error);
-        errorMessage.textContent = `Failed to generate specification: ${error.message}. Using raw content as fallback.`;
-        errorMessage.style.display = "block";
+        showFeedbackMessage(`Failed to generate specification: ${error.message}. Using raw content as fallback.`, "short");
         localStorage.setItem("generatedContent", rawContent);
       }
+      loadingSpinner.style.display = "none";
       window.location.href = "result.html";
     };
   </script>
