@@ -245,6 +245,57 @@
       box-shadow: 0 0 8px rgba(0, 120, 212, 0.2);
     }
 
+    .yes-no-container {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      width: 100%;
+      max-width: 600px;
+      margin-bottom: 1.5rem;
+    }
+
+    .yes-no-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.8rem;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      background: #f9f9f9;
+    }
+
+    .yes-no-label {
+      font-size: 1.1rem;
+      color: #333;
+      flex: 1;
+    }
+
+    .yes-no-buttons {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .yes-no-button {
+      background: #fff;
+      border: 2px solid #ddd;
+      border-radius: 12px;
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease, border-color 0.3s ease;
+    }
+
+    .yes-no-button.selected {
+      background: #0078d4;
+      color: #fff;
+      border-color: #0078d4;
+    }
+
+    .yes-no-button:hover {
+      background: #e6f0fa;
+      border-color: #0078d4;
+    }
+
     .example-button {
       background: #fff;
       color: #333;
@@ -319,7 +370,7 @@
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
       z-index: 2000;
       opacity: 0;
-      transition: opacity 0.3s ease;
+      transition: 0.3s ease;
     }
 
     .toast.show {
@@ -542,6 +593,19 @@
         font-size: 0.9rem;
       }
 
+      .yes-no-item {
+        padding: 0.6rem;
+      }
+
+      .yes-no-label {
+        font-size: 1rem;
+      }
+
+      .yes-no-button {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+      }
+
       .char-count {
         font-size: 0.8rem;
       }
@@ -626,6 +690,19 @@
         font-size: 0.85rem;
       }
 
+      .yes-no-item {
+        padding: 0.5rem;
+      }
+
+      .yes-no-label {
+        font-size: 0.9rem;
+      }
+
+      .yes-no-button {
+        padding: 0.3rem 0.7rem;
+        font-size: 0.75rem;
+      }
+
       .char-count {
         font-size: 0.75rem;
       }
@@ -690,11 +767,12 @@
       </button>
       <div class="step-container">
         <h3 id="stepTitle">App Overview</h3>
-        <div class="question-wrapper">
+        <div class="question-wrapper" id="questionWrapper">
           <p id="stepQuestion" class="question-label" aria-describedby="tipText"></p>
           <i class="fas fa-lightbulb tip-icon" aria-label="Show tip"></i>
           <div id="tipText" class="tip-tooltip"><span class="close-tip" onclick="this.parentElement.style.display='none'">×</span></div>
         </div>
+        <div id="yesNoContainer" class="yes-no-container" style="display: none;"></div>
         <textarea id="stepTextarea" class="step-textarea" maxlength="2500" placeholder="Enter your response here..." aria-label="Answer the current question"></textarea>
         <span id="charCount" class="char-count">0/2500</span>
         <button id="exampleButton" class="example-button" onmouseover="showExample()" onmouseout="restoreAnswer()" aria-label="Show example answer">
@@ -725,6 +803,14 @@
             <div class="indicator-item">
               <span class="indicator-status" id="audience-indicator" aria-label="Target Audience progress"></span>
               <span>Target Audience</span>
+            </div>
+            <div class="indicator-item">
+              <span class="indicator-status" id="settings-indicator" aria-label="App Settings progress"></span>
+              <span>App Settings</span>
+            </div>
+            <div class="indicator-item">
+              <span class="indicator-status" id="notes-indicator" aria-label="Additional Notes progress"></span>
+              <span>Additional Notes</span>
             </div>
           </div>
         </div>
@@ -768,7 +854,18 @@
       "Describe the typical workflow of a user using your app.",
       "What design elements are most important for your app?",
       "What key features do you want your app to have?",
-      "Who is your target audience?"
+      "Who is your target audience?",
+      [
+        "Does your app require a user account system?",
+        "Does your app use or integrate with AI features?",
+        "Will your app be free to use?",
+        "Does your app need to send notifications?",
+        "Does your app need to work offline?",
+        "Will your app support multiple languages?",
+        "Does your app require integration with social media?",
+        "Will your app collect user data for analytics?"
+      ],
+      "Any additional notes or requirements for your app?"
     ];
 
     const stepTitles = [
@@ -776,7 +873,9 @@
       "User Workflow",
       "Design",
       "Features",
-      "Target Audience"
+      "Target Audience",
+      "App Settings",
+      "Additional Notes"
     ];
 
     const tips = [
@@ -784,7 +883,9 @@
       "Break down the user journey into clear steps, from onboarding to key actions.",
       "Consider aspects like color scheme, typography, and user interface simplicity.",
       "List specific functionalities that make your app stand out, e.g., chat or payments.",
-      "Define your audience by age, interests, or behaviors to tailor your app."
+      "Define your audience by age, interests, or behaviors to tailor your app.",
+      "Select 'Yes' or 'No' for each setting to define your app's technical requirements.",
+      "Include any extra details, such as specific integrations or future ideas."
     ];
 
     const exampleAnswers = [
@@ -792,12 +893,23 @@
       "A typical user starts by creating a profile and setting goals (e.g., weight loss or muscle gain). They log daily meals via a barcode scanner or manual input and record workouts by selecting exercises from a library. The app suggests meal plans and workout routines based on their progress. Users can review weekly reports to track trends and adjust goals.",
       "The app should have a clean, modern interface with a calming color palette (blues and greens). Large, bold typography ensures readability, and intuitive navigation with a bottom tab bar is key. Interactive charts for progress tracking and minimalistic icons enhance the user experience.",
       "Key features include: 1) AI-driven workout and meal suggestions, 2) Barcode scanner for food logging, 3) Social sharing to connect with friends, 4) Progress tracking with visual charts, 5) In-app reminders, and 6) Integration with wearables like Fitbit for real-time data.",
-      "The target audience is health-conscious individuals aged 18-45, primarily fitness enthusiasts and beginners looking to improve their lifestyle. They are tech-savvy, use smartphones daily, and value convenience and personalization in their fitness journey."
+      "The target audience is health-conscious individuals aged 18-45, primarily fitness enthusiasts and beginners looking to improve their lifestyle. They are tech-savvy, use smartphones daily, and value convenience and personalization in their fitness journey.",
+      [
+        "Yes",
+        "Yes",
+        "Yes",
+        "Yes",
+        "No",
+        "No",
+        "Yes",
+        "Yes"
+      ],
+      "The app should integrate with health wearables like Apple Watch and support push notifications for workout reminders. Future plans include adding a community feature for user challenges."
     ];
 
     let currentStep = 0;
     const totalSteps = stepTitles.length;
-    let textarea, stepTitle, stepQuestion, prevButton, nextButton, goButton, progressFill, charCount, tipText, exampleButton, errorMessage, loadingSpinner, toast;
+    let textarea, stepTitle, stepQuestion, prevButton, nextButton, goButton, progressFill, charCount, tipText, exampleButton, errorMessage, loadingSpinner, toast, yesNoContainer;
     const storageKey = "noCodeAnswers";
     let answers = {};
     let originalAnswer = "";
@@ -806,7 +918,9 @@
       "workflow-indicator",
       "design-indicator",
       "features-indicator",
-      "audience-indicator"
+      "audience-indicator",
+      "settings-indicator",
+      "notes-indicator"
     ];
     let typingTimer;
     let feedbackTimer;
@@ -826,18 +940,49 @@
       content += answers[3] ? `${answers[3].replace(/^\d+\)\s*/gm, "- ")}\n\n` : "No features specified.\n\n";
       content += "## Target Audience\n\n";
       content += answers[4] ? `${answers[4]}\n\n` : "No target audience specified.\n\n";
+      content += "## App Settings\n\n";
+      if (Array.isArray(answers[5])) {
+        content += answers[5].map((answer, i) => `${questions[5][i]}: ${answer || "Not specified"}`).join("\n") + "\n\n";
+      } else {
+        content += "No settings specified.\n\n";
+      }
+      content += "## Additional Notes\n\n";
+      content += answers[6] ? `${answers[6]}\n\n` : "No additional notes provided.\n\n";
       return content;
     }
 
     function showExample() {
-      originalAnswer = textarea.value;
-      textarea.value = exampleAnswers[currentStep];
-      charCount.textContent = `${textarea.value.length}/2500`;
+      if (currentStep === 5) {
+        originalAnswer = JSON.stringify(answers[currentStep] || {});
+        const yesNoButtons = document.querySelectorAll(".yes-no-button");
+        exampleAnswers[currentStep].forEach((answer, index) => {
+          const buttons = yesNoButtons[index * 2].parentElement.querySelectorAll(".yes-no-button");
+          buttons.forEach(button => button.classList.remove("selected"));
+          buttons[answer === "Yes" ? 0 : 1].classList.add("selected");
+        });
+      } else {
+        originalAnswer = textarea.value;
+        textarea.value = exampleAnswers[currentStep];
+        charCount.textContent = `${textarea.value.length}/2500`;
+      }
     }
 
     function restoreAnswer() {
-      textarea.value = originalAnswer;
-      charCount.textContent = `${textarea.value.length}/2500`;
+      if (currentStep === 5) {
+        const savedAnswers = JSON.parse(originalAnswer || "{}");
+        const yesNoButtons = document.querySelectorAll(".yes-no-button");
+        yesNoButtons.forEach(button => button.classList.remove("selected"));
+        questions[5].forEach((_, index) => {
+          const buttons = yesNoButtons[index * 2].parentElement.querySelectorAll(".yes-no-button");
+          const saved = savedAnswers[index];
+          if (saved) {
+            buttons[saved === "Yes" ? 0 : 1].classList.add("selected");
+          }
+        });
+      } else {
+        textarea.value = originalAnswer;
+        charCount.textContent = `${textarea.value.length}/2500`;
+      }
     }
 
     function showToast() {
@@ -877,32 +1022,89 @@
 
     function updateUI() {
       stepTitle.textContent = stepTitles[currentStep];
-      stepQuestion.textContent = questions[currentStep];
-      tipText.innerHTML = tips[currentStep] + '<span class="close-tip" onclick="this.parentElement.style.display=\'none\'">×</span>';
-
-      textarea.style.display = "block";
-      charCount.style.display = "block";
-      exampleButton.style.display = "inline-flex";
-      textarea.value = answers[currentStep] || "";
-      charCount.textContent = `${textarea.value.length}/2500`;
+      if (currentStep === 5) {
+        questionWrapper.style.display = "none";
+        yesNoContainer.style.display = "flex";
+        textarea.style.display = "none";
+        charCount.style.display = "none";
+        exampleButton.style.display = "inline-flex";
+        yesNoContainer.innerHTML = "";
+        questions[5].forEach((question, index) => {
+          const savedAnswer = answers[5] && answers[5][index];
+          yesNoContainer.innerHTML += `
+            <div class="yes-no-item">
+              <span class="yes-no-label">${question}</span>
+              <div class="yes-no-buttons">
+                <button class="yes-no-button${savedAnswer === "Yes" ? " selected" : ""}" onclick="selectYesNo(${index}, 'Yes')">Yes</button>
+                <button class="yes-no-button${savedAnswer === "No" ? " selected" : ""}" onclick="selectYesNo(${index}, 'No')">No</button>
+              </div>
+            </div>
+          `;
+        });
+      } else {
+        questionWrapper.style.display = "flex";
+        yesNoContainer.style.display = "none";
+        textarea.style.display = "block";
+        charCount.style.display = "block";
+        exampleButton.style.display = "inline-flex";
+        stepQuestion.textContent = questions[currentStep];
+        tipText.innerHTML = tips[currentStep] + '<span class="close-tip" onclick="this.parentElement.style.display=\'none\'">×</span>';
+        textarea.value = answers[currentStep] || "";
+        charCount.textContent = `${textarea.value.length}/2500`;
+      }
 
       const progress = ((currentStep + 1) / totalSteps) * 100;
       progressFill.style.width = `${progress}%`;
 
       indicators.forEach((indicator, index) => {
         const element = document.getElementById(indicator);
-        if (answers[index] && answers[index].trim()) {
-          element.classList.add("completed");
+        if (index === 5) {
+          if (answers[5] && answers[5].length === questions[5].length && answers[5].every(a => a === "Yes" || a === "No")) {
+            element.classList.add("completed");
+          } else {
+            element.classList.remove("completed");
+          }
         } else {
-          element.classList.remove("completed");
+          if (answers[index] && answers[index].trim()) {
+            element.classList.add("completed");
+          } else {
+            element.classList.remove("completed");
+          }
         }
       });
 
       prevButton.style.display = currentStep === 0 ? "none" : "flex";
       nextButton.style.display = currentStep === totalSteps - 1 ? "none" : "flex";
       goButton.style.display = currentStep === totalSteps - 1 ? "flex" : "none";
-      goButton.disabled = ![0, 1, 2, 3, 4].every((i) => answers[i] && answers[i].trim());
+      goButton.disabled = ![0, 1, 2, 3, 4, 5, 6].every((i) => {
+        if (i === 5) {
+          return answers[5] && answers[5].length === questions[5].length && answers[5].every(a => a === "Yes" || a === "No");
+        }
+        return answers[i] && answers[i].trim();
+      });
       goButton.setAttribute("aria-label", goButton.disabled ? "Generate specification, disabled until all required questions are answered" : "Generate specification");
+    }
+
+    function selectYesNo(index, value) {
+      answers[5] = answers[5] || Array(questions[5].length).fill(null);
+      answers[5][index] = value;
+      localStorage.setItem(storageKey, JSON.stringify(answers));
+      showToast();
+      updateUI();
+
+      clearTimeout(feedbackTimer);
+      clearInterval(dotsTimer);
+      showFeedbackMessage("Analyzing answer.", "analyzing");
+      dotsTimer = setInterval(updateDots, 500);
+
+      feedbackTimer = setTimeout(() => {
+        clearInterval(dotsTimer);
+        if (answers[5].every(a => a === "Yes" || a === "No")) {
+          showFeedbackMessage("Great! All settings have been selected.", "success");
+        } else {
+          showFeedbackMessage("Please answer all settings questions.", "short");
+        }
+      }, 1500);
     }
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -928,6 +1130,8 @@
       errorMessage = document.getElementById("errorMessage");
       loadingSpinner = document.getElementById("loadingSpinner");
       toast = document.getElementById("toast");
+      yesNoContainer = document.getElementById("yesNoContainer");
+      questionWrapper = document.getElementById("questionWrapper");
 
       updateUI();
 
@@ -982,12 +1186,19 @@
     };
 
     window.nextStep = function() {
-      const textareaValue = textarea.value.trim();
-      if (!textareaValue) {
-        showFeedbackMessage("Please answer the current question before proceeding.", "short");
-        return;
+      if (currentStep === 5) {
+        if (!answers[5] || answers[5].length !== questions[5].length || !answers[5].every(a => a === "Yes" || a === "No")) {
+          showFeedbackMessage("Please answer all settings questions before proceeding.", "short");
+          return;
+        }
+      } else {
+        const textareaValue = textarea.value.trim();
+        if (!textareaValue) {
+          showFeedbackMessage("Please answer the current question before proceeding.", "short");
+          return;
+        }
+        answers[currentStep] = textareaValue;
       }
-      answers[currentStep] = textareaValue;
       localStorage.setItem(storageKey, JSON.stringify(answers));
       showToast();
       if (currentStep < totalSteps - 1) {
@@ -999,8 +1210,9 @@
     };
 
     window.generateSpecification = async function() {
-      const allOpenQuestionsAnswered = [0, 1, 2, 3, 4].every((i) => answers[i] && answers[i].trim());
-      if (!allOpenQuestionsAnswered) {
+      const allOpenQuestionsAnswered = [0, 1, 2, 3, 4, 6].every((i) => answers[i] && answers[i].trim());
+      const allYesNoAnswered = answers[5] && answers[5].length === questions[5].length && answers[5].every(a => a === "Yes" || a === "No");
+      if (!allOpenQuestionsAnswered || !allYesNoAnswered) {
         showFeedbackMessage("Please complete all required steps before generating the specification.", "short");
         return;
       }
