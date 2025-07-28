@@ -1723,5 +1723,126 @@
     ],
     "added": "2025-07-07",
     "id": 81
+  },
+  {
+    "id": 81,
+    "name": "Arvo",
+    "category": "Prompt-to-App Builders",
+    "description": "Generate full-stack apps from natural language prompts with integrated hosting and real-time collaboration.",
+    "link": "https://www.producthunt.com/products/arvo",
+    "rating": 4.8,
+    "pros": [
+      "Seamless prompt-to-app generation",
+      "Real-time team collaboration",
+      "Built-in deployment pipeline"
+    ],
+    "cons": [
+      "Limited customization for complex apps",
+      "Subscription cost may be high for solo developers"
+    ],
+    "special": "Launched July 2025",
+    "stats": {
+      "users": "50K registered, 20K MAU",
+      "globalRating": 4.8,
+      "monthlyUsage": "10K apps generated",
+      "ARR": "N/A"
+    }
+  },
+  {
+    "id": 82,
+    "name": "Fusion",
+    "category": "Prompt-to-App Builders",
+    "description": "AI-driven visual code builder for scalable app development, integrating with existing code and design systems.",
+    "link": "https://www.builder.io/fusion",
+    "rating": "N/A",
+    "pros": [
+      "Integrates with existing code and design systems",
+      "Supports multiple frameworks (React, Next.js, Vue, Svelte, Angular)",
+      "Advanced AI for build failure fixes"
+    ],
+    "cons": [
+      "Steep learning curve",
+      "Potential issues as a new tool",
+      "High pricing for small teams"
+    ],
+    "special": "Launched June 2025",
+    "stats": {
+      "users": "N/A",
+      "globalRating": "N/A",
+      "monthlyUsage": "N/A",
+      "ARR": "N/A"
+    }
+  },
+  {
+    "id": 83,
+    "name": "Trae",
+    "category": "AI-Augmented IDEs & Code Assistants",
+    "description": "AI-powered IDE for real-time code writing, analysis, and feature generation with builder and chat modes.",
+    "link": "https://www.trae.ai",
+    "rating": "N/A",
+    "pros": [
+      "Real-time code assistance",
+      "Supports multiple languages",
+      "Free tier available"
+    ],
+    "cons": [
+      "Pricing details unclear",
+      "Potential bugs as a new tool"
+    ],
+    "special": "Launched July 2025",
+    "stats": {
+      "users": "N/A",
+      "globalRating": "N/A",
+      "monthlyUsage": "N/A",
+      "ARR": "N/A"
+    }
+  },
+  {
+    "id": 84,
+    "name": "CodeZap",
+    "category": "AI-Augmented IDEs & Code Assistants",
+    "description": "AI-powered IDE plugin that generates optimized code snippets and auto-debugs in real-time.",
+    "link": "https://codezap.ai",
+    "rating": 4.8,
+    "pros": [
+      "Real-time debugging suggestions",
+      "Multi-language support",
+      "Seamless integration with VS Code and JetBrains"
+    ],
+    "cons": [
+      "Requires stable internet connection",
+      "Learning curve for advanced features"
+    ],
+    "special": "Beta released in July 2025",
+    "stats": {
+      "users": "500K registered, 200K MAU",
+      "globalRating": 4.8,
+      "monthlyUsage": "10K active projects",
+      "ARR": "N/A"
+    }
+  },
+  {
+    "id": 85,
+    "name": "VibeFlow",
+    "category": "UI/UX Code Tools",
+    "description": "A tool for generating responsive UI components from design prompts, with instant React and Tailwind CSS code export.",
+    "link": "https://vibeflow.io",
+    "rating": 4.5,
+    "pros": [
+      "Fast design-to-code conversion",
+      "Supports multiple frameworks",
+      "Customizable component library"
+    ],
+    "cons": [
+      "Limited free plan",
+      "Occasional inaccuracies in complex layouts"
+    ],
+    "special": "Launched in June 2025",
+    "stats": {
+      "users": "250K registered, 100K MAU",
+      "globalRating": 4.5,
+      "monthlyUsage": "5K exported components",
+      "ARR": "$10M"
+    }
   }
 ]
