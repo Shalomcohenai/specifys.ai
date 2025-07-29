@@ -643,24 +643,23 @@
       }
 
       .popup {
-        background: #fff;
+        background: rgba(255, 255, 255, 0.95);
         width: 80%;
         max-width: 700px;
         padding: 2rem;
         border-radius: 15px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
         text-align: center;
         position: relative;
-        overflow: hidden;
         cursor: default;
       }
 
       .popup-close {
         position: absolute;
-        top: 10px;
+        top: 15px;
         right: 15px;
         font-size: 1.5rem;
-        color: #666;
+        color: #333;
         cursor: pointer;
         border: none;
         background: none;
@@ -671,77 +670,33 @@
         color: #0078d4;
       }
 
-      .popup-gallery {
-        position: relative;
-        height: 180px;
+      .popup-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
       }
 
-      .popup-step {
-        position: absolute;
-        width: 100%;
-        opacity: 0;
-        transform: translateX(100%);
-        transition: opacity 0.5s ease, transform 0.5s ease;
-      }
-
-      .popup-step.active {
-        opacity: 1;
-        transform: translateX(0);
-      }
-
-      .popup-step:not(.active) {
-        transform: translateX(100%);
-      }
-
-      .popup-step i {
+      .popup-content i {
         font-size: 2rem;
         color: #0078d4;
-        margin-bottom: 0.5rem;
+        margin-bottom: 1rem;
       }
 
-      .popup-step h3 {
-        font-size: 1.2rem;
+      .popup-content h3 {
+        font-size: 1.5rem;
         font-weight: 700;
         color: #333;
-        margin: 0.5rem 0;
-      }
-
-      .popup-step p {
-        font-size: 1rem;
-        color: #666;
         margin-bottom: 0.5rem;
       }
 
-      .popup-dots {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 10px;
-        margin-top: 1rem;
+      .popup-content p {
+        font-size: 1rem;
+        color: #333;
+        margin-bottom: 1.5rem;
+        line-height: 1.6;
       }
 
-      .popup-dot {
-        width: 8px;
-        height: 8px;
-        visibility: hidden;
-        border-radius: 50%;
-        transition: all 0.3s ease;
-        cursor: pointer;
-      }
-
-      .popup-dot.active {
-        width: 12px;
-        height: 12px;
-        visibility: visible;
-        background: #0078d4;
-      }
-
-      .popup-dot:focus {
-        outline: 2px solid #0078d4;
-        outline-offset: 2px;
-      }
-
-      .popup-start {
+      .popup-content .popup-start {
         background: #0078d4;
         color: #fff;
         border: none;
@@ -751,16 +706,15 @@
         font-weight: 700;
         cursor: pointer;
         transition: all 0.3s ease;
-        margin-top: 1rem;
       }
 
-      .popup-start:hover {
+      .popup-content .popup-start:hover {
         background: #005ea2;
         transform: translateY(-2px);
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
       }
 
-      .popup-start:focus {
+      .popup-content .popup-start:focus {
         outline: 2px solid #0078d4;
         outline-offset: 2px;
       }
@@ -933,30 +887,16 @@
           width: 90%;
           padding: 1.5rem;
         }
-        .popup-gallery {
-          height: 160px;
-        }
-        .popup-step h3 {
-          font-size: 1rem;
-        }
-        .popup-step p {
-          font-size: 0.9rem;
-        }
-        .popup-step i {
+        .popup-content i {
           font-size: 1.8rem;
         }
-        .popup-dots {
-          gap: 8px;
+        .popup-content h3 {
+          font-size: 1.2rem;
         }
-        .popup-dot {
-          width: 8px;
-          height: 8px;
+        .popup-content p {
+          font-size: 0.9rem;
         }
-        .popup-dot.active {
-          width: 12px;
-          height: 12px;
-        }
-        .popup-start {
+        .popup-content .popup-start {
           padding: 0.6rem 1.5rem;
           font-size: 0.9rem;
         }
@@ -1059,30 +999,16 @@
           width: 95%;
           padding: 1rem;
         }
-        .popup-gallery {
-          height: 140px;
-        }
-        .popup-step h3 {
-          font-size: 0.9rem;
-        }
-        .popup-step p {
-          font-size: 0.8rem;
-        }
-        .popup-step i {
+        .popup-content i {
           font-size: 1.5rem;
         }
-        .popup-dots {
-          gap: 6px;
+        .popup-content h3 {
+          font-size: 1rem;
         }
-        .popup-dot {
-          width: 6px;
-          height: 6px;
+        .popup-content p {
+          font-size: 0.8rem;
         }
-        .popup-dot.active {
-          width: 10px;
-          height: 10px;
-        }
-        .popup-start {
+        .popup-content .popup-start {
           padding: 0.5rem 1rem;
           font-size: 0.8rem;
         }
@@ -1096,7 +1022,7 @@
       }
 
       @media (prefers-reduced-motion: reduce) {
-        .track-container, .mode-button, .section, .rotating-text span, .popup-start, .scroll-to-top, .popup-step, .testimonials-gallery, .testimonial-card, .rotating-ideas .idea-text {
+        .track-container, .mode-button, .section, .rotating-text span, .popup-start, .scroll-to-top, .testimonial-card, .rotating-ideas .idea-text {
           animation: none;
           transition: none;
         }
@@ -1121,6 +1047,7 @@
       <a href="blog.html" aria-label="Visit our blog">Blog</a>
       <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
       <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
+      <a href="map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Tools Map</a>
     </div>
   </header>
 
@@ -1168,29 +1095,12 @@
       <div class="popup" role="document">
         <h2 id="popupTitle" class="visually-hidden">Welcome to Specifys.ai</h2>
         <button class="popup-close" aria-label="Close welcome popup" onclick="specifys.closePopup()">×</button>
-        <div class="popup-gallery">
-          <div class="popup-step step-1 active" id="step-1">
-            <i class="fas fa-edit"></i>
-            <h3>Choose Your Mode</h3>
-            <p>Select your perfect track: Start-Easy for beginners, Dev-Tools for coders, or Explore for market research.</p>
-          </div>
-          <div class="popup-step step-2" id="step-2">
-            <i class="fas fa-question-circle"></i>
-            <h3>Answer Questions</h3>
-            <p>Share your vision by answering a few simple questions to kickstart your app journey.</p>
-          </div>
-          <div class="popup-step step-3" id="step-3">
-            <i class="fas fa-file-alt"></i>
-            <h3>Create Specification</h3>
-            <p>Receive a precise blueprint you can integrate with Vibe Coding tools for success.</p>
-          </div>
+        <div class="popup-content">
+          <i class="fas fa-rocket"></i>
+          <h3>Welcome to Specifys.ai</h3>
+          <p>Select your perfect track: Start-Easy for beginners, Dev-Tools for coders, or Explore for market research. Answer a few questions to get a precise AI-crafted blueprint for your app idea, all for free!</p>
+          <button class="popup-start" onclick="specifys.closePopup('start')">Start Now</button>
         </div>
-        <div class="popup-dots" role="tablist">
-          <button class="popup-dot active" data-step="0" role="tab" aria-selected="true" aria-controls="step-1" tabindex="0"></button>
-          <button class="popup-dot" data-step="1" role="tab" aria-selected="false" aria-controls="step-2" tabindex="-1"></button>
-          <button class="popup-dot" data-step="2" role="tab" aria-selected="false" aria-controls="step-3" tabindex="-1"></button>
-        </div>
-        <button class="popup-start" id="popupStart" onclick="specifys.closePopup('start')">Start Now</button>
       </div>
     </div>
 
@@ -1549,35 +1459,11 @@
 
         const popupOverlay = document.getElementById("popupOverlay");
         const popup = document.querySelector(".popup");
-        const popupStart = document.getElementById("popupStart");
+        const popupStart = document.querySelector(".popup-start");
         const popupClose = document.querySelector(".popup-close");
-        const popupSteps = document.querySelectorAll(".popup-step");
-        const popupDots = document.querySelectorAll(".popup-dot");
-        let currentStepIndex = 0;
-
-        function showStep(index) {
-          popupSteps.forEach((step, i) => {
-            step.classList.toggle("active", i === index);
-          });
-          popupDots.forEach((dot, i) => {
-            dot.classList.toggle("active", i === index);
-            dot.setAttribute("aria-selected", i === index);
-            dot.setAttribute("tabindex", i === index ? "0" : "-1");
-          });
-        }
-
-        function startPopupCycle() {
-          return setInterval(() => {
-            currentStepIndex = (currentStepIndex + 1) % popupSteps.length;
-            showStep(currentStepIndex);
-          }, 3000);
-        }
-
-        let popupCycleInterval = startPopupCycle();
 
         specifys.closePopup = function(action = 'close') {
           popupOverlay.style.display = "none";
-          clearInterval(popupCycleInterval);
           gtag('event', 'click', {
             'event_category': 'Popup Interaction',
             'event_label': action === 'start' ? 'Popup Start Button' : 'Popup Close'
@@ -1587,7 +1473,7 @@
         };
 
         function trapFocus(e) {
-          const focusableElements = popup.querySelectorAll('button, [role="tab"]');
+          const focusableElements = popup.querySelectorAll('button');
           const firstFocusable = focusableElements[0];
           const lastFocusable = focusableElements[focusableElements.length - 1];
 
@@ -1614,24 +1500,6 @@
           if (e.target === popupOverlay) {
             specifys.closePopup();
           }
-        });
-
-        popupDots.forEach((dot, index) => {
-          dot.addEventListener("click", () => {
-            clearInterval(popupCycleInterval);
-            currentStepIndex = parseInt(dot.getAttribute("data-step"));
-            showStep(currentStepIndex);
-            popupCycleInterval = startPopupCycle();
-          });
-          dot.addEventListener("keydown", (e) => {
-            if (e.key === "Enter" || e.key === "Space") {
-              e.preventDefault();
-              clearInterval(popupCycleInterval);
-              currentStepIndex = parseInt(dot.getAttribute("data-step"));
-              showStep(currentStepIndex);
-              popupCycleInterval = startPopupCycle();
-            }
-          });
         });
 
         popupStart.addEventListener("click", () => {
