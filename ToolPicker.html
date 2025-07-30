@@ -709,16 +709,16 @@
           throw new Error(`Failed to fetch tools: ${response.status} ${await response.text()}`);
         }
         const data = await response.json();
-        console.log('API responded successfully:', data); // חיווי בקונסולה
+        console.log('API response:', data); // לוג לתגובה
         successMessage.textContent = 'Successfully received tools from API!';
         successMessage.style.display = 'block';
-        setTimeout(() => { successMessage.style.display = 'none'; }, 3000); // הסתר לאחר 3 שניות
+        setTimeout(() => { successMessage.style.display = 'none'; }, 3000);
         return data;
       } catch (error) {
         console.error('Fetch error:', error.message);
         errorMessage.textContent = `Error: ${error.message}`;
         errorMessage.style.display = 'block';
-        setTimeout(() => { errorMessage.style.display = 'none'; }, 5000); // הסתר לאחר 5 שניות
+        setTimeout(() => { errorMessage.style.display = 'none'; }, 5000);
         return null;
       }
     }
@@ -732,6 +732,12 @@
         errorMessage.style.display = 'block';
         setTimeout(() => { errorMessage.style.display = 'none'; }, 5000);
         return;
+      }
+
+      if (data.features.length === 0) {
+        errorMessage.textContent = 'No features detected. Using default features.';
+        errorMessage.style.display = 'block';
+        setTimeout(() => { errorMessage.style.display = 'none'; }, 5000);
       }
 
       featuresList.innerHTML = (data.features || []).map(f => `
@@ -833,7 +839,9 @@
             if (data) updateUI(data, parseInt(slider.value));
           });
         } else {
-          updateUI({ features: [], minimal: { tools: [] }, balanced: { tools: [] }, unique: { tools: [] } }, parseInt(slider.value));
+          fetchOpenAITools(searchInput.value, []).then(data => {
+            if (data) updateUI(data, parseInt(slider.value));
+          });
         }
       }, 1000);
     });
