@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ToolPicker - specifys.ai</title>
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap");
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      height: 100%;
+    }
+
+    body {
+      font-family: "Montserrat", sans-serif;
+      position: relative;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      min-height: 100%;
+      background: #f5f5f5;
+    }
+
+    .thematic-header {
+      position: absolute;
+      top: 0;
+      width: 100%;
+      padding: 20px 24px;
+      display: flex;
+      justify-content: center;
+      z-index: 10;
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .thematic-header .logo a {
+      text-decoration: none;
+      color: #333;
+      font-size: 1.925rem;
+      font-weight: 700;
+    }
+
+    .content-box {
+      max-width: 1200px;
+      margin: 80px auto 40px;
+      padding: 30px;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 15px;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+      flex-grow: 1;
+    }
+
+    .content-box h1 {
+      font-size: clamp(1.8rem, 4vw, 2.5rem);
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .search-box {
+      margin-bottom: 30px;
+      position: relative;
+    }
+
+    .search-input {
+      width: 100%;
+      height: 50px;
+      padding: 12px 80px 12px 20px;
+      font-size: 1.2rem;
+      font-weight: 400;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      background: #fff;
+      color: #333;
+    }
+
+    .search-input:focus {
+      border-color: #0078d4;
+      outline: none;
+    }
+
+    .search-button {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #0078d4;
+      border: none;
+      border-radius: 5px;
+      padding: 10px 20px;
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+
+    .search-button:hover {
+      background: #005ea2;
+      transform: translateY(-52%);
+    }
+
+    .search-loading {
+      display: none;
+      position: absolute;
+      right: 60px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 20px;
+      height: 20px;
+      border: 3px solid #0078d4;
+      border-top: 3px solid transparent;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: translateY(-50%) rotate(0deg); }
+      100% { transform: translateY(-50%) rotate(360deg); }
+    }
+
+    .slider-section {
+      margin-bottom: 30px;
+      text-align: center;
+      position: relative;
+    }
+
+    .tool-preference-label {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #0078d4;
+      margin-bottom: 15px;
+    }
+
+    .slider-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    .tool-preference {
+      width: 300px;
+      height: 4px;
+      background: #e5e7eb;
+      border-radius: 2px;
+      position: relative;
+    }
+
+    .tool-preference::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: calc(var(--progress, 0%) - 8px);
+      width: 16px;
+      height: 16px;
+      background: #0078d4;
+      border-radius: 50%;
+      transform: translateY(-50%);
+      transition: left 0.3s ease;
+    }
+
+    .tool-preference input {
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    .slider-label {
+      font-size: 0.95rem;
+      font-weight: 400;
+      color: #666;
+      max-width: 120px;
+      text-align: center;
+      position: relative;
+    }
+
+    .slider-label.minimal:hover::after {
+      content: 'Use a single, all-in-one tool for simplicity.';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #333;
+      color: #fff;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      white-space: nowrap;
+      z-index: 10;
+    }
+
+    .slider-label.unique:hover::after {
+      content: 'Leverage specialized tools for maximum customization.';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #333;
+      color: #fff;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      white-space: nowrap;
+      z-index: 10;
+    }
+
+    .slider-loading {
+      display: none;
+      position: absolute;
+      bottom: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 24px;
+      height: 24px;
+      border: 3px solid #0078d4;
+      border-top: 3px solid transparent;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    .features-section {
+      margin-bottom: 30px;
+      display: none;
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    .features-section.show {
+      display: block;
+      animation: slideIn 0.5s forwards;
+    }
+
+    @keyframes slideIn {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .features-section h3 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #0078d4;
+      margin-bottom: 15px;
+    }
+
+    .features-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .feature-item {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 8px 24px 8px 12px;
+      font-size: 0.95rem;
+      font-weight: 400;
+      color: #333;
+      cursor: pointer;
+      position: relative;
+      transition: opacity 0.3s ease;
+    }
+
+    .feature-item.active::after {
+      content: "\f058";
+      font-family: "Font Awesome 6 Free";
+      font-weight: 900;
+      color: #0078d4;
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    .feature-item.inactive {
+      opacity: 0.5;
+    }
+
+    .tool-list {
+      display: none;
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .tool-list.show {
+      display: flex;
+    }
+
+    .tool-card {
+      background: #fff;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease;
+      flex: 1;
+      min-width: 280px;
+    }
+
+    .tool-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .tool-card h3 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #0078d4;
+      margin-bottom: 15px;
+    }
+
+    .tool-card p {
+      font-size: 0.95rem;
+      font-weight: 400;
+      color: #666;
+      margin-bottom: 10px;
+      line-height: 1.6;
+    }
+
+    .tool-card .start-btn {
+      display: inline-block;
+      padding: 10px 20px;
+      background: #0078d4;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 5px;
+      font-size: 1rem;
+      font-weight: 700;
+      transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+
+    .tool-card .start-btn:hover {
+      background: #005ea2;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .comparison-table {
+      margin-top: 30px;
+      display: none;
+    }
+
+    .comparison-table.show {
+      display: block;
+    }
+
+    .comparison-table h4 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #0078d4;
+      margin-bottom: 15px;
+    }
+
+    .comparison-table table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .comparison-table th, .comparison-table td {
+      padding: 12px;
+      font-size: 0.95rem;
+      font-weight: 400;
+      color: #333;
+      border-bottom: 1px solid #e5e7eb;
+      text-align: left;
+    }
+
+    .comparison-table th {
+      background: rgba(0, 120, 212, 0.1);
+      font-weight: 700;
+    }
+
+    .comparison-table td a {
+      color: #0078d4;
+      text-decoration: none;
+    }
+
+    .comparison-table td a:hover {
+      color: #005ea2;
+      text-decoration: underline;
+    }
+
+    footer {
+      padding: 20px 10px;
+      text-align: center;
+      width: 100%;
+      color: #333;
+      flex-shrink: 0;
+      background: #fff;
+      box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .footer-content {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 25px;
+    }
+
+    .footer-links a {
+      color: #333;
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: color 0.3s ease;
+    }
+
+    .footer-links a:hover {
+      color: #0078d4;
+    }
+
+    .footer-divider {
+      color: #333;
+      font-size: 1.2rem;
+      font-weight: 300;
+    }
+
+    .footer-social {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .footer-social a {
+      color: #333;
+      font-size: 1.2rem;
+      transition: transform 0.3s ease, color 0.3s ease;
+    }
+
+    .footer-social a:hover {
+      color: #0078d4;
+      transform: scale(1.2);
+    }
+
+    .footer-copyright {
+      font-size: 0.8rem;
+      color: #666;
+      margin-top: 1rem;
+    }
+
+    @media (max-width: 768px) {
+      .thematic-header .logo a {
+        font-size: 1.32rem;
+      }
+      .content-box {
+        margin: 40px 15px;
+        padding: 20px;
+      }
+      .content-box h1 {
+        font-size: clamp(1.4rem, 3vw, 2rem);
+      }
+      .search-input {
+        height: 45px;
+        font-size: 1rem;
+        padding: 10px 75px 10px 15px;
+      }
+      .search-button {
+        padding: 8px 16px;
+        font-size: 0.9rem;
+      }
+      .search-loading {
+        right: 55px;
+      }
+      .tool-preference {
+        width: 200px;
+      }
+      .tool-card {
+        min-width: 240px;
+        padding: 15px;
+      }
+      .tool-card h3, .features-section h3, .comparison-table h4 {
+        font-size: 1.3rem;
+      }
+      .tool-card p, .feature-item, .comparison-table th, .comparison-table td {
+        font-size: 0.9rem;
+      }
+      .tool-card .start-btn {
+        padding: 8px 16px;
+        font-size: 0.9rem;
+      }
+      .footer-content {
+        flex-direction: column;
+        gap: 10px;
+      }
+      .footer-links {
+        gap: 20px;
+      }
+      .footer-links a {
+        font-size: 0.8rem;
+      }
+      .footer-social a {
+        font-size: 1rem;
+      }
+      .footer-divider {
+        font-size: 1rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .thematic-header .logo a {
+        font-size: 1.32rem;
+      }
+      .content-box {
+        margin: 40px 10px;
+        padding: 15px;
+      }
+      .content-box h1 {
+        font-size: clamp(1.2rem, 3vw, 1.8rem);
+      }
+      .search-input {
+        height: 40px;
+        font-size: 0.95rem;
+        padding: 8px 70px 8px 12px;
+      }
+      .search-button {
+        padding: 6px 12px;
+        font-size: 0.8rem;
+      }
+      .search-loading {
+        right: 50px;
+      }
+      .tool-preference {
+        width: 150px;
+      }
+      .tool-card h3, .features-section h3, .comparison-table h4 {
+        font-size: 1.2rem;
+      }
+      .tool-card p, .feature-item, .comparison-table th, .comparison-table td {
+        font-size: 0.85rem;
+      }
+      .tool-card .start-btn {
+        padding: 6px 12px;
+        font-size: 0.8rem;
+      }
+      .footer-links {
+        gap: 15px;
+      }
+      .footer-links a {
+        font-size: 0.75rem;
+      }
+      .footer-social a {
+        font-size: 0.9rem;
+      }
+      .footer-divider {
+        font-size: 0.9rem;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .tool-card, .start-btn, .footer-social a, .tool-preference::before {
+        transition: none;
+      }
+    }
+  </style>
+</head>
+<body class="page-default">
+  <header class="thematic-header" role="banner">
+    <div class="logo">
+      <a href="index.html" aria-label="specifys.ai homepage">specifys.ai</a>
+    </div>
+  </header>
+
+  <div class="content-box">
+    <h1>ToolPicker</h1>
+    <div class="search-box">
+      <input type="text" class="search-input" placeholder="Describe your app" aria-label="Describe your app">
+      <button class="search-button"><i class="fas fa-paper-plane"></i> Submit</button>
+      <div class="search-loading"></div>
+    </div>
+    <div class="slider-section">
+      <label for="tool-preference" class="tool-preference-label">Tool Preference</label>
+      <div class="slider-container">
+        <span class="slider-label minimal">Minimal Tools</span>
+        <div class="tool-preference">
+          <input type="range" min="0" max="100" value="0" step="50" id="tool-preference">
+        </div>
+        <span class="slider-label unique">Unique Tool Features</span>
+      </div>
+      <div class="slider-loading"></div>
+    </div>
+    <div class="features-section">
+      <h3>Selected Features</h3>
+      <div class="features-list"></div>
+    </div>
+    <div class="tool-list minimal"></div>
+    <div class="tool-list balanced"></div>
+    <div class="tool-list unique"></div>
+    <div class="comparison-table"></div>
+  </div>
+
+  <footer>
+    <div class="footer-content">
+      <div class="footer-links">
+        <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
+        <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
+        <a href="blog.html" aria-label="Try our Blog">Blog</a>
+        <a href="map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
+      </div>
+      <span class="footer-divider">|</span>
+      <div class="footer-social">
+        <a href="https://www.linkedin.com/company/specifys-ai/" aria-label="Follow us on LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+        <a href="https://www.facebook.com/profile.php?id=61576402600129" target="_blank" aria-label="Follow us on Facebook"><i class="fab fa-facebook-f"></i></a>
+        <a href="https://www.instagram.com/YOUR_PROFILE" aria-label="Follow us on Instagram"><i class="fab fa-instagram"></i></a>
+        <a href="mailto:specifysai@gmail.com" aria-label="Send us an email"><i class="fas fa-envelope"></i></a>
+        <a href="https://www.producthunt.com/products/specifys-ai" target="_blank" aria-label="Check us out on Product Hunt"><i class="fab fa-product-hunt"></i></a>
+      </div>
+    </div>
+    <div class="footer-copyright">
+      © 2025 specifys.ai. All rights reserved.
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const searchButton = document.querySelector(".search-button");
+    const searchLoading = document.querySelector(".search-loading");
+    const searchInput = document.querySelector(".search-input");
+    const slider = document.querySelector("#tool-preference");
+    const sliderLoading = document.querySelector(".slider-loading");
+    const toolPreference = document.querySelector(".tool-preference");
+    const featuresSection = document.querySelector(".features-section");
+    const featuresList = document.querySelector(".features-list");
+    const toolListMinimal = document.querySelector(".tool-list.minimal");
+    const toolListBalanced = document.querySelector(".tool-list.balanced");
+    const toolListUnique = document.querySelector(".tool-list.unique");
+    const comparisonTable = document.querySelector(".comparison-table");
+
+    // Dynamic placeholder examples
+    const placeholders = [
+      "Build a to-do app",
+      "Create a chatbot",
+      "Design a portfolio website",
+      "Develop a fitness tracker",
+      "Make a budgeting tool"
+    ];
+    let placeholderIndex = 0;
+    function rotatePlaceholders() {
+      searchInput.placeholder = placeholders[placeholderIndex];
+      placeholderIndex = (placeholderIndex + 1) % placeholders.length;
+    }
+    rotatePlaceholders();
+    setInterval(rotatePlaceholders, 3000);
+
+    // Snap slider to 0, 50, or 100 and update indicator
+    slider.addEventListener("input", () => {
+      const value = parseInt(slider.value);
+      let snappedValue;
+      if (value < 34) snappedValue = 0;
+      else if (value < 67) snappedValue = 50;
+      else snappedValue = 100;
+      slider.value = snappedValue;
+      toolPreference.style.setProperty("--progress", `${snappedValue}%`);
+    });
+
+    async function fetchOpenAITools(description, features) {
+      const response = await fetch('https://toolpicker.shalom-cohen-111.workers.dev/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ description, features })
+      });
+      return await response.json();
+    }
+
+    function updateUI(data, sliderValue) {
+      featuresList.innerHTML = data.features.map(f => `
+        <div class="feature-item ${f.active ? 'active' : 'inactive'}" data-feature="${f.name}">
+          ${f.name}
+        </div>
+      `).join('');
+      featuresSection.classList.add("show");
+
+      const toolList = sliderValue === 0 ? toolListMinimal : sliderValue === 50 ? toolListBalanced : toolListUnique;
+      toolList.innerHTML = data[sliderValue === 0 ? 'minimal' : sliderValue === 50 ? 'balanced' : 'unique'].tools.map(t => `
+        <div class="tool-card">
+          <h3>${t.category}</h3>
+          <p>${t.name}</p>
+          <p class="reason">Reason: ${t.reason}</p>
+          <p class="pricing">Pricing: <span>${t.pricing}</span></p>
+          <a href="${t.link}" target="_blank" class="start-btn">Get Started</a>
+        </div>
+      `).join('');
+      toolList.classList.add("show");
+
+      comparisonTable.innerHTML = `
+        <h4>Tool Comparison</h4>
+        <table>
+          <thead>
+            <tr>
+              <th>Tool</th>
+              <th>Pricing</th>
+              <th>Ease of Use</th>
+              <th>Integration Complexity</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${data[sliderValue === 0 ? 'minimal' : sliderValue === 50 ? 'balanced' : 'unique'].tools.map(t => `
+              <tr>
+                <td><a href="${t.link}" target="_blank">${t.name}</a></td>
+                <td><span>${t.pricing}</span></td>
+                <td><span>${t.ease}</span></td>
+                <td><span>${t.integration}</span></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+      comparisonTable.classList.add("show");
+    }
+
+    function triggerSearch() {
+      if (searchInput.value.trim().length < 3) return;
+      searchLoading.style.display = "block";
+      featuresSection.style.opacity = "0";
+      toolListMinimal.style.opacity = "0";
+      toolListBalanced.style.opacity = "0";
+      toolListUnique.style.opacity = "0";
+      comparisonTable.style.opacity = "0";
+
+      const activeFeatures = Array.from(featuresList.querySelectorAll(".feature-item.active")).map(item => item.dataset.feature);
+      fetchOpenAITools(searchInput.value, activeFeatures).then(data => {
+        setTimeout(() => {
+          searchLoading.style.display = "none";
+          updateUI(data, parseInt(slider.value));
+        }, 1000);
+      });
+    }
+
+    featuresList.addEventListener("click", (e) => {
+      if (e.target.classList.contains("feature-item")) {
+        const featureItem = e.target;
+        if (featureItem.classList.contains("active")) {
+          featureItem.classList.remove("active");
+          featureItem.classList.add("inactive");
+        } else {
+          featureItem.classList.remove("inactive");
+          featureItem.classList.add("active");
+        }
+        triggerSearch();
+      }
+    });
+
+    slider.addEventListener("input", () => {
+      sliderLoading.style.display = "block";
+      toolListMinimal.style.opacity = "0";
+      toolListBalanced.style.opacity = "0";
+      toolListUnique.style.opacity = "0";
+      comparisonTable.style.opacity = "0";
+      setTimeout(() => {
+        sliderLoading.style.display = "none";
+        triggerSearch();
+      }, 1000);
+    });
+
+    searchButton.addEventListener("click", triggerSearch);
+  </script>
+</body>
+</html>
