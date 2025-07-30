@@ -405,6 +405,14 @@
       display: none;
     }
 
+    .success-message {
+      color: #2e7d32;
+      font-size: 1rem;
+      text-align: center;
+      margin-top: 20px;
+      display: none;
+    }
+
     footer {
       padding: 20px 10px;
       text-align: center;
@@ -621,6 +629,7 @@
     <div class="tool-list unique"></div>
     <div class="comparison-table"></div>
     <div class="error-message" id="error-message"></div>
+    <div class="success-message" id="success-message"></div>
   </div>
 
   <footer>
@@ -660,6 +669,7 @@
     const toolListUnique = document.querySelector(".tool-list.unique");
     const comparisonTable = document.querySelector(".comparison-table");
     const errorMessage = document.querySelector("#error-message");
+    const successMessage = document.querySelector("#success-message");
 
     // Dynamic placeholder examples
     const placeholders = [
@@ -698,25 +708,33 @@
         if (!response.ok) {
           throw new Error(`Failed to fetch tools: ${response.status} ${await response.text()}`);
         }
-        return await response.json();
+        const data = await response.json();
+        console.log('API responded successfully:', data); // חיווי בקונסולה
+        successMessage.textContent = 'Successfully received tools from API!';
+        successMessage.style.display = 'block';
+        setTimeout(() => { successMessage.style.display = 'none'; }, 3000); // הסתר לאחר 3 שניות
+        return data;
       } catch (error) {
         console.error('Fetch error:', error.message);
-        errorMessage.textContent = 'Failed to load tools. Please try again.';
+        errorMessage.textContent = `Error: ${error.message}`;
         errorMessage.style.display = 'block';
+        setTimeout(() => { errorMessage.style.display = 'none'; }, 5000); // הסתר לאחר 5 שניות
         return null;
       }
     }
 
     function updateUI(data, sliderValue) {
-      errorMessage.style.display = 'none'; // הסתר הודעת שגיאה
+      errorMessage.style.display = 'none';
+      successMessage.style.display = 'none';
       if (!data || !data.features || !data.minimal || !data.balanced || !data.unique) {
         console.error('Invalid data received:', data);
         errorMessage.textContent = 'Invalid response from server. Please try again.';
         errorMessage.style.display = 'block';
+        setTimeout(() => { errorMessage.style.display = 'none'; }, 5000);
         return;
       }
 
-      featuresList.innerHTML = data.features.map(f => `
+      featuresList.innerHTML = (data.features || []).map(f => `
         <div class="feature-item ${f.active ? 'active' : 'inactive'}" data-feature="${f.name}">
           ${f.name}
         </div>
@@ -725,7 +743,7 @@
 
       const category = sliderValue === 0 ? 'minimal' : sliderValue === 50 ? 'balanced' : 'unique';
       const toolList = sliderValue === 0 ? toolListMinimal : sliderValue === 50 ? toolListBalanced : toolListUnique;
-      toolList.innerHTML = (data[category].tools || []).map(t => `
+      toolList.innerHTML = (data[category]?.tools || []).map(t => `
         <div class="tool-card">
           <h3>${t.category || 'N/A'}</h3>
           <p>${t.name || 'Unknown'}</p>
@@ -748,7 +766,7 @@
             </tr>
           </thead>
           <tbody>
-            ${(data[category].tools || []).map(t => `
+            ${(data[category]?.tools || []).map(t => `
               <tr>
                 <td><a href="${t.link || '#'}" target="_blank">${t.name || 'Unknown'}</a></td>
                 <td><span>${t.pricing || 'N/A'}</span></td>
@@ -766,9 +784,11 @@
       if (searchInput.value.trim().length < 3) {
         errorMessage.textContent = 'Please enter a description with at least 3 characters.';
         errorMessage.style.display = 'block';
+        setTimeout(() => { errorMessage.style.display = 'none'; }, 5000);
         return;
       }
       errorMessage.style.display = 'none';
+      successMessage.style.display = 'none';
       searchLoading.style.display = "block";
       featuresSection.style.opacity = "0";
       toolListMinimal.style.opacity = "0";
