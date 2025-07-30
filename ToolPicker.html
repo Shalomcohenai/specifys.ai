@@ -709,7 +709,7 @@
           throw new Error(`Failed to fetch tools: ${response.status} ${await response.text()}`);
         }
         const data = await response.json();
-        console.log('API response:', data); // לוג לתגובה
+        console.log('API response:', JSON.stringify(data, null, 2)); // לוג מפורט
         successMessage.textContent = 'Successfully received tools from API!';
         successMessage.style.display = 'block';
         setTimeout(() => { successMessage.style.display = 'none'; }, 3000);
@@ -740,6 +740,12 @@
         setTimeout(() => { errorMessage.style.display = 'none'; }, 5000);
       }
 
+      if (data.features.length > 0 && data.features.every(f => !f.active)) {
+        errorMessage.textContent = 'Features received but none are active. Check API response.';
+        errorMessage.style.display = 'block';
+        setTimeout(() => { errorMessage.style.display = 'none'; }, 5000);
+      }
+
       featuresList.innerHTML = (data.features || []).map(f => `
         <div class="feature-item ${f.active ? 'active' : 'inactive'}" data-feature="${f.name}">
           ${f.name}
@@ -749,6 +755,11 @@
 
       const category = sliderValue === 0 ? 'minimal' : sliderValue === 50 ? 'balanced' : 'unique';
       const toolList = sliderValue === 0 ? toolListMinimal : sliderValue === 50 ? toolListBalanced : toolListUnique;
+      if (data[category]?.tools?.length === 0) {
+        errorMessage.textContent = `No tools found for ${category} category. Try a different description or slider position.`;
+        errorMessage.style.display = 'block';
+        setTimeout(() => { errorMessage.style.display = 'none'; }, 5000);
+      }
       toolList.innerHTML = (data[category]?.tools || []).map(t => `
         <div class="tool-card">
           <h3>${t.category || 'N/A'}</h3>
@@ -834,15 +845,9 @@
       setTimeout(() => {
         sliderLoading.style.display = "none";
         const activeFeatures = Array.from(featuresList.querySelectorAll(".feature-item.active")).map(item => item.dataset.feature);
-        if (activeFeatures.length > 0) {
-          fetchOpenAITools(searchInput.value, activeFeatures).then(data => {
-            if (data) updateUI(data, parseInt(slider.value));
-          });
-        } else {
-          fetchOpenAITools(searchInput.value, []).then(data => {
-            if (data) updateUI(data, parseInt(slider.value));
-          });
-        }
+        fetchOpenAITools(searchInput.value, activeFeatures).then(data => {
+          if (data) updateUI(data, parseInt(slider.value));
+        });
       }, 1000);
     });
 
