@@ -38,68 +38,75 @@
       display: flex;
       justify-content: center;
       z-index: 10;
-      background: rgba(255, 255, 255, 0.9);
+      background: rgba(255, 255, 255, 0.95);
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
     .thematic-header .logo a {
       text-decoration: none;
       color: #333;
-      font-size: 1.925rem;
+      font-size: 2rem;
       font-weight: 700;
     }
 
     .content-box {
-      max-width: 1200px;
-      margin: 80px auto 40px;
-      padding: 30px;
-      background: rgba(255, 255, 255, 0.95);
-      border-radius: 15px;
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+      max-width: 1000px;
+      width: 90vw;
+      min-width: 320px;
+      margin: 120px auto 80px;
+      padding: 50px;
+      background: rgba(255, 255, 255, 0.98);
+      border-radius: 20px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
       flex-grow: 1;
     }
 
     .content-box h1 {
-      font-size: clamp(1.8rem, 4vw, 2.5rem);
+      font-size: clamp(2rem, 4vw, 2.8rem);
       font-weight: 700;
       color: #333;
-      margin-bottom: 20px;
+      margin-bottom: 30px;
       text-align: center;
     }
 
     .search-box {
-      margin-bottom: 30px;
+      margin-bottom: 40px;
       position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
     .search-input {
       width: 100%;
-      height: 50px;
-      padding: 12px 80px 12px 20px;
-      font-size: 1.2rem;
+      max-width: 800px;
+      min-height: 60px;
+      padding: 15px 25px;
+      font-size: 1.3rem;
       font-weight: 400;
       border: 1px solid #e5e7eb;
-      border-radius: 8px;
+      border-radius: 10px;
       background: #fff;
       color: #333;
+      resize: none;
+      line-height: 1.5;
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
     }
 
     .search-input:focus {
       border-color: #0078d4;
       outline: none;
+      box-shadow: 0 0 8px rgba(0, 120, 212, 0.3);
     }
 
     .search-button {
-      position: absolute;
-      right: 10px;
-      top: 50%;
-      transform: translateY(-50%);
+      margin-top: 15px;
       background: #0078d4;
       border: none;
-      border-radius: 5px;
-      padding: 10px 20px;
+      border-radius: 8px;
+      padding: 12px 30px;
       color: #fff;
-      font-size: 1rem;
+      font-size: 1.1rem;
       font-weight: 700;
       cursor: pointer;
       transition: background-color 0.3s ease, transform 0.3s ease;
@@ -107,134 +114,39 @@
 
     .search-button:hover {
       background: #005ea2;
-      transform: translateY(-52%);
+      transform: translateY(-3px);
     }
 
     .search-loading {
       display: none;
-      position: absolute;
-      right: 60px;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 20px;
-      height: 20px;
-      border: 3px solid #0078d4;
-      border-top: 3px solid transparent;
+      margin-left: 10px;
+      margin-top: 15px;
+      width: 24px;
+      height: 24px;
+      border: 4px solid #0078d4;
+      border-top: 4px solid transparent;
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
     }
 
     @keyframes spin {
-      0% { transform: translateY(-50%) rotate(0deg); }
-      100% { transform: translateY(-50%) rotate(360deg); }
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
 
-    .slider-section {
-      margin-bottom: 30px;
-      text-align: center;
-      position: relative;
-    }
-
-    .tool-preference-label {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: #0078d4;
-      margin-bottom: 15px;
-    }
-
-    .slider-container {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 20px;
-    }
-
-    .tool-preference {
-      width: 300px;
-      height: 4px;
-      background: #e5e7eb;
-      border-radius: 2px;
-      position: relative;
-    }
-
-    .tool-preference::before {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: calc(var(--progress, 0%) - 8px);
-      width: 16px;
-      height: 16px;
-      background: #0078d4;
-      border-radius: 50%;
-      transform: translateY(-50%);
-      transition: left 0.3s ease;
-    }
-
-    .tool-preference input {
-      width: 100%;
-      height: 100%;
-      opacity: 0;
-      cursor: pointer;
-      position: absolute;
-      top: 0;
-      left: 0;
-    }
-
-    .slider-label {
-      font-size: 0.95rem;
-      font-weight: 400;
+    .char-counter {
+      margin-top: 10px;
+      font-size: 1rem;
       color: #666;
-      max-width: 120px;
       text-align: center;
-      position: relative;
     }
 
-    .slider-label.minimal:hover::after {
-      content: 'Use a single, all-in-one tool for simplicity.';
-      position: absolute;
-      top: 100%;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #333;
-      color: #fff;
-      padding: 6px 12px;
-      border-radius: 6px;
-      font-size: 0.75rem;
-      white-space: nowrap;
-      z-index: 10;
-    }
-
-    .slider-label.unique:hover::after {
-      content: 'Leverage specialized tools for maximum customization.';
-      position: absolute;
-      top: 100%;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #333;
-      color: #fff;
-      padding: 6px 12px;
-      border-radius: 6px;
-      font-size: 0.75rem;
-      white-space: nowrap;
-      z-index: 10;
-    }
-
-    .slider-loading {
-      display: none;
-      position: absolute;
-      bottom: -30px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 24px;
-      height: 24px;
-      border: 3px solid #0078d4;
-      border-top: 3px solid transparent;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
+    .char-counter.too-short { color: #d32f2f; }
+    .char-counter.sufficient { color: #f1c40f; }
+    .char-counter.excellent { color: #2e7d32; }
 
     .features-section {
-      margin-bottom: 30px;
+      margin-bottom: 40px;
       display: none;
       opacity: 0;
       transform: translateY(20px);
@@ -250,27 +162,33 @@
     }
 
     .features-section h3 {
-      font-size: 1.5rem;
+      font-size: 1.8rem;
       font-weight: 700;
       color: #0078d4;
-      margin-bottom: 15px;
+      margin-bottom: 20px;
     }
 
     .features-list {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 15px;
     }
 
     .feature-item {
       background: #fff;
       border: 1px solid #e5e7eb;
-      border-radius: 8px;
-      padding: 8px 24px 8px 12px;
-      font-size: 0.95rem;
+      border-radius: 10px;
+      padding: 10px 30px 10px 15px;
+      font-size: 1rem;
       font-weight: 400;
       color: #333;
       position: relative;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      transition: transform 0.3s ease;
+    }
+
+    .feature-item:hover {
+      transform: translateY(-3px);
     }
 
     .feature-item::after {
@@ -279,69 +197,15 @@
       font-weight: 900;
       color: #0078d4;
       position: absolute;
-      right: 8px;
+      right: 10px;
       top: 50%;
       transform: translateY(-50%);
     }
 
-    .tool-section {
-      margin-bottom: 30px;
-      display: none;
-    }
-
-    .tool-section.show {
-      display: block;
-    }
-
-    .tool-section h3 {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: #0078d4;
-      margin-bottom: 15px;
-    }
-
-    .tool-list {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 15px;
-    }
-
-    .tool-box {
-      background: #fff;
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
-      padding: 10px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      transition: transform 0.3s ease;
-    }
-
-    .tool-box:hover {
-      transform: translateY(-5px);
-    }
-
-    .tool-box p {
-      font-size: 0.85rem;
-      font-weight: 400;
-      color: #666;
-      margin-bottom: 8px;
-      line-height: 1.4;
-    }
-
-    .tool-box a {
-      color: #0078d4;
-      text-decoration: none;
-      font-weight: 700;
-      font-size: 0.85rem;
-    }
-
-    .tool-box a:hover {
-      color: #005ea2;
-      text-decoration: underline;
-    }
-
     .comparison-table {
-      margin-top: 30px;
+      margin-top: 40px;
       display: none;
+      overflow-x: auto;
     }
 
     .comparison-table.show {
@@ -349,37 +213,64 @@
     }
 
     .comparison-table h4 {
-      font-size: 1.5rem;
+      font-size: 1.8rem;
       font-weight: 700;
       color: #0078d4;
-      margin-bottom: 15px;
+      margin-bottom: 20px;
     }
 
     .comparison-table table {
       width: 100%;
-      border-collapse: collapse;
+      max-width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
       background: #fff;
-      border-radius: 10px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
 
     .comparison-table th, .comparison-table td {
-      padding: 12px;
-      font-size: 0.95rem;
+      padding: 15px;
+      font-size: 1rem;
       font-weight: 400;
       color: #333;
-      border-bottom: 1px solid #e5e7eb;
-      text-align: left;
+      border: 1px solid #e5e7eb;
+      text-align: center;
+      min-width: 120px;
     }
 
     .comparison-table th {
-      background: rgba(0, 120, 212, 0.1);
+      background: rgba(0, 120, 212, 0.15);
       font-weight: 700;
+      border-top: none;
+    }
+
+    .comparison-table td {
+      background: #fff;
+      transition: background-color 0.3s ease;
+    }
+
+    .comparison-table td:hover {
+      background: rgba(0, 120, 212, 0.05);
+    }
+
+    .comparison-table th:first-child, .comparison-table td:first-child {
+      text-align: left;
+      border-left: none;
+    }
+
+    .comparison-table th:last-child, .comparison-table td:last-child {
+      border-right: none;
+    }
+
+    .comparison-table tr:last-child td {
+      border-bottom: none;
     }
 
     .comparison-table td a {
       color: #0078d4;
       text-decoration: none;
+      font-weight: 600;
     }
 
     .comparison-table td a:hover {
@@ -389,7 +280,7 @@
 
     .error-message {
       color: #d32f2f;
-      font-size: 1rem;
+      font-size: 1.1rem;
       text-align: center;
       margin-top: 20px;
       display: none;
@@ -397,14 +288,14 @@
 
     .success-message {
       color: #2e7d32;
-      font-size: 1rem;
+      font-size: 1.1rem;
       text-align: center;
       margin-top: 20px;
       display: none;
     }
 
     footer {
-      padding: 20px 10px;
+      padding: 15px;
       text-align: center;
       width: 100%;
       color: #333;
@@ -418,20 +309,20 @@
       flex-direction: row;
       align-items: center;
       justify-content: center;
-      gap: 20px;
+      gap: 15px;
       flex-wrap: wrap;
     }
 
     .footer-links {
       display: flex;
       justify-content: center;
-      gap: 25px;
+      gap: 20px;
     }
 
     .footer-links a {
       color: #333;
       text-decoration: none;
-      font-size: 0.85rem;
+      font-size: 0.9rem;
       font-weight: 500;
       transition: color 0.3s ease;
     }
@@ -440,22 +331,16 @@
       color: #0078d4;
     }
 
-    .footer-divider {
-      color: #333;
-      font-size: 1.2rem;
-      font-weight: 300;
-    }
-
     .footer-social {
       display: flex;
       justify-content: center;
-      gap: 15px;
+      gap: 12px;
       flex-wrap: wrap;
     }
 
     .footer-social a {
       color: #333;
-      font-size: 1.2rem;
+      font-size: 1.3rem;
       transition: transform 0.3s ease, color 0.3s ease;
     }
 
@@ -465,113 +350,118 @@
     }
 
     .footer-copyright {
-      font-size: 0.8rem;
+      font-size: 0.85rem;
       color: #666;
-      margin-top: 1rem;
+      margin-top: 10px;
     }
 
     @media (max-width: 768px) {
-      .thematic-header .logo a {
-        font-size: 1.32rem;
-      }
       .content-box {
-        margin: 40px 15px;
-        padding: 20px;
+        margin: calc(10vh + 60px) 15px 60px;
+        padding: 30px;
       }
       .content-box h1 {
-        font-size: clamp(1.4rem, 3vw, 2rem);
+        font-size: clamp(1.6rem, 3.5vw, 2.2rem);
       }
       .search-input {
-        height: 45px;
-        font-size: 1rem;
-        padding: 10px 75px 10px 15px;
+        max-width: 100%;
+        min-height: 50px;
+        font-size: 1.1rem;
+        padding: 12px 20px;
       }
       .search-button {
-        padding: 8px 16px;
-        font-size: 0.9rem;
+        padding: 10px 25px;
+        font-size: 1rem;
       }
       .search-loading {
-        right: 55px;
+        margin-left: 10px;
+        margin-top: 12px;
       }
-      .tool-preference {
-        width: 200px;
+      .comparison-table th, .comparison-table td {
+        font-size: 0.9rem;
+        padding: 10px;
+        min-width: 100px;
       }
-      .tool-box {
-        padding: 8px;
+      .features-section h3, .comparison-table h4 {
+        font-size: 1.5rem;
       }
-      .tool-box p, .feature-item, .comparison-table th, .comparison-table td {
-        font-size: 0.8rem;
-      }
-      .tool-box a {
-        font-size: 0.8rem;
+      .feature-item {
+        font-size: 0.9rem;
+        padding: 8px 25px 8px 12px;
       }
       .footer-content {
-        flex-direction: column;
         gap: 10px;
-      }
-      .footer-links {
-        gap: 20px;
-      }
-      .footer-links a {
-        font-size: 0.8rem;
-      }
-      .footer-social a {
-        font-size: 1rem;
-      }
-      .footer-divider {
-        font-size: 1rem;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .thematic-header .logo a {
-        font-size: 1.32rem;
-      }
-      .content-box {
-        margin: 40px 10px;
-        padding: 15px;
-      }
-      .content-box h1 {
-        font-size: clamp(1.2rem, 3vw, 1.8rem);
-      }
-      .search-input {
-        height: 40px;
-        font-size: 0.95rem;
-        padding: 8px 70px 8px 12px;
-      }
-      .search-button {
-        padding: 6px 12px;
-        font-size: 0.8rem;
-      }
-      .search-loading {
-        right: 50px;
-      }
-      .tool-preference {
-        width: 150px;
-      }
-      .tool-box p, .feature-item, .comparison-table th, .comparison-table td {
-        font-size: 0.75rem;
-      }
-      .tool-box a {
-        font-size: 0.75rem;
       }
       .footer-links {
         gap: 15px;
       }
       .footer-links a {
-        font-size: 0.75rem;
+        font-size: 0.85rem;
+      }
+      .footer-social {
+        gap: 10px;
       }
       .footer-social a {
+        font-size: 1.1rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .content-box {
+        margin: calc(10vh + 50px) 10px 50px;
+        padding: 20px;
+      }
+      .content-box h1 {
+        font-size: clamp(1.4rem, 3vw, 1.8rem);
+      }
+      .search-input {
+        min-height: 45px;
+        font-size: 1rem;
+        padding: 10px 15px;
+      }
+      .search-button {
+        padding: 8px 20px;
         font-size: 0.9rem;
       }
-      .footer-divider {
-        font-size: 0.9rem;
+      .search-loading {
+        margin-left: 8px;
+        margin-top: 10px;
+        width: 20px;
+        height: 20px;
+      }
+      .comparison-table th, .comparison-table td {
+        font-size: 0.8rem;
+        padding: 8px;
+        min-width: 80px;
+      }
+      .features-section h3, .comparison-table h4 {
+        font-size: 1.3rem;
+      }
+      .feature-item {
+        font-size: 0.85rem;
+        padding: 6px 20px 6px 10px;
+      }
+      .footer-content {
+        gap: 8px;
+      }
+      .footer-links {
+        gap: 10px;
+      }
+      .footer-links a {
+        font-size: 0.8rem;
+      }
+      .footer-social {
+        gap: 8px;
+      }
+      .footer-social a {
+        font-size: 1rem;
       }
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .tool-box, .feature-item {
+      .search-button, .feature-item {
         transition: none;
+        animation: none;
       }
     }
   </style>
@@ -586,38 +476,26 @@
   <div class="content-box">
     <h1>ToolPicker</h1>
     <div class="search-box">
-      <input type="text" class="search-input" placeholder="Describe your app" aria-label="Describe your app">
-      <button class="search-button"><i class="fas fa-paper-plane"></i> Submit</button>
-      <div class="search-loading"></div>
-    </div>
-    <div class="slider-section">
-      <label for="tool-preference" class="tool-preference-label">Tool Preference</label>
-      <div class="slider-container">
-        <span class="slider-label minimal">Minimal Tools</span>
-        <div class="tool-preference">
-          <input type="range" min="0" max="100" value="0" step="50" id="tool-preference">
-        </div>
-        <span class="slider-label unique">Unique Tool Features</span>
+      <textarea class="search-input" placeholder="Describe your app" aria-label="Describe your app"></textarea>
+      <div style="display: flex; align-items: center; margin-top: 15px;">
+        <button class="search-button"><i class="fas fa-paper-plane"></i> Submit</button>
+        <div class="search-loading"></div>
       </div>
-      <div class="slider-loading"></div>
+      <div class="char-counter"></div>
     </div>
     <div class="features-section">
       <h3>Selected Features</h3>
       <div class="features-list"></div>
-    </div>
-    <div class="tool-section">
-      <h3>Recommended Tools</h3>
-      <div class="tool-list"></div>
     </div>
     <div class="comparison-table">
       <h4>Tool Comparison</h4>
       <table>
         <thead>
           <tr>
-            <th>Tool</th>
-            <th>Pricing</th>
-            <th>Ease of Use</th>
-            <th>Integration Complexity</th>
+            <th>Feature</th>
+            <th class="tool1-name">Tool 1</th>
+            <th class="tool2-name">Tool 2</th>
+            <th class="tool3-name">Tool 3</th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -635,7 +513,6 @@
         <a href="blog.html" aria-label="Try our Blog">Blog</a>
         <a href="map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
       </div>
-      <span class="footer-divider">|</span>
       <div class="footer-social">
         <a href="https://www.linkedin.com/company/specifys-ai/" aria-label="Follow us on LinkedIn"><i class="fab fa-linkedin-in"></i></a>
         <a href="https://www.facebook.com/profile.php?id=61576402600129" target="_blank" aria-label="Follow us on Facebook"><i class="fab fa-facebook-f"></i></a>
@@ -654,25 +531,30 @@
     const searchButton = document.querySelector(".search-button");
     const searchInput = document.querySelector(".search-input");
     const searchLoading = document.querySelector(".search-loading");
-    const slider = document.querySelector("#tool-preference");
-    const sliderLoading = document.querySelector(".slider-loading");
-    const toolPreference = document.querySelector(".tool-preference");
     const featureList = document.querySelector(".features-list");
-    const toolList = document.querySelector(".tool-list");
-    const comparisonTableBody = document.querySelector(".comparison-table tbody");
-    const errorMessage = document.querySelector("#error-message");
-    const successMessage = document.querySelector("#success-message");
-    const featuresSection = document.querySelector(".features-section");
-    const toolSection = document.querySelector(".tool-section");
     const comparisonTable = document.querySelector(".comparison-table");
+    const comparisonTableBody = document.querySelector(".comparison-table tbody");
+    const tool1Name = document.querySelector(".tool1-name");
+    const tool2Name = document.querySelector(".tool2-name");
+    const tool3Name = document.querySelector(".tool3-name");
+    const errorMessage = document.querySelector("#error-message");
+    const successMessage = document.querySelector(".success-message");
+    const featuresSection = document.querySelector(".features-section");
+    const charCounter = document.querySelector(".char-counter");
 
-    // Dynamic placeholder examples
+    // Custom links for specific tools
+    const customLinks = {
+      'base44': 'https://your-custom-base44-link.com',
+      'lovable': 'https://your-custom-lovable-link.com',
+      'bubble': 'https://your-custom-bubble-link.com'
+    };
+
     const placeholders = [
-      "Build a to-do app",
-      "Create a chatbot",
-      "Design a portfolio website",
-      "Develop a fitness tracker",
-      "Make a budgeting tool"
+      "Build a no-code e-commerce platform with payment integration and user authentication",
+      "Create a social media app with real-time chat and push notifications",
+      "Develop a fitness tracker with user profiles, auto-login, and workout tracking",
+      "Design a project management tool with task assignments and deadline tracking",
+      "Build a blog platform with commenting system and admin dashboard"
     ];
     let placeholderIndex = 0;
     function rotatePlaceholders() {
@@ -682,19 +564,19 @@
     rotatePlaceholders();
     setInterval(rotatePlaceholders, 3000);
 
-    let currentData = null;
-
-    slider.addEventListener("input", () => {
-      const value = parseInt(slider.value);
-      const snappedValue = value < 34 ? 0 : value < 67 ? 50 : 100;
-      slider.value = snappedValue;
-      toolPreference.style.setProperty("--progress", `${snappedValue}%`);
-      if (currentData) {
-        sliderLoading.style.display = "block";
-        setTimeout(() => {
-          sliderLoading.style.display = "none";
-          updateUI(currentData, snappedValue);
-        }, 500);
+    searchInput.addEventListener("input", () => {
+      searchInput.style.height = "auto";
+      searchInput.style.height = `${searchInput.scrollHeight}px`;
+      const length = searchInput.value.length;
+      if (length < 50) {
+        charCounter.textContent = "Too Short (0-50 characters)";
+        charCounter.className = "char-counter too-short";
+      } else if (length <= 100) {
+        charCounter.textContent = "Sufficient (50-100 characters)";
+        charCounter.className = "char-counter sufficient";
+      } else {
+        charCounter.textContent = "Excellent (>100 characters)";
+        charCounter.className = "char-counter excellent";
       }
     });
 
@@ -714,6 +596,7 @@
         setTimeout(() => successMessage.style.display = "none", 3000);
         return data;
       } catch (error) {
+        console.error('Fetch Error:', error);
         errorMessage.textContent = `Error: ${error.message}`;
         errorMessage.style.display = "block";
         setTimeout(() => errorMessage.style.display = "none", 5000);
@@ -723,59 +606,45 @@
       }
     }
 
-    function updateUI(data, sliderValue) {
-      currentData = data;
-
-      // Clear previous content
+    function updateUI(data) {
       featureList.innerHTML = "";
-      toolList.innerHTML = "";
       comparisonTableBody.innerHTML = "";
       errorMessage.style.display = "none";
 
-      // Show features
       if (!data.features || data.features.length === 0) {
         errorMessage.textContent = "No features detected.";
         errorMessage.style.display = "block";
         setTimeout(() => errorMessage.style.display = "none", 5000);
       } else {
-        featureList.innerHTML = data.features.map(f => `
+        const limitedFeatures = data.features.slice(0, 10);
+        featureList.innerHTML = limitedFeatures.map(f => `
           <div class="feature-item">${f.name}</div>
         `).join("");
         featuresSection.classList.add("show");
       }
 
-      // Show tools for selected category
-      const category = sliderValue === 0 ? "minimal" : sliderValue === 50 ? "balanced" : "unique";
-      const tools = data[category]?.tools || [];
-      if (tools.length === 0) {
-        errorMessage.textContent = `No tools for ${category}.`;
+      const tools = data.tools || [];
+      tool1Name.innerHTML = tools[0] ? `<a href="${customLinks[tools[0].name.toLowerCase()] || tools[0].link || '#'}">${tools[0].name || "N/A"}</a>` : "N/A";
+      tool2Name.innerHTML = tools[1] ? `<a href="${customLinks[tools[1].name.toLowerCase()] || tools[1].link || '#'}">${tools[1].name || "N/A"}</a>` : "N/A";
+      tool3Name.innerHTML = tools[2] ? `<a href="${customLinks[tools[2].name.toLowerCase()] || tools[2].link || '#'}">${tools[2].name || "N/A"}</a>` : "N/A";
+
+      if (tools.length === 0 || !data.features || data.features.length === 0) {
+        errorMessage.textContent = "No tools or features available.";
         errorMessage.style.display = "block";
         setTimeout(() => errorMessage.style.display = "none", 5000);
       } else {
-        toolList.innerHTML = tools.map(t => `
-          <div class="tool-box">
-            <p><strong>Category:</strong> ${t.category || "N/A"}</p>
-            <p><strong>Name:</strong> ${t.name || "Unknown"}</p>
-            <p><strong>Reason:</strong> ${t.reason || "N/A"}</p>
-            <p><strong>Pricing:</strong> ${t.pricing || "N/A"}</p>
-            <p><strong>Ease of Use:</strong> ${t.ease || "N/A"}</p>
-            <p><strong>Integration:</strong> ${t.integration || "N/A"}</p>
-            <p><a href="${t.link || "#"}" target="_blank">Get Started</a></p>
-          </div>
+        const limitedFeatures = data.features.slice(0, 10);
+        comparisonTableBody.innerHTML = limitedFeatures.map(f => `
+          <tr>
+            <td>${f.name}</td>
+            <td>${tools[0] && tools[0].features.includes(f.name) ? '✅' : '❌'}</td>
+            <td>${tools[1] && tools[1].features.includes(f.name) ? '✅' : '❌'}</td>
+            <td>${tools[2] && tools[2].features.includes(f.name) ? '✅' : '❌'}</td>
+          </tr>
         `).join("");
-        toolSection.classList.add("show");
+        comparisonTable.classList.add("show");
+        comparisonTable.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
-
-      // Show comparison table
-      comparisonTableBody.innerHTML = tools.map(t => `
-        <tr>
-          <td><a href="${t.link || "#"}" target="_blank">${t.name || "Unknown"}</a></td>
-          <td>${t.pricing || "N/A"}</td>
-          <td>${t.ease || "N/A"}</td>
-          <td>${t.integration || "N/A"}</td>
-        </tr>
-      `).join("");
-      comparisonTable.classList.add("show");
     }
 
     searchButton.addEventListener("click", () => {
@@ -786,10 +655,9 @@
         return;
       }
       featuresSection.classList.remove("show");
-      toolSection.classList.remove("show");
       comparisonTable.classList.remove("show");
       fetchTools(searchInput.value).then(data => {
-        if (data) updateUI(data, parseInt(slider.value));
+        if (data) updateUI(data);
       });
     });
   </script>
