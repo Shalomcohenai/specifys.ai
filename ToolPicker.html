@@ -397,6 +397,14 @@
       text-decoration: underline;
     }
 
+    .error-message {
+      color: #d32f2f;
+      font-size: 1rem;
+      text-align: center;
+      margin-top: 20px;
+      display: none;
+    }
+
     footer {
       padding: 20px 10px;
       text-align: center;
@@ -612,6 +620,7 @@
     <div class="tool-list balanced"></div>
     <div class="tool-list unique"></div>
     <div class="comparison-table"></div>
+    <div class="error-message" id="error-message"></div>
   </div>
 
   <footer>
@@ -650,6 +659,7 @@
     const toolListBalanced = document.querySelector(".tool-list.balanced");
     const toolListUnique = document.querySelector(".tool-list.unique");
     const comparisonTable = document.querySelector(".comparison-table");
+    const errorMessage = document.querySelector("#error-message");
 
     // Dynamic placeholder examples
     const placeholders = [
@@ -679,15 +689,33 @@
     });
 
     async function fetchOpenAITools(description, features) {
-      const response = await fetch('https://toolpicker.shalom-cohen-111.workers.dev/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ description, features })
-      });
-      return await response.json();
+      try {
+        const response = await fetch('https://toolpicker.shalom-cohen-111.workers.dev', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ description, features })
+        });
+        if (!response.ok) {
+          throw new Error(`Failed to fetch tools: ${response.status} ${await response.text()}`);
+        }
+        return await response.json();
+      } catch (error) {
+        console.error('Fetch error:', error.message);
+        errorMessage.textContent = 'Failed to load tools. Please try again.';
+        errorMessage.style.display = 'block';
+        return null;
+      }
     }
 
     function updateUI(data, sliderValue) {
+      errorMessage.style.display = 'none'; // הסתר הודעת שגיאה
+      if (!data || !data.features || !data.minimal || !data.balanced || !data.unique) {
+        console.error('Invalid data received:', data);
+        errorMessage.textContent = 'Invalid response from server. Please try again.';
+        errorMessage.style.display = 'block';
+        return;
+      }
+
       featuresList.innerHTML = data.features.map(f => `
         <div class="feature-item ${f.active ? 'active' : 'inactive'}" data-feature="${f.name}">
           ${f.name}
@@ -695,14 +723,15 @@
       `).join('');
       featuresSection.classList.add("show");
 
+      const category = sliderValue === 0 ? 'minimal' : sliderValue === 50 ? 'balanced' : 'unique';
       const toolList = sliderValue === 0 ? toolListMinimal : sliderValue === 50 ? toolListBalanced : toolListUnique;
-      toolList.innerHTML = data[sliderValue === 0 ? 'minimal' : sliderValue === 50 ? 'balanced' : 'unique'].tools.map(t => `
+      toolList.innerHTML = (data[category].tools || []).map(t => `
         <div class="tool-card">
-          <h3>${t.category}</h3>
-          <p>${t.name}</p>
-          <p class="reason">Reason: ${t.reason}</p>
-          <p class="pricing">Pricing: <span>${t.pricing}</span></p>
-          <a href="${t.link}" target="_blank" class="start-btn">Get Started</a>
+          <h3>${t.category || 'N/A'}</h3>
+          <p>${t.name || 'Unknown'}</p>
+          <p class="reason">Reason: ${t.reason || 'No reason provided'}</p>
+          <p class="pricing">Pricing: <span>${t.pricing || 'N/A'}</span></p>
+          <a href="${t.link || '#'}" target="_blank" class="start-btn">Get Started</a>
         </div>
       `).join('');
       toolList.classList.add("show");
@@ -719,12 +748,12 @@
             </tr>
           </thead>
           <tbody>
-            ${data[sliderValue === 0 ? 'minimal' : sliderValue === 50 ? 'balanced' : 'unique'].tools.map(t => `
+            ${(data[category].tools || []).map(t => `
               <tr>
-                <td><a href="${t.link}" target="_blank">${t.name}</a></td>
-                <td><span>${t.pricing}</span></td>
-                <td><span>${t.ease}</span></td>
-                <td><span>${t.integration}</span></td>
+                <td><a href="${t.link || '#'}" target="_blank">${t.name || 'Unknown'}</a></td>
+                <td><span>${t.pricing || 'N/A'}</span></td>
+                <td><span>${t.ease || 'N/A'}</span></td>
+                <td><span>${t.integration || 'N/A'}</span></td>
               </tr>
             `).join('')}
           </tbody>
@@ -734,7 +763,12 @@
     }
 
     function triggerSearch() {
-      if (searchInput.value.trim().length < 3) return;
+      if (searchInput.value.trim().length < 3) {
+        errorMessage.textContent = 'Please enter a description with at least 3 characters.';
+        errorMessage.style.display = 'block';
+        return;
+      }
+      errorMessage.style.display = 'none';
       searchLoading.style.display = "block";
       featuresSection.style.opacity = "0";
       toolListMinimal.style.opacity = "0";
@@ -746,7 +780,7 @@
       fetchOpenAITools(searchInput.value, activeFeatures).then(data => {
         setTimeout(() => {
           searchLoading.style.display = "none";
-          updateUI(data, parseInt(slider.value));
+          if (data) updateUI(data, parseInt(slider.value));
         }, 1000);
       });
     }
@@ -773,7 +807,14 @@
       comparisonTable.style.opacity = "0";
       setTimeout(() => {
         sliderLoading.style.display = "none";
-        triggerSearch();
+        const activeFeatures = Array.from(featuresList.querySelectorAll(".feature-item.active")).map(item => item.dataset.feature);
+        if (activeFeatures.length > 0) {
+          fetchOpenAITools(searchInput.value, activeFeatures).then(data => {
+            if (data) updateUI(data, parseInt(slider.value));
+          });
+        } else {
+          updateUI({ features: [], minimal: { tools: [] }, balanced: { tools: [] }, unique: { tools: [] } }, parseInt(slider.value));
+        }
       }, 1000);
     });
 
