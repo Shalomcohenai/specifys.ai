@@ -270,12 +270,10 @@
       font-size: 0.95rem;
       font-weight: 400;
       color: #333;
-      cursor: pointer;
       position: relative;
-      transition: opacity 0.3s ease;
     }
 
-    .feature-item.active::after {
+    .feature-item::after {
       content: "\f058";
       font-family: "Font Awesome 6 Free";
       font-weight: 900;
@@ -284,10 +282,6 @@
       right: 8px;
       top: 50%;
       transform: translateY(-50%);
-    }
-
-    .feature-item.inactive {
-      opacity: 0.5;
     }
 
     .tool-list {
@@ -696,14 +690,17 @@
       else snappedValue = 100;
       slider.value = snappedValue;
       toolPreference.style.setProperty("--progress", `${snappedValue}%`);
+      updateUI(currentData, snappedValue); // עדכן UI לפי המדיד
     });
 
-    async function fetchOpenAITools(description, features) {
+    let currentData = null; // שמור את הנתונים האחרונים מה-API
+
+    async function fetchOpenAITools(description) {
       try {
         const response = await fetch('https://toolpicker.shalom-cohen-111.workers.dev', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ description, features })
+          body: JSON.stringify({ description, features: [] })
         });
         if (!response.ok) {
           throw new Error(`Failed to fetch tools: ${response.status} ${await response.text()}`);
@@ -734,23 +731,35 @@
         return;
       }
 
+      currentData = data; // שמור את הנתונים לשימוש במדיד
+
       if (data.features.length === 0) {
         errorMessage.textContent = 'No features detected. Using default features.';
         errorMessage.style.display = 'block';
         setTimeout(() => { errorMessage.style.display = 'none'; }, 5000);
       }
 
+      // הצג את כל התכונות כפעילות
       featuresList.innerHTML = (data.features || []).map(f => `
-        <div class="feature-item ${f.active ? 'active' : 'inactive'}" data-feature="${f.name}">
+        <div class="feature-item" data-feature="${f.name}">
           ${f.name}
         </div>
       `).join('');
       featuresSection.classList.add("show");
 
+      // נקה את כל רשימות הכלים
+      toolListMinimal.style.display = 'none';
+      toolListBalanced.style.display = 'none';
+      toolListUnique.style.display = 'none';
+      toolListMinimal.classList.remove("show");
+      toolListBalanced.classList.remove("show");
+      toolListUnique.classList.remove("show");
+
+      // בחר קטגוריה לפי המדיד
       const category = sliderValue === 0 ? 'minimal' : sliderValue === 50 ? 'balanced' : 'unique';
       const toolList = sliderValue === 0 ? toolListMinimal : sliderValue === 50 ? toolListBalanced : toolListUnique;
       if (data[category]?.tools?.length === 0) {
-        errorMessage.textContent = `No tools found for ${category} category. Try a different description or slider position.`;
+        errorMessage.textContent = `No tools found for ${category} category. Try a different description.`;
         errorMessage.style.display = 'block';
         setTimeout(() => { errorMessage.style.display = 'none'; }, 5000);
       }
@@ -763,6 +772,7 @@
           <a href="${t.link || '#'}" target="_blank" class="start-btn">Get Started</a>
         </div>
       `).join('');
+      toolList.style.display = 'flex';
       toolList.classList.add("show");
 
       comparisonTable.innerHTML = `
@@ -807,43 +817,13 @@
       toolListUnique.style.opacity = "0";
       comparisonTable.style.opacity = "0";
 
-      const activeFeatures = Array.from(featuresList.querySelectorAll(".feature-item.active")).map(item => item.dataset.feature);
-      fetchOpenAITools(searchInput.value, activeFeatures).then(data => {
+      fetchOpenAITools(searchInput.value).then(data => {
         setTimeout(() => {
           searchLoading.style.display = "none";
           if (data) updateUI(data, parseInt(slider.value));
         }, 1000);
       });
     }
-
-    featuresList.addEventListener("click", (e) => {
-      if (e.target.classList.contains("feature-item")) {
-        const featureItem = e.target;
-        if (featureItem.classList.contains("active")) {
-          featureItem.classList.remove("active");
-          featureItem.classList.add("inactive");
-        } else {
-          featureItem.classList.remove("inactive");
-          featureItem.classList.add("active");
-        }
-        triggerSearch();
-      }
-    });
-
-    slider.addEventListener("input", () => {
-      sliderLoading.style.display = "block";
-      toolListMinimal.style.opacity = "0";
-      toolListBalanced.style.opacity = "0";
-      toolListUnique.style.opacity = "0";
-      comparisonTable.style.opacity = "0";
-      setTimeout(() => {
-        sliderLoading.style.display = "none";
-        const activeFeatures = Array.from(featuresList.querySelectorAll(".feature-item.active")).map(item => item.dataset.feature);
-        fetchOpenAITools(searchInput.value, activeFeatures).then(data => {
-          if (data) updateUI(data, parseInt(slider.value));
-        });
-      }, 1000);
-    });
 
     searchButton.addEventListener("click", triggerSearch);
   </script>
