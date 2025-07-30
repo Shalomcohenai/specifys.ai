@@ -740,12 +740,6 @@
         setTimeout(() => { errorMessage.style.display = 'none'; }, 5000);
       }
 
-      if (data.features.length > 0 && data.features.every(f => !f.active)) {
-        errorMessage.textContent = 'Features received but none are active. Check API response.';
-        errorMessage.style.display = 'block';
-        setTimeout(() => { errorMessage.style.display = 'none'; }, 5000);
-      }
-
       featuresList.innerHTML = (data.features || []).map(f => `
         <div class="feature-item ${f.active ? 'active' : 'inactive'}" data-feature="${f.name}">
           ${f.name}
