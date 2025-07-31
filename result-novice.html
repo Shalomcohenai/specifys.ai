@@ -58,9 +58,11 @@
       padding: 20px;
       display: flex;
       justify-content: center;
+      align-items: center;
       z-index: 1000;
       background: rgba(255, 255, 255, 0.9);
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      position: relative;
     }
 
     .thematic-header .logo a {
@@ -73,6 +75,25 @@
 
     .thematic-header .logo a:hover {
       color: #0078d4;
+    }
+
+    .copy-button {
+      position: absolute;
+      right: 20px;
+      background: #0078d4;
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 5px;
+      border: none;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+
+    .copy-button:hover {
+      background: #005ea2;
+      transform: translateY(-2px);
     }
 
     .carousel-container {
@@ -122,11 +143,6 @@
       white-space: pre-wrap;
       word-break: break-word;
       padding: 20px;
-      transition: opacity 0.3s ease;
-    }
-
-    .chat-message.result.fade {
-      opacity: 0;
     }
 
     .chat-message.result h1 {
@@ -200,23 +216,13 @@
     }
 
     @keyframes bounce {
-      0%, 80%, 100% {
-        transform: scale(0);
-      }
-      40% {
-        transform: scale(1);
-      }
+      0%, 80%, 100% { transform: scale(0); }
+      40% { transform: scale(1); }
     }
 
     @keyframes slideIn {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .error-message {
@@ -365,9 +371,59 @@
       margin-top: 1rem;
     }
 
+    .popup {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      z-index: 1000;
+      text-align: center;
+    }
+
+    .popup p {
+      margin-bottom: 15px;
+      font-size: 1rem;
+      color: #333;
+    }
+
+    .popup button {
+      background: #0078d4;
+      color: #fff;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 5px;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+
+    .popup button:hover {
+      background: #005ea2;
+    }
+
+    .popup-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+    }
+
     @media (max-width: 768px) {
       .thematic-header .logo a {
         font-size: 1.4rem;
+      }
+
+      .copy-button {
+        font-size: 0.8rem;
+        padding: 6px 12px;
       }
 
       .carousel-container {
@@ -446,6 +502,11 @@
         font-size: 1.2rem;
       }
 
+      .copy-button {
+        font-size: 0.75rem;
+        padding: 5px 10px;
+      }
+
       .carousel-container {
         width: 100%;
         padding: 10px;
@@ -506,10 +567,14 @@
         font-size: 0.9rem;
         margin: 0 8px;
       }
+
+      .popup {
+        width: 90%;
+      }
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .chat-message, .platform-box, .dot {
+      .chat-message, .platform-box, .dot, .copy-button {
         animation: none;
         transition: none;
       }
@@ -521,6 +586,7 @@
     <div class="logo">
       <a href="index.html" aria-label="specifys.ai homepage">specifys.ai</a>
     </div>
+    <button class="copy-button" onclick="copyAllSpecContent()">Copy All</button>
   </header>
 
   <div class="carousel-container">
@@ -530,7 +596,7 @@
 
   <div class="platform-container" id="platformContainer" style="display: none;">
     <h3>Start now with:</h3>
-    <p class="platform-instructions">The specification has been copied. Visit one of the platforms or tools to start building your app.</p>
+    <p class="platform-instructions">Click a platform to start building. Some options copy your specification.</p>
     <div class="platform-boxes">
       <a href="https://flutterflow.io/" target="_blank" class="platform-box" onclick="copyAllSpecContent()" data-tooltip="Recommended for rapid prototyping of mobile apps with visual development.">FlutterFlow</a>
       <a href="https://bubble.io/" target="_blank" class="platform-box" onclick="copyAllSpecContent()" data-tooltip="Recommended for building complex web applications without coding.">Bubble</a>
@@ -540,9 +606,16 @@
       <a href="https://lovable.dev/?via=shalom" target="_blank" class="platform-box" onclick="copyAllSpecContent()" data-tooltip="Recommended for AI-driven app creation with minimal setup.">Lovable</a>
       <a href="https://bolt.new/" target="_blank" class="platform-box" onclick="copyAllSpecContent()" data-tooltip="Recommended for quick app ideation and prototyping with AI.">Bolt</a>
       <button class="platform-box" onclick="downloadPdf()">PDF Download</button>
-      <a href="map/vibe-coding-tools-map.html" class="platform-box vibe-coding" data-tooltip="Explore a curated map of coding and no-code tools to enhance your development process.">Vibe Coding Tools Map</a>
+      <a href="#" class="platform-box vibe-coding" onclick="showPopup()" data-tooltip="New! Don’t know which tool to use? Let us find the optimal tool for your app!">Find Optimal Tool</a>
+      <a href="map/vibe-coding-tools-map.html" target="_blank" class="platform-box vibe-coding" data-tooltip="Explore a curated map of coding and no-code tools to enhance your development process.">Vibe Coding Tools Map</a>
     </div>
     <p class="platform-details">Click a platform to open it in a new tab and automatically copy your app specification. Paste the specification into the platform’s project setup or AI assistant to start building.</p>
+  </div>
+
+  <div class="popup-overlay" id="popupOverlay"></div>
+  <div class="popup" id="popup">
+    <p>Please copy the general idea.</p>
+    <button onclick="openToolPicker()">Confirm</button>
   </div>
 
   <footer>
@@ -575,6 +648,8 @@
       const chatContainer = document.getElementById("chatContainer");
       const errorMessage = document.getElementById("errorMessage");
       const platformContainer = document.getElementById("platformContainer");
+      const popup = document.getElementById("popup");
+      const popupOverlay = document.getElementById("popupOverlay");
 
       const introMessages = [
         "Hello! We've received your app idea details.",
@@ -631,59 +706,71 @@
         }, 3000);
 
         setTimeout(() => {
-          displayTypingEffect(fullContent);
+          displayContent(fullContent);
         }, 6000);
       }
 
-      function displayTypingEffect(content) {
+      function displayContent(content) {
         clearInterval(statusInterval);
         const typingIndicator = document.getElementById("typingIndicator");
         if (typingIndicator) typingIndicator.remove();
 
         const resultDiv = document.createElement("div");
         resultDiv.className = "chat-message result";
+        resultDiv.innerHTML = marked.parse(content);
         chatContainer.appendChild(resultDiv);
+        hljs.highlightAll();
+        platformContainer.style.display = "block";
         chatContainer.scrollTop = chatContainer.scrollHeight;
-
-        let charIndex = 0;
-        const typingSpeed = 10;
-        let currentContent = "";
-
-        function typeCharacter() {
-          if (charIndex < content.length) {
-            currentContent += content.charAt(charIndex);
-            resultDiv.textContent = currentContent;
-            charIndex++;
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-            setTimeout(typeCharacter, typingSpeed);
-          } else {
-            // Fade out the raw content
-            resultDiv.classList.add("fade");
-            setTimeout(() => {
-              // Replace with formatted Markdown content
-              resultDiv.innerHTML = marked.parse(content);
-              resultDiv.classList.remove("fade");
-              hljs.highlightAll();
-              platformContainer.style.display = "block";
-              chatContainer.scrollTop = chatContainer.scrollHeight;
-            }, 300);
-          }
-        }
-        typeCharacter();
       }
 
       window.copyAllSpecContent = function() {
-        navigator.clipboard.writeText(fullContent).then(() => {
-          const tempMessage = document.createElement("div");
-          tempMessage.className = "error-message";
-          tempMessage.style.backgroundColor = "#28a745";
-          tempMessage.textContent = "Specification copied to clipboard!";
-          chatContainer.appendChild(tempMessage);
-          setTimeout(() => tempMessage.remove(), 2000);
-        }).catch(() => {
-          errorMessage.textContent = "Failed to copy specification.";
-          errorMessage.style.display = "block";
-        });
+        console.log("Copying fullContent:", fullContent); // Debug
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(fullContent).then(() => {
+            const tempMessage = document.createElement("div");
+            tempMessage.className = "error-message";
+            tempMessage.style.backgroundColor = "#28a745";
+            tempMessage.textContent = "Specification copied to clipboard!";
+            chatContainer.appendChild(tempMessage);
+            setTimeout(() => tempMessage.remove(), 2000);
+          }).catch(() => {
+            errorMessage.textContent = "Failed to copy specification.";
+            errorMessage.style.display = "block";
+            setTimeout(() => errorMessage.style.display = "none", 2000);
+          });
+        } else {
+          const textarea = document.createElement("textarea");
+          textarea.value = fullContent;
+          document.body.appendChild(textarea);
+          textarea.select();
+          try {
+            document.execCommand("copy");
+            const tempMessage = document.createElement("div");
+            tempMessage.className = "error-message";
+            tempMessage.style.backgroundColor = "#28a745";
+            tempMessage.textContent = "Specification copied to clipboard!";
+            chatContainer.appendChild(tempMessage);
+            setTimeout(() => tempMessage.remove(), 2000);
+            document.body.removeChild(textarea);
+          } catch (err) {
+            errorMessage.textContent = "Failed to copy specification.";
+            errorMessage.style.display = "block";
+            setTimeout(() => errorMessage.style.display = "none", 2000);
+            document.body.removeChild(textarea);
+          }
+        }
+      };
+
+      window.showPopup = function() {
+        popup.style.display = "block";
+        popupOverlay.style.display = "block";
+      };
+
+      window.openToolPicker = function() {
+        popup.style.display = "none";
+        popupOverlay.style.display = "none";
+        window.open("ToolPicker.html?from=spec", "_blank");
       };
 
       window.downloadPdf = function() {
