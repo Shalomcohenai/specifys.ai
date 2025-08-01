@@ -1,1639 +1,1565 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Specifys.ai - Plan your dream app for free with smart AI tools. Choose an easy track for beginners, tools for developers, or market research for entrepreneurs.">
-    <meta name="keywords" content="app planning, AI, developers, beginners, market research, entrepreneurship, free software">
-    <meta name="robots" content="index, follow">
-    <meta name="author" content="Specifys.ai">
-    <title>Specifys.ai - Plan Your App Idea for Free</title>
-    <link rel="icon" type="image/x-icon" href="favicon.ico" alt="Specifys.ai logo icon">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-RWBT69JCM7"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-RWBT69JCM7');
-    </script>
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      "name": "Specifys.ai",
-      "url": "https://www.specifys.ai",
-      "description": "Free AI tool for planning apps for beginners, developers, and entrepreneurs.",
-      "publisher": {
-        "@type": "Organization",
-        "name": "Specifys.ai",
-        "url": "https://www.specifys.ai",
-        "logo": {
-          "@type": "ImageObject",
-          "url": "https://www.specifys.ai/favicon.ico"
-        }
-      },
-      "potentialAction": {
-        "@type": "SearchAction",
-        "target": "https://www.specifys.ai/search?q={search_term_string}",
-        "query-input": "required name=search_term_string"
-      }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Specifys.ai - Plan your dream app for free with smart AI tools, including Vibe Coding Tools Map and Tool Picker. Choose an easy track for beginners, tools for developers, or market research for entrepreneurs.">
+<meta name="keywords" content="app planning, AI, developers, beginners, market research, entrepreneurship, vibe coding tools, tool picker, free software">
+<meta name="robots" content="index, follow">
+<meta name="author" content="Specifys.ai">
+<title>Specifys.ai - Plan Your App Idea for Free</title>
+<link rel="icon" type="image/x-icon" href="favicon.ico" alt="Specifys.ai logo icon">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-RWBT69JCM7"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-RWBT69JCM7');
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Specifys.ai",
+  "url": "https://www.specifys.ai",
+  "description": "Free AI tool for planning apps with Vibe Coding Tools Map and Tool Picker for beginners, developers, and entrepreneurs.",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Specifys.ai",
+    "url": "https://www.specifys.ai",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://www.specifys.ai/favicon.ico"
     }
-    </script>
-    <style>
-      @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap");
-
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-
-      html {
-        height: 100%;
-        scroll-behavior: smooth;
-      }
-
-      body {
-        font-family: "Montserrat", sans-serif;
-        display: flex;
-        flex-direction: column;
-        min-height: 100vh;
-        background: #f5f5f5;
-        overflow-x: hidden;
-      }
-
-      .thematic-header {
-        position: fixed;
-        top: 0;
-        width: 100%;
-        padding: 20px 24px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        z-index: 10;
-        background: rgba(255, 255, 255, 0.9);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      }
-
-      .header-logo {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 40px;
-        height: 40px;
-        background: #333;
-        border-radius: 8px;
-        color: #fff;
-        font-size: 2rem;
-        font-weight: 700;
-        text-decoration: none;
-      }
-
-      .header-logo:hover {
-        background: #0078d4;
-      }
-
-      .thematic-header .header-links {
-        display: flex;
-        gap: 15px;
-      }
-
-      .thematic-header .header-links a {
-        color: #333;
-        text-decoration: none;
-        font-size: 0.85rem;
-        font-weight: 700;
-        transition: color 0.3s ease;
-      }
-
-      .thematic-header .header-links a:hover {
-        color: #0078d4;
-      }
-
-      .main-content-wrapper {
-        width: 100%;
-        flex-grow: 1;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        padding: 4rem 1.5rem 2rem;
-        min-height: 100vh;
-      }
-
-      .hero-section {
-        height: 100vh;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        width: 100%;
-        max-width: 800px;
-        padding: 0 1rem;
-      }
-
-      .logo a {
-        text-decoration: none;
-        color: #333;
-        font-size: 6rem;
-        font-weight: 700;
-        margin-bottom: 0.5rem;
-        text-transform: none;
-        letter-spacing: 0.05em;
-      }
-
-      .slogan {
-        font-size: 1.35rem;
-        font-weight: 700;
-        color: #333;
-        margin-bottom: 1.5rem;
-        line-height: 1.2;
-        display: flex;
-        align-items: center;
-      }
-
-      .slogan .rotating-text {
-        color: #0078d4;
-        display: inline-block;
-        min-width: 150px;
-        text-align: left;
-        position: relative;
-        height: 100%;
-        margin-left: 1rem;
-      }
-
-      .rotating-text span {
-        display: inline-block;
-        opacity: 0;
-        transform: translateY(20px);
-        animation: rotateText 18s infinite;
-        position: absolute;
-        white-space: nowrap;
-      }
-
-      .rotating-text span:nth-child(1) { animation-delay: 0s; }
-      .rotating-text span:nth-child(2) { animation-delay: 3s; }
-      .rotating-text span:nth-child(3) { animation-delay: 6s; }
-      .rotating-text span:nth-child(4) { animation-delay: 9s; }
-      .rotating-text span:nth-child(5) { animation-delay: 12s; }
-      .rotating-text span:nth-child(6) { animation-delay: 15s; }
-
-      @keyframes rotateText {
-        0% { opacity: 0; transform: translateY(20px); }
-        5.5% { opacity: 1; transform: translateY(0); }
-        16.5% { opacity: 1; transform: translateY(0); }
-        22% { opacity: 0; transform: translateY(-20px); }
-        100% { opacity: 0; transform: translateY(-20px); }
-      }
-
-      .track-container {
-        background: rgba(255, 255, 255, 0.95);
-        border-radius: 15px;
-        padding: 20px;
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-        text-align: center;
-        width: 100%;
-        max-width: 800px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        min-height: 250px;
-      }
-
-      .track-container h2 {
-        font-size: 2rem;
-        font-weight: 700;
-        color: #333;
-        margin-bottom: 1rem;
-      }
-
-      .mode-buttons {
-        display: flex;
-        justify-content: center;
-        gap: 20px;
-        flex-wrap: wrap;
-      }
-
-      .mode-button {
-        background: #fff;
-        color: #333;
-        border: 2px solid #333;
-        border-radius: 30px;
-        padding: 12px 20px;
-        font-size: 1.1rem;
-        font-weight: 700;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        min-width: 180px;
-        transition: all 0.3s ease;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      }
-
-      .mode-button:hover, .mode-button.active, .mode-button.highlighted {
-        background: #0078d4;
-        color: #fff;
-        border: 2px solid #0078d4;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-      }
-
-      .mode-button i {
-        font-size: 1rem;
-        margin-right: 5px;
-      }
-
-      .track-info {
-        margin-top: 15px;
-        font-size: 1rem;
-        color: #333;
-        min-height: 40px;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-      }
-
-      .track-info.show {
-        opacity: 1;
-      }
-
-      .track-links {
-        margin-top: 15px;
-        display: flex;
-        gap: 15px;
-        justify-content: center;
-        flex-wrap: wrap;
-      }
-
-      .track-links a {
-        color: #0078d4;
-        text-decoration: none;
-        font-size: 0.9rem;
-        font-weight: 700;
-        transition: color 0.3s ease;
-      }
-
-      .track-links a:hover {
-        color: #005ea2;
-      }
-
-      .rotating-ideas {
-        width: 100%;
-        max-width: 800px;
-        margin-top: 20px;
-        background: rgba(255, 255, 255, 0.8);
-        padding: 10px 15px;
-        border-radius: 10px;
-        font-size: 1rem;
-        color: #333;
-        text-align: center;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 10px;
-      }
-
-      .rotating-ideas i {
-        font-size: 1.2rem;
-        color: #0078d4;
-      }
-
-      .idea-text {
-        display: none;
-        margin: 0 5px;
-      }
-
-      .idea-text.active {
-        display: inline;
-      }
-
-      @keyframes fadeIdea {
-        0% { opacity: 0; }
-        10% { opacity: 1; }
-        90% { opacity: 1; }
-        100% { opacity: 0; }
-      }
-
-      .rotating-ideas .idea-text.active {
-        animation: fadeIdea 8s infinite;
-      }
-
-      .extra-sections {
-        width: 100%;
-        max-width: 1200px;
-        padding: 4rem 1.5rem;
-        text-align: center;
-      }
-
-      .section {
-        margin-bottom: 4rem;
-        opacity: 0;
-        transform: translateY(20px);
-        animation: fadeInUp 1s ease forwards;
-        animation-delay: calc(0.2s * var(--section-index));
-      }
-
-      @keyframes fadeInUp {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
-      }
-
-      .section h2 {
-        font-size: clamp(2rem, 5vw, 3rem);
-        font-weight: 700;
-        color: #333;
-        margin-bottom: 1.5rem;
-      }
-
-      .section p {
-        font-size: clamp(1rem, 2vw, 1.2rem);
-        color: #333;
-        max-width: 800px;
-        margin: 0 auto 1rem;
-        line-height: 1.6;
-      }
-
-      .stats-list, .use-cases-list {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 1.5rem;
-        margin: 2rem 0;
-      }
-
-      .benefit-card {
-        display: flex;
-        align-items: center;
-        background: rgba(255, 255, 255, 0.95);
-        border-radius: 10px;
-        padding: 1.5rem;
-        margin-bottom: 1rem;
-        transition: transform 0.3s ease;
-      }
-
-      .benefit-card:hover {
-        transform: translateY(-5px);
-      }
-
-      .benefit-icon {
-        font-size: 2rem;
-        color: #333;
-        margin-right: 1rem;
-      }
-
-      .benefit-content h3 {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: #333;
-        margin-bottom: 0.5rem;
-      }
-
-      .benefit-content p {
-        font-size: 1rem;
-        color: #333;
-        line-height: 1.6;
-      }
-
-      .benefits-container {
-        max-width: 800px;
-        margin: 2rem auto;
-        display: flex;
-        flex-direction: column;
-      }
-
-      .stat-item, .use-case-item {
-        padding: 1.5rem;
-        background: rgba(255, 255, 255, 0.95);
-        border-radius: 10px;
-        transition: transform 0.3s ease;
-      }
-
-      .stat-item:hover, .use-case-item:hover {
-        transform: translateY(-5px);
-      }
-
-      .stat-item h3, .use-case-item h3 {
-        font-size: 1.2rem;
-        font-weight: 700;
-        color: #333;
-        margin-bottom: 0.5rem;
-      }
-
-      .stat-item .stat-number {
-        font-size: 2rem;
-        font-weight: 700;
-        color: #333;
-        margin-bottom: 0.5rem;
-      }
-
-      .stat-item p, .use-case-item p {
-        font-size: 1rem;
-        color: #333;
-      }
-
-      .faq-list {
-        max-width: 800px;
-        margin: 2rem auto;
-        text-align: left;
-      }
-
-      .faq-item {
-        margin-bottom: 1rem;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.2);
-      }
-
-      .faq-question {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 1rem 0;
-        cursor: pointer;
-        font-size: 1.1rem;
-        font-weight: 500;
-        color: #333;
-        transition: color 0.3s ease;
-      }
-
-      .faq-question:hover {
-        color: #0078d4;
-      }
-
-      .faq-question i {
-        transition: transform 0.3s ease;
-      }
-
-      .faq-question.open i {
-        transform: rotate(180deg);
-      }
-
-      .faq-answer {
-        max-height: 0;
-        overflow: hidden;
-        font-size: 1rem;
-        color: #333;
-        padding: 0 1rem;
-        transition: max-height 0.3s ease, padding 0.3s ease;
-      }
-
-      .faq-answer.open {
-        max-height: 200px;
-        padding: 1rem;
-      }
-
-      .cta-button {
-        display: inline-block;
-        background: #0078d4;
-        color: #fff;
-        border: none;
-        border-radius: 30px;
-        padding: 0.8rem 2rem;
-        font-size: 1rem;
-        font-weight: 700;
-        text-decoration: none;
-        transition: all 0.3s ease;
-        margin-top: 1rem;
-      }
-
-      .cta-button:hover {
-        background: #005ea2;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-      }
-
-      .testimonials-container {
-        overflow: hidden;
-        position: relative;
-        width: 100%;
-        max-width: 1200px;
-        margin: 2rem auto;
-      }
-
-      .testimonials-gallery {
-        display: flex;
-        animation: scrollTestimonials 60s linear infinite;
-      }
-
-      .testimonials-gallery:hover {
-        animation-play-state: paused;
-      }
-
-      .testimonial-card {
-        flex: 0 0 300px;
-        background: rgba(255, 255, 255, 0.95);
-        border-radius: 10px;
-        padding: 1.5rem;
-        margin-right: 1.5rem;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        transition: transform 0.3s ease;
-      }
-
-      .testimonial-card:hover {
-        transform: translateY(-5px);
-      }
-
-      .testimonial-name {
-        font-size: 1.2rem;
-        font-weight: 700;
-        color: #333;
-        margin-bottom: 0.5rem;
-      }
-
-      .testimonial-text {
-        font-size: 1rem;
-        color: #333;
-        line-height: 1.6;
-      }
-
-      @keyframes scrollTestimonials {
-        0% { transform: translateX(0); }
-        100% { transform: translateX(-6000px); }
-      }
-
-      .final-cta {
-        padding: 3rem 1.5rem;
-        background: rgba(255, 255, 255, 0.95);
-        border-radius: 15px;
-        margin: 2rem 0;
-      }
-
-      footer {
-        padding: 20px 10px;
-        text-align: center;
-        width: 100%;
-        color: #333;
-        flex-shrink: 0;
-        background: #fff;
-        box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
-      }
-
-      .footer-content {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: center;
-        gap: 20px;
-        flex-wrap: wrap;
-      }
-
-      .footer-links {
-        display: flex;
-        justify-content: center;
-        gap: 15px;
-        flex-wrap: wrap;
-      }
-
-      .footer-links a {
-        color: #333;
-        text-decoration: none;
-        font-size: 0.85rem;
-        font-weight: 500;
-        transition: color 0.3s ease;
-      }
-
-      .footer-links a:hover {
-        color: #0078d4;
-      }
-
-      .footer-divider {
-        color: #333;
-        font-size: 1.2rem;
-        font-weight: 300;
-      }
-
-      .footer-social {
-        display: flex;
-        justify-content: center;
-        gap: 15px;
-        flex-wrap: wrap;
-      }
-
-      .footer-social a {
-        color: #333;
-        font-size: 1.2rem;
-        transition: transform 0.3s ease, color 0.3s ease;
-      }
-
-      .footer-social a:hover {
-        color: #0078d4;
-        transform: scale(1.2);
-      }
-
-      .footer-copyright {
-        font-size: 0.8rem;
-        color: #666;
-        margin-top: 1rem;
-      }
-
-      .popup-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.7);
-        z-index: 20;
-        display: none;
-        justify-content: center;
-        align-items: center;
-        cursor: pointer;
-      }
-
-      .popup {
-        background: rgba(255, 255, 255, 0.95);
-        width: 80%;
-        max-width: 700px;
-        padding: 2rem;
-        border-radius: 15px;
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-        text-align: center;
-        position: relative;
-        cursor: default;
-      }
-
-      .popup-close {
-        position: absolute;
-        top: 15px;
-        right: 15px;
-        font-size: 1.5rem;
-        color: #333;
-        cursor: pointer;
-        border: none;
-        background: none;
-        transition: color 0.3s ease;
-      }
-
-      .popup-close:hover {
-        color: #0078d4;
-      }
-
-      .popup-content {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-      }
-
-      .popup-content i {
-        font-size: 2rem;
-        color: #0078d4;
-        margin-bottom: 1rem;
-      }
-
-      .popup-content h3 {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: #333;
-        margin-bottom: 0.5rem;
-      }
-
-      .popup-content p {
-        font-size: 1rem;
-        color: #333;
-        margin-bottom: 1.5rem;
-        line-height: 1.6;
-      }
-
-      .popup-content .popup-start {
-        background: #0078d4;
-        color: #fff;
-        border: none;
-        border-radius: 30px;
-        padding: 0.8rem 2rem;
-        font-size: 1rem;
-        font-weight: 700;
-        cursor: pointer;
-        transition: all 0.3s ease;
-      }
-
-      .popup-content .popup-start:hover {
-        background: #005ea2;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-      }
-
-      .popup-content .popup-start:focus {
-        outline: 2px solid #0078d4;
-        outline-offset: 2px;
-      }
-
-      .scroll-to-top {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        background: #0078d4;
-        color: #fff;
-        border: none;
-        border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        font-size: 1.2rem;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        z-index: 1000;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-      }
-
-      .scroll-to-top.down {
-        animation: bounce 3s infinite;
-      }
-
-      .scroll-to-top:hover {
-        background: #005ea2;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-      }
-
-      @keyframes bounce {
-        0%, 20%, 50%, 80%, 100% {
-          transform: translateY(0);
-        }
-        40% {
-          transform: translateY(-5px);
-        }
-        60% {
-          transform: translateY(-2px);
-        }
-      }
-
-      @media (max-width: 768px) {
-        .thematic-header {
-          padding: 15px 1rem;
-        }
-        .header-logo {
-          width: 35px;
-          height: 35px;
-          font-size: 1.5rem;
-        }
-        .main-content-wrapper {
-          padding: 3rem 1rem 2rem;
-          min-height: 100vh;
-        }
-        .logo a {
-          font-size: 3.36rem;
-        }
-        .slogan {
-          font-size: 1.08rem;
-        }
-        .track-container {
-          padding: 20px;
-          min-height: auto;
-          max-width: 650px;
-        }
-        .track-container h2 {
-          font-size: 1.6rem;
-        }
-        .mode-buttons {
-          flex-direction: column;
-          gap: 10px;
-        }
-        .mode-button {
-          width: 100%;
-          padding: 10px 15px;
-          font-size: 1rem;
-          min-width: 150px;
-        }
-        .mode-button i {
-          font-size: 0.9rem;
-        }
-        .track-info {
-          font-size: 0.9rem;
-          min-height: 35px;
-        }
-        .track-links a {
-          font-size: 0.85rem;
-        }
-        .rotating-ideas {
-          padding: 8px 12px;
-          font-size: 0.9rem;
-          max-width: 90%;
-        }
-        .rotating-ideas i {
-          font-size: 1rem;
-        }
-        .extra-sections {
-          padding: 2rem 1rem;
-        }
-        .section h2 {
-          font-size: clamp(1.5rem, 4vw, 2.5rem);
-        }
-        .section p {
-          font-size: clamp(0.9rem, 1.8vw, 1rem);
-        }
-        .stats-list, .use-cases-list {
-          grid-template-columns: 1fr;
-        }
-        .benefits-container {
-          max-width: 100%;
-        }
-        .benefit-card {
-          padding: 1rem;
-        }
-        .benefit-icon {
-          font-size: 1.5rem;
-        }
-        .benefit-content h3 {
-          font-size: 1.2rem;
-        }
-        .benefit-content p {
-          font-size: 0.9rem;
-        }
-        .stat-item .stat-number {
-          font-size: 1.8rem;
-        }
-        .testimonials-gallery {
-          flex-direction: column;
-          animation: none;
-        }
-        .testimonial-card {
-          flex: 0 0 auto;
-          margin-bottom: 1rem;
-          margin-right: 0;
-        }
-        .testimonial-name {
-          font-size: 1rem;
-        }
-        .testimonial-text {
-          font-size: 0.9rem;
-        }
-        .faq-question {
-          font-size: 1rem;
-        }
-        .faq-answer.open {
-          max-height: 300px;
-        }
-        footer {
-          padding: 15px 1rem;
-        }
-        .footer-content {
-          flex-direction: column;
-          gap: 10px;
-        }
-        .footer-links a {
-          font-size: 0.8rem;
-        }
-        .footer-divider {
-          display: none;
-        }
-        .footer-social a {
-          font-size: 1rem;
-        }
-        .popup {
-          width: 90%;
-          padding: 1.5rem;
-        }
-        .popup-content i {
-          font-size: 1.8rem;
-        }
-        .popup-content h3 {
-          font-size: 1.2rem;
-        }
-        .popup-content p {
-          font-size: 0.9rem;
-        }
-        .popup-content .popup-start {
-          padding: 0.6rem 1.5rem;
-          font-size: 0.9rem;
-        }
-        .scroll-to-top {
-          bottom: 15px;
-          right: 15px;
-          width: 35px;
-          height: 35px;
-          font-size: 1rem;
-        }
-      }
-
-      @media (max-width: 480px) {
-        .thematic-header .header-links a {
-          font-size: 0.75rem;
-        }
-        .header-logo {
-          width: 30px;
-          height: 30px;
-          font-size: 1.2rem;
-        }
-        .main-content-wrapper {
-          padding: 2.5rem 0.5rem 2rem;
-        }
-        .logo a {
-          font-size: 2.8rem;
-        }
-        .slogan {
-          font-size: 0.9rem;
-        }
-        .track-container {
-          padding: 15px;
-          max-width: 90%;
-        }
-        .track-container h2 {
-          font-size: 1.4rem;
-        }
-        .mode-button {
-          padding: 8px 12px;
-          font-size: 0.9rem;
-          min-width: 120px;
-        }
-        .mode-button i {
-          font-size: 0.8rem;
-        }
-        .track-info {
-          font-size: 0.85rem;
-          min-height: 30px;
-        }
-        .track-links a {
-          font-size: 0.8rem;
-        }
-        .rotating-ideas {
-          padding: 6px 10px;
-          font-size: 0.85rem;
-        }
-        .rotating-ideas i {
-          font-size: 0.9rem;
-        }
-        .section h2 {
-          font-size: clamp(1.2rem, 3vw, 2rem);
-        }
-        .benefits-container {
-          max-width: 90%;
-        }
-        .benefit-card {
-          padding: 0.8rem;
-        }
-        .benefit-icon {
-          font-size: 1.2rem;
-        }
-        .benefit-content h3 {
-          font-size: 1rem;
-        }
-        .benefit-content p {
-          font-size: 0.8rem;
-        }
-        .stat-item .stat-number {
-          font-size: 1.6rem;
-        }
-        .use-case-item, .stat-item {
-          padding: 1rem;
-        }
-        .testimonial-name {
-          font-size: 0.9rem;
-        }
-        .testimonial-text {
-          font-size: 0.85rem;
-        }
-        .footer-content {
-          gap: 8px;
-        }
-        .footer-links a {
-          font-size: 0.75rem;
-        }
-        .footer-social a {
-          font-size: 0.9rem;
-        }
-        .popup {
-          width: 95%;
-          padding: 1rem;
-        }
-        .popup-content i {
-          font-size: 1.5rem;
-        }
-        .popup-content h3 {
-          font-size: 1rem;
-        }
-        .popup-content p {
-          font-size: 0.8rem;
-        }
-        .popup-content .popup-start {
-          padding: 0.5rem 1rem;
-          font-size: 0.8rem;
-        }
-        .scroll-to-top {
-          bottom: 10px;
-          right: 10px;
-          width: 30px;
-          height: 30px;
-          font-size: 0.9rem;
-        }
-      }
-
-      @media (prefers-reduced-motion: reduce) {
-        .track-container, .mode-button, .section, .rotating-text span, .popup-start, .scroll-to-top, .testimonial-card, .rotating-ideas .idea-text {
-          animation: none;
-          transition: none;
-        }
-      }
-
-      .visually-hidden {
-        position: absolute;
-        width: 1px;
-        height: 1px;
-        padding: 0;
-        margin: -1px;
-        overflow: hidden;
-        clip: rect(0, 0, 0, 0);
-        border: 0;
-      }
-    </style>
+  },
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "https://www.specifys.ai/search?q={search_term_string}",
+    "query-input": "required name=search_term_string"
+  }
+}
+</script>
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap");
+* {
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+}
+html {
+height: 100%;
+scroll-behavior: smooth;
+}
+body {
+font-family: "Montserrat", sans-serif;
+display: flex;
+flex-direction: column;
+min-height: 100vh;
+background: #f5f5f5;
+overflow-x: hidden;
+}
+.thematic-header {
+position: fixed;
+top: 0;
+width: 100%;
+padding: 20px 24px;
+display: flex;
+justify-content: space-between;
+align-items: center;
+z-index: 10;
+background: rgba(255, 255, 255, 0.9);
+box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+.header-logo {
+display: flex;
+align-items: center;
+justify-content: center;
+width: 40px;
+height: 40px;
+background: #333;
+border-radius: 8px;
+color: #fff;
+font-size: 2rem;
+font-weight: 700;
+text-decoration: none;
+}
+.header-logo:hover {
+background: #0078d4;
+}
+.menu-toggle {
+background: none;
+border: none;
+font-size: 1.5rem;
+color: #333;
+cursor: pointer;
+transition: color 0.3s ease;
+}
+.menu-toggle:hover {
+color: #0078d4;
+}
+.header-links {
+display: none;
+flex-direction: column;
+position: absolute;
+top: 20px;
+right: 60px;
+background: rgba(255, 255, 255, 0.95);
+padding: 15px;
+border-radius: 8px;
+box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+width: 0;
+overflow: hidden;
+transition: width 0.3s ease, opacity 0.3s ease;
+opacity: 0;
+}
+.header-links.active {
+display: flex;
+width: 200px;
+opacity: 1;
+}
+.header-links a {
+color: #333;
+text-decoration: none;
+font-size: 0.85rem;
+font-weight: 700;
+padding: 8px 0;
+transition: color 0.3s ease, transform 0.3s ease;
+}
+.header-links a:hover {
+color: #0078d4;
+transform: translateX(-5px);
+}
+.main-content-wrapper {
+width: 100%;
+flex-grow: 1;
+display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: center;
+padding: 4rem 1.5rem 2rem;
+min-height: 100vh;
+}
+.hero-section {
+height: 100vh;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+text-align: center;
+width: 100%;
+max-width: 800px;
+padding: 0 1rem;
+}
+.logo a {
+text-decoration: none;
+color: #333;
+font-size: 6rem;
+font-weight: 700;
+margin-bottom: 0.5rem;
+text-transform: none;
+letter-spacing: 0.05em;
+}
+.slogan {
+font-size: 1.35rem;
+font-weight: 700;
+color: #333;
+margin-bottom: 1.5rem;
+line-height: 1.2;
+display: flex;
+align-items: center;
+}
+.slogan .rotating-text {
+color: #0078d4;
+display: inline-block;
+min-width: 150px;
+text-align: left;
+position: relative;
+height: 100%;
+margin-left: 1rem;
+}
+.rotating-text span {
+display: inline-block;
+opacity: 0;
+transform: translateY(20px);
+animation: rotateText 18s infinite;
+position: absolute;
+white-space: nowrap;
+}
+.rotating-text span:nth-child(1) { animation-delay: 0s; }
+.rotating-text span:nth-child(2) { animation-delay: 3s; }
+.rotating-text span:nth-child(3) { animation-delay: 6s; }
+.rotating-text span:nth-child(4) { animation-delay: 9s; }
+.rotating-text span:nth-child(5) { animation-delay: 12s; }
+.rotating-text span:nth-child(6) { animation-delay: 15s; }
+@keyframes rotateText {
+  0% { opacity: 0; transform: translateY(20px); }
+  5.5% { opacity: 1; transform: translateY(0); }
+  16.5% { opacity: 1; transform: translateY(0); }
+  22% { opacity: 0; transform: translateY(-20px); }
+  100% { opacity: 0; transform: translateY(-20px); }
+}
+.track-container {
+background: rgba(255, 255, 255, 0.95);
+border-radius: 15px;
+padding: 20px;
+box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+text-align: center;
+width: 100%;
+max-width: 800習慣px;
+display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: center;
+min-height: 250px;
+}
+.track-container h2 {
+font-size: 2rem;
+font-weight: 700;
+color: #333;
+margin-bottom: 1rem;
+}
+.mode-buttons {
+display: flex;
+justify-content: center;
+gap: 20px;
+flex-wrap: wrap;
+}
+.mode-button {
+background: #fff;
+color: #333;
+border: 2px solid #333;
+border-radius: 30px;
+padding: 12px 20px;
+font-size: 1.1rem;
+font-weight: 700;
+cursor: pointer;
+display: flex;
+align-items: center;
+justify-content: center;
+min-width: 180px;
+transition: all 0.3s ease;
+box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+.mode-button:hover, .mode-button.active, .mode-button.highlighted {
+background: #0078d4;
+color: #fff;
+border: 2px solid #0078d4;
+transform: translateY(-2px);
+box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+.mode-button i {
+font-size: 1rem;
+margin-right: 5px;
+}
+.track-info {
+margin-top: 15px;
+font-size: 1rem;
+color: #333;
+min-height: 40px;
+opacity: 0;
+transition: opacity 0.3s ease;
+}
+.track-info.show {
+opacity: 1;
+}
+.track-links {
+margin-top: 15px;
+display: flex;
+gap: 15px;
+justify-content: center;
+flex-wrap: wrap;
+}
+.track-links a {
+color: #0078d4;
+text-decoration: none;
+font-size: 0.9rem;
+font-weight: 700;
+transition: color 0.3s ease;
+}
+.track-links a:hover {
+color: #005ea2;
+}
+.rotating-ideas {
+width: 100%;
+max-width: 800px;
+margin-top: 20px;
+font-size: 1rem;
+color: #333;
+text-align: center;
+display: flex;
+justify-content: center;
+align-items: center;
+gap: 10px;
+}
+.rotating-ideas i {
+font-size: 1.2rem;
+color: #0078d4;
+}
+.idea-text {
+display: none;
+margin: 0 5px;
+}
+.idea-text.active {
+display: inline;
+}
+@keyframes fadeIdea {
+  0% { opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { opacity: 0; }
+}
+.rotating-ideas .idea-text.active {
+animation: fadeIdea 8s infinite;
+}
+.extra-sections {
+width: 100%;
+max-width: 1200px;
+padding: 4rem 1.5rem;
+text-align: center;
+}
+.section {
+margin-bottom: 4rem;
+opacity: 0;
+transform: translateY(20px);
+animation: fadeInUp 1s ease forwards;
+animation-delay: calc(0.2s * var(--section-index));
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.section h2 {
+font-size: clamp(2rem, 5vw, 3rem);
+font-weight: 700;
+color: #333;
+margin-bottom: 1.5rem;
+}
+.section p {
+font-size: clamp(1rem, 2vw, 1.2rem);
+color: #333;
+max-width: 800px;
+margin: 0 auto 1rem;
+line-height: 1.6;
+}
+.stats-list, .use-cases-list {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+gap: 1.5rem;
+margin: 2rem 0;
+}
+.benefit-card {
+display: flex;
+align-items: center;
+background: rgba(255, 255, 255, 0.95);
+border-radius: 10px;
+padding: 1.5rem;
+margin-bottom: 1rem;
+transition: transform 0.3s ease;
+}
+.benefit-card:hover {
+transform: translateY(-5px);
+}
+.benefit-icon {
+font-size: 2rem;
+color: #333;
+margin-right: 1rem;
+}
+.benefit-content h3 {
+font-size: 1.5rem;
+font-weight: 700;
+color: #333;
+margin-bottom: 0.5rem;
+}
+.benefit-content p {
+font-size: 1rem;
+color: #333;
+line-height: 1.6;
+}
+.benefits-container {
+max-width: 800px;
+margin: 2rem auto;
+display: flex;
+flex-direction: column;
+}
+.stat-item, .use-case-item {
+padding: 1.5rem;
+background: rgba(255, 255, 255, 0.95);
+border-radius: 10px;
+transition: transform 0.3s ease;
+}
+.stat-item:hover, .use-case-item:hover {
+transform: translateY(-5px);
+}
+.stat-item h3, .use-case-item h3 {
+font-size: 1.2rem;
+font-weight: 700;
+color: #333;
+margin-bottom: 0.5rem;
+}
+.stat-item .stat-number {
+font-size: 2rem;
+font-weight: 700;
+color: #333;
+margin-bottom: 0.5rem;
+}
+.stat-item p, .use-case-item p {
+font-size: 1rem;
+color: #333;
+}
+.faq-list {
+max-width: 800px;
+margin: 2rem auto;
+text-align: left;
+}
+.faq-item {
+margin-bottom: 1rem;
+border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+}
+.faq-question {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 1rem 0;
+cursor: pointer;
+font-size: 1.1rem;
+font-weight: 500;
+color: #333;
+transition: color 0.3s ease;
+}
+.faq-question:hover {
+color: #0078d4;
+}
+.faq-question i {
+transition: transform 0.3s ease;
+}
+.faq-question.open i {
+transform: rotate(180deg);
+}
+.faq-answer {
+max-height: 0;
+overflow: hidden;
+font-size: 1rem;
+color: #333;
+padding: 0 1rem;
+transition: max-height 0.3s ease, padding 0.3s ease;
+}
+.faq-answer.open {
+max-height: 200px;
+padding: 1rem;
+}
+.cta-button {
+display: inline-block;
+background: #0078d4;
+color: #fff;
+border: none;
+border-radius: 30px;
+padding: 0.8rem 2rem;
+font-size: 1rem;
+font-weight: 700;
+text-decoration: none;
+transition: all 0.3s ease;
+margin-top: 1rem;
+}
+.cta-button:hover {
+background: #005ea2;
+transform: translateY(-2px);
+box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+.testimonials-container {
+overflow: hidden;
+position: relative;
+width: 100%;
+max-width: 1200px;
+margin: 2rem auto;
+}
+.testimonials-gallery {
+display: flex;
+animation: scrollTestimonials 60s linear infinite;
+}
+.testimonials-gallery:hover {
+animation-play-state: paused;
+}
+.testimonial-card {
+flex: 0 0 300px;
+background: rgba(255, 255, 255, 0.95);
+border-radius: 10px;
+padding: 1.5rem;
+margin-right: 1.5rem;
+box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+transition: transform 0.3s ease;
+}
+.testimonial-card:hover {
+transform: translateY(-5px);
+}
+.testimonial-name {
+font-size: 1.2rem;
+font-weight: 700;
+color: #333;
+margin-bottom: 0.5rem;
+}
+.testimonial-text {
+font-size: 1rem;
+color: #333;
+line-height: 1.6;
+}
+@keyframes scrollTestimonials {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-6000px); }
+}
+.final-cta {
+padding: 3rem 1.5rem;
+background: rgba(255, 255, 255, 0.95);
+border-radius: 15px;
+margin: 2rem 0;
+}
+footer {
+padding: 20px 10px;
+text-align: center;
+width: 100%;
+color: #333;
+flex-shrink: 0;
+background: #fff;
+box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+}
+.footer-content {
+display: flex;
+flex-direction: row;
+align-items: center;
+justify-content: center;
+gap: 20px;
+flex-wrap: wrap;
+}
+.footer-links {
+display: flex;
+justify-content: center;
+gap: 15px;
+flex-wrap: wrap;
+}
+.footer-links a {
+color: #333;
+text-decoration: none;
+font-size: 0.85rem;
+font-weight: 500;
+transition: color 0.3s ease;
+}
+.footer-links a:hover {
+color: #0078d4;
+}
+.footer-divider {
+color: #333;
+font-size: 1.2rem;
+font-weight: 300;
+}
+.footer-social {
+display: flex;
+justify-content: center;
+gap: 15px;
+flex-wrap: wrap;
+}
+.footer-social a {
+color: #333;
+font-size: 1.2rem;
+transition: transform 0.3s ease, color 0.3s ease;
+}
+.footer-social a:hover {
+color: #0078d4;
+transform: scale(1.2);
+}
+.footer-copyright {
+font-size: 0.8rem;
+color: #666;
+margin-top: 1rem;
+}
+.popup-overlay {
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background: rgba(0, 0, 0, 0.7);
+z-index: 20;
+display: none;
+justify-content: center;
+align-items: center;
+cursor: pointer;
+}
+.popup {
+background: rgba(255, 255, 255, 0.95);
+width: 80%;
+max-width: 700px;
+padding: 2rem;
+border-radius: 15px;
+box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+text-align: center;
+position: relative;
+cursor: default;
+}
+.popup-close {
+position: absolute;
+top: 15px;
+right: 15px;
+font-size: 1.5rem;
+color: #333;
+cursor: pointer;
+border: none;
+background: none;
+transition: color 0.3s ease;
+}
+.popup-close:hover {
+color: #0078d4;
+}
+.popup-content {
+display: flex;
+flex-direction: column;
+align-items: center;
+}
+.popup-content i {
+font-size: 2rem;
+color: #0078d4;
+margin-bottom: 1rem;
+}
+.popup-content h3 {
+font-size: 1.5rem;
+font-weight: 700;
+color: #333;
+margin-bottom: 0.5rem;
+}
+.popup-content p {
+font-size: 1rem;
+color: #333;
+margin-bottom: 1.5rem;
+line-height: 1.6;
+}
+.popup-content p a {
+color: #0078d4;
+text-decoration: underline;
+font-weight: 600;
+}
+.popup-content p a:hover {
+color: #005ea2;
+}
+.popup-content .popup-start {
+background: #0078d4;
+color: #fff;
+border: none;
+border-radius: 30px;
+padding: 0.8rem 2rem;
+font-size: 1rem;
+font-weight: 700;
+cursor: pointer;
+transition: all 0.3s ease;
+}
+.popup-content .popup-start:hover {
+background: #005ea2;
+transform: translateY(-2px);
+box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+.popup-content .popup-start:focus {
+outline: 2px solid #0078d4;
+outline-offset: 2px;
+}
+.scroll-to-top {
+position: fixed;
+bottom: 20px;
+right: 20px;
+background: #0078d4;
+color: #fff;
+border: none;
+border-radius: 50%;
+width: 40px;
+height: 40px;
+font-size: 1.2rem;
+cursor: pointer;
+display: flex;
+align-items: center;
+justify-content: center;
+box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+z-index: 1000;
+transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.scroll-to-top.down {
+animation: bounce 3s infinite;
+}
+.scroll-to-top:hover {
+background: #005ea2;
+transform: translateY(-2px);
+box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-5px);
+  }
+  60% {
+    transform: translateY(-2px);
+  }
+}
+@media (max-width: 768px) {
+.thematic-header {
+  padding: 15px 1rem;
+}
+.header-logo {
+  width: 35px;
+  height: 35px;
+  font-size: 1.5rem;
+}
+.header-links {
+  top: 15px;
+  right: 50px;
+  width: 180px;
+}
+.main-content-wrapper {
+  padding: 3rem 1rem 2rem;
+  min-height: 100vh;
+}
+.logo a {
+  font-size: 3.36rem;
+}
+.slogan {
+  font-size: 1.08rem;
+}
+.track-container {
+  padding: 20px;
+  min-height: auto;
+  max-width: 650px;
+}
+.track-container h2 {
+  font-size: 1.6rem;
+}
+.mode-buttons {
+  flex-direction: column;
+  gap: 10px;
+}
+.mode-button {
+  width: 100%;
+  padding: 10px 15px;
+  font-size: 1rem;
+  min-width: 150px;
+}
+.mode-button i {
+  font-size: 0.9rem;
+}
+.track-info {
+  font-size: 0.9rem;
+  min-height: 35px;
+}
+.track-links a {
+  font-size: 0.85rem;
+}
+.rotating-ideas {
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  max-width: 90%;
+}
+.rotating-ideas i {
+  font-size: 1rem;
+}
+.extra-sections {
+  padding: 2rem 1rem;
+}
+.section h2 {
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+}
+.section p {
+  font-size: clamp(0.9rem, 1.8vw, 1rem);
+}
+.stats-list, .use-cases-list {
+  grid-template-columns: 1fr;
+}
+.benefits-container {
+  max-width: 100%;
+}
+.benefit-card {
+  padding: 1rem;
+}
+.benefit-icon {
+  font-size: 1.5rem;
+}
+.benefit-content h3 {
+  font-size: 1.2rem;
+}
+.benefit-content p {
+  font-size: 0.9rem;
+}
+.stat-item .stat-number {
+  font-size: 1.8rem;
+}
+.testimonials-gallery {
+  flex-direction: column;
+  animation: none;
+}
+.testimonial-card {
+  flex: 0 0 auto;
+  margin-bottom: 1rem;
+  margin-right: 0;
+}
+.testimonial-name {
+  font-size: 1rem;
+}
+.testimonial-text {
+  font-size: 0.9rem;
+}
+.faq-question {
+  font-size: 1rem;
+}
+.faq-answer.open {
+  max-height: 300px;
+}
+footer {
+  padding: 15px 1rem;
+}
+.footer-content {
+  flex-direction: column;
+  gap: 10px;
+}
+.footer-links a {
+  font-size: 0.8rem;
+}
+.footer-divider {
+  display: none;
+}
+.footer-social a {
+  font-size: 1rem;
+}
+.popup {
+  width: 90%;
+  padding: 1.5rem;
+}
+.popup-content i {
+  font-size: 1.8rem;
+}
+.popup-content h3 {
+  font-size: 1.2rem;
+}
+.popup-content p {
+  font-size: 0.9rem;
+}
+.popup-content .popup-start {
+  padding: 0.6rem 1.5rem;
+  font-size: 0.9rem;
+}
+.scroll-to-top {
+  bottom: 15px;
+  right: 15px;
+  width: 35px;
+  height: 35px;
+  font-size: 1rem;
+}
+}
+@media (max-width: 480px) {
+.header-logo {
+  width: 30px;
+  height: 30px;
+  font-size: 1.2rem;
+}
+.header-links {
+  top: 10px;
+  right: 40px;
+  width: 160px;
+}
+.main-content-wrapper {
+  padding: 2.5rem 0.5rem 2rem;
+}
+.logo a {
+  font-size: 2.8rem;
+}
+.slogan {
+  font-size: 0.9rem;
+}
+.track-container {
+  padding: 15px;
+  max-width: 90%;
+}
+.track-container h2 {
+  font-size: 1.4rem;
+}
+.mode-button {
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  min-width: 120px;
+}
+.mode-button i {
+  font-size: 0.8rem;
+}
+.track-info {
+  font-size: 0.85rem;
+  min-height: 30px;
+}
+.track-links a {
+  font-size: 0.8rem;
+}
+.rotating-ideas {
+  padding: 6px 10px;
+  font-size: 0.85rem;
+}
+.rotating-ideas i {
+  font-size: 0.9rem;
+}
+.section h2 {
+  font-size: clamp(1.2rem, 3vw, 2rem);
+}
+.benefits-container {
+  max-width: 90%;
+}
+.benefit-card {
+  padding: 0.8rem;
+}
+.benefit-icon {
+  font-size: 1.2rem;
+}
+.benefit-content h3 {
+  font-size: 1rem;
+}
+.benefit-content p {
+  font-size: 0.8rem;
+}
+.stat-item .stat-number {
+  font-size: 1.6rem;
+}
+.use-case-item, .stat-item {
+  padding: 1rem;
+}
+.testimonial-name {
+  font-size: 0.9rem;
+}
+.testimonial-text {
+  font-size: 0.85rem;
+}
+.footer-content {
+  gap: 8px;
+}
+.footer-links a {
+  font-size: 0.75rem;
+}
+.footer-social a {
+  font-size: 0.9rem;
+}
+.popup {
+  width: 95%;
+  padding: 1rem;
+}
+.popup-content i {
+  font-size: 1.5rem;
+}
+.popup-content h3 {
+  font-size: 1rem;
+}
+.popup-content p {
+  font-size: 0.8rem;
+}
+.popup-content .popup-start {
+  padding: 0.5rem 1rem;
+  font-size: 0.8rem;
+}
+.scroll-to-top {
+  bottom: 10px;
+  right: 10px;
+  width: 30px;
+  height: 30px;
+  font-size: 0.9rem;
+}
+}
+@media (prefers-reduced-motion: reduce) {
+.track-container, .mode-button, .section, .rotating-text span, .popup-start, .scroll-to-top, .testimonial-card, .rotating-ideas .idea-text, .header-links, .header-links a {
+  animation: none;
+  transition: none;
+}
+}
+.visually-hidden {
+position: absolute;
+width: 1px;
+height: 1px;
+padding: 0;
+margin: -1px;
+overflow: hidden;
+clip: rect(0, 0, 0, 0);
+border: 0;
+}
+</style>
 </head>
 <body class="page-default">
-  <header class="thematic-header">
-    <a href="index.html" class="header-logo" aria-label="Specifys.ai homepage">S</a>
-    <div class="header-links">
-      <a href="blog.html" aria-label="Visit our blog">Blog</a>
-      <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
-      <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
-      <a href="map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Tools Map</a>
-    </div>
-  </header>
-
-  <div class="main-content-wrapper">
-    <div class="hero-section">
-      <div class="logo">
-        <a href="index.html" aria-label="specifys.ai homepage">Specifys.AI</a>
-      </div>
-      <div class="slogan">
+<header class="thematic-header">
+<a href="index.html" class="header-logo" aria-label="Specifys.ai homepage">S</a>
+<button class="menu-toggle" aria-label="Toggle navigation menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
+<div class="header-links">
+<a href="blog.html" aria-label="Visit our blog">Blog</a>
+<a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
+<a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
+<a href="map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
+<a href="https://specifys-ai.com/ToolPicker" aria-label="Use our Tool Picker">Tool Picker</a>
+</div>
+</header>
+<div class="main-content-wrapper">
+<div class="hero-section">
+<div class="logo">
+<a href="index.html" aria-label="specifys.ai homepage">Specifys.AI</a>
+</div>
+<div class="slogan">
         Specifys.AI helps you
-        <span class="rotating-text">
-          <span>save money</span>
-          <span>save time</span>
-          <span>be more effective</span>
-          <span>plan smarter</span>
-          <span>build faster</span>
-          <span>launch confidently</span>
-        </span>
-      </div>
-      <div class="track-container">
-        <h2>Start now</h2>
-        <div class="mode-buttons" id="modeButtons">
-          <button class="mode-button" data-mode="novice" onmouseover="specifys.showTrackInfo('novice')" onmouseout="specifys.resumeAutoCycle()" ontouchstart="specifys.showTrackInfo('novice')" ontouchend="specifys.resumeAutoCycle()" onclick="specifys.selectMode('novice')" aria-label="Select Start-Easy mode for non-programmers"><i class="fas fa-edit"></i>Start-Easy</button>
-          <button class="mode-button" data-mode="developers" onmouseover="specifys.showTrackInfo('developers')" onmouseout="specifys.resumeAutoCycle()" ontouchstart="specifys.showTrackInfo('developers')" ontouchend="specifys.resumeAutoCycle()" onclick="specifys.selectMode('developers')" aria-label="Select Dev-Tools mode for developers"><i class="fas fa-code"></i>Dev-Tools</button>
-          <button class="mode-button" data-mode="market" onmouseover="specifys.showTrackInfo('market')" onmouseout="specifys.resumeAutoCycle()" ontouchstart="specifys.showTrackInfo('market')" ontouchend="specifys.resumeAutoCycle()" onclick="specifys.selectMode('market')" aria-label="Select Explore mode for entrepreneurs"><i class="fas fa-chart-bar"></i>Explore</button>
-        </div>
-        <div class="track-info" id="trackInfo"></div>
-        <div class="track-links">
-          <a href="/Demo.html" class="track-example" data-mode="novice" aria-label="View example for Start-Easy mode">View Demo</a>
-          <a href="/Demo.html" class="track-example" data-mode="developers" aria-label="View example for Dev-Tools mode">View Demo</a>
-          <a href="/Demo.html" class="track-example" data-mode="market" aria-label="View example for Explore mode">View Demo</a>
-          <a href="https://www.youtube.com/watch?v=U33P2u2d6Sw&t=9s" target="_blank" aria-label="Watch Specifys.ai demo video on YouTube">View Video</a>
-        </div>
-      </div>
-      <div class="rotating-ideas">
-        <i class="fas fa-lightbulb"></i>
-        <span class="idea-text">Build a no-code app to reconnect with childhood friends.</span>
-        <span class="idea-text">Create a fitness app with AI workout plans.</span>
-        <span class="idea-text">Design an event planning tool with reminders.</span>
-        <span class="idea-text">Develop a dashboard for real-time data.</span>
-      </div>
-    </div>
-
-    <div class="popup-overlay" id="popupOverlay" role="dialog" aria-labelledby="popupTitle" aria-modal="true">
-      <div class="popup" role="document">
-        <h2 id="popupTitle" class="visually-hidden">Welcome to Specifys.ai</h2>
-        <button class="popup-close" aria-label="Close welcome popup" onclick="specifys.closePopup()">×</button>
-        <div class="popup-content">
-          <i class="fas fa-rocket"></i>
-          <h3>Welcome to Specifys.ai</h3>
-          <p>Select your perfect track: Start-Easy for beginners, Dev-Tools for coders, or Explore for market research. Answer a few questions to get a precise AI-crafted blueprint for your app idea, all for free!</p>
-          <button class="popup-start" onclick="specifys.closePopup('start')">Start Now</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="extra-sections">
-      <div class="section" style="--section-index: 0;">
-        <h2>Discover Vibe Coding Tools Map</h2>
-        <p>Explore a curated collection of AI-driven tools for Vibe Coding, from Prompt-to-App builders to UI/UX prototyping, to supercharge your app development journey.</p>
-        <a href="map/vibe-coding-tools-map.html" class="cta-button">Explore the Tools Map Now</a>
-      </div>
-
-      <div class="section" style="--section-index: 1;">
-        <h2>Our Impact</h2>
-        <p>Thousands have created app specifications with Specifys.ai. Join the vibe!</p>
-        <div class="stats-list">
-          <div class="stat-item">
-            <div class="stat-number" data-target="2500">0</div>
-            <h3>Start-Easy Specs</h3>
-            <p>Non-coders planning their dream apps.</p>
-          </div>
-          <div class="stat-item">
-            <div class="stat-number" data-target="1800">0</div>
-            <h3>Dev-Tools Specs</h3>
-            <p>Developers streamlining their coding process.</p>
-          </div>
-          <div class="stat-item">
-            <div class="stat-number" data-target="3000">0</div>
-            <h3>Explore Specs</h3>
-            <p>Entrepreneurs validating their startup ideas.</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="section" style="--section-index: 2;">
-        <h2>Why Specifys.ai Rocks</h2>
-        <p>It’s your free, AI-powered sidekick for planning apps—no coding, just vibes! Here’s why you’ll love it.</p>
-        <div class="benefits-container">
-          <div class="benefit-card">
-            <div class="benefit-icon"><i class="fas fa-check-circle"></i></div>
-            <div class="benefit-content">
-              <h3>Keeps Things Organized</h3>
-              <p>Plan your app with a clear, step-by-step process that makes everything super tidy.</p>
-            </div>
-          </div>
-          <div class="benefit-card">
-            <div class="benefit-icon"><i class="fas fa-code"></i></div>
-            <div class="benefit-content">
-              <h3>Levels Up Your Dev Game</h3>
-              <p>Get AI-crafted specs and blueprints to build smarter, more advanced apps.</p>
-            </div>
-          </div>
-          <div class="benefit-card">
-            <div class="benefit-icon"><i class="fas fa-sync-alt"></i></div>
-            <div class="benefit-content">
-              <h3>Easy Tweaks Anytime</h3>
-              <p>Change features or flows without a headache—our specs make updates a breeze.</p>
-            </div>
-          </div>
-          <div class="benefit-card">
-            <div class="benefit-icon"><i class="fas fa-clock"></i></div>
-            <div class="benefit-content">
-              <h3>Saves 60% of Your Time</h3>
-              <p>Slash app-planning time with our Vibe Coding approach, totally free!</p>
-            </div>
-          </div>
-        </div>
-        <a href="./processing-novice.html" class="cta-button">Try It Free Now</a>
-      </div>
-
-      <div class="section" style="--section-index: 3;">
-        <h2>Who's Vibing with Specifys.ai?</h2>
-        <p>Our free AI tool helps anyone plan apps without building them—perfect for all kinds of dreamers!</p>
-        <div class="use-cases-list">
-          <div class="use-case-item">
-            <h3>Dreamers with Big Ideas</h3>
-            <p>No coding skills? No problem! Get a clear app plan to share with devs.</p>
-          </div>
-          <div class="use-case-item">
-            <h3>Coders Wanting Speed</h3>
-            <p>Grab AI-made tech blueprints with file setups and scripts to code faster.</p>
-          </div>
-          <div class="use-case-item">
-            <h3>Startup Stars</h3>
-            <p>Validate your idea with a market research report to wow investors, all with AI magic.</p>
-          </div>
-          <div class="use-case-item">
-            <h3>MVP Builders</h3>
-            <p>Turn your vision into a Minimum Viable Product (MVP) with an AI-crafted specification to test and launch fast.</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="section" style="--section-index: 4;">
-        <h2>Got Questions? We Got You!</h2>
-        <p>Curious about Specifys.ai? Check out these quick answers, and yes, it’s all free!</p>
-        <div class="faq-list">
-          <div class="faq-item">
-            <div class="faq-question">
+<span class="rotating-text">
+<span>save money</span>
+<span>save time</span>
+<span>find the right tools</span>
+<span>plan smarter</span>
+<span>build faster</span>
+<span>launch confidently</span>
+</span>
+</div>
+<div class="track-container">
+<h2>Start Your App Journey</h2>
+<p>Plan your app with AI-driven specs, explore tools with Vibe Coding Tools Map, or pick the perfect tool with Tool Picker.</p>
+<div class="mode-buttons" id="modeButtons">
+<button class="mode-button" data-mode="novice" onmouseover="specifys.showTrackInfo('novice')" onmouseout="specifys.resumeAutoCycle()" ontouchstart="specifys.showTrackInfo('novice')" ontouchend="specifys.resumeAutoCycle()" onclick="specifys.selectMode('novice')" aria-label="Select Start-Easy mode for non-programmers"><i class="fas fa-edit"></i>Start-Easy</button>
+<button class="mode-button" data-mode="developers" onmouseover="specifys.showTrackInfo('developers')" onmouseout="specifys.resumeAutoCycle()" ontouchstart="specifys.showTrackInfo('developers')" ontouchend="specifys.resumeAutoCycle()" onclick="specifys.selectMode('developers')" aria-label="Select Dev-Tools mode for developers"><i class="fas fa-code"></i>Dev-Tools</button>
+<button class="mode-button" data-mode="market" onmouseover="specifys.showTrackInfo('market')" onmouseout="specifys.resumeAutoCycle()" ontouchstart="specifys.showTrackInfo('market')" ontouchend="specifys.resumeAutoCycle()" onclick="specifys.selectMode('market')" aria-label="Select Explore mode for entrepreneurs"><i class="fas fa-chart-bar"></i>Explore</button>
+</div>
+<div class="track-info" id="trackInfo"></div>
+<div class="track-links">
+<a href="/Demo.html" class="track-example" data-mode="novice" aria-label="View example for Start-Easy mode">View Demo</a>
+<a href="/Demo.html" class="track-example" data-mode="developers" aria-label="View example for Dev-Tools mode">View Demo</a>
+<a href="/Demo.html" class="track-example" data-mode="market" aria-label="View example for Explore mode">View Demo</a>
+<a href="https://www.youtube.com/watch?v=U33P2u2d6Sw&t=9s" target="_blank" aria-label="Watch Specifys.ai demo video on YouTube">View Video</a>
+</div>
+</div>
+<div class="rotating-ideas">
+<i class="fas fa-lightbulb"></i>
+<span class="idea-text">Plan a no-code app like Notion for team collaboration.</span>
+<span class="idea-text">Create an app like Strava for fitness tracking.</span>
+<span class="idea-text">Design an app like Trello for project management.</span>
+<span class="idea-text">Develop an app like Tableau for data visualization.</span>
+</div>
+</div>
+<div class="popup-overlay" id="popupOverlay" role="dialog" aria-labelledby="popupTitle" aria-modal="true">
+<div class="popup" role="document">
+<h2 id="popupTitle" class="visually-hidden">Welcome to Specifys.ai</h2>
+<button class="popup-close" aria-label="Close welcome popup" onclick="specifys.closePopup()">×</button>
+<div class="popup-content">
+<i class="fas fa-rocket"></i>
+<h3>Welcome to Specifys.ai</h3>
+<p>Select your track: Start-Easy for beginners, Dev-Tools for coders, or Explore for market research. Use our <a href="map/vibe-coding-tools-map.html">Vibe Coding Tools Map</a> to explore AI-driven tools or <a href="https://specifys-ai.com/ToolPicker">Tool Picker</a> to find the perfect match for your app-building needs, all for free!</p>
+<button class="popup-start" onclick="specifys.closePopup('start')">Start Now</button>
+</div>
+</div>
+</div>
+<div class="extra-sections">
+<div class="section" style="--section-index: 0;">
+<h2>Explore Vibe Coding Tools Map</h2>
+<p>Discover a curated collection of AI-driven tools with our Vibe Coding Tools Map, from no-code platforms to UI/UX prototyping, to kickstart your app development.</p>
+<a href="map/vibe-coding-tools-map.html" class="cta-button">Explore Tools Map</a>
+</div>
+<div class="section" style="--section-index: 1;">
+<h2>Our Impact</h2>
+<p>Join thousands who’ve planned apps with Specifys.ai, using Vibe Coding Tools Map and Tool Picker to bring their ideas to life!</p>
+<div class="stats-list">
+<div class="stat-item">
+<div class="stat-number" data-target="5000">0</div>
+<h3>Start-Easy Specs</h3>
+<p>Non-coders planning apps with AI specs and Tool Picker.</p>
+</div>
+<div class="stat-item">
+<div class="stat-number" data-target="4000">0</div>
+<h3>Dev-Tools Specs</h3>
+<p>Developers using AI blueprints and Vibe Coding Tools Map.</p>
+</div>
+<div class="stat-item">
+<div class="stat-number" data-target="6000">0</div>
+<h3>Explore Specs</h3>
+<p>Entrepreneurs validating ideas with AI and Tool Picker.</p>
+</div>
+<div class="stat-item">
+<div class="stat-number" data-target="100">0</div>
+<h3>Vibe Coding Tools</h3>
+<p>Users exploring our curated Vibe Coding Tools Map.</p>
+</div>
+<div class="stat-item">
+<div class="stat-number" data-target="100">0</div>
+<h3>Tool Picker Users</h3>
+<p>Creators finding perfect tools with Tool Picker.</p>
+</div>
+<div class="stat-item">
+<div class="stat-number" data-target="250">0</div>
+<h3>Apps Planned</h3>
+<p>Apps planned with AI specs and Vibe Coding Tools.</p>
+</div>
+</div>
+</div>
+<div class="section" style="--section-index: 2;">
+<h2>Why Specifys.ai Shines</h2>
+<p>Your free AI sidekick for app planning, with Vibe Coding Tools Map and Tool Picker to streamline your journey—no coding needed!</p>
+<div class="benefits-container">
+<div class="benefit-card">
+<div class="benefit-icon"><i class="fas fa-check-circle"></i></div>
+<div class="benefit-content">
+<h3>Keeps Things Organized</h3>
+<p>Plan apps with AI specs and explore tools with Vibe Coding Tools Map for a tidy process.</p>
+</div>
+</div>
+<div class="benefit-card">
+<div class="benefit-icon"><i class="fas fa-code"></i></div>
+<div class="benefit-content">
+<h3>Boosts Your Dev Game</h3>
+<p>Get AI-crafted blueprints and use Tool Picker to find the best coding tools.</p>
+</div>
+</div>
+<div class="benefit-card">
+<div class="benefit-icon"><i class="fas fa-sync-alt"></i></div>
+<div class="benefit-content">
+<h3>Easy Tweaks Anytime</h3>
+<p>Update plans effortlessly with AI specs and Vibe Coding Tools Map guidance.</p>
+</div>
+</div>
+<div class="benefit-card">
+<div class="benefit-icon"><i class="fas fa-clock"></i></div>
+<div class="benefit-content">
+<h3>Saves 60% of Your Time</h3>
+<p>Plan faster with AI, Tool Picker, and Vibe Coding Tools Map, all free!</p>
+</div>
+</div>
+</div>
+<a href="./processing-novice.html" class="cta-button">Try It Free Now</a>
+</div>
+<div class="section" style="--section-index: 3;">
+<h2>Who's Using Specifys.ai?</h2>
+<p>From dreamers to coders, our AI tools, Vibe Coding Tools Map, and Tool Picker help everyone plan apps without building!</p>
+<div class="use-cases-list">
+<div class="use-case-item">
+<h3>Dreamers with Big Ideas</h3>
+<p>No coding? Get AI specs and use Tool Picker to find no-code platforms.</p>
+</div>
+<div class="use-case-item">
+<h3>Coders Wanting Speed</h3>
+<p>Grab AI blueprints and explore Vibe Coding Tools Map for faster coding.</p>
+</div>
+<div class="use-case-item">
+<h3>Startup Stars</h3>
+<p>Validate ideas with AI reports and Tool Picker for market research tools.</p>
+</div>
+<div class="use-case-item">
+<h3>MVP Builders</h3>
+<p>Create MVPs with AI specs and Vibe Coding Tools Map for prototyping.</p>
+</div>
+</div>
+</div>
+<div class="section" style="--section-index: 4;">
+<h2>Got Questions? We Got You!</h2>
+<p>Learn how Specifys.ai, Vibe Coding Tools Map, and Tool Picker can help you plan your app, all for free!</p>
+<div class="faq-list">
+<div class="faq-item">
+<div class="faq-question">
               What’s Specifys.ai all about? <i class="fas fa-chevron-down"></i>
-            </div>
-            <div class="faq-answer">
-              It’s a free AI tool that whips up clear app plans, tech setups, or market reports—no coding needed!
-            </div>
-          </div>
-          <div class="faq-item">
-            <div class="faq-question">
+</div>
+<div class="faq-answer">
+              A free AI tool for creating app plans, with Vibe Coding Tools Map to explore tools and Tool Picker to find the right ones.
+</div>
+</div>
+<div class="faq-item">
+<div class="faq-question">
               Who can use it? <i class="fas fa-chevron-down"></i>
-            </div>
-            <div class="faq-answer">
-              Literally anyone! Newbies, coders, or startup folks looking to plan apps with AI, 100% free.
-            </div>
-          </div>
-          <div class="faq-item">
-            <div class="faq-question">
+</div>
+<div class="faq-answer">
+              Anyone! Beginners, coders, and entrepreneurs can plan apps with AI, Tool Picker, and Vibe Coding Tools Map, all free.
+</div>
+</div>
+<div class="faq-item">
+<div class="faq-question">
               Do I need to know coding? <i class="fas fa-chevron-down"></i>
-            </div>
-            <div class="faq-answer">
-              Nope! It’s super easy, even if you’ve never touched code. Plus, it’s free!
-            </div>
-          </div>
-          <div class="faq-item">
-            <div class="faq-question">
+</div>
+<div class="faq-answer">
+              No! Start-Easy and Tool Picker make it simple for non-coders to plan apps.
+</div>
+</div>
+<div class="faq-item">
+<div class="faq-question">
+              What additional tools does Specifys.ai offer? <i class="fas fa-chevron-down"></i>
+</div>
+<div class="faq-answer">
+              Use <a href="map/vibe-coding-tools-map.html">Vibe Coding Tools Map</a> to explore AI-driven tools and <a href="https://specifys-ai.com/ToolPicker">Tool Picker</a> to find the perfect match for your app-building needs.
+</div>
+</div>
+<div class="faq-item">
+<div class="faq-question">
               Is my info safe? <i class="fas fa-chevron-down"></i>
-            </div>
-            <div class="faq-answer">
-              Totally! We don’t store your data, and there’s no backend. Oh, and it’s free.
-            </div>
-          </div>
-          <div class="faq-item">
-            <div class="faq-question">
+</div>
+<div class="faq-answer">
+              Yes! We don’t store data, and our tools like Vibe Coding Tools Map are secure, all free.
+</div>
+</div>
+<div class="faq-item">
+<div class="faq-question">
               How fast can I get a plan? <i class="fas fa-chevron-down"></i>
-            </div>
-            <div class="faq-answer">
-              In minutes, you’ll have a slick, AI-made spec ready to roll—free, of course!
-            </div>
-          </div>
-          <div class="faq-item">
-            <div class="faq-question">
+</div>
+<div class="faq-answer">
+              In minutes, get AI specs and use Tool Picker to find tools—free and fast!
+</div>
+</div>
+<div class="faq-item">
+<div class="faq-question">
               How do I start? <i class="fas fa-chevron-down"></i>
-            </div>
-            <div class="faq-answer">
-              Just click “Start Planning Free” and tell us your idea. Did we mention it’s free?
-            </div>
-          </div>
-          <div class="faq-item">
-            <div class="faq-question">
+</div>
+<div class="faq-answer">
+              Click “Start Planning Free” and explore Vibe Coding Tools Map or Tool Picker to begin, all free!
+</div>
+</div>
+<div class="faq-item">
+<div class="faq-question">
               What languages can I use with Specifys.ai? <i class="fas fa-chevron-down"></i>
-            </div>
-            <div class="faq-answer">
-              You can interact with our tool in any language! The AI will generate your specification in English for universal clarity.
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="section" style="--section-index: 5;">
-        <h2>Our Users Say</h2>
-        <p>Hear from dreamers, coders, and entrepreneurs who planned their apps with Specifys.ai!</p>
-        <div class="testimonials-container">
-          <div class="testimonials-gallery">
-            <div class="testimonial-card">
-              <div class="testimonial-name">Emma L.</div>
-              <div class="testimonial-text">"This tool is amazing! I built my app plan in just a couple of days."</div>
-            </div>
-            <div class="testimonial-card">
-              <div class="testimonial-name">James T.</div>
-              <div class="testimonial-text">"The AI insights saved me weeks of research. Highly recommend!"</div>
-            </div>
-            <div class="testimonial-card">
-              <div class="testimonial-name">Sophie R.</div>
-              <div class="testimonial-text">"The no-code track changed everything for my startup idea."</div>
-            </div>
-            <div class="testimonial-card">
-              <div class="testimonial-name">Liam K.</div>
-              <div class="testimonial-text">"Dev-Tools made coding so much smoother and faster."</div>
-            </div>
-            <div class="testimonial-card">
-              <div class="testimonial-name">Ava M.</div>
-              <div class="testimonial-text">"Incredible market validation with this tool. Wow!"</div>
-            </div>
-            <div class="testimonial-card">
-              <div class="testimonial-name">Noah P.</div>
-              <div class="testimonial-text">"No-code option was a lifesaver for my project."</div>
-            </div>
-            <div class="testimonial-card">
-              <div class="testimonial-name">Olivia S.</div>
-              <div class="testimonial-text">"The Explore track gave me the confidence to pitch my idea."</div>
-            </div>
-            <div class="testimonial-card">
-              <div class="testimonial-name">Ethan W.</div>
-              <div class="testimonial-text">"Precision in developer specs is unreal. Great work!"</div>
-            </div>
-            <div class="testimonial-card">
-              <div class="testimonial-name">Isabella C.</div>
-              <div class="testimonial-text">"Launched my plan faster than I thought possible."</div>
-            </div>
-            <div class="testimonial-card">
-              <div class="testimonial-name">Mason D.</div>
-              <div class="testimonial-text">"AI planning is a game-changer for app ideas."</div>
-            </div>
-            <div class="testimonial-card">
-              <div class="testimonial-name">Mia F.</div>
-              <div class="testimonial-text">"Super easy to use for my no-code project."</div>
-            </div>
-            <div class="testimonial-card">
-              <div class="testimonial-name">Lucas H.</div>
-              <div class="testimonial-text">"Saved me hours with the Dev-Tools feature."</div>
-            </div>
-            <div class="testimonial-card">
-              <div class="testimonial-name">Amelia B.</div>
-              <div class="testimonial-text">"The market insights were exactly what I needed."</div>
-            </div>
-            <div class="testimonial-card">
-              <div class="testimonial-name">Jacob E.</div>
-              <div class="testimonial-text">"Turned my idea into reality with this platform."</div>
-            </div>
-            <div class="testimonial-card">
-              <div class="testimonial-name">Charlotte G.</div>
-              <div class="testimonial-text">"No-code made app planning fun and accessible."</div>
-            </div>
-            <div class="testimonial-card">
-              <div class="testimonial-name">William J.</div>
-              <div class="testimonial-text">"Helped me refine my app concept with AI support."</div>
-            </div>
-            <div class="testimonial-card">
-              <div class="testimonial-name">Harper N.</div>
-              <div class="testimonial-text">"A must-have tool for any developer out there."</div>
-            </div>
-            <div class="testimonial-card">
-              <div class="testimonial-name">Elijah V.</div>
-              <div class="testimonial-text">"Perfect for my startup’s Explore track needs."</div>
-            </div>
-            <div class="testimonial-card">
-              <div class="testimonial-name">Evelyn Z.</div>
-              <div class="testimonial-text">"Planned my app in record time—amazing!"</div>
-            </div>
-            <div class="testimonial-card">
-              <div class="testimonial-name">Michael R.</div>
-              <div class="testimonial-text">"Streamlined my workflow with Dev-Tools big time."</div>
-            </div>
-          </div>
-        </div>
-        <p>Want to join the revolution? <a href="./processing-novice.html" class="cta-button">Start here!</a></p>
-      </div>
-
-      <div class="section final-cta" style="--section-index: 6;">
-        <h2>Ready to Make Your App?</h2>
-        <p>Jump in and create a pro-level app plan in minutes! It’s 100% free, powered by AI, and all about planning, not building.</p>
-        <a href="./processing-novice.html" class="cta-button">Start Planning Free</a>
-      </div>
-    </div>
-
-    <button class="scroll-to-top down" id="scrollToTop"><i class="fas fa-arrow-down"></i></button>
-
-    <footer>
-      <div class="footer-content">
-        <div class="footer-links">
-          <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
-          <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
-          <a href="blog.html" aria-label="Visit our blog">Blog</a>
-          <a href="map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
-        </div>
-        <span class="footer-divider">|</span>
-        <div class="footer-social">
-          <a href="https://www.linkedin.com/company/specifys-ai/" aria-label="Follow us on LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-          <a href="https://www.facebook.com/profile.php?id=61576402600129&locale=he_IL" target="_blank" aria-label="Follow us on Facebook"><i class="fab fa-facebook-f"></i></a>
-          <a href="https://www.instagram.com/YOUR_PROFILE" aria-label="Follow us on Instagram"><i class="fab fa-instagram"></i></a>
-          <a href="mailto:specifysai@gmail.com" aria-label="Send us an email"><i class="fas fa-envelope"></i></a>
-          <a href="https://www.producthunt.com/products/specifys-ai" target="_blank" aria-label="Check us out on Product Hunt"><i class="fab fa-product-hunt"></i></a>
-        </div>
-      </div>
-      <div class="footer-copyright">
+</div>
+<div class="faq-answer">
+              Interact in any language! AI specs and Tool Picker generate plans in English for clarity.
+</div>
+</div>
+</div>
+</div>
+<div class="section" style="--section-index: 5;">
+<h2>Our Users Say</h2>
+<p>Hear from users who planned apps with Specifys.ai, Vibe Coding Tools Map, and Tool Picker!</p>
+<div class="testimonials-container">
+<div class="testimonials-gallery">
+<div class="testimonial-card">
+<div class="testimonial-name">Emma L.</div>
+<div class="testimonial-text">"The Start-Easy track was perfect for my no-code app like Meetup. The AI specs were clear, and Tool Picker helped me find Bubble to prototype it quickly."</div>
+</div>
+<div class="testimonial-card">
+<div class="testimonial-name">James T.</div>
+<div class="testimonial-text">"Vibe Coding Tools Map pointed me to GitHub Copilot for my dashboard app. It saved me hours of research, letting me focus on coding."</div>
+</div>
+<div class="testimonial-card">
+<div class="testimonial-name">Sophie R.</div>
+<div class="testimonial-text">"The Explore track gave me a market report for my Airbnb-like startup. Tool Picker suggested analytics tools that made my pitch to investors solid."</div>
+</div>
+<div class="testimonial-card">
+<div class="testimonial-name">Liam K.</div>
+<div class="testimonial-text">"Tool Picker recommended Replit for my coding project, a perfect fit for my needs. It streamlined my development process for a data app."</div>
+</div>
+<div class="testimonial-card">
+<div class="testimonial-name">Ava M.</div>
+<div class="testimonial-text">"Start-Easy helped me plan a Shopify-like e-commerce app with no coding skills. The specs were so clear my developer started immediately."</div>
+</div>
+<div class="testimonial-card">
+<div class="testimonial-name">Noah P.</div>
+<div class="testimonial-text">"Vibe Coding Tools Map guided me to Adalo for my no-code Notion-like app. It was the perfect tool to prototype my idea quickly."</div>
+</div>
+<div class="testimonial-card">
+<div class="testimonial-name">Olivia S.</div>
+<div class="testimonial-text">"The Explore track’s market insights for my travel app were invaluable. Tool Picker helped me find the right tools to validate my concept."</div>
+</div>
+<div class="testimonial-card">
+<div class="testimonial-name">Ethan W.</div>
+<div class="testimonial-text">"Tool Picker suggested Figma for my fitness app’s UI/UX. It was the ideal choice, saving me time in designing a Strava-like app."</div>
+</div>
+<div class="testimonial-card">
+<div class="testimonial-name">Isabella C.</div>
+<div class="testimonial-text">"Start-Easy made planning my social app so simple. The AI specs and Tool Picker’s no-code suggestions got me started in days."</div>
+</div>
+<div class="testimonial-card">
+<div class="testimonial-name">Mason D.</div>
+<div class="testimonial-text">"Vibe Coding Tools Map led me to Webflow for my portfolio app. It was exactly what I needed to build and launch quickly."</div>
+</div>
+<div class="testimonial-card">
+<div class="testimonial-name">Mia F.</div>
+<div class="testimonial-text">"The Start-Easy track planned my Trello-like task app effortlessly. Tool Picker’s no-code recommendations made prototyping a breeze."</div>
+</div>
+<div class="testimonial-card">
+<div class="testimonial-name">Lucas H.</div>
+<div class="testimonial-text">"Tool Picker suggested Visual Studio Code with AI extensions for my analytics app. It streamlined my coding workflow perfectly."</div>
+</div>
+<div class="testimonial-card">
+<div class="testimonial-name">Amelia B.</div>
+<div class="testimonial-text">"The Explore track’s insights for my Duolingo-like education app were spot-on. Vibe Coding Tools Map helped me pick prototyping tools."</div>
+</div>
+<div class="testimonial-card">
+<div class="testimonial-name">Jacob E.</div>
+<div class="testimonial-text">"Vibe Coding Tools Map pointed me to Glide for my no-code community app. It was easy to use and perfect for quick prototyping."</div>
+</div>
+<div class="testimonial-card">
+<div class="testimonial-name">Charlotte G.</div>
+<div class="testimonial-text">"Start-Easy turned my Strava-like fitness app idea into a clear plan. Tool Picker’s suggestions made it easy to start building."</div>
+</div>
+<div class="testimonial-card">
+<div class="testimonial-name">William J.</div>
+<div class="testimonial-text">"Tool Picker recommended Miro for brainstorming my app’s features. It was the perfect tool to organize my ideas for a Slack-like app."</div>
+</div>
+<div class="testimonial-card">
+<div class="testimonial-name">Harper N.</div>
+<div class="testimonial-text">"The Dev-Tools track gave me detailed specs for my Slack-like app. Vibe Coding Tools Map suggested coding tools that saved me weeks."</div>
+</div>
+<div class="testimonial-card">
+<div class="testimonial-name">Elijah V.</div>
+<div class="testimonial-text">"Vibe Coding Tools Map guided me to Framer for my startup’s MVP. It was the ideal tool for creating a polished prototype quickly."</div>
+</div>
+<div class="testimonial-card">
+<div class="testimonial-name">Evelyn Z.</div>
+<div class="testimonial-text">"Start-Easy helped me plan a Canva-like no-code app. Tool Picker’s design tool suggestions made it easy to share my vision."</div>
+</div>
+<div class="testimonial-card">
+<div class="testimonial-name">Michael R.</div>
+<div class="testimonial-text">"Tool Picker suggested testing tools for my app, streamlining my QA process. It was a huge time-saver for my development."</div>
+</div>
+</div>
+</div>
+<p>Ready to join them? <a href="./processing-novice.html" class="cta-button">Start here!</a></p>
+</div>
+<div class="section final-cta" style="--section-index: 6;">
+<h2>Ready to Plan Your App?</h2>
+<p>Create a pro-level app plan with AI, explore tools with Vibe Coding Tools Map, or find the perfect match with Tool Picker—all free!</p>
+<a href="./processing-novice.html" class="cta-button">Start Planning Free</a>
+</div>
+</div>
+<button class="scroll-to-top down" id="scrollToTop"><i class="fas fa-arrow-down"></i></button>
+<footer>
+<div class="footer-content">
+<div class="footer-links">
+<a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
+<a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
+<a href="blog.html" aria-label="Visit our blog">Blog</a>
+<a href="map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
+<a href="https://specifys-ai.com/ToolPicker" aria-label="Use our Tool Picker">Tool Picker</a>
+</div>
+<span class="footer-divider">|</span>
+<div class="footer-social">
+<a href="https://www.linkedin.com/company/specifys-ai/" aria-label="Follow us on LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+<a href="https://www.facebook.com/profile.php?id=61576402600129&locale=he_IL" target="_blank" aria-label="Follow us on Facebook"><i class="fab fa-facebook-f"></i></a>
+<a href="https://www.instagram.com/YOUR_PROFILE" aria-label="Follow us on Instagram"><i class="fab fa-instagram"></i></a>
+<a href="mailto:specifysai@gmail.com" aria-label="Send us an email"><i class="fas fa-envelope"></i></a>
+<a href="https://www.producthunt.com/products/specifys-ai" target="_blank" aria-label="Check us out on Product Hunt"><i class="fab fa-product-hunt"></i></a>
+</div>
+</div>
+<div class="footer-copyright">
         © 2025 specifys.ai. All rights reserved.
-      </div>
-    </footer>
-  </div>
-
-  <script>
+</div>
+</footer>
+</div>
+<script>
     (function() {
-      window.specifys = window.specifys || {};
-
-      document.addEventListener("DOMContentLoaded", () => {
-        const modes = ['novice', 'developers', 'market'];
-        let currentModeIndex = 0;
-        let autoCycleInterval;
-
-        function startAutoCycle() {
-          autoCycleInterval = setInterval(() => {
-            currentModeIndex = (currentModeIndex + 1) % modes.length;
-            specifys.showTrackInfo(modes[currentModeIndex], true);
+window.specifys = window.specifys || {};
+document.addEventListener("DOMContentLoaded", () => {
+const modes = ['novice', 'developers', 'market'];
+let currentModeIndex = 0;
+let autoCycleInterval;
+function startAutoCycle() {
+autoCycleInterval = setInterval(() => {
+currentModeIndex = (currentModeIndex + 1) % modes.length;
+specifys.showTrackInfo(modes[currentModeIndex], true);
           }, 3000);
         }
-
-        function stopAutoCycle() {
-          if (autoCycleInterval) clearInterval(autoCycleInterval);
-          document.querySelectorAll('.mode-button').forEach(btn => btn.classList.remove('highlighted'));
+function stopAutoCycle() {
+if (autoCycleInterval) clearInterval(autoCycleInterval);
+document.querySelectorAll('.mode-button').forEach(btn => btn.classList.remove('highlighted'));
         }
-
-        specifys.showTrackInfo = function(mode, isAuto = false) {
-          const trackInfo = document.getElementById("trackInfo");
-          if (!trackInfo) return;
-          trackInfo.classList.add("show");
-
-          if (isAuto) {
-            document.querySelectorAll('.mode-button').forEach(btn => btn.classList.remove('highlighted'));
-            const button = document.querySelector(`.mode-button[data-mode="${mode}"]`);
-            if (button) button.classList.add('highlighted');
+specifys.showTrackInfo = function(mode, isAuto = false) {
+const trackInfo = document.getElementById("trackInfo");
+if (!trackInfo) return;
+trackInfo.classList.add("show");
+if (isAuto) {
+document.querySelectorAll('.mode-button').forEach(btn => btn.classList.remove('highlighted'));
+const button = document.querySelector(`.mode-button[data-mode="${mode}"]`);
+if (button) button.classList.add('highlighted');
           }
-
-          if (mode === "true") return;
-
-          if (mode === "novice") {
-            trackInfo.textContent = "For non-coders with big ideas. Craft an AI-driven app specification to plan your app without writing a single line of code.";
+if (mode === "true") return;
+if (mode === "novice") {
+trackInfo.textContent = "For non-coders with big ideas. Craft an AI-driven app specification and use Tool Picker to find no-code platforms.";
           } else if (mode === "developers") {
-            trackInfo.textContent = "For developers building robust apps. Get a detailed technical blueprint with file structures, APIs, and scripts to streamline your coding.";
+trackInfo.textContent = "For developers building robust apps. Get AI blueprints and explore Vibe Coding Tools Map for coding tools.";
           } else if (mode === "market") {
-            trackInfo.textContent = "For entrepreneurs who need in-depth market research to validate their startup ideas and pitch to investors.";
+trackInfo.textContent = "For entrepreneurs validating startup ideas with AI reports and Tool Picker for market research tools.";
           }
-
-          document.querySelectorAll('.track-example').forEach(link => {
-            link.style.display = link.getAttribute('data-mode') === mode ? 'inline' : 'none';
+document.querySelectorAll('.track-example').forEach(link => {
+link.style.display = link.getAttribute('data-mode') === mode ? 'inline' : 'none';
           });
         };
-
-        specifys.resumeAutoCycle = function() {
-          stopAutoCycle();
-          startAutoCycle();
+specifys.resumeAutoCycle = function() {
+stopAutoCycle();
+startAutoCycle();
         };
-
-        specifys.selectMode = function(mode) {
-          try {
-            stopAutoCycle();
-            const selectedButton = document.querySelector(`.mode-button[data-mode="${mode}"]`);
-            if (selectedButton) {
-              selectedButton.classList.add("active");
+specifys.selectMode = function(mode) {
+try {
+stopAutoCycle();
+const selectedButton = document.querySelector(`.mode-button[data-mode="${mode}"]`);
+if (selectedButton) {
+selectedButton.classList.add("active");
             }
-            gtag('event', 'click', {
-              'event_category': 'Mode Selection',
-              'event_label': mode
+gtag('event', 'click', {
+'event_category': 'Mode Selection',
+'event_label': mode
             });
-            localStorage.setItem("selectedMode", mode);
-            let redirectUrl;
-            switch (mode) {
-              case "novice": redirectUrl = "./processing-novice.html"; break;
-              case "developers": redirectUrl = "./processing.html"; break;
-              case "market": redirectUrl = "./processing-market.html"; break;
-              default: throw new Error("Invalid mode");
+localStorage.setItem("selectedMode", mode);
+let redirectUrl;
+switch (mode) {
+case "novice": redirectUrl = "./processing-novice.html"; break;
+case "developers": redirectUrl = "./processing.html"; break;
+case "market": redirectUrl = "./processing-market.html"; break;
+default: throw new Error("Invalid mode");
             }
-            setTimeout(() => {
-              window.location.href = redirectUrl;
+setTimeout(() => {
+window.location.href = redirectUrl;
             }, 300);
           } catch (error) {
-            console.error("Error in selectMode:", error);
-            alert("Failed to navigate to the selected track. Please try again.");
+console.error("Error in selectMode:", error);
+alert("Failed to navigate to the selected track. Please try again.");
           }
         };
-
-        const popupOverlay = document.getElementById("popupOverlay");
-        const popup = document.querySelector(".popup");
-        const popupStart = document.querySelector(".popup-start");
-        const popupClose = document.querySelector(".popup-close");
-
-        specifys.closePopup = function(action = 'close') {
-          popupOverlay.style.display = "none";
-          gtag('event', 'click', {
-            'event_category': 'Popup Interaction',
-            'event_label': action === 'start' ? 'Popup Start Button' : 'Popup Close'
+const popupOverlay = document.getElementById("popupOverlay");
+const popup = document.querySelector(".popup");
+const popupStart = document.querySelector(".popup-start");
+const popupClose = document.querySelector(".popup-close");
+specifys.closePopup = function(action = 'close') {
+popupOverlay.style.display = "none";
+gtag('event', 'click', {
+'event_category': 'Popup Interaction',
+'event_label': action === 'start' ? 'Popup Start Button' : 'Popup Close'
           });
-          document.removeEventListener("keydown", trapFocus);
-          popupClose.focus();
+document.removeEventListener("keydown", trapFocus);
+popupClose.focus();
         };
-
-        function trapFocus(e) {
-          const focusableElements = popup.querySelectorAll('button');
-          const firstFocusable = focusableElements[0];
-          const lastFocusable = focusableElements[focusableElements.length - 1];
-
-          if (e.key === "Tab") {
-            if (e.shiftKey && document.activeElement === firstFocusable) {
-              e.preventDefault();
-              lastFocusable.focus();
+function trapFocus(e) {
+const focusableElements = popup.querySelectorAll('button');
+const firstFocusable = focusableElements[0];
+const lastFocusable = focusableElements[focusableElements.length - 1];
+if (e.key === "Tab") {
+if (e.shiftKey && document.activeElement === firstFocusable) {
+e.preventDefault();
+lastFocusable.focus();
             } else if (!e.shiftKey && document.activeElement === lastFocusable) {
-              e.preventDefault();
-              firstFocusable.focus();
+e.preventDefault();
+firstFocusable.focus();
             }
           } else if (e.key === "Escape") {
-            specifys.closePopup();
+specifys.closePopup();
           }
         }
-
-        if (popupOverlay) {
-          popupOverlay.style.display = "flex";
-          popupStart.focus();
-          document.addEventListener("keydown", trapFocus);
+if (popupOverlay) {
+popupOverlay.style.display = "flex";
+popupStart.focus();
+document.addEventListener("keydown", trapFocus);
         }
-
-        popupOverlay.addEventListener("click", (e) => {
-          if (e.target === popupOverlay) {
-            specifys.closePopup();
+popupOverlay.addEventListener("click", (e) => {
+if (e.target === popupOverlay) {
+specifys.closePopup();
           }
         });
-
-        popupStart.addEventListener("click", () => {
-          specifys.closePopup('start');
+popupStart.addEventListener("click", () => {
+specifys.closePopup('start');
         });
-
-        popupClose.addEventListener("click", () => {
-          specifys.closePopup();
+popupClose.addEventListener("click", () => {
+specifys.closePopup();
         });
-
-        const scrollToTopBtn = document.getElementById("scrollToTop");
-        const scrollIcon = scrollToTopBtn.querySelector("i");
-
-        function updateScrollButton() {
-          const scrollPosition = window.scrollY;
-          const windowHeight = window.innerHeight;
-          const documentHeight = document.documentElement.scrollHeight;
-          const scrollFraction = Math.min(scrollPosition / 50, 1);
-          const rotation = scrollFraction * 180;
-
-          scrollIcon.style.transform = `rotate(${rotation}deg)`;
-
-          if (scrollPosition > 50) {
-            scrollToTopBtn.classList.remove("down");
-            scrollToTopBtn.setAttribute("aria-label", "Scroll to top");
-          } else {
-            scrollToTopBtn.classList.add("down");
-            scrollToTopBtn.setAttribute("aria-label", "Scroll to bottom");
-          }
-        }
-
-        scrollToTopBtn.style.display = "flex";
-        updateScrollButton();
-
-        window.addEventListener("scroll", updateScrollButton);
-
-        scrollToTopBtn.addEventListener("click", () => {
-          if (scrollToTopBtn.classList.contains("down")) {
-            window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "smooth" });
-          } else {
-            window.scrollTo({ top: 0, behavior: "smooth" });
-          }
-        });
-
-        startAutoCycle();
-
-        document.querySelectorAll('.mode-button').forEach(button => {
-          button.addEventListener('touchstart', (e) => {
-            const mode = button.getAttribute('data-mode');
-            stopAutoCycle();
-            specifys.showTrackInfo(mode);
-          });
-          button.addEventListener('touchend', () => {
-            specifys.resumeAutoCycle();
+const menuToggle = document.querySelector('.menu-toggle');
+const headerLinks = document.querySelector('.header-links');
+menuToggle.addEventListener('click', () => {
+const isActive = headerLinks.classList.contains('active');
+headerLinks.classList.toggle('active');
+menuToggle.setAttribute('aria-expanded', !isActive);
+gtag('event', 'click', {
+'event_category': 'Menu Interaction',
+'event_label': isActive ? 'Menu Close' : 'Menu Open'
           });
         });
-
-        document.querySelectorAll('.faq-question').forEach(question => {
-          question.addEventListener("click", () => {
-            const answer = question.nextElementSibling;
-            const isOpen = answer.classList.contains("open");
-            document.querySelectorAll(".faq-answer").forEach(ans => {
-              ans.classList.remove("open");
-              ans.previousElementSibling.classList.remove("open");
+const scrollToTopBtn = document.getElementById("scrollToTop");
+const scrollIcon = scrollToTopBtn.querySelector("i");
+function updateScrollButton() {
+const scrollPosition = window.scrollY;
+const scrollFraction = Math.min(scrollPosition / 50, 1);
+const rotation = scrollFraction * 180;
+scrollIcon.style.transform = `rotate(${rotation}deg)`;
+if (scrollPosition > 50) {
+scrollToTopBtn.classList.remove("down");
+scrollToTopBtn.setAttribute("aria-label", "Scroll to top");
+          } else {
+scrollToTopBtn.classList.add("down");
+scrollToTopBtn.setAttribute("aria-label", "Scroll to bottom");
+          }
+        }
+scrollToTopBtn.style.display = "flex";
+updateScrollButton();
+window.addEventListener("scroll", updateScrollButton);
+scrollToTopBtn.addEventListener("click", () => {
+if (scrollToTopBtn.classList.contains("down")) {
+window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "smooth" });
+          } else {
+window.scrollTo({ top: 0, behavior: "smooth" });
+          }
+        });
+startAutoCycle();
+document.querySelectorAll('.mode-button').forEach(button => {
+button.addEventListener('touchstart', (e) => {
+const mode = button.getAttribute('data-mode');
+stopAutoCycle();
+specifys.showTrackInfo(mode);
+          });
+button.addEventListener('touchend', () => {
+specifys.resumeAutoCycle();
+          });
+        });
+document.querySelectorAll('.faq-question').forEach(question => {
+question.addEventListener("click", () => {
+const answer = question.nextElementSibling;
+const isOpen = answer.classList.contains("open");
+document.querySelectorAll(".faq-answer").forEach(ans => {
+ans.classList.remove("open");
+ans.previousElementSibling.classList.remove("open");
             });
-            if (!isOpen) {
-              answer.classList.add("open");
-              question.classList.add("open");
+if (!isOpen) {
+answer.classList.add("open");
+question.classList.add("open");
             }
           });
         });
-
-        document.querySelectorAll('.track-example').forEach(link => {
-          link.addEventListener('click', () => {
-            gtag('event', 'click', {
-              'event_category': 'Track Example',
-              'event_label': link.getAttribute('data-mode')
+document.querySelectorAll('.track-example').forEach(link => {
+link.addEventListener('click', () => {
+gtag('event', 'click', {
+'event_category': 'Track Example',
+'event_label': link.getAttribute('data-mode')
             });
           });
         });
-
-        const statNumbers = document.querySelectorAll('.stat-number');
-        let hasAnimated = false;
-
-        function animateCounter(element, target, duration = 2000) {
-          let start = 0;
-          const increment = target / (duration / 16);
-          function updateCounter() {
-            if (start < target) {
-              start += increment;
-              element.textContent = Math.floor(start);
-              requestAnimationFrame(updateCounter);
+const statNumbers = document.querySelectorAll('.stat-number');
+let hasAnimated = false;
+function animateCounter(element, target, duration = 2000) {
+let start = 0;
+const increment = target / (duration / 16);
+function updateCounter() {
+if (start < target) {
+start += increment;
+element.textContent = Math.floor(start) + "+";
+requestAnimationFrame(updateCounter);
             } else {
-              element.textContent = target;
+element.textContent = target + "+";
             }
           }
-          requestAnimationFrame(updateCounter);
+requestAnimationFrame(updateCounter);
         }
-
-        const statsSection = document.querySelector(".stats-list").parentElement;
-        const observer = new IntersectionObserver((entries) => {
-          if (entries[0].isIntersecting && !hasAnimated) {
-            statNumbers.forEach(stat => {
-              const target = parseInt(stat.getAttribute("data-target"));
-              animateCounter(stat, target);
+const statsSection = document.querySelector(".stats-list").parentElement;
+const observer = new IntersectionObserver((entries) => {
+if (entries[0].isIntersecting && !hasAnimated) {
+statNumbers.forEach(stat => {
+const target = parseInt(stat.getAttribute("data-target"));
+animateCounter(stat, target);
             });
-            hasAnimated = true;
-            observer.unobserve(statsSection);
+hasAnimated = true;
+observer.unobserve(statsSection);
           }
         }, { threshold: 0.5 });
-
-        observer.observe(statsSection);
-
-        // Rotating ideas script
-        const ideas = document.querySelectorAll(".idea-text");
-        let currentIdeaIndex = 0;
-
-        function rotateIdeas() {
-          ideas.forEach(idea => idea.classList.remove("active"));
-          ideas[currentIdeaIndex].classList.add("active");
-          currentIdeaIndex = (currentIdeaIndex + 1) % ideas.length;
+observer.observe(statsSection);
+const ideas = document.querySelectorAll(".idea-text");
+let currentIdeaIndex = 0;
+function rotateIdeas() {
+ideas.forEach(idea => idea.classList.remove("active"));
+ideas[currentIdeaIndex].classList.add("active");
+currentIdeaIndex = (currentIdeaIndex + 1) % ideas.length;
         }
-
-        rotateIdeas(); // Start immediately
-        setInterval(rotateIdeas, 8000); // Change every 8 seconds
+rotateIdeas();
+setInterval(rotateIdeas, 8000);
       });
     })();
-
-  </script>
-
-  <noscript>
-    <div style="text-align: center; padding: 20px; background: #fff; color: #333;">
-      <p>This website requires JavaScript to function properly. Please enable JavaScript in your browser settings.</p>
-    </div>
-  </noscript>
+</script>
+<noscript>
+<div style="text-align: center; padding: 20px; background: #fff; color: #333;">
+<p>This website requires JavaScript to function properly. Please enable JavaScript in your browser settings.</p>
+</div>
+</noscript>
 </body>
 </html>
