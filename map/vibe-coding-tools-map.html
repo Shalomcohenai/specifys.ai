@@ -64,6 +64,26 @@
       --footer-social: #333;
       --footer-social-hover: #0078d4;
       --footer-copyright: #666;
+      --content-background: rgba(255, 255, 255, 0.95);
+      --content-text: #333;
+      --content-link: #0078d4;
+      --content-link-hover: #005ea2;
+      --category-filter-background: rgba(255, 255, 255, 0.95);
+      --category-filter-button: #f5f5f5;
+      --category-filter-button-border: #ddd;
+      --tool-card-background: #fff;
+      --tool-card-border: #ddd;
+      --tool-description: #666;
+      --tool-pros: #444;
+      --tool-rating: #f4c430;
+      --cta-background: rgba(255, 255, 255, 0.95);
+      --newsletter-background: #fff;
+      --newsletter-text: #333;
+      --newsletter-input-background: #f5f5f5;
+      --newsletter-input-border: #ddd;
+      --scroll-to-top-background: #0078d4;
+      --scroll-to-top-hover: #005ea2;
+      --error-message: #ff4444;
     }
 
     .dark-mode {
@@ -78,6 +98,26 @@
       --footer-social: #ffffff;
       --footer-social-hover: #00b7c3;
       --footer-copyright: #cccccc;
+      --content-background: #2a2a2a;
+      --content-text: #ffffff;
+      --content-link: #00b7c3;
+      --content-link-hover: #0097a7;
+      --category-filter-background: rgba(40, 40, 40, 0.9);
+      --category-filter-button: #333;
+      --category-filter-button-border: #555;
+      --tool-card-background: #2a2a2a;
+      --tool-card-border: #444;
+      --tool-description: #cccccc;
+      --tool-pros: #bbbbbb;
+      --tool-rating: #f4c430;
+      --cta-background: rgba(40, 40, 40, 0.9);
+      --newsletter-background: #2a2a2a;
+      --newsletter-text: #ffffff;
+      --newsletter-input-background: #333;
+      --newsletter-input-border: #555;
+      --scroll-to-top-background: #00b7c3;
+      --scroll-to-top-hover: #0097a7;
+      --error-message: #ff6666;
     }
 
     * {
@@ -156,7 +196,7 @@
       padding: 0 1rem;
       position: absolute;
       top: 6rem;
-      color: #333;
+      color: var(--content-text);
       z-index: 5;
     }
 
@@ -171,28 +211,28 @@
       max-width: 700px;
       margin: 1rem auto 0;
       text-align: center;
-      color: #444;
+      color: var(--content-text);
       font-size: 1rem;
       font-weight: 500;
       line-height: 1.5;
-      background: rgba(255, 255, 255, 0.95);
+      background: var(--content-background);
       padding: 15px;
       border-radius: 10px;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
 
     .header-text p a {
-      color: #0078d4;
+      color: var(--content-link);
       text-decoration: underline;
       font-weight: 600;
     }
 
     .header-text p a:hover {
-      color: #005ea2;
+      color: var(--content-link-hover);
     }
 
     .category-filter {
-      background: rgba(255, 255, 255, 0.95);
+      background: var(--category-filter-background);
       padding: 20px;
       text-align: center;
       width: 100%;
@@ -209,13 +249,13 @@
     }
 
     .category-filter button {
-      background: #f5f5f5;
-      border: 1px solid #ddd;
+      background: var(--category-filter-button);
+      border: 1px solid var(--category-filter-button-border);
       border-radius: 5px;
       padding: 8px 16px;
       cursor: pointer;
       font-size: 0.9rem;
-      color: #333;
+      color: var(--content-text);
       position: relative;
       overflow: hidden;
       transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -319,13 +359,13 @@
     .show-more-btn {
       display: block;
       margin: 10px auto 20px;
-      background: #fff;
-      border: 1px solid #ddd;
+      background: var(--content-background);
+      border: 1px solid var(--category-filter-button-border);
       border-radius: 5px;
       padding: 8px 16px;
       cursor: pointer;
       font-size: 0.9rem;
-      color: #0078d4;
+      color: var(--content-link);
       box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
       width: fit-content;
       transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -343,8 +383,8 @@
     }
 
     .tool-card {
-      background: #fff;
-      border: 1px solid #ddd;
+      background: var(--tool-card-background);
+      border: 1px solid var(--tool-card-border);
       border-radius: 10px;
       padding: 15px;
       margin-bottom: 20px;
@@ -379,7 +419,7 @@
 
     .tool-special {
       font-size: 0.8rem;
-      color: #ff4444;
+      color: var(--error-message);
       font-weight: bold;
       margin-bottom: 5px;
     }
@@ -388,11 +428,12 @@
       font-weight: bold;
       font-size: 1.2rem;
       margin-bottom: 5px;
+      color: var(--content-text);
     }
 
     .tool-description {
       font-size: 0.9rem;
-      color: #666;
+      color: var(--tool-description);
       margin-bottom: 5px;
       flex-grow: 1;
       overflow: hidden;
@@ -402,14 +443,14 @@
 
     .tool-pros {
       font-size: 0.85rem;
-      color: #444;
+      color: var(--tool-pros);
       margin-bottom: 5px;
       font-style: italic;
     }
 
     .tool-rating {
       font-size: 0.9rem;
-      color: #f4c430;
+      color: var(--tool-rating);
     }
 
     .tool-link-icon {
@@ -418,6 +459,7 @@
       right: 10px;
       font-size: 0.8rem;
       transition: transform 0.3s ease;
+      color: var(--content-link);
     }
 
     .tool-card:hover .tool-link-icon {
@@ -444,12 +486,12 @@
       position: absolute;
       top: -30px;
       right: 0;
-      background: #fff;
-      border: 1px solid #ddd;
+      background: var(--tool-card-background);
+      border: 1px solid var(--tool-card-border);
       border-radius: 5px;
       padding: 5px 10px;
       font-size: 0.8rem;
-      color: #0078d4;
+      color: var(--content-link);
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       opacity: 0;
       transition: opacity 0.3s ease, visibility 0.3s ease;
@@ -464,6 +506,7 @@
 
     h2 {
       margin-bottom: 1rem;
+      color: var(--content-text);
     }
 
     h2.prompt-to-app-builders { color: #23a6d5; }
@@ -483,13 +526,13 @@
 
     .error-message {
       text-align: center;
-      color: #ff4444;
+      color: var(--error-message);
       font-size: 1rem;
       margin-top: 20px;
     }
 
     .cta-box {
-      background: rgba(255, 255, 255, 0.95);
+      background: var(--cta-background);
       padding: 20px;
       text-align: center;
       width: 100%;
@@ -501,19 +544,19 @@
 
     .cta-box p {
       font-size: 1.1rem;
-      color: #333;
+      color: var(--content-text);
       font-weight: 500;
       line-height: 1.5;
     }
 
     .cta-box a {
-      color: #0078d4;
+      color: var(--content-link);
       text-decoration: underline;
       font-weight: 600;
     }
 
     .cta-box a:hover {
-      color: #005ea2;
+      color: var(--content-link-hover);
     }
 
     footer {
@@ -589,7 +632,7 @@
       bottom: 5rem;
       left: 50%;
       transform: translateX(-50%);
-      background: #fff;
+      background: var(--newsletter-background);
       padding: 0.6rem 1rem;
       border-radius: 10px;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -606,14 +649,14 @@
       font-size: 1rem;
       font-weight: 600;
       margin-bottom: 0.3rem;
-      color: #333;
+      color: var(--newsletter-text);
       line-height: 1.2;
       display: inline-block;
     }
 
     .newsletter-container p {
       font-size: 0.8rem;
-      color: #666;
+      color: var(--tool-description);
       margin-bottom: 0.5rem;
       line-height: 1.3;
     }
@@ -627,16 +670,16 @@
     .newsletter-container input {
       padding: 0.3rem;
       border-radius: 5px;
-      border: 1px solid #ddd;
+      border: 1px solid var(--newsletter-input-border);
       outline: none;
-      background: #f5f5f5;
-      color: #333;
+      background: var(--newsletter-input-background);
+      color: var(--content-text);
       width: 250px;
     }
 
     .newsletter-container button {
       padding: 0.3rem 0.8rem;
-      background: #0078d4;
+      background: var(--scroll-to-top-background);
       color: white;
       border-radius: 5px;
       border: none;
@@ -647,7 +690,7 @@
     }
 
     .newsletter-container button:hover {
-      background: #005ea2;
+      background: var(--scroll-to-top-hover);
     }
 
     .newsletter-container button.loading::after {
@@ -678,7 +721,7 @@
       position: fixed;
       bottom: 6rem;
       right: 1rem;
-      background: #0078d4;
+      background: var(--scroll-to-top-background);
       color: white;
       border: none;
       border-radius: 50%;
@@ -700,7 +743,7 @@
     }
 
     .scroll-to-top:hover {
-      background: #005ea2;
+      background: var(--scroll-to-top-hover);
     }
 
     @media (prefers-color-scheme: dark) {
@@ -716,6 +759,26 @@
         --footer-social: #ffffff;
         --footer-social-hover: #00b7c3;
         --footer-copyright: #cccccc;
+        --content-background: #2a2a2a;
+        --content-text: #ffffff;
+        --content-link: #00b7c3;
+        --content-link-hover: #0097a7;
+        --category-filter-background: rgba(40, 40, 40, 0.9);
+        --category-filter-button: #333;
+        --category-filter-button-border: #555;
+        --tool-card-background: #2a2a2a;
+        --tool-card-border: #444;
+        --tool-description: #cccccc;
+        --tool-pros: #bbbbbb;
+        --tool-rating: #f4c430;
+        --cta-background: rgba(40, 40, 40, 0.9);
+        --newsletter-background: #2a2a2a;
+        --newsletter-text: #ffffff;
+        --newsletter-input-background: #333;
+        --newsletter-input-border: #555;
+        --scroll-to-top-background: #00b7c3;
+        --scroll-to-top-hover: #0097a7;
+        --error-message: #ff6666;
       }
     }
 
@@ -846,20 +909,24 @@
       body.classList.toggle('light-mode', !isDarkMode);
       const themeToggleIcon = document.querySelector('.theme-toggle i');
       themeToggleIcon.className = isDarkMode ? 'fas fa-sun' : 'fas fa-moon';
+      localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
     }
 
-    // Set initial theme based on user preference
-    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    // Set initial theme based on localStorage or default to light
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
       document.body.classList.add('dark-mode');
+      document.body.classList.remove('light-mode');
       document.querySelector('.theme-toggle i').className = 'fas fa-sun';
     } else {
       document.body.classList.add('light-mode');
+      document.body.classList.remove('dark-mode');
       document.querySelector('.theme-toggle i').className = 'fas fa-moon';
     }
 
     async function fetchTools() {
       try {
-        const response = await fetch('tools.json');
+        const response = await fetch('https://specifys-ai.com/map/tools.json');
         if (!response.ok) throw new Error('Network response was not ok ' + response.status);
         let data = await response.json();
         data = data.filter(tool => tool && tool.category && typeof tool.category === 'string' && tool.category.trim() !== '');
@@ -1126,4 +1193,3 @@
   </script>
 </body>
 </html>
-
