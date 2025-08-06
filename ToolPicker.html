@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Find the best NoCode or coding tool for your app with Specifys.ai's AI Tool Picker.">
-  <meta name="keywords" content="NoCode tool picker, coding tool picker, app development tools, Specifys.ai, vibe coding">
+  <meta name="description" content="Find the best NoCode or coding tool for your app with Specifys.ai's AI Tool Finder.">
+  <meta name="keywords" content="NoCode tool Finder, coding tool Finder, app development tools, Specifys.ai, vibe coding">
   <meta name="author" content="Specifys.ai Team">
   <meta name="robots" content="index, follow">
   <meta name="googlebot" content="index, follow">
@@ -16,18 +16,18 @@
   <meta name="distribution" content="global">
   <meta name="rating" content="general">
   <meta name="theme-color" content="#0078d4">
-  <meta name="canonical" content="https://specifys.ai/ToolPicker.html">
-  <meta property="og:title" content="Specifys.ai - AI Tool Picker">
-  <meta property="og:description" content="Find the best NoCode or coding tool for your app with Specifys.ai's AI Tool Picker.">
+  <meta name="canonical" content="https://specifys.ai/ToolFinder.html">
+  <meta property="og:title" content="Specifys.ai - AI Tool Finder">
+  <meta property="og:description" content="Find the best NoCode or coding tool for your app with Specifys.ai's AI Tool Finder.">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://specifys.ai/ToolPicker.html">
+  <meta property="og:url" content="https://specifys.ai/ToolFinder.html">
   <meta property="og:image" content="https://specifys.ai/assets/og-image.jpg">
-  <meta property="og:image:alt" content="AI Tool Picker by Specifys.ai">
+  <meta property="og:image:alt" content="AI Tool Finder by Specifys.ai">
   <meta property="og:site_name" content="Specifys.ai">
   <meta property="og:locale" content="en_US">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Specifys.ai - AI Tool Picker">
-  <meta name="twitter:description" content="Find the best NoCode or coding tool for your app with Specifys.ai's AI Tool Picker.">
+  <meta name="twitter:title" content="Specifys.ai - AI Tool Finder">
+  <meta name="twitter:description" content="Find the best NoCode or coding tool for your app with Specifys.ai's AI Tool Finder.">
   <meta name="twitter:image" content="https://specifys.ai/assets/og-image.jpg">
   <meta name="twitter:site" content="@specifys_ai">
   <meta name="twitter:creator" content="@specifys_ai">
@@ -35,8 +35,8 @@
   {
     "@context": "https://schema.org",
     "@type": "WebPage",
-    "headline": "Specifys.ai - AI Tool Picker",
-    "description": "Find the best NoCode or coding tool for your app with Specifys.ai's AI Tool Picker.",
+    "headline": "Specifys.ai - AI Tool Finder",
+    "description": "Find the best NoCode or coding tool for your app with Specifys.ai's AI Tool Finder.",
     "image": "https://specifys.ai/assets/og-image.jpg",
     "author": {
       "@type": "Organization",
@@ -50,15 +50,15 @@
         "url": "https://specifys.ai/assets/logo.png"
       }
     },
-    "url": "https://specifys.ai/ToolPicker.html",
+    "url": "https://specifys.ai/ToolFinder.html",
     "mainEntityOfPage": {
       "@type": "WebPage",
-      "@id": "https://specifys.ai/ToolPicker.html"
+      "@id": "https://specifys.ai/ToolFinder.html"
     },
-    "keywords": "NoCode tool picker, coding tool picker, app development tools, Specifys.ai, vibe coding"
+    "keywords": "NoCode tool Finder, coding tool Finder, app development tools, Specifys.ai, vibe coding"
   }
   </script>
-  <title>Specifys.ai - AI Tool Picker</title>
+  <title>Specifys.ai - AI Tool Finder</title>
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -511,7 +511,7 @@
     <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode"><i class="fas fa-moon"></i></button>
   </header>
   <div class="content-box">
-    <h1>AI Tool Picker</h1>
+    <h1>AI Tool Finder</h1>
     <h2>AI helps you match the best tool for your app</h2>
     <div class="search-box">
       <div class="search-instructions">Describe your app's general idea, including the features and functionalities you want to implement. The more detailed your description, the more accurate the tool recommendations will be.</div>
@@ -623,7 +623,7 @@
       async function fetchTools(description) {
         searchLoading.style.display = "block";
         try {
-          const response = await fetch('https://toolpicker.shalom-cohen-111.workers.dev', {
+          const response = await fetch('https://toolFinder.shalom-cohen-111.workers.dev', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ description, features: [] })
