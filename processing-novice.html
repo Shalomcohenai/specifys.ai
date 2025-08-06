@@ -1,684 +1,1335 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Answer guided questions to refine your app idea and generate a detailed specification with specifys.ai for NoCode Creators.">
-<meta name="keywords" content="processing app idea, guided questions, AI specification, app development, nocode creators, specifys.ai, NoCode app builder, app specification tool, create app without coding">
-<meta name="author" content="specifys.ai Team">
-<meta name="robots" content="index, follow">
-<meta name="googlebot" content="index, follow">
-<meta name="bingbot" content="index, follow">
-<meta name="revisit-after" content="7 days">
-<meta name="language" content="English">
-<meta name="copyright" content="© 2025 specifys.ai">
-<meta name="publisher" content="specifys.ai">
-<meta name="distribution" content="global">
-<meta name="rating" content="general">
-<meta name="theme-color" content="#0078d4">
-<meta name="canonical" content="https://specifys.ai/processing-novice.html">
-<meta property="og:title" content="specifys.ai - NoCode Creators Mode">
-<meta property="og:description" content="Answer guided questions to refine your app idea and generate a detailed specification with specifys.ai for NoCode Creators.">
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://specifys.ai/processing-novice.html">
-<meta property="og:image" content="https://specifys.ai/assets/og-image.jpg">
-<meta property="og:image:alt" content="NoCode Creators Mode with specifys.ai">
-<meta property="og:site_name" content="Specifys.ai">
-<meta property="og:locale" content="en_US">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="specifys.ai - NoCode Creators Mode">
-<meta name="twitter:description" content="Answer guided questions to refine your app idea and generate a detailed specification with specifys.ai for NoCode Creators.">
-<meta name="twitter:image" content="https://specifys.ai/assets/og-image.jpg">
-<meta name="twitter:site" content="@specifys_ai">
-<meta name="twitter:creator" content="@specifys_ai">
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "WebPage",
-  "headline": "specifys.ai - NoCode Creators Mode",
-  "description": "Answer guided questions to refine your app idea and generate a detailed specification with specifys.ai for NoCode Creators.",
-  "image": "https://specifys.ai/assets/og-image.jpg",
-  "author": {
-    "@type": "Organization",
-    "name": "specifys.ai Team"
-  },
-  "publisher": {
-    "@type": "Organization",
-    "name": "Specifys.ai",
-    "logo": {
-      "@type": "ImageObject",
-      "url": "https://specifys.ai/assets/logo.png"
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Answer guided questions to refine your app idea and generate a detailed specification with specifys.ai for NoCode Creators.">
+  <meta name="keywords" content="processing app idea, guided questions, AI specification, app development, nocode creators, specifys.ai, NoCode app builder, app specification tool, create app without coding">
+  <meta name="author" content="specifys.ai Team">
+  <meta name="robots" content="index, follow">
+  <meta name="googlebot" content="index, follow">
+  <meta name="bingbot" content="index, follow">
+  <meta name="revisit-after" content="7 days">
+  <meta name="language" content="English">
+  <meta name="copyright" content="© 2025 specifys.ai">
+  <meta name="publisher" content="specifys.ai">
+  <meta name="distribution" content="global">
+  <meta name="rating" content="general">
+  <meta name="theme-color" content="#0078d4">
+  <meta name="canonical" content="https://specifys.ai/processing-novice.html">
+  <meta property="og:title" content="specifys.ai - NoCode Creators Mode">
+  <meta property="og:description" content="Answer guided questions to refine your app idea and generate a detailed specification with specifys.ai for NoCode Creators.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://specifys.ai/processing-novice.html">
+  <meta property="og:image" content="https://specifys.ai/assets/og-image.jpg">
+  <meta property="og:image:alt" content="NoCode Creators Mode with specifys.ai">
+  <meta property="og:site_name" content="Specifys.ai">
+  <meta property="og:locale" content="en_US">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="specifys.ai - NoCode Creators Mode">
+  <meta name="twitter:description" content="Answer guided questions to refine your app idea and generate a detailed specification with specifys.ai for NoCode Creators.">
+  <meta name="twitter:image" content="https://specifys.ai/assets/og-image.jpg">
+  <meta name="twitter:site" content="@specifys_ai">
+  <meta name="twitter:creator" content="@specifys_ai">
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "headline": "specifys.ai - NoCode Creators Mode",
+      "description": "Answer guided questions to refine your app idea and generate a detailed specification with specifys.ai for NoCode Creators.",
+      "image": "https://specifys.ai/assets/og-image.jpg",
+      "author": {
+        "@type": "Organization",
+        "name": "specifys.ai Team"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "Specifys.ai",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://specifys.ai/assets/logo.png"
+        }
+      },
+      "url": "https://specifys.ai/processing-novice.html",
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "https://specifys.ai/processing-novice.html"
+      },
+      "keywords": "processing app idea, guided questions, AI specification, app development, nocode creators, specifys.ai, NoCode app builder, app specification tool, create app without coding"
     }
-  },
-  "url": "https://specifys.ai/processing-novice.html",
-  "mainEntityOfPage": {
-    "@type": "WebPage",
-    "@id": "https://specifys.ai/processing-novice.html"
-  },
-  "keywords": "processing app idea, guided questions, AI specification, app development, nocode creators, specifys.ai, NoCode app builder, app specification tool, create app without coding"
-}
-</script>
-<script>
-window.dataLayer = window.dataLayer || [];
-function gtag(){dataLayer.push(arguments);}
-gtag('js', new Date());
-gtag('config', 'G-RWBT69JCM7');
-gtag('config', 'AW-1000505244');
-</script>
-<title>specifys.ai - NoCode Creators Mode</title>
-<link rel="icon" type="image/x-icon" href="favicon.ico">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-<script defer src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"></script>
-<script defer src="processing-novice.js"></script>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap');
-* { margin: 0; padding: 0; box-sizing: border-box; }
-html { height: 100%; }
-body { font-family: 'Montserrat', sans-serif; display: flex; flex-direction: column; min-height: 100%; background: #f5f5f5; transition: background 0.3s ease, color 0.3s ease; }
-body.dark-mode { background: #1a1a1a; color: #e0e0e0; }
-.thematic-header { position: fixed; top: 0; width: 100%; padding: 15px 20px; display: flex; justify-content: center; z-index: 1000; background: rgba(255, 255, 255, 0.9); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
-body.dark-mode .thematic-header { background: rgba(30, 30, 30, 0.9); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); }
-.thematic-header .logo a { text-decoration: none; color: #333; font-size: 1.6rem; font-weight: 700; transition: color 0.3s ease; }
-body.dark-mode .thematic-header .logo a { color: #e0e0e0; }
-.thematic-header .logo a:hover { color: #0078d4; }
-.carousel-container { flex-grow: 1; display: flex; justify-content: center; align-items: center; padding: 5rem 1rem; position: relative; }
-.carousel-content { background: #fff; border-radius: 20px; padding: 2rem; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); width: 100%; max-width: 900px; min-height: 400px; z-index: 1000; position: relative; animation: fadeIn 0.3s ease-in-out; }
-body.dark-mode .carousel-content { background: rgba(30, 30, 30, 0.95); box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3); }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-.step-container { display: flex; flex-direction: column; align-items: center; text-align: center; }
-#stepTitle { font-size: 2.2rem; font-weight: 700; color: #333; margin-bottom: 1rem; transition: color 0.3s ease; }
-body.dark-mode #stepTitle { color: #e0e0e0; }
-#stepTitle:hover { color: #0078d4; }
-.question-wrapper { display: flex; align-items: center; width: 100%; justify-content: center; position: relative; margin-bottom: 1.5rem; }
-.question-label { font-size: 1.2rem; color: #333; line-height: 1.5; flex: 1; }
-body.dark-mode .question-label { color: #e0e0e0; }
-.tip-icon { color: #666; font-size: 1.4rem; cursor: pointer; margin-left: 0.8rem; transition: color 0.3s ease, transform 0.3s ease; }
-body.dark-mode .tip-icon { color: #999; }
-.tip-icon:hover { color: #0078d4; transform: scale(1.2); }
-.tip-tooltip { display: none; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); font-size: 0.85rem; color: #fff; background: #333; padding: 0.8rem; border-radius: 8px; width: 90%; max-width: 400px; text-align: left; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); z-index: 10; max-height: 200px; overflow-y: auto; }
-body.dark-mode .tip-tooltip { background: #444; }
-.tip-icon:hover + .tip-tooltip, .tip-tooltip:hover { display: block; }
-.close-tip { position: absolute; top: 5px; right: 10px; font-size: 1.2rem; cursor: pointer; color: #fff; }
-.step-textarea { width: 100%; min-height: 160px; padding: 1rem; border: 2px solid #ddd; border-radius: 12px; font-size: 1rem; resize: vertical; background: #fff; transition: border-color 0.3s ease, box-shadow 0.3s ease; white-space: pre-wrap; }
-body.dark-mode .step-textarea { background: #2a2a2a; border-color: #444; color: #e0e0e0; }
-.step-textarea:focus { outline: none; border-color: #0078d4; box-shadow: 0 0 8px rgba(0, 120, 212, 0.2); }
-.yes-no-container { display: flex; flex-direction: column; gap: 1rem; width: 100%; max-width: 600px; margin-bottom: 1.5rem; }
-.yes-no-item { display: flex; align-items: center; justify-content: space-between; padding: 0.8rem; border: 1px solid #ddd; border-radius: 8px; background: #f9f9f9; }
-body.dark-mode .yes-no-item { background: #2a2a2a; border-color: #444; }
-.yes-no-label { font-size: 1.1rem; color: #333; flex: 1; }
-body.dark-mode .yes-no-label { color: #e0e0e0; }
-.yes-no-buttons { display: flex; gap: 0.5rem; }
-.yes-no-button { background: #fff; border: 2px solid #ddd; border-radius: 12px; padding: 0.5rem 1rem; font-size: 0.9rem; cursor: pointer; transition: background-color 0.3s ease, border-color 0.3s ease; }
-body.dark-mode .yes-no-button { background: #2a2a2a; border-color: #444; color: #e0e0e0; }
-.yes-no-button.selected { background: #0078d4; color: #fff; border-color: #0078d4; }
-body.dark-mode .yes-no-button.selected { background: #0078d4; color: #fff; border-color: #0078d4; }
-.yes-no-button:hover { background: #e6f0fa; border-color: #0078d4; }
-body.dark-mode .yes-no-button:hover { background: #005ea2; }
-.example-button { background: #fff; color: #333; border: 2px solid #ddd; border-radius: 20px; padding: 0.5rem 1.2rem; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease; margin-top: 1rem; display: inline-flex; align-items: center; gap: 0.4rem; }
-body.dark-mode .example-button { background: #2a2a2a; color: #e0e0e0; border-color: #444; }
-.example-button:hover { background: #0078d4; color: #fff; border-color: #0078d4; transform: translateY(-2px); }
-.example-button i { font-size: 0.9rem; }
-.char-count { font-size: 0.85rem; color: #666; margin-top: 0.5rem; align-self: flex-end; }
-body.dark-mode .char-count { color: #999; }
-#errorMessage { font-size: 0.9rem; color: #fff; margin-top: 1rem; padding: 0.5rem; border-radius: 4px; display: none; opacity: 0; transform: translateY(5px); transition: opacity 0.3s ease, transform 0.3s ease; }
-#errorMessage.show { opacity: 1; transform: translateY(0); }
-#errorMessage.analyzing { background-color: #666; }
-#errorMessage.feedback { background-color: #ff9800; }
-#errorMessage.success { background-color: #28a745; }
-.toast { position: fixed; bottom: 20px; right: 20px; background: #28a745; color: #fff; padding: 0.8rem 1.2rem; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); z-index: 2000; opacity: 0; transition: opacity 0.3s ease; }
-.toast.show { opacity: 1; }
-.progress-container { width: 100%; margin: 2rem 0; }
-.progress-bar { width: 100%; background: #ddd; border-radius: 12px; overflow: hidden; height: 12px; box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1); }
-body.dark-mode .progress-bar { background: #444; }
-.progress-fill { height: 100%; background: #0078d4; transition: width 0.5s ease; }
-.discipline-indicators { display: flex; justify-content: space-around; margin-top: 1.2rem; flex-wrap: wrap; gap: 0.8rem; }
-.indicator-item { display: flex; align-items: center; margin: 0.5rem; color: #333; font-size: 0.9rem; font-weight: 600; }
-body.dark-mode .indicator-item { color: #e0e0e0; }
-.indicator-status { width: 24px; height: 24px; margin-right: 0.5rem; display: none; align-items: center; justify-content: center; font-size: 1rem; color: #fff; background: #28a745; transition: transform 0.3s ease; }
-.indicator-status.completed { display: flex; transform: scale(1.15); }
-.indicator-status::before { font-family: 'Font Awesome 6 Free'; font-weight: 900; content: '\f00c'; }
-.carousel-button-left, .carousel-button-right, .generate-spec-button { position: absolute; top: 50%; transform: translateY(-50%); background: #0078d4; color: #fff; border: none; border-radius: 50%; width: 45px; height: 45px; font-size: 1.4rem; cursor: pointer; transition: background-color 0.3s ease, transform 0.3s ease; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); z-index: 1100; }
-.carousel-button-left { left: -22.5px; }
-.carousel-button-right, .generate-spec-button { right: -22.5px; }
-.carousel-button-left:hover, .carousel-button-right:hover, .generate-spec-button:hover { background: #005ea2; transform: translateY(-50%) translateY(-3px); box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); }
-.generate-spec-button:disabled { background: #ddd; color: #666; cursor: not-allowed; transform: translateY(-50%); box-shadow: none; }
-body.dark-mode .generate-spec-button:disabled { background: #444; color: #999; }
-.loading-spinner { position: absolute; top: 50%; right: -22.5px; transform: translateY(-50%); width: 45px; height: 45px; border: 4px solid #f3f3f3; border-top: 4px solid #0078d4; border-radius: 50%; animation: spin 1s linear infinite; display: none; z-index: 1100; }
-@keyframes spin { 0% { transform: translateY(-50%) rotate(0deg); } 100% { transform: translateY(-50%) rotate(360deg); } }
-footer { padding: 20px; text-align: center; color: #333; flex-shrink: 0; background: #fff; box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1); }
-body.dark-mode footer { color: #e0e0e0; background: #1a1a1a; box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.3); }
-.footer-content { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 10px; }
-.footer-links a { color: #333; text-decoration: none; font-weight: 600; margin: 0 10px; transition: color 0.3s ease; }
-body.dark-mode .footer-links a { color: #e0e0e0; }
-.footer-links a:hover { color: #0078d4; }
-.footer-divider { color: #333; font-size: 1.2rem; font-weight: 300; }
-body.dark-mode .footer-divider { color: #e0e0e0; }
-.footer-social a { color: #333; font-size: 1.2rem; margin: 0 10px; transition: color 0.3s ease, transform 0.3s ease; }
-body.dark-mode .footer-social a { color: #e0e0e0; }
-.footer-social a:hover { color: #0078d4; transform: scale(1.2); }
-.footer-copyright { font-size: 0.9rem; color: #666; margin-top: 10px; }
-body.dark-mode .footer-copyright { color: #999; }
-.theme-toggle { position: fixed; top: 15px; right: 20px; background: none; border: none; font-size: 1.5rem; color: #333; cursor: pointer; transition: color 0.3s ease; z-index: 1001; }
-body.dark-mode .theme-toggle { color: #e0e0e0; }
-.theme-toggle:hover { color: #0078d4; }
-@media (max-width: 768px) {
-  .thematic-header .logo a { font-size: 1.4rem; }
-  .theme-toggle { right: 15px; font-size: 1.3rem; }
-  .carousel-content { padding: 1.5rem; min-height: 350px; max-width: 95%; }
-  #stepTitle { font-size: 1.8rem; }
-  .question-label { font-size: 1rem; }
-  .tip-icon { font-size: 1.2rem; }
-  .tip-tooltip { font-size: 0.8rem; padding: 0.6rem; width: 95%; }
-  .step-textarea { min-height: 140px; font-size: 0.9rem; }
-  .yes-no-item { padding: 0.6rem; }
-  .yes-no-label { font-size: 1rem; }
-  .yes-no-button { padding: 0.4rem 0.8rem; font-size: 0.8rem; }
-  .char-count { font-size: 0.8rem; }
-  .carousel-button-left, .carousel-button-right, .generate-spec-button { width: 40px; height: 40px; font-size: 1.2rem; }
-  .carousel-button-left { left: -20px; }
-  .carousel-button-right, .generate-spec-button { right: -20px; }
-  .progress-bar { height: 10px; }
-  .indicator-item { font-size: 0.8rem; }
-  .indicator-status { width: 20px; height: 20px; }
-  .indicator-status::before { font-size: 0.9rem; }
-  .loading-spinner { width: 40px; height: 40px; right: -20px; }
-  .footer-content { flex-direction: column; gap: 10px; }
-}
-@media (max-width: 480px) {
-  .thematic-header .logo a { font-size: 1.2rem; }
-  .theme-toggle { right: 10px; font-size: 1.2rem; }
-  .carousel-container { padding: 4rem 0.5rem; }
-  .carousel-content { padding: 1rem; min-height: 300px; }
-  #stepTitle { font-size: 1.6rem; }
-  .question-label { font-size: 0.9rem; }
-  .tip-icon { font-size: 1.1rem; }
-  .tip-tooltip { font-size: 0.75rem; padding: 0.5rem; width: 95%; }
-  .step-textarea { min-height: 120px; font-size: 0.85rem; }
-  .yes-no-item { padding: 0.5rem; }
-  .yes-no-label { font-size: 0.9rem; }
-  .yes-no-button { padding: 0.3rem 0.7rem; font-size: 0.75rem; }
-  .char-count { font-size: 0.75rem; }
-  .carousel-button-left, .carousel-button-right, .generate-spec-button { width: 35px; height: 35px; font-size: 1rem; }
-  .carousel-button-left { left: -17.5px; }
-  .carousel-button-right, .generate-spec-button { right: -17.5px; }
-  .indicator-item { font-size: 0.75rem; }
-  .indicator-status { width: 18px; height: 18px; }
-  .indicator-status::before { font-size: 0.8rem; }
-  .loading-spinner { width: 35px; height: 35px; right: -17.5px; }
-  .footer-content { gap: 5px; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .carousel-button-left, .carousel-button-right, .generate-spec-button, .tip-icon, .example-button, .loading-spinner, .carousel-content, #errorMessage, .indicator-status { animation: none; transition: none; }
-}
-</style>
+  </script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-RWBT69JCM7');
+    gtag('config', 'AW-1000505244');
+  </script>
+  <title>specifys.ai - NoCode Creators Mode</title>
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script defer src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"></script>
+  <script defer src="processing-novice.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap');
+
+    :root {
+      --bg-color: #f5f5f5;
+      --text-color: #333;
+      --header-bg: rgba(255, 255, 255, 0.9);
+      --header-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      --content-bg: #fff;
+      --content-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      --textarea-border: #ddd;
+      --textarea-bg: #fff;
+      --yes-no-border: #ddd;
+      --yes-no-bg: #f9f9f9;
+      --yes-no-button-bg: #fff;
+      --yes-no-button-hover: #e6f0fa;
+      --example-button-bg: #fff;
+      --example-button-text: #333;
+      --progress-bg: #ddd;
+      --indicator-text: #333;
+      --footer-bg: #fff;
+      --footer-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+      --footer-text: #333;
+      --footer-link: #333;
+      --spinner-border: #f3f3f3;
+      --tooltip-bg: #333;
+      --tooltip-text: #fff;
+    }
+
+    [data-theme="dark"] {
+      --bg-color: #1a1a1a;
+      --text-color: #e0e0e0;
+      --header-bg: rgba(30, 30, 30, 0.9);
+      --header-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      --content-bg: rgba(30, 30, 30, 0.95);
+      --content-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      --textarea-border: #444;
+      --textarea-bg: #2a2a2a;
+      --yes-no-border: #444;
+      --yes-no-bg: #2a2a2a;
+      --yes-no-button-bg: #2a2a2a;
+      --yes-no-button-hover: #005ea2;
+      --example-button-bg: #2a2a2a;
+      --example-button-text: #e0e0e0;
+      --progress-bg: #444;
+      --indicator-text: #e0e0e0;
+      --footer-bg: #1a1a1a;
+      --footer-shadow: 0 -2px 4px rgba(0, 0, 0, 0.3);
+      --footer-text: #e0e0e0;
+      --footer-link: #e0e0e0;
+      --spinner-border: #444;
+      --tooltip-bg: #444;
+      --tooltip-text: #fff;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      height: 100%;
+    }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      display: flex;
+      flex-direction: column;
+      min-height: 100%;
+      background: var(--bg-color);
+      color: var(--text-color);
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    .thematic-header {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 2000;
+      background: var(--header-bg);
+      box-shadow: var(--header-shadow);
+    }
+
+    .thematic-header .logo a {
+      text-decoration: none;
+      color: var(--text-color);
+      font-size: 1.6rem;
+      font-weight: 700;
+      transition: color 0.3s ease;
+    }
+
+    .thematic-header .logo a:hover {
+      color: #0078d4;
+    }
+
+    .theme-toggle {
+      background: none;
+      border: none;
+      color: var(--text-color);
+      font-size: 1.4rem;
+      cursor: pointer;
+      transition: color 0.3s ease, transform 0.3s ease;
+    }
+
+    .theme-toggle:hover {
+      color: #0078d4;
+      transform: scale(1.2);
+    }
+
+    .carousel-container {
+      flex-grow: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 5rem 1rem;
+      position: relative;
+      z-index: 1000;
+    }
+
+    .carousel-content {
+      background: var(--content-bg);
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: var(--content-shadow);
+      width: 100%;
+      max-width: 900px;
+      min-height: 400px;
+      z-index: 1000;
+      position: relative;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .step-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    #stepTitle {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--text-color);
+      margin-bottom: 1rem;
+      transition: color 0.3s ease;
+    }
+
+    #stepTitle:hover {
+      color: #0078d4;
+    }
+
+    .question-wrapper {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      justify-content: center;
+      position: relative;
+      margin-bottom: 1.5rem;
+    }
+
+    .question-label {
+      font-size: 1.2rem;
+      color: var(--text-color);
+      line-height: 1.5;
+      flex: 1;
+    }
+
+    .tip-icon {
+      color: #999;
+      font-size: 1.4rem;
+      cursor: pointer;
+      margin-left: 0.8rem;
+      transition: color 0.3s ease, transform 0.3s ease;
+    }
+
+    .tip-icon:hover {
+      color: #0078d4;
+      transform: scale(1.2);
+    }
+
+    .tip-tooltip {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.85rem;
+      color: var(--tooltip-text);
+      background: var(--tooltip-bg);
+      padding: 0.8rem;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 400px;
+      text-align: left;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      z-index: 10;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .tip-icon:hover + .tip-tooltip,
+    .tip-tooltip:hover {
+      display: block;
+    }
+
+    .close-tip {
+      position: absolute;
+      top: 5px;
+      right: 10px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      color: var(--tooltip-text);
+    }
+
+    .step-textarea {
+      width: 100%;
+      min-height: 160px;
+      padding: 1rem;
+      border: 2px solid var(--textarea-border);
+      border-radius: 12px;
+      font-size: 1rem;
+      resize: vertical;
+      background: var(--textarea-bg);
+      color: var(--text-color);
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      white-space: pre-wrap;
+    }
+
+    .step-textarea:focus {
+      outline: none;
+      border-color: #0078d4;
+      box-shadow: 0 0 8px rgba(0, 120, 212, 0.2);
+    }
+
+    .yes-no-container {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      width: 100%;
+      max-width: 600px;
+      margin-bottom: 1.5rem;
+    }
+
+    .yes-no-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.8rem;
+      border: 1px solid var(--yes-no-border);
+      border-radius: 8px;
+      background: var(--yes-no-bg);
+    }
+
+    .yes-no-label {
+      font-size: 1.1rem;
+      color: var(--text-color);
+      flex: 1;
+    }
+
+    .yes-no-buttons {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .yes-no-button {
+      background: var(--yes-no-button-bg);
+      border: 2px solid var(--yes-no-border);
+      border-radius: 12px;
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
+      cursor: pointer;
+      color: var(--text-color);
+      transition: background-color 0.3s ease, border-color 0.3s ease;
+    }
+
+    .yes-no-button.selected {
+      background: #0078d4;
+      color: #fff;
+      border-color: #0078d4;
+    }
+
+    .yes-no-button:hover {
+      background: var(--yes-no-button-hover);
+      border-color: #0078d4;
+    }
+
+    .example-button {
+      background: var(--example-button-bg);
+      color: var(--example-button-text);
+      border: 2px solid var(--yes-no-border);
+      border-radius: 20px;
+      padding: 0.5rem 1.2rem;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
+      margin-top: 1rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .example-button:hover {
+      background: #0078d4;
+      color: #fff;
+      border-color: #0078d4;
+      transform: translateY(-2px);
+    }
+
+    .example-button i {
+      font-size: 0.9rem;
+    }
+
+    .char-count {
+      font-size: 0.85rem;
+      color: #999;
+      margin-top: 0.5rem;
+      align-self: flex-end;
+    }
+
+    #errorMessage {
+      font-size: 0.9rem;
+      color: #fff;
+      margin-top: 1rem;
+      padding: 0.5rem;
+      border-radius: 4px;
+      display: none;
+      opacity: 0;
+      transform: translateY(5px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    #errorMessage.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    #errorMessage.analyzing {
+      background-color: #666;
+    }
+
+    #errorMessage.feedback {
+      background-color: #ff9800;
+    }
+
+    #errorMessage.success {
+      background-color: #28a745;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #28a745;
+      color: #fff;
+      padding: 0.8rem 1.2rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      z-index: 2000;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+    }
+
+    .progress-container {
+      width: 100%;
+      margin: 2rem 0;
+    }
+
+    .progress-bar {
+      width: 100%;
+      background: var(--progress-bg);
+      border-radius: 12px;
+      overflow: hidden;
+      height: 12px;
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: #0078d4;
+      transition: width 0.5s ease;
+    }
+
+    .discipline-indicators {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 1.2rem;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+    }
+
+    .indicator-item {
+      display: flex;
+      align-items: center;
+      margin: 0.5rem;
+      color: var(--indicator-text);
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .indicator-status {
+      width: 24px;
+      height: 24px;
+      margin-right: 0.5rem;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      color: #fff;
+      background: #28a745;
+      transition: transform 0.3s ease;
+    }
+
+    .indicator-status.completed {
+      display: flex;
+      transform: scale(1.15);
+    }
+
+    .indicator-status::before {
+      font-family: 'Font Awesome 6 Free';
+      font-weight: 900;
+      content: '\f00c';
+    }
+
+    .carousel-button-left, .carousel-button-right, .generate-spec-button {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #0078d4;
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 45px;
+      height: 45px;
+      font-size: 1.4rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      z-index: 1100;
+    }
+
+    .carousel-button-left {
+      left: -22.5px;
+    }
+
+    .carousel-button-right, .generate-spec-button {
+      right: -22.5px;
+    }
+
+    .carousel-button-left:hover, .carousel-button-right:hover, .generate-spec-button:hover {
+      background: #005ea2;
+      transform: translateY(-50%) translateY(-3px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .generate-spec-button:disabled {
+      background: var(--yes-no-border);
+      color: #999;
+      cursor: not-allowed;
+      transform: translateY(-50%);
+      box-shadow: none;
+    }
+
+    .loading-spinner {
+      position: absolute;
+      top: 50%;
+      right: -22.5px;
+      transform: translateY(-50%);
+      width: 45px;
+      height: 45px;
+      border: 4px solid var(--spinner-border);
+      border-top: 4px solid #0078d4;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      display: none;
+      z-index: 1100;
+    }
+
+    @keyframes spin {
+      0% { transform: translateY(-50%) rotate(0deg); }
+      100% { transform: translateY(-50%) rotate(360deg); }
+    }
+
+    footer {
+      padding: 20px;
+      text-align: center;
+      color: var(--footer-text);
+      flex-shrink: 0;
+      background: var(--footer-bg);
+      box-shadow: var(--footer-shadow);
+      z-index: 1000;
+    }
+
+    .footer-content {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-bottom: 10px;
+    }
+
+    .footer-links a {
+      color: var(--footer-link);
+      text-decoration: none;
+      font-weight: 400;
+      margin: 0 10px;
+      transition: color 0.3s ease;
+    }
+
+    .footer-links a:hover {
+      color: #0078d4;
+    }
+
+    .footer-divider {
+      color: var(--footer-text);
+      font-size: 1.2rem;
+      font-weight: 300;
+    }
+
+    .footer-social a {
+      color: var(--footer-link);
+      font-size: 1.2rem;
+      margin: 0 10px;
+      transition: color 0.3s ease, transform 0.3s ease;
+    }
+
+    .footer-social a:hover {
+      color: #0078d4;
+      transform: scale(1.2);
+    }
+
+    .footer-copyright {
+      font-size: 0.9rem;
+      color: #999;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 768px) {
+      .thematic-header .logo a {
+        font-size: 1.4rem;
+      }
+
+      .carousel-content {
+        padding: 1.5rem;
+        min-height: 350px;
+        max-width: 95%;
+      }
+
+      #stepTitle {
+        font-size: 1.8rem;
+      }
+
+      .question-label {
+        font-size: 1rem;
+      }
+
+      .tip-icon {
+        font-size: 1.2rem;
+      }
+
+      .tip-tooltip {
+        font-size: 0.8rem;
+        padding: 0.6rem;
+        width: 95%;
+      }
+
+      .step-textarea {
+        min-height: 140px;
+        font-size: 0.9rem;
+      }
+
+      .yes-no-item {
+        padding: 0.6rem;
+      }
+
+      .yes-no-label {
+        font-size: 1rem;
+      }
+
+      .yes-no-button {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+      }
+
+      .char-count {
+        font-size: 0.8rem;
+      }
+
+      .carousel-button-left, .carousel-button-right, .generate-spec-button {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+      }
+
+      .carousel-button-left {
+        left: -20px;
+      }
+
+      .carousel-button-right, .generate-spec-button {
+        right: -20px;
+      }
+
+      .progress-bar {
+        height: 10px;
+      }
+
+      .indicator-item {
+        font-size: 0.8rem;
+      }
+
+      .indicator-status {
+        width: 20px;
+        height: 20px;
+      }
+
+      .indicator-status::before {
+        font-size: 0.9rem;
+      }
+
+      .loading-spinner {
+        width: 40px;
+        height: 40px;
+        right: -20px;
+      }
+
+      .footer-content {
+        flex-direction: column;
+        gap: 10px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .thematic-header .logo a {
+        font-size: 1.2rem;
+      }
+
+      .carousel-container {
+        padding: 4rem 0.5rem;
+      }
+
+      .carousel-content {
+        padding: 1rem;
+        min-height: 300px;
+      }
+
+      #stepTitle {
+        font-size: 1.6rem;
+      }
+
+      .question-label {
+        font-size: 0.9rem;
+      }
+
+      .tip-icon {
+        font-size: 1.1rem;
+      }
+
+      .tip-tooltip {
+        font-size: 0.75rem;
+        padding: 0.5rem;
+        width: 95%;
+      }
+
+      .step-textarea {
+        min-height: 120px;
+        font-size: 0.85rem;
+      }
+
+      .yes-no-item {
+        padding: 0.5rem;
+      }
+
+      .yes-no-label {
+        font-size: 0.9rem;
+      }
+
+      .yes-no-button {
+        padding: 0.3rem 0.7rem;
+        font-size: 0.75rem;
+      }
+
+      .char-count {
+        font-size: 0.75rem;
+      }
+
+      .carousel-button-left, .carousel-button-right, .generate-spec-button {
+        width: 35px;
+        height: 35px;
+        font-size: 1rem;
+      }
+
+      .carousel-button-left {
+        left: -17.5px;
+      }
+
+      .carousel-button-right, .generate-spec-button {
+        right: -17.5px;
+      }
+
+      .indicator-item {
+        font-size: 0.75rem;
+      }
+
+      .indicator-status {
+        width: 18px;
+        height: 18px;
+      }
+
+      .indicator-status::before {
+        font-size: 0.8rem;
+      }
+
+      .loading-spinner {
+        width: 35px;
+        height: 35px;
+        right: -17.5px;
+      }
+
+      .footer-content {
+        gap: 5px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .carousel-button-left, .carousel-button-right, .generate-spec-button, .tip-icon, .example-button, .loading-spinner, .carousel-content, #errorMessage, .indicator-status, .theme-toggle {
+        animation: none;
+        transition: none;
+      }
+    }
+  </style>
 </head>
 <body class="page-default nocode">
-<header class="thematic-header" role="banner">
-<div class="logo">
-<a href="index.html" aria-label="Specifys.ai homepage">Specifys.ai</a>
-</div>
-<button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode"><i class="fas fa-moon"></i></button>
-</header>
-<div class="carousel-container">
-<div id="carouselContent" class="carousel-content">
-<button id="prevButton" class="carousel-button-left" onclick="prevStep()" aria-label="Previous step" style="display: none;">
-<i class="fas fa-arrow-left"></i>
-</button>
-<div class="step-container">
-<h3 id="stepTitle">App Overview</h3>
-<div class="question-wrapper" id="questionWrapper">
-<p id="stepQuestion" class="question-label" aria-describedby="tipText"></p>
-<i class="fas fa-lightbulb tip-icon" aria-label="Show tip"></i>
-<div id="tipText" class="tip-tooltip"><span class="close-tip" onclick="this.parentElement.style.display='none'">×</span></div>
-</div>
-<div id="yesNoContainer" class="yes-no-container" style="display: none;"></div>
-<textarea id="stepTextarea" class="step-textarea" maxlength="2500" placeholder="Enter your response here..." aria-label="Answer the current question"></textarea>
-<span id="charCount" class="char-count">0/2500</span>
-<button id="exampleButton" class="example-button" onmouseover="showExample()" onmouseout="restoreAnswer()" aria-label="Show example answer">
-<i class="fas fa-eye"></i> Example
-</button>
-<div id="errorMessage" role="alert"></div>
-<div class="progress-container">
-<div class="progress-bar">
-<div id="progressFill" class="progress-fill"></div>
-</div>
-<div class="discipline-indicators" role="group" aria-label="Progress indicators by category">
-<div class="indicator-item">
-<span class="indicator-status" id="overview-indicator" aria-label="App Overview progress"></span>
-<span>App Overview</span>
-</div>
-<div class="indicator-item">
-<span class="indicator-status" id="workflow-indicator" aria-label="User Workflow progress"></span>
-<span>User Workflow</span>
-</div>
-<div class="indicator-item">
-<span class="indicator-status" id="design-indicator" aria-label="Design progress"></span>
-<span>Design</span>
-</div>
-<div class="indicator-item">
-<span class="indicator-status" id="features-indicator" aria-label="Features progress"></span>
-<span>Features</span>
-</div>
-<div class="indicator-item">
-<span class="indicator-status" id="audience-indicator" aria-label="Target Audience progress"></span>
-<span>Target Audience</span>
-</div>
-<div class="indicator-item">
-<span class="indicator-status" id="settings-indicator" aria-label="App Settings progress"></span>
-<span>App Settings</span>
-</div>
-<div class="indicator-item">
-<span class="indicator-status" id="notes-indicator" aria-label="Additional Notes progress"></span>
-<span>Additional Notes</span>
-</div>
-</div>
-</div>
-</div>
-<button id="nextButton" class="carousel-button-right" onclick="nextStep()" aria-label="Next step">
-<i class="fas fa-arrow-right"></i>
-</button>
-<button id="goButton" class="carousel-button-right generate-spec-button" onclick="generateSpecification()" style="display: none;" disabled aria-label="Generate specification, disabled until all required questions are answered">
-<i class="fas fa-rocket"></i>
-</button>
-<div id="loadingSpinner" class="loading-spinner"></div>
-</div>
-<div id="toast" class="toast">Answers saved successfully!</div>
-</div>
-<footer>
-<div class="footer-content">
-<div class="footer-links">
-<a href="how.html" aria-label="Learn how Specifys.ai works">How It Works</a>
-<a href="about.html" aria-label="Learn more about Specifys.ai">About Us</a>
-<a href="blog.html" aria-label="Visit our blog">Blog</a>
-<a href="map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
-<a href="https://specifys-ai.com/ToolPicker" aria-label="Use our Tool Picker">Tool Picker</a>
-</div>
-<span class="footer-divider">|</span>
-<div class="footer-social">
-<a href="https://www.linkedin.com/company/specifys-ai/" aria-label="Follow us on LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-<a href="https://www.facebook.com/profile.php?id=61576402600129&locale=he_IL" target="_blank" aria-label="Follow us on Facebook"><i class="fab fa-facebook-f"></i></a>
-<a href="https://www.instagram.com/YOUR_PROFILE" aria-label="Follow us on Instagram"><i class="fab fa-instagram"></i></a>
-<a href="mailto:specifysai@gmail.com" aria-label="Send us an email"><i class="fas fa-envelope"></i></a>
-<a href="https://www.producthunt.com/products/specifys-ai" target="_blank" aria-label="Check us out on Product Hunt"><i class="fab fa-product-hunt"></i></a>
-</div>
-</div>
-<div class="footer-copyright">© 2025 Specifys.ai. All rights reserved.</div>
-</footer>
-<script>
-const questions = [
-  "What is the general purpose and idea of your app?",
-  "Describe the typical workflow of a user using your app.",
-  "What design elements are most important for your app?",
-  "What key features do you want your app to have?",
-  "Who is your target audience?",
-  [
-    "Does your app require a user account system?",
-    "Does your app use or integrate with AI features?",
-    "Will your app be free to use?",
-    "Does your app need to send notifications?",
-    "Does your app need to work offline?",
-    "Will your app support multiple languages?",
-    "Does your app require integration with social media?",
-    "Will your app collect user data for analytics?"
-  ],
-  "Any additional notes or requirements for your app?"
-];
-const stepTitles = [
-  "App Overview",
-  "User Workflow",
-  "Design",
-  "Features",
-  "Target Audience",
-  "App Settings",
-  "Additional Notes"
-];
-const tips = [
-  "Focus on the core problem your app solves and its unique value proposition.",
-  "Break down the user journey into clear steps, from onboarding to key actions.",
-  "Consider aspects like color scheme, typography, and user interface simplicity.",
-  "List specific functionalities that make your app stand out, e.g., chat or payments.",
-  "Define your audience by age, interests, or behaviors to tailor your app.",
-  "Select 'Yes' or 'No' for each setting to define your app's technical requirements.",
-  "Include any extra details, such as specific integrations or future ideas."
-];
-const exampleAnswers = [
-  "My app, FitTrack, is a fitness and nutrition tracking platform designed to help users achieve their health goals. It allows users to log workouts, track meals, set fitness targets, and receive personalized recommendations based on their progress. The unique value is its AI-driven coaching that adapts to user habits and provides motivational nudges.",
-  "A typical user starts by creating a profile and setting goals (e.g., weight loss or muscle gain). They log daily meals via a barcode scanner or manual input and record workouts by selecting exercises from a library. The app suggests meal plans and workout routines based on their progress. Users can review weekly reports to track trends and adjust goals.",
-  "The app should have a clean, modern interface with a calming color palette (blues and greens). Large, bold typography ensures readability, and intuitive navigation with a bottom tab bar is key. Interactive charts for progress tracking and minimalistic icons enhance the user experience.",
-  "Key features include: 1) AI-driven workout and meal suggestions, 2) Barcode scanner for food logging, 3) Social sharing to connect with friends, 4) Progress tracking with visual charts, 5) In-app reminders, and 6) Integration with wearables like Fitbit for real-time data.",
-  "The target audience is health-conscious individuals aged 18-45, primarily fitness enthusiasts and beginners looking to improve their lifestyle. They are tech-savvy, use smartphones daily, and value convenience and personalization in their fitness journey.",
-  [
-    "Yes",
-    "Yes",
-    "Yes",
-    "Yes",
-    "No",
-    "No",
-    "Yes",
-    "Yes"
-  ],
-  "The app should integrate with health wearables like Apple Watch and support push notifications for workout reminders. Future plans include adding a community feature for user challenges."
-];
-let currentStep = 0;
-const totalSteps = stepTitles.length;
-let textarea, stepTitle, stepQuestion, prevButton, nextButton, goButton, progressFill, charCount, tipText, exampleButton, errorMessage, loadingSpinner, toast, yesNoContainer, questionWrapper;
-const storageKey = "noCodeAnswers";
-let answers = {};
-let originalAnswer = "";
-const indicators = [
-  "overview-indicator",
-  "workflow-indicator",
-  "design-indicator",
-  "features-indicator",
-  "audience-indicator",
-  "settings-indicator",
-  "notes-indicator"
-];
-let typingTimer, feedbackTimer, dotsTimer, dotsCount = 0;
-function generateContentFromAnswers(answers) {
-  let content = "";
-  content += "# App Specification\n\n";
-  content += "## General Information\n\n";
-  content += answers[0] ? `${answers[0]}\n\n` : "No general information provided.\n\n";
-  content += "## User Flow\n\n";
-  content += answers[1] ? `${answers[1]}\n\n` : "No user flow specified.\n\n";
-  content += "## Visual Style Guidelines\n\n";
-  content += answers[2] ? `${answers[2]}\n\n` : "No design elements specified.\n\n";
-  content += "## Core Features\n\n";
-  content += answers[3] ? `${answers[3].replace(/^\d+\)\s*/gm, "- ")}\n\n` : "No features specified.\n\n";
-  content += "## Target Audience\n\n";
-  content += answers[4] ? `${answers[4]}\n\n` : "No target audience specified.\n\n";
-  content += "## App Settings\n\n";
-  if (Array.isArray(answers[5])) {
-    content += answers[5].map((answer, i) => `${questions[5][i]}: ${answer || "Not specified"}`).join("\n") + "\n\n";
-  } else {
-    content += "No settings specified.\n\n";
-  }
-  content += "## Additional Notes\n\n";
-  content += answers[6] ? `${answers[6]}\n\n` : "No additional notes provided.\n\n";
-  return content;
-}
-function showExample() {
-  if (currentStep === 5) {
-    originalAnswer = JSON.stringify(answers[currentStep] || {});
-    const yesNoButtons = document.querySelectorAll(".yes-no-button");
-    exampleAnswers[currentStep].forEach((answer, index) => {
-      const buttons = yesNoButtons[index * 2].parentElement.querySelectorAll(".yes-no-button");
-      buttons.forEach(button => button.classList.remove("selected"));
-      buttons[answer === "Yes" ? 0 : 1].classList.add("selected");
-    });
-  } else {
-    originalAnswer = textarea.value;
-    textarea.value = exampleAnswers[currentStep];
-    charCount.textContent = `${textarea.value.length}/2500`;
-  }
-}
-function restoreAnswer() {
-  if (currentStep === 5) {
-    const savedAnswers = JSON.parse(originalAnswer || "{}");
-    const yesNoButtons = document.querySelectorAll(".yes-no-button");
-    yesNoButtons.forEach(button => button.classList.remove("selected"));
-    questions[5].forEach((_, index) => {
-      const buttons = yesNoButtons[index * 2].parentElement.querySelectorAll(".yes-no-button");
-      const saved = savedAnswers[index];
-      if (saved) {
-        buttons[saved === "Yes" ? 0 : 1].classList.add("selected");
-      }
-    });
-  } else {
-    textarea.value = originalAnswer;
-    charCount.textContent = `${textarea.value.length}/2500`;
-  }
-}
-function showToast() {
-  toast.classList.add("show");
-  setTimeout(() => {
-    toast.classList.remove("show");
-  }, 3000);
-}
-function showFeedbackMessage(message, type) {
-  errorMessage.textContent = message;
-  errorMessage.className = "show";
-  if (type === "analyzing") {
-    errorMessage.classList.add("analyzing");
-    errorMessage.classList.remove("feedback", "success");
-  } else if (type === "short") {
-    errorMessage.classList.add("feedback");
-    errorMessage.classList.remove("analyzing", "success");
-  } else {
-    errorMessage.classList.add("success");
-    errorMessage.classList.remove("analyzing", "feedback");
-  }
-  errorMessage.style.display = "block";
-}
-function hideFeedbackMessage() {
-  errorMessage.style.display = "none";
-  errorMessage.classList.remove("show", "analyzing", "feedback", "success");
-  clearInterval(dotsTimer);
-}
-function updateDots() {
-  dotsCount = (dotsCount + 1) % 4;
-  const dots = ".".repeat(dotsCount);
-  errorMessage.textContent = `Analyzing answer${dots}`;
-}
-function updateUI() {
-  stepTitle.textContent = stepTitles[currentStep];
-  if (currentStep === 5) {
-    questionWrapper.style.display = "none";
-    yesNoContainer.style.display = "flex";
-    textarea.style.display = "none";
-    charCount.style.display = "none";
-    exampleButton.style.display = "inline-flex";
-    yesNoContainer.innerHTML = "";
-    questions[5].forEach((question, index) => {
-      const savedAnswer = answers[5] && answers[5][index];
-      yesNoContainer.innerHTML += `
-        <div class="yes-no-item">
-          <span class="yes-no-label">${question}</span>
-          <div class="yes-no-buttons">
-            <button class="yes-no-button${savedAnswer === "Yes" ? " selected" : ""}" onclick="selectYesNo(${index}, 'Yes')">Yes</button>
-            <button class="yes-no-button${savedAnswer === "No" ? " selected" : ""}" onclick="selectYesNo(${index}, 'No')">No</button>
+  <header class="thematic-header" role="banner">
+    <div class="logo">
+      <a href="index.html" aria-label="specifys.ai homepage">specifys.ai</a>
+    </div>
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+      <i class="fas fa-moon"></i>
+    </button>
+  </header>
+
+  <div class="carousel-container">
+    <div id="carouselContent" class="carousel-content">
+      <button id="prevButton" class="carousel-button-left" onclick="prevStep()" aria-label="Previous step" style="display: none;">
+        <i class="fas fa-arrow-left"></i>
+      </button>
+      <div class="step-container">
+        <h3 id="stepTitle">App Overview</h3>
+        <div class="question-wrapper" id="questionWrapper">
+          <p id="stepQuestion" class="question-label" aria-describedby="tipText"></p>
+          <i class="fas fa-lightbulb tip-icon" aria-label="Show tip"></i>
+          <div id="tipText" class="tip-tooltip"><span class="close-tip" onclick="this.parentElement.style.display='none'">×</span></div>
+        </div>
+        <div id="yesNoContainer" class="yes-no-container" style="display: none;"></div>
+        <textarea id="stepTextarea" class="step-textarea" maxlength="2500" placeholder="Enter your response here..." aria-label="Answer the current question"></textarea>
+        <span id="charCount" class="char-count">0/2500</span>
+        <button id="exampleButton" class="example-button" onmouseover="showExample()" onmouseout="restoreAnswer()" aria-label="Show example answer">
+          <i class="fas fa-eye"></i> Example
+        </button>
+        <div id="errorMessage" role="alert"></div>
+        <div class="progress-container">
+          <div class="progress-bar">
+            <div id="progressFill" class="progress-fill"></div>
+          </div>
+          <div class="discipline-indicators" role="group" aria-label="Progress indicators by category">
+            <div class="indicator-item">
+              <span class="indicator-status" id="overview-indicator" aria-label="App Overview progress"></span>
+              <span>App Overview</span>
+            </div>
+            <div class="indicator-item">
+              <span class="indicator-status" id="workflow-indicator" aria-label="User Workflow progress"></span>
+              <span>User Workflow</span>
+            </div>
+            <div class="indicator-item">
+              <span class="indicator-status" id="design-indicator" aria-label="Design progress"></span>
+              <span>Design</span>
+            </div>
+            <div class="indicator-item">
+              <span class="indicator-status" id="features-indicator" aria-label="Features progress"></span>
+              <span>Features</span>
+            </div>
+            <div class="indicator-item">
+              <span class="indicator-status" id="audience-indicator" aria-label="Target Audience progress"></span>
+              <span>Target Audience</span>
+            </div>
+            <div class="indicator-item">
+              <span class="indicator-status" id="settings-indicator" aria-label="App Settings progress"></span>
+              <span>App Settings</span>
+            </div>
+            <div class="indicator-item">
+              <span class="indicator-status" id="notes-indicator" aria-label="Additional Notes progress"></span>
+              <span>Additional Notes</span>
+            </div>
           </div>
         </div>
-      `;
-    });
-  } else {
-    questionWrapper.style.display = "flex";
-    yesNoContainer.style.display = "none";
-    textarea.style.display = "block";
-    charCount.style.display = "block";
-    exampleButton.style.display = "inline-flex";
-    stepQuestion.textContent = questions[currentStep];
-    tipText.innerHTML = tips[currentStep] + '<span class="close-tip" onclick="this.parentElement.style.display=\'none\'">×</span>';
-    textarea.value = answers[currentStep] || "";
-    charCount.textContent = `${textarea.value.length}/2500`;
-  }
-  const progress = ((currentStep + 1) / totalSteps) * 100;
-  progressFill.style.width = `${progress}%`;
-  indicators.forEach((indicator, index) => {
-    const element = document.getElementById(indicator);
-    if (index === 5) {
-      if (answers[5] && answers[5].length === questions[5].length && answers[5].every(a => a === "Yes" || a === "No")) {
-        element.classList.add("completed");
+      </div>
+      <button id="nextButton" class="carousel-button-right" onclick="nextStep()" aria-label="Next step">
+        <i class="fas fa-arrow-right"></i>
+      </button>
+      <button id="goButton" class="carousel-button-right generate-spec-button" onclick="generateSpecification()" style="display: none;" disabled aria-label="Generate specification, disabled until all required questions are answered">
+        <i class="fas fa-rocket"></i>
+      </button>
+      <div id="loadingSpinner" class="loading-spinner"></div>
+    </div>
+    <div id="toast" class="toast">Answers saved successfully!</div>
+  </div>
+
+  <footer>
+    <div class="footer-content">
+      <div class="footer-links">
+        <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
+        <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
+        <a href="/blog.html" aria-label="Visit our blog">Blog</a>
+        <a href="map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
+      </div>
+      <span class="footer-divider">|</span>
+      <div class="footer-social">
+        <a href="https://www.linkedin.com/company/specifys-ai/" aria-label="Follow us on LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+        <a href="https://www.facebook.com/profile.php?id=61576402600129&locale=he_IL" target="_blank" aria-label="Follow us on Facebook"><i class="fab fa-facebook-f"></i></a>
+        <a href="https://www.instagram.com/YOUR_PROFILE" aria-label="Follow us on Instagram"><i class="fab fa-instagram"></i></a>
+        <a href="mailto:specifysai@gmail.com" aria-label="Send us an email"><i class="fas fa-envelope"></i></a>
+        <a href="https://www.producthunt.com/products/specifys-ai" target="_blank" aria-label="Check us out on Product Hunt"><i class="fab fa-product-hunt"></i></a>
+      </div>
+    </div>
+    <div class="footer-copyright">
+      © 2025 specifys.ai. All rights reserved.
+    </div>
+  </footer>
+
+  <script>
+    const questions = [
+      "What is the general purpose and idea of your app?",
+      "Describe the typical workflow of a user using your app.",
+      "What design elements are most important for your app?",
+      "What key features do you want your app to have?",
+      "Who is your target audience?",
+      [
+        "Does your app require a user account system?",
+        "Does your app use or integrate with AI features?",
+        "Will your app be free to use?",
+        "Does your app need to send notifications?",
+        "Does your app need to work offline?",
+        "Will your app support multiple languages?",
+        "Does your app require integration with social media?",
+        "Will your app collect user data for analytics?"
+      ],
+      "Any additional notes or requirements for your app?"
+    ];
+
+    const stepTitles = [
+      "App Overview",
+      "User Workflow",
+      "Design",
+      "Features",
+      "Target Audience",
+      "App Settings",
+      "Additional Notes"
+    ];
+
+    const tips = [
+      "Focus on the core problem your app solves and its unique value proposition.",
+      "Break down the user journey into clear steps, from onboarding to key actions.",
+      "Consider aspects like color scheme, typography, and user interface simplicity.",
+      "List specific functionalities that make your app stand out, e.g., chat or payments.",
+      "Define your audience by age, interests, or behaviors to tailor your app.",
+      "Select 'Yes' or 'No' for each setting to define your app's technical requirements.",
+      "Include any extra details, such as specific integrations or future ideas."
+    ];
+
+    const exampleAnswers = [
+      "My app, FitTrack, is a fitness and nutrition tracking platform designed to help users achieve their health goals. It allows users to log workouts, track meals, set fitness targets, and receive personalized recommendations based on their progress. The unique value is its AI-driven coaching that adapts to user habits and provides motivational nudges.",
+      "A typical user starts by creating a profile and setting goals (e.g., weight loss or muscle gain). They log daily meals via a barcode scanner or manual input and record workouts by selecting exercises from a library. The app suggests meal plans and workout routines based on their progress. Users can review weekly reports to track trends and adjust goals.",
+      "The app should have a clean, modern interface with a calming color palette (blues and greens). Large, bold typography ensures readability, and intuitive navigation with a bottom tab bar is key. Interactive charts for progress tracking and minimalistic icons enhance the user experience.",
+      "Key features include: 1) AI-driven workout and meal suggestions, 2) Barcode scanner for food logging, 3) Social sharing to connect with friends, 4) Progress tracking with visual charts, 5) In-app reminders, and 6) Integration with wearables like Fitbit for real-time data.",
+      "The target audience is health-conscious individuals aged 18-45, primarily fitness enthusiasts and beginners looking to improve their lifestyle. They are tech-savvy, use smartphones daily, and value convenience and personalization in their fitness journey.",
+      [
+        "Yes",
+        "Yes",
+        "Yes",
+        "Yes",
+        "No",
+        "No",
+        "Yes",
+        "Yes"
+      ],
+      "The app should integrate with health wearables like Apple Watch and support push notifications for workout reminders. Future plans include adding a community feature for user challenges."
+    ];
+
+    let currentStep = 0;
+    const totalSteps = stepTitles.length;
+    let textarea, stepTitle, stepQuestion, prevButton, nextButton, goButton, progressFill, charCount, tipText, exampleButton, errorMessage, loadingSpinner, toast, yesNoContainer, questionWrapper;
+    const storageKey = "noCodeAnswers";
+    let answers = {};
+    let originalAnswer = "";
+    const indicators = [
+      "overview-indicator",
+      "workflow-indicator",
+      "design-indicator",
+      "features-indicator",
+      "audience-indicator",
+      "settings-indicator",
+      "notes-indicator"
+    ];
+    let typingTimer, feedbackTimer, dotsTimer, dotsCount = 0;
+
+    function generateContentFromAnswers(answers) {
+      let content = "";
+      content += "# App Specification\n\n";
+      content += "## General Information\n\n";
+      content += answers[0] ? `${answers[0]}\n\n` : "No general information provided.\n\n";
+      content += "## User Flow\n\n";
+      content += answers[1] ? `${answers[1]}\n\n` : "No user flow specified.\n\n";
+      content += "## Visual Style Guidelines\n\n";
+      content += answers[2] ? `${answers[2]}\n\n` : "No design elements specified.\n\n";
+      content += "## Core Features\n\n";
+      content += answers[3] ? `${answers[3].replace(/^\d+\)\s*/gm, "- ")}\n\n` : "No features specified.\n\n";
+      content += "## Target Audience\n\n";
+      content += answers[4] ? `${answers[4]}\n\n` : "No target audience specified.\n\n";
+      content += "## App Settings\n\n";
+      if (Array.isArray(answers[5])) {
+        content += answers[5].map((answer, i) => `${questions[5][i]}: ${answer || "Not specified"}`).join("\n") + "\n\n";
       } else {
-        element.classList.remove("completed");
+        content += "No settings specified.\n\n";
       }
-    } else {
-      if (answers[index] && answers[index].trim()) {
-        element.classList.add("completed");
+      content += "## Additional Notes\n\n";
+      content += answers[6] ? `${answers[6]}\n\n` : "No additional notes provided.\n\n";
+      return content;
+    }
+
+    function showExample() {
+      if (currentStep === 5) {
+        originalAnswer = JSON.stringify(answers[currentStep] || {});
+        const yesNoButtons = document.querySelectorAll(".yes-no-button");
+        exampleAnswers[currentStep].forEach((answer, index) => {
+          const buttons = yesNoButtons[index * 2].parentElement.querySelectorAll(".yes-no-button");
+          buttons.forEach(button => button.classList.remove("selected"));
+          buttons[answer === "Yes" ? 0 : 1].classList.add("selected");
+        });
       } else {
-        element.classList.remove("completed");
+        originalAnswer = textarea.value;
+        textarea.value = exampleAnswers[currentStep];
+        charCount.textContent = `${textarea.value.length}/2500`;
       }
     }
-  });
-  prevButton.style.display = currentStep === 0 ? "none" : "flex";
-  nextButton.style.display = currentStep === totalSteps - 1 ? "none" : "flex";
-  goButton.style.display = currentStep === totalSteps - 1 ? "flex" : "none";
-  goButton.disabled = ![0, 1, 2, 3, 4, 5, 6].every((i) => {
-    if (i === 5) {
-      return answers[5] && answers[5].length === questions[5].length && answers[5].every(a => a === "Yes" || a === "No");
+
+    function restoreAnswer() {
+      if (currentStep === 5) {
+        const savedAnswers = JSON.parse(originalAnswer || "{}");
+        const yesNoButtons = document.querySelectorAll(".yes-no-button");
+        yesNoButtons.forEach(button => button.classList.remove("selected"));
+        questions[5].forEach((_, index) => {
+          const buttons = yesNoButtons[index * 2].parentElement.querySelectorAll(".yes-no-button");
+          const saved = savedAnswers[index];
+          if (saved) {
+            buttons[saved === "Yes" ? 0 : 1].classList.add("selected");
+          }
+        });
+      } else {
+        textarea.value = originalAnswer;
+        charCount.textContent = `${textarea.value.length}/2500`;
+      }
     }
-    return answers[i] && answers[i].trim();
-  });
-  goButton.setAttribute("aria-label", goButton.disabled ? "Generate specification, disabled until all required questions are answered" : "Generate specification");
-}
-function selectYesNo(index, value) {
-  answers[5] = answers[5] || Array(questions[5].length).fill(null);
-  answers[5][index] = value;
-  localStorage.setItem(storageKey, JSON.stringify(answers));
-  showToast();
-  updateUI();
-  clearTimeout(feedbackTimer);
-  clearInterval(dotsTimer);
-  showFeedbackMessage("Analyzing answer.", "analyzing");
-  dotsTimer = setInterval(updateDots, 500);
-  feedbackTimer = setTimeout(() => {
-    clearInterval(dotsTimer);
-    if (answers[5].every(a => a === "Yes" || a === "No")) {
-      showFeedbackMessage("Great! All settings have been selected.", "success");
-    } else {
-      showFeedbackMessage("Please answer all settings questions.", "short");
+
+    function showToast() {
+      toast.classList.add("show");
+      setTimeout(() => {
+        toast.classList.remove("show");
+      }, 3000);
     }
-  }, 1500);
-}
-document.addEventListener("DOMContentLoaded", () => {
-  const savedAnswers = localStorage.getItem(storageKey);
-  if (savedAnswers) {
-    answers = JSON.parse(savedAnswers);
-  }
-  localStorage.removeItem("marketAnswers");
-  localStorage.removeItem("currentMode");
-  localStorage.setItem("currentMode", "nocode");
-  textarea = document.getElementById("stepTextarea");
-  stepTitle = document.getElementById("stepTitle");
-  stepQuestion = document.getElementById("stepQuestion");
-  prevButton = document.getElementById("prevButton");
-  nextButton = document.getElementById("nextButton");
-  goButton = document.getElementById("goButton");
-  progressFill = document.getElementById("progressFill");
-  charCount = document.getElementById("charCount");
-  tipText = document.getElementById("tipText");
-  exampleButton = document.getElementById("exampleButton");
-  errorMessage = document.getElementById("errorMessage");
-  loadingSpinner = document.getElementById("loadingSpinner");
-  toast = document.getElementById("toast");
-  yesNoContainer = document.getElementById("yesNoContainer");
-  questionWrapper = document.getElementById("questionWrapper");
-  updateUI();
-  textarea.addEventListener("input", () => {
-    const value = textarea.value.trim();
-    answers[currentStep] = textarea.value;
-    charCount.textContent = `${textarea.value.length}/2500`;
-    clearTimeout(typingTimer);
-    clearTimeout(feedbackTimer);
-    clearInterval(dotsTimer);
-    showFeedbackMessage("Analyzing answer.", "analyzing");
-    dotsTimer = setInterval(updateDots, 500);
-    typingTimer = setTimeout(() => {
+
+    function showFeedbackMessage(message, type) {
+      errorMessage.textContent = message;
+      errorMessage.className = "show";
+      if (type === "analyzing") {
+        errorMessage.classList.add("analyzing");
+        errorMessage.classList.remove("feedback", "success");
+      } else if (type === "short") {
+        errorMessage.classList.add("feedback");
+        errorMessage.classList.remove("analyzing", "success");
+      } else {
+        errorMessage.classList.add("success");
+        errorMessage.classList.remove("analyzing", "feedback");
+      }
+      errorMessage.style.display = "block";
+    }
+
+    function hideFeedbackMessage() {
+      errorMessage.style.display = "none";
+      errorMessage.classList.remove("show", "analyzing", "feedback", "success");
+      clearInterval(dotsTimer);
+    }
+
+    function updateDots() {
+      dotsCount = (dotsCount + 1) % 4;
+      const dots = ".".repeat(dotsCount);
+      errorMessage.textContent = `Analyzing answer${dots}`;
+    }
+
+    function updateUI() {
+      stepTitle.textContent = stepTitles[currentStep];
+      if (currentStep === 5) {
+        questionWrapper.style.display = "none";
+        yesNoContainer.style.display = "flex";
+        textarea.style.display = "none";
+        charCount.style.display = "none";
+        exampleButton.style.display = "inline-flex";
+        yesNoContainer.innerHTML = "";
+        questions[5].forEach((question, index) => {
+          const savedAnswer = answers[5] && answers[5][index];
+          yesNoContainer.innerHTML += `
+            <div class="yes-no-item">
+              <span class="yes-no-label">${question}</span>
+              <div class="yes-no-buttons">
+                <button class="yes-no-button${savedAnswer === "Yes" ? " selected" : ""}" onclick="selectYesNo(${index}, 'Yes')">Yes</button>
+                <button class="yes-no-button${savedAnswer === "No" ? " selected" : ""}" onclick="selectYesNo(${index}, 'No')">No</button>
+              </div>
+            </div>
+          `;
+        });
+      } else {
+        questionWrapper.style.display = "flex";
+        yesNoContainer.style.display = "none";
+        textarea.style.display = "block";
+        charCount.style.display = "block";
+        exampleButton.style.display = "inline-flex";
+        stepQuestion.textContent = questions[currentStep];
+        tipText.innerHTML = tips[currentStep] + '<span class="close-tip" onclick="this.parentElement.style.display=\'none\'">×</span>';
+        textarea.value = answers[currentStep] || "";
+        charCount.textContent = `${textarea.value.length}/2500`;
+      }
+
+      const progress = ((currentStep + 1) / totalSteps) * 100;
+      progressFill.style.width = `${progress}%`;
+
+      indicators.forEach((indicator, index) => {
+        const element = document.getElementById(indicator);
+        if (index === 5) {
+          if (answers[5] && answers[5].length === questions[5].length && answers[5].every(a => a === "Yes" || a === "No")) {
+            element.classList.add("completed");
+          } else {
+            element.classList.remove("completed");
+          }
+        } else {
+          if (answers[index] && answers[index].trim()) {
+            element.classList.add("completed");
+          } else {
+            element.classList.remove("completed");
+          }
+        }
+      });
+
+      prevButton.style.display = currentStep === 0 ? "none" : "flex";
+      nextButton.style.display = currentStep === totalSteps - 1 ? "none" : "flex";
+      goButton.style.display = currentStep === totalSteps - 1 ? "flex" : "none";
+      goButton.disabled = ![0, 1, 2, 3, 4, 5, 6].every((i) => {
+        if (i === 5) {
+          return answers[5] && answers[5].length === questions[5].length && answers[5].every(a => a === "Yes" || a === "No");
+        }
+        return answers[i] && answers[i].trim();
+      });
+      goButton.setAttribute("aria-label", goButton.disabled ? "Generate specification, disabled until all required questions are answered" : "Generate specification");
+    }
+
+    function selectYesNo(index, value) {
+      answers[5] = answers[5] || Array(questions[5].length).fill(null);
+      answers[5][index] = value;
       localStorage.setItem(storageKey, JSON.stringify(answers));
       showToast();
-    }, 10000);
-    feedbackTimer = setTimeout(() => {
+      updateUI();
+
+      clearTimeout(feedbackTimer);
       clearInterval(dotsTimer);
-      if (value.length === 0) {
-        hideFeedbackMessage();
-      } else if (value.length < 50) {
-        showFeedbackMessage("Your answer is a bit short. Try adding more details!", "short");
-      } else if (value.length < 100) {
-        showFeedbackMessage("Your answer length is okay, but could use more depth.", "success");
-      } else {
-        showFeedbackMessage("Great job! Your answer length is good.", "success");
+      showFeedbackMessage("Analyzing answer.", "analyzing");
+      dotsTimer = setInterval(updateDots, 500);
+
+      feedbackTimer = setTimeout(() => {
+        clearInterval(dotsTimer);
+        if (answers[5].every(a => a === "Yes" || a === "No")) {
+          showFeedbackMessage("Great! All settings have been selected.", "success");
+        } else {
+          showFeedbackMessage("Please answer all settings questions.", "short");
+        }
+      }, 1500);
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const savedAnswers = localStorage.getItem(storageKey);
+      if (savedAnswers) {
+        answers = JSON.parse(savedAnswers);
       }
-    }, 1500);
-    updateUI();
-  });
-  textarea.addEventListener("keydown", () => {
-    clearTimeout(feedbackTimer);
-    clearInterval(dotsTimer);
-    showFeedbackMessage("Analyzing answer.", "analyzing");
-    dotsTimer = setInterval(updateDots, 500);
-  });
-  const themeToggle = document.getElementById('themeToggle');
-  themeToggle.addEventListener('click', () => {
-    document.body.classList.toggle('dark-mode');
-    const isDarkMode = document.body.classList.contains('dark-mode');
-    themeToggle.querySelector('i').classList.toggle('fa-moon', !isDarkMode);
-    themeToggle.querySelector('i').classList.toggle('fa-sun', isDarkMode);
-    themeToggle.setAttribute('aria-label', isDarkMode ? 'Toggle light mode' : 'Toggle dark mode');
-    localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
-  });
-  const savedTheme = localStorage.getItem('theme');
-  if (savedTheme === 'dark') {
-    document.body.classList.add('dark-mode');
-    themeToggle.querySelector('i').classList.replace('fa-moon', 'fa-sun');
-    themeToggle.setAttribute('aria-label', 'Toggle light mode');
-  }
-});
-window.prevStep = function() {
-  if (currentStep > 0) {
-    currentStep--;
-    errorMessage.style.display = "none";
-    clearInterval(dotsTimer);
-    updateUI();
-  }
-};
-window.nextStep = function() {
-  if (currentStep === 5) {
-    if (!answers[5] || answers[5].length !== questions[5].length || !answers[5].every(a => a === "Yes" || a === "No")) {
-      showFeedbackMessage("Please answer all settings questions before proceeding.", "short");
-      return;
-    }
-  } else {
-    const textareaValue = textarea.value.trim();
-    if (!textareaValue) {
-      showFeedbackMessage("Please answer the current question before proceeding.", "short");
-      return;
-    }
-    answers[currentStep] = textareaValue;
-  }
-  localStorage.setItem(storageKey, JSON.stringify(answers));
-  showToast();
-  if (currentStep < totalSteps - 1) {
-    currentStep++;
-    errorMessage.style.display = "none";
-    clearInterval(dotsTimer);
-    updateUI();
-  }
-};
-window.generateSpecification = async function() {
-  const allOpenQuestionsAnswered = [0, 1, 2, 3, 4, 6].every((i) => answers[i] && answers[i].trim());
-  const allYesNoAnswered = answers[5] && answers[5].length === questions[5].length && answers[5].every(a => a === "Yes" || a === "No");
-  if (!allOpenQuestionsAnswered || !allYesNoAnswered) {
-    showFeedbackMessage("Please complete all required steps before generating the specification.", "short");
-    return;
-  }
-  errorMessage.style.display = "none";
-  clearInterval(dotsTimer);
-  goButton.style.display = "none";
-  loadingSpinner.style.display = "block";
-  const rawContent = generateContentFromAnswers(answers);
-  localStorage.setItem("rawContent", rawContent);
-  localStorage.setItem(storageKey, JSON.stringify(answers));
-  showToast();
-  try {
-    if (typeof window.generateSpecificationOriginal !== "function") {
-      throw new Error("External script (processing-novice.js) failed to load or function is missing.");
-    }
-    await window.generateSpecificationOriginal();
-  } catch (error) {
-    console.error("Error calling API:", error);
-    showFeedbackMessage(`Failed to generate specification: ${error.message}. Using raw content as fallback.`, "short");
-    localStorage.setItem("generatedContent", rawContent);
-  }
-  loadingSpinner.style.display = "none";
-  window.location.href = "result-novice.html";
-};
-</script>
-<noscript>
-<div style="text-align: center; padding: 10px; background: #fff; color: #333;">
-<p>This website requires JavaScript to function properly. Please enable JavaScript in your browser.</p>
-</div>
-</noscript>
+
+      localStorage.removeItem("marketAnswers");
+      localStorage.removeItem("currentMode");
+      localStorage.setItem("currentMode", "nocode");
+
+      textarea = document.getElementById("stepTextarea");
+      stepTitle = document.getElementById("stepTitle");
+      stepQuestion = document.getElementById("stepQuestion");
+      prevButton = document.getElementById("prevButton");
+      nextButton = document.getElementById("nextButton");
+      goButton = document.getElementById("goButton");
+      progressFill = document.getElementById("progressFill");
+      charCount = document.getElementById("charCount");
+      tipText = document.getElementById("tipText");
+      exampleButton = document.getElementById("exampleButton");
+      errorMessage = document.getElementById("errorMessage");
+      loadingSpinner = document.getElementById("loadingSpinner");
+      toast = document.getElementById("toast");
+      yesNoContainer = document.getElementById("yesNoContainer");
+      questionWrapper = document.getElementById("questionWrapper");
+
+      const themeToggle = document.getElementById("themeToggle");
+      const savedTheme = localStorage.getItem("theme") || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.body.setAttribute("data-theme", savedTheme);
+      updateThemeIcon(savedTheme);
+
+      themeToggle.addEventListener("click", () => {
+        const currentTheme = document.body.getAttribute("data-theme") === "dark" ? "light" : "dark";
+        document.body.setAttribute("data-theme", currentTheme);
+        localStorage.setItem("theme", currentTheme);
+        updateThemeIcon(currentTheme);
+      });
+
+      function updateThemeIcon(theme) {
+        themeToggle.innerHTML = `<i class="fas fa-${theme === "dark" ? "sun" : "moon"}"></i>`;
+        themeToggle.setAttribute("aria-label", `Switch to ${theme === "dark" ? "light" : "dark"} mode`);
+      }
+
+      updateUI();
+
+      textarea.addEventListener("input", () => {
+        const value = textarea.value.trim();
+        answers[currentStep] = textarea.value;
+        charCount.textContent = `${textarea.value.length}/2500`;
+
+        clearTimeout(typingTimer);
+        clearTimeout(feedbackTimer);
+        clearInterval(dotsTimer);
+
+        showFeedbackMessage("Analyzing answer.", "analyzing");
+        dotsTimer = setInterval(updateDots, 500);
+
+        typingTimer = setTimeout(() => {
+          localStorage.setItem(storageKey, JSON.stringify(answers));
+          showToast();
+        }, 10000);
+
+        feedbackTimer = setTimeout(() => {
+          clearInterval(dotsTimer);
+          if (value.length === 0) {
+            hideFeedbackMessage();
+          } else if (value.length < 50) {
+            showFeedbackMessage("Your answer is a bit short. Try adding more details!", "short");
+          } else if (value.length < 100) {
+            showFeedbackMessage("Your answer length is okay, but could use more depth.", "success");
+          } else {
+            showFeedbackMessage("Great job! Your answer length is good.", "success");
+          }
+        }, 1500);
+
+        updateUI();
+      });
+
+      textarea.addEventListener("keydown", () => {
+        clearTimeout(feedbackTimer);
+        clearInterval(dotsTimer);
+        showFeedbackMessage("Analyzing answer.", "analyzing");
+        dotsTimer = setInterval(updateDots, 500);
+      });
+    });
+
+    window.prevStep = function() {
+      if (currentStep > 0) {
+        currentStep--;
+        errorMessage.style.display = "none";
+        clearInterval(dotsTimer);
+        updateUI();
+      }
+    };
+
+    window.nextStep = function() {
+      if (currentStep === 5) {
+        if (!answers[5] || answers[5].length !== questions[5].length || !answers[5].every(a => a === "Yes" || a === "No")) {
+          showFeedbackMessage("Please answer all settings questions before proceeding.", "short");
+          return;
+        }
+      } else {
+        const textareaValue = textarea.value.trim();
+        if (!textareaValue) {
+          showFeedbackMessage("Please answer the current question before proceeding.", "short");
+          return;
+        }
+        answers[currentStep] = textareaValue;
+      }
+      localStorage.setItem(storageKey, JSON.stringify(answers));
+      showToast();
+      if (currentStep < totalSteps - 1) {
+        currentStep++;
+        errorMessage.style.display = "none";
+        clearInterval(dotsTimer);
+        updateUI();
+      }
+    };
+
+    window.generateSpecification = async function() {
+      const allOpenQuestionsAnswered = [0, 1, 2, 3, 4, 6].every((i) => answers[i] && answers[i].trim());
+      const allYesNoAnswered = answers[5] && answers[5].length === questions[5].length && answers[5].every(a => a === "Yes" || a === "No");
+      if (!allOpenQuestionsAnswered || !allYesNoAnswered) {
+        showFeedbackMessage("Please complete all required steps before generating the specification.", "short");
+        return;
+      }
+
+      errorMessage.style.display = "none";
+      clearInterval(dotsTimer);
+      goButton.style.display = "none";
+      loadingSpinner.style.display = "block";
+
+      const rawContent = generateContentFromAnswers(answers);
+      localStorage.setItem("rawContent", rawContent);
+      localStorage.setItem(storageKey, JSON.stringify(answers));
+      showToast();
+
+      try {
+        if (typeof window.generateSpecificationOriginal !== "function") {
+          throw new Error("External script (processing-novice.js) failed to load or function is missing.");
+        }
+        await window.generateSpecificationOriginal();
+      } catch (error) {
+        console.error("Error calling API:", error);
+        showFeedbackMessage(`Failed to generate specification: ${error.message}. Using raw content as fallback.`, "short");
+        localStorage.setItem("generatedContent", rawContent);
+      }
+      loadingSpinner.style.display = "none";
+      window.location.href = "result-novice.html";
+    };
+  </script>
+
+  <noscript>
+    <div style="text-align: center; padding: 10px; background: var(--content-bg); color: var(--text-color);">
+      <p>This website requires JavaScript to function properly. Please enable JavaScript in your browser.</p>
+    </div>
+  </noscript>
 </body>
 </html>
