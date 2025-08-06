@@ -4,478 +4,187 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Demo presentation of app specification results for Easy Start, Dev Tools, and Explore modes.">
-  <meta name="keywords" content="app specification demo, nocode creators, specifys.ai">
-  <meta name="author" content="specifys.ai Team">
-  <title>App Specification Demo</title>
+  <meta name="keywords" content="app specification demo, nocode creators, Specifys.ai, vibe coding">
+  <meta name="author" content="Specifys.ai Team">
+  <meta name="robots" content="index, follow">
+  <meta name="googlebot" content="index, follow">
+  <meta name="bingbot" content="index, follow">
+  <meta name="revisit-after" content="7 days">
+  <meta name="language" content="English">
+  <meta name="copyright" content="© 2025 Specifys.ai">
+  <meta name="publisher" content="Specifys.ai">
+  <meta name="distribution" content="global">
+  <meta name="rating" content="general">
+  <meta name="theme-color" content="#0078d4">
+  <meta name="canonical" content="https://specifys.ai/demo.html">
+  <meta property="og:title" content="App Specification Demo - Specifys.ai">
+  <meta property="og:description" content="Demo presentation of app specification results for Easy Start, Dev Tools, and Explore modes.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://specifys.ai/demo.html">
+  <meta property="og:image" content="https://specifys.ai/assets/og-image.jpg">
+  <meta property="og:image:alt" content="App Specification Demo with Specifys.ai">
+  <meta property="og:site_name" content="Specifys.ai">
+  <meta property="og:locale" content="en_US">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="App Specification Demo - Specifys.ai">
+  <meta name="twitter:description" content="Demo presentation of app specification results for Easy Start, Dev Tools, and Explore modes.">
+  <meta name="twitter:image" content="https://specifys.ai/assets/og-image.jpg">
+  <meta name="twitter:site" content="@specifys_ai">
+  <meta name="twitter:creator" content="@specifys_ai">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "headline": "App Specification Demo - Specifys.ai",
+    "description": "Demo presentation of app specification results for Easy Start, Dev Tools, and Explore modes.",
+    "image": "https://specifys.ai/assets/og-image.jpg",
+    "author": {
+      "@type": "Organization",
+      "name": "Specifys.ai Team"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Specifys.ai",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://specifys.ai/assets/logo.png"
+      }
+    },
+    "url": "https://specifys.ai/demo.html",
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "https://specifys.ai/demo.html"
+    },
+    "keywords": "app specification demo, nocode creators, Specifys.ai, vibe coding"
+  }
+  </script>
+  <title>App Specification Demo - Specifys.ai</title>
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap');
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    html {
-      height: 100%;
-    }
-
-    body {
-      font-family: 'Montserrat', sans-serif;
-      display: flex;
-      flex-direction: column;
-      min-height: 100%;
-      background: #f5f5f5;
-      overflow-x: auto;
-      position: relative;
-    }
-
-    .thematic-header {
-      position: fixed;
-      top: 0;
-      width: 100%;
-      padding: 20px;
-      display: flex;
-      justify-content: center;
-      z-index: 1000;
-      background: rgba(255, 255, 255, 0.9);
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-
-    .thematic-header .logo a {
-      text-decoration: none;
-      color: #333;
-      font-size: 1.65rem;
-      font-weight: 700;
-      transition: color 0.3s ease;
-    }
-
-    .thematic-header .logo a:hover {
-      color: #0078d4;
-    }
-
-    .carousel-container {
-      max-width: 900px;
-      width: 80%;
-      margin: 100px auto 20px auto;
-      padding: 20px;
-      background: #fff;
-      border-radius: 20px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      text-align: left;
-    }
-
-    .chat-container {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-      min-height: 400px;
-      padding: 20px;
-    }
-
-    .chat-message.result {
-      background: #fff;
-      color: #333;
-      border: 1px solid #ddd;
-      align-self: flex-start;
-      width: 100%;
-      max-width: 100%;
-      border-radius: 10px;
-      white-space: pre-wrap;
-      word-break: break-word;
-      padding: 20px;
-    }
-
-    .chat-message.result h1 {
-      font-size: 1.8rem;
-      font-weight: 700;
-      color: #333;
-      margin-bottom: 1rem;
-    }
-
-    .chat-message.result h2 {
-      font-size: 1.4rem;
-      font-weight: 600;
-      color: #333;
-      margin: 0.8rem 0;
-    }
-
-    .chat-message.result h3 {
-      font-size: 1.2rem;
-      font-weight: 500;
-      color: #333;
-      margin: 0.6rem 0;
-    }
-
-    .chat-message.result ul,
-    .chat-message.result ol {
-      margin-left: 20px;
-      margin-bottom: 1rem;
-    }
-
-    .chat-message.result li {
-      margin-bottom: 0.5rem;
-    }
-
-    .mode-buttons {
-      display: flex;
-      justify-content: center;
-      gap: 15px;
-      margin-bottom: 20px;
-    }
-
-    .mode-button {
-      background: #0078d4;
-      color: #fff;
-      padding: 10px 20px;
-      border-radius: 5px;
-      text-decoration: none;
-      font-size: 0.9rem;
-      font-weight: 700;
-      border: none;
-      cursor: pointer;
-      transition: background-color 0.3s ease, transform 0.3s ease;
-    }
-
-    .mode-button:hover {
-      background: #005ea2;
-      transform: translateY(-2px);
-    }
-
-    .mode-button.active {
-      background: #005ea2;
-    }
-
-    .platform-container {
-      max-width: 900px;
-      width: 80%;
-      margin: 20px auto;
-      padding: 20px;
-      background: #fff;
-      border-radius: 20px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      text-align: center;
-    }
-
-    .platform-container h3 {
-      font-size: 1.8rem;
-      font-weight: 700;
-      color: #333;
-      margin-bottom: 1rem;
-    }
-
-    .platform-instructions {
-      font-size: 1rem;
-      color: #666;
-      margin-bottom: 1.5rem;
-    }
-
-    .platform-boxes {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 15px;
-    }
-
-    .platform-box {
-      background: #0078d4;
-      color: #fff;
-      padding: 10px 20px;
-      border-radius: 5px;
-      text-decoration: none;
-      font-size: 0.9rem;
-      font-weight: 700;
-      transition: background-color 0.3s ease, transform 0.3s ease;
-      position: relative;
-      z-index: 10;
-    }
-
-    .platform-box:hover {
-      background: #005ea2;
-      transform: translateY(-2px);
-    }
-
-    .platform-box.vibe-coding {
-      background: #ff6f61;
-    }
-
-    .platform-box.vibe-coding:hover {
-      background: #e65b54;
-    }
-
-    .platform-box[data-tooltip]:hover::after {
-      content: attr(data-tooltip);
-      position: absolute;
-      top: calc(100% + 5px);
-      left: 50%;
-      transform: translateX(-50%);
-      background: #333;
-      color: #fff;
-      padding: 0.5rem;
-      border-radius: 4px;
-      font-size: 0.8rem;
-      width: 200px;
-      z-index: 20;
-      text-align: center;
-    }
-
-    .platform-details {
-      font-size: 0.9rem;
-      color: #666;
-      margin-top: 1.5rem;
-    }
-
-    footer {
-      padding: 20px 10px;
-      text-align: center;
-      color: #333;
-      flex-shrink: 0;
-      background: #fff;
-      box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
-    }
-
-    .footer-content {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: center;
-      gap: 20px;
-      flex-wrap: wrap;
-    }
-
-    .footer-links a {
-      color: #333;
-      text-decoration: none;
-      font-size: 0.85rem;
-      font-weight: 500;
-      margin: 0 20px;
-      transition: color 0.3s ease;
-    }
-
-    .footer-links a:hover {
-      color: #0078d4;
-    }
-
-    .footer-divider {
-      color: #333;
-      font-size: 1.2rem;
-      font-weight: 300;
-      margin: 0 20px;
-    }
-
-    .footer-social a {
-      color: #333;
-      font-size: 1.2rem;
-      margin: 0 20px;
-      transition: transform 0.3s ease, color 0.3s ease;
-    }
-
-    .footer-social a:hover {
-      color: #0078d4;
-      transform: scale(1.2);
-    }
-
-    .footer-copyright {
-      font-size: 0.8rem;
-      color: #666;
-      margin-top: 1rem;
-    }
-
-    #scrollToTop {
-      display: none;
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background-color: #0078d4;
-      color: #fff;
-      border: none;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      font-size: 1.2rem;
-      cursor: pointer;
-      z-index: 1000;
-      transition: opacity 0.3s ease;
-    }
-
-    #scrollToTop:hover {
-      background-color: #005ea2;
-    }
-
-    #scrollToTop.show {
-      display: block;
-    }
-
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { height: 100%; }
+    body { font-family: 'Montserrat', sans-serif; display: flex; flex-direction: column; min-height: 100%; background: #f5f5f5; overflow-x: auto; position: relative; transition: background 0.3s ease, color 0.3s ease; }
+    body.dark-mode { background: #1a1a1a; color: #e0e0e0; }
+    .thematic-header { position: fixed; top: 0; width: 100%; padding: 15px 20px; display: flex; justify-content: center; align-items: center; z-index: 2000; background: rgba(255, 255, 255, 0.9); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
+    body.dark-mode .thematic-header { background: rgba(30, 30, 30, 0.9); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); }
+    .thematic-header .logo a { text-decoration: none; color: #333; font-size: 1.6rem; font-weight: 700; transition: color 0.3s ease; }
+    body.dark-mode .thematic-header .logo a { color: #e0e0e0; }
+    .thematic-header .logo a:hover { color: #0078d4; }
+    .theme-toggle { position: fixed; top: 15px; right: 20px; background: none; border: none; font-size: 1.5rem; color: #333; cursor: pointer; transition: color 0.3s ease; z-index: 2001; }
+    body.dark-mode .theme-toggle { color: #e0e0e0; }
+    .theme-toggle:hover { color: #0078d4; }
+    .carousel-container { max-width: 900px; width: 80%; margin: 100px auto 20px; padding: 20px; background: #fff; border-radius: 20px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); text-align: left; }
+    body.dark-mode .carousel-container { background: #2a2a2a; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3); }
+    .carousel-container h1 { font-size: 1.8rem; font-weight: 700; color: #333; margin-bottom: 1rem; text-align: center; }
+    body.dark-mode .carousel-container h1 { color: #e0e0e0; }
+    .chat-container { display: flex; flex-direction: column; gap: 15px; min-height: 400px; padding: 20px; }
+    .chat-message.result { background: #fff; color: #333; border: 1px solid #ddd; align-self: flex-start; width: 100%; max-width: 100%; border-radius: 10px; white-space: pre-wrap; word-break: break-word; padding: 20px; }
+    body.dark-mode .chat-message.result { background: #2a2a2a; color: #e0e0e0; border: 1px solid #444; }
+    .chat-message.result h1 { font-size: 1.8rem; font-weight: 700; color: #333; margin-bottom: 1rem; }
+    body.dark-mode .chat-message.result h1 { color: #e0e0e0; }
+    .chat-message.result h2 { font-size: 1.4rem; font-weight: 600; color: #333; margin: 0.8rem 0; }
+    body.dark-mode .chat-message.result h2 { color: #e0e0e0; }
+    .chat-message.result h3 { font-size: 1.2rem; font-weight: 500; color: #333; margin: 0.6rem 0; }
+    body.dark-mode .chat-message.result h3 { color: #e0e0e0; }
+    .chat-message.result ul, .chat-message.result ol { margin-left: 20px; margin-bottom: 1rem; }
+    .chat-message.result li { margin-bottom: 0.5rem; color: #333; }
+    body.dark-mode .chat-message.result li { color: #e0e0e0; }
+    .mode-buttons { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; }
+    .mode-button { background: #0078d4; color: #fff; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-size: 0.9rem; font-weight: 700; border: none; cursor: pointer; transition: background-color 0.3s ease, transform 0.3s ease; }
+    body.dark-mode .mode-button { background: #005ea2; }
+    .mode-button:hover { background: #005ea2; transform: translateY(-2px); }
+    .mode-button.active { background: #005ea2; }
+    .platform-container { max-width: 900px; width: 80%; margin: 20px auto; padding: 20px; background: #fff; border-radius: 20px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); text-align: center; }
+    body.dark-mode .platform-container { background: #2a2a2a; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3); }
+    .platform-container h3 { font-size: 1.8rem; font-weight: 700; color: #333; margin-bottom: 1rem; }
+    body.dark-mode .platform-container h3 { color: #e0e0e0; }
+    .platform-instructions { font-size: 1rem; color: #666; margin-bottom: 1.5rem; }
+    body.dark-mode .platform-instructions { color: #999; }
+    .platform-boxes { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; }
+    .platform-box { background: #0078d4; color: #fff; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-size: 0.9rem; font-weight: 700; transition: background-color 0.3s ease, transform 0.3s ease; position: relative; z-index: 10; }
+    body.dark-mode .platform-box { background: #005ea2; }
+    .platform-box:hover { background: #005ea2; transform: translateY(-2px); }
+    .platform-box.vibe-coding { background: #ff6f61; }
+    body.dark-mode .platform-box.vibe-coding { background: #e65b54; }
+    .platform-box.vibe-coding:hover { background: #e65b54; }
+    .platform-box[data-tooltip]:hover::after { content: attr(data-tooltip); position: absolute; top: calc(100% + 5px); left: 50%; transform: translateX(-50%); background: #333; color: #fff; padding: 0.5rem; border-radius: 4px; font-size: 0.8rem; width: 200px; z-index: 20; text-align: center; }
+    body.dark-mode .platform-box[data-tooltip]:hover::after { background: #444; }
+    .platform-details { font-size: 0.9rem; color: #666; margin-top: 1.5rem; }
+    body.dark-mode .platform-details { color: #999; }
+    footer { padding: 20px 10px; text-align: center; color: #333; flex-shrink: 0; background: #fff; box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1); }
+    body.dark-mode footer { color: #e0e0e0; background: #1a1a1a; box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.3); }
+    .footer-content { display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 20px; flex-wrap: wrap; }
+    .footer-links a { color: #333; text-decoration: none; font-size: 0.85rem; font-weight: 500; margin: 0 20px; transition: color 0.3s ease; }
+    body.dark-mode .footer-links a { color: #e0e0e0; }
+    .footer-links a:hover { color: #0078d4; }
+    .footer-divider { color: #333; font-size: 1.2rem; font-weight: 300; margin: 0 20px; }
+    body.dark-mode .footer-divider { color: #e0e0e0; }
+    .footer-social a { color: #333; font-size: 1.2rem; margin: 0 20px; transition: transform 0.3s ease, color 0.3s ease; }
+    body.dark-mode .footer-social a { color: #e0e0e0; }
+    .footer-social a:hover { color: #0078d4; transform: scale(1.2); }
+    .footer-copyright { font-size: 0.8rem; color: #666; margin-top: 1rem; }
+    body.dark-mode .footer-copyright { color: #999; }
+    #scrollToTop { display: none; position: fixed; bottom: 20px; right: 20px; background: #0078d4; color: #fff; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 1.2rem; cursor: pointer; z-index: 1000; transition: opacity 0.3s ease, background-color 0.3s ease, transform 0.3s ease; }
+    #scrollToTop.show { display: block; }
+    body.dark-mode #scrollToTop { background: #005ea2; }
+    #scrollToTop:hover { background: #005ea2; transform: translateY(-3px); }
     @media (max-width: 768px) {
-      .thematic-header .logo a {
-        font-size: 1.4rem;
-      }
-
-      .carousel-container {
-        width: 95%;
-        padding: 15px;
-        margin-top: 90px;
-      }
-
-      .chat-container {
-        padding: 10px;
-      }
-
-      .chat-message.result {
-        padding: 15px;
-      }
-
-      .chat-message.result h1 {
-        font-size: 1.6rem;
-      }
-
-      .chat-message.result h2 {
-        font-size: 1.3rem;
-      }
-
-      .chat-message.result h3 {
-        font-size: 1.1rem;
-      }
-
-      .mode-button {
-        font-size: 0.8rem;
-        padding: 8px 12px;
-      }
-
-      .platform-container {
-        width: 95%;
-        padding: 15px;
-      }
-
-      .platform-container h3 {
-        font-size: 1.6rem;
-      }
-
-      .platform-box {
-        font-size: 0.8rem;
-        padding: 8px 12px;
-      }
-
-      .platform-details {
-        font-size: 0.8rem;
-      }
-
-      .footer-content {
-        flex-direction: column;
-        gap: 10px;
-      }
-
-      .footer-links a {
-        font-size: 0.8rem;
-        margin: 0 10px;
-      }
-
-      .footer-divider {
-        font-size: 1rem;
-        margin: 0 10px;
-      }
-
-      .footer-social a {
-        font-size: 1rem;
-        margin: 0 10px;
-      }
-
-      #scrollToTop {
-        bottom: 15px;
-        right: 15px;
-        width: 35px;
-        height: 35px;
-        font-size: 1rem;
-      }
+      .thematic-header .logo a { font-size: 1.4rem; }
+      .theme-toggle { right: 15px; font-size: 1.3rem; }
+      .carousel-container { width: 95%; padding: 15px; margin-top: 90px; }
+      .chat-container { padding: 10px; }
+      .chat-message.result { padding: 15px; }
+      .chat-message.result h1 { font-size: 1.6rem; }
+      .chat-message.result h2 { font-size: 1.3rem; }
+      .chat-message.result h3 { font-size: 1.1rem; }
+      .mode-button { font-size: 0.8rem; padding: 8px 12px; }
+      .platform-container { width: 95%; padding: 15px; }
+      .platform-container h3 { font-size: 1.6rem; }
+      .platform-box { font-size: 0.8rem; padding: 8px 12px; }
+      .platform-details { font-size: 0.8rem; }
+      .footer-content { flex-direction: column; gap: 10px; }
+      .footer-links a { font-size: 0.8rem; margin: 0 10px; }
+      .footer-divider { font-size: 1rem; margin: 0 10px; }
+      .footer-social a { font-size: 1rem; margin: 0 10px; }
+      #scrollToTop { bottom: 15px; right: 15px; width: 35px; height: 35px; font-size: 1rem; }
     }
-
     @media (max-width: 480px) {
-      .thematic-header .logo a {
-        font-size: 1.2rem;
-      }
-
-      .carousel-container {
-        width: 100%;
-        padding: 10px;
-        margin-top: 80px;
-      }
-
-      .chat-message.result {
-        padding: 10px;
-      }
-
-      .chat-message.result h1 {
-        font-size: 1.4rem;
-      }
-
-      .chat-message.result h2 {
-        font-size: 1.2rem;
-      }
-
-      .chat-message.result h3 {
-        font-size: 1rem;
-      }
-
-      .mode-button {
-        font-size: 0.75rem;
-        padding: 6px 10px;
-      }
-
-      .platform-container {
-        width: 100%;
-        padding: 10px;
-      }
-
-      .platform-container h3 {
-        font-size: 1.4rem;
-      }
-
-      .platform-box {
-        font-size: 0.75rem;
-        padding: 6px 10px;
-      }
-
-      .platform-details {
-        font-size: 0.75rem;
-      }
-
-      .footer-links a {
-        font-size: 0.75rem;
-        margin: 0 8px;
-      }
-
-      .footer-divider {
-        font-size: 0.9rem;
-        margin: 0 8px;
-      }
-
-      .footer-social a {
-        font-size: 0.9rem;
-        margin: 0 8px;
-      }
-
-      #scrollToTop {
-        bottom: 10px;
-        right: 10px;
-        width: 30px;
-        height: 30px;
-        font-size: 0.9rem;
-      }
+      .thematic-header .logo a { font-size: 1.32rem; }
+      .theme-toggle { right: 10px; font-size: 1.2rem; }
+      .carousel-container { width: 100%; padding: 10px; margin-top: 80px; }
+      .chat-message.result { padding: 10px; }
+      .chat-message.result h1 { font-size: 1.4rem; }
+      .chat-message.result h2 { font-size: 1.2rem; }
+      .chat-message.result h3 { font-size: 1rem; }
+      .mode-button { font-size: 0.75rem; padding: 6px 10px; }
+      .platform-container { width: 100%; padding: 10px; }
+      .platform-container h3 { font-size: 1.4rem; }
+      .platform-box { font-size: 0.75rem; padding: 6px 10px; }
+      .platform-details { font-size: 0.75rem; }
+      .footer-links a { font-size: 0.75rem; margin: 0 8px; }
+      .footer-divider { font-size: 0.9rem; margin: 0 8px; }
+      .footer-social a { font-size: 0.9rem; margin: 0 8px; }
+      #scrollToTop { bottom: 10px; right: 10px; width: 30px; height: 30px; font-size: 0.9rem; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .mode-button, .platform-box, .footer-social a, #scrollToTop { transition: none; }
     }
   </style>
 </head>
 <body>
   <header class="thematic-header" role="banner">
     <div class="logo">
-      <a href="index.html" aria-label="specifys.ai homepage">specifys.ai</a>
+      <a href="index.html" aria-label="Specifys.ai homepage">Specifys.ai</a>
     </div>
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode"><i class="fas fa-moon"></i></button>
   </header>
-
   <div class="carousel-container">
-    <h1 style="text-align: center;">App Specification Demo</h1>
+    <h1>App Specification Demo</h1>
     <div class="mode-buttons">
       <button class="mode-button active" data-mode="easy-start">Easy Start</button>
       <button class="mode-button" data-mode="dev-tools">Dev Tools</button>
@@ -485,7 +194,6 @@
       <div class="chat-message result" id="resultDiv"></div>
     </div>
   </div>
-
   <div class="platform-container">
     <h3>Start now with:</h3>
     <p class="platform-instructions">The specification has been copied. Visit one of the platforms or tools to start building your app.</p>
@@ -501,14 +209,12 @@
     </div>
     <p class="platform-details">Click a platform to open it in a new tab and automatically copy your app specification. Paste the specification into the platform’s project setup or AI assistant to start building.</p>
   </div>
-
   <button id="scrollToTop" title="Scroll to Top"><i class="fas fa-arrow-up"></i></button>
-
   <footer>
     <div class="footer-content">
       <div class="footer-links">
-        <a href="how.html" aria-label="Learn how specifys.ai works">How it Works</a>
-        <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
+        <a href="how.html" aria-label="Learn how Specifys.ai works">How It Works</a>
+        <a href="about.html" aria-label="Learn more about Specifys.ai">About Us</a>
         <a href="blog.html" aria-label="Visit our blog">Blog</a>
         <a href="map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
       </div>
@@ -521,11 +227,8 @@
         <a href="https://www.producthunt.com/products/specifys-ai" target="_blank" aria-label="Check us out on Product Hunt"><i class="fab fa-product-hunt"></i></a>
       </div>
     </div>
-    <div class="footer-copyright">
-      © 2025 specifys.ai. All rights reserved.
-    </div>
+    <div class="footer-copyright">© 2025 Specifys.ai. All rights reserved.</div>
   </footer>
-
   <script src="https://cdn.jsdelivr.net/npm/marked@4.3.0/marked.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
   <script>
@@ -534,8 +237,8 @@
       const resultDiv = document.getElementById("resultDiv");
       const modeButtons = document.querySelectorAll(".mode-button");
       const scrollToTopBtn = document.getElementById("scrollToTop");
+      const themeToggle = document.getElementById('themeToggle');
 
-      // Embed JSON data directly
       const modeContents = {
         "easy-start": {
           "title": "App Plan for NoCode Creators",
@@ -548,7 +251,7 @@
       };
 
       function displayContent(mode) {
-        resultDiv.innerHTML = ''; // Clear existing content
+        resultDiv.innerHTML = '';
         const content = modeContents[mode]?.content || 'Content not available for this mode.';
         resultDiv.insertAdjacentHTML('afterbegin', `<h1>${modeContents[mode]?.title || 'Mode Not Found'}</h1>`);
         resultDiv.insertAdjacentHTML('beforeend', marked.parse(content));
@@ -565,11 +268,6 @@
         });
       });
 
-      // Display initial content
-      const initialMode = "easy-start";
-      displayContent(initialMode);
-
-      // Scroll to top functionality
       window.addEventListener("scroll", () => {
         if (window.pageYOffset > 300) {
           scrollToTopBtn.classList.add("show");
@@ -581,7 +279,31 @@
       scrollToTopBtn.addEventListener("click", () => {
         window.scrollTo({ top: 0, behavior: "smooth" });
       });
+
+      themeToggle.addEventListener('click', () => {
+        document.body.classList.toggle('dark-mode');
+        const isDarkMode = document.body.classList.contains('dark-mode');
+        themeToggle.querySelector('i').classList.toggle('fa-moon', !isDarkMode);
+        themeToggle.querySelector('i').classList.toggle('fa-sun', isDarkMode);
+        themeToggle.setAttribute('aria-label', isDarkMode ? 'Toggle light mode' : 'Toggle dark mode');
+        localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+      });
+
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme === 'dark') {
+        document.body.classList.add('dark-mode');
+        themeToggle.querySelector('i').classList.replace('fa-moon', 'fa-sun');
+        themeToggle.setAttribute('aria-label', 'Toggle light mode');
+      }
+
+      const initialMode = "easy-start";
+      displayContent(initialMode);
     });
   </script>
+  <noscript>
+    <div style="text-align: center; padding: 20px; background: #fff; color: #333;">
+      <p>This website requires JavaScript to function properly. Please enable JavaScript in your browser settings.</p>
+    </div>
+  </noscript>
 </body>
 </html>

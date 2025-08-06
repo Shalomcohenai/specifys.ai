@@ -1,1046 +1,470 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Analyze your app idea's market potential with specifys.ai.">
-  <meta name="keywords" content="market research, app idea, specifys.ai">
-  <meta name="author" content="specifys.ai Team">
-  <meta name="robots" content="index, follow">
-  <meta name="googlebot" content="index, follow">
-  <meta name="bingbot" content="index, follow">
-  <meta name="revisit-after" content="7 days">
-  <meta name="language" content="English">
-  <meta name="copyright" content="© 2025 specifys.ai">
-  <meta name="publisher" content="specifys.ai">
-  <meta name="distribution" content="global">
-  <meta name="rating" content="general">
-  <meta name="theme-color" content="#0078d4">
-  <meta property="og:title" content="specifys.ai - Market Research Mode">
-  <meta property="og:description" content="Analyze your app idea's market potential with specifys.ai.">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://specifys.ai/processing-market.html">
-  <meta property="og:image" content="https://specifys.ai/assets/og-image.jpg">
-  <meta property="og:image:alt" content="Market Research Mode with specifys.ai">
-  <meta property="og:site_name" content="Specifys.ai">
-  <meta property="og:locale" content="en_US">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="specifys.ai - Market Research Mode">
-  <meta name="twitter:description" content="Analyze your app idea's market potential with specifys.ai.">
-  <meta name="twitter:image" content="https://specifys.ai/assets/og-image.jpg">
-  <meta name="twitter:site" content="@specifys_ai">
-  <meta name="twitter:creator" content="@specifys_ai">
-  <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebPage",
-      "headline": "specifys.ai - Market Research Mode",
-      "description": "Analyze your app idea's market potential with specifys.ai.",
-      "image": "https://specifys.ai/assets/og-image.jpg",
-      "author": {
-        "@type": "Organization",
-        "name": "specifys.ai Team"
-      },
-      "publisher": {
-        "@type": "Organization",
-        "name": "Specifys.ai",
-        "logo": {
-          "@type": "ImageObject",
-          "url": "https://specifys.ai/assets/logo.png"
-        }
-      },
-      "url": "https://specifys.ai/processing-market.html",
-      "mainEntityOfPage": {
-        "@type": "WebPage",
-        "@id": "https://specifys.ai/processing-market.html"
-      },
-      "keywords": "market research, app idea, specifys.ai"
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Analyze your app idea's market potential with Specifys.ai. Use AI-driven insights, Vibe Coding Tools Map, and Tool Picker for free.">
+<meta name="keywords" content="market research, app idea, AI tools, vibe coding tools, tool picker, specifys.ai">
+<meta name="author" content="Specifys.ai Team">
+<meta name="robots" content="index, follow">
+<meta name="googlebot" content="index, follow">
+<meta name="bingbot" content="index, follow">
+<meta name="revisit-after" content="7 days">
+<meta name="language" content="English">
+<meta name="copyright" content="© 2025 Specifys.ai">
+<meta name="publisher" content="Specifys.ai">
+<meta name="distribution" content="global">
+<meta name="rating" content="general">
+<meta name="theme-color" content="#0078d4">
+<meta property="og:title" content="Specifys.ai - Market Research Mode">
+<meta property="og:description" content="Analyze your app idea's market potential with Specifys.ai. Use AI-driven insights, Vibe Coding Tools Map, and Tool Picker for free.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://specifys.ai/processing-market.html">
+<meta property="og:image" content="https://specifys.ai/assets/og-image.jpg">
+<meta property="og:image:alt" content="Market Research Mode with Specifys.ai">
+<meta property="og:site_name" content="Specifys.ai">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Specifys.ai - Market Research Mode">
+<meta name="twitter:description" content="Analyze your app idea's market potential with Specifys.ai. Use AI-driven insights, Vibe Coding Tools Map, and Tool Picker for free.">
+<meta name="twitter:image" content="https://specifys.ai/assets/og-image.jpg">
+<meta name="twitter:site" content="@specifys_ai">
+<meta name="twitter:creator" content="@specifys_ai">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "headline": "Specifys.ai - Market Research Mode",
+  "description": "Analyze your app idea's market potential with Specifys.ai. Use AI-driven insights, Vibe Coding Tools Map, and Tool Picker for free.",
+  "image": "https://specifys.ai/assets/og-image.jpg",
+  "author": {
+    "@type": "Organization",
+    "name": "Specifys.ai Team"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Specifys.ai",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://specifys.ai/assets/logo.png"
     }
-  </script>
-  <title>specifys.ai - Market Research Mode</title>
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <script defer src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-  <script defer src="processing-market.js"></script>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap');
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    html {
-      height: 100%;
-    }
-
-    body {
-      font-family: 'Montserrat', sans-serif;
-      display: flex;
-      flex-direction: column;
-      min-height: 100%;
-      background: #f5f5f5;
-      overflow-x: hidden;
-    }
-
-    .thematic-header {
-      position: fixed;
-      top: 0;
-      width: 100%;
-      padding: 15px 20px;
-      display: flex;
-      justify-content: center;
-      z-index: 1000;
-      background: rgba(255, 255, 255, 0.9);
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-
-    .thematic-header .logo a {
-      text-decoration: none;
-      color: #333;
-      font-size: 1.6rem;
-      font-weight: 700;
-      transition: color 0.3s ease;
-    }
-
-    .thematic-header .logo a:hover {
-      color: #0078d4;
-    }
-
-    .carousel-container {
-      flex-grow: 1;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 5rem 1rem;
-      position: relative;
-    }
-
-    .carousel-content {
-      background: #fff;
-      border-radius: 20px;
-      padding: 2rem;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      width: 100%;
-      max-width: 900px;
-      min-height: 400px;
-      z-index: 1000;
-      position: relative;
-      animation: fadeIn 0.3s ease-in-out;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .step-container {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-    }
-
-    .step-container.active {
-      display: flex;
-    }
-
-    .step-title {
-      font-size: 2.2rem;
-      font-weight: 700;
-      color: #333;
-      margin-bottom: 1rem;
-      transition: color 0.3s ease;
-    }
-
-    .step-title:hover {
-      color: #0078d4;
-    }
-
-    .question-wrapper {
-      display: flex;
-      align-items: center;
-      width: 100%;
-      justify-content: center;
-      position: relative;
-      margin-bottom: 1.5rem;
-    }
-
-    .question-label {
-      font-size: 1.2rem;
-      color: #333;
-      line-height: 1.5;
-      flex: 1;
-    }
-
-    .tip-icon {
-      color: #666;
-      font-size: 1.4rem;
-      cursor: pointer;
-      margin-left: 0.8rem;
-      transition: color 0.3s ease, transform 0.3s ease;
-    }
-
-    .tip-icon:hover {
-      color: #0078d4;
-      transform: scale(1.2);
-    }
-
-    .tip-tooltip {
-      display: none;
-      position: absolute;
-      top: 100%;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 0.85rem;
-      color: #fff;
-      background: #333;
-      padding: 0.8rem;
-      border-radius: 8px;
-      width: 90%;
-      max-width: 400px;
-      text-align: left;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-      z-index: 10;
-      max-height: 200px;
-      overflow-y: auto;
-    }
-
-    .tip-icon:hover + .tip-tooltip,
-    .tip-tooltip:hover {
-      display: block;
-    }
-
-    .close-tip {
-      position: absolute;
-      top: 5px;
-      right: 10px;
-      font-size: 1.2rem;
-      cursor: pointer;
-      color: #fff;
-    }
-
-    .step-textarea {
-      width: 100%;
-      min-height: 160px;
-      padding: 1rem;
-      border: 2px solid #ddd;
-      border-radius: 12px;
-      font-size: 1rem;
-      resize: vertical;
-      background: #fff;
-      transition: border-color 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .step-textarea:focus {
-      outline: none;
-      border-color: #0078d4;
-      box-shadow: 0 0 8px rgba(0, 120, 212, 0.2);
-    }
-
-    .example-button {
-      background: #fff;
-      color: #333;
-      border: 2px solid #ddd;
-      border-radius: 20px;
-      padding: 0.5rem 1.2rem;
-      font-size: 0.9rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
-      margin-top: 0.5rem;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-    }
-
-    .example-button:hover {
-      background: #0078d4;
-      color: #fff;
-      border-color: #0078d4;
-      transform: translateY(-2px);
-    }
-
-    .example-button i {
-      font-size: 0.9rem;
-    }
-
-    .char-count {
-      font-size: 0.85rem;
-      color: #666;
-      margin-bottom: 0.5rem;
-      align-self: flex-end;
-    }
-
-    .error-message {
-      font-size: 0.9rem;
-      color: #fff;
-      margin-top: 1rem;
-      padding: 0.5rem;
-      border-radius: 4px;
-      display: none;
-      opacity: 0;
-      transform: translateY(5px);
-      transition: opacity 0.3s ease, transform 0.3s ease;
-      max-width: 90%;
-      text-align: center;
-    }
-
-    .error-message.show {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .error-message.analyzing {
-      background-color: #666;
-    }
-
-    .error-message.feedback {
-      background-color: #ff9800;
-    }
-
-    .error-message.success {
-      background-color: #28a745;
-    }
-
-    .toast {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: #28a745;
-      color: #fff;
-      padding: 0.8rem 1.2rem;
-      border-radius: 8px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-      z-index: 2000;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-
-    .toast.show {
-      opacity: 1;
-    }
-
-    .progress-container {
-      width: 100%;
-      margin: 2rem 0;
-    }
-
-    .progress-bar {
-      width: 100%;
-      background: #ddd;
-      border-radius: 12px;
-      overflow: hidden;
-      height: 12px;
-      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
-    }
-
-    .progress-fill {
-      height: 100%;
-      background: #0078d4;
-      transition: width 0.5s ease;
-    }
-
-    .discipline-indicators {
-      display: flex;
-      justify-content: space-around;
-      margin-top: 1.2rem;
-      flex-wrap: wrap;
-      gap: 0.8rem;
-    }
-
-    .indicator-item {
-      display: flex;
-      align-items: center;
-      margin: 0.5rem;
-      color: #333;
-      font-size: 0.9rem;
-      font-weight: 600;
-    }
-
-    .indicator-status {
-      width: 24px;
-      height: 24px;
-      margin-right: 0.5rem;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      font-size: 1rem;
-      color: #fff;
-      background: #28a745;
-      transition: transform 0.3s ease;
-    }
-
-    .indicator-status.completed {
-      display: flex;
-      transform: scale(1.15);
-    }
-
-    .indicator-status::before {
-      font-family: 'Font Awesome 6 Free';
-      font-weight: 900;
-      content: '\f00c';
-    }
-
-    .carousel-button-left, .carousel-button-right, .generate-spec-button {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      background: #0078d4;
-      color: #fff;
-      border: none;
-      border-radius: 50%;
-      width: 45px;
-      height: 45px;
-      font-size: 1.4rem;
-      cursor: pointer;
-      transition: background-color 0.3s ease, transform 0.3s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-      z-index: 1100;
-    }
-
-    .carousel-button-left {
-      left: -22.5px;
-    }
-
-    .carousel-button-right {
-      right: -22.5px;
-    }
-
-    .carousel-button-left:hover, .carousel-button-right:hover, .generate-spec-button:hover {
-      background: #005ea2;
-      transform: translateY(-50%) translateY(-3px);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-    }
-
-    .generate-spec-button {
-      right: -22.5px;
-    }
-
-    .generate-spec-button:disabled {
-      background: #ddd;
-      color: #666;
-      cursor: not-allowed;
-      transform: translateY(-50%);
-      box-shadow: none;
-    }
-
-    .loading-spinner {
-      position: absolute;
-      top: 50%;
-      right: -22.5px;
-      transform: translateY(-50%);
-      width: 45px;
-      height: 45px;
-      border: 4px solid #f3f3f3;
-      border-top: 4px solid #0078d4;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      display: none;
-      z-index: 1100;
-    }
-
-    @keyframes spin {
-      0% { transform: translateY(-50%) rotate(0deg); }
-      100% { transform: translateY(-50%) rotate(360deg); }
-    }
-
-    footer {
-      padding: 20px;
-      text-align: center;
-      color: #333;
-      flex-shrink: 0;
-      background: #fff;
-      box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
-    }
-
-    .footer-content {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 15px;
-      margin-bottom: 10px;
-    }
-
-    .footer-links a {
-      color: #333;
-      text-decoration: none;
-      font-weight: 600;
-      margin: 0 10px;
-      transition: color 0.3s ease;
-    }
-
-    .footer-links a:hover {
-      color: #0078d4;
-    }
-
-    .footer-divider {
-      color: #333;
-      font-size: 1.2rem;
-      font-weight: 300;
-    }
-
-    .footer-social a {
-      color: #333;
-      font-size: 1.2rem;
-      margin: 0 10px;
-      transition: color 0.3s ease, transform 0.3s ease;
-    }
-
-    .footer-social a:hover {
-      color: #0078d4;
-      transform: scale(1.2);
-    }
-
-    .footer-copyright {
-      font-size: 0.9rem;
-      color: #666;
-      margin-top: 10px;
-    }
-
-    @media (max-width: 768px) {
-      .thematic-header .logo a {
-        font-size: 1.4rem;
-      }
-
-      .carousel-content {
-        padding: 1.5rem;
-        min-height: 350px;
-        max-width: 95%;
-      }
-
-      .step-title {
-        font-size: 1.8rem;
-      }
-
-      .question-label {
-        font-size: 1rem;
-      }
-
-      .tip-icon {
-        font-size: 1.2rem;
-      }
-
-      .tip-tooltip {
-        font-size: 0.8rem;
-        padding: 0.6rem;
-        width: 95%;
-      }
-
-      .step-textarea {
-        min-height: 140px;
-        font-size: 0.9rem;
-      }
-
-      .char-count {
-        font-size: 0.8rem;
-      }
-
-      .carousel-button-left, .carousel-button-right, .generate-spec-button {
-        width: 40px;
-        height: 40px;
-        font-size: 1.2rem;
-      }
-
-      .carousel-button-left {
-        left: -20px;
-      }
-
-      .carousel-button-right, .generate-spec-button {
-        right: -20px;
-      }
-
-      .progress-bar {
-        height: 10px;
-      }
-
-      .indicator-item {
-        font-size: 0.8rem;
-      }
-
-      .indicator-status {
-        width: 20px;
-        height: 20px;
-      }
-
-      .indicator-status::before {
-        font-size: 0.9rem;
-      }
-
-      .loading-spinner {
-        width: 40px;
-        height: 40px;
-        right: -20px;
-      }
-
-      .footer-content {
-        flex-direction: column;
-        gap: 10px;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .thematic-header .logo a {
-        font-size: 1.2rem;
-      }
-
-      .carousel-container {
-        padding: 4rem 0.5rem;
-      }
-
-      .carousel-content {
-        padding: 1rem;
-        min-height: 300px;
-      }
-
-      .step-title {
-        font-size: 1.6rem;
-      }
-
-      .question-label {
-        font-size: 0.9rem;
-      }
-
-      .tip-icon {
-        font-size: 1.1rem;
-      }
-
-      .tip-tooltip {
-        font-size: 0.75rem;
-        padding: 0.5rem;
-        width: 95%;
-      }
-
-      .step-textarea {
-        min-height: 120px;
-        font-size: 0.85rem;
-      }
-
-      .char-count {
-        font-size: 0.75rem;
-      }
-
-      .carousel-button-left, .carousel-button-right, .generate-spec-button {
-        width: 35px;
-        height: 35px;
-        font-size: 1rem;
-      }
-
-      .carousel-button-left {
-        left: -17.5px;
-      }
-
-      .carousel-button-right, .generate-spec-button {
-        right: -17.5px;
-      }
-
-      .indicator-item {
-        font-size: 0.75rem;
-      }
-
-      .indicator-status {
-        width: 18px;
-        height: 18px;
-      }
-
-      .indicator-status::before {
-        font-size: 0.8rem;
-      }
-
-      .loading-spinner {
-        width: 35px;
-        height: 35px;
-        right: -17.5px;
-      }
-
-      .footer-content {
-        gap: 5px;
-      }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      .carousel-button-left, .carousel-button-right, .generate-spec-button, .tip-icon, .example-button, .loading-spinner, .carousel-content, .error-message, .indicator-status {
-        animation: none;
-        transition: none;
-      }
-    }
-  </style>
+  },
+  "url": "https://specifys.ai/processing-market.html",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://specifys.ai/processing-market.html"
+  },
+  "keywords": "market research, app idea, AI tools, vibe coding tools, tool picker, specifys.ai"
+}
+</script>
+<title>Specifys.ai - Market Research Mode</title>
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script defer src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script defer src="processing-market.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap');
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { height: 100%; }
+body { font-family: 'Montserrat', sans-serif; display: flex; flex-direction: column; min-height: 100%; background: #f5f5f5; overflow-x: hidden; transition: background 0.3s ease, color 0.3s ease; }
+body.dark-mode { background: #1a1a1a; color: #e0e0e0; }
+.thematic-header { position: fixed; top: 0; width: 100%; padding: 15px 20px; display: flex; justify-content: center; z-index: 1000; background: rgba(255, 255, 255, 0.9); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
+body.dark-mode .thematic-header { background: rgba(30, 30, 30, 0.9); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); }
+.thematic-header .logo a { text-decoration: none; color: #333; font-size: 1.6rem; font-weight: 700; transition: color 0.3s ease; }
+body.dark-mode .thematic-header .logo a { color: #e0e0e0; }
+.thematic-header .logo a:hover { color: #0078d4; }
+.carousel-container { flex-grow: 1; display: flex; justify-content: center; align-items: center; padding: 5rem 1rem; position: relative; }
+.carousel-content { background: #fff; border-radius: 20px; padding: 2rem; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); width: 100%; max-width: 900px; min-height: 400px; z-index: 1000; position: relative; animation: fadeIn 0.3s ease-in-out; }
+body.dark-mode .carousel-content { background: rgba(30, 30, 30, 0.95); box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3); }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.step-container { display: none; flex-direction: column; align-items: center; text-align: center; }
+.step-container.active { display: flex; }
+.step-title { font-size: 2.2rem; font-weight: 700; color: #333; margin-bottom: 1rem; transition: color 0.3s ease; }
+body.dark-mode .step-title { color: #e0e0e0; }
+.step-title:hover { color: #0078d4; }
+.question-wrapper { display: flex; align-items: center; width: 100%; justify-content: center; position: relative; margin-bottom: 1.5rem; }
+.question-label { font-size: 1.2rem; color: #333; line-height: 1.5; flex: 1; }
+body.dark-mode .question-label { color: #e0e0e0; }
+.tip-icon { color: #666; font-size: 1.4rem; cursor: pointer; margin-left: 0.8rem; transition: color 0.3s ease, transform 0.3s ease; }
+body.dark-mode .tip-icon { color: #999; }
+.tip-icon:hover { color: #0078d4; transform: scale(1.2); }
+.tip-tooltip { display: none; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); font-size: 0.85rem; color: #fff; background: #333; padding: 0.8rem; border-radius: 8px; width: 90%; max-width: 400px; text-align: left; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); z-index: 10; max-height: 200px; overflow-y: auto; }
+body.dark-mode .tip-tooltip { background: #444; }
+.tip-icon:hover + .tip-tooltip, .tip-tooltip:hover { display: block; }
+.close-tip { position: absolute; top: 5px; right: 10px; font-size: 1.2rem; cursor: pointer; color: #fff; }
+.step-textarea { width: 100%; min-height: 160px; padding: 1rem; border: 2px solid #ddd; border-radius: 12px; font-size: 1rem; resize: vertical; background: #fff; transition: border-color 0.3s ease, box-shadow 0.3s ease; }
+body.dark-mode .step-textarea { background: #2a2a2a; border-color: #444; color: #e0e0e0; }
+.step-textarea:focus { outline: none; border-color: #0078d4; box-shadow: 0 0 8px rgba(0, 120, 212, 0.2); }
+.example-button { background: #fff; color: #333; border: 2px solid #ddd; border-radius: 20px; padding: 0.5rem 1.2rem; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease; margin-top: 0.5rem; display: inline-flex; align-items: center; gap: 0.4rem; }
+body.dark-mode .example-button { background: #2a2a2a; color: #e0e0e0; border-color: #444; }
+.example-button:hover { background: #0078d4; color: #fff; border-color: #0078d4; transform: translateY(-2px); }
+.example-button i { font-size: 0.9rem; }
+.char-count { font-size: 0.85rem; color: #666; margin-bottom: 0.5rem; align-self: flex-end; }
+body.dark-mode .char-count { color: #999; }
+.error-message { font-size: 0.9rem; color: #fff; margin-top: 1rem; padding: 0.5rem; border-radius: 4px; display: none; opacity: 0; transform: translateY(5px); transition: opacity 0.3s ease, transform 0.3s ease; max-width: 90%; text-align: center; }
+.error-message.show { opacity: 1; transform: translateY(0); }
+.error-message.analyzing { background-color: #666; }
+.error-message.feedback { background-color: #ff9800; }
+.error-message.success { background-color: #28a745; }
+.toast { position: fixed; bottom: 20px; right: 20px; background: #28a745; color: #fff; padding: 0.8rem 1.2rem; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); z-index: 2000; opacity: 0; transition: opacity 0.3s ease; }
+.toast.show { opacity: 1; }
+.progress-container { width: 100%; margin: 2rem 0; }
+.progress-bar { width: 100%; background: #ddd; border-radius: 12px; overflow: hidden; height: 12px; box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1); }
+body.dark-mode .progress-bar { background: #444; }
+.progress-fill { height: 100%; background: #0078d4; transition: width 0.5s ease; }
+.discipline-indicators { display: flex; justify-content: space-around; margin-top: 1.2rem; flex-wrap: wrap; gap: 0.8rem; }
+.indicator-item { display: flex; align-items: center; margin: 0.5rem; color: #333; font-size: 0.9rem; font-weight: 600; }
+body.dark-mode .indicator-item { color: #e0e0e0; }
+.indicator-status { width: 24px; height: 24px; margin-right: 0.5rem; display: none; align-items: center; justify-content: center; font-size: 1rem; color: #fff; background: #28a745; transition: transform 0.3s ease; }
+.indicator-status.completed { display: flex; transform: scale(1.15); }
+.indicator-status::before { font-family: 'Font Awesome 6 Free'; font-weight: 900; content: '\f00c'; }
+.carousel-button-left, .carousel-button-right, .generate-spec-button { position: absolute; top: 50%; transform: translateY(-50%); background: #0078d4; color: #fff; border: none; border-radius: 50%; width: 45px; height: 45px; font-size: 1.4rem; cursor: pointer; transition: background-color 0.3s ease, transform 0.3s ease; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); z-index: 1100; }
+.carousel-button-left { left: -22.5px; }
+.carousel-button-right, .generate-spec-button { right: -22.5px; }
+.carousel-button-left:hover, .carousel-button-right:hover, .generate-spec-button:hover { background: #005ea2; transform: translateY(-50%) translateY(-3px); box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); }
+.generate-spec-button:disabled { background: #ddd; color: #666; cursor: not-allowed; transform: translateY(-50%); box-shadow: none; }
+body.dark-mode .generate-spec-button:disabled { background: #444; color: #999; }
+.loading-spinner { position: absolute; top: 50%; right: -22.5px; transform: translateY(-50%); width: 45px; height: 45px; border: 4px solid #f3f3f3; border-top: 4px solid #0078d4; border-radius: 50%; animation: spin 1s linear infinite; display: none; z-index: 1100; }
+@keyframes spin { 0% { transform: translateY(-50%) rotate(0deg); } 100% { transform: translateY(-50%) rotate(360deg); } }
+footer { padding: 20px; text-align: center; color: #333; flex-shrink: 0; background: #fff; box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1); }
+body.dark-mode footer { color: #e0e0e0; background: #1a1a1a; box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.3); }
+.footer-content { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 10px; }
+.footer-links a { color: #333; text-decoration: none; font-weight: 600; margin: 0 10px; transition: color 0.3s ease; }
+body.dark-mode .footer-links a { color: #e0e0e0; }
+.footer-links a:hover { color: #0078d4; }
+.footer-divider { color: #333; font-size: 1.2rem; font-weight: 300; }
+body.dark-mode .footer-divider { color: #e0e0e0; }
+.footer-social a { color: #333; font-size: 1.2rem; margin: 0 10px; transition: color 0.3s ease, transform 0.3s ease; }
+body.dark-mode .footer-social a { color: #e0e0e0; }
+.footer-social a:hover { color: #0078d4; transform: scale(1.2); }
+.footer-copyright { font-size: 0.9rem; color: #666; margin-top: 10px; }
+body.dark-mode .footer-copyright { color: #999; }
+.theme-toggle { position: fixed; top: 15px; right: 20px; background: none; border: none; font-size: 1.5rem; color: #333; cursor: pointer; transition: color 0.3s ease; z-index: 1001; }
+body.dark-mode .theme-toggle { color: #e0e0e0; }
+.theme-toggle:hover { color: #0078d4; }
+@media (max-width: 768px) {
+  .thematic-header .logo a { font-size: 1.4rem; }
+  .theme-toggle { right: 15px; font-size: 1.3rem; }
+  .carousel-content { padding: 1.5rem; min-height: 350px; max-width: 95%; }
+  .step-title { font-size: 1.8rem; }
+  .question-label { font-size: 1rem; }
+  .tip-icon { font-size: 1.2rem; }
+  .tip-tooltip { font-size: 0.8rem; padding: 0.6rem; width: 95%; }
+  .step-textarea { min-height: 140px; font-size: 0.9rem; }
+  .char-count { font-size: 0.8rem; }
+  .carousel-button-left, .carousel-button-right, .generate-spec-button { width: 40px; height: 40px; font-size: 1.2rem; }
+  .carousel-button-left { left: -20px; }
+  .carousel-button-right, .generate-spec-button { right: -20px; }
+  .progress-bar { height: 10px; }
+  .indicator-item { font-size: 0.8rem; }
+  .indicator-status { width: 20px; height: 20px; }
+  .indicator-status::before { font-size: 0.9rem; }
+  .loading-spinner { width: 40px; height: 40px; right: -20px; }
+  .footer-content { flex-direction: column; gap: 10px; }
+}
+@media (max-width: 480px) {
+  .thematic-header .logo a { font-size: 1.2rem; }
+  .theme-toggle { right: 10px; font-size: 1.2rem; }
+  .carousel-container { padding: 4rem 0.5rem; }
+  .carousel-content { padding: 1rem; min-height: 300px; }
+  .step-title { font-size: 1.6rem; }
+  .question-label { font-size: 0.9rem; }
+  .tip-icon { font-size: 1.1rem; }
+  .tip-tooltip { font-size: 0.75rem; padding: 0.5rem; width: 95%; }
+  .step-textarea { min-height: 120px; font-size: 0.85rem; }
+  .char-count { font-size: 0.75rem; }
+  .carousel-button-left, .carousel-button-right, .generate-spec-button { width: 35px; height: 35px; font-size: 1rem; }
+  .carousel-button-left { left: -17.5px; }
+  .carousel-button-right, .generate-spec-button { right: -17.5px; }
+  .indicator-item { font-size: 0.75rem; }
+  .indicator-status { width: 18px; height: 18px; }
+  .indicator-status::before { font-size: 0.8rem; }
+  .loading-spinner { width: 35px; height: 35px; right: -17.5px; }
+  .footer-content { gap: 5px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .carousel-button-left, .carousel-button-right, .generate-spec-button, .tip-icon, .example-button, .loading-spinner, .carousel-content, .error-message, .indicator-status { animation: none; transition: none; }
+}
+</style>
 </head>
 <body class="page-default market">
-  <header class="thematic-header" role="banner">
-    <div class="logo">
-      <a href="index.html" aria-label="specifys.ai homepage">specifys.ai</a>
-    </div>
-  </header>
-
-  <div class="carousel-container">
-    <div id="carouselContent" class="carousel-content">
-      <button id="prevButton" class="carousel-button-left" onclick="prevStep()" aria-label="Previous step" style="display: none;">
-        <i class="fas fa-arrow-left"></i>
-      </button>
-      <div class="step-container active" id="step0">
-        <h3 class="step-title">Description</h3>
-        <div class="question-wrapper">
-          <p class="question-label" id="stepQuestion0" aria-describedby="tipText0"></p>
-          <i class="fas fa-lightbulb tip-icon" aria-label="Show tip"></i>
-          <div id="tipText0" class="tip-tooltip"><span class="close-tip" onclick="this.parentElement.style.display='none'">×</span></div>
-        </div>
-        <textarea id="stepTextarea0" class="step-textarea" maxlength="2500" placeholder="Enter your app description, features, and audience..." aria-label="Answer the current question"></textarea>
-        <span id="charCount0" class="char-count">0/2500</span>
-        <button id="exampleButton0" class="example-button" onmouseover="showExample(0)" onmouseout="restoreAnswer(0)" aria-label="Show example answer">
-          <i class="fas fa-eye"></i> Example
-        </button>
-        <div id="errorMessage0" class="error-message" role="alert"></div>
-        <div class="progress-container">
-          <div class="progress-bar">
-            <div class="progress-fill"></div>
-          </div>
-          <div class="discipline-indicators" role="group" aria-label="Progress indicators by category">
-            <div class="indicator-item">
-              <span class="indicator-status" id="description-indicator" aria-label="Description progress"></span>
-              <span>Description</span>
-            </div>
-            <div class="indicator-item">
-              <span class="indicator-status" id="features-indicator" aria-label="Features progress"></span>
-              <span>Features</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="step-container" id="step1">
-        <h3 class="step-title">Features</h3>
-        <div class="question-wrapper">
-          <p class="question-label" id="stepQuestion1" aria-describedby="tipText1"></p>
-          <i class="fas fa-lightbulb tip-icon" aria-label="Show tip"></i>
-          <div id="tipText1" class="tip-tooltip"><span class="close-tip" onclick="this.parentElement.style.display='none'">×</span></div>
-        </div>
-        <textarea id="stepTextarea1" class="step-textarea" maxlength="2500" placeholder="Enter your app’s key features..." aria-label="Answer the current question"></textarea>
-        <span id="charCount1" class="char-count">0/2500</span>
-        <button id="exampleButton1" class="example-button" onmouseover="showExample(1)" onmouseout="restoreAnswer(1)" aria-label="Show example answer">
-          <i class="fas fa-eye"></i> Example
-        </button>
-        <div id="errorMessage1" class="error-message" role="alert"></div>
-        <div class="progress-container">
-          <div class="progress-bar">
-            <div class="progress-fill"></div>
-          </div>
-          <div class="discipline-indicators" role="group" aria-label="Progress indicators by category">
-            <div class="indicator-item">
-              <span class="indicator-status" id="description-indicator" aria-label="Description progress"></span>
-              <span>Description</span>
-            </div>
-            <div class="indicator-item">
-              <span class="indicator-status" id="features-indicator" aria-label="Features progress"></span>
-              <span>Features</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      <button id="nextButton" class="carousel-button-right" onclick="nextStep()" aria-label="Next step">
-        <i class="fas fa-arrow-right"></i>
-      </button>
-      <button id="goButton" class="carousel-button-right generate-spec-button" onclick="generateSpecification()" style="display: none;" disabled aria-label="Go to generate market research, disabled until all required questions are answered">
-        <i class="fas fa-rocket"></i>
-      </button>
-      <div id="loadingSpinner" class="loading-spinner"></div>
-    </div>
-    <div id="toast" class="toast">Answers saved successfully!</div>
-  </div>
-
-  <footer>
-    <div class="footer-content">
-      <div class="footer-links">
-        <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
-        <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
-        <a href="/blog.html" aria-label="Visit our blog">Blog</a>
-        <a href="map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
-      </div>
-      <span class="footer-divider">|</span>
-      <div class="footer-social">
-        <a href="https://www.linkedin.com/company/specifys-ai/" aria-label="Follow us on LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-        <a href="https://www.facebook.com/profile.php?id=61576402600129&locale=he_IL" target="_blank" aria-label="Follow us on Facebook"><i class="fab fa-facebook-f"></i></a>
-        <a href="https://www.instagram.com/YOUR_PROFILE" aria-label="Follow us on Instagram"><i class="fab fa-instagram"></i></a>
-        <a href="mailto:specifysai@gmail.com" aria-label="Send us an email"><i class="fas fa-envelope"></i></a>
-        <a href="https://www.producthunt.com/products/specifys-ai" target="_blank" aria-label="Check us out on Product Hunt"><i class="fab fa-product-hunt"></i></a>
-      </div>
-    </div>
-    <div class="footer-copyright">
-      © 2025 specifys.ai. All rights reserved.
-    </div>
-  </footer>
-
-  <script>
-    const stepTitles = ["Description", "Features"];
-
-    const questions = [
-      "What is the purpose of your app, its key features, and who is the target audience (e.g., age, interests, needs)?",
-      "What are the key features that make your app unique or valuable in the market?"
-    ];
-
-    const tips = [
-      "Explain the core problem your app solves, list 2-3 key features, and identify the target audience (e.g., age, interests, needs).",
-      "List specific features that make your app unique, such as real-time tracking, social integration, or personalized recommendations."
-    ];
-
-    const exampleAnswers = [
-      "FitTrack helps fitness enthusiasts track workouts and progress. Features: workout logging, progress charts, community challenges. Target: adults 18-40 who exercise regularly.",
-      "Workout logging with voice input, real-time progress charts, social sharing, personalized plans, and integration with wearables."
-    ];
-
-    let currentStep = 0;
-    const totalSteps = questions.length;
-    let textareas, charCounts, stepQuestions, tipTexts, exampleButtons, errorMessages, prevButton, nextButton, goButton, loadingSpinner, toast;
-    const storageKey = "marketAnswers";
-    let answers = JSON.parse(localStorage.getItem(storageKey)) || {};
-    let originalAnswers = ["", ""];
-    const indicators = ["description-indicator", "features-indicator"];
-    let typingTimer;
-    let feedbackTimer;
-    let dotsTimer;
-    let dotsCount = 0;
-
-    function showExample(index) {
-      originalAnswers[index] = textareas[index].value;
-      textareas[index].value = exampleAnswers[index];
-      charCounts[index].textContent = `${textareas[index].value.length}/2500`;
-    }
-
-    function restoreAnswer(index) {
-      textareas[index].value = originalAnswers[index];
-      charCounts[index].textContent = `${textareas[index].value.length}/2500`;
-    }
-
-    function showToast() {
-      toast.classList.add("show");
-      setTimeout(() => {
-        toast.classList.remove("show");
-      }, 3000);
-    }
-
-    function showFeedbackMessage(index, message, type) {
-      errorMessages[index].textContent = message;
-      errorMessages[index].className = "error-message show";
-      if (type === "analyzing") {
-        errorMessages[index].classList.add("analyzing");
-        errorMessages[index].classList.remove("feedback", "success");
-      } else if (type === "short") {
-        errorMessages[index].classList.add("feedback");
-        errorMessages[index].classList.remove("analyzing", "success");
-      } else {
-        errorMessages[index].classList.add("success");
-        errorMessages[index].classList.remove("analyzing", "feedback");
-      }
-      errorMessages[index].style.display = "block";
-    }
-
-    function hideFeedbackMessage(index) {
-      errorMessages[index].style.display = "none";
-      errorMessages[index].classList.remove("show", "analyzing", "feedback", "success");
-      clearInterval(dotsTimer);
-    }
-
-    function updateDots(index) {
-      dotsCount = (dotsCount + 1) % 4;
-      const dots = ".".repeat(dotsCount);
-      errorMessages[index].textContent = `Analyzing answer${dots}`;
-    }
-
-    function updateUI() {
-      document.querySelectorAll(".step-container").forEach((step, index) => {
-        step.classList.toggle("active", index === currentStep);
-      });
-
-      stepQuestions[currentStep].textContent = questions[currentStep];
-      tipTexts[currentStep].innerHTML = tips[currentStep] + '<span class="close-tip" onclick="this.parentElement.style.display=\'none\'">×</span>';
-      textareas[currentStep].value = answers[currentStep] || "";
-      charCounts[currentStep].textContent = `${textareas[currentStep].value.length}/2500`;
-
-      const progress = ((currentStep + 1) / totalSteps) * 100;
-      document.querySelectorAll(".progress-fill").forEach(fill => {
-        fill.style.width = `${progress}%`;
-      });
-
-      indicators.forEach((indicator, index) => {
-        const element = document.getElementById(indicator);
-        if (answers[index] && answers[index].trim()) {
-          element.classList.add("completed");
-        } else {
-          element.classList.remove("completed");
-        }
-      });
-
-      prevButton.style.display = currentStep === 0 ? "none" : "flex";
-      nextButton.style.display = currentStep === totalSteps - 1 ? "none" : "flex";
-      goButton.style.display = currentStep === totalSteps - 1 ? "flex" : "none";
-      goButton.disabled = !indicators.every(indicator => {
-        const element = document.getElementById(indicator);
-        return element.classList.contains("completed");
-      });
-      goButton.setAttribute("aria-label", goButton.disabled ? "Go to generate market research, disabled until all required questions are answered" : "Go to generate market pred-market.html");
-    }
-
-    document.addEventListener("DOMContentLoaded", () => {
-      if (localStorage.getItem("currentMode") !== "market") {
-        localStorage.removeItem("processingAnswers");
-        localStorage.removeItem("noCodeAnswers");
-        localStorage.setItem("currentMode", "market");
-        answers = {};
-        localStorage.setItem(storageKey, JSON.stringify(answers));
-      }
-
-      textareas = [
-        document.getElementById("stepTextarea0"),
-        document.getElementById("stepTextarea1")
-      ];
-      charCounts = [
-        document.getElementById("charCount0"),
-        document.getElementById("charCount1")
-      ];
-      stepQuestions = [
-        document.getElementById("stepQuestion0"),
-        document.getElementById("stepQuestion1")
-      ];
-      tipTexts = [
-        document.getElementById("tipText0"),
-        document.getElementById("tipText1")
-      ];
-      exampleButtons = [
-        document.getElementById("exampleButton0"),
-        document.getElementById("exampleButton1")
-      ];
-      errorMessages = [
-        document.getElementById("errorMessage0"),
-        document.getElementById("errorMessage1")
-      ];
-      prevButton = document.getElementById("prevButton");
-      nextButton = document.getElementById("nextButton");
-      goButton = document.getElementById("goButton");
-      loadingSpinner = document.getElementById("loadingSpinner");
-      toast = document.getElementById("toast");
-
-      updateUI();
-
-      textareas.forEach((textarea, index) => {
-        textarea.addEventListener("input", () => {
-          answers[index] = textarea.value;
-          localStorage.setItem(storageKey, JSON.stringify(answers));
-          charCounts[index].textContent = `${textarea.value.length}/2500`;
-
-          clearTimeout(typingTimer);
-          clearTimeout(feedbackTimer);
-          clearInterval(dotsTimer);
-
-          showFeedbackMessage(index, "Analyzing answer.", "analyzing");
-          dotsTimer = setInterval(() => updateDots(index), 500);
-
-          typingTimer = setTimeout(() => {
-            localStorage.setItem(storageKey, JSON.stringify(answers));
-            showToast();
-          }, 10000);
-
-          feedbackTimer = setTimeout(() => {
-            clearInterval(dotsTimer);
-            const value = textarea.value.trim();
-            if (value.length === 0) {
-              hideFeedbackMessage(index);
-            } else if (value.length < 50) {
-              showFeedbackMessage(index, "Your answer is a bit short. Try adding more details!", "short");
-            } else if (value.length < 100) {
-              showFeedbackMessage(index, "Your answer length is okay, but could use more depth.", "success");
-            } else {
-              showFeedbackMessage(index, "Great job! Your answer length is good.", "success");
-            }
-          }, 1500);
-
-          updateUI();
-        });
-
-        textarea.addEventListener("keydown", () => {
-          clearTimeout(feedbackTimer);
-          clearInterval(dotsTimer);
-          showFeedbackMessage(index, "Analyzing answer.", "analyzing");
-          dotsTimer = setInterval(() => updateDots(index), 500);
-        });
-      });
-    });
-
-    window.prevStep = function() {
-      if (currentStep > 0) {
-        hideFeedbackMessage(currentStep);
-        currentStep--;
-        updateUI();
-      }
-    };
-
-    window.nextStep = function() {
-      const textareaValue = textareas[currentStep].value.trim();
-      if (!textareaValue) {
-        showFeedbackMessage(currentStep, "Please answer the current question before proceeding.", "short");
-        return;
-      }
-
-      answers[currentStep] = textareaValue;
+<header class="thematic-header" role="banner">
+<div class="logo">
+<a href="index.html" aria-label="Specifys.ai homepage">Specifys.ai</a>
+</div>
+<button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode"><i class="fas fa-moon"></i></button>
+</header>
+<div class="carousel-container">
+<div id="carouselContent" class="carousel-content">
+<button id="prevButton" class="carousel-button-left" onclick="prevStep()" aria-label="Previous step" style="display: none;"><i class="fas fa-arrow-left"></i></button>
+<div class="step-container active" id="step0">
+<h3 class="step-title">Description</h3>
+<div class="question-wrapper">
+<p class="question-label" id="stepQuestion0" aria-describedby="tipText0"></p>
+<i class="fas fa-lightbulb tip-icon" aria-label="Show tip"></i>
+<div id="tipText0" class="tip-tooltip"><span class="close-tip" onclick="this.parentElement.style.display='none'">×</span></div>
+</div>
+<textarea id="stepTextarea0" class="step-textarea" maxlength="2500" placeholder="Enter your app description, features, and audience..." aria-label="Answer the current question"></textarea>
+<span id="charCount0" class="char-count">0/2500</span>
+<button id="exampleButton0" class="example-button" onmouseover="showExample(0)" onmouseout="restoreAnswer(0)" aria-label="Show example answer"><i class="fas fa-eye"></i> Example</button>
+<div id="errorMessage0" class="error-message" role="alert"></div>
+<div class="progress-container">
+<div class="progress-bar"><div class="progress-fill"></div></div>
+<div class="discipline-indicators" role="group" aria-label="Progress indicators by category">
+<div class="indicator-item"><span class="indicator-status" id="description-indicator" aria-label="Description progress"></span><span>Description</span></div>
+<div class="indicator-item"><span class="indicator-status" id="features-indicator" aria-label="Features progress"></span><span>Features</span></div>
+</div>
+</div>
+</div>
+<div class="step-container" id="step1">
+<h3 class="step-title">Features</h3>
+<div class="question-wrapper">
+<p class="question-label" id="stepQuestion1" aria-describedby="tipText1"></p>
+<i class="fas fa-lightbulb tip-icon" aria-label="Show tip"></i>
+<div id="tipText1" class="tip-tooltip"><span class="close-tip" onclick="this.parentElement.style.display='none'">×</span></div>
+</div>
+<textarea id="stepTextarea1" class="step-textarea" maxlength="2500" placeholder="Enter your app’s key features..." aria-label="Answer the current question"></textarea>
+<span id="charCount1" class="char-count">0/2500</span>
+<button id="exampleButton1" class="example-button" onmouseover="showExample(1)" onmouseout="restoreAnswer(1)" aria-label="Show example answer"><i class="fas fa-eye"></i> Example</button>
+<div id="errorMessage1" class="error-message" role="alert"></div>
+<div class="progress-container">
+<div class="progress-bar"><div class="progress-fill"></div></div>
+<div class="discipline-indicators" role="group" aria-label="Progress indicators by category">
+<div class="indicator-item"><span class="indicator-status" id="description-indicator" aria-label="Description progress"></span><span>Description</span></div>
+<div class="indicator-item"><span class="indicator-status" id="features-indicator" aria-label="Features progress"></span><span>Features</span></div>
+</div>
+</div>
+</div>
+<button id="nextButton" class="carousel-button-right" onclick="nextStep()" aria-label="Next step"><i class="fas fa-arrow-right"></i></button>
+<button id="goButton" class="carousel-button-right generate-spec-button" onclick="generateSpecification()" style="display: none;" disabled aria-label="Go to generate market research, disabled until all required questions are answered"><i class="fas fa-rocket"></i></button>
+<div id="loadingSpinner" class="loading-spinner"></div>
+</div>
+<div id="toast" class="toast">Answers saved successfully!</div>
+</div>
+<footer>
+<div class="footer-content">
+<div class="footer-links">
+<a href="how.html" aria-label="Learn how Specifys.ai works">How It Works</a>
+<a href="about.html" aria-label="Learn more about Specifys.ai">About Us</a>
+<a href="blog.html" aria-label="Visit our blog">Blog</a>
+<a href="map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
+<a href="https://specifys-ai.com/ToolPicker" aria-label="Use our Tool Picker">Tool Picker</a>
+</div>
+<span class="footer-divider">|</span>
+<div class="footer-social">
+<a href="https://www.linkedin.com/company/specifys-ai/" aria-label="Follow us on LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+<a href="https://www.facebook.com/profile.php?id=61576402600129&locale=he_IL" target="_blank" aria-label="Follow us on Facebook"><i class="fab fa-facebook-f"></i></a>
+<a href="https://www.instagram.com/YOUR_PROFILE" aria-label="Follow us on Instagram"><i class="fab fa-instagram"></i></a>
+<a href="mailto:specifysai@gmail.com" aria-label="Send us an email"><i class="fas fa-envelope"></i></a>
+<a href="https://www.producthunt.com/products/specifys-ai" target="_blank" aria-label="Check us out on Product Hunt"><i class="fab fa-product-hunt"></i></a>
+</div>
+</div>
+<div class="footer-copyright">© 2025 Specifys.ai. All rights reserved.</div>
+</footer>
+<script>
+const stepTitles = ["Description", "Features"];
+const questions = [
+  "What is the purpose of your app, its key features, and who is the target audience (e.g., age, interests, needs)?",
+  "What are the key features that make your app unique or valuable in the market?"
+];
+const tips = [
+  "Explain the core problem your app solves, list 2-3 key features, and identify the target audience (e.g., age, interests, needs).",
+  "List specific features that make your app unique, such as real-time tracking, social integration, or personalized recommendations."
+];
+const exampleAnswers = [
+  "FitTrack helps fitness enthusiasts track workouts and progress. Features: workout logging, progress charts, community challenges. Target: adults 18-40 who exercise regularly.",
+  "Workout logging with voice input, real-time progress charts, social sharing, personalized plans, and integration with wearables."
+];
+let currentStep = 0;
+const totalSteps = questions.length;
+let textareas, charCounts, stepQuestions, tipTexts, exampleButtons, errorMessages, prevButton, nextButton, goButton, loadingSpinner, toast;
+const storageKey = "marketAnswers";
+let answers = JSON.parse(localStorage.getItem(storageKey)) || {};
+let originalAnswers = ["", ""];
+const indicators = ["description-indicator", "features-indicator"];
+let typingTimer, feedbackTimer, dotsTimer, dotsCount = 0;
+function showExample(index) {
+  originalAnswers[index] = textareas[index].value;
+  textareas[index].value = exampleAnswers[index];
+  charCounts[index].textContent = `${textareas[index].value.length}/2500`;
+}
+function restoreAnswer(index) {
+  textareas[index].value = originalAnswers[index];
+  charCounts[index].textContent = `${textareas[index].value.length}/2500`;
+}
+function showToast() {
+  toast.classList.add("show");
+  setTimeout(() => toast.classList.remove("show"), 3000);
+}
+function showFeedbackMessage(index, message, type) {
+  errorMessages[index].textContent = message;
+  errorMessages[index].className = "error-message show";
+  errorMessages[index].classList.add(type);
+  errorMessages[index].classList.remove(...["analyzing", "feedback", "success"].filter(t => t !== type));
+  errorMessages[index].style.display = "block";
+}
+function hideFeedbackMessage(index) {
+  errorMessages[index].style.display = "none";
+  errorMessages[index].classList.remove("show", "analyzing", "feedback", "success");
+  clearInterval(dotsTimer);
+}
+function updateDots(index) {
+  dotsCount = (dotsCount + 1) % 4;
+  errorMessages[index].textContent = `Analyzing answer${".".repeat(dotsCount)}`;
+}
+function updateUI() {
+  document.querySelectorAll(".step-container").forEach((step, index) => step.classList.toggle("active", index === currentStep));
+  stepQuestions[currentStep].textContent = questions[currentStep];
+  tipTexts[currentStep].innerHTML = tips[currentStep] + '<span class="close-tip" onclick="this.parentElement.style.display=\'none\'">×</span>';
+  textareas[currentStep].value = answers[currentStep] || "";
+  charCounts[currentStep].textContent = `${textareas[currentStep].value.length}/2500`;
+  const progress = ((currentStep + 1) / totalSteps) * 100;
+  document.querySelectorAll(".progress-fill").forEach(fill => fill.style.width = `${progress}%`);
+  indicators.forEach((indicator, index) => {
+    const element = document.getElementById(indicator);
+    element.classList.toggle("completed", answers[index] && answers[index].trim());
+  });
+  prevButton.style.display = currentStep === 0 ? "none" : "flex";
+  nextButton.style.display = currentStep === totalSteps - 1 ? "none" : "flex";
+  goButton.style.display = currentStep === totalSteps - 1 ? "flex" : "none";
+  goButton.disabled = !indicators.every(indicator => document.getElementById(indicator).classList.contains("completed"));
+  goButton.setAttribute("aria-label", goButton.disabled ? "Go to generate market research, disabled until all required questions are answered" : "Go to generate market research");
+}
+document.addEventListener("DOMContentLoaded", () => {
+  if (localStorage.getItem("currentMode") !== "market") {
+    localStorage.removeItem("processingAnswers");
+    localStorage.removeItem("noCodeAnswers");
+    localStorage.setItem("currentMode", "market");
+    answers = {};
+    localStorage.setItem(storageKey, JSON.stringify(answers));
+  }
+  textareas = [document.getElementById("stepTextarea0"), document.getElementById("stepTextarea1")];
+  charCounts = [document.getElementById("charCount0"), document.getElementById("charCount1")];
+  stepQuestions = [document.getElementById("stepQuestion0"), document.getElementById("stepQuestion1")];
+  tipTexts = [document.getElementById("tipText0"), document.getElementById("tipText1")];
+  exampleButtons = [document.getElementById("exampleButton0"), document.getElementById("exampleButton1")];
+  errorMessages = [document.getElementById("errorMessage0"), document.getElementById("errorMessage1")];
+  prevButton = document.getElementById("prevButton");
+  nextButton = document.getElementById("nextButton");
+  goButton = document.getElementById("goButton");
+  loadingSpinner = document.getElementById("loadingSpinner");
+  toast = document.getElementById("toast");
+  updateUI();
+  textareas.forEach((textarea, index) => {
+    textarea.addEventListener("input", () => {
+      answers[index] = textarea.value;
       localStorage.setItem(storageKey, JSON.stringify(answers));
-      showToast();
-
-      if (currentStep < totalSteps - 1) {
-        hideFeedbackMessage(currentStep);
-        currentStep++;
-        updateUI();
-      }
-    };
-
-    window.generateSpecification = async function() {
-      const answers = JSON.parse(localStorage.getItem(storageKey)) || {};
-      if (Object.keys(answers).length < totalSteps) {
-        showFeedbackMessage(currentStep, "Please complete all steps before generating the market research.", "short");
-        return;
-      }
-
-      hideFeedbackMessage(currentStep);
-      goButton.style.display = "none";
-      loadingSpinner.style.display = "block";
-
-      let rawContent = "# Market Research\n\n";
-      rawContent += "## Description\n\n" + (answers[0] || "No description provided.") + "\n\n";
-      rawContent += "## Features\n\n" + (answers[1] || "No features provided.") + "\n";
-      localStorage.setItem("rawContent", rawContent);
-
-      const formData = {
-        idea: answers[0] || '',
-        topic: 'Market Research',
-        platform: 'Mobile (iOS and Android)',
-        answers: answers
-      };
-      localStorage.setItem("formData", JSON.stringify(formData));
-      showToast();
-
-      try {
-        if (typeof window.generateSpecificationOriginal !== "function") {
-          throw new Error("External script (processing-market.js) failed to load or function is missing.");
+      charCounts[index].textContent = `${textarea.value.length}/2500`;
+      clearTimeout(typingTimer);
+      clearTimeout(feedbackTimer);
+      clearInterval(dotsTimer);
+      showFeedbackMessage(index, "Analyzing answer.", "analyzing");
+      dotsTimer = setInterval(() => updateDots(index), 500);
+      typingTimer = setTimeout(() => {
+        localStorage.setItem(storageKey, JSON.stringify(answers));
+        showToast();
+      }, 10000);
+      feedbackTimer = setTimeout(() => {
+        clearInterval(dotsTimer);
+        const value = textarea.value.trim();
+        if (value.length === 0) {
+          hideFeedbackMessage(index);
+        } else if (value.length < 50) {
+          showFeedbackMessage(index, "Your answer is a bit short. Try adding more details!", "short");
+        } else if (value.length < 100) {
+          showFeedbackMessage(index, "Your answer length is okay, but could use more depth.", "success");
+        } else {
+          showFeedbackMessage(index, "Great job! Your answer length is good.", "success");
         }
-        await window.generateSpecificationOriginal();
-      } catch (error) {
-        console.error("Error calling API:", error);
-        showFeedbackMessage(currentStep, `Failed to generate market research: ${error.message}.`, "short");
-        localStorage.setItem("generatedContent", rawContent);
-      }
-      loadingSpinner.style.display = "none";
-      window.location.href = "result-market.html";
-    };
-  </script>
-
-  <noscript>
-    <div style="text-align: center; padding: 10px; background: #fff; color: #333;">
-      <p>This website requires JavaScript to function properly. Please enable JavaScript in your browser.</p>
-    </div>
-  </noscript>
+        updateUI();
+      }, 1500);
+    });
+    textarea.addEventListener("keydown", () => {
+      clearTimeout(feedbackTimer);
+      clearInterval(dotsTimer);
+      showFeedbackMessage(index, "Analyzing answer.", "analyzing");
+      dotsTimer = setInterval(() => updateDots(index), 500);
+    });
+  });
+  const themeToggle = document.getElementById('themeToggle');
+  themeToggle.addEventListener('click', () => {
+    document.body.classList.toggle('dark-mode');
+    const isDarkMode = document.body.classList.contains('dark-mode');
+    themeToggle.querySelector('i').classList.toggle('fa-moon', !isDarkMode);
+    themeToggle.querySelector('i').classList.toggle('fa-sun', isDarkMode);
+    themeToggle.setAttribute('aria-label', isDarkMode ? 'Toggle light mode' : 'Toggle dark mode');
+    localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+  });
+  const savedTheme = localStorage.getItem('theme');
+  if (savedTheme === 'dark') {
+    document.body.classList.add('dark-mode');
+    themeToggle.querySelector('i').classList.replace('fa-moon', 'fa-sun');
+    themeToggle.setAttribute('aria-label', 'Toggle light mode');
+  }
+});
+window.prevStep = function() {
+  if (currentStep > 0) {
+    hideFeedbackMessage(currentStep);
+    currentStep--;
+    updateUI();
+  }
+};
+window.nextStep = function() {
+  const textareaValue = textareas[currentStep].value.trim();
+  if (!textareaValue) {
+    showFeedbackMessage(currentStep, "Please answer the current question before proceeding.", "short");
+    return;
+  }
+  answers[currentStep] = textareaValue;
+  localStorage.setItem(storageKey, JSON.stringify(answers));
+  showToast();
+  if (currentStep < totalSteps - 1) {
+    hideFeedbackMessage(currentStep);
+    currentStep++;
+    updateUI();
+  }
+};
+window.generateSpecification = async function() {
+  const answers = JSON.parse(localStorage.getItem(storageKey)) || {};
+  if (Object.keys(answers).length < totalSteps) {
+    showFeedbackMessage(currentStep, "Please complete all steps before generating the market research.", "short");
+    return;
+  }
+  hideFeedbackMessage(currentStep);
+  goButton.style.display = "none";
+  loadingSpinner.style.display = "block";
+  let rawContent = "# Market Research\n\n";
+  rawContent += "## Description\n\n" + (answers[0] || "No description provided.") + "\n\n";
+  rawContent += "## Features\n\n" + (answers[1] || "No features provided.") + "\n";
+  localStorage.setItem("rawContent", rawContent);
+  const formData = {
+    idea: answers[0] || '',
+    topic: 'Market Research',
+    platform: 'Mobile (iOS and Android)',
+    answers: answers
+  };
+  localStorage.setItem("formData", JSON.stringify(formData));
+  showToast();
+  try {
+    if (typeof window.generateSpecificationOriginal !== "function") {
+      throw new Error("External script (processing-market.js) failed to load or function is missing.");
+    }
+    await window.generateSpecificationOriginal();
+  } catch (error) {
+    console.error("Error calling API:", error);
+    showFeedbackMessage(currentStep, `Failed to generate market research: ${error.message}.`, "short");
+    localStorage.setItem("generatedContent", rawContent);
+  }
+  loadingSpinner.style.display = "none";
+  window.location.href = "result-market.html";
+};
+</script>
+<noscript>
+<div style="text-align: center; padding: 10px; background: #fff; color: #333;">
+<p>This website requires JavaScript to function properly. Please enable JavaScript in your browser.</p>
+</div>
+</noscript>
 </body>
 </html>

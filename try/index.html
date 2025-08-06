@@ -1,44 +1,164 @@
+```html
 <!DOCTYPE html>
-<html lang="he">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>סיפור עם OpenAI</title>
-  <style>
-    body { font-family: sans-serif; direction: rtl; max-width: 600px; margin: 50px auto; }
-    textarea { width: 100%; height: 80px; margin-bottom: 10px; }
-    #story { white-space: pre-wrap; border: 1px solid #ccc; padding: 10px; min-height: 150px; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Answer guided questions to refine your app idea and generate a detailed specification with specifys.ai for NoCode Creators.">
+    <meta name="keywords" content="processing app idea, guided questions, AI specification, app development, nocode creators, specifys.ai, NoCode app builder, app specification tool, create app without coding">
+    <meta name="author" content="specifys.ai Team">
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#0078d4">
+    <meta name="canonical" content="https://specifys.ai/processing-novice.html">
+    <meta property="og:title" content="specifys.ai - NoCode Creators Mode">
+    <meta property="og:description" content="Answer guided questions to refine your app idea and generate a detailed specification with specifys.ai for NoCode Creators.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://specifys.ai/processing-novice.html">
+    <meta property="og:image" content="https://specifys.ai/assets/og-image.jpg">
+    <meta property="og:site_name" content="Specifys.ai">
+    <title>specifys.ai - NoCode Creators Mode</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script defer src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"></script>
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        .dark-mode {
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+        }
+        .dark-mode .bg-white {
+            background-color: #2a2a2a;
+        }
+        .dark-mode .text-gray-800 {
+            color: #e0e0e0;
+        }
+        .dark-mode .border-gray-200 {
+            border-color: #444;
+        }
+        .dark-mode .bg-gray-100 {
+            background-color: #333;
+        }
+        .chat-message {
+            max-width: 80%;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .tooltip {
+            display: none;
+            position: absolute;
+            top: -3rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+        }
+        .tooltip.show {
+            display: block;
+        }
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #0078d4;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .prose pre {
+            white-space: pre-wrap;
+            background: #f5f5f5;
+            padding: 1rem;
+            border-radius: 8px;
+        }
+        .dark-mode .prose pre {
+            background: #333;
+        }
+        @media (max-width: 768px) {
+            .chat-container, .result-container {
+                width: 100% !important;
+                display: none;
+            }
+            .chat-container.active, .result-container.active {
+                display: block;
+            }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .chat-message, .loading-spinner {
+                animation: none;
+            }
+        }
+    </style>
 </head>
-<body>
-  <h1>קבל סיפור מ־OpenAI</h1>
-  <textarea id="input" placeholder="כתוב נושא לסיפור..."></textarea>
-  <button onclick="send()">שלח</button>
-  <div id="story"></div>
-
-  <script>
-    async function send() {
-      const input = document.getElementById("input").value;
-      const storyDiv = document.getElementById("story");
-      storyDiv.textContent = "";
-
-      const response = await fetch("https://testworker.shalom-cohen-111.workers.dev/api/story", {
-        method: "POST",
-        body: JSON.stringify({ topic: input }),
-        headers: { "Content-Type": "application/json" }
-      });
-
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder("utf-8");
-
-      let done = false;
-      while (!done) {
-        const { value, done: doneReading } = await reader.read();
-        done = doneReading;
-        const chunk = decoder.decode(value, { stream: true });
-        storyDiv.textContent += chunk;
-        window.scrollTo(0, document.body.scrollHeight);
-      }
-    }
-  </script>
+<body class="page-default nocode">
+    <header class="fixed top-0 w-full bg-white dark-mode:bg-gray-800 p-4 shadow-md z-10">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="logo">
+                <a href="index.html" class="text-2xl font-bold text-gray-800 dark-mode:text-white hover:text-blue-600 transition">Specifys.ai</a>
+            </div>
+            <button id="themeToggle" class="p-2 rounded-full bg-gray-200 dark-mode:bg-gray-600 text-gray-800 dark-mode:text-white hover:bg-blue-100 dark-mode:hover:bg-blue-900 transition" aria-label="Switch to dark mode">
+                <i class="fas fa-moon"></i>
+            </button>
+        </div>
+    </header>
+    <main class="container mx-auto pt-20 pb-10 flex flex-col md:flex-row gap-6">
+        <div id="chatContainer" class="chat-container w-full md:w-1/2 p-6 bg-white dark-mode:bg-gray-800 rounded-lg shadow-md active">
+            <div class="progress-container mb-6">
+                <div class="progress-bar bg-gray-200 dark-mode:bg-gray-600 rounded-full h-3 overflow-hidden">
+                    <div id="progressFill" class="progress-fill bg-blue-600 h-full rounded-full transition-all duration-500"></div>
+                </div>
+                <div id="disciplineIndicators" class="flex justify-around mt-4 flex-wrap gap-2"></div>
+            </div>
+            <div id="chatMessages" class="overflow-y-auto max-h-[70vh] pr-2"></div>
+            <button id="generateButton" class="mt-4 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition hidden disabled:bg-gray-400 disabled:cursor-not-allowed">Generate Specification</button>
+        </div>
+        <div id="resultContainer" class="result-container w-full md:w-1/2 p-6 bg-white dark-mode:bg-gray-800 rounded-lg shadow-md">
+            <div id="loadingSpinner" class="hidden flex flex-col items-center justify-center h-full">
+                <div class="loading-spinner"></div>
+                <p class="mt-4 text-gray-800 dark-mode:text-gray-200">Generating specification...</p>
+            </div>
+            <div id="specificationContent" class="hidden">
+                <h2 class="text-2xl font-bold mb-4 text-gray-800 dark-mode:text-white">Application Specification</h2>
+                <div class="prose dark-mode:prose-invert max-h-[70vh] overflow-y-auto">
+                    <pre id="specificationText"></pre>
+                </div>
+                <div class="mt-4 flex gap-3 flex-wrap">
+                    <button id="downloadPDF" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">Download as PDF</button>
+                    <button id="copyText" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition dark-mode:bg-gray-600 dark-mode:text-white">Copy Text</button>
+                    <button id="backToChat" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition dark-mode:bg-gray-600 dark-mode:text-white">Back to Chat</button>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer class="bg-white dark-mode:bg-gray-800 p-4 text-center shadow-inner">
+        <div class="flex justify-center gap-4 mb-2 flex-wrap">
+            <a href="how.html" class="text-gray-800 dark-mode:text-white hover:text-blue-600 transition">How It Works</a>
+            <a href="about.html" class="text-gray-800 dark-mode:text-white hover:text-blue-600 transition">About Us</a>
+            <a href="blog.html" class="text-gray-800 dark-mode:text-white hover:text-blue-600 transition">Blog</a>
+            <a href="map/vibe-coding-tools-map.html" class="text-gray-800 dark-mode:text-white hover:text-blue-600 transition">Vibe Coding Tools Map</a>
+            <a href="https://specifys-ai.com/ToolPicker" class="text-gray-800 dark-mode:text-white hover:text-blue-600 transition">Tool Picker</a>
+        </div>
+        <div class="flex justify-center gap-4 mb-2">
+            <a href="https://www.linkedin.com/company/specifys-ai/" class="text-gray-800 dark-mode:text-white hover:text-blue-600 transition"><i class="fab fa-linkedin-in"></i></a>
+            <a href="https://www.facebook.com/profile.php?id=61576402600129" class="text-gray-800 dark-mode:text-white hover:text-blue-600 transition"><i class="fab fa-facebook-f"></i></a>
+            <a href="https://www.instagram.com/YOUR_PROFILE" class="text-gray-800 dark-mode:text-white hover:text-blue-600 transition"><i class="fab fa-instagram"></i></a>
+            <a href="mailto:specifysai@gmail.com" class="text-gray-800 dark-mode:text-white hover:text-blue-600 transition"><i class="fas fa-envelope"></i></a>
+            <a href="https://www.producthunt.com/products/specifys-ai" class="text-gray-800 dark-mode:text-white hover:text-blue-600 transition"><i class="fab fa-product-hunt"></i></a>
+        </div>
+        <p class="text-gray-600 dark-mode:text-gray-400 text-sm">© 2025 Specifys.ai. All rights reserved.</p>
+    </footer>
+    <script src="app.js"></script>
 </body>
 </html>
+```

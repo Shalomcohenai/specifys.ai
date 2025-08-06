@@ -52,6 +52,34 @@
   <style>
     @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=block");
 
+    :root {
+      --background-color: #f5f5f5;
+      --header-background: rgba(255, 255, 255, 0.9);
+      --header-text: #333;
+      --footer-background: #fff;
+      --footer-text: #333;
+      --footer-link: #333;
+      --footer-link-hover: #0078d4;
+      --footer-divider: #333;
+      --footer-social: #333;
+      --footer-social-hover: #0078d4;
+      --footer-copyright: #666;
+    }
+
+    .dark-mode {
+      --background-color: #1a1a1a;
+      --header-background: rgba(40, 40, 40, 0.9);
+      --header-text: #ffffff;
+      --footer-background: #2a2a2a;
+      --footer-text: #ffffff;
+      --footer-link: #ffffff;
+      --footer-link-hover: #00b7c3;
+      --footer-divider: #ffffff;
+      --footer-social: #ffffff;
+      --footer-social-hover: #00b7c3;
+      --footer-copyright: #cccccc;
+    }
+
     * {
       margin: 0;
       padding: 0;
@@ -69,7 +97,7 @@
       display: flex;
       flex-direction: column;
       min-height: 100%;
-      background: #f5f5f5;
+      background: var(--background-color);
     }
 
     .thematic-header {
@@ -80,15 +108,30 @@
       display: flex;
       justify-content: center;
       z-index: 10;
-      background: rgba(255, 255, 255, 0.9);
+      background: var(--header-background);
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
     .thematic-header .logo a {
       text-decoration: none;
-      color: #333;
+      color: var(--header-text);
       font-size: 1.5rem;
       font-weight: 700;
+    }
+
+    .theme-toggle {
+      position: absolute;
+      right: 24px;
+      background: none;
+      border: none;
+      color: var(--header-text);
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: color 0.3s ease;
+    }
+
+    .theme-toggle:hover {
+      color: var(--footer-link-hover);
     }
 
     .main-content-wrapper {
@@ -477,9 +520,9 @@
       padding: 20px 10px;
       text-align: center;
       width: 100%;
-      color: #333;
+      color: var(--footer-text);
       flex-shrink: 0;
-      background: #fff;
+      background: var(--footer-background);
       box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
     }
 
@@ -500,7 +543,7 @@
     }
 
     .footer-links a {
-      color: #333;
+      color: var(--footer-link);
       text-decoration: none;
       font-size: 0.85rem;
       font-weight: 500;
@@ -508,11 +551,11 @@
     }
 
     .footer-links a:hover {
-      color: #0078d4;
+      color: var(--footer-link-hover);
     }
 
     .footer-divider {
-      color: #333;
+      color: var(--footer-divider);
       font-size: 1.2rem;
       font-weight: 300;
     }
@@ -525,19 +568,19 @@
     }
 
     .footer-social a {
-      color: #333;
+      color: var(--footer-social);
       font-size: 1.2rem;
       transition: transform 0.3s ease, color 0.3s ease;
     }
 
     .footer-social a:hover {
-      color: #0078d4;
+      color: var(--footer-social-hover);
       transform: scale(1.2);
     }
 
     .footer-copyright {
       font-size: 0.8rem;
-      color: #666;
+      color: var(--footer-copyright);
       margin-top: 1rem;
     }
 
@@ -660,6 +703,22 @@
       background: #005ea2;
     }
 
+    @media (prefers-color-scheme: dark) {
+      body:not(.light-mode) {
+        --background-color: #1a1a1a;
+        --header-background: rgba(40, 40, 40, 0.9);
+        --header-text: #ffffff;
+        --footer-background: #2a2a2a;
+        --footer-text: #ffffff;
+        --footer-link: #ffffff;
+        --footer-link-hover: #00b7c3;
+        --footer-divider: #ffffff;
+        --footer-social: #ffffff;
+        --footer-social-hover: #00b7c3;
+        --footer-copyright: #cccccc;
+      }
+    }
+
     @media (max-width: 768px) {
       .main-content-wrapper { padding: 8rem 1rem 2rem; max-width: 650px; padding-left: 15px; padding-right: 15px; }
       .header-text { top: 5rem; }
@@ -684,6 +743,7 @@
       .newsletter-container form { flex-direction: column; gap: 0.2rem; }
       .newsletter-container input { padding: 0.3rem; }
       .newsletter-container button { padding: 0.3rem 0.8rem; }
+      .theme-toggle { font-size: 1rem; right: 15px; }
     }
 
     @media (max-width: 480px) {
@@ -703,6 +763,7 @@
       .footer-social a { font-size: 0.9rem; }
       .newsletter-container { bottom: 3.5rem; }
       .newsletter-container input { width: 100%; }
+      .theme-toggle { font-size: 0.9rem; right: 10px; }
     }
 
     .visually-hidden {
@@ -724,6 +785,9 @@
         Specify.ai
       </a>
     </div>
+    <button class="theme-toggle" onclick="toggleDarkMode()" aria-label="Toggle dark mode">
+      <i class="fas fa-moon"></i>
+    </button>
   </header>
 
   <div class="main-content-wrapper">
@@ -776,6 +840,23 @@
   </footer>
 
   <script type="text/babel">
+    function toggleDarkMode() {
+      const body = document.body;
+      const isDarkMode = body.classList.toggle('dark-mode');
+      body.classList.toggle('light-mode', !isDarkMode);
+      const themeToggleIcon = document.querySelector('.theme-toggle i');
+      themeToggleIcon.className = isDarkMode ? 'fas fa-sun' : 'fas fa-moon';
+    }
+
+    // Set initial theme based on user preference
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      document.body.classList.add('dark-mode');
+      document.querySelector('.theme-toggle i').className = 'fas fa-sun';
+    } else {
+      document.body.classList.add('light-mode');
+      document.querySelector('.theme-toggle i').className = 'fas fa-moon';
+    }
+
     async function fetchTools() {
       try {
         const response = await fetch('tools.json');
@@ -846,7 +927,6 @@
       }
     });
 
-    // Show newsletter after 10 seconds
     setTimeout(() => {
       const newsletterContainer = document.getElementById('newsletter-container');
       if (newsletterContainer) {

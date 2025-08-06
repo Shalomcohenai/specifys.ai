@@ -3,569 +3,518 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Find the best NoCode or coding tool for your app with specifys.ai's AI Tool Picker.">
-  <meta name="keywords" content="NoCode tool picker, coding tool picker, app development tools, specifys.ai">
-  <meta name="author" content="specifys.ai Team">
+  <meta name="description" content="Find the best NoCode or coding tool for your app with Specifys.ai's AI Tool Picker.">
+  <meta name="keywords" content="NoCode tool picker, coding tool picker, app development tools, Specifys.ai, vibe coding">
+  <meta name="author" content="Specifys.ai Team">
   <meta name="robots" content="index, follow">
-  <meta property="og:title" content="specifys.ai - AI Tool Picker">
-  <meta property="og:description" content="Find the best NoCode or coding tool for your app with specifys.ai's AI Tool Picker.">
+  <meta name="googlebot" content="index, follow">
+  <meta name="bingbot" content="index, follow">
+  <meta name="revisit-after" content="7 days">
+  <meta name="language" content="English">
+  <meta name="copyright" content="© 2025 Specifys.ai">
+  <meta name="publisher" content="Specifys.ai">
+  <meta name="distribution" content="global">
+  <meta name="rating" content="general">
+  <meta name="theme-color" content="#0078d4">
+  <meta name="canonical" content="https://specifys.ai/ToolPicker.html">
+  <meta property="og:title" content="Specifys.ai - AI Tool Picker">
+  <meta property="og:description" content="Find the best NoCode or coding tool for your app with Specifys.ai's AI Tool Picker.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://specifys.ai/ToolPicker.html">
   <meta property="og:image" content="https://specifys.ai/assets/og-image.jpg">
+  <meta property="og:image:alt" content="AI Tool Picker by Specifys.ai">
+  <meta property="og:site_name" content="Specifys.ai">
+  <meta property="og:locale" content="en_US">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="specifys.ai - AI Tool Picker">
-  <meta name="twitter:description" content="Find the best NoCode or coding tool for your app with specifys.ai's AI Tool Picker.">
+  <meta name="twitter:title" content="Specifys.ai - AI Tool Picker">
+  <meta name="twitter:description" content="Find the best NoCode or coding tool for your app with Specifys.ai's AI Tool Picker.">
   <meta name="twitter:image" content="https://specifys.ai/assets/og-image.jpg">
-  <title>specifys.ai - AI Tool Picker</title>
+  <meta name="twitter:site" content="@specifys_ai">
+  <meta name="twitter:creator" content="@specifys_ai">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "headline": "Specifys.ai - AI Tool Picker",
+    "description": "Find the best NoCode or coding tool for your app with Specifys.ai's AI Tool Picker.",
+    "image": "https://specifys.ai/assets/og-image.jpg",
+    "author": {
+      "@type": "Organization",
+      "name": "Specifys.ai Team"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Specifys.ai",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://specifys.ai/assets/logo.png"
+      }
+    },
+    "url": "https://specifys.ai/ToolPicker.html",
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "https://specifys.ai/ToolPicker.html"
+    },
+    "keywords": "NoCode tool picker, coding tool picker, app development tools, Specifys.ai, vibe coding"
+  }
+  </script>
+  <title>Specifys.ai - AI Tool Picker</title>
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
     @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap");
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { height: 100%; }
+    body { 
+      font-family: "Montserrat", sans-serif; 
+      position: relative; 
+      overflow-x: hidden; 
+      display: flex; 
+      flex-direction: column; 
+      min-height: 100%; 
+      background: #f5f5f5; 
+      transition: background 0.3s ease, color 0.3s ease; 
     }
-
-    html {
-      height: 100%;
+    body.dark-mode { background: #1a1a1a; color: #e0e0e0; }
+    .thematic-header { 
+      position: fixed; 
+      top: 0; 
+      width: 100%; 
+      padding: 15px 24px; 
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+      z-index: 2000; 
+      background: rgba(255, 255, 255, 0.95); 
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
     }
-
-    body {
-      font-family: "Montserrat", sans-serif;
-      position: relative;
-      overflow-x: hidden;
-      display: flex;
-      flex-direction: column;
-      min-height: 100%;
-      background: #f5f5f5;
+    body.dark-mode .thematic-header { background: rgba(30, 30, 30, 0.95); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); }
+    .thematic-header .logo a { 
+      text-decoration: none; 
+      color: #333; 
+      font-size: 1.8rem; 
+      font-weight: 700; 
+      transition: color 0.3s ease; 
     }
-
-    .thematic-header {
-      position: absolute;
-      top: 0;
-      width: 100%;
-      padding: 20px 24px;
-      display: flex;
-      justify-content: center;
-      z-index: 10;
-      background: rgba(255, 255, 255, 0.95);
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    body.dark-mode .thematic-header .logo a { color: #e0e0e0; }
+    .thematic-header .logo a:hover { color: #0078d4; }
+    .theme-toggle { 
+      position: fixed; 
+      top: 15px; 
+      right: 20px; 
+      background: none; 
+      border: none; 
+      font-size: 1.5rem; 
+      color: #333; 
+      cursor: pointer; 
+      transition: color 0.3s ease; 
+      z-index: 2001; 
     }
-
-    .thematic-header .logo a {
-      text-decoration: none;
-      color: #333;
-      font-size: 2rem;
-      font-weight: 700;
+    body.dark-mode .theme-toggle { color: #e0e0e0; }
+    .theme-toggle:hover { color: #0078d4; }
+    .content-box { 
+      max-width: 1000px; 
+      width: 90vw; 
+      min-width: 320px; 
+      margin: 100px auto 80px; 
+      padding: 40px; 
+      background: rgba(255, 255, 255, 0.98); 
+      border-radius: 20px; 
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); 
+      flex-grow: 1; 
     }
-
-    .content-box {
-      max-width: 1000px;
-      width: 90vw;
-      min-width: 320px;
-      margin: 120px auto 80px;
-      padding: 50px;
-      background: rgba(255, 255, 255, 0.98);
-      border-radius: 20px;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-      flex-grow: 1;
+    body.dark-mode .content-box { background: #2a2a2a; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3); }
+    .content-box h1 { 
+      font-size: clamp(2rem, 4vw, 2.8rem); 
+      font-weight: 700; 
+      color: #333; 
+      margin-bottom: 0.5rem; 
+      text-align: center; 
     }
-
-    .content-box h1 {
-      font-size: clamp(2rem, 4vw, 2.8rem);
-      font-weight: 700;
-      color: #333;
-      margin-bottom: 0.5rem;
-      text-align: center;
+    body.dark-mode .content-box h1 { color: #e0e0e0; }
+    .content-box h2 { 
+      font-size: 1.2rem; 
+      font-weight: 500; 
+      color: #666; 
+      margin-bottom: 30px; 
+      text-align: center; 
     }
-
-    .content-box h2 {
-      font-size: 1.2rem;
-      font-weight: 500;
-      color: #666;
-      margin-bottom: 30px;
-      text-align: center;
+    body.dark-mode .content-box h2 { color: #999; }
+    .search-box { 
+      margin-bottom: 40px; 
+      position: relative; 
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
     }
-
-    .search-box {
-      margin-bottom: 40px;
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+    .search-instructions { 
+      font-size: 1.1rem; 
+      color: #333; 
+      margin-bottom: 15px; 
+      text-align: center; 
     }
-
-    .search-input {
-      width: 100%;
-      max-width: 800px;
-      min-height: 60px;
-      padding: 15px 25px;
-      font-size: 1.3rem;
-      font-weight: 400;
-      border: 1px solid #e5e7eb;
-      border-radius: 10px;
-      background: #fff;
-      color: #333;
-      resize: none;
-      line-height: 1.5;
-      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
-      max-height: 300px;
+    body.dark-mode .search-instructions { color: #e0e0e0; }
+    .search-input { 
+      width: 100%; 
+      max-width: 800px; 
+      min-height: 200px; 
+      padding: 15px 20px; 
+      font-size: 1rem; 
+      font-weight: 400; 
+      border: 1px solid #e5e7eb; 
+      border-radius: 10px; 
+      background: #fff; 
+      color: #333; 
+      resize: vertical; 
+      line-height: 1.5; 
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05); 
+      max-height: 400px; 
     }
-
-    .search-input:focus {
-      border-color: #0078d4;
-      outline: none;
-      box-shadow: 0 0 8px rgba(0, 120, 212, 0.3);
+    body.dark-mode .search-input { 
+      background: #2a2a2a; 
+      color: #e0e0e0; 
+      border: 1px solid #444; 
     }
-
-    .search-button {
-      margin-top: 15px;
-      background: #0078d4;
-      border: none;
-      border-radius: 8px;
-      padding: 12px 30px;
-      color: #fff;
-      font-size: 1.1rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: background-color 0.3s ease, transform 0.3s ease;
+    .search-input:focus { 
+      border-color: #0078d4; 
+      outline: none; 
+      box-shadow: 0 0 8px rgba(0, 120, 212, 0.3); 
     }
-
-    .search-button:hover {
-      background: #005ea2;
-      transform: translateY(-3px);
+    .search-button { 
+      margin-top: 15px; 
+      background: #0078d4; 
+      border: none; 
+      border-radius: 8px; 
+      padding: 12px 30px; 
+      color: #fff; 
+      font-size: 1.1rem; 
+      font-weight: 700; 
+      cursor: pointer; 
+      transition: background-color 0.3s ease, transform 0.3s ease; 
     }
-
-    .search-loading {
-      display: none;
-      margin-left: 10px;
-      margin-top: 15px;
-      width: 24px;
-      height: 24px;
-      border: 4px solid #0078d4;
-      border-top: 4px solid transparent;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
+    body.dark-mode .search-button { background: #005ea2; }
+    .search-button:hover { 
+      background: #005ea2; 
+      transform: translateY(-3px); 
     }
-
+    .search-loading { 
+      display: none; 
+      margin-left: 10px; 
+      margin-top: 15px; 
+      width: 24px; 
+      height: 24px; 
+      border: 4px solid #0078d4; 
+      border-top: 4px solid transparent; 
+      border-radius: 50%; 
+      animation: spin 0.8s linear infinite; 
+    }
     @keyframes spin {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
-
-    .char-counter {
-      margin-top: 10px;
-      font-size: 1rem;
-      color: #666;
-      text-align: right;
+    .char-counter { 
+      margin-top: 10px; 
+      font-size: 1rem; 
+      color: #666; 
+      text-align: right; 
     }
-
+    body.dark-mode .char-counter { color: #999; }
     .char-counter.too-short { color: #d32f2f; }
     .char-counter.medium { color: #f0ad4e; }
     .char-counter.good { color: #2e7d32; }
-
-    .features-section {
-      margin-bottom: 40px;
-      display: none;
-      opacity: 0;
-      transform: translateY(20px);
+    .features-section { 
+      margin-bottom: 40px; 
+      display: none; 
+      opacity: 0; 
+      transform: translateY(20px); 
     }
-
-    .features-section.show {
-      display: block;
-      animation: slideIn 0.5s forwards;
+    .features-section.show { 
+      display: block; 
+      animation: slideIn 0.5s forwards; 
     }
-
     @keyframes slideIn {
       to { opacity: 1; transform: translateY(0); }
     }
-
-    .features-section h3 {
-      font-size: 1.8rem;
-      font-weight: 700;
-      color: #0078d4;
-      margin-bottom: 20px;
+    .features-section h3 { 
+      font-size: 1.8rem; 
+      font-weight: 700; 
+      color: #0078d4; 
+      margin-bottom: 20px; 
     }
-
-    .features-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 15px;
+    .features-list { 
+      display: flex; 
+      flex-wrap: wrap; 
+      gap: 15px; 
     }
-
-    .feature-item {
-      background: #fff;
-      border: 1px solid #e5e7eb;
-      border-radius: 10px;
-      padding: 10px 30px 10px 15px;
-      font-size: 1rem;
-      font-weight: 400;
-      color: #333;
-      position: relative;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-      transition: transform 0.3s ease;
+    .feature-item { 
+      background: #fff; 
+      border: 1px solid #e5e7eb; 
+      border-radius: 10px; 
+      padding: 10px 30px 10px 15px; 
+      font-size: 1rem; 
+      font-weight: 400; 
+      color: #333; 
+      position: relative; 
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); 
+      transition: transform 0.3s ease; 
     }
-
-    .feature-item:hover {
-      transform: translateY(-3px);
+    body.dark-mode .feature-item { 
+      background: #2a2a2a; 
+      border: 1px solid #444; 
+      color: #e0e0e0; 
     }
-
-    .feature-item::after {
-      content: "\f058";
-      font-family: "Font Awesome 6 Free";
-      font-weight: 900;
-      color: #0078d4;
-      position: absolute;
-      right: 10px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 1.2rem;
+    .feature-item:hover { transform: translateY(-3px); }
+    .feature-item::after { 
+      content: "\f058"; 
+      font-family: "Font Awesome 6 Free"; 
+      font-weight: 900; 
+      color: #0078d4; 
+      position: absolute; 
+      right: 10px; 
+      top: 50%; 
+      transform: translateY(-50%); 
+      font-size: 1.2rem; 
     }
-
-    .comparison-table {
-      margin-top: 40px;
-      display: none;
-      overflow-x: auto;
+    .comparison-table { 
+      margin-top: 40px; 
+      display: none; 
+      overflow-x: auto; 
     }
-
-    .comparison-table.show {
-      display: block;
+    .comparison-table.show { display: block; }
+    .comparison-table h4 { 
+      font-size: 1.8rem; 
+      font-weight: 700; 
+      color: #0078d4; 
+      margin-bottom: 20px; 
     }
-
-    .comparison-table h4 {
-      font-size: 1.8rem;
-      font-weight: 700;
-      color: #0078d4;
-      margin-bottom: 20px;
+    .comparison-table table { 
+      width: 100%; 
+      max-width: 100%; 
+      border-collapse: separate; 
+      border-spacing: 0; 
+      background: #fff; 
+      border-radius: 12px; 
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); 
+      table-layout: auto; 
     }
-
-    .comparison-table table {
-      width: 100%;
-      max-width: 100%;
-      border-collapse: separate;
-      border-spacing: 0;
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      table-layout: auto;
+    body.dark-mode .comparison-table table { background: #2a2a2a; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); }
+    .comparison-table th, .comparison-table td { 
+      padding: 15px; 
+      font-size: 1rem; 
+      font-weight: 400; 
+      color: #333; 
+      border: 1px solid #e5e7eb; 
+      text-align: center; 
+      min-width: 100px; 
+      word-break: break-word; 
     }
-
-    .comparison-table th, .comparison-table td {
-      padding: 15px;
-      font-size: 1rem;
-      font-weight: 400;
-      color: #333;
-      border: 1px solid #e5e7eb;
-      text-align: center;
-      min-width: 100px;
-      word-break: break-word;
+    body.dark-mode .comparison-table th, body.dark-mode .comparison-table td { 
+      color: #e0e0e0; 
+      border: 1px solid #444; 
     }
-
-    .comparison-table th {
-      background: rgba(0, 120, 212, 0.15);
-      font-weight: 700;
-      border-top: none;
+    .comparison-table th { 
+      background: rgba(0, 120, 212, 0.15); 
+      font-weight: 700; 
+      border-top: none; 
     }
-
-    .comparison-table th.tool-name {
-      font-weight: 700;
-      color: #333;
-      text-decoration: none;
+    body.dark-mode .comparison-table th { background: rgba(0, 120, 212, 0.3); }
+    .comparison-table th.tool-name { 
+      font-weight: 700; 
+      color: #333; 
+      text-decoration: none; 
     }
-
-    .comparison-table td {
-      background: #fff;
-      transition: background-color 0.3s ease;
+    body.dark-mode .comparison-table th.tool-name { color: #e0e0e0; }
+    .comparison-table td { 
+      background: #fff; 
+      transition: background-color 0.3s ease; 
     }
-
-    .comparison-table td:hover {
-      background: rgba(0, 120, 212, 0.05);
+    body.dark-mode .comparison-table td { background: #2a2a2a; }
+    .comparison-table td:hover { background: rgba(0, 120, 212, 0.05); }
+    body.dark-mode .comparison-table td:hover { background: rgba(0, 120, 212, 0.1); }
+    .comparison-table th:first-child, .comparison-table td:first-child { 
+      text-align: left; 
+      border-left: none; 
     }
-
-    .comparison-table th:first-child, .comparison-table td:first-child {
-      text-align: left;
-      border-left: none;
+    .comparison-table th:last-child, .comparison-table td:last-child { 
+      border-right: none; 
     }
-
-    .comparison-table th:last-child, .comparison-table td:last-child {
-      border-right: none;
+    .comparison-table tr:last-child td { border-bottom: none; }
+    .comparison-table .feature-check::before { 
+      font-family: "Font Awesome 6 Free"; 
+      font-weight: 900; 
+      font-size: 1.2rem; 
+      display: inline-block; 
     }
-
-    .comparison-table tr:last-child td {
-      border-bottom: none;
+    .comparison-table .feature-check.check::before { 
+      content: "\f058"; 
+      color: #2e7d32; 
     }
-
-    .comparison-table .feature-check::before {
-      font-family: "Font Awesome 6 Free";
-      font-weight: 900;
-      font-size: 1.2rem;
-      display: inline-block;
+    .comparison-table .feature-check.cross::before { 
+      content: "\f057"; 
+      color: #d32f2f; 
     }
-
-    .comparison-table .feature-check.check::before {
-      content: "\f058";
-      color: #2e7d32;
+    .comparison-table .start-button { 
+      background: #0078d4; 
+      color: #fff; 
+      border: none; 
+      border-radius: 8px; 
+      padding: 10px 20px; 
+      font-size: 1rem; 
+      font-weight: 600; 
+      cursor: pointer; 
+      text-decoration: none; 
+      display: inline-block; 
+      transition: background-color 0.3s ease, transform 0.3s ease; 
     }
-
-    .comparison-table .feature-check.cross::before {
-      content: "\f057";
-      color: #d32f2f;
+    body.dark-mode .comparison-table .start-button { background: #005ea2; }
+    .comparison-table .start-button:hover { 
+      background: #005ea2; 
+      transform: translateY(-2px); 
     }
-
-    .comparison-table .start-button {
-      background: #0078d4;
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      padding: 10px 20px;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      text-decoration: none;
-      display: inline-block;
-      transition: background-color 0.3s ease, transform 0.3s ease;
+    .recommended { 
+      background: #e6f3ff; 
+      font-weight: 700; 
     }
-
-    .comparison-table .start-button:hover {
-      background: #005ea2;
-      transform: translateY(-2px);
+    body.dark-mode .recommended { background: #2a4a7a; }
+    .recommended::after { 
+      content: "Recommended"; 
+      background: #28a745; 
+      color: #fff; 
+      padding: 2px 8px; 
+      border-radius: 10px; 
+      font-size: 0.8rem; 
+      margin-left: 8px; 
     }
-
-    .recommended {
-      background: #e6f3ff;
-      font-weight: 700;
+    .error-message { 
+      color: #d32f2f; 
+      font-size: 1.1rem; 
+      text-align: center; 
+      margin-top: 20px; 
+      display: none; 
     }
-
-    .recommended::after {
-      content: "Recommended";
-      background: #28a745;
-      color: #fff;
-      padding: 2px 8px;
-      border-radius: 10px;
-      font-size: 0.8rem;
-      margin-left: 8px;
+    .success-message { 
+      color: #2e7d32; 
+      font-size: 1.1rem; 
+      text-align: center; 
+      margin-top: 20px; 
+      display: none; 
     }
-
-    .error-message {
-      color: #d32f2f;
-      font-size: 1.1rem;
-      text-align: center;
-      margin-top: 20px;
-      display: none;
+    footer { 
+      padding: 15px; 
+      text-align: center; 
+      width: 100%; 
+      color: #333; 
+      flex-shrink: 0; 
+      background: #fff; 
+      box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1); 
     }
-
-    .success-message {
-      color: #2e7d32;
-      font-size: 1.1rem;
-      text-align: center;
-      margin-top: 20px;
-      display: none;
+    body.dark-mode footer { 
+      color: #e0e0e0; 
+      background: #1a1a1a; 
+      box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.3); 
     }
-
-    footer {
-      padding: 15px;
-      text-align: center;
-      width: 100%;
-      color: #333;
-      flex-shrink: 0;
-      background: #fff;
-      box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+    .footer-content { 
+      display: flex; 
+      flex-direction: row; 
+      align-items: center; 
+      justify-content: center; 
+      gap: 15px; 
+      flex-wrap: wrap; 
     }
-
-    .footer-content {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: center;
-      gap: 15px;
-      flex-wrap: wrap;
+    .footer-links { 
+      display: flex; 
+      justify-content: center; 
+      gap: 20px; 
     }
-
-    .footer-links {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
+    .footer-links a { 
+      color: #333; 
+      text-decoration: none; 
+      font-size: 0.9rem; 
+      font-weight: 500; 
+      transition: color 0.3s ease; 
     }
-
-    .footer-links a {
-      color: #333;
-      text-decoration: none;
-      font-size: 0.9rem;
-      font-weight: 500;
-      transition: color 0.3s ease;
+    body.dark-mode .footer-links a { color: #e0e0e0; }
+    .footer-links a:hover { color: #0078d4; }
+    .footer-social { 
+      display: flex; 
+      justify-content: center; 
+      gap: 12px; 
+      flex-wrap: wrap; 
     }
-
-    .footer-links a:hover {
-      color: #0078d4;
+    .footer-social a { 
+      color: #333; 
+      font-size: 1.3rem; 
+      transition: transform 0.3s ease, color 0.3s ease; 
     }
-
-    .footer-social {
-      display: flex;
-      justify-content: center;
-      gap: 12px;
-      flex-wrap: wrap;
+    body.dark-mode .footer-social a { color: #e0e0e0; }
+    .footer-social a:hover { 
+      color: #0078d4; 
+      transform: scale(1.2); 
     }
-
-    .footer-social a {
-      color: #333;
-      font-size: 1.3rem;
-      transition: transform 0.3s ease, color 0.3s ease;
+    .footer-copyright { 
+      font-size: 0.85rem; 
+      color: #666; 
+      margin-top: 10px; 
     }
-
-    .footer-social a:hover {
-      color: #0078d4;
-      transform: scale(1.2);
-    }
-
-    .footer-copyright {
-      font-size: 0.85rem;
-      color: #666;
-      margin-top: 10px;
-    }
-
+    body.dark-mode .footer-copyright { color: #999; }
     @media (max-width: 768px) {
-      .content-box {
-        margin: calc(10vh + 60px) 15px 60px;
-        padding: 30px;
-      }
-      .content-box h1 {
-        font-size: clamp(1.6rem, 3.5vw, 2.2rem);
-      }
-      .content-box h2 {
-        font-size: 1.1rem;
-      }
-      .search-input {
-        max-width: 100%;
-        min-height: 50px;
-        font-size: 1.1rem;
-        padding: 12px 20px;
-      }
-      .search-button {
-        padding: 10px 25px;
-        font-size: 1rem;
-      }
-      .search-loading {
-        margin-left: 10px;
-        margin-top: 12px;
-      }
-      .comparison-table {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-      }
-      .comparison-table th, .comparison-table td {
-        font-size: 0.9rem;
-        padding: 10px;
-        min-width: 80px;
-      }
-      .features-section h3, .comparison-table h4 {
-        font-size: 1.5rem;
-      }
-      .feature-item {
-        font-size: 0.9rem;
-        padding: 8px 25px 8px 12px;
-      }
-      .comparison-table .start-button {
-        padding: 8px 15px;
-        font-size: 0.9rem;
-      }
-      .footer-content {
-        gap: 10px;
-      }
-      .footer-links {
-        gap: 15px;
-      }
-      .footer-links a {
-        font-size: 0.85rem;
-      }
-      .footer-social {
-        gap: 10px;
-      }
-      .footer-social a {
-        font-size: 1.1rem;
-      }
+      .thematic-header .logo a { font-size: 1.6rem; }
+      .theme-toggle { right: 15px; font-size: 1.3rem; }
+      .content-box { margin: 90px 15px 60px; padding: 30px; }
+      .content-box h1 { font-size: clamp(1.6rem, 3.5vw, 2.2rem); }
+      .content-box h2 { font-size: 1.1rem; }
+      .search-input { max-width: 100%; min-height: 80px; font-size: 0.55rem; padding: 12px 15px; }
+      .search-button { padding: 10px 25px; font-size: 1rem; }
+      .search-loading { margin-left: 10px; margin-top: 12px; }
+      .comparison-table { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      .comparison-table th, .comparison-table td { font-size: 0.9rem; padding: 10px; min-width: 80px; }
+      .features-section h3, .comparison-table h4 { font-size: 1.5rem; }
+      .feature-item { font-size: 0.9rem; padding: 8px 25px 8px 12px; }
+      .comparison-table .start-button { padding: 8px 15px; font-size: 0.9rem; }
+      .footer-content { gap: 10px; }
+      .footer-links { gap: 15px; }
+      .footer-links a { font-size: 0.85rem; }
+      .footer-social { gap: 10px; }
+      .footer-social a { font-size: 1.1rem; }
     }
-
     @media (max-width: 480px) {
-      .content-box {
-        margin: calc(10vh + 50px) 10px 50px;
-        padding: 20px;
-      }
-      .content-box h1 {
-        font-size: clamp(1.4rem, 3vw, 1.8rem);
-      }
-      .content-box h2 {
-        font-size: 1rem;
-      }
-      .search-input {
-        min-height: 45px;
-        font-size: 1rem;
-        padding: 10px 15px;
-      }
-      .search-button {
-        padding: 8px 20px;
-        font-size: 0.9rem;
-      }
-      .search-loading {
-        margin-left: 8px;
-        margin-top: 10px;
-        width: 20px;
-        height: 20px;
-      }
-      .comparison-table th, .comparison-table td {
-        font-size: 0.8rem;
-        padding: 8px;
-        min-width: 60px;
-      }
-      .features-section h3, .comparison-table h4 {
-        font-size: 1.3rem;
-      }
-      .feature-item {
-        font-size: 0.85rem;
-        padding: 6px 20px 6px 10px;
-      }
-      .comparison-table .start-button {
-        padding: 6px 12px;
-        font-size: 0.8rem;
-      }
-      .footer-content {
-        gap: 8px;
-      }
-      .footer-links {
-        gap: 10px;
-      }
-      .footer-links a {
-        font-size: 0.8rem;
-      }
-      .footer-social {
-        gap: 8px;
-      }
-      .footer-social a {
-        font-size: 1rem;
-      }
+      .thematic-header .logo a { font-size: 1.4rem; }
+      .theme-toggle { right: 10px; font-size: 1.2rem; }
+      .content-box { margin: 80px 10px 50px; padding: 20px; }
+      .content-box h1 { font-size: clamp(1.4rem, 3vw, 1.8rem); }
+      .content-box h2 { font-size: 1rem; }
+      .search-input { min-height: 70px; font-size: 0.1rem; padding: 10px 12px; }
+      .search-button { padding: 8px 20px; font-size: 0.9rem; }
+      .search-loading { margin-left: 8px; margin-top: 10px; width: 20px; height: 20px; }
+      .comparison-table th, .comparison-table td { font-size: 0.8rem; padding: 8px; min-width: 60px; }
+      .features-section h3, .comparison-table h4 { font-size: 1.3rem; }
+      .feature-item { font-size: 0.85rem; padding: 6px 20px 6px 10px; }
+      .comparison-table .start-button { padding: 6px 12px; font-size: 0.8rem; }
+      .footer-content { gap: 8px; }
+      .footer-links { gap: 10px; }
+      .footer-links a { font-size: 0.8rem; }
+      .footer-social { gap: 8px; }
+      .footer-social a { font-size: 1rem; }
     }
-
     @media (prefers-reduced-motion: reduce) {
-      .search-button, .feature-item, .start-button {
-        transition: none;
-        animation: none;
-      }
+      .search-button, .feature-item, .start-button, .features-section.show { transition: none; animation: none; }
     }
   </style>
 </head>
 <body class="page-default">
   <header class="thematic-header" role="banner">
     <div class="logo">
-      <a href="index.html" aria-label="specifys.ai homepage">specifys.ai</a>
+      <a href="index.html" aria-label="Specifys.ai homepage">Specifys.ai</a>
     </div>
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode"><i class="fas fa-moon"></i></button>
   </header>
-
   <div class="content-box">
     <h1>AI Tool Picker</h1>
     <h2>AI helps you match the best tool for your app</h2>
     <div class="search-box">
+      <div class="search-instructions">Describe your app's general idea, including the features and functionalities you want to implement. The more detailed your description, the more accurate the tool recommendations will be.</div>
       <textarea class="search-input" placeholder="Describe your app" aria-label="Describe your app" maxlength="2000"></textarea>
       <div class="char-counter">0/2000 characters</div>
       <div style="display: flex; align-items: center; margin-top: 15px;">
@@ -594,12 +543,11 @@
     <div class="error-message" id="error-message"></div>
     <div class="success-message" id="success-message"></div>
   </div>
-
   <footer>
     <div class="footer-content">
       <div class="footer-links">
-        <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
-        <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
+        <a href="how.html" aria-label="Learn how Specifys.ai works">How It Works</a>
+        <a href="about.html" aria-label="Learn more about Specifys.ai">About Us</a>
         <a href="blog.html" aria-label="Try our Blog">Blog</a>
         <a href="map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
       </div>
@@ -611,11 +559,8 @@
         <a href="https://www.producthunt.com/products/specifys-ai" target="_blank" aria-label="Check us out on Product Hunt"><i class="fab fa-product-hunt"></i></a>
       </div>
     </div>
-    <div class="footer-copyright">
-      © 2025 specifys.ai. All rights reserved.
-    </div>
+    <div class="footer-copyright">© 2025 Specifys.ai. All rights reserved.</div>
   </footer>
-
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     document.addEventListener("DOMContentLoaded", () => {
@@ -632,15 +577,14 @@
       const successMessage = document.querySelector(".success-message");
       const featuresSection = document.querySelector(".features-section");
       const charCounter = document.querySelector(".char-counter");
+      const themeToggle = document.getElementById('themeToggle');
 
-      // Custom links for specific tools
       const customLinks = {
         'base44': 'https://base44.com/?via=shalom-cohen',
         'lovable': 'https://lovable.dev/?via=shalom',
         'bubble': 'https://bubble.io/'
       };
 
-      // Placeholder examples (~500 characters each)
       const placeholders = [
         "A no-code e-commerce platform with product listings, payment integration via Stripe, user authentication, and a responsive design for mobile and desktop users. Features include inventory management, order tracking, customer reviews, and SEO optimization to boost online visibility. The platform supports multi-language options and integrates with social media for marketing, ensuring a seamless shopping experience for users and efficient store management for owners.",
         "A social media app with real-time chat, push notifications, user profiles, and content sharing capabilities. It includes multimedia support for photos and videos, hashtag searches, and privacy settings for posts. The app integrates with third-party APIs for analytics and advertising, offers group chat functionality, and ensures cross-platform compatibility for iOS and Android, fostering community engagement and user retention through a modern, intuitive interface.",
@@ -696,7 +640,7 @@
           errorMessage.textContent = `Error: ${error.message}`;
           errorMessage.style.display = "block";
           setTimeout(() => errorMessage.style.display = "none", 5000);
-          return { tools: [], features: [] }; // Fallback to empty data
+          return { tools: [], features: [] };
         } finally {
           searchLoading.style.display = "none";
         }
@@ -772,7 +716,28 @@
           if (data) updateUI(data);
         });
       });
+
+      themeToggle.addEventListener('click', () => {
+        document.body.classList.toggle('dark-mode');
+        const isDarkMode = document.body.classList.contains('dark-mode');
+        themeToggle.querySelector('i').classList.toggle('fa-moon', !isDarkMode);
+        themeToggle.querySelector('i').classList.toggle('fa-sun', isDarkMode);
+        themeToggle.setAttribute('aria-label', isDarkMode ? 'Toggle light mode' : 'Toggle dark mode');
+        localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+      });
+
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme === 'dark') {
+        document.body.classList.add('dark-mode');
+        themeToggle.querySelector('i').classList.replace('fa-moon', 'fa-sun');
+        themeToggle.setAttribute('aria-label', 'Toggle light mode');
+      }
     });
   </script>
+  <noscript>
+    <div style="text-align: center; padding: 20px; background: #fff; color: #333;">
+      <p>This website requires JavaScript to function properly. Please enable JavaScript in your browser settings.</p>
+    </div>
+  </noscript>
 </body>
 </html>
