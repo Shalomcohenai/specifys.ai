@@ -49,7 +49,7 @@
     "name": "Base44",
     "category": "Prompt-to-App Builders",
     "description": "Low-code platform with integrated backend for vibe-style app building.",
-    "link": "https://base44.com/?via=shalom-cohen",
+    "link": "https://base44.pxf.io/c/6434420/2049275/25619?trafcat=base",
     "rating": 5.0,
     "pros": [
       "Built-in DB/auth/analytics",
@@ -1843,6 +1843,57 @@
       "globalRating": 4.5,
       "monthlyUsage": "5K exported components",
       "ARR": "$10M"
+    }
+  },
+  {
+    "id": 86,
+    "name": "Kiro",
+    "category": "AI-Augmented IDEs & Code Assistants",
+    "description": "AI-driven software development environment that transforms AI-generated prototypes into production-ready systems with automated project plans and technical diagrams.",
+    "link": "https://kiro.dev/",
+    "rating": null,
+    "pros": [],
+    "cons": [],
+    "special": "Launched July 2025",
+    "stats": {
+      "users": "N/A",
+      "globalRating": null,
+      "monthlyUsage": "N/A",
+      "ARR": "N/A"
+    }
+  },
+  {
+    "id": 87,
+    "name": "Opal",
+    "category": "Prompt-to-App Builders",
+    "description": "Enables creation of small AI apps without coding, using prompts, AI models, and visual editing. Includes affiliate marketing program with undisclosed commission rates.",
+    "link": "https://opal.withgoogle.com/landing/",
+    "rating": null,
+    "pros": [],
+    "cons": [],
+    "special": "Launched July 2025, ",
+    "stats": {
+      "users": "N/A",
+      "globalRating": null,
+      "monthlyUsage": "N/A",
+      "ARR": "N/A"
+    }
+  },
+  {
+    "id": 88,
+    "name": "Parasoft Virtualize AI",
+    "category": "AI Agent Workflow Tools",
+    "description": "AI assistant for creating virtual services via natural language prompts, enhancing testing environments.",
+    "link": "https://www.parasoft.com/products/parasoft-virtualize/",
+    "rating": null,
+    "pros": [],
+    "cons": [],
+    "special": "Launched July 2025",
+    "stats": {
+      "users": "N/A",
+      "globalRating": null,
+      "monthlyUsage": "N/A",
+      "ARR": "N/A"
     }
   }
 ]
