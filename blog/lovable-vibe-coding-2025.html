@@ -1,0 +1,516 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Explore Lovable, the 2025 vibe coding tool transforming app development with AI-driven natural language prompts and Specifys.ai integration.">
+    <meta name="keywords" content="Lovable, vibe coding, AI app development, no-code platform, Specifys.ai, full-stack web development, rapid prototyping">
+    <meta name="author" content="specifys.ai Team">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="Lovable: The 2025 Vibe Coding Tool Redefining App Development">
+    <meta property="og:description" content="Lovable’s AI-powered vibe coding, paired with Specifys.ai’s structured specs, revolutionizes app development for coders and non-coders in 2025.">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://specifys.ai/blog/lovable-vibe-coding-2025.html">
+    <meta property="og:image" content="https://specifys.ai/assets/lovable-og-image.jpg">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Lovable: The 2025 Vibe Coding Tool Redefining App Development">
+    <meta name="twitter:description" content="Lovable’s AI-powered vibe coding, paired with Specifys.ai’s structured specs, revolutionizes app development for coders and non-coders in 2025.">
+    <meta name="twitter:image" content="https://specifys.ai/assets/lovable-og-image.jpg">
+    <meta name="title" content="Lovable: The 2025 Vibe Coding Tool Redefining App Development | Specifys.AI">
+    <meta name="description" content="Lovable’s natural language-driven app development and Specifys.ai’s AI specs enable rapid, scalable app creation for developers and non-coders in 2025.">
+    <meta name="keywords" content="Lovable vibe coding, AI app development, Specifys.ai, no-code tools, full-stack development, rapid prototyping, AI coding">
+    <meta name="robots" content="index,follow">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-RWBT69JCM7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-RWBT69JCM7');
+      gtag('config', 'AW-1000505244');
+    </script>
+    <title>Lovable: The 2025 Vibe Coding Tool Redefining App Development | Specifys.AI</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap");
+
+      :root {
+        --background-color: #f5f5f5;
+        --header-background: rgba(255, 255, 255, 0.9);
+        --header-text: #333;
+        --article-background: #fff;
+        --article-title: #333;
+        --article-title-hover: #0078d4;
+        --article-date: #666;
+        --article-intro: #333;
+        --article-content-text: #333;
+        --article-content-heading: #333;
+        --article-content-heading-hover: #0078d4;
+        --back-to-blog: #0078d4;
+        --back-to-blog-hover: #005ea2;
+        --footer-background: #fff;
+        --footer-text: #333;
+        --footer-link: #333;
+        --footer-link-hover: #0078d4;
+        --footer-divider: #333;
+        --footer-social: #333;
+        --footer-social-hover: #0078d4;
+        --footer-copyright: #666;
+        --shadow-color: rgba(0, 0, 0, 0.1);
+      }
+
+      .dark-mode {
+        --background-color: #1a1a1a;
+        --header-background: rgba(40, 40, 40, 0.9);
+        --header-text: #ffffff;
+        --article-background: #2a2a2a;
+        --article-title: #ffffff;
+        --article-title-hover: #00b7c3;
+        --article-date: #cccccc;
+        --article-intro: #e0e0e0;
+        --article-content-text: #e0e0e0;
+        --article-content-heading: #ffffff;
+        --article-content-heading-hover: #00b7c3;
+        --back-to-blog: #00b7c3;
+        --back-to-blog-hover: #008b8b;
+        --footer-background: #2a2a2a;
+        --footer-text: #ffffff;
+        --footer-link: #ffffff;
+        --footer-link-hover: #00b7c3;
+        --footer-divider: #ffffff;
+        --footer-social: #ffffff;
+        --footer-social-hover: #00b7c3;
+        --footer-copyright: #cccccc;
+        --shadow-color: rgba(0, 0, 0, 0.3);
+      }
+
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html { height: 100%; }
+      body { 
+        font-family: "Montserrat", sans-serif; 
+        position: relative; 
+        overflow-x: hidden; 
+        display: flex; 
+        flex-direction: column; 
+        min-height: 100%; 
+        background: var(--background-color); 
+        transition: background 0.3s ease; 
+      }
+      .thematic-header { 
+        position: absolute; 
+        top: 0; 
+        width: 100%; 
+        padding: 20px 24px; 
+        display: flex; 
+        justify-content: center; 
+        z-index: 10; 
+        background: var(--header-background); 
+        box-shadow: 0 2px 4px var(--shadow-color); 
+      }
+      .thematic-header .logo a { 
+        text-decoration: none; 
+        color: var(--header-text); 
+        font-size: 1.65rem; 
+        font-weight: 700; 
+      }
+      .theme-toggle {
+        position: absolute;
+        right: 24px;
+        background: none;
+        border: none;
+        color: var(--header-text);
+        font-size: 1.2rem;
+        cursor: pointer;
+        transition: color 0.3s ease;
+      }
+      .theme-toggle:hover {
+        color: var(--footer-link-hover);
+      }
+      .main-content-wrapper { 
+        width: 100%; 
+        flex-grow: 1; 
+        display: flex; 
+        justify-content: center; 
+        align-items: flex-start; 
+        padding: 8rem 1.5rem 2rem; 
+        box-sizing: border-box; 
+        position: relative; 
+      }
+      .header-text { 
+        width: 100%; 
+        max-width: 800px; 
+        text-align: center; 
+        padding: 0 1rem; 
+        position: absolute; 
+        top: 6rem; 
+        color: var(--article-content-text); 
+      }
+      .article-container { 
+        background: var(--article-background); 
+        border-radius: 15px; 
+        padding: 30px; 
+        box-shadow: 0 2px 8px var(--shadow-color); 
+        text-align: left; 
+        width: 100%; 
+        max-width: 800px; 
+        margin: 2rem auto; 
+      }
+      .article-title { 
+        font-size: 2rem; 
+        color: var(--article-title); 
+        margin-bottom: 0.5rem; 
+        font-weight: 700; 
+        transition: color 0.3s ease; 
+      }
+      .article-title:hover { 
+        color: var(--article-title-hover); 
+      }
+      .article-date-time { 
+        font-size: 0.9rem; 
+        color: var(--article-date); 
+        margin-bottom: 1rem; 
+      }
+      .article-intro { 
+        font-size: 1.1rem; 
+        color: var(--article-intro); 
+        line-height: 1.6; 
+        margin-bottom: 1.5rem; 
+        font-weight: 400; 
+      }
+      .article-content h3 { 
+        font-size: 1.5rem; 
+        color: var(--article-content-heading); 
+        margin-top: 1.5rem; 
+        margin-bottom: 0.8rem; 
+        font-weight: 700; 
+        transition: color 0.3s ease; 
+      }
+      .article-content h3:hover { 
+        color: var(--article-content-heading-hover); 
+      }
+      .article-content p { 
+        font-size: 1rem; 
+        color: var(--article-content-text); 
+        line-height: 1.6; 
+        margin-bottom: 1rem; 
+        font-weight: 400; 
+      }
+      .article-content ul { 
+        margin-left: 20px; 
+        margin-bottom: 1rem; 
+      }
+      .article-content ul li { 
+        margin-bottom: 0.5rem; 
+        color: var(--article-content-text); 
+      }
+      .back-to-blog { 
+        display: block; 
+        margin: 2rem auto 1rem; 
+        padding: 10px 20px; 
+        background-color: var(--back-to-blog); 
+        color: #fff; 
+        text-decoration: none; 
+        border-radius: 5px; 
+        font-weight: 500; 
+        text-align: center; 
+        transition: background-color 0.3s ease; 
+        max-width: 200px; 
+      }
+      .back-to-blog:hover { 
+        background-color: var(--back-to-blog-hover); 
+      }
+      footer { 
+        padding: 20px 10px; 
+        text-align: center; 
+        width: 100%; 
+        color: var(--footer-text); 
+        flex-shrink: 0; 
+        background: var(--footer-background); 
+        box-shadow: 0 -2px 4px var(--shadow-color); 
+      }
+      .footer-content { 
+        display: flex; 
+        flex-direction: row; 
+        align-items: center; 
+        justify-content: center; 
+        gap: 20px; 
+        flex-wrap: wrap; 
+      }
+      .footer-links { 
+        display: flex; 
+        justify-content: center; 
+        gap: 15px; 
+        flex-wrap: wrap; 
+      }
+      .footer-links a { 
+        color: var(--footer-link); 
+        text-decoration: none; 
+        font-size: 0.85rem; 
+        font-weight: 500; 
+        transition: color 0.3s ease; 
+      }
+      .footer-links a:hover { 
+        color: var(--footer-link-hover); 
+      }
+      .footer-divider { 
+        color: var(--footer-divider); 
+        font-size: 1.2rem; 
+        font-weight: 300; 
+      }
+      .footer-social { 
+        display: flex; 
+        justify-content: center; 
+        gap: 15px; 
+        flex-wrap: wrap; 
+      }
+      .footer-social a { 
+        color: var(--footer-social); 
+        font-size: 1.2rem; 
+        transition: transform 0.3s ease, color 0.3s ease; 
+      }
+      .footer-social a:hover { 
+        color: var(--footer-social-hover); 
+        transform: scale(1.2); 
+      }
+      .footer-copyright { 
+        font-size: 0.8rem; 
+        color: var(--footer-copyright); 
+        margin-top: 1rem; 
+      }
+      @media (prefers-color-scheme: dark) {
+        body:not(.light-mode) {
+          --background-color: #1a1a1a;
+          --header-background: rgba(40, 40, 40, 0.9);
+          --header-text: #ffffff;
+          --article-background: #2a2a2a;
+          --article-title: #ffffff;
+          --article-title-hover: #00b7c3;
+          --article-date: #cccccc;
+          --article-intro: #e0e0e0;
+          --article-content-text: #e0e0e0;
+          --article-content-heading: #ffffff;
+          --article-content-heading-hover: #00b7c3;
+          --back-to-blog: #00b7c3;
+          --back-to-blog-hover: #008b8b;
+          --footer-background: #2a2a2a;
+          --footer-text: #ffffff;
+          --footer-link: #ffffff;
+          --footer-link-hover: #00b7c3;
+          --footer-divider: #ffffff;
+          --footer-social: #ffffff;
+          --footer-social-hover: #00b7c3;
+          --footer-copyright: #cccccc;
+          --shadow-color: rgba(0, 0, 0, 0.3);
+        }
+      }
+      @media (max-width: 768px) {
+        .main-content-wrapper { padding: 6rem 1rem 2rem; }
+        .article-container { padding: 20px; max-width: 650px; }
+        .article-title { font-size: 1.6rem; }
+        .article-date-time { font-size: 0.85rem; }
+        .article-intro { font-size: 1rem; }
+        .article-content h3 { font-size: 1.3rem; }
+        .article-content p { font-size: 0.95rem; }
+        footer { padding: 15px 1rem; }
+        .footer-content { flex-direction: column; gap: 10px; }
+        .footer-links a { font-size: 0.8rem; }
+        .footer-divider { font-size: 1rem; }
+        .footer-social a { font-size: 1rem; }
+        .back-to-blog { padding: 8px 16px; font-size: 0.9rem; max-width: 180px; }
+        .theme-toggle { font-size: 1rem; right: 15px; }
+      }
+      @media (max-width: 480px) {
+        .thematic-header .logo a { font-size: 1.32rem; }
+        .main-content-wrapper { padding: 5rem 0.5rem 2rem; }
+        .article-container { padding: 15px; max-width: 90%; }
+        .article-title { font-size: 1.4rem; }
+        .article-date-time { font-size: 0.8rem; }
+        .article-intro { font-size: 0.95rem; }
+        .article-content h3 { font-size: 1.2rem; }
+        .article-content p { font-size: 0.9rem; }
+        .footer-content { gap: 8px; }
+        .footer-links a { font-size: 0.75rem; }
+        .footer-divider { font-size: 0.9rem; display: inline; margin: 0 10px; }
+        .footer-social a { font-size: 0.9rem; }
+        .back-to-blog { padding: 6px 12px; font-size: 0.85rem; max-width: 160px; }
+        .footer-content { flex-direction: row; align-items: center; }
+        .theme-toggle { font-size: 0.9rem; right: 10px; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .article-title, .article-content h3, .footer-links a, .footer-social a, .back-to-blog, .theme-toggle { transition: none; }
+      }
+    </style>
+</head>
+<body class="page-default">
+  <header class="thematic-header">
+    <div class="logo">
+      <a href="/index.html" aria-label="specifys.ai homepage">specifys.ai</a>
+    </div>
+    <button class="theme-toggle" onclick="toggleDarkMode()" aria-label="Toggle dark mode">
+      <i class="fas fa-moon"></i>
+    </button>
+  </header>
+
+  <div class="main-content-wrapper">
+    <div class="header-text">
+    </div>
+
+    <div class="article-container">
+      <h2 class="article-title">Lovable: The 2025 Vibe Coding Tool Redefining App Development</h2>
+      <div class="article-date-time">January 15, 2025, 01:24 PM IDT</div>
+      <div class="article-intro">
+        Launched in early 2025, Lovable has emerged as a game-changing vibe coding tool, transforming how developers and non-coders build apps. Powered by advanced AI, Lovable enables users to create full-stack web applications using natural language prompts, eliminating the need for manual coding. Integrated with platforms like Specifys.ai, Lovable streamlines app development by combining intuitive AI-driven workflows with structured planning, making it a cornerstone for rapid, high-quality app creation. This article dives into Lovable’s innovative features, its impact on app development, and how it synergizes with Specifys.ai to deliver SEO-optimized, accessible, and efficient solutions for 2025.
+      </div>
+      <div class="article-content">
+        <h3>Key Features of Lovable for App Development</h3>
+
+        <h3>1. Natural Language to Full-Stack Apps</h3>
+        <p>Lovable allows users to describe app ideas in plain English, generating complete web applications with front-end, back-end, and database integration. For instance, a prompt like “build a social media dashboard with analytics and scheduled posts” results in a functional app with a polished UI and Supabase integration, all without writing code. Its AI interprets intent with precision, producing scalable applications in frameworks like Next.js, Vue, or Svelte.</p>
+
+        <h3>2. Seamless Integration with Development Tools</h3>
+        <p>Lovable integrates with tools like Supabase, Stripe, GitHub, and Clerk, enabling rapid deployment and real-time collaboration. Developers can connect to Netlify for one-click hosting or use Specifys.ai’s Tool Finder to identify compatible platforms, ensuring a smooth workflow from ideation to launch. This makes Lovable ideal for startups and solo developers aiming for fast market entry.</p>
+
+        <h3>3. Context-Aware AI for Quality Code</h3>
+        <p>Unlike traditional code generators, Lovable’s AI understands project context, reducing errors and producing clean, maintainable code. It supports over 70 programming languages and offers real-time debugging and optimization suggestions, ensuring production-ready apps. Paired with Specifys.ai’s AI specs, Lovable ensures code aligns with project requirements, minimizing bugs and security risks.</p>
+
+        <h3>4. Rapid Prototyping and Iteration</h3>
+        <p>Lovable excels at prototyping, allowing users to iterate quickly with natural language tweaks like “add a login button” or “change the dropdown style.” Its real-time feedback and built-in validation streamline the process, cutting development time by up to 60%. For non-coders, this makes building MVPs as intuitive as chatting with an AI assistant.</p>
+
+        <h3>5. Accessibility for Non-Developers</h3>
+        <p>Lovable democratizes app development by requiring no coding expertise. Beginners can use its browser-based interface to create apps, while experienced developers benefit from its flexibility for complex projects. Specifys.ai’s Vibe Coding Tools Map enhances this by recommending no-code platforms, making Lovable accessible to dreamers, entrepreneurs, and coders alike.</p>
+
+        <h3>How Specifys.ai Amplifies Lovable’s Potential</h3>
+        <p>Specifys.ai is a free AI-powered platform that complements Lovable by providing structured app planning through AI-driven specs, Vibe Coding Tools Map, and Tool Finder. Together, they create a seamless development ecosystem:</p>
+
+        <h3>1. Structured AI Specs for Precision</h3>
+        <p>Specifys.ai generates detailed blueprints outlining app features, tech stacks, and user roles. These specs guide Lovable’s AI to produce accurate code, ensuring alignment with the user’s vision. For example, planning a fitness app like Strava becomes effortless with Specifys.ai’s specs, which Lovable translates into a functional prototype.</p>
+
+        <h3>2. Vibe Coding Tools Map for Tool Synergy</h3>
+        <p>Specifys.ai’s Vibe Coding Tools Map curates AI-driven tools like Supabase or Figma, which Lovable integrates into its workflows. This synergy allows developers to select the best tools for their project, while Lovable handles code generation and deployment, streamlining the process for both coders and non-coders.</p>
+
+        <h3>3. Tool Finder for Non-Coders</h3>
+        <p>Specifys.ai’s Tool Finder recommends no-code platforms and APIs tailored to the user’s app idea. Lovable leverages these recommendations to build apps without requiring technical expertise, empowering non-coders to create apps like Trello or Notion with simple prompts.</p>
+
+        <h3>4. End-to-End Development Efficiency</h3>
+        <p>Lovable’s ability to generate, debug, and deploy apps is enhanced by Specifys.ai’s structured planning. For instance, a startup building an event management app can use Specifys.ai to define requirements, then prompt Lovable to create the app with real-time updates and database automation, launching in hours instead of weeks.</p>
+
+        <h3>SEO-Optimized Benefits of Lovable and Specifys.ai</h3>
+        <ul>
+          <li><strong>AI-Powered App Development</strong>: Lovable’s natural language processing and Specifys.ai’s AI specs create scalable, bug-free apps effortlessly.</li>
+          <li><strong>No-Code Development Tools</strong>: Specifys.ai’s Tool Finder paired with Lovable enables non-coders to build professional apps like Tableau or Strava.</li>
+          <li><strong>Rapid Prototyping AI</strong>: Lovable’s real-time iteration and Specifys.ai’s blueprints cut development time by 60%, perfect for startups.</li>
+          <li><strong>Full-Stack Web Development</strong>: Lovable supports multiple frameworks and integrations, guided by Specifys.ai’s Vibe Coding Tools Map.</li>
+          <li><strong>Accessible Software Creation</strong>: Non-technical users can leverage Lovable and Specifys.ai to turn ideas into market-ready apps without coding.</li>
+        </ul>
+
+        <h3>Real-World Impact of Lovable and Specifys.ai</h3>
+        <p>Since its release, Lovable has powered thousands of apps, from crypto visualization tools to event management platforms. A notable case is a growth marketer who used Lovable and Specifys.ai to vibe-code “Lambo Levels,” a quirky app for visualizing crypto gains, in just two days—a process that would have taken months traditionally. Specifys.ai’s structured planning ensured the app’s requirements were clear, while Lovable’s AI generated and refined the code, demonstrating the power of this duo for rapid, high-quality development.</p>
+
+        <h3>Why Lovable and Specifys.ai Are the Future of Vibe Coding</h3>
+        <p>Lovable’s natural language-driven development, contextual AI, and seamless integrations make it a standout vibe coding tool in 2025. When paired with Specifys.ai, it offers a structured, efficient, and accessible approach to app development. From non-coders building their first app to seasoned developers scaling complex projects, Lovable and Specifys.ai empower everyone to create faster, smarter, and more confidently.</p>
+
+        <h3>Start Vibe Coding with Lovable and Specifys.ai</h3>
+        <p>Ready to vibe-code your next app? Visit <a href="https://specifys.ai">Specifys.ai</a> to craft AI-driven specs and explore the Vibe Coding Tools Map. Then, harness Lovable’s AI to build, debug, and deploy your app in record time. Start planning free today and join the vibe coding revolution!</p>
+      </div>
+      <a href="/blog.html" class="back-to-blog">Back to Blog</a>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-content">
+      <div class="footer-links">
+        <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
+        <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
+        <a href="/blog.html" aria-label="Visit our blog">Blog</a>
+        <a href="map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
+      </div>
+      <span class="footer-divider">|</span>
+      <div class="footer-social">
+        <a href="https://www.linkedin.com/company/specifys-ai/" aria-label="Follow us on LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+        <a href="https://www.facebook.com/profile.php?id=61576402600129&locale=he_IL" target="_blank" aria-label="Follow us on Facebook"><i class="fab fa-facebook-f"></i></a>
+        <a href="https://www.instagram.com/YOUR_PROFILE" aria-label="Follow us on Instagram"><i class="fab fa-instagram"></i></a>
+        <a href="mailto:specifysai@gmail.com" aria-label="Send us an email"><i class="fas fa-envelope"></i></a>
+        <a href="https://www.producthunt.com/products/specifys-ai" target="_blank" aria-label="Check us out on Product Hunt"><i class="fab fa-product-hunt"></i></a>
+      </div>
+    </div>
+    <div class="footer-copyright">
+      © 2025 specifys.ai. All rights reserved.
+    </div>
+  </footer>
+
+  <script>
+    function toggleDarkMode() {
+      const body = document.body;
+      const isDarkMode = body.classList.toggle('dark-mode');
+      body.classList.toggle('light-mode', !isDarkMode);
+      const themeToggleIcon = document.querySelector('.theme-toggle i');
+      themeToggleIcon.className = isDarkMode ? 'fas fa-sun' : 'fas fa-moon';
+      localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+    }
+
+    // Set initial theme based on localStorage or system preference
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+      document.body.classList.add(savedTheme === 'dark' ? 'dark-mode' : 'light-mode');
+      document.body.classList.remove(savedTheme === 'dark' ? 'light-mode' : 'dark-mode');
+      document.querySelector('.theme-toggle i').className = savedTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      document.body.classList.add('dark-mode');
+      document.body.classList.remove('light-mode');
+      document.querySelector('.theme-toggle i').className = 'fas fa-sun';
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.body.classList.add('light-mode');
+      document.body.classList.remove('dark-mode');
+      document.querySelector('.theme-toggle i').className = 'fas fa-moon';
+      localStorage.setItem('theme', 'light');
+    }
+  </script>
+
+  <noscript>
+    <div style="text-align: center; padding: 20px; background: #fff; color: #333;">
+      <p>This website requires JavaScript to function properly. Please enable JavaScript in your browser settings.</p>
+    </div>
+  </noscript>
+</body>
+</html>
