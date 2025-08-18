@@ -32,6 +32,7 @@
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../common-header-footer.css">
     <style>
       /*
       Design Guidelines for Specify.ai (Applied to Blog Article)
@@ -129,6 +130,13 @@
         flex-direction: column;
         min-height: 100%;
         background: #f5f5f5;
+        transition: background 0.3s ease, color 0.3s ease;
+      }
+
+      /* Dark mode styles */
+      body.dark-mode {
+        background: #1a1a1a;
+        color: #e0e0e0;
       }
 
       .thematic-header {
@@ -159,6 +167,11 @@
         padding: 8rem 1.5rem 2rem;
         box-sizing: border-box;
         position: relative;
+        transition: background 0.3s ease;
+      }
+
+      body.dark-mode .main-content-wrapper {
+        background: #1a1a1a;
       }
 
       .header-text {
@@ -169,6 +182,11 @@
         position: absolute;
         top: 6rem;
         color: #333;
+        transition: color 0.3s ease;
+      }
+
+      body.dark-mode .header-text {
+        color: #e0e0e0;
       }
 
       .header-text h1 {
@@ -178,6 +196,10 @@
         line-height: 1.2;
         cursor: pointer;
         transition: color 0.3s ease;
+      }
+
+      body.dark-mode .header-text h1 {
+        color: #e0e0e0;
       }
 
       .header-text h1:hover {
@@ -193,6 +215,12 @@
         width: 100%;
         max-width: 800px;
         margin: 2rem auto;
+        transition: background 0.3s ease;
+      }
+
+      body.dark-mode .article-container {
+        background: #2a2a2a;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
       }
 
       .article-title {
@@ -203,6 +231,10 @@
         transition: color 0.3s ease;
       }
 
+      body.dark-mode .article-title {
+        color: #e0e0e0;
+      }
+
       .article-title:hover {
         color: #0078d4;
       }
@@ -211,6 +243,11 @@
         font-size: 0.9rem;
         color: #666;
         margin-bottom: 1rem;
+        transition: color 0.3s ease;
+      }
+
+      body.dark-mode .article-date-time {
+        color: #ccc;
       }
 
       .article-intro {
@@ -219,6 +256,11 @@
         line-height: 1.6;
         margin-bottom: 1.5rem;
         font-weight: 400;
+        transition: color 0.3s ease;
+      }
+
+      body.dark-mode .article-intro {
+        color: #ccc;
       }
 
       .article-content h3 {
@@ -228,6 +270,10 @@
         margin-bottom: 0.8rem;
         font-weight: 700;
         transition: color 0.3s ease;
+      }
+
+      body.dark-mode .article-content h3 {
+        color: #e0e0e0;
       }
 
       .article-content h3:hover {
@@ -240,6 +286,11 @@
         line-height: 1.6;
         margin-bottom: 1rem;
         font-weight: 400;
+        transition: color 0.3s ease;
+      }
+
+      body.dark-mode .article-content p {
+        color: #ccc;
       }
 
       .back-to-blog {
@@ -268,6 +319,13 @@
         flex-shrink: 0;
         background: #fff;
         box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+        transition: background 0.3s ease, color 0.3s ease;
+      }
+
+      body.dark-mode footer {
+        background: #1a1a1a;
+        color: #e0e0e0;
+        box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.3);
       }
 
       .footer-content {
@@ -294,6 +352,10 @@
         transition: color 0.3s ease;
       }
 
+      body.dark-mode .footer-links a {
+        color: #e0e0e0;
+      }
+
       .footer-links a:hover {
         color: #0078d4;
       }
@@ -302,6 +364,11 @@
         color: #333;
         font-size: 1.2rem;
         font-weight: 300;
+        transition: color 0.3s ease;
+      }
+
+      body.dark-mode .footer-divider {
+        color: #e0e0e0;
       }
 
       .footer-social {
@@ -317,6 +384,10 @@
         transition: transform 0.3s ease, color 0.3s ease;
       }
 
+      body.dark-mode .footer-social a {
+        color: #e0e0e0;
+      }
+
       .footer-social a:hover {
         color: #0078d4;
         transform: scale(1.2);
@@ -326,6 +397,79 @@
         font-size: 0.8rem;
         color: #666;
         margin-top: 1rem;
+        transition: color 0.3s ease;
+      }
+
+      body.dark-mode .footer-copyright {
+        color: #ccc;
+      }
+
+      /* Remove blue borders from buttons */
+      .theme-toggle,
+      .menu-toggle {
+        outline: none !important;
+        border: none !important;
+        box-shadow: none !important;
+      }
+
+      .theme-toggle:focus,
+      .menu-toggle:focus {
+        outline: none !important;
+        border: none !important;
+        box-shadow: none !important;
+      }
+
+      /* Remove any default button styling */
+      .theme-toggle::-moz-focus-inner,
+      .menu-toggle::-moz-focus-inner {
+        border: 0;
+      }
+
+      /* Dark mode specific button fixes */
+      body.dark-mode .theme-toggle,
+      body.dark-mode .menu-toggle {
+        outline: none !important;
+        border: none !important;
+        box-shadow: none !important;
+        background: none !important;
+      }
+
+      body.dark-mode .theme-toggle:focus,
+      body.dark-mode .menu-toggle:focus {
+        outline: none !important;
+        border: none !important;
+        box-shadow: none !important;
+        background: none !important;
+      }
+
+      /* Override any browser default focus styles */
+      body.dark-mode .theme-toggle:focus-visible,
+      body.dark-mode .menu-toggle:focus-visible {
+        outline: none !important;
+        border: none !important;
+        box-shadow: none !important;
+      }
+
+      /* Global button focus removal */
+      button:focus,
+      button:focus-visible,
+      button:focus-within {
+        outline: none !important;
+        border: none !important;
+        box-shadow: none !important;
+      }
+
+      /* Specific for our buttons */
+      .theme-toggle:focus,
+      .theme-toggle:focus-visible,
+      .theme-toggle:focus-within,
+      .menu-toggle:focus,
+      .menu-toggle:focus-visible,
+      .menu-toggle:focus-within {
+        outline: none !important;
+        border: none !important;
+        box-shadow: none !important;
+        background: none !important;
       }
 
       @media (max-width: 768px) {
@@ -441,18 +585,18 @@
     </style>
 </head>
 <body class="page-default">
-  <header class="thematic-header">
+  <header class="thematic-header" role="banner">
     <div class="logo">
-      <a href="/index.html" aria-label="specifys.ai homepage">specifys.ai</a>
+      <a href="../index.html" aria-label="Specifys.ai homepage">Specifys.ai</a>
     </div>
     <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode"><i class="fas fa-moon"></i></button>
     <button class="menu-toggle" aria-label="Toggle navigation menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
     <div class="header-links">
-      <a href="/blog.html" aria-label="Visit our blog">Blog</a>
-      <a href="/about.html" aria-label="Learn more about specifys.ai">About Us</a>
-      <a href="/how.html" aria-label="Learn how specifys.ai works">How It Works</a>
-      <a href="/map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
-      <a href="/ToolPicker.html" aria-label="Use our Tool Finder">Tool Finder</a>
+      <a href="../blog.html" aria-label="Visit our blog">Blog</a>
+      <a href="../about.html" aria-label="Learn more about specifys.ai">About Us</a>
+      <a href="../how.html" aria-label="Learn how specifys.ai works">How It Works</a>
+      <a href="../map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
+      <a href="../ToolPicker.html" aria-label="Use our Tool Finder">Tool Finder</a>
     </div>
   </header>
 
@@ -512,7 +656,7 @@
     </div>
   </footer>
 
-  <script src="/common-header-footer.js"></script>
+  <script src="../common-header-footer.js"></script>
 
   <noscript>
     <div style="text-align: center; padding: 20px; background: #fff; color: #333;">

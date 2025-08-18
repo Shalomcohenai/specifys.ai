@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -99,6 +98,211 @@
                 animation: none;
             }
         }
+
+        /* Feedback Modal Styles */
+        .feedback-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 30;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .feedback-content {
+            background: #fff;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 15px;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+        }
+        
+        body.dark-mode .feedback-content {
+            background: #1a1a1a;
+            color: #e0e0e0;
+        }
+        
+        .feedback-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 1.5rem 1rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        body.dark-mode .feedback-header {
+            border-bottom-color: #333;
+        }
+        
+        .feedback-header h3 {
+            margin: 0;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        body.dark-mode .feedback-header h3 {
+            color: #e0e0e0;
+        }
+        
+        .feedback-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #666;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+        
+        .feedback-close:hover {
+            background: #f0f0f0;
+            color: #333;
+        }
+        
+        body.dark-mode .feedback-close {
+            color: #999;
+        }
+        
+        body.dark-mode .feedback-close:hover {
+            background: #333;
+            color: #e0e0e0;
+        }
+        
+        .form-group {
+            padding: 0 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        body.dark-mode .form-group label {
+            color: #e0e0e0;
+        }
+        
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: border-color 0.3s ease;
+            background: #fff;
+            color: #333;
+        }
+        
+        body.dark-mode .form-group input,
+        body.dark-mode .form-group textarea {
+            background: #2a2a2a;
+            border-color: #444;
+            color: #e0e0e0;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #0078d4;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem 1.5rem 1.5rem;
+            justify-content: flex-end;
+        }
+        
+        .btn-cancel,
+        .btn-submit {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-cancel {
+            background: #f0f0f0;
+            color: #666;
+        }
+        
+        .btn-cancel:hover {
+            background: #e0e0e0;
+            color: #333;
+        }
+        
+        body.dark-mode .btn-cancel {
+            background: #333;
+            color: #999;
+        }
+        
+        body.dark-mode .btn-cancel:hover {
+            background: #444;
+            color: #e0e0e0;
+        }
+        
+        .btn-submit {
+            background: #0078d4;
+            color: #fff;
+        }
+        
+        .btn-submit:hover {
+            background: #005ea2;
+        }
+        
+        .btn-submit:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        /* Feedback Link in Footer */
+        .feedback-link {
+            background: none;
+            border: none;
+            color: #333;
+            cursor: pointer;
+            padding: 0;
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: color 0.3s ease;
+            font-family: inherit;
+        }
+        
+        .feedback-link:hover {
+            color: #0078d4;
+        }
+        
+        body.dark-mode .feedback-link {
+            color: #e0e0e0;
+        }
+        
+        body.dark-mode .feedback-link:hover {
+            color: #0078d4;
+        }
     </style>
 </head>
 <body class="page-default nocode">
@@ -144,13 +348,39 @@
             </div>
         </div>
     </main>
+
+    <!-- Feedback Modal -->
+    <div id="feedbackModal" class="feedback-modal">
+        <div class="feedback-content">
+            <div class="feedback-header">
+                <h3>Send Feedback</h3>
+                <button class="feedback-close" onclick="closeFeedbackModal()" aria-label="Close feedback form">×</button>
+            </div>
+            <form id="feedbackForm" onsubmit="submitFeedback(event)">
+                <div class="form-group">
+                    <label for="feedbackEmail">Email (optional):</label>
+                    <input type="email" id="feedbackEmail" name="email" placeholder="your@email.com">
+                </div>
+                <div class="form-group">
+                    <label for="feedbackText">Your feedback:</label>
+                    <textarea id="feedbackText" name="text" placeholder="Tell us what you think..." required></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" onclick="closeFeedbackModal()" class="btn-cancel">Cancel</button>
+                    <button type="submit" class="btn-submit">Send Feedback</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <footer class="bg-white dark-mode:bg-gray-800 p-4 text-center shadow-inner">
         <div class="flex justify-center gap-4 mb-2 flex-wrap">
-            <a href="how.html" class="text-gray-800 dark-mode:text-white hover:text-blue-600 transition">How It Works</a>
-            <a href="about.html" class="text-gray-800 dark-mode:text-white hover:text-blue-600 transition">About Us</a>
-            <a href="blog.html" class="text-gray-800 dark-mode:text-white hover:text-blue-600 transition">Blog</a>
-            <a href="map/vibe-coding-tools-map.html" class="text-gray-800 dark-mode:text-white hover:text-blue-600 transition">Vibe Coding Tools Map</a>
+            <a href="../how.html" class="text-gray-800 dark-mode:text-white hover:text-blue-600 transition">How It Works</a>
+            <a href="../about.html" class="text-gray-800 dark-mode:text-white hover:text-blue-600 transition">About Us</a>
+            <a href="../blog.html" class="text-gray-800 dark-mode:text-white hover:text-blue-600 transition">Blog</a>
+            <a href="../map/vibe-coding-tools-map.html" class="text-gray-800 dark-mode:text-white hover:text-blue-600 transition">Vibe Coding Tools Map</a>
             <a href="https://specifys-ai.com/ToolPicker" class="text-gray-800 dark-mode:text-white hover:text-blue-600 transition">Tool Picker</a>
+            <button class="feedback-link" onclick="openFeedbackModal()" aria-label="Send feedback">Feedback</button>
         </div>
         <div class="flex justify-center gap-4 mb-2">
             <a href="https://www.linkedin.com/company/specifys-ai/" class="text-gray-800 dark-mode:text-white hover:text-blue-600 transition"><i class="fab fa-linkedin-in"></i></a>
@@ -161,8 +391,109 @@
         </div>
         <p class="text-gray-600 dark-mode:text-gray-400 text-sm">© 2025 Specifys.ai. All rights reserved.</p>
     </footer>
+
     <script src="../common-header-footer.js"></script>
+    
+    <!-- Feedback JavaScript Functions -->
+    <script>
+        // Global feedback functions
+        function openFeedbackModal() {
+            const modal = document.getElementById('feedbackModal');
+            if (modal) {
+                modal.style.display = 'flex';
+                document.getElementById('feedbackText').focus();
+                // Prevent body scroll
+                document.body.style.overflow = 'hidden';
+            }
+        }
+        
+        function closeFeedbackModal() {
+            const modal = document.getElementById('feedbackModal');
+            if (modal) {
+                modal.style.display = 'none';
+                // Restore body scroll
+                document.body.style.overflow = '';
+                // Reset form
+                document.getElementById('feedbackForm').reset();
+            }
+        }
+        
+        function submitFeedback(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('feedbackEmail').value;
+            const text = document.getElementById('feedbackText').value;
+            const submitBtn = event.target.querySelector('.btn-submit');
+            
+            if (!text.trim()) {
+                alert('Please enter your feedback');
+                return;
+            }
+            
+            // Disable submit button
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Sending...';
+            
+            // Send feedback to our new server
+            const serverUrl = 'http://localhost:10000/api/feedback'; // Change this to your actual server URL
+            
+            fetch(serverUrl, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json' 
+                },
+                body: JSON.stringify({
+                    email: email || 'Not provided',
+                    feedback: text,
+                    type: 'user_feedback'
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Send Feedback';
+                
+                // Show success message
+                alert('Thank you for your feedback! We appreciate your input.');
+                closeFeedbackModal();
+                
+                // Track feedback submission
+                if (typeof gtag !== 'undefined') {
+                    gtag('event', 'submit', {
+                        'event_category': 'Feedback',
+                        'event_label': 'Feedback Form Submitted'
+                    });
+                }
+            })
+            .catch(error => {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Send Feedback';
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            });
+        }
+
+        // Event listeners for feedback modal
+        document.addEventListener('click', function(e) {
+            const modal = document.getElementById('feedbackModal');
+            if (e.target.id === 'feedbackModal') {
+                closeFeedbackModal();
+            }
+        });
+
+        document.addEventListener('keydown', function(e) {
+            const modal = document.getElementById('feedbackModal');
+            if (e.key === 'Escape' && modal.style.display === 'flex') {
+                closeFeedbackModal();
+            }
+        });
+    </script>
+
     <script src="app.js"></script>
 </body>
 </html>
-```

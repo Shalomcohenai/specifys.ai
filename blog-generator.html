@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog Article Generator - Specifys.ai</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 40px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+        .generator-container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            display: none;
+        }
+        .form-section {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            border-left: 5px solid #0078d4;
+        }
+        .preview-section {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            padding: 12px 15px;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: #0078d4;
+            box-shadow: 0 0 0 0.2rem rgba(0, 120, 212, 0.25);
+        }
+        .btn-primary {
+            background: linear-gradient(45deg, #0078d4, #005ea2);
+            border: none;
+            border-radius: 10px;
+            padding: 15px 30px;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(45deg, #005ea2, #004578);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 120, 212, 0.4);
+        }
+        .btn-success {
+            background: linear-gradient(45deg, #28a745, #218838);
+            border: none;
+            border-radius: 10px;
+            padding: 12px 24px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-success:hover {
+            background: linear-gradient(45deg, #218838, #1e7e34);
+            transform: translateY(-2px);
+        }
+        .preview-frame {
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            min-height: 600px;
+            background: #f8f9fa;
+        }
+        .file-info {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-left: 4px solid #0078d4;
+        }
+        .download-links {
+            margin-top: 25px;
+        }
+        .download-links a {
+            display: inline-block;
+            margin: 8px 12px 8px 0;
+            padding: 12px 20px;
+            background: linear-gradient(45deg, #6c757d, #5a6268);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .download-links a:hover {
+            background: linear-gradient(45deg, #5a6268, #495057);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(108, 117, 125, 0.4);
+        }
+        .password-input {
+            border: 2px solid #0078d4;
+            border-radius: 10px;
+            padding: 15px;
+            font-size: 18px;
+            text-align: center;
+            letter-spacing: 3px;
+        }
+        .login-btn {
+            background: linear-gradient(45deg, #0078d4, #005ea2);
+            border: none;
+            border-radius: 10px;
+            padding: 15px 40px;
+            font-weight: 600;
+            font-size: 16px;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        .login-btn:hover {
+            background: linear-gradient(45deg, #005ea2, #004578);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 120, 212, 0.4);
+        }
+        .section-header {
+            color: #0078d4;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .form-label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 8px;
+        }
+        .text-muted {
+            color: #6c757d !important;
+            font-size: 13px;
+        }
+        .alert {
+            border-radius: 10px;
+            border: none;
+            padding: 15px 20px;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-container">
+        <div class="mb-4">
+            <i class="fas fa-lock fa-3x text-primary mb-3"></i>
+            <h2>Blog Generator</h2>
+            <p class="text-muted">Specifys.ai - יצירת מאמרי בלוג</p>
+        </div>
+        
+        <div class="alert alert-info" role="alert">
+            <i class="fas fa-info-circle"></i>
+            <strong>הגנה:</strong> דף זה מוגן בסיסמה למניעת שימוש לא מורשה
+        </div>
+        
+        <div class="mb-3">
+            <label for="password" class="form-label">סיסמה</label>
+            <input type="password" class="form-control password-input" id="password" placeholder="הכנס סיסמה">
+        </div>
+        
+        <button type="button" class="btn login-btn w-100" onclick="checkPassword()">
+            <i class="fas fa-sign-in-alt"></i> כניסה
+        </button>
+        
+        <div class="mt-3">
+            <small class="text-muted">
+                <i class="fas fa-shield-alt"></i>
+                הסיסמה נדרשת לגישה לכלי יצירת המאמרים
+            </small>
+        </div>
+    </div>
+
+    <!-- Generator Interface -->
+    <div id="generatorInterface" class="generator-container">
+        <div class="text-center mb-4">
+            <h1><i class="fas fa-magic"></i> Blog Article Generator</h1>
+            <p class="text-muted">יצירת מאמרי בלוג אוטומטית עבור Specifys.ai</p>
+            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> יציאה
+            </button>
+        </div>
+
+        <div class="form-section">
+            <h3 class="section-header"><i class="fas fa-edit"></i> פרטי המאמר</h3>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="articleTitle" class="form-label">כותרת המאמר *</label>
+                        <input type="text" class="form-control" id="articleTitle" placeholder="לדוגמה: The Future of AI in 2026">
+                    </div>
+                    <div class="mb-3">
+                        <label for="articleSlug" class="form-label">שם הקובץ (slug) *</label>
+                        <input type="text" class="form-control" id="articleSlug" placeholder="לדוגמה: ai-future-2026">
+                        <small class="text-muted">השתמש במילים באנגלית עם מקפים</small>
+                    </div>
+                    <div class="mb-3">
+                        <label for="articleDate" class="form-label">תאריך פרסום</label>
+                        <input type="date" class="form-control" id="articleDate">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="articleDescription" class="form-label">תיאור קצר (meta description) *</label>
+                        <textarea class="form-control" id="articleDescription" rows="3" placeholder="תיאור קצר למנועי חיפוש"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="articleKeywords" class="form-label">מילות מפתח</label>
+                        <input type="text" class="form-control" id="articleKeywords" placeholder="AI, future, 2026, technology">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h3 class="section-header"><i class="fas fa-file-alt"></i> תוכן המאמר</h3>
+            <div class="mb-3">
+                <label for="articleIntro" class="form-label">מבוא המאמר *</label>
+                <textarea class="form-control" id="articleIntro" rows="4" placeholder="פסקה קצרה שמתארת את המאמר"></textarea>
+            </div>
+            <div class="mb-3">
+                <label for="articleContent" class="form-label">תוכן המאמר *</label>
+                <textarea class="form-control" id="articleContent" rows="15" placeholder="הכנס את תוכן המאמר המלא כאן. השתמש ב-<h3> לכותרות משנה ו-<p> לפסקאות"></textarea>
+                <small class="text-muted">תמיכה ב-HTML בסיסי: &lt;h3&gt;, &lt;p&gt;, &lt;strong&gt;, &lt;em&gt;</small>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h3 class="section-header"><i class="fas fa-cogs"></i> הגדרות נוספות</h3>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="articlePriority" class="form-label">עדיפות ב-Sitemap</label>
+                        <select class="form-select" id="articlePriority">
+                            <option value="0.95">0.95 - מאמר חשוב מאוד</option>
+                            <option value="0.9" selected>0.9 - מאמר רגיל</option>
+                            <option value="0.8">0.8 - מאמר משני</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="changeFreq" class="form-label">תדירות עדכון</label>
+                        <select class="form-select" id="changeFreq">
+                            <option value="weekly" selected>שבועי</option>
+                            <option value="monthly">חודשי</option>
+                            <option value="yearly">שנתי</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mb-4">
+            <button type="button" class="btn btn-primary btn-lg" onclick="generateArticle()">
+                <i class="fas fa-magic"></i> צור מאמר
+            </button>
+        </div>
+
+        <div id="loadingSection" class="loading">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">טוען...</span>
+            </div>
+            <p class="mt-3">יוצר מאמר...</p>
+        </div>
+
+        <div id="previewSection" class="preview-section" style="display: none;">
+            <h3 class="section-header"><i class="fas fa-eye"></i> תצוגה מקדימה</h3>
+            <div class="preview-frame" id="previewFrame"></div>
+            
+            <div class="file-info">
+                <h5><i class="fas fa-info-circle"></i> פרטי הקבצים שייווצרו:</h5>
+                <ul class="list-unstyled">
+                    <li><strong><i class="fas fa-file-code"></i> קובץ המאמר:</strong> <span id="articleFileName" class="text-primary"></span></li>
+                    <li><strong><i class="fas fa-sitemap"></i> עדכון Sitemap:</strong> <span id="sitemapUpdate" class="text-success"></span></li>
+                    <li><strong><i class="fas fa-list"></i> עדכון Blog Index:</strong> <span id="blogIndexUpdate" class="text-info"></span></li>
+                </ul>
+            </div>
+
+            <div class="download-links">
+                <a href="#" id="downloadArticle" onclick="downloadArticle()">
+                    <i class="fas fa-download"></i> הורד מאמר HTML
+                </a>
+                <a href="#" id="downloadSitemap" onclick="downloadSitemap()">
+                    <i class="fas fa-sitemap"></i> הורד עדכון Sitemap
+                </a>
+                <a href="#" id="downloadBlogUpdate" onclick="downloadBlogUpdate()">
+                    <i class="fas fa-list"></i> הורד עדכון Blog Index
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Password protection
+        const CORRECT_PASSWORD = "specifys2025"; // שנה את הסיסמה כאן
+        
+        function checkPassword() {
+            const password = document.getElementById('password').value;
+            if (password === CORRECT_PASSWORD) {
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('generatorInterface').style.display = 'block';
+                // Set default date to today
+                document.getElementById('articleDate').value = new Date().toISOString().split('T')[0];
+            } else {
+                alert('סיסמה שגויה! נסה שוב.');
+                document.getElementById('password').value = '';
+                document.getElementById('password').focus();
+            }
+        }
+        
+        function logout() {
+            document.getElementById('loginScreen').style.display = 'block';
+            document.getElementById('generatorInterface').style.display = 'none';
+            document.getElementById('password').value = '';
+            document.getElementById('previewSection').style.display = 'none';
+        }
+        
+        // Enter key support for password
+        document.getElementById('password').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkPassword();
+            }
+        });
+
+        function generateArticle() {
+            const title = document.getElementById('articleTitle').value.trim();
+            const slug = document.getElementById('articleSlug').value.trim();
+            const date = document.getElementById('articleDate').value;
+            const description = document.getElementById('articleDescription').value.trim();
+            const keywords = document.getElementById('articleKeywords').value.trim();
+            const intro = document.getElementById('articleIntro').value.trim();
+            const content = document.getElementById('articleContent').value.trim();
+            const priority = document.getElementById('articlePriority').value;
+            const changeFreq = document.getElementById('changeFreq').value;
+
+            if (!title || !slug || !description || !intro || !content) {
+                alert('אנא מלא את כל השדות החובה');
+                return;
+            }
+
+            // Show loading
+            document.getElementById('loadingSection').style.display = 'block';
+            document.getElementById('previewSection').style.display = 'none';
+
+            // Simulate processing time
+            setTimeout(() => {
+                // Generate article HTML
+                const articleHTML = generateArticleHTML(title, slug, date, description, keywords, intro, content);
+                
+                // Generate sitemap entry
+                const sitemapEntry = generateSitemapEntry(slug, date, changeFreq, priority);
+                
+                // Generate blog index update
+                const blogIndexUpdate = generateBlogIndexUpdate(title, slug, description, date);
+
+                // Hide loading and show preview
+                document.getElementById('loadingSection').style.display = 'none';
+                document.getElementById('previewFrame').srcdoc = articleHTML;
+                document.getElementById('articleFileName').textContent = `blog/${slug}.html`;
+                document.getElementById('sitemapUpdate').textContent = sitemapEntry;
+                document.getElementById('blogIndexUpdate').textContent = blogIndexUpdate;
+                
+                // Store generated content for download
+                window.generatedArticle = articleHTML;
+                window.generatedSitemap = sitemapEntry;
+                window.generatedBlogUpdate = blogIndexUpdate;
+                window.articleSlug = slug;
+
+                document.getElementById('previewSection').style.display = 'block';
+            }, 1500);
+        }
+
+        function generateArticleHTML(title, slug, date, description, keywords, intro, content) {
+            const formattedDate = new Date(date).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            
+            const timeString = new Date().toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit',
+                timeZoneName: 'short'
+            });
+
+            return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="${description}">
+    <meta name="keywords" content="${keywords || 'vibe coding, AI app development, no-code platforms, Specifys.ai'}">
+    <meta name="author" content="specifys.ai Team">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="Specifys.ai: ${title}">
+    <meta property="og:description" content="${description}">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="${slug}.html">
+    <meta property="og:image" content="../assets/og-image.jpg">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Specifys.ai: ${title}">
+    <meta name="twitter:description" content="${description}">
+    <meta name="twitter:image" content="../assets/og-image.jpg">
+    <title>Specifys.ai: ${title}</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="../common-header-footer.css">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-RWBT69JCM7"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-RWBT69JCM7');
+        gtag('config', 'AW-1000505244');
+    </script>
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap");
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html { height: 100%; }
+        
+        body {
+            font-family: "Montserrat", sans-serif;
+            position: relative;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100%;
+            background: #f5f5f5;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+        
+        body.dark-mode {
+            background: #1a1a1a;
+            color: #e0e0e0;
+        }
+        
+        .thematic-header {
+            position: absolute;
+            top: 0;
+            width: 100%;
+            padding: 20px 24px;
+            display: flex;
+            justify-content: center;
+            z-index: 10;
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .thematic-header .logo a {
+            text-decoration: none;
+            color: #333;
+            font-size: 1.65rem;
+            font-weight: 700;
+        }
+        
+        .main-content-wrapper {
+            width: 100%;
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 8rem 1.5rem 2rem;
+            box-sizing: border-box;
+            position: relative;
+            transition: background 0.3s ease;
+        }
+        
+        body.dark-mode .main-content-wrapper {
+            background: #1a1a1a;
+        }
+        
+        .header-text {
+            width: 100%;
+            max-width: 800px;
+            text-align: center;
+            padding: 0 1rem;
+            position: absolute;
+            top: 6rem;
+            color: #333;
+            transition: color 0.3s ease;
+        }
+        
+        body.dark-mode .header-text {
+            color: #e0e0e0;
+        }
+        
+        .header-text h1 {
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            line-height: 1.2;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        
+        .header-text h1:hover {
+            color: #0078d4;
+        }
+        
+        .article-container {
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+            padding: 30px;
+            max-width: 800px;
+            width: 100%;
+            margin-top: 2rem;
+            color: #333;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+        
+        body.dark-mode .article-container {
+            background: #2a2a2a;
+            color: #e0e0e0;
+        }
+        
+        .article-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #0078d4;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        
+        .article-title:hover {
+            color: #005ea2;
+        }
+        
+        .article-date-time {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+            font-style: italic;
+        }
+        
+        .article-intro {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #333;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #0078d4;
+        }
+        
+        body.dark-mode .article-intro {
+            background: #333;
+            color: #e0e0e0;
+        }
+        
+        .article-content {
+            line-height: 1.6;
+        }
+        
+        .article-content h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #333;
+            margin: 2rem 0 1rem;
+            line-height: 1.2;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        
+        body.dark-mode .article-content h3 {
+            color: #e0e0e0;
+        }
+        
+        .article-content h3:hover {
+            color: #0078d4;
+        }
+        
+        .article-content p {
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+            color: #333;
+        }
+        
+        body.dark-mode .article-content p {
+            color: #e0e0e0;
+        }
+        
+        .back-to-blog {
+            display: inline-block;
+            background: #0078d4;
+            color: #fff;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            margin-top: 2rem;
+            font-weight: 600;
+            transition: background 0.3s ease;
+        }
+        
+        .back-to-blog:hover {
+            background: #005ea2;
+            color: #fff;
+            text-decoration: none;
+        }
+        
+        footer {
+            background: #fff;
+            padding: 2rem 0;
+            margin-top: 3rem;
+            box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+            transition: background 0.3s ease;
+        }
+        
+        body.dark-mode footer {
+            background: #2a2a2a;
+        }
+        
+        .footer-content {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        
+        .footer-links {
+            margin-bottom: 1rem;
+        }
+        
+        .footer-links a {
+            color: #333;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 0.85rem;
+            transition: color 0.3s ease;
+        }
+        
+        body.dark-mode .footer-links a {
+            color: #e0e0e0;
+        }
+        
+        .footer-links a:hover {
+            color: #0078d4;
+        }
+        
+        .footer-divider {
+            color: #ccc;
+            margin: 0 10px;
+        }
+        
+        .footer-social {
+            margin: 1rem 0;
+        }
+        
+        .footer-social a {
+            color: #333;
+            text-decoration: none;
+            margin: 0 10px;
+            font-size: 1.2rem;
+            transition: color 0.3s ease, transform 0.3s ease;
+        }
+        
+        body.dark-mode .footer-social a {
+            color: #e0e0e0;
+        }
+        
+        .footer-social a:hover {
+            color: #0078d4;
+            transform: scale(1.2);
+        }
+        
+        .footer-copyright {
+            color: #666;
+            font-size: 0.8rem;
+            margin-top: 1rem;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content-wrapper {
+                padding: 6rem 1rem 2rem;
+            }
+            
+            .header-text h1 {
+                font-size: clamp(1.4rem, 3vw, 1.8rem);
+            }
+            
+            .article-title {
+                font-size: 1.6rem;
+            }
+            
+            .article-intro {
+                font-size: 1rem;
+            }
+            
+            .article-content h3 {
+                font-size: 1.3rem;
+            }
+            
+            .article-content p {
+                font-size: 0.95rem;
+            }
+            
+            .footer-links a {
+                font-size: 0.8rem;
+                margin: 0 10px;
+            }
+            
+            .footer-social a {
+                font-size: 1rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .thematic-header .logo a {
+                font-size: 1.32rem;
+            }
+            
+            .main-content-wrapper {
+                padding: 5rem 0.5rem 2rem;
+            }
+            
+            .header-text h1 {
+                font-size: clamp(1.4rem, 3vw, 1.8rem);
+            }
+            
+            .article-title {
+                font-size: 1.4rem;
+            }
+            
+            .article-intro {
+                font-size: 0.95rem;
+            }
+            
+            .article-content h3 {
+                font-size: 1.2rem;
+            }
+            
+            .article-content p {
+                font-size: 0.9rem;
+            }
+            
+            .footer-links a {
+                font-size: 0.75rem;
+                margin: 0 8px;
+            }
+            
+            .footer-social a {
+                font-size: 0.9rem;
+            }
+            
+            .back-to-blog {
+                padding: 6px 12px;
+                font-size: 0.85rem;
+                max-width: 160px;
+            }
+        }
+        
+        @media (prefers-reduced-motion: reduce) {
+            .header-text h1,
+            .article-title,
+            .article-content h3,
+            .footer-links a,
+            .footer-social a,
+            .back-to-blog {
+                transition: none;
+            }
+        }
+    </style>
+</head>
+<body class="page-default">
+    <header class="thematic-header" role="banner">
+        <div class="logo">
+            <a href="../index.html" aria-label="Specifys.ai homepage">Specifys.ai</a>
+        </div>
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode"><i class="fas fa-moon"></i></button>
+        <button class="menu-toggle" aria-label="Toggle navigation menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
+        <div class="header-links">
+            <a href="../blog.html" aria-label="Visit our blog">Blog</a>
+            <a href="../about.html" aria-label="Learn more about specifys.ai">About Us</a>
+            <a href="../how.html" aria-label="Learn how specifys.ai works">How It Works</a>
+            <a href="../map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
+            <a href="../ToolPicker.html" aria-label="Use our Tool Finder">Tool Finder</a>
+        </div>
+    </header>
+
+    <div class="main-content-wrapper">
+        <div class="header-text">
+            <h1>specifys.ai Blog!</h1>
+        </div>
+
+        <div class="article-container">
+            <h2 class="article-title">${title}</h2>
+            <div class="article-date-time">${formattedDate}, ${timeString}</div>
+            <div class="article-intro">
+                ${intro}
+            </div>
+            <div class="article-content">
+                ${content}
+            </div>
+            <a href="../blog.html" class="back-to-blog">Back to Blog</a>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="../how.html" aria-label="Learn how specifys.ai works">How It Works</a>
+                <a href="../about.html" aria-label="Learn more about specifys.ai">About Us</a>
+                <a href="../blog.html" aria-label="Visit our blog">Blog</a>
+                <a href="../map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
+            </div>
+            <span class="footer-divider">|</span>
+            <div class="footer-social">
+                <a href="https://www.linkedin.com/company/specifys-ai/" aria-label="Follow us on LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                <a href="https://www.facebook.com/profile.php?id=61576402600129&locale=he_IL" target="_blank" aria-label="Follow us on Facebook"><i class="fab fa-facebook-f"></i></a>
+                <a href="https://www.instagram.com/YOUR_PROFILE" aria-label="Follow us on Instagram"><i class="fab fa-instagram"></i></a>
+                <a href="mailto:specifysai@gmail.com" aria-label="Send us an email"><i class="fas fa-envelope"></i></a>
+                <a href="https://www.producthunt.com/products/specifys-ai" target="_blank" aria-label="Check us out on Product Hunt"><i class="fab fa-product-hunt"></i></a>
+            </div>
+        </div>
+        <div class="footer-copyright">
+            © 2025 specifys.ai. All rights reserved.
+        </div>
+    </footer>
+
+    <script src="../common-header-footer.js"></script>
+
+    <noscript>
+        <div style="text-align: center; padding: 20px; background: #fff; color: #333;">
+            <p>This website requires JavaScript to function properly. Please enable JavaScript in your browser settings.</p>
+        </div>
+    </noscript>
+</body>
+</html>`;
+        }
+
+        function generateSitemapEntry(slug, date, changeFreq, priority) {
+            const today = new Date().toISOString().split('T')[0];
+            return `  <url>
+    <loc>https://specifys-ai.com/blog/${slug}.html</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>${changeFreq}</changefreq>
+    <priority>${priority}</priority>
+  </url>`;
+        }
+
+        function generateBlogIndexUpdate(title, slug, description, date) {
+            const formattedDate = new Date(date).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            
+            return `<div class="article-preview">
+    <h3 class="article-title">
+        <a href="blog/${slug}.html">${title}</a>
+    </h3>
+    <p class="article-description">${description}</p>
+    <div class="article-meta">
+        <span class="article-date">${formattedDate}</span>
+        <a href="blog/${slug}.html" class="read-more">Read More →</a>
+    </div>
+</div>`;
+        }
+
+        function downloadArticle() {
+            const blob = new Blob([window.generatedArticle], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${window.articleSlug}.html`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function downloadSitemap() {
+            const blob = new Blob([window.generatedSitemap], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `sitemap-update-${window.articleSlug}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function downloadBlogUpdate() {
+            const blob = new Blob([window.generatedBlogUpdate], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `blog-index-update-${window.articleSlug}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Auto-generate slug from title
+        document.getElementById('articleTitle').addEventListener('input', function() {
+            const title = this.value;
+            const slug = title
+                .toLowerCase()
+                .replace(/[^a-z0-9\s-]/g, '')
+                .replace(/\s+/g, '-')
+                .replace(/-+/g, '-')
+                .trim();
+            document.getElementById('articleSlug').value = slug;
+        });
+    </script>
+</body>
+</html>
