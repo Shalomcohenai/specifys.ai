@@ -71,7 +71,7 @@ ${userInput}
     console.log('Full prompt constructed:', fullPrompt);
     console.log('Prompt length (characters):', fullPrompt.length);
     console.log('Sending request with prompt:', fullPrompt);
-    const response = await fetch('https://worker1.shalom-cohen-111.workers.dev', {
+    const response = await fetch('https://newnocode.shalom-cohen-111.workers.dev', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -784,10 +784,215 @@ background: #005ea2;
 transform: translateY(-2px);
 box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
-.popup-content .popup-start:focus {
-outline: 2px solid #0078d4;
-outline-offset: 2px;
-}
+        .popup-content .popup-start:focus {
+          outline: 2px solid #0078d4;
+          outline-offset: 2px;
+        }
+        
+        /* Feedback Modal Styles */
+        .feedback-modal {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0, 0, 0, 0.7);
+          z-index: 30;
+          display: none;
+          justify-content: center;
+          align-items: center;
+        }
+        
+        .feedback-content {
+          background: #fff;
+          width: 90%;
+          max-width: 500px;
+          border-radius: 15px;
+          box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+          overflow: hidden;
+        }
+        
+        body.dark-mode .feedback-content {
+          background: #1a1a1a;
+          color: #e0e0e0;
+        }
+        
+        .feedback-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 1.5rem 1.5rem 1rem;
+          border-bottom: 1px solid #eee;
+        }
+        
+        body.dark-mode .feedback-header {
+          border-bottom-color: #333;
+        }
+        
+        .feedback-header h3 {
+          margin: 0;
+          font-size: 1.3rem;
+          font-weight: 600;
+          color: #333;
+        }
+        
+        body.dark-mode .feedback-header h3 {
+          color: #e0e0e0;
+        }
+        
+        .feedback-close {
+          background: none;
+          border: none;
+          font-size: 1.5rem;
+          color: #666;
+          cursor: pointer;
+          padding: 0;
+          width: 30px;
+          height: 30px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 50%;
+          transition: all 0.3s ease;
+        }
+        
+        .feedback-close:hover {
+          background: #f0f0f0;
+          color: #333;
+        }
+        
+        body.dark-mode .feedback-close {
+          color: #999;
+        }
+        
+        body.dark-mode .feedback-close:hover {
+          background: #333;
+          color: #e0e0e0;
+        }
+        
+        .form-group {
+          padding: 0 1.5rem;
+          margin-bottom: 1rem;
+        }
+        
+        .form-group label {
+          display: block;
+          margin-bottom: 0.5rem;
+          font-weight: 500;
+          color: #333;
+        }
+        
+        body.dark-mode .form-group label {
+          color: #e0e0e0;
+        }
+        
+        .form-group input,
+        .form-group textarea {
+          width: 100%;
+          padding: 0.75rem;
+          border: 1px solid #ddd;
+          border-radius: 8px;
+          font-size: 0.95rem;
+          transition: border-color 0.3s ease;
+          background: #fff;
+          color: #333;
+        }
+        
+        body.dark-mode .form-group input,
+        body.dark-mode .form-group textarea {
+          background: #2a2a2a;
+          border-color: #444;
+          color: #e0e0e0;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus {
+          outline: none;
+          border-color: #0078d4;
+        }
+        
+        .form-group textarea {
+          resize: vertical;
+          min-height: 100px;
+        }
+        
+        .form-actions {
+          display: flex;
+          gap: 1rem;
+          padding: 1rem 1.5rem 1.5rem;
+          justify-content: flex-end;
+        }
+        
+        .btn-cancel,
+        .btn-submit {
+          padding: 0.75rem 1.5rem;
+          border: none;
+          border-radius: 8px;
+          font-size: 0.95rem;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+        
+        .btn-cancel {
+          background: #f0f0f0;
+          color: #666;
+        }
+        
+        .btn-cancel:hover {
+          background: #e0e0e0;
+          color: #333;
+        }
+        
+        body.dark-mode .btn-cancel {
+          background: #333;
+          color: #999;
+        }
+        
+        body.dark-mode .btn-cancel:hover {
+          background: #444;
+          color: #e0e0e0;
+        }
+        
+        .btn-submit {
+          background: #0078d4;
+          color: #fff;
+        }
+        
+        .btn-submit:hover {
+          background: #005ea2;
+        }
+        
+        .btn-submit:disabled {
+          background: #ccc;
+          cursor: not-allowed;
+        }
+        
+        /* Feedback Link in Footer */
+        .feedback-link {
+          background: none;
+          border: none;
+          color: #333;
+          cursor: pointer;
+          padding: 0;
+          font-size: 0.85rem;
+          font-weight: 500;
+          text-decoration: none;
+          transition: color 0.3s ease;
+          font-family: inherit;
+        }
+        
+        .feedback-link:hover {
+          color: #0078d4;
+        }
+        
+        body.dark-mode .feedback-link {
+          color: #e0e0e0;
+        }
+        
+        body.dark-mode .feedback-link:hover {
+          color: #0078d4;
+        }
 .scroll-to-top {
 position: fixed;
 bottom: 20px;
@@ -1464,34 +1669,145 @@ border: 0;
 <a href="./processing-novice.html" class="cta-button">Start Planning Free</a>
 </div>
 </div>
-<button class="scroll-to-top down" id="scrollToTop"><i class="fas fa-arrow-down"></i></button>
-<footer>
+        <button class="scroll-to-top down" id="scrollToTop"><i class="fas fa-arrow-down"></i></button>
+        
+        <!-- Feedback Modal -->
+        <div id="feedbackModal" class="feedback-modal">
+          <div class="feedback-content">
+            <div class="feedback-header">
+              <h3>Send Feedback</h3>
+              <button class="feedback-close" onclick="closeFeedbackModal()" aria-label="Close feedback form">×</button>
+            </div>
+            <form id="feedbackForm" onsubmit="submitFeedback(event)">
+              <div class="form-group">
+                <label for="feedbackEmail">Email (optional):</label>
+                <input type="email" id="feedbackEmail" name="email" placeholder="your@email.com">
+              </div>
+              <div class="form-group">
+                <label for="feedbackText">Your feedback:</label>
+                <textarea id="feedbackText" name="text" placeholder="Tell us what you think..." required></textarea>
+              </div>
+              <div class="form-actions">
+                <button type="button" onclick="closeFeedbackModal()" class="btn-cancel">Cancel</button>
+                <button type="submit" class="btn-submit">Send Feedback</button>
+              </div>
+            </form>
+          </div>
+        </div>
+        
+        <footer>
 <div class="footer-content">
-<div class="footer-links">
-<a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
-<a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
-<a href="blog.html" aria-label="Visit our blog">Blog</a>
-<a href="map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
-<a href="https://specifys-ai.com/ToolPicker" aria-label="Use our Tool Finder">Tool Finder</a>
-</div>
+        <div class="footer-links">
+          <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
+          <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
+          <a href="blog.html" aria-label="Visit our blog">Blog</a>
+          <a href="map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
+          <a href="https://specifys-ai.com/ToolPicker" aria-label="Use our Tool Finder">Tool Finder</a>
+          <button class="feedback-link" onclick="openFeedbackModal()" aria-label="Send feedback">Feedback</button>
+        </div>
 <span class="footer-divider">|</span>
-<div class="footer-social">
-<a href="https://www.linkedin.com/company/specifys-ai/" aria-label="Follow us on LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-<a href="https://www.facebook.com/profile.php?id=61576402600129&locale=he_IL" target="_blank" aria-label="Follow us on Facebook"><i class="fab fa-facebook-f"></i></a>
-<a href="https://www.instagram.com/YOUR_PROFILE" aria-label="Follow us on Instagram"><i class="fab fa-instagram"></i></a>
-<a href="mailto:specifysai@gmail.com" aria-label="Send us an email"><i class="fas fa-envelope"></i></a>
-<a href="https://www.producthunt.com/products/specifys-ai" target="_blank" aria-label="Check us out on Product Hunt"><i class="fab fa-product-hunt"></i></a>
-</div>
+        <div class="footer-social">
+          <a href="https://www.linkedin.com/company/specifys-ai/" aria-label="Follow us on LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+          <a href="https://www.facebook.com/profile.php?id=61576402600129&locale=he_IL" target="_blank" aria-label="Follow us on Facebook"><i class="fab fa-facebook-f"></i></a>
+          <a href="https://www.instagram.com/YOUR_PROFILE" aria-label="Follow us on Instagram"><i class="fab fa-instagram"></i></a>
+          <a href="mailto:specifysai@gmail.com" aria-label="Send us an email"><i class="fas fa-envelope"></i></a>
+          <a href="https://www.producthunt.com/products/specifys-ai" target="_blank" aria-label="Check us out on Product Hunt"><i class="fab fa-product-hunt"></i></a>
+        </div>
 </div>
 <div class="footer-copyright">
         © 2025 specifys.ai. All rights reserved.
 </div>
 </footer>
 </div>
-<script>
-    (function() {
-window.specifys = window.specifys || {};
-document.addEventListener("DOMContentLoaded", () => {
+    <script>
+      // Global feedback functions
+      function openFeedbackModal() {
+        const modal = document.getElementById('feedbackModal');
+        if (modal) {
+          modal.style.display = 'flex';
+          document.getElementById('feedbackText').focus();
+          // Prevent body scroll
+          document.body.style.overflow = 'hidden';
+        }
+      }
+      
+      function closeFeedbackModal() {
+        const modal = document.getElementById('feedbackModal');
+        if (modal) {
+          modal.style.display = 'none';
+          // Restore body scroll
+          document.body.style.overflow = '';
+          // Reset form
+          document.getElementById('feedbackForm').reset();
+        }
+      }
+      
+      function submitFeedback(event) {
+        event.preventDefault();
+        
+        const email = document.getElementById('feedbackEmail').value;
+        const text = document.getElementById('feedbackText').value;
+        const submitBtn = event.target.querySelector('.btn-submit');
+        
+        if (!text.trim()) {
+          alert('Please enter your feedback');
+          return;
+        }
+        
+        // Disable submit button
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Sending...';
+        
+        // Send feedback to Google Apps Script (same as newsletter)
+        const url = 'https://script.google.com/macros/s/AKfycbzRv07wfY5DRmhXKTeELv0GXgTyGYFan6XYbzd5a6cH-tpju_3q7L1Y4ByWA5SI4RFRBQ/exec';
+        
+        // Send email first
+        const emailPromise = fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: `email=${encodeURIComponent(email || 'Not provided')}&type=feedback_email`
+        });
+        
+        // Send feedback text second
+        const feedbackPromise = fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: `feedback=${encodeURIComponent(text)}&type=feedback_text`
+        });
+        
+        // Wait for both requests to complete
+        Promise.all([emailPromise, feedbackPromise])
+        .then(responses => {
+          // Check if both requests were successful
+          const emailResponse = responses[0];
+          const feedbackResponse = responses[1];
+          
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Send Feedback';
+          
+          // Show success message
+          alert('Thank you for your feedback! We appreciate your input.');
+          closeFeedbackModal();
+          
+          // Track feedback submission
+          if (typeof gtag !== 'undefined') {
+            gtag('event', 'submit', {
+              'event_category': 'Feedback',
+              'event_label': 'Feedback Form Submitted'
+            });
+          }
+        })
+        .catch(error => {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Send Feedback';
+          console.error('Error:', error);
+          alert('An error occurred. Please try again.');
+        });
+      }
+      
+      (function() {
+        window.specifys = window.specifys || {};
+        document.addEventListener("DOMContentLoaded", () => {
 const modes = ['novice', 'developers', 'market'];
 let currentModeIndex = 0;
 let autoCycleInterval;
@@ -1561,14 +1877,16 @@ const popupOverlay = document.getElementById("popupOverlay");
 const popup = document.querySelector(".popup");
 const popupStart = document.querySelector(".popup-start");
 const popupClose = document.querySelector(".popup-close");
-specifys.closePopup = function(action = 'close') {
-popupOverlay.style.display = "none";
-gtag('event', 'click', {
-'event_category': 'Popup Interaction',
-'event_label': action === 'start' ? 'Popup Start Button' : 'Popup Close'
+        specifys.closePopup = function(action = 'close') {
+          popupOverlay.style.display = "none";
+          // Mark that user has seen the popup
+          localStorage.setItem('hasSeenPopup', 'true');
+          gtag('event', 'click', {
+            'event_category': 'Popup Interaction',
+            'event_label': action === 'start' ? 'Popup Start Button' : 'Popup Close'
           });
-document.removeEventListener("keydown", trapFocus);
-popupClose.focus();
+          document.removeEventListener("keydown", trapFocus);
+          popupClose.focus();
         };
 function trapFocus(e) {
 const focusableElements = popup.querySelectorAll('button');
@@ -1586,10 +1904,12 @@ firstFocusable.focus();
 specifys.closePopup();
           }
         }
-if (popupOverlay) {
-popupOverlay.style.display = "flex";
-popupStart.focus();
-document.addEventListener("keydown", trapFocus);
+        // Check if user is new (first time visitor)
+        const hasSeenPopup = localStorage.getItem('hasSeenPopup');
+        if (popupOverlay && !hasSeenPopup) {
+          popupOverlay.style.display = "flex";
+          popupStart.focus();
+          document.addEventListener("keydown", trapFocus);
         }
 popupOverlay.addEventListener("click", (e) => {
 if (e.target === popupOverlay) {
@@ -1627,10 +1947,17 @@ gtag('event', 'click', {
           });
 });
 const savedTheme = localStorage.getItem('theme');
+// ALWAYS start with light mode - never dark mode by default
 if (savedTheme === 'dark') {
-document.body.classList.add('dark-mode');
-themeToggle.querySelector('i').classList.replace('fa-moon', 'fa-sun');
-themeToggle.setAttribute('aria-label', 'Toggle light mode');
+  document.body.classList.add('dark-mode');
+  themeToggle.querySelector('i').classList.replace('fa-moon', 'fa-sun');
+  themeToggle.setAttribute('aria-label', 'Toggle light mode');
+} else {
+  // Force light mode and save it
+  document.body.classList.remove('dark-mode');
+  themeToggle.querySelector('i').classList.replace('fa-sun', 'fa-moon');
+  themeToggle.setAttribute('aria-label', 'Toggle dark mode');
+  localStorage.setItem('theme', 'light');
 }
 const scrollToTopBtn = document.getElementById("scrollToTop");
 const scrollIcon = scrollToTopBtn.querySelector("i");
@@ -1725,8 +2052,31 @@ ideas.forEach(idea => idea.classList.remove("active"));
 ideas[currentIdeaIndex].classList.add("active");
 currentIdeaIndex = (currentIdeaIndex + 1) % ideas.length;
         }
-rotateIdeas();
-setInterval(rotateIdeas, 8000);
+        rotateIdeas();
+        setInterval(rotateIdeas, 8000);
+        
+        // Event listeners for feedback modal
+        document.addEventListener("DOMContentLoaded", () => {
+          // Close modal when clicking outside
+          const modal = document.getElementById('feedbackModal');
+          if (modal) {
+            modal.addEventListener('click', (e) => {
+              if (e.target.id === 'feedbackModal') {
+                closeFeedbackModal();
+              }
+            });
+          }
+          
+          // Close modal with Escape key
+          document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+              const modal = document.getElementById('feedbackModal');
+              if (modal && modal.style.display === 'flex') {
+                closeFeedbackModal();
+              }
+            }
+          });
+        });
       });
     })();
 </script>

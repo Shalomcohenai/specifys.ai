@@ -10,16 +10,17 @@
   <meta property="og:title" content="Specifys.ai Blog - Article Index">
   <meta property="og:description" content="Discover the latest trends in vibe coding and AI-driven app development with Specifys.ai’s blog, featuring insights on tools like ChatGPT-5 and Lovable.">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://specifys.ai/blog.html">
-  <meta property="og:image" content="https://specifys.ai/assets/blog-og-image.jpg">
+  <meta property="og:url" content="blog.html">
+  <meta property="og:image" content="assets/blog-og-image.jpg">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Specifys.ai Blog - Article Index">
   <meta name="twitter:description" content="Discover the latest trends in vibe coding and AI-driven app development with Specifys.ai’s blog, featuring insights on tools like ChatGPT-5 and Lovable.">
-  <meta name="twitter:image" content="https://specifys.ai/assets/blog-og-image.jpg">
+  <meta name="twitter:image" content="assets/blog-og-image.jpg">
   <title>Specifys.ai Blog - Article Index</title>
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="common-header-footer.css">
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-RWBT69JCM7"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -30,58 +31,6 @@
   </script>
   <style>
     @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap");
-
-    :root {
-      --background-color: #f5f5f5;
-      --header-background: rgba(255, 255, 255, 0.9);
-      --header-text: #333;
-      --content-box-background: rgba(255, 255, 255, 0.95);
-      --content-box-text: #333;
-      --article-background: #fff;
-      --article-title: #0078d4;
-      --article-date: #666;
-      --article-intro: #333;
-      --reader-count: #666;
-      --read-more-btn: #0078d4;
-      --read-more-btn-hover: #005ea2;
-      --read-more-btn-shadow: rgba(0, 0, 0, 0.2);
-      --footer-background: #fff;
-      --footer-text: #333;
-      --footer-link: #333;
-      --footer-link-hover: #0078d4;
-      --footer-divider: #333;
-      --footer-social: #333;
-      --footer-social-hover: #0078d4;
-      --footer-copyright: #666;
-      --shadow-color: rgba(0, 0, 0, 0.1);
-      --shadow-color-strong: rgba(0, 0, 0, 0.15);
-    }
-
-    .dark-mode {
-      --background-color: #1a1a1a;
-      --header-background: rgba(40, 40, 40, 0.9);
-      --header-text: #ffffff;
-      --content-box-background: rgba(40, 40, 40, 0.95);
-      --content-box-text: #ffffff;
-      --article-background: #2a2a2a;
-      --article-title: #00b7c3;
-      --article-date: #cccccc;
-      --article-intro: #e0e0e0;
-      --reader-count: #cccccc;
-      --read-more-btn: #00b7c3;
-      --read-more-btn-hover: #008b8b;
-      --read-more-btn-shadow: rgba(0, 0, 0, 0.4);
-      --footer-background: #2a2a2a;
-      --footer-text: #ffffff;
-      --footer-link: #ffffff;
-      --footer-link-hover: #00b7c3;
-      --footer-divider: #ffffff;
-      --footer-social: #ffffff;
-      --footer-social-hover: #00b7c3;
-      --footer-copyright: #cccccc;
-      --shadow-color: rgba(0, 0, 0, 0.3);
-      --shadow-color-strong: rgba(0, 0, 0, 0.4);
-    }
 
     * {
       margin: 0;
@@ -100,59 +49,25 @@
       display: flex;
       flex-direction: column;
       min-height: 100%;
-      background: var(--background-color);
+      background: #f5f5f5;
       transition: background 0.3s ease;
-    }
-
-    .thematic-header {
-      position: absolute;
-      top: 0;
-      width: 100%;
-      padding: 20px 24px;
-      display: flex;
-      justify-content: center;
-      z-index: 10;
-      background: var(--header-background);
-      box-shadow: 0 2px 4px var(--shadow-color);
-    }
-
-    .thematic-header .logo a {
-      text-decoration: none;
-      color: var(--header-text);
-      font-size: 1.925rem;
-      font-weight: 700;
-    }
-
-    .theme-toggle {
-      position: absolute;
-      right: 24px;
-      background: none;
-      border: none;
-      color: var(--header-text);
-      font-size: 1.2rem;
-      cursor: pointer;
-      transition: color 0.3s ease;
-    }
-
-    .theme-toggle:hover {
-      color: var(--footer-link-hover);
     }
 
     .content-box {
       max-width: 800px;
       margin: 80px auto 40px;
       padding: 30px;
-      background: var(--content-box-background);
+      background: rgba(255, 255, 255, 0.95);
       border-radius: 15px;
-      box-shadow: 0 6px 16px var(--shadow-color-strong);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
       flex-grow: 1;
-      color: var(--content-box-text);
+      color: #333;
     }
 
     .content-box h1 {
       font-size: clamp(1.8rem, 4vw, 2.5rem);
       font-weight: 700;
-      color: var(--content-box-text);
+      color: #333;
       margin-bottom: 1rem;
       text-align: center;
     }
@@ -165,49 +80,49 @@
     }
 
     .article-preview {
-      background: var(--article-background);
+      background: #fff;
       border-radius: 10px;
       overflow: hidden;
-      box-shadow: 0 2px 4px var(--shadow-color);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       transition: transform 0.3s ease, box-shadow 0.3s ease;
       padding: 15px;
     }
 
     .article-preview:hover {
       transform: translateY(-2px);
-      box-shadow: 0 4px 8px var(--shadow-color);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     }
 
     .article-title {
       font-size: 1.4rem;
-      color: var(--article-title);
+      color: #0078d4;
       font-weight: 700;
       margin-bottom: 0.5rem;
     }
 
     .article-date {
       font-size: 0.9rem;
-      color: var(--article-date);
+      color: #666;
       margin-bottom: 0.5rem;
     }
 
     .article-intro {
       font-size: 1rem;
-      color: var(--article-intro);
+      color: #333;
       line-height: 1.5;
       margin-bottom: 1rem;
     }
 
     .reader-count {
       font-size: 0.9rem;
-      color: var(--reader-count);
+      color: #666;
       margin-bottom: 0.5rem;
     }
 
     .read-more-btn {
       display: inline-block;
       padding: 8px 16px;
-      background: var(--read-more-btn);
+      background: #0078d4;
       color: #fff;
       text-decoration: none;
       border-radius: 5px;
@@ -217,91 +132,9 @@
     }
 
     .read-more-btn:hover {
-      background: var(--read-more-btn-hover);
-      box-shadow: 0 4px 8px var(--read-more-btn-shadow);
+      background: #005ea2;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     }
-
-    footer {
-      padding: 20px 10px;
-      text-align: center;
-      width: 100%;
-      color: var(--footer-text);
-      flex-shrink: 0;
-      background: var(--footer-background);
-      box-shadow: 0 -2px 4px var(--shadow-color);
-    }
-
-    .footer-content {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: center;
-      gap: 20px;
-      flex-wrap: wrap;
-    }
-
-    .footer-links {
-      display: flex;
-      justify-content: center;
-      gap: 15px;
-      flex-wrap: wrap;
-    }
-
-    .footer-links a {
-      color: var(--footer-link);
-      text-decoration: none;
-      font-size: 0.85rem;
-      font-weight: 500;
-      transition: color 0.3s ease;
-    }
-
-    .footer-links a:hover {
-      color: var(--footer-link-hover);
-    }
-
-    .footer-divider {
-      color: var(--footer-divider);
-      font-size: 1.2rem;
-      font-weight: 300;
-    }
-
-    .footer-social {
-      display: flex;
-      justify-content: center;
-      gap: 15px;
-      flex-wrap: wrap;
-    }
-
-    .footer-social a {
-      color: var(--footer-social);
-      font-size: 1.2rem;
-      transition: transform 0.3s ease, color 0.3s ease;
-    }
-
-    .footer-social a:hover {
-      color: var(--footer-social-hover);
-      transform: scale(1.2);
-    }
-
-    .footer-copyright {
-      font-size: 0.8rem;
-      color: var(--footer-copyright);
-      margin-top: 1rem;
-    }
-
-    @media (prefers-color-scheme: dark) {
-      body:not(.light-mode) {
-        --background-color: #1a1a1a;
-        --header-background: rgba(40, 40, 40, 0.9);
-        --header-text: #ffffff;
-        --content-box-background: rgba(40, 40, 40, 0.95);
-        --content-box-text: #ffffff;
-        --article-background: #2a2a2a;
-        --article-title: #00b7c3;
-        --article-date: #cccccc;
-        --article-intro: #e0e0e0;
-        --reader-count: #cccccc;
-        --read-more-btn: #00b7c3;
         --read-more-btn-hover: #008b8b;
         --read-more-btn-shadow: rgba(0, 0, 0, 0.4);
         --footer-background: #2a2a2a;
@@ -348,32 +181,9 @@
         padding: 6px 12px;
         font-size: 0.9rem;
       }
-      .theme-toggle {
-        font-size: 1rem;
-        right: 15px;
-      }
-      footer {
-        padding: 15px 8px;
-      }
-      .footer-content {
-        flex-direction: column;
-        gap: 10px;
-      }
-      .footer-links a {
-        font-size: 0.8rem;
-      }
-      .footer-divider {
-        font-size: 1rem;
-      }
-      .footer-social a {
-        font-size: 1rem;
-      }
     }
 
     @media (max-width: 480px) {
-      .thematic-header .logo a {
-        font-size: 1.32rem;
-      }
       .content-box {
         margin: 40px 10px;
         padding: 15px;
@@ -404,39 +214,24 @@
         padding: 5px 10px;
         font-size: 0.85rem;
       }
-      .theme-toggle {
-        font-size: 0.9rem;
-        right: 10px;
-      }
-      .footer-content {
-        gap: 8px;
-      }
-      .footer-links a {
-        font-size: 0.75rem;
-      }
-      .footer-divider {
-        font-size: 0.9rem;
-      }
-      .footer-social a {
-        font-size: 0.9rem;
-      }
     }
-
-    @media (prefers-reduced-motion: reduce) {
-      .article-preview, .read-more-btn, .footer-social a, .theme-toggle {
-        transition: none;
-      }
     }
   </style>
 </head>
-<body class="page-default">
+<body>
   <header class="thematic-header" role="banner">
     <div class="logo">
-      <a href="index.html" aria-label="specifys.ai homepage">specifys.ai</a>
+      <a href="index.html" aria-label="Specifys.ai homepage">Specifys.ai</a>
     </div>
-    <button class="theme-toggle" onclick="toggleDarkMode()" aria-label="Toggle dark mode">
-      <i class="fas fa-moon"></i>
-    </button>
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode"><i class="fas fa-moon"></i></button>
+    <button class="menu-toggle" aria-label="Toggle navigation menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
+    <div class="header-links">
+      <a href="blog.html" aria-label="Visit our blog">Blog</a>
+      <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
+      <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
+      <a href="map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
+      <a href="ToolPicker.html" aria-label="Use our Tool Finder">Tool Finder</a>
+    </div>
   </header>
 
   <div class="content-box">
@@ -724,38 +519,11 @@
       </div>
     </div>
     <div class="footer-copyright">
-      © 2025 specifys.ai. All rights reserved.
+      © 2025 Specifys.ai. All rights reserved.
     </div>
   </footer>
 
-  <script>
-    function toggleDarkMode() {
-      const body = document.body;
-      const isDarkMode = body.classList.toggle('dark-mode');
-      body.classList.toggle('light-mode', !isDarkMode);
-      const themeToggleIcon = document.querySelector('.theme-toggle i');
-      themeToggleIcon.className = isDarkMode ? 'fas fa-sun' : 'fas fa-moon';
-      localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
-    }
-
-    // Set initial theme based on localStorage or system preference
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-      document.body.classList.add(savedTheme === 'dark' ? 'dark-mode' : 'light-mode');
-      document.body.classList.remove(savedTheme === 'dark' ? 'light-mode' : 'dark-mode');
-      document.querySelector('.theme-toggle i').className = savedTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
-    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      document.body.classList.add('dark-mode');
-      document.body.classList.remove('light-mode');
-      document.querySelector('.theme-toggle i').className = 'fas fa-sun';
-      localStorage.setItem('theme', 'dark');
-    } else {
-      document.body.classList.add('light-mode');
-      document.body.classList.remove('dark-mode');
-      document.querySelector('.theme-toggle i').className = 'fas fa-moon';
-      localStorage.setItem('theme', 'light');
-    }
-  </script>
+  <script src="common-header-footer.js"></script>
 
   <noscript>
     <div style="text-align: center; padding: 20px; background: #fff; color: #333;">

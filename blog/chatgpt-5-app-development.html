@@ -49,12 +49,12 @@
     <meta property="og:title" content="ChatGPT-5: Revolutionizing App Development with AI-Powered Precision">
     <meta property="og:description" content="ChatGPT-5, powered by GPT-5, transforms app development with advanced coding, multimodal reasoning, and Specifys.ai’s AI-driven specs. Learn how to build apps faster.">
     <meta property="og:type" content="article">
-    <meta property="og:url" content="https://specifys.ai/blog/chatgpt-5-app-development.html">
-    <meta property="og:image" content="https://specifys.ai/assets/chatgpt-5-og-image.jpg">
+    <meta property="og:url" content="chatgpt-5-app-development.html">
+    <meta property="og:image" content="../assets/chatgpt-5-og-image.jpg">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="ChatGPT-5: Revolutionizing App Development with AI-Powered Precision">
     <meta name="twitter:description" content="ChatGPT-5, powered by GPT-5, transforms app development with advanced coding, multimodal reasoning, and Specifys.ai’s AI-driven specs. Learn how to build apps faster.">
-    <meta name="twitter:image" content="https://specifys.ai/assets/chatgpt-5-og-image.jpg">
+    <meta name="twitter:image" content="../assets/chatgpt-5-og-image.jpg">
     <meta name="title" content="ChatGPT-5: Revolutionizing App Development with AI-Powered Precision | Specifys.AI">
     <meta name="description" content="ChatGPT-5’s AI-powered coding and Specifys.ai’s structured specs streamline app development, enabling developers and non-coders to create scalable apps efficiently.">
     <meta name="keywords" content="ChatGPT-5, GPT-5, AI app development, vibe coding, Specifys.ai, no-code app development, AI coding tools, rapid prototyping">
@@ -69,8 +69,9 @@
     </script>
     <title>ChatGPT-5: Revolutionizing App Development with AI-Powered Precision | Specifys.AI</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../common-header-footer.css">
     <style>
       @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap");
 
@@ -99,30 +100,7 @@
         --shadow-color: rgba(0, 0, 0, 0.1);
       }
 
-      .dark-mode {
-        --background-color: #1a1a1a;
-        --header-background: rgba(40, 40, 40, 0.9);
-        --header-text: #ffffff;
-        --article-background: #2a2a2a;
-        --article-title: #ffffff;
-        --article-title-hover: #00b7c3;
-        --article-date: #cccccc;
-        --article-intro: #e0e0e0;
-        --article-content-text: #e0e0e0;
-        --article-content-heading: #ffffff;
-        --article-content-heading-hover: #00b7c3;
-        --back-to-blog: #00b7c3;
-        --back-to-blog-hover: #008b8b;
-        --footer-background: #2a2a2a;
-        --footer-text: #ffffff;
-        --footer-link: #ffffff;
-        --footer-link-hover: #00b7c3;
-        --footer-divider: #ffffff;
-        --footer-social: #ffffff;
-        --footer-social-hover: #00b7c3;
-        --footer-copyright: #cccccc;
-        --shadow-color: rgba(0, 0, 0, 0.3);
-      }
+
 
       * { margin: 0; padding: 0; box-sizing: border-box; }
       html { height: 100%; }
@@ -133,39 +111,10 @@
         display: flex; 
         flex-direction: column; 
         min-height: 100%; 
-        background: var(--background-color); 
+        background: #f5f5f5; 
         transition: background 0.3s ease; 
       }
-      .thematic-header { 
-        position: absolute; 
-        top: 0; 
-        width: 100%; 
-        padding: 20px 24px; 
-        display: flex; 
-        justify-content: center; 
-        z-index: 10; 
-        background: var(--header-background); 
-        box-shadow: 0 2px 4px var(--shadow-color); 
-      }
-      .thematic-header .logo a { 
-        text-decoration: none; 
-        color: var(--header-text); 
-        font-size: 1.65rem; 
-        font-weight: 700; 
-      }
-      .theme-toggle {
-        position: absolute;
-        right: 24px;
-        background: none;
-        border: none;
-        color: var(--header-text);
-        font-size: 1.2rem;
-        cursor: pointer;
-        transition: color 0.3s ease;
-      }
-      .theme-toggle:hover {
-        color: var(--footer-link-hover);
-      }
+
       .main-content-wrapper { 
         width: 100%; 
         flex-grow: 1; 
@@ -183,13 +132,13 @@
         padding: 0 1rem; 
         position: absolute; 
         top: 6rem; 
-        color: var(--article-content-text); 
+        color: #333; 
       }
       .article-container { 
-        background: var(--article-background); 
+        background: #fff; 
         border-radius: 15px; 
         padding: 30px; 
-        box-shadow: 0 2px 8px var(--shadow-color); 
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); 
         text-align: left; 
         width: 100%; 
         max-width: 800px; 
@@ -197,40 +146,40 @@
       }
       .article-title { 
         font-size: 2rem; 
-        color: var(--article-title); 
+        color: #0078d4; 
         margin-bottom: 0.5rem; 
         font-weight: 700; 
         transition: color 0.3s ease; 
       }
       .article-title:hover { 
-        color: var(--article-title-hover); 
+        color: #005ea2; 
       }
       .article-date-time { 
         font-size: 0.9rem; 
-        color: var(--article-date); 
+        color: #666; 
         margin-bottom: 1rem; 
       }
       .article-intro { 
         font-size: 1.1rem; 
-        color: var(--article-intro); 
+        color: #333; 
         line-height: 1.6; 
         margin-bottom: 1.5rem; 
         font-weight: 400; 
       }
       .article-content h3 { 
         font-size: 1.5rem; 
-        color: var(--article-content-heading); 
+        color: #333; 
         margin-top: 1.5rem; 
         margin-bottom: 0.8rem; 
         font-weight: 700; 
         transition: color 0.3s ease; 
       }
       .article-content h3:hover { 
-        color: var(--article-content-heading-hover); 
+        color: #0078d4; 
       }
       .article-content p { 
         font-size: 1rem; 
-        color: var(--article-content-text); 
+        color: #333; 
         line-height: 1.6; 
         margin-bottom: 1rem; 
         font-weight: 400; 
@@ -241,13 +190,13 @@
       }
       .article-content ul li { 
         margin-bottom: 0.5rem; 
-        color: var(--article-content-text); 
+        color: #333; 
       }
       .back-to-blog { 
         display: block; 
         margin: 2rem auto 1rem; 
         padding: 10px 20px; 
-        background-color: var(--back-to-blog); 
+        background-color: #0078d4; 
         color: #fff; 
         text-decoration: none; 
         border-radius: 5px; 
@@ -257,16 +206,16 @@
         max-width: 200px; 
       }
       .back-to-blog:hover { 
-        background-color: var(--back-to-blog-hover); 
+        background-color: #005ea2; 
       }
       footer { 
         padding: 20px 10px; 
         text-align: center; 
         width: 100%; 
-        color: var(--footer-text); 
+        color: #333; 
         flex-shrink: 0; 
-        background: var(--footer-background); 
-        box-shadow: 0 -2px 4px var(--shadow-color); 
+        background: #fff; 
+        box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1); 
       }
       .footer-content { 
         display: flex; 
@@ -283,17 +232,17 @@
         flex-wrap: wrap; 
       }
       .footer-links a { 
-        color: var(--footer-link); 
+        color: #333; 
         text-decoration: none; 
         font-size: 0.85rem; 
         font-weight: 500; 
         transition: color 0.3s ease; 
       }
       .footer-links a:hover { 
-        color: var(--footer-link-hover); 
+        color: #0078d4; 
       }
       .footer-divider { 
-        color: var(--footer-divider); 
+        color: #333; 
         font-size: 1.2rem; 
         font-weight: 300; 
       }
@@ -304,45 +253,20 @@
         flex-wrap: wrap; 
       }
       .footer-social a { 
-        color: var(--footer-social); 
+        color: #333; 
         font-size: 1.2rem; 
         transition: transform 0.3s ease, color 0.3s ease; 
       }
       .footer-social a:hover { 
-        color: var(--footer-social-hover); 
+        color: #0078d4; 
         transform: scale(1.2); 
       }
       .footer-copyright { 
         font-size: 0.8rem; 
-        color: var(--footer-copyright); 
+        color: #666; 
         margin-top: 1rem; 
       }
-      @media (prefers-color-scheme: dark) {
-        body:not(.light-mode) {
-          --background-color: #1a1a1a;
-          --header-background: rgba(40, 40, 40, 0.9);
-          --header-text: #ffffff;
-          --article-background: #2a2a2a;
-          --article-title: #ffffff;
-          --article-title-hover: #00b7c3;
-          --article-date: #cccccc;
-          --article-intro: #e0e0e0;
-          --article-content-text: #e0e0e0;
-          --article-content-heading: #ffffff;
-          --article-content-heading-hover: #00b7c3;
-          --back-to-blog: #00b7c3;
-          --back-to-blog-hover: #008b8b;
-          --footer-background: #2a2a2a;
-          --footer-text: #ffffff;
-          --footer-link: #ffffff;
-          --footer-link-hover: #00b7c3;
-          --footer-divider: #ffffff;
-          --footer-social: #ffffff;
-          --footer-social-hover: #00b7c3;
-          --footer-copyright: #cccccc;
-          --shadow-color: rgba(0, 0, 0, 0.3);
-        }
-      }
+
       @media (max-width: 768px) {
         .main-content-wrapper { padding: 6rem 1rem 2rem; }
         .article-container { padding: 20px; max-width: 650px; }
@@ -357,10 +281,10 @@
         .footer-divider { font-size: 1rem; }
         .footer-social a { font-size: 1rem; }
         .back-to-blog { padding: 8px 16px; font-size: 0.9rem; max-width: 180px; }
-        .theme-toggle { font-size: 1rem; right: 15px; }
+
       }
       @media (max-width: 480px) {
-        .thematic-header .logo a { font-size: 1.32rem; }
+
         .main-content-wrapper { padding: 5rem 0.5rem 2rem; }
         .article-container { padding: 15px; max-width: 90%; }
         .article-title { font-size: 1.4rem; }
@@ -374,21 +298,27 @@
         .footer-social a { font-size: 0.9rem; }
         .back-to-blog { padding: 6px 12px; font-size: 0.85rem; max-width: 160px; }
         .footer-content { flex-direction: row; align-items: center; }
-        .theme-toggle { font-size: 0.9rem; right: 10px; }
+
       }
       @media (prefers-reduced-motion: reduce) {
-        .article-title, .article-content h3, .footer-links a, .footer-social a, .back-to-blog, .theme-toggle { transition: none; }
+        .article-title, .article-content h3, .footer-links a, .footer-social a, .back-to-blog { transition: none; }
       }
     </style>
 </head>
-<body class="page-default">
-  <header class="thematic-header">
+<body>
+  <header class="thematic-header" role="banner">
     <div class="logo">
-      <a href="/index.html" aria-label="specifys.ai homepage">specifys.ai</a>
+      <a href="../index.html" aria-label="Specifys.ai homepage">Specifys.ai</a>
     </div>
-    <button class="theme-toggle" onclick="toggleDarkMode()" aria-label="Toggle dark mode">
-      <i class="fas fa-moon"></i>
-    </button>
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode"><i class="fas fa-moon"></i></button>
+    <button class="menu-toggle" aria-label="Toggle navigation menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
+    <div class="header-links">
+      <a href="../blog.html" aria-label="Visit our blog">Blog</a>
+      <a href="../about.html" aria-label="Learn more about specifys.ai">About Us</a>
+      <a href="../how.html" aria-label="Learn how specifys.ai works">How It Works</a>
+      <a href="../map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
+      <a href="../ToolPicker.html" aria-label="Use our Tool Finder">Tool Finder</a>
+    </div>
   </header>
 
   <div class="main-content-wrapper">
@@ -450,9 +380,9 @@
         <p>ChatGPT-5’s advancements—enhanced coding, multimodal reasoning, reduced hallucinations, and agentic capabilities—make it a powerhouse for app development. However, its true potential is unlocked when paired with Specifys.ai, which provides the structured foundation needed for precise, scalable app planning. Together, they eliminate the chaos of unclear requirements, streamline tool selection, and empower everyone from dreamers to seasoned developers to build apps faster, smarter, and more confidently.</p>
 
         <h3>Start Building with ChatGPT-5 and Specifys.ai</h3>
-        <p>Ready to transform your app idea into reality? Visit <a href="https://specifys.ai">Specifys.ai</a> to create AI-driven specs, explore the Vibe Coding Tools Map, and use Tool Finder to kickstart your journey. Then, harness ChatGPT-5’s cutting-edge capabilities to code, debug, and launch your app with ease. Start planning free today and join the future of app development!</p>
+        <p>Ready to transform your app idea into reality? Visit <a href="../index.html">Specifys.ai</a> to create AI-driven specs, explore the Vibe Coding Tools Map, and use Tool Finder to kickstart your journey. Then, harness ChatGPT-5’s cutting-edge capabilities to code, debug, and launch your app with ease. Start planning free today and join the future of app development!</p>
       </div>
-      <a href="/blog.html" class="back-to-blog">Back to Blog</a>
+      <a href="../blog.html" class="back-to-blog">Back to Blog</a>
     </div>
   </div>
 
@@ -461,7 +391,7 @@
       <div class="footer-links">
         <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
         <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
-        <a href="/blog.html" aria-label="Visit our blog">Blog</a>
+        <a href="../blog.html" aria-label="Visit our blog">Blog</a>
         <a href="map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
       </div>
       <span class="footer-divider">|</span>
@@ -474,38 +404,11 @@
       </div>
     </div>
     <div class="footer-copyright">
-      © 2025 specifys.ai. All rights reserved.
+      © 2025 Specifys.ai. All rights reserved.
     </div>
   </footer>
 
-  <script>
-    function toggleDarkMode() {
-      const body = document.body;
-      const isDarkMode = body.classList.toggle('dark-mode');
-      body.classList.toggle('light-mode', !isDarkMode);
-      const themeToggleIcon = document.querySelector('.theme-toggle i');
-      themeToggleIcon.className = isDarkMode ? 'fas fa-sun' : 'fas fa-moon';
-      localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
-    }
-
-    // Set initial theme based on localStorage or system preference
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-      document.body.classList.add(savedTheme === 'dark' ? 'dark-mode' : 'light-mode');
-      document.body.classList.remove(savedTheme === 'dark' ? 'light-mode' : 'dark-mode');
-      document.querySelector('.theme-toggle i').className = savedTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
-    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      document.body.classList.add('dark-mode');
-      document.body.classList.remove('light-mode');
-      document.querySelector('.theme-toggle i').className = 'fas fa-sun';
-      localStorage.setItem('theme', 'dark');
-    } else {
-      document.body.classList.add('light-mode');
-      document.body.classList.remove('dark-mode');
-      document.querySelector('.theme-toggle i').className = 'fas fa-moon';
-      localStorage.setItem('theme', 'light');
-    }
-  </script>
+  <script src="../common-header-footer.js"></script>
 
   <noscript>
     <div style="text-align: center; padding: 20px; background: #fff; color: #333;">

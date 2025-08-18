@@ -3,14 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-RWBT69JCM7"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-RWBT69JCM7');
-    gtag('config', 'AW-1000505244');
-  </script>
   <meta name="description" content="View your simple app plan with specifys.ai for NoCode Creators.">
   <meta name="keywords" content="app specification result, AI-generated plan, nocode creators, specifys.ai">
   <meta name="author" content="specifys.ai Team">
@@ -29,63 +21,29 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+  <link rel="stylesheet" href="common-header-footer.css">
+  <script defer src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/marked@9.1.6/marked.min.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap');
 
     :root {
-      --bg-color: #f5f5f5;
+      --bg-color: #f8f9fa;
       --text-color: #333;
-      --header-bg: rgba(255, 255, 255, 0.9);
-      --header-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      --content-bg: #fff;
-      --content-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      --chat-bot-bg: #0078d4;
-      --chat-bot-text: #fff;
-      --chat-result-bg: #fff;
-      --chat-result-text: #333;
-      --chat-result-border: #ddd;
-      --platform-bg: #fff;
-      --platform-text: #666;
-      --platform-box-bg: #0078d4;
-      --platform-box-hover: #005ea2;
-      --vibe-coding-bg: #ff6f61;
-      --vibe-coding-hover: #e65b54;
-      --tooltip-bg: #333;
-      --tooltip-text: #fff;
-      --footer-bg: #fff;
-      --footer-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
-      --footer-text: #333;
-      --footer-link: #333;
-      --error-bg: #d32f2f;
-      --success-bg: #28a745;
-    }
-
-    [data-theme="dark"] {
-      --bg-color: #1a1a1a;
-      --text-color: #e0e0e0;
-      --header-bg: rgba(30, 30, 30, 0.9);
-      --header-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-      --content-bg: #2a2a2a;
-      --content-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-      --chat-bot-bg: #005ea2;
-      --chat-bot-text: #e0e0e0;
-      --chat-result-bg: #2a2a2a;
-      --chat-result-text: #e0e0e0;
-      --chat-result-border: #444;
-      --platform-bg: #2a2a2a;
-      --platform-text: #999;
-      --platform-box-bg: #005ea2;
-      --platform-box-hover: #003f6b;
-      --vibe-coding-bg: #e65b54;
-      --vibe-coding-hover: #cc4a47;
-      --tooltip-bg: #444;
-      --tooltip-text: #fff;
-      --footer-bg: #1a1a1a;
-      --footer-shadow: 0 -2px 4px rgba(0, 0, 0, 0.3);
-      --footer-text: #e0e0e0;
-      --footer-link: #e0e0e0;
-      --error-bg: #b71c1c;
-      --success-bg: #1b5e20;
+      --primary-color: #0078d4;
+      --secondary-color: #6c757d;
+      --light-gray: #e9ecef;
+      --border-color: #dee2e6;
+      --chat-bg: #fff;
+      --system-msg-bg: #f8f9fa;
+      --user-msg-bg: #0078d4;
+      --user-msg-text: #fff;
+      --input-bg: #fff;
+      --input-border: #dee2e6;
+      --button-hover: #005ea2;
+      --progress-bg: #e9ecef;
+      --progress-fill: #0078d4;
     }
 
     * {
@@ -94,188 +52,336 @@
       box-sizing: border-box;
     }
 
-    html {
-      height: 100%;
-    }
-
     body {
       font-family: 'Montserrat', sans-serif;
-      display: flex;
-      flex-direction: column;
-      min-height: 100%;
-      background: var(--bg-color);
+      background-color: var(--bg-color);
       color: var(--text-color);
-      overflow-x: auto;
-      transition: background 0.3s ease, color 0.3s ease;
-    }
-
-    .thematic-header {
-      position: fixed;
-      top: 0;
-      width: 100%;
-      padding: 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      z-index: 1000;
-      background: var(--header-bg);
-      box-shadow: var(--header-shadow);
-    }
-
-    .thematic-header .logo a {
-      text-decoration: none;
-      color: var(--text-color);
-      font-size: 1.65rem;
-      font-weight: 700;
-      transition: color 0.3s ease;
-    }
-
-    .thematic-header .logo a:hover {
-      color: #0078d4;
-    }
-
-    .theme-toggle {
-      background: none;
-      border: none;
-      color: var(--text-color);
-      font-size: 1.4rem;
-      cursor: pointer;
-      transition: color 0.3s ease, transform 0.3s ease;
-    }
-
-    .theme-toggle:hover {
-      color: #0078d4;
-      transform: scale(1.2);
-    }
-
-    .carousel-container {
-      max-width: 900px;
-      width: 80%;
-      margin: 100px auto 20px auto;
-      padding: 20px;
-      background: var(--content-bg);
-      border-radius: 20px;
-      box-shadow: var(--content-shadow);
-      text-align: left;
+      line-height: 1.6;
     }
 
     .chat-container {
+      max-width: 800px;
+      margin: 20px auto;
+      background: var(--chat-bg);
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      height: calc(100vh - 80px);
+      min-height: 700px;
       display: flex;
       flex-direction: column;
-      gap: 15px;
-      min-height: 400px;
+    }
+
+    .chat-header {
+      background: var(--primary-color);
+      color: white;
       padding: 20px;
+      text-align: center;
+      margin-top: 80px; /* Add margin to avoid header overlap */
     }
 
-    .chat-message {
+    .chat-header h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      background: var(--chat-bg);
+    }
+
+    .message {
+      margin-bottom: 20px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      animation: fadeIn 0.3s ease-in;
+    }
+
+    .message.system {
+      flex-direction: row;
+    }
+
+    .message.user {
+      flex-direction: row-reverse;
+    }
+
+    .message.result {
+      flex-direction: row;
+      width: 100%;
+    }
+
+    .message-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .message.system .message-avatar {
+      background: var(--secondary-color);
+      color: white;
+    }
+
+    .message.user .message-avatar {
+      background: var(--primary-color);
+      color: white;
+    }
+
+    .message.result .message-avatar {
+      background: var(--secondary-color);
+      color: white;
+    }
+
+    .message-content {
+      flex: 1;
       max-width: 70%;
-      padding: 15px;
-      border-radius: 15px;
-      font-size: 1rem;
-      line-height: 1.5;
+    }
+
+    .message.system .message-content {
+      background: var(--system-msg-bg);
+      padding: 16px;
+      border-radius: 18px;
+      border: 1px solid var(--border-color);
+    }
+
+    .message.user .message-content {
+      background: var(--user-msg-bg);
+      color: var(--user-msg-text);
+      padding: 16px;
+      border-radius: 18px;
       position: relative;
-      animation: slideIn 0.5s ease-out;
     }
 
-    .chat-message.bot {
-      background: var(--chat-bot-bg);
-      color: var(--chat-bot-text);
-      align-self: flex-start;
-      border-bottom-left-radius: 5px;
-    }
-
-    .chat-message.result {
-      background: var(--chat-result-bg);
-      color: var(--chat-result-text);
-      border: 1px solid var(--chat-result-border);
-      align-self: flex-start;
+    .message.result .message-content {
+      background: var(--chat-bg);
+      color: var(--text-color);
+      padding: 20px;
+      border-radius: 18px;
+      border: 1px solid var(--border-color);
       width: 100%;
       max-width: 100%;
-      border-radius: 10px;
       white-space: pre-wrap;
       word-break: break-word;
-      padding: 20px;
     }
 
-    .chat-message.result h1 {
+    .message-text {
+      margin-bottom: 12px;
+      line-height: 1.5;
+    }
+
+    .message.result .message-content h1 {
       font-size: 1.8rem;
       font-weight: 700;
-      color: var(--chat-result-text);
+      color: var(--text-color);
       margin-bottom: 1rem;
     }
 
-    .chat-message.result h2 {
+    .message.result .message-content h2 {
       font-size: 1.4rem;
       font-weight: 600;
-      color: var(--chat-result-text);
+      color: var(--text-color);
       margin: 0.8rem 0;
     }
 
-    .chat-message.result h3 {
+    .message.result .message-content h3 {
       font-size: 1.2rem;
       font-weight: 500;
-      color: var(--chat-result-text);
+      color: var(--text-color);
       margin: 0.6rem 0;
     }
 
-    .chat-message.result ul,
-    .chat-message.result ol {
+    .message.result .message-content ul,
+    .message.result .message-content ol {
       margin-left: 20px;
       margin-bottom: 1rem;
     }
 
-    .chat-message.result li {
+    .message.result .message-content li {
       margin-bottom: 0.5rem;
     }
 
-    .chat-message.result code {
-      background: var(--chat-result-border);
+    .message.result .message-content code {
+      background: var(--border-color);
       padding: 2px 4px;
       border-radius: 4px;
       font-family: 'Courier New', Courier, monospace;
     }
 
-    .chat-message.result pre {
-      background: var(--chat-result-border);
+    .message.result .message-content pre {
+      background: var(--border-color);
       padding: 10px;
       border-radius: 4px;
       overflow-x: auto;
     }
 
-    @keyframes slideIn {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+    /* Tab Navigation Styles */
+    .tab-navigation {
+      display: flex;
+      background: var(--light-gray);
+      border-radius: 8px;
+      margin: 20px;
+      padding: 4px;
     }
 
-    .error-message {
-      font-size: 0.9rem;
-      color: #fff;
-      margin-top: 1rem;
-      background-color: var(--error-bg);
-      padding: 0.5rem;
-      border-radius: 4px;
+    .tab-button {
+      flex: 1;
+      padding: 12px 20px;
+      background: transparent;
+      border: none;
+      border-radius: 6px;
+      color: var(--secondary-color);
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .tab-button.active {
+      background: var(--primary-color);
+      color: white;
+    }
+
+    .tab-button:hover:not(.active) {
+      background: rgba(0, 120, 212, 0.1);
+      color: var(--primary-color);
+    }
+
+    /* Tab Content Styles */
+    .tab-content {
       display: none;
-      text-align: center;
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
     }
 
-    .error-message.success {
-      background-color: var(--success-bg);
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Development Steps Styles */
+    .development-step {
+      background: var(--chat-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      margin-bottom: 16px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .step-header {
+      padding: 16px 20px;
+      background: var(--system-msg-bg);
+      border-bottom: 1px solid var(--border-color);
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background-color 0.3s ease;
+    }
+
+    .step-header:hover {
+      background: var(--light-gray);
+    }
+
+    .step-title {
+      font-weight: 600;
+      color: var(--text-color);
+      font-size: 1.1rem;
+    }
+
+    .step-toggle {
+      color: var(--secondary-color);
+      transition: transform 0.3s ease;
+    }
+
+    .step-toggle.expanded {
+      transform: rotate(180deg);
+    }
+
+    .step-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+
+    .step-content.expanded {
+      max-height: 1000px;
+    }
+
+    .step-description {
+      padding: 16px 20px;
+      background: var(--chat-bg);
+      border-bottom: 1px solid var(--border-color);
+      color: var(--secondary-color);
+      font-size: 0.95rem;
+    }
+
+    .step-prompt {
+      padding: 20px;
+      background: var(--system-msg-bg);
+      border-radius: 8px;
+      margin: 16px 20px;
+      position: relative;
+    }
+
+    .prompt-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .prompt-label {
+      font-weight: 600;
+      color: var(--text-color);
+      font-size: 0.9rem;
+    }
+
+    .copy-prompt-btn {
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .copy-prompt-btn:hover {
+      background: var(--button-hover);
+    }
+
+    .prompt-text {
+      background: var(--chat-bg);
+      padding: 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.85rem;
+      line-height: 1.4;
+      white-space: pre-wrap;
+      word-break: break-word;
+      max-height: 200px;
+      overflow-y: auto;
     }
 
     .platform-container {
-      max-width: 900px;
+      max-width: 800px;
       width: 80%;
       margin: 20px auto;
       padding: 20px;
-      background: var(--platform-bg);
-      border-radius: 20px;
-      box-shadow: var(--content-shadow);
+      background: var(--chat-bg);
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
       text-align: center;
     }
 
@@ -288,8 +394,45 @@
 
     .platform-instructions {
       font-size: 1rem;
-      color: var(--platform-text);
+      color: var(--secondary-color);
       margin-bottom: 1.5rem;
+    }
+
+    /* Coming Soon Styles */
+    .create-development-steps-container {
+      text-align: center;
+      margin: 20px 0;
+      padding: 20px;
+      background: var(--chat-bg);
+      border-radius: 12px;
+      border: 2px dashed var(--border-color);
+    }
+
+    .coming-soon-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--primary-color);
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .coming-soon-description {
+      font-size: 0.95rem;
+      color: var(--secondary-color);
+      text-align: center;
+      margin-bottom: 20px;
+      line-height: 1.4;
+    }
+
+    .coming-soon-badge {
+      background: var(--secondary-color);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: inline-block;
+      margin: 0 auto;
     }
 
     .platform-boxes {
@@ -300,7 +443,7 @@
     }
 
     .platform-box {
-      background: var(--platform-box-bg);
+      background: var(--primary-color);
       color: #fff;
       padding: 10px 20px;
       border-radius: 5px;
@@ -310,19 +453,21 @@
       transition: background-color 0.3s ease, transform 0.3s ease;
       position: relative;
       z-index: 10;
+      border: none;
+      cursor: pointer;
     }
 
     .platform-box:hover {
-      background: var(--platform-box-hover);
+      background: var(--button-hover);
       transform: translateY(-2px);
     }
 
     .platform-box.vibe-coding {
-      background: var(--vibe-coding-bg);
+      background: #ff6f61;
     }
 
     .platform-box.vibe-coding:hover {
-      background: var(--vibe-coding-hover);
+      background: #e65b54;
     }
 
     .platform-box[data-tooltip]:hover::after {
@@ -331,8 +476,8 @@
       top: calc(100% + 5px);
       left: 50%;
       transform: translateX(-50%);
-      background: var(--tooltip-bg);
-      color: var(--tooltip-text);
+      background: #333;
+      color: #fff;
       padding: 0.5rem;
       border-radius: 4px;
       font-size: 0.8rem;
@@ -343,230 +488,173 @@
 
     .platform-details {
       font-size: 0.9rem;
-      color: var(--platform-text);
+      color: var(--secondary-color);
       margin-top: 1.5rem;
     }
 
-    footer {
-      padding: 20px 10px;
-      text-align: center;
-      color: var(--footer-text);
-      flex-shrink: 0;
-      background: var(--footer-bg);
-      box-shadow: var(--footer-shadow);
-    }
-
-    .footer-content {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: center;
-      gap: 20px;
-      flex-wrap: wrap;
-    }
-
-    .footer-links a {
-      color: var(--footer-link);
-      text-decoration: none;
-      font-size: 0.85rem;
-      font-weight: 500;
-      margin: 0 20px;
-      transition: color 0.3s ease;
-    }
-
-    .footer-links a:hover {
-      color: #0078d4;
-    }
-
-    .footer-divider {
-      color: var(--footer-text);
-      font-size: 1.2rem;
-      font-weight: 300;
-      margin: 0 20px;
-    }
-
-    .footer-social a {
-      color: var(--footer-link);
-      font-size: 1.2rem;
-      margin: 0 20px;
-      transition: transform 0.3s ease, color 0.3s ease;
-    }
-
-    .footer-social a:hover {
-      color: #0078d4;
-      transform: scale(1.2);
-    }
-
-    .footer-copyright {
-      font-size: 0.8rem;
-      color: var(--platform-text);
+    .error-message {
+      font-size: 0.9rem;
+      color: #fff;
       margin-top: 1rem;
+      background-color: #d32f2f;
+      padding: 0.5rem;
+      border-radius: 4px;
+      display: none;
+      text-align: center;
+    }
+
+    .error-message.success {
+      background-color: #28a745;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     @media (max-width: 768px) {
-      .thematic-header .logo a {
-        font-size: 1.4rem;
-      }
-
-      .carousel-container {
-        width: 95%;
-        padding: 15px;
-        margin-top: 90px;
-      }
-
       .chat-container {
-        padding: 10px;
+        margin: 10px;
+        height: calc(100vh - 60px);
+        min-height: 600px;
       }
-
-      .chat-message {
-        font-size: 0.95rem;
-        padding: 10px;
-        max-width: 90%;
+      
+      .message-content {
+        max-width: 85%;
       }
-
-      .chat-message.result {
+      
+      .message.result .message-content {
         padding: 15px;
       }
-
-      .chat-message.result h1 {
+      
+      .message.result .message-content h1 {
         font-size: 1.6rem;
       }
-
-      .chat-message.result h2 {
+      
+      .message.result .message-content h2 {
         font-size: 1.3rem;
       }
-
-      .chat-message.result h3 {
+      
+      .message.result .message-content h3 {
         font-size: 1.1rem;
       }
-
+      
+      .tab-navigation {
+        margin: 15px;
+        flex-direction: column;
+      }
+      
+      .tab-button {
+        padding: 10px 16px;
+      }
+      
+      .development-step {
+        margin-bottom: 12px;
+      }
+      
+      .step-header {
+        padding: 12px 16px;
+      }
+      
+      .step-prompt {
+        margin: 12px 16px;
+        padding: 16px;
+      }
+      
       .platform-container {
         width: 95%;
         padding: 15px;
       }
-
+      
       .platform-container h3 {
         font-size: 1.6rem;
       }
-
+      
       .platform-box {
         font-size: 0.8rem;
         padding: 8px 12px;
       }
-
+      
       .platform-details {
         font-size: 0.8rem;
       }
-
-      .footer-content {
-        flex-direction: column;
-        gap: 10px;
-      }
-
-      .footer-links a {
-        font-size: 0.8rem;
-        margin: 0 10px;
-      }
-
-      .footer-divider {
-        font-size: 1rem;
-        margin: 0 10px;
-      }
-
-      .footer-social a {
-        font-size: 1rem;
-        margin: 0 10px;
-      }
     }
 
-    @media (max-width: 480px) {
-      .thematic-header .logo a {
-        font-size: 1.2rem;
-      }
-
-      .carousel-container {
-        width: 100%;
-        padding: 10px;
-        margin-top: 80px;
-      }
-
-      .chat-message {
-        font-size: 0.9rem;
-        padding: 8px;
-        max-width: 95%;
-      }
-
-      .chat-message.result {
-        padding: 10px;
-      }
-
-      .chat-message.result h1 {
-        font-size: 1.4rem;
-      }
-
-      .chat-message.result h2 {
-        font-size: 1.2rem;
-      }
-
-      .chat-message.result h3 {
-        font-size: 1rem;
-      }
-
-      .platform-container {
-        width: 100%;
-        padding: 10px;
-      }
-
-      .platform-container h3 {
-        font-size: 1.4rem;
-      }
-
-      .platform-box {
-        font-size: 0.75rem;
-        padding: 6px 10px;
-      }
-
-      .platform-details {
-        font-size: 0.75rem;
-      }
-
-      .footer-links a {
-        font-size: 0.75rem;
-        margin: 0 8px;
-      }
-
-      .footer-divider {
-        font-size: 0.9rem;
-        margin: 0 8px;
-      }
-
-      .footer-social a {
-        font-size: 0.9rem;
-        margin: 0 8px;
-      }
+    .mermaid-error {
+      color: #dc3545;
+      background: #f8d7da;
+      border: 1px solid #f5c6cb;
+      padding: 10px;
+      border-radius: 4px;
+      margin: 10px 0;
     }
 
-    @media (prefers-reduced-motion: reduce) {
-      .chat-message, .platform-box, .theme-toggle {
-        animation: none;
-        transition: none;
-      }
+    .mermaid {
+      text-align: center;
+      margin: 20px 0;
+      overflow-x: auto;
     }
+
+    .mermaid svg {
+      max-width: 100%;
+      height: auto;
+    }
+
+    
   </style>
 </head>
-<body class="page-default nocode">
+<body>
   <header class="thematic-header" role="banner">
     <div class="logo">
-      <a href="index.html" aria-label="specifys.ai homepage">specifys.ai</a>
+      <a href="index.html" aria-label="Specifys.ai homepage">Specifys.ai</a>
     </div>
-    <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
-      <i class="fas fa-moon"></i>
-    </button>
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode"><i class="fas fa-moon"></i></button>
+    <button class="menu-toggle" aria-label="Toggle navigation menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
+    <div class="header-links">
+      <a href="blog.html" aria-label="Visit our blog">Blog</a>
+      <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
+      <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
+      <a href="map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
+      <a href="ToolPicker.html" aria-label="Use our Tool Finder">Tool Finder</a>
+    </div>
   </header>
 
-  <div class="carousel-container">
-    <div class="chat-container" id="chatContainer"></div>
-    <div id="errorMessage" class="error-message" role="alert"></div>
+  <div class="chat-container">
+    <div class="chat-header">
+      <h1>NoCode Creators Mode - Result</h1>
+      <p>Your app specification is ready! Here's what we've generated for you.</p>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="tab-navigation">
+      <button class="tab-button active" data-tab="specification">
+        <i class="fas fa-file-alt"></i> Full Specification
+      </button>
+      <button class="tab-button" data-tab="development">
+        <i class="fas fa-code"></i> Development Steps
+      </button>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="tab-content active" id="specification-tab">
+      <div class="chat-messages" id="chatMessages">
+        <!-- Messages will be added here dynamically -->
+      </div>
+    </div>
+
+    <div class="tab-content" id="development-tab">
+      <div class="development-steps" id="developmentSteps">
+        <!-- Create Development Steps Button -->
+        <div class="create-development-steps-container">
+          <h3 class="coming-soon-title">Coming Soon</h3>
+          <p class="coming-soon-description">This feature is coming soon! We're working on generating detailed development steps with AI prompts for your app specification.</p>
+          <div class="coming-soon-badge">Coming Soon</div>
+        </div>
+        
+        <!-- Development steps will be added here dynamically -->
+        <div id="developmentStepsContent"></div>
+      </div>
+    </div>
   </div>
 
   <div class="platform-container" id="platformContainer" style="display: none;">
@@ -584,187 +672,647 @@
       <button class="platform-box" onclick="copyAllSpecContent()" data-tooltip="Copy the full app specification to your clipboard for use in any platform.">Copy All</button>
       <a href="map/vibe-coding-tools-map.html" class="platform-box vibe-coding" data-tooltip="Explore a curated map of coding and no-code tools to enhance your development process.">Vibe Coding Tools Map</a>
     </div>
-    <p class="platform-details">Click a platform to open it in a new tab and automatically copy your app specification. Paste the specification into the platform’s project setup or AI assistant to start building.</p>
+    <p class="platform-details">Click a platform to open it in a new tab and automatically copy your app specification. Paste the specification into the platform's project setup or AI assistant to start building.</p>
   </div>
 
-  <footer>
-    <div class="footer-content">
-      <div class="footer-links">
-        <a href="how.html" aria-label="Learn how specifys.ai works">How it Works</a>
-        <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
-        <a href="blog.html" aria-label="Visit our blog">Blog</a>
-        <a href="map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
-      </div>
-      <span class="footer-divider">|</span>
-      <div class="footer-social">
-        <a href="https://www.linkedin.com/company/specifys-ai/" target="_blank" aria-label="Follow us on LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-        <a href="https://www.facebook.com/profile.php?id=61576402600129" target="_blank" aria-label="Follow us on Facebook"><i class="fab fa-facebook-f"></i></a>
-        <a href="https://www.instagram.com/YOUR_PROFILE" target="_blank" aria-label="Follow us on Instagram"><i class="fab fa-instagram"></i></a>
-        <a href="mailto:specifysai@gmail.com" aria-label="Send us an email"><i class="fas fa-envelope"></i></a>
-        <a href="https://www.producthunt.com/products/specifys-ai" target="_blank" aria-label="Check us out on Product Hunt"><i class="fab fa-product-hunt"></i></a>
-      </div>
-    </div>
-    <div class="footer-copyright">
-      © 2025 specifys.ai. All rights reserved.
-    </div>
-  </footer>
-
-  <script defer src="https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/marked@4.3.0/marked.min.js"></script>
+  <script src="common-header-footer.js"></script>
   <script>
     document.addEventListener("DOMContentLoaded", () => {
-      const chatContainer = document.getElementById("chatContainer");
-      const errorMessage = document.getElementById("errorMessage");
+      const chatMessages = document.getElementById("chatMessages");
+      const developmentSteps = document.getElementById("developmentSteps");
       const platformContainer = document.getElementById("platformContainer");
-      const themeToggle = document.getElementById("themeToggle");
 
-      const introMessages = [
-        "Hello! We've received your app idea details.",
-        "Our AI is now analyzing your input to generate a clear specification.",
-        "This might take a few seconds, but we'll keep you updated!"
-      ];
-      const statusMessages = [
-        "Loading your data...",
-        "Performing analysis...",
-        "Crafting your app structure...",
-        "Finalizing the specification..."
-      ];
+      // Get content from localStorage
+      let fullContent = localStorage.getItem("generatedContent") || 
+                       localStorage.getItem("rawContent") || 
+                       localStorage.getItem("fullPrompt") ||
+                       "No specification content found. Please try again.";
 
-      let messageIndex = 0;
-      let statusInterval;
-      let hasLoaded = false;
-      let fullContent = localStorage.getItem("generatedContent") || localStorage.getItem("rawContent") || "No content available.";
+      console.log("Full content from localStorage:", fullContent);
 
-      const savedTheme = localStorage.getItem("theme") || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-      document.body.setAttribute("data-theme", savedTheme);
-      updateThemeIcon(savedTheme);
+      // Tab switching functionality
+      const tabButtons = document.querySelectorAll('.tab-button');
+      const tabContents = document.querySelectorAll('.tab-content');
 
-      themeToggle.addEventListener("click", () => {
-        const currentTheme = document.body.getAttribute("data-theme") === "dark" ? "light" : "dark";
-        document.body.setAttribute("data-theme", currentTheme);
-        localStorage.setItem("theme", currentTheme);
-        updateThemeIcon(currentTheme);
+      tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          const targetTab = button.getAttribute('data-tab');
+          
+          // Update active tab button
+          tabButtons.forEach(btn => btn.classList.remove('active'));
+          button.classList.add('active');
+          
+          // Update active tab content
+          tabContents.forEach(content => content.classList.remove('active'));
+          document.getElementById(`${targetTab}-tab`).classList.add('active');
+          
+          // Save active tab to localStorage
+          localStorage.setItem('activeTab', targetTab);
+        });
       });
 
-      function updateThemeIcon(theme) {
-        themeToggle.innerHTML = `<i class="fas fa-${theme === "dark" ? "sun" : "moon"}"></i>`;
-        themeToggle.setAttribute("aria-label", `Switch to ${theme === "dark" ? "light" : "dark"} mode`);
-      }
+      // Always start with specification tab, ignore localStorage for now
+      // const activeTab = localStorage.getItem('activeTab') || 'specification';
+      // if (activeTab === 'development') {
+      //   tabButtons[1].click();
+      // }
 
-      function addChatMessage(content, type = "bot") {
-        const messageDiv = document.createElement("div");
-        messageDiv.className = `chat-message ${type}`;
-        messageDiv.textContent = content;
-        chatContainer.appendChild(messageDiv);
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-      }
+      // Show a simple loading message
+      function showLoadingMessage() {
+        console.log('=== SHOWING LOADING MESSAGE ===');
+        
+        try {
+          const loadingDiv = document.createElement("div");
+          loadingDiv.className = "message system";
+          
+          const avatar = document.createElement("div");
+          avatar.className = 'message-avatar';
+          avatar.textContent = 'S';
 
-      function showIntroMessages() {
-        if (messageIndex < introMessages.length) {
-          addChatMessage(introMessages[messageIndex]);
-          messageIndex++;
-          setTimeout(showIntroMessages, 1500);
-        } else {
-          showStatusMessages();
+          const contentDiv = document.createElement("div");
+          contentDiv.className = 'message-content';
+
+          const textDiv = document.createElement("div");
+          textDiv.className = 'message-text';
+          textDiv.textContent = "Generating your app specification...";
+
+          contentDiv.appendChild(textDiv);
+          loadingDiv.appendChild(avatar);
+          loadingDiv.appendChild(contentDiv);
+          chatMessages.appendChild(loadingDiv);
+          
+          console.log('Loading message created and added successfully');
+          
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+
+          // Show result after a short delay
+          console.log('Setting timeout to display result in 2 seconds...');
+          setTimeout(() => {
+            console.log('Timeout triggered, calling displayResult...');
+            try {
+              displayResult(fullContent);
+            } catch (timeoutError) {
+              console.error('Error in timeout callback:', timeoutError);
+              console.error('Error details:', timeoutError.message, timeoutError.stack);
+            }
+          }, 2000);
+          
+        } catch (loadingError) {
+          console.error('Error showing loading message:', loadingError);
+          console.error('Error details:', loadingError.message, loadingError.stack);
         }
       }
 
-      function showStatusMessages() {
-        const statusDiv = document.createElement("div");
-        statusDiv.id = "statusMessage";
-        statusDiv.className = "chat-message bot";
-        statusDiv.textContent = statusMessages[0];
-        chatContainer.appendChild(statusDiv);
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-
-        let statusIndex = 0;
-        statusInterval = setInterval(() => {
-          statusIndex = (statusIndex + 1) % statusMessages.length;
-          statusDiv.textContent = statusMessages[statusIndex];
-        }, 3000);
-
-        setTimeout(() => {
-          displayResult(fullContent);
-        }, 6000);
-      }
-
       function displayResult(content) {
-        clearInterval(statusInterval);
-        const statusMessage = document.getElementById("statusMessage");
-        if (statusMessage) statusMessage.remove();
+        console.log('=== DISPLAYING RESULT ===');
+        console.log('Input content length:', content.length);
+        console.log('Input content preview:', content.substring(0, 300));
+        
+        try {
+          // Remove loading message
+          const loadingMessage = chatMessages.querySelector('.message.system');
+          if (loadingMessage) {
+            console.log('Removing loading message');
+            loadingMessage.remove();
+          } else {
+            console.log('No loading message found to remove');
+          }
 
-        const resultDiv = document.createElement("div");
-        resultDiv.className = "chat-message result";
-        resultDiv.innerHTML = marked.parse(content);
-        chatContainer.appendChild(resultDiv);
-        hljs.highlightAll();
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-        platformContainer.style.display = "block";
+          // Parse the content from the API to separate specification and development steps
+          console.log('Parsing API response...');
+          const { specification, developmentSteps } = parseApiResponse(content);
+          
+          console.log('Parse result:');
+          console.log('- Specification length:', specification.length);
+          console.log('- Development steps count:', developmentSteps.length);
+          
+          // Display specification in the first tab
+          console.log('Displaying specification...');
+          displaySpecification(specification);
+          
+          // Development steps will be generated separately by the second worker
+          console.log('Development steps will be generated when user clicks "Create Development Steps"');
+          
+          // Show platform container
+          console.log('Showing platform container');
+          platformContainer.style.display = "block";
+          
+          console.log('Result display completed successfully');
+          
+        } catch (displayError) {
+          console.error('Error in displayResult:', displayError);
+          console.error('Error details:', displayError.message, displayError.stack);
+          
+          // Show error message to user
+          const errorDiv = document.createElement("div");
+          errorDiv.className = "message error";
+          errorDiv.innerHTML = `
+            <div class="message-avatar">!</div>
+            <div class="message-content">
+              <div class="message-text">Error displaying result: ${displayError.message}</div>
+            </div>
+          `;
+          chatMessages.appendChild(errorDiv);
+        }
       }
+
+      function parseApiResponse(content) {
+        console.log('=== PARSING API RESPONSE ===');
+        console.log('Content length:', content.length);
+        console.log('Content preview (first 300 chars):', content.substring(0, 300));
+        console.log('Content preview (last 300 chars):', content.substring(content.length - 300));
+        
+        // Now we only expect the specification from the first worker
+        // Development steps will come from the second worker
+        console.log('Parsing specification only (development steps will be generated separately)');
+        
+        // Clean up any potential headers
+        let specification = content;
+        if (content.includes('## PART 1: APPLICATION SPECIFICATION DOCUMENT')) {
+          specification = content.replace('## PART 1: APPLICATION SPECIFICATION DOCUMENT', '').trim();
+        }
+        
+        console.log('Specification length:', specification.length);
+        console.log('Specification preview:', specification.substring(0, 200));
+        
+        return { 
+          specification: specification, 
+          developmentSteps: [] // Will be populated by second worker
+        };
+      }
+
+      function parseDevelopmentSteps(developmentStepsText) {
+        console.log('=== PARSING DEVELOPMENT STEPS ===');
+        console.log('Input text length:', developmentStepsText.length);
+        console.log('Input text preview:', developmentStepsText.substring(0, 300));
+        
+        const steps = [];
+        const stepRegex = /\*\*Step (\d+): ([^*]+)\*\*\s*\*\*Description:\*\*\s*([^*]+)\s*\*\*AI Prompt:\*\*\s*([\s\S]*?)(?=\*\*Step \d+:|$)/g;
+        
+        console.log('Using regex pattern:', stepRegex.source);
+        
+        let match;
+        let matchCount = 0;
+        while ((match = stepRegex.exec(developmentStepsText)) !== null) {
+          matchCount++;
+          console.log(`Match ${matchCount}:`, match);
+          
+          const step = {
+            id: parseInt(match[1]),
+            title: match[2].trim(),
+            description: match[3].trim(),
+            prompt: match[4].trim()
+          };
+          
+          console.log(`Parsed step ${step.id}:`, step);
+          steps.push(step);
+        }
+        
+        console.log(`Total matches found: ${matchCount}`);
+        console.log(`Final parsed steps:`, steps);
+        
+        if (steps.length === 0) {
+          console.warn('No development steps were parsed!');
+          console.warn('This might indicate a format issue in the API response');
+          console.warn('Raw text that failed to parse:', developmentStepsText);
+        }
+        
+        return steps;
+      }
+
+      function displaySpecification(specification) {
+        console.log('=== DISPLAYING SPECIFICATION ===');
+        console.log('Specification length:', specification.length);
+        console.log('Specification preview:', specification.substring(0, 200));
+        
+        try {
+          const resultDiv = document.createElement("div");
+          resultDiv.className = "message result";
+          
+          const avatar = document.createElement("div");
+          avatar.className = 'message-avatar';
+          avatar.textContent = 'S';
+
+          const contentDiv = document.createElement("div");
+          contentDiv.className = 'message-content';
+          
+          // If content looks like markdown, parse it
+          if (specification.includes('#') || specification.includes('*') || specification.includes('-')) {
+            console.log('Content appears to be markdown, parsing with marked.js');
+            try {
+              contentDiv.innerHTML = marked.parse(specification);
+              console.log('Markdown parsing successful');
+              
+              // Initialize Mermaid diagrams after markdown parsing
+              if (typeof mermaid !== 'undefined') {
+                console.log('Mermaid available, initializing diagrams...');
+                try {
+                  mermaid.initialize({ 
+                    startOnLoad: false,
+                    theme: 'default',
+                    flowchart: { useMaxWidth: true },
+                    sequence: { useMaxWidth: true },
+                    gantt: { useMaxWidth: true }
+                  });
+                  
+                  // Find all mermaid code blocks and render them
+                  const mermaidBlocks = contentDiv.querySelectorAll('pre code.language-mermaid');
+                  console.log(`Found ${mermaidBlocks.length} mermaid blocks`);
+                  
+                  mermaidBlocks.forEach((block, index) => {
+                    console.log(`Rendering mermaid block ${index + 1}`);
+                    try {
+                      const mermaidDiv = document.createElement('div');
+                      mermaidDiv.className = 'mermaid';
+                      mermaidDiv.textContent = block.textContent;
+                      block.parentElement.replaceWith(mermaidDiv);
+                      
+                      mermaid.render(`mermaid-${Date.now()}-${index}`, block.textContent).then(({ svg }) => {
+                        mermaidDiv.innerHTML = svg;
+                        console.log(`Mermaid block ${index + 1} rendered successfully`);
+                      }).catch((mermaidError) => {
+                        console.error(`Error rendering mermaid block ${index + 1}:`, mermaidError);
+                        mermaidDiv.innerHTML = `<div class="mermaid-error">Error rendering diagram: ${mermaidError.message}</div>`;
+                      });
+                    } catch (blockError) {
+                      console.error(`Error processing mermaid block ${index + 1}:`, blockError);
+                    }
+                  });
+                  
+                } catch (mermaidError) {
+                  console.error('Mermaid initialization failed:', mermaidError);
+                }
+              } else {
+                console.log('Mermaid not available, skipping diagram rendering');
+              }
+              
+            } catch (markdownError) {
+              console.error('Markdown parsing failed:', markdownError);
+              console.error('Falling back to plain text display');
+              const textDiv = document.createElement("div");
+              textDiv.className = 'message-text';
+              textDiv.textContent = specification;
+              contentDiv.appendChild(textDiv);
+            }
+          } else {
+            console.log('Content appears to be plain text, displaying as-is');
+            // If it's plain text, just display it
+            const textDiv = document.createElement("div");
+            textDiv.className = 'message-text';
+            textDiv.textContent = specification;
+            contentDiv.appendChild(textDiv);
+          }
+
+          resultDiv.appendChild(avatar);
+          resultDiv.appendChild(contentDiv);
+          chatMessages.appendChild(resultDiv);
+          
+          console.log('Specification displayed successfully');
+          
+          // Highlight code if highlight.js is available
+          if (typeof hljs !== 'undefined') {
+            console.log('Highlight.js available, highlighting code');
+            try {
+              hljs.highlightAll();
+              console.log('Code highlighting successful');
+            } catch (highlightError) {
+              console.error('Code highlighting failed:', highlightError);
+            }
+          } else {
+            console.log('Highlight.js not available, skipping code highlighting');
+          }
+          
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+          
+        } catch (displayError) {
+          console.error('Error displaying specification:', displayError);
+          console.error('Error details:', displayError.message, displayError.stack);
+          
+          // Show error message to user
+          const errorDiv = document.createElement("div");
+          errorDiv.className = "message error";
+          errorDiv.innerHTML = `
+            <div class="message-avatar">!</div>
+            <div class="message-content">
+              <div class="message-text">Error displaying specification: ${displayError.message}</div>
+            </div>
+          `;
+          chatMessages.appendChild(errorDiv);
+        }
+      }
+
+      function displayDevelopmentSteps(developmentSteps) {
+        console.log('=== DISPLAYING DEVELOPMENT STEPS ===');
+        console.log('Development steps count:', developmentSteps.length);
+        console.log('Development steps data:', developmentSteps);
+        
+        try {
+          // Clear existing development steps
+          const developmentStepsContainer = document.getElementById('developmentStepsContent');
+          if (!developmentStepsContainer) {
+            console.error('Development steps content container not found!');
+            return;
+          }
+          
+          console.log('Clearing existing development steps');
+          developmentStepsContainer.innerHTML = '';
+          
+          if (developmentSteps.length === 0) {
+            console.warn('No development steps to display, showing placeholder');
+            const noStepsDiv = document.createElement("div");
+            noStepsDiv.className = "development-step";
+            noStepsDiv.innerHTML = `
+              <div class="step-header">
+                <div class="step-title">No development steps available</div>
+              </div>
+              <div class="step-content">
+                <div class="step-description">Development steps could not be parsed from the API response.</div>
+              </div>
+            `;
+            developmentStepsContainer.appendChild(noStepsDiv);
+            console.log('Placeholder displayed for no development steps');
+            return;
+          }
+          
+          console.log(`Creating ${developmentSteps.length} development step elements`);
+          
+          // Create development steps from API data
+          developmentSteps.forEach((step, index) => {
+            console.log(`Creating step ${index + 1}:`, step);
+            
+            try {
+              const stepDiv = document.createElement("div");
+              stepDiv.className = "development-step";
+              stepDiv.innerHTML = `
+                <div class="step-header" onclick="toggleStep(${step.id})">
+                  <div class="step-title">${step.id}. ${step.title}</div>
+                  <div class="step-toggle">
+                    <i class="fas fa-chevron-down"></i>
+                  </div>
+                </div>
+                <div class="step-content" id="step-content-${step.id}">
+                  <div class="step-description">${step.description}</div>
+                  <div class="step-prompt">
+                    <div class="prompt-header">
+                      <div class="prompt-label">AI Prompt for this step:</div>
+                      <button class="copy-prompt-btn" onclick="copyPrompt(${step.id})">
+                        <i class="fas fa-copy"></i> Copy
+                      </button>
+                    </div>
+                    <div class="prompt-text">${step.prompt}</div>
+                  </div>
+                </div>
+              `;
+              
+              developmentStepsContainer.appendChild(stepDiv);
+              console.log(`Step ${step.id} created and added successfully`);
+              
+            } catch (stepError) {
+              console.error(`Error creating step ${step.id}:`, stepError);
+              console.error('Step data that caused error:', step);
+            }
+          });
+          
+          console.log('All development steps displayed successfully');
+          
+        } catch (displayError) {
+          console.error('Error displaying development steps:', displayError);
+          console.error('Error details:', displayError.message, displayError.stack);
+          
+          // Show error message to user
+          const errorDiv = document.createElement("div");
+          errorDiv.className = "message error";
+          errorDiv.innerHTML = `
+            <div class="message-avatar">!</div>
+            <div class="message-content">
+              <div class="message-text">Error displaying development steps: ${displayError.message}</div>
+            </div>
+          `;
+          chatMessages.appendChild(errorDiv);
+        }
+      }
+
+      // Global functions for step interaction
+      window.toggleStep = function(stepId) {
+        console.log(`=== TOGGLING STEP ${stepId} ===`);
+        
+        try {
+          const stepContent = document.getElementById(`step-content-${stepId}`);
+          if (!stepContent) {
+            console.error(`Step content element not found for step ${stepId}`);
+            return;
+          }
+          
+          const stepToggle = stepContent.previousElementSibling.querySelector('.step-toggle i');
+          if (!stepToggle) {
+            console.error(`Step toggle element not found for step ${stepId}`);
+            return;
+          }
+          
+          if (stepContent.classList.contains('expanded')) {
+            console.log(`Collapsing step ${stepId}`);
+            stepContent.classList.remove('expanded');
+            stepToggle.classList.remove('expanded');
+          } else {
+            console.log(`Expanding step ${stepId}`);
+            stepContent.classList.add('expanded');
+            stepToggle.classList.add('expanded');
+          }
+          
+          console.log(`Step ${stepId} toggled successfully`);
+          
+        } catch (toggleError) {
+          console.error(`Error toggling step ${stepId}:`, toggleError);
+          console.error('Error details:', toggleError.message, toggleError.stack);
+        }
+      };
+
+      window.copyPrompt = function(stepId) {
+        console.log(`=== COPYING PROMPT FOR STEP ${stepId} ===`);
+        
+        try {
+          // Find the step in the DOM since we're now using API data
+          const stepContent = document.getElementById(`step-content-${stepId}`);
+          if (!stepContent) {
+            console.error(`Step content element not found for step ${stepId}`);
+            alert(`Step ${stepId} not found`);
+            return;
+          }
+          
+          const promptTextElement = stepContent.querySelector('.prompt-text');
+          if (!promptTextElement) {
+            console.error(`Prompt text element not found for step ${stepId}`);
+            alert(`Prompt text not found for step ${stepId}`);
+            return;
+          }
+          
+          const promptText = promptTextElement.textContent;
+          console.log(`Prompt text length: ${promptText.length}`);
+          console.log(`Prompt text preview: ${promptText.substring(0, 100)}...`);
+          
+          navigator.clipboard.writeText(promptText).then(() => {
+            console.log(`Prompt for step ${stepId} copied to clipboard successfully`);
+            
+            // Show success message
+            const copyBtn = stepContent.querySelector('.copy-prompt-btn');
+            if (copyBtn) {
+              const originalText = copyBtn.innerHTML;
+              const originalBackground = copyBtn.style.background;
+              
+              copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+              copyBtn.style.background = '#28a745';
+              
+              setTimeout(() => {
+                copyBtn.innerHTML = originalText;
+                copyBtn.style.background = originalBackground;
+                console.log(`Reset copy button for step ${stepId}`);
+              }, 2000);
+            }
+            
+          }).catch((clipboardError) => {
+            console.error(`Failed to copy prompt for step ${stepId}:`, clipboardError);
+            alert('Failed to copy prompt to clipboard');
+          });
+          
+        } catch (copyError) {
+          console.error(`Error copying prompt for step ${stepId}:`, copyError);
+          console.error('Error details:', copyError.message, copyError.stack);
+          alert(`Error copying prompt: ${copyError.message}`);
+        }
+      };
 
       window.copyAllSpecContent = function() {
-        navigator.clipboard.writeText(fullContent).then(() => {
-          const tempMessage = document.createElement("div");
-          tempMessage.className = "error-message success";
-          tempMessage.textContent = "Specification copied to clipboard!";
-          chatContainer.appendChild(tempMessage);
-          setTimeout(() => tempMessage.remove(), 2000);
-        }).catch(() => {
-          errorMessage.textContent = "Failed to copy specification.";
-          errorMessage.style.display = "block";
-        });
+        console.log('=== COPYING ALL SPECIFICATION CONTENT ===');
+        
+        try {
+          // Get the specification content from the first tab
+          const specificationContent = document.querySelector('#specification-tab .message.result .message-content');
+          if (!specificationContent) {
+            console.error('Specification content element not found');
+            alert('No specification content found to copy');
+            return;
+          }
+          
+          const textToCopy = specificationContent.textContent || specificationContent.innerText;
+          console.log(`Text to copy length: ${textToCopy.length}`);
+          console.log(`Text to copy preview: ${textToCopy.substring(0, 100)}...`);
+          
+          navigator.clipboard.writeText(textToCopy).then(() => {
+            console.log('Specification copied to clipboard successfully');
+            
+            const tempMessage = document.createElement("div");
+            tempMessage.className = "error-message success";
+            tempMessage.textContent = "Specification copied to clipboard!";
+            chatMessages.appendChild(tempMessage);
+            setTimeout(() => tempMessage.remove(), 2000);
+            
+          }).catch((clipboardError) => {
+            console.error('Failed to copy specification:', clipboardError);
+            
+            const errorMessage = document.createElement("div");
+            errorMessage.className = "error-message";
+            errorMessage.textContent = "Failed to copy specification.";
+            errorMessage.style.display = "block";
+            chatMessages.appendChild(errorMessage);
+          });
+          
+        } catch (copyError) {
+          console.error('Error copying specification:', copyError);
+          console.error('Error details:', copyError.message, copyError.stack);
+          alert(`Error copying specification: ${copyError.message}`);
+        }
       };
 
       window.downloadPdf = function() {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        doc.setFont("helvetica");
-        doc.setFontSize(12);
-
-        const margin = 10;
-        const pageWidth = doc.internal.pageSize.getWidth();
-        const pageHeight = doc.internal.pageSize.getHeight();
-        const maxLineWidth = pageWidth - 2 * margin;
-        let y = margin;
-
-        const addText = (text, isTitle = false) => {
-          if (y > pageHeight - margin) {
-            doc.addPage();
-            y = margin;
+        console.log('=== DOWNLOADING PDF ===');
+        
+        try {
+          const { jsPDF } = window.jspdf;
+          if (!jsPDF) {
+            console.error('jsPDF not available');
+            alert('PDF generation library not available');
+            return;
           }
-          const lines = doc.splitTextToSize(text, maxLineWidth);
-          lines.forEach(line => {
+          
+          console.log('Creating PDF document...');
+          const doc = new jsPDF();
+          doc.setFont("helvetica");
+          doc.setFontSize(12);
+
+          const margin = 10;
+          const pageWidth = doc.internal.pageSize.getWidth();
+          const pageHeight = doc.internal.pageSize.getHeight();
+          const maxLineWidth = pageWidth - 2 * margin;
+          let y = margin;
+
+          const addText = (text, isTitle = false) => {
             if (y > pageHeight - margin) {
               doc.addPage();
               y = margin;
             }
-            doc.text(line, margin, y);
-            y += 7;
-          });
-          if (isTitle) y += 3;
-        };
+            const lines = doc.splitTextToSize(text, maxLineWidth);
+            lines.forEach(line => {
+              if (y > pageHeight - margin) {
+                doc.addPage();
+                y = margin;
+              }
+              doc.text(line, margin, y);
+              y += 7;
+            });
+            if (isTitle) y += 3;
+          };
 
-        addText("App Specification", true);
-        const plainText = fullContent.replace(/[#*-]/g, "").trim();
-        addText(plainText);
+          addText("App Specification", true);
+          
+          // Get the specification content from the first tab
+          const specificationContent = document.querySelector('#specification-tab .message.result .message-content');
+          if (specificationContent) {
+            const textToDownload = specificationContent.textContent || specificationContent.innerText;
+            const plainText = textToDownload.replace(/[#*-]/g, "").trim();
+            console.log(`PDF text length: ${plainText.length}`);
+            addText(plainText);
+          } else {
+            console.warn('No specification content found for PDF');
+            addText("No specification content found");
+          }
 
-        doc.save("app-specification.pdf");
+          console.log('Saving PDF...');
+          doc.save("app-specification.pdf");
+          console.log('PDF downloaded successfully');
+          
+        } catch (pdfError) {
+          console.error('Error downloading PDF:', pdfError);
+          console.error('Error details:', pdfError.message, pdfError.stack);
+          alert(`Error generating PDF: ${pdfError.message}`);
+        }
       };
 
-      if (!hasLoaded && fullContent) {
-        hasLoaded = true;
-        showIntroMessages();
-      } else if (!fullContent) {
-        errorMessage.textContent = "No specification content found. Please try again.";
-        errorMessage.style.display = "block";
+             // Development Steps functionality is now disabled - shows "Coming Soon" message
+
+      // Initialize the page
+      console.log('=== INITIALIZING RESULT PAGE ===');
+      console.log('Chat messages element:', chatMessages);
+      console.log('Development steps element:', developmentSteps);
+      console.log('Platform container element:', platformContainer);
+      
+             // Create Development Steps button is now replaced with "Coming Soon" message
+       console.log('Development Steps tab shows "Coming Soon" message');
+      
+      try {
+        showLoadingMessage();
+        console.log('Page initialization completed successfully');
+      } catch (initError) {
+        console.error('Error initializing page:', initError);
+        console.error('Error details:', initError.message, initError.stack);
       }
     });
   </script>
 
   <noscript>
-    <div style="text-align: center; padding: 10px; background: var(--content-bg); color: var(--text-color);">
-      <p>This website requires JavaScript to function properly. Please enable JavaScript in your browser.</p>
+    <div style="text-align: center; padding: 20px; background: #fff; color: #333;">
+      <p>This website requires JavaScript to function properly. Please enable JavaScript in your browser settings.</p>
     </div>
   </noscript>
 </body>
