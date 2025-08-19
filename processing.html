@@ -374,14 +374,14 @@
 
     <div class="chat-messages" id="chatMessages">
       <!-- Messages will be added here dynamically -->
-    </div>
+        </div>
 
-    <div class="progress-container">
-      <div class="progress-bar">
+        <div class="progress-container">
+          <div class="progress-bar">
         <div class="progress-fill" id="progressFill"></div>
       </div>
       <div class="progress-text" id="progressText">Question 1 of 5</div>
-    </div>
+  </div>
 
     <div class="chat-input-container">
       <div class="chat-input-wrapper">
@@ -396,7 +396,7 @@
         </button>
       </div>
     </div>
-  </div>
+    </div>
 
   <script src="common-header-footer.js"></script>
   <script>
@@ -467,7 +467,7 @@
             if (this.currentQuestionIndex === 0 && Object.keys(this.answers).length === 0) {
               // First time - show intro messages
               this.showIntroMessages();
-            } else {
+        } else {
               // Show current question
               this.addSystem(this.questions[this.currentQuestionIndex].question);
             }
