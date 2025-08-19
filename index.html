@@ -1758,43 +1758,41 @@ border: 0;
         submitBtn.disabled = true;
         submitBtn.textContent = 'Sending...';
         
-        // Send feedback to Google Apps Script (same as newsletter)
-        const url = 'https://script.google.com/macros/s/AKfycbzRv07wfY5DRmhXKTeELv0GXgTyGYFan6XYbzd5a6cH-tpju_3q7L1Y4ByWA5SI4RFRBQ/exec';
+        // Send feedback to Google Apps Script
+        const url = 'https://script.google.com/macros/s/AKfycbym3fu04RejAdA6GHKV9lMkT5dgkB9cxgY9yZ0hPkGxJzPrSrO3pT0XgooeL_z4_mtayQ/exec';
         
-        // Send email first
-        const emailPromise = fetch(url, {
+        // Send feedback data as JSON
+        const feedbackData = {
+          email: email || 'Not provided',
+          feedback: text,
+          type: 'user_feedback',
+          source: 'specifys_website'
+        };
+        
+        // Send single request with all data
+        fetch(url, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: `email=${encodeURIComponent(email || 'Not provided')}&type=feedback_email`
-        });
-        
-        // Send feedback text second
-        const feedbackPromise = fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: `feedback=${encodeURIComponent(text)}&type=feedback_text`
-        });
-        
-        // Wait for both requests to complete
-        Promise.all([emailPromise, feedbackPromise])
-        .then(responses => {
-          // Check if both requests were successful
-          const emailResponse = responses[0];
-          const feedbackResponse = responses[1];
-          
-          submitBtn.disabled = false;
-          submitBtn.textContent = 'Send Feedback';
-          
-          // Show success message
-          alert('Thank you for your feedback! We appreciate your input.');
-          closeFeedbackModal();
-          
-          // Track feedback submission
-          if (typeof gtag !== 'undefined') {
-            gtag('event', 'submit', {
-              'event_category': 'Feedback',
-              'event_label': 'Feedback Form Submitted'
-            });
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(feedbackData)
+        })
+        .then(response => {
+          if (response.ok) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Send Feedback';
+            
+            // Show success message
+            alert('Thank you for your feedback! We appreciate your input.');
+            closeFeedbackModal();
+            
+            // Track feedback submission
+            if (typeof gtag !== 'undefined') {
+              gtag('event', 'submit', {
+                'event_category': 'Feedback',
+                'event_label': 'Feedback Form Submitted'
+              });
+            }
+          } else {
+            throw new Error('Network response was not ok');
           }
         })
         .catch(error => {
