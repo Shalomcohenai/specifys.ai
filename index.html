@@ -1770,8 +1770,12 @@ border: 0;
         };
         
         // Log what we're sending
+        console.log('=== FEEDBACK DEBUG START ===');
         console.log('Sending feedback data:', feedbackData);
         console.log('Request URL:', url);
+        console.log('Request method: POST');
+        console.log('Request headers:', { 'Content-Type': 'application/json' });
+        console.log('Request body:', JSON.stringify(feedbackData));
         
         // Send single request with JSON data
         fetch(url, {
@@ -1780,9 +1784,13 @@ border: 0;
           body: JSON.stringify(feedbackData)
         })
         .then(response => {
-          console.log('Response received:', response);
+          console.log('=== RESPONSE RECEIVED ===');
+          console.log('Response object:', response);
           console.log('Response status:', response.status);
-          console.log('Response headers:', response.headers);
+          console.log('Response statusText:', response.statusText);
+          console.log('Response ok:', response.ok);
+          console.log('Response type:', response.type);
+          console.log('Response url:', response.url);
           
           // Always treat as success if we get a response
           submitBtn.disabled = false;
@@ -1800,12 +1808,19 @@ border: 0;
             });
           }
           
+          console.log('=== FEEDBACK SUCCESS ===');
           console.log('Feedback submitted successfully');
+          console.log('=== FEEDBACK DEBUG END ===');
         })
         .catch(error => {
+          console.log('=== FEEDBACK ERROR ===');
+          console.error('Error occurred:', error);
+          console.error('Error message:', error.message);
+          console.error('Error stack:', error.stack);
+          console.log('=== FEEDBACK DEBUG END ===');
+          
           submitBtn.disabled = false;
           submitBtn.textContent = 'Send Feedback';
-          console.error('Error:', error);
           alert('An error occurred. Please try again.');
         });
       }
