@@ -316,82 +316,190 @@
     </div>
 
     <script>
+        // Debug info
+        console.log('Blog Generator Script Loaded');
+        console.log('Password:', 'specifys2025');
+        
         // Password protection
         const CORRECT_PASSWORD = "specifys2025"; // שנה את הסיסמה כאן
         
-        function checkPassword() {
-            const password = document.getElementById('password').value;
-            if (password === CORRECT_PASSWORD) {
-                document.getElementById('loginScreen').style.display = 'none';
-                document.getElementById('generatorInterface').style.display = 'block';
-                // Set default date to today
-                document.getElementById('articleDate').value = new Date().toISOString().split('T')[0];
+        // Wait for DOM to be fully loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, initializing...');
+            
+            // Initialize the page
+            initializePage();
+        });
+        
+        function initializePage() {
+            console.log('Initializing page...');
+            
+            // Make sure login screen is visible and generator is hidden
+            const loginScreen = document.getElementById('loginScreen');
+            const generatorInterface = document.getElementById('generatorInterface');
+            
+            if (loginScreen && generatorInterface) {
+                loginScreen.style.display = 'block';
+                generatorInterface.style.display = 'none';
+                console.log('Page initialized successfully');
             } else {
+                console.error('Required elements not found!');
+            }
+        }
+        
+        function checkPassword() {
+            console.log('Checking password...');
+            const password = document.getElementById('password');
+            const loginScreen = document.getElementById('loginScreen');
+            const generatorInterface = document.getElementById('generatorInterface');
+            const articleDate = document.getElementById('articleDate');
+            
+            if (!password || !loginScreen || !generatorInterface) {
+                console.error('Required elements not found!');
+                alert('שגיאה בטעינת הדף. אנא רענן את הדף ונסה שוב.');
+                return;
+            }
+            
+            if (password.value === CORRECT_PASSWORD) {
+                console.log('Password correct, showing generator...');
+                loginScreen.style.display = 'none';
+                generatorInterface.style.display = 'block';
+                
+                // Set default date to today
+                if (articleDate) {
+                    articleDate.value = new Date().toISOString().split('T')[0];
+                }
+                
+                console.log('Generator interface shown successfully');
+            } else {
+                console.log('Wrong password entered');
                 alert('סיסמה שגויה! נסה שוב.');
-                document.getElementById('password').value = '';
-                document.getElementById('password').focus();
+                password.value = '';
+                password.focus();
             }
         }
         
         function logout() {
-            document.getElementById('loginScreen').style.display = 'block';
-            document.getElementById('generatorInterface').style.display = 'none';
-            document.getElementById('password').value = '';
-            document.getElementById('previewSection').style.display = 'none';
+            console.log('Logging out...');
+            const loginScreen = document.getElementById('loginScreen');
+            const generatorInterface = document.getElementById('generatorInterface');
+            const password = document.getElementById('password');
+            const previewSection = document.getElementById('previewSection');
+            
+            if (loginScreen && generatorInterface) {
+                loginScreen.style.display = 'block';
+                generatorInterface.style.display = 'none';
+                
+                if (password) password.value = '';
+                if (previewSection) previewSection.style.display = 'none';
+                
+                console.log('Logged out successfully');
+            }
         }
         
         // Enter key support for password
-        document.getElementById('password').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                checkPassword();
+        document.addEventListener('DOMContentLoaded', function() {
+            const passwordInput = document.getElementById('password');
+            if (passwordInput) {
+                passwordInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        checkPassword();
+                    }
+                });
+                console.log('Password input event listener added');
             }
         });
 
         function generateArticle() {
-            const title = document.getElementById('articleTitle').value.trim();
-            const slug = document.getElementById('articleSlug').value.trim();
-            const date = document.getElementById('articleDate').value;
-            const description = document.getElementById('articleDescription').value.trim();
-            const keywords = document.getElementById('articleKeywords').value.trim();
-            const intro = document.getElementById('articleIntro').value.trim();
-            const content = document.getElementById('articleContent').value.trim();
-            const priority = document.getElementById('articlePriority').value;
-            const changeFreq = document.getElementById('changeFreq').value;
+            console.log('Generating article...');
+            
+            const title = document.getElementById('articleTitle');
+            const slug = document.getElementById('articleSlug');
+            const date = document.getElementById('articleDate');
+            const description = document.getElementById('articleDescription');
+            const keywords = document.getElementById('articleKeywords');
+            const intro = document.getElementById('articleIntro');
+            const content = document.getElementById('articleContent');
+            const priority = document.getElementById('articlePriority');
+            const changeFreq = document.getElementById('changeFreq');
+            
+            // Check if all elements exist
+            if (!title || !slug || !date || !description || !intro || !content || !priority || !changeFreq) {
+                console.error('Required form elements not found!');
+                alert('שגיאה בטעינת הטופס. אנא רענן את הדף ונסה שוב.');
+                return;
+            }
 
-            if (!title || !slug || !description || !intro || !content) {
+            const titleValue = title.value.trim();
+            const slugValue = slug.value.trim();
+            const dateValue = date.value;
+            const descriptionValue = description.value.trim();
+            const keywordsValue = keywords.value.trim();
+            const introValue = intro.value.trim();
+            const contentValue = content.value.trim();
+            const priorityValue = priority.value;
+            const changeFreqValue = changeFreq.value;
+
+            if (!titleValue || !slugValue || !descriptionValue || !introValue || !contentValue) {
                 alert('אנא מלא את כל השדות החובה');
                 return;
             }
 
+            console.log('Form validation passed, generating article...');
+
             // Show loading
-            document.getElementById('loadingSection').style.display = 'block';
-            document.getElementById('previewSection').style.display = 'none';
+            const loadingSection = document.getElementById('loadingSection');
+            const previewSection = document.getElementById('previewSection');
+            
+            if (loadingSection && previewSection) {
+                loadingSection.style.display = 'block';
+                previewSection.style.display = 'none';
+            }
 
             // Simulate processing time
             setTimeout(() => {
-                // Generate article HTML
-                const articleHTML = generateArticleHTML(title, slug, date, description, keywords, intro, content);
-                
-                // Generate sitemap entry
-                const sitemapEntry = generateSitemapEntry(slug, date, changeFreq, priority);
-                
-                // Generate blog index update
-                const blogIndexUpdate = generateBlogIndexUpdate(title, slug, description, date);
+                try {
+                    // Generate article HTML
+                    const articleHTML = generateArticleHTML(titleValue, slugValue, dateValue, descriptionValue, keywordsValue, introValue, contentValue);
+                    
+                    // Generate sitemap entry
+                    const sitemapEntry = generateSitemapEntry(slugValue, dateValue, changeFreqValue, priorityValue);
+                    
+                    // Generate blog index update
+                    const blogIndexUpdate = generateBlogIndexUpdate(titleValue, slugValue, descriptionValue, dateValue);
 
-                // Hide loading and show preview
-                document.getElementById('loadingSection').style.display = 'none';
-                document.getElementById('previewFrame').srcdoc = articleHTML;
-                document.getElementById('articleFileName').textContent = `blog/${slug}.html`;
-                document.getElementById('sitemapUpdate').textContent = sitemapEntry;
-                document.getElementById('blogIndexUpdate').textContent = blogIndexUpdate;
-                
-                // Store generated content for download
-                window.generatedArticle = articleHTML;
-                window.generatedSitemap = sitemapEntry;
-                window.generatedBlogUpdate = blogIndexUpdate;
-                window.articleSlug = slug;
+                    // Hide loading and show preview
+                    if (loadingSection) loadingSection.style.display = 'none';
+                    
+                    const previewFrame = document.getElementById('previewFrame');
+                    const articleFileName = document.getElementById('articleFileName');
+                    const sitemapUpdate = document.getElementById('sitemapUpdate');
+                    const blogIndexUpdateSpan = document.getElementById('blogIndexUpdate');
+                    
+                    if (previewFrame && articleFileName && sitemapUpdate && blogIndexUpdateSpan) {
+                        previewFrame.srcdoc = articleHTML;
+                        articleFileName.textContent = `blog/${slugValue}.html`;
+                        sitemapUpdate.textContent = sitemapEntry;
+                        blogIndexUpdateSpan.textContent = blogIndexUpdate;
+                        
+                        // Store generated content for download
+                        window.generatedArticle = articleHTML;
+                        window.generatedSitemap = sitemapEntry;
+                        window.generatedBlogUpdate = blogIndexUpdate;
+                        window.articleSlug = slugValue;
 
-                document.getElementById('previewSection').style.display = 'block';
+                        if (previewSection) previewSection.style.display = 'block';
+                        
+                        console.log('Article generated successfully!');
+                    } else {
+                        console.error('Preview elements not found!');
+                        alert('שגיאה בהצגת התצוגה המקדימה. אנא רענן את הדף ונסה שוב.');
+                    }
+                } catch (error) {
+                    console.error('Error generating article:', error);
+                    alert('שגיאה ביצירת המאמר: ' + error.message);
+                    if (loadingSection) loadingSection.style.display = 'none';
+                }
             }, 1500);
         }
 
@@ -928,15 +1036,25 @@
         }
 
         // Auto-generate slug from title
-        document.getElementById('articleTitle').addEventListener('input', function() {
-            const title = this.value;
-            const slug = title
-                .toLowerCase()
-                .replace(/[^a-z0-9\s-]/g, '')
-                .replace(/\s+/g, '-')
-                .replace(/-+/g, '-')
-                .trim();
-            document.getElementById('articleSlug').value = slug;
+        document.addEventListener('DOMContentLoaded', function() {
+            const titleInput = document.getElementById('articleTitle');
+            if (titleInput) {
+                titleInput.addEventListener('input', function() {
+                    const title = this.value;
+                    const slug = title
+                        .toLowerCase()
+                        .replace(/[^a-z0-9\s-]/g, '')
+                        .replace(/\s+/g, '-')
+                        .replace(/-+/g, '-')
+                        .trim();
+                    
+                    const slugInput = document.getElementById('articleSlug');
+                    if (slugInput) {
+                        slugInput.value = slug;
+                    }
+                });
+                console.log('Title input event listener added');
+            }
         });
     </script>
 </body>
