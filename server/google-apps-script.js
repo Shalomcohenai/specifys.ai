@@ -5,8 +5,33 @@
 
 function doPost(e) {
   try {
-    // Parse the incoming JSON data
-    const data = JSON.parse(e.postData.contents);
+    // Log the incoming request for debugging
+    console.log('=== INCOMING REQUEST ===');
+    console.log('Request type:', e.postData.type);
+    console.log('Request contents:', e.postData.contents);
+    console.log('Request length:', e.postData.contents.length);
+    
+    // Parse the incoming data (supports both JSON and form data)
+    let data;
+    try {
+      // Try to parse as JSON first
+      data = JSON.parse(e.postData.contents);
+      console.log('✅ Parsed as JSON successfully');
+    } catch (jsonError) {
+      // If JSON fails, try to parse as form data
+      console.log('❌ JSON parsing failed, trying form data');
+      const formData = e.postData.contents;
+      const params = new URLSearchParams(formData);
+      data = {
+        email: params.get('email') || 'Not provided',
+        feedback: params.get('feedback') || '',
+        type: params.get('type') || 'general',
+        source: params.get('source') || 'unknown'
+      };
+      console.log('✅ Parsed as form data successfully');
+    }
+    
+    console.log('Parsed data:', data);
     
     // Get the active spreadsheet and sheet
     const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
@@ -68,26 +93,36 @@ function doPost(e) {
     sheet.getRange(lastRow, 1).setNumberFormat('dd/MM/yyyy HH:mm:ss');
     
     // Log the successful operation
-    console.log(`Feedback saved successfully: ${userEmail} - ${feedbackText.substring(0, 50)}...`);
+    console.log(`✅ Feedback saved successfully: ${userEmail} - ${feedbackText.substring(0, 50)}...`);
+    console.log(`📊 Row added: ${lastRow}`);
     
     // Return success response
-    return ContentService.createTextOutput(JSON.stringify({
+    const response = {
       success: true,
       message: 'Feedback saved to Google Sheets',
       timestamp: timestamp.toISOString(),
       row: lastRow
-    })).setMimeType(ContentService.MimeType.JSON);
+    };
+    
+    console.log('📤 Sending response:', response);
+    return ContentService.createTextOutput(JSON.stringify(response))
+      .setMimeType(ContentService.MimeType.JSON);
     
   } catch (error) {
     // Log the error
-    console.error('Error processing feedback:', error.toString());
+    console.error('❌ Error processing feedback:', error.toString());
+    console.error('❌ Error stack:', error.stack);
     
     // Return error response
-    return ContentService.createTextOutput(JSON.stringify({
+    const errorResponse = {
       success: false,
       error: error.toString(),
       timestamp: new Date().toISOString()
-    })).setMimeType(ContentService.MimeType.JSON);
+    };
+    
+    console.log('📤 Sending error response:', errorResponse);
+    return ContentService.createTextOutput(JSON.stringify(errorResponse))
+      .setMimeType(ContentService.MimeType.JSON);
   }
 }
 
