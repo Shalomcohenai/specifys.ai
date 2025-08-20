@@ -3,12 +3,13 @@ console.log('Starting server setup...');
 const express = require('express');
 const fetch = require('node-fetch');
 const dotenv = require('dotenv');
+const config = require('./config');
 
 console.log('Loading environment variables...');
 dotenv.config();
 
 const app = express();
-const port = process.env.PORT || 10000;
+const port = config.port;
 // Middleware to parse JSON bodies
 console.log('Setting up middleware...');
 app.use(express.json());
@@ -16,15 +17,30 @@ app.use(express.json());
 // CORS middleware to allow requests from your frontend
 app.use((req, res, next) => {
   console.log('Applying CORS middleware...');
-  res.header('Access-Control-Allow-Origin', '*'); // שנה ל-* לטובת GitHub Pages
+  const origin = req.headers.origin;
+  
+  // Check if origin is in allowed list
+  if (origin && config.allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+  } else {
+    res.header('Access-Control-Allow-Origin', '*'); // Fallback for development
+  }
+  
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-  next();
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  
+  // Handle preflight requests
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(200);
+  } else {
+    next();
+  }
 });
 
 // Feedback endpoint
 app.post('/api/feedback', async (req, res) => {
   console.log('Received feedback request:', req.body);
-  const { email, feedback, type } = req.body;
+  const { email, feedback, type, source } = req.body;
 
   if (!feedback) {
     console.log('Error: Feedback text is required');
@@ -35,11 +51,11 @@ app.post('/api/feedback', async (req, res) => {
     // 1. Send email notification
     await sendFeedbackEmail(email, feedback);
     
-    // 2. Save to Google Sheets
-    await saveToGoogleSheets(email, feedback, type);
+    // 2. Save to Google Sheets via Google Apps Script
+    await saveToGoogleSheets(email, feedback, type, source);
     
     // 3. Log to console for debugging
-    console.log('Feedback saved successfully:', { email, feedback, type, timestamp: new Date().toISOString() });
+    console.log('Feedback saved successfully:', { email, feedback, type, source, timestamp: new Date().toISOString() });
     
     res.json({ success: true, message: 'Feedback submitted successfully' });
   } catch (error) {
@@ -108,46 +124,43 @@ async function sendFeedbackEmail(email, feedback) {
   }
 }
 
-// Function to save feedback to Google Sheets
-async function saveToGoogleSheets(email, feedback, type) {
+// Function to save feedback to Google Sheets via Google Apps Script
+async function saveToGoogleSheets(email, feedback, type, source) {
   try {
-    // Google Sheets API endpoint (you'll need to set this up)
-    const sheetsUrl = process.env.GOOGLE_SHEETS_WEBHOOK_URL;
+    // Use the Google Apps Script URL from config
+    const googleAppsScriptUrl = config.googleAppsScriptUrl;
     
-    if (sheetsUrl) {
-      const response = await fetch(sheetsUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: email || 'Not provided',
-          feedback: feedback,
-          type: type || 'general',
-          timestamp: new Date().toISOString(),
-          source: 'specifys-ai-try-page'
-        })
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Google Sheets API error: ${response.status}`);
-      }
-      
-      console.log('✅ Feedback saved to Google Sheets');
-    } else {
-      // Fallback: log to console
-      console.log('📊 Google Sheets not configured, logging to console instead');
-      console.log('📋 Feedback Data:', {
+    const response = await fetch(googleAppsScriptUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
         email: email || 'Not provided',
         feedback: feedback,
         type: type || 'general',
-        timestamp: new Date().toISOString(),
-        source: 'specifys-ai-try-page'
-      });
+        source: source || 'specifys-ai-website'
+      })
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Google Apps Script error: ${response.status}`);
     }
+    
+    const result = await response.json();
+    console.log('✅ Feedback saved to Google Sheets via Apps Script:', result);
+    
   } catch (error) {
-    console.error('Error saving to Google Sheets:', error.message);
+    console.error('Error saving to Google Sheets via Apps Script:', error.message);
     // Don't fail the entire request if Sheets fails
+    console.log('📊 Falling back to console logging');
+    console.log('📋 Feedback Data:', {
+      email: email || 'Not provided',
+      feedback: feedback,
+      type: type || 'general',
+      source: source || 'specifys-ai-website',
+      timestamp: new Date().toISOString()
+    });
   }
 }
 
