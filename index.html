@@ -1758,10 +1758,12 @@ border: 0;
         submitBtn.disabled = true;
         submitBtn.textContent = 'Sending...';
         
-        // Send feedback to Google Apps Script
-        const url = 'https://script.google.com/macros/s/AKfycbym3fu04RejAdA6GHKV9lMkT5dgkB9cxgY9yZ0hPkGxJzPrSrO3pT0XgooeL_z4_mtayQ/exec';
+        // Send feedback to our local server (which handles CORS and forwards to Google Apps Script)
+        const url = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+          ? 'http://localhost:10000/api/feedback'
+          : 'https://your-production-server.com/api/feedback'; // Replace with your actual production server URL
         
-        // Send feedback data as JSON (compatible with Google Apps Script)
+        // Send feedback data as JSON
         const feedbackData = {
           email: email || 'Not provided',
           feedback: text,
@@ -1777,7 +1779,7 @@ border: 0;
         console.log('Request headers:', { 'Content-Type': 'application/json' });
         console.log('Request body:', JSON.stringify(feedbackData));
         
-        // Send single request with JSON data
+        // Send request to our server
         fetch(url, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
