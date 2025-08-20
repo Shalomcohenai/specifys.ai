@@ -1758,32 +1758,28 @@ border: 0;
         submitBtn.disabled = true;
         submitBtn.textContent = 'Sending...';
         
-        // Send feedback to our local server (which handles CORS and forwards to Google Apps Script)
-        const url = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-          ? 'http://localhost:10000/api/feedback'
-          : 'https://your-production-server.com/api/feedback'; // Replace with your actual production server URL
+        // Send feedback directly to Google Apps Script (like the newsletter does)
+        const url = 'https://script.google.com/macros/s/AKfycbym3fu04RejAdA6GHKV9lMkT5dgkB9cxgY9yZ0hPkGxJzPrSrO3pT0XgooeL_z4_mtayQ/exec';
         
-        // Send feedback data as JSON
-        const feedbackData = {
-          email: email || 'Not provided',
-          feedback: text,
-          type: 'user_feedback',
-          source: 'specifys_website'
-        };
+        // Send feedback data as form data (like the newsletter does)
+        const formData = new FormData();
+        formData.append('email', email || 'Not provided');
+        formData.append('feedback', text);
+        formData.append('type', 'user_feedback');
+        formData.append('source', 'specifys_website');
         
         // Log what we're sending
         console.log('=== FEEDBACK DEBUG START ===');
-        console.log('Sending feedback data:', feedbackData);
+        console.log('Sending feedback data:', Object.fromEntries(formData));
         console.log('Request URL:', url);
         console.log('Request method: POST');
-        console.log('Request headers:', { 'Content-Type': 'application/json' });
-        console.log('Request body:', JSON.stringify(feedbackData));
+        console.log('Request headers:', { 'Content-Type': 'application/x-www-form-urlencoded' });
         
-        // Send request to our server
+        // Send request directly to Google Apps Script (like the newsletter)
         fetch(url, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(feedbackData)
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams(formData)
         })
         .then(response => {
           console.log('=== RESPONSE RECEIVED ===');
