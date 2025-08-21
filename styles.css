@@ -220,8 +220,6 @@ body.page-default {
 }
 
 .mode-button[data-mode="market"] i::before {
-  content: "\f080";
-}
 
 
 
@@ -1450,4 +1448,29 @@ body.market .section-title {
 .dark-mode .platform-box[data-tooltip]::after {
   background-color: rgba(255, 255, 255, 0.9);
   color: #333;
+}
+/* Dark Mode for Mode Buttons */
+body.dark-mode .mode-button {
+  background-color: #0078d4;
+  color: #ffffff;
+  border: none;
+}
+
+body.dark-mode .mode-button:hover {
+  background-color: #005ea2;
+  transform: scale(1.05);
+}
+
+body.dark-mode .mode-button.active {
+  background-color: #23a6d5;
+  color: #ffffff;
+  border: 2px solid #23a6d5;
+}
+
+body.dark-mode .mode-button i {
+  color: #ffffff;
+}
+
+body.dark-mode .mode-button.active i {
+  color: #ffffff;
 }
