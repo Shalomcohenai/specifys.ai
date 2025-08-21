@@ -1,0 +1,32 @@
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://specifys-ai.com/sitemap.xml
+
+# Crawl-delay (optional - helps with server load)
+Crawl-delay: 1
+
+# Allow all major search engines
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+
+# Allow social media crawlers
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+User-agent: LinkedInBot
+Allow: /
+
+# Disallow admin or private areas (if any exist in the future)
+# Disallow: /admin/
+# Disallow: /private/
