@@ -1,45 +1,53 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- Root URL -->
+  <url>
+    <loc>https://specifys-ai.com/</loc>
+    <lastmod>2025-01-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  
   <!-- Main Pages -->
   <url>
     <loc>https://specifys-ai.com/index.html</loc>
-    <lastmod>2025-06-15</lastmod>
+    <lastmod>2025-01-20</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>1.0</priority>
+    <priority>0.9</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/about.html</loc>
-    <lastmod>2025-06-15</lastmod>
+    <lastmod>2025-01-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://specifys-ai.com/how.html</loc>
-    <lastmod>2025-06-15</lastmod>
+    <lastmod>2025-01-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://specifys-ai.com/landing.html</loc>
-    <lastmod>2025-06-15</lastmod>
+    <loc>https://specifys-ai.com/Demo.html</loc>
+    <lastmod>2025-01-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://specifys-ai.com/login.html</loc>
-    <lastmod>2025-06-15</lastmod>
+    <loc>https://specifys-ai.com/ToolPicker.html</loc>
+    <lastmod>2025-01-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://specifys-ai.com/blog-generator.html</loc>
+    <lastmod>2025-01-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://specifys-ai.com/register.html</loc>
-    <lastmod>2025-06-15</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://specifys-ai.com/dashboard.html</loc>
-    <lastmod>2025-06-15</lastmod>
+    <loc>https://specifys-ai.com/try/index.html</loc>
+    <lastmod>2025-01-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>

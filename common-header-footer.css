@@ -465,13 +465,13 @@ body.dark-mode a:hover {
 
 /* Dark Mode for Buttons */
 body.dark-mode button {
-  background: #005ea2;
+  background: transparent;
   color: #ffffff;
   border: none;
 }
 
 body.dark-mode button:hover {
-  background: #004080;
+  background: transparent;
 }
 
 /* Remove blue focus rings on buttons and header toggles in dark mode */

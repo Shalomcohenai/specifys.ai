@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="About Specifys.ai">
   <meta name="description" content="Learn about Specifys.ai, our mission, and the story behind our AI-driven app specification platform.">
   <meta name="keywords" content="specifys.ai, about us, app development, vibe coding">
   <meta name="author" content="specifys.ai Team">
@@ -78,6 +81,40 @@
     .content-box .btn { display: inline-block; padding: 10px 20px; background: #0078d4; color: #fff; text-decoration: none; border-radius: 5px; font-size: 1rem; font-weight: 700; transition: background-color 0.3s ease, transform 0.3s ease; }
     .content-box .btn:hover { background: #005ea2; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); }
     
+    /* Dark Mode Styles */
+    body.dark-mode {
+      background: #1a1a1a;
+      color: #e0e0e0;
+    }
+    
+    body.dark-mode .content-box {
+      background: rgba(42, 42, 42, 0.95);
+      color: #e0e0e0;
+    }
+    
+    body.dark-mode .content-box h1 {
+      color: #e0e0e0;
+    }
+    
+    body.dark-mode .content-box h2 {
+      color: #ccc;
+    }
+    
+    body.dark-mode .content-box p {
+      color: #ccc;
+    }
+    
+    body.dark-mode .content-box .btn {
+      background: transparent;
+      border: none;
+      color: #e0e0e0;
+    }
+    
+    body.dark-mode .content-box .btn:hover {
+      background: transparent;
+      transform: translateY(-2px);
+    }
+
     @media (max-width: 768px) {
       .content-box { margin: 40px 15px; padding: 20px; }
       .content-box h1 { font-size: clamp(1.4rem, 3vw, 2rem); }

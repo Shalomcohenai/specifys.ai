@@ -5,8 +5,36 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="Specifys.ai - Plan your dream app for free with smart AI tools, including Vibe Coding Tools Map and Tool Finder. Choose an easy track for beginners, tools for developers, or market research for entrepreneurs.">
 <meta name="keywords" content="app planning, AI, developers, beginners, market research, entrepreneurship, vibe coding tools, tool Finder, free software">
-<meta name="robots" content="index, follow">
+<meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
 <meta name="author" content="Specifys.ai">
+<meta name="copyright" content="© 2025 Specifys.ai">
+<meta name="language" content="English">
+<meta name="revisit-after" content="7 days">
+<meta name="distribution" content="global">
+<meta name="rating" content="general">
+<meta name="theme-color" content="#4A90E2">
+<meta name="msapplication-TileColor" content="#4A90E2">
+
+<!-- Open Graph Meta Tags -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://specifys-ai.com/">
+<meta property="og:title" content="Specifys.ai - Plan Your App Idea for Free">
+<meta property="og:description" content="Plan your dream app for free with smart AI tools, including Vibe Coding Tools Map and Tool Finder. Choose an easy track for beginners, tools for developers, or market research for entrepreneurs.">
+<meta property="og:image" content="https://specifys-ai.com/og-image.jpg">
+<meta property="og:site_name" content="Specifys.ai">
+<meta property="og:locale" content="en_US">
+
+<!-- Twitter Card Meta Tags -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:url" content="https://specifys-ai.com/">
+<meta name="twitter:title" content="Specifys.ai - Plan Your App Idea for Free">
+<meta name="twitter:description" content="Plan your dream app for free with smart AI tools, including Vibe Coding Tools Map and Tool Finder. Choose an easy track for beginners, tools for developers, or market research for entrepreneurs.">
+<meta name="twitter:image" content="https://specifys-ai.com/twitter-image.jpg">
+<meta name="twitter:site" content="@specifys_ai">
+
+<!-- Canonical Link -->
+<link rel="canonical" href="https://specifys-ai.com/">
+
 <title>Specifys.ai - Plan Your App Idea for Free</title>
 <link rel="icon" type="image/x-icon" href="favicon.ico" alt="Specifys.ai logo icon">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -1373,9 +1401,9 @@ border: 0;
 <h2>Start Your App Journey</h2>
 <p>Plan your app with AI-driven specs, explore tools with Vibe Coding Tools Map, or pick the perfect tool with Tool Finder.</p>
 <div class="mode-buttons" id="modeButtons">
-<button class="mode-button" data-mode="novice" onmouseover="specifys.showTrackInfo('novice')" onmouseout="specifys.resumeAutoCycle()" ontouchstart="specifys.showTrackInfo('novice')" ontouchend="specifys.resumeAutoCycle()" onclick="specifys.selectMode('novice')" aria-label="Select Start-Easy mode for non-programmers"><i class="fas fa-edit"></i>Start-Easy</button>
-<button class="mode-button" data-mode="developers" onmouseover="specifys.showTrackInfo('developers')" onmouseout="specifys.resumeAutoCycle()" ontouchstart="specifys.showTrackInfo('developers')" ontouchend="specifys.resumeAutoCycle()" onclick="specifys.selectMode('developers')" aria-label="Select Dev-Tools mode for developers"><i class="fas fa-code"></i>Dev-Tools</button>
-<button class="mode-button" data-mode="market" onmouseover="specifys.showTrackInfo('market')" onmouseout="specifys.resumeAutoCycle()" ontouchstart="specifys.showTrackInfo('market')" ontouchend="specifys.resumeAutoCycle()" onclick="specifys.selectMode('market')" aria-label="Select Explore mode for entrepreneurs"><i class="fas fa-chart-bar"></i>Explore</button>
+<button class="mode-button" data-mode="novice" onmouseover="specifys.showTrackInfo('novice')" onmouseout="specifys.resumeAutoCycle()" ontouchstart="specifys.showTrackInfo('novice')" ontouchend="specifys.resumeAutoCycle()" onclick="specifys.selectMode('novice'); trackModeSelection('novice');" aria-label="Select Start-Easy mode for non-programmers"><i class="fas fa-edit"></i>Start-Easy</button>
+<button class="mode-button" data-mode="developers" onmouseover="specifys.showTrackInfo('developers')" onmouseout="specifys.resumeAutoCycle()" ontouchstart="specifys.showTrackInfo('developers')" ontouchend="specifys.resumeAutoCycle()" onclick="specifys.selectMode('developers'); trackModeSelection('developers');" aria-label="Select Dev-Tools mode for developers"><i class="fas fa-code"></i>Dev-Tools</button>
+<button class="mode-button" data-mode="market" onmouseover="specifys.showTrackInfo('market')" onmouseout="specifys.resumeAutoCycle()" ontouchstart="specifys.showTrackInfo('market')" ontouchend="specifys.resumeAutoCycle()" onclick="specifys.selectMode('market'); trackModeSelection('market');" aria-label="Select Explore mode for entrepreneurs"><i class="fas fa-chart-bar"></i>Explore</button>
 </div>
 <div class="track-info" id="trackInfo"></div>
 <div class="track-links">
@@ -1401,7 +1429,7 @@ border: 0;
 <i class="fas fa-rocket"></i>
 <h3>Welcome to Specifys.ai</h3>
 <p>Select your track: Start-Easy for beginners, Dev-Tools for coders, or Explore for market research. Use our <a href="map/vibe-coding-tools-map.html">Vibe Coding Tools Map</a> to explore AI-driven tools or <a href="https://specifys-ai.com/ToolPicker">Tool Finder</a> to find the perfect match for your app-building needs, all for free!</p>
-<button class="popup-start" onclick="specifys.closePopup('start')">Start Now</button>
+<button class="popup-start" onclick="specifys.closePopup('start'); trackButtonClick('start_here');" aria-label="Start planning your app now">Start Now</button>
 </div>
 </div>
 </div>
@@ -1409,7 +1437,7 @@ border: 0;
 <div class="section" style="--section-index: 0;">
 <h2>Explore Vibe Coding Tools Map</h2>
 <p>Discover a curated collection of AI-driven tools with our Vibe Coding Tools Map, from no-code platforms to UI/UX prototyping, to kickstart your app development.</p>
-<a href="map/vibe-coding-tools-map.html" class="cta-button">Explore Tools Map</a>
+<a href="map/vibe-coding-tools-map.html" class="cta-button" onclick="trackButtonClick('explore_tools_map')">Explore Tools Map</a>
 </div>
 <div class="section" style="--section-index: 1;">
 <h2>Our Impact</h2>
@@ -2095,6 +2123,69 @@ currentIdeaIndex = (currentIdeaIndex + 1) % ideas.length;
             }
           });
         });
+        
+        // Analytics and Event Tracking Functions
+        function trackEvent(action, category, label, value) {
+          if (typeof gtag !== 'undefined') {
+            gtag('event', action, {
+              'event_category': category,
+              'event_label': label,
+              'value': value
+            });
+          }
+        }
+        
+        function trackPageView(page_title, page_location) {
+          if (typeof gtag !== 'undefined') {
+            gtag('event', 'page_view', {
+              'page_title': page_title,
+              'page_location': page_location
+            });
+          }
+        }
+        
+        function trackUserInteraction(element_type, element_id) {
+          trackEvent('user_interaction', element_type, element_id);
+        }
+        
+        function trackFormSubmission(form_name) {
+          trackEvent('form_submission', 'form', form_name);
+        }
+        
+        function trackButtonClick(button_name) {
+          trackEvent('button_click', 'button', button_name);
+        }
+        
+        function trackModeSelection(mode) {
+          trackEvent('mode_selection', 'track', mode);
+        }
+        
+        function trackToolUsage(tool_name) {
+          trackEvent('tool_usage', 'tool', tool_name);
+        }
+        
+        // Performance Monitoring
+        if ('performance' in window) {
+          window.addEventListener('load', () => {
+            setTimeout(() => {
+              const perfData = performance.getEntriesByType('navigation')[0];
+              if (perfData) {
+                const pageLoadTime = perfData.loadEventEnd - perfData.loadEventStart;
+                trackEvent('page_load_time', 'performance', 'load_time', Math.round(pageLoadTime));
+              }
+            }, 0);
+          });
+        }
+        
+        // Error Tracking
+        window.addEventListener('error', (e) => {
+          trackEvent('javascript_error', 'error', e.message, 1);
+        });
+        
+        window.addEventListener('unhandledrejection', (e) => {
+          trackEvent('unhandled_promise_rejection', 'error', e.reason, 1);
+        });
+        
       });
     })();
 </script>
