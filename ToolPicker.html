@@ -242,6 +242,10 @@
     body.dark-mode .success-message {
       color: #4caf50;
     }
+    
+    body.dark-mode .search-instructions {
+      color: #e0e0e0;
+    }
     .search-input:focus { 
       border-color: #0078d4; 
       outline: none; 
@@ -614,10 +618,9 @@
       const tool2Name = document.querySelector(".tool2-name");
       const tool3Name = document.querySelector(".tool3-name");
       const errorMessage = document.querySelector("#error-message");
-      const successMessage = document.querySelector(".success-message");
+      const successMessage = document.querySelector("#success-message");
       const featuresSection = document.querySelector(".features-section");
       const charCounter = document.querySelector(".char-counter");
-      const themeToggle = document.getElementById('themeToggle');
 
       const customLinks = {
         'base44': 'https://base44.com/?via=shalom-cohen',
@@ -757,16 +760,7 @@
         });
       });
 
-      themeToggle.addEventListener('click', () => {
-        document.body.classList.toggle('dark-mode');
-        const isDarkMode = document.body.classList.contains('dark-mode');
-        themeToggle.querySelector('i').classList.toggle('fa-moon', !isDarkMode);
-        themeToggle.querySelector('i').classList.toggle('fa-sun', isDarkMode);
-        themeToggle.setAttribute('aria-label', isDarkMode ? 'Toggle light mode' : 'Toggle dark mode');
-        localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
-      });
-
-      // Theme toggle functionality is now handled by common-header-footer.js
+      // Theme toggle functionality is handled by common-header-footer.js
     });
   </script>
   <script src="common-header-footer.js"></script>
