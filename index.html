@@ -1248,7 +1248,7 @@ border: 0;
       <p>Build faster with AI-driven insights</p>
     </div>
     <div class="hero-button-container">
-      <a href="processing-unified.html" class="hero-button">
+      <a href="processing-unified.html" class="hero-button" onclick="trackStartNowClick()">
         <span class="button-text">Start Now</span>
         <span class="button-arrow">→</span>
       </a>
@@ -1800,6 +1800,20 @@ gtag('event', action, {
 'event_label': label,
 'value': value
 });
+}
+}
+
+// Track Start Now Button Clicks
+function trackStartNowClick() {
+if (typeof gtag !== 'undefined') {
+gtag('event', 'click', {
+'event_category': 'engagement',
+'event_label': 'start_now_button',
+'event_source': 'hero_section',
+'page_title': document.title,
+'page_location': window.location.href
+});
+console.log('Analytics: Start Now button clicked');
 }
 }
 
