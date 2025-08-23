@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Choose your mode and answer guided questions to refine your app idea with specifys.ai.">
+  <meta name="keywords" content="processing app idea, guided questions, AI specification, app development, specifys.ai, NoCode app builder, app specification tool, market research">
+  <meta name="author" content="specifys.ai Team">
+  <meta name="robots" content="index, follow">
+  <meta name="googlebot" content="index, follow">
+  <meta name="bingbot" content="index, follow">
+  <meta name="revisit-after" content="7 days">
+  <meta name="language" content="English">
+  <meta name="copyright" content="© 2025 specifys.ai">
+  <meta name="publisher" content="specifys.ai">
+  <meta name="distribution" content="global">
+  <meta name="rating" content="general">
+  <meta name="theme-color" content="#0078d4">
+  <meta name="canonical" content="processing-unified.html">
+  <meta property="og:title" content="specifys.ai - Unified App Planning Mode">
+  <meta property="og:description" content="Choose your mode and answer guided questions to refine your app idea with specifys.ai.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="processing-unified.html">
+  <meta property="og:image" content="assets/og-image.jpg">
+  <meta property="og:image:alt" content="Unified App Planning Mode with specifys.ai">
+  <meta property="og:site_name" content="Specifys.ai">
+  <meta property="og:locale" content="en_US">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="specifys.ai - Unified App Planning Mode">
+  <meta name="twitter:description" content="Choose your mode and answer guided questions to refine your app idea with specifys.ai.">
+  <meta name="twitter:image" content="assets/og-image.jpg">
+  <meta name="twitter:site" content="@specifys_ai">
+  <meta name="twitter:creator" content="@specifys_ai">
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "headline": "specifys.ai - Unified App Planning Mode",
+      "description": "Choose your mode and answer guided questions to refine your app idea with specifys.ai.",
+      "image": "assets/og-image.jpg",
+      "author": {
+        "@type": "Organization",
+        "name": "specifys.ai Team"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "Specifys.ai",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "assets/logo.png"
+        }
+      },
+      "url": "processing-unified.html",
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "processing-unified.html"
+      },
+      "keywords": "processing app idea, guided questions, AI specification, app development, specifys.ai, NoCode app builder, app specification tool, market research"
+    }
+  </script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-RWBT69JCM7');
+    gtag('config', 'AW-1000505244');
+  </script>
+  <title>specifys.ai - Unified App Planning Mode</title>
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="common-header-footer.css">
+  <script defer src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"></script>
+  <script defer src="processing-unified.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap');
+
+    :root {
+      --bg-color: #f8f9fa;
+      --text-color: #333;
+      --primary-color: #0078d4;
+      --secondary-color: #6c757d;
+      --light-gray: #e9ecef;
+      --border-color: #dee2e6;
+      --chat-bg: #fff;
+      --system-msg-bg: #f8f9fa;
+      --user-msg-bg: #0078d4;
+      --user-msg-text: #fff;
+      --input-bg: #fff;
+      --input-border: #dee2e6;
+      --button-hover: #005ea2;
+      --progress-bg: #e9ecef;
+      --progress-fill: #0078d4;
+      --chat-header-bg: #0078d4;
+      --chat-header-text: #fff;
+    }
+
+    /* Dark Mode Variables */
+    body.dark-mode {
+      --bg-color: #1a1a1a;
+      --text-color: #e0e0e0;
+      --primary-color: #0078d4;
+      --secondary-color: #999;
+      --light-gray: #2a2a2a;
+      --border-color: #444;
+      --chat-bg: #2a2a2a;
+      --system-msg-bg: #333;
+      --user-msg-bg: #0078d4;
+      --user-msg-text: #fff;
+      --input-bg: #333;
+      --input-border: #555;
+      --button-hover: #005ea2;
+      --progress-bg: #444;
+      --progress-fill: #0078d4;
+      --chat-header-bg: #005ea2;
+      --chat-header-text: #fff;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      line-height: 1.6;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .chat-container {
+      max-width: 800px;
+      margin: 20px auto;
+      background: var(--chat-bg);
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      overflow: visible;
+      height: calc(100vh - 80px);
+      min-height: 700px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chat-header {
+      background: var(--chat-header-bg);
+      color: var(--chat-header-text);
+      padding: 20px;
+      text-align: center;
+      margin-top: 80px;
+      position: relative;
+      z-index: 100;
+    }
+
+    .chat-header h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin: 0;
+      position: relative;
+      z-index: 10;
+    }
+
+    .chat-controls {
+      display: flex;
+      gap: 16px;
+      margin-top: 0;
+      justify-content: space-between;
+      position: absolute;
+      top: 16px;
+      left: 20px;
+      right: 20px;
+      width: calc(100% - 40px);
+    }
+
+    .control-button {
+      width: 40px;
+      height: 40px;
+      padding: 0;
+      border: 2px solid var(--chat-header-text);
+      background: transparent;
+      color: var(--chat-header-text);
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      z-index: 101;
+    }
+
+    .control-button:hover {
+      background: var(--chat-header-text);
+      color: var(--chat-header-bg);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .control-button:active {
+      transform: translateY(0);
+    }
+
+    .control-button i {
+      font-size: 16px;
+    }
+
+    /* Tooltip styles */
+    .control-button::before {
+      content: attr(title);
+      position: fixed;
+      left: var(--tooltip-left, 50%);
+      top: var(--tooltip-top, 100%);
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.9);
+      color: white;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      white-space: nowrap;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    .control-button::after {
+      content: '';
+      position: absolute;
+      bottom: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 5px solid transparent;
+      border-top-color: rgba(0, 0, 0, 0.8);
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+      pointer-events: none;
+    }
+
+    .control-button:hover::before,
+    .control-button:hover::after {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    /* JavaScript will position the tooltip dynamically */
+    .control-button[data-tooltip-position]::before {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    /* Special effects for reset button */
+    .reset-button:hover {
+      animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: translateY(-2px) scale(1); }
+      50% { transform: translateY(-2px) scale(1.1); }
+      100% { transform: translateY(-2px) scale(1); }
+    }
+
+    /* Special effects for back button */
+    .back-button:hover {
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      0% { transform: translateX(-5px) scale(1); }
+      100% { transform: translateX(0) scale(1); }
+    }
+
+    .back-button {
+      opacity: 0;
+      visibility: hidden;
+      transform: scale(0.8);
+      transition: all 0.3s ease;
+    }
+
+    .back-button.show {
+      opacity: 1;
+      visibility: visible;
+      transform: scale(1);
+    }
+
+    /* Loading Animation */
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      backdrop-filter: blur(5px);
+    }
+
+    .loading-content {
+      background: var(--chat-bg);
+      padding: 40px;
+      border-radius: 20px;
+      text-align: center;
+      border: 2px solid var(--border-color);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .loading-spinner {
+      width: 60px;
+      height: 60px;
+      border: 4px solid var(--border-color);
+      border-top: 4px solid var(--primary-color);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+
+    .loading-text {
+      color: var(--text-color);
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .loading-subtext {
+      color: var(--secondary-color);
+      font-size: 14px;
+      opacity: 0.8;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .progress-dots {
+      display: inline-block;
+      animation: progressDots 1.5s infinite;
+    }
+
+    @keyframes progressDots {
+      0%, 20% { content: "Generating"; }
+      40% { content: "Generating."; }
+      60% { content: "Generating.."; }
+      80%, 100% { content: "Generating..."; }
+    }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: visible;
+      padding: 20px;
+      background: var(--chat-bg);
+      position: relative;
+      z-index: 1;
+    }
+
+    .message {
+      margin-bottom: 20px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      animation: fadeIn 0.3s ease-in;
+    }
+
+    .message.system {
+      flex-direction: row;
+    }
+
+    .message.user {
+      flex-direction: row-reverse;
+    }
+
+    .message-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .message.system .message-avatar {
+      background: var(--secondary-color);
+      color: white;
+    }
+
+    .message.user .message-avatar {
+      background: var(--primary-color);
+      color: white;
+    }
+
+    .message-content {
+      flex: 1;
+      max-width: 70%;
+    }
+
+    .message.system .message-content {
+      background: var(--system-msg-bg);
+      padding: 16px;
+      border-radius: 18px;
+      border: 1px solid var(--border-color);
+      color: var(--text-color);
+      transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+    }
+
+    .message.user .message-content {
+      background: var(--user-msg-bg);
+      color: var(--user-msg-text);
+      padding: 16px;
+      border-radius: 18px;
+      position: relative;
+    }
+
+    .message-text {
+      font-size: 16px;
+      line-height: 1.5;
+      word-wrap: break-word;
+    }
+
+    .message.examples .message-content {
+      background: var(--light-gray);
+      border-left: 4px solid var(--primary-color);
+    }
+
+    .examples-title {
+      font-weight: 600;
+      color: var(--primary-color);
+      margin-bottom: 8px;
+    }
+
+    .examples-text {
+      font-style: italic;
+      color: var(--secondary-color);
+    }
+
+    .chat-input-container {
+      padding: 20px;
+      background: var(--chat-bg);
+      border-top: 1px solid var(--border-color);
+      transition: background-color 0.3s ease;
+      position: relative;
+      z-index: 1;
+    }
+
+    .chat-input-wrapper {
+      display: flex;
+      gap: 12px;
+      align-items: flex-end;
+    }
+
+    .chat-input {
+      flex: 1;
+      padding: 16px;
+      border: 2px solid var(--input-border);
+      border-radius: 20px;
+      font-size: 16px;
+      font-family: inherit;
+      background: var(--input-bg);
+      color: var(--text-color);
+      resize: none;
+      min-height: 60px;
+      max-height: 120px;
+      transition: border-color 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .chat-input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+    }
+
+    .send-button {
+      padding: 16px 24px;
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 20px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      min-width: 100px;
+    }
+
+    .send-button:hover:not(:disabled) {
+      background: var(--button-hover);
+    }
+
+    .send-button:disabled {
+      background: var(--secondary-color);
+      cursor: not-allowed;
+    }
+
+    .progress-container {
+      padding: 20px;
+      background: var(--chat-bg);
+      border-top: 1px solid var(--border-color);
+      transition: background-color 0.3s ease;
+      position: relative;
+      z-index: 1;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 6px;
+      background: var(--progress-bg);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--progress-fill);
+      transition: width 0.3s ease;
+      border-radius: 3px;
+    }
+
+    .progress-text {
+      text-align: center;
+      margin-top: 8px;
+      font-size: 0.9rem;
+      color: var(--secondary-color);
+      transition: color 0.3s ease;
+    }
+
+    .mode-selection {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+
+    .mode-option {
+      padding: 16px 24px;
+      background: var(--light-gray);
+      border: 2px solid var(--border-color);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: center;
+      min-width: 200px;
+      transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
+    }
+
+    .mode-option:hover {
+      border-color: var(--primary-color);
+      background: var(--chat-bg);
+      transform: translateY(-2px);
+    }
+
+    .mode-option.selected {
+      border-color: var(--primary-color);
+      background: var(--primary-color);
+      color: white;
+    }
+
+    .mode-icon {
+      font-size: 24px;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .mode-title {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .mode-description {
+      font-size: 14px;
+      opacity: 0.8;
+    }
+
+    .yes-no-buttons {
+      display: flex;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .yes-no-button {
+      padding: 10px 24px;
+      border: 2px solid var(--border-color);
+      background: var(--input-bg);
+      color: var(--text-color);
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-weight: 500;
+    }
+
+    .yes-no-button:hover {
+      border-color: var(--primary-color);
+      background: var(--primary-color);
+      color: white;
+    }
+
+    .yes-no-button.selected {
+      border-color: var(--primary-color);
+      background: var(--primary-color);
+      color: white;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 768px) {
+      .chat-container {
+        margin: 10px;
+        height: calc(100vh - 60px);
+        min-height: 600px;
+      }
+      
+      .chat-header {
+        margin-top: 60px;
+        padding: 16px;
+      }
+      
+      .chat-header h1 {
+        font-size: 1.3rem;
+      }
+      
+      .message-content {
+        max-width: 85%;
+      }
+      
+      .mode-selection {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .mode-option {
+        min-width: 280px;
+      }
+      
+      .yes-no-buttons {
+        flex-direction: column;
+      }
+      
+      .yes-no-button {
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="thematic-header" role="banner">
+    <div class="logo">
+      <a href="index.html" aria-label="Specifys.ai homepage">Specifys.ai</a>
+    </div>
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode"><i class="fas fa-moon"></i></button>
+    <button class="menu-toggle" aria-label="Toggle navigation menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
+    <div class="header-links">
+      <a href="blog.html" aria-label="Visit our blog">Blog</a>
+      <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
+      <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
+      <a href="map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
+      <a href="ToolPicker.html" aria-label="Use our Tool Finder">Tool Finder</a>
+    </div>
+  </header>
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-content">
+      <div class="loading-spinner"></div>
+      <div class="loading-text">Generating Your Specification</div>
+      <div class="loading-subtext">This may take a few moments...</div>
+    </div>
+  </div>
+
+  <!-- Main Chat Container -->
+  <div class="chat-container">
+    <div class="chat-header">
+      <h1>Choose Your Mode & Plan Your App</h1>
+              <div class="chat-controls">
+          <button id="resetChat" class="control-button reset-button" title="Start a new conversation">
+            <i class="fas fa-redo"></i>
+          </button>
+          <button id="goBack" class="control-button back-button" title="Go back to previous question">
+            <i class="fas fa-arrow-left"></i>
+          </button>
+        </div>
+    </div>
+    
+    <div class="chat-messages" id="chatMessages">
+      <!-- Messages will be dynamically added here -->
+    </div>
+    
+    <div class="chat-input-container" id="chatInputArea">
+      <div class="chat-input-wrapper">
+        <textarea 
+          id="chatInput" 
+          class="chat-input" 
+          placeholder="Type your answer here..."
+          rows="1"
+        ></textarea>
+        <button id="sendButton" class="send-button">
+          <i class="fas fa-paper-plane"></i>
+        </button>
+      </div>
+    </div>
+    
+    <div class="progress-container">
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <div class="progress-text" id="progressText">Ready to start</div>
+    </div>
+  </div>
+
+  <script src="common-header-footer.js"></script>
+  <script src="prompts.js"></script>
+
+  <noscript>
+    <div style="text-align: center; padding: 20px; background: #fff; color: #333;">
+      <p>This website requires JavaScript to function properly. Please enable JavaScript in your browser settings.</p>
+    </div>
+  </noscript>
+</body>
+</html>

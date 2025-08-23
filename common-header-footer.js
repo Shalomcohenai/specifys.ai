@@ -17,6 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
 // Theme Toggle Functionality
 function initializeThemeToggle() {
   const themeToggle = document.getElementById('themeToggle');
+  
   if (themeToggle) {
     themeToggle.addEventListener('click', () => {
       document.body.classList.toggle('dark-mode');
@@ -109,30 +110,104 @@ function loadSavedTheme() {
   const savedTheme = localStorage.getItem('theme');
   const themeToggle = document.getElementById('themeToggle');
   
-  // ALWAYS start with light mode
-  document.body.classList.remove('dark-mode');
+  // Check if we're on the homepage (index.html)
+  const isHomepage = window.location.pathname.endsWith('index.html') || 
+                     window.location.pathname.endsWith('/') || 
+                     window.location.pathname === '';
   
-  if (themeToggle) {
-    const icon = themeToggle.querySelector('i');
-    if (icon) {
-      icon.classList.replace('fa-sun', 'fa-moon');
+  if (isHomepage) {
+    // On homepage: check system preference for dark mode
+    const systemPrefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    
+    // Determine initial theme:
+    // 1. If user explicitly chose a theme, use that
+    // 2. Otherwise, follow system preference
+    let shouldUseDarkMode = false;
+    
+    if (savedTheme === 'dark') {
+      shouldUseDarkMode = true;
+    } else if (savedTheme === 'light') {
+      shouldUseDarkMode = false;
+    } else {
+      // No saved preference, follow system
+      shouldUseDarkMode = systemPrefersDark;
     }
-    themeToggle.setAttribute('aria-label', 'Toggle dark mode');
-  }
-  
-  // Only apply dark mode if user explicitly chose it
-  if (savedTheme === 'dark') {
-    document.body.classList.add('dark-mode');
+    
+    // Apply the determined theme
+    if (shouldUseDarkMode) {
+      document.body.classList.add('dark-mode');
+      if (themeToggle) {
+        const icon = themeToggle.querySelector('i');
+        if (icon) {
+          icon.classList.replace('fa-moon', 'fa-sun');
+        }
+        themeToggle.setAttribute('aria-label', 'Toggle light mode');
+      }
+    } else {
+      document.body.classList.remove('dark-mode');
+      if (themeToggle) {
+        const icon = themeToggle.querySelector('i');
+        if (icon) {
+          icon.classList.replace('fa-sun', 'fa-moon');
+        }
+        themeToggle.setAttribute('aria-label', 'Toggle dark mode');
+      }
+    }
+    
+    // Save the current theme to localStorage
+    localStorage.setItem('theme', shouldUseDarkMode ? 'dark' : 'light');
+    
+    // Listen for system theme changes (only on homepage)
+    if (window.matchMedia) {
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      mediaQuery.addEventListener('change', (e) => {
+        // Only auto-switch if user hasn't explicitly chosen a theme
+        if (!localStorage.getItem('theme')) {
+          if (e.matches) {
+            document.body.classList.add('dark-mode');
+            localStorage.setItem('theme', 'dark');
+          } else {
+            document.body.classList.remove('dark-mode');
+            localStorage.setItem('theme', 'light');
+          }
+          // Update theme toggle button
+          if (themeToggle) {
+            const icon = themeToggle.querySelector('i');
+            if (icon) {
+              icon.className = e.matches ? 'fas fa-sun' : 'fas fa-moon';
+            }
+            themeToggle.setAttribute('aria-label', e.matches ? 'Toggle light mode' : 'Toggle dark mode');
+          }
+        }
+      });
+    }
+  } else {
+    // On other pages: use normal theme loading (no system preference check)
+    // ALWAYS start with light mode
+    document.body.classList.remove('dark-mode');
+    
     if (themeToggle) {
       const icon = themeToggle.querySelector('i');
       if (icon) {
-        icon.classList.replace('fa-moon', 'fa-sun');
+        icon.classList.replace('fa-sun', 'fa-moon');
       }
-      themeToggle.setAttribute('aria-label', 'Toggle light mode');
+      themeToggle.setAttribute('aria-label', 'Toggle dark mode');
     }
-  } else {
-    // Force light mode and save it
-    localStorage.setItem('theme', 'light');
+    
+    // Only apply dark mode if user explicitly chose it
+    if (savedTheme === 'dark') {
+      document.body.classList.add('dark-mode');
+      if (themeToggle) {
+        const icon = themeToggle.querySelector('i');
+        if (icon) {
+          icon.classList.replace('fa-moon', 'fa-sun');
+        }
+        themeToggle.setAttribute('aria-label', 'Toggle light mode');
+      }
+    } else {
+      // Force light mode and save it
+      localStorage.setItem('theme', 'light');
+    }
   }
 }
 
@@ -154,6 +229,8 @@ function toggleDarkMode() {
   // Save to localStorage
   localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
 }
+
+
 
 // Export functions for use in other scripts
 window.SpecifysCommon = {
