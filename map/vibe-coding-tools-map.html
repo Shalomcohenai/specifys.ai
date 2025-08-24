@@ -138,7 +138,140 @@
       display: flex;
       flex-direction: column;
       min-height: 100%;
-      background: var(--background-color);
+      background: #f5f5f5 !important;
+    }
+    
+    body.dark-mode {
+      background: #1a1a1a !important;
+    }
+    
+    /* Force light mode styles - but preserve category colors */
+    body:not(.dark-mode) {
+      background: #f5f5f5 !important;
+      color: #333 !important;
+    }
+    
+    body:not(.dark-mode) .main-content-wrapper {
+      background: rgba(255, 255, 255, 0.95) !important;
+      color: #333 !important;
+    }
+    
+    body:not(.dark-mode) .tool-card {
+      background: #fff !important;
+      color: #333 !important;
+      border: 1px solid #ddd !important;
+    }
+    
+    body:not(.dark-mode) .tool-card h3,
+    body:not(.dark-mode) .tool-card p:not(.tool-category),
+    body:not(.dark-mode) .tool-card .tool-description,
+    body:not(.dark-mode) .tool-card .tool-pros {
+      color: #333 !important;
+    }
+    
+    body:not(.dark-mode) .category-filter {
+      background: rgba(255, 255, 255, 0.95) !important;
+    }
+    
+    body:not(.dark-mode) .header-text h1,
+    body:not(.dark-mode) .header-text p {
+      color: #333 !important;
+    }
+    
+    /* Fix dark mode buttons */
+    body.dark-mode .category-filter button {
+      background: #333 !important;
+      color: #fff !important;
+      border: 1px solid #555 !important;
+    }
+    
+    body.dark-mode .category-filter button.active {
+      background: #555 !important;
+      color: #fff !important;
+    }
+    
+    body.dark-mode .tool-card {
+      background: #2a2a2a !important;
+      color: #fff !important;
+      border: 1px solid #444 !important;
+    }
+    
+    body.dark-mode .tool-card h3,
+    body.dark-mode .tool-card p,
+    body.dark-mode .tool-card .tool-description,
+    body.dark-mode .tool-card .tool-pros {
+      color: #fff !important;
+    }
+    
+    /* Preserve category colors in both modes */
+    .category-filter .prompt-to-app-builders-btn.active {
+      border-color: #23a6d5 !important;
+      color: #23a6d5 !important;
+    }
+    
+    .category-filter .prototyping-tools-btn.active {
+      border-color: #e57373 !important;
+      color: #e57373 !important;
+    }
+    
+    .category-filter .user-design-btn.active {
+      border-color: #888 !important;
+      color: #888 !important;
+    }
+    
+    .category-filter .ai-augmented-ides-code-assistants-btn.active {
+      border-color: #e73c7e !important;
+      color: #e73c7e !important;
+    }
+    
+    .category-filter .ai-agent-workflow-tools-btn.active {
+      border-color: #ee7752 !important;
+      color: #ee7752 !important;
+    }
+    
+    .category-filter .deployment-marketing-integrations-btn.active {
+      border-color: #2e7d32 !important;
+      color: #2e7d32 !important;
+    }
+    
+    .category-filter .data-driven-app-builders-btn.active {
+      border-color: #0288d1 !important;
+      color: #0288d1 !important;
+    }
+    
+    .category-filter .business-process-automation-btn.active {
+      border-color: #7b1fa2 !important;
+      color: #7b1fa2 !important;
+    }
+    
+    .category-filter .game-development-tools-btn.active {
+      border-color: #d81b60 !important;
+      color: #d81b60 !important;
+    }
+    
+    .category-filter .code-security-tools-btn.active {
+      border-color: #388e3c !important;
+      color: #388e3c !important;
+    }
+    
+    .category-filter .ui-ux-code-tools-btn.active {
+      border-color: #f57c00 !important;
+      color: #f57c00 !important;
+    }
+    
+    .category-filter .educational-coding-tools-btn.active {
+      border-color: #00838f !important;
+      color: #00838f !important;
+    }
+    
+    .category-filter .ar-vr-development-tools-btn.active {
+      border-color: #c2185b !important;
+      color: #c2185b !important;
+    }
+    
+    .category-filter .misc-tools-btn.active {
+      border-color: #6b7280 !important;
+      color: #6b7280 !important;
     }
 
 
@@ -717,41 +850,7 @@
       background: var(--scroll-to-top-hover);
     }
 
-    @media (prefers-color-scheme: dark) {
-      body:not(.light-mode) {
-        --background-color: #1a1a1a;
-        --header-background: rgba(40, 40, 40, 0.9);
-        --header-text: #ffffff;
-        --footer-background: #2a2a2a;
-        --footer-text: #ffffff;
-        --footer-link: #ffffff;
-        --footer-link-hover: #00b7c3;
-        --footer-divider: #ffffff;
-        --footer-social: #ffffff;
-        --footer-social-hover: #00b7c3;
-        --footer-copyright: #cccccc;
-        --content-background: #2a2a2a;
-        --content-text: #ffffff;
-        --content-link: #00b7c3;
-        --content-link-hover: #0097a7;
-        --category-filter-background: rgba(40, 40, 40, 0.9);
-        --category-filter-button: #333;
-        --category-filter-button-border: #555;
-        --tool-card-background: #2a2a2a;
-        --tool-card-border: #444;
-        --tool-description: #cccccc;
-        --tool-pros: #bbbbbb;
-        --tool-rating: #f4c430;
-        --cta-background: rgba(40, 40, 40, 0.9);
-        --newsletter-background: #2a2a2a;
-        --newsletter-text: #ffffff;
-        --newsletter-input-background: #333;
-        --newsletter-input-border: #555;
-        --scroll-to-top-background: #00b7c3;
-        --scroll-to-top-hover: #0097a7;
-        --error-message: #ff6666;
-      }
-    }
+
 
     @media (max-width: 768px) {
       .main-content-wrapper { padding: 8rem 1rem 2rem; max-width: 650px; padding-left: 15px; padding-right: 15px; }
@@ -1148,5 +1247,25 @@
     root.render(<ToolMap />);
   </script>
   <script src="../common-header-footer.js"></script>
+  <script>
+    // Force light mode on page load for tools map
+    document.addEventListener("DOMContentLoaded", () => {
+      // Remove dark-mode class immediately
+      document.body.classList.remove('dark-mode');
+      
+      // Update theme toggle button to show moon (light mode)
+      const themeToggle = document.getElementById('themeToggle');
+      if (themeToggle) {
+        const icon = themeToggle.querySelector('i');
+        if (icon) {
+          icon.className = 'fas fa-moon';
+        }
+        themeToggle.setAttribute('aria-label', 'Toggle dark mode');
+      }
+      
+      // Only apply dark mode if user explicitly clicks the toggle
+      // Don't auto-apply from localStorage on this page
+    });
+  </script>
 </body>
 </html>

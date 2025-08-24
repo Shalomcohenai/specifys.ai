@@ -1895,5 +1895,125 @@
       "monthlyUsage": "N/A",
       "ARR": "N/A"
     }
+  },
+  {
+    "id": 89,
+    "name": "VibeKit CLI",
+    "category": "Code Security Tools",
+    "description": "A universal CLI wrapper that provides secure sandboxing, sensitive data redaction, and observability for running AI coding agents like Claude Code, Gemini, and Codex.",
+    "link": "https://vibekit.sh/",
+    "rating": 4.8,
+    "pros": [
+      "Realtime secret redaction",
+      "Observability dashboard for runs and file changes",
+      "Local isolated Docker sandboxing"
+    ],
+    "cons": [
+      "Requires Docker setup",
+      "Potential overhead for simple tasks"
+    ],
+    "special": "Launched in mid-August 2025",
+    "stats": {
+      "users": "N/A",
+      "globalRating": 4.8,
+      "monthlyUsage": "N/A",
+      "ARR": "N/A"
+    }
+  },
+  {
+    "id": 90,
+    "name": "Rork",
+    "category": "Prompt-to-App Builders",
+    "description": "AI-powered platform that builds complete, production-ready mobile apps for iOS and Android from natural language descriptions using React Native.",
+    "link": "https://rork.com/",
+    "rating": 4.5,
+    "pros": [
+      "Fast mobile app generation in minutes",
+      "Native iOS and Android support",
+      "No extensive coding knowledge required"
+    ],
+    "cons": [
+      "Limited to basic apps; complex features may need manual tweaks",
+      "Potential for AI-generated bugs in advanced scenarios"
+    ],
+    "special": "Recent updates and tutorials in August 2025",
+    "stats": {
+      "users": "N/A",
+      "globalRating": 4.5,
+      "monthlyUsage": "N/A",
+      "ARR": "N/A"
+    }
+  },
+  {
+    "id": 91,
+    "name": "Vercel OSS Vibe Coding Agent",
+    "category": "AI Agent Workflow Tools",
+    "description": "Open-source AI agent for generating code in any framework, language, or runtime from natural language prompts, powered by GPT-5 and built on AI SDK, Sandbox, and AI Gateway.",
+    "link": "https://oss-vibe-coding-platform.vercel.app/",
+    "rating": 4.9,
+    "pros": [
+      "Framework and language agnostic",
+      "Includes low-level primitives for customization",
+      "Open-source for community contributions"
+    ],
+    "cons": [
+      "Requires setup with Vercel ecosystem",
+      "Dependent on GPT-5 availability"
+    ],
+    "special": "Open-sourced in early August 2025",
+    "stats": {
+      "users": "N/A",
+      "globalRating": 4.9,
+      "monthlyUsage": "N/A",
+      "ARR": "N/A"
+    }
+  },
+  {
+    "id": 92,
+    "name": "Command by Langbase",
+    "category": "AI Agent Workflow Tools",
+    "description": "AI tool for vibe coding AI agents, turning natural language prompts into production-ready agents with serverless deployment.",
+    "link": "https://langbase.com/docs/command",
+    "rating": 4.7,
+    "pros": [
+      "Seamless agent creation and deployment",
+      "Serverless platform for scalability",
+      "Collaborative development features"
+    ],
+    "cons": [
+      "Limited to Langbase ecosystem",
+      "Learning curve for advanced configurations"
+    ],
+    "special": "Highlighted in 2025 vibe coding landscape updates",
+    "stats": {
+      "users": "N/A",
+      "globalRating": 4.7,
+      "monthlyUsage": "N/A",
+      "ARR": "N/A"
+    }
+  },
+  {
+    "id": 93,
+    "name": "GitHub Spark",
+    "category": "Prompt-to-App Builders",
+    "description": "AI-powered platform to build and deploy full-stack apps using natural language, with instant previews and one-click deployment.",
+    "link": "https://github.com/spark",
+    "rating": 4.7,
+    "pros": [
+      "No-code app creation",
+      "Seamless GitHub integration",
+      "Supports multiple AI models"
+    ],
+    "cons": [
+      "Limited to Copilot Pro+ subscribers",
+      "Potential data privacy concerns"
+    ],
+    "special": "Public preview launched July 2025",
+    "stats": {
+      "users": "N/A",
+      "globalRating": 4.7,
+      "monthlyUsage": "N/A",
+      "ARR": "N/A"
+    }
   }
 ]
