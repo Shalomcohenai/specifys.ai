@@ -204,6 +204,7 @@ class UnifiedChat {
     const chatInput = document.getElementById('chatInput');
     const sendButton = document.getElementById('sendButton');
     const backButton = document.getElementById('backButton');
+    const resetButton = document.getElementById('resetButton');
     
     if (sendButton) {
       sendButton.addEventListener('click', () => this.handleSend());
@@ -212,6 +213,10 @@ class UnifiedChat {
 
     if (backButton) {
       backButton.addEventListener('click', () => this.goBack());
+    }
+
+    if (resetButton) {
+      resetButton.addEventListener('click', () => this.resetChat());
     }
 
     if (chatInput) {
@@ -894,6 +899,8 @@ class UnifiedChat {
 
   updateBackButtonVisibility() {
     const backButton = document.getElementById('backButton');
+    const resetButton = document.getElementById('resetButton');
+    
     if (backButton) {
       // Show button if we have messages (except intro messages) or if we have a mode selected
       if (this.messages.length > 0 && !this.messages.every(msg => msg.isIntro)) {
@@ -901,6 +908,62 @@ class UnifiedChat {
       } else {
         backButton.classList.remove('show');
       }
+    }
+    
+    if (resetButton) {
+      // Show reset button if we have any messages
+      if (this.messages.length > 0) {
+        resetButton.classList.add('show');
+      } else {
+        resetButton.classList.remove('show');
+      }
+    }
+  }
+
+  resetChat() {
+    if (confirm('Are you sure you want to reset the chat? This will clear all your progress.')) {
+      // Clear all data
+      this.currentMode = null;
+      this.currentQuestionIndex = 0;
+      this.answers = {};
+      this.messages = [];
+      
+      // Clear localStorage
+      localStorage.removeItem('unifiedAnswers');
+      localStorage.removeItem('unifiedChatMessages');
+      localStorage.removeItem('currentMode');
+      
+      // Clear UI
+      const chatMessages = document.getElementById('chatMessages');
+      if (chatMessages) {
+        chatMessages.innerHTML = '';
+      }
+      
+      // Remove any yes/no buttons
+      this.removeYesNoButtons();
+      
+      // Reset input
+      const chatInput = document.getElementById('chatInput');
+      if (chatInput) {
+        chatInput.value = '';
+        chatInput.style.display = 'block';
+      }
+      
+      // Reset send button
+      const sendButton = document.getElementById('sendButton');
+      if (sendButton) {
+        sendButton.style.display = 'block';
+        sendButton.disabled = true;
+      }
+      
+      // Update progress
+      this.updateProgress();
+      
+      // Update button visibility
+      this.updateBackButtonVisibility();
+      
+      // Start fresh
+      this.startChat();
     }
   }
 
