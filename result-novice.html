@@ -1060,10 +1060,26 @@
                   });
                   
                   // Find all mermaid code blocks and render them
-                  const mermaidBlocks = contentDiv.querySelectorAll('pre code.language-mermaid');
+                  const mermaidBlocks = contentDiv.querySelectorAll('pre code.language-mermaid, pre code[class*="mermaid"]');
                   console.log(`Found ${mermaidBlocks.length} mermaid blocks`);
                   
-                  mermaidBlocks.forEach((block, index) => {
+                  // Also look for text content that contains mermaid diagrams
+                  const allPreBlocks = contentDiv.querySelectorAll('pre code');
+                  let mermaidTextBlocks = [];
+                  
+                  allPreBlocks.forEach(block => {
+                    const text = block.textContent.trim();
+                    if (text.includes('erDiagram') || text.includes('flowchart') || text.includes('sequenceDiagram') || text.includes('gantt') || text.includes('pie') || text.includes('gitgraph')) {
+                      mermaidTextBlocks.push(block);
+                    }
+                  });
+                  
+                  console.log(`Found ${mermaidTextBlocks.length} additional mermaid text blocks`);
+                  
+                  // Process both types of blocks
+                  const allMermaidBlocks = [...mermaidBlocks, ...mermaidTextBlocks];
+                  
+                  allMermaidBlocks.forEach((block, index) => {
                     console.log(`Rendering mermaid block ${index + 1}`);
                     try {
                       const mermaidDiv = document.createElement('div');
