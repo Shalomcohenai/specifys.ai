@@ -1118,22 +1118,22 @@
           try {
             contentDiv.innerHTML = marked.parse(specification);
             console.log('Markdown parsing successful');
-              
-              // Initialize Mermaid diagrams after markdown parsing
-              if (typeof mermaid !== 'undefined') {
-                console.log('Mermaid available, initializing diagrams...');
-                try {
-                  mermaid.initialize({ 
-                    startOnLoad: false,
-                    theme: 'default',
-                    flowchart: { useMaxWidth: true },
-                    sequence: { useMaxWidth: true },
-                    gantt: { useMaxWidth: true }
-                  });
-                  
-                  // Find all mermaid code blocks and render them
-                  const mermaidBlocks = contentDiv.querySelectorAll('pre code.language-mermaid, pre code[class*="mermaid"]');
-                  console.log(`Found ${mermaidBlocks.length} mermaid blocks`);
+            
+            // Initialize Mermaid diagrams after markdown parsing
+            if (typeof mermaid !== 'undefined') {
+              console.log('Mermaid available, initializing diagrams...');
+              try {
+                mermaid.initialize({ 
+                  startOnLoad: false,
+                  theme: 'default',
+                  flowchart: { useMaxWidth: true },
+                  sequence: { useMaxWidth: true },
+                  gantt: { useMaxWidth: true }
+                });
+                
+                // Find all mermaid code blocks and render them
+                const mermaidBlocks = contentDiv.querySelectorAll('pre code.language-mermaid, pre code[class*="mermaid"]');
+                console.log(`Found ${mermaidBlocks.length} mermaid blocks`);
                   
                   // Also look for text content that contains mermaid diagrams
                   const allPreBlocks = contentDiv.querySelectorAll('pre code');
