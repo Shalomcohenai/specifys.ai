@@ -881,9 +881,31 @@
       let fullContent = localStorage.getItem("generatedContent") || 
                        localStorage.getItem("rawContent") || 
                        localStorage.getItem("fullPrompt") ||
-                       "No specification content found. Please try again.";
+                       null;
 
       console.log("Full content from localStorage:", fullContent);
+      
+      // If no content found, show error message
+      if (!fullContent || fullContent === "null" || fullContent.trim() === "") {
+        console.error("No content found in localStorage");
+        fullContent = "No specification content found. Please try again.";
+        
+        // Show error message immediately
+        const errorDiv = document.createElement("div");
+        errorDiv.className = "message system";
+        errorDiv.innerHTML = `
+          <div class="message-avatar">S</div>
+          <div class="message-content">
+            <div class="message-text">
+              <h2>No Content Found</h2>
+              <p>No specification content was found. Please go back and generate a specification first.</p>
+              <p><a href="processing-unified.html" style="color: var(--primary-color); text-decoration: underline;">Go to Unified Chat</a></p>
+            </div>
+          </div>
+        `;
+        chatMessages.appendChild(errorDiv);
+        return;
+      }
 
       // Tab switching functionality
       const tabButtons = document.querySelectorAll('.tab-button');
@@ -969,7 +991,7 @@
           if (loadingMessage) {
             console.log('Removing loading message');
             loadingMessage.remove();
-        } else {
+          } else {
             console.log('No loading message found to remove');
           }
 
@@ -1200,7 +1222,7 @@
           if (typeof hljs !== 'undefined') {
             console.log('Highlight.js available, highlighting code');
             try {
-        hljs.highlightAll();
+              hljs.highlightAll();
               console.log('Code highlighting successful');
             } catch (highlightError) {
               console.error('Code highlighting failed:', highlightError);
