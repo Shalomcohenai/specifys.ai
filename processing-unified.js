@@ -784,11 +784,6 @@ class UnifiedChat {
       return;
     }
     
-    // If we're in mode selection, don't go back further
-    if (!this.currentMode) {
-      return;
-    }
-    
     // Get the last message
     const lastMessage = this.messages[this.messages.length - 1];
     
@@ -797,7 +792,7 @@ class UnifiedChat {
       // Remove the last user message
       this.messages.pop();
       
-      // Remove the corresponding answer
+      // Remove the corresponding answer from localStorage
       const lastQuestion = this.modeQuestions[this.currentMode][this.currentQuestionIndex - 1];
       if (lastQuestion) {
         delete this.answers[lastQuestion.id];
@@ -809,12 +804,22 @@ class UnifiedChat {
       // Update progress
       this.updateProgress();
       
+      // Save the updated state
+      this.saveData();
+      
       // Re-render messages
       this.renderMessages();
       this.scrollToBottom();
       
       // Update back button visibility
       this.updateBackButtonVisibility();
+      
+      // Ask the previous question again (this is the key fix!)
+      if (this.currentQuestionIndex >= 0) {
+        setTimeout(() => {
+          this.askQuestion();
+        }, 500);
+      }
       
       console.log('Removed user answer, went back to question', this.currentQuestionIndex);
       return;
@@ -844,6 +849,10 @@ class UnifiedChat {
       
       // Clear all messages except intro and mode selection
       this.messages = this.messages.filter(msg => msg.isIntro || msg.isModeSelection);
+      
+      // Save the updated state
+      this.saveData();
+      
       this.showModeSelection();
       this.updateBackButtonVisibility();
       

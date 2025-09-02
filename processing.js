@@ -201,6 +201,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Go back function for processing.js
 function goBack() {
+  console.log('Going back...');
+  
   const answers = JSON.parse(localStorage.getItem('devAnswers')) || {};
   const answerKeys = Object.keys(answers);
   

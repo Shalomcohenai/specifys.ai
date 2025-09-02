@@ -270,6 +270,8 @@ class MarketResearchChat {
   }
 
   goBack() {
+    console.log('Going back...');
+    
     // If no messages, don't do anything
     if (this.messages.length === 0) {
       return;
@@ -283,7 +285,7 @@ class MarketResearchChat {
       // Remove the last user message
       this.messages.pop();
       
-      // Remove the corresponding answer
+      // Remove the corresponding answer from localStorage
       delete this.answers[this.currentQuestionIndex - 1];
       
       // Go back one question index
@@ -292,17 +294,21 @@ class MarketResearchChat {
       // Update progress
       this.updateProgress();
       
-      // Update back button visibility
-      this.updateBackButtonVisibility();
+      // Save the updated state
+      this.saveData();
       
       // Re-render messages
       this.renderMessages();
       this.scrollToBottom();
       
-      // Update UI for current question
-      const currentQuestion = this.questions[this.currentQuestionIndex];
-      if (currentQuestion) {
-        this.updateUIForQuestion(currentQuestion);
+      // Update back button visibility
+      this.updateBackButtonVisibility();
+      
+      // Ask the previous question again (this is the key fix!)
+      if (this.currentQuestionIndex >= 0) {
+        setTimeout(() => {
+          this.askQuestion();
+        }, 500);
       }
       
       console.log('Removed user answer, went back to question', this.currentQuestionIndex);
