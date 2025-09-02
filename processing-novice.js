@@ -207,6 +207,8 @@ class NoCodeChat {
     if (this.messages.length === 0) {
       this.showIntroMessages();
     }
+    // Update back button visibility
+    this.updateBackButtonVisibility();
   }
 
   showIntroMessages() {
@@ -715,7 +717,8 @@ class NoCodeChat {
   updateBackButtonVisibility() {
     const backButton = document.getElementById('backButton');
     if (backButton) {
-      if (this.currentQuestionIndex > 0) {
+      // Show button if we have messages (except intro messages) or if we're past the first question
+      if (this.messages.length > 0 && !this.messages.every(msg => msg.isIntro)) {
         backButton.classList.add('show');
       } else {
         backButton.classList.remove('show');

@@ -245,6 +245,8 @@ class UnifiedChat {
       console.log('Messages exist, rendering them');
       this.renderMessages();
     }
+    // Update back button visibility
+    this.updateBackButtonVisibility();
   }
 
   showIntroMessages() {
@@ -277,6 +279,7 @@ class UnifiedChat {
         console.log('All intro messages shown, showing mode selection');
         setTimeout(() => {
           this.showModeSelection();
+          this.updateBackButtonVisibility();
         }, 500);
       }
     };
@@ -852,8 +855,8 @@ class UnifiedChat {
   updateBackButtonVisibility() {
     const backButton = document.getElementById('backButton');
     if (backButton) {
-      // Show button if we have a mode selected or if we're past the first question
-      if (this.currentMode || (this.messages.length > 0 && !this.messages.some(msg => msg.isIntro))) {
+      // Show button if we have messages (except intro messages) or if we have a mode selected
+      if (this.messages.length > 0 && !this.messages.every(msg => msg.isIntro)) {
         backButton.classList.add('show');
       } else {
         backButton.classList.remove('show');
