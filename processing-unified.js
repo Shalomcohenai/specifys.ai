@@ -168,10 +168,35 @@ class UnifiedChat {
 
   init() {
     console.log('UnifiedChat init() called');
+    
+    // Check if this is a fresh page load (not a refresh)
+    const isRefresh = performance.navigation.type === 1;
+    if (isRefresh) {
+      console.log('Page was refreshed, clearing localStorage');
+      this.clearAllLocalStorage();
+    }
+    
     this.loadSavedData();
     this.setupEventListeners();
     this.startChat();
     console.log('UnifiedChat init() completed');
+  }
+
+  clearAllLocalStorage() {
+    // Clear all localStorage items
+    localStorage.removeItem('unifiedAnswers');
+    localStorage.removeItem('unifiedAnswers_novice');
+    localStorage.removeItem('unifiedAnswers_developer');
+    localStorage.removeItem('unifiedAnswers_market');
+    localStorage.removeItem('unifiedChatMessages');
+    localStorage.removeItem('unifiedCurrentMode');
+    localStorage.removeItem('currentMode');
+    localStorage.removeItem('formData');
+    localStorage.removeItem('noCodeAnswers');
+    localStorage.removeItem('devAnswers');
+    localStorage.removeItem('marketAnswers');
+    localStorage.removeItem('generatedContent');
+    console.log('All localStorage cleared');
   }
 
   loadSavedData() {
@@ -886,6 +911,13 @@ class UnifiedChat {
       // Clear all messages except intro and mode selection
       this.messages = this.messages.filter(msg => msg.isIntro || msg.isModeSelection);
       
+      // Clear localStorage for this mode
+      if (this.currentMode) {
+        localStorage.removeItem(`unifiedAnswers_${this.currentMode}`);
+      }
+      localStorage.removeItem('unifiedCurrentMode');
+      localStorage.removeItem('unifiedChatMessages');
+      
       // Save the updated state
       this.saveData();
       
@@ -928,10 +960,8 @@ class UnifiedChat {
       this.answers = {};
       this.messages = [];
       
-      // Clear localStorage
-      localStorage.removeItem('unifiedAnswers');
-      localStorage.removeItem('unifiedChatMessages');
-      localStorage.removeItem('currentMode');
+      // Clear all localStorage items
+      this.clearAllLocalStorage();
       
       // Clear UI
       const chatMessages = document.getElementById('chatMessages');
