@@ -842,22 +842,46 @@ class UnifiedChat {
       return;
     }
     
-    // Get the last message
-    const lastMessage = this.messages[this.messages.length - 1];
+    // Find the last pair of messages (system question + user answer)
+    let messagesToRemove = 0;
+    let foundUserAnswer = false;
+    let foundSystemQuestion = false;
     
-    // If last message is a user answer, remove it and the corresponding answer
-    if (lastMessage.type === 'user') {
-      // Remove the last user message
-      this.messages.pop();
+    // Count from the end to find the last complete Q&A pair
+    for (let i = this.messages.length - 1; i >= 0; i--) {
+      const message = this.messages[i];
       
-      // Remove the corresponding answer from localStorage
-      const lastQuestion = this.modeQuestions[this.currentMode][this.currentQuestionIndex - 1];
-      if (lastQuestion) {
-        delete this.answers[lastQuestion.id];
+      if (message.type === 'user' && !foundUserAnswer) {
+        foundUserAnswer = true;
+        messagesToRemove++;
+      } else if (message.type === 'system' && !message.isIntro && !message.isModeSelection && foundUserAnswer && !foundSystemQuestion) {
+        foundSystemQuestion = true;
+        messagesToRemove++;
+        break;
+      } else if (message.type === 'system' && !message.isIntro && !message.isModeSelection && !foundUserAnswer) {
+        // If we find a system question without a user answer, just remove it
+        messagesToRemove = 1;
+        break;
+      }
+    }
+    
+    // If we found a complete pair or a system question, remove them
+    if (messagesToRemove > 0) {
+      // Remove the messages from the end
+      for (let i = 0; i < messagesToRemove; i++) {
+        this.messages.pop();
       }
       
-      // Go back one question index
-      this.currentQuestionIndex--;
+      // If we removed a user answer, also remove the corresponding answer from localStorage
+      if (foundUserAnswer) {
+        const lastQuestion = this.modeQuestions[this.currentMode][this.currentQuestionIndex - 1];
+        if (lastQuestion) {
+          delete this.answers[lastQuestion.id];
+        }
+        
+        // Go back one question index
+        this.currentQuestionIndex--;
+      }
       
       // Update progress
       this.updateProgress();
@@ -875,30 +899,40 @@ class UnifiedChat {
       // Update back button visibility
       this.updateBackButtonVisibility();
       
-      // Ask the previous question again (this is the key fix!)
-      if (this.currentQuestionIndex >= 0) {
+      // Ask the previous question again if we went back
+      if (foundUserAnswer && this.currentQuestionIndex >= 0) {
         setTimeout(() => {
           this.askQuestion();
         }, 500);
       }
       
-      console.log('Removed user answer, went back to question', this.currentQuestionIndex);
+      console.log(`Removed ${messagesToRemove} messages, went back to question`, this.currentQuestionIndex);
       return;
     }
     
-    // If last message is a system question, remove it
-    if (lastMessage.type === 'system' && !lastMessage.isIntro && !lastMessage.isModeSelection) {
-      // Remove the last system message
-      this.messages.pop();
+    // If we're at the first question and want to go back to mode selection
+    if (this.currentQuestionIndex === 0 && this.messages.some(msg => msg.isModeSelection)) {
+      this.currentMode = null;
+      this.currentQuestionIndex = 0;
+      this.answers = {};
       
-      // Re-render messages
-      this.renderMessages();
-      this.scrollToBottom();
+      // Clear all messages except intro and mode selection
+      this.messages = this.messages.filter(msg => msg.isIntro || msg.isModeSelection);
       
-      // Update back button visibility
+      // Clear localStorage for this mode
+      if (this.currentMode) {
+        localStorage.removeItem(`unifiedAnswers_${this.currentMode}`);
+      }
+      localStorage.removeItem('unifiedCurrentMode');
+      localStorage.removeItem('unifiedChatMessages');
+      
+      // Save the updated state
+      this.saveData();
+      
+      this.showModeSelection();
       this.updateBackButtonVisibility();
       
-      console.log('Removed system question');
+      console.log('Went back to mode selection');
       return;
     }
     
