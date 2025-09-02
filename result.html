@@ -724,6 +724,23 @@
               }
             });
             
+            // Also look for mermaid diagrams in regular text content
+            const allTextContent = resultDiv.textContent;
+            const mermaidMatches = allTextContent.match(/```mermaid\s*([\s\S]*?)```/g);
+            if (mermaidMatches) {
+              mermaidMatches.forEach((match, index) => {
+                const mermaidCode = match.replace(/```mermaid\s*/, '').replace(/```$/, '').trim();
+                if (mermaidCode) {
+                  // Create a fake block element for processing
+                  const fakeBlock = {
+                    textContent: mermaidCode,
+                    parentElement: resultDiv
+                  };
+                  mermaidTextBlocks.push(fakeBlock);
+                }
+              });
+            }
+            
             console.log(`Found ${mermaidTextBlocks.length} additional mermaid text blocks`);
             
             // Process both types of blocks
