@@ -481,6 +481,14 @@ class UnifiedChat {
   }
 
   handleYesNoAnswer(answer) {
+    // Disable all yes/no buttons immediately to prevent multiple clicks
+    const buttons = document.querySelectorAll('.yes-no-button');
+    buttons.forEach(button => {
+      button.disabled = true;
+      button.style.opacity = '0.6';
+      button.style.cursor = 'not-allowed';
+    });
+    
     this.handleAnswer(answer);
   }
 
@@ -514,6 +522,9 @@ class UnifiedChat {
       isLastUserMessage: true
     };
     this.messages.push(userMessage);
+
+    // Remove yes/no buttons immediately after answer
+    this.removeYesNoButtons();
 
     // Render messages
     this.renderMessages();
@@ -823,6 +834,9 @@ class UnifiedChat {
       
       // Save the updated state
       this.saveData();
+      
+      // Remove any existing yes/no buttons
+      this.removeYesNoButtons();
       
       // Re-render messages
       this.renderMessages();
