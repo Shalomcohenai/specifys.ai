@@ -1203,14 +1203,6 @@
               textDiv.textContent = specification;
               contentDiv.appendChild(textDiv);
             }
-          } else {
-            console.log('Content appears to be plain text, displaying as-is');
-            // If it's plain text, just display it
-            const textDiv = document.createElement("div");
-            textDiv.className = 'message-text';
-            textDiv.textContent = specification;
-            contentDiv.appendChild(textDiv);
-          }
 
           resultDiv.appendChild(avatar);
           resultDiv.appendChild(contentDiv);
