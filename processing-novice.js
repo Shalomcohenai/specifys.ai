@@ -508,9 +508,27 @@ class NoCodeChat {
     const progressFill = document.getElementById('progressFill');
     const progressText = document.getElementById('progressText');
     
-    const progress = ((this.currentQuestionIndex + 1) / this.questions.length) * 100;
+    // Count only text questions (yes/no questions are grouped as one)
+    const textQuestions = this.questions.filter(q => q.type === 'text');
+    const yesNoQuestions = this.questions.filter(q => q.type === 'yesno');
+    const totalQuestions = textQuestions.length + (yesNoQuestions.length > 0 ? 1 : 0);
+    
+    // Calculate current question number (treat all yes/no as one question)
+    let currentQuestionNumber = 0;
+    for (let i = 0; i <= this.currentQuestionIndex; i++) {
+      const question = this.questions[i];
+      if (question.type === 'text') {
+        currentQuestionNumber++;
+      } else if (question.type === 'yesno' && i === this.currentQuestionIndex) {
+        // This is the first yes/no question, count it as one
+        currentQuestionNumber++;
+        break;
+      }
+    }
+    
+    const progress = (currentQuestionNumber / totalQuestions) * 100;
     progressFill.style.width = `${progress}%`;
-    progressText.textContent = `Question ${this.currentQuestionIndex + 1} of ${this.questions.length}`;
+    progressText.textContent = `Question ${currentQuestionNumber} of ${totalQuestions}`;
   }
 
 

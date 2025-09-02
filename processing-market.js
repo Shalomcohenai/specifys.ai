@@ -228,6 +228,7 @@ class MarketResearchChat {
     const progressText = document.getElementById('progressText');
 
     if (percentage === null) {
+      // For market research, all questions are text questions, so no special grouping needed
       percentage = ((this.currentQuestionIndex + 1) / this.questions.length) * 100;
     }
 
