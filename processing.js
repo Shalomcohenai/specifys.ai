@@ -117,4 +117,102 @@ ${userInput}
 document.addEventListener('DOMContentLoaded', () => {
   console.log('processing.js loaded, setting generateSpecificationOriginal');
   window.generateSpecificationOriginal = generateSpecificationFromProcessingJs;
+  
+  // Add back button functionality
+  const backButton = document.getElementById('backButton');
+  
+  if (backButton) {
+    backButton.addEventListener('click', () => {
+      goBack();
+    });
+  }
+  
+  // Update back button visibility based on progress
+  const updateBackButtonVisibility = () => {
+    const answers = JSON.parse(localStorage.getItem('devAnswers')) || {};
+    const hasAnswers = Object.keys(answers).length > 0;
+    
+    if (backButton) {
+      if (hasAnswers) {
+        backButton.classList.add('show');
+        backButton.disabled = false;
+      } else {
+        backButton.classList.remove('show');
+        backButton.disabled = true;
+      }
+    }
+  };
+  
+  // Check on page load
+  updateBackButtonVisibility();
+  
+  // Listen for storage changes to update button state
+  window.addEventListener('storage', updateBackButtonVisibility);
+  
+  // Also update when answers change in the same tab
+  const originalSetItem = localStorage.setItem;
+  localStorage.setItem = function(key, value) {
+    originalSetItem.apply(this, arguments);
+    if (key === 'devAnswers') {
+      updateBackButtonVisibility();
+    }
+  };
+  
+  // Update button state when the page loads
+  setTimeout(updateBackButtonVisibility, 100);
+  
+  // Update button state when the chat system updates
+  const originalDevChat = window.DeveloperChat;
+  if (originalDevChat) {
+    const originalInit = originalDevChat.prototype.init;
+    originalDevChat.prototype.init = function() {
+      originalInit.call(this);
+      setTimeout(updateBackButtonVisibility, 200);
+    };
+  }
+  
+  // Update button state when answers are saved
+  const originalHandleSend = window.DeveloperChat?.prototype?.handleSend;
+  if (originalHandleSend) {
+    window.DeveloperChat.prototype.handleSend = function() {
+      originalHandleSend.call(this);
+      setTimeout(updateBackButtonVisibility, 100);
+    };
+  }
+  
+  // Update button state when the page is fully loaded
+  window.addEventListener('load', () => {
+    setTimeout(updateBackButtonVisibility, 300);
+  });
+  
+  // Update button state when the chat system is ready
+  const checkChatSystem = () => {
+    const chatMessages = document.getElementById('chatMessages');
+    if (chatMessages && chatMessages.children.length > 0) {
+      updateBackButtonVisibility();
+    } else {
+      setTimeout(checkChatSystem, 100);
+    }
+  };
+  
+  // Start checking for chat system
+  setTimeout(checkChatSystem, 500);
 });
+
+// Go back function for processing.js
+function goBack() {
+  const answers = JSON.parse(localStorage.getItem('devAnswers')) || {};
+  const answerKeys = Object.keys(answers);
+  
+  if (answerKeys.length > 0) {
+    // Remove the last answer
+    const lastKey = answerKeys[answerKeys.length - 1];
+    delete answers[lastKey];
+    
+    // Save updated answers
+    localStorage.setItem('devAnswers', JSON.stringify(answers));
+    
+    // Reload the page to show the previous question
+    window.location.reload();
+  }
+}

@@ -164,11 +164,17 @@ class NoCodeChat {
   setupEventListeners() {
     const chatInput = document.getElementById('chatInput');
     const sendButton = document.getElementById('sendButton');
+    const backButton = document.getElementById('backButton');
 
     // Send button click (from input area)
     sendButton.addEventListener('click', () => this.handleSend());
     // Disable initially until user types
     sendButton.disabled = true;
+
+    // Back button
+    if (backButton) {
+      backButton.addEventListener('click', () => this.goBack());
+    }
 
     // Enter key press
     chatInput.addEventListener('keydown', (e) => {
@@ -641,6 +647,83 @@ class NoCodeChat {
     const chatMessages = document.getElementById('chatMessages');
     chatMessages.scrollTop = chatMessages.scrollHeight;
   }
+
+  goBack() {
+    // If no messages, don't do anything
+    if (this.messages.length === 0) {
+      return;
+    }
+    
+    // Get the last message
+    const lastMessage = this.messages[this.messages.length - 1];
+    
+    // If last message is a user answer, remove it and the corresponding answer
+    if (lastMessage.type === 'user') {
+      // Remove the last user message
+      this.messages.pop();
+      
+      // Remove the corresponding answer
+      const lastQuestion = this.questions[this.currentQuestionIndex - 1];
+      if (lastQuestion) {
+        if (lastQuestion.type === 'yesno') {
+          delete this.answers[`yesNo_${lastQuestion.id}`];
+        } else {
+          delete this.answers[lastQuestion.id];
+        }
+      }
+      
+      // Go back one question index
+      this.currentQuestionIndex--;
+      
+      // Update progress
+      this.updateProgress();
+      
+      // Update back button visibility
+      this.updateBackButtonVisibility();
+      
+      // Re-render messages
+      this.renderMessages();
+      this.scrollToBottom();
+      
+      // Update UI for current question
+      const currentQuestion = this.questions[this.currentQuestionIndex];
+      if (currentQuestion) {
+        this.updateUIForQuestion(currentQuestion);
+      }
+      
+      console.log('Removed user answer, went back to question', this.currentQuestionIndex);
+      return;
+    }
+    
+    // If last message is a system question, remove it
+    if (lastMessage.type === 'system' && !lastMessage.isIntro) {
+      // Remove the last system message
+      this.messages.pop();
+      
+      // Re-render messages
+      this.renderMessages();
+      this.scrollToBottom();
+      
+      // Update back button visibility
+      this.updateBackButtonVisibility();
+      
+      console.log('Removed system question');
+      return;
+    }
+  }
+
+  updateBackButtonVisibility() {
+    const backButton = document.getElementById('backButton');
+    if (backButton) {
+      if (this.currentQuestionIndex > 0) {
+        backButton.classList.add('show');
+      } else {
+        backButton.classList.remove('show');
+      }
+    }
+  }
+
+
 
 }
 

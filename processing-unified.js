@@ -203,22 +203,15 @@ class UnifiedChat {
   setupEventListeners() {
     const chatInput = document.getElementById('chatInput');
     const sendButton = document.getElementById('sendButton');
-    const resetButton = document.getElementById('resetChat');
-    const goBackButton = document.getElementById('goBack');
-
+    const backButton = document.getElementById('backButton');
+    
     if (sendButton) {
       sendButton.addEventListener('click', () => this.handleSend());
       sendButton.disabled = true;
     }
 
-    if (resetButton) {
-      resetButton.addEventListener('click', () => this.resetChat());
-      this.setupTooltip(resetButton);
-    }
-
-    if (goBackButton) {
-      goBackButton.addEventListener('click', () => this.goBack());
-      this.setupTooltip(goBackButton);
+    if (backButton) {
+      backButton.addEventListener('click', () => this.goBack());
     }
 
     if (chatInput) {
@@ -522,15 +515,15 @@ class UnifiedChat {
     // Render messages
     this.renderMessages();
     this.scrollToBottom();
-    
-    // Update back button visibility
-    this.updateBackButtonVisibility();
 
     // Move to next question
     this.currentQuestionIndex++;
     
     // Save progress
     this.saveData();
+    
+    // Update back button visibility
+    this.updateBackButtonVisibility();
 
     // Ask next question or complete
     if (this.currentQuestionIndex < this.modeQuestions[this.currentMode].length) {
@@ -780,66 +773,97 @@ class UnifiedChat {
     }
   }
 
-  resetChat() {
-    console.log('Resetting chat...');
-    if (confirm('Are you sure you want to start a new conversation? This will clear all your current progress.')) {
-      // Clear all data
-      this.currentMode = null;
-      this.currentQuestionIndex = 0;
-      this.answers = {};
-      this.messages = [];
-      
-      // Clear localStorage
-      localStorage.removeItem('unifiedCurrentMode');
-      localStorage.removeItem('unifiedAnswers_novice');
-      localStorage.removeItem('unifiedAnswers_developer');
-      localStorage.removeItem('unifiedAnswers_market');
-      localStorage.removeItem('unifiedChatMessages');
-      
-      // Hide back button
-      this.updateBackButtonVisibility();
-      
-      // Start fresh
-      this.startChat();
-    }
-  }
-
   goBack() {
     console.log('Going back...');
-    if (this.currentQuestionIndex > 0) {
-      this.currentQuestionIndex--;
-      
-      // Remove the last answer
-      const lastQuestionId = this.modeQuestions[this.currentMode][this.currentQuestionIndex].id;
-      delete this.answers[lastQuestionId];
-      
+    
+    // If no messages, don't do anything
+    if (this.messages.length === 0) {
+      return;
+    }
+    
+    // If we're in mode selection, don't go back further
+    if (!this.currentMode) {
+      return;
+    }
+    
+    // Get the last message
+    const lastMessage = this.messages[this.messages.length - 1];
+    
+    // If last message is a user answer, remove it and the corresponding answer
+    if (lastMessage.type === 'user') {
       // Remove the last user message
-      this.messages = this.messages.filter(msg => !msg.isLastUserMessage);
+      this.messages.pop();
+      
+      // Remove the corresponding answer
+      const lastQuestion = this.modeQuestions[this.currentMode][this.currentQuestionIndex - 1];
+      if (lastQuestion) {
+        delete this.answers[lastQuestion.id];
+      }
+      
+      // Go back one question index
+      this.currentQuestionIndex--;
       
       // Update progress
       this.updateProgress();
-      
-      // Update back button visibility
-      this.updateBackButtonVisibility();
       
       // Re-render messages
       this.renderMessages();
       this.scrollToBottom();
       
-      console.log('Went back to question', this.currentQuestionIndex);
+      // Update back button visibility
+      this.updateBackButtonVisibility();
+      
+      console.log('Removed user answer, went back to question', this.currentQuestionIndex);
+      return;
+    }
+    
+    // If last message is a system question, remove it
+    if (lastMessage.type === 'system' && !lastMessage.isIntro && !lastMessage.isModeSelection) {
+      // Remove the last system message
+      this.messages.pop();
+      
+      // Re-render messages
+      this.renderMessages();
+      this.scrollToBottom();
+      
+      // Update back button visibility
+      this.updateBackButtonVisibility();
+      
+      console.log('Removed system question');
+      return;
+    }
+    
+    // If we're at the first question and want to go back to mode selection
+    if (this.currentQuestionIndex === 0 && this.messages.some(msg => msg.isModeSelection)) {
+      this.currentMode = null;
+      this.currentQuestionIndex = 0;
+      this.answers = {};
+      
+      // Clear all messages except intro and mode selection
+      this.messages = this.messages.filter(msg => msg.isIntro || msg.isModeSelection);
+      this.showModeSelection();
+      this.updateBackButtonVisibility();
+      
+      console.log('Went back to mode selection');
+      return;
     }
   }
 
   updateBackButtonVisibility() {
-    const goBackButton = document.getElementById('goBack');
-    if (goBackButton) {
-      if (this.currentMode && this.currentQuestionIndex > 0) {
-        goBackButton.classList.add('show');
+    const backButton = document.getElementById('backButton');
+    if (backButton) {
+      // Show button if we have a mode selected or if we're past the first question
+      if (this.currentMode || (this.messages.length > 0 && !this.messages.some(msg => msg.isIntro))) {
+        backButton.classList.add('show');
       } else {
-        goBackButton.classList.remove('show');
+        backButton.classList.remove('show');
       }
     }
   }
+
+
+
+
 
   showLoadingOverlay() {
     const loadingOverlay = document.getElementById('loadingOverlay');
@@ -857,23 +881,7 @@ class UnifiedChat {
     }
   }
 
-  setupTooltip(button) {
-    button.addEventListener('mouseenter', (e) => {
-      const rect = button.getBoundingClientRect();
-      const tooltip = button.querySelector('::before');
-      
-      // Position tooltip below the button
-      const tooltipStyle = button.style;
-      tooltipStyle.setProperty('--tooltip-left', `${rect.left + rect.width / 2}px`);
-      tooltipStyle.setProperty('--tooltip-top', `${rect.bottom + 10}px`);
-      
-      button.setAttribute('data-tooltip-position', 'true');
-    });
 
-    button.addEventListener('mouseleave', () => {
-      button.removeAttribute('data-tooltip-position');
-    });
-  }
 }
 
 // Initialize the chat when DOM is loaded
