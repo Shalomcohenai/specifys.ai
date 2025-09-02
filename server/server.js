@@ -164,8 +164,9 @@ async function saveToGoogleSheets(email, feedback, type, source) {
   }
 }
 
+// Clean API endpoint for generating specifications
 app.post('/api/generate-spec', async (req, res) => {
-  console.log('Received request:', req.body);
+  console.log('Received specification request:', req.body);
   const { userInput } = req.body;
 
   if (!userInput) {
@@ -173,39 +174,24 @@ app.post('/api/generate-spec', async (req, res) => {
     return res.status(400).json({ error: 'User input is required' });
   }
 
-  const apiKey = process.env.API_KEY;
-  if (!apiKey) {
-    console.log('Error: API key is not configured');
-    return res.status(500).json({ error: 'API key is not configured' });
-  }
-
   try {
-    console.log('Sending request to openai api API...');
-    const response = await fetch('ttps://api.openai.com/v1/models', {
+    // Forward request to the existing Cloudflare Worker
+    const response = await fetch('https://newnocode.shalom-cohen-111.workers.dev', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
       },
-      body: JSON.stringify({
-        model: 'grok',
-        messages: [
-          { role: 'system', content: 'You are a helpful assistant that generates detailed application specifications.' },
-          { role: 'user', content: userInput },
-        ],
-        max_tokens: 2048,
-        temperature: 0.7,
-      }),
+      body: JSON.stringify({ prompt: userInput }),
     });
 
     const data = await response.json();
     if (!response.ok) {
-      console.log('Error from Grok API:', data.error?.message);
+      console.log('Error from API:', data.error?.message);
       throw new Error(data.error?.message || 'Failed to fetch specification');
     }
 
-    console.log('Successfully received specification from Grok API');
-    res.json({ specification: data.choices[0].message.content });
+    console.log('Successfully received specification from API');
+    res.json({ specification: data.specification || 'No specification generated' });
   } catch (error) {
     console.error('Error fetching specification:', error.message);
     res.status(500).json({ error: 'Failed to generate specification' });

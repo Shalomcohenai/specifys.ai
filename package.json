@@ -1,15 +1,16 @@
 {
-  "name": "web",
+  "name": "specifys-ai",
   "version": "1.0.0",
-  "main": "auth.js",
+  "main": "index.html",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "node server.js",
+    "dev": "cd server && npm run dev"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["specifys", "ai", "app-planning", "vibe-coding"],
+  "author": "Specifys.ai",
   "license": "ISC",
-  "description": "",
+  "description": "Clean Specifys.ai website - ready for user system integration",
   "dependencies": {
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
