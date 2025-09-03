@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile - Specifys.ai</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico" alt="Specifys.ai logo icon">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Header Layout Styles */
+        .thematic-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .header-center {
+            display: flex;
+            justify-content: center;
+            flex: 1;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+        }
+
+        /* Auth System Styles */
+        .auth-buttons {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .auth-btn {
+            padding: 0.5rem 1rem;
+            border: 2px solid #0078d4;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: transparent;
+            color: #0078d4;
+        }
+
+        .auth-btn:hover {
+            background: #0078d4;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .auth-btn.primary {
+            background: #0078d4;
+            color: white;
+        }
+
+        .auth-btn.primary:hover {
+            background: #005a9e;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(0, 120, 212, 0.1);
+            border-radius: 20px;
+            border: 1px solid rgba(0, 120, 212, 0.2);
+            color: #0078d4;
+            font-size: 0.9rem;
+        }
+
+        .user-avatar {
+            width: 24px;
+            height: 24px;
+            background: #0078d4;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        /* Profile specific styles */
+        .spec-link {
+            color: #0078d4;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .spec-link:hover {
+            color: #005a9e;
+            text-decoration: underline;
+        }
+
+        .spec-mode-badge {
+            background: #0078d4;
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-transform: capitalize;
+        }
+
+        .profile-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .profile-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 3rem 2rem;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .profile-avatar {
+            flex-shrink: 0;
+        }
+
+        .avatar-placeholder {
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .profile-info {
+            flex: 1;
+        }
+
+        .profile-info h2 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .profile-info p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 1.5rem;
+        }
+
+        .profile-stats {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            display: block;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .profile-actions {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            justify-content: center;
+        }
+
+        .profile-actions .btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+        }
+
+        .profile-specs-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .section-header h3 {
+            font-size: 1.8rem;
+            color: #333;
+            margin: 0;
+        }
+
+        .section-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .search-input {
+            padding: 0.75rem 1rem;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 1rem;
+            width: 250px;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .sort-select {
+            padding: 0.75rem 1rem;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 1rem;
+            background: white;
+        }
+
+        .sort-select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .specs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .spec-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid #e9ecef;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .spec-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+        }
+
+        .spec-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            background: white;
+        }
+
+        .spec-card:hover::before {
+            width: 8px;
+        }
+
+        .spec-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+            gap: 1rem;
+        }
+
+        .spec-card-title {
+            color: #333;
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin: 0;
+            line-height: 1.4;
+            flex: 1;
+        }
+
+        .spec-card-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-shrink: 0;
+        }
+
+        .btn-icon {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-icon:hover {
+            background: rgba(102, 126, 234, 0.1);
+            transform: scale(1.1);
+        }
+
+        .spec-card-content {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+            white-space: pre-wrap;
+        }
+
+        .spec-card-footer {
+            color: #888;
+            font-size: 0.85rem;
+            border-top: 1px solid #e9ecef;
+            padding-top: 0.5rem;
+        }
+
+        .no-specs {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 12px;
+            border: 2px dashed #dee2e6;
+            grid-column: 1 / -1;
+        }
+
+        .no-specs-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .no-specs h4 {
+            color: #333;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .no-specs p {
+            color: #666;
+            margin-bottom: 2rem;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+            font-style: italic;
+            grid-column: 1 / -1;
+        }
+
+        @media (max-width: 768px) {
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+                padding: 2rem 1rem;
+            }
+            
+            .profile-stats {
+                justify-content: center;
+            }
+            
+            .section-header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+            }
+            
+            .section-actions {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .search-input {
+                width: 100%;
+            }
+            
+            .specs-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .spec-card-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .spec-card-actions {
+                justify-content: center;
+                margin-top: 1rem;
+            }
+            
+            .profile-actions {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .profile-header {
+                padding: 1.5rem 1rem;
+            }
+            
+            .profile-info h2 {
+                font-size: 2rem;
+            }
+            
+            .profile-info p {
+                font-size: 1rem;
+            }
+            
+            .stat-number {
+                font-size: 1.5rem;
+            }
+            
+            .avatar-placeholder {
+                width: 80px;
+                height: 80px;
+                font-size: 2rem;
+            }
+            
+            .profile-specs-section {
+                padding: 1.5rem;
+            }
+            
+            .spec-card {
+                padding: 1rem;
+            }
+            
+            .spec-card-title {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body class="page-default">
+    <header class="thematic-header">
+        <div class="header-left">
+            <a href="index.html" class="header-logo" aria-label="Specifys.ai homepage">S</a>
+            <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode"><i class="fas fa-moon"></i></button>
+            <button class="menu-toggle" aria-label="Toggle navigation menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
+        </div>
+        <div class="header-center">
+            <div class="auth-buttons" id="auth-buttons">
+                <!-- Will be populated by auth system -->
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="header-links">
+                <a href="blog.html" aria-label="Visit our blog">Blog</a>
+                <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
+                <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
+                <a href="map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
+                <a href="https://specifys-ai.com/ToolPicker" aria-label="Use our Tool Finder">Tool Finder</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="profile-container">
+        <!-- User Profile Header -->
+        <div class="profile-header">
+            <div class="profile-avatar">
+                <div class="avatar-placeholder" id="user-avatar">
+                    <span id="avatar-initial">👤</span>
+                </div>
+            </div>
+            <div class="profile-info">
+                <h2 id="user-name">טוען...</h2>
+                <p id="user-email">טוען...</p>
+                <div class="profile-stats">
+                    <div class="stat-item">
+                        <span class="stat-number" id="specs-count">0</span>
+                        <span class="stat-label">Specifications</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="join-date">-</span>
+                        <span class="stat-label">תאריך הצטרפות</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Actions -->
+        <div class="profile-actions">
+            <button id="create-spec-btn" class="btn btn-primary">
+                <span>➕</span> צור מפרט חדש
+            </button>
+            <a href="index.html" class="btn btn-outline-secondary">
+                <span>🏠</span> חזור לדף הבית
+            </a>
+        </div>
+
+        <!-- User's Specs Section -->
+        <div class="profile-specs-section">
+            <div class="section-header">
+                <h3>My Specifications</h3>
+                <div class="section-actions">
+                    <input type="text" id="search-specs" placeholder="Search specifications..." class="search-input">
+                    <select id="sort-specs" class="sort-select">
+                        <option value="newest">Newest First</option>
+                        <option value="oldest">Oldest First</option>
+                        <option value="title">By Title</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="specs-container" class="specs-grid">
+                <div class="loading">Loading specifications...</div>
+            </div>
+        </div>
+
+        <div id="error-message" class="alert alert-danger" style="display: none;"></div>
+        <div id="success-message" class="alert alert-success" style="display: none;"></div>
+    </main>
+
+    <script src="script.js"></script>
+
+    <!-- Auth System Script -->
+    <script type="module">
+        // Import Firebase SDK
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { 
+            createUserWithEmailAndPassword, 
+            signInWithEmailAndPassword, 
+            signOut, 
+            onAuthStateChanged,
+            GoogleAuthProvider,
+            signInWithPopup,
+            getAuth
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+        import { 
+            collection, 
+            addDoc, 
+            getDocs, 
+            query, 
+            where, 
+            orderBy,
+            serverTimestamp,
+            getFirestore
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyB9hr0IWM4EREzkKDxBxYoYinV6LJXWXV4",
+            authDomain: "specify-ai.firebaseapp.com",
+            projectId: "specify-ai",
+            storageBucket: "specify-ai.firebasestorage.app",
+            messagingSenderId: "734278787482",
+            appId: "1:734278787482:web:0e312fb6f197e849695a23",
+            measurementId: "G-4YR9LK63MR"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const googleProvider = new GoogleAuthProvider();
+
+        let currentUser = null;
+        let userSpecs = [];
+
+        // Auth state change handler
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                updateProfileInfo(user);
+                loadUserSpecs();
+                updateAuthUI(user);
+            } else {
+                // Redirect to login if not authenticated
+                window.location.href = 'index.html';
+            }
+        });
+
+        // Update profile information
+        function updateProfileInfo(user) {
+            const userName = document.getElementById('user-name');
+            const userEmail = document.getElementById('user-email');
+            const avatarInitial = document.getElementById('avatar-initial');
+            const joinDate = document.getElementById('join-date');
+
+            userName.textContent = user.displayName || user.email.split('@')[0];
+            userEmail.textContent = user.email;
+            
+            if (user.displayName) {
+                avatarInitial.textContent = user.displayName.charAt(0).toUpperCase();
+            } else {
+                avatarInitial.textContent = user.email.charAt(0).toUpperCase();
+            }
+
+            // Set join date
+            if (user.metadata && user.metadata.creationTime) {
+                const date = new Date(user.metadata.creationTime);
+                joinDate.textContent = date.toLocaleDateString('he-IL');
+            }
+        }
+
+        // Load user specs
+        async function loadUserSpecs() {
+            if (!currentUser) return;
+            
+            try {
+                const q = query(
+                    collection(db, 'specs'),
+                    where('userId', '==', currentUser.uid),
+                    orderBy('createdAt', 'desc')
+                );
+                
+                const querySnapshot = await getDocs(q);
+                userSpecs = [];
+                
+                querySnapshot.forEach((doc) => {
+                    userSpecs.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+                
+                document.getElementById('specs-count').textContent = userSpecs.length;
+                renderSpecs();
+            } catch (error) {
+                console.error('Error loading specs:', error);
+                document.getElementById('specs-container').innerHTML = '<div class="error">Error loading specifications</div>';
+            }
+        }
+
+        // Render specs in grid layout
+        function renderSpecs() {
+            const specsContainer = document.getElementById('specs-container');
+            
+            if (userSpecs.length === 0) {
+                specsContainer.innerHTML = `
+                    <div class="no-specs">
+                        <div class="no-specs-icon">📝</div>
+                        <h4>No specifications yet</h4>
+                        <p>Create your first specification to get started!</p>
+                        <button class="btn btn-primary" onclick="window.location.href='processing-unified.html'">
+                            Create New Specification
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+            
+            specsContainer.innerHTML = userSpecs.map(spec => `
+                <div class="spec-card" data-spec-id="${spec.id}">
+                    <div class="spec-card-header">
+                        <h4 class="spec-card-title">
+                            <a href="spec.html?id=${spec.id}" class="spec-link">${spec.title}</a>
+                        </h4>
+                        <div class="spec-card-actions">
+                            <button class="btn-icon" onclick="editSpecCard('${spec.id}')" title="Edit">
+                                ✏️
+                            </button>
+                            <button class="btn-icon" onclick="deleteSpecCard('${spec.id}')" title="Delete">
+                                🗑️
+                            </button>
+                        </div>
+                    </div>
+                    <div class="spec-card-content">
+                        <span class="spec-mode-badge">${spec.mode || 'Unknown'}</span>
+                    </div>
+                    <div class="spec-card-footer">
+                        <small>Created: ${new Date(spec.createdAt?.toDate?.() || spec.createdAt).toLocaleDateString('en-US')}</small>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Search functionality
+        document.getElementById('search-specs').addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const filteredSpecs = userSpecs.filter(spec => 
+                spec.title.toLowerCase().includes(searchTerm) ||
+                spec.content.toLowerCase().includes(searchTerm)
+            );
+            renderFilteredSpecs(filteredSpecs);
+        });
+
+        // Sort functionality
+        document.getElementById('sort-specs').addEventListener('change', (e) => {
+            const sortBy = e.target.value;
+            const sortedSpecs = [...userSpecs];
+            
+            switch(sortBy) {
+                case 'newest':
+                    sortedSpecs.sort((a, b) => new Date(b.createdAt?.toDate?.() || b.createdAt) - new Date(a.createdAt?.toDate?.() || a.createdAt));
+                    break;
+                case 'oldest':
+                    sortedSpecs.sort((a, b) => new Date(a.createdAt?.toDate?.() || a.createdAt) - new Date(b.createdAt?.toDate?.() || b.createdAt));
+                    break;
+                case 'title':
+                    sortedSpecs.sort((a, b) => a.title.localeCompare(b.title));
+                    break;
+            }
+            
+            renderFilteredSpecs(sortedSpecs);
+        });
+
+        function renderFilteredSpecs(specs) {
+            const specsContainer = document.getElementById('specs-container');
+            
+            if (specs.length === 0) {
+                specsContainer.innerHTML = '<div class="no-results">No specifications found</div>';
+                return;
+            }
+            
+            specsContainer.innerHTML = specs.map(spec => `
+                <div class="spec-card" data-spec-id="${spec.id}">
+                    <div class="spec-card-header">
+                        <h4 class="spec-card-title">
+                            <a href="spec.html?id=${spec.id}" class="spec-link">${spec.title}</a>
+                        </h4>
+                        <div class="spec-card-actions">
+                            <button class="btn-icon" onclick="editSpecCard('${spec.id}')" title="Edit">
+                                ✏️
+                            </button>
+                            <button class="btn-icon" onclick="deleteSpecCard('${spec.id}')" title="Delete">
+                                🗑️
+                            </button>
+                        </div>
+                    </div>
+                    <div class="spec-card-content">
+                        <span class="spec-mode-badge">${spec.mode || 'Unknown'}</span>
+                    </div>
+                    <div class="spec-card-footer">
+                        <small>Created: ${new Date(spec.createdAt?.toDate?.() || spec.createdAt).toLocaleDateString('en-US')}</small>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Create spec button
+        document.getElementById('create-spec-btn').addEventListener('click', () => {
+            window.location.href = 'processing-unified.html';
+        });
+
+        // Global functions for spec actions
+        window.editSpecCard = function(specId) {
+            const spec = userSpecs.find(s => s.id === specId);
+            if (!spec) return;
+            
+            const newTitle = prompt('ערוך כותרת:', spec.title);
+            if (newTitle === null) return;
+            
+            const newContent = prompt('ערוך תוכן:', spec.content);
+            if (newContent === null) return;
+            
+            // Here you would update the spec in Firestore
+            alert('פונקציונליות עריכה תתווסף בקרוב');
+        };
+
+        window.deleteSpecCard = function(specId) {
+            if (!confirm('האם אתה בטוח שברצונך למחוק את המפרט?')) {
+                return;
+            }
+            
+            // Here you would delete the spec from Firestore
+            alert('פונקציונליות מחיקה תתווסף בקרוב');
+        };
+
+        // Auth UI functions
+        function updateAuthUI(user) {
+            const authButtons = document.getElementById('auth-buttons');
+            
+            if (user) {
+                authButtons.innerHTML = `
+                    <div class="user-info">
+                        <div class="user-avatar">${user.displayName ? user.displayName.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase()}</div>
+                        <span>${user.displayName || user.email.split('@')[0]}</span>
+                    </div>
+                    <button class="auth-btn" onclick="logout()">יציאה</button>
+                `;
+            } else {
+                authButtons.innerHTML = `
+                    <button class="auth-btn" onclick="showLoginModal()">התחברות</button>
+                    <button class="auth-btn primary" onclick="showRegisterModal()">הרשמה</button>
+                `;
+            }
+        }
+
+        // Global auth functions
+        window.showLoginModal = function() {
+            const email = prompt('אימייל:');
+            if (!email) return;
+            
+            const password = prompt('סיסמה:');
+            if (!password) return;
+            
+            signInWithEmailAndPassword(auth, email, password)
+                .then(() => {
+                    alert('התחברת בהצלחה!');
+                })
+                .catch(error => {
+                    alert('Login error: ' + error.message);
+                });
+        };
+
+        window.showRegisterModal = function() {
+            const email = prompt('אימייל:');
+            if (!email) return;
+            
+            const password = prompt('סיסמה (לפחות 6 תווים):');
+            if (!password) return;
+            
+            if (password.length < 6) {
+                alert('הסיסמה חייבת להכיל לפחות 6 תווים');
+                return;
+            }
+            
+            createUserWithEmailAndPassword(auth, email, password)
+                .then(() => {
+                    alert('נרשמת בהצלחה!');
+                })
+                .catch(error => {
+                    alert('Registration error: ' + error.message);
+                });
+        };
+
+        window.logout = function() {
+            signOut(auth)
+                .then(() => {
+                    alert('יצאת בהצלחה');
+                    window.location.href = 'index.html';
+                })
+                .catch(error => {
+                    alert('Logout error: ' + error.message);
+                });
+        };
+    </script>
+</body>
+</html>

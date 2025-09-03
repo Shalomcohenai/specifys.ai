@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login/Register - Specifys.ai</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico" alt="Specifys.ai logo icon">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Auth Page Styles */
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 2rem;
+        }
+
+        .auth-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 3rem;
+            width: 100%;
+            max-width: 450px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .auth-logo {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .auth-subtitle {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 2rem;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #f8f9fa;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 1rem;
+            text-align: center;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .auth-tab.active {
+            background: #0078d4;
+            color: white;
+        }
+
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #0078d4;
+            box-shadow: 0 0 0 3px rgba(0, 120, 212, 0.1);
+        }
+
+        .auth-button {
+            width: 100%;
+            padding: 1rem;
+            background: #0078d4;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 1rem;
+        }
+
+        .auth-button:hover {
+            background: #005a9e;
+            transform: translateY(-2px);
+        }
+
+        .auth-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .divider {
+            text-align: center;
+            margin: 1.5rem 0;
+            position: relative;
+            color: #666;
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #e1e5e9;
+        }
+
+        .divider span {
+            background: white;
+            padding: 0 1rem;
+        }
+
+        .google-button {
+            width: 100%;
+            padding: 1rem;
+            background: white;
+            color: #333;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .google-button:hover {
+            border-color: #0078d4;
+            transform: translateY(-2px);
+        }
+
+        .auth-footer {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e1e5e9;
+        }
+
+        .auth-footer a {
+            color: #0078d4;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .auth-footer a:hover {
+            text-decoration: underline;
+        }
+
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border: 1px solid #fcc;
+        }
+
+        .success-message {
+            background: #efe;
+            color: #3c3;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border: 1px solid #cfc;
+        }
+
+        @media (max-width: 768px) {
+            .auth-container {
+                padding: 1rem;
+            }
+            
+            .auth-card {
+                padding: 2rem;
+            }
+            
+            .auth-logo {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body class="page-default">
+    <header class="thematic-header">
+        <a href="index.html" class="header-logo" aria-label="Specifys.ai homepage">S</a>
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode"><i class="fas fa-moon"></i></button>
+        <button class="menu-toggle" aria-label="Toggle navigation menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
+        <div class="header-links">
+            <a href="blog.html" aria-label="Visit our blog">Blog</a>
+            <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
+            <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
+            <a href="map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
+            <a href="https://specifys-ai.com/ToolPicker" aria-label="Use our Tool Finder">Tool Finder</a>
+        </div>
+    </header>
+
+    <main class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="auth-logo">Specifys.ai</div>
+                <div class="auth-subtitle">Login or register to save your specifications</div>
+            </div>
+
+            <div class="auth-tabs">
+                <button class="auth-tab active" onclick="switchTab('login')">Login</button>
+                <button class="auth-tab" onclick="switchTab('register')">Register</button>
+            </div>
+
+            <div id="error-message" class="error-message" style="display: none;"></div>
+            <div id="success-message" class="success-message" style="display: none;"></div>
+
+            <!-- Login Form -->
+            <form id="login-form" class="auth-form active">
+                <div class="form-group">
+                    <label class="form-label" for="login-email">Email</label>
+                    <input type="email" id="login-email" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="login-password">Password</label>
+                    <input type="password" id="login-password" class="form-input" required>
+                </div>
+                <button type="submit" class="auth-button" id="login-btn">
+                                            <span id="login-btn-text">Login</span>
+                </button>
+            </form>
+
+            <!-- Register Form -->
+            <form id="register-form" class="auth-form">
+                <div class="form-group">
+                    <label class="form-label" for="register-email">Email</label>
+                    <input type="email" id="register-email" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="register-password">Password</label>
+                    <input type="password" id="register-password" class="form-input" required minlength="6">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="register-confirm">Confirm Password</label>
+                    <input type="password" id="register-confirm" class="form-input" required minlength="6">
+                </div>
+                <button type="submit" class="auth-button" id="register-btn">
+                                            <span id="register-btn-text">Register</span>
+                </button>
+            </form>
+
+            <div class="divider">
+                <span>או</span>
+            </div>
+
+            <button class="google-button" onclick="loginWithGoogle()">
+                <i class="fab fa-google"></i>
+                                    Login with Google
+            </button>
+
+            <div class="auth-footer">
+                <a href="index.html">← חזור לדף הבית</a>
+            </div>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Import Firebase SDK
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { 
+            createUserWithEmailAndPassword, 
+            signInWithEmailAndPassword, 
+            signOut, 
+            onAuthStateChanged,
+            GoogleAuthProvider,
+            signInWithPopup,
+            getAuth
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyB9hr0IWM4EREzkKDxBxYoYinV6LJXWXV4",
+            authDomain: "specify-ai.firebaseapp.com",
+            projectId: "specify-ai",
+            storageBucket: "specify-ai.firebasestorage.app",
+            messagingSenderId: "734278787482",
+            appId: "1:734278787482:web:0e312fb6f197e849695a23",
+            measurementId: "G-4YR9LK63MR"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const googleProvider = new GoogleAuthProvider();
+
+        // Tab switching
+        function switchTab(tab) {
+            // Update tab buttons
+            document.querySelectorAll('.auth-tab').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`[onclick="switchTab('${tab}')"]`).classList.add('active');
+            
+            // Update forms
+            document.querySelectorAll('.auth-form').forEach(form => form.classList.remove('active'));
+            document.getElementById(`${tab}-form`).classList.add('active');
+            
+            // Clear messages
+            hideMessages();
+        }
+
+        // Show/hide messages
+        function showError(message) {
+            const errorDiv = document.getElementById('error-message');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            document.getElementById('success-message').style.display = 'none';
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.getElementById('success-message');
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+            document.getElementById('error-message').style.display = 'none';
+        }
+
+        function hideMessages() {
+            document.getElementById('error-message').style.display = 'none';
+            document.getElementById('success-message').style.display = 'none';
+        }
+
+        // Auth functions
+        async function registerWithEmail(email, password) {
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                return userCredential.user;
+            } catch (error) {
+                throw new Error(getAuthErrorMessage(error.code));
+            }
+        }
+
+        async function loginWithEmail(email, password) {
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                return userCredential.user;
+            } catch (error) {
+                throw new Error(getAuthErrorMessage(error.code));
+            }
+        }
+
+        async function loginWithGoogle() {
+            try {
+                const result = await signInWithPopup(auth, googleProvider);
+                return result.user;
+            } catch (error) {
+                throw new Error(getAuthErrorMessage(error.code));
+            }
+        }
+
+        // Error messages
+        function getAuthErrorMessage(errorCode) {
+            const errorMessages = {
+                        'auth/user-not-found': 'User not found',
+        'auth/wrong-password': 'Wrong password',
+        'auth/email-already-in-use': 'Email already in use',
+        'auth/weak-password': 'Password too weak',
+        'auth/invalid-email': 'Invalid email',
+                'auth/user-disabled': 'Account disabled',
+                'auth/too-many-requests': 'Too many attempts, try again later',
+                'auth/operation-not-allowed': 'Operation not allowed',
+                'auth/requires-recent-login': 'Requires recent login',
+                'auth/popup-closed-by-user': 'Login window closed',
+                'auth/cancelled-popup-request': 'Request cancelled',
+                'auth/popup-blocked': 'Login window blocked',
+                'auth/account-exists-with-different-credential': 'Account exists with different credential',
+                'auth/credential-already-in-use': 'Credential already in use',
+                'auth/invalid-credential': 'Invalid credential',
+                'auth/timeout': 'Timeout, try again',
+                'auth/network-request-failed': 'Network error, check internet connection'
+            };
+            
+            return errorMessages[errorCode] || 'Unknown error';
+        }
+
+        // Form handlers
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            const btn = document.getElementById('login-btn');
+            const btnText = document.getElementById('login-btn-text');
+            
+            btn.disabled = true;
+            btnText.textContent = 'Logging in...';
+            
+            try {
+                await loginWithEmail(email, password);
+                showSuccess('Login successful! Redirecting to homepage...');
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1500);
+            } catch (error) {
+                showError(error.message);
+            } finally {
+                btn.disabled = false;
+                btnText.textContent = 'Login';
+            }
+        });
+
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            const confirmPassword = document.getElementById('register-confirm').value;
+            
+            if (password !== confirmPassword) {
+                showError('Passwords do not match');
+                return;
+            }
+            
+            const btn = document.getElementById('register-btn');
+            const btnText = document.getElementById('register-btn-text');
+            
+            btn.disabled = true;
+            btnText.textContent = 'Registering...';
+            
+            try {
+                await registerWithEmail(email, password);
+                showSuccess('Registration successful! Redirecting to homepage...');
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1500);
+            } catch (error) {
+                showError(error.message);
+            } finally {
+                btn.disabled = false;
+                btnText.textContent = 'Register';
+            }
+        });
+
+        // Google login
+        window.loginWithGoogle = async function() {
+            try {
+                await loginWithGoogle();
+                showSuccess('Login successful! Redirecting to homepage...');
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1500);
+            } catch (error) {
+                showError(error.message);
+            }
+        };
+
+        // Global functions
+        window.switchTab = switchTab;
+
+        // Redirect if already logged in
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                window.location.href = 'index.html';
+            }
+        });
+    </script>
+</body>
+</html>

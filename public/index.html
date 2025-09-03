@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Specifys.ai - מערכת משתמשים</title>
+    <link rel="stylesheet" href="/styles/main.css">
+    <link rel="stylesheet" href="/styles/auth.css">
+</head>
+<body>
+    <nav id="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <h1>Specifys.ai</h1>
+            </div>
+            <div class="nav-links" id="nav-links">
+                <!-- Will be populated by navbar.js -->
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="hero">
+            <h2 id="hero-title">ברוכים הבאים ל-Specifys.ai</h2>
+            <p id="hero-subtitle">מערכת ניהול מפרטים חכמה עם אימות משתמשים</p>
+            
+            <div class="auth-buttons" id="auth-buttons">
+                <!-- Will be populated by navbar.js -->
+            </div>
+        </div>
+
+        <div class="features" id="features-section">
+            <div class="feature-card">
+                <h3>🔐 אימות מאובטח</h3>
+                <p>התחברות עם Google או אימייל וסיסמה</p>
+            </div>
+            <div class="feature-card">
+                <h3>📝 ניהול מפרטים</h3>
+                <p>שמירה וניהול של מפרטים אישיים</p>
+            </div>
+            <div class="feature-card">
+                <h3>☁️ שמירה בענן</h3>
+                <p>גישה למפרטים מכל מקום</p>
+            </div>
+        </div>
+
+        <!-- Logged in content -->
+        <div class="logged-in-content" id="logged-in-content" style="display: none;">
+            <div class="welcome-section">
+                <h3>🎉 ברוך הבא למערכת!</h3>
+                <p>אתה מחובר בהצלחה. מה תרצה לעשות?</p>
+            </div>
+            
+            <div class="quick-actions">
+                <a href="/dashboard.html" class="action-card">
+                    <div class="action-icon">📝</div>
+                    <h4>צור מפרט חדש</h4>
+                    <p>התחל ליצור מפרט חדש</p>
+                </a>
+                <a href="/profile.html" class="action-card">
+                    <div class="action-icon">👤</div>
+                    <h4>פרופיל אישי</h4>
+                    <p>צפה וערוך את הפרופיל שלך</p>
+                </a>
+                <a href="/dashboard.html" class="action-card">
+                    <div class="action-icon">📊</div>
+                    <h4>לוח בקרה</h4>
+                    <p>ניהול המפרטים שלך</p>
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <script type="module" src="/scripts/firebaseConfig.js"></script>
+    <script type="module" src="/scripts/authService.js"></script>
+    <script type="module" src="/scripts/navbar.js"></script>
+</body>
+</html>

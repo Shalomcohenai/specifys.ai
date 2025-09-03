@@ -120,6 +120,117 @@
       --chat-header-text: #fff;
     }
 
+    /* Header Restructuring for Auth System */
+    .thematic-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 20px;
+      background: var(--header-bg);
+      backdrop-filter: blur(10px);
+      box-shadow: var(--header-shadow);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      height: 70px;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+    }
+
+    .header-center {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .auth-buttons {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .auth-btn {
+      padding: 8px 16px;
+      border: 1px solid var(--primary-color);
+      background: transparent;
+      color: var(--primary-color);
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .auth-btn:hover {
+      background: var(--primary-color);
+      color: white;
+    }
+
+    .auth-btn.primary {
+      background: var(--primary-color);
+      color: white;
+    }
+
+    .auth-btn.primary:hover {
+      background: var(--button-hover);
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-color);
+    }
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--primary-color);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    /* Dark mode overrides for auth system */
+    body.dark-mode .auth-btn {
+      border-color: var(--primary-color);
+      color: var(--primary-color);
+    }
+
+    body.dark-mode .auth-btn:hover {
+      background: var(--primary-color);
+      color: white;
+    }
+
+    body.dark-mode .user-info {
+      color: var(--text-color);
+    }
+
+    body.dark-mode .user-avatar {
+      background: var(--primary-color);
+      color: white;
+    }
+
     * {
       margin: 0;
       padding: 0;
@@ -660,17 +771,26 @@
 </head>
 <body>
   <header class="thematic-header" role="banner">
-    <div class="logo">
-      <a href="index.html" aria-label="Specifys.ai homepage">Specifys.ai</a>
+    <div class="header-left">
+      <div class="logo">
+        <a href="index.html" aria-label="Specifys.ai homepage">Specifys.ai</a>
+      </div>
     </div>
-    <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode"><i class="fas fa-moon"></i></button>
-    <button class="menu-toggle" aria-label="Toggle navigation menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
-    <div class="header-links">
-      <a href="blog.html" aria-label="Visit our blog">Blog</a>
-      <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
-      <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
-      <a href="map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
-      <a href="ToolPicker.html" aria-label="Use our Tool Finder">Tool Finder</a>
+    <div class="header-center">
+      <div class="auth-buttons" id="auth-buttons">
+        <!-- Auth buttons will be populated by JavaScript -->
+      </div>
+    </div>
+    <div class="header-right">
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode"><i class="fas fa-moon"></i></button>
+      <button class="menu-toggle" aria-label="Toggle navigation menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
+      <div class="header-links">
+        <a href="blog.html" aria-label="Visit our blog">Blog</a>
+        <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
+        <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
+        <a href="map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
+        <a href="ToolPicker.html" aria-label="Use our Tool Finder">Tool Finder</a>
+      </div>
     </div>
   </header>
 
@@ -710,6 +830,177 @@
   </div>
 
   <script src="common-header-footer.js"></script>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    // Import Firebase modules
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+    import { 
+      getAuth, 
+      createUserWithEmailAndPassword, 
+      signInWithEmailAndPassword, 
+      signOut, 
+      signInWithPopup, 
+      GoogleAuthProvider,
+      onAuthStateChanged 
+    } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+    import { 
+      getFirestore, 
+      collection, 
+      addDoc, 
+      serverTimestamp,
+      query,
+      where,
+      orderBy,
+      getDocs
+    } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyB9hr0IWM4EREzkKDxBxYoYinV6LJXWXV4",
+      authDomain: "specify-ai.firebaseapp.com",
+      projectId: "specify-ai",
+      storageBucket: "specify-ai.firebasestorage.app",
+      messagingSenderId: "734278787482",
+      appId: "1:734278787482:web:0e312fb6f197e849695a23",
+      measurementId: "G-4YR9LK63MR"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // Auto-save function instead of manual save button
+    async function autoSaveSpec() {
+      if (!auth.currentUser) {
+        console.log('User not authenticated, skipping auto-save');
+        return;
+      }
+      
+      const specContent = localStorage.getItem('generatedContent');
+      if (!specContent) {
+        console.log('No spec content to save');
+        return;
+      }
+      
+      try {
+        // Extract title from spec content
+        let title = "App Specification";
+        const lines = specContent.split('\n');
+        for (let line of lines) {
+          line = line.trim();
+          if (line.startsWith('# ') || line.startsWith('## ')) {
+            title = line.replace(/^#+\s*/, '');
+            break;
+          } else if (line.length > 10 && line.length < 100) {
+            title = line;
+            break;
+          }
+        }
+        
+        const mode = localStorage.getItem('noviceCurrentMode') || 'novice';
+        const answers = JSON.parse(localStorage.getItem(`noviceAnswers_${mode}`) || '{}');
+        
+        const specDoc = {
+          title: title,
+          content: specContent,
+          userId: auth.currentUser.uid,
+          mode: mode,
+          answers: answers,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp()
+        };
+        
+        const docRef = await addDoc(collection(db, 'specs'), specDoc);
+        console.log('Spec auto-saved successfully:', docRef.id);
+        
+        // Show small notification
+        showSaveNotification();
+      } catch (error) {
+        console.error('Error auto-saving spec:', error);
+      }
+    }
+
+    function showSaveNotification() {
+      const notification = document.createElement('div');
+      notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #28a745;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+        z-index: 1000;
+        font-size: 14px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      `;
+      notification.textContent = 'Specification auto-saved!';
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        notification.remove();
+      }, 3000);
+    }
+
+    // Update auth UI
+    function updateAuthUI(user) {
+      const authButtons = document.getElementById('auth-buttons');
+      
+      if (user) {
+        // User is logged in
+        authButtons.innerHTML = `
+          <div class="user-info">
+            <div class="user-avatar">${user.displayName ? user.displayName.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase()}</div>
+            <span>${user.displayName || user.email.split('@')[0]}</span>
+          </div>
+          <a href="profile.html" class="auth-btn">Profile</a>
+          <button class="auth-btn" onclick="logout()">Logout</button>
+        `;
+      } else {
+        // User is not logged in
+        authButtons.innerHTML = `
+          <button class="auth-btn" onclick="showLoginModal()">Login</button>
+          <button class="auth-btn primary" onclick="showRegisterModal()">Register</button>
+        `;
+      }
+    }
+
+    // Global functions
+    window.showLoginModal = function() {
+      window.location.href = 'auth.html';
+    };
+
+    window.showRegisterModal = function() {
+      window.location.href = 'auth.html';
+    };
+
+    window.logout = function() {
+      signOut(auth)
+        .then(() => {
+          alert('Logged out successfully');
+        })
+        .catch(error => {
+          alert('Error logging out: ' + error.message);
+        });
+    };
+
+    // Listen to auth state changes
+    onAuthStateChanged(auth, (user) => {
+      updateAuthUI(user);
+      
+      // Auto-save spec if user is authenticated and content exists
+      if (user) {
+        const specContent = localStorage.getItem('generatedContent');
+        if (specContent) {
+          setTimeout(() => {
+            autoSaveSpec();
+          }, 2000); // Wait for page to load
+        }
+      }
+    });
+  </script>
 
   <noscript>
     <div style="text-align: center; padding: 20px; background: #fff; color: #333;">

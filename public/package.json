@@ -1,0 +1,16 @@
+{
+  "name": "specifys-user-system",
+  "version": "1.0.0",
+  "description": "Specifys.ai User System with Firebase Authentication",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": ["specifys", "firebase", "authentication", "user-system"],
+  "author": "Specifys.ai",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>לוח בקרה - Specifys.ai</title>
+    <link rel="stylesheet" href="/styles/main.css">
+    <link rel="stylesheet" href="/styles/auth.css">
+    <link rel="stylesheet" href="/styles/dashboard.css">
+</head>
+<body>
+    <nav id="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <h1>Specifys.ai</h1>
+            </div>
+            <div class="nav-links" id="nav-links">
+                <!-- Will be populated by navbar.js -->
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="dashboard-header">
+            <h2>לוח בקרה אישי</h2>
+            <p id="welcome-message">ברוך הבא!</p>
+        </div>
+
+        <div class="dashboard-content">
+            <!-- Create new spec form -->
+            <div class="create-spec-card">
+                <h3>צור מפרט חדש</h3>
+                <form id="create-spec-form" class="spec-form">
+                    <div class="form-group">
+                        <label for="spec-title">כותרת המפרט:</label>
+                        <input type="text" id="spec-title" name="title" required placeholder="הכנס כותרת למפרט">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="spec-content">תוכן המפרט:</label>
+                        <textarea id="spec-content" name="content" required rows="6" placeholder="הכנס את תוכן המפרט כאן..."></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">שמור מפרט</button>
+                </form>
+            </div>
+
+            <!-- User's specs list -->
+            <div class="specs-list-card">
+                <h3>המפרטים שלי</h3>
+                <div id="specs-list" class="specs-list">
+                    <div class="loading">טוען מפרטים...</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="error-message" class="error-message" style="display: none;"></div>
+        <div id="success-message" class="success-message" style="display: none;"></div>
+    </main>
+
+    <script type="module" src="/scripts/firebaseConfig.js"></script>
+    <script type="module" src="/scripts/authService.js"></script>
+    <script type="module" src="/scripts/navbar.js"></script>
+    <script type="module" src="/scripts/routeGuards.js"></script>
+    <script type="module" src="/scripts/specsService.js"></script>
+    <script type="module">
+        import { onAuthChanged } from '/scripts/authService.js';
+        import { requireAuth } from '/scripts/routeGuards.js';
+        import { createSpec, fetchUserSpecs, deleteSpec, updateSpec } from '/scripts/specsService.js';
+
+        // Require authentication
+        requireAuth('/login.html');
+
+        let currentUser = null;
+        let userSpecs = [];
+
+        // Auth state change handler
+        onAuthChanged((user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('welcome-message').textContent = `ברוך הבא, ${user.email}!`;
+                loadUserSpecs();
+            } else {
+                window.location.href = '/login.html';
+            }
+        });
+
+        // Create spec form handler
+        document.getElementById('create-spec-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (!currentUser) {
+                showMessage('אינך מחובר למערכת', 'error');
+                return;
+            }
+            
+            const title = document.getElementById('spec-title').value;
+            const content = document.getElementById('spec-content').value;
+            
+            try {
+                await createSpec({ title, content, userId: currentUser.uid });
+                showMessage('המפרט נשמר בהצלחה!', 'success');
+                document.getElementById('create-spec-form').reset();
+                loadUserSpecs();
+            } catch (error) {
+                showMessage('שגיאה בשמירת המפרט: ' + error.message, 'error');
+            }
+        });
+
+        // Load user specs
+        async function loadUserSpecs() {
+            if (!currentUser) return;
+            
+            try {
+                userSpecs = await fetchUserSpecs(currentUser.uid);
+                renderSpecs();
+            } catch (error) {
+                console.error('Error loading specs:', error);
+                document.getElementById('specs-list').innerHTML = '<div class="error">שגיאה בטעינת המפרטים</div>';
+            }
+        }
+
+        // Render specs list
+        function renderSpecs() {
+            const specsList = document.getElementById('specs-list');
+            
+            if (userSpecs.length === 0) {
+                specsList.innerHTML = '<div class="no-specs">אין מפרטים עדיין. צור מפרט ראשון!</div>';
+                return;
+            }
+            
+            specsList.innerHTML = userSpecs.map(spec => `
+                <div class="spec-item" data-spec-id="${spec.id}">
+                    <div class="spec-header">
+                        <h4 class="spec-title">${spec.title}</h4>
+                        <div class="spec-actions">
+                            <button class="btn btn-small btn-edit" onclick="editSpec('${spec.id}')">ערוך</button>
+                            <button class="btn btn-small btn-delete" onclick="deleteSpecItem('${spec.id}')">מחק</button>
+                        </div>
+                    </div>
+                    <div class="spec-content">${spec.content}</div>
+                    <div class="spec-meta">
+                        <small>נוצר: ${new Date(spec.createdAt?.toDate?.() || spec.createdAt).toLocaleDateString('he-IL')}</small>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Delete spec
+        window.deleteSpecItem = async function(specId) {
+            if (!confirm('האם אתה בטוח שברצונך למחוק את המפרט?')) {
+                return;
+            }
+            
+            try {
+                await deleteSpec(specId);
+                showMessage('המפרט נמחק בהצלחה!', 'success');
+                loadUserSpecs();
+            } catch (error) {
+                showMessage('שגיאה במחיקת המפרט: ' + error.message, 'error');
+            }
+        };
+
+        // Edit spec (simple inline editing)
+        window.editSpec = function(specId) {
+            const spec = userSpecs.find(s => s.id === specId);
+            if (!spec) return;
+            
+            const newTitle = prompt('ערוך כותרת:', spec.title);
+            if (newTitle === null) return;
+            
+            const newContent = prompt('ערוך תוכן:', spec.content);
+            if (newContent === null) return;
+            
+            updateSpec(specId, { title: newTitle, content: newContent })
+                .then(() => {
+                    showMessage('המפרט עודכן בהצלחה!', 'success');
+                    loadUserSpecs();
+                })
+                .catch(error => {
+                    showMessage('שגיאה בעדכון המפרט: ' + error.message, 'error');
+                });
+        };
+
+        function showMessage(message, type) {
+            const errorDiv = document.getElementById('error-message');
+            const successDiv = document.getElementById('success-message');
+            
+            if (type === 'error') {
+                errorDiv.textContent = message;
+                errorDiv.style.display = 'block';
+                successDiv.style.display = 'none';
+            } else {
+                successDiv.textContent = message;
+                successDiv.style.display = 'block';
+                errorDiv.style.display = 'none';
+            }
+            
+            // Hide message after 3 seconds
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+                successDiv.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

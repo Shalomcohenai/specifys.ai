@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="description" content="Specifys.ai - Plan your dream app for free with smart AI tools, including Vibe Coding Tools Map and Tool Finder. Choose an easy track for beginners, tools for developers, or market research for entrepreneurs.">
 <meta name="keywords" content="app planning, AI, developers, beginners, market research, entrepreneurship, vibe coding tools, tool Finder, free software">
 <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
@@ -46,6 +46,8 @@ function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
 gtag('config', 'G-RWBT69JCM7');
 </script>
+
+
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -89,10 +91,22 @@ min-height: 100vh;
 background: #f5f5f5;
 overflow-x: hidden;
 transition: background 0.3s ease, color 0.3s ease;
+width: 100%;
+max-width: 100%;
 }
 body.dark-mode {
 background: #1a1a1a;
 color: #e0e0e0;
+}
+
+/* Ensure all content stays within viewport */
+.thematic-header,
+.hero-hero-section,
+.extra-sections,
+.footer {
+width: 100%;
+max-width: 100vw;
+overflow-x: hidden;
 }
 .thematic-header {
 position: fixed;
@@ -102,7 +116,7 @@ padding: 15px 24px;
 display: flex;
 justify-content: space-between;
 align-items: center;
-z-index: 10;
+z-index: 100;
 background: rgba(255, 255, 255, 0.9);
 box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
@@ -129,58 +143,100 @@ background: #444;
 .header-logo:hover {
 background: #0078d4;
 }
+
+.header-right {
+display: flex;
+align-items: center;
+gap: 0.5rem;
+z-index: 10000;
+position: relative;
+}
 .menu-toggle {
-background: none;
+display: flex;
+align-items: center;
+justify-content: center;
+width: 35px;
+height: 35px;
+background: #333;
 border: none;
+border-radius: 8px;
 font-size: 1.3rem;
-color: #333;
+color: #fff;
 cursor: pointer;
-transition: color 0.3s ease;
+transition: background-color 0.3s ease;
 }
 body.dark-mode .menu-toggle {
-color: #e0e0e0;
+background: #444;
+color: #fff;
 }
 .menu-toggle:hover {
-color: #0078d4;
+background: #0078d4;
 }
 .header-links {
 display: none;
 flex-direction: column;
-position: absolute;
-top: 20px;
-right: 60px;
-background: rgba(255, 255, 255, 0.95);
-padding: 15px;
-border-radius: 8px;
-box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-width: 0;
-overflow: hidden;
-transition: width 0.3s ease, opacity 0.3s ease;
+position: fixed;
+top: 0;
+left: 0;
+right: 0;
+bottom: 0;
+background: rgba(0, 0, 0, 0.8);
+z-index: 9999;
+padding: 0;
+transition: opacity 0.3s ease;
 opacity: 0;
+width: 100vw;
+height: 100vh;
 }
-body.dark-mode .header-links {
-background: rgba(30, 30, 30, 0.95);
-box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
-}
+
 .header-links.active {
 display: flex;
-width: 200px;
 opacity: 1;
+}
+
+.header-links-content {
+position: absolute;
+top: 80px;
+right: 20px;
+background: rgba(255, 255, 255, 0.95);
+padding: 20px;
+border-radius: 12px;
+box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+min-width: 220px;
+transform: translateY(-10px);
+opacity: 0;
+transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.header-links.active .header-links-content {
+transform: translateY(0);
+opacity: 1;
+}
+
+body.dark-mode .header-links-content {
+background: rgba(30, 30, 30, 0.95);
+box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
 }
 .header-links a {
 color: #333;
 text-decoration: none;
-font-size: 0.85rem;
-font-weight: 700;
-padding: 8px 0;
+font-size: 0.9rem;
+font-weight: 600;
+padding: 12px 0;
 transition: color 0.3s ease, transform 0.3s ease;
+display: block;
+border-bottom: 1px solid rgba(128, 128, 128, 0.2);
+}
+.header-links a:last-child {
+border-bottom: none;
 }
 body.dark-mode .header-links a {
 color: #e0e0e0;
+border-bottom-color: rgba(128, 128, 128, 0.3);
 }
 .header-links a:hover {
 color: #0078d4;
-transform: translateX(-5px);
+transform: translateX(5px);
 }
 
 /* Hero Hero Section - New Top Section */
@@ -832,21 +888,34 @@ box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 .theme-toggle {
 position: fixed;
-top: 15px;
-right: 70px;
-background: none;
-border: none;
-font-size: 1.3rem;
+bottom: 20px;
+left: 20px;
+background: #fff;
 color: #333;
+border: none;
+border-radius: 50%;
+width: 40px;
+height: 40px;
+font-size: 1.2rem;
 cursor: pointer;
-transition: color 0.3s ease;
-z-index: 11;
+display: flex;
+align-items: center;
+justify-content: center;
+box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+z-index: 1000;
+transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 body.dark-mode .theme-toggle {
-color: #e0e0e0;
+background: #333;
+color: #fff;
 }
 .theme-toggle:hover {
-color: #0078d4;
+background: #f0f0f0;
+transform: translateY(-2px);
+box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+body.dark-mode .theme-toggle:hover {
+background: #555;
 }
 @media (max-width: 768px) {
 .thematic-header {
@@ -1223,19 +1292,322 @@ border: 0;
         body.dark-mode .feedback-link:hover {
           color: #0078d4;
         }
+
+        /* Header Layout Styles */
+        .thematic-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 15px 20px;
+        }
+
+        .header-left {
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+        }
+
+        .header-center {
+          display: flex;
+          justify-content: center;
+          flex: 1;
+        }
+
+        .header-right {
+          display: flex;
+          align-items: center;
+        }
+
+        /* Auth System Styles */
+        .auth-buttons {
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+          z-index: 10000;
+          position: relative;
+        }
+
+        .auth-btn {
+          padding: 0.5rem 1rem;
+          border: none;
+          border-radius: 8px;
+          text-decoration: none;
+          font-size: 0.9rem;
+          font-weight: 700;
+          transition: all 0.3s ease;
+          cursor: pointer;
+          background: transparent;
+          color: #666;
+        }
+
+        .auth-btn:hover {
+          color: #555;
+          transform: translateY(-2px);
+        }
+
+        .auth-btn.primary {
+          background: transparent;
+          color: #666;
+        }
+
+        .auth-btn.primary:hover {
+          color: #555;
+        }
+
+        .user-info {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          padding: 0.5rem 1rem;
+          background: rgba(128, 128, 128, 0.1);
+          border-radius: 20px;
+          border: 1px solid rgba(128, 128, 128, 0.2);
+          color: #666;
+          font-size: 0.9rem;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+
+        .user-info:hover {
+          background: rgba(128, 128, 128, 0.2);
+          transform: translateY(-1px);
+        }
+
+        .user-avatar {
+          width: 24px;
+          height: 24px;
+          background: #666;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 0.8rem;
+          font-weight: bold;
+          color: white;
+        }
+
+        .user-name {
+          color: #666;
+          font-weight: 500;
+        }
+
+        body.dark-mode .auth-btn {
+          background: transparent;
+          color: #ccc;
+        }
+
+        body.dark-mode .auth-btn:hover {
+          color: #fff;
+        }
+
+        body.dark-mode .user-info {
+          background: rgba(128, 128, 128, 0.2);
+          border-color: rgba(128, 128, 128, 0.3);
+          color: #ccc;
+        }
+
+        body.dark-mode .user-name {
+          color: #ccc;
+        }
+
+        body.dark-mode .user-avatar {
+          background: #ccc;
+          color: #333;
+        }
+
+        /* User Dropdown Styles */
+        .user-dropdown {
+          position: relative;
+          display: inline-block;
+          z-index: 10000;
+        }
+
+        .user-dropdown-content {
+          display: none;
+          position: fixed;
+          top: 80px;
+          right: 20px;
+          background: rgba(255, 255, 255, 0.95);
+          min-width: 160px;
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+          border-radius: 12px;
+          z-index: 100000;
+          padding: 10px 0;
+        }
+
+        body.dark-mode .user-dropdown-content {
+          background: rgba(30, 30, 30, 0.95);
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+        }
+
+        .user-dropdown-content.show {
+          display: block;
+        }
+
+        .user-dropdown-content a,
+        .user-dropdown-content button {
+          color: #333;
+          padding: 12px 20px;
+          text-decoration: none;
+          display: block;
+          font-size: 0.9rem;
+          font-weight: 500;
+          border: none;
+          background: none;
+          width: 100%;
+          text-align: left;
+          cursor: pointer;
+          transition: background-color 0.3s ease;
+          border-radius: 0;
+        }
+
+        body.dark-mode .user-dropdown-content a,
+        body.dark-mode .user-dropdown-content button {
+          color: #e0e0e0;
+        }
+
+        .user-dropdown-content a:hover,
+        .user-dropdown-content button:hover {
+          background-color: rgba(0, 120, 212, 0.1);
+        }
+
+        body.dark-mode .user-dropdown-content a:hover,
+        body.dark-mode .user-dropdown-content button:hover {
+          background-color: rgba(0, 120, 212, 0.2);
+        }
+
+        .user-dropdown-content .divider {
+          height: 1px;
+          background: rgba(128, 128, 128, 0.3);
+          margin: 5px 0;
+        }
+
+        @media (max-width: 768px) {
+          body {
+            overflow-x: hidden;
+            width: 100%;
+            max-width: 100vw;
+          }
+          
+          .thematic-header {
+            padding: 12px 1rem;
+            width: 100%;
+            max-width: 100vw;
+          }
+          
+          .header-right {
+            gap: 0.3rem;
+          }
+          
+          .menu-toggle {
+            width: 30px;
+            height: 30px;
+            font-size: 1.1rem;
+          }
+          
+          .auth-buttons {
+            gap: 0.3rem;
+          }
+          
+          .auth-btn {
+            padding: 0.3rem 0.6rem;
+            font-size: 0.75rem;
+          }
+          
+          .user-info {
+            padding: 0.3rem 0.6rem;
+            font-size: 0.75rem;
+            gap: 0.3rem;
+          }
+          
+          .user-avatar {
+            width: 20px;
+            height: 20px;
+            font-size: 0.7rem;
+          }
+          
+          .theme-toggle {
+            bottom: 15px;
+            left: 15px;
+            width: 35px;
+            height: 35px;
+            font-size: 1rem;
+          }
+          
+          .user-dropdown-content {
+            top: 70px;
+            right: 15px;
+            min-width: 140px;
+            padding: 8px 0;
+          }
+          
+          .user-dropdown-content a,
+          .user-dropdown-content button {
+            padding: 10px 16px;
+            font-size: 0.8rem;
+          }
+          
+          .header-links-content {
+            top: 70px;
+            right: 15px;
+            min-width: 180px;
+            max-width: calc(100vw - 30px);
+            padding: 12px;
+            width: auto;
+          }
+          
+          .header-links {
+            width: 100vw;
+            height: 100vh;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+          }
+          
+          .header-links a {
+            padding: 10px 0;
+            font-size: 0.8rem;
+          }
+          
+          .hero-hero-section {
+            width: 100%;
+            max-width: 100vw;
+            padding: 8rem 1rem 4rem 1rem;
+          }
+          
+          .hero-container {
+            width: 100%;
+            max-width: 100%;
+          }
+          
+          .extra-sections {
+            width: 100%;
+            max-width: 100vw;
+            padding: 2rem 1rem;
+          }
+        }
 </style>
 </head>
 <body class="page-default">
 <header class="thematic-header">
+<div class="header-left">
 <a href="index.html" class="header-logo" aria-label="Specifys.ai homepage">S</a>
-<button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode"><i class="fas fa-moon"></i></button>
+</div>
+<div class="header-right">
+<div class="auth-buttons" id="auth-buttons">
+<!-- Will be populated by auth system -->
+</div>
 <button class="menu-toggle" aria-label="Toggle navigation menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
 <div class="header-links">
+<div class="header-links-content">
 <a href="blog.html" aria-label="Visit our blog">Blog</a>
 <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
 <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
 <a href="map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
 <a href="https://specifys-ai.com/ToolPicker" aria-label="Use our Tool Finder">Tool Finder</a>
+</div>
+</div>
 </div>
 </header>
 
@@ -1524,6 +1896,7 @@ border: 0;
 </div>
 </div>
         <button class="scroll-to-top down" id="scrollToTop"><i class="fas fa-arrow-down"></i></button>
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode"><i class="fas fa-moon"></i></button>
         
         <!-- Feedback Modal - Hidden for now -->
         <div id="feedbackModal" class="feedback-modal" style="display: none;">
@@ -1687,6 +2060,14 @@ if (typeof gtag !== 'undefined') {
     'event_category': 'Menu Interaction',
     'event_label': isActive ? 'Menu Close' : 'Menu Open'
     });
+}
+});
+
+// Close menu when clicking on background
+headerLinks.addEventListener('click', (e) => {
+if (e.target === headerLinks) {
+    headerLinks.classList.remove('active');
+    menuToggle.setAttribute('aria-expanded', 'false');
 }
 });
 
@@ -1865,6 +2246,227 @@ closeFeedbackModal();
 });
 });
     </script>
+
+<!-- Auth System Script -->
+<script type="module">
+  // Import Firebase SDK
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { 
+    createUserWithEmailAndPassword, 
+    signInWithEmailAndPassword, 
+    signOut, 
+    onAuthStateChanged,
+    GoogleAuthProvider,
+    signInWithPopup,
+    getAuth
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+  import { 
+    collection, 
+    addDoc, 
+    getDocs, 
+    query, 
+    where, 
+    orderBy,
+    serverTimestamp,
+    getFirestore
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  // Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyB9hr0IWM4EREzkKDxBxYoYinV6LJXWXV4",
+    authDomain: "specify-ai.firebaseapp.com",
+    projectId: "specify-ai",
+    storageBucket: "specify-ai.firebasestorage.app",
+    messagingSenderId: "734278787482",
+    appId: "1:734278787482:web:0e312fb6f197e849695a23",
+    measurementId: "G-4YR9LK63MR"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  const googleProvider = new GoogleAuthProvider();
+
+  // Auth functions
+  async function registerWithEmail(email, password) {
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      return userCredential.user;
+    } catch (error) {
+      throw new Error(getAuthErrorMessage(error.code));
+    }
+  }
+
+  async function loginWithEmail(email, password) {
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      return userCredential.user;
+    } catch (error) {
+      throw new Error(getAuthErrorMessage(error.code));
+    }
+  }
+
+  async function loginWithGoogle() {
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      return result.user;
+    } catch (error) {
+      throw new Error(getAuthErrorMessage(error.code));
+    }
+  }
+
+  async function logout() {
+    try {
+      await signOut(auth);
+    } catch (error) {
+      throw new Error('שגיאה ביציאה מהחשבון');
+    }
+  }
+
+  // Specs functions
+  async function saveSpec(specData) {
+    if (!auth.currentUser) return;
+    
+    try {
+      const specDoc = {
+        title: specData.title || 'Untitled Spec',
+        content: specData.content,
+        userId: auth.currentUser.uid,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      };
+      
+      const docRef = await addDoc(collection(db, 'specs'), specDoc);
+      return docRef.id;
+    } catch (error) {
+      throw new Error('שגיאה בשמירת המפרט: ' + error.message);
+    }
+  }
+
+  async function getUserSpecs() {
+    if (!auth.currentUser) return [];
+    
+    try {
+      const q = query(
+        collection(db, 'specs'),
+        where('userId', '==', auth.currentUser.uid),
+        orderBy('createdAt', 'desc')
+      );
+      
+      const querySnapshot = await getDocs(q);
+      const specs = [];
+      
+      querySnapshot.forEach((doc) => {
+        specs.push({
+          id: doc.id,
+          ...doc.data()
+        });
+      });
+      
+      return specs;
+    } catch (error) {
+      throw new Error('שגיאה בטעינת המפרטים: ' + error.message);
+    }
+  }
+
+  // Error messages
+  function getAuthErrorMessage(errorCode) {
+    const errorMessages = {
+      'auth/user-not-found': 'משתמש לא נמצא',
+      'auth/wrong-password': 'סיסמה שגויה',
+      'auth/email-already-in-use': 'כתובת אימייל כבר בשימוש',
+      'auth/weak-password': 'הסיסמה חלשה מדי',
+      'auth/invalid-email': 'כתובת אימייל לא תקינה',
+      'auth/user-disabled': 'החשבון הושבת',
+      'auth/too-many-requests': 'יותר מדי ניסיונות, נסה שוב מאוחר יותר',
+      'auth/operation-not-allowed': 'פעולה לא מורשית',
+      'auth/requires-recent-login': 'נדרש להתחבר מחדש',
+      'auth/popup-closed-by-user': 'חלון ההתחברות נסגר',
+      'auth/cancelled-popup-request': 'בקשה בוטלה',
+      'auth/popup-blocked': 'חלון ההתחברות נחסם',
+      'auth/account-exists-with-different-credential': 'חשבון קיים עם פרטי התחברות שונים',
+      'auth/credential-already-in-use': 'פרטי התחברות כבר בשימוש',
+      'auth/invalid-credential': 'פרטי התחברות לא תקינים',
+      'auth/timeout': 'פג הזמן, נסה שוב',
+      'auth/network-request-failed': 'שגיאת רשת, בדוק את החיבור לאינטרנט'
+    };
+    
+    return errorMessages[errorCode] || 'שגיאה לא ידועה';
+  }
+
+  // UI functions
+  function updateAuthUI(user) {
+    const authButtons = document.getElementById('auth-buttons');
+    
+    if (user) {
+      // User is logged in
+      authButtons.innerHTML = `
+        <div class="user-dropdown">
+          <div class="user-info" onclick="toggleUserDropdown()">
+            <div class="user-avatar">${user.displayName ? user.displayName.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase()}</div>
+            <span class="user-name">${user.displayName || user.email.split('@')[0]}</span>
+          </div>
+          <div class="user-dropdown-content" id="userDropdown">
+            <a href="profile.html">Profile</a>
+            <div class="divider"></div>
+            <button onclick="logout()">Sign Out</button>
+          </div>
+        </div>
+      `;
+    } else {
+      // User is not logged in
+      authButtons.innerHTML = `
+        <button class="auth-btn" onclick="showLoginModal()">Login</button>
+      `;
+    }
+  }
+
+  // Global functions
+  window.showLoginModal = function() {
+    window.location.href = 'auth.html';
+  };
+
+  window.showRegisterModal = function() {
+    window.location.href = 'auth.html';
+  };
+
+  window.logout = function() {
+    signOut(auth)
+      .then(() => {
+        alert('Logged out successfully');
+      })
+      .catch(error => {
+        alert('Error logging out: ' + error.message);
+      });
+  };
+
+  window.toggleUserDropdown = function() {
+    const dropdown = document.getElementById('userDropdown');
+    if (dropdown) {
+      dropdown.classList.toggle('show');
+    }
+  };
+
+  // Close dropdown when clicking outside
+  document.addEventListener('click', function(event) {
+    const dropdown = document.getElementById('userDropdown');
+    const userInfo = document.querySelector('.user-info');
+    
+    if (dropdown && userInfo) {
+      if (!userInfo.contains(event.target) && !dropdown.contains(event.target)) {
+        dropdown.classList.remove('show');
+      }
+    }
+  });
+
+  // Listen to auth state changes
+  onAuthStateChanged(auth, (user) => {
+    updateAuthUI(user);
+  });
+</script>
+
 <noscript>
 <div style="text-align: center; padding: 20px; background: #fff; color: #333;">
 <p>This website requires JavaScript to function properly. Please enable JavaScript in your browser settings.</p>

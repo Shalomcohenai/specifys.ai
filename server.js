@@ -15,6 +15,9 @@ const port = 3001; // Changed to 3001 to avoid potential port conflicts
 console.log('Setting up middleware...');
 app.use(express.json());
 
+// Serve static files from the current directory
+app.use(express.static('.'));
+
 // CORS middleware to allow requests from your frontend
 app.use((req, res, next) => {
   console.log('Applying CORS middleware...');

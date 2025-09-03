@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>התחברות - Specifys.ai</title>
+    <link rel="stylesheet" href="/styles/main.css">
+    <link rel="stylesheet" href="/styles/auth.css">
+</head>
+<body>
+    <nav id="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <h1>Specifys.ai</h1>
+            </div>
+            <div class="nav-links" id="nav-links">
+                <!-- Will be populated by navbar.js -->
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="auth-container">
+            <div class="auth-card">
+                <h2>התחברות לחשבון</h2>
+                
+                <form id="login-form" class="auth-form">
+                    <div class="form-group">
+                        <label for="email">אימייל:</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">סיסמה:</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">התחבר</button>
+                </form>
+
+                <div class="divider">
+                    <span>או</span>
+                </div>
+
+                <button id="google-login" class="btn btn-google">
+                    <span>🔍</span> המשך עם Google
+                </button>
+
+                <div class="auth-links">
+                    <p>אין לך חשבון? <a href="/register.html">הירשם כאן</a></p>
+                </div>
+
+                <div id="error-message" class="error-message" style="display: none;"></div>
+                <div id="success-message" class="success-message" style="display: none;"></div>
+            </div>
+        </div>
+    </main>
+
+    <script type="module" src="/scripts/firebaseConfig.js"></script>
+    <script type="module" src="/scripts/authService.js"></script>
+    <script type="module" src="/scripts/navbar.js"></script>
+    <script type="module" src="/scripts/routeGuards.js"></script>
+    <script type="module">
+        import { loginWithEmail, loginWithGoogle, onAuthChanged } from '/scripts/authService.js';
+        import { redirectIfAuthed } from '/scripts/routeGuards.js';
+
+        // Check if user is already logged in
+        redirectIfAuthed('/dashboard.html');
+
+        // Login form handler
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                await loginWithEmail(email, password);
+                showMessage('התחברת בהצלחה!', 'success');
+                setTimeout(() => {
+                    window.location.href = '/dashboard.html';
+                }, 1000);
+            } catch (error) {
+                showMessage('שגיאה בהתחברות: ' + error.message, 'error');
+            }
+        });
+
+        // Google login handler
+        document.getElementById('google-login').addEventListener('click', async () => {
+            try {
+                await loginWithGoogle();
+                showMessage('התחברת בהצלחה!', 'success');
+                setTimeout(() => {
+                    window.location.href = '/dashboard.html';
+                }, 1000);
+            } catch (error) {
+                showMessage('שגיאה בהתחברות עם Google: ' + error.message, 'error');
+            }
+        });
+
+        function showMessage(message, type) {
+            const errorDiv = document.getElementById('error-message');
+            const successDiv = document.getElementById('success-message');
+            
+            if (type === 'error') {
+                errorDiv.textContent = message;
+                errorDiv.style.display = 'block';
+                successDiv.style.display = 'none';
+            } else {
+                successDiv.textContent = message;
+                successDiv.style.display = 'block';
+                errorDiv.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>

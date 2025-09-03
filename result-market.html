@@ -604,29 +604,143 @@
         transition: none;
       }
     }
+
+    /* Header Layout Styles */
+    .thematic-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 20px;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .header-center {
+      display: flex;
+      justify-content: center;
+      flex: 1;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+    }
+
+    /* Auth System Styles */
+    .auth-buttons {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .auth-btn {
+      padding: 0.5rem 1rem;
+      border: 2px solid #0078d4;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      background: transparent;
+      color: #0078d4;
+    }
+
+    .auth-btn:hover {
+      background: #0078d4;
+      color: white;
+      transform: translateY(-2px);
+    }
+
+    .auth-btn.primary {
+      background: #0078d4;
+      color: white;
+    }
+
+    .auth-btn.primary:hover {
+      background: #005a9e;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: rgba(0, 120, 212, 0.1);
+      border-radius: 20px;
+      border: 1px solid rgba(0, 120, 212, 0.2);
+      color: #0078d4;
+      font-size: 0.9rem;
+    }
+
+    .user-avatar {
+      width: 24px;
+      height: 24px;
+      background: #0078d4;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: bold;
+      color: white;
+    }
+
+    body[data-theme="dark"] .auth-btn {
+      border-color: #0078d4;
+      color: #0078d4;
+    }
+
+    body[data-theme="dark"] .auth-btn:hover {
+      background: #0078d4;
+      color: white;
+    }
+
+    body[data-theme="dark"] .user-info {
+      background: rgba(0, 120, 212, 0.2);
+      border-color: rgba(0, 120, 212, 0.3);
+      color: #0078d4;
+    }
+
+    @media (max-width: 768px) {
+      .auth-buttons {
+        margin-left: 1rem;
+        gap: 0.5rem;
+      }
+      
+      .auth-btn {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+      }
+    }
   </style>
 </head>
 <body class="page-default">
   <header class="thematic-header" role="banner">
-    <div class="logo">
-      <a href="index.html" aria-label="Specifys.ai homepage">Specifys.ai</a>
+    <div class="header-left">
+      <div class="logo">
+        <a href="index.html" aria-label="Specifys.ai homepage">Specifys.ai</a>
+      </div>
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode"><i class="fas fa-moon"></i></button>
+      <button class="menu-toggle" aria-label="Toggle navigation menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
     </div>
-    <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode"><i class="fas fa-moon"></i></button>
-    <button class="menu-toggle" aria-label="Toggle navigation menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
-    <div class="header-links">
-      <a href="blog.html" aria-label="Visit our blog">Blog</a>
-      <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
-      <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
-      <a href="map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
-      <a href="ToolPicker.html" aria-label="Use our Tool Finder">Tool Finder</a>
+    <div class="header-center">
+      <div class="auth-buttons" id="auth-buttons">
+        <!-- Will be populated by auth system -->
+      </div>
     </div>
-    <button class="menu-toggle" aria-label="Toggle navigation menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
-    <div class="header-links">
-      <a href="blog.html" aria-label="Visit our blog">Blog</a>
-      <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
-      <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
-      <a href="map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
-      <a href="ToolPicker.html" aria-label="Use our Tool Finder">Tool Finder</a>
+    <div class="header-right">
+      <div class="header-links">
+        <a href="blog.html" aria-label="Visit our blog">Blog</a>
+        <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
+        <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
+        <a href="map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
+        <a href="ToolPicker.html" aria-label="Use our Tool Finder">Tool Finder</a>
+      </div>
     </div>
   </header>
 
@@ -669,6 +783,229 @@
       © 2025 specifys.ai. All rights reserved.
     </div>
   </footer>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    // Import Firebase SDK
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { 
+      createUserWithEmailAndPassword, 
+      signInWithEmailAndPassword, 
+      signOut, 
+      onAuthStateChanged,
+      GoogleAuthProvider,
+      signInWithPopup,
+      getAuth
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    import { 
+      collection, 
+      addDoc,
+      serverTimestamp,
+      getFirestore
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyB9hr0IWM4EREzkKDxBxYoYinV6LJXWXV4",
+      authDomain: "specify-ai.firebaseapp.com",
+      projectId: "specify-ai",
+      storageBucket: "specify-ai.firebasestorage.app",
+      messagingSenderId: "734278787482",
+      appId: "1:734278787482:web:0e312fb6f197e849695a23",
+      measurementId: "G-4YR9LK63MR"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const googleProvider = new GoogleAuthProvider();
+
+    // Auth functions
+    async function registerWithEmail(email, password) {
+      try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        return userCredential.user;
+      } catch (error) {
+        throw new Error(getAuthErrorMessage(error.code));
+      }
+    }
+
+    async function loginWithEmail(email, password) {
+      try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        return userCredential.user;
+      } catch (error) {
+        throw new Error(getAuthErrorMessage(error.code));
+      }
+    }
+
+    async function loginWithGoogle() {
+      try {
+        const result = await signInWithPopup(auth, googleProvider);
+        return result.user;
+      } catch (error) {
+        throw new Error(getAuthErrorMessage(error.code));
+      }
+    }
+
+    async function logout() {
+      try {
+        await signOut(auth);
+      } catch (error) {
+        throw new Error('Error logging out');
+      }
+    }
+
+    // Error messages
+    function getAuthErrorMessage(errorCode) {
+      const errorMessages = {
+        'auth/user-not-found': 'User not found',
+        'auth/wrong-password': 'Wrong password',
+        'auth/email-already-in-use': 'Email already in use',
+        'auth/weak-password': 'Password too weak',
+        'auth/invalid-email': 'Invalid email',
+        'auth/user-disabled': 'Account disabled',
+        'auth/too-many-requests': 'Too many attempts, try again later',
+        'auth/operation-not-allowed': 'Operation not allowed',
+        'auth/requires-recent-login': 'Requires recent login',
+        'auth/popup-closed-by-user': 'Login window closed',
+        'auth/cancelled-popup-request': 'Request cancelled',
+        'auth/popup-blocked': 'Login window blocked',
+        'auth/account-exists-with-different-credential': 'Account exists with different credential',
+        'auth/credential-already-in-use': 'Credential already in use',
+        'auth/invalid-credential': 'Invalid credential',
+        'auth/timeout': 'Timeout, try again',
+        'auth/network-request-failed': 'Network error, check internet connection'
+      };
+      
+      return errorMessages[errorCode] || 'Unknown error';
+    }
+
+    // Auto-save spec function
+    async function saveSpecAutomatically() {
+      if (!auth.currentUser) {
+        console.log('User not authenticated, skipping auto-save');
+        return;
+      }
+      
+      const specContent = localStorage.getItem("generatedContent");
+      if (!specContent || specContent === "No market research available.") {
+        console.log('No spec content to save');
+        return;
+      }
+      
+      try {
+        // Extract title from spec content (first line or first heading)
+        let title = "Market Research";
+        const lines = specContent.split('\n');
+        for (let line of lines) {
+          line = line.trim();
+          if (line.startsWith('# ') || line.startsWith('## ')) {
+            title = line.replace(/^#+\s*/, '');
+            break;
+          } else if (line.length > 10 && line.length < 100) {
+            title = line;
+            break;
+          }
+        }
+        
+        const specDoc = {
+          title: title,
+          content: specContent,
+          userId: auth.currentUser.uid,
+          mode: "market",
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp()
+        };
+        
+        const docRef = await addDoc(collection(db, 'specs'), specDoc);
+        console.log('Spec auto-saved successfully:', docRef.id);
+        
+        // Show small notification
+        showSaveNotification();
+      } catch (error) {
+        console.error('Error auto-saving spec:', error);
+      }
+    }
+
+    function showSaveNotification() {
+      const notification = document.createElement('div');
+      notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #28a745;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+        z-index: 1000;
+        font-size: 14px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      `;
+      notification.textContent = 'Market research auto-saved!';
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        notification.remove();
+      }, 3000);
+    }
+
+    // UI functions
+    function updateAuthUI(user) {
+      const authButtons = document.getElementById('auth-buttons');
+      
+      if (user) {
+        // User is logged in
+        authButtons.innerHTML = `
+          <div class="user-info">
+            <div class="user-avatar">${user.displayName ? user.displayName.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase()}</div>
+            <span>${user.displayName || user.email.split('@')[0]}</span>
+          </div>
+          <a href="profile.html" class="auth-btn">Profile</a>
+          <button class="auth-btn" onclick="logout()">Logout</button>
+        `;
+      } else {
+        // User is not logged in
+        authButtons.innerHTML = `
+          <button class="auth-btn" onclick="showLoginModal()">Login</button>
+          <button class="auth-btn primary" onclick="showRegisterModal()">Register</button>
+        `;
+      }
+    }
+
+    // Global functions
+    window.showLoginModal = function() {
+      window.location.href = 'auth.html';
+    };
+
+    window.showRegisterModal = function() {
+      window.location.href = 'auth.html';
+    };
+
+    window.logout = function() {
+      logout()
+        .then(() => {
+          alert('Logged out successfully');
+        })
+        .catch(error => {
+          alert('Error logging out: ' + error.message);
+        });
+    };
+
+    // Listen to auth state changes
+    onAuthStateChanged(auth, (user) => {
+      updateAuthUI(user);
+      
+      // Auto-save spec if user is authenticated
+      if (user) {
+        setTimeout(() => {
+          saveSpecAutomatically();
+        }, 2000); // Wait for page to load
+      }
+    });
+  </script>
 
   <script>
     document.addEventListener("DOMContentLoaded", () => {
