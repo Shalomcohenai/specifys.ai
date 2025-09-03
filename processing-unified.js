@@ -836,44 +836,47 @@ class UnifiedChat {
 
   goBack() {
     console.log('Going back...');
+    console.log('Current messages:', this.messages.length);
     
     // If no messages, don't do anything
     if (this.messages.length === 0) {
       return;
     }
     
-    // Find the last pair of messages (system question + user answer)
+    // Always remove the last 2 messages (question + answer) if they exist
     let messagesToRemove = 0;
-    let foundUserAnswer = false;
-    let foundSystemQuestion = false;
+    let removedUserAnswer = false;
     
-    // Count from the end to find the last complete Q&A pair
-    for (let i = this.messages.length - 1; i >= 0; i--) {
-      const message = this.messages[i];
+    // Check if the last message is a user answer
+    if (this.messages.length > 0 && this.messages[this.messages.length - 1].type === 'user') {
+      messagesToRemove = 1;
+      removedUserAnswer = true;
       
-      if (message.type === 'user' && !foundUserAnswer) {
-        foundUserAnswer = true;
-        messagesToRemove++;
-      } else if (message.type === 'system' && !message.isIntro && !message.isModeSelection && foundUserAnswer && !foundSystemQuestion) {
-        foundSystemQuestion = true;
-        messagesToRemove++;
-        break;
-      } else if (message.type === 'system' && !message.isIntro && !message.isModeSelection && !foundUserAnswer) {
-        // If we find a system question without a user answer, just remove it
-        messagesToRemove = 1;
-        break;
+      // Check if the message before that is a system question
+      if (this.messages.length > 1 && 
+          this.messages[this.messages.length - 2].type === 'system' && 
+          !this.messages[this.messages.length - 2].isIntro && 
+          !this.messages[this.messages.length - 2].isModeSelection) {
+        messagesToRemove = 2;
       }
+    } else if (this.messages.length > 0 && 
+               this.messages[this.messages.length - 1].type === 'system' && 
+               !this.messages[this.messages.length - 1].isIntro && 
+               !this.messages[this.messages.length - 1].isModeSelection) {
+      // If the last message is a system question without answer, remove just it
+      messagesToRemove = 1;
     }
     
-    // If we found a complete pair or a system question, remove them
+    console.log(`Will remove ${messagesToRemove} messages`);
+    
+    // Remove the messages
     if (messagesToRemove > 0) {
-      // Remove the messages from the end
       for (let i = 0; i < messagesToRemove; i++) {
         this.messages.pop();
       }
       
       // If we removed a user answer, also remove the corresponding answer from localStorage
-      if (foundUserAnswer) {
+      if (removedUserAnswer) {
         const lastQuestion = this.modeQuestions[this.currentMode][this.currentQuestionIndex - 1];
         if (lastQuestion) {
           delete this.answers[lastQuestion.id];
@@ -900,7 +903,7 @@ class UnifiedChat {
       this.updateBackButtonVisibility();
       
       // Ask the previous question again if we went back
-      if (foundUserAnswer && this.currentQuestionIndex >= 0) {
+      if (removedUserAnswer && this.currentQuestionIndex >= 0) {
         setTimeout(() => {
           this.askQuestion();
         }, 500);
