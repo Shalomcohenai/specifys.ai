@@ -280,7 +280,11 @@ class UnifiedChat {
       "Hi! 👋",
       "I'm your personal assistant and my job is to help you reach the perfect application!",
       "You can talk to me in any language you want, but for convenience you'll receive the final document in English",
-      "First, let's choose which mode you'd like to use..."
+      "Let me show you the different modes available...",
+      "Mode 1: NoCode Creator - Simple app planning for non-programmers",
+      "Mode 2: Developer - Technical architecture planning", 
+      "Mode 3: Market Research - Market analysis and business planning",
+      "Which mode would you like to use?"
     ];
 
     let messageIndex = 0;
@@ -293,22 +297,21 @@ class UnifiedChat {
           content: introMessages[messageIndex],
           isIntro: true
         };
+        
         this.messages.push(message);
-        console.log('Added intro message:', message);
         this.renderMessages();
         this.scrollToBottom();
-        messageIndex++;
         
-        setTimeout(showNextMessage, 1500);
+        messageIndex++;
+        setTimeout(showNextMessage, 800);
       } else {
-        console.log('All intro messages shown, showing mode selection');
+        // Show mode selection after all intro messages
         setTimeout(() => {
           this.showModeSelection();
-          this.updateResetButtonVisibility();
         }, 500);
       }
     };
-
+    
     showNextMessage();
   }
 
