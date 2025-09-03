@@ -228,16 +228,11 @@ class UnifiedChat {
   setupEventListeners() {
     const chatInput = document.getElementById('chatInput');
     const sendButton = document.getElementById('sendButton');
-    const backButton = document.getElementById('backButton');
     const resetButton = document.getElementById('resetButton');
     
     if (sendButton) {
       sendButton.addEventListener('click', () => this.handleSend());
       sendButton.disabled = true;
-    }
-
-    if (backButton) {
-      backButton.addEventListener('click', () => this.goBack());
     }
 
     if (resetButton) {
@@ -276,7 +271,7 @@ class UnifiedChat {
       this.renderMessages();
     }
     // Update back button visibility
-    this.updateBackButtonVisibility();
+    this.updateResetButtonVisibility();
   }
 
   showIntroMessages() {
@@ -309,7 +304,7 @@ class UnifiedChat {
         console.log('All intro messages shown, showing mode selection');
         setTimeout(() => {
           this.showModeSelection();
-          this.updateBackButtonVisibility();
+          this.updateResetButtonVisibility();
         }, 500);
       }
     };
@@ -420,7 +415,7 @@ class UnifiedChat {
     
     setTimeout(() => {
       this.askQuestion();
-      this.updateBackButtonVisibility();
+      this.updateResetButtonVisibility();
     }, 1000);
   }
 
@@ -455,7 +450,7 @@ class UnifiedChat {
     this.scrollToBottom();
     
     this.updateUIForQuestion(question);
-    this.updateBackButtonVisibility();
+    this.updateResetButtonVisibility();
   }
 
   updateUIForQuestion(question) {
@@ -567,7 +562,7 @@ class UnifiedChat {
     this.saveData();
     
     // Update back button visibility
-    this.updateBackButtonVisibility();
+    this.updateResetButtonVisibility();
 
     // Ask next question or complete
     if (this.currentQuestionIndex < this.modeQuestions[this.currentMode].length) {
@@ -987,150 +982,8 @@ class UnifiedChat {
     }
   }
 
-  goBack() {
-    console.log('Going back...');
-    console.log('Current messages:', this.messages.length);
-    
-    // If no messages, don't do anything
-    if (this.messages.length === 0) {
-      return;
-    }
-    
-    // Always remove the last 2 messages (question + answer) if they exist
-    let messagesToRemove = 0;
-    let removedUserAnswer = false;
-    
-    // Check if the last message is a user answer
-    if (this.messages.length > 0 && this.messages[this.messages.length - 1].type === 'user') {
-      messagesToRemove = 1;
-      removedUserAnswer = true;
-      
-      // Check if the message before that is a system question
-      if (this.messages.length > 1 && 
-          this.messages[this.messages.length - 2].type === 'system' && 
-          !this.messages[this.messages.length - 2].isIntro && 
-          !this.messages[this.messages.length - 2].isModeSelection) {
-        messagesToRemove = 2;
-      }
-    } else if (this.messages.length > 0 && 
-               this.messages[this.messages.length - 1].type === 'system' && 
-               !this.messages[this.messages.length - 1].isIntro && 
-               !this.messages[this.messages.length - 1].isModeSelection) {
-      // If the last message is a system question without answer, remove just it
-      messagesToRemove = 1;
-    }
-    
-    console.log(`Will remove ${messagesToRemove} messages`);
-    
-    // Remove the messages
-    if (messagesToRemove > 0) {
-      for (let i = 0; i < messagesToRemove; i++) {
-        this.messages.pop();
-      }
-      
-      // If we removed a user answer, also remove the corresponding answer from localStorage
-      if (removedUserAnswer) {
-        const lastQuestion = this.modeQuestions[this.currentMode][this.currentQuestionIndex - 1];
-        if (lastQuestion) {
-          delete this.answers[lastQuestion.id];
-        }
-        
-        // Go back one question index
-        this.currentQuestionIndex--;
-      }
-      
-      // Update progress
-      this.updateProgress();
-      
-      // Save the updated state
-      this.saveData();
-      
-      // Remove any existing yes/no buttons
-      this.removeYesNoButtons();
-      
-      // Re-render messages
-      this.renderMessages();
-      this.scrollToBottom();
-      
-      // Update back button visibility
-      this.updateBackButtonVisibility();
-      
-      // Ask the previous question again if we went back
-      if (removedUserAnswer && this.currentQuestionIndex >= 0) {
-        setTimeout(() => {
-          this.askQuestion();
-        }, 500);
-      }
-      
-      console.log(`Removed ${messagesToRemove} messages, went back to question`, this.currentQuestionIndex);
-      return;
-    }
-    
-    // If we're at the first question and want to go back to mode selection
-    if (this.currentQuestionIndex === 0 && this.messages.some(msg => msg.isModeSelection)) {
-      this.currentMode = null;
-      this.currentQuestionIndex = 0;
-      this.answers = {};
-      
-      // Clear all messages except intro and mode selection
-      this.messages = this.messages.filter(msg => msg.isIntro || msg.isModeSelection);
-      
-      // Clear localStorage for this mode
-      if (this.currentMode) {
-        localStorage.removeItem(`unifiedAnswers_${this.currentMode}`);
-      }
-      localStorage.removeItem('unifiedCurrentMode');
-      localStorage.removeItem('unifiedChatMessages');
-      
-      // Save the updated state
-      this.saveData();
-      
-      this.showModeSelection();
-      this.updateBackButtonVisibility();
-      
-      console.log('Went back to mode selection');
-      return;
-    }
-    
-    // If we're at the first question and want to go back to mode selection
-    if (this.currentQuestionIndex === 0 && this.messages.some(msg => msg.isModeSelection)) {
-      this.currentMode = null;
-      this.currentQuestionIndex = 0;
-      this.answers = {};
-      
-      // Clear all messages except intro and mode selection
-      this.messages = this.messages.filter(msg => msg.isIntro || msg.isModeSelection);
-      
-      // Clear localStorage for this mode
-      if (this.currentMode) {
-        localStorage.removeItem(`unifiedAnswers_${this.currentMode}`);
-      }
-      localStorage.removeItem('unifiedCurrentMode');
-      localStorage.removeItem('unifiedChatMessages');
-      
-      // Save the updated state
-      this.saveData();
-      
-      this.showModeSelection();
-      this.updateBackButtonVisibility();
-      
-      console.log('Went back to mode selection');
-      return;
-    }
-  }
-
-  updateBackButtonVisibility() {
-    const backButton = document.getElementById('backButton');
+  updateResetButtonVisibility() {
     const resetButton = document.getElementById('resetButton');
-    
-    if (backButton) {
-      // Show button if we have messages (except intro messages) or if we have a mode selected
-      if (this.messages.length > 0 && !this.messages.every(msg => msg.isIntro)) {
-        backButton.classList.add('show');
-      } else {
-        backButton.classList.remove('show');
-      }
-    }
     
     if (resetButton) {
       // Show reset button if we have any messages
@@ -1180,7 +1033,7 @@ class UnifiedChat {
       this.updateProgress();
       
       // Update button visibility
-      this.updateBackButtonVisibility();
+      this.updateResetButtonVisibility();
       
       // Start fresh
       this.startChat();
