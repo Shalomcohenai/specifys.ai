@@ -277,8 +277,7 @@ class UnifiedChat {
   showIntroMessages() {
     console.log('showIntroMessages() called');
     const introMessages = [
-      "Hi! 👋 I'm your personal assistant and my job is to help you reach the perfect application!",
-      "You can talk to me in any language you want, but for convenience you'll receive the final document in English",
+      "Hi! 👋 I'm your personal assistant and my job is to help you reach the perfect application! You can talk to me in any language you want, but for convenience you'll receive the final document in English",
       "💡 Tip: You can edit any of your answers by clicking the 'edit' button on your messages, and restart anytime with the reset button above",
       "First, let's choose which mode you'd like to use..."
     ];
