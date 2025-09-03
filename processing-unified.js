@@ -314,16 +314,12 @@ class UnifiedChat {
   }
 
   showModeSelection() {
-    const modeSelectionMessage = {
-      id: Date.now(),
-      type: 'system',
-      content: 'Which mode would you like to use?',
-      isModeSelection: true
-    };
-
-    this.messages.push(modeSelectionMessage);
-    this.renderMessages();
-    this.scrollToBottom();
+    // Don't add to messages array, just render directly
+    const chatMessages = document.getElementById('chatMessages');
+    if (chatMessages) {
+      this.renderModeSelection(chatMessages);
+      this.scrollToBottom();
+    }
   }
 
   renderMessages() {
@@ -340,6 +336,7 @@ class UnifiedChat {
     this.messages.forEach((message, index) => {
       console.log('Rendering message', index, ':', message);
       if (message.isModeSelection) {
+        // Render mode selection with buttons
         this.renderModeSelection(chatMessages);
       } else if (message.isIntro) {
         this.renderSystemMessage(chatMessages, message.content);
