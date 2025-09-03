@@ -786,10 +786,135 @@ class UnifiedChat {
     textDiv.className = 'message-text';
     textDiv.textContent = content;
 
+    // Add edit button
+    const editButton = document.createElement('button');
+    editButton.className = 'edit-button';
+    editButton.textContent = 'edit';
+    editButton.title = 'Edit this message';
+    
+    // Store the original content for editing
+    editButton.dataset.originalContent = content;
+    editButton.dataset.messageIndex = this.messages.findIndex(msg => 
+      msg.type === 'user' && msg.content === content
+    );
+
+    editButton.addEventListener('click', () => {
+      this.startEditMessage(messageDiv, contentDiv, textDiv, content);
+    });
+
     contentDiv.appendChild(textDiv);
+    contentDiv.appendChild(editButton);
     messageDiv.appendChild(avatar);
     messageDiv.appendChild(contentDiv);
     container.appendChild(messageDiv);
+  }
+
+  startEditMessage(messageDiv, contentDiv, textDiv, originalContent) {
+    // Add editing class
+    messageDiv.classList.add('editing');
+    
+    // Create textarea for editing
+    const textarea = document.createElement('textarea');
+    textarea.className = 'edit-input';
+    textarea.value = originalContent;
+    textarea.rows = Math.max(3, originalContent.split('\n').length);
+    
+    // Create controls
+    const controlsDiv = document.createElement('div');
+    controlsDiv.className = 'edit-controls';
+    
+    const saveBtn = document.createElement('button');
+    saveBtn.className = 'edit-save-btn';
+    saveBtn.textContent = 'Save';
+    
+    const cancelBtn = document.createElement('button');
+    cancelBtn.className = 'edit-cancel-btn';
+    cancelBtn.textContent = 'Cancel';
+    
+    controlsDiv.appendChild(saveBtn);
+    controlsDiv.appendChild(cancelBtn);
+    
+    // Replace content
+    contentDiv.innerHTML = '';
+    contentDiv.appendChild(textarea);
+    contentDiv.appendChild(controlsDiv);
+    
+    // Focus on textarea
+    textarea.focus();
+    textarea.select();
+    
+    // Event listeners
+    const saveMessage = () => {
+      const newContent = textarea.value.trim();
+      if (newContent && newContent !== originalContent) {
+        this.saveEditedMessage(originalContent, newContent);
+      }
+      this.cancelEditMessage(messageDiv, contentDiv, textDiv, originalContent);
+    };
+    
+    const cancelMessage = () => {
+      this.cancelEditMessage(messageDiv, contentDiv, textDiv, originalContent);
+    };
+    
+    saveBtn.addEventListener('click', saveMessage);
+    cancelBtn.addEventListener('click', cancelMessage);
+    
+    // Keyboard shortcuts
+    textarea.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && e.ctrlKey) {
+        saveMessage();
+      } else if (e.key === 'Escape') {
+        cancelMessage();
+      }
+    });
+  }
+
+  saveEditedMessage(originalContent, newContent) {
+    // Update the message in the messages array
+    const messageIndex = this.messages.findIndex(msg => 
+      msg.type === 'user' && msg.content === originalContent
+    );
+    
+    if (messageIndex !== -1) {
+      this.messages[messageIndex].content = newContent;
+      
+      // Update the corresponding answer in localStorage
+      const questionIndex = Math.floor((messageIndex - 1) / 2); // Assuming pairs of system + user messages
+      if (questionIndex >= 0 && questionIndex < this.modeQuestions[this.currentMode].length) {
+        const question = this.modeQuestions[this.currentMode][questionIndex];
+        if (question) {
+          this.answers[question.id] = newContent;
+        }
+      }
+      
+      // Save to localStorage
+      this.saveData();
+      
+      console.log('Message edited and saved:', { originalContent, newContent });
+    }
+  }
+
+  cancelEditMessage(messageDiv, contentDiv, textDiv, originalContent) {
+    // Remove editing class
+    messageDiv.classList.remove('editing');
+    
+    // Restore original content
+    contentDiv.innerHTML = '';
+    textDiv.textContent = originalContent;
+    
+    // Re-add edit button
+    const editButton = document.createElement('button');
+    editButton.className = 'edit-button';
+    editButton.textContent = 'edit';
+    editButton.title = 'Edit this message';
+    editButton.dataset.originalContent = originalContent;
+    
+    editButton.addEventListener('click', () => {
+      this.startEditMessage(messageDiv, contentDiv, textDiv, originalContent);
+    });
+    
+    contentDiv.appendChild(textDiv);
+    contentDiv.appendChild(editButton);
   }
 
   updateProgress() {

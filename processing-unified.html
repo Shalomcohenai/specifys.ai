@@ -375,6 +375,89 @@
       position: relative;
     }
 
+    /* Edit button for user messages */
+    .edit-button {
+      position: absolute;
+      bottom: -8px;
+      right: 20px;
+      background: #0078d4;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 6px 10px;
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      z-index: 10;
+    }
+
+    .edit-button:hover {
+      background: #005ea2;
+      transform: translateY(-1px);
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+    }
+
+    .edit-button:active {
+      transform: translateY(0);
+    }
+
+    /* Edit mode styles */
+    .message.user.editing .message-content {
+      background: var(--input-bg);
+      border: 2px solid var(--primary-color);
+    }
+
+    .edit-input {
+      width: 100%;
+      min-height: 60px;
+      border: none;
+      outline: none;
+      background: transparent;
+      color: var(--text-color);
+      font-size: 16px;
+      line-height: 1.5;
+      resize: vertical;
+      font-family: inherit;
+    }
+
+    .edit-controls {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+      justify-content: flex-end;
+    }
+
+    .edit-save-btn,
+    .edit-cancel-btn {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .edit-save-btn {
+      background: var(--primary-color);
+      color: white;
+    }
+
+    .edit-save-btn:hover {
+      background: var(--button-hover);
+    }
+
+    .edit-cancel-btn {
+      background: var(--secondary-color);
+      color: white;
+    }
+
+    .edit-cancel-btn:hover {
+      background: #5a6268;
+    }
+
     .message-text {
       font-size: 16px;
       line-height: 1.5;
@@ -611,6 +694,31 @@
       .back-button i,
       .reset-button i {
         font-size: 16px;
+      }
+      
+      /* Mobile styles for edit button */
+      .edit-button {
+        bottom: -6px;
+        right: 15px;
+        padding: 4px 8px;
+        font-size: 10px;
+        border-radius: 8px;
+      }
+      
+      .edit-input {
+        font-size: 14px;
+        min-height: 50px;
+      }
+      
+      .edit-controls {
+        gap: 6px;
+        margin-top: 6px;
+      }
+      
+      .edit-save-btn,
+      .edit-cancel-btn {
+        padding: 4px 8px;
+        font-size: 11px;
       }
       
       .chat-header h1 {
