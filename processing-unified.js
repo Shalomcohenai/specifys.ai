@@ -917,6 +917,34 @@ class UnifiedChat {
     contentDiv.appendChild(editButton);
   }
 
+  saveEditedMessage(originalContent, newContent) {
+    // Update the message in the messages array
+    const messageIndex = this.messages.findIndex(msg => 
+      msg.type === 'user' && msg.content === originalContent
+    );
+    
+    if (messageIndex !== -1) {
+      this.messages[messageIndex].content = newContent;
+      
+      // Update the corresponding answer in localStorage
+      const questionIndex = Math.floor((messageIndex - 1) / 2); // Assuming pairs of system + user messages
+      if (questionIndex >= 0 && questionIndex < this.modeQuestions[this.currentMode].length) {
+        const question = this.modeQuestions[this.currentMode][questionIndex];
+        if (question) {
+          this.answers[question.id] = newContent;
+        }
+      }
+      
+      // Save to localStorage
+      this.saveData();
+      
+      // Re-render the specific message to update the UI
+      this.renderMessages();
+      
+      console.log('Message edited and saved:', { originalContent, newContent });
+    }
+  }
+
   updateProgress() {
     if (!this.currentMode) return;
 
