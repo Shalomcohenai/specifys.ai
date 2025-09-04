@@ -10,65 +10,7 @@
     <link rel="stylesheet" href="common-header-footer.css">
     <link rel="stylesheet" href="styles.css">
     <style>
-        /* Auth System Styles */
-        .auth-buttons {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .auth-btn {
-            padding: 0.5rem 1rem;
-            border: 2px solid #0078d4;
-            border-radius: 8px;
-            text-decoration: none;
-            font-size: 0.9rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            background: transparent;
-            color: #0078d4;
-        }
-
-        .auth-btn:hover {
-            background: #0078d4;
-            color: white;
-            transform: translateY(-2px);
-        }
-
-        .auth-btn.primary {
-            background: #0078d4;
-            color: white;
-        }
-
-        .auth-btn.primary:hover {
-            background: #005a9e;
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1rem;
-            background: rgba(0, 120, 212, 0.1);
-            border-radius: 20px;
-            border: 1px solid rgba(0, 120, 212, 0.2);
-            color: #0078d4;
-            font-size: 0.9rem;
-        }
-
-        .user-avatar {
-            width: 24px;
-            height: 24px;
-            background: #0078d4;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8rem;
-            font-weight: bold;
-            color: white;
-        }
+        /* Profile specific styles */
 
         /* Profile specific styles */
         .spec-link {
@@ -509,21 +451,23 @@
 </head>
 <body class="page-default">
     <header class="thematic-header">
-        <div class="logo">
-            <a href="index.html" aria-label="Specifys.ai homepage">S</a>
+        <div class="header-left">
+            <a href="index.html" class="header-logo" aria-label="Specifys.ai homepage">S</a>
         </div>
-        <div class="nav-links">
+        <div class="header-right">
             <div class="auth-buttons" id="auth-buttons">
                 <!-- Will be populated by auth system -->
             </div>
             <button class="menu-toggle" aria-label="Toggle navigation menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
-        </div>
-        <div class="header-links">
-            <a href="blog.html" aria-label="Visit our blog">Blog</a>
-            <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
-            <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
-            <a href="map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
-            <a href="https://specifys-ai.com/ToolPicker" aria-label="Use our Tool Finder">Tool Finder</a>
+            <div class="header-links">
+                <div class="header-links-content">
+                    <a href="blog.html" aria-label="Visit our blog">Blog</a>
+                    <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
+                    <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
+                    <a href="map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
+                    <a href="https://specifys-ai.com/ToolPicker" aria-label="Use our Tool Finder">Tool Finder</a>
+                </div>
+            </div>
         </div>
     </header>
 
