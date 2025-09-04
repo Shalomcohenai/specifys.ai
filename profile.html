@@ -206,24 +206,24 @@
             align-items: center;
             gap: 0.5rem;
             padding: 0.5rem 1rem;
-            background: rgba(35, 166, 213, 0.1);
+            background: rgba(128, 128, 128, 0.1);
             border-radius: 20px;
-            border: 1px solid rgba(35, 166, 213, 0.2);
-            color: var(--primary-color);
+            border: 1px solid rgba(128, 128, 128, 0.2);
+            color: #666;
             font-size: 0.9rem;
             cursor: pointer;
             transition: all 0.3s ease;
         }
 
         .user-info:hover {
-            background: rgba(35, 166, 213, 0.2);
+            background: rgba(128, 128, 128, 0.2);
             transform: translateY(-1px);
         }
 
         .user-avatar {
             width: 24px;
             height: 24px;
-            background: var(--primary-color);
+            background: #666;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -234,8 +234,27 @@
         }
 
         .user-name {
-            color: var(--primary-color);
+            color: #666;
             font-weight: 500;
+        }
+
+        body.dark-mode .user-info {
+            background: rgba(128, 128, 128, 0.2);
+            border-color: rgba(128, 128, 128, 0.3);
+            color: #ccc;
+        }
+
+        body.dark-mode .user-info:hover {
+            background: rgba(128, 128, 128, 0.3);
+        }
+
+        body.dark-mode .user-avatar {
+            background: #ccc;
+            color: #333;
+        }
+
+        body.dark-mode .user-name {
+            color: #ccc;
         }
 
         /* User Dropdown */
@@ -826,14 +845,29 @@
         }
 
         /* Dark Mode Styles */
+        body.dark-mode {
+            background: #1a1a1a;
+            color: #e0e0e0;
+        }
+
         body.dark-mode .profile-container {
             background: #1a1a1a;
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .profile-header {
+            background: linear-gradient(135deg, #2a2a2a 0%, #3a3a3a 100%);
             color: #e0e0e0;
         }
 
         body.dark-mode .profile-specs-section {
             background: #2a2a2a;
             color: #e0e0e0;
+            border: 1px solid #444;
+        }
+
+        body.dark-mode .section-header {
+            border-bottom-color: #444;
         }
 
         body.dark-mode .section-header h3 {
@@ -843,6 +877,7 @@
         body.dark-mode .spec-card {
             background: #333;
             border-color: #444;
+            color: #e0e0e0;
         }
 
         body.dark-mode .spec-card:hover {
@@ -891,6 +926,66 @@
         body.dark-mode .no-results {
             color: #cccccc;
         }
+
+        body.dark-mode .btn {
+            background: #23a6d5;
+            color: #fff;
+            border-color: #23a6d5;
+        }
+
+        body.dark-mode .btn:hover {
+            background: #1e90ff;
+            border-color: #1e90ff;
+        }
+
+        body.dark-mode .btn-outline-secondary {
+            background: transparent;
+            color: #e0e0e0;
+            border-color: #666;
+        }
+
+        body.dark-mode .btn-outline-secondary:hover {
+            background: #666;
+            color: #fff;
+        }
+
+        body.dark-mode .stat-item {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .stat-number {
+            color: #23a6d5;
+        }
+
+        body.dark-mode .stat-label {
+            color: #cccccc;
+        }
+
+        body.dark-mode .profile-info h2 {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .profile-info p {
+            color: #cccccc;
+        }
+
+        body.dark-mode .avatar-placeholder {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        body.dark-mode .spec-link {
+            color: #23a6d5;
+        }
+
+        body.dark-mode .spec-link:hover {
+            color: #1e90ff;
+        }
+
+        body.dark-mode .spec-mode-badge {
+            background: #23a6d5;
+            color: #fff;
+        }
     </style>
 </head>
 <body class="page-default">
@@ -928,8 +1023,8 @@
                 </div>
             </div>
             <div class="profile-info">
-                <h2 id="user-name">טוען...</h2>
-                <p id="user-email">טוען...</p>
+                <h2 id="user-name">Loading...</h2>
+                <p id="user-email">Loading...</p>
                 <div class="profile-stats">
                     <div class="stat-item">
                         <span class="stat-number" id="specs-count">0</span>
@@ -937,7 +1032,7 @@
                     </div>
                     <div class="stat-item">
                         <span class="stat-number" id="join-date">-</span>
-                        <span class="stat-label">תאריך הצטרפות</span>
+                        <span class="stat-label">Join Date</span>
                     </div>
                 </div>
             </div>
@@ -946,10 +1041,10 @@
         <!-- Profile Actions -->
         <div class="profile-actions">
             <button id="create-spec-btn" class="btn btn-primary">
-                <span>➕</span> צור מפרט חדש
+                <span>➕</span> Create New Specification
             </button>
             <a href="index.html" class="btn btn-outline-secondary">
-                <span>🏠</span> חזור לדף הבית
+                <span>🏠</span> Back to Home
             </a>
         </div>
 
@@ -1195,7 +1290,7 @@
             // Set join date
             if (user.metadata && user.metadata.creationTime) {
                 const date = new Date(user.metadata.creationTime);
-                joinDate.textContent = date.toLocaleDateString('he-IL');
+                joinDate.textContent = date.toLocaleDateString('en-US');
             }
         }
 
@@ -1344,23 +1439,23 @@
             const spec = userSpecs.find(s => s.id === specId);
             if (!spec) return;
             
-            const newTitle = prompt('ערוך כותרת:', spec.title);
+            const newTitle = prompt('Edit title:', spec.title);
             if (newTitle === null) return;
             
-            const newContent = prompt('ערוך תוכן:', spec.content);
+            const newContent = prompt('Edit content:', spec.content);
             if (newContent === null) return;
             
             // Here you would update the spec in Firestore
-            alert('פונקציונליות עריכה תתווסף בקרוב');
+            alert('Edit functionality will be added soon');
         };
 
         window.deleteSpecCard = function(specId) {
-            if (!confirm('האם אתה בטוח שברצונך למחוק את המפרט?')) {
+            if (!confirm('Are you sure you want to delete this specification?')) {
                 return;
             }
             
             // Here you would delete the spec from Firestore
-            alert('פונקציונליות מחיקה תתווסף בקרוב');
+            alert('Delete functionality will be added soon');
         };
 
         // Auth UI functions
@@ -1390,15 +1485,15 @@
 
         // Global auth functions
         window.showLoginModal = function() {
-            const email = prompt('אימייל:');
+            const email = prompt('Email:');
             if (!email) return;
             
-            const password = prompt('סיסמה:');
+            const password = prompt('Password:');
             if (!password) return;
             
             signInWithEmailAndPassword(auth, email, password)
                 .then(() => {
-                    alert('התחברת בהצלחה!');
+                    alert('Logged in successfully!');
                 })
                 .catch(error => {
                     alert('Login error: ' + error.message);
@@ -1406,20 +1501,20 @@
         };
 
         window.showRegisterModal = function() {
-            const email = prompt('אימייל:');
+            const email = prompt('Email:');
             if (!email) return;
             
-            const password = prompt('סיסמה (לפחות 6 תווים):');
+            const password = prompt('Password (at least 6 characters):');
             if (!password) return;
             
             if (password.length < 6) {
-                alert('הסיסמה חייבת להכיל לפחות 6 תווים');
+                alert('Password must be at least 6 characters');
                 return;
             }
             
             createUserWithEmailAndPassword(auth, email, password)
                 .then(() => {
-                    alert('נרשמת בהצלחה!');
+                    alert('Registered successfully!');
                 })
                 .catch(error => {
                     alert('Registration error: ' + error.message);
