@@ -70,6 +70,7 @@
 
         /* Logo Styles */
         .logo a {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             font-size: 1.5rem;
             font-weight: 700;
             color: var(--text-color);
@@ -95,6 +96,7 @@
             cursor: pointer;
             transition: all 0.3s ease;
             font-size: 14px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         .menu-toggle:hover {
@@ -510,8 +512,8 @@
         }
 
         .profile-header {
-            background: #666;
-            color: white;
+            background: #f5f5f5;
+            color: #333;
             padding: 3rem 2rem;
             border-radius: 20px;
             margin-bottom: 2rem;
@@ -546,12 +548,14 @@
             font-size: 2.5rem;
             margin-bottom: 0.5rem;
             font-weight: 700;
+            color: #333;
         }
 
         .profile-info p {
             font-size: 1.2rem;
             opacity: 0.9;
             margin-bottom: 1.5rem;
+            color: #666;
         }
 
         .profile-stats {
@@ -568,11 +572,13 @@
             font-size: 2rem;
             font-weight: 700;
             margin-bottom: 0.25rem;
+            color: #333;
         }
 
         .stat-label {
             font-size: 0.9rem;
             opacity: 0.8;
+            color: #666;
         }
 
         .profile-actions {
@@ -861,7 +867,7 @@
         }
 
         body.dark-mode .profile-header {
-            background: #666;
+            background: #333;
             color: #e0e0e0;
         }
 
@@ -959,7 +965,7 @@
         }
 
         body.dark-mode .stat-number {
-            color: #999;
+            color: #fff;
         }
 
         body.dark-mode .stat-label {
@@ -967,11 +973,11 @@
         }
 
         body.dark-mode .profile-info h2 {
-            color: #e0e0e0;
+            color: #fff;
         }
 
         body.dark-mode .profile-info p {
-            color: #cccccc;
+            color: #ccc;
         }
 
         body.dark-mode .avatar-placeholder {
@@ -1045,7 +1051,7 @@
 
         <!-- Profile Actions -->
         <div class="profile-actions">
-            <button id="create-spec-btn" class="btn btn-primary">
+            <button id="create-spec-btn" class="btn">
                 <span>➕</span> Create New Specification
             </button>
             <a href="index.html" class="btn btn-outline-secondary">
@@ -1361,7 +1367,7 @@
                         <div class="no-specs-icon">📝</div>
                         <h4>No specifications yet</h4>
                         <p>Create your first specification to get started!</p>
-                        <button class="btn btn-primary" onclick="window.location.href='processing-unified.html'">
+                        <button class="btn" onclick="window.location.href='processing-unified.html'">
                             Create New Specification
                         </button>
                     </div>
