@@ -289,6 +289,173 @@
             margin: 5px 0;
         }
 
+        /* Footer Styles */
+        footer {
+            padding: 20px 10px;
+            text-align: center;
+            width: 100%;
+            color: var(--text-color);
+            flex-shrink: 0;
+            background: var(--bg-color);
+            box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .footer-content {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: var(--text-color);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary-color);
+        }
+
+        .footer-divider {
+            color: var(--text-color);
+            font-size: 1.2rem;
+            font-weight: 300;
+        }
+
+        .footer-social {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .footer-social a {
+            color: var(--text-color);
+            font-size: 1.2rem;
+            transition: transform 0.3s ease, color 0.3s ease;
+        }
+
+        .footer-social a:hover {
+            color: var(--primary-color);
+            transform: scale(1.2);
+        }
+
+        .footer-copyright {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 1rem;
+        }
+
+        body.dark-mode .footer-copyright {
+            color: #999;
+        }
+
+        /* Scroll to Top Button */
+        .scroll-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--primary-color);
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .scroll-to-top:hover {
+            background: var(--hover-color);
+            transform: translateY(-2px);
+        }
+
+        .scroll-to-top.visible {
+            display: flex;
+        }
+
+        /* Theme Toggle Button */
+        .theme-toggle {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: var(--bg-color);
+            color: var(--text-color);
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            background: var(--hover-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .footer-content {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .footer-links a {
+                font-size: 0.8rem;
+            }
+            
+            .footer-divider {
+                font-size: 1rem;
+            }
+            
+            .footer-social a {
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .footer-content {
+                gap: 8px;
+            }
+            
+            .footer-links a {
+                font-size: 0.75rem;
+            }
+            
+            .footer-divider {
+                font-size: 0.9rem;
+            }
+            
+            .footer-social a {
+                font-size: 0.9rem;
+            }
+        }
+
         /* Profile specific styles */
         .spec-link {
             color: #0078d4;
@@ -810,27 +977,28 @@
     </main>
 
     <footer>
-        <div class="footer-content">
-            <div class="footer-links">
-                <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
-                <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
-                <a href="blog.html" aria-label="Visit our blog">Blog</a>
-                <a href="map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
-                <a href="https://specifys-ai.com/ToolPicker" aria-label="Use our Tool Finder">Tool Finder</a>
-            </div>
-            <span class="footer-divider">|</span>
-            <div class="footer-social">
-                <a href="https://www.linkedin.com/company/specifys-ai/" aria-label="Follow us on LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-                <a href="https://www.facebook.com/profile.php?id=61576402600129&locale=he_IL" target="_blank" aria-label="Follow us on Facebook"><i class="fab fa-facebook-f"></i></a>
-                <a href="https://www.instagram.com/YOUR_PROFILE" aria-label="Follow us on Instagram"><i class="fab fa-instagram"></i></a>
-                <a href="mailto:specifysai@gmail.com" aria-label="Send us an email"><i class="fas fa-envelope"></i></a>
-                <a href="https://www.producthunt.com/products/specifys-ai" target="_blank" aria-label="Check us out on Product Hunt"><i class="fab fa-product-hunt"></i></a>
-            </div>
+<div class="footer-content">
+        <div class="footer-links">
+          <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
+          <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
+          <a href="blog.html" aria-label="Visit our blog">Blog</a>
+          <a href="map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
+          <a href="https://specifys-ai.com/ToolPicker" aria-label="Use our Tool Finder">Tool Finder</a>
+          <!-- <button class="feedback-link" onclick="openFeedbackModal()" aria-label="Send feedback">Feedback</button> -->
         </div>
-        <div class="footer-copyright">
-            © 2025 specifys.ai. All rights reserved.
+<span class="footer-divider">|</span>
+        <div class="footer-social">
+          <a href="https://www.linkedin.com/company/specifys-ai/" aria-label="Follow us on LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+          <a href="https://www.facebook.com/profile.php?id=61576402600129&locale=he_IL" target="_blank" aria-label="Follow us on Facebook"><i class="fab fa-facebook-f"></i></a>
+          <a href="https://www.instagram.com/YOUR_PROFILE" aria-label="Follow us on Instagram"><i class="fab fa-instagram"></i></a>
+          <a href="mailto:specifysai@gmail.com" aria-label="Send us an email"><i class="fas fa-envelope"></i></a>
+          <a href="https://www.producthunt.com/products/specifys-ai" target="_blank" aria-label="Check us out on Product Hunt"><i class="fab fa-product-hunt"></i></a>
         </div>
-    </footer>
+</div>
+<div class="footer-copyright">
+        © 2025 specifys.ai. All rights reserved.
+</div>
+</footer>
 
     <button class="scroll-to-top" id="scrollToTop"><i class="fas fa-arrow-up"></i></button>
     <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode"><i class="fas fa-moon"></i></button>
