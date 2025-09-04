@@ -70,16 +70,19 @@
 
         /* Logo Styles */
         .logo a {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             font-size: 1.5rem;
             font-weight: 700;
-            color: var(--text-color);
+            color: var(--text-color, #333);
             text-decoration: none;
             transition: color 0.3s ease;
         }
 
+        body.dark-mode .logo a {
+            color: #ffffff;
+        }
+
         .logo a:hover {
-            color: var(--primary-color);
+            color: var(--primary-color, #0078d4);
         }
 
         /* Menu Toggle Button */
@@ -96,7 +99,6 @@
             cursor: pointer;
             transition: all 0.3s ease;
             font-size: 14px;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         .menu-toggle:hover {
@@ -109,11 +111,11 @@
         }
 
         .menu-toggle:focus {
-            outline: 2px solid var(--primary-color);
+            outline: 2px solid var(--primary-color, #0078d4);
             outline-offset: 2px;
         }
 
-        /* Header Links (Menu Overlay) */
+        /* Header Links */
         .header-links {
             position: fixed;
             top: 0;
@@ -124,28 +126,24 @@
             z-index: 99999;
             width: 100vw;
             height: 100vh;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
+            display: none;
         }
 
         .header-links.show {
-            opacity: 1;
-            visibility: visible;
+            display: block;
         }
 
         .header-links-content {
             position: absolute;
             top: 80px;
             right: 20px;
-            background: var(--bg-color);
+            background: var(--chat-bg, #fff);
             border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            min-width: 200px;
-            transform: translateY(-10px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            min-width: 180px;
+            transform: translateY(-20px);
             opacity: 0;
-            transition: transform 0.3s ease, opacity 0.3s ease;
+            transition: all 0.3s ease;
         }
 
         .header-links.show .header-links-content {
@@ -154,22 +152,18 @@
         }
 
         .header-links a {
-            color: var(--text-color);
+            display: block;
+            padding: 10px 15px;
+            color: var(--text-color, #333);
             text-decoration: none;
             font-size: 0.9rem;
             font-weight: 500;
-            padding: 12px 0;
-            transition: color 0.3s ease, transform 0.3s ease;
-            display: block;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .header-links a:last-child {
-            border-bottom: none;
+            border-bottom: 1px solid var(--border-color, #ddd);
+            transition: all 0.3s ease;
         }
 
         .header-links a:hover {
-            color: var(--primary-color);
+            background: var(--light-gray, #f5f5f5);
             transform: translateX(5px);
         }
 
@@ -1144,48 +1138,32 @@
             const headerLinks = document.querySelector('.header-links');
             
             if (menuToggle && headerLinks) {
-                menuToggle.addEventListener('click', (event) => {
+                menuToggle.addEventListener('click', function(event) {
                     event.stopPropagation();
-                    const isActive = headerLinks.classList.contains('show');
-                    headerLinks.classList.toggle('show');
-                    menuToggle.setAttribute('aria-expanded', !isActive);
-                    
-                    // Update icon
-                    const icon = menuToggle.querySelector('i');
-                    if (icon) {
-                        if (!isActive) {
-                            icon.className = 'fas fa-times';
-                        } else {
-                            icon.className = 'fas fa-bars';
-                        }
+                    if (headerLinks.classList.contains('show')) {
+                        headerLinks.classList.remove('show');
+                        menuToggle.setAttribute('aria-expanded', 'false');
+                    } else {
+                        headerLinks.classList.add('show');
+                        menuToggle.setAttribute('aria-expanded', 'true');
                     }
                 });
                 
                 // Close menu when clicking outside
-                document.addEventListener('click', (event) => {
-                    if (!menuToggle.contains(event.target) && !headerLinks.contains(event.target)) {
+                document.addEventListener('click', function(event) {
+                    if (headerLinks && headerLinks.classList.contains('show') && 
+                        !menuToggle.contains(event.target) && !headerLinks.contains(event.target)) {
                         headerLinks.classList.remove('show');
                         menuToggle.setAttribute('aria-expanded', 'false');
-                        
-                        // Reset icon
-                        const icon = menuToggle.querySelector('i');
-                        if (icon) {
-                            icon.className = 'fas fa-bars';
-                        }
                     }
                 });
                 
-                // Close menu when pressing Escape key
-                document.addEventListener('keydown', (event) => {
-                    if (event.key === 'Escape' && headerLinks.classList.contains('show')) {
+                // Close menu when clicking on the overlay background
+                document.addEventListener('click', function(event) {
+                    if (headerLinks && headerLinks.classList.contains('show') && 
+                        event.target === headerLinks) {
                         headerLinks.classList.remove('show');
                         menuToggle.setAttribute('aria-expanded', 'false');
-                        
-                        // Reset icon
-                        const icon = menuToggle.querySelector('i');
-                        if (icon) {
-                            icon.className = 'fas fa-bars';
-                        }
                     }
                 });
             }
