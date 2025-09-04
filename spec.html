@@ -222,6 +222,53 @@
       color: white;
     }
 
+    .user-dropdown {
+      position: relative;
+      z-index: 10000;
+    }
+
+    .user-dropdown-content {
+      position: fixed;
+      top: 80px;
+      right: 20px;
+      background: var(--chat-bg);
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      min-width: 150px;
+      transform: translateY(-20px);
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+      z-index: 999999;
+    }
+
+    .user-dropdown-content.show {
+      transform: translateY(0);
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .user-dropdown-content a,
+    .user-dropdown-content button {
+      display: block;
+      width: 100%;
+      padding: 12px 16px;
+      color: var(--text-color);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      border: none;
+      background: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: left;
+    }
+
+    .user-dropdown-content a:hover,
+    .user-dropdown-content button:hover {
+      background: var(--light-gray);
+    }
+
     body[data-theme="dark"] .auth-btn {
       border-color: #0078d4;
       color: #0078d4;
@@ -512,6 +559,20 @@
 
     body.dark-mode .user-avatar {
       background: #999;
+    }
+
+    body.dark-mode .user-dropdown-content {
+      background: #2a2a2a;
+    }
+
+    body.dark-mode .user-dropdown-content a,
+    body.dark-mode .user-dropdown-content button {
+      color: #e0e0e0;
+    }
+
+    body.dark-mode .user-dropdown-content a:hover,
+    body.dark-mode .user-dropdown-content button:hover {
+      background: rgba(128, 128, 128, 0.1);
     }
 
     body.dark-mode .header-links-content {
@@ -1359,19 +1420,49 @@
       if (user) {
         // User is logged in
         authButtons.innerHTML = `
-          <div class="user-info">
-            <div class="user-avatar">${user.displayName ? user.displayName.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase()}</div>
-            <span>${user.displayName || user.email.split('@')[0]}</span>
+          <div class="user-dropdown">
+            <div class="user-info">
+              <div class="user-avatar">${user.displayName ? user.displayName.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase()}</div>
+              <span>${user.displayName || user.email.split('@')[0]}</span>
+            </div>
+            <div class="user-dropdown-content">
+              <a href="profile.html">Profile</a>
+              <button class="logout-btn">Sign Out</button>
+            </div>
           </div>
-          <a href="profile.html" class="auth-btn">Profile</a>
-          <button class="auth-btn" onclick="logout()">Logout</button>
         `;
+        
+        // Add event listeners after creating the HTML
+        const userInfo = authButtons.querySelector('.user-info');
+        const logoutBtn = authButtons.querySelector('.logout-btn');
+        
+        if (userInfo) {
+          userInfo.addEventListener('click', function(event) {
+            event.stopPropagation();
+            toggleUserDropdown();
+          });
+        }
+        
+        if (logoutBtn) {
+          logoutBtn.addEventListener('click', function(event) {
+            event.stopPropagation();
+            logout();
+          });
+        }
       } else {
         // User is not logged in
         authButtons.innerHTML = `
-          <button class="auth-btn" onclick="showLoginModal()">Login</button>
-          <button class="auth-btn primary" onclick="showRegisterModal()">Register</button>
+          <button class="auth-btn login-btn">Login</button>
         `;
+        
+        // Add event listener for login button
+        const loginBtn = authButtons.querySelector('.login-btn');
+        if (loginBtn) {
+          loginBtn.addEventListener('click', function(event) {
+            event.stopPropagation();
+            showLoginModal();
+          });
+        }
       }
     }
 
@@ -1554,6 +1645,18 @@
           if (menuToggle) {
             menuToggle.setAttribute('aria-expanded', 'false');
           }
+        }
+      });
+      
+      // Close user dropdown when clicking outside
+      document.addEventListener('click', function(event) {
+        const userDropdown = document.querySelector('.user-dropdown');
+        const userInfo = document.querySelector('.user-info');
+        const dropdown = document.querySelector('.user-dropdown-content');
+        
+        if (userDropdown && dropdown && dropdown.classList.contains('show') && 
+            !userInfo.contains(event.target)) {
+          dropdown.classList.remove('show');
         }
       });
       
