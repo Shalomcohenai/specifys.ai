@@ -498,6 +498,87 @@
             text-transform: capitalize;
         }
 
+        .tool-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 1rem;
+            border: 1px solid #e9ecef;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tool-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: #666;
+            transition: width 0.3s ease;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .tool-card:hover::before {
+            width: 8px;
+        }
+
+        .tool-card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tool-card-description {
+            color: #666;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            margin-bottom: 1rem;
+        }
+
+        .tool-card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1rem;
+            border-top: 1px solid #e9ecef;
+            color: #999;
+            font-size: 0.8rem;
+        }
+
+        .tool-card-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .tool-card-actions button {
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .tool-card-actions button:hover {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .tool-card-actions button.liked {
+            color: #ff6b6b;
+        }
+
         .profile-container {
             max-width: 1200px;
             margin: 0 auto;
@@ -588,6 +669,19 @@
             gap: 0.5rem;
             padding: 1rem 2rem;
             font-size: 1.1rem;
+            background: #666;
+            color: white;
+            border: 2px solid #666;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .profile-actions .btn:hover {
+            background: #555;
+            border-color: #555;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
 
         .profile-specs-section {
@@ -647,14 +741,20 @@
 
         .specs-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 1.5rem;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
         }
 
         .spec-card {
             background: #f8f9fa;
             border-radius: 12px;
-            padding: 1.5rem;
+            padding: 1rem;
             border: 1px solid #e9ecef;
             transition: all 0.3s ease;
             position: relative;
@@ -668,7 +768,7 @@
             left: 0;
             width: 4px;
             height: 100%;
-            background: linear-gradient(135deg, #23a6d5 0%, #23d5ab 100%);
+            background: #666;
             transition: width 0.3s ease;
         }
 
@@ -991,6 +1091,42 @@
             background: #999;
             color: #fff;
         }
+
+        body.dark-mode .tool-card {
+            background: #333;
+            border-color: #444;
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .tool-card:hover {
+            background: #3a3a3a;
+        }
+
+        body.dark-mode .tool-card-title {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .tool-card-description {
+            color: #cccccc;
+        }
+
+        body.dark-mode .tool-card-footer {
+            color: #999;
+            border-color: #444;
+        }
+
+        body.dark-mode .tool-card-actions button {
+            color: #999;
+        }
+
+        body.dark-mode .tool-card-actions button:hover {
+            background: #444;
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .tool-card-actions button.liked {
+            color: #ff6b6b;
+        }
     </style>
 </head>
 <body class="page-default">
@@ -1036,6 +1172,14 @@
                         <span class="stat-label">Specifications</span>
                     </div>
                     <div class="stat-item">
+                        <span class="stat-number" id="likes-count">0</span>
+                        <span class="stat-label">Tools Liked</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="account-type">Free</span>
+                        <span class="stat-label">Account Type</span>
+                    </div>
+                    <div class="stat-item">
                         <span class="stat-number" id="join-date">-</span>
                         <span class="stat-label">Join Date</span>
                     </div>
@@ -1049,7 +1193,7 @@
                 <span>➕</span> Create New Specification
             </button>
             <a href="index.html" class="btn btn-outline-secondary">
-                <span>🏠</span> Back to Home
+                Back to Home
             </a>
         </div>
 
@@ -1069,6 +1213,24 @@
 
             <div id="specs-container" class="specs-grid">
                 <div class="loading">Loading specifications...</div>
+            </div>
+        </div>
+
+        <!-- User's Liked Tools Section -->
+        <div class="profile-specs-section">
+            <div class="section-header">
+                <h3>My Liked Tools</h3>
+                <div class="section-actions">
+                    <input type="text" id="search-tools" placeholder="Search tools..." class="search-input">
+                    <select id="sort-tools" class="sort-select">
+                        <option value="newest">Newest First</option>
+                        <option value="oldest">Oldest First</option>
+                        <option value="name">By Name</option>
+                    </select>
+                </div>
+            </div>
+            <div id="tools-container" class="tools-grid">
+                <div class="loading">Loading tools...</div>
             </div>
         </div>
 
@@ -1276,6 +1438,7 @@
                 currentUser = user;
                 updateProfileInfo(user);
                 loadUserSpecs();
+                loadUserLikedTools();
                 updateAuthUI(user);
             } else {
                 // Redirect to login if not authenticated
@@ -1333,6 +1496,72 @@
                 console.error('Error loading specs:', error);
                 document.getElementById('specs-container').innerHTML = '<div class="error">Error loading specifications</div>';
             }
+        }
+
+        // Load user liked tools
+        async function loadUserLikedTools() {
+            if (!currentUser) return;
+            
+            try {
+                const q = query(
+                    collection(db, 'userLikes'),
+                    where('userId', '==', currentUser.uid),
+                    orderBy('likedAt', 'desc')
+                );
+                
+                const querySnapshot = await getDocs(q);
+                const likedTools = [];
+                
+                querySnapshot.forEach((doc) => {
+                    likedTools.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+                
+                document.getElementById('likes-count').textContent = likedTools.length;
+                renderLikedTools(likedTools);
+            } catch (error) {
+                console.error('Error loading liked tools:', error);
+                document.getElementById('tools-container').innerHTML = '<div class="error">Error loading liked tools</div>';
+            }
+        }
+
+        // Render liked tools in grid layout
+        function renderLikedTools(tools) {
+            const toolsContainer = document.getElementById('tools-container');
+            
+            if (tools.length === 0) {
+                toolsContainer.innerHTML = `
+                    <div class="no-specs">
+                        <div class="no-specs-icon">⭐</div>
+                        <h4>No liked tools yet</h4>
+                        <p>Like tools from the Tools Map to see them here!</p>
+                        <a href="map/vibe-coding-tools-map.html" class="btn">Explore Tools Map</a>
+                    </div>
+                `;
+                return;
+            }
+
+            toolsContainer.innerHTML = tools.map(tool => `
+                <div class="tool-card">
+                    <div class="tool-card-title">
+                        <i class="fas fa-toolbox"></i>
+                        ${tool.toolName || 'Unknown Tool'}
+                    </div>
+                    <div class="tool-card-description">
+                        ${tool.toolDescription || 'No description available'}
+                    </div>
+                    <div class="tool-card-footer">
+                        <span>Liked on ${new Date(tool.likedAt?.toDate()).toLocaleDateString()}</span>
+                        <div class="tool-card-actions">
+                            <button onclick="unlikeTool('${tool.id}')" title="Remove from liked tools">
+                                <i class="fas fa-heart-broken"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
         }
 
         // Render specs in grid layout
@@ -1469,6 +1698,41 @@
             // Here you would delete the spec from Firestore
             alert('Delete functionality will be added soon');
         };
+
+        // Global function for unlike tool
+        window.unlikeTool = async function(likeId) {
+            if (!confirm('Are you sure you want to remove this tool from your liked list?')) {
+                return;
+            }
+            
+            try {
+                await deleteDoc(doc(db, 'userLikes', likeId));
+                loadUserLikedTools(); // Reload the list
+                showSuccess('Tool removed from liked list');
+            } catch (error) {
+                console.error('Error removing tool:', error);
+                showError('Failed to remove tool from liked list');
+            }
+        };
+
+        // Utility functions
+        function showSuccess(message) {
+            const successDiv = document.getElementById('success-message');
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+            setTimeout(() => {
+                successDiv.style.display = 'none';
+            }, 3000);
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error-message');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 5000);
+        }
 
         // Auth UI functions
         function updateAuthUI(user) {
