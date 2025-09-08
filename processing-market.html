@@ -901,17 +901,15 @@
         const mode = localStorage.getItem('marketCurrentMode') || 'market';
         const answers = JSON.parse(localStorage.getItem(`marketAnswers_${mode}`) || '{}');
         
-        const specDoc = {
+        const researchDoc = {
           title: title,
           content: specContent,
           userId: auth.currentUser.uid,
-          mode: mode,
-          answers: answers,
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp()
         };
         
-        const docRef = await addDoc(collection(db, 'specs'), specDoc);
+        const docRef = await addDoc(collection(db, 'marketResearch'), researchDoc);
         console.log('Spec auto-saved successfully:', docRef.id);
         
         // Show small notification

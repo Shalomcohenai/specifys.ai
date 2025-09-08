@@ -605,180 +605,149 @@
 
     /* Header Layout Styles */
     .thematic-header {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      padding: 15px 24px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 15px 20px;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      background: var(--bg-color, #f5f5f5);
-      border-bottom: 1px solid var(--border-color, #ddd);
       z-index: 100;
-      transition: background 0.3s ease, border-color 0.3s ease;
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
     body.dark-mode .thematic-header {
-      background: var(--bg-color, #1a1a1a);
-      border-bottom: 1px solid var(--border-color, #444);
+      background: rgba(30, 30, 30, 0.9);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
     }
 
-    .header-left {
+    .header-logo {
       display: flex;
       align-items: center;
-      gap: 1rem;
+      justify-content: center;
+      width: 35px;
+      height: 35px;
+      background: #333;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 1.8rem;
+      font-weight: 700;
+      text-decoration: none;
     }
 
-    .header-center {
-      display: flex;
-      justify-content: center;
-      flex: 1;
+    body.dark-mode .header-logo {
+      background: #444;
+    }
+
+    .header-logo:hover {
+      background: #0078d4;
     }
 
     .header-right {
       display: flex;
       align-items: center;
-      gap: 1rem;
-    }
-
-    /* Logo Styles */
-    .logo a {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--text-color, #333);
-      text-decoration: none;
-      transition: color 0.3s ease;
-    }
-
-    body.dark-mode .logo a {
-      color: #ffffff;
-    }
-
-    .logo a:hover {
-      color: var(--primary-color, #0078d4);
+      gap: 0.5rem;
+      z-index: 10000;
+      position: relative;
     }
 
     /* Menu Toggle Styles */
     .menu-toggle {
-      background: #666;
-      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 35px;
+      height: 35px;
+      background: #333;
       border: none;
-      padding: 8px 12px;
-      border-radius: 6px;
+      border-radius: 8px;
+      font-size: 1.3rem;
+      color: #fff;
       cursor: pointer;
-      font-size: 1rem;
-      transition: all 0.3s ease;
+      transition: background-color 0.3s ease;
+    }
+
+    body.dark-mode .menu-toggle {
+      background: #444;
+      color: #fff;
     }
 
     .menu-toggle:hover {
-      background: #555;
-      transform: translateY(-2px);
+      background: #0078d4;
     }
 
-    /* Menu Overlay */
-    .menu-overlay {
+    .header-links {
+      display: none;
+      flex-direction: column;
       position: fixed;
       top: 0;
       left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.9);
-      z-index: 1000;
-      display: none;
-      justify-content: center;
-      align-items: center;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 9999;
+      padding: 0;
+      transition: opacity 0.3s ease;
+      opacity: 0;
+      width: 100vw;
+      height: 100vh;
     }
 
-    .menu-overlay.show {
+    .header-links.active {
       display: flex;
+      opacity: 1;
     }
 
-    .menu-content {
-      background: white;
-      border-radius: 15px;
-      padding: 2rem;
-      max-width: 500px;
-      width: 90%;
-      max-height: 80vh;
-      overflow-y: auto;
+    .header-links-content {
+      position: absolute;
+      top: 80px;
+      right: 20px;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      min-width: 220px;
+      transform: translateY(-10px);
+      opacity: 0;
+      transition: transform 0.3s ease, opacity 0.3s ease;
     }
 
-    body.dark-mode .menu-content {
-      background: #2a2a2a;
-      color: #e0e0e0;
+    .header-links.active .header-links-content {
+      transform: translateY(0);
+      opacity: 1;
     }
 
-    .menu-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 2rem;
+    body.dark-mode .header-links-content {
+      background: rgba(30, 30, 30, 0.95);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
     }
 
-    .menu-header h2 {
-      margin: 0;
-      font-size: 1.5rem;
-      color: #333;
-    }
-
-    body.dark-mode .menu-header h2 {
-      color: #e0e0e0;
-    }
-
-    .menu-close {
-      background: none;
-      border: none;
-      font-size: 1.5rem;
-      cursor: pointer;
-      color: #666;
-      transition: color 0.3s ease;
-    }
-
-    .menu-close:hover {
-      color: #333;
-    }
-
-    body.dark-mode .menu-close {
-      color: #999;
-    }
-
-    body.dark-mode .menu-close:hover {
-      color: #e0e0e0;
-    }
-
-    .menu-nav {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-
-    .menu-nav a {
+    .header-links a {
       color: #333;
       text-decoration: none;
-      font-size: 1.1rem;
-      font-weight: 500;
-      padding: 0.8rem 1rem;
-      border-radius: 8px;
-      transition: all 0.3s ease;
-      border: 2px solid transparent;
+      font-size: 0.9rem;
+      font-weight: 600;
+      padding: 12px 0;
+      transition: color 0.3s ease, transform 0.3s ease;
+      display: block;
+      border-bottom: 1px solid rgba(128, 128, 128, 0.2);
     }
 
-    .menu-nav a:hover {
-      background: #f0f0f0;
-      border-color: #0078d4;
-      color: #0078d4;
+    .header-links a:last-child {
+      border-bottom: none;
     }
 
-    body.dark-mode .menu-nav a {
+    body.dark-mode .header-links a {
       color: #e0e0e0;
+      border-bottom-color: rgba(128, 128, 128, 0.3);
     }
 
-    body.dark-mode .menu-nav a:hover {
-      background: #444;
-      border-color: #0078d4;
+    .header-links a:hover {
       color: #0078d4;
+      transform: translateX(5px);
     }
+
 
     /* Auth System Styles */
     .auth-buttons {
@@ -905,6 +874,12 @@
       background: #444;
     }
 
+    .user-dropdown-content .divider {
+      height: 1px;
+      background: rgba(128, 128, 128, 0.3);
+      margin: 5px 0;
+    }
+
     /* CSS Variables */
     :root {
       --bg-color: #f5f5f5;
@@ -927,63 +902,98 @@
       position: fixed;
       bottom: 20px;
       left: 20px;
-      width: 50px;
-      height: 50px;
-      background: white;
-      border: 2px solid #ddd;
-      border-radius: 50%;
-      cursor: pointer;
-      font-size: 1.2rem;
+      background: #fff;
       color: #333;
-      transition: all 0.3s ease;
-      z-index: 1000;
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      font-size: 1.2rem;
+      cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      z-index: 1000;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    body.dark-mode .theme-toggle {
+      background: #333;
+      color: #fff;
     }
 
     .theme-toggle:hover {
       background: #f0f0f0;
       transform: translateY(-2px);
-    }
-
-    body.dark-mode .theme-toggle {
-      background: black;
-      color: white;
-      border-color: #444;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
     }
 
     body.dark-mode .theme-toggle:hover {
-      background: #333;
+      background: #555;
     }
 
     @media (max-width: 768px) {
+      .thematic-header {
+        padding: 12px 1rem;
+      }
+
+      .header-logo {
+        width: 30px;
+        height: 30px;
+        font-size: 1.4rem;
+      }
+
+      .header-right {
+        gap: 0.3rem;
+      }
+
+      .menu-toggle {
+        width: 30px;
+        height: 30px;
+        font-size: 1.1rem;
+      }
+
+      .header-links-content {
+        top: 70px;
+        right: 15px;
+        min-width: 180px;
+        max-width: calc(100vw - 30px);
+        padding: 12px;
+      }
+
+      .header-links a {
+        padding: 10px 0;
+        font-size: 0.8rem;
+      }
+
       .auth-buttons {
-        margin-left: 1rem;
-        gap: 0.5rem;
+        gap: 0.3rem;
       }
       
       .auth-btn {
-        padding: 0.4rem 0.8rem;
-        font-size: 0.8rem;
+        padding: 0.3rem 0.6rem;
+        font-size: 0.75rem;
       }
 
       .user-dropdown-content {
         top: 70px;
         right: 15px;
         left: auto;
-        min-width: 120px;
+        min-width: 140px;
+        padding: 8px 0;
       }
       
       .user-dropdown-content a,
       .user-dropdown-content button {
-        padding: 10px 12px;
+        padding: 10px 16px;
         font-size: 0.8rem;
       }
       
       .user-info {
-        padding: 0.4rem 0.8rem;
-        font-size: 0.8rem;
+        padding: 0.3rem 0.6rem;
+        font-size: 0.75rem;
+        gap: 0.3rem;
       }
       
       .user-avatar {
@@ -993,29 +1003,47 @@
       }
 
       .theme-toggle {
-        width: 45px;
-        height: 45px;
-        font-size: 1.1rem;
+        bottom: 15px;
+        left: 15px;
+        width: 35px;
+        height: 35px;
+        font-size: 1rem;
       }
     }
 
     @media (max-width: 480px) {
+      .header-logo {
+        width: 28px;
+        height: 28px;
+        font-size: 1.2rem;
+      }
+
+      .header-links-content {
+        top: 70px;
+        right: 10px;
+        min-width: 160px;
+        max-width: calc(100vw - 20px);
+        padding: 10px;
+      }
+
       .user-dropdown-content {
         top: 70px;
         right: 10px;
         left: auto;
-        min-width: 100px;
+        min-width: 120px;
+        padding: 6px 0;
       }
       
       .user-dropdown-content a,
       .user-dropdown-content button {
-        padding: 8px 10px;
+        padding: 8px 12px;
         font-size: 0.75rem;
       }
       
       .user-info {
         padding: 0.3rem 0.6rem;
         font-size: 0.75rem;
+        gap: 0.3rem;
       }
       
       .user-avatar {
@@ -1025,8 +1053,10 @@
       }
 
       .theme-toggle {
-        width: 40px;
-        height: 40px;
+        bottom: 10px;
+        left: 10px;
+        width: 35px;
+        height: 35px;
         font-size: 1rem;
       }
     }
@@ -1035,37 +1065,24 @@
 <body class="page-default">
   <header class="thematic-header" role="banner">
     <div class="header-left">
-      <button class="menu-toggle" aria-label="Toggle navigation menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
-    </div>
-    <div class="header-center">
-      <div class="logo">
-        <a href="index.html" aria-label="Specifys.ai homepage">Specifys.ai</a>
-      </div>
+      <a href="index.html" class="header-logo" aria-label="Specifys.ai homepage">S</a>
     </div>
     <div class="header-right">
       <div class="auth-buttons" id="auth-buttons">
         <!-- Will be populated by auth system -->
       </div>
       <button class="menu-toggle" aria-label="Toggle navigation menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
+      <div class="header-links">
+        <div class="header-links-content">
+          <a href="blog.html" aria-label="Visit our blog">Blog</a>
+          <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
+          <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
+          <a href="map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
+          <a href="ToolPicker.html" aria-label="Use our Tool Finder">Tool Finder</a>
+        </div>
+      </div>
     </div>
   </header>
-
-  <!-- Menu Overlay -->
-  <div class="menu-overlay" id="menuOverlay">
-    <div class="menu-content">
-      <div class="menu-header">
-        <h2>Navigation</h2>
-        <button class="menu-close" aria-label="Close menu"><i class="fas fa-times"></i></button>
-      </div>
-      <nav class="menu-nav">
-        <a href="blog.html" aria-label="Visit our blog">Blog</a>
-        <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
-        <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
-        <a href="map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
-        <a href="ToolPicker.html" aria-label="Use our Tool Finder">Tool Finder</a>
-      </nav>
-    </div>
-  </div>
 
   <div class="carousel-container">
     <div class="carousel-content">
@@ -1239,16 +1256,15 @@
           }
         }
         
-        const specDoc = {
+        const researchDoc = {
           title: title,
           content: specContent,
           userId: auth.currentUser.uid,
-          mode: "market",
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp()
         };
         
-        const docRef = await addDoc(collection(db, 'specs'), specDoc);
+        const docRef = await addDoc(collection(db, 'marketResearch'), researchDoc);
         console.log('Spec auto-saved successfully:', docRef.id);
         
         // Show small notification
@@ -1287,18 +1303,22 @@
       if (user) {
         // User is logged in
         authButtons.innerHTML = `
-          <div class="user-info">
-            <div class="user-avatar">${user.displayName ? user.displayName.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase()}</div>
-            <span>${user.displayName || user.email.split('@')[0]}</span>
+          <div class="user-dropdown">
+            <div class="user-info" onclick="toggleUserDropdown()">
+              <div class="user-avatar">${user.displayName ? user.displayName.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase()}</div>
+              <span class="user-name">${user.displayName || user.email.split('@')[0]}</span>
+            </div>
+            <div class="user-dropdown-content" id="userDropdown">
+              <a href="profile.html">Profile</a>
+              <div class="divider"></div>
+              <button onclick="logout()">Sign Out</button>
+            </div>
           </div>
-          <a href="profile.html" class="auth-btn">Profile</a>
-          <button class="auth-btn" onclick="logout()">Logout</button>
         `;
       } else {
         // User is not logged in
         authButtons.innerHTML = `
           <button class="auth-btn" onclick="showLoginModal()">Login</button>
-          <button class="auth-btn primary" onclick="showRegisterModal()">Register</button>
         `;
       }
     }
@@ -1528,13 +1548,6 @@
     });
 
     // Global functions for menu and user dropdown
-    window.toggleMenu = function() {
-      const menuOverlay = document.getElementById('menuOverlay');
-      if (menuOverlay) {
-        menuOverlay.classList.toggle('show');
-      }
-    };
-
     window.toggleUserDropdown = function() {
       const dropdown = document.querySelector('.user-dropdown-content');
       if (dropdown && dropdown.classList.contains('show')) {
@@ -1594,17 +1607,27 @@
       }
     });
 
-    // Close menu when clicking outside
-    document.addEventListener('click', function(event) {
-      const menuOverlay = document.getElementById('menuOverlay');
-      const menuToggle = document.querySelector('.menu-toggle');
-      
-      if (menuOverlay && menuOverlay.classList.contains('show') && 
-          !menuOverlay.contains(event.target) && 
-          !menuToggle.contains(event.target)) {
-        menuOverlay.classList.remove('show');
-      }
-    });
+    // Menu toggle functionality
+    const menuToggle = document.querySelector('.menu-toggle');
+    const headerLinks = document.querySelector('.header-links');
+    
+    if (menuToggle && headerLinks) {
+      menuToggle.addEventListener('click', () => {
+        const isActive = headerLinks.classList.contains('active');
+        headerLinks.classList.toggle('active');
+        menuToggle.setAttribute('aria-expanded', !isActive);
+      });
+    }
+
+    // Close menu when clicking on background
+    if (headerLinks) {
+      headerLinks.addEventListener('click', (e) => {
+        if (e.target === headerLinks) {
+          headerLinks.classList.remove('active');
+          menuToggle.setAttribute('aria-expanded', 'false');
+        }
+      });
+    }
 
     // Close user dropdown when clicking outside
     document.addEventListener('click', function(event) {

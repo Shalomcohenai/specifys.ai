@@ -18,7 +18,7 @@
   <meta name="twitter:image" content="https://specifys.ai/assets/og-image.jpg" />
   <meta name="twitter:site" content="@specifys_ai" />
   <meta name="twitter:creator" content="@specifys_ai" />
-  <title>specifys.ai - Saved Specification</title>
+  <title>specifys.ai - Market Research</title>
   <link rel="icon" type="image/x-icon" href="favicon.ico" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
@@ -1202,7 +1202,7 @@
   <div class="carousel-container">
     <div class="carousel-content">
       <div class="spec-header" id="specHeader">
-        <h1 id="specTitle">Loading Specification...</h1>
+        <h1 id="specTitle">Loading Market Research...</h1>
         <div class="spec-meta" id="specMeta">
           <span><i class="fas fa-clock"></i> <span id="specDate">Loading...</span></span>
           <span><i class="fas fa-tag"></i> <span id="specMode">Loading...</span></span>
@@ -1351,37 +1351,37 @@
     }
 
     // Load spec function
-    async function loadSpec(specId) {
+    async function loadResearch(researchId) {
       try {
-        console.log('Loading spec with ID:', specId);
+        console.log('Loading research with ID:', researchId);
         console.log('Current user:', auth.currentUser?.uid);
         
-        // Try to load from specs collection first
-        console.log('Trying to load from specs collection...');
-        let specDoc = await getDoc(doc(db, 'specs', specId));
+        // Try to load from marketResearch collection first
+        console.log('Trying to load from marketResearch collection...');
+        let specDoc = await getDoc(doc(db, 'marketResearch', researchId));
         let specData;
         
         if (specDoc.exists()) {
           specData = specDoc.data();
-          console.log('Found in specs collection:', specData);
+          console.log('Found in marketResearch collection:', specData);
           console.log('Document userId:', specData.userId);
           console.log('Current user:', auth.currentUser.uid);
         } else {
-          console.log('Not found in specs, trying marketResearch collection...');
-          // If not found in specs, try marketResearch collection
+          console.log('Not found in marketResearch, trying specs collection...');
+          // If not found in marketResearch, try specs collection with mode: "market"
           try {
-            specDoc = await getDoc(doc(db, 'marketResearch', specId));
+            specDoc = await getDoc(doc(db, 'specs', researchId));
             
             if (!specDoc.exists()) {
-              throw new Error('Specification not found in both collections');
+              throw new Error('Market research not found in both collections');
             }
             
             specData = specDoc.data();
-            console.log('Found in marketResearch collection:', specData);
+            console.log('Found in specs collection:', specData);
             console.log('Document userId:', specData.userId);
             console.log('Current user:', auth.currentUser.uid);
           } catch (error) {
-            console.error('Error loading from marketResearch collection:', error);
+            console.error('Error loading from specs collection:', error);
             throw error;
           }
         }
@@ -1392,7 +1392,7 @@
         }
         
         // Update header
-        document.getElementById('specTitle').textContent = specData.title || 'App Specification';
+        document.getElementById('specTitle').textContent = specData.title || 'Market Research';
         document.getElementById('specDate').textContent = specData.createdAt ? new Date(specData.createdAt.toDate()).toLocaleDateString() : 'Unknown date';
         document.getElementById('specMode').textContent = specData.mode || 'Market Research';
         
@@ -1576,16 +1576,16 @@
       if (user) {
         console.log('User authenticated:', user.uid);
         const urlParams = new URLSearchParams(window.location.search);
-        const specId = urlParams.get('id');
+        const researchId = urlParams.get('id');
         
-        if (specId) {
-          loadSpec(specId);
+        if (researchId) {
+          loadResearch(researchId);
         } else {
-          showError('No specification ID provided');
+          showError('No research ID provided');
         }
       } else {
         console.log('User not authenticated');
-        showError('Please log in to view this specification');
+        showError('Please log in to view this market research');
       }
     });
 

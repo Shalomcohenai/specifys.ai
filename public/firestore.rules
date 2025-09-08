@@ -3,22 +3,80 @@ service cloud.firestore {
   match /databases/{database}/documents {
     // Rules for specs collection
     match /specs/{document} {
-      // Allow read and write only if:
-      // 1. User is authenticated
-      // 2. The document belongs to the authenticated user
       allow read, write: if request.auth != null 
         && resource.data.userId == request.auth.uid;
-      
-      // Allow create only if:
-      // 1. User is authenticated
-      // 2. The userId field matches the authenticated user
       allow create: if request.auth != null 
         && request.resource.data.userId == request.auth.uid;
     }
     
-    // Deny all other collections
-    match /{document=**} {
-      allow read, write: if false;
+    // Rules for marketResearch collection
+    match /marketResearch/{document} {
+      allow read, write: if request.auth != null 
+        && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null 
+        && request.resource.data.userId == request.auth.uid;
+    }
+    
+    // Rules for apps collection
+    match /apps/{document} {
+      allow read, write: if request.auth != null 
+        && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null 
+        && request.resource.data.userId == request.auth.uid;
+    }
+    
+    // Rules for users collection
+    match /users/{document} {
+      allow read, write: if request.auth != null 
+        && request.auth.uid == document;
+    }
+    
+    // Rules for userTools collection (saved tools)
+    match /userTools/{userId}/savedTools/{toolId} {
+      allow read, write: if request.auth != null 
+        && userId == request.auth.uid;
+      allow create: if request.auth != null 
+        && userId == request.auth.uid;
+    }
+    
+    // Rules for userLikes collection
+    match /userLikes/{document} {
+      allow read, write: if request.auth != null 
+        && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null 
+        && request.resource.data.userId == request.auth.uid;
+    }
+    
+    // Rules for appTasks collection
+    match /appTasks/{document} {
+      allow read, write: if request.auth != null 
+        && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null 
+        && request.resource.data.userId == request.auth.uid;
+    }
+    
+    // Rules for appMilestones collection
+    match /appMilestones/{document} {
+      allow read, write: if request.auth != null 
+        && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null 
+        && request.resource.data.userId == request.auth.uid;
+    }
+    
+    // Rules for appNotes collection
+    match /appNotes/{document} {
+      allow read, write: if request.auth != null 
+        && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null 
+        && request.resource.data.userId == request.auth.uid;
+    }
+    
+    // Rules for appExpenses collection
+    match /appExpenses/{document} {
+      allow read, write: if request.auth != null 
+        && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null 
+        && request.resource.data.userId == request.auth.uid;
     }
   }
 }

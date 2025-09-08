@@ -52,6 +52,7 @@
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
   <style>
     @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=block");
 
@@ -949,6 +950,75 @@
       transform: scale(1.2);
     }
 
+    /* Add to List Button Styles */
+    .add-to-list-btn {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--scroll-to-top-background);
+      color: white;
+      border: none;
+      border-radius: 15px;
+      padding: 6px 12px;
+      font-size: 0.7rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      opacity: 0;
+      z-index: 5;
+      font-weight: 500;
+    }
+
+    .tool-card:hover .add-to-list-btn {
+      opacity: 1;
+      transform: translateX(-50%) scale(1.05);
+    }
+
+    .tool-card:hover .add-to-list-btn.added {
+      opacity: 1;
+      transform: translateX(-50%) scale(1.05);
+    }
+
+    .add-to-list-btn:hover {
+      transform: translateX(-50%) scale(1.1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .add-to-list-btn.added {
+      background: #28a745;
+      opacity: 1;
+      transform: translateX(-50%);
+    }
+
+    .add-to-list-btn.added:hover {
+      background: #218838;
+      transform: translateX(-50%) scale(1.05);
+    }
+
+    .add-to-list-btn.loading {
+      background: #6c757d;
+      cursor: not-allowed;
+      transform: translateX(-50%);
+    }
+
+    .add-to-list-btn.loading::after {
+      content: '';
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      border: 2px solid #fff;
+      border-top: 2px solid transparent;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    .add-to-list-btn.loading span {
+      opacity: 0;
+    }
+
     .tool-card.prompt-to-app-builders .tool-link-icon { color: #23a6d5 !important; }
     .tool-card.prototyping-tools .tool-link-icon { color: #e57373 !important; }
     .tool-card.user-design .tool-link-icon { color: #888 !important; }
@@ -1503,7 +1573,31 @@
       });
     });
 
+    // Function to get category color
+    const getCategoryColor = (category) => {
+      const categoryColors = {
+        'Prompt-to-App Builders': '#23a6d5',
+        'Prototyping Tools': '#e57373',
+        'User Design': '#888',
+        'AI-Augmented IDEs & Code Assistants': '#e73c7e',
+        'AI Agent & Workflow Tools': '#ee7752',
+        'Deployment, Marketing & Integrations': '#2e7d32',
+        'Data-Driven App Builders': '#0288d1',
+        'Business Process Automation': '#7b1fa2',
+        'Game Development Tools': '#d81b60',
+        'Code Security Tools': '#388e3c',
+        'UI/UX Code Tools': '#f57c00',
+        'Educational & Coding Tools': '#00838f',
+        'AR/VR Development Tools': '#c2185b',
+        'Misc Tools': '#6b7280'
+      };
+      return categoryColors[category] || '#6b7280';
+    };
+
     const ToolCard = ({ tool }) => {
+      const [isAdded, setIsAdded] = React.useState(false);
+      const [isLoading, setIsLoading] = React.useState(false);
+
       const handleClick = () => {
         if (tool.link !== "#") {
           gtag('event', 'click', {
@@ -1514,6 +1608,90 @@
           window.open(tool.link, '_blank', 'noopener,noreferrer');
         }
       };
+
+      const handleAddToList = async (e) => {
+        e.stopPropagation();
+        
+        const user = firebase.auth().currentUser;
+        if (!user) {
+          alert('Please log in to add tools to your list');
+          return;
+        }
+
+        setIsLoading(true);
+        
+        try {
+          if (isAdded) {
+            // Remove tool from saved list
+            await firebase.firestore().collection('userTools').doc(user.uid).collection('savedTools').doc(tool.id.toString()).delete();
+            setIsAdded(false);
+            
+            gtag('event', 'click', {
+              'event_category': 'Remove from List',
+              'event_label': tool.name,
+              'value': 'removed'
+            });
+          } else {
+            // Add tool to saved list
+            const toolData = {
+              id: tool.id,
+              name: tool.name,
+              category: tool.category,
+              description: tool.description,
+              link: tool.link,
+              rating: tool.rating,
+              pros: tool.pros,
+              addedAt: new Date().toISOString()
+            };
+
+            await firebase.firestore().collection('userTools').doc(user.uid).collection('savedTools').doc(tool.id.toString()).set(toolData);
+            setIsAdded(true);
+            
+            gtag('event', 'click', {
+              'event_category': 'Add to List',
+              'event_label': tool.name,
+              'value': 'saved'
+            });
+          }
+          
+          setIsLoading(false);
+        } catch (error) {
+          console.error('Error updating tool list:', error);
+          alert('Error updating your tool list');
+          setIsLoading(false);
+        }
+      };
+
+      // Check if tool is already saved on component mount and when auth state changes
+      React.useEffect(() => {
+        const checkIfSaved = async () => {
+          const user = firebase.auth().currentUser;
+          if (user) {
+            try {
+              const doc = await firebase.firestore().collection('userTools').doc(user.uid).collection('savedTools').doc(tool.id.toString()).get();
+              if (doc.exists) {
+                setIsAdded(true);
+              } else {
+                setIsAdded(false);
+              }
+            } catch (error) {
+              console.error('Error checking saved status:', error);
+              setIsAdded(false);
+            }
+          } else {
+            setIsAdded(false);
+          }
+        };
+        
+        checkIfSaved();
+        
+        // Listen for auth state changes
+        const unsubscribe = firebase.auth().onAuthStateChanged((user) => {
+          checkIfSaved();
+        });
+        
+        return () => unsubscribe();
+      }, [tool.id]);
 
       return (
         <div
@@ -1548,6 +1726,18 @@
               <span className="tool-tooltip">Visit Website</span>
             </>
           )}
+          <button 
+            className={`add-to-list-btn ${isAdded ? 'added' : ''} ${isLoading ? 'loading' : ''}`}
+            onClick={handleAddToList}
+            disabled={isLoading}
+            style={{
+              backgroundColor: isAdded ? '#28a745' : getCategoryColor(tool.category),
+              borderColor: getCategoryColor(tool.category)
+            }}
+            aria-label={isAdded ? `Remove ${tool.name} from your list` : `Add ${tool.name} to your list`}
+          >
+            <span>{isAdded ? '✓ In My List' : '+ Add to List'}</span>
+          </button>
         </div>
       );
     };
@@ -1861,6 +2051,7 @@
       // Initialize Firebase
       firebase.initializeApp(firebaseConfig);
       const auth = firebase.auth();
+      const db = firebase.firestore();
 
       // Update auth UI function
       function updateAuthUI(user) {

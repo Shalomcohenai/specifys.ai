@@ -1,53 +1,78 @@
 <!DOCTYPE html>
-<html lang="he" dir="rtl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>התחברות - Specifys.ai</title>
+    <title>Login - Specifys.ai</title>
     <link rel="stylesheet" href="/styles/main.css">
     <link rel="stylesheet" href="/styles/auth.css">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
-<body>
-    <nav id="navbar">
-        <div class="nav-container">
-            <div class="nav-brand">
-                <h1>Specifys.ai</h1>
+<body class="page-default">
+    <header class="thematic-header">
+        <div class="header-left">
+            <a href="index.html" class="header-logo" aria-label="Specifys.ai homepage">S</a>
+        </div>
+        <div class="header-right">
+            <div class="auth-buttons" id="auth-buttons">
+                <!-- Will be populated by auth system -->
             </div>
-            <div class="nav-links" id="nav-links">
-                <!-- Will be populated by navbar.js -->
+            <button class="menu-toggle" aria-label="Toggle navigation menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
+            <div class="header-links">
+                <div class="header-links-content">
+                    <a href="blog.html" aria-label="Visit our blog">Blog</a>
+                    <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
+                    <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
+                    <a href="map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
+                    <a href="https://specifys-ai.com/ToolPicker" aria-label="Use our Tool Finder">Tool Finder</a>
+                </div>
             </div>
         </div>
-    </nav>
+    </header>
+
+    <!-- Hero Section for Login -->
+    <div class="hero-hero-section">
+        <div class="hero-container">
+            <h1 class="hero-title">Login</h1>
+            <div class="hero-subtitle">
+                <p>Sign in to your account</p>
+                <p>and start planning your app</p>
+            </div>
+        </div>
+    </div>
 
     <main class="container">
         <div class="auth-container">
             <div class="auth-card">
-                <h2>התחברות לחשבון</h2>
+                <h2>Sign In to Your Account</h2>
                 
                 <form id="login-form" class="auth-form">
                     <div class="form-group">
-                        <label for="email">אימייל:</label>
+                        <label for="email">Email:</label>
                         <input type="email" id="email" name="email" required>
                     </div>
                     
                     <div class="form-group">
-                        <label for="password">סיסמה:</label>
+                        <label for="password">Password:</label>
                         <input type="password" id="password" name="password" required>
                     </div>
                     
-                    <button type="submit" class="btn btn-primary">התחבר</button>
+                    <button type="submit" class="btn btn-primary">Sign In</button>
                 </form>
 
                 <div class="divider">
-                    <span>או</span>
+                    <span>or</span>
                 </div>
 
                 <button id="google-login" class="btn btn-google">
-                    <span>🔍</span> המשך עם Google
+                    <span>🔍</span> Continue with Google
                 </button>
 
                 <div class="auth-links">
-                    <p>אין לך חשבון? <a href="/register.html">הירשם כאן</a></p>
+                    <p>Don't have an account? <a href="register.html">Sign up here</a></p>
+                    <p><a href="index.html">← Back to Home</a></p>
                 </div>
 
                 <div id="error-message" class="error-message" style="display: none;"></div>
@@ -76,12 +101,12 @@
             
             try {
                 await loginWithEmail(email, password);
-                showMessage('התחברת בהצלחה!', 'success');
+                showMessage('Successfully signed in!', 'success');
                 setTimeout(() => {
                     window.location.href = '/dashboard.html';
                 }, 1000);
             } catch (error) {
-                showMessage('שגיאה בהתחברות: ' + error.message, 'error');
+                showMessage('Sign in error: ' + error.message, 'error');
             }
         });
 
@@ -89,12 +114,12 @@
         document.getElementById('google-login').addEventListener('click', async () => {
             try {
                 await loginWithGoogle();
-                showMessage('התחברת בהצלחה!', 'success');
+                showMessage('Successfully signed in!', 'success');
                 setTimeout(() => {
                     window.location.href = '/dashboard.html';
                 }, 1000);
             } catch (error) {
-                showMessage('שגיאה בהתחברות עם Google: ' + error.message, 'error');
+                showMessage('Google sign in error: ' + error.message, 'error');
             }
         });
 
@@ -112,6 +137,75 @@
                 errorDiv.style.display = 'none';
             }
         }
+    </script>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
+                <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
+                <a href="blog.html" aria-label="Visit our blog">Blog</a>
+                <a href="map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
+                <a href="https://specifys-ai.com/ToolPicker" aria-label="Use our Tool Finder">Tool Finder</a>
+            </div>
+            <span class="footer-divider">|</span>
+            <div class="footer-social">
+                <a href="https://www.linkedin.com/company/specifys-ai/" aria-label="Follow us on LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                <a href="https://www.facebook.com/profile.php?id=61576402600129&locale=he_IL" target="_blank" aria-label="Follow us on Facebook"><i class="fab fa-facebook-f"></i></a>
+                <a href="https://www.instagram.com/YOUR_PROFILE" aria-label="Follow us on Instagram"><i class="fab fa-instagram"></i></a>
+                <a href="mailto:specifysai@gmail.com" aria-label="Send us an email"><i class="fas fa-envelope"></i></a>
+                <a href="https://www.producthunt.com/products/specifys-ai" target="_blank" aria-label="Check us out on Product Hunt"><i class="fab fa-product-hunt"></i></a>
+            </div>
+        </div>
+        <div class="footer-copyright">
+            © 2025 specifys.ai. All rights reserved.
+        </div>
+    </footer>
+
+    <!-- Theme Toggle Button -->
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode"><i class="fas fa-moon"></i></button>
+
+    <script>
+        // Theme toggle functionality
+        const themeToggle = document.getElementById('themeToggle');
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDarkMode = document.body.classList.contains('dark-mode');
+            themeToggle.querySelector('i').classList.toggle('fa-moon', !isDarkMode);
+            themeToggle.querySelector('i').classList.toggle('fa-sun', isDarkMode);
+            themeToggle.setAttribute('aria-label', isDarkMode ? 'Toggle light mode' : 'Toggle dark mode');
+            localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+        });
+
+        // Load saved theme
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeToggle.querySelector('i').classList.replace('fa-moon', 'fa-sun');
+            themeToggle.setAttribute('aria-label', 'Toggle light mode');
+        } else {
+            document.body.classList.remove('dark-mode');
+            themeToggle.querySelector('i').classList.replace('fa-sun', 'fa-moon');
+            themeToggle.setAttribute('aria-label', 'Toggle dark mode');
+            localStorage.setItem('theme', 'light');
+        }
+
+        // Menu toggle functionality
+        const menuToggle = document.querySelector('.menu-toggle');
+        const headerLinks = document.querySelector('.header-links');
+        menuToggle.addEventListener('click', () => {
+            const isActive = headerLinks.classList.contains('active');
+            headerLinks.classList.toggle('active');
+            menuToggle.setAttribute('aria-expanded', !isActive);
+        });
+
+        // Close menu when clicking on background
+        headerLinks.addEventListener('click', (e) => {
+            if (e.target === headerLinks) {
+                headerLinks.classList.remove('active');
+                menuToggle.setAttribute('aria-expanded', 'false');
+            }
+        });
     </script>
 </body>
 </html>
