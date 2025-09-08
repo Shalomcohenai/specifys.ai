@@ -33,6 +33,9 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="../common-header-footer.css">
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
     <style>
       @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap");
 
@@ -63,22 +66,208 @@
       }
 
       .thematic-header {
-        position: absolute;
-        top: 0;
-        width: 100%;
-        padding: 20px 24px;
         display: flex;
-        justify-content: center;
-        z-index: 10;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 20px;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
         background: rgba(255, 255, 255, 0.9);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        border-bottom: 1px solid #ddd;
+        z-index: 100;
+        transition: background 0.3s ease, border-color 0.3s ease;
       }
 
-      .thematic-header .logo a {
-        text-decoration: none;
-        color: #333;
-        font-size: 1.65rem;
+      body.dark-mode .thematic-header {
+        background: rgba(40, 40, 40, 0.9);
+        border-bottom: 1px solid #444;
+      }
+
+      .header-left {
+        display: flex;
+        align-items: center;
+      }
+
+      .header-center {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        pointer-events: none;
+      }
+
+      .header-center .logo {
+        pointer-events: auto;
+      }
+
+      .header-right {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        justify-content: flex-end;
+      }
+
+      .logo a {
+        font-size: 1.5rem;
         font-weight: 700;
+        color: #333;
+        text-decoration: none;
+        transition: color 0.3s ease;
+      }
+
+      body.dark-mode .logo a {
+        color: #ffffff;
+      }
+
+      .logo a:hover {
+        color: #0078d4;
+      }
+
+      .auth-buttons {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        position: relative;
+        z-index: 10000;
+      }
+
+      .auth-btn {
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 8px;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 700;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        background: transparent;
+        color: #666;
+      }
+
+      .auth-btn:hover {
+        color: #0078d4;
+        transform: translateY(-2px);
+      }
+
+      .auth-btn.primary {
+        background: #0078d4;
+        color: white;
+      }
+
+      .auth-btn.primary:hover {
+        background: #005ea2;
+      }
+
+      .user-info {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: rgba(102, 102, 102, 0.1);
+        border-radius: 20px;
+        border: 1px solid rgba(102, 102, 102, 0.2);
+        color: #666;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .user-info:hover {
+        background: rgba(102, 102, 102, 0.2);
+        transform: translateY(-2px);
+      }
+
+      .user-avatar {
+        width: 24px;
+        height: 24px;
+        background: #666;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        font-weight: bold;
+        color: white;
+      }
+
+      .user-dropdown {
+        position: relative;
+        z-index: 10000;
+      }
+
+      .user-dropdown-content {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        min-width: 200px;
+        z-index: 10001;
+        display: none;
+        margin-top: 0.5rem;
+      }
+
+      body.dark-mode .user-dropdown-content {
+        background: #2a2a2a;
+        border-color: #444;
+      }
+
+      .user-dropdown-content a {
+        display: block;
+        padding: 0.75rem 1rem;
+        color: #333;
+        text-decoration: none;
+        transition: background 0.3s ease;
+      }
+
+      body.dark-mode .user-dropdown-content a {
+        color: #ffffff;
+      }
+
+      .user-dropdown-content a:hover {
+        background: #f5f5f5;
+      }
+
+      body.dark-mode .user-dropdown-content a:hover {
+        background: #444;
+      }
+
+      .theme-toggle {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #0078d4;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        font-size: 1.2rem;
+        cursor: pointer;
+        z-index: 1000;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      .theme-toggle:hover {
+        background: #005ea2;
+        transform: scale(1.1);
+      }
+
+      body.dark-mode .theme-toggle {
+        background: #00b7c3;
+      }
+
+      body.dark-mode .theme-toggle:hover {
+        background: #0099a3;
       }
 
       .main-content-wrapper {
@@ -281,11 +470,23 @@
     </style>
 </head>
 <body>
-    <header class="thematic-header">
-        <div class="logo">
-            <a href="../index.html">Specifys.ai</a>
+    <header class="thematic-header" role="banner">
+        <div class="header-left">
+        </div>
+        <div class="header-center">
+            <div class="logo">
+                <a href="../index.html" aria-label="Specifys.ai homepage">Specifys.ai</a>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="auth-buttons" id="auth-buttons">
+                <!-- Will be populated by auth system -->
+            </div>
         </div>
     </header>
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+        <i class="fas fa-moon"></i>
+    </button>
 
     <div class="main-content-wrapper">
         <article class="article-container">
@@ -380,6 +581,114 @@
     </footer>
 
     <script src="../common-header-footer.js"></script>
+    
+    <script>
+        // Theme toggle functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const themeToggle = document.getElementById('themeToggle');
+            if (themeToggle) {
+                themeToggle.addEventListener('click', function() {
+                    document.body.classList.toggle('dark-mode');
+                    const isDark = document.body.classList.contains('dark-mode');
+                    localStorage.setItem('darkMode', isDark);
+                    
+                    // Update icon
+                    const icon = themeToggle.querySelector('i');
+                    if (isDark) {
+                        icon.className = 'fas fa-sun';
+                    } else {
+                        icon.className = 'fas fa-moon';
+                    }
+                });
+            }
+            
+            // Load saved theme
+            const savedTheme = localStorage.getItem('darkMode');
+            if (savedTheme === 'true') {
+                document.body.classList.add('dark-mode');
+                const icon = themeToggle.querySelector('i');
+                if (icon) {
+                    icon.className = 'fas fa-sun';
+                }
+            }
+        });
+
+        // User dropdown functionality
+        window.toggleUserDropdown = function() {
+            const dropdown = document.querySelector('.user-dropdown-content');
+            if (dropdown) {
+                dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+            }
+        };
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.querySelector('.user-dropdown-content');
+            const userInfo = document.querySelector('.user-info');
+            if (dropdown && userInfo && !userInfo.contains(event.target)) {
+                dropdown.style.display = 'none';
+            }
+        });
+
+        // Firebase Auth
+        document.addEventListener('DOMContentLoaded', function() {
+            const firebaseConfig = {
+                apiKey: "AIzaSyBvQZ8Q8Q8Q8Q8Q8Q8Q8Q8Q8Q8Q8Q8Q8Q8",
+                authDomain: "specifys-ai.firebaseapp.com",
+                projectId: "specifys-ai",
+                storageBucket: "specifys-ai.appspot.com",
+                messagingSenderId: "123456789",
+                appId: "1:123456789:web:abcdefghijklmnop"
+            };
+
+            firebase.initializeApp(firebaseConfig);
+            const auth = firebase.auth();
+            const db = firebase.firestore();
+
+            function updateAuthUI(user) {
+                const authButtons = document.getElementById('auth-buttons');
+                if (user) {
+                    authButtons.innerHTML = `
+                        <div class="user-dropdown">
+                            <div class="user-info" onclick="toggleUserDropdown()">
+                                <div class="user-avatar">${user.email.charAt(0).toUpperCase()}</div>
+                                <span>${user.email}</span>
+                            </div>
+                            <div class="user-dropdown-content">
+                                <a href="../profile.html">Profile</a>
+                                <a href="#" onclick="logout()">Logout</a>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    authButtons.innerHTML = `
+                        <a href="../auth.html" class="auth-btn">Login</a>
+                        <a href="../auth.html" class="auth-btn primary">Register</a>
+                    `;
+                }
+            }
+
+            window.showLoginModal = function() {
+                window.location.href = '../auth.html';
+            };
+
+            window.showRegisterModal = function() {
+                window.location.href = '../auth.html';
+            };
+
+            window.logout = function() {
+                auth.signOut().then(() => {
+                    console.log('User signed out');
+                }).catch((error) => {
+                    console.error('Error signing out:', error);
+                });
+            };
+
+            auth.onAuthStateChanged((user) => {
+                updateAuthUI(user);
+            });
+        });
+    </script>
 
     <noscript>
         <div style="text-align: center; padding: 20px; background: #fff; color: #333;">

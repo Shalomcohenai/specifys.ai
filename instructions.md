@@ -67,16 +67,6 @@ const firebaseConfig = {
     <div class="auth-buttons" id="auth-buttons">
       <!-- Will be populated by auth system -->
     </div>
-    <button class="menu-toggle" aria-label="Toggle navigation menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
-    <div class="header-links">
-      <div class="header-links-content">
-        <a href="blog.html" aria-label="Visit our blog">Blog</a>
-        <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
-        <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
-        <a href="map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
-        <a href="ToolPicker.html" aria-label="Use our Tool Finder">Tool Finder</a>
-      </div>
-    </div>
   </div>
 </header>
 ```
@@ -142,91 +132,6 @@ const firebaseConfig = {
 }
 ```
 
-#### **Menu Toggle Button:**
-```css
-.menu-toggle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 35px;
-  height: 35px;
-  background: #333;
-  border: none;
-  border-radius: 8px;
-  color: #fff;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 14px;
-}
-
-.menu-toggle:hover {
-  background: #555;
-  transform: scale(1.05);
-}
-
-.menu-toggle:active {
-  transform: scale(0.95);
-}
-
-.menu-toggle:focus {
-  outline: 2px solid var(--primary-color);
-  outline-offset: 2px;
-}
-```
-
-#### **Header Links (Menu Overlay):**
-```css
-.header-links {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0,0,0,0.8);
-  z-index: 99999;
-  width: 100vw;
-  height: 100vh;
-  display: none;
-}
-
-.header-links.show {
-  display: block;
-}
-
-.header-links-content {
-  position: absolute;
-  top: 80px;
-  right: 20px;
-  background: var(--chat-bg);
-  border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-  min-width: 180px;
-  transform: translateY(-20px);
-  opacity: 0;
-  transition: all 0.3s ease;
-}
-
-.header-links.show .header-links-content {
-  transform: translateY(0);
-  opacity: 1;
-}
-
-.header-links a {
-  display: block;
-  padding: 10px 15px;
-  color: var(--text-color);
-  text-decoration: none;
-  font-size: 0.9rem;
-  font-weight: 500;
-  border-bottom: 1px solid var(--border-color);
-  transition: all 0.3s ease;
-}
-
-.header-links a:hover {
-  background: var(--light-gray);
-  transform: translateX(5px);
-}
-```
 
 #### **Auth System Styles:**
 ```css
@@ -395,11 +300,6 @@ body.dark-mode .theme-toggle {
     gap: 0.5rem;
   }
   
-  .menu-toggle {
-    width: 32px;
-    height: 32px;
-    font-size: 12px;
-  }
   
   .auth-buttons {
     gap: 0.5rem;
@@ -441,20 +341,6 @@ body.dark-mode .theme-toggle {
     font-size: 0.8rem;
   }
   
-  .header-links {
-    background: rgba(0,0,0,0.9);
-  }
-  
-  .header-links-content {
-    top: 70px;
-    right: 15px;
-    min-width: 160px;
-  }
-  
-  .header-links a {
-    padding: 8px 12px;
-    font-size: 0.8rem;
-  }
 }
 ```
 
@@ -470,20 +356,6 @@ body.dark-mode .theme-toggle {
 
 #### **פונקציות בסיסיות:**
 ```javascript
-// Menu toggle functionality
-function toggleMenu() {
-  const headerLinks = document.querySelector('.header-links');
-  const menuToggle = document.querySelector('.menu-toggle');
-  
-  if (headerLinks.classList.contains('show')) {
-    headerLinks.classList.remove('show');
-    menuToggle.setAttribute('aria-expanded', 'false');
-  } else {
-    headerLinks.classList.add('show');
-    menuToggle.setAttribute('aria-expanded', 'true');
-  }
-}
-
 // User dropdown functionality
 function toggleUserDropdown() {
   const dropdown = document.querySelector('.user-dropdown-content');
@@ -513,31 +385,12 @@ function toggleTheme() {
 
 // Make functions global
 window.toggleUserDropdown = toggleUserDropdown;
-window.toggleMenu = toggleMenu;
 window.toggleTheme = toggleTheme;
 ```
 
 #### **Event Listeners:**
 ```javascript
 document.addEventListener('DOMContentLoaded', function() {
-  // Menu toggle
-  const menuToggle = document.querySelector('.menu-toggle');
-  if (menuToggle) {
-    menuToggle.addEventListener('click', function(event) {
-      event.stopPropagation();
-      toggleMenu();
-    });
-  }
-  
-  // Add event listener for menu toggle after DOM is loaded
-  document.addEventListener('click', function(event) {
-    const menuToggle = document.querySelector('.menu-toggle');
-    if (menuToggle && menuToggle.contains(event.target)) {
-      event.stopPropagation();
-      toggleMenu();
-    }
-  });
-  
   // Theme toggle
   const themeToggle = document.getElementById('themeToggle');
   if (themeToggle) {
@@ -546,33 +399,6 @@ document.addEventListener('DOMContentLoaded', function() {
       toggleTheme();
     });
   }
-  
-  // Close menu when clicking outside
-  document.addEventListener('click', function(event) {
-    const headerLinks = document.querySelector('.header-links');
-    const menuToggle = document.querySelector('.menu-toggle');
-    
-    if (headerLinks && headerLinks.classList.contains('show') && 
-        !menuToggle.contains(event.target) && !headerLinks.contains(event.target)) {
-      headerLinks.classList.remove('show');
-      menuToggle.setAttribute('aria-expanded', 'false');
-    }
-  });
-  
-  // Close menu when clicking on the overlay background
-  document.addEventListener('click', function(event) {
-    const headerLinks = document.querySelector('.header-links');
-    const headerLinksContent = document.querySelector('.header-links-content');
-    
-    if (headerLinks && headerLinks.classList.contains('show') && 
-        event.target === headerLinks) {
-      headerLinks.classList.remove('show');
-      const menuToggle = document.querySelector('.menu-toggle');
-      if (menuToggle) {
-        menuToggle.setAttribute('aria-expanded', 'false');
-      }
-    }
-  });
   
   // Close user dropdown when clicking outside
   document.addEventListener('click', function(event) {
@@ -688,18 +514,6 @@ function updateAuthUI(user) {
 }
 ```
 
-#### **גודל תפריט מותאם:**
-```css
-.header-links a {
-  font-size: 0.9rem; /* במקום 1.3rem */
-  padding: 10px 15px; /* במקום 20px 25px */
-  font-weight: 500; /* במקום 600 */
-}
-
-.header-links-content {
-  min-width: 180px; /* במקום 250px */
-}
-```
 
 ## **סדר הפעולות ליישום על דפים אחרים:**
 

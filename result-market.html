@@ -652,101 +652,6 @@
       position: relative;
     }
 
-    /* Menu Toggle Styles */
-    .menu-toggle {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 35px;
-      height: 35px;
-      background: #333;
-      border: none;
-      border-radius: 8px;
-      font-size: 1.3rem;
-      color: #fff;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-
-    body.dark-mode .menu-toggle {
-      background: #444;
-      color: #fff;
-    }
-
-    .menu-toggle:hover {
-      background: #0078d4;
-    }
-
-    .header-links {
-      display: none;
-      flex-direction: column;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.8);
-      z-index: 9999;
-      padding: 0;
-      transition: opacity 0.3s ease;
-      opacity: 0;
-      width: 100vw;
-      height: 100vh;
-    }
-
-    .header-links.active {
-      display: flex;
-      opacity: 1;
-    }
-
-    .header-links-content {
-      position: absolute;
-      top: 80px;
-      right: 20px;
-      background: rgba(255, 255, 255, 0.95);
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-      min-width: 220px;
-      transform: translateY(-10px);
-      opacity: 0;
-      transition: transform 0.3s ease, opacity 0.3s ease;
-    }
-
-    .header-links.active .header-links-content {
-      transform: translateY(0);
-      opacity: 1;
-    }
-
-    body.dark-mode .header-links-content {
-      background: rgba(30, 30, 30, 0.95);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-    }
-
-    .header-links a {
-      color: #333;
-      text-decoration: none;
-      font-size: 0.9rem;
-      font-weight: 600;
-      padding: 12px 0;
-      transition: color 0.3s ease, transform 0.3s ease;
-      display: block;
-      border-bottom: 1px solid rgba(128, 128, 128, 0.2);
-    }
-
-    .header-links a:last-child {
-      border-bottom: none;
-    }
-
-    body.dark-mode .header-links a {
-      color: #e0e0e0;
-      border-bottom-color: rgba(128, 128, 128, 0.3);
-    }
-
-    .header-links a:hover {
-      color: #0078d4;
-      transform: translateX(5px);
-    }
 
 
     /* Auth System Styles */
@@ -948,11 +853,6 @@
         gap: 0.3rem;
       }
 
-      .menu-toggle {
-        width: 30px;
-        height: 30px;
-        font-size: 1.1rem;
-      }
 
       .header-links-content {
         top: 70px;
@@ -1065,21 +965,15 @@
 <body class="page-default">
   <header class="thematic-header" role="banner">
     <div class="header-left">
-      <a href="index.html" class="header-logo" aria-label="Specifys.ai homepage">S</a>
+    </div>
+    <div class="header-center">
+      <div class="logo">
+        <a href="index.html" aria-label="Specifys.ai homepage">Specifys.ai</a>
+      </div>
     </div>
     <div class="header-right">
       <div class="auth-buttons" id="auth-buttons">
         <!-- Will be populated by auth system -->
-      </div>
-      <button class="menu-toggle" aria-label="Toggle navigation menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
-      <div class="header-links">
-        <div class="header-links-content">
-          <a href="blog.html" aria-label="Visit our blog">Blog</a>
-          <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
-          <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
-          <a href="map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
-          <a href="ToolPicker.html" aria-label="Use our Tool Finder">Tool Finder</a>
-        </div>
       </div>
     </div>
   </header>
@@ -1278,8 +1172,9 @@
       const notification = document.createElement('div');
       notification.style.cssText = `
         position: fixed;
-        top: 20px;
-        right: 20px;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
         background: #28a745;
         color: white;
         padding: 10px 20px;
@@ -1287,12 +1182,25 @@
         z-index: 1000;
         font-size: 14px;
         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        animation: slideUp 0.3s ease-out;
       `;
       notification.textContent = 'Market research auto-saved!';
+      
+      // Add animation styles
+      const style = document.createElement('style');
+      style.textContent = `
+        @keyframes slideUp {
+          from { transform: translateX(-50%) translateY(100%); opacity: 0; }
+          to { transform: translateX(-50%) translateY(0); opacity: 1; }
+        }
+      `;
+      document.head.appendChild(style);
+      
       document.body.appendChild(notification);
       
       setTimeout(() => {
         notification.remove();
+        style.remove();
       }, 3000);
     }
 
@@ -1607,27 +1515,6 @@
       }
     });
 
-    // Menu toggle functionality
-    const menuToggle = document.querySelector('.menu-toggle');
-    const headerLinks = document.querySelector('.header-links');
-    
-    if (menuToggle && headerLinks) {
-      menuToggle.addEventListener('click', () => {
-        const isActive = headerLinks.classList.contains('active');
-        headerLinks.classList.toggle('active');
-        menuToggle.setAttribute('aria-expanded', !isActive);
-      });
-    }
-
-    // Close menu when clicking on background
-    if (headerLinks) {
-      headerLinks.addEventListener('click', (e) => {
-        if (e.target === headerLinks) {
-          headerLinks.classList.remove('active');
-          menuToggle.setAttribute('aria-expanded', 'false');
-        }
-      });
-    }
 
     // Close user dropdown when clicking outside
     document.addEventListener('click', function(event) {

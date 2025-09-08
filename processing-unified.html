@@ -97,6 +97,26 @@
       --chat-header-text: #fff;
     }
 
+    body.dark-mode {
+      --bg-color: #1a1a1a;
+      --text-color: #ffffff;
+      --primary-color: #0078d4;
+      --secondary-color: #6c757d;
+      --light-gray: #2a2a2a;
+      --border-color: #444;
+      --chat-bg: #2a2a2a;
+      --system-msg-bg: #1a1a1a;
+      --user-msg-bg: #0078d4;
+      --user-msg-text: #fff;
+      --input-bg: #2a2a2a;
+      --input-border: #444;
+      --button-hover: #005ea2;
+      --progress-bg: #2a2a2a;
+      --progress-fill: #0078d4;
+      --chat-header-bg: #0078d4;
+      --chat-header-text: #fff;
+    }
+
     /* Header Layout Styles */
     .thematic-header {
       display: flex;
@@ -110,6 +130,12 @@
       background: var(--bg-color);
       border-bottom: 1px solid var(--border-color);
       z-index: 100;
+      transition: background 0.3s ease, border-color 0.3s ease;
+    }
+
+    body.dark-mode .thematic-header {
+      background: var(--bg-color);
+      border-bottom: 1px solid var(--border-color);
     }
 
     .header-left {
@@ -152,87 +178,15 @@
       color: var(--primary-color);
     }
 
-    /* Menu Toggle Button */
-    .menu-toggle {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 35px;
-      height: 35px;
-      background: #333;
-      border: none;
-      border-radius: 8px;
-      color: #fff;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      font-size: 14px;
-    }
-
-    .menu-toggle:hover {
-      background: #555;
-      transform: scale(1.05);
-    }
-
-    .menu-toggle:active {
-      transform: scale(0.95);
-    }
-
-    .menu-toggle:focus {
-      outline: 2px solid var(--primary-color);
-      outline-offset: 2px;
-    }
-
-    /* Header Links */
-    .header-links {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0,0,0,0.8);
-      z-index: 99999;
-      width: 100vw;
-      height: 100vh;
-      display: none;
-    }
-
-    .header-links-content {
-      position: absolute;
-      top: 80px;
-      right: 20px;
-      background: var(--chat-bg);
-      border-radius: 12px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-      min-width: 180px;
-      transform: translateY(-20px);
-      opacity: 0;
-      transition: all 0.3s ease;
-    }
-
-    .header-links.show {
-      display: block;
-    }
-
-    .header-links.show .header-links-content {
-      transform: translateY(0);
-      opacity: 1;
-    }
-
-    .header-links a {
-      display: block;
-      padding: 10px 15px;
+    body.dark-mode .logo a {
       color: var(--text-color);
-      text-decoration: none;
-      font-size: 0.9rem;
-      font-weight: 500;
-      border-bottom: 1px solid var(--border-color);
-      transition: all 0.3s ease;
     }
 
-    .header-links a:hover {
-      background: var(--light-gray);
-      transform: translateX(5px);
+    body.dark-mode .logo a:hover {
+      color: var(--primary-color);
     }
+
+
 
     /* Auth System Styles */
     .auth-buttons {
@@ -411,11 +365,6 @@
         gap: 0.5rem;
       }
       
-      .menu-toggle {
-        width: 32px;
-        height: 32px;
-        font-size: 12px;
-      }
       
       .auth-buttons {
         gap: 0.5rem;
@@ -1351,16 +1300,6 @@
       <div class="auth-buttons" id="auth-buttons">
         <!-- Will be populated by auth system -->
       </div>
-      <button class="menu-toggle" aria-label="Toggle navigation menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
-      <div class="header-links">
-        <div class="header-links-content">
-          <a href="blog.html" aria-label="Visit our blog">Blog</a>
-          <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
-          <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
-          <a href="map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
-          <a href="ToolPicker.html" aria-label="Use our Tool Finder">Tool Finder</a>
-        </div>
-      </div>
     </div>
   </header>
 
@@ -1410,28 +1349,12 @@
 
 
   <script src="prompts.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
   
   <!-- Auth System Script -->
-  <script type="module">
-    // Import Firebase SDK
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { 
-      createUserWithEmailAndPassword, 
-      signInWithEmailAndPassword, 
-      signOut, 
-      onAuthStateChanged,
-      GoogleAuthProvider,
-      signInWithPopup,
-      getAuth
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
-    import { 
-      collection, 
-      addDoc,
-      serverTimestamp,
-      getFirestore
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
+  <script>
     // Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyB9hr0IWM4EREzkKDxBxYoYinV6LJXWXV4",
@@ -1444,73 +1367,39 @@
     };
 
     // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    const googleProvider = new GoogleAuthProvider();
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
 
-    // Auth functions
-    async function registerWithEmail(email, password) {
-      try {
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        return userCredential.user;
-      } catch (error) {
-        throw new Error(getAuthErrorMessage(error.code));
-      }
-    }
-
-    async function loginWithEmail(email, password) {
-      try {
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        return userCredential.user;
-      } catch (error) {
-        throw new Error(getAuthErrorMessage(error.code));
-      }
-    }
-
-    async function loginWithGoogle() {
-      try {
-        const result = await signInWithPopup(auth, googleProvider);
-        return result.user;
-      } catch (error) {
-        throw new Error(getAuthErrorMessage(error.code));
-      }
-    }
-
-    async function logout() {
-      try {
-        await signOut(auth);
-      } catch (error) {
-        throw new Error('שגיאה ביציאה מהחשבון');
-      }
-    }
-
-    // Error messages
-    function getAuthErrorMessage(errorCode) {
-      const errorMessages = {
-        'auth/user-not-found': 'משתמש לא נמצא',
-        'auth/wrong-password': 'סיסמה שגויה',
-        'auth/email-already-in-use': 'כתובת אימייל כבר בשימוש',
-        'auth/weak-password': 'הסיסמה חלשה מדי',
-        'auth/invalid-email': 'כתובת אימייל לא תקינה',
-        'auth/user-disabled': 'החשבון הושבת',
-        'auth/too-many-requests': 'יותר מדי ניסיונות, נסה שוב מאוחר יותר',
-        'auth/operation-not-allowed': 'פעולה לא מורשית',
-        'auth/requires-recent-login': 'נדרש להתחבר מחדש',
-        'auth/popup-closed-by-user': 'חלון ההתחברות נסגר',
-        'auth/cancelled-popup-request': 'בקשה בוטלה',
-        'auth/popup-blocked': 'חלון ההתחברות נחסם',
-        'auth/account-exists-with-different-credential': 'חשבון קיים עם פרטי התחברות שונים',
-        'auth/credential-already-in-use': 'פרטי התחברות כבר בשימוש',
-        'auth/invalid-credential': 'פרטי התחברות לא תקינים',
-        'auth/timeout': 'פג הזמן, נסה שוב',
-        'auth/network-request-failed': 'שגיאת רשת, בדוק את החיבור לאינטרנט'
-      };
+    // Update auth UI function
+    function updateAuthUI(user) {
+      const authButtons = document.getElementById('auth-buttons');
       
-      return errorMessages[errorCode] || 'שגיאה לא ידועה';
+      if (user) {
+        // User is logged in
+        const displayName = user.displayName || user.email.split('@')[0];
+        const firstLetter = displayName.charAt(0).toUpperCase();
+        
+        authButtons.innerHTML = `
+          <div class="user-dropdown">
+            <div class="user-info" onclick="toggleUserDropdown()">
+              <div class="user-avatar">${firstLetter}</div>
+              <span>${displayName}</span>
+            </div>
+            <div class="user-dropdown-content">
+              <a href="profile.html">Profile</a>
+              <button onclick="logout()">Sign Out</button>
+            </div>
+          </div>
+        `;
+      } else {
+        // User is not logged in
+        authButtons.innerHTML = `
+          <button class="auth-btn" onclick="showLoginModal()">Login</button>
+          <button class="auth-btn primary" onclick="showRegisterModal()">Register</button>
+        `;
+      }
     }
-
-
 
     // Global functions
     window.showLoginModal = function() {
@@ -1522,14 +1411,37 @@
     };
 
     window.logout = function() {
-      logout()
+      auth.signOut()
         .then(() => {
-          alert('יצאת בהצלחה');
+          console.log('Logged out successfully');
         })
         .catch(error => {
-          alert('שגיאה ביציאה: ' + error.message);
+          console.error('Error logging out:', error);
         });
     };
+
+    // Listen to auth state changes
+    auth.onAuthStateChanged((user) => {
+      updateAuthUI(user);
+    });
+
+    // Initialize auth buttons with default state
+    document.addEventListener('DOMContentLoaded', function() {
+      const authButtons = document.getElementById('auth-buttons');
+      if (authButtons && !authButtons.innerHTML.trim()) {
+        authButtons.innerHTML = `
+          <button class="auth-btn login-btn">Login</button>
+        `;
+        
+        const loginBtn = authButtons.querySelector('.login-btn');
+        if (loginBtn) {
+          loginBtn.addEventListener('click', function(event) {
+            event.stopPropagation();
+            window.location.href = 'auth.html';
+          });
+        }
+      }
+    });
 
     // Auto-save function instead of manual save button
     async function autoSaveSpec() {
@@ -1586,8 +1498,9 @@
       const notification = document.createElement('div');
       notification.style.cssText = `
         position: fixed;
-        top: 20px;
-        right: 20px;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
         background: #28a745;
         color: white;
         padding: 10px 20px;
@@ -1595,28 +1508,28 @@
         z-index: 1000;
         font-size: 14px;
         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        animation: slideUp 0.3s ease-out;
       `;
       notification.textContent = 'Specification auto-saved!';
+      
+      // Add animation styles
+      const style = document.createElement('style');
+      style.textContent = `
+        @keyframes slideUp {
+          from { transform: translateX(-50%) translateY(100%); opacity: 0; }
+          to { transform: translateX(-50%) translateY(0); opacity: 1; }
+        }
+      `;
+      document.head.appendChild(style);
+      
       document.body.appendChild(notification);
       
       setTimeout(() => {
         notification.remove();
+        style.remove();
       }, 3000);
     }
 
-    // Menu toggle functionality
-    function toggleMenu() {
-      const headerLinks = document.querySelector('.header-links');
-      const menuToggle = document.querySelector('.menu-toggle');
-      
-      if (headerLinks.classList.contains('show')) {
-        headerLinks.classList.remove('show');
-        menuToggle.setAttribute('aria-expanded', 'false');
-      } else {
-        headerLinks.classList.add('show');
-        menuToggle.setAttribute('aria-expanded', 'true');
-      }
-    }
 
     // User dropdown functionality
     function toggleUserDropdown() {
@@ -1652,23 +1565,6 @@
 
     // Event listeners
     document.addEventListener('DOMContentLoaded', function() {
-      // Menu toggle
-      const menuToggle = document.querySelector('.menu-toggle');
-      if (menuToggle) {
-        menuToggle.addEventListener('click', function(event) {
-          event.stopPropagation();
-          toggleMenu();
-        });
-      }
-      
-      // Add event listener for menu toggle after DOM is loaded
-      document.addEventListener('click', function(event) {
-        const menuToggle = document.querySelector('.menu-toggle');
-        if (menuToggle && menuToggle.contains(event.target)) {
-          event.stopPropagation();
-          toggleMenu();
-        }
-      });
       
       // Theme toggle
       const themeToggle = document.getElementById('themeToggle');
@@ -1679,32 +1575,6 @@
         });
       }
       
-      // Close menu when clicking outside
-      document.addEventListener('click', function(event) {
-        const headerLinks = document.querySelector('.header-links');
-        const menuToggle = document.querySelector('.menu-toggle');
-        
-        if (headerLinks && headerLinks.classList.contains('show') && 
-            !menuToggle.contains(event.target) && !headerLinks.contains(event.target)) {
-          headerLinks.classList.remove('show');
-          menuToggle.setAttribute('aria-expanded', 'false');
-        }
-      });
-      
-      // Close menu when clicking on the overlay background
-      document.addEventListener('click', function(event) {
-        const headerLinks = document.querySelector('.header-links');
-        const headerLinksContent = document.querySelector('.header-links-content');
-        
-        if (headerLinks && headerLinks.classList.contains('show') && 
-            event.target === headerLinks) {
-          headerLinks.classList.remove('show');
-          const menuToggle = document.querySelector('.menu-toggle');
-          if (menuToggle) {
-            menuToggle.setAttribute('aria-expanded', 'false');
-          }
-        }
-      });
       
       // Close user dropdown when clicking outside
       document.addEventListener('click', function(event) {

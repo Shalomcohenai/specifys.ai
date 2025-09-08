@@ -8,32 +8,58 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
     <style>
         /* Import Montserrat font */
         @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap");
-        
-        body {
-            font-family: "Montserrat", sans-serif;
-        }
-        
-        /* CSS Variables */
+
         :root {
-            --bg-color: #fff;
+            --bg-color: #f5f5f5;
             --text-color: #333;
-            --primary-color: #666;
-            --border-color: #e0e0e0;
-            --hover-color: #555;
+            --primary-color: #0078d4;
+            --secondary-color: #6c757d;
+            --light-gray: #e9ecef;
+            --border-color: #dee2e6;
+            --chat-bg: #fff;
+            --system-msg-bg: #f8f9fa;
+            --user-msg-bg: #0078d4;
+            --user-msg-text: #fff;
+            --input-bg: #fff;
+            --input-border: #dee2e6;
+            --button-hover: #005ea2;
+            --progress-bg: #e9ecef;
+            --progress-fill: #0078d4;
+            --chat-header-bg: #0078d4;
+            --chat-header-text: #fff;
         }
 
         body.dark-mode {
             --bg-color: #1a1a1a;
-            --text-color: #e0e0e0;
-            --border-color: #333;
-            --primary-color: #999;
-            --hover-color: #777;
+            --text-color: #ffffff;
+            --primary-color: #0078d4;
+            --secondary-color: #6c757d;
+            --light-gray: #2a2a2a;
+            --border-color: #444;
+            --chat-bg: #2a2a2a;
+            --system-msg-bg: #1a1a1a;
+            --user-msg-bg: #0078d4;
+            --user-msg-text: #fff;
+            --input-bg: #2a2a2a;
+            --input-border: #444;
+            --button-hover: #005ea2;
+            --progress-bg: #2a2a2a;
+            --progress-fill: #0078d4;
+            --chat-header-bg: #0078d4;
+            --chat-header-text: #fff;
         }
 
-        /* Header Layout */
+        body {
+            font-family: "Montserrat", sans-serif;
+        }
+
+        /* Header Layout Styles */
         .thematic-header {
             display: flex;
             justify-content: space-between;
@@ -43,9 +69,261 @@
             top: 0;
             left: 0;
             right: 0;
-            background: var(--bg-color);
-            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-color, #f5f5f5);
+            border-bottom: 1px solid var(--border-color, #ddd);
             z-index: 100;
+            transition: background 0.3s ease, border-color 0.3s ease;
+        }
+
+        body.dark-mode .thematic-header {
+            background: var(--bg-color, #1a1a1a);
+            border-bottom: 1px solid var(--border-color, #444);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .header-center {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            pointer-events: none;
+        }
+
+        .header-center .logo {
+            pointer-events: auto;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            justify-content: flex-end;
+        }
+
+        /* Logo Styles */
+        .logo a {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-color, #333);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        body.dark-mode .logo a {
+            color: #ffffff;
+        }
+
+        .logo a:hover {
+            color: var(--primary-color, #0078d4);
+        }
+
+        /* Auth System Styles */
+        .auth-buttons {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            position: relative;
+            z-index: 10000;
+        }
+
+        .auth-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: transparent;
+            color: #666;
+        }
+
+        .auth-btn:hover {
+            color: var(--primary-color, #0078d4);
+            transform: translateY(-2px);
+        }
+
+        .auth-btn.primary {
+            background: var(--primary-color, #0078d4);
+            color: white;
+        }
+
+        .auth-btn.primary:hover {
+            background: var(--button-hover, #005ea2);
+        }
+
+        /* User Info & Dropdown */
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(102, 102, 102, 0.1);
+            border-radius: 20px;
+            border: 1px solid rgba(102, 102, 102, 0.2);
+            color: #666;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .user-info:hover {
+            background: rgba(102, 102, 102, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .user-avatar {
+            width: 24px;
+            height: 24px;
+            background: #666;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        .user-dropdown {
+            position: relative;
+            z-index: 10000;
+        }
+
+        .user-dropdown-content {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: var(--chat-bg, #fff);
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            min-width: 150px;
+            transform: translateY(-20px);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 999999;
+        }
+
+        .user-dropdown-content.show {
+            transform: translateY(0);
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .user-dropdown-content a,
+        .user-dropdown-content button {
+            display: block;
+            width: 100%;
+            padding: 12px 16px;
+            color: var(--text-color, #333);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border: none;
+            background: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+
+        .user-dropdown-content a:hover,
+        .user-dropdown-content button:hover {
+            background: var(--light-gray, #f5f5f5);
+        }
+
+        /* Dark Mode Toggle */
+        .theme-toggle {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: white;
+            color: black;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+        }
+
+        body.dark-mode .theme-toggle {
+            background: black;
+            color: white;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .thematic-header {
+                padding: 10px 15px;
+            }
+            
+            .header-left {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+            
+            .header-right {
+                gap: 0.5rem;
+            }
+            
+            .auth-buttons {
+                gap: 0.5rem;
+                margin-right: 0;
+            }
+            
+            .auth-btn {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.8rem;
+            }
+            
+            .user-info {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.8rem;
+            }
+            
+            .user-avatar {
+                width: 20px;
+                height: 20px;
+                font-size: 0.7rem;
+            }
+            
+            .theme-toggle {
+                width: 45px;
+                height: 45px;
+                font-size: 1.1rem;
+            }
+            
+            .user-dropdown-content {
+                top: 70px;
+                left: 15px;
+                right: auto;
+                min-width: 120px;
+            }
+            
+            .user-dropdown-content a,
+            .user-dropdown-content button {
+                padding: 10px 12px;
+                font-size: 0.8rem;
+            }
         }
 
         .header-left {
@@ -92,87 +370,6 @@
             color: var(--primary-color, #0078d4);
         }
 
-        /* Menu Toggle Button */
-        .menu-toggle {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 35px;
-            height: 35px;
-            background: #333;
-            border: none;
-            border-radius: 8px;
-            color: #fff;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 14px;
-        }
-
-        .menu-toggle:hover {
-            background: #555;
-            transform: scale(1.05);
-        }
-
-        .menu-toggle:active {
-            transform: scale(0.95);
-        }
-
-        .menu-toggle:focus {
-            outline: 2px solid var(--primary-color, #0078d4);
-            outline-offset: 2px;
-        }
-
-        /* Header Links */
-        .header-links {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.8);
-            z-index: 99999;
-            width: 100vw;
-            height: 100vh;
-            display: none;
-        }
-
-        .header-links.show {
-            display: block;
-        }
-
-        .header-links-content {
-            position: absolute;
-            top: 80px;
-            right: 20px;
-            background: var(--chat-bg, #fff);
-            border-radius: 12px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-            min-width: 180px;
-            transform: translateY(-20px);
-            opacity: 0;
-            transition: all 0.3s ease;
-        }
-
-        .header-links.show .header-links-content {
-            transform: translateY(0);
-            opacity: 1;
-        }
-
-        .header-links a {
-            display: block;
-            padding: 10px 15px;
-            color: var(--text-color, #333);
-            text-decoration: none;
-            font-size: 0.9rem;
-            font-weight: 500;
-            border-bottom: 1px solid var(--border-color, #ddd);
-            transition: all 0.3s ease;
-        }
-
-        .header-links a:hover {
-            background: var(--light-gray, #f5f5f5);
-            transform: translateX(5px);
-        }
 
         /* Auth System Styles */
         .auth-buttons {
@@ -505,90 +702,7 @@
             text-transform: capitalize;
         }
 
-        .tool-card {
-            background: #f8f9fa;
-            border-radius: 12px;
-            padding: 1rem;
-            border: 1px solid #e9ecef;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
 
-        .tool-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 4px;
-            height: 100%;
-            background: #666;
-            transition: width 0.3s ease;
-        }
-
-        .tool-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-        }
-
-        .tool-card:hover::before {
-            width: 8px;
-        }
-
-        .tool-card-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 0.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .tool-card-title i {
-            color: #666;
-        }
-
-        .tool-card-description {
-            color: #666;
-            font-size: 0.9rem;
-            line-height: 1.4;
-            margin-bottom: 1rem;
-        }
-
-        .tool-card-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-top: 1rem;
-            border-top: 1px solid #e9ecef;
-            color: #999;
-            font-size: 0.8rem;
-        }
-
-        .tool-card-actions {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .tool-card-actions button {
-            background: none;
-            border: none;
-            color: #666;
-            cursor: pointer;
-            padding: 0.25rem;
-            border-radius: 4px;
-            transition: all 0.3s ease;
-        }
-
-        .tool-card-actions button:hover {
-            background: #f0f0f0;
-            color: #333;
-        }
-
-        .tool-card-actions button.liked {
-            color: #ff6b6b;
-        }
 
         .profile-container {
             max-width: 1200px;
@@ -768,59 +882,7 @@
             gap: 1rem;
         }
 
-        .spec-card {
-            background: #f8f9fa;
-            border-radius: 12px;
-            padding: 1rem;
-            border: 1px solid #e9ecef;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
 
-        .spec-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 4px;
-            height: 100%;
-            background: #666;
-            transition: width 0.3s ease;
-        }
-
-        .spec-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-            background: white;
-        }
-
-        .spec-card:hover::before {
-            width: 8px;
-        }
-
-        .spec-card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 1rem;
-            gap: 1rem;
-        }
-
-        .spec-card-title {
-            color: #333;
-            font-size: 1.3rem;
-            font-weight: 600;
-            margin: 0;
-            line-height: 1.4;
-            flex: 1;
-        }
-
-        .spec-card-actions {
-            display: flex;
-            gap: 0.5rem;
-            flex-shrink: 0;
-        }
 
         .btn-icon {
             background: none;
@@ -839,18 +901,108 @@
             color: #333;
         }
 
-        .spec-card-content {
-            color: #555;
-            line-height: 1.6;
-            margin-bottom: 1rem;
-            white-space: pre-wrap;
+        /* Linked button styling */
+        .btn-icon.linked {
+            color: #007bff !important;
+            background: rgba(0, 123, 255, 0.1);
         }
 
-        .spec-card-footer {
-            color: #888;
-            font-size: 0.85rem;
-            border-top: 1px solid #e9ecef;
-            padding-top: 0.5rem;
+        .btn-icon.linked:hover {
+            background: rgba(0, 123, 255, 0.2);
+            color: #0056b3 !important;
+        }
+
+
+        /* Tabbed Section Styles */
+        .tabbed-section {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        body.dark-mode .tabbed-section {
+            background: #2a2a2a;
+            border-color: #444;
+        }
+
+        .tab-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e0e0e0;
+            background: #f8f9fa;
+            padding: 0;
+        }
+
+        body.dark-mode .tab-header {
+            border-bottom-color: #444;
+            background: #333;
+        }
+
+        .tab-buttons {
+            display: flex;
+        }
+
+        .tab-button {
+            background: none;
+            border: none;
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            font-weight: 500;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tab-button:hover {
+            background: rgba(0, 0, 0, 0.05);
+            color: #333;
+        }
+
+        .tab-button.active {
+            color: #007bff;
+            border-bottom-color: #007bff;
+            background: rgba(0, 123, 255, 0.05);
+        }
+
+        body.dark-mode .tab-button {
+            color: #ccc;
+        }
+
+        body.dark-mode .tab-button:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        body.dark-mode .tab-button.active {
+            color: #4dabf7;
+            border-bottom-color: #4dabf7;
+            background: rgba(77, 171, 247, 0.1);
+        }
+
+        .tab-actions {
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .tab-content {
+            padding: 2rem;
+            min-height: 400px;
+        }
+
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
         }
 
         /* App Card Styles */
@@ -912,47 +1064,6 @@
             margin-bottom: 1rem;
         }
 
-        .app-status {
-            display: inline-block;
-            padding: 0.3rem 0.8rem;
-            border-radius: 15px;
-            font-size: 0.8rem;
-            font-weight: 500;
-            text-transform: capitalize;
-            margin-bottom: 0.5rem;
-        }
-
-        .app-status.planning {
-            background: #e3f2fd;
-            color: #1976d2;
-        }
-
-        .app-status.in-development {
-            background: #fff3e0;
-            color: #f57c00;
-        }
-
-        .app-status.testing {
-            background: #f3e5f5;
-            color: #7b1fa2;
-        }
-
-        .app-status.launched {
-            background: #e8f5e8;
-            color: #388e3c;
-        }
-
-        .app-version {
-            display: inline-block;
-            padding: 0.2rem 0.6rem;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            background: #f0f0f0;
-            color: #666;
-            margin-left: 0.5rem;
-            border: 1px solid #ddd;
-        }
 
         .app-description {
             color: #666;
@@ -961,37 +1072,6 @@
             margin-bottom: 1rem;
         }
 
-        .app-budget {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.5rem;
-        }
-
-        .budget-label {
-            font-size: 0.85rem;
-            color: #888;
-        }
-
-        .budget-amount {
-            font-weight: 600;
-            color: #333;
-        }
-
-        .budget-progress {
-            width: 100%;
-            height: 6px;
-            background: #e9ecef;
-            border-radius: 3px;
-            overflow: hidden;
-            margin-bottom: 0.5rem;
-        }
-
-        .budget-progress-bar {
-            height: 100%;
-            background: #666;
-            transition: width 0.3s ease;
-        }
 
         .app-card-footer {
             color: #888;
@@ -1003,45 +1083,27 @@
             align-items: center;
         }
 
-        /* App Statistics Styles */
-        .app-stats {
+        /* App Statistics Styles - Minimal */
+        .app-stats-minimal {
             display: flex;
-            gap: 1rem;
-            margin: 1rem 0;
-            padding: 0.75rem;
-            background: rgba(102, 102, 102, 0.05);
-            border-radius: 8px;
-            border: 1px solid rgba(102, 102, 102, 0.1);
+            gap: 1.5rem;
+            margin-top: 1rem;
+            padding: 0;
         }
 
-        .app-stat-item {
+        .app-stat-minimal {
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            flex: 1;
-        }
-
-        .app-stat-icon {
-            font-size: 1rem;
             color: #666;
+            font-size: 0.9rem;
         }
 
-        .app-stat-label {
-            font-size: 0.85rem;
-            color: #666;
-            font-weight: 500;
+        .app-stat-minimal i {
+            color: #007bff;
+            font-size: 0.8rem;
         }
 
-        .app-stat-value {
-            font-size: 1rem;
-            font-weight: 600;
-            color: #333;
-            background: rgba(102, 102, 102, 0.1);
-            padding: 0.25rem 0.5rem;
-            border-radius: 4px;
-            min-width: 24px;
-            text-align: center;
-        }
 
         .no-specs {
             text-align: center;
@@ -1391,50 +1453,16 @@
             border-color: #444;
         }
 
-        body.dark-mode .app-status.planning {
-            background: rgba(25, 118, 210, 0.2);
-            color: #64b5f6;
-        }
 
-        body.dark-mode .app-status.in-development {
-            background: rgba(245, 124, 0, 0.2);
-            color: #ffb74d;
-        }
-
-        body.dark-mode .app-status.testing {
-            background: rgba(123, 31, 162, 0.2);
-            color: #ba68c8;
-        }
-
-        body.dark-mode .app-status.launched {
-            background: rgba(56, 142, 60, 0.2);
-            color: #81c784;
-        }
-
-        body.dark-mode .app-version {
-            background: #444;
-            color: #999;
-            border-color: #555;
-        }
-
-        /* Dark Mode App Statistics */
-        body.dark-mode .app-stats {
-            background: rgba(102, 102, 102, 0.1);
-            border-color: rgba(102, 102, 102, 0.2);
-        }
-
-        body.dark-mode .app-stat-label {
+        /* Dark Mode App Statistics - Minimal */
+        body.dark-mode .app-stat-minimal {
             color: #999;
         }
 
-        body.dark-mode .app-stat-value {
-            color: #e0e0e0;
-            background: rgba(102, 102, 102, 0.2);
+        body.dark-mode .app-stat-minimal i {
+            color: #4dabf7;
         }
 
-        body.dark-mode .app-stat-icon {
-            color: #999;
-        }
 
         body.dark-mode .btn-icon {
             color: #999;
@@ -1624,16 +1652,6 @@
             <div class="auth-buttons" id="auth-buttons">
                 <!-- Will be populated by auth system -->
             </div>
-            <button class="menu-toggle" aria-label="Toggle navigation menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
-            <div class="header-links">
-                <div class="header-links-content">
-                    <a href="blog.html" aria-label="Visit our blog">Blog</a>
-                    <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
-                    <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
-                    <a href="map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
-                    <a href="ToolPicker.html" aria-label="Use our Tool Finder">Tool Finder</a>
-                </div>
-            </div>
         </div>
     </header>
 
@@ -1701,66 +1719,53 @@
             </div>
         </div>
 
-        <!-- User's Specs Section -->
+        <!-- User's Content Section (Tabbed) -->
         <div class="profile-specs-section">
             <div class="section-header">
-                <h3>My Specifications</h3>
-                <div class="section-actions">
-                    <a href="index.html" class="btn btn-outline-secondary">
-                        Back to Home
-                    </a>
-                    <input type="text" id="search-specs" placeholder="Search specifications..." class="search-input">
-                    <select id="sort-specs" class="sort-select">
-                        <option value="newest">Newest First</option>
-                        <option value="oldest">Oldest First</option>
-                        <option value="title">By Title</option>
-                    </select>
+                <h3>My Content</h3>
+            </div>
+            
+            <div class="tabbed-section">
+                <div class="tab-header">
+                    <div class="tab-buttons">
+                        <button class="tab-button active" onclick="switchProfileTab('specs')" data-tab="specs">
+                            <i class="fas fa-clipboard-list"></i> Specifications
+                        </button>
+                        <button class="tab-button" onclick="switchProfileTab('research')" data-tab="research">
+                            <i class="fas fa-search"></i> Market Research
+                        </button>
+                        <button class="tab-button" onclick="switchProfileTab('tools')" data-tab="tools">
+                            <i class="fas fa-wrench"></i> Saved Tools
+                        </button>
+                    </div>
+                    <div class="tab-actions" id="profile-tab-actions">
+                        <div class="action-buttons">
+                            <input type="text" id="search-content" placeholder="Search..." class="search-input" style="display: inline-block; width: 200px; margin-right: 1rem;">
+                            <select id="sort-content" class="sort-select" style="display: inline-block;">
+                                <option value="newest">Newest First</option>
+                                <option value="oldest">Oldest First</option>
+                                <option value="title">By Title</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
-            </div>
-
-            <div id="specs-container" class="specs-grid">
-                <div class="loading">Loading specifications...</div>
-            </div>
-        </div>
-
-        <!-- User's Market Research Section -->
-        <div class="profile-specs-section">
-            <div class="section-header">
-                <h3>My Market Research</h3>
-                <div class="section-actions">
-                    <input type="text" id="search-research" placeholder="Search research..." class="search-input">
-                    <select id="sort-research" class="sort-select">
-                        <option value="newest">Newest First</option>
-                        <option value="oldest">Oldest First</option>
-                        <option value="title">By Title</option>
-                    </select>
+                <div class="tab-content expanded">
+                    <div class="tab-pane active" id="specs-tab">
+                        <div id="specs-container" class="apps-grid">
+                            <div class="loading">Loading specifications...</div>
+                        </div>
+                    </div>
+                    <div class="tab-pane" id="research-tab">
+                        <div id="research-container" class="apps-grid">
+                            <div class="loading">Loading market research...</div>
+                        </div>
+                    </div>
+                    <div class="tab-pane" id="tools-tab">
+                        <div id="tools-container" class="apps-grid">
+                            <div class="loading">Loading tools...</div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-
-            <div id="research-container" class="specs-grid">
-                <div class="loading">Loading market research...</div>
-            </div>
-        </div>
-
-        <!-- User's Saved Tools Section -->
-        <div class="profile-specs-section">
-            <div class="section-header">
-                <h3>My Saved Tools</h3>
-                <div class="section-actions">
-                    <a href="map/vibe-coding-tools-map.html" class="btn btn-outline-secondary">
-                        <i class="fas fa-map"></i> Tools Map
-                    </a>
-                    <input type="text" id="search-tools" placeholder="Search tools..." class="search-input">
-                    <select id="sort-tools" class="sort-select">
-                        <option value="newest">Newest First</option>
-                        <option value="oldest">Oldest First</option>
-                        <option value="name">By Name</option>
-                        <option value="category">By Category</option>
-                    </select>
-                </div>
-            </div>
-            <div id="tools-container" class="tools-grid">
-                <div class="loading">Loading tools...</div>
             </div>
         </div>
 
@@ -1775,7 +1780,7 @@
           <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
           <a href="blog.html" aria-label="Visit our blog">Blog</a>
           <a href="map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
-          <a href="https://specifys-ai.com/ToolPicker" aria-label="Use our Tool Finder">Tool Finder</a>
+          <a href="ToolPicker.html" aria-label="Use our Tool Finder">Tool Finder</a>
           <!-- <button class="feedback-link" onclick="openFeedbackModal()" aria-label="Send feedback">Feedback</button> -->
         </div>
 <span class="footer-divider">|</span>
@@ -1799,121 +1804,153 @@
 
     <!-- Header and Theme JavaScript -->
     <script>
-        // Theme Toggle Functionality
-        function initializeThemeToggle() {
-            const themeToggle = document.getElementById('themeToggle');
+        // Basic header functionality
+        document.addEventListener('DOMContentLoaded', function() {
             
+            // Theme toggle
+            const themeToggle = document.getElementById('themeToggle');
             if (themeToggle) {
-                themeToggle.addEventListener('click', () => {
-                    document.body.classList.toggle('dark-mode');
-                    const isDarkMode = document.body.classList.contains('dark-mode');
-                    
-                    // Update icon
-                    const icon = themeToggle.querySelector('i');
-                    if (icon) {
-                        icon.classList.toggle('fa-moon', !isDarkMode);
-                        icon.classList.toggle('fa-sun', isDarkMode);
-                    }
-                    
-                    // Update aria-label
-                    themeToggle.setAttribute('aria-label', isDarkMode ? 'Toggle light mode' : 'Toggle dark mode');
-                    
-                    // Save to localStorage
-                    localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
-                });
-            }
-        }
-
-        // Menu Toggle Functionality
-        function initializeMenuToggle() {
-            const menuToggle = document.querySelector('.menu-toggle');
-            const headerLinks = document.querySelector('.header-links');
-            
-            if (menuToggle && headerLinks) {
-                menuToggle.addEventListener('click', function(event) {
+                themeToggle.addEventListener('click', function(event) {
                     event.stopPropagation();
-                    if (headerLinks.classList.contains('show')) {
-                        headerLinks.classList.remove('show');
-                        menuToggle.setAttribute('aria-expanded', 'false');
+                    const body = document.body;
+                    const icon = themeToggle.querySelector('i');
+                    
+                    if (body.classList.contains('dark-mode')) {
+                        body.classList.remove('dark-mode');
+                        icon.className = 'fas fa-moon';
+                        localStorage.setItem('darkMode', 'false');
                     } else {
-                        headerLinks.classList.add('show');
-                        menuToggle.setAttribute('aria-expanded', 'true');
-                    }
-                });
-                
-                // Close menu when clicking outside
-                document.addEventListener('click', function(event) {
-                    if (headerLinks && headerLinks.classList.contains('show') && 
-                        !menuToggle.contains(event.target) && !headerLinks.contains(event.target)) {
-                        headerLinks.classList.remove('show');
-                        menuToggle.setAttribute('aria-expanded', 'false');
-                    }
-                });
-                
-                // Close menu when clicking on the overlay background
-                document.addEventListener('click', function(event) {
-                    if (headerLinks && headerLinks.classList.contains('show') && 
-                        event.target === headerLinks) {
-                        headerLinks.classList.remove('show');
-                        menuToggle.setAttribute('aria-expanded', 'false');
+                        body.classList.add('dark-mode');
+                        icon.className = 'fas fa-sun';
+                        localStorage.setItem('darkMode', 'true');
                     }
                 });
             }
-        }
-
-        // Scroll to Top Functionality
-        function initializeScrollToTop() {
-            const scrollToTop = document.getElementById('scrollToTop');
-            if (scrollToTop) {
-                // Show/hide button based on scroll position
-                window.addEventListener('scroll', () => {
-                    if (window.scrollY > 200) {
-                        scrollToTop.style.display = 'flex';
-                    } else {
-                        scrollToTop.style.display = 'none';
-                    }
-                });
-                
-                // Scroll to top when clicked
-                scrollToTop.addEventListener('click', () => {
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                });
-            }
-        }
-
-        // Load Saved Theme
-        function loadSavedTheme() {
-            const savedTheme = localStorage.getItem('theme');
-            const themeToggle = document.getElementById('themeToggle');
             
-            if (savedTheme === 'dark') {
+            // Load saved theme
+            const savedTheme = localStorage.getItem('darkMode');
+            if (savedTheme === 'true') {
                 document.body.classList.add('dark-mode');
+                const themeToggle = document.getElementById('themeToggle');
                 if (themeToggle) {
                     const icon = themeToggle.querySelector('i');
-                    if (icon) {
-                        icon.classList.replace('fa-moon', 'fa-sun');
-                    }
-                    themeToggle.setAttribute('aria-label', 'Toggle light mode');
+                    icon.className = 'fas fa-sun';
                 }
-            } else {
-                document.body.classList.remove('dark-mode');
-                if (themeToggle) {
-                    const icon = themeToggle.querySelector('i');
-                    if (icon) {
-                        icon.classList.replace('fa-sun', 'fa-moon');
-                    }
-                    themeToggle.setAttribute('aria-label', 'Toggle dark mode');
-                }
-                localStorage.setItem('theme', 'light');
             }
-        }
+            
+        });
 
-        // Initialize everything when DOM is loaded
-        document.addEventListener('DOMContentLoaded', () => {
-            initializeThemeToggle();
-            initializeMenuToggle();
-            initializeScrollToTop();
-            loadSavedTheme();
+        // Global functions for user dropdown
+        window.toggleUserDropdown = function() {
+            const dropdown = document.querySelector('.user-dropdown-content');
+            if (dropdown && dropdown.classList.contains('show')) {
+                dropdown.classList.remove('show');
+            } else if (dropdown) {
+                dropdown.classList.add('show');
+            }
+        };
+
+        // Close user dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const userDropdown = document.querySelector('.user-dropdown');
+            const userInfo = document.querySelector('.user-info');
+            const dropdown = document.querySelector('.user-dropdown-content');
+            
+            if (userDropdown && dropdown && dropdown.classList.contains('show') && 
+                !userInfo.contains(event.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+
+        // Initialize auth buttons with default state
+        document.addEventListener('DOMContentLoaded', function() {
+            const authButtons = document.getElementById('auth-buttons');
+            if (authButtons && !authButtons.innerHTML.trim()) {
+                authButtons.innerHTML = `
+                    <button class="auth-btn login-btn">Login</button>
+                `;
+                
+                const loginBtn = authButtons.querySelector('.login-btn');
+                if (loginBtn) {
+                    loginBtn.addEventListener('click', function(event) {
+                        event.stopPropagation();
+                        window.location.href = 'auth.html';
+                    });
+                }
+            }
+        });
+
+        // Firebase Auth System
+        document.addEventListener('DOMContentLoaded', function() {
+            // Firebase configuration
+            const firebaseConfig = {
+                apiKey: "AIzaSyB9hr0IWM4EREzkKDxBxYoYinV6LJXWXV4",
+                authDomain: "specify-ai.firebaseapp.com",
+                projectId: "specify-ai",
+                storageBucket: "specify-ai.firebasestorage.app",
+                messagingSenderId: "734278787482",
+                appId: "1:734278787482:web:0e312fb6f197e849695a23",
+                measurementId: "G-4YR9LK63MR"
+            };
+
+            // Initialize Firebase
+            firebase.initializeApp(firebaseConfig);
+            const auth = firebase.auth();
+            const db = firebase.firestore();
+
+            // Update auth UI function
+            function updateAuthUI(user) {
+                const authButtons = document.getElementById('auth-buttons');
+                
+                if (user) {
+                    // User is logged in
+                    const displayName = user.displayName || user.email.split('@')[0];
+                    const firstLetter = displayName.charAt(0).toUpperCase();
+                    
+                    authButtons.innerHTML = `
+                        <div class="user-dropdown">
+                            <div class="user-info" onclick="toggleUserDropdown()">
+                                <div class="user-avatar">${firstLetter}</div>
+                                <span>${displayName}</span>
+                            </div>
+                            <div class="user-dropdown-content">
+                                <a href="profile.html">Profile</a>
+                                <button onclick="logout()">Sign Out</button>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    // User is not logged in
+                    authButtons.innerHTML = `
+                        <button class="auth-btn" onclick="showLoginModal()">Login</button>
+                        <button class="auth-btn primary" onclick="showRegisterModal()">Register</button>
+                    `;
+                }
+            }
+
+            // Global functions
+            window.showLoginModal = function() {
+                window.location.href = 'auth.html';
+            };
+
+            window.showRegisterModal = function() {
+                window.location.href = 'auth.html';
+            };
+
+            window.logout = function() {
+                auth.signOut()
+                    .then(() => {
+                        console.log('Logged out successfully');
+                    })
+                    .catch(error => {
+                        console.error('Error logging out:', error);
+                    });
+            };
+
+            // Listen to auth state changes
+            auth.onAuthStateChanged((user) => {
+                updateAuthUI(user);
+            });
         });
     </script>
 
@@ -2023,14 +2060,19 @@
                 userApps = [];
                 
                 querySnapshot.forEach((doc) => {
-                    userApps.push({
+                    const appData = {
                         id: doc.id,
                         ...doc.data()
-                    });
+                    };
+                    console.log('📱 Loaded app:', appData.name, 'linkedSpecs:', appData.linkedSpecs, 'linkedResearch:', appData.linkedResearch);
+                    userApps.push(appData);
                 });
                 
                 document.getElementById('apps-count').textContent = userApps.length;
                 renderApps();
+                
+                // Update button appearance after loading apps
+                setTimeout(updateLinkButtonAppearance, 200);
             } catch (error) {
                 console.error('Error loading apps:', error);
                 document.getElementById('apps-container').innerHTML = '<div class="error">Error loading apps</div>';
@@ -2060,6 +2102,7 @@
                 
                 document.getElementById('specs-count').textContent = userSpecs.length;
                 renderSpecs();
+                setTimeout(updateLinkButtonAppearance, 100);
             } catch (error) {
                 console.error('Error loading specs:', error);
                 document.getElementById('specs-container').innerHTML = '<div class="error">Error loading specifications</div>';
@@ -2140,6 +2183,7 @@
                 
                 document.getElementById('research-count').textContent = userMarketResearch.length;
                 renderMarketResearch();
+                setTimeout(updateLinkButtonAppearance, 100);
             } catch (error) {
                 console.error('Error loading market research:', error);
                 document.getElementById('research-count').textContent = '0';
@@ -2163,22 +2207,29 @@
             }
 
             toolsContainer.innerHTML = tools.map(tool => `
-                <div class="tool-card">
-                    <div class="tool-card-title">
-                        <i class="fas fa-wrench"></i>
-                        ${tool.name || 'Unknown Tool'}
-                    </div>
-                    <div class="tool-card-description">
-                        ${tool.description || 'No description available'}
-                    </div>
-                    <div class="tool-card-footer">
-                        <span>Saved on ${new Date(tool.addedAt).toLocaleDateString()}</span>
-                        <div class="tool-card-actions">
-                            <button onclick="removeSavedTool('${tool.id}')" title="Remove from saved tools">
+                <div class="app-card" data-tool-id="${tool.id}">
+                    <div class="app-card-header">
+                        <h4 class="app-card-title">
+                            <span class="spec-link">${tool.name || 'Unknown Tool'}</span>
+                        </h4>
+                        <div class="app-card-actions">
+                            <button class="btn-icon" onclick="removeSavedTool('${tool.id}')" title="Remove from saved tools">
                                 <i class="fas fa-trash"></i>
                             </button>
-                            ${tool.link && tool.link !== '#' ? `<button onclick="window.open('${tool.link}', '_blank')" title="Visit tool website"><i class="fas fa-external-link-alt"></i></button>` : ''}
+                            ${tool.link && tool.link !== '#' ? `<button class="btn-icon" onclick="window.open('${tool.link}', '_blank')" title="Visit tool website"><i class="fas fa-external-link-alt"></i></button>` : ''}
                         </div>
+                    </div>
+                    <div class="app-card-content">
+                        <div class="app-description">${tool.description || 'No description available'}</div>
+                        <div class="app-stats-minimal">
+                            <div class="app-stat-minimal">
+                                <i class="fas fa-wrench"></i>
+                                <span>Tool</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="app-card-footer">
+                        <small>Saved: ${new Date(tool.addedAt).toLocaleDateString()}</small>
                     </div>
                 </div>
             `).join('');
@@ -2203,8 +2254,6 @@
             }
             
             appsContainer.innerHTML = userApps.map(app => {
-                const budgetPercentage = app.budget > 0 ? (app.spent / app.budget) * 100 : 0;
-                const statusClass = app.status?.toLowerCase().replace(' ', '-') || 'planning';
                 const specsCount = app.linkedSpecs ? app.linkedSpecs.length : 0;
                 const researchCount = app.linkedResearch ? app.linkedResearch.length : 0;
                 
@@ -2224,37 +2273,22 @@
                             </div>
                         </div>
                         <div class="app-card-content">
-                            <span class="app-status ${statusClass}">${app.status || 'Planning'}</span>
-                            <span class="app-version">v${app.version || '1'}</span>
                             <div class="app-description">${app.description || 'No description available'}</div>
                             
-                            <!-- App Statistics -->
-                            <div class="app-stats">
-                                <div class="app-stat-item">
-                                    <i class="fas fa-file-alt app-stat-icon"></i>
-                                    <span class="app-stat-label">Specs:</span>
-                                    <span class="app-stat-value">${specsCount}</span>
+                            <!-- App Statistics - Simplified -->
+                            <div class="app-stats-minimal">
+                                <div class="app-stat-minimal">
+                                    <i class="fas fa-file-alt"></i>
+                                    <span>${specsCount} Specs</span>
                                 </div>
-                                <div class="app-stat-item">
-                                    <i class="fas fa-search app-stat-icon"></i>
-                                    <span class="app-stat-label">Research:</span>
-                                    <span class="app-stat-value">${researchCount}</span>
+                                <div class="app-stat-minimal">
+                                    <i class="fas fa-search"></i>
+                                    <span>${researchCount} Research</span>
                                 </div>
-                            </div>
-                            
-                            <div class="app-budget">
-                                <span class="budget-label">Budget:</span>
-                                <span class="budget-amount">$${app.spent || 0} / $${app.budget || 0}</span>
-                            </div>
-                            <div class="budget-progress">
-                                <div class="budget-progress-bar" style="width: ${budgetPercentage}%"></div>
                             </div>
                         </div>
                         <div class="app-card-footer">
                             <small>Created: ${new Date(app.createdAt?.toDate?.() || app.createdAt).toLocaleDateString('en-US')}</small>
-                            <button class="btn-icon" onclick="openAppDashboard('${app.id}')" title="Open Dashboard">
-                                <i class="fas fa-chart-bar"></i>
-                            </button>
                         </div>
                     </div>
                 `;
@@ -2280,13 +2314,13 @@
             }
             
             specsContainer.innerHTML = userSpecs.map(spec => `
-                <div class="spec-card" data-spec-id="${spec.id}">
-                    <div class="spec-card-header">
-                        <h4 class="spec-card-title">
+                <div class="app-card" data-spec-id="${spec.id}">
+                    <div class="app-card-header">
+                        <h4 class="app-card-title">
                             <a href="spec.html?id=${spec.id}" class="spec-link">${spec.title}</a>
                         </h4>
-                        <div class="spec-card-actions">
-                            <button class="btn-icon" onclick="linkSpecToApp('${spec.id}')" title="Link to App">
+                        <div class="app-card-actions">
+                            <button class="btn-icon link-spec-btn" data-spec-id="${spec.id}" title="Link to App">
                                 <i class="fas fa-link"></i>
                             </button>
                             <button class="btn-icon" onclick="editSpecCard('${spec.id}')" title="Edit">
@@ -2297,14 +2331,23 @@
                             </button>
                         </div>
                     </div>
-                    <div class="spec-card-content">
-                        <!-- Mode badge removed as requested -->
+                    <div class="app-card-content">
+                        <div class="app-description">Specification document with detailed requirements and features</div>
+                        <div class="app-stats-minimal">
+                            <div class="app-stat-minimal">
+                                <i class="fas fa-file-alt"></i>
+                                <span>Specification</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="spec-card-footer">
+                    <div class="app-card-footer">
                         <small>Created: ${new Date(spec.createdAt?.toDate?.() || spec.createdAt).toLocaleDateString('en-US')}</small>
                     </div>
                 </div>
             `).join('');
+            
+            // Update link button appearance after rendering specs
+            setTimeout(updateLinkButtonAppearance, 50);
         }
 
         // Render market research in grid layout
@@ -2326,13 +2369,13 @@
             }
             
             researchContainer.innerHTML = userMarketResearch.map(research => `
-                <div class="spec-card" data-research-id="${research.id}">
-                    <div class="spec-card-header">
-                        <h4 class="spec-card-title">
+                <div class="app-card" data-research-id="${research.id}">
+                    <div class="app-card-header">
+                        <h4 class="app-card-title">
                             <a href="research.html?id=${research.id}" class="spec-link">${research.title}</a>
                         </h4>
-                        <div class="spec-card-actions">
-                            <button class="btn-icon" onclick="linkResearchToApp('${research.id}')" title="Link to App">
+                        <div class="app-card-actions">
+                            <button class="btn-icon link-research-btn" data-research-id="${research.id}" title="Link to App">
                                 <i class="fas fa-link"></i>
                             </button>
                             <button class="btn-icon" onclick="editResearchCard('${research.id}')" title="Edit">
@@ -2343,14 +2386,23 @@
                             </button>
                         </div>
                     </div>
-                    <div class="spec-card-content">
-                        <!-- Research content preview -->
+                    <div class="app-card-content">
+                        <div class="app-description">Market research analysis with insights and recommendations</div>
+                        <div class="app-stats-minimal">
+                            <div class="app-stat-minimal">
+                                <i class="fas fa-search"></i>
+                                <span>Market Research</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="spec-card-footer">
+                    <div class="app-card-footer">
                         <small>Created: ${new Date(research.createdAt?.toDate?.() || research.createdAt).toLocaleDateString('en-US')}</small>
                     </div>
                 </div>
             `).join('');
+            
+            // Update link button appearance after rendering market research
+            setTimeout(updateLinkButtonAppearance, 50);
         }
 
         // Search functionality for apps
@@ -2364,35 +2416,35 @@
             renderFilteredApps(filteredApps);
         });
 
-        // Search functionality for specs
-        document.getElementById('search-specs').addEventListener('input', (e) => {
+        // Search functionality for tabbed content
+        document.getElementById('search-content').addEventListener('input', (e) => {
             const searchTerm = e.target.value.toLowerCase();
-            const filteredSpecs = userSpecs.filter(spec => 
-                spec.title.toLowerCase().includes(searchTerm) ||
-                spec.content.toLowerCase().includes(searchTerm)
-            );
-            renderFilteredSpecs(filteredSpecs);
-        });
-
-        // Search functionality for research
-        document.getElementById('search-research').addEventListener('input', (e) => {
-            const searchTerm = e.target.value.toLowerCase();
-            const filteredResearch = userMarketResearch.filter(research => 
-                research.title.toLowerCase().includes(searchTerm) ||
-                (research.content && research.content.toLowerCase().includes(searchTerm))
-            );
-            renderFilteredResearch(filteredResearch);
-        });
-
-        // Search functionality for tools
-        document.getElementById('search-tools').addEventListener('input', (e) => {
-            const searchTerm = e.target.value.toLowerCase();
-            const filteredTools = userSavedTools.filter(tool => 
-                tool.name.toLowerCase().includes(searchTerm) ||
-                (tool.description && tool.description.toLowerCase().includes(searchTerm)) ||
-                (tool.category && tool.category.toLowerCase().includes(searchTerm))
-            );
-            renderFilteredTools(filteredTools);
+            const activeTab = document.querySelector('.tab-button.active').getAttribute('data-tab');
+            
+            switch(activeTab) {
+                case 'specs':
+                    const filteredSpecs = userSpecs.filter(spec => 
+                        spec.title.toLowerCase().includes(searchTerm) ||
+                        (spec.content && spec.content.toLowerCase().includes(searchTerm))
+                    );
+                    renderFilteredSpecs(filteredSpecs);
+                    break;
+                case 'research':
+                    const filteredResearch = userMarketResearch.filter(research => 
+                        research.title.toLowerCase().includes(searchTerm) ||
+                        (research.content && research.content.toLowerCase().includes(searchTerm))
+                    );
+                    renderFilteredResearch(filteredResearch);
+                    break;
+                case 'tools':
+                    const filteredTools = userSavedTools.filter(tool => 
+                        tool.name.toLowerCase().includes(searchTerm) ||
+                        (tool.description && tool.description.toLowerCase().includes(searchTerm)) ||
+                        (tool.category && tool.category.toLowerCase().includes(searchTerm))
+                    );
+                    renderFilteredTools(filteredTools);
+                    break;
+            }
         });
 
         // Sort functionality for apps
@@ -2418,67 +2470,63 @@
             renderFilteredApps(sortedApps);
         });
 
-        // Sort functionality for specs
-        document.getElementById('sort-specs').addEventListener('change', (e) => {
+        // Sort functionality for tabbed content
+        document.getElementById('sort-content').addEventListener('change', (e) => {
             const sortBy = e.target.value;
-            const sortedSpecs = [...userSpecs];
+            const activeTab = document.querySelector('.tab-button.active').getAttribute('data-tab');
             
-            switch(sortBy) {
-                case 'newest':
-                    sortedSpecs.sort((a, b) => new Date(b.createdAt?.toDate?.() || b.createdAt) - new Date(a.createdAt?.toDate?.() || a.createdAt));
+            switch(activeTab) {
+                case 'specs':
+                    const sortedSpecs = [...userSpecs];
+                    switch(sortBy) {
+                        case 'newest':
+                            sortedSpecs.sort((a, b) => new Date(b.createdAt?.toDate?.() || b.createdAt) - new Date(a.createdAt?.toDate?.() || a.createdAt));
+                            break;
+                        case 'oldest':
+                            sortedSpecs.sort((a, b) => new Date(a.createdAt?.toDate?.() || a.createdAt) - new Date(b.createdAt?.toDate?.() || b.createdAt));
+                            break;
+                        case 'title':
+                            sortedSpecs.sort((a, b) => a.title.localeCompare(b.title));
+                            break;
+                    }
+                    renderFilteredSpecs(sortedSpecs);
                     break;
-                case 'oldest':
-                    sortedSpecs.sort((a, b) => new Date(a.createdAt?.toDate?.() || a.createdAt) - new Date(b.createdAt?.toDate?.() || b.createdAt));
+                    
+                case 'research':
+                    const sortedResearch = [...userMarketResearch];
+                    switch(sortBy) {
+                        case 'newest':
+                            sortedResearch.sort((a, b) => new Date(b.createdAt?.toDate?.() || b.createdAt) - new Date(a.createdAt?.toDate?.() || a.createdAt));
+                            break;
+                        case 'oldest':
+                            sortedResearch.sort((a, b) => new Date(a.createdAt?.toDate?.() || a.createdAt) - new Date(b.createdAt?.toDate?.() || b.createdAt));
+                            break;
+                        case 'title':
+                            sortedResearch.sort((a, b) => a.title.localeCompare(b.title));
+                            break;
+                    }
+                    renderFilteredResearch(sortedResearch);
                     break;
-                case 'title':
-                    sortedSpecs.sort((a, b) => a.title.localeCompare(b.title));
+                    
+                case 'tools':
+                    const sortedTools = [...userSavedTools];
+                    switch(sortBy) {
+                        case 'newest':
+                            sortedTools.sort((a, b) => new Date(b.addedAt) - new Date(a.addedAt));
+                            break;
+                        case 'oldest':
+                            sortedTools.sort((a, b) => new Date(a.addedAt) - new Date(b.addedAt));
+                            break;
+                        case 'name':
+                            sortedTools.sort((a, b) => a.name.localeCompare(b.name));
+                            break;
+                        case 'category':
+                            sortedTools.sort((a, b) => (a.category || '').localeCompare(b.category || ''));
+                            break;
+                    }
+                    renderFilteredTools(sortedTools);
                     break;
             }
-            
-            renderFilteredSpecs(sortedSpecs);
-        });
-
-        // Sort functionality for research
-        document.getElementById('sort-research').addEventListener('change', (e) => {
-            const sortBy = e.target.value;
-            const sortedResearch = [...userMarketResearch];
-            
-            switch(sortBy) {
-                case 'newest':
-                    sortedResearch.sort((a, b) => new Date(b.createdAt?.toDate?.() || b.createdAt) - new Date(a.createdAt?.toDate?.() || a.createdAt));
-                    break;
-                case 'oldest':
-                    sortedResearch.sort((a, b) => new Date(a.createdAt?.toDate?.() || a.createdAt) - new Date(b.createdAt?.toDate?.() || b.createdAt));
-                    break;
-                case 'title':
-                    sortedResearch.sort((a, b) => a.title.localeCompare(b.title));
-                    break;
-            }
-            
-            renderFilteredResearch(sortedResearch);
-        });
-
-        // Sort functionality for tools
-        document.getElementById('sort-tools').addEventListener('change', (e) => {
-            const sortBy = e.target.value;
-            const sortedTools = [...userSavedTools];
-            
-            switch(sortBy) {
-                case 'newest':
-                    sortedTools.sort((a, b) => new Date(b.addedAt) - new Date(a.addedAt));
-                    break;
-                case 'oldest':
-                    sortedTools.sort((a, b) => new Date(a.addedAt) - new Date(b.addedAt));
-                    break;
-                case 'name':
-                    sortedTools.sort((a, b) => a.name.localeCompare(b.name));
-                    break;
-                case 'category':
-                    sortedTools.sort((a, b) => (a.category || '').localeCompare(b.category || ''));
-                    break;
-            }
-            
-            renderFilteredTools(sortedTools);
         });
 
         function renderFilteredApps(apps) {
@@ -2490,8 +2538,6 @@
             }
             
             appsContainer.innerHTML = apps.map(app => {
-                const budgetPercentage = app.budget > 0 ? (app.spent / app.budget) * 100 : 0;
-                const statusClass = app.status?.toLowerCase().replace(' ', '-') || 'planning';
                 const specsCount = app.linkedSpecs ? app.linkedSpecs.length : 0;
                 const researchCount = app.linkedResearch ? app.linkedResearch.length : 0;
                 
@@ -2511,37 +2557,22 @@
                             </div>
                         </div>
                         <div class="app-card-content">
-                            <span class="app-status ${statusClass}">${app.status || 'Planning'}</span>
-                            <span class="app-version">v${app.version || '1'}</span>
                             <div class="app-description">${app.description || 'No description available'}</div>
                             
-                            <!-- App Statistics -->
-                            <div class="app-stats">
-                                <div class="app-stat-item">
-                                    <i class="fas fa-file-alt app-stat-icon"></i>
-                                    <span class="app-stat-label">Specs:</span>
-                                    <span class="app-stat-value">${specsCount}</span>
+                            <!-- App Statistics - Simplified -->
+                            <div class="app-stats-minimal">
+                                <div class="app-stat-minimal">
+                                    <i class="fas fa-file-alt"></i>
+                                    <span>${specsCount} Specs</span>
                                 </div>
-                                <div class="app-stat-item">
-                                    <i class="fas fa-search app-stat-icon"></i>
-                                    <span class="app-stat-label">Research:</span>
-                                    <span class="app-stat-value">${researchCount}</span>
+                                <div class="app-stat-minimal">
+                                    <i class="fas fa-search"></i>
+                                    <span>${researchCount} Research</span>
                                 </div>
-                            </div>
-                            
-                            <div class="app-budget">
-                                <span class="budget-label">Budget:</span>
-                                <span class="budget-amount">$${app.spent || 0} / $${app.budget || 0}</span>
-                            </div>
-                            <div class="budget-progress">
-                                <div class="budget-progress-bar" style="width: ${budgetPercentage}%"></div>
                             </div>
                         </div>
                         <div class="app-card-footer">
                             <small>Created: ${new Date(app.createdAt?.toDate?.() || app.createdAt).toLocaleDateString('en-US')}</small>
-                            <button class="btn-icon" onclick="openAppDashboard('${app.id}')" title="Open Dashboard">
-                                <i class="fas fa-chart-bar"></i>
-                            </button>
                         </div>
                     </div>
                 `;
@@ -2563,7 +2594,7 @@
                             <a href="spec.html?id=${spec.id}" class="spec-link">${spec.title}</a>
                         </h4>
                         <div class="spec-card-actions">
-                            <button class="btn-icon" onclick="linkSpecToApp('${spec.id}')" title="Link to App">
+                            <button class="btn-icon link-spec-btn" data-spec-id="${spec.id}" title="Link to App">
                                 <i class="fas fa-link"></i>
                             </button>
                             <button class="btn-icon" onclick="editSpecCard('${spec.id}')" title="Edit">
@@ -2599,7 +2630,7 @@
                             <a href="research.html?id=${research.id}" class="spec-link">${research.title}</a>
                         </h4>
                         <div class="spec-card-actions">
-                            <button class="btn-icon" onclick="linkResearchToApp('${research.id}')" title="Link to App">
+                            <button class="btn-icon link-research-btn" data-research-id="${research.id}" title="Link to App">
                                 <i class="fas fa-link"></i>
                             </button>
                             <button class="btn-icon" onclick="editResearchCard('${research.id}')" title="Edit">
@@ -2629,31 +2660,41 @@
             }
 
             toolsContainer.innerHTML = tools.map(tool => `
-                <div class="tool-card">
-                    <div class="tool-card-title">
-                        <i class="fas fa-wrench"></i>
-                        ${tool.name || 'Unknown Tool'}
-                    </div>
-                    <div class="tool-card-description">
-                        ${tool.description || 'No description available'}
-                    </div>
-                    <div class="tool-card-footer">
-                        <span>Saved on ${new Date(tool.addedAt).toLocaleDateString()}</span>
-                        <div class="tool-card-actions">
-                            <button onclick="removeSavedTool('${tool.id}')" title="Remove from saved tools">
+                <div class="app-card" data-tool-id="${tool.id}">
+                    <div class="app-card-header">
+                        <h4 class="app-card-title">
+                            <span class="spec-link">${tool.name || 'Unknown Tool'}</span>
+                        </h4>
+                        <div class="app-card-actions">
+                            <button class="btn-icon" onclick="removeSavedTool('${tool.id}')" title="Remove from saved tools">
                                 <i class="fas fa-trash"></i>
                             </button>
-                            ${tool.link && tool.link !== '#' ? `<button onclick="window.open('${tool.link}', '_blank')" title="Visit tool website"><i class="fas fa-external-link-alt"></i></button>` : ''}
+                            ${tool.link && tool.link !== '#' ? `<button class="btn-icon" onclick="window.open('${tool.link}', '_blank')" title="Visit tool website"><i class="fas fa-external-link-alt"></i></button>` : ''}
                         </div>
+                    </div>
+                    <div class="app-card-content">
+                        <div class="app-description">${tool.description || 'No description available'}</div>
+                        <div class="app-stats-minimal">
+                            <div class="app-stat-minimal">
+                                <i class="fas fa-wrench"></i>
+                                <span>Tool</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="app-card-footer">
+                        <small>Saved: ${new Date(tool.addedAt).toLocaleDateString()}</small>
                     </div>
                 </div>
             `).join('');
         }
 
-        // Create app button
-        document.getElementById('create-app-btn').addEventListener('click', () => {
-            showCreateAppModal();
-        });
+        // Create app button (optional - already uses onclick in HTML)
+        const createAppBtn = document.getElementById('create-app-btn');
+        if (createAppBtn) {
+            createAppBtn.addEventListener('click', () => {
+                showCreateAppModal();
+            });
+        }
 
         // Global functions for app actions
         window.showCreateAppModal = function() {
@@ -2749,18 +2790,43 @@
         };
 
         // Global functions for spec actions
-        window.editSpecCard = function(specId) {
+        window.editSpecCard = async function(specId) {
             const spec = userSpecs.find(s => s.id === specId);
-            if (!spec) return;
+            if (!spec) {
+                alert('Specification not found');
+                return;
+            }
             
             const newTitle = prompt('Edit title:', spec.title);
-            if (newTitle === null) return;
+            if (newTitle === null || newTitle.trim() === '') return;
             
-            const newContent = prompt('Edit content:', spec.content);
-            if (newContent === null) return;
-            
-            // Here you would update the spec in Firestore
-            alert('Edit functionality will be added soon');
+            try {
+                // Update in Firestore
+                const specRef = doc(db, 'specs', specId);
+                await setDoc(specRef, {
+                    title: newTitle.trim(),
+                    updatedAt: new Date().toISOString()
+                }, { merge: true });
+                
+                // Update local data
+                const specIndex = userSpecs.findIndex(s => s.id === specId);
+                if (specIndex !== -1) {
+                    userSpecs[specIndex].title = newTitle.trim();
+                }
+                
+                // Re-render specs
+                renderSpecs();
+                
+                // Update link button appearance after re-render
+                setTimeout(updateLinkButtonAppearance, 100);
+                
+                console.log('✅ Spec title updated successfully');
+                showSuccess('Specification title updated successfully!');
+                
+            } catch (error) {
+                console.error('Error updating spec title:', error);
+                showError('Failed to update specification title');
+            }
         };
 
         window.deleteSpecCard = function(specId) {
@@ -2773,18 +2839,43 @@
         };
 
         // Global functions for research actions
-        window.editResearchCard = function(researchId) {
+        window.editResearchCard = async function(researchId) {
             const research = userMarketResearch.find(r => r.id === researchId);
-            if (!research) return;
+            if (!research) {
+                alert('Market research not found');
+                return;
+            }
             
             const newTitle = prompt('Edit title:', research.title);
-            if (newTitle === null) return;
+            if (newTitle === null || newTitle.trim() === '') return;
             
-            const newContent = prompt('Edit content:', research.content);
-            if (newContent === null) return;
-            
-            // Here you would update the research in Firestore
-            alert('Edit functionality will be added soon');
+            try {
+                // Update in Firestore
+                const researchRef = doc(db, 'marketResearch', researchId);
+                await setDoc(researchRef, {
+                    title: newTitle.trim(),
+                    updatedAt: new Date().toISOString()
+                }, { merge: true });
+                
+                // Update local data
+                const researchIndex = userMarketResearch.findIndex(r => r.id === researchId);
+                if (researchIndex !== -1) {
+                    userMarketResearch[researchIndex].title = newTitle.trim();
+                }
+                
+                // Re-render market research
+                renderMarketResearch();
+                
+                // Update link button appearance after re-render
+                setTimeout(updateLinkButtonAppearance, 100);
+                
+                console.log('✅ Market research title updated successfully');
+                showSuccess('Market research title updated successfully!');
+                
+            } catch (error) {
+                console.error('Error updating market research title:', error);
+                showError('Failed to update market research title');
+            }
         };
 
         window.deleteResearchCard = function(researchId) {
@@ -2841,20 +2932,80 @@
 
         // Utility functions
         function showSuccess(message) {
-            const successDiv = document.getElementById('success-message');
-            successDiv.textContent = message;
-            successDiv.style.display = 'block';
+            // Create a temporary success notification
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: #28a745;
+                color: white;
+                padding: 12px 20px;
+                border-radius: 6px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                z-index: 10000;
+                font-size: 14px;
+                font-weight: 500;
+                animation: slideUp 0.3s ease-out;
+            `;
+            notification.textContent = message;
+            
+            // Add animation styles
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideUp {
+                    from { transform: translateX(-50%) translateY(100%); opacity: 0; }
+                    to { transform: translateX(-50%) translateY(0); opacity: 1; }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            document.body.appendChild(notification);
+            
+            // Remove after 3 seconds
             setTimeout(() => {
-                successDiv.style.display = 'none';
+                notification.remove();
+                style.remove();
             }, 3000);
         }
 
         function showError(message) {
-            const errorDiv = document.getElementById('error-message');
-            errorDiv.textContent = message;
-            errorDiv.style.display = 'block';
+            // Create a temporary error notification
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: #dc3545;
+                color: white;
+                padding: 12px 20px;
+                border-radius: 6px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                z-index: 10000;
+                font-size: 14px;
+                font-weight: 500;
+                animation: slideUp 0.3s ease-out;
+            `;
+            notification.textContent = message;
+            
+            // Add animation styles
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideUp {
+                    from { transform: translateX(-50%) translateY(100%); opacity: 0; }
+                    to { transform: translateX(-50%) translateY(0); opacity: 1; }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            document.body.appendChild(notification);
+            
+            // Remove after 5 seconds
             setTimeout(() => {
-                errorDiv.style.display = 'none';
+                notification.remove();
+                style.remove();
             }, 5000);
         }
 
@@ -2953,22 +3104,52 @@
 
         // Global function for linking spec to app
         window.linkSpecToApp = function(specId) {
+            console.log('🔗 Linking spec to app:', specId);
+            console.log('📱 User apps available:', userApps?.length || 0);
+            
+            if (!userApps || userApps.length === 0) {
+                alert('No apps available to link to. Please create an app first.');
+                return;
+            }
+            
             showLinkModal('specs', specId, 'Specifications');
         };
 
         // Global function for linking research to app
         window.linkResearchToApp = function(researchId) {
+            console.log('🔗 Linking research to app:', researchId);
+            console.log('📱 User apps available:', userApps?.length || 0);
+            
+            if (!userApps || userApps.length === 0) {
+                alert('No apps available to link to. Please create an app first.');
+                return;
+            }
+            
             showLinkModal('marketResearch', researchId, 'Market Research');
         };
 
         // Show modal for linking items to apps
-        function showLinkModal(collection, itemId, itemType) {
-            if (userApps.length === 0) {
+        async function showLinkModal(collection, itemId, itemType) {
+            if (!userApps || userApps.length === 0) {
                 alert('You need to create an app first before linking specifications or research.');
                 return;
             }
 
-            // Create modal HTML
+            // Get current item data to show current title
+            let currentItem = null;
+            try {
+                if (collection === 'specs') {
+                    currentItem = userSpecs.find(spec => spec.id === itemId);
+                } else if (collection === 'marketResearch') {
+                    currentItem = userMarketResearch.find(research => research.id === itemId);
+                }
+            } catch (error) {
+                console.error('Error finding current item:', error);
+            }
+
+            const currentTitle = currentItem ? currentItem.title : '';
+
+            // Create modal HTML with title editing
             const modalHTML = `
                 <div id="linkModal" class="modal-overlay">
                     <div class="modal-content">
@@ -2982,6 +3163,11 @@
                                 <select id="appSelect" class="form-control">
                                     ${userApps.map(app => `<option value="${app.id}">${app.name}</option>`).join('')}
                                 </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Edit Title (optional):</label>
+                                <input type="text" id="itemTitle" class="form-control" value="${currentTitle}" placeholder="Enter new title or keep current">
+                                <small class="form-text text-muted">This will update the title in both your profile and the app dashboard</small>
                             </div>
                         </div>
                         <div class="modal-footer">
@@ -3005,7 +3191,9 @@
 
         window.submitLink = async function(collection, itemId) {
             const appSelect = document.getElementById('appSelect');
+            const titleInput = document.getElementById('itemTitle');
             const appId = appSelect.value;
+            const newTitle = titleInput.value.trim();
             
             if (!appId) {
                 alert('Please select an app');
@@ -3013,6 +3201,28 @@
             }
 
             try {
+                // Update title if changed
+                if (newTitle && newTitle !== '') {
+                    const itemRef = doc(db, collection, itemId);
+                    await setDoc(itemRef, {
+                        title: newTitle,
+                        updatedAt: new Date().toISOString()
+                    }, { merge: true });
+                    
+                    // Update local data
+                    if (collection === 'specs') {
+                        const specIndex = userSpecs.findIndex(spec => spec.id === itemId);
+                        if (specIndex !== -1) {
+                            userSpecs[specIndex].title = newTitle;
+                        }
+                    } else if (collection === 'marketResearch') {
+                        const researchIndex = userMarketResearch.findIndex(research => research.id === itemId);
+                        if (researchIndex !== -1) {
+                            userMarketResearch[researchIndex].title = newTitle;
+                        }
+                    }
+                }
+                
                 // Update the app document to include the linked item
                 const appRef = doc(db, 'apps', appId);
                 const appDoc = await getDoc(appRef);
@@ -3030,7 +3240,32 @@
                             [linkedField]: linkedItems
                         }, { merge: true });
                         
-                        showSuccess(`${collection === 'specs' ? 'Specification' : 'Market Research'} linked to app successfully!`);
+                        const itemType = collection === 'specs' ? 'Specification' : 'Market Research';
+                        const titleMessage = newTitle ? ` with updated title "${newTitle}"` : '';
+                        showSuccess(`${itemType}${titleMessage} linked to app successfully!`);
+                        
+                        // Refresh the UI
+                        if (collection === 'specs') {
+                            renderSpecs();
+                        } else {
+                            renderMarketResearch();
+                        }
+                        
+                        // Update local userApps data and button appearance
+                        if (userApps) {
+                            const appIndex = userApps.findIndex(app => app.id === appId);
+                            if (appIndex !== -1) {
+                                const linkedField = collection === 'specs' ? 'linkedSpecs' : 'linkedResearch';
+                                if (!userApps[appIndex][linkedField]) {
+                                    userApps[appIndex][linkedField] = [];
+                                }
+                                if (!userApps[appIndex][linkedField].includes(itemId)) {
+                                    userApps[appIndex][linkedField].push(itemId);
+                                }
+                            }
+                        }
+                        setTimeout(updateLinkButtonAppearance, 100);
+                        
                         closeLinkModal();
                     } else {
                         alert('This item is already linked to the selected app');
@@ -3041,6 +3276,156 @@
                 showError('Failed to link item to app');
             }
         };
+
+        // Profile Tab Management Function
+        window.switchProfileTab = function(tabName) {
+            console.log('Switching to tab:', tabName);
+            
+            // Update tab buttons
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+
+            // Update tab panes
+            document.querySelectorAll('.tab-pane').forEach(pane => {
+                pane.classList.remove('active');
+            });
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+
+            // Update search placeholder based on active tab
+            const searchInput = document.getElementById('search-content');
+            const sortSelect = document.getElementById('sort-content');
+            
+            switch(tabName) {
+                case 'specs':
+                    searchInput.placeholder = 'Search specifications...';
+                    sortSelect.innerHTML = `
+                        <option value="newest">Newest First</option>
+                        <option value="oldest">Oldest First</option>
+                        <option value="title">By Title</option>
+                    `;
+                    break;
+                case 'research':
+                    searchInput.placeholder = 'Search research...';
+                    sortSelect.innerHTML = `
+                        <option value="newest">Newest First</option>
+                        <option value="oldest">Oldest First</option>
+                        <option value="title">By Title</option>
+                    `;
+                    break;
+                case 'tools':
+                    searchInput.placeholder = 'Search tools...';
+                    sortSelect.innerHTML = `
+                        <option value="newest">Newest First</option>
+                        <option value="oldest">Oldest First</option>
+                        <option value="name">By Name</option>
+                        <option value="category">By Category</option>
+                    `;
+                    break;
+            }
+            
+            console.log('Tab switched to:', tabName);
+        };
+
+        // Event listeners for link buttons (using event delegation)
+        // Wait for DOM to be ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', setupLinkEventListeners);
+        } else {
+            setupLinkEventListeners();
+        }
+
+        function setupLinkEventListeners() {
+            console.log('🎯 Setting up link event listeners');
+            document.addEventListener('click', function(event) {
+                // Handle spec link buttons
+                const specButton = event.target.closest('.link-spec-btn');
+                if (specButton) {
+                    const specId = specButton.getAttribute('data-spec-id');
+                    if (specId) {
+                        console.log('🔗 Linking spec:', specId);
+                        window.linkSpecToApp(specId);
+                    }
+                    return;
+                }
+                
+                // Handle research link buttons
+                const researchButton = event.target.closest('.link-research-btn');
+                if (researchButton) {
+                    const researchId = researchButton.getAttribute('data-research-id');
+                    if (researchId) {
+                        console.log('🔗 Linking research:', researchId);
+                        window.linkResearchToApp(researchId);
+                    }
+                    return;
+                }
+            });
+        }
+
+        // Function to check if item is linked to any app
+        function isItemLinkedToApp(itemId, type) {
+            if (!userApps || userApps.length === 0) {
+                console.log(`🚫 No apps available for ${type} ${itemId}`);
+                return false;
+            }
+            
+            const isLinked = userApps.some(app => {
+                const linkedItems = type === 'spec' ? app.linkedSpecs : app.linkedResearch;
+                const hasItem = linkedItems && linkedItems.includes(itemId);
+                console.log(`🔗 App "${app.name}" has ${type} ${itemId}:`, hasItem, 'linkedItems:', linkedItems);
+                return hasItem;
+            });
+            
+            console.log(`🎯 Final result for ${type} ${itemId}:`, isLinked);
+            return isLinked;
+        }
+
+        // Function to update link button appearance
+        function updateLinkButtonAppearance() {
+            console.log('🎨 Updating link button appearance...');
+            console.log('📱 Available apps:', userApps?.length || 0);
+            
+            // Update spec link buttons
+            const specButtons = document.querySelectorAll('.link-spec-btn');
+            console.log('🔍 Found spec buttons:', specButtons.length);
+            
+            specButtons.forEach(button => {
+                const specId = button.getAttribute('data-spec-id');
+                const isLinked = isItemLinkedToApp(specId, 'spec');
+                console.log(`📝 Spec ${specId} linked: ${isLinked}`);
+                
+                if (isLinked) {
+                    button.classList.add('linked');
+                    button.title = 'Already linked to app';
+                    console.log(`✅ Added 'linked' class to spec ${specId}`);
+                } else {
+                    button.classList.remove('linked');
+                    button.title = 'Link to App';
+                    console.log(`❌ Removed 'linked' class from spec ${specId}`);
+                }
+            });
+
+            // Update research link buttons
+            const researchButtons = document.querySelectorAll('.link-research-btn');
+            console.log('🔍 Found research buttons:', researchButtons.length);
+            
+            researchButtons.forEach(button => {
+                const researchId = button.getAttribute('data-research-id');
+                const isLinked = isItemLinkedToApp(researchId, 'research');
+                console.log(`📝 Research ${researchId} linked: ${isLinked}`);
+                
+                if (isLinked) {
+                    button.classList.add('linked');
+                    button.title = 'Already linked to app';
+                    console.log(`✅ Added 'linked' class to research ${researchId}`);
+                } else {
+                    button.classList.remove('linked');
+                    button.title = 'Link to App';
+                    console.log(`❌ Removed 'linked' class from research ${researchId}`);
+                }
+            });
+        }
     </script>
 </body>
 </html>

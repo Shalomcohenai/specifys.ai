@@ -11,12 +11,52 @@
     <style>
         /* Import Montserrat font */
         @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap");
+
+        :root {
+            --bg-color: #f5f5f5;
+            --text-color: #333;
+            --primary-color: #0078d4;
+            --secondary-color: #6c757d;
+            --light-gray: #e9ecef;
+            --border-color: #dee2e6;
+            --chat-bg: #fff;
+            --system-msg-bg: #f8f9fa;
+            --user-msg-bg: #0078d4;
+            --user-msg-text: #fff;
+            --input-bg: #fff;
+            --input-border: #dee2e6;
+            --button-hover: #005ea2;
+            --progress-bg: #e9ecef;
+            --progress-fill: #0078d4;
+            --chat-header-bg: #0078d4;
+            --chat-header-text: #fff;
+        }
+
+        body.dark-mode {
+            --bg-color: #1a1a1a;
+            --text-color: #ffffff;
+            --primary-color: #0078d4;
+            --secondary-color: #6c757d;
+            --light-gray: #2a2a2a;
+            --border-color: #444;
+            --chat-bg: #2a2a2a;
+            --system-msg-bg: #1a1a1a;
+            --user-msg-bg: #0078d4;
+            --user-msg-text: #fff;
+            --input-bg: #2a2a2a;
+            --input-border: #444;
+            --button-hover: #005ea2;
+            --progress-bg: #2a2a2a;
+            --progress-fill: #0078d4;
+            --chat-header-bg: #0078d4;
+            --chat-header-text: #fff;
+        }
         
         body {
             font-family: "Montserrat", sans-serif;
         }
         
-        /* Header Layout */
+        /* Header Layout Styles */
         .thematic-header {
             display: flex;
             justify-content: space-between;
@@ -26,40 +66,261 @@
             top: 0;
             left: 0;
             right: 0;
-            background: rgba(255, 255, 255, 0.9);
-            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            background: var(--bg-color, #f5f5f5);
+            border-bottom: 1px solid var(--border-color, #ddd);
             z-index: 100;
-            font-family: "Montserrat", sans-serif;
+            transition: background 0.3s ease, border-color 0.3s ease;
         }
 
         body.dark-mode .thematic-header {
-            background: rgba(51, 51, 51, 0.95);
-            border-bottom-color: rgba(255, 255, 255, 0.1);
+            background: var(--bg-color, #1a1a1a);
+            border-bottom: 1px solid var(--border-color, #444);
         }
 
         .header-left {
             display: flex;
             align-items: center;
-            gap: 1rem;
         }
 
         .header-center {
             display: flex;
             justify-content: center;
-            flex: 1;
+            align-items: center;
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            pointer-events: none;
+        }
+
+        .header-center .logo {
+            pointer-events: auto;
         }
 
         .header-right {
             display: flex;
             align-items: center;
+            gap: 0.5rem;
+            justify-content: flex-end;
         }
 
+        /* Logo Styles */
         .logo a {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-color, #333);
             text-decoration: none;
-            color: #333;
-            font-size: 1.75rem;
+            transition: color 0.3s ease;
+        }
+
+        body.dark-mode .logo a {
+            color: #ffffff;
+        }
+
+        .logo a:hover {
+            color: var(--primary-color, #0078d4);
+        }
+
+        /* Auth System Styles */
+        .auth-buttons {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            position: relative;
+            z-index: 10000;
+        }
+
+        .auth-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: transparent;
+            color: #666;
+        }
+
+        .auth-btn:hover {
+            color: var(--primary-color, #0078d4);
+            transform: translateY(-2px);
+        }
+
+        .auth-btn.primary {
+            background: var(--primary-color, #0078d4);
+            color: white;
+        }
+
+        .auth-btn.primary:hover {
+            background: var(--button-hover, #005ea2);
+        }
+
+        /* User Info & Dropdown */
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(102, 102, 102, 0.1);
+            border-radius: 20px;
+            border: 1px solid rgba(102, 102, 102, 0.2);
+            color: #666;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .user-info:hover {
+            background: rgba(102, 102, 102, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .user-avatar {
+            width: 24px;
+            height: 24px;
+            background: #666;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
             font-weight: bold;
-            font-family: "Montserrat", sans-serif;
+            color: white;
+        }
+
+        .user-dropdown {
+            position: relative;
+            z-index: 10000;
+        }
+
+        .user-dropdown-content {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: var(--chat-bg, #fff);
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            min-width: 150px;
+            transform: translateY(-20px);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 999999;
+        }
+
+        .user-dropdown-content.show {
+            transform: translateY(0);
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .user-dropdown-content a,
+        .user-dropdown-content button {
+            display: block;
+            width: 100%;
+            padding: 12px 16px;
+            color: var(--text-color, #333);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border: none;
+            background: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+
+        .user-dropdown-content a:hover,
+        .user-dropdown-content button:hover {
+            background: var(--light-gray, #f5f5f5);
+        }
+
+        /* Dark Mode Toggle */
+        .theme-toggle {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: white;
+            color: black;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+        }
+
+        body.dark-mode .theme-toggle {
+            background: black;
+            color: white;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .thematic-header {
+                padding: 10px 15px;
+            }
+            
+            .header-left {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+            
+            .header-right {
+                gap: 0.5rem;
+            }
+            
+            .auth-buttons {
+                gap: 0.5rem;
+                margin-right: 0;
+            }
+            
+            .auth-btn {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.8rem;
+            }
+            
+            .user-info {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.8rem;
+            }
+            
+            .user-avatar {
+                width: 20px;
+                height: 20px;
+                font-size: 0.7rem;
+            }
+            
+            .theme-toggle {
+                width: 45px;
+                height: 45px;
+                font-size: 1.1rem;
+            }
+            
+            .user-dropdown-content {
+                top: 70px;
+                left: 15px;
+                right: auto;
+                min-width: 120px;
+            }
+            
+            .user-dropdown-content a,
+            .user-dropdown-content button {
+                padding: 10px 12px;
+                font-size: 0.8rem;
+            }
         }
 
         body.dark-mode .logo a {
@@ -74,102 +335,7 @@
             position: relative;
         }
 
-        .menu-toggle {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 35px;
-            height: 35px;
-            background: #666;
-            border: none;
-            border-radius: 8px;
-            font-size: 1.3rem;
-            color: #fff;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            font-family: "Montserrat", sans-serif;
-        }
 
-        body.dark-mode .menu-toggle {
-            background: #666;
-            color: #fff;
-        }
-
-        .menu-toggle:hover {
-            background: #555;
-        }
-
-        .header-links {
-            display: none;
-            flex-direction: column;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.8);
-            z-index: 9999;
-            padding: 0;
-            transition: opacity 0.3s ease;
-            opacity: 0;
-            width: 100vw;
-            height: 100vh;
-        }
-
-        .header-links.active {
-            display: flex;
-            opacity: 1;
-        }
-
-        .header-links-content {
-            position: absolute;
-            top: 80px;
-            right: 20px;
-            background: rgba(255, 255, 255, 0.95);
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            min-width: 220px;
-            transform: translateY(-10px);
-            opacity: 0;
-            transition: transform 0.3s ease, opacity 0.3s ease;
-        }
-
-        .header-links.active .header-links-content {
-            transform: translateY(0);
-            opacity: 1;
-        }
-
-        body.dark-mode .header-links-content {
-            background: rgba(51, 51, 51, 0.95);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-        }
-
-        .header-links a {
-            color: #333;
-            text-decoration: none;
-            font-size: 0.9rem;
-            font-weight: 600;
-            padding: 12px 0;
-            transition: color 0.3s ease, transform 0.3s ease;
-            display: block;
-            border-bottom: 1px solid rgba(128, 128, 128, 0.2);
-            font-family: "Montserrat", sans-serif;
-        }
-
-        .header-links a:last-child {
-            border-bottom: none;
-        }
-
-        body.dark-mode .header-links a {
-            color: #ccc;
-            border-bottom-color: rgba(128, 128, 128, 0.3);
-        }
-
-        .header-links a:hover {
-            color: #666;
-            transform: translateX(5px);
-        }
 
         /* Footer Styles */
         footer {
@@ -560,11 +726,6 @@
                 font-size: 1.4rem;
             }
             
-            .menu-toggle {
-                width: 30px;
-                height: 30px;
-                font-size: 1.1rem;
-            }
             
             .header-links-content {
                 top: 70px;
@@ -644,16 +805,6 @@
         <div class="header-right">
             <div class="auth-buttons" id="auth-buttons">
                 <!-- Will be populated by auth system -->
-            </div>
-            <button class="menu-toggle" aria-label="Toggle navigation menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
-            <div class="header-links">
-                <div class="header-links-content">
-                    <a href="blog.html" aria-label="Visit our blog">Blog</a>
-                    <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
-                    <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
-                    <a href="map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
-                    <a href="ToolPicker.html" aria-label="Use our Tool Finder">Tool Finder</a>
-                </div>
             </div>
         </div>
     </header>
@@ -793,17 +944,81 @@
 
         // Show/hide messages
         function showError(message) {
-            const errorDiv = document.getElementById('error-message');
-            errorDiv.textContent = message;
-            errorDiv.style.display = 'block';
-            document.getElementById('success-message').style.display = 'none';
+            // Create a temporary error notification
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: #dc3545;
+                color: white;
+                padding: 12px 20px;
+                border-radius: 6px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                z-index: 10000;
+                font-size: 14px;
+                font-weight: 500;
+                animation: slideUp 0.3s ease-out;
+            `;
+            notification.textContent = message;
+            
+            // Add animation styles
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideUp {
+                    from { transform: translateX(-50%) translateY(100%); opacity: 0; }
+                    to { transform: translateX(-50%) translateY(0); opacity: 1; }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            document.body.appendChild(notification);
+            
+            // Remove after 5 seconds
+            setTimeout(() => {
+                notification.remove();
+                style.remove();
+            }, 5000);
         }
 
         function showSuccess(message) {
-            const successDiv = document.getElementById('success-message');
-            successDiv.textContent = message;
-            successDiv.style.display = 'block';
-            document.getElementById('error-message').style.display = 'none';
+            // Create a temporary success notification
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: #28a745;
+                color: white;
+                padding: 12px 20px;
+                border-radius: 6px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                z-index: 10000;
+                font-size: 14px;
+                font-weight: 500;
+                animation: slideUp 0.3s ease-out;
+            `;
+            notification.textContent = message;
+            
+            // Add animation styles
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideUp {
+                    from { transform: translateX(-50%) translateY(100%); opacity: 0; }
+                    to { transform: translateX(-50%) translateY(0); opacity: 1; }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            document.body.appendChild(notification);
+            
+            // Remove after 3 seconds
+            setTimeout(() => {
+                notification.remove();
+                style.remove();
+            }, 3000);
         }
 
         function hideMessages() {
@@ -949,52 +1164,152 @@
     <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode"><i class="fas fa-moon"></i></button>
 
     <script>
-        // Theme toggle functionality
-        const themeToggle = document.getElementById('themeToggle');
-        themeToggle.addEventListener('click', () => {
-            document.body.classList.toggle('dark-mode');
-            const isDarkMode = document.body.classList.contains('dark-mode');
-            themeToggle.querySelector('i').classList.toggle('fa-moon', !isDarkMode);
-            themeToggle.querySelector('i').classList.toggle('fa-sun', isDarkMode);
-            themeToggle.setAttribute('aria-label', isDarkMode ? 'Toggle light mode' : 'Toggle dark mode');
-            localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+        // Basic header functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            // Theme toggle
+            const themeToggle = document.getElementById('themeToggle');
+            if (themeToggle) {
+                themeToggle.addEventListener('click', function(event) {
+                    event.stopPropagation();
+                    const body = document.body;
+                    const icon = themeToggle.querySelector('i');
+                    
+                    if (body.classList.contains('dark-mode')) {
+                        body.classList.remove('dark-mode');
+                        icon.className = 'fas fa-moon';
+                        localStorage.setItem('darkMode', 'false');
+                    } else {
+                        body.classList.add('dark-mode');
+                        icon.className = 'fas fa-sun';
+                        localStorage.setItem('darkMode', 'true');
+                    }
+                });
+            }
+            
+            // Load saved theme
+            const savedTheme = localStorage.getItem('darkMode');
+            if (savedTheme === 'true') {
+                document.body.classList.add('dark-mode');
+                const themeToggle = document.getElementById('themeToggle');
+                if (themeToggle) {
+                    const icon = themeToggle.querySelector('i');
+                    icon.className = 'fas fa-sun';
+                }
+            }
+            
         });
 
-        // Load saved theme
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme === 'dark') {
-            document.body.classList.add('dark-mode');
-            themeToggle.querySelector('i').classList.replace('fa-moon', 'fa-sun');
-            themeToggle.setAttribute('aria-label', 'Toggle light mode');
-        } else {
-            document.body.classList.remove('dark-mode');
-            themeToggle.querySelector('i').classList.replace('fa-sun', 'fa-moon');
-            themeToggle.setAttribute('aria-label', 'Toggle dark mode');
-            localStorage.setItem('theme', 'light');
-        }
+        // Global functions for user dropdown
+        window.toggleUserDropdown = function() {
+            const dropdown = document.querySelector('.user-dropdown-content');
+            if (dropdown && dropdown.classList.contains('show')) {
+                dropdown.classList.remove('show');
+            } else if (dropdown) {
+                dropdown.classList.add('show');
+            }
+        };
 
-        // Menu toggle functionality
-        const menuToggle = document.querySelector('.menu-toggle');
-        const headerLinks = document.querySelector('.header-links');
-        menuToggle.addEventListener('click', () => {
-            const isActive = headerLinks.classList.contains('active');
-            headerLinks.classList.toggle('active');
-            menuToggle.setAttribute('aria-expanded', !isActive);
-        });
-
-        // Close menu when clicking on background
-        headerLinks.addEventListener('click', (e) => {
-            if (e.target === headerLinks) {
-                headerLinks.classList.remove('active');
-                menuToggle.setAttribute('aria-expanded', 'false');
+        // Close user dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const userDropdown = document.querySelector('.user-dropdown');
+            const userInfo = document.querySelector('.user-info');
+            const dropdown = document.querySelector('.user-dropdown-content');
+            
+            if (userDropdown && dropdown && dropdown.classList.contains('show') && 
+                !userInfo.contains(event.target)) {
+                dropdown.classList.remove('show');
             }
         });
 
-        // Close menu when clicking on links
-        document.querySelectorAll('.header-links a').forEach(link => {
-            link.addEventListener('click', () => {
-                headerLinks.classList.remove('active');
-                menuToggle.setAttribute('aria-expanded', 'false');
+        // Initialize auth buttons with default state
+        document.addEventListener('DOMContentLoaded', function() {
+            const authButtons = document.getElementById('auth-buttons');
+            if (authButtons && !authButtons.innerHTML.trim()) {
+                authButtons.innerHTML = `
+                    <button class="auth-btn login-btn">Login</button>
+                `;
+                
+                const loginBtn = authButtons.querySelector('.login-btn');
+                if (loginBtn) {
+                    loginBtn.addEventListener('click', function(event) {
+                        event.stopPropagation();
+                        window.location.href = 'auth.html';
+                    });
+                }
+            }
+        });
+
+        // Firebase Auth System
+        document.addEventListener('DOMContentLoaded', function() {
+            // Firebase configuration
+            const firebaseConfig = {
+                apiKey: "AIzaSyB9hr0IWM4EREzkKDxBxYoYinV6LJXWXV4",
+                authDomain: "specify-ai.firebaseapp.com",
+                projectId: "specify-ai",
+                storageBucket: "specify-ai.firebasestorage.app",
+                messagingSenderId: "734278787482",
+                appId: "1:734278787482:web:0e312fb6f197e849695a23",
+                measurementId: "G-4YR9LK63MR"
+            };
+
+            // Initialize Firebase
+            firebase.initializeApp(firebaseConfig);
+            const auth = firebase.auth();
+            const db = firebase.firestore();
+
+            // Update auth UI function
+            function updateAuthUI(user) {
+                const authButtons = document.getElementById('auth-buttons');
+                
+                if (user) {
+                    // User is logged in
+                    const displayName = user.displayName || user.email.split('@')[0];
+                    const firstLetter = displayName.charAt(0).toUpperCase();
+                    
+                    authButtons.innerHTML = `
+                        <div class="user-dropdown">
+                            <div class="user-info" onclick="toggleUserDropdown()">
+                                <div class="user-avatar">${firstLetter}</div>
+                                <span>${displayName}</span>
+                            </div>
+                            <div class="user-dropdown-content">
+                                <a href="profile.html">Profile</a>
+                                <button onclick="logout()">Sign Out</button>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    // User is not logged in
+                    authButtons.innerHTML = `
+                        <button class="auth-btn" onclick="showLoginModal()">Login</button>
+                        <button class="auth-btn primary" onclick="showRegisterModal()">Register</button>
+                    `;
+                }
+            }
+
+            // Global functions
+            window.showLoginModal = function() {
+                window.location.href = 'auth.html';
+            };
+
+            window.showRegisterModal = function() {
+                window.location.href = 'auth.html';
+            };
+
+            window.logout = function() {
+                auth.signOut()
+                    .then(() => {
+                        console.log('Logged out successfully');
+                    })
+                    .catch(error => {
+                        console.error('Error logging out:', error);
+                    });
+            };
+
+            // Listen to auth state changes
+            auth.onAuthStateChanged((user) => {
+                updateAuthUI(user);
             });
         });
     </script>

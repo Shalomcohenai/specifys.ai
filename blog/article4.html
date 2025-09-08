@@ -564,37 +564,32 @@
       }
 
       /* Remove blue borders from buttons */
-      .theme-toggle,
-      .menu-toggle {
+      .theme-toggle {
         outline: none !important;
         border: none !important;
         box-shadow: none !important;
       }
 
-      .theme-toggle:focus,
-      .menu-toggle:focus {
+      .theme-toggle:focus {
         outline: none !important;
         border: none !important;
         box-shadow: none !important;
       }
 
       /* Remove any default button styling */
-      .theme-toggle::-moz-focus-inner,
-      .menu-toggle::-moz-focus-inner {
+      .theme-toggle::-moz-focus-inner {
         border: 0;
       }
 
       /* Dark mode specific button fixes */
-      body.dark-mode .theme-toggle,
-      body.dark-mode .menu-toggle {
+      body.dark-mode .theme-toggle {
         outline: none !important;
         border: none !important;
         box-shadow: none !important;
         background: none !important;
       }
 
-      body.dark-mode .theme-toggle:focus,
-      body.dark-mode .menu-toggle:focus {
+      body.dark-mode .theme-toggle:focus {
         outline: none !important;
         border: none !important;
         box-shadow: none !important;
@@ -602,8 +597,7 @@
       }
 
       /* Override any browser default focus styles */
-      body.dark-mode .theme-toggle:focus-visible,
-      body.dark-mode .menu-toggle:focus-visible {
+      body.dark-mode .theme-toggle:focus-visible {
         outline: none !important;
         border: none !important;
         box-shadow: none !important;
@@ -621,10 +615,7 @@
       /* Specific for our buttons */
       .theme-toggle:focus,
       .theme-toggle:focus-visible,
-      .theme-toggle:focus-within,
-      .menu-toggle:focus,
-      .menu-toggle:focus-visible,
-      .menu-toggle:focus-within {
+      .theme-toggle:focus-within {
         outline: none !important;
         border: none !important;
         box-shadow: none !important;
@@ -638,14 +629,6 @@
       <a href="../index.html" aria-label="Specifys.ai homepage">Specifys.ai</a>
     </div>
     <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode"><i class="fas fa-moon"></i></button>
-    <button class="menu-toggle" aria-label="Toggle navigation menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
-    <div class="header-links">
-      <a href="../blog.html" aria-label="Visit our blog">Blog</a>
-      <a href="../about.html" aria-label="Learn more about specifys.ai">About Us</a>
-      <a href="../how.html" aria-label="Learn how specifys.ai works">How It Works</a>
-      <a href="../map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
-      <a href="../ToolPicker.html" aria-label="Use our Tool Finder">Tool Finder</a>
-    </div>
   </header>
 
   <div class="main-content-wrapper">

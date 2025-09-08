@@ -96,87 +96,7 @@
             color: var(--primary-color);
         }
 
-        /* Menu Toggle Button */
-        .menu-toggle {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 35px;
-            height: 35px;
-            background: #333;
-            border: none;
-            border-radius: 8px;
-            color: #fff;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 14px;
-        }
 
-        .menu-toggle:hover {
-            background: #555;
-            transform: scale(1.05);
-        }
-
-        .menu-toggle:active {
-            transform: scale(0.95);
-        }
-
-        .menu-toggle:focus {
-            outline: 2px solid var(--primary-color);
-            outline-offset: 2px;
-        }
-
-        /* Header Links (Menu Overlay) */
-        .header-links {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.8);
-            z-index: 99999;
-            width: 100vw;
-            height: 100vh;
-            display: none;
-        }
-
-        .header-links.show {
-            display: block;
-        }
-
-        .header-links-content {
-            position: absolute;
-            top: 80px;
-            right: 20px;
-            background: var(--chat-bg);
-            border-radius: 12px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-            min-width: 180px;
-            transform: translateY(-20px);
-            opacity: 0;
-            transition: all 0.3s ease;
-        }
-
-        .header-links.show .header-links-content {
-            transform: translateY(0);
-            opacity: 1;
-        }
-
-        .header-links a {
-            display: block;
-            padding: 10px 15px;
-            color: var(--text-color);
-            text-decoration: none;
-            font-size: 0.9rem;
-            font-weight: 500;
-            border-bottom: 1px solid var(--border-color);
-            transition: all 0.3s ease;
-        }
-
-        .header-links a:hover {
-            background: var(--light-gray);
-            transform: translateX(5px);
-        }
 
         /* Auth System Styles */
         .auth-buttons {
@@ -328,17 +248,41 @@
             margin-top: 100px;
         }
 
-        /* App Header */
-        .app-header {
+        /* Top Dashboard */
+        .top-dashboard {
             background: linear-gradient(135deg, #f5f5f5 0%, #e9ecef 100%);
             color: #333;
-            padding: 3rem 2rem;
-            border-radius: 20px;
+            padding: 1.5rem 2rem;
+            border-radius: 12px;
             margin-bottom: 2rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .dashboard-header {
             display: flex;
+            justify-content: space-between;
             align-items: center;
             gap: 2rem;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .app-info-compact h1 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .app-info-compact p {
+            margin: 0;
+            opacity: 0.8;
+            font-size: 0.95rem;
+            color: #666;
+        }
+
+        .dashboard-stats {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
         }
 
         .app-icon {
@@ -395,31 +339,6 @@
             color: #666;
         }
 
-        .app-stats-detailed {
-            display: flex;
-            gap: 1.5rem;
-            margin-top: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .stat-item-detailed {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.85rem;
-        }
-
-        .stat-icon {
-            font-size: 1rem;
-            opacity: 0.7;
-            color: #666;
-        }
-
-        .stat-details {
-            font-size: 0.85rem;
-            color: #333;
-            font-weight: 500;
-        }
 
         /* Dashboard Grid Layout */
         .dashboard-grid {
@@ -598,9 +517,17 @@
             color: #e0e0e0;
         }
 
-        body.dark-mode .app-header {
+        body.dark-mode .top-dashboard {
             background: linear-gradient(135deg, #333 0%, #444 100%);
             color: #e0e0e0;
+        }
+
+        body.dark-mode .app-info-compact h1 {
+            color: #fff;
+        }
+
+        body.dark-mode .app-info-compact p {
+            color: #ccc;
         }
 
         body.dark-mode .dashboard-section {
@@ -637,13 +564,6 @@
             color: #cccccc;
         }
 
-        body.dark-mode .stat-icon {
-            color: #999;
-        }
-
-        body.dark-mode .stat-details {
-            color: #e0e0e0;
-        }
 
         body.dark-mode .app-icon {
             background: rgba(255, 255, 255, 0.1);
@@ -1368,7 +1288,7 @@
 
         .unified-dashboard .tab-content.expanded {
             padding: 2rem;
-            min-height: auto;
+            min-height: 600px;
             height: auto;
             overflow-y: visible;
         }
@@ -1855,22 +1775,60 @@
             color: #66b3ff;
         }
 
-        /* Delete All Button Styles */
-        .delete-all-button {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.2s ease;
+        /* Milestone Count Controls */
+        .milestone-count-controls {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 10px;
+            margin-top: 0.5rem;
         }
 
-        .delete-all-button:hover {
-            background: #c82333 !important;
+        .milestone-count-controls input {
+            flex: 1;
+            max-width: 200px;
+        }
+
+        .milestone-count-controls .btn {
+            white-space: nowrap;
+            font-size: 0.9rem;
+            padding: 8px 12px;
+        }
+
+        body.dark-mode .milestone-count-controls .btn-outline-primary {
+            border-color: #007bff;
+            color: #007bff;
+            background: transparent;
+        }
+
+        body.dark-mode .milestone-count-controls .btn-outline-primary:hover {
+            background: #007bff;
+            color: white;
+        }
+
+        /* Delete Mode Button - looks like plus but with delete function */
+        .plus-button.delete-mode {
+            background: #f8f9fa;
+            color: #6c757d;
+            border: 1px solid #dee2e6;
+        }
+
+        .plus-button.delete-mode:hover {
+            background: #dc3545;
+            color: white;
+            border-color: #dc3545;
             transform: translateY(-1px);
+        }
+
+        body.dark-mode .plus-button.delete-mode {
+            background: #2a2a2a;
+            color: #888;
+            border-color: #444;
+        }
+
+        body.dark-mode .plus-button.delete-mode:hover {
+            background: #dc3545;
+            color: white;
+            border-color: #dc3545;
         }
 
         /* Modal Overlay - Full Screen Background */
@@ -2114,6 +2072,13 @@
         .note-category-simple {
             flex-shrink: 0;
             min-width: 80px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .note-category-simple:hover {
+            transform: scale(1.05);
         }
 
         .note-title-simple {
@@ -2706,9 +2671,237 @@
             padding: 2rem 1rem;
         }
 
+        /* Milestone Container */
+        .milestone-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        /* Interactive Milestone Points */
+        .milestone-point {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 2;
+        }
+
+        .milestone-point:hover {
+            transform: scale(1.2);
+            z-index: 10;
+        }
+
+        .milestone-point.planned {
+            background: #6c757d;
+            border-color: #5a6268;
+        }
+
+        .milestone-point.current {
+            background: #fd7e14;
+            border-color: #dc6502;
+            animation: pulse 2s infinite;
+        }
+
+        .milestone-point.completed {
+            background: #28a745;
+            border-color: #1e7e34;
+        }
+
+        .milestone-point.locked {
+            background: #e9ecef;
+            border-color: #dee2e6;
+            cursor: not-allowed !important;
+            opacity: 0.5;
+        }
+
+        .milestone-point.locked:hover {
+            transform: none !important;
+            background: #e9ecef !important;
+        }
+
+        /* Milestone Labels and Percentages */
+        .milestone-label {
+            margin-top: 0.5rem;
+            text-align: center;
+            font-size: 0.8rem;
+            max-width: 80px;
+            word-wrap: break-word;
+        }
+
+        .milestone-percentage {
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-top: 0.25rem;
+            text-align: center;
+            padding: 2px 6px;
+            border-radius: 10px;
+            min-width: 30px;
+        }
+
+        .milestone-percentage.planned {
+            background: #6c757d;
+            color: white;
+        }
+
+        .milestone-percentage.current {
+            background: #fd7e14;
+            color: white;
+        }
+
+        .milestone-percentage.completed {
+            background: #28a745;
+            color: white;
+        }
+
+        .milestone-percentage.locked {
+            background: #e9ecef;
+            color: #6c757d;
+            opacity: 0.6;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(253, 126, 20, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(253, 126, 20, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(253, 126, 20, 0); }
+        }
+
+        /* Dark Mode Support for Milestones */
+        body.dark-mode .milestone-label {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .milestone-percentage.planned {
+            background: #5a6268;
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .milestone-percentage.current {
+            background: #dc6502;
+            color: white;
+        }
+
+        body.dark-mode .milestone-percentage.completed {
+            background: #1e7e34;
+            color: white;
+        }
+
+        body.dark-mode .milestone-point.locked {
+            background: #444;
+            border-color: #555;
+            opacity: 0.4;
+        }
+
+        body.dark-mode .milestone-percentage.locked {
+            background: #444;
+            color: #888;
+            opacity: 0.5;
+        }
+
         .timeline-container {
             position: relative;
             margin: 2rem 0;
+        }
+
+        /* Milestone Percentages Bar Above Timeline */
+        .milestone-percentages-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding: 0 20px;
+        }
+
+        .milestone-percentage-above {
+            font-size: 0.8rem;
+            font-weight: bold;
+            padding: 4px 8px;
+            border-radius: 12px;
+            min-width: 35px;
+            text-align: center;
+        }
+
+        .milestone-percentage-above.planned {
+            background: #6c757d;
+            color: white;
+        }
+
+        .milestone-percentage-above.current {
+            background: #fd7e14;
+            color: white;
+        }
+
+        .milestone-percentage-above.completed {
+            background: #28a745;
+            color: white;
+        }
+
+        .milestone-percentage-above.locked {
+            background: #e9ecef;
+            color: #6c757d;
+            opacity: 0.6;
+        }
+
+        /* Dark Mode Support for Above Percentages */
+        body.dark-mode .milestone-percentage-above.planned {
+            background: #5a6268;
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .milestone-percentage-above.current {
+            background: #dc6502;
+            color: white;
+        }
+
+        body.dark-mode .milestone-percentage-above.completed {
+            background: #1e7e34;
+            color: white;
+        }
+
+        body.dark-mode .milestone-percentage-above.locked {
+            background: #444;
+            color: #888;
+            opacity: 0.5;
+        }
+
+        /* Expense Frequency Badges */
+        .expense-frequency-badge {
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+
+        .expense-frequency-badge.weekly {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .expense-frequency-badge.monthly {
+            background: #fd7e14;
+            color: white;
+        }
+
+        .expense-frequency-badge.quarterly {
+            background: #6f42c1;
+            color: white;
+        }
+
+        .expense-frequency-badge.yearly {
+            background: #28a745;
+            color: white;
+        }
+
+        .expense-frequency-detail {
+            font-size: 0.85rem;
+            color: #666;
+            margin: 5px 0;
+            font-weight: 500;
+        }
+
+        body.dark-mode .expense-frequency-detail {
+            color: #aaa;
         }
 
         .timeline-bar {
@@ -3484,10 +3677,20 @@
                 grid-column: span 1;
             }
 
-            .app-header {
+            .top-dashboard {
+                padding: 1rem;
+            }
+
+            .dashboard-header {
                 flex-direction: column;
                 text-align: center;
-                padding: 2rem 1rem;
+                gap: 1rem;
+            }
+
+            .dashboard-stats {
+                gap: 1rem;
+                flex-wrap: wrap;
+                justify-content: center;
             }
             
             .app-stats {
@@ -3528,30 +3731,18 @@
             <div class="auth-buttons" id="auth-buttons">
                 <!-- Will be populated by auth system -->
             </div>
-            <button class="menu-toggle" aria-label="Toggle navigation menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
-            <div class="header-links">
-                <div class="header-links-content">
-                    <a href="profile.html" aria-label="Back to profile">← Back to Profile</a>
-                    <a href="blog.html" aria-label="Visit our blog">Blog</a>
-                    <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
-                    <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
-                    <a href="map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
-                    <a href="ToolPicker.html" aria-label="Use our Tool Finder">Tool Finder</a>
-                </div>
-            </div>
         </div>
     </header>
 
     <main class="dashboard-container">
-        <!-- App Header -->
-        <div class="app-header">
-            <div class="app-icon" id="app-icon">
-                📱
-            </div>
-            <div class="app-info">
-                <h1 id="app-name">Loading...</h1>
-                <p id="app-description">Loading...</p>
-                <div class="app-stats">
+        <!-- Top Dashboard Header -->
+        <div class="top-dashboard">
+            <div class="dashboard-header">
+                <div class="app-info-compact">
+                    <h1 id="app-name">Loading...</h1>
+                    <p id="app-description">Loading...</p>
+                </div>
+                <div class="dashboard-stats">
                     <div class="stat-item">
                         <span class="stat-number" id="tasks-count">0</span>
                         <span class="stat-label">Tasks</span>
@@ -3561,34 +3752,20 @@
                         <span class="stat-label">Milestones</span>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-number" id="specs-count">0</span>
-                        <span class="stat-label">Specifications</span>
+                        <span class="stat-number" id="notes-count">0</span>
+                        <span class="stat-label">Notes</span>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-number" id="research-count">0</span>
-                        <span class="stat-label">Research</span>
+                        <span class="stat-number" id="versions-count">0</span>
+                        <span class="stat-label">Versions</span>
                     </div>
                     <div class="stat-item">
                         <span class="stat-number" id="budget-used">$0</span>
                         <span class="stat-label">Budget Used</span>
                     </div>
                 </div>
-                <div class="app-stats-detailed">
-                    <div class="stat-item-detailed">
-                        <span class="stat-icon">📝</span>
-                        <span class="stat-details" id="notes-stats">6 Notes</span>
             </div>
-                    <div class="stat-item-detailed">
-                        <span class="stat-icon">💰</span>
-                        <span class="stat-details" id="expenses-stats">$402 Total</span>
         </div>
-                    <div class="stat-item-detailed">
-                        <span class="stat-icon">🚀</span>
-                        <span class="stat-details" id="features-stats">5 Features</span>
-                    </div>
-                </div>
-                </div>
-            </div>
 
         <!-- Unified Project Management Dashboard (Full Width) -->
         <div class="dashboard-section full-width unified-dashboard">
@@ -3698,33 +3875,6 @@
             }
         }
 
-        // Menu Toggle Functionality
-        function initializeMenuToggle() {
-            const menuToggle = document.querySelector('.menu-toggle');
-            const headerLinks = document.querySelector('.header-links');
-            
-            if (menuToggle && headerLinks) {
-                menuToggle.addEventListener('click', function(event) {
-                    event.stopPropagation();
-                    if (headerLinks.classList.contains('show')) {
-                        headerLinks.classList.remove('show');
-                        menuToggle.setAttribute('aria-expanded', 'false');
-                    } else {
-                        headerLinks.classList.add('show');
-                        menuToggle.setAttribute('aria-expanded', 'true');
-                    }
-                });
-                
-                // Close menu when clicking outside
-                document.addEventListener('click', function(event) {
-                    if (headerLinks && headerLinks.classList.contains('show') && 
-                        !menuToggle.contains(event.target) && !headerLinks.contains(event.target)) {
-                        headerLinks.classList.remove('show');
-                        menuToggle.setAttribute('aria-expanded', 'false');
-                    }
-                });
-            }
-        }
 
         // Load Saved Theme
         function loadSavedTheme() {
@@ -3756,7 +3906,6 @@
         // Initialize everything when DOM is loaded
         document.addEventListener('DOMContentLoaded', () => {
             initializeThemeToggle();
-            initializeMenuToggle();
             loadSavedTheme();
         });
     </script>
@@ -3869,21 +4018,9 @@
             document.getElementById('app-description').textContent = currentApp.description || 'No description available';
             document.getElementById('budget-used').textContent = `$${currentApp.spent || 0}`;
             
-            // Update additional statistics
-            const notesElement = document.getElementById('notes-stats');
-            if (notesElement) {
-                notesElement.textContent = '6 Notes';
-            }
-            
-            const expensesElement = document.getElementById('expenses-stats');
-            if (expensesElement) {
-                expensesElement.textContent = '$402 Total';
-            }
-            
-            const featuresElement = document.getElementById('features-stats');
-            if (featuresElement) {
-                featuresElement.textContent = '5 Features';
-            }
+            // Initialize counters (will be updated by individual load functions)
+            document.getElementById('notes-count').textContent = '0';
+            document.getElementById('versions-count').textContent = '0';
         }
 
         // Load app specifications
@@ -3899,7 +4036,6 @@
                     }
                 }
                 
-                document.getElementById('specs-count').textContent = specs.length;
                 renderSpecs(specs);
             } catch (error) {
                 console.error('Error loading specs:', error);
@@ -3948,11 +4084,9 @@
                 }
                 
                 console.log('Total research loaded:', research.length);
-                document.getElementById('research-count').textContent = research.length;
                 renderResearch(research);
             } catch (error) {
                 console.error('Error loading research:', error);
-                document.getElementById('research-count').textContent = '0';
                 renderResearch([]);
             }
         }
@@ -3984,18 +4118,6 @@
                 console.log('Current app ID:', appId);
                 
                 renderTasks(tasks);
-                
-                // Update task count in header
-                const taskCount = tasks.length;
-                const doneCount = tasks.filter(task => task.status === 'done').length;
-                const inProgressCount = tasks.filter(task => task.status === 'in-progress').length;
-                const todoCount = tasks.filter(task => task.status === 'to-do').length;
-                
-                // Update header stats if they exist
-                const taskStatElement = document.querySelector('.stat-item:has(.fa-tasks) .stat-value');
-                if (taskStatElement) {
-                    taskStatElement.textContent = `${taskCount} Tasks`;
-                }
                 
             } catch (error) {
                 console.error('Error loading tasks:', error);
@@ -4167,13 +4289,6 @@
                 
                 renderNotes(notes);
                 
-                // Update notes count in header
-                const notesCount = notes.length;
-                const noteStatElement = document.querySelector('.stat-item:has(.fa-sticky-note) .stat-value');
-                if (noteStatElement) {
-                    noteStatElement.textContent = `${notesCount} Notes`;
-                }
-                
             } catch (error) {
                 console.error('Error loading notes:', error);
                 console.error('Detailed error:', error.message);
@@ -4252,13 +4367,6 @@
 
                 renderFeatures(features);
                 
-                // Update features count in header
-                const featuresCount = features.length;
-                const featureStatElement = document.querySelector('.stat-item:has(.fa-list) .stat-value');
-                if (featureStatElement) {
-                    featureStatElement.textContent = `${featuresCount} Features`;
-                }
-                
             } catch (error) {
                 console.error('Error loading features:', error);
                 // Fallback to sample data if there's an error
@@ -4311,7 +4419,12 @@
 
         // Load app expenses (with sample data for now)
         async function loadAppExpenses() {
-            if (!currentUser || !appId) return;
+            if (!currentUser || !appId) {
+                console.log('⚠️ Cannot load expenses: missing currentUser or appId');
+                return;
+            }
+            
+            console.log('📊 Loading expenses for user:', currentUser.uid, 'app:', appId);
             
             try {
                 // Load expenses from Firestore
@@ -4331,18 +4444,48 @@
                     });
                 });
 
+                console.log('✅ Found', expenses.length, 'expenses from Firebase');
                 renderExpenses(expenses);
-                
-                // Update expenses count in header
-                const expensesCount = expenses.length;
-                const totalAmount = expenses.reduce((sum, expense) => sum + (expense.amount || 0), 0);
-                const expenseStatElement = document.querySelector('.stat-item:has(.fa-dollar-sign) .stat-value');
-                if (expenseStatElement) {
-                    expenseStatElement.textContent = `$${totalAmount.toFixed(2)} Total Expenses`;
-                }
                 
             } catch (error) {
                 console.error('Error loading expenses:', error);
+                
+                // Check if it's a composite index error
+                if (error.code === 'failed-precondition' && error.message.includes('index')) {
+                    console.log('📋 Creating composite index for expenses. Loading without orderBy for now...');
+                    
+                    // Try loading without orderBy as fallback
+                    try {
+                        const simpleQuery = query(
+                            collection(db, 'appExpenses'),
+                            where('userId', '==', currentUser.uid),
+                            where('appId', '==', appId)
+                        );
+                        
+                        const querySnapshot = await getDocs(simpleQuery);
+                        const expenses = [];
+                        querySnapshot.forEach((doc) => {
+                            expenses.push({
+                                id: doc.id,
+                                ...doc.data()
+                            });
+                        });
+
+                        if (expenses.length > 0) {
+                            console.log('✅ Successfully loaded', expenses.length, 'expenses without orderBy');
+                            renderExpenses(expenses);
+                            return;
+                        } else {
+                            console.log('📭 No expenses found in database');
+                        }
+                    } catch (secondError) {
+                        console.error('Error with simple query:', secondError);
+                    }
+                }
+                
+                // Show message to user about sample data
+                console.warn('🚨 Showing sample data because of Firebase error. Your real expenses will appear once the database index is ready.');
+                
                 // Fallback to sample data if there's an error
                 const sampleExpenses = [
                     {
@@ -4462,12 +4605,11 @@
             
             const tasksHTML = tasks.map(task => `
                 <div class="note-item-simple">
-                    <div class="note-header-simple" onclick="showTaskDetails('${task.id}')">
-                        <span class="note-category-simple ${task.status}">${task.status.replace('-', ' ').toUpperCase()}</span>
-                        <span class="note-title-simple">${task.title}</span>
+                    <div class="note-header-simple">
+                        <span class="note-category-simple ${task.status}" onclick="toggleTaskStatusSimple('${task.id}'); event.stopPropagation();">${task.status.replace('-', ' ').toUpperCase()}</span>
+                        <span class="note-title-simple" onclick="showTaskDetails('${task.id}')">${task.title}</span>
                         <div class="note-meta-inline">
                             ${task.priority ? `<span class="note-priority ${task.priority.toLowerCase()}">${task.priority}</span>` : ''}
-                            <span>${new Date(task.createdAt).toLocaleDateString()}</span>
                             ${task.dueDate ? `<span>📅 ${new Date(task.dueDate).toLocaleDateString()}</span>` : ''}
                         </div>
                     </div>
@@ -4495,6 +4637,9 @@
             `).join('');
             
             container.innerHTML = `<div class="tasks-list-simple">${tasksHTML}</div>`;
+            
+            // Update counter in dashboard after rendering
+            setTimeout(updateDashboardCounters, 100);
         }
         
         // Show task details on title click (using note style)
@@ -4507,7 +4652,7 @@
         }
         
         // Toggle task status on status click
-        window.toggleTaskStatusSimple = function(taskId) {
+        window.toggleTaskStatusSimple = async function(taskId) {
             const taskItem = document.querySelector(`[onclick="showTaskDetails('${taskId}')"]`).closest('.note-item-simple');
             const statusBadge = taskItem.querySelector('.note-category-simple');
             
@@ -4529,7 +4674,17 @@
                 statusBadge.className = 'note-category-simple to-do';
             }
             
-            showSuccess('Task marked as done!');
+            // Update in Firebase
+            try {
+                await db.collection('tasks').doc(taskId).update({
+                    status: newStatus,
+                    updatedAt: new Date().toISOString()
+                });
+                showSuccess(`Task status updated to ${newStatus.replace('-', ' ')}!`);
+            } catch (error) {
+                console.error('Error updating task status:', error);
+                showError('Failed to update task status');
+            }
         }
 
         function renderMilestones(milestones) {
@@ -4551,22 +4706,52 @@
             const completedCount = sortedMilestones.filter(m => m.status === 'completed').length;
             const progressPercentage = (completedCount / sortedMilestones.length) * 100;
             
-            // Generate timeline points
+            // Generate timeline points with sequential logic
             const timelinePoints = sortedMilestones.map((milestone, index) => {
                 let status = 'planned';
+                let isClickable = false;
+                let clickHandler = '';
+                let cursorStyle = '';
+                let title = '';
+                
                 if (milestone.status === 'completed') {
                     status = 'completed';
+                    isClickable = true;
+                    clickHandler = `onclick="toggleMilestoneStatus('${milestone.id}')"`;
+                    title = 'Click to mark as incomplete';
                 } else if (milestone.status === 'in-progress') {
                     status = 'current';
+                    isClickable = true;
+                    clickHandler = `onclick="toggleMilestoneStatus('${milestone.id}')"`;
+                    title = 'Click to complete this milestone';
+                } else {
+                    // Check if this milestone can be activated (previous one is completed)
+                    const prevMilestone = index > 0 ? sortedMilestones[index - 1] : null;
+                    const canActivate = index === 0 || (prevMilestone && prevMilestone.status === 'completed');
+                    
+                    if (canActivate) {
+                        status = 'planned';
+                        isClickable = true;
+                        clickHandler = `onclick="toggleMilestoneStatus('${milestone.id}')"`;
+                        title = 'Click to start this milestone';
+                    } else {
+                        status = 'locked';
+                        isClickable = false;
+                        title = 'Complete previous milestone first';
+                        cursorStyle = 'style="cursor: not-allowed;"';
+                    }
                 }
                 
                  return `
-                     <div class="milestone-point ${status}" 
-                          onclick="showMilestoneInfo('${milestone.id}')" 
-                          onmouseover="showMilestoneInfo('${milestone.id}')"
-                          data-milestone-id="${milestone.id}">
+                     <div class="milestone-container" data-milestone-id="${milestone.id}">
+                         <div class="milestone-point ${status}" 
+                              ${clickHandler}
+                              onmouseover="showMilestoneInfo('${milestone.id}')"
+                              title="${title}"
+                              ${cursorStyle}>
+                         </div>
                          <div class="milestone-label">${milestone.title}</div>
-                    </div>
+                     </div>
                  `;
             }).join('');
             
@@ -4575,8 +4760,27 @@
                                    sortedMilestones.find(m => m.status === 'completed') || 
                                    sortedMilestones[0];
             
+            // Create percentages bar above timeline
+            const percentagesBar = sortedMilestones.map((milestone, index) => {
+                let status = 'planned';
+                if (milestone.status === 'completed') {
+                    status = 'completed';
+                } else if (milestone.status === 'in-progress') {
+                    status = 'current';
+                } else {
+                    const prevMilestone = index > 0 ? sortedMilestones[index - 1] : null;
+                    const canActivate = index === 0 || (prevMilestone && prevMilestone.status === 'completed');
+                    status = canActivate ? 'planned' : 'locked';
+                }
+                
+                return `<div class="milestone-percentage-above ${status}">${milestone.progress}%</div>`;
+            }).join('');
+
             container.innerHTML = `
                 <div class="timeline-container">
+                    <div class="milestone-percentages-bar">
+                        ${percentagesBar}
+                    </div>
                     <div class="timeline-bar">
                         <div class="timeline-progress" style="width: ${progressPercentage}%"></div>
                 </div>
@@ -4604,8 +4808,59 @@
             sortedMilestones.forEach(milestone => {
                 window.milestonesData[milestone.id] = milestone;
             });
+            
+            // Update counter in dashboard after rendering
+            setTimeout(updateDashboardCounters, 100);
         }
         
+        // Toggle milestone status (planned -> in-progress -> completed -> planned)
+        window.toggleMilestoneStatus = async function(milestoneId) {
+            try {
+                // Find the milestone in our data
+                const milestone = window.milestonesData[milestoneId];
+                if (!milestone) {
+                    console.error('Milestone not found:', milestoneId);
+                    return;
+                }
+
+                // Determine next status
+                let newStatus;
+                switch(milestone.status) {
+                    case 'planned':
+                        newStatus = 'in-progress';
+                        break;
+                    case 'in-progress':
+                        newStatus = 'completed';
+                        break;
+                    case 'completed':
+                        newStatus = 'planned';
+                        break;
+                    default:
+                        newStatus = 'in-progress';
+                }
+
+                // Update in Firebase
+                await updateDoc(doc(db, 'appMilestones', milestoneId), {
+                    status: newStatus
+                });
+
+                // Update local data
+                milestone.status = newStatus;
+
+                // Reload milestones to update display
+                loadAppMilestones();
+
+                // Show success message
+                const statusText = newStatus === 'completed' ? 'completed' : 
+                                 newStatus === 'in-progress' ? 'in progress' : 'planned';
+                showSuccess(`Milestone marked as ${statusText}!`);
+
+            } catch (error) {
+                console.error('Error updating milestone status:', error);
+                alert('Error updating milestone status: ' + error.message);
+            }
+        }
+
         // Show milestone info in panel
         window.showMilestoneInfo = function(milestoneId) {
             const milestone = window.milestonesData[milestoneId];
@@ -4670,6 +4925,9 @@
             `).join('');
             
             container.innerHTML = `<div class="notes-list-simple">${notesHTML}</div>`;
+            
+            // Update counter in dashboard after rendering
+            setTimeout(updateDashboardCounters, 100);
         }
         
         // Show note details on title click
@@ -4758,6 +5016,9 @@
             }).join('');
 
             container.innerHTML = `<div class="features-roadmap">${featureListHTML}</div>`;
+            
+            // Update counter in dashboard after rendering
+            setTimeout(updateDashboardCounters, 100);
         }
         
         // Toggle version details
@@ -4814,9 +5075,14 @@
                         <span class="expense-amount-simple">$${expense.amount.toFixed(2)}</span>
                         <span class="expense-description-simple">${expense.description}</span>
                         <span class="expense-date-simple">${new Date(expense.date).toLocaleDateString()}</span>
+                        ${expense.frequency && expense.frequency !== 'one-time' ? 
+                            `<span class="expense-frequency-badge ${expense.frequency}">${expense.frequency}</span>` : 
+                            ''
+                        }
                     </div>
                     <div class="expense-details-simple" id="expense-details-${expense.id}" style="display: none;">
                         <div class="expense-category-detail ${expense.category}">${expense.category.toUpperCase()}</div>
+                        ${expense.frequency ? `<div class="expense-frequency-detail">Frequency: ${expense.frequency}</div>` : ''}
                         ${expense.notes ? `<div class="expense-notes-detail">${expense.notes}</div>` : ''}
                         <div class="expense-actions-simple">
                             <button onclick="deleteExpenseConfirm('${expense.id}'); event.stopPropagation();" title="Delete" style="color: #dc3545;">
@@ -4836,8 +5102,8 @@
                 </div>
             `;
             
-            // Update total expenses
-            updateTotalExpenses();
+            // Update dashboard counters
+            updateDashboardCounters();
         }
         
         // Show expense details on click
@@ -4901,8 +5167,8 @@
                         if (exists) {
                             actionsContainer.innerHTML = `
                                 <div class="action-buttons">
-                                    <button class="delete-all-button" onclick="deleteAllMilestonesConfirm()" title="Delete All Milestones" style="background: #dc3545; color: white;">
-                                        <i class="fas fa-trash"></i> Delete All
+                                    <button class="plus-button delete-mode" onclick="deleteAllMilestonesConfirm()" title="Delete All Milestones">
+                                        <i class="fas fa-trash"></i>
                                     </button>
                                 </div>
                             `;
@@ -5069,7 +5335,12 @@
                     <div class="modal-body">
                         <div class="form-group">
                             <label>How many milestones would you like to create?</label>
-                            <input type="number" id="milestones-count" min="2" max="10" value="3" oninput="generateMilestoneInputs()" onchange="generateMilestoneInputs()">
+                            <div class="milestone-count-controls">
+                                <input type="number" id="milestones-count" min="2" max="10" value="3" placeholder="Enter number of milestones">
+                                <button type="button" class="btn btn-outline-primary" onclick="generateMilestoneInputs()" style="margin-left: 10px;">
+                                    <i class="fas fa-refresh"></i> Update Templates
+                                </button>
+                            </div>
                         </div>
                         <div id="milestones-list">
                             <!-- Dynamic milestone inputs will be generated here -->
@@ -5091,16 +5362,41 @@
 
         // Generate dynamic milestone inputs
         window.generateMilestoneInputs = function() {
+            console.log('🔄 generateMilestoneInputs called');
+            
             const countInput = document.getElementById('milestones-count');
             const container = document.getElementById('milestones-list');
             
             if (!countInput || !container) {
-                console.log('Missing elements:', { countInput, container });
+                console.error('❌ Missing elements:', { 
+                    countInput: !!countInput, 
+                    container: !!container 
+                });
                 return;
             }
             
-            const count = parseInt(countInput.value) || 3;
-            console.log('Generating', count, 'milestones');
+            // Debug: show what we're reading
+            console.log('📝 countInput element:', countInput);
+            console.log('📝 Input value:', countInput?.value);
+            console.log('📝 All inputs in modal:', document.querySelectorAll('#milestones-count'));
+            
+            // Try to get the value more reliably
+            let inputValue = countInput?.value;
+            if (!inputValue) {
+                // Try to find the input again
+                const allNumberInputs = document.querySelectorAll('input[type="number"]');
+                console.log('🔍 Found number inputs:', allNumberInputs.length);
+                for (let input of allNumberInputs) {
+                    if (input.min === "2" && input.max === "10") {
+                        console.log('🎯 Found milestone count input:', input.value);
+                        inputValue = input.value;
+                        break;
+                    }
+                }
+            }
+            
+            const count = parseInt(inputValue) || 3;
+            console.log('📊 Final parsed count:', count, 'milestone templates');
             
             // Ensure count is within valid range
             if (count < 2) {
@@ -5139,7 +5435,7 @@
             }
             
             container.innerHTML = inputsHTML;
-            console.log('Generated HTML for', count, 'milestones');
+            console.log('✅ Successfully generated', count, 'milestone templates');
         }
 
         window.openFeatureModal = function() {
@@ -5263,6 +5559,34 @@
                 circle.classList.add(currentStatus);
                 alert('Error updating feature status');
             }
+        }
+
+        // Update dashboard counters
+        function updateDashboardCounters() {
+            // Count current elements in the DOM for immediate feedback
+            const tasksCount = document.querySelectorAll('#tasks-container .task-item').length;
+            const notesCount = document.querySelectorAll('#notes-container .note-item').length;
+            const versionsCount = document.querySelectorAll('#features-container .version-roadmap-item').length;
+            const milestonesCount = document.querySelectorAll('#milestones-timeline .milestone-point').length;
+            const expenseItems = document.querySelectorAll('#expenses-container .expense-item-simple');
+            
+            // Calculate total budget used from visible expenses
+            let totalBudget = 0;
+            expenseItems.forEach(item => {
+                const amountText = item.querySelector('.expense-amount-simple')?.textContent;
+                if (amountText) {
+                    const amount = parseFloat(amountText.replace('$', ''));
+                    if (!isNaN(amount)) {
+                        totalBudget += amount;
+                    }
+                }
+            });
+            
+            document.getElementById('tasks-count').textContent = tasksCount;
+            document.getElementById('notes-count').textContent = notesCount;
+            document.getElementById('versions-count').textContent = versionsCount;
+            document.getElementById('milestones-count').textContent = milestonesCount;
+            document.getElementById('budget-used').textContent = `$${totalBudget.toFixed(0)}`;
         }
 
         // Update feature status in Firebase
@@ -5389,6 +5713,24 @@
                                         <option value="hosting">Hosting</option>
                                         <option value="tools">Tools</option>
                                         <option value="marketing">Marketing</option>
+                                        <option value="design">Design</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Date</label>
+                                    <input type="date" id="expense-date" value="${new Date().toISOString().split('T')[0]}" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Frequency</label>
+                                    <select id="expense-frequency">
+                                        <option value="one-time">One-time</option>
+                                        <option value="weekly">Weekly</option>
+                                        <option value="monthly">Monthly</option>
+                                        <option value="quarterly">Quarterly</option>
+                                        <option value="yearly">Yearly</option>
                                     </select>
                                 </div>
                             </div>
@@ -5663,21 +6005,40 @@
                 const amount = parseFloat(document.getElementById('expense-amount').value);
                 const category = document.getElementById('expense-category').value;
                 const date = document.getElementById('expense-date').value;
+                const frequency = document.getElementById('expense-frequency').value;
+                const notes = document.getElementById('expense-notes').value;
+                
+                // Validation
+                if (!description.trim()) {
+                    alert('Please enter a description');
+                    return;
+                }
+                if (isNaN(amount) || amount <= 0) {
+                    alert('Please enter a valid amount');
+                    return;
+                }
                 
                 const expenseData = {
-                    description: description,
+                    description: description.trim(),
                     amount: amount,
                     category: category,
                     date: date || new Date().toISOString().split('T')[0],
+                    frequency: frequency,
+                    notes: notes.trim(),
                     createdAt: new Date().toISOString(),
                     userId: auth.currentUser.uid,
                     appId: getCurrentAppId()
                 };
 
-                await addDoc(collection(db, 'appExpenses'), expenseData);
+                console.log('💾 Saving expense to Firebase:', expenseData);
+                const docRef = await addDoc(collection(db, 'appExpenses'), expenseData);
+                console.log('✅ Expense saved with ID:', docRef.id);
                 
-                alert('Expense added successfully!');
+                const frequencyText = frequency === 'one-time' ? '' : ` (${frequency})`;
+                showSuccess(`Expense "${description}"${frequencyText} added successfully!`);
                 closeModal();
+                
+                console.log('🔄 Refreshing expenses list...');
                 loadAppExpenses(); // Refresh the expenses display
                 
             } catch (error) {
@@ -5760,8 +6121,9 @@
             const notification = document.createElement('div');
             notification.style.cssText = `
                 position: fixed;
-                top: 20px;
-                right: 20px;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
                 background: #28a745;
                 color: white;
                 padding: 12px 20px;
@@ -5770,16 +6132,16 @@
                 z-index: 10000;
                 font-size: 14px;
                 font-weight: 500;
-                animation: slideIn 0.3s ease-out;
+                animation: slideUp 0.3s ease-out;
             `;
             notification.textContent = message;
             
             // Add animation styles
             const style = document.createElement('style');
             style.textContent = `
-                @keyframes slideIn {
-                    from { transform: translateX(100%); opacity: 0; }
-                    to { transform: translateX(0); opacity: 1; }
+                @keyframes slideUp {
+                    from { transform: translateX(-50%) translateY(100%); opacity: 0; }
+                    to { transform: translateX(-50%) translateY(0); opacity: 1; }
                 }
             `;
             document.head.appendChild(style);
@@ -5791,6 +6153,46 @@
                 notification.remove();
                 style.remove();
             }, 3000);
+        }
+
+        // Helper function to show error messages
+        function showError(message) {
+            // Create a temporary error notification
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: #dc3545;
+                color: white;
+                padding: 12px 20px;
+                border-radius: 6px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                z-index: 10000;
+                font-size: 14px;
+                font-weight: 500;
+                animation: slideUp 0.3s ease-out;
+            `;
+            notification.textContent = message;
+            
+            // Add animation styles
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideUp {
+                    from { transform: translateX(-50%) translateY(100%); opacity: 0; }
+                    to { transform: translateX(-50%) translateY(0); opacity: 1; }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            document.body.appendChild(notification);
+            
+            // Remove after 5 seconds
+            setTimeout(() => {
+                notification.remove();
+                style.remove();
+            }, 5000);
         }
 
         // Confirmation popup function

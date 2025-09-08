@@ -19,16 +19,6 @@
             <div class="auth-buttons" id="auth-buttons">
                 <!-- Will be populated by auth system -->
             </div>
-            <button class="menu-toggle" aria-label="Toggle navigation menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
-            <div class="header-links">
-                <div class="header-links-content">
-                    <a href="blog.html" aria-label="Visit our blog">Blog</a>
-                    <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
-                    <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
-                    <a href="map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
-                    <a href="https://specifys-ai.com/ToolPicker" aria-label="Use our Tool Finder">Tool Finder</a>
-                </div>
-            </div>
         </div>
     </header>
 
@@ -146,7 +136,7 @@
                 <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
                 <a href="blog.html" aria-label="Visit our blog">Blog</a>
                 <a href="map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
-                <a href="https://specifys-ai.com/ToolPicker" aria-label="Use our Tool Finder">Tool Finder</a>
+                <a href="../ToolPicker.html" aria-label="Use our Tool Finder">Tool Finder</a>
             </div>
             <span class="footer-divider">|</span>
             <div class="footer-social">
@@ -190,22 +180,6 @@
             localStorage.setItem('theme', 'light');
         }
 
-        // Menu toggle functionality
-        const menuToggle = document.querySelector('.menu-toggle');
-        const headerLinks = document.querySelector('.header-links');
-        menuToggle.addEventListener('click', () => {
-            const isActive = headerLinks.classList.contains('active');
-            headerLinks.classList.toggle('active');
-            menuToggle.setAttribute('aria-expanded', !isActive);
-        });
-
-        // Close menu when clicking on background
-        headerLinks.addEventListener('click', (e) => {
-            if (e.target === headerLinks) {
-                headerLinks.classList.remove('active');
-                menuToggle.setAttribute('aria-expanded', 'false');
-            }
-        });
     </script>
 </body>
 </html>
