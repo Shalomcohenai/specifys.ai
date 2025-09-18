@@ -7,7 +7,6 @@
     <link rel="icon" type="image/x-icon" href="../favicon.ico" alt="Specifys.ai logo icon">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="styles.css">
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
@@ -35,28 +34,13 @@
             --chat-header-text: #fff;
         }
 
-        body.dark-mode {
-            --bg-color: #1a1a1a;
-            --text-color: #ffffff;
-            --primary-color: #0078d4;
-            --secondary-color: #6c757d;
-            --light-gray: #2a2a2a;
-            --border-color: #444;
-            --chat-bg: #2a2a2a;
-            --system-msg-bg: #1a1a1a;
-            --user-msg-bg: #0078d4;
-            --user-msg-text: #fff;
-            --input-bg: #2a2a2a;
-            --input-border: #444;
-            --button-hover: #005ea2;
-            --progress-bg: #2a2a2a;
-            --progress-fill: #0078d4;
-            --chat-header-bg: #0078d4;
-            --chat-header-text: #fff;
-        }
 
         body {
             font-family: "Montserrat", sans-serif;
+            background: #ffffff;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
         }
 
         /* Header Layout Styles */
@@ -75,10 +59,6 @@
             transition: background 0.3s ease, border-color 0.3s ease;
         }
 
-        body.dark-mode .thematic-header {
-            background: var(--bg-color, #1a1a1a);
-            border-bottom: 1px solid var(--border-color, #444);
-        }
 
         .header-left {
             display: flex;
@@ -112,14 +92,11 @@
         .logo a {
             font-size: 1.5rem;
             font-weight: 700;
-            color: var(--text-color, #333);
+            color: #333333;
             text-decoration: none;
             transition: color 0.3s ease;
         }
 
-        body.dark-mode .logo a {
-            color: #ffffff;
-        }
 
         .logo a:hover {
             color: var(--primary-color, #0078d4);
@@ -225,7 +202,7 @@
             display: block;
             width: 100%;
             padding: 12px 16px;
-            color: var(--text-color, #333);
+            color: #333333;
             text-decoration: none;
             font-size: 0.9rem;
             font-weight: 500;
@@ -241,33 +218,8 @@
             background: var(--light-gray, #f5f5f5);
         }
 
-        /* Dark Mode Toggle */
-        .theme-toggle {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            border: none;
-            background: white;
-            color: black;
-            font-size: 1rem;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            transition: all 0.3s ease;
-            z-index: 1000;
-        }
 
-        .theme-toggle:hover {
-            transform: scale(1.1);
-            box-shadow: 0 6px 16px rgba(0,0,0,0.2);
-        }
 
-        body.dark-mode .theme-toggle {
-            background: black;
-            color: white;
-        }
 
         /* Mobile Responsive */
         @media (max-width: 768px) {
@@ -306,11 +258,6 @@
                 font-size: 0.7rem;
             }
             
-            .theme-toggle {
-                width: 45px;
-                height: 45px;
-                font-size: 1.1rem;
-            }
             
             .user-dropdown-content {
                 top: 70px;
@@ -357,14 +304,11 @@
         .logo a {
             font-size: 1.5rem;
             font-weight: 700;
-            color: var(--text-color, #333);
+            color: #333333;
             text-decoration: none;
             transition: color 0.3s ease;
         }
 
-        body.dark-mode .logo a {
-            color: #ffffff;
-        }
 
         .logo a:hover {
             color: var(--primary-color, #0078d4);
@@ -443,24 +387,6 @@
             font-weight: 500;
         }
 
-        body.dark-mode .user-info {
-            background: rgba(128, 128, 128, 0.2);
-            border-color: rgba(128, 128, 128, 0.3);
-            color: #ccc;
-        }
-
-        body.dark-mode .user-info:hover {
-            background: rgba(128, 128, 128, 0.3);
-        }
-
-        body.dark-mode .user-avatar {
-            background: #ccc;
-            color: #333;
-        }
-
-        body.dark-mode .user-name {
-            color: #ccc;
-        }
 
         /* User Dropdown */
         .user-dropdown {
@@ -582,9 +508,6 @@
             margin-top: 1rem;
         }
 
-        body.dark-mode .footer-copyright {
-            color: #999;
-        }
 
         /* Scroll to Top Button */
         .scroll-to-top {
@@ -615,32 +538,7 @@
             display: flex;
         }
 
-        /* Theme Toggle Button */
-        .theme-toggle {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            background: var(--bg-color);
-            color: var(--text-color);
-            border: none;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            font-size: 1.2rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-            z-index: 1000;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
 
-        .theme-toggle:hover {
-            background: var(--hover-color);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-        }
 
         /* Responsive Design */
         @media (max-width: 768px) {
@@ -837,6 +735,34 @@
             align-items: center;
         }
 
+        .create-app-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #666;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 6px rgba(102, 102, 102, 0.2);
+        }
+
+        .create-app-btn:hover {
+            background: #555;
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(102, 102, 102, 0.3);
+        }
+
+        .create-app-btn:active {
+            transform: scale(0.95);
+        }
+
+
+
         .search-input {
             padding: 0.75rem 1rem;
             border: 2px solid #e1e5e9;
@@ -922,10 +848,6 @@
             margin-bottom: 2rem;
         }
 
-        body.dark-mode .tabbed-section {
-            background: #2a2a2a;
-            border-color: #444;
-        }
 
         .tab-header {
             display: flex;
@@ -936,10 +858,6 @@
             padding: 0;
         }
 
-        body.dark-mode .tab-header {
-            border-bottom-color: #444;
-            background: #333;
-        }
 
         .tab-buttons {
             display: flex;
@@ -970,20 +888,8 @@
             background: rgba(0, 123, 255, 0.05);
         }
 
-        body.dark-mode .tab-button {
-            color: #ccc;
-        }
 
-        body.dark-mode .tab-button:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: #fff;
-        }
 
-        body.dark-mode .tab-button.active {
-            color: #4dabf7;
-            border-bottom-color: #4dabf7;
-            background: rgba(77, 171, 247, 0.1);
-        }
 
         .tab-actions {
             padding: 1rem;
@@ -1058,6 +964,24 @@
             display: flex;
             gap: 0.5rem;
             flex-shrink: 0;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .app-card:hover .app-card-actions {
+            opacity: 1;
+        }
+
+        .spec-card-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-shrink: 0;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .spec-card:hover .spec-card-actions {
+            opacity: 1;
         }
 
         .app-card-content {
@@ -1065,12 +989,6 @@
         }
 
 
-        .app-description {
-            color: #666;
-            font-size: 0.9rem;
-            line-height: 1.4;
-            margin-bottom: 1rem;
-        }
 
 
         .app-card-footer {
@@ -1181,6 +1099,7 @@
             .app-card-actions {
                 justify-content: center;
                 margin-top: 1rem;
+                opacity: 1; /* Always visible on mobile */
             }
             
             .profile-actions {
@@ -1234,252 +1153,6 @@
             }
         }
 
-        /* Dark Mode Styles */
-        body.dark-mode {
-            background: #1a1a1a;
-            color: #e0e0e0;
-        }
-
-        body.dark-mode .profile-container {
-            background: #1a1a1a;
-            color: #e0e0e0;
-        }
-
-        body.dark-mode .profile-header {
-            background: #333;
-            color: #e0e0e0;
-        }
-
-        body.dark-mode .profile-specs-section {
-            background: #2a2a2a;
-            color: #e0e0e0;
-            border: 1px solid #444;
-        }
-
-        body.dark-mode .section-header {
-            border-bottom-color: #444;
-        }
-
-        body.dark-mode .section-header h3 {
-            color: #e0e0e0;
-        }
-
-        body.dark-mode .spec-card {
-            background: #333;
-            border-color: #444;
-            color: #e0e0e0;
-        }
-
-        body.dark-mode .spec-card:hover {
-            background: #3a3a3a;
-        }
-
-        body.dark-mode .spec-card-title {
-            color: #e0e0e0;
-        }
-
-        body.dark-mode .spec-card-content {
-            color: #cccccc;
-        }
-
-        body.dark-mode .spec-card-footer {
-            color: #999;
-            border-color: #444;
-        }
-
-        body.dark-mode .search-input,
-        body.dark-mode .sort-select {
-            background: #333;
-            border-color: #555;
-            color: #e0e0e0;
-        }
-
-        body.dark-mode .search-input:focus,
-        body.dark-mode .sort-select:focus {
-            border-color: #23a6d5;
-            box-shadow: 0 0 0 3px rgba(35, 166, 213, 0.1);
-        }
-
-        body.dark-mode .no-specs {
-            background: linear-gradient(135deg, #333 0%, #444 100%);
-            border-color: #555;
-        }
-
-        body.dark-mode .no-specs h4 {
-            color: #e0e0e0;
-        }
-
-        body.dark-mode .no-specs p {
-            color: #cccccc;
-        }
-
-        body.dark-mode .no-results {
-            color: #cccccc;
-        }
-
-        body.dark-mode .btn {
-            background: #999;
-            color: #fff;
-            border-color: #999;
-        }
-
-        body.dark-mode .btn:hover {
-            background: #777;
-            border-color: #777;
-        }
-
-        body.dark-mode .btn-outline-secondary {
-            background: transparent;
-            color: #e0e0e0;
-            border-color: #666;
-        }
-
-        body.dark-mode .btn-outline-secondary:hover {
-            background: #666;
-            color: #fff;
-        }
-
-        body.dark-mode .stat-item {
-            color: #e0e0e0;
-        }
-
-        body.dark-mode .stat-number {
-            color: #fff;
-        }
-
-        body.dark-mode .stat-label {
-            color: #cccccc;
-        }
-
-        body.dark-mode .profile-info h2 {
-            color: #fff;
-        }
-
-        body.dark-mode .profile-info p {
-            color: #ccc;
-        }
-
-        body.dark-mode .avatar-placeholder {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: rgba(255, 255, 255, 0.3);
-        }
-
-        body.dark-mode .spec-link {
-            color: #999;
-        }
-
-        body.dark-mode .spec-link:hover {
-            color: #777;
-        }
-
-        body.dark-mode .spec-mode-badge {
-            background: #999;
-            color: #fff;
-        }
-
-        body.dark-mode .tool-card {
-            background: #333;
-            border-color: #444;
-            color: #e0e0e0;
-        }
-
-        body.dark-mode .tool-card:hover {
-            background: #3a3a3a;
-        }
-
-        body.dark-mode .tool-card-title {
-            color: #e0e0e0;
-        }
-
-        body.dark-mode .tool-card-description {
-            color: #cccccc;
-        }
-
-        body.dark-mode .tool-card-footer {
-            color: #999;
-            border-color: #444;
-        }
-
-        body.dark-mode .tool-card-actions button {
-            color: #999;
-        }
-
-        body.dark-mode .tool-card-actions button:hover {
-            background: #444;
-            color: #e0e0e0;
-        }
-
-        body.dark-mode .tool-card-actions button.liked {
-            color: #ff6b6b;
-        }
-
-        /* Dark Mode App Card Styles */
-        body.dark-mode .app-card {
-            background: #333;
-            border-color: #444;
-            color: #e0e0e0;
-        }
-
-        body.dark-mode .app-card:hover {
-            background: #3a3a3a;
-        }
-
-        body.dark-mode .app-card-title {
-            color: #e0e0e0;
-        }
-
-        body.dark-mode .app-description {
-            color: #cccccc;
-        }
-
-        body.dark-mode .budget-label {
-            color: #999;
-        }
-
-        body.dark-mode .budget-amount {
-            color: #e0e0e0;
-        }
-
-        body.dark-mode .budget-progress {
-            background: #444;
-        }
-
-        body.dark-mode .budget-progress-bar {
-            background: #999;
-        }
-
-        body.dark-mode .app-card-footer {
-            color: #999;
-            border-color: #444;
-        }
-
-
-        /* Dark Mode App Statistics - Minimal */
-        body.dark-mode .app-stat-minimal {
-            color: #999;
-        }
-
-        body.dark-mode .app-stat-minimal i {
-            color: #4dabf7;
-        }
-
-
-        body.dark-mode .btn-icon {
-            color: #999;
-        }
-
-        body.dark-mode .btn-icon:hover {
-            background: rgba(102, 102, 102, 0.2);
-            color: #e0e0e0;
-        }
-
-        body.dark-mode .tool-card-title i {
-            color: #999;
-        }
-
-        body.dark-mode .no-specs-icon {
-            color: #999;
-        }
 
         /* Modal Styles */
         .modal-overlay {
@@ -1608,35 +1281,6 @@
             }
         }
 
-        /* Dark mode styles */
-        body.dark-mode .modal-content {
-            background: #2a2a2a;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-        }
-
-        body.dark-mode .modal-header {
-            border-bottom-color: #444;
-        }
-
-        body.dark-mode .modal-footer {
-            border-top-color: #444;
-        }
-
-        body.dark-mode .modal-close:hover {
-            background: #444;
-        }
-
-        body.dark-mode .form-group input,
-        body.dark-mode .form-group textarea {
-            background: #333;
-            border-color: #444;
-            color: #e0e0e0;
-        }
-
-        body.dark-mode .form-group input:focus,
-        body.dark-mode .form-group textarea:focus {
-            border-color: #999;
-        }
     </style>
 </head>
 <body class="page-default">
@@ -1701,16 +1345,9 @@
             <div class="section-header">
                 <h3>My Apps</h3>
                 <div class="section-actions">
-                    <button class="btn" onclick="showCreateAppModal()">
-                        <i class="fas fa-plus"></i> Create New App
+                    <button class="create-app-btn" onclick="showCreateAppModal()">
+                        <i class="fas fa-plus"></i>
                     </button>
-                    <input type="text" id="search-apps" placeholder="Search apps..." class="search-input">
-                    <select id="sort-apps" class="sort-select">
-                        <option value="newest">Newest First</option>
-                        <option value="oldest">Oldest First</option>
-                        <option value="name">By Name</option>
-                        <option value="status">By Status</option>
-                    </select>
                 </div>
             </div>
 
@@ -1740,12 +1377,7 @@
                     </div>
                     <div class="tab-actions" id="profile-tab-actions">
                         <div class="action-buttons">
-                            <input type="text" id="search-content" placeholder="Search..." class="search-input" style="display: inline-block; width: 200px; margin-right: 1rem;">
-                            <select id="sort-content" class="sort-select" style="display: inline-block;">
-                                <option value="newest">Newest First</option>
-                                <option value="oldest">Oldest First</option>
-                                <option value="title">By Title</option>
-                            </select>
+                            <!-- Filters removed as requested -->
                         </div>
                     </div>
                 </div>
@@ -1773,12 +1405,20 @@
         <div id="success-message" class="alert alert-success" style="display: none;"></div>
     </main>
 
+    <!-- Admin Dashboard Button - Above footer -->
+    <div class="admin-section" style="margin: 40px 0; text-align: center; padding: 20px;">
+        <a href="admin-dashboard.html" class="btn btn-primary" style="background: #0078d4; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;">
+            <i class="fas fa-tachometer-alt"></i>
+            Admin Dashboard
+        </a>
+    </div>
+
     <footer>
 <div class="footer-content">
         <div class="footer-links">
           <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
           <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
-          <a href="blog.html" aria-label="Visit our blog">Blog</a>
+          <a href="../blog.html" aria-label="Visit our blog">Blog</a>
           <a href="../tools/map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
           <a href="ToolPicker.html" aria-label="Use our Tool Finder">Tool Finder</a>
           <!-- <button class="feedback-link" onclick="openFeedbackModal()" aria-label="Send feedback">Feedback</button> -->
@@ -1798,7 +1438,6 @@
 </footer>
 
     <button class="scroll-to-top" id="scrollToTop"><i class="fas fa-arrow-up"></i></button>
-    <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode"><i class="fas fa-moon"></i></button>
 
     <script src="script.js"></script>
 
@@ -1807,36 +1446,7 @@
         // Basic header functionality
         document.addEventListener('DOMContentLoaded', function() {
             
-            // Theme toggle
-            const themeToggle = document.getElementById('themeToggle');
-            if (themeToggle) {
-                themeToggle.addEventListener('click', function(event) {
-                    event.stopPropagation();
-                    const body = document.body;
-                    const icon = themeToggle.querySelector('i');
-                    
-                    if (body.classList.contains('dark-mode')) {
-                        body.classList.remove('dark-mode');
-                        icon.className = 'fas fa-moon';
-                        localStorage.setItem('darkMode', 'false');
-                    } else {
-                        body.classList.add('dark-mode');
-                        icon.className = 'fas fa-sun';
-                        localStorage.setItem('darkMode', 'true');
-                    }
-                });
-            }
             
-            // Load saved theme
-            const savedTheme = localStorage.getItem('darkMode');
-            if (savedTheme === 'true') {
-                document.body.classList.add('dark-mode');
-                const themeToggle = document.getElementById('themeToggle');
-                if (themeToggle) {
-                    const icon = themeToggle.querySelector('i');
-                    icon.className = 'fas fa-sun';
-                }
-            }
             
         });
 
@@ -2220,7 +1830,6 @@
                         </div>
                     </div>
                     <div class="app-card-content">
-                        <div class="app-description">${tool.description || 'No description available'}</div>
                         <div class="app-stats-minimal">
                             <div class="app-stat-minimal">
                                 <i class="fas fa-wrench"></i>
@@ -2273,7 +1882,6 @@
                             </div>
                         </div>
                         <div class="app-card-content">
-                            <div class="app-description">${app.description || 'No description available'}</div>
                             
                             <!-- App Statistics - Simplified -->
                             <div class="app-stats-minimal">
@@ -2332,7 +1940,6 @@
                         </div>
                     </div>
                     <div class="app-card-content">
-                        <div class="app-description">Specification document with detailed requirements and features</div>
                         <div class="app-stats-minimal">
                             <div class="app-stat-minimal">
                                 <i class="fas fa-file-alt"></i>
@@ -2387,7 +1994,6 @@
                         </div>
                     </div>
                     <div class="app-card-content">
-                        <div class="app-description">Market research analysis with insights and recommendations</div>
                         <div class="app-stats-minimal">
                             <div class="app-stat-minimal">
                                 <i class="fas fa-search"></i>
@@ -2405,129 +2011,15 @@
             setTimeout(updateLinkButtonAppearance, 50);
         }
 
-        // Search functionality for apps
-        document.getElementById('search-apps').addEventListener('input', (e) => {
-            const searchTerm = e.target.value.toLowerCase();
-            const filteredApps = userApps.filter(app => 
-                app.name.toLowerCase().includes(searchTerm) ||
-                (app.description && app.description.toLowerCase().includes(searchTerm)) ||
-                (app.status && app.status.toLowerCase().includes(searchTerm))
-            );
-            renderFilteredApps(filteredApps);
-        });
+        // Search functionality for apps - removed as requested
 
         // Search functionality for tabbed content
-        document.getElementById('search-content').addEventListener('input', (e) => {
-            const searchTerm = e.target.value.toLowerCase();
-            const activeTab = document.querySelector('.tab-button.active').getAttribute('data-tab');
-            
-            switch(activeTab) {
-                case 'specs':
-                    const filteredSpecs = userSpecs.filter(spec => 
-                        spec.title.toLowerCase().includes(searchTerm) ||
-                        (spec.content && spec.content.toLowerCase().includes(searchTerm))
-                    );
-                    renderFilteredSpecs(filteredSpecs);
-                    break;
-                case 'research':
-                    const filteredResearch = userMarketResearch.filter(research => 
-                        research.title.toLowerCase().includes(searchTerm) ||
-                        (research.content && research.content.toLowerCase().includes(searchTerm))
-                    );
-                    renderFilteredResearch(filteredResearch);
-                    break;
-                case 'tools':
-                    const filteredTools = userSavedTools.filter(tool => 
-                        tool.name.toLowerCase().includes(searchTerm) ||
-                        (tool.description && tool.description.toLowerCase().includes(searchTerm)) ||
-                        (tool.category && tool.category.toLowerCase().includes(searchTerm))
-                    );
-                    renderFilteredTools(filteredTools);
-                    break;
-            }
-        });
+        // Search functionality for tabbed content - removed as requested
 
-        // Sort functionality for apps
-        document.getElementById('sort-apps').addEventListener('change', (e) => {
-            const sortBy = e.target.value;
-            const sortedApps = [...userApps];
-            
-            switch(sortBy) {
-                case 'newest':
-                    sortedApps.sort((a, b) => new Date(b.createdAt?.toDate?.() || b.createdAt) - new Date(a.createdAt?.toDate?.() || a.createdAt));
-                    break;
-                case 'oldest':
-                    sortedApps.sort((a, b) => new Date(a.createdAt?.toDate?.() || a.createdAt) - new Date(b.createdAt?.toDate?.() || b.createdAt));
-                    break;
-                case 'name':
-                    sortedApps.sort((a, b) => a.name.localeCompare(b.name));
-                    break;
-                case 'status':
-                    sortedApps.sort((a, b) => (a.status || 'Planning').localeCompare(b.status || 'Planning'));
-                    break;
-            }
-            
-            renderFilteredApps(sortedApps);
-        });
+        // Sort functionality for apps - removed as requested
 
         // Sort functionality for tabbed content
-        document.getElementById('sort-content').addEventListener('change', (e) => {
-            const sortBy = e.target.value;
-            const activeTab = document.querySelector('.tab-button.active').getAttribute('data-tab');
-            
-            switch(activeTab) {
-                case 'specs':
-                    const sortedSpecs = [...userSpecs];
-                    switch(sortBy) {
-                        case 'newest':
-                            sortedSpecs.sort((a, b) => new Date(b.createdAt?.toDate?.() || b.createdAt) - new Date(a.createdAt?.toDate?.() || a.createdAt));
-                            break;
-                        case 'oldest':
-                            sortedSpecs.sort((a, b) => new Date(a.createdAt?.toDate?.() || a.createdAt) - new Date(b.createdAt?.toDate?.() || b.createdAt));
-                            break;
-                        case 'title':
-                            sortedSpecs.sort((a, b) => a.title.localeCompare(b.title));
-                            break;
-                    }
-                    renderFilteredSpecs(sortedSpecs);
-                    break;
-                    
-                case 'research':
-                    const sortedResearch = [...userMarketResearch];
-                    switch(sortBy) {
-                        case 'newest':
-                            sortedResearch.sort((a, b) => new Date(b.createdAt?.toDate?.() || b.createdAt) - new Date(a.createdAt?.toDate?.() || a.createdAt));
-                            break;
-                        case 'oldest':
-                            sortedResearch.sort((a, b) => new Date(a.createdAt?.toDate?.() || a.createdAt) - new Date(b.createdAt?.toDate?.() || b.createdAt));
-                            break;
-                        case 'title':
-                            sortedResearch.sort((a, b) => a.title.localeCompare(b.title));
-                            break;
-                    }
-                    renderFilteredResearch(sortedResearch);
-                    break;
-                    
-                case 'tools':
-                    const sortedTools = [...userSavedTools];
-                    switch(sortBy) {
-                        case 'newest':
-                            sortedTools.sort((a, b) => new Date(b.addedAt) - new Date(a.addedAt));
-                            break;
-                        case 'oldest':
-                            sortedTools.sort((a, b) => new Date(a.addedAt) - new Date(b.addedAt));
-                            break;
-                        case 'name':
-                            sortedTools.sort((a, b) => a.name.localeCompare(b.name));
-                            break;
-                        case 'category':
-                            sortedTools.sort((a, b) => (a.category || '').localeCompare(b.category || ''));
-                            break;
-                    }
-                    renderFilteredTools(sortedTools);
-                    break;
-            }
-        });
+        // Sort functionality for tabbed content - removed as requested
 
         function renderFilteredApps(apps) {
             const appsContainer = document.getElementById('apps-container');
@@ -2557,7 +2049,6 @@
                             </div>
                         </div>
                         <div class="app-card-content">
-                            <div class="app-description">${app.description || 'No description available'}</div>
                             
                             <!-- App Statistics - Simplified -->
                             <div class="app-stats-minimal">
@@ -2673,7 +2164,6 @@
                         </div>
                     </div>
                     <div class="app-card-content">
-                        <div class="app-description">${tool.description || 'No description available'}</div>
                         <div class="app-stats-minimal">
                             <div class="app-stat-minimal">
                                 <i class="fas fa-wrench"></i>
@@ -2711,10 +2201,6 @@
                                 <label for="appNameInput">App Name *</label>
                                 <input type="text" id="appNameInput" placeholder="Enter app name..." required>
                             </div>
-                            <div class="form-group">
-                                <label for="appDescriptionInput">Description</label>
-                                <textarea id="appDescriptionInput" placeholder="Enter app description..." rows="3"></textarea>
-                            </div>
                         </div>
                         <div class="modal-footer">
                             <button class="btn btn-secondary" onclick="closeCreateAppModal()">Cancel</button>
@@ -2742,9 +2228,7 @@
 
         window.submitCreateApp = function() {
             const appNameInput = document.getElementById('appNameInput');
-            const appDescriptionInput = document.getElementById('appDescriptionInput');
             const appName = appNameInput.value.trim();
-            const appDescription = appDescriptionInput.value.trim();
             
             if (!appName) {
                 appNameInput.style.borderColor = '#ff4444';
@@ -2756,33 +2240,57 @@
             closeCreateAppModal();
             
             // Create app
-            createNewApp(appName, appDescription, 0);
+            createNewApp(appName, '', 0);
         };
 
-        window.editAppCard = function(appId) {
+        window.editAppCard = async function(appId) {
             const app = userApps.find(a => a.id === appId);
             if (!app) return;
             
             const newName = prompt('Edit app name:', app.name);
-            if (newName === null) return;
+            if (newName === null || newName.trim() === '') return;
             
-            const newDescription = prompt('Edit description:', app.description || '');
-            if (newDescription === null) return;
-            
-            const newBudget = prompt('Edit budget:', app.budget || 0);
-            if (newBudget === null) return;
-            
-            // Here you would update the app in Firestore
-            alert('Edit functionality will be added soon');
+            try {
+                const { doc, setDoc } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+                const appRef = doc(db, 'apps', appId);
+                await setDoc(appRef, {
+                    name: newName.trim(),
+                    updatedAt: new Date().toISOString()
+                }, { merge: true });
+                
+                // Update local data
+                app.name = newName.trim();
+                app.updatedAt = new Date().toISOString();
+                
+                // Refresh the display
+                renderApps();
+                console.log("✅ App updated successfully");
+            } catch (error) {
+                console.error("Error updating app:", error);
+                alert("Failed to update app. Please try again.");
+            }
         };
 
-        window.deleteAppCard = function(appId) {
-            if (!confirm('Are you sure you want to delete this app?')) {
+        window.deleteAppCard = async function(appId) {
+            if (!confirm('Are you sure you want to delete this app? This action cannot be undone.')) {
                 return;
             }
             
-            // Here you would delete the app from Firestore
-            alert('Delete functionality will be added soon');
+            try {
+                const { doc, deleteDoc } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+                const appRef = doc(db, 'apps', appId);
+                await deleteDoc(appRef);
+                
+                // Remove from local data
+                userApps = userApps.filter(app => app.id !== appId);
+                
+                // Refresh the display
+                renderApps();
+                console.log("✅ App deleted successfully");
+            } catch (error) {
+                console.error("Error deleting app:", error);
+                alert("Failed to delete app. Please try again.");
+            }
         };
 
         window.openAppDashboard = function(appId) {

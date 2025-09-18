@@ -112,22 +112,6 @@
       font-weight: 600;
     }
     
-    body.dark-mode .breadcrumb-nav {
-      background: #2d2d2d;
-      border-bottom-color: #444;
-    }
-    
-    body.dark-mode .breadcrumb-item a {
-      color: #81d4fa;
-    }
-    
-    body.dark-mode .breadcrumb-item[aria-current="page"] {
-      color: #ccc;
-    }
-    
-    body.dark-mode .breadcrumb-item:not(:last-child)::after {
-      color: #888;
-    }
   </style>
   
   <style>
@@ -153,25 +137,6 @@
       --chat-header-text: #fff;
     }
 
-    body.dark-mode {
-      --bg-color: #1a1a1a;
-      --text-color: #ffffff;
-      --primary-color: #0078d4;
-      --secondary-color: #6c757d;
-      --light-gray: #2a2a2a;
-      --border-color: #444;
-      --chat-bg: #2a2a2a;
-      --system-msg-bg: #1a1a1a;
-      --user-msg-bg: #0078d4;
-      --user-msg-text: #fff;
-      --input-bg: #2a2a2a;
-      --input-border: #444;
-      --button-hover: #005ea2;
-      --progress-bg: #2a2a2a;
-      --progress-fill: #0078d4;
-      --chat-header-bg: #0078d4;
-      --chat-header-text: #fff;
-    }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html { height: 100%; }
@@ -224,10 +189,6 @@
       transition: background 0.3s ease, border-color 0.3s ease;
     }
 
-    body.dark-mode .thematic-header {
-      background: var(--bg-color, #1a1a1a);
-      border-bottom: 1px solid var(--border-color, #444);
-    }
 
     .header-left {
       display: flex;
@@ -265,9 +226,6 @@
       transition: color 0.3s ease;
     }
 
-    body.dark-mode .logo a {
-      color: #ffffff;
-    }
 
     .logo a:hover {
       color: var(--primary-color, #0078d4);
@@ -390,33 +348,8 @@
       background: var(--light-gray, #f5f5f5);
     }
 
-    /* Dark Mode Toggle */
-    .theme-toggle {
-      position: fixed;
-      bottom: 20px;
-      left: 20px;
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      border: none;
-      background: white;
-      color: black;
-      font-size: 1.2rem;
-      cursor: pointer;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      transition: all 0.3s ease;
-      z-index: 1000;
-    }
 
-    .theme-toggle:hover {
-      transform: scale(1.1);
-      box-shadow: 0 6px 16px rgba(0,0,0,0.2);
-    }
 
-    body.dark-mode .theme-toggle {
-      background: black;
-      color: white;
-    }
 
     /* Mobile Responsive */
     @media (max-width: 768px) {
@@ -456,11 +389,6 @@
         font-size: 0.7rem;
       }
       
-      .theme-toggle {
-        width: 45px;
-        height: 45px;
-        font-size: 1.1rem;
-      }
       
       .user-dropdown-content {
         top: 70px;
@@ -488,11 +416,6 @@
       box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
     }
 
-    body.dark-mode footer {
-      color: #e0e0e0;
-      background: #1a1a1a;
-      box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.3);
-    }
 
     .footer-content {
       display: flex;
@@ -518,9 +441,6 @@
       transition: color 0.3s ease;
     }
 
-    body.dark-mode .footer-links a {
-      color: #e0e0e0;
-    }
 
     .footer-links a:hover {
       color: #0078d4;
@@ -532,9 +452,6 @@
       font-weight: 300;
     }
 
-    body.dark-mode .footer-divider {
-      color: #e0e0e0;
-    }
 
     .footer-social {
       display: flex;
@@ -549,9 +466,6 @@
       transition: transform 0.3s ease, color 0.3s ease;
     }
 
-    body.dark-mode .footer-social a {
-      color: #e0e0e0;
-    }
 
     .footer-social a:hover {
       color: #0078d4;
@@ -564,9 +478,20 @@
       margin-top: 1rem;
     }
 
-    body.dark-mode .footer-copyright {
-      color: #999;
-    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     /* Scroll to Top Button */
     .scroll-to-top {
@@ -594,10 +519,6 @@
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
     }
 
-    body.dark-mode .scroll-to-top {
-      background: #0078d4;
-      color: #fff;
-    }
   </style>
 </head>
 <body>
@@ -636,7 +557,7 @@
           <li>Receive a user-friendly specification for a coded app.</li>
           <li>Export as PDF to share with developers.</li>
         </ul>
-        <a href="processing-novice.html" class="btn" aria-label="Start creating your app specification">Start Non-Programmers Track</a>
+        <a href="../tools/processing-novice.html" class="btn" aria-label="Start creating your app specification">Start Non-Programmers Track</a>
       </div>
       <div class="track-card">
         <h2>Developers</h2>
@@ -647,7 +568,7 @@
           <li>Get a comprehensive specification with file structure and scripts.</li>
           <li>Export to coding platforms (Replit, Gitpod) or local setup.</li>
         </ul>
-        <a href="processing.html" class="btn" aria-label="Start building your app infrastructure">Start Developers Track</a>
+        <a href="../tools/processing.html" class="btn" aria-label="Start building your app infrastructure">Start Developers Track</a>
       </div>
       <div class="track-card">
         <h2>Entrepreneurs</h2>
@@ -658,7 +579,7 @@
           <li>Receive a detailed market research report.</li>
           <li>Export as PDF to pitch to investors or stakeholders.</li>
         </ul>
-        <a href="processing-market.html" class="btn" aria-label="Start researching your app idea">Start Entrepreneurs Track</a>
+        <a href="../tools/processing-market.html" class="btn" aria-label="Start researching your app idea">Start Entrepreneurs Track</a>
       </div>
     </div>
     
@@ -699,38 +620,19 @@
     
     <!-- Dark Mode Styles for Benefits -->
     <style>
-      body.dark-mode .why-specifys-section {
-        border-top-color: #444;
-      }
       
-      body.dark-mode .benefit-item {
-        background: #2d2d2d;
-        border-left-color: #81d4fa;
-      }
       
-      body.dark-mode .benefit-item h3 {
-        color: #e0e0e0;
-      }
       
-      body.dark-mode .benefit-item p {
-        color: #ccc;
-      }
       
-      body.dark-mode .benefit-item a {
-        color: #81d4fa;
-      }
     </style>
   </div>
   <button class="scroll-to-top" id="scrollToTop" aria-label="Scroll to top"><i class="fas fa-arrow-up"></i></button>
-  <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle dark mode">
-    <i class="fas fa-moon"></i>
-  </button>
   <footer>
     <div class="footer-content">
       <div class="footer-links">
         <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
         <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
-        <a href="blog.html" aria-label="Visit our blog">Blog</a>
+        <a href="../blog.html" aria-label="Visit our blog">Blog</a>
         <a href="../tools/map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
         <a href="ToolPicker.html" aria-label="Use our Tool Finder">Tool Finder</a>
       </div>
@@ -797,36 +699,6 @@
     // Basic header functionality
     document.addEventListener('DOMContentLoaded', function() {
       
-      // Theme toggle
-      const themeToggle = document.getElementById('themeToggle');
-      if (themeToggle) {
-        themeToggle.addEventListener('click', function(event) {
-          event.stopPropagation();
-          const body = document.body;
-          const icon = themeToggle.querySelector('i');
-          
-          if (body.classList.contains('dark-mode')) {
-            body.classList.remove('dark-mode');
-            icon.className = 'fas fa-moon';
-            localStorage.setItem('darkMode', 'false');
-          } else {
-            body.classList.add('dark-mode');
-            icon.className = 'fas fa-sun';
-            localStorage.setItem('darkMode', 'true');
-          }
-        });
-      }
-      
-      // Load saved theme
-      const savedTheme = localStorage.getItem('darkMode');
-      if (savedTheme === 'true') {
-        document.body.classList.add('dark-mode');
-        const themeToggle = document.getElementById('themeToggle');
-        if (themeToggle) {
-          const icon = themeToggle.querySelector('i');
-          icon.className = 'fas fa-sun';
-        }
-      }
       
     });
 

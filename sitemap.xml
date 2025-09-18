@@ -40,6 +40,12 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://specifys-ai.com/pages/admin-dashboard.html</loc>
+    <lastmod>2025-01-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://specifys-ai.com/pages/blog-generator.html</loc>
     <lastmod>2025-01-20</lastmod>
     <changefreq>monthly</changefreq>

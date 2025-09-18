@@ -873,7 +873,7 @@
     <div class="platform-boxes">
       <button class="platform-box" onclick="copyAllSpecContent()" data-tooltip="Copy the full specification to your clipboard.">Copy Full Specification</button>
       <button class="platform-box" onclick="downloadPdf()" data-tooltip="Download the specification as a PDF file.">Download as PDF</button>
-      <a href="map/vibe-coding-tools-map.html" class="platform-box vibe-coding" data-tooltip="Explore a curated map of coding and NoCode tools to enhance your development process.">Vibe Coding Tools Map</a>
+      <a href="../tools/map/vibe-coding-tools-map.html" class="platform-box vibe-coding" data-tooltip="Explore a curated map of coding and NoCode tools to enhance your development process.">Vibe Coding Tools Map</a>
     </div>
     <p class="platform-details">Click a button to copy or download your specification or explore tools to start building your app.</p>
   </div>
@@ -882,10 +882,10 @@
     <div class="footer-content">
       <div class="footer-links">
         <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
-        <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
-        <a href="blog.html" aria-label="Visit our blog">Blog</a>
-        <a href="map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
-        <a href="ToolPicker.html" aria-label="Use our Tool Finder">Tool Finder</a>
+        <a href="../pages/about.html" aria-label="Learn more about specifys.ai">About Us</a>
+        <a href="../blog.html" aria-label="Visit our blog">Blog</a>
+        <a href="../tools/map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
+        <a href="../pages/ToolPicker.html" aria-label="Use our Tool Finder">Tool Finder</a>
       </div>
       <span class="footer-divider">|</span>
       <div class="footer-social">
@@ -1032,6 +1032,7 @@
           title: title,
           content: specContent,
           userId: auth.currentUser.uid,
+          userName: auth.currentUser.displayName || auth.currentUser.email || 'Unknown User',
           mode: localStorage.getItem("unifiedCurrentMode") || "unified",
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp()
@@ -1096,7 +1097,7 @@
               <span>${user.displayName || user.email.split('@')[0]}</span>
             </div>
             <div class="user-dropdown-content">
-              <a href="profile.html">Profile</a>
+              <a href="../pages/profile.html">Profile</a>
               <button onclick="logout()">Sign Out</button>
             </div>
           </div>
@@ -1111,11 +1112,11 @@
 
     // Global functions
     window.showLoginModal = function() {
-      window.location.href = 'auth.html';
+      window.location.href = '../pages/auth.html';
     };
 
     window.showRegisterModal = function() {
-      window.location.href = 'auth.html';
+      window.location.href = '../pages/auth.html';
     };
 
     window.logout = function() {
@@ -1381,7 +1382,7 @@
 
       // Global functions
       window.showLoginModal = function() {
-        window.location.href = 'auth.html';
+        window.location.href = '../pages/auth.html';
       };
 
       window.logout = function() {
@@ -1473,11 +1474,11 @@
 
     // Global functions for auth
     window.showLoginModal = function() {
-      window.location.href = 'auth.html';
+      window.location.href = '../pages/auth.html';
     };
 
     window.showRegisterModal = function() {
-      window.location.href = 'auth.html';
+      window.location.href = '../pages/auth.html';
     };
 
     window.logout = function() {
@@ -1511,7 +1512,7 @@
         if (loginBtn) {
           loginBtn.addEventListener('click', function(event) {
             event.stopPropagation();
-            window.location.href = 'auth.html';
+            window.location.href = '../pages/auth.html';
           });
         }
       }

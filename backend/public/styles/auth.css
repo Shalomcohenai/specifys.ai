@@ -314,55 +314,6 @@
   border: 1px solid #f5c6cb;
 }
 
-/* Dark Mode Support */
-body.dark-mode .auth-card {
-  background: rgba(30, 30, 30, 0.95);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #e0e0e0;
-}
-
-body.dark-mode .auth-card h2 {
-  color: #e0e0e0;
-}
-
-body.dark-mode .form-group label {
-  color: #ccc;
-}
-
-body.dark-mode .form-group input {
-  background: rgba(60, 60, 60, 0.9);
-  border-color: #555;
-  color: #e0e0e0;
-}
-
-body.dark-mode .form-group input:focus {
-  border-color: #23a6d5;
-  background: rgba(80, 80, 80, 0.9);
-}
-
-body.dark-mode .auth-links p {
-  color: #ccc;
-}
-
-body.dark-mode .auth-links a {
-  color: #23a6d5;
-}
-
-body.dark-mode .btn-google {
-  background: rgba(60, 60, 60, 0.9);
-  color: #e0e0e0;
-  border-color: #555;
-}
-
-body.dark-mode .btn-google:hover {
-  background: rgba(80, 80, 80, 0.9);
-  border-color: #23a6d5;
-}
-
-body.dark-mode .divider span {
-  background: rgba(30, 30, 30, 0.95);
-  color: #ccc;
-}
 
 /* Responsive Design */
 @media (max-width: 768px) {
@@ -430,26 +381,258 @@ body.dark-mode .divider span {
   }
 }
 
-/* Additional responsive improvements */
+/* Mobile-first responsive improvements for auth pages */
 @media (max-width: 768px) {
   .auth-container {
     min-height: 40vh;
+    padding: 1rem 0;
   }
   
   .hero-hero-section {
-    padding: 6rem 0 2rem 0;
-    min-height: 80vh;
+    padding: 4rem 0 2rem 0;
+    min-height: 60vh;
   }
   
   .hero-container {
-    padding: 3rem 1.5rem;
+    padding: 2rem 1rem;
   }
   
   .hero-title {
-    font-size: clamp(2rem, 8vw, 3rem);
+    font-size: clamp(1.8rem, 7vw, 2.5rem);
+    margin-bottom: 1rem;
   }
   
   .hero-subtitle {
-    font-size: clamp(0.9rem, 3vw, 1.2rem);
+    font-size: clamp(0.9rem, 3vw, 1.1rem);
+  }
+  
+  .hero-subtitle p {
+    margin-bottom: 0.3rem;
+  }
+  
+  /* Mobile-specific auth card styling */
+  .auth-card {
+    margin: 0.5rem;
+    padding: 2rem 1.5rem;
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  }
+  
+  .auth-card h2 {
+    font-size: 1.6rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  /* Mobile form improvements */
+  .form-group {
+    margin-bottom: 1.2rem;
+  }
+  
+  .form-group input {
+    padding: 0.9rem;
+    font-size: 1rem;
+    border-radius: 8px;
+  }
+  
+  .btn {
+    padding: 0.9rem 1.5rem;
+    font-size: 1rem;
+    border-radius: 8px;
+  }
+  
+  /* Mobile divider styling */
+  .divider {
+    margin: 1.5rem 0;
+  }
+  
+  /* Mobile auth links */
+  .auth-links {
+    margin-top: 1.2rem;
+  }
+  
+  .auth-links p {
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+  }
+}
+
+/* Extra small mobile devices */
+@media (max-width: 480px) {
+  .auth-container {
+    padding: 0.5rem 0;
+    margin-top: 0.5rem;
+    padding-top: 1rem;
+  }
+  
+  .hero-hero-section {
+    padding: 2rem 0 1.5rem 0;
+    min-height: 35vh;
+    margin-top: 1.5rem;
+  }
+  
+  .hero-container {
+    padding: 1.5rem 0.8rem;
+  }
+  
+  .hero-title {
+    font-size: clamp(1.5rem, 6vw, 2rem);
+  }
+  
+  .hero-subtitle {
+    font-size: clamp(0.8rem, 2.5vw, 1rem);
+  }
+  
+  .auth-card {
+    margin: 0.3rem;
+    padding: 1.5rem 1rem;
+    border-radius: 12px;
+  }
+  
+  .auth-card h2 {
+    font-size: 1.4rem;
+    margin-bottom: 1.2rem;
+  }
+  
+  .form-group input {
+    padding: 0.8rem;
+    font-size: 0.9rem;
+  }
+  
+  .btn {
+    padding: 0.8rem 1.2rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* Mobile-specific improvements for better UX */
+@media (max-width: 768px) {
+  /* Ensure proper spacing on mobile */
+  .container {
+    padding: 0 1rem;
+  }
+  
+  /* Mobile-friendly form styling */
+  .form-group input:focus {
+    transform: translateY(-1px);
+    box-shadow: 0 0 0 3px rgba(35, 166, 213, 0.15);
+  }
+  
+  /* Mobile button improvements */
+  .btn-primary:active {
+    transform: translateY(0);
+  }
+  
+  .btn-google:active {
+    transform: translateY(0);
+  }
+  
+  /* Mobile divider improvements */
+  .divider::before {
+    height: 2px;
+  }
+  
+  .divider span {
+    padding: 0 0.8rem;
+    font-size: 0.85rem;
+  }
+  
+  /* Mobile error/success message styling */
+  .error-message,
+  .success-message {
+    font-size: 0.9rem;
+    padding: 0.8rem;
+    border-radius: 8px;
+    margin-top: 1rem;
+  }
+}
+
+/* Landscape mobile orientation */
+@media (max-width: 768px) and (orientation: landscape) {
+  .hero-hero-section {
+    padding: 1.5rem 0 1rem 0;
+    min-height: 30vh;
+    margin-top: 1rem;
+  }
+  
+  .auth-container {
+    min-height: 40vh;
+    padding: 0.5rem 0;
+    padding-top: 1rem;
+  }
+  
+  .auth-card {
+    margin: 0.2rem;
+    padding: 1.5rem 1rem;
+  }
+}
+
+/* Mobile-first design: Form appears first, then hero animation */
+@media (max-width: 768px) {
+  /* Mobile hero section styling */
+  .hero-hero-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    text-align: center;
+    margin-top: 2rem;
+    padding: 3rem 0;
+    min-height: 40vh;
+    transition: all 0.3s ease;
+  }
+  
+  /* Mobile form container */
+  .auth-container {
+    margin-top: 0;
+    padding-top: 2rem;
+    transition: all 0.3s ease;
+  }
+  
+  /* Smooth transitions for mobile layout changes */
+  main {
+    transition: all 0.3s ease;
+  }
+  
+  .hero-title {
+    color: white;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  }
+  
+  .hero-subtitle p {
+    color: rgba(255, 255, 255, 0.9);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+  }
+  
+  /* Mobile form card enhancements */
+  .auth-card {
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 10px 35px rgba(0,0,0,0.2);
+  }
+  
+  /* Mobile input focus improvements */
+  .form-group input:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+  }
+  
+  /* Mobile button styling */
+  .btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+  }
+  
+  .btn-primary:hover {
+    background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+  }
+  
+  .btn-google {
+    background: white;
+    border: 2px solid #e1e5e9;
+    color: #333;
+  }
+  
+  .btn-google:hover {
+    background: #f8f9fa;
+    border-color: #667eea;
   }
 }

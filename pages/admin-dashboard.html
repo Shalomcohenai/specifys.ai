@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Specifys.ai</title>
+    <link rel="icon" type="image/x-icon" href="../favicon.ico" alt="Specifys.ai logo icon">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/styles.css">
+    <!-- Chart.js removed - only real data tables -->
+    <style>
+        /* Import Montserrat font */
+        @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap");
+        
+        body {
+            font-family: "Montserrat", sans-serif;
+            background: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+        }
+        
+        /* CSS Variables */
+        :root {
+            --bg-color: #fff;
+            --text-color: #333;
+            --primary-color: #666;
+            --border-color: #e0e0e0;
+            --hover-color: #555;
+            --light-gray: #f5f5f5;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --info-color: #17a2b8;
+        }
+
+        body.dark-mode {
+            --bg-color: #1a1a1a;
+            --text-color: #e0e0e0;
+            --border-color: #333;
+            --primary-color: #999;
+            --hover-color: #777;
+            --light-gray: #333;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --info-color: #17a2b8;
+        }
+
+        /* Header Layout */
+        .thematic-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-color);
+            border-bottom: 1px solid var(--border-color);
+            z-index: 100;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .header-center {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            pointer-events: none;
+        }
+
+        .header-center .logo {
+            pointer-events: auto;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Logo Styles */
+        .logo a {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-color);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        body.dark-mode .logo a {
+            color: #ffffff;
+        }
+
+        .logo a:hover {
+            color: var(--primary-color);
+        }
+
+        /* Auth Buttons */
+        .auth-buttons {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .auth-btn {
+            padding: 8px 16px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-color);
+            color: var(--text-color);
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .auth-btn:hover {
+            background: var(--primary-color);
+            color: var(--bg-color);
+        }
+
+        body.dark-mode .auth-btn {
+            border-color: #444;
+            background: #2a2a2a;
+            color: #ffffff;
+        }
+
+        body.dark-mode .auth-btn:hover {
+            background: #0078d4;
+            color: #ffffff;
+        }
+
+        /* User Info */
+        .user-info {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--bg-color);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .user-avatar:hover {
+            background: var(--hover-color);
+        }
+
+        .user-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            min-width: 200px;
+            z-index: 1000;
+            display: none;
+        }
+
+        body.dark-mode .user-dropdown {
+            background: #2a2a2a;
+            border-color: #444;
+        }
+
+        .user-dropdown-content {
+            padding: 0.5rem 0;
+        }
+
+        .user-dropdown-content a {
+            display: block;
+            padding: 0.75rem 1rem;
+            color: var(--text-color);
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .user-dropdown-content a:hover {
+            background: var(--light-gray);
+        }
+
+        body.dark-mode .user-dropdown-content a:hover {
+            background: #333;
+        }
+
+        /* Theme Toggle */
+        .theme-toggle {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            background: var(--light-gray);
+        }
+
+        body.dark-mode .theme-toggle:hover {
+            background: #333;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-top: 80px;
+            padding: 20px;
+            min-height: calc(100vh - 80px);
+        }
+
+        /* Admin Dashboard Styles */
+        .admin-header {
+            margin-bottom: 30px;
+        }
+
+        .admin-header h1 {
+            color: var(--text-color);
+            margin-bottom: 10px;
+        }
+
+        .admin-header p {
+            color: var(--primary-color);
+            margin: 0;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+        }
+
+        body.dark-mode .stat-card {
+            background: #2a2a2a;
+            border-color: #444;
+        }
+
+        .stat-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .stat-card-icon {
+            font-size: 2rem;
+            color: var(--primary-color);
+        }
+
+        .stat-card-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-color);
+            margin-bottom: 5px;
+        }
+
+        .stat-card-label {
+            color: var(--primary-color);
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        .stat-card-change {
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .stat-card-change.positive {
+            color: var(--success-color);
+        }
+
+        .stat-card-change.negative {
+            color: var(--danger-color);
+        }
+
+        /* Charts removed - only real data tables */
+
+        /* Tables */
+        .table-section {
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        body.dark-mode .table-section {
+            background: #2a2a2a;
+            border-color: #444;
+        }
+
+        .table-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 20px;
+        }
+
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .admin-table th,
+        .admin-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .admin-table th {
+            background: var(--light-gray);
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        body.dark-mode .admin-table th {
+            background: #333;
+        }
+
+        .admin-table tr:hover {
+            background: var(--light-gray);
+        }
+
+        body.dark-mode .admin-table tr:hover {
+            background: #333;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        body.dark-mode .status-active {
+            background: #28a745;
+            color: #ffffff;
+        }
+
+        body.dark-mode .status-inactive {
+            background: #dc3545;
+            color: #ffffff;
+        }
+
+        body.dark-mode .status-pending {
+            background: #ffc107;
+            color: #000000;
+        }
+
+        /* Alerts */
+        .alerts-section {
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        body.dark-mode .alerts-section {
+            background: #2a2a2a;
+            border-color: #444;
+        }
+
+        .alert-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .alert-item:last-child {
+            border-bottom: none;
+        }
+
+        .alert-icon {
+            font-size: 1.2rem;
+            margin-right: 10px;
+        }
+
+        .alert-danger {
+            color: var(--danger-color);
+        }
+
+        .alert-warning {
+            color: var(--warning-color);
+        }
+
+        .alert-success {
+            color: var(--success-color);
+        }
+
+        .alert-info {
+            color: var(--info-color);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .main-content {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="thematic-header">
+        <div class="header-left">
+            <div class="logo">
+                <a href="../index.html" aria-label="Specifys.ai homepage">S</a>
+            </div>
+        </div>
+        
+        <div class="header-center">
+            <div class="logo">
+                <a href="../index.html" aria-label="Specifys.ai homepage">Specifys.ai</a>
+            </div>
+        </div>
+        
+        <div class="header-right">
+            <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle dark mode">
+                <i class="fas fa-moon"></i>
+            </button>
+            
+            <div id="auth-buttons" class="auth-buttons">
+                <a href="auth.html" class="auth-btn">Login</a>
+                <a href="auth.html" class="auth-btn">Sign Up</a>
+            </div>
+            
+            <div id="user-info" class="user-info" style="display: none;">
+                <div class="user-avatar" onclick="toggleUserDropdown()">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="user-dropdown" id="user-dropdown">
+                    <div class="user-dropdown-content">
+                        <a href="profile.html">Profile</a>
+                        <a href="app-dashboard.html">Dashboard</a>
+                        <a href="#" onclick="logout()">Logout</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Admin Header -->
+        <div class="admin-header">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h1><i class="fas fa-tachometer-alt"></i> Admin Dashboard</h1>
+                    <p>Monitor user activity, tool usage, and system performance - Real data from Firebase only</p>
+                    <div id="connection-status" style="margin-top: 10px; font-size: 0.9rem; color: var(--success-color);">
+                        <i class="fas fa-circle" style="font-size: 8px; margin-right: 5px;"></i>
+                        Connected to Firebase
+                    </div>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button id="refresh-btn" class="btn btn-outline-primary" style="padding: 8px 16px;">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" style="padding: 8px 16px;">
+                            <i class="fas fa-download"></i> Export
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item export-btn" href="#" data-format="csv"><i class="fas fa-file-csv"></i> CSV</a></li>
+                            <li><a class="dropdown-item export-btn" href="#" data-format="pdf"><i class="fas fa-file-pdf"></i> PDF</a></li>
+                            <li><a class="dropdown-item export-btn" href="#" data-format="excel"><i class="fas fa-file-excel"></i> Excel</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <div class="stat-card-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                </div>
+                <div class="stat-card-value" id="total-users">0</div>
+                <div class="stat-card-label">Total Users</div>
+                <div class="stat-card-change">Loading...</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <div class="stat-card-icon">
+                        <i class="fas fa-tools"></i>
+                    </div>
+                </div>
+                <div class="stat-card-value" id="active-tools">0</div>
+                <div class="stat-card-label">Active Tools</div>
+                <div class="stat-card-change">Loading...</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <div class="stat-card-icon">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                </div>
+                <div class="stat-card-value" id="total-specs">0</div>
+                <div class="stat-card-label">Specs Created</div>
+                <div class="stat-card-change">Loading...</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <div class="stat-card-icon">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                </div>
+                <div class="stat-card-value" id="total-chats">0</div>
+                <div class="stat-card-label">Chat Sessions</div>
+                <div class="stat-card-change">Loading...</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <div class="stat-card-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                </div>
+                <div class="stat-card-value" id="incomplete-chats">0</div>
+                <div class="stat-card-label">Incomplete Chats</div>
+                <div class="stat-card-change">Loading...</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <div class="stat-card-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                </div>
+                <div class="stat-card-value" id="daily-usage">0</div>
+                <div class="stat-card-label">Daily Usage</div>
+                <div class="stat-card-change">Loading...</div>
+            </div>
+        </div>
+
+        <!-- Charts removed - only real data tables -->
+
+        <!-- Search Bar -->
+        <div class="table-section">
+            <div class="table-title">Search & Filter</div>
+            <div style="margin-bottom: 20px;">
+                <input type="text" id="search-input" class="form-control" placeholder="Search users, tools, or activities..." style="max-width: 400px;">
+            </div>
+        </div>
+
+        <!-- Tool Usage Table -->
+        <div class="table-section">
+            <div class="table-title">Most Popular Tools</div>
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Tool Name</th>
+                        <th>Usage Count</th>
+                        <th>Percentage</th>
+                        <th>Trend</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Data will be loaded from Firebase -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Specs Created Table -->
+        <div class="table-section">
+            <div class="table-title">Spec Types Created</div>
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Spec Type</th>
+                        <th>Count</th>
+                        <th>Percentage</th>
+                        <th>Avg. Time</th>
+                        <th>Completion Rate</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Data will be loaded from Firebase -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Recent Activity Table -->
+        <div class="table-section">
+            <div class="table-title">Recent User Activity</div>
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Activity</th>
+                        <th>Tool Used</th>
+                        <th>Time</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Data will be loaded from Firebase -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Alerts Section -->
+        <div class="alerts-section">
+            <div class="table-title">System Alerts</div>
+            
+            <div class="alert-item">
+                <div class="alert-icon alert-info">
+                    <i class="fas fa-info-circle"></i>
+                </div>
+                <div>
+                    <strong>Real Data Only:</strong> All data is loaded from Firebase - no mock data
+                </div>
+            </div>
+            
+            <div class="alert-item">
+                <div class="alert-icon alert-success">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div>
+                    <strong>Manual Refresh:</strong> Data updates only when you click refresh
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    <script src="../assets/js/admin-dashboard.js"></script>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyB9hr0IWM4EREzkKDxBxYoYinV6LJXWXV4",
+            authDomain: "specify-ai.firebaseapp.com",
+            projectId: "specify-ai",
+            storageBucket: "specify-ai.firebasestorage.app",
+            messagingSenderId: "734278787482",
+            appId: "1:734278787482:web:0e312fb6f197e849695a23",
+            measurementId: "G-4YR9LK63MR"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Theme Toggle
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('darkMode', isDark);
+            
+            // Update icon
+            const icon = document.querySelector('.theme-toggle i');
+            icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+        }
+
+        // Load theme preference
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.body.classList.add('dark-mode');
+            document.querySelector('.theme-toggle i').className = 'fas fa-sun';
+        }
+
+        // User Dropdown
+        function toggleUserDropdown() {
+            const dropdown = document.getElementById('user-dropdown');
+            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const userInfo = document.getElementById('user-info');
+            const dropdown = document.getElementById('user-dropdown');
+            
+            if (!userInfo.contains(event.target)) {
+                dropdown.style.display = 'none';
+            }
+        });
+
+        // Auth State Listener
+        auth.onAuthStateChanged((user) => {
+            const authButtons = document.getElementById('auth-buttons');
+            const userInfo = document.getElementById('user-info');
+            
+            if (user) {
+                authButtons.style.display = 'none';
+                userInfo.style.display = 'flex';
+                
+                // Update avatar with user initial
+                const avatar = document.querySelector('.user-avatar');
+                avatar.textContent = user.email ? user.email.charAt(0).toUpperCase() : 'U';
+            } else {
+                authButtons.style.display = 'flex';
+                userInfo.style.display = 'none';
+            }
+        });
+
+        // Logout function
+        function logout() {
+            auth.signOut().then(() => {
+                window.location.href = '../index.html';
+            }).catch((error) => {
+                console.error('Logout error:', error);
+            });
+        }
+
+        // Charts removed - only real data tables
+    </script>
+</body>
+</html>

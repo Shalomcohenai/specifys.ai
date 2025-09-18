@@ -1344,11 +1344,11 @@
         <button class="menu-close" aria-label="Close menu"><i class="fas fa-times"></i></button>
       </div>
       <nav class="menu-nav">
-        <a href="blog.html" aria-label="Visit our blog">Blog</a>
-        <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
+        <a href="../blog.html" aria-label="Visit our blog">Blog</a>
+        <a href="../pages/about.html" aria-label="Learn more about specifys.ai">About Us</a>
         <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
-        <a href="map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
-        <a href="ToolPicker.html" aria-label="Use our Tool Finder">Tool Finder</a>
+        <a href="../tools/map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
+        <a href="../pages/ToolPicker.html" aria-label="Use our Tool Finder">Tool Finder</a>
       </nav>
     </div>
   </div>
@@ -1409,7 +1409,7 @@
       <a href="https://bolt.new/" target="_blank" class="platform-box" onclick="copyAllSpecContent()" data-tooltip="Recommended for quick app ideation and prototyping with AI.">Bolt</a>
       <button class="platform-box" onclick="downloadPdf()">PDF Download</button>
       <button class="platform-box" onclick="copyAllSpecContent()" data-tooltip="Copy the full app specification to your clipboard for use in any platform.">Copy All</button>
-      <a href="map/vibe-coding-tools-map.html" class="platform-box vibe-coding" data-tooltip="Explore a curated map of coding and no-code tools to enhance your development process.">Vibe Coding Tools Map</a>
+      <a href="../tools/map/vibe-coding-tools-map.html" class="platform-box vibe-coding" data-tooltip="Explore a curated map of coding and no-code tools to enhance your development process.">Vibe Coding Tools Map</a>
     </div>
     <p class="platform-details">Click a platform to open it in a new tab and automatically copy your app specification. Paste the specification into the platform's project setup or AI assistant to start building.</p>
   </div>
@@ -1418,10 +1418,10 @@
     <div class="footer-content">
       <div class="footer-links">
         <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
-        <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
-        <a href="blog.html" aria-label="Visit our blog">Blog</a>
-        <a href="map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
-        <a href="ToolPicker.html" aria-label="Use our Tool Finder">Tool Finder</a>
+        <a href="../pages/about.html" aria-label="Learn more about specifys.ai">About Us</a>
+        <a href="../blog.html" aria-label="Visit our blog">Blog</a>
+        <a href="../tools/map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
+        <a href="../pages/ToolPicker.html" aria-label="Use our Tool Finder">Tool Finder</a>
       </div>
       <span class="footer-divider">|</span>
       <div class="footer-social">
@@ -1572,6 +1572,7 @@
           title: title,
           content: specContent,
           userId: auth.currentUser.uid,
+          userName: auth.currentUser.displayName || auth.currentUser.email || 'Unknown User',
           mode: "novice",
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp()
@@ -1620,7 +1621,7 @@
             <div class="user-avatar">${user.displayName ? user.displayName.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase()}</div>
             <span>${user.displayName || user.email.split('@')[0]}</span>
           </div>
-          <a href="profile.html" class="auth-btn">Profile</a>
+          <a href="../pages/profile.html" class="auth-btn">Profile</a>
           <button class="auth-btn" onclick="logout()">Logout</button>
         `;
       } else {
@@ -1634,11 +1635,11 @@
 
     // Global functions
     window.showLoginModal = function() {
-      window.location.href = 'auth.html';
+      window.location.href = '../pages/auth.html';
     };
 
     window.showRegisterModal = function() {
-      window.location.href = 'auth.html';
+      window.location.href = '../pages/auth.html';
     };
 
     window.logout = function() {
@@ -2360,11 +2361,11 @@
 
     // Global functions for auth
     window.showLoginModal = function() {
-      window.location.href = 'auth.html';
+      window.location.href = '../pages/auth.html';
     };
 
     window.showRegisterModal = function() {
-      window.location.href = 'auth.html';
+      window.location.href = '../pages/auth.html';
     };
 
     window.logout = function() {

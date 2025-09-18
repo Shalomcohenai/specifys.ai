@@ -1387,7 +1387,7 @@
               <span>${displayName}</span>
             </div>
             <div class="user-dropdown-content">
-              <a href="profile.html">Profile</a>
+              <a href="../pages/profile.html">Profile</a>
               <button onclick="logout()">Sign Out</button>
             </div>
           </div>
@@ -1403,11 +1403,11 @@
 
     // Global functions
     window.showLoginModal = function() {
-      window.location.href = 'auth.html';
+      window.location.href = '../pages/auth.html';
     };
 
     window.showRegisterModal = function() {
-      window.location.href = 'auth.html';
+      window.location.href = '../pages/auth.html';
     };
 
     window.logout = function() {
@@ -1437,7 +1437,7 @@
         if (loginBtn) {
           loginBtn.addEventListener('click', function(event) {
             event.stopPropagation();
-            window.location.href = 'auth.html';
+            window.location.href = '../pages/auth.html';
           });
         }
       }
@@ -1478,6 +1478,7 @@
           title: title,
           content: specContent,
           userId: auth.currentUser.uid,
+          userName: auth.currentUser.displayName || auth.currentUser.email || 'Unknown User',
           mode: mode,
           answers: answers,
           createdAt: serverTimestamp(),
@@ -1638,7 +1639,7 @@
               <span>${user.displayName || user.email.split('@')[0]}</span>
             </div>
             <div class="user-dropdown-content">
-              <a href="profile.html">Profile</a>
+              <a href="../pages/profile.html">Profile</a>
               <button class="logout-btn">Sign Out</button>
             </div>
           </div>

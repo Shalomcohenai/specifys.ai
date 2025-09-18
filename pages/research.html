@@ -280,9 +280,9 @@
     }
 
     body[data-theme="dark"] .user-info {
-      background: rgba(0, 120, 212, 0.2);
-      border-color: rgba(0, 120, 212, 0.3);
-      color: #0078d4;
+      background: rgba(128, 128, 128, 0.1);
+      border-color: rgba(128, 128, 128, 0.2);
+      color: #999;
     }
 
     .thematic-header {
@@ -391,41 +391,53 @@
       transform: translateX(5px);
     }
 
-    /* Dark Mode Toggle */
-    .theme-toggle {
+
+    /* Scroll to Top Button */
+    .scroll-to-top {
       position: fixed;
       bottom: 20px;
-      left: 20px;
+      right: 20px;
       width: 50px;
       height: 50px;
       border-radius: 50%;
       border: none;
-      background: white;
-      color: black;
+      background: #23a6d5;
+      color: white;
       font-size: 1.2rem;
       cursor: pointer;
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
       transition: all 0.3s ease;
       z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(20px);
     }
 
-    .theme-toggle:hover {
+    .scroll-to-top.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .scroll-to-top:hover {
+      background: #1e90ff;
       transform: scale(1.1);
       box-shadow: 0 6px 16px rgba(0,0,0,0.2);
     }
 
-    body.dark-mode .theme-toggle {
-      background: black;
+    body[data-theme="dark"] .scroll-to-top {
+      background: #23a6d5;
       color: white;
     }
 
+    body[data-theme="dark"] .scroll-to-top:hover {
+      background: #1e90ff;
+    }
+
     .carousel-container {
-      padding: 6rem 2rem 2rem;
+      padding: 2rem;
       margin-top: 80px;
       min-height: calc(100vh - 80px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
     }
 
     .carousel-content {
@@ -435,9 +447,8 @@
       padding: 2rem;
       max-width: 1200px;
       width: 100%;
-      min-height: 600px;
+      margin: 0 auto;
       position: relative;
-      overflow: hidden;
     }
 
     .chat-container {
@@ -445,8 +456,6 @@
       flex-direction: column;
       gap: 1.5rem;
       padding: 1rem;
-      max-height: 70vh;
-      overflow-y: auto;
     }
 
     .chat-message {
@@ -525,158 +534,22 @@
       margin: 1rem 0;
     }
 
-    body.dark-mode .chat-message.result pre {
-      background: #2d3748;
+
+    /* Mermaid diagram styling */
+    .chat-message.result .mermaid {
+      background: transparent;
+      padding: 0;
+      margin: 1rem 0;
+      text-align: center;
     }
 
-    body.dark-mode footer {
-      background: var(--footer-bg);
-      color: var(--footer-text);
+    .chat-message.result pre.mermaid {
+      background: transparent;
+      border: none;
+      padding: 0;
     }
 
-    body.dark-mode .footer-links a {
-      color: var(--footer-link);
-    }
 
-    body.dark-mode .footer-social a {
-      color: var(--footer-link);
-    }
-
-    body.dark-mode .thematic-header {
-      background: rgba(30, 30, 30, 0.9);
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-    }
-
-    body.dark-mode .logo a {
-      color: #e0e0e0;
-    }
-
-    body.dark-mode .user-info {
-      background: rgba(128, 128, 128, 0.1);
-      border-color: rgba(128, 128, 128, 0.2);
-      color: #999;
-    }
-
-    body.dark-mode .user-avatar {
-      background: #999;
-    }
-
-    body.dark-mode .user-dropdown-content {
-      background: #2a2a2a;
-    }
-
-    body.dark-mode .user-dropdown-content a,
-    body.dark-mode .user-dropdown-content button {
-      color: #e0e0e0;
-    }
-
-    body.dark-mode .user-dropdown-content a:hover,
-    body.dark-mode .user-dropdown-content button:hover {
-      background: rgba(128, 128, 128, 0.1);
-    }
-
-    body.dark-mode .header-links-content {
-      background: #2a2a2a;
-    }
-
-    body.dark-mode .header-links a {
-      color: #e0e0e0;
-      border-bottom-color: #444;
-    }
-
-    body.dark-mode .header-links a:hover {
-      background: rgba(128, 128, 128, 0.1);
-    }
-
-    body.dark-mode .auth-btn {
-      color: #999;
-    }
-
-    body.dark-mode .auth-btn:hover {
-      color: #777;
-    }
-
-    body.dark-mode .auth-btn.primary {
-      color: #999;
-    }
-
-    body.dark-mode .auth-btn.primary:hover {
-      color: #777;
-    }
-
-    body.dark-mode .spec-header {
-      background: var(--primary-color);
-    }
-
-    body.dark-mode .chat-message.result h1,
-    body.dark-mode .chat-message.result h2,
-    body.dark-mode .chat-message.result h3 {
-      color: var(--primary-color);
-    }
-
-    body.dark-mode .chat-message.result code {
-      background: rgba(128, 128, 128, 0.2);
-      color: var(--primary-color);
-    }
-
-    body.dark-mode .platform-container {
-      background: var(--platform-bg);
-      color: var(--text-color);
-    }
-
-    body.dark-mode .platform-container h3 {
-      color: var(--text-color);
-    }
-
-    body.dark-mode .platform-instructions {
-      color: var(--platform-text);
-    }
-
-    body.dark-mode .platform-details {
-      color: var(--platform-text);
-    }
-
-    body.dark-mode .platform-box {
-      background: var(--platform-box-bg);
-      color: white;
-    }
-
-    body.dark-mode .platform-box:hover {
-      background: var(--platform-box-hover);
-    }
-
-    body.dark-mode .carousel-container {
-      background: var(--bg-color);
-    }
-
-    body.dark-mode .carousel-content {
-      background: var(--content-bg);
-      box-shadow: var(--content-shadow);
-    }
-
-    body.dark-mode .chat-container {
-      background: var(--content-bg);
-    }
-
-    body.dark-mode .loading-message {
-      color: var(--text-color);
-    }
-
-    body.dark-mode .chat-message.bot {
-      background: var(--chat-bot-bg);
-      color: var(--chat-bot-text);
-    }
-
-    body.dark-mode .chat-message.result {
-      background: var(--chat-result-bg);
-      color: var(--chat-result-text);
-      border-color: var(--chat-result-border);
-    }
-
-    body.dark-mode {
-      background: var(--bg-color);
-      color: var(--text-color);
-    }
 
 
 
@@ -772,9 +645,42 @@
       text-align: center;
     }
 
+    .title-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 0.5rem;
+    }
+
     .spec-header h1 {
       font-size: 2rem;
-      margin-bottom: 0.5rem;
+      margin: 0;
+    }
+
+    .edit-title-btn {
+      background: none;
+      border: none;
+      color: rgba(255, 255, 255, 0.6);
+      padding: 4px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      opacity: 0.7;
+    }
+
+    .edit-title-btn:hover {
+      color: rgba(255, 255, 255, 0.9);
+      opacity: 1;
+      transform: scale(1.1);
+    }
+
+    body[data-theme="dark"] .edit-title-btn {
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    body[data-theme="dark"] .edit-title-btn:hover {
+      color: rgba(255, 255, 255, 0.8);
     }
 
     .spec-meta {
@@ -808,14 +714,14 @@
       padding: 20px 10px;
       text-align: center;
       width: 100%;
-      color: #333;
+      color: #666;
       flex-shrink: 0;
       background: #fff;
       box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
     }
 
-    body.dark-mode footer {
-      color: #e0e0e0;
+    body[data-theme="dark"] footer {
+      color: #999;
       background: #1a1a1a;
       box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.3);
     }
@@ -844,9 +750,6 @@
       transition: color 0.3s ease;
     }
 
-    body.dark-mode .footer-links a {
-      color: #e0e0e0;
-    }
 
     .footer-links a:hover {
       color: #0078d4;
@@ -858,9 +761,6 @@
       font-weight: 300;
     }
 
-    body.dark-mode .footer-divider {
-      color: #e0e0e0;
-    }
 
     .footer-social {
       display: flex;
@@ -875,9 +775,6 @@
       transition: transform 0.3s ease, color 0.3s ease;
     }
 
-    body.dark-mode .footer-social a {
-      color: #e0e0e0;
-    }
 
     .footer-social a:hover {
       color: #0078d4;
@@ -890,9 +787,6 @@
       margin-top: 1rem;
     }
 
-    body.dark-mode .footer-copyright {
-      color: #999;
-    }
 
     /* Mobile Responsive */
     @media (max-width: 768px) {
@@ -950,11 +844,6 @@
         font-size: 0.8rem;
       }
       
-      .theme-toggle {
-        width: 45px;
-        height: 45px;
-        font-size: 1.1rem;
-      }
 
       .header-links-content {
         top: 70px;
@@ -1007,13 +896,12 @@
       }
 
       .carousel-container {
-        padding: 4rem 0.5rem;
+        padding: 1rem 0.5rem;
         margin-top: 80px;
       }
 
       .carousel-content {
         padding: 1.2rem;
-        min-height: 350px;
         max-width: 95%;
         border-radius: 15px;
       }
@@ -1072,6 +960,15 @@
         font-size: 1.5rem;
       }
 
+      .title-container {
+        gap: 0.5rem;
+      }
+
+      .edit-title-btn {
+        padding: 3px;
+        font-size: 0.9rem;
+      }
+
       .spec-meta {
         flex-direction: column;
         gap: 0.5rem;
@@ -1127,13 +1024,12 @@
 
     @media (max-width: 480px) {
       .carousel-container {
-        padding: 3rem 0.3rem;
+        padding: 0.5rem 0.3rem;
         margin-top: 70px;
       }
 
       .carousel-content {
         padding: 0.8rem;
-        min-height: 300px;
         border-radius: 12px;
       }
 
@@ -1154,6 +1050,15 @@
 
       .spec-header h1 {
         font-size: 1.3rem;
+      }
+
+      .title-container {
+        gap: 0.3rem;
+      }
+
+      .edit-title-btn {
+        padding: 2px;
+        font-size: 0.8rem;
       }
 
       .footer-content {
@@ -1186,16 +1091,22 @@
     </div>
   </header>
 
-  <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
-    <i class="fas fa-moon"></i>
+
+  <button class="scroll-to-top" id="scrollToTop" aria-label="Scroll to top">
+    <i class="fas fa-arrow-up"></i>
   </button>
   <div class="carousel-container">
     <div class="carousel-content">
       <div class="spec-header" id="specHeader">
-        <h1 id="specTitle">Loading Market Research...</h1>
+        <div class="title-container">
+          <h1 id="specTitle">Loading Market Research...</h1>
+          <button class="edit-title-btn" id="editTitleBtn" title="Edit title">
+            <i class="fas fa-edit"></i>
+          </button>
+        </div>
         <div class="spec-meta" id="specMeta">
           <span><i class="fas fa-clock"></i> <span id="specDate">Loading...</span></span>
-          <span><i class="fas fa-tag"></i> <span id="specMode">Loading...</span></span>
+          <span><i class="fas fa-user"></i> <span id="specUser">Loading...</span></span>
         </div>
       </div>
       
@@ -1224,7 +1135,7 @@
       <div class="footer-links">
         <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
         <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
-        <a href="blog.html" aria-label="Visit our blog">Blog</a>
+        <a href="../blog.html" aria-label="Visit our blog">Blog</a>
         <a href="../tools/map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
       </div>
       <span class="footer-divider">|</span>
@@ -1384,7 +1295,7 @@
         // Update header
         document.getElementById('specTitle').textContent = specData.title || 'Market Research';
         document.getElementById('specDate').textContent = specData.createdAt ? new Date(specData.createdAt.toDate()).toLocaleDateString() : 'Unknown date';
-        document.getElementById('specMode').textContent = specData.mode || 'Market Research';
+        document.getElementById('specUser').textContent = specData.userName ? `by: ${specData.userName}` : 'by: Unknown User';
         
         // Display content
         displaySpecContent(specData.content);
@@ -1412,12 +1323,41 @@
       const htmlContent = marked.parse(content);
       resultDiv.innerHTML = htmlContent;
       
-      // Apply syntax highlighting
-      resultDiv.querySelectorAll('pre code').forEach((block) => {
+      // Apply syntax highlighting to non-mermaid code blocks
+      resultDiv.querySelectorAll('pre code:not(.mermaid)').forEach((block) => {
         hljs.highlightElement(block);
       });
       
       chatContainer.appendChild(resultDiv);
+      
+      // Initialize Mermaid for diagrams
+      if (window.mermaid) {
+        mermaid.initialize({ 
+          startOnLoad: false,
+          theme: document.body.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+        });
+        mermaid.init(undefined, resultDiv.querySelectorAll('.mermaid'));
+      }
+      
+      // Also look for standalone Mermaid diagrams that aren't wrapped in code blocks
+      const standaloneMermaid = resultDiv.querySelectorAll('pre code');
+      standaloneMermaid.forEach((block) => {
+        const text = block.textContent.trim();
+        if (text.startsWith('flowchart') || text.startsWith('graph') || text.startsWith('sequenceDiagram') || 
+            text.startsWith('classDiagram') || text.startsWith('stateDiagram') || text.startsWith('erDiagram') ||
+            text.startsWith('journey') || text.startsWith('gantt') || text.startsWith('pie') || text.startsWith('gitgraph')) {
+          // Convert this to a mermaid diagram
+          const mermaidDiv = document.createElement('div');
+          mermaidDiv.className = 'mermaid';
+          mermaidDiv.textContent = text;
+          block.parentNode.replaceWith(mermaidDiv);
+        }
+      });
+      
+      // Re-initialize Mermaid for any new diagrams
+      if (window.mermaid) {
+        mermaid.init(undefined, resultDiv.querySelectorAll('.mermaid'));
+      }
     }
 
     function showError(message) {
@@ -1539,23 +1479,65 @@
 
     // Initialize page
     document.addEventListener("DOMContentLoaded", () => {
-      // Theme setup
-      const savedTheme = localStorage.getItem("theme") || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-      document.body.setAttribute("data-theme", savedTheme);
+
+      // Scroll to top button
+      const scrollToTopBtn = document.getElementById("scrollToTop");
       
-      const themeToggle = document.getElementById("themeToggle");
-      themeToggle.addEventListener("click", () => {
-        const currentTheme = document.body.getAttribute("data-theme") === "dark" ? "light" : "dark";
-        document.body.setAttribute("data-theme", currentTheme);
-        localStorage.setItem("theme", currentTheme);
-        
-        const icon = themeToggle.querySelector("i");
-        icon.className = currentTheme === "dark" ? "fas fa-sun" : "fas fa-moon";
+      // Show/hide button based on scroll position
+      window.addEventListener("scroll", () => {
+        if (window.pageYOffset > 300) {
+          scrollToTopBtn.classList.add("show");
+        } else {
+          scrollToTopBtn.classList.remove("show");
+        }
       });
       
-      // Set initial theme icon
-      const icon = themeToggle.querySelector("i");
-      icon.className = savedTheme === "dark" ? "fas fa-sun" : "fas fa-moon";
+      // Scroll to top when clicked
+      scrollToTopBtn.addEventListener("click", () => {
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth"
+        });
+      });
+
+      // Edit title functionality
+      const editTitleBtn = document.getElementById("editTitleBtn");
+      if (editTitleBtn) {
+        editTitleBtn.addEventListener("click", async () => {
+          const currentTitle = document.getElementById("specTitle").textContent;
+          const newTitle = prompt("Edit title:", currentTitle);
+          
+          if (newTitle && newTitle.trim() !== "" && newTitle !== currentTitle) {
+            try {
+              // Get the research ID from URL
+              const urlParams = new URLSearchParams(window.location.search);
+              const researchId = urlParams.get('id');
+              
+              if (!researchId) {
+                alert("Error: Research ID not found");
+                return;
+              }
+
+              // Update in Firebase
+              const { doc, setDoc } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+              const researchRef = doc(db, 'marketResearch', researchId);
+              await setDoc(researchRef, {
+                title: newTitle.trim(),
+                updatedAt: new Date().toISOString()
+              }, { merge: true });
+
+              // Update the display
+              document.getElementById("specTitle").textContent = newTitle.trim();
+              
+              console.log("✅ Research title updated successfully");
+              
+            } catch (error) {
+              console.error("Error updating research title:", error);
+              alert("Failed to update title. Please try again.");
+            }
+          }
+        });
+      }
     });
 
     // Listen to auth state changes
@@ -1604,26 +1586,10 @@
     }
 
     // Theme toggle functionality
-    function toggleTheme() {
-      const body = document.body;
-      const themeToggle = document.getElementById('themeToggle');
-      const icon = themeToggle.querySelector('i');
-      
-      if (body.classList.contains('dark-mode')) {
-        body.classList.remove('dark-mode');
-        icon.className = 'fas fa-moon';
-        localStorage.setItem('darkMode', 'false');
-      } else {
-        body.classList.add('dark-mode');
-        icon.className = 'fas fa-sun';
-        localStorage.setItem('darkMode', 'true');
-      }
-    }
 
     // Make functions global
     window.toggleUserDropdown = toggleUserDropdown;
     window.toggleMenu = toggleMenu;
-    window.toggleTheme = toggleTheme;
 
     // Basic header functionality
     document.addEventListener('DOMContentLoaded', function() {
@@ -1636,14 +1602,6 @@
         });
       }
       
-      // Theme toggle
-      const themeToggle = document.getElementById('themeToggle');
-      if (themeToggle) {
-        themeToggle.addEventListener('click', function(event) {
-          event.stopPropagation();
-          toggleTheme();
-        });
-      }
       
       // Close menu when clicking outside
       document.addEventListener('click', function(event) {
@@ -1685,15 +1643,6 @@
       });
       
       // Load saved theme
-      const savedTheme = localStorage.getItem('darkMode');
-      if (savedTheme === 'true') {
-        document.body.classList.add('dark-mode');
-        const themeToggle = document.getElementById('themeToggle');
-        if (themeToggle) {
-          const icon = themeToggle.querySelector('i');
-          icon.className = 'fas fa-sun';
-        }
-      }
       
       // Mobile header layout adjustment
       function adjustMobileLayout() {

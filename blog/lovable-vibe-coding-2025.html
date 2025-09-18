@@ -100,30 +100,6 @@
         --shadow-color: rgba(0, 0, 0, 0.1);
       }
 
-      .dark-mode {
-        --background-color: #1a1a1a;
-        --header-background: rgba(40, 40, 40, 0.9);
-        --header-text: #ffffff;
-        --article-background: #2a2a2a;
-        --article-title: #ffffff;
-        --article-title-hover: #00b7c3;
-        --article-date: #cccccc;
-        --article-intro: #e0e0e0;
-        --article-content-text: #e0e0e0;
-        --article-content-heading: #ffffff;
-        --article-content-heading-hover: #00b7c3;
-        --back-to-blog: #00b7c3;
-        --back-to-blog-hover: #008b8b;
-        --footer-background: #2a2a2a;
-        --footer-text: #ffffff;
-        --footer-link: #ffffff;
-        --footer-link-hover: #00b7c3;
-        --footer-divider: #ffffff;
-        --footer-social: #ffffff;
-        --footer-social-hover: #00b7c3;
-        --footer-copyright: #cccccc;
-        --shadow-color: rgba(0, 0, 0, 0.3);
-      }
 
       * { margin: 0; padding: 0; box-sizing: border-box; }
       html { height: 100%; }
@@ -153,19 +129,6 @@
         color: var(--header-text); 
         font-size: 1.65rem; 
         font-weight: 700; 
-      }
-      .theme-toggle {
-        position: absolute;
-        right: 24px;
-        background: none;
-        border: none;
-        color: var(--header-text);
-        font-size: 1.2rem;
-        cursor: pointer;
-        transition: color 0.3s ease;
-      }
-      .theme-toggle:hover {
-        color: var(--footer-link-hover);
       }
       .main-content-wrapper { 
         width: 100%; 
@@ -358,7 +321,6 @@
         .footer-divider { font-size: 1rem; }
         .footer-social a { font-size: 1rem; }
         .back-to-blog { padding: 8px 16px; font-size: 0.9rem; max-width: 180px; }
-        .theme-toggle { font-size: 1rem; right: 15px; }
       }
       @media (max-width: 480px) {
         .thematic-header .logo a { font-size: 1.32rem; }
@@ -375,195 +337,12 @@
         .footer-social a { font-size: 0.9rem; }
         .back-to-blog { padding: 6px 12px; font-size: 0.85rem; max-width: 160px; }
         .footer-content { flex-direction: row; align-items: center; }
-        .theme-toggle { font-size: 0.9rem; right: 10px; }
       }
       @media (prefers-reduced-motion: reduce) {
-        .article-title, .article-content h3, .footer-links a, .footer-social a, .back-to-blog, .theme-toggle { transition: none; }
+        .article-title, .article-content h3, .footer-links a, .footer-social a, .back-to-blog { transition: none; }
       }
 
-      /* Dark mode styles for content */
-      .main-content-wrapper {
-        transition: background 0.3s ease;
-      }
 
-      body.dark-mode .main-content-wrapper {
-        background: #1a1a1a;
-      }
-
-      .header-text {
-        transition: color 0.3s ease;
-      }
-
-      body.dark-mode .header-text {
-        color: #e0e0e0;
-      }
-
-      .header-text h1 {
-        transition: color 0.3s ease;
-      }
-
-      body.dark-mode .header-text h1 {
-        color: #e0e0e0;
-      }
-
-      .article-container {
-        transition: background 0.3s ease;
-      }
-
-      body.dark-mode .article-container {
-        background: #2a2a2a;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
-      }
-
-      .article-title {
-        transition: color 0.3s ease;
-      }
-
-      body.dark-mode .article-title {
-        color: #e0e0e0;
-      }
-
-      .article-date-time {
-        transition: color 0.3s ease;
-      }
-
-      body.dark-mode .article-date-time {
-        color: #ccc;
-      }
-
-      .article-intro {
-        transition: color 0.3s ease;
-      }
-
-      body.dark-mode .article-intro {
-        color: #ccc;
-      }
-
-      .article-content h3 {
-        transition: color 0.3s ease;
-      }
-
-      body.dark-mode .article-content h3 {
-        color: #e0e0e0;
-      }
-
-      .article-content p {
-        transition: color 0.3s ease;
-      }
-
-      body.dark-mode .article-content p {
-        color: #ccc;
-      }
-
-      footer {
-        transition: background 0.3s ease, color 0.3s ease;
-      }
-
-      body.dark-mode footer {
-        background: #1a1a1a;
-        color: #e0e0e0;
-        box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.3);
-      }
-
-      .footer-links a {
-        transition: color 0.3s ease;
-      }
-
-      body.dark-mode .footer-links a {
-        color: #e0e0e0;
-      }
-
-      .footer-divider {
-        transition: color 0.3s ease;
-      }
-
-      body.dark-mode .footer-divider {
-        color: #e0e0e0;
-      }
-
-      .footer-social a {
-        transition: color 0.3s ease;
-      }
-
-      body.dark-mode .footer-social a {
-        color: #e0e0e0;
-      }
-
-      .footer-copyright {
-        transition: color 0.3s ease;
-      }
-
-      body.dark-mode .footer-copyright {
-        color: #ccc;
-      }
-
-      /* Remove blue borders from buttons */
-      .theme-toggle,
-      .menu-toggle {
-        outline: none !important;
-        border: none !important;
-        box-shadow: none !important;
-      }
-
-      .theme-toggle:focus,
-      .menu-toggle:focus {
-        outline: none !important;
-        border: none !important;
-        box-shadow: none !important;
-      }
-
-      /* Remove any default button styling */
-      .theme-toggle::-moz-focus-inner,
-      .menu-toggle::-moz-focus-inner {
-        border: 0;
-      }
-
-      /* Dark mode specific button fixes */
-      body.dark-mode .theme-toggle,
-      body.dark-mode .menu-toggle {
-        outline: none !important;
-        border: none !important;
-        box-shadow: none !important;
-        background: none !important;
-      }
-
-      body.dark-mode .theme-toggle:focus,
-      body.dark-mode .menu-toggle:focus {
-        outline: none !important;
-        border: none !important;
-        box-shadow: none !important;
-        background: none !important;
-      }
-
-      /* Override any browser default focus styles */
-      body.dark-mode .theme-toggle:focus-visible,
-      body.dark-mode .menu-toggle:focus-visible {
-        outline: none !important;
-        border: none !important;
-        box-shadow: none !important;
-      }
-
-      /* Global button focus removal */
-      button:focus,
-      button:focus-visible,
-      button:focus-within {
-        outline: none !important;
-        border: none !important;
-        box-shadow: none !important;
-      }
-
-      /* Specific for our buttons */
-      .theme-toggle:focus,
-      .theme-toggle:focus-visible,
-      .theme-toggle:focus-within,
-      .menu-toggle:focus,
-      .menu-toggle:focus-visible,
-      .menu-toggle:focus-within {
-        outline: none !important;
-        border: none !important;
-        box-shadow: none !important;
-        background: none !important;
-      }
     </style>
 </head>
 <body class="page-default">
@@ -571,16 +350,13 @@
     <div class="logo">
       <a href="../index.html" aria-label="Specifys.ai homepage">Specifys.ai</a>
     </div>
-    <button class="theme-toggle" onclick="toggleDarkMode()" aria-label="Toggle dark mode">
-      <i class="fas fa-moon"></i>
-    </button>
     <button class="menu-toggle" aria-label="Toggle navigation menu" aria-expanded="false"><i class="fas fa-bars"></i></button>
     <div class="header-links">
       <a href="../blog.html" aria-label="Visit our blog">Blog</a>
-      <a href="../about.html" aria-label="Learn more about specifys.ai">About Us</a>
-      <a href="../how.html" aria-label="Learn how specifys.ai works">How It Works</a>
-      <a href="../map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
-      <a href="../ToolPicker.html" aria-label="Use our Tool Finder">Tool Finder</a>
+      <a href="../pages/about.html" aria-label="Learn more about specifys.ai">About Us</a>
+      <a href="../pages/how.html" aria-label="Learn how specifys.ai works">How It Works</a>
+      <a href="../tools/map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
+      <a href="../pages/ToolPicker.html" aria-label="Use our Tool Finder">Tool Finder</a>
     </div>
   </header>
 
@@ -653,7 +429,7 @@
     <div class="footer-content">
       <div class="footer-links">
         <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
-        <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
+        <a href="../pages/about.html" aria-label="Learn more about specifys.ai">About Us</a>
         <a href="/blog.html" aria-label="Visit our blog">Blog</a>
         <a href="map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
       </div>

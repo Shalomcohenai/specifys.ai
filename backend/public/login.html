@@ -76,6 +76,23 @@
     <script type="module" src="/scripts/navbar.js"></script>
     <script type="module" src="/scripts/routeGuards.js"></script>
     <script type="module">
+        // Mobile layout adjustment - move form before hero section on mobile
+        function adjustMobileLayout() {
+            if (window.innerWidth <= 768) {
+                const heroSection = document.querySelector('.hero-hero-section');
+                const mainSection = document.querySelector('main');
+                const body = document.querySelector('body');
+                
+                if (heroSection && mainSection) {
+                    // Move hero section after main section for mobile
+                    body.insertBefore(mainSection, heroSection);
+                }
+            }
+        }
+        
+        // Run on load and resize
+        window.addEventListener('load', adjustMobileLayout);
+        window.addEventListener('resize', adjustMobileLayout);
         import { loginWithEmail, loginWithGoogle, onAuthChanged } from '/scripts/authService.js';
         import { redirectIfAuthed } from '/scripts/routeGuards.js';
 
@@ -152,34 +169,6 @@
         </div>
     </footer>
 
-    <!-- Theme Toggle Button -->
-    <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode"><i class="fas fa-moon"></i></button>
 
-    <script>
-        // Theme toggle functionality
-        const themeToggle = document.getElementById('themeToggle');
-        themeToggle.addEventListener('click', () => {
-            document.body.classList.toggle('dark-mode');
-            const isDarkMode = document.body.classList.contains('dark-mode');
-            themeToggle.querySelector('i').classList.toggle('fa-moon', !isDarkMode);
-            themeToggle.querySelector('i').classList.toggle('fa-sun', isDarkMode);
-            themeToggle.setAttribute('aria-label', isDarkMode ? 'Toggle light mode' : 'Toggle dark mode');
-            localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
-        });
-
-        // Load saved theme
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme === 'dark') {
-            document.body.classList.add('dark-mode');
-            themeToggle.querySelector('i').classList.replace('fa-moon', 'fa-sun');
-            themeToggle.setAttribute('aria-label', 'Toggle light mode');
-        } else {
-            document.body.classList.remove('dark-mode');
-            themeToggle.querySelector('i').classList.replace('fa-sun', 'fa-moon');
-            themeToggle.setAttribute('aria-label', 'Toggle dark mode');
-            localStorage.setItem('theme', 'light');
-        }
-
-    </script>
 </body>
 </html>

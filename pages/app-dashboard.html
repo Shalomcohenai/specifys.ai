@@ -27,15 +27,6 @@
             --chat-bg: #fff;
         }
 
-        body.dark-mode {
-            --bg-color: #1a1a1a;
-            --text-color: #e0e0e0;
-            --border-color: #333;
-            --primary-color: #999;
-            --hover-color: #777;
-            --light-gray: #333;
-            --chat-bg: rgba(30, 30, 30, 0.95);
-        }
 
         /* Header Layout */
         .thematic-header {
@@ -88,9 +79,6 @@
             transition: color 0.3s ease;
         }
 
-        body.dark-mode .logo a {
-            color: #ffffff;
-        }
 
         .logo a:hover {
             color: var(--primary-color);
@@ -170,24 +158,9 @@
             font-weight: 500;
         }
 
-        body.dark-mode .user-info {
-            background: rgba(128, 128, 128, 0.2);
-            border-color: rgba(128, 128, 128, 0.3);
-            color: #ccc;
-        }
 
-        body.dark-mode .user-info:hover {
-            background: rgba(128, 128, 128, 0.3);
-        }
 
-        body.dark-mode .user-avatar {
-            background: #ccc;
-            color: #333;
-        }
 
-        body.dark-mode .user-name {
-            color: #ccc;
-        }
 
         /* User Dropdown */
         .user-dropdown {
@@ -245,7 +218,7 @@
             max-width: 1400px;
             margin: 0 auto;
             padding: 2rem;
-            margin-top: 100px;
+            margin-top: 80px;
         }
 
         /* Top Dashboard */
@@ -404,32 +377,6 @@
             align-items: center;
         }
 
-        /* Theme Toggle Button */
-        .theme-toggle {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            background: var(--bg-color);
-            color: var(--text-color);
-            border: none;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            font-size: 1.2rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-            z-index: 1000;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .theme-toggle:hover {
-            background: var(--hover-color);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-        }
 
         /* Button Styles */
         .btn {
@@ -506,107 +453,25 @@
             font-style: italic;
         }
 
-        /* Dark Mode Styles */
-        body.dark-mode {
-            background: #1a1a1a;
-            color: #e0e0e0;
-        }
-
-        body.dark-mode .dashboard-container {
-            background: #1a1a1a;
-            color: #e0e0e0;
-        }
-
-        body.dark-mode .top-dashboard {
-            background: linear-gradient(135deg, #333 0%, #444 100%);
-            color: #e0e0e0;
-        }
-
-        body.dark-mode .app-info-compact h1 {
-            color: #fff;
-        }
-
-        body.dark-mode .app-info-compact p {
-            color: #ccc;
-        }
-
-        body.dark-mode .dashboard-section {
-            background: #2a2a2a;
-            color: #e0e0e0;
-            border: 1px solid #444;
-        }
-
-        body.dark-mode .section-header {
-            border-bottom-color: #444;
-        }
-
-        body.dark-mode .section-header h3 {
-            color: #e0e0e0;
-        }
-
-        body.dark-mode .app-info h1 {
-            color: #fff;
-        }
-
-        body.dark-mode .app-info p {
-            color: #ccc;
-        }
-
-        body.dark-mode .stat-item {
-            color: #e0e0e0;
-        }
-
-        body.dark-mode .stat-number {
-            color: #fff;
-        }
-
-        body.dark-mode .stat-label {
-            color: #cccccc;
-        }
 
 
-        body.dark-mode .app-icon {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: rgba(255, 255, 255, 0.3);
-        }
 
-        body.dark-mode .card {
-            background: #333;
-            border-color: #444;
-            color: #e0e0e0;
-        }
 
-        body.dark-mode .card-title {
-            color: #e0e0e0;
-        }
 
-        body.dark-mode .card-text {
-            color: #cccccc;
-        }
 
-        body.dark-mode .btn-primary {
-            background: #999;
-            border-color: #999;
-        }
 
-        body.dark-mode .btn-primary:hover {
-            background: #777;
-            border-color: #777;
-        }
 
-        body.dark-mode .btn-outline-secondary {
-            color: #999;
-            border-color: #999;
-        }
 
-        body.dark-mode .btn-outline-secondary:hover {
-            background: #999;
-            color: #333;
-        }
 
-        body.dark-mode .loading {
-            color: #999;
-        }
+
+
+
+
+
+
+
+
+
 
         /* Feature List Styles */
         .feature-list {
@@ -622,10 +487,6 @@
             border-left: 4px solid #666;
         }
 
-        body.dark-mode .version-section {
-            background: #333;
-            border-left-color: #999;
-        }
 
         .version-header {
             display: flex;
@@ -641,9 +502,6 @@
             margin: 0;
         }
 
-        body.dark-mode .version-title {
-            color: #e0e0e0;
-        }
 
         .version-date {
             font-size: 0.9rem;
@@ -651,9 +509,6 @@
             font-style: italic;
         }
 
-        body.dark-mode .version-date {
-            color: #999;
-        }
 
         .features-grid {
             display: grid;
@@ -1381,9 +1236,6 @@
             line-height: 1.3;
         }
 
-        body.dark-mode .card-title {
-            color: #e0e0e0;
-        }
 
         .card-link-icon {
             color: #666;
@@ -3716,6 +3568,54 @@
                 padding: 1.5rem;
             }
         }
+
+        /* Back to Profile Button Styles */
+        .back-to-profile-container {
+            display: flex;
+            justify-content: flex-start;
+            padding: 10px 0;
+            margin-top: 10px;
+        }
+
+        .back-to-profile-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .back-to-profile-btn:hover {
+            background: #007bff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+        }
+
+        .back-to-profile-btn:active {
+            transform: translateY(0);
+        }
+
+        body.dark-mode .back-to-profile-btn {
+            background: #495057;
+        }
+
+        body.dark-mode .back-to-profile-btn:hover {
+            background: #4299e1;
+            box-shadow: 0 4px 12px rgba(66, 153, 225, 0.3);
+        }
+
+        .back-to-profile-btn i {
+            font-size: 12px;
+        }
     </style>
 </head>
 <body class="page-default">
@@ -3740,7 +3640,13 @@
             <div class="dashboard-header">
                 <div class="app-info-compact">
                     <h1 id="app-name">Loading...</h1>
-                    <p id="app-description">Loading...</p>
+                    <!-- Back to Profile Button -->
+                    <div class="back-to-profile-container">
+                        <button class="back-to-profile-btn" onclick="goBackToProfile()">
+                            <i class="fas fa-arrow-left"></i>
+                            Back to Profile
+                        </button>
+                    </div>
                 </div>
                 <div class="dashboard-stats">
                     <div class="stat-item">
@@ -4003,6 +3909,11 @@
                     loadAppFeatures(),
                     loadAppExpenses()
                 ]);
+                
+                // Update stats after all data is loaded and rendered to DOM
+                setTimeout(() => {
+                    updateAllStats();
+                }, 1000);
 
             } catch (error) {
                 console.error('Error loading app data:', error);
@@ -4014,13 +3925,8 @@
         function updateAppHeader() {
             if (!currentApp) return;
             
-            document.getElementById('app-name').textContent = currentApp.name + ' v1.0';
-            document.getElementById('app-description').textContent = currentApp.description || 'No description available';
-            document.getElementById('budget-used').textContent = `$${currentApp.spent || 0}`;
-            
-            // Initialize counters (will be updated by individual load functions)
-            document.getElementById('notes-count').textContent = '0';
-            document.getElementById('versions-count').textContent = '0';
+            document.getElementById('app-name').textContent = currentApp.name;
+            // Budget will be updated by updateDashboardCounters after data loads
         }
 
         // Load app specifications
@@ -4177,8 +4083,7 @@
                     }
                 ];
                 
-                document.getElementById('tasks-count').textContent = sampleTasks.length;
-                document.getElementById('tasks-count').textContent = sampleTasks.length;
+                // Tasks count will be updated by the main stats function
                 renderTasks(sampleTasks);
             }
         }
@@ -4258,7 +4163,7 @@
                     }
                 ];
                 
-                document.getElementById('milestones-count').textContent = sampleMilestones.length;
+                // Milestones count will be updated by the main stats function
                 renderMilestones(sampleMilestones);
             }
         }
@@ -4554,7 +4459,6 @@
                                  <h4 class="card-title">${spec.title}</h4>
                                  <i class="fas fa-external-link-alt card-link-icon"></i>
                     </div>
-                             <div class="card-description">${spec.description ? spec.description.substring(0, 120) + '...' : 'No description available'}</div>
                              <div class="card-meta">
                                  <span class="card-date">${new Date(spec.createdAt || Date.now()).toLocaleDateString()}</span>
                                  <span class="card-status">${spec.status || 'Draft'}</span>
@@ -4585,7 +4489,6 @@
                                  <h4 class="card-title">${researchItem.title || 'Untitled Research'}</h4>
                                  <i class="fas fa-external-link-alt card-link-icon"></i>
                     </div>
-                             <div class="card-description">${researchItem.summary ? researchItem.summary.substring(0, 120) + '...' : researchItem.description ? researchItem.description.substring(0, 120) + '...' : 'No description available'}</div>
                              <div class="card-meta">
                                  <span class="card-date">${new Date(researchItem.createdAt || Date.now()).toLocaleDateString()}</span>
                                  <span class="card-type">${researchItem.type || 'Research'}</span>
@@ -4638,8 +4541,7 @@
             
             container.innerHTML = `<div class="tasks-list-simple">${tasksHTML}</div>`;
             
-            // Update counter in dashboard after rendering
-            setTimeout(updateDashboardCounters, 100);
+            // Counter will be updated by updateAllStats after all data loads
         }
         
         // Show task details on title click (using note style)
@@ -4809,8 +4711,7 @@
                 window.milestonesData[milestone.id] = milestone;
             });
             
-            // Update counter in dashboard after rendering
-            setTimeout(updateDashboardCounters, 100);
+            // Counter will be updated by updateAllStats after all data loads
         }
         
         // Toggle milestone status (planned -> in-progress -> completed -> planned)
@@ -4926,8 +4827,7 @@
             
             container.innerHTML = `<div class="notes-list-simple">${notesHTML}</div>`;
             
-            // Update counter in dashboard after rendering
-            setTimeout(updateDashboardCounters, 100);
+            // Counter will be updated by updateAllStats after all data loads
         }
         
         // Show note details on title click
@@ -5017,8 +4917,7 @@
 
             container.innerHTML = `<div class="features-roadmap">${featureListHTML}</div>`;
             
-            // Update counter in dashboard after rendering
-            setTimeout(updateDashboardCounters, 100);
+            // Counter will be updated by updateAllStats after all data loads
         }
         
         // Toggle version details
@@ -5102,8 +5001,7 @@
                 </div>
             `;
             
-            // Update dashboard counters
-            updateDashboardCounters();
+            // Counter will be updated by updateAllStats after all data loads
         }
         
         // Show expense details on click
@@ -5564,11 +5462,13 @@
         // Update dashboard counters
         function updateDashboardCounters() {
             // Count current elements in the DOM for immediate feedback
-            const tasksCount = document.querySelectorAll('#tasks-container .task-item').length;
-            const notesCount = document.querySelectorAll('#notes-container .note-item').length;
+            // Use the correct selectors based on what's actually in the DOM
+            const tasksCount = document.querySelectorAll('#tasks-container .note-item-simple').length;
+            const notesCount = document.querySelectorAll('#notes-container .note-item-simple').length;
             const versionsCount = document.querySelectorAll('#features-container .version-roadmap-item').length;
             const milestonesCount = document.querySelectorAll('#milestones-timeline .milestone-point').length;
             const expenseItems = document.querySelectorAll('#expenses-container .expense-item-simple');
+            
             
             // Calculate total budget used from visible expenses
             let totalBudget = 0;
@@ -5582,11 +5482,14 @@
                 }
             });
             
-            document.getElementById('tasks-count').textContent = tasksCount;
-            document.getElementById('notes-count').textContent = notesCount;
-            document.getElementById('versions-count').textContent = versionsCount;
-            document.getElementById('milestones-count').textContent = milestonesCount;
-            document.getElementById('budget-used').textContent = `$${totalBudget.toFixed(0)}`;
+            // Update stats with animation
+            updateStatsWithAnimation({
+                tasks: tasksCount,
+                notes: notesCount,
+                versions: versionsCount,
+                milestones: milestonesCount,
+                budget: totalBudget
+            });
         }
 
         // Update feature status in Firebase
@@ -5788,6 +5691,7 @@
                 alert('Task added successfully!');
                 closeModal();
                 loadAppTasks(); // Refresh the tasks display
+                setTimeout(() => updateAllStats(), 500); // Update stats after data loads
                 
             } catch (error) {
                 console.error('Error adding task:', error);
@@ -5821,6 +5725,7 @@
                 alert('Note added successfully!');
                 closeModal();
                 loadAppNotes(); // Refresh the notes display
+                setTimeout(() => updateAllStats(), 500); // Update stats after data loads
                 
             } catch (error) {
                 console.error('Error adding note:', error);
@@ -5880,6 +5785,7 @@
                 showSuccess(`${milestones.length} milestones created successfully!`);
                 closeModal();
                 loadAppMilestones(); // Refresh the milestones display
+                setTimeout(() => updateAllStats(), 500); // Update stats after data loads
                 
             } catch (error) {
                 console.error('Error creating milestones:', error);
@@ -5925,6 +5831,7 @@
                     
                     showSuccess('All milestones deleted successfully!');
                     loadAppMilestones(); // Refresh the display
+                    setTimeout(() => updateAllStats(), 500); // Update stats after data loads
                     
                     // Update the action button to show "+" again
                     const actionsContainer = document.querySelector('.unified-dashboard .action-buttons');
@@ -6060,6 +5967,7 @@
                     await deleteDoc(doc(db, 'appTasks', taskId));
                     showSuccess('Task deleted successfully!');
                     loadAppTasks(); // Reload the tasks
+                    setTimeout(() => updateAllStats(), 500); // Update stats after data loads
                 } catch (error) {
                     console.error('Error deleting task:', error);
                     alert('Error deleting task: ' + error.message);
@@ -6073,6 +5981,7 @@
                     await deleteDoc(doc(db, 'appNotes', noteId));
                     showSuccess('Note deleted successfully!');
                     loadAppNotes(); // Reload the notes
+                    setTimeout(() => updateAllStats(), 500); // Update stats after data loads
                 } catch (error) {
                     console.error('Error deleting note:', error);
                     alert('Error deleting note: ' + error.message);
@@ -6669,6 +6578,94 @@
                 dropdown.classList.remove('show');
             }
         });
+
+        // Back to Profile Function
+        window.goBackToProfile = function() {
+            // Get the current user ID from the URL or localStorage
+            const urlParams = new URLSearchParams(window.location.search);
+            const userId = urlParams.get('userId') || localStorage.getItem('currentUserId');
+            
+            if (userId) {
+                // Redirect to profile page with user ID
+                window.location.href = `profile.html?id=${userId}`;
+            } else {
+                // Fallback to profile page without ID
+                window.location.href = 'profile.html';
+            }
+        };
+
+        // Smooth counter animation function
+        function animateCounter(element, target, duration = 1500) {
+            const start = 0;
+            const startTime = performance.now();
+            
+            function updateCounter(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // Easing function for smooth animation
+                const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+                const current = Math.floor(start + (target - start) * easeOutQuart);
+                
+                element.textContent = current;
+                
+                if (progress < 1) {
+                    requestAnimationFrame(updateCounter);
+                } else {
+                    element.textContent = target;
+                }
+            }
+            
+            requestAnimationFrame(updateCounter);
+        }
+
+        // Track if animation is already running
+        let isAnimating = false;
+
+        // Update all stats with smooth animation
+        function updateStatsWithAnimation(stats) {
+            // If animation is already running, just update the final values without animation
+            if (isAnimating) {
+                document.getElementById('tasks-count').textContent = stats.tasks;
+                document.getElementById('milestones-count').textContent = stats.milestones;
+                document.getElementById('notes-count').textContent = stats.notes;
+                document.getElementById('versions-count').textContent = stats.versions;
+                document.getElementById('budget-used').textContent = `$${stats.budget.toFixed(0)}`;
+                return;
+            }
+
+            isAnimating = true;
+            
+            // Start all counters at 0
+            document.getElementById('tasks-count').textContent = '0';
+            document.getElementById('milestones-count').textContent = '0';
+            document.getElementById('notes-count').textContent = '0';
+            document.getElementById('versions-count').textContent = '0';
+            
+            // Animate counters with slight delays for staggered effect
+            setTimeout(() => animateCounter(document.getElementById('tasks-count'), stats.tasks), 100);
+            setTimeout(() => animateCounter(document.getElementById('milestones-count'), stats.milestones), 200);
+            setTimeout(() => animateCounter(document.getElementById('notes-count'), stats.notes), 300);
+            
+            // Handle version separately (not a number)
+            setTimeout(() => {
+                document.getElementById('versions-count').textContent = stats.versions;
+            }, 400);
+            
+            // Update budget (no animation needed)
+            document.getElementById('budget-used').textContent = `$${stats.budget.toFixed(0)}`;
+            
+            // Reset animation flag after animation completes
+            setTimeout(() => {
+                isAnimating = false;
+            }, 2000);
+        }
+
+        // Calculate and update all stats from loaded data
+        function updateAllStats() {
+            // Use the existing updateDashboardCounters function
+            updateDashboardCounters();
+        }
     </script>
 </body>
 </html>

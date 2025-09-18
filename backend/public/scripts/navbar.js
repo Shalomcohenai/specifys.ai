@@ -90,8 +90,8 @@ function renderLoggedInState(user) {
   
   if (navLinks) {
     navLinks.innerHTML = `
-      <a href="/dashboard.html" class="nav-link">לוח בקרה</a>
-      <a href="/profile.html" class="nav-link">פרופיל</a>
+      <a href="/pages/app-dashboard.html" class="nav-link">לוח בקרה</a>
+      <a href="/pages/profile.html" class="nav-link">פרופיל</a>
       <span class="nav-user">
         <span class="user-avatar">${user.displayName ? user.displayName.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase()}</span>
         שלום, ${user.displayName || user.email.split('@')[0]}
@@ -102,8 +102,8 @@ function renderLoggedInState(user) {
   
   if (authButtons) {
     authButtons.innerHTML = `
-      <a href="/dashboard.html" class="btn btn-primary">לוח בקרה</a>
-      <a href="/profile.html" class="btn btn-outline">פרופיל</a>
+      <a href="/pages/app-dashboard.html" class="btn btn-primary">לוח בקרה</a>
+      <a href="/pages/profile.html" class="btn btn-outline">פרופיל</a>
       <button id="logout-btn-main" class="btn btn-outline">יציאה</button>
     `;
   }
@@ -130,15 +130,15 @@ function renderLoggedOutState() {
   
   if (navLinks) {
     navLinks.innerHTML = `
-      <a href="/login.html" class="nav-link">התחברות</a>
-      <a href="/register.html" class="nav-link">הרשמה</a>
+      <a href="/pages/auth.html" class="nav-link">התחברות</a>
+      <a href="/pages/auth.html" class="nav-link">הרשמה</a>
     `;
   }
   
   if (authButtons) {
     authButtons.innerHTML = `
-      <a href="/login.html" class="btn btn-primary">התחברות</a>
-      <a href="/register.html" class="btn btn-outline">הרשמה</a>
+      <a href="/pages/auth.html" class="btn btn-primary">התחברות</a>
+      <a href="/pages/auth.html" class="btn btn-outline">הרשמה</a>
     `;
   }
 }

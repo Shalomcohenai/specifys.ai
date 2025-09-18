@@ -60,10 +60,6 @@
         transition: background 0.3s ease, color 0.3s ease;
       }
 
-      body.dark-mode {
-        background: #1a1a1a;
-        color: #e0e0e0;
-      }
 
       .thematic-header {
         display: flex;
@@ -80,10 +76,6 @@
         transition: background 0.3s ease, border-color 0.3s ease;
       }
 
-      body.dark-mode .thematic-header {
-        background: rgba(40, 40, 40, 0.9);
-        border-bottom: 1px solid #444;
-      }
 
       .header-left {
         display: flex;
@@ -121,9 +113,6 @@
         transition: color 0.3s ease;
       }
 
-      body.dark-mode .logo a {
-        color: #ffffff;
-      }
 
       .logo a:hover {
         color: #0078d4;
@@ -215,10 +204,6 @@
         margin-top: 0.5rem;
       }
 
-      body.dark-mode .user-dropdown-content {
-        background: #2a2a2a;
-        border-color: #444;
-      }
 
       .user-dropdown-content a {
         display: block;
@@ -228,47 +213,12 @@
         transition: background 0.3s ease;
       }
 
-      body.dark-mode .user-dropdown-content a {
-        color: #ffffff;
-      }
 
       .user-dropdown-content a:hover {
         background: #f5f5f5;
       }
 
-      body.dark-mode .user-dropdown-content a:hover {
-        background: #444;
-      }
 
-      .theme-toggle {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: #0078d4;
-        color: white;
-        border: none;
-        border-radius: 50%;
-        width: 50px;
-        height: 50px;
-        font-size: 1.2rem;
-        cursor: pointer;
-        z-index: 1000;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      }
-
-      .theme-toggle:hover {
-        background: #005ea2;
-        transform: scale(1.1);
-      }
-
-      body.dark-mode .theme-toggle {
-        background: #00b7c3;
-      }
-
-      body.dark-mode .theme-toggle:hover {
-        background: #0099a3;
-      }
 
       .main-content-wrapper {
         width: 100%;
@@ -282,9 +232,6 @@
         transition: background 0.3s ease;
       }
 
-      body.dark-mode .main-content-wrapper {
-        background: #1a1a1a;
-      }
 
       .article-container {
         width: 100%;
@@ -296,9 +243,6 @@
         transition: background 0.3s ease, color 0.3s ease;
       }
 
-      body.dark-mode .article-container {
-        background: #2a2a2a;
-        color: #e0e0e0;
       }
 
       .article-header {
@@ -307,9 +251,6 @@
         border-bottom: 1px solid #eee;
       }
 
-      body.dark-mode .article-header {
-        border-bottom-color: #444;
-      }
 
       .article-title {
         font-size: clamp(1.8rem, 4vw, 2.5rem);
@@ -320,9 +261,6 @@
         transition: color 0.3s ease;
       }
 
-      body.dark-mode .article-title {
-        color: #e0e0e0;
-      }
 
       .article-meta {
         color: #666;
@@ -330,9 +268,6 @@
         margin-bottom: 1rem;
       }
 
-      body.dark-mode .article-meta {
-        color: #aaa;
-      }
 
       .article-content {
         padding: 30px;
@@ -341,9 +276,6 @@
         transition: color 0.3s ease;
       }
 
-      body.dark-mode .article-content {
-        color: #e0e0e0;
-      }
 
       .article-content h2 {
         font-size: 1.8rem;
@@ -354,9 +286,6 @@
         transition: color 0.3s ease;
       }
 
-      body.dark-mode .article-content h2 {
-        color: #e0e0e0;
-      }
 
       .article-content h3 {
         font-size: 1.4rem;
@@ -367,9 +296,6 @@
         transition: color 0.3s ease;
       }
 
-      body.dark-mode .article-content h3 {
-        color: #e0e0e0;
-      }
 
       .article-content p {
         margin-bottom: 1.2rem;
@@ -393,10 +319,6 @@
         border-radius: 0 8px 8px 0;
       }
 
-      body.dark-mode .highlight-box {
-        background: #333;
-        border-left-color: #0078d4;
-      }
 
       .code-block {
         background: #f1f3f4;
@@ -409,10 +331,6 @@
         overflow-x: auto;
       }
 
-      body.dark-mode .code-block {
-        background: #2d2d2d;
-        border-color: #444;
-        color: #e0e0e0;
       }
 
       .back-to-blog {
@@ -484,9 +402,6 @@
             </div>
         </div>
     </header>
-    <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
-        <i class="fas fa-moon"></i>
-    </button>
 
     <div class="main-content-wrapper">
         <article class="article-container">
@@ -561,10 +476,10 @@
     <footer>
         <div class="footer-content">
             <div class="footer-links">
-                <a href="../how.html" aria-label="Learn how specifys.ai works">How It Works</a>
-                <a href="../about.html" aria-label="Learn more about specifys.ai">About Us</a>
+                <a href="../pages/how.html" aria-label="Learn how specifys.ai works">How It Works</a>
+                <a href="../pages/about.html" aria-label="Learn more about specifys.ai">About Us</a>
                 <a href="../blog.html" aria-label="Try our Blog">Blog</a>
-                <a href="../map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
+                <a href="../tools/map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
             </div>
             <span class="footer-divider">|</span>
             <div class="footer-social">
@@ -583,35 +498,6 @@
     <script src="../common-header-footer.js"></script>
     
     <script>
-        // Theme toggle functionality
-        document.addEventListener('DOMContentLoaded', function() {
-            const themeToggle = document.getElementById('themeToggle');
-            if (themeToggle) {
-                themeToggle.addEventListener('click', function() {
-                    document.body.classList.toggle('dark-mode');
-                    const isDark = document.body.classList.contains('dark-mode');
-                    localStorage.setItem('darkMode', isDark);
-                    
-                    // Update icon
-                    const icon = themeToggle.querySelector('i');
-                    if (isDark) {
-                        icon.className = 'fas fa-sun';
-                    } else {
-                        icon.className = 'fas fa-moon';
-                    }
-                });
-            }
-            
-            // Load saved theme
-            const savedTheme = localStorage.getItem('darkMode');
-            if (savedTheme === 'true') {
-                document.body.classList.add('dark-mode');
-                const icon = themeToggle.querySelector('i');
-                if (icon) {
-                    icon.className = 'fas fa-sun';
-                }
-            }
-        });
 
         // User dropdown functionality
         window.toggleUserDropdown = function() {
@@ -662,18 +548,18 @@
                     `;
                 } else {
                     authButtons.innerHTML = `
-                        <a href="../auth.html" class="auth-btn">Login</a>
-                        <a href="../auth.html" class="auth-btn primary">Register</a>
+                        <a href="../pages/auth.html" class="auth-btn">Login</a>
+                        <a href="../pages/auth.html" class="auth-btn primary">Register</a>
                     `;
                 }
             }
 
             window.showLoginModal = function() {
-                window.location.href = '../auth.html';
+                window.location.href = '../pages/auth.html';
             };
 
             window.showRegisterModal = function() {
-                window.location.href = '../auth.html';
+                window.location.href = '../pages/auth.html';
             };
 
             window.logout = function() {

@@ -50,10 +50,6 @@
       transition: background 0.3s ease, color 0.3s ease;
     }
 
-    body.dark-mode {
-      background: #1a1a1a;
-      color: #e0e0e0;
-    }
 
     .thematic-header {
       position: fixed;
@@ -68,10 +64,6 @@
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
-    body.dark-mode .thematic-header {
-      background: rgba(30, 30, 30, 0.9);
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-    }
 
     .thematic-header .logo a {
       text-decoration: none;
@@ -81,34 +73,11 @@
       transition: color 0.3s ease;
     }
 
-    body.dark-mode .thematic-header .logo a {
-      color: #e0e0e0;
-    }
 
     .thematic-header .logo a:hover {
       color: #0078d4;
     }
 
-    .theme-toggle {
-      position: fixed;
-      top: 15px;
-      right: 20px;
-      background: none;
-      border: none;
-      font-size: 1.5rem;
-      color: #333;
-      cursor: pointer;
-      transition: color 0.3s ease;
-      z-index: 2001;
-    }
-
-    body.dark-mode .theme-toggle {
-      color: #e0e0e0;
-    }
-
-    .theme-toggle:hover {
-      color: #0078d4;
-    }
 
     .carousel-container {
       flex-grow: 1;
@@ -130,10 +99,6 @@
       z-index: 1000;
     }
 
-    body.dark-mode .carousel-content {
-      background: rgba(30, 30, 30, 0.95);
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
-    }
 
     .chat-container {
       display: flex;
@@ -173,11 +138,6 @@
       padding: 20px;
     }
 
-    body.dark-mode .chat-message.result {
-      background: #2a2a2a;
-      border-color: #444;
-      color: #e0e0e0;
-    }
 
     .chat-message.result h1 {
       font-size: 1.8rem;
@@ -186,9 +146,6 @@
       margin-bottom: 1rem;
     }
 
-    body.dark-mode .chat-message.result h1 {
-      color: #e0e0e0;
-    }
 
     .chat-message.result h2 {
       font-size: 1.4rem;
@@ -197,9 +154,6 @@
       margin: 0.8rem 0;
     }
 
-    body.dark-mode .chat-message.result h2 {
-      color: #e0e0e0;
-    }
 
     .chat-message.result h3 {
       font-size: 1.2rem;
@@ -208,9 +162,6 @@
       margin: 0.6rem 0;
     }
 
-    body.dark-mode .chat-message.result h3 {
-      color: #e0e0e0;
-    }
 
     .chat-message.result ul,
     .chat-message.result ol {
@@ -617,10 +568,6 @@
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
-    body.dark-mode .thematic-header {
-      background: rgba(30, 30, 30, 0.9);
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-    }
 
     .header-logo {
       display: flex;
@@ -769,15 +716,7 @@
       background: #f0f0f0;
     }
 
-    body.dark-mode .user-dropdown-content a,
-    body.dark-mode .user-dropdown-content button {
-      color: #e0e0e0;
-    }
 
-    body.dark-mode .user-dropdown-content a:hover,
-    body.dark-mode .user-dropdown-content button:hover {
-      background: #444;
-    }
 
     .user-dropdown-content .divider {
       height: 1px;
@@ -996,7 +935,7 @@
     <div class="platform-boxes">
       <button class="platform-box" onclick="copyAllSpecContent()" data-tooltip="Copy the full market research to your clipboard.">Copy Full Research</button>
       <button class="platform-box" onclick="downloadPdf()" data-tooltip="Recommended for saving your market research as a portable document.">Download as PDF</button>
-      <a href="map/vibe-coding-tools-map.html" class="platform-box vibe-coding" data-tooltip="Explore a curated map of coding and NoCode tools to enhance your development process.">Vibe Coding Tools Map</a>
+      <a href="../tools/map/vibe-coding-tools-map.html" class="platform-box vibe-coding" data-tooltip="Explore a curated map of coding and NoCode tools to enhance your development process.">Vibe Coding Tools Map</a>
     </div>
     <p class="platform-details">Click a button to copy or download your market research or explore tools to start building your app.</p>
   </div>
@@ -1005,9 +944,9 @@
     <div class="footer-content">
       <div class="footer-links">
         <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
-        <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
-        <a href="blog.html" aria-label="Visit our blog">Blog</a>
-        <a href="map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
+        <a href="../pages/about.html" aria-label="Learn more about specifys.ai">About Us</a>
+        <a href="../blog.html" aria-label="Visit our blog">Blog</a>
+        <a href="../tools/map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
       </div>
       <span class="footer-divider">|</span>
       <div class="footer-social">
@@ -1154,6 +1093,7 @@
           title: title,
           content: specContent,
           userId: auth.currentUser.uid,
+          userName: auth.currentUser.displayName || auth.currentUser.email || 'Unknown User',
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp()
         };
@@ -1217,7 +1157,7 @@
               <span class="user-name">${user.displayName || user.email.split('@')[0]}</span>
             </div>
             <div class="user-dropdown-content" id="userDropdown">
-              <a href="profile.html">Profile</a>
+              <a href="../pages/profile.html">Profile</a>
               <div class="divider"></div>
               <button onclick="logout()">Sign Out</button>
             </div>
@@ -1233,11 +1173,11 @@
 
     // Global functions
     window.showLoginModal = function() {
-      window.location.href = 'auth.html';
+      window.location.href = '../pages/auth.html';
     };
 
     window.showRegisterModal = function() {
-      window.location.href = 'auth.html';
+      window.location.href = '../pages/auth.html';
     };
 
     window.logout = function() {
@@ -1467,11 +1407,11 @@
 
     // Global functions for auth
     window.showLoginModal = function() {
-      window.location.href = 'auth.html';
+      window.location.href = '../pages/auth.html';
     };
 
     window.showRegisterModal = function() {
-      window.location.href = 'auth.html';
+      window.location.href = '../pages/auth.html';
     };
 
     window.logout = function() {

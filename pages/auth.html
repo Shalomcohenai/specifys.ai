@@ -7,7 +7,7 @@
     <link rel="icon" type="image/x-icon" href="../favicon.ico" alt="Specifys.ai logo icon">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="../assets/css/styles.css">
     <style>
         /* Import Montserrat font */
         @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap");
@@ -32,25 +32,6 @@
             --chat-header-text: #fff;
         }
 
-        body.dark-mode {
-            --bg-color: #1a1a1a;
-            --text-color: #ffffff;
-            --primary-color: #0078d4;
-            --secondary-color: #6c757d;
-            --light-gray: #2a2a2a;
-            --border-color: #444;
-            --chat-bg: #2a2a2a;
-            --system-msg-bg: #1a1a1a;
-            --user-msg-bg: #0078d4;
-            --user-msg-text: #fff;
-            --input-bg: #2a2a2a;
-            --input-border: #444;
-            --button-hover: #005ea2;
-            --progress-bg: #2a2a2a;
-            --progress-fill: #0078d4;
-            --chat-header-bg: #0078d4;
-            --chat-header-text: #fff;
-        }
         
         body {
             font-family: "Montserrat", sans-serif;
@@ -72,10 +53,6 @@
             transition: background 0.3s ease, border-color 0.3s ease;
         }
 
-        body.dark-mode .thematic-header {
-            background: var(--bg-color, #1a1a1a);
-            border-bottom: 1px solid var(--border-color, #444);
-        }
 
         .header-left {
             display: flex;
@@ -114,9 +91,6 @@
             transition: color 0.3s ease;
         }
 
-        body.dark-mode .logo a {
-            color: #ffffff;
-        }
 
         .logo a:hover {
             color: var(--primary-color, #0078d4);
@@ -238,33 +212,7 @@
             background: var(--light-gray, #f5f5f5);
         }
 
-        /* Dark Mode Toggle */
-        .theme-toggle {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            border: none;
-            background: white;
-            color: black;
-            font-size: 1rem;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            transition: all 0.3s ease;
-            z-index: 1000;
-        }
 
-        .theme-toggle:hover {
-            transform: scale(1.1);
-            box-shadow: 0 6px 16px rgba(0,0,0,0.2);
-        }
-
-        body.dark-mode .theme-toggle {
-            background: black;
-            color: white;
-        }
 
         /* Mobile Responsive */
         @media (max-width: 768px) {
@@ -303,11 +251,6 @@
                 font-size: 0.7rem;
             }
             
-            .theme-toggle {
-                width: 45px;
-                height: 45px;
-                font-size: 1.1rem;
-            }
             
             .user-dropdown-content {
                 top: 70px;
@@ -323,9 +266,6 @@
             }
         }
 
-        body.dark-mode .logo a {
-            color: #ccc;
-        }
 
         .auth-buttons {
             display: flex;
@@ -348,11 +288,6 @@
             box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
         }
 
-        body.dark-mode footer {
-            color: #ccc;
-            background: rgba(51, 51, 51, 0.95);
-            box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.3);
-        }
 
         .footer-content {
             display: flex;
@@ -379,9 +314,6 @@
             font-family: "Montserrat", sans-serif;
         }
 
-        body.dark-mode .footer-links a {
-            color: #ccc;
-        }
 
         .footer-links a:hover {
             color: #666;
@@ -394,9 +326,6 @@
             font-family: "Montserrat", sans-serif;
         }
 
-        body.dark-mode .footer-divider {
-            color: #ccc;
-        }
 
         .footer-social {
             display: flex;
@@ -411,9 +340,6 @@
             transition: transform 0.3s ease, color 0.3s ease;
         }
 
-        body.dark-mode .footer-social a {
-            color: #ccc;
-        }
 
         .footer-social a:hover {
             color: #666;
@@ -427,9 +353,6 @@
             font-family: "Montserrat", sans-serif;
         }
 
-        body.dark-mode .footer-copyright {
-            color: #999;
-        }
 
         /* Auth Page Styles */
         .auth-container {
@@ -442,15 +365,14 @@
         }
 
         .auth-card {
-            background: rgba(255, 255, 255, 0.95);
+            background: #fff;
             border-radius: 20px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
             padding: 3rem;
             width: 100%;
             max-width: 450px;
             text-align: center;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid #e1e5e9;
             font-family: "Montserrat", sans-serif;
         }
 
@@ -475,27 +397,33 @@
 
         .auth-tabs {
             display: flex;
-            margin-bottom: 2rem;
-            border-radius: 10px;
+            margin-bottom: 1rem;
+            border-radius: 6px;
             overflow: hidden;
             background: #f8f9fa;
         }
 
         .auth-tab {
             flex: 1;
-            padding: 1rem;
+            padding: 0.4rem;
             text-align: center;
             background: transparent;
             border: none;
             cursor: pointer;
             transition: all 0.3s ease;
-            font-weight: 500;
+            font-weight: 600;
             font-family: "Montserrat", sans-serif;
+            font-size: 0.8rem;
         }
 
         .auth-tab.active {
-            background: #666;
+            background: #23a6d5;
             color: white;
+        }
+
+        .auth-tab:hover:not(.active) {
+            background: rgba(35, 166, 213, 0.1);
+            color: #23a6d5;
         }
 
         .auth-form {
@@ -645,77 +573,7 @@
             font-family: "Montserrat", sans-serif;
         }
 
-        /* Dark Mode Support */
-        body.dark-mode .auth-card {
-            background: rgba(51, 51, 51, 0.95);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: #ccc;
-        }
 
-        body.dark-mode .auth-logo {
-            color: #ccc;
-        }
-
-        body.dark-mode .auth-subtitle {
-            color: #999;
-        }
-
-        body.dark-mode .form-label {
-            color: #ccc;
-        }
-
-        body.dark-mode .form-input {
-            background: rgba(60, 60, 60, 0.9);
-            border-color: #666;
-            color: #ccc;
-        }
-
-        body.dark-mode .form-input:focus {
-            border-color: #999;
-            background: rgba(80, 80, 80, 0.9);
-        }
-
-        body.dark-mode .divider span {
-            background: rgba(51, 51, 51, 0.95);
-            color: #999;
-        }
-
-        /* Theme Toggle Button */
-        .theme-toggle {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            border: none;
-            background: rgba(255, 255, 255, 0.9);
-            color: #333;
-            font-size: 1.2rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            z-index: 1000;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .theme-toggle:hover {
-            background: #666;
-            color: white;
-            transform: scale(1.1);
-        }
-
-        body.dark-mode .theme-toggle {
-            background: rgba(51, 51, 51, 0.9);
-            color: #ccc;
-        }
-
-        body.dark-mode .theme-toggle:hover {
-            background: #666;
-            color: white;
-        }
 
         @media (max-width: 768px) {
             .thematic-header {
@@ -783,120 +641,92 @@
                 font-size: 1rem;
             }
             
-            .theme-toggle {
-                width: 40px;
-                height: 40px;
-                font-size: 1rem;
-                bottom: 15px;
-                left: 15px;
-            }
         }
     </style>
 </head>
 <body class="page-default">
-    <header class="thematic-header" role="banner">
-        <div class="header-left">
+
+    <main class="auth-page-layout">
+        <!-- Logo -->
+        <div class="auth-logo">
+            <a href="../index.html">Specifys.ai</a>
         </div>
-        <div class="header-center">
-            <div class="logo">
-                <a href="../index.html" aria-label="Specifys.ai homepage">Specifys.ai</a>
+        
+        <!-- Left Panel - Steps Animation -->
+        <div class="auth-left-panel">
+            <div class="steps-container">
+                <!-- Steps will be generated by JavaScript -->
             </div>
         </div>
-        <div class="header-right">
-            <div class="auth-buttons" id="auth-buttons">
-                <!-- Will be populated by auth system -->
-            </div>
-        </div>
-    </header>
 
-    <main class="auth-container">
-        <div class="auth-card">
-            <div class="auth-header">
-                <div class="auth-logo">Specifys.ai</div>
-                <div class="auth-subtitle">Login or register to save your specifications</div>
-            </div>
-
-            <div class="auth-tabs">
-                <button class="auth-tab active" onclick="switchTab('login')">Login</button>
-                <button class="auth-tab" onclick="switchTab('register')">Register</button>
-            </div>
-
-            <div id="error-message" class="error-message" style="display: none;"></div>
-            <div id="success-message" class="success-message" style="display: none;"></div>
-
-            <!-- Login Form -->
-            <form id="login-form" class="auth-form active">
-                <div class="form-group">
-                    <label class="form-label" for="login-email">Email</label>
-                    <input type="email" id="login-email" class="form-input" required>
+        <!-- Right Panel - Compact Login -->
+        <div class="auth-right-panel">
+            <div class="compact-login-container">
+                <div class="compact-login-header">
+                    <h1>Welcome Back</h1>
+                    <p>Sign in to continue your app development journey</p>
                 </div>
-                <div class="form-group">
-                    <label class="form-label" for="login-password">Password</label>
-                    <input type="password" id="login-password" class="form-input" required>
+
+                <div class="auth-tabs">
+                    <button class="auth-tab active" onclick="switchTab('login')">Login</button>
+                    <button class="auth-tab" onclick="switchTab('register')">Register</button>
                 </div>
-                <button type="submit" class="auth-button" id="login-btn">
-                                            <span id="login-btn-text">Login</span>
+
+                <div id="error-message" class="error-message" style="display: none;"></div>
+                <div id="success-message" class="success-message" style="display: none;"></div>
+
+                <!-- Login Form -->
+                <form id="login-form" class="auth-form active">
+                    <div class="compact-form-group">
+                        <label for="login-email">Email</label>
+                        <input type="email" id="login-email" required>
+                    </div>
+                    <div class="compact-form-group">
+                        <label for="login-password">Password</label>
+                        <input type="password" id="login-password" required>
+                    </div>
+                    <button type="submit" class="compact-btn compact-btn-primary" id="login-btn">
+                        <span id="login-btn-text">Sign In</span>
+                    </button>
+                </form>
+
+                <!-- Register Form -->
+                <form id="register-form" class="auth-form">
+                    <div class="compact-form-group">
+                        <label for="register-email">Email</label>
+                        <input type="email" id="register-email" required>
+                    </div>
+                    <div class="compact-form-group">
+                        <label for="register-password">Password</label>
+                        <input type="password" id="register-password" required minlength="6">
+                    </div>
+                    <div class="compact-form-group">
+                        <label for="register-confirm">Confirm Password</label>
+                        <input type="password" id="register-confirm" required minlength="6">
+                    </div>
+                    <button type="submit" class="compact-btn compact-btn-primary" id="register-btn">
+                        <span id="register-btn-text">Sign Up</span>
+                    </button>
+                </form>
+
+                <div class="compact-divider">
+                    <span>or</span>
+                </div>
+
+                <button class="compact-btn compact-btn-google" onclick="loginWithGoogle()">
+                    <span>G</span> Continue with Google
                 </button>
-            </form>
 
-            <!-- Register Form -->
-            <form id="register-form" class="auth-form">
-                <div class="form-group">
-                    <label class="form-label" for="register-email">Email</label>
-                    <input type="email" id="register-email" class="form-input" required>
+                <div class="compact-auth-links">
+                    <p>Don't have an account? <a href="#" onclick="switchTab('register')">Sign up here</a></p>
+                    <p><a href="../index.html">← Back to Home</a></p>
                 </div>
-                <div class="form-group">
-                    <label class="form-label" for="register-password">Password</label>
-                    <input type="password" id="register-password" class="form-input" required minlength="6">
-                </div>
-                <div class="form-group">
-                    <label class="form-label" for="register-confirm">Confirm Password</label>
-                    <input type="password" id="register-confirm" class="form-input" required minlength="6">
-                </div>
-                <button type="submit" class="auth-button" id="register-btn">
-                                            <span id="register-btn-text">Register</span>
-                </button>
-            </form>
-
-            <div class="divider">
-                <span>or</span>
-            </div>
-
-            <button class="google-button" onclick="loginWithGoogle()">
-                <i class="fab fa-google"></i>
-                                    Login with Google
-            </button>
-
-            <div class="auth-footer">
-                <a href="../index.html">← Back to Home</a>
             </div>
         </div>
     </main>
 
-    <footer>
-        <div class="footer-content">
-            <div class="footer-links">
-                <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
-                <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
-                <a href="blog.html" aria-label="Visit our blog">Blog</a>
-                <a href="../tools/map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
-                <a href="ToolPicker.html" aria-label="Use our Tool Finder">Tool Finder</a>
-            </div>
-            <span class="footer-divider">|</span>
-            <div class="footer-social">
-                <a href="https://www.linkedin.com/company/specifys-ai/" aria-label="Follow us on LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-                <a href="https://www.facebook.com/profile.php?id=61576402600129&locale=he_IL" target="_blank" aria-label="Follow us on Facebook"><i class="fab fa-facebook-f"></i></a>
-                <a href="https://www.instagram.com/YOUR_PROFILE" aria-label="Follow us on Instagram"><i class="fab fa-instagram"></i></a>
-                <a href="mailto:specifysai@gmail.com" aria-label="Send us an email"><i class="fas fa-envelope"></i></a>
-                <a href="https://www.producthunt.com/products/specifys-ai" target="_blank" aria-label="Check us out on Product Hunt"><i class="fab fa-product-hunt"></i></a>
-            </div>
-        </div>
-        <div class="footer-copyright">
-            © 2025 specifys.ai. All rights reserved.
-        </div>
-    </footer>
 
-    <script src="script.js"></script>
+    <script src="../assets/js/script.js"></script>
 
     <!-- Firebase SDK -->
     <script type="module">
@@ -1095,7 +925,7 @@
                 await loginWithEmail(email, password);
                 showSuccess('Login successful! Redirecting to homepage...');
                 setTimeout(() => {
-                    window.location.href = 'index.html';
+                    window.location.href = '../index.html';
                 }, 1500);
             } catch (error) {
                 showError(error.message);
@@ -1126,7 +956,7 @@
                 await registerWithEmail(email, password);
                 showSuccess('Registration successful! Redirecting to homepage...');
                 setTimeout(() => {
-                    window.location.href = 'index.html';
+                    window.location.href = '../index.html';
                 }, 1500);
             } catch (error) {
                 showError(error.message);
@@ -1142,7 +972,7 @@
                 await loginWithGoogle();
                 showSuccess('Login successful! Redirecting to homepage...');
                 setTimeout(() => {
-                    window.location.href = 'index.html';
+                    window.location.href = '../index.html';
                 }, 1500);
             } catch (error) {
                 showError(error.message);
@@ -1155,48 +985,16 @@
         // Redirect if already logged in
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                window.location.href = 'index.html';
+                window.location.href = '../index.html';
             }
         });
     </script>
 
-    <!-- Theme Toggle Button -->
-    <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode"><i class="fas fa-moon"></i></button>
 
     <script>
         // Basic header functionality
         document.addEventListener('DOMContentLoaded', function() {
             
-            // Theme toggle
-            const themeToggle = document.getElementById('themeToggle');
-            if (themeToggle) {
-                themeToggle.addEventListener('click', function(event) {
-                    event.stopPropagation();
-                    const body = document.body;
-                    const icon = themeToggle.querySelector('i');
-                    
-                    if (body.classList.contains('dark-mode')) {
-                        body.classList.remove('dark-mode');
-                        icon.className = 'fas fa-moon';
-                        localStorage.setItem('darkMode', 'false');
-                    } else {
-                        body.classList.add('dark-mode');
-                        icon.className = 'fas fa-sun';
-                        localStorage.setItem('darkMode', 'true');
-                    }
-                });
-            }
-            
-            // Load saved theme
-            const savedTheme = localStorage.getItem('darkMode');
-            if (savedTheme === 'true') {
-                document.body.classList.add('dark-mode');
-                const themeToggle = document.getElementById('themeToggle');
-                if (themeToggle) {
-                    const icon = themeToggle.querySelector('i');
-                    icon.className = 'fas fa-sun';
-                }
-            }
             
         });
 
