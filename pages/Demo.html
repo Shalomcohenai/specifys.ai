@@ -61,372 +61,642 @@
     "keywords": "app specification demo, nocode creators, Specifys.ai, vibe coding"
   }
   </script>
-  <title>App Specification Demo - Specifys.ai</title>
+  <title>Demo - Specifys.ai</title>
   <link rel="icon" type="image/x-icon" href="../favicon.ico">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/main.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+  <script src="../assets/js/scroll-to-top.js"></script>
 
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap');
-
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    html { height: 100%; }
-    body { font-family: 'Montserrat', sans-serif; display: flex; flex-direction: column; min-height: 100%; background: #f5f5f5; overflow-x: auto; position: relative; transition: background 0.3s ease, color 0.3s ease; }
-    body.dark-mode { background: #1a1a1a; color: #e0e0e0; }
-
-    /* Header Styles */
-    .thematic-header {
-      position: fixed;
-      top: 0;
-      width: 100%;
-      padding: 15px 24px;
+    /* Page-specific styles only */
+    body {
       display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 100;
-      background: rgba(255, 255, 255, 0.9);
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-    body.dark-mode .thematic-header {
-      background: rgba(30, 30, 30, 0.9);
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      flex-direction: column;
+      min-height: 100vh;
     }
     
-    .header-center {
+    .demo-container {
+      max-width: 1200px;
+      margin: 80px auto 40px;
+      padding: 30px;
+      background: var(--bg-primary);
+      border-radius: var(--border-radius-lg);
+      box-shadow: var(--shadow-md);
+      flex: 1;
+    }
+    
+    .mode-selector {
       display: flex;
       justify-content: center;
-      align-items: center;
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-xl);
+      flex-wrap: wrap;
     }
-
-    /* Logo Styles */
-    .logo a {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: #333;
-      text-decoration: none;
-      transition: color 0.3s ease;
-    }
-    body.dark-mode .logo a {
-      color: #e0e0e0;
-    }
-    .logo a:hover {
-      color: #0078d4;
-    }
-
-
-    /* Mobile Responsive */
-    @media (max-width: 768px) {
-      .thematic-header {
-        padding: 12px 1rem;
-      }
-      
-      .logo a {
-        font-size: 1.3rem;
-      }
-      
-      .theme-toggle {
-        bottom: 15px;
-        left: 15px;
-        width: 35px;
-        height: 35px;
-        font-size: 1rem;
-      }
-    }
-
-    /* Dark Mode Toggle */
-    .theme-toggle {
-      position: fixed;
-      bottom: 20px;
-      left: 20px;
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      border: none;
-      background: white;
-      color: black;
-      font-size: 1.2rem;
+    
+    .mode-button {
+      padding: var(--spacing-md) var(--spacing-lg);
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      border: 2px solid var(--border-color);
+      border-radius: var(--border-radius-md);
       cursor: pointer;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      transition: all 0.3s ease;
-      z-index: 1000;
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-medium);
+      transition: all var(--transition-normal);
+      min-width: 150px;
     }
-
-    .theme-toggle:hover {
-      transform: scale(1.1);
-      box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+    
+    .mode-button:hover {
+      background: var(--primary-color);
+      color: var(--text-white);
+      border-color: var(--primary-color);
+      transform: translateY(-2px);
     }
-
-    body.dark-mode .theme-toggle {
-      background: black;
-      color: white;
+    
+    .mode-button.active {
+      background: var(--primary-color);
+      color: var(--text-white);
+      border-color: var(--primary-color);
     }
-
-    .carousel-container { max-width: 900px; width: 80%; margin: 100px auto 20px; padding: 20px; background: #fff; border-radius: 20px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); text-align: left; }
-    body.dark-mode .carousel-container { background: #2a2a2a; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3); }
-    .carousel-container h1 { font-size: 1.8rem; font-weight: 700; color: #333; margin-bottom: 1rem; text-align: center; }
-    body.dark-mode .carousel-container h1 { color: #e0e0e0; }
-    .chat-container { display: flex; flex-direction: column; gap: 15px; min-height: 400px; padding: 20px; }
-    .chat-message.result { background: #fff; color: #333; border: 1px solid #ddd; align-self: flex-start; width: 100%; max-width: 100%; border-radius: 10px; white-space: pre-wrap; word-break: break-word; padding: 20px; }
-    body.dark-mode .chat-message.result { background: #2a2a2a; color: #e0e0e0; border: 1px solid #444; }
-    .chat-message.result h1 { font-size: 1.8rem; font-weight: 700; color: #333; margin-bottom: 1rem; }
-    body.dark-mode .chat-message.result h1 { color: #e0e0e0; }
-    .chat-message.result h2 { font-size: 1.4rem; font-weight: 600; color: #333; margin: 0.8rem 0; }
-    body.dark-mode .chat-message.result h2 { color: #e0e0e0; }
-    .chat-message.result h3 { font-size: 1.2rem; font-weight: 500; color: #333; margin: 0.6rem 0; }
-    body.dark-mode .chat-message.result h3 { color: #e0e0e0; }
-    .chat-message.result ul, .chat-message.result ol { margin-left: 20px; margin-bottom: 1rem; }
-    .chat-message.result li { margin-bottom: 0.5rem; color: #333; }
-    body.dark-mode .chat-message.result li { color: #e0e0e0; }
-    .mode-buttons { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; }
-    .mode-button { background: #0078d4; color: #fff; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-size: 0.9rem; font-weight: 700; border: none; cursor: pointer; transition: background-color 0.3s ease, transform 0.3s ease; }
-    body.dark-mode .mode-button { background: #005ea2; }
-    .mode-button:hover { background: #005ea2; transform: translateY(-2px); }
-    .mode-button.active { background: #005ea2; }
-    .platform-container { max-width: 900px; width: 80%; margin: 20px auto; padding: 20px; background: #fff; border-radius: 20px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); text-align: center; }
-    body.dark-mode .platform-container { background: #2a2a2a; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3); }
-    .platform-container h3 { font-size: 1.8rem; font-weight: 700; color: #333; margin-bottom: 1rem; }
-    body.dark-mode .platform-container h3 { color: #e0e0e0; }
-    .platform-instructions { font-size: 1rem; color: #666; margin-bottom: 1.5rem; }
-    body.dark-mode .platform-instructions { color: #999; }
-    .platform-boxes { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; }
-    .platform-box { background: #0078d4; color: #fff; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-size: 0.9rem; font-weight: 700; transition: background-color 0.3s ease, transform 0.3s ease; position: relative; z-index: 10; }
-    body.dark-mode .platform-box { background: #005ea2; }
-    .platform-box:hover { background: #005ea2; transform: translateY(-2px); }
-    .platform-box.vibe-coding { background: #ff6f61; }
-    body.dark-mode .platform-box.vibe-coding { background: #e65b54; }
-    .platform-box.vibe-coding:hover { background: #e65b54; }
-    .platform-box[data-tooltip]:hover::after { content: attr(data-tooltip); position: absolute; top: calc(100% + 5px); left: 50%; transform: translateX(-50%); background: #333; color: #fff; padding: 0.5rem; border-radius: 4px; font-size: 0.8rem; width: 200px; z-index: 20; text-align: center; }
-    body.dark-mode .platform-box[data-tooltip]:hover::after { background: #444; }
-    .platform-details { font-size: 0.9rem; color: #666; margin-top: 1.5rem; }
-    body.dark-mode .platform-details { color: #999; }
-    footer { padding: 20px 10px; text-align: center; color: #333; flex-shrink: 0; background: #fff; box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1); }
-    body.dark-mode footer { color: #e0e0e0; background: #1a1a1a; box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.3); }
-    .footer-content { display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 20px; flex-wrap: wrap; }
-    .footer-links a { color: #333; text-decoration: none; font-size: 0.85rem; font-weight: 500; margin: 0 20px; transition: color 0.3s ease; }
-    body.dark-mode .footer-links a { color: #e0e0e0; }
-    .footer-links a:hover { color: #0078d4; }
-    .footer-divider { color: #333; font-size: 1.2rem; font-weight: 300; margin: 0 20px; }
-    body.dark-mode .footer-divider { color: #e0e0e0; }
-    .footer-social a { color: #333; font-size: 1.2rem; margin: 0 20px; transition: transform 0.3s ease, color 0.3s ease; }
-    body.dark-mode .footer-social a { color: #e0e0e0; }
-    .footer-social a:hover { color: #0078d4; transform: scale(1.2); }
-    .footer-copyright { font-size: 0.8rem; color: #666; margin-top: 1rem; }
-    body.dark-mode .footer-copyright { color: #999; }
-    #scrollToTop { display: none; position: fixed; bottom: 20px; right: 20px; background: #0078d4; color: #fff; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 1.2rem; cursor: pointer; z-index: 1000; transition: opacity 0.3s ease, background-color 0.3s ease, transform 0.3s ease; }
-    #scrollToTop.show { display: block; }
-    body.dark-mode #scrollToTop { background: #005ea2; }
-    #scrollToTop:hover { background: #005ea2; transform: translateY(-3px); }
+    
+    .demo-content {
+      background: var(--bg-primary);
+      border-radius: var(--border-radius-lg);
+      box-shadow: var(--shadow-sm);
+      padding: var(--spacing-xl);
+      margin-bottom: var(--spacing-lg);
+    }
+    
+    .demo-header {
+      text-align: center;
+      margin-bottom: var(--spacing-xl);
+    }
+    
+    .demo-header h1 {
+      font-size: var(--font-size-3xl);
+      color: var(--primary-color);
+      margin-bottom: var(--spacing-md);
+    }
+    
+    .demo-header p {
+      font-size: var(--font-size-lg);
+      color: var(--text-secondary);
+      line-height: var(--line-height-relaxed);
+    }
+    
+    .chat-container {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-lg);
+      padding: var(--spacing-md);
+    }
+    
+    .chat-message {
+      padding: var(--spacing-lg);
+      border-radius: var(--border-radius-lg);
+      max-width: 90%;
+      word-wrap: break-word;
+      line-height: var(--line-height-relaxed);
+      animation: fadeInUp 0.5s ease;
+    }
+    
+    .chat-message.bot {
+      background: var(--primary-color);
+      color: var(--text-white);
+      align-self: flex-start;
+      border-bottom-left-radius: var(--spacing-xs);
+    }
+    
+    .chat-message.result {
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      border: 2px solid var(--border-color);
+      align-self: stretch;
+      margin: 0 auto;
+      max-width: 100%;
+    }
+    
+    .chat-message.result h1 {
+      color: var(--primary-color);
+      margin-bottom: var(--spacing-md);
+      font-size: var(--font-size-2xl);
+      font-weight: var(--font-weight-bold);
+    }
+    
+    .chat-message.result h2 {
+      color: var(--primary-color);
+      margin: var(--spacing-lg) 0 var(--spacing-md);
+      font-size: var(--font-size-xl);
+      font-weight: var(--font-weight-semibold);
+    }
+    
+    .chat-message.result h3 {
+      color: var(--primary-color);
+      margin: var(--spacing-md) 0 var(--spacing-sm);
+      font-size: var(--font-size-lg);
+      font-weight: var(--font-weight-semibold);
+    }
+    
+    .chat-message.result p {
+      margin-bottom: var(--spacing-md);
+      line-height: var(--line-height-relaxed);
+    }
+    
+    .chat-message.result ul, .chat-message.result ol {
+      margin: var(--spacing-md) 0;
+      padding-left: var(--spacing-xl);
+    }
+    
+    .chat-message.result li {
+      margin-bottom: var(--spacing-xs);
+    }
+    
+    .chat-message.result code {
+      background: rgba(0, 120, 212, 0.1);
+      padding: var(--spacing-xs) var(--spacing-sm);
+      border-radius: var(--border-radius-sm);
+      font-family: var(--font-monospace);
+      color: var(--primary-color);
+    }
+    
+    .chat-message.result pre {
+      background: var(--bg-secondary);
+      padding: var(--spacing-md);
+      border-radius: var(--border-radius-md);
+      overflow-x: auto;
+      margin: var(--spacing-md) 0;
+    }
+    
+    .platform-container {
+      background: var(--bg-secondary);
+      border-radius: var(--border-radius-lg);
+      padding: var(--spacing-xl);
+      margin: var(--spacing-xl) auto;
+      max-width: 1000px;
+      text-align: center;
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .platform-container h3 {
+      color: var(--text-primary);
+      margin-bottom: var(--spacing-md);
+      font-size: var(--font-size-xl);
+      font-weight: var(--font-weight-semibold);
+    }
+    
+    .platform-instructions {
+      color: var(--text-secondary);
+      margin-bottom: var(--spacing-xl);
+      font-size: var(--font-size-base);
+      line-height: var(--line-height-relaxed);
+    }
+    
+    .platform-boxes {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-lg);
+    }
+    
+    .platform-box {
+      background: var(--primary-color);
+      color: var(--text-white);
+      padding: var(--spacing-md) var(--spacing-lg);
+      border-radius: var(--border-radius-md);
+      text-decoration: none;
+      font-weight: var(--font-weight-medium);
+      transition: all var(--transition-normal);
+      border: none;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .platform-box:hover {
+      background: var(--primary-hover);
+      transform: translateY(-2px);
+      color: var(--text-white);
+      text-decoration: none;
+    }
+    
+    .platform-box.vibe-coding {
+      background: var(--secondary-color);
+    }
+    
+    .platform-box.vibe-coding:hover {
+      background: var(--secondary-hover);
+    }
+    
+    .platform-details {
+      color: var(--text-secondary);
+      font-size: var(--font-size-sm);
+      line-height: var(--line-height-normal);
+    }
+    
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
     @media (max-width: 768px) {
-      .thematic-header .logo a { font-size: 1.4rem; }
-      .theme-toggle { right: 15px; font-size: 1.3rem; }
-      .carousel-container { width: 95%; padding: 15px; margin-top: 90px; }
-      .chat-container { padding: 10px; }
-      .chat-message.result { padding: 15px; }
-      .chat-message.result h1 { font-size: 1.6rem; }
-      .chat-message.result h2 { font-size: 1.3rem; }
-      .chat-message.result h3 { font-size: 1.1rem; }
-      .mode-button { font-size: 0.8rem; padding: 8px 12px; }
-      .platform-container { width: 95%; padding: 15px; }
-      .platform-container h3 { font-size: 1.6rem; }
-      .platform-box { font-size: 0.8rem; padding: 8px 12px; }
-      .platform-details { font-size: 0.8rem; }
-      .footer-content { flex-direction: column; gap: 10px; }
-      .footer-links a { font-size: 0.8rem; margin: 0 10px; }
-      .footer-divider { font-size: 1rem; margin: 0 10px; }
-      .footer-social a { font-size: 1rem; margin: 0 10px; }
-      #scrollToTop { bottom: 15px; right: 15px; width: 35px; height: 35px; font-size: 1rem; }
-    }
-    @media (max-width: 480px) {
-      .thematic-header .logo a { font-size: 1.32rem; }
-      .theme-toggle { right: 10px; font-size: 1.2rem; }
-      .carousel-container { width: 100%; padding: 10px; margin-top: 80px; }
-      .chat-message.result { padding: 10px; }
-      .chat-message.result h1 { font-size: 1.4rem; }
-      .chat-message.result h2 { font-size: 1.2rem; }
-      .chat-message.result h3 { font-size: 1rem; }
-      .mode-button { font-size: 0.75rem; padding: 6px 10px; }
-      .platform-container { width: 100%; padding: 10px; }
-      .platform-container h3 { font-size: 1.4rem; }
-      .platform-box { font-size: 0.75rem; padding: 6px 10px; }
-      .platform-details { font-size: 0.75rem; }
-      .footer-links a { font-size: 0.75rem; margin: 0 8px; }
-      .footer-divider { font-size: 0.9rem; margin: 0 8px; }
-      .footer-social a { font-size: 0.9rem; margin: 0 8px; }
-      #scrollToTop { bottom: 10px; right: 10px; width: 30px; height: 30px; font-size: 0.9rem; }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      .mode-button, .platform-box, .footer-social a, #scrollToTop { transition: none; }
+      .demo-container {
+        margin: 60px 20px 40px;
+        padding: 20px;
+      }
+      
+      .mode-selector {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .mode-button {
+        width: 100%;
+        max-width: 300px;
+      }
+      
+      .demo-content {
+        padding: var(--spacing-lg);
+      }
+      
+      .demo-header h1 {
+        font-size: var(--font-size-2xl);
+      }
+      
+      .platform-container {
+        width: 95%;
+        padding: var(--spacing-lg);
+        margin: var(--spacing-lg) auto;
+      }
+      
+      .platform-container h3 {
+        font-size: var(--font-size-lg);
+      }
+      
+      .platform-box {
+        font-size: var(--font-size-sm);
+        padding: var(--spacing-sm) var(--spacing-md);
+      }
+      
+      .platform-details {
+        font-size: var(--font-size-xs);
+      }
     }
   </style>
 </head>
 <body>
   <header class="thematic-header" role="banner">
+    <div class="header-left">
+    </div>
     <div class="header-center">
       <div class="logo">
-        <a href="../index.html" aria-label="Specifys.ai homepage">Specifys.ai</a>
+        <a href="../index.html" aria-label="Specifys.ai homepage">Specifys.AI</a>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="auth-buttons" id="auth-buttons">
+        <!-- Will be populated by auth system -->
       </div>
     </div>
   </header>
-  <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
-    <i class="fas fa-moon"></i>
-  </button>
-  <div class="carousel-container">
-    <h1>App Specification Demo</h1>
-    <div class="mode-buttons">
-      <button class="mode-button active" data-mode="easy-start">Easy Start</button>
-      <button class="mode-button" data-mode="dev-tools">Dev Tools</button>
-      <button class="mode-button" data-mode="explore">Explore</button>
+
+  <button class="icon-btn scroll-to-top" id="scrollToTop" aria-label="Scroll to top"><i class="fas fa-arrow-up"></i></button>
+  
+  <div class="demo-container">
+    <div class="demo-content">
+      <div class="demo-header">
+        <h1>App Specification Demo</h1>
+        <p>Explore different modes to see how Specifys.ai generates comprehensive app specifications tailored to your needs.</p>
+      </div>
+      
+      <div class="mode-selector">
+        <button class="mode-button active" data-mode="easy">Easy Start</button>
+        <button class="mode-button" data-mode="dev">Dev Tools</button>
+        <button class="mode-button" data-mode="explore">Explore</button>
+      </div>
+      
+      <div class="chat-container" id="chatContainer">
+        <div class="chat-message bot">
+          <i class="fas fa-robot"></i> Welcome! Select a mode above to see a demo of how Specifys.ai works.
+        </div>
+      </div>
     </div>
-    <div class="chat-container" id="chatContainer">
-      <div class="chat-message result" id="resultDiv"></div>
+    
+    <div class="platform-container" id="platformContainer" style="display: none;">
+      <h3>Ready to Create Your Own Specification?</h3>
+      <p class="platform-instructions">Get started with your own app idea and receive a personalized specification.</p>
+      <div class="platform-boxes">
+        <a href="../index.html" class="platform-box">Start Building Your App</a>
+        <a href="how.html" class="platform-box">Learn How It Works</a>
+        <a href="../tools/map/vibe-coding-tools-map.html" class="platform-box vibe-coding">Explore Development Tools</a>
+      </div>
+      <p class="platform-details">Click a button to start your journey or learn more about our platform.</p>
     </div>
   </div>
-  <div class="platform-container">
-    <h3>Start now with:</h3>
-    <p class="platform-instructions">The specification has been copied. Visit one of the platforms or tools to start building your app.</p>
-    <div class="platform-boxes">
-      <a href="https://flutterflow.io/" target="_blank" class="platform-box" data-tooltip="Recommended for rapid prototyping of mobile apps with visual development.">FlutterFlow</a>
-      <a href="https://bubble.io/" target="_blank" class="platform-box" data-tooltip="Recommended for building complex web applications without coding.">Bubble</a>
-      <a href="https://adalo.com/" target="_blank" class="platform-box" data-tooltip="Recommended for creating user-friendly mobile apps with drag-and-drop.">Adalo</a>
-      <a href="https://chat.openai.com/" target="_blank" class="platform-box" data-tooltip="Recommended for generating code snippets or app logic with AI assistance.">ChatGPT</a>
-      <a href="https://base44.com/?via=shalom-cohen" target="_blank" class="platform-box" data-tooltip="Recommended for streamlined app development with integrated tools.">Base44</a>
-      <a href="https://lovable.dev/?via=shalom" target="_blank" class="platform-box" data-tooltip="Recommended for AI-driven app creation with minimal setup.">Lovable</a>
-      <a href="https://bolt.new/" target="_blank" class="platform-box" data-tooltip="Recommended for quick app ideation and prototyping with AI.">Bolt</a>
-      <a href="../tools/map/vibe-coding-tools-map.html" class="platform-box vibe-coding" data-tooltip="Explore a curated map of coding and no-code tools to enhance your development process.">Vibe Coding Tools Map</a>
-    </div>
-    <p class="platform-details">Click a platform to open it in a new tab and automatically copy your app specification. Paste the specification into the platform’s project setup or AI assistant to start building.</p>
-  </div>
-  <button id="scrollToTop" title="Scroll to Top"><i class="fas fa-arrow-up"></i></button>
+
   <footer>
     <div class="footer-content">
       <div class="footer-links">
-        <a href="how.html" aria-label="Learn how Specifys.ai works">How It Works</a>
-        <a href="about.html" aria-label="Learn more about Specifys.ai">About Us</a>
+        <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
+        <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
         <a href="../blog.html" aria-label="Visit our blog">Blog</a>
         <a href="../tools/map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
       </div>
       <span class="footer-divider">|</span>
       <div class="footer-social">
-        <a href="https://www.linkedin.com/company/specifys-ai/" target="_blank" aria-label="Follow us on LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-        <a href="https://www.facebook.com/profile.php?id=61576402600129" target="_blank" aria-label="Follow us on Facebook"><i class="fab fa-facebook-f"></i></a>
-        <a href="https://www.instagram.com/YOUR_PROFILE" target="_blank" aria-label="Follow us on Instagram"><i class="fab fa-instagram"></i></a>
+        <a href="https://www.linkedin.com/company/specifys-ai/" aria-label="Follow us on LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+        <a href="https://www.facebook.com/profile.php?id=61576402600129&locale=he_IL" target="_blank" aria-label="Follow us on Facebook"><i class="fab fa-facebook-f"></i></a>
+        <a href="https://www.instagram.com/YOUR_PROFILE" aria-label="Follow us on Instagram"><i class="fab fa-instagram"></i></a>
         <a href="mailto:specifysai@gmail.com" aria-label="Send us an email"><i class="fas fa-envelope"></i></a>
         <a href="https://www.producthunt.com/products/specifys-ai" target="_blank" aria-label="Check us out on Product Hunt"><i class="fab fa-product-hunt"></i></a>
       </div>
     </div>
-    <div class="footer-copyright">© 2025 Specifys.ai. All rights reserved.</div>
+    <div class="footer-copyright">© 2025 specifys.ai. All rights reserved.</div>
   </footer>
-  <script src="https://cdn.jsdelivr.net/npm/marked@4.3.0/marked.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const chatContainer = document.getElementById("chatContainer");
-      const resultDiv = document.getElementById("resultDiv");
-      const modeButtons = document.querySelectorAll(".mode-button");
-      const scrollToTopBtn = document.getElementById("scrollToTop");
-      const themeToggle = document.getElementById('themeToggle');
+  <script type="module">
+    // Import Firebase SDK
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { 
+      createUserWithEmailAndPassword, 
+      signInWithEmailAndPassword, 
+      signOut, 
+      onAuthStateChanged,
+      GoogleAuthProvider,
+      signInWithPopup,
+      getAuth
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-      const modeContents = {
-        "easy-start": {
-          "title": "App Plan for NoCode Creators",
-          "content": "# Application Specification Document\n## General Information\n**Topic**: App Development\n**Platform**: Mobile (iOS and Android)\n**Suggested App Title**: PetPal\n**General Idea Summary**: PetPal is a cross-platform (iOS & Android) mobile application designed to help pet owners manage their pets’ health, schedules, and social engagement. Users create profiles for each pet, track feeding, medication, walks, vaccinations, weight logs, and browse a visually engaging health dashboard. The freemium model unlocks premium analytics on pet health trends and exclusive discounts on pet services. The app integrates GDPR-compliant data handling, offline operation with local caching, voice command support and a high-contrast mode for visually impaired users. Core modules include schedule reminders, booking integrations with vet/groomers, community forums, a photo gallery, and AI-powered insights.\n## Problem Statement\nMany pet owners struggle to keep consistent records of feeding times, medication doses, vaccination schedules, and appointment bookings. Unreliable reminders lead to missed medications or vet visits; inconsistent data storage across paper notes, calendars, and messaging apps causes data inconsistency. Visually impaired users cannot interact easily with standard UIs. PetPal addresses low engagement, latency issues in data sync, offline unavailability, and accessibility shortcomings by providing:\n- Real-time reminders with local notifications (no network dependency).\n- Local-first data models with two-way sync and conflict resolution.\n- Voice-command navigation and high-contrast UI for low-vision accessibility.\n- GDPR-compliant encryption at rest and in transit.\n## Core Features\n- **Pet Profile Management**\n  - CRUD operations on pet entities—name, breed, DOB, medical history.\n  - Support for multiple pets per user; relationship one-to-many.\n  - Validation: name (3–50 chars), DOB (ISO 8601), medical notes (max 2000 chars).\n- **Schedule Reminders**\n  - User-configurable recurring and one-off reminders for feeding, medication, walks.\n  - Local notifications triggered by OS scheduler; rescheduled on device reboot.\n  - Edge cases: network down !’ local notification only; daylight saving adjustments.\n- **Appointment Booking Integration**\n  - Deep links to external vet/groomer service providers.\n  - UI flow: select provider !’ choose slot !’ confirmation callback to app.\n  - Error handling: provider unreachable !’ show offline queue; retry on reconnection.\n- **Health Dashboard & Analytics**\n  - Line charts for weight/vaccination over time; filters by date range.\n  - AI-powered trend detection: alert if weight gain/loss >10% in 30d.\n  - Premium feature: advanced predictive analytics using user's historical data.\n- **Community Forum**\n  - Post, comment, upvote; real-time updates via WebSocket when online.\n  - Moderation tools: report, hide posts; admin role.\n  - Offline read-only caching; comment queue for later sync.\n- **Photo Gallery**\n  - Upload, tag, view full-screen.\n  - Storage: local cache + cloud.\n  - Validation: image types JPEG/PNG, max 5MB, min dimension 300×300px.\n- **Accessibility & Voice Commands**\n  - Voice actions: “Add feeding reminder,” “Show dashboard.”\n  - High-contrast toggle: dark green (#004d00) background with bright yellow (#ffff33) accents.\n  - Screen reader labels for all interactive elements.\n## User Flow\n1. **Onboarding** (first launch)\n   - User selects language !’ GDPR consent modal !’ voice tutorial plays.\n   - If no internet: skip provider integration, enable offline demo mode.\n2. **Account Creation / Login**\n   - Email + password; social login disabled.\n   - Validation: email format, password min 8 chars, at least one digit.\n   - If existing session: skip login.\n3. **Pet Profile Setup**\n   - Form: name, breed (dropdown), gender (radio), DOB (date picker), medical history (textarea).\n   - Edge cases: invalid date !’ helper message; missing required fields prompt.\n4. **Main Dashboard**\n   - Tabs: Tasks, Health, Community, Gallery, Settings.\n   - Tasks shows today’s reminders; Health shows charts; Community shows feed.\n5. **Schedule Management**\n   - Add Reminder !’ choose type !’ recurrence picker !’ confirm !’ local notification set.\n   - Edit/Delete reminder !’ update local data + sync.\n6. **Booking Flow**\n   - In Tasks: appointment card !’ “Book” !’ provider list !’ webview opens.\n   - On success: import appointment date into schedule.\n7. **Community Interaction**\n   - Browse feed !’ tap post !’ view comments !’ add comment !’ optimistic update.\n8. **Gallery Use**\n   - Upload new photo !’ camera/file picker !’ preview !’ tag pet(s) !’ save.\n   - Cache locally if offline; sync when online.\n9. **Premium Upgrade**\n   - From Settings !’ Upgrade tab !’ in-app purchase flow !’ unlock analytics.\n10. **Logout & Data Removal**\n   - Settings > Logout !’ clear local encryption keys; prompt data purge.\n## Screens\n- **Splash Screen**: app logo, load assets, fetch remote config.\n- **Onboarding Screen 1**: language selection, GDPR consent.\n- **Onboarding Screen 2**: voice tutorial opt-in, accessibility settings (high-contrast toggle).\n- **Login Screen**: email/password fields, “Forgot Password,” “Sign Up” link.\n- **Sign Up Screen**: same fields, plus password confirm.\n- **Home/Tasks Screen**: list of today’s reminders, add button, filter by pet.\n- **Schedule Screen**: calendar view with dots, list view toggle.\n- **Add/Edit Reminder Modal**: inputs for title, type, date/time, recurrence.\n- **Health Dashboard Screen**: charts, summary cards (weight, vaccinations).\n- **Pet Profile Screen**: profile details, edit button, delete pet.\n- **Booking Screen**: list of service providers, search, book button.\n- **Community Feed Screen**: post list, new post button.\n- **Post Detail Screen**: full text, image attachments, comments section.\n- **New Post Screen**: text input, image picker, tag selection.\n- **Gallery Screen**: grid of images, filter by pet.\n- **Photo Detail Screen**: full view, share, delete.\n- **Settings Screen**: account info, notifications, accessibility, premium, logout.\n- **Notifications Settings Screen**: toggle reminder types, frequency.\n- **Profile Screen**: user details, edit profile.\n- **Premium Upgrade Screen**: feature list, purchase button.\n- **Offline Queue Screen**: pending actions list, retry all.\n- **Error Screen/Modal**: network error, data sync conflict resolution.\n## UI Components per Screen\n### Splash Screen\n- Static ImageView (logo)\n- Animated progress bar (fade-in/out)\n### Login Screen\n- TextInput (email) + regex validation\n- TextInput (password) + show/hide toggle\n- Button (Login) disabled until valid inputs\n- Link (Forgot Password) opens modal\n- Link (Sign Up) navigates\n### Home/Tasks Screen\n- TabBar (icons: Tasks, Health, Community, Gallery, Settings)\n- FlatList for task cards (title, time, pet avatar)\n- FAB (Add Reminder) with ripple effect\n- EmptyState view when no tasks\n### Add/Edit Reminder Modal\n- ModalContainer slide-up animation\n- Dropdown (type selector)\n- DatePicker (native)\n- TimePicker (native)\n- Switch (recurring) + recurrence options\n- Buttons: Save (primary), Cancel (secondary)\n### Health Dashboard\n- ChartComponent (line chart) with tooltips\n- CardComponents for metrics (vaccination status, weight)\n- DateRangePicker filter\n- Buttons for premium analytics access (disabled for free users)\n### Community Feed\n- Infinite scroll FlatList\n- PostCard: title, author, timestamp, excerpt, upvote icon\n- FloatingActionButton (New Post)\n### Gallery\n- GridView of image thumbnails\n- Pull-to-refresh to sync new photos\n- Long-press to multi-select/delete\n### Settings\n- ListItems with icon, label, chevron\n- Switch controls for notifications, high-contrast\n- Button for “Upgrade to Premium”\n- Logout button (destructive style)\n## Navigation Map\n- Onboarding → Login/Sign Up → Home (Tasks)\n- Home → Schedule Screen\n- Home → Health Dashboard\n- Home → Community Feed\n- Home → Gallery\n- Home → Settings\n- From any screen: back button returns to parent; deep link handling for notifications navigates to specific screen.\n## Data Models\n- **User**\n  - userId (UUID, required)\n  - email (string, format email, required)\n  - passwordHash (string, bcrypt, required)\n  - createdAt (timestamp)\n  - role (enum: free, premium, admin)\n- **Pet**\n  - petId (UUID, required)\n  - ownerId (UUID, FK !’ User)\n  - name (string, 3–50 chars, required)\n  - breed (string, 2–30 chars)\n  - gender (enum: male, female, unknown)\n  - dateOfBirth (ISO8601, required)\n  - medicalHistory (string, max 2000 chars)\n  - avatarUrl (string, URL)\n- **ScheduleEntry**\n  - entryId (UUID)\n  - petId (UUID, FK !’ Pet)\n  - type (enum: feeding, medication, walk, appointment)\n  - dateTime (timestamp, required)\n  - recurrence (cron expression or null)\n  - status (enum: pending, completed, skipped)\n- **Appointment**\n  - appointmentId (UUID)\n  - petId (UUID)\n  - providerId (string, external ID)\n  - dateTime (timestamp)\n  - status (enum: booked, cancelled)\n- **HealthMetric**\n  - metricId (UUID)\n  - petId (UUID)\n  - type (enum: weight, vaccination)\n  - value (float for weight, string for vaccine name)\n  - dateRecorded (timestamp)\n- **CommunityPost**\n  - postId (UUID)\n  - authorId (UUID !’ User)\n  - content (string, 1–1000 chars)\n  - imageUrls (array<string>)\n  - createdAt (timestamp)\n  - upvotes (int)\n- **Comment**\n  - commentId (UUID)\n  - postId (UUID)\n  - authorId (UUID)\n  - content (string, 1–500 chars)\n  - createdAt (timestamp)\n- **MediaGallery**\n  - mediaId (UUID)\n  - petId (UUID)\n  - url (string, required)\n  - uploadedAt (timestamp)\n- **NotificationSetting**\n  - settingId (UUID)\n  - userId (UUID)\n  - type (enum matching ScheduleEntry types)\n  - enabled (boolean)\n## Storage and Backend Logic\n- **Local Storage**: SQLite or Realm for offline-first data; encrypted with AES-256.\n- **Cloud Sync**: RESTful API (Node.js + Express) over HTTPS, JWT-based auth.\n- Endpoints: `/users`, `/pets`, `/schedules`, `/appointments`, `/metrics`, `/posts`, `/comments`, `/media`.\n- Two-way sync: client sends `lastSyncAt`, server returns changed records; client resolves conflicts via LWW (last write wins) and user prompts on critical fields (e.g., schedule time).\n- **Authentication**: OAuth2 password grant; token refresh flow.\n- **Authorization**: Role-based checks on endpoints (admin vs. user).\n- **External API**: Provider service lookup via REST; implement retry with exponential backoff.\n## Offline Mode\n- **Local Caching**: All user-generated data stored locally first; mark synced flag.\n- **Queue System**: Pending writes enqueued; network listener triggers sync.\n- **Conflict Resolution**\n  - Simple fields: LWW.\n  - Complex (schedule): user prompt via conflict modal.\n- **Read-only Access**: Health dashboard and community feed benefit from local cache when offline; stale-data indicator shown.\n## User Roles and Permissions\n- **Free User**\n  - Access: all CRUD on profiles, schedules, basic dashboard, community, gallery\n  - Cannot access premium analytics or exclusive discounts\n- **Premium User**\n  - All free permissions + advanced analytics API, exclusive offers screen\n- **Admin**\n  - Access: user management, community moderation (delete posts/comments), view logs\n## Notifications\n- **Schedule Reminder**\n  - Trigger: upon scheduleEntry.dateTime – 5min pre-alert\n  - Content: “Time to feed {{petName}}”\n  - Local push, repeats if missed up to 3 times.\n- **Appointment Reminder**\n  - Trigger: 24h before, and 1h before appointment\n  - Content: “Vet appointment for {{petName}} tomorrow at {{time}}”\n- **Community Reply**\n  - Trigger: when user’s post/comment receives a reply\n  - Content: “{{username}} replied to your post”\n  - In-app badge update\n- **Premium Trial Ending**\n  - Trigger: 3 days before trial expiration\n  - Content: “Your free trial ends in 3 days. Upgrade now.”\n## Visual Style Guidelines\n- **Color Palette**\n  - Primary: Soft Green (#6BAE58)\n  - Accent: Warm Yellow (#FFD93D)\n  - Background: Off-white (#F7F9FC)\n  - Error: Coral Red (#E63946)\n- **Typography**\n  - Headers: Sans-serif Bold, 20–24pt\n  - Body: Sans-serif Regular, 14–16pt\n  - High-contrast mode: White on Dark Green (#004d00)\n- **Component Shapes**\n  - Cards & buttons: 8px corner radius\n  - Input fields: 4px corner radius, 1px border\n## Design & UX Principles\n- **Animation**\n  - Micro-interactions on button taps (100ms scale up/down)\n  - Smooth transitions (300ms) between screens\n- **Response Speed**\n  - Local data reads <50ms, show loading placeholder if >100ms\n- **Accessibility**\n  - WCAG AA contrast ratios (>4.5:1)\n  - Voice command latency <500ms for recognition\n- **Feedback Timing**\n  - Immediate UI feedback on taps; loading spinners within 200ms\n- **Error Patterns**\n  - Inline form validation on blur\n  - Global error modals for critical sync failures\n## Technical Requirements\n- **Framework**: React Native 0.70+ or Flutter 3.0+\n- **iOS**: 13.0+; Android: API Level 24+\n- **State Management**: Redux/MobX (RN) or Provider/Bloc (Flutter)\n- **Local DB**: Realm or SQLite with encryption plugin\n- **Network**: Axios (RN) or Dio (Flutter) for REST\n- **Push Notifications**: Firebase Cloud Messaging + local notifications plugin\n- **Voice Recognition**: iOS Speech Framework + Android Speech API\n- **Accessibility**: React Native Accessibility APIs or Flutter Semantics\n- **GDPR Compliance**: Data deletion endpoint, explicit consent storage, encryption at rest.\n- **CI/CD**: Fastlane for builds, unit/UI tests coverage >80%."
-        },
-        "explore": {
-          "title": "Market Research Overview",
-          "content": "# Market Research Document\n## App Overview\n### App Name\nWordSnap\n### Description\nWordSnap is a multiplatform (iOS, Android, PWA) vocabulary-building app that delivers daily English word packs enhanced with real photographic imagery, native-speaker audio pronunciation, contextual sample sentences, and interactive quizzes. Offline access to downloaded content ensures uninterrupted learning. The primary target audience comprises non-native English learners—teens and young adults (ages 13–30)—who favor visual memory aids and gamified, bite-sized learning experiences.\n## Target Audience Analysis\n- **Motivations**: Users seek to improve academic performance (school, standardized tests), enhance career prospects (job interviews, workplace communication), and gain social confidence in English. Visual learners are motivated by image-based memory, while competitive personalities are driven by leaderboards and streaks.\n- **Preferred Activities**: Short daily microlearning bursts (5–10 minutes), interactive quizzes, flashcards with spaced-repetition, matching games, and streak-based challenges.\n- **Gender Segmentation**: Balanced male/female split; slight female skew in teen demographic; additional subsegment of adult learners (often professionals) seeking business-English vocabulary.\n- **Platform Preferences**: Mobile-first (iOS slightly ahead in Western markets, Android dominant in Asia/Latin America), with a significant niche craving desktop/PWA access for study at home or school environments.\n## User Personas\n- **Persona 1: Maria, 16, Female, Spain**\n  - Motivations: Aiming for high TOEFL score; wants to understand English-language manga and social media.\n  - Challenges: Struggles to remember abstract vocabulary; textbooks feel dry.\n  - Preferred Activities: Image-infused flashcards, short daily quizzes, streak rewards.\n  - Platform Preference: Android phone, occasionally uses Chromebook for long sessions.\n- **Persona 2: Ahmed, 25, Male, Egypt**\n  - Motivations: Improving workplace communication; applying for international jobs.\n  - Challenges: Limited time, needs offline access on commute; difficulty with pronunciation.\n  - Preferred Activities: Audio pronunciation drills, contextual sentence examples, daily word challenges.\n  - Platform Preference: iOS on iPhone and tablet, uses PWA when traveling.\n- **Persona 3: Li Na, 20, Female, China**\n  - Motivations: Preparing for IELTS; enjoys gamified learning and ranking on leaderboards.\n  - Challenges: Vocabulary retention over weeks; distracts easily.\n  - Preferred Activities: Interactive matching games, peer challenges, progress metrics.\n  - Platform Preference: Android smartphone and desktop PWA at internet café.\n## Key Features\n- Daily word packs paired with curated real-life images.\n- Native-speaker audio pronunciations and phonetic guides.\n- Contextual example sentences for each word.\n- Interactive quizzes (multiple-choice, matching, fill-in-blanks) with immediate feedback.\n- Progress tracking, streaks, mastery levels, and in-app badges.\n- Offline mode for all previously downloaded packs.\n- Social sharing and friendly competition via leaderboards (future roadmap).\n## Existence Check\n### Similar Apps in Market\n1. **Memrise**\n   - Description: Vocabulary app using community-created flashcards.\n   - Advantages: Strong spaced-repetition algorithm, large community.\n   - Disadvantages: Inconsistent image quality, occasional incorrect data, cluttered for beginners.\n2. **Drops**\n   - Description: Visual-first vocabulary app with micro-sessions and icons/illustrations.\n   - Advantages: Highly engaging UI, attractive animations, short sessions.\n   - Disadvantages: Very time-limited free tier (5 minutes/day), less contextual depth.\n3. **Quizlet**\n   - Description: General flashcard platform used by language learners with user-uploaded images.\n   - Advantages: Flexible deck creation, large user base, supports image plan.\n   - Disadvantages: Not language-learning specific (no curated word packs).\n## Pain Points\n- Retention Gap: Learners often forget new words within days due to lack of context or visual cues; apps that just show text fail to lock information in.\n- Engagement Dropoff: Without gamification or daily micro-goals, users lose motivation after initial excitement.\n- Inconsistent Quality: User-generated content platforms suffer from inaccurate definitions, pronunciations, or irrelevant images, reducing trust.\n## Competitor Feature Comparison\n| Feature/Aspect      | WordSnap             | Memrise             | Drops               | Quizlet             |\n|--------------------|----------------------|---------------------|---------------------|---------------------|\n| Curated imagery     | High-quality professional photos | User-generated mixed icons/illustrations | User-uploaded images (varied quality) |\n| Audio quality       | Native speaker recordings | Mixed community recordings (varied) | Limited recordings (varied) |\n| Contextual sentences| Yes                  | No (only definitions) | Limited phrases     | User-defined        |\n| Offline access      | Full offline for downloads | Yes, premium only  | Yes, premium only   | Yes, premium only   |\n| Progress tracking   | Mastery levels, streaks | Spaced repetition score | Progress bar | Customizable        |\n| Business model      | Freemium subscription | Freemium subscription | Freemium subscription | Freemium subscription |\n## Possible Business Models\n- **Freemium with Monthly/Annual Subscription**\n  - Pros: Lower barrier to entry, nurtures user engagement before commitment.\n  - Cons: Requires continuous feature development to justify subscription.\n- **In-App Purchases of Themed Word Packs**\n  - Pros: Allows targeted monetization (e.g., Business English, TOEFL prep).\n  - Cons: May fragment user base; risk of low impulse buys if packs are niche.\n- **Advertising-Supported Free Tier**\n  - Pros: Opens revenue from large non-paying base, appealing for beginners.\n  - Cons: Ads disrupt learning flow; may reduce retention and brand trust.\n## Quality Assessment\nWordSnap addresses clear market needs: visual learners struggle with purely text-based apps; need for structured, daily, context-rich learning. Feasibility is moderate: key technical challenges lie in building an image/audio content pipeline and offline sync. User expectations center on polished UI/UX and reliable progress tracking, both well within reach. Overall, quality potential is high if backed by robust content curation and intuitive design.\n## Unique Selling Proposition (USP)\nWordSnap’s USP is its professionally curated real-image daily word packs combined with native-speaker audio and contextual sentences, all optimized for offline use. Unlike competitors relying on user-generated content or minimalist illustrations, WordSnap delivers consistent quality, stronger memory cues, and a seamless PWA experience for desktop learners.\n## Pricing Compared to Competitors\n- Memrise Pro: $8.99/mo or $59.99/yr\n- Drops Premium: $9.99/mo or $79.99/yr\n- Quizlet Plus: $3.99/mo or $35.99/yr\n- **Recommended WordSnap Pricing**:\n  - Monthly subscription at $6.99 (mid-tier)\n  - Annual subscription at $49.99 (two months free)\n  - Themed pack micro-purchases at $2.99–$4.99 each\nThis positions WordSnap competitively between high-end visual apps and budget-friendly flashcard platforms.\n## Expected ROI\n- **Assumptions**: Year-1 downloads = 200,000; conversion rate = 5%; ARPU subscription = $50/yr; CAC = $7/user; churn = 20%/yr.\n- **Conservative Scenario**: Year-1 paying users = 10,000; revenue = $500,000; marketing spend = $300k; ROI = 150%.\n- **Realistic Scenario**: Year-1 paying = 12,000; Year-2 paying = 14,400; cumulative revenue = $1.2M; marketing spend = $350,000; ROI ≈ 277%.\n- **Optimistic Scenario**: Year-1 paying = 15,000; Year-2 = 20,000; Year-3 = 28,000; cumulative revenue = $1.8M; marketing spend = $500k; ROI = 360%.\n## KPI Framework\n1. Monthly Active Users (MAU) – measures reach and growth.\n2. 7-day and 30-day retention rates – indicates engagement and long-term value.\n3. Conversion rate (free to paid) – gauges monetization effectiveness.\n4. CAC vs. LTV ratio – financial health indicator; target LTV/CAC > 3.\n5. Average session length & daily sessions per user – reflects content engagement.\n## Niche Information\nThe global digital language-learning market was valued at $22 billion in 2020 and is projected to grow at a CAGR of 19.7% through 2027. Mobile-first, gamified, personalized solutions are driving adoption. Key challenges include market saturation, content quality differentiation, and user retention in face of short attention spans.\n## Search Statistics (6-month averages; Google U.S.)\n- “learn English vocabulary” – 33,000 searches/mo (steady)\n- “vocabulary app” – 12,500 searches/mo (slight uptrend)\n- “ESL vocabulary” – 4,200 searches/mo (peak in July/Aug)\n- “visual learning app” – 1,800 searches/mo (steady)\n- “offline language app” – 2,400 searches/mo (growing interest)\n- Seasonality: spikes in January (New Year resolutions) and August–September (back-to-school).\n## Statistics\n- 1.5 billion English learners globally; ~200 million actively using mobile apps.\n- Average daily time spent per language-app user = 15 minutes.\n- 60% of learners cite vocabulary retention as top challenge.\n## Analysis (SWOT)\n- **Strengths**\n  - High-quality curated imagery and audio.\n  - Offline + PWA flexibility.\n  - Daily gamified bites bolster retention.\n- **Weaknesses**\n  - Content production cost for images/audio.\n  - Need to scale language levels beyond intermediate.\n  - Must build brand trust vs. established players.\n- **Opportunities**\n  - Partnerships with schools/online courses.\n  - Expansion into other languages or specialized fields (medical, legal).\n  - AI-powered personalization (next-word suggestions).\n- **Threats**\n  - Established apps adding similar features.\n  - Free user-generated content platforms undercutting pricing.\n  - Rapid shifts in attention to short-form video learning (TikTok, Reels).\n## Rivals Comparison\n1. **Duolingo**: massive user base (500 M+), broad language coverage, gamification, limited vocabulary depth per day. USP: free comprehensive course.\n2. **Memrise**: rich spaced-repetition, community content, but inconsistent quality. USP: user creativity.\n3. **Drops**: stunning UI, extreme micro-sessions, but minimal pronunciation/context. USP: highly engaging micro-games.\n## Positioning Map (X-axis: Content Quality; Y-axis: Session Length)\n- WordSnap – High content quality, medium session length.\n- Duolingo – Medium quality, medium length.\n- Memrise – Variable quality, medium length.\n- Drops – Low content depth, very short sessions.\n## Threats Overview\n1. Competitive Feature Creep: rivals quickly copy image/audio pairing or offline modes.\n2. Market Saturation: hundreds of language apps fuel user choice overload.\n3. User Fatigue: micro-learning novelty may wane without continual innovation.\n## Complexity Rating\n6/10\n- Core complexity: building scalable content pipeline (images/audio), offline sync, cross-platform PWA integrations.\n- Standard quiz engine and progress tracking are moderate complexity.\n- Future features (AI personalization, social leaderboards) add incremental complexity.\n## Insights\n### Development Recommendations\n1. Build a structured CMS for efficient image/audio/text pack assembly and updates.\n2. Prioritize PWA performance (fast load, reliable cache) to attract desktop learners.\n3. Implement analytics hooks early (retention, engagement) to inform A/B testing.\n### Market Fit Recommendations\n1. Launch localized pilot in two non-English markets (e.g., Brazil, Japan) to validate demand and pricing sensitivity.\n2. Partner with language-school chains for co-branded premium tiers and bulk licensing.\n3. Offer an “Exam Prep Booster” pack aligned with TOEFL/IELTS vocabulary lists.\n### Product Positioning Recommendations\n1. Emphasize “real-world imagery” and “offline freedom” in marketing creative.\n2. Position WordSnap as the visual learner’s best friend; use testimonials/videos showing memory improvement.\n3. Develop a referral program tied to in-app rewards (bonus word packs) to drive viral growth.\nThis comprehensive analysis positions WordSnap to exploit a defined market gap—high-quality, image-driven vocabulary learning with strong offline capabilities—paired with a sustainable monetization strategy and clear path to scale."
-        }
-      };
+    import { 
+      collection, 
+      addDoc,
+      serverTimestamp,
+      getFirestore
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-      function displayContent(mode) {
-        resultDiv.innerHTML = '';
-        const content = modeContents[mode]?.content || 'Content not available for this mode.';
-        resultDiv.insertAdjacentHTML('afterbegin', `<h1>${modeContents[mode]?.title || 'Mode Not Found'}</h1>`);
-        resultDiv.insertAdjacentHTML('beforeend', marked.parse(content));
-        hljs.highlightAll();
-        chatContainer.scrollTop = chatContainer.scrollHeight;
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyB9hr0IWM4EREzkKDxBxYoYinV6LJXWXV4",
+      authDomain: "specify-ai.firebaseapp.com",
+      projectId: "specify-ai",
+      storageBucket: "specify-ai.firebasestorage.app",
+      messagingSenderId: "734278787482",
+      appId: "1:734278787482:web:0e312fb6f197e849695a23",
+      measurementId: "G-4YR9LK63MR"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const googleProvider = new GoogleAuthProvider();
+
+    // Demo content
+    const demoContent = {
+      easy: {
+        title: "Easy Start Mode",
+        description: "Perfect for beginners and NoCode creators",
+        content: `
+# Task Management App - Easy Start Specification
+
+## App Overview
+A simple task management application designed for individuals and small teams to organize their daily activities and projects.
+
+## Key Features
+- **Task Creation**: Add new tasks with titles, descriptions, and due dates
+- **Task Categories**: Organize tasks into different categories (Work, Personal, Shopping, etc.)
+- **Priority Levels**: Set priority levels (High, Medium, Low) for better task management
+- **Due Date Reminders**: Get notifications for upcoming deadlines
+- **Task Status**: Mark tasks as completed, in progress, or pending
+
+## User Interface
+- Clean and intuitive design
+- Simple navigation with main menu
+- Task list view with filtering options
+- Quick task creation form
+- Progress tracking dashboard
+
+## Recommended Tools
+- **Bubble**: Perfect for NoCode development with visual programming
+- **Airtable**: Great for data management and task organization
+- **Zapier**: For automation and integrations
+
+## Next Steps
+1. Choose your preferred NoCode platform
+2. Set up your database structure
+3. Design your user interface
+4. Implement core features
+5. Test and deploy your app
+        `
+      },
+      dev: {
+        title: "Dev Tools Mode",
+        description: "For developers who want technical specifications",
+        content: `
+# Task Management App - Developer Specification
+
+## Technical Architecture
+- **Frontend**: React.js with TypeScript
+- **Backend**: Node.js with Express.js
+- **Database**: PostgreSQL with Prisma ORM
+- **Authentication**: JWT tokens with refresh mechanism
+- **Real-time**: WebSocket connections for live updates
+
+## API Endpoints
+\`\`\`typescript
+// Task Management API
+GET    /api/tasks           // Get all tasks
+POST   /api/tasks           // Create new task
+PUT    /api/tasks/:id       // Update task
+DELETE /api/tasks/:id       // Delete task
+GET    /api/tasks/category/:category  // Get tasks by category
+\`\`\`
+
+## Database Schema
+\`\`\`sql
+CREATE TABLE tasks (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  title VARCHAR(255) NOT NULL,
+  description TEXT,
+  category VARCHAR(100),
+  priority VARCHAR(20) CHECK (priority IN ('high', 'medium', 'low')),
+  status VARCHAR(20) CHECK (status IN ('pending', 'in_progress', 'completed')),
+  due_date TIMESTAMP,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+\`\`\`
+
+## Development Tools
+- **Frontend**: React, TypeScript, Tailwind CSS, React Query
+- **Backend**: Node.js, Express, Prisma, PostgreSQL
+- **Testing**: Jest, React Testing Library, Supertest
+- **Deployment**: Vercel (frontend), Railway (backend)
+
+## Implementation Steps
+1. Set up development environment
+2. Initialize database with Prisma
+3. Create API endpoints
+4. Build React components
+5. Implement authentication
+6. Add real-time features
+7. Write tests and deploy
+        `
+      },
+      explore: {
+        title: "Explore Mode",
+        description: "Comprehensive analysis and market research",
+        content: `
+# Task Management App - Market Analysis & Strategy
+
+## Market Research
+### Target Audience
+- **Primary**: Working professionals (25-45 years old)
+- **Secondary**: Students and freelancers
+- **Market Size**: 2.5 billion task management app users globally
+
+### Competitor Analysis
+- **Todoist**: 30M+ users, premium features, team collaboration
+- **Asana**: Enterprise focus, project management, $1.5B valuation
+- **Notion**: All-in-one workspace, growing rapidly
+
+### Market Opportunities
+- **Gap**: Simple, affordable task management for individuals
+- **Trend**: Remote work increasing demand for productivity tools
+- **Niche**: Focus on specific industries (healthcare, education)
+
+## Business Strategy
+### Revenue Model
+- **Freemium**: Basic features free, premium features paid
+- **Subscription**: $5/month for advanced features
+- **Enterprise**: $15/user/month for teams
+
+### Marketing Strategy
+- **Content Marketing**: Productivity blogs and tutorials
+- **Social Media**: LinkedIn, Twitter for professional audience
+- **Partnerships**: Integrate with popular productivity tools
+
+## Technical Recommendations
+### MVP Features
+1. Basic task CRUD operations
+2. Category and priority management
+3. Due date tracking
+4. Simple user authentication
+
+### Future Enhancements
+- Team collaboration features
+- Mobile app development
+- AI-powered task suggestions
+- Integration with calendar apps
+
+## Success Metrics
+- **User Acquisition**: 1,000 users in first 3 months
+- **Retention**: 70% monthly active users
+- **Revenue**: $10K MRR by month 6
+- **Growth**: 20% month-over-month user growth
+        `
       }
+    };
 
-      modeButtons.forEach(button => {
-        button.addEventListener("click", () => {
-          modeButtons.forEach(btn => btn.classList.remove("active"));
-          button.classList.add("active");
-          const mode = button.getAttribute("data-mode");
-          displayContent(mode);
-        });
+    // Demo functionality
+    const modeButtons = document.querySelectorAll('.mode-button');
+    const chatContainer = document.getElementById('chatContainer');
+    const platformContainer = document.getElementById('platformContainer');
+
+    modeButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        // Remove active class from all buttons
+        modeButtons.forEach(btn => btn.classList.remove('active'));
+        // Add active class to clicked button
+        button.classList.add('active');
+        
+        // Get mode data
+        const mode = button.getAttribute('data-mode');
+        const content = demoContent[mode];
+        
+        // Clear chat container
+        chatContainer.innerHTML = '';
+        
+        // Add bot message
+        const botMessage = document.createElement('div');
+        botMessage.className = 'chat-message bot';
+        botMessage.innerHTML = `<i class="fas fa-robot"></i> Here's a demo of <strong>${content.title}</strong> - ${content.description}`;
+        chatContainer.appendChild(botMessage);
+        
+        // Add result message
+        const resultMessage = document.createElement('div');
+        resultMessage.className = 'chat-message result';
+        resultMessage.innerHTML = content.content.replace(/\n/g, '<br>');
+        chatContainer.appendChild(resultMessage);
+        
+        // Show platform container
+        platformContainer.style.display = 'block';
       });
-
-      window.addEventListener("scroll", () => {
-        if (window.pageYOffset > 300) {
-          scrollToTopBtn.classList.add("show");
-        } else {
-          scrollToTopBtn.classList.remove("show");
-        }
-      });
-
-      scrollToTopBtn.addEventListener("click", () => {
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      });
-
-
-      const initialMode = "easy-start";
-      displayContent(initialMode);
     });
 
-    // Theme toggle functionality
-    document.addEventListener('DOMContentLoaded', function() {
-      // Theme toggle
-      const themeToggle = document.getElementById('themeToggle');
-      if (themeToggle) {
-        themeToggle.addEventListener('click', function(event) {
-          event.stopPropagation();
-          const body = document.body;
-          const icon = themeToggle.querySelector('i');
-          
-          if (body.classList.contains('dark-mode')) {
-            body.classList.remove('dark-mode');
-            icon.className = 'fas fa-moon';
-            localStorage.setItem('darkMode', 'false');
-            themeToggle.setAttribute('aria-label', 'Toggle dark mode');
-          } else {
-            body.classList.add('dark-mode');
-            icon.className = 'fas fa-sun';
-            localStorage.setItem('darkMode', 'true');
-            themeToggle.setAttribute('aria-label', 'Toggle light mode');
-          }
-        });
-      }
-      
-      // Load saved theme
-      const savedTheme = localStorage.getItem('darkMode');
-      if (savedTheme === 'true') {
-        document.body.classList.add('dark-mode');
-        const themeToggle = document.getElementById('themeToggle');
-        if (themeToggle) {
-          const icon = themeToggle.querySelector('i');
-          icon.className = 'fas fa-sun';
-          themeToggle.setAttribute('aria-label', 'Toggle light mode');
-        }
+    // User dropdown functionality
+    function toggleUserDropdown() {
+      const dropdown = document.querySelector('.user-dropdown-content');
+      if (dropdown.classList.contains('show')) {
+        dropdown.classList.remove('show');
       } else {
-        // Ensure light mode is set by default
-        document.body.classList.remove('dark-mode');
-        const themeToggle = document.getElementById('themeToggle');
-        if (themeToggle) {
-          const icon = themeToggle.querySelector('i');
-          icon.className = 'fas fa-moon';
-          themeToggle.setAttribute('aria-label', 'Toggle dark mode');
-          localStorage.setItem('darkMode', 'false');
+        dropdown.classList.add('show');
+      }
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(event) {
+      const dropdown = document.querySelector('.user-dropdown');
+      if (dropdown && !dropdown.contains(event.target)) {
+        const dropdownContent = document.querySelector('.user-dropdown-content');
+        if (dropdownContent) {
+          dropdownContent.classList.remove('show');
         }
       }
     });
 
-  </script>
+    // Auth state management
+    onAuthStateChanged(auth, (user) => {
+      const authButtons = document.getElementById('auth-buttons');
+      
+      if (user) {
+        // User is signed in
+        const userEmail = user.email;
+        const firstLetter = userEmail ? userEmail.charAt(0).toUpperCase() : 'U';
+        
+        authButtons.innerHTML = `
+          <div class="user-dropdown">
+            <a href="profile.html" class="user-avatar-link" title="Go to Profile">
+              <div class="user-avatar">${firstLetter}</div>
+            </a>
+            <div class="user-dropdown-content">
+              <a href="profile.html">Profile</a>
+              <button onclick="logout()">Sign Out</button>
+            </div>
+          </div>
+        `;
+      } else {
+        // User is signed out
+        authButtons.innerHTML = `
+          <a href="auth.html" class="btn btn-primary">Sign In</a>
+        `;
+      }
+    });
 
-  <noscript>
-    <div style="text-align: center; padding: 20px; background: #fff; color: #333;">
-      <p>This website requires JavaScript to function properly. Please enable JavaScript in your browser settings.</p>
-    </div>
-  </noscript>
+    // Logout function
+    window.logout = function() {
+      signOut(auth).then(() => {
+        console.log('User signed out successfully');
+      }).catch((error) => {
+        console.error('Error signing out:', error);
+      });
+    };
+  </script>
 </body>
 </html>

@@ -90,39 +90,6 @@
       --error-message: #ff4444;
     }
 
-    .dark-mode {
-      --background-color: #1a1a1a;
-      --header-background: rgba(40, 40, 40, 0.9);
-      --header-text: #ffffff;
-      --footer-background: #2a2a2a;
-      --footer-text: #ffffff;
-      --footer-link: #ffffff;
-      --footer-link-hover: #00b7c3;
-      --footer-divider: #ffffff;
-      --footer-social: #ffffff;
-      --footer-social-hover: #00b7c3;
-      --footer-copyright: #cccccc;
-      --content-background: #2a2a2a;
-      --content-text: #ffffff;
-      --content-link: #00b7c3;
-      --content-link-hover: #0097a7;
-      --category-filter-background: rgba(40, 40, 40, 0.9);
-      --category-filter-button: #333;
-      --category-filter-button-border: #555;
-      --tool-card-background: #2a2a2a;
-      --tool-card-border: #444;
-      --tool-description: #cccccc;
-      --tool-pros: #bbbbbb;
-      --tool-rating: #f4c430;
-      --cta-background: rgba(40, 40, 40, 0.9);
-      --newsletter-background: #2a2a2a;
-      --newsletter-text: #ffffff;
-      --newsletter-input-background: #333;
-      --newsletter-input-border: #555;
-      --scroll-to-top-background: #00b7c3;
-      --scroll-to-top-hover: #0097a7;
-      --error-message: #ff6666;
-    }
 
     * {
       margin: 0;
@@ -144,70 +111,8 @@
       background: #f5f5f5 !important;
     }
     
-    body.dark-mode {
-      background: #1a1a1a !important;
-    }
     
-    /* Force light mode styles - but preserve category colors */
-    body:not(.dark-mode) {
-      background: #f5f5f5 !important;
-      color: #333 !important;
-    }
     
-    body:not(.dark-mode) .main-content-wrapper {
-      background: rgba(255, 255, 255, 0.95) !important;
-      color: #333 !important;
-    }
-    
-    body:not(.dark-mode) .tool-card {
-      background: #fff !important;
-      color: #333 !important;
-      border: 1px solid #ddd !important;
-    }
-    
-    body:not(.dark-mode) .tool-card h3,
-    body:not(.dark-mode) .tool-card p:not(.tool-category),
-    body:not(.dark-mode) .tool-card .tool-description,
-    body:not(.dark-mode) .tool-card .tool-pros {
-      color: #333 !important;
-    }
-    
-    body:not(.dark-mode) .category-filter {
-      background: rgba(255, 255, 255, 0.95) !important;
-    }
-    
-    body:not(.dark-mode) .header-text h1,
-    body:not(.dark-mode) .header-text p {
-      color: #333 !important;
-    }
-    
-    /* Fix dark mode buttons */
-    body.dark-mode .category-filter button {
-      background: #333 !important;
-      color: #fff !important;
-      border: 1px solid #555 !important;
-    }
-    
-    body.dark-mode .category-filter button.active {
-      background: #555 !important;
-      color: #fff !important;
-    }
-    
-    body.dark-mode .tool-card {
-      background: #2a2a2a !important;
-      color: #fff !important;
-      border: 1px solid #444 !important;
-    }
-    
-    body.dark-mode .tool-card h3 {
-      color: #fff !important;
-    }
-    
-    body.dark-mode .tool-card p:not(.tool-category),
-    body.dark-mode .tool-card .tool-description,
-    body.dark-mode .tool-card .tool-pros {
-      color: #ccc !important;
-    }
 
     /* Header Layout Styles */
     .thematic-header {
@@ -225,10 +130,6 @@
       transition: background 0.3s ease, border-color 0.3s ease;
     }
 
-    body.dark-mode .thematic-header {
-      background: var(--bg-color, #1a1a1a);
-      border-bottom: 1px solid var(--border-color, #444);
-    }
 
     .header-left {
       display: flex;
@@ -267,9 +168,6 @@
       transition: color 0.3s ease;
     }
 
-    body.dark-mode .logo a {
-      color: #ffffff;
-    }
 
     .logo a:hover {
       color: var(--primary-color, #0078d4);
@@ -392,33 +290,6 @@
       background: var(--light-gray, #f5f5f5);
     }
 
-    /* Dark Mode Toggle */
-    .theme-toggle {
-      position: fixed;
-      bottom: 20px;
-      left: 20px;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      border: none;
-      background: white;
-      color: black;
-      font-size: 1rem;
-      cursor: pointer;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      transition: all 0.3s ease;
-      z-index: 1000;
-    }
-
-    .theme-toggle:hover {
-      transform: scale(1.1);
-      box-shadow: 0 6px 16px rgba(0,0,0,0.2);
-    }
-
-    body.dark-mode .theme-toggle {
-      background: black;
-      color: white;
-    }
 
     /* Mobile Responsive */
     @media (max-width: 768px) {
@@ -458,11 +329,6 @@
         font-size: 0.7rem;
       }
       
-      .theme-toggle {
-        width: 45px;
-        height: 45px;
-        font-size: 1.1rem;
-      }
       
       .user-dropdown-content {
         top: 70px;
@@ -477,11 +343,6 @@
         font-size: 0.8rem;
       }
       
-    }
-    body.dark-mode .tool-card p,
-    body.dark-mode .tool-card .tool-description,
-    body.dark-mode .tool-card .tool-pros {
-      color: #fff !important;
     }
     
     /* Preserve category colors in both modes */
@@ -1190,9 +1051,6 @@
       background-color: rgba(0, 0, 0, 0.1);
     }
 
-    .dark-mode .newsletter-close:hover {
-      background-color: rgba(255, 255, 255, 0.1);
-    }
 
     @keyframes spin {
       0% { transform: translate(-50%, -50%) rotate(0deg); }
@@ -1255,7 +1113,6 @@
       .newsletter-container input { padding: 0.3rem; }
       .newsletter-container button { padding: 0.3rem 0.8rem; }
       .newsletter-close { font-size: 0.8rem; width: 18px; height: 18px; }
-      .theme-toggle { font-size: 0.9rem; left: 15px; width: 40px; height: 40px; }
       .scroll-to-top { bottom: 20px; right: 15px; width: 40px; height: 40px; }
     }
 
@@ -1277,7 +1134,6 @@
       .newsletter-container { bottom: 3.5rem; }
       .newsletter-container input { width: 100%; }
       .scroll-to-top { bottom: 15px; right: 10px; width: 40px; height: 40px; }
-      .theme-toggle { left: 10px; width: 40px; height: 40px; }
       .newsletter-close { font-size: 0.7rem; width: 16px; height: 16px; }
 
     }
@@ -1310,9 +1166,6 @@
     </div>
   </header>
 
-  <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
-    <i class="fas fa-moon"></i>
-  </button>
   <div class="main-content-wrapper">
     <div class="header-text">
       <h1>Vibe Coding Tools Map</h1>
@@ -1368,7 +1221,6 @@
   </footer>
 
   <script type="text/babel">
-    // Theme toggle functionality is now handled by common-header-footer.js
 
     async function fetchTools() {
       try {
@@ -1766,59 +1618,12 @@
   </script>
 
   <script>
-    // Force light mode on page load for tools map
-    document.addEventListener("DOMContentLoaded", () => {
-      // Remove dark-mode class immediately
-      document.body.classList.remove('dark-mode');
-      
-      // Update theme toggle button to show moon (light mode)
-      const themeToggle = document.getElementById('themeToggle');
-      if (themeToggle) {
-        const icon = themeToggle.querySelector('i');
-        if (icon) {
-          icon.className = 'fas fa-moon';
-        }
-        themeToggle.setAttribute('aria-label', 'Toggle dark mode');
-      }
-      
-      // Only apply dark mode if user explicitly clicks the toggle
-      // Don't auto-apply from localStorage on this page
-    });
 
     // Basic header functionality
     document.addEventListener('DOMContentLoaded', function() {
       
-      // Theme toggle
-      const themeToggle = document.getElementById('themeToggle');
-      if (themeToggle) {
-        themeToggle.addEventListener('click', function(event) {
-          event.stopPropagation();
-          const body = document.body;
-          const icon = themeToggle.querySelector('i');
-          
-          if (body.classList.contains('dark-mode')) {
-            body.classList.remove('dark-mode');
-            icon.className = 'fas fa-moon';
-            localStorage.setItem('darkMode', 'false');
-          } else {
-            body.classList.add('dark-mode');
-            icon.className = 'fas fa-sun';
-            localStorage.setItem('darkMode', 'true');
-          }
-        });
-      }
       
       
-      // Load saved theme
-      const savedTheme = localStorage.getItem('darkMode');
-      if (savedTheme === 'true') {
-        document.body.classList.add('dark-mode');
-        const themeToggle = document.getElementById('themeToggle');
-        if (themeToggle) {
-          const icon = themeToggle.querySelector('i');
-          icon.className = 'fas fa-sun';
-        }
-      }
       
     });
 

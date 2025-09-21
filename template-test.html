@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS Template Test - Specifys.ai</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="stylesheet" href="assets/css/main.css">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+    <script src="assets/js/mermaid-simple.js"></script>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .content-box {
+            max-width: 900px;
+            margin: 80px auto 40px;
+            padding: 30px;
+            background: var(--bg-primary);
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-md);
+            flex-grow: 1;
+            transition: all var(--transition-normal);
+        }
+        .content-box h1 {
+            font-size: var(--font-size-3xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--text-primary);
+            margin-bottom: var(--spacing-lg);
+            text-align: center;
+        }
+        .content-box h2 {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-semibold);
+            color: var(--primary-color);
+            margin: var(--spacing-2xl) 0 var(--spacing-md);
+        }
+        .content-box p {
+            font-size: var(--font-size-base);
+            color: var(--text-secondary);
+            line-height: var(--line-height-normal);
+            margin-bottom: var(--spacing-md);
+        }
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: var(--spacing-md);
+            margin-top: var(--spacing-2xl);
+            flex-wrap: wrap;
+        }
+        .fade-in-up {
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @media (max-width: 768px) {
+            .content-box { margin: var(--spacing-2xl) var(--spacing-md); padding: var(--spacing-lg); }
+            .content-box h1 { font-size: var(--font-size-2xl); }
+            .content-box h2 { font-size: var(--font-size-xl); }
+            .content-box p { font-size: var(--font-size-sm); }
+        }
+        @media (max-width: 480px) {
+            .content-box { margin: var(--spacing-2xl) var(--spacing-sm); padding: var(--spacing-md); }
+            .content-box h1 { font-size: var(--font-size-xl); }
+            .content-box h2 { font-size: var(--font-size-lg); }
+            .content-box p { font-size: var(--font-size-xs); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="thematic-header" role="banner">
+        <div class="header-left">
+        </div>
+        <div class="header-center">
+            <div class="logo">
+                <a href="index.html" aria-label="Specifys.ai homepage">Specifys.AI</a>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="auth-buttons" id="auth-buttons">
+                <!-- Uncomment the line below to see logged out state -->
+                <!-- <button class="auth-btn">Login</button> -->
+                
+                <!-- Logged in user state -->
+                <div class="user-dropdown">
+                    <a href="pages/profile.html" class="user-avatar-link" title="Go to Profile">
+                        <div class="user-avatar">S</div>
+                    </a>
+                    <div class="user-dropdown-content">
+                        <a href="pages/profile.html">Profile</a>
+                        <button onclick="logout()">Sign Out</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="content-box">
+        <h1>CSS Template Test</h1>
+        <h2>Modular Design Testing</h2>
+        
+        <p>This is a test page for the new modular design. Here you can see how all elements look.</p>
+        
+        <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin: 20px 0;">
+            <h4>Current State: Logged In User</h4>
+            <p>You can see the user avatar in the header. Clicking on it will take you to the profile page. The avatar shows the first letter of the email address (S for shalom@specifys.ai).</p>
+            <p><strong>Test different emails:</strong></p>
+            <button class="btn btn-sm" onclick="testEmail('john@example.com')">Test john@example.com</button>
+            <button class="btn btn-sm" onclick="testEmail('maria@test.org')">Test maria@test.org</button>
+            <button class="btn btn-sm" onclick="testEmail('alex@company.co')">Test alex@company.co</button>
+        </div>
+        
+        <div style="background: #f0f8ff; padding: 15px; border-radius: 8px; margin: 20px 0;">
+            <h4>Icon Buttons Collection</h4>
+            <p>Look at the bottom-right corner of the page - you'll see a collection of icon buttons:</p>
+            <ul>
+                <li><strong>↑ Arrow</strong> - Scroll to top (rotates based on scroll position)</li>
+                <li><strong>× Close</strong> - Close button (red on hover)</li>
+                <li><strong>✓ Check</strong> - Check button (green on hover)</li>
+                <li><strong>⚙ Settings</strong> - Settings button (gray on hover)</li>
+                <li><strong>? Help</strong> - Help button (blue on hover)</li>
+                <li><strong>🔔 Bell</strong> - Notifications button (yellow on hover)</li>
+            </ul>
+            <p>All buttons have hover effects and are responsive. They're defined in <code>assets/css/components/icons.css</code> and can be used throughout the site.</p>
+        </div>
+        
+        <div style="background: #fff5f5; padding: 15px; border-radius: 8px; margin: 20px 0;">
+            <h4>Typography System</h4>
+            <p>The site now has a comprehensive font system with multiple font families and utility classes:</p>
+            
+            <h5>Font Families:</h5>
+            <ul>
+                <li><strong>Primary (Montserrat)</strong> - Main brand font</li>
+                <li><strong>Secondary (Inter)</strong> - Body text and UI</li>
+                <li><strong>UI (Roboto)</strong> - Buttons, forms, interface</li>
+                <li><strong>Display (Poppins)</strong> - Headings and large text</li>
+                <li><strong>Monospace</strong> - Code and technical content</li>
+            </ul>
+            
+            <h5>Typography Classes:</h5>
+            <div class="heading-1">Heading 1 - Display Font</div>
+            <div class="heading-2">Heading 2 - Display Font</div>
+            <div class="heading-3">Heading 3 - Display Font</div>
+            <div class="body-large">Body Large - Secondary Font</div>
+            <div class="body-base">Body Base - Secondary Font</div>
+            <div class="body-small">Body Small - Secondary Font</div>
+            <div class="button-text">Button Text - UI Font</div>
+            <div class="caption">Caption - UI Font</div>
+            <div class="code-text">Code Text - Monospace Font</div>
+            
+            <h5>Utility Classes:</h5>
+            <p>Use classes like <code>.font-primary</code>, <code>.text-xl</code>, <code>.font-bold</code>, <code>.leading-relaxed</code> for custom typography.</p>
+        </div>
+        
+        <div style="background: #fff8f0; padding: 15px; border-radius: 8px; margin: 20px 0;">
+            <h4>Table Styles System</h4>
+            <p>The site now includes comprehensive table styling with multiple variants, responsive design, and dark theme support.</p>
+            
+            <h5>Basic Table:</h5>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>John Doe</td>
+                            <td>john@example.com</td>
+                            <td>Admin</td>
+                            <td><span class="table-status status-success">Active</span></td>
+                            <td class="table-actions">
+                                <button class="table-action-btn btn-sm btn-primary">Edit</button>
+                                <button class="table-action-btn btn-sm btn-danger">Delete</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Jane Smith</td>
+                            <td>jane@example.com</td>
+                            <td>User</td>
+                            <td><span class="table-status status-warning">Pending</span></td>
+                            <td class="table-actions">
+                                <button class="table-action-btn btn-sm btn-outline">Edit</button>
+                                <button class="table-action-btn btn-sm btn-danger">Delete</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Bob Johnson</td>
+                            <td>bob@example.com</td>
+                            <td>Moderator</td>
+                            <td><span class="table-status status-danger">Inactive</span></td>
+                            <td class="table-actions">
+                                <button class="table-action-btn btn-sm btn-secondary">Edit</button>
+                                <button class="table-action-btn btn-sm btn-danger">Delete</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <h5>Striped Table with Badges:</h5>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Category</th>
+                            <th>Price</th>
+                            <th>Stock</th>
+                            <th>Tags</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Laptop Pro</td>
+                            <td>Electronics</td>
+                            <td>$1,299</td>
+                            <td>15</td>
+                            <td>
+                                <span class="table-badge badge-primary">Featured</span>
+                                <span class="table-badge badge-success">In Stock</span>
+                            </td>
+                            <td class="table-actions">
+                                <button class="table-action-btn btn-sm btn-success">View</button>
+                                <button class="table-action-btn btn-sm btn-primary">Edit</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Wireless Mouse</td>
+                            <td>Accessories</td>
+                            <td>$29</td>
+                            <td>0</td>
+                            <td>
+                                <span class="table-badge badge-warning">Low Stock</span>
+                            </td>
+                            <td class="table-actions">
+                                <button class="table-action-btn btn-sm btn-warning">Restock</button>
+                                <button class="table-action-btn btn-sm btn-primary">Edit</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Gaming Keyboard</td>
+                            <td>Electronics</td>
+                            <td>$89</td>
+                            <td>8</td>
+                            <td>
+                                <span class="table-badge badge-info">New</span>
+                                <span class="table-badge badge-success">In Stock</span>
+                            </td>
+                            <td class="table-actions">
+                                <button class="table-action-btn btn-sm btn-info">Preview</button>
+                                <button class="table-action-btn btn-sm btn-primary">Edit</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <h5>Small Table with Images:</h5>
+            <div class="table-responsive">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Avatar</th>
+                            <th>Name</th>
+                            <th>Department</th>
+                            <th>Last Login</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiMwMDc4ZDQiLz4KPHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNiIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5KPC90ZXh0Pgo8L3N2Zz4K" alt="John" class="table-image"></td>
+                            <td>John Doe</td>
+                            <td>Engineering</td>
+                            <td>2 hours ago</td>
+                            <td class="table-actions">
+                                <button class="table-action-btn btn-sm btn-ghost">Message</button>
+                                <button class="table-action-btn btn-sm btn-outline">Profile</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiM2Yzc1N2QiLz4KPHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNiIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5KPC90ZXh0Pgo8L3N2Zz4K" alt="Jane" class="table-image"></td>
+                            <td>Jane Smith</td>
+                            <td>Marketing</td>
+                            <td>1 day ago</td>
+                            <td class="table-actions">
+                                <button class="table-action-btn btn-sm btn-ghost">Message</button>
+                                <button class="table-action-btn btn-sm btn-outline">Profile</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiMyOGE3NDUiLz4KPHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNiIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5CPC90ZXh0Pgo8L3N2Zz4K" alt="Bob" class="table-image"></td>
+                            <td>Bob Johnson</td>
+                            <td>Sales</td>
+                            <td>3 days ago</td>
+                            <td class="table-actions">
+                                <button class="table-action-btn btn-sm btn-ghost">Message</button>
+                                <button class="table-action-btn btn-sm btn-outline">Profile</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <h5>Table with Pagination:</h5>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Title</th>
+                            <th>Author</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>Getting Started with CSS</td>
+                            <td>John Doe</td>
+                            <td>2024-01-15</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>JavaScript Best Practices</td>
+                            <td>Jane Smith</td>
+                            <td>2024-01-14</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>React Hooks Guide</td>
+                            <td>Bob Johnson</td>
+                            <td>2024-01-13</td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="4">
+                                <div class="table-pagination">
+                                    <div class="table-pagination-info">
+                                        Showing 1-3 of 25 results
+                                    </div>
+                                    <div class="table-pagination-controls">
+                                        <button class="table-pagination-btn" disabled>Previous</button>
+                                        <button class="table-pagination-btn active">1</button>
+                                        <button class="table-pagination-btn">2</button>
+                                        <button class="table-pagination-btn">3</button>
+                                        <button class="table-pagination-btn">Next</button>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            
+            <p><strong>Features:</strong></p>
+            <ul>
+                <li>✅ Responsive design with horizontal scroll</li>
+                <li>✅ Multiple variants (striped, bordered, borderless)</li>
+                <li>✅ Different sizes (small, normal, large)</li>
+                <li>✅ Status indicators and badges</li>
+                <li>✅ Action buttons with multiple styles (primary, secondary, success, warning, danger, outline, ghost)</li>
+                <li>✅ Pagination controls</li>
+                <li>✅ Dark theme support</li>
+                <li>✅ Sortable headers</li>
+                <li>✅ Loading and empty states</li>
+                <li>✅ Consistent button styling matching site design</li>
+            </ul>
+        </div>
+        
+        <div style="background: #f0fff0; padding: 15px; border-radius: 8px; margin: 20px 0;">
+            <h4>Mermaid Charts Integration</h4>
+            <p>The site now includes built-in support for Mermaid diagrams with dark theme support and responsive design.</p>
+            
+            <h5>Flowchart Example:</h5>
+            <div class="mermaid-container">
+                <div class="mermaid-controls">
+                    <h3 class="mermaid-title">Process Flow</h3>
+                    <div class="mermaid-actions">
+                        <button class="mermaid-btn" onclick="SimpleMermaidManager.renderChart('flowchart-example', SimpleMermaidManager.getExamples().flowchart)">
+                            Render Chart
+                        </button>
+                    </div>
+                </div>
+                <div id="flowchart-example" class="mermaid-chart mermaid-flowchart">
+                    <div class="mermaid-loading"></div>
+                </div>
+            </div>
+            
+            <h5>Sequence Diagram Example:</h5>
+            <div class="mermaid-container">
+                <div class="mermaid-controls">
+                    <h3 class="mermaid-title">User Interaction</h3>
+                    <div class="mermaid-actions">
+                        <button class="mermaid-btn" onclick="SimpleMermaidManager.renderChart('sequence-example', SimpleMermaidManager.getExamples().sequence)">
+                            Render Chart
+                        </button>
+                    </div>
+                </div>
+                <div id="sequence-example" class="mermaid-chart mermaid-sequence">
+                    <div class="mermaid-loading"></div>
+                </div>
+            </div>
+            
+            <h5>Pie Chart Example:</h5>
+            <div class="mermaid-container">
+                <div class="mermaid-controls">
+                    <h3 class="mermaid-title">Data Visualization</h3>
+                    <div class="mermaid-actions">
+                        <button class="mermaid-btn" onclick="SimpleMermaidManager.renderChart('pie-example', SimpleMermaidManager.getExamples().pie)">
+                            Render Chart
+                        </button>
+                    </div>
+                </div>
+                <div id="pie-example" class="mermaid-chart mermaid-pie">
+                    <div class="mermaid-loading"></div>
+                </div>
+            </div>
+            
+            <h5>Interactive Chart Editor:</h5>
+            <div class="mermaid-container">
+                <div id="mermaid-editor-demo"></div>
+            </div>
+            
+            <p><strong>Features:</strong></p>
+            <ul>
+                <li>✅ Dark/Light theme support</li>
+                <li>✅ Responsive design</li>
+                <li>✅ Interactive editor</li>
+                <li>✅ Multiple chart types (flowchart, sequence, gantt, class, pie, state)</li>
+                <li>✅ Error handling</li>
+                <li>✅ Loading states</li>
+            </ul>
+        </div>
+        
+        <h3>Buttons</h3>
+        <div class="button-container">
+            <button class="btn">Regular Button</button>
+            <button class="btn btn-primary">Primary Button</button>
+            <button class="btn btn-secondary">Secondary Button</button>
+            <button class="btn btn-success">Success Button</button>
+            <button class="btn btn-warning">Warning Button</button>
+            <button class="btn btn-danger">Danger Button</button>
+        </div>
+        
+        <h3>Different Button Sizes</h3>
+        <div class="button-container">
+            <button class="btn btn-sm">Small</button>
+            <button class="btn">Regular</button>
+            <button class="btn btn-lg">Large</button>
+            <button class="btn btn-xl">Extra Large</button>
+        </div>
+        
+        <h3>Different Button Styles</h3>
+        <div class="button-container">
+            <button class="btn btn-outline-primary">Outline Primary</button>
+            <button class="btn btn-outline-secondary">Outline Secondary</button>
+            <button class="btn btn-ghost">Ghost</button>
+        </div>
+        
+        <h3>Buttons with Icons</h3>
+        <div class="button-container">
+            <button class="btn btn-icon">
+                <i class="fas fa-download"></i>
+                Download
+            </button>
+            <button class="btn btn-icon">
+                <i class="fas fa-share"></i>
+                Share
+            </button>
+            <button class="btn btn-icon">
+                <i class="fas fa-heart"></i>
+                Like
+            </button>
+        </div>
+        
+        <h3>Loading Button</h3>
+        <div class="button-container">
+            <button class="btn btn-loading">Loading...</button>
+        </div>
+        
+        <h3>Text and Typography</h3>
+        <p>This is a regular paragraph with English text. The quick brown fox jumps over the lazy dog.</p>
+        <p class="text-secondary">This is secondary text.</p>
+        <p class="text-muted">This is muted text.</p>
+        
+        <h4>Headings</h4>
+        <h1>Heading 1</h1>
+        <h2>Heading 2</h2>
+        <h3>Heading 3</h3>
+        <h4>Heading 4</h4>
+        <h5>Heading 5</h5>
+        <h6>Heading 6</h6>
+        
+        <h3>Code</h3>
+        <p>Here's an example of code: <code>console.log('Hello World');</code></p>
+        
+        <pre><code>function hello() {
+    console.log('Hello World');
+    return true;
+}</code></pre>
+        
+        <h3>Lists</h3>
+        <ul>
+            <li>First item</li>
+            <li>Second item</li>
+            <li>Third item</li>
+        </ul>
+        
+        <ol>
+            <li>First step</li>
+            <li>Second step</li>
+            <li>Third step</li>
+        </ol>
+        
+        <h3>Links</h3>
+        <p>Here's a <a href="#">regular link</a> within text.</p>
+        
+        <h3>Quote</h3>
+        <blockquote>
+            "Design is not how it looks, but how it works."
+        </blockquote>
+    </div>
+
+    <!-- Icon Buttons -->
+    <button class="icon-btn scroll-to-top" id="scrollToTop" aria-label="Scroll to top">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+    
+    <button class="icon-btn close-btn" id="closeBtn" aria-label="Close" title="Close">
+        <i class="fas fa-times"></i>
+    </button>
+    
+    <button class="icon-btn check-btn" id="checkBtn" aria-label="Check" title="Check">
+        <i class="fas fa-check"></i>
+    </button>
+    
+    <button class="icon-btn settings-btn" id="settingsBtn" aria-label="Settings" title="Settings">
+        <i class="fas fa-cog"></i>
+    </button>
+    
+    <button class="icon-btn help-btn" id="helpBtn" aria-label="Help" title="Help">
+        <i class="fas fa-question"></i>
+    </button>
+    
+    <button class="icon-btn notification-btn" id="notificationBtn" aria-label="Notifications" title="Notifications">
+        <i class="fas fa-bell"></i>
+    </button>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="pages/how.html" aria-label="Learn how specifys.ai works">How It Works</a>
+                <a href="pages/about.html" aria-label="Learn more about specifys.ai">About Us</a>
+                <a href="blog.html" aria-label="Visit our blog">Blog</a>
+                <a href="tools/map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
+                <a href="pages/ToolPicker.html" aria-label="Use our Tool Finder">Tool Finder</a>
+            </div>
+            <span class="footer-divider">|</span>
+            <div class="footer-social">
+                <a href="https://www.linkedin.com/company/specifys-ai/" aria-label="Follow us on LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                <a href="https://www.facebook.com/profile.php?id=61576402600129&locale=he_IL" target="_blank" aria-label="Follow us on Facebook"><i class="fab fa-facebook-f"></i></a>
+                <a href="https://www.instagram.com/YOUR_PROFILE" aria-label="Follow us on Instagram"><i class="fab fa-instagram"></i></a>
+                <a href="mailto:specifysai@gmail.com" aria-label="Send us an email"><i class="fas fa-envelope"></i></a>
+                <a href="https://www.producthunt.com/products/specifys-ai" target="_blank" aria-label="Check us out on Product Hunt"><i class="fab fa-product-hunt"></i></a>
+            </div>
+        </div>
+        <div class="footer-copyright">© 2025 specifys.ai. All rights reserved.</div>
+    </footer>
+
+    <script>
+        function logout() {
+            alert('Logged out successfully!');
+            // Here you would normally handle the actual logout
+        }
+        
+        // Function to update user avatar with first letter of email
+        function updateUserAvatar(email) {
+            const firstLetter = email.charAt(0).toUpperCase();
+            const userAvatar = document.querySelector('.user-avatar');
+            if (userAvatar) {
+                userAvatar.textContent = firstLetter;
+            }
+        }
+        
+        // Function to test different email addresses
+        function testEmail(email) {
+            updateUserAvatar(email);
+        }
+        
+        // Function to render chart from editor
+        function renderFromEditor() {
+            const textarea = document.getElementById('editor-textarea');
+            const preview = document.getElementById('editor-preview');
+            
+            if (textarea && preview && typeof SimpleMermaidManager !== 'undefined') {
+                const definition = textarea.value.trim();
+                if (definition) {
+                    SimpleMermaidManager.renderChart('editor-preview', definition);
+                } else {
+                    preview.innerHTML = '<div class="mermaid-loading">Enter chart definition to see preview</div>';
+                }
+            }
+        }
+        
+        // Icon buttons functionality
+        const scrollToTopBtn = document.getElementById("scrollToTop");
+        const closeBtn = document.getElementById("closeBtn");
+        const checkBtn = document.getElementById("checkBtn");
+        const settingsBtn = document.getElementById("settingsBtn");
+        const helpBtn = document.getElementById("helpBtn");
+        const notificationBtn = document.getElementById("notificationBtn");
+        
+        // Scroll to top functionality
+        scrollToTopBtn.addEventListener("click", () => {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+        
+        // Show/hide scroll to top button with rotation effect
+        window.addEventListener("scroll", () => {
+            if (window.scrollY > 300) {
+                scrollToTopBtn.style.display = "flex";
+                scrollToTopBtn.style.transform = "rotate(0deg)";
+            } else {
+                scrollToTopBtn.style.display = "flex";
+                scrollToTopBtn.style.transform = "rotate(180deg)";
+            }
+        });
+        
+        // Initially show the button with arrow pointing down
+        scrollToTopBtn.style.display = "flex";
+        scrollToTopBtn.style.transform = "rotate(180deg)";
+        
+        // Close button functionality
+        closeBtn.addEventListener("click", () => {
+            alert("Close button clicked!");
+        });
+        
+        // Check button functionality
+        checkBtn.addEventListener("click", () => {
+            alert("Check button clicked!");
+        });
+        
+        // Settings button functionality
+        settingsBtn.addEventListener("click", () => {
+            alert("Settings button clicked!");
+        });
+        
+        // Help button functionality
+        helpBtn.addEventListener("click", () => {
+            alert("Help button clicked!");
+        });
+        
+        // Notification button functionality
+        notificationBtn.addEventListener("click", () => {
+            alert("Notification button clicked!");
+        });
+        
+        // Add some interactive effects
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add fade-in animation to content
+            const contentBox = document.querySelector('.content-box');
+            contentBox.classList.add('fade-in-up');
+            
+            // Update user avatar with first letter of email (default: shalom@specifys.ai)
+            updateUserAvatar('shalom@specifys.ai');
+            
+            // Initialize simple Mermaid editor
+            if (typeof SimpleMermaidManager !== 'undefined') {
+                const exampleChart = `graph TD
+    A[Start] --> B{Decision}
+    B -->|Yes| C[Action 1]
+    B -->|No| D[Action 2]
+    C --> E[End]
+    D --> E`;
+                
+                // Create simple editor
+                const editorContainer = document.getElementById('mermaid-editor-demo');
+                if (editorContainer) {
+                    editorContainer.innerHTML = `
+                        <div class="mermaid-editor">
+                            <div class="mermaid-editor-header">
+                                <h3 class="mermaid-editor-title">Simple Chart Editor</h3>
+                                <div class="mermaid-editor-actions">
+                                    <button class="mermaid-btn" onclick="renderFromEditor()">Render Chart</button>
+                                </div>
+                            </div>
+                            <div class="mermaid-editor-content">
+                                <div class="mermaid-editor-input">
+                                    <label class="mermaid-editor-label">Chart Definition</label>
+                                    <textarea id="editor-textarea" class="mermaid-editor-textarea" placeholder="Enter your Mermaid chart definition here...">${exampleChart}</textarea>
+                                </div>
+                                <div class="mermaid-editor-preview">
+                                    <label class="mermaid-editor-preview-label">Preview</label>
+                                    <div id="editor-preview" class="mermaid-editor-preview-content">
+                                        <div class="mermaid-loading">Enter chart definition to see preview</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+            
+            // Add hover effects to buttons
+            const buttons = document.querySelectorAll('.btn');
+            buttons.forEach(button => {
+                button.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px)';
+                });
+                
+                button.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+

@@ -97,25 +97,6 @@
       --chat-header-text: #fff;
     }
 
-    body.dark-mode {
-      --bg-color: #1a1a1a;
-      --text-color: #ffffff;
-      --primary-color: #0078d4;
-      --secondary-color: #6c757d;
-      --light-gray: #2a2a2a;
-      --border-color: #444;
-      --chat-bg: #2a2a2a;
-      --system-msg-bg: #1a1a1a;
-      --user-msg-bg: #0078d4;
-      --user-msg-text: #fff;
-      --input-bg: #2a2a2a;
-      --input-border: #444;
-      --button-hover: #005ea2;
-      --progress-bg: #2a2a2a;
-      --progress-fill: #0078d4;
-      --chat-header-bg: #0078d4;
-      --chat-header-text: #fff;
-    }
 
     /* Header Layout Styles */
     .thematic-header {
@@ -133,10 +114,6 @@
       transition: background 0.3s ease, border-color 0.3s ease;
     }
 
-    body.dark-mode .thematic-header {
-      background: var(--bg-color);
-      border-bottom: 1px solid var(--border-color);
-    }
 
     .header-left {
       display: flex;
@@ -178,13 +155,6 @@
       color: var(--primary-color);
     }
 
-    body.dark-mode .logo a {
-      color: var(--text-color);
-    }
-
-    body.dark-mode .logo a:hover {
-      color: var(--primary-color);
-    }
 
 
 
@@ -305,49 +275,7 @@
       background: var(--light-gray);
     }
 
-    body.dark-mode .auth-btn {
-      border-color: #0078d4;
-      color: #0078d4;
-    }
 
-    body.dark-mode .auth-btn:hover {
-      background: #0078d4;
-      color: white;
-    }
-
-    body.dark-mode .user-info {
-      background: rgba(102, 102, 102, 0.2);
-      border-color: rgba(102, 102, 102, 0.3);
-      color: #666;
-    }
-
-    /* Dark Mode Toggle */
-    .theme-toggle {
-      position: fixed;
-      bottom: 20px;
-      left: 20px;
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      border: none;
-      background: white;
-      color: black;
-      font-size: 1.2rem;
-      cursor: pointer;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      transition: all 0.3s ease;
-      z-index: 1000;
-    }
-
-    .theme-toggle:hover {
-      transform: scale(1.1);
-      box-shadow: 0 6px 16px rgba(0,0,0,0.2);
-    }
-
-    body.dark-mode .theme-toggle {
-      background: black;
-      color: white;
-    }
 
     /* Mobile Responsive */
     @media (max-width: 768px) {
@@ -387,11 +315,6 @@
         font-size: 0.7rem;
       }
       
-      .theme-toggle {
-        width: 45px;
-        height: 45px;
-        font-size: 1.1rem;
-      }
       
       .user-dropdown-content {
         top: 70px;
@@ -422,26 +345,6 @@
       }
     }
 
-    /* Dark Mode Variables */
-    body.dark-mode {
-      --bg-color: #1a1a1a;
-      --text-color: #e0e0e0;
-      --primary-color: #0078d4;
-      --secondary-color: #999;
-      --light-gray: #2a2a2a;
-      --border-color: #444;
-      --chat-bg: #2a2a2a;
-      --system-msg-bg: #333;
-      --user-msg-bg: #0078d4;
-      --user-msg-text: #fff;
-      --input-bg: #333;
-      --input-border: #555;
-      --button-hover: #005ea2;
-      --progress-bg: #444;
-      --progress-fill: #0078d4;
-      --chat-header-bg: #005ea2;
-      --chat-header-text: #fff;
-    }
 
     * {
       margin: 0;
@@ -758,22 +661,6 @@
       background: rgba(0, 120, 212, 0.1);
     }
 
-    /* Dark mode styles for yes/no editing */
-    body.dark-mode .edit-yesno-label {
-      background: #2a2a2a;
-      border-color: #444;
-      color: #e0e0e0;
-    }
-
-    body.dark-mode .edit-yesno-label:hover {
-      border-color: #0078d4;
-      background: #333;
-    }
-
-    body.dark-mode .edit-yesno-label:has(input[type="radio"]:checked) {
-      border-color: #0078d4;
-      background: rgba(0, 120, 212, 0.2);
-    }
 
     .edit-save-btn,
     .edit-cancel-btn {
@@ -1545,36 +1432,11 @@
     // Make functions global
     window.toggleUserDropdown = toggleUserDropdown;
     window.toggleMenu = toggleMenu;
-    window.toggleTheme = toggleTheme;
 
-    // Theme toggle functionality
-    function toggleTheme() {
-      const body = document.body;
-      const themeToggle = document.getElementById('themeToggle');
-      const icon = themeToggle.querySelector('i');
-      
-      if (body.classList.contains('dark-mode')) {
-        body.classList.remove('dark-mode');
-        icon.className = 'fas fa-moon';
-        localStorage.setItem('darkMode', 'false');
-      } else {
-        body.classList.add('dark-mode');
-        icon.className = 'fas fa-sun';
-        localStorage.setItem('darkMode', 'true');
-      }
-    }
 
     // Event listeners
     document.addEventListener('DOMContentLoaded', function() {
       
-      // Theme toggle
-      const themeToggle = document.getElementById('themeToggle');
-      if (themeToggle) {
-        themeToggle.addEventListener('click', function(event) {
-          event.stopPropagation();
-          toggleTheme();
-        });
-      }
       
       
       // Close user dropdown when clicking outside
@@ -1589,16 +1451,6 @@
         }
       });
       
-      // Load saved theme
-      const savedTheme = localStorage.getItem('darkMode');
-      if (savedTheme === 'true') {
-        document.body.classList.add('dark-mode');
-        const themeToggle = document.getElementById('themeToggle');
-        if (themeToggle) {
-          const icon = themeToggle.querySelector('i');
-          icon.className = 'fas fa-sun';
-        }
-      }
       
       // Mobile header layout adjustment
       function adjustMobileLayout() {
@@ -1695,10 +1547,6 @@
     });
   </script>
 
-  <!-- Dark Mode Toggle Button -->
-  <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
-    <i class="fas fa-moon"></i>
-  </button>
 
   <noscript>
     <div style="text-align: center; padding: 20px; background: #fff; color: #333;">

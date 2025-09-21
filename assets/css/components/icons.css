@@ -1,0 +1,168 @@
+/* Icon Buttons - Specifys.ai */
+
+/* Base icon button styles */
+.icon-btn {
+  position: fixed;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border: none;
+  border-radius: var(--border-radius-full);
+  width: 40px;
+  height: 40px;
+  font-size: var(--font-size-lg);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-sm);
+  z-index: var(--z-fixed);
+  transition: all var(--transition-normal);
+  outline: none;
+}
+
+.icon-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+  background: var(--primary-color);
+  color: var(--text-white);
+}
+
+.icon-btn:focus {
+  outline: none;
+}
+
+.icon-btn:active {
+  outline: none;
+  transform: translateY(-1px);
+}
+
+/* Scroll to Top Button */
+.scroll-to-top {
+  bottom: var(--spacing-lg);
+  right: var(--spacing-lg);
+  transform: rotate(180deg);
+}
+
+.scroll-to-top:hover {
+  transform: translateY(-3px) rotate(0deg);
+}
+
+.scroll-to-top:active {
+  transform: translateY(-1px) rotate(0deg);
+}
+
+/* Close Button (X) */
+.close-btn {
+  bottom: var(--spacing-lg);
+  right: calc(var(--spacing-lg) + 50px);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+}
+
+.close-btn:hover {
+  background: var(--danger-color);
+  color: var(--text-white);
+}
+
+/* Check Button (V) */
+.check-btn {
+  bottom: var(--spacing-lg);
+  right: calc(var(--spacing-lg) + 100px);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+}
+
+.check-btn:hover {
+  background: var(--success-color);
+  color: var(--text-white);
+}
+
+/* Settings Button */
+.settings-btn {
+  bottom: var(--spacing-lg);
+  right: calc(var(--spacing-lg) + 150px);
+}
+
+.settings-btn:hover {
+  background: var(--secondary-color);
+  color: var(--text-white);
+}
+
+/* Help Button */
+.help-btn {
+  bottom: var(--spacing-lg);
+  right: calc(var(--spacing-lg) + 200px);
+}
+
+.help-btn:hover {
+  background: var(--info-color);
+  color: var(--text-white);
+}
+
+/* Notification Button */
+.notification-btn {
+  bottom: var(--spacing-lg);
+  right: calc(var(--spacing-lg) + 250px);
+}
+
+.notification-btn:hover {
+  background: var(--warning-color);
+  color: var(--text-white);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .icon-btn {
+    width: 35px;
+    height: 35px;
+    font-size: var(--font-size-base);
+  }
+  
+  .close-btn {
+    right: calc(var(--spacing-lg) + 45px);
+  }
+  
+  .check-btn {
+    right: calc(var(--spacing-lg) + 90px);
+  }
+  
+  .settings-btn {
+    right: calc(var(--spacing-lg) + 135px);
+  }
+  
+  .help-btn {
+    right: calc(var(--spacing-lg) + 180px);
+  }
+  
+  .notification-btn {
+    right: calc(var(--spacing-lg) + 225px);
+  }
+}
+
+@media (max-width: 480px) {
+  .icon-btn {
+    width: 32px;
+    height: 32px;
+    font-size: var(--font-size-sm);
+  }
+  
+  .close-btn {
+    right: calc(var(--spacing-lg) + 40px);
+  }
+  
+  .check-btn {
+    right: calc(var(--spacing-lg) + 80px);
+  }
+  
+  .settings-btn {
+    right: calc(var(--spacing-lg) + 120px);
+  }
+  
+  .help-btn {
+    right: calc(var(--spacing-lg) + 160px);
+  }
+  
+  .notification-btn {
+    right: calc(var(--spacing-lg) + 200px);
+  }
+}

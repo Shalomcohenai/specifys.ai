@@ -49,13 +49,6 @@
       --light-gray: #f5f5f5;
     }
 
-    .dark-mode {
-      --bg-color: #1a1a1a;
-      --text-color: #ffffff;
-      --primary-color: #00b7c3;
-      --border-color: #444;
-      --light-gray: #333;
-    }
 
     html {
       height: 100%;
@@ -85,10 +78,6 @@
       transition: background 0.3s ease, color 0.3s ease;
     }
 
-    .dark-mode .content-box {
-      background: rgba(40, 40, 40, 0.95);
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
-    }
 
     .content-box h1 {
       font-size: clamp(1.8rem, 4vw, 2.5rem);
@@ -114,10 +103,6 @@
       padding: 15px;
     }
 
-    .dark-mode .article-preview {
-      background: #2a2a2a;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-    }
 
     .article-preview:hover {
       transform: translateY(-2px);
@@ -167,20 +152,6 @@
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     }
 
-    .dark-mode {
-      --read-more-btn-hover: #008b8b;
-      --read-more-btn-shadow: rgba(0, 0, 0, 0.4);
-      --footer-background: #2a2a2a;
-      --footer-text: #ffffff;
-      --footer-link: #ffffff;
-      --footer-link-hover: #00b7c3;
-      --footer-divider: #ffffff;
-      --footer-social: #ffffff;
-      --footer-social-hover: #00b7c3;
-      --footer-copyright: #cccccc;
-      --shadow-color: rgba(0, 0, 0, 0.3);
-      --shadow-color-strong: rgba(0, 0, 0, 0.4);
-    }
 
     @media (max-width: 768px) {
       .content-box {
@@ -247,12 +218,6 @@
         font-size: 0.85rem;
       }
       
-      .theme-toggle {
-        width: 40px;
-        height: 40px;
-        font-size: 0.9rem;
-        left: 10px;
-      }
       
       .scroll-to-top {
         width: 40px;
@@ -274,11 +239,6 @@
       box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
     }
 
-    body.dark-mode footer {
-      color: #e0e0e0;
-      background: #1a1a1a;
-      box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.3);
-    }
 
     .footer-content {
       display: flex;
@@ -304,9 +264,6 @@
       transition: color 0.3s ease;
     }
 
-    body.dark-mode .footer-links a {
-      color: #e0e0e0;
-    }
 
     .footer-links a:hover {
       color: #0078d4;
@@ -318,9 +275,6 @@
       font-weight: 300;
     }
 
-    body.dark-mode .footer-divider {
-      color: #e0e0e0;
-    }
 
     .footer-social {
       display: flex;
@@ -335,9 +289,6 @@
       transition: transform 0.3s ease, color 0.3s ease;
     }
 
-    body.dark-mode .footer-social a {
-      color: #e0e0e0;
-    }
 
     .footer-social a:hover {
       color: #0078d4;
@@ -350,9 +301,6 @@
       margin-top: 1rem;
     }
 
-    body.dark-mode .footer-copyright {
-      color: #999;
-    }
 
     /* Scroll to Top Button */
     .scroll-to-top {
@@ -436,9 +384,6 @@
       transition: color 0.3s ease;
     }
 
-    body.dark-mode .logo a {
-      color: #ffffff;
-    }
 
     .logo a:hover {
       color: var(--primary-color, #0078d4);
@@ -561,42 +506,6 @@
       background: var(--light-gray, #f5f5f5);
     }
 
-    /* Dark Mode Toggle */
-    .theme-toggle {
-      position: fixed;
-      bottom: 20px;
-      left: 20px;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      border: none;
-      background: white;
-      color: black;
-      font-size: 1rem;
-      cursor: pointer;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      transition: all 0.3s ease;
-      z-index: 1000;
-    }
-
-    .theme-toggle:hover {
-      transform: scale(1.1);
-      box-shadow: 0 6px 16px rgba(0,0,0,0.2);
-    }
-
-    .theme-toggle:active {
-      transform: scale(0.95);
-    }
-
-    .theme-toggle:focus {
-      outline: 2px solid var(--primary-color);
-      outline-offset: 2px;
-    }
-
-    body.dark-mode .theme-toggle {
-      background: black;
-      color: white;
-    }
 
     /* Mobile Responsive */
     @media (max-width: 768px) {
@@ -636,12 +545,6 @@
         font-size: 0.7rem;
       }
       
-      .theme-toggle {
-        width: 40px;
-        height: 40px;
-        font-size: 1rem;
-        left: 15px;
-      }
       
       .scroll-to-top {
         width: 40px;
@@ -683,9 +586,6 @@
     </div>
   </header>
 
-  <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle dark mode">
-    <i class="fas fa-moon"></i>
-  </button>
   <div class="content-box">
     <h1>Our New Blog</h1>
     <div class="gallery-grid">
@@ -1075,37 +975,8 @@
     // Basic header functionality
     document.addEventListener('DOMContentLoaded', function() {
       
-      // Theme toggle
-      const themeToggle = document.getElementById('themeToggle');
-      if (themeToggle) {
-        themeToggle.addEventListener('click', function(event) {
-          event.stopPropagation();
-          const body = document.body;
-          const icon = themeToggle.querySelector('i');
-          
-          if (body.classList.contains('dark-mode')) {
-            body.classList.remove('dark-mode');
-            icon.className = 'fas fa-moon';
-            localStorage.setItem('darkMode', 'false');
-          } else {
-            body.classList.add('dark-mode');
-            icon.className = 'fas fa-sun';
-            localStorage.setItem('darkMode', 'true');
-          }
-        });
-      }
       
       
-      // Load saved theme
-      const savedTheme = localStorage.getItem('darkMode');
-      if (savedTheme === 'true') {
-        document.body.classList.add('dark-mode');
-        const themeToggle = document.getElementById('themeToggle');
-        if (themeToggle) {
-          const icon = themeToggle.querySelector('i');
-          icon.className = 'fas fa-sun';
-        }
-      }
       
       // Mobile header layout adjustment
       function adjustMobileLayout() {
@@ -1143,32 +1014,7 @@
       }
     };
 
-    window.toggleTheme = function() {
-      const body = document.body;
-      const themeToggle = document.getElementById('themeToggle');
-      const icon = themeToggle.querySelector('i');
-      
-      if (body.classList.contains('dark-mode')) {
-        body.classList.remove('dark-mode');
-        icon.className = 'fas fa-moon';
-        localStorage.setItem('darkMode', 'false');
-      } else {
-        body.classList.add('dark-mode');
-        icon.className = 'fas fa-sun';
-        localStorage.setItem('darkMode', 'true');
-      }
-    };
 
-    // Add event listener for theme toggle button
-    document.addEventListener('DOMContentLoaded', function() {
-      const themeToggle = document.getElementById('themeToggle');
-      if (themeToggle) {
-        themeToggle.addEventListener('click', function(event) {
-          event.stopPropagation();
-          toggleTheme();
-        });
-      }
-    });
 
     // Close user dropdown when clicking outside
     document.addEventListener('click', function(event) {
