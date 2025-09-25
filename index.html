@@ -1280,60 +1280,6 @@ border: 0;
 
 
 
-        /* User Dropdown Styles */
-        .user-dropdown {
-          position: relative;
-          display: inline-block;
-          z-index: 10000;
-        }
-
-        .user-dropdown-content {
-          display: none;
-          position: fixed;
-          top: 80px;
-          right: 20px;
-          background: rgba(255, 255, 255, 0.95);
-          min-width: 160px;
-          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-          border-radius: 12px;
-          z-index: 100000;
-          padding: 10px 0;
-        }
-
-
-        .user-dropdown-content.show {
-          display: block;
-        }
-
-        .user-dropdown-content a,
-        .user-dropdown-content button {
-          color: #fff;
-          padding: 12px 20px;
-          text-decoration: none;
-          display: block;
-          font-size: 0.9rem;
-          font-weight: 500;
-          border: none;
-          background: none;
-          width: 100%;
-          text-align: left;
-          cursor: pointer;
-          transition: background-color 0.3s ease;
-          border-radius: 0;
-        }
-
-
-        .user-dropdown-content a:hover,
-        .user-dropdown-content button:hover {
-          background-color: rgba(0, 120, 212, 0.1);
-        }
-
-
-        .user-dropdown-content .divider {
-          height: 1px;
-          background: rgba(128, 128, 128, 0.3);
-          margin: 5px 0;
-        }
 
         @media (max-width: 768px) {
           body {
@@ -1380,18 +1326,6 @@ border: 0;
           }
           
           
-          .user-dropdown-content {
-            top: 70px;
-            right: 15px;
-            min-width: 140px;
-            padding: 8px 0;
-          }
-          
-          .user-dropdown-content a,
-          .user-dropdown-content button {
-            padding: 10px 16px;
-            font-size: 0.8rem;
-          }
           
           .header-links-content {
             top: 70px;
@@ -2235,16 +2169,9 @@ closeFeedbackModal();
     if (user) {
       // User is logged in
       authButtons.innerHTML = `
-        <div class="user-dropdown">
-          <div class="user-info" onclick="toggleUserDropdown()">
-            <div class="user-avatar">${user.displayName ? user.displayName.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase()}</div>
-            <span class="user-name">${user.displayName || user.email.split('@')[0]}</span>
-          </div>
-          <div class="user-dropdown-content" id="userDropdown">
-            <a href="profile.html">Profile</a>
-            <div class="divider"></div>
-            <button onclick="logout()">Sign Out</button>
-          </div>
+        <div class="user-info" onclick="window.location.href='pages/profile.html'">
+          <div class="user-avatar">${user.displayName ? user.displayName.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase()}</div>
+          <span class="user-name">${user.displayName || user.email.split('@')[0]}</span>
         </div>
       `;
     } else {
@@ -2274,24 +2201,7 @@ closeFeedbackModal();
       });
   };
 
-  window.toggleUserDropdown = function() {
-    const dropdown = document.getElementById('userDropdown');
-    if (dropdown) {
-      dropdown.classList.toggle('show');
-    }
-  };
 
-  // Close dropdown when clicking outside
-  document.addEventListener('click', function(event) {
-    const dropdown = document.getElementById('userDropdown');
-    const userInfo = document.querySelector('.user-info');
-    
-    if (dropdown && userInfo) {
-      if (!userInfo.contains(event.target) && !dropdown.contains(event.target)) {
-        dropdown.classList.remove('show');
-      }
-    }
-  });
 
   // Listen to auth state changes
   onAuthStateChanged(auth, (user) => {

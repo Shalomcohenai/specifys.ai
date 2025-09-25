@@ -583,27 +583,12 @@
         const firstLetter = userEmail ? userEmail.charAt(0).toUpperCase() : 'U';
         
         authButtons.innerHTML = `
-          <div class="user-dropdown">
-            <a href="profile.html" class="user-avatar-link" title="Go to Profile">
-              <div class="user-avatar">${firstLetter}</div>
-            </a>
-            <div class="user-dropdown-content">
-              <a href="profile.html">Profile</a>
-              <button class="logout-btn">Sign Out</button>
-            </div>
+          <div class="user-info" onclick="window.location.href='profile.html'">
+            <div class="user-avatar">${firstLetter}</div>
+            <span>${user.displayName || user.email.split('@')[0]}</span>
           </div>
         `;
         
-        // Add event listeners after creating the HTML
-        const userInfo = authButtons.querySelector('.user-info');
-        const logoutBtn = authButtons.querySelector('.logout-btn');
-        
-        if (logoutBtn) {
-          logoutBtn.addEventListener('click', function(event) {
-            event.stopPropagation();
-            logout();
-          });
-        }
       } else {
         // User is not logged in
         authButtons.innerHTML = `

@@ -713,6 +713,52 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
 
+        .profile-actions .btn-danger {
+            background: #dc3545;
+            border-color: #dc3545;
+            color: white;
+        }
+
+        .profile-actions .btn-danger:hover {
+            background: #c82333;
+            border-color: #bd2130;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+        }
+
+        .user-name-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logout-btn-small {
+            background: #6c757d;
+            border: 1px solid #6c757d;
+            color: white;
+            border-radius: 6px;
+            padding: 0.5rem;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+        }
+
+        .logout-btn-small:hover {
+            background: #5a6268;
+            border-color: #5a6268;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(108, 117, 125, 0.3);
+        }
+
+        .logout-btn-small i {
+            font-size: 0.9rem;
+        }
+
         .profile-specs-section {
             background: white;
             padding: 2rem;
@@ -1112,6 +1158,18 @@
                 flex-direction: column;
             }
             
+            .user-name-container {
+                flex-direction: column;
+                gap: 0.5rem;
+                text-align: center;
+            }
+            
+            .logout-btn-small {
+                width: 28px;
+                height: 28px;
+                font-size: 0.7rem;
+            }
+            
             .app-stats {
                 flex-direction: column;
                 gap: 0.5rem;
@@ -1314,7 +1372,12 @@
                 </div>
             </div>
             <div class="profile-info">
-                <h2 id="user-name">Loading...</h2>
+                <div class="user-name-container">
+                    <h2 id="user-name">Loading...</h2>
+                    <button class="logout-btn-small" onclick="logout()" title="Sign Out">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
                 <p id="user-email">Loading...</p>
                 <div class="profile-stats">
                     <div class="stat-item">
