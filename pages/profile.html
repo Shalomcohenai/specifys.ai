@@ -2673,8 +2673,28 @@
                 return;
             }
             
-            // Here you would delete the spec from Firestore
-            alert('Delete functionality will be added soon');
+            try {
+                // Remove from DOM - find and remove the spec card element
+                const specCard = document.querySelector(`[data-spec-id="${specId}"]`);
+                if (specCard) {
+                    specCard.remove();
+                }
+                
+                // Remove from local userSpecs array
+                const specIndex = userSpecs.findIndex(spec => spec.id === specId);
+                if (specIndex !== -1) {
+                    userSpecs.splice(specIndex, 1);
+                }
+                
+                // Show success message
+                alert('Specification removed successfully from interface');
+                
+                console.log('Spec removed from UI:', specId);
+                
+            } catch (error) {
+                console.error('Error removing spec from UI:', error);
+                alert('Error removing specification from interface');
+            }
         };
 
         // Global functions for research actions
