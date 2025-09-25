@@ -565,6 +565,7 @@ opacity: 0;
 transform: translateY(20px);
 animation: fadeInUp 1s ease forwards;
 animation-delay: calc(0.2s * var(--section-index));
+text-align: center;
 }
 .section h2 {
 font-size: clamp(2rem, 5vw, 3rem);
@@ -574,16 +575,27 @@ margin-bottom: 1.5rem;
 }
 .section p {
 font-size: clamp(1rem, 2vw, 1.2rem);
+font-weight: 500;
 color: #333;
 max-width: 800px;
 margin: 0 auto 1rem;
 line-height: 1.6;
 }
-.stats-list, .use-cases-list {
+.stats-list {
 display: grid;
 grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
 gap: 1.5rem;
 margin: 2rem 0;
+}
+
+.use-cases-list {
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+gap: 1.5rem;
+margin: 2rem 0;
+max-width: 1000px;
+margin-left: auto;
+margin-right: auto;
 }
 .benefit-card {
 display: flex;
@@ -647,7 +659,7 @@ color: #333;
 .faq-list {
 max-width: 800px;
 margin: 2rem auto;
-text-align: left;
+text-align: center;
 }
 .faq-item {
 margin-bottom: 1rem;
@@ -835,6 +847,12 @@ background: #005ea2;
 transform: translateY(-2px);
 box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
+@media (max-width: 1024px) {
+.use-cases-list {
+grid-template-columns: repeat(2, 1fr);
+}
+}
+
 @media (max-width: 768px) {
 .thematic-header {
 padding: 12px 1rem;
@@ -865,7 +883,11 @@ font-size: clamp(1.5rem, 4vw, 2.5rem);
 .section p {
 font-size: clamp(0.9rem, 1.8vw, 1rem);
 }
-.stats-list, .use-cases-list {
+.stats-list {
+grid-template-columns: 1fr;
+}
+
+.use-cases-list {
 grid-template-columns: 1fr;
 }
 .benefits-container {
@@ -1012,6 +1034,231 @@ overflow: hidden;
 clip: rect(0, 0, 0, 0);
 border: 0;
 }
+        /* Welcome Modal Styles */
+        .welcome-modal {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0, 0, 0, 0.8);
+          z-index: 1000;
+          display: none;
+          justify-content: center;
+          align-items: center;
+          animation: fadeIn 0.3s ease-out;
+        }
+        
+        .welcome-content {
+          background: #fff;
+          width: 90%;
+          max-width: 500px;
+          border-radius: 20px;
+          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+          overflow: hidden;
+          animation: slideInUp 0.4s ease-out;
+          position: relative;
+        }
+        
+        .welcome-header {
+          background: linear-gradient(135deg, #0078d4, #4A90E2);
+          color: #fff;
+          padding: 2rem 2rem 1rem;
+          text-align: center;
+          position: relative;
+        }
+        
+        .welcome-header h3 {
+          margin: 0;
+          font-size: 1.5rem;
+          font-weight: 700;
+          color: #fff;
+        }
+        
+        .welcome-close {
+          position: absolute;
+          top: 1rem;
+          right: 1rem;
+          background: rgba(255, 255, 255, 0.2);
+          border: none;
+          color: #fff;
+          font-size: 1.5rem;
+          cursor: pointer;
+          padding: 0.5rem;
+          width: 35px;
+          height: 35px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 50%;
+          transition: all 0.3s ease;
+        }
+        
+        .welcome-close:hover {
+          background: rgba(255, 255, 255, 0.3);
+          transform: scale(1.1);
+        }
+        
+        .welcome-body {
+          padding: 2rem;
+          text-align: center;
+        }
+        
+        .welcome-body p {
+          font-size: 1.1rem;
+          color: #333;
+          margin-bottom: 1rem;
+          line-height: 1.6;
+        }
+        
+        .welcome-features {
+          display: flex;
+          justify-content: center;
+          gap: 1.5rem;
+          margin: 2rem 0;
+          flex-wrap: wrap;
+        }
+        
+        .feature-highlight {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 0.5rem;
+          padding: 1rem;
+          background: #f8f9fa;
+          border-radius: 12px;
+          min-width: 100px;
+          transition: transform 0.3s ease;
+        }
+        
+        .feature-highlight:hover {
+          transform: translateY(-3px);
+        }
+        
+        .feature-highlight i {
+          font-size: 1.5rem;
+          color: #0078d4;
+        }
+        
+        .feature-highlight span {
+          font-size: 0.9rem;
+          font-weight: 600;
+          color: #333;
+        }
+        
+        .welcome-actions {
+          display: flex;
+          gap: 1rem;
+          padding: 1rem 2rem 2rem;
+          justify-content: center;
+          flex-wrap: wrap;
+        }
+        
+        .btn-continue {
+          background: #f0f0f0;
+          color: #666;
+          border: none;
+          border-radius: 25px;
+          padding: 0.8rem 1.5rem;
+          font-size: 0.95rem;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+        
+        .btn-continue:hover {
+          background: #e0e0e0;
+          transform: translateY(-2px);
+        }
+        
+        .btn-register {
+          background: #0078d4;
+          color: #fff;
+          text-decoration: none;
+          border-radius: 25px;
+          padding: 0.8rem 1.5rem;
+          font-size: 0.95rem;
+          font-weight: 600;
+          transition: all 0.3s ease;
+          box-shadow: 0 4px 15px rgba(0, 120, 212, 0.3);
+        }
+        
+        .btn-register:hover {
+          background: #005ea2;
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(0, 120, 212, 0.4);
+        }
+        
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        
+        @keyframes slideInUp {
+          from {
+            opacity: 0;
+            transform: translateY(50px) scale(0.9);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
+        }
+        
+        /* Mobile Responsive for Welcome Modal */
+        @media (max-width: 768px) {
+          .welcome-content {
+            width: 95%;
+            margin: 1rem;
+          }
+          
+          .welcome-header {
+            padding: 1.5rem 1.5rem 1rem;
+          }
+          
+          .welcome-header h3 {
+            font-size: 1.3rem;
+          }
+          
+          .welcome-body {
+            padding: 1.5rem;
+          }
+          
+          .welcome-body p {
+            font-size: 1rem;
+          }
+          
+          .welcome-features {
+            gap: 1rem;
+            margin: 1.5rem 0;
+          }
+          
+          .feature-highlight {
+            padding: 0.8rem;
+            min-width: 80px;
+          }
+          
+          .feature-highlight i {
+            font-size: 1.3rem;
+          }
+          
+          .feature-highlight span {
+            font-size: 0.8rem;
+          }
+          
+          .welcome-actions {
+            padding: 1rem 1.5rem 1.5rem;
+            flex-direction: column;
+            align-items: center;
+          }
+          
+          .btn-continue,
+          .btn-register {
+            width: 100%;
+            max-width: 200px;
+          }
+        }
+
         /* Feedback Modal Styles */
         .feedback-modal {
           position: fixed;
@@ -1766,7 +2013,7 @@ border: 0;
 <!-- הסקשן החדש שלנו -->
 <div class="hero-hero-section">
   <div class="hero-container">
-    <h1 class="hero-title">Specify.AI</h1>
+    <h1 class="hero-title">Specifys.AI</h1>
     <div class="hero-subtitle">
       <p>Plan your app smarter</p>
       <p>Build faster with AI-driven insights</p>
@@ -1778,7 +2025,7 @@ border: 0;
       </a>
     </div>
     <div class="hero-demo-link">
-      <a href="pages/Demo.html" class="demo-link">View Demo</a>
+      <a href="pages/demo.html" class="demo-link">View Demo</a>
     </div>
   </div>
 </div>
@@ -1815,7 +2062,7 @@ border: 0;
 <div class="content">
 <h3>No Code Mode</h3>
 <p>Build without coding skills</p>
-<a href="tools/processing-novice.html" class="tool-link">Start Building</a>
+<a href="processing-unified.html" class="tool-link">Start Building</a>
 </div>
 </div>
 <div class="tool-square" data-tool="market-research">
@@ -2188,6 +2435,38 @@ border: 0;
 </div>
         <button class="scroll-to-top down" id="scrollToTop"><i class="fas fa-arrow-down"></i></button>
         
+        <!-- Welcome Modal - Shows only on first visit -->
+        <div id="welcomeModal" class="welcome-modal" style="display: none;">
+          <div class="welcome-content">
+            <div class="welcome-header">
+              <h3>🎉 Welcome to Specifys.ai!</h3>
+              <button class="welcome-close" onclick="closeWelcomeModal()" aria-label="Close welcome message">×</button>
+            </div>
+            <div class="welcome-body">
+              <p><strong>Hey! We've been working on a new version!</strong></p>
+              <p>You can now save your specifications and manage your applications - register and discover!</p>
+              <div class="welcome-features">
+                <div class="feature-highlight">
+                  <i class="fas fa-save"></i>
+                  <span>Save your specs</span>
+                </div>
+                <div class="feature-highlight">
+                  <i class="fas fa-cogs"></i>
+                  <span>Manage your apps</span>
+                </div>
+                <div class="feature-highlight">
+                  <i class="fas fa-chart-line"></i>
+                  <span>Track progress</span>
+                </div>
+              </div>
+            </div>
+            <div class="welcome-actions">
+              <button type="button" onclick="closeWelcomeModal()" class="btn-continue">Continue Exploring</button>
+              <a href="pages/auth.html" class="btn-register">Create Free Account</a>
+            </div>
+          </div>
+        </div>
+
         <!-- Feedback Modal - Hidden for now -->
         <div id="feedbackModal" class="feedback-modal" style="display: none;">
           <div class="feedback-content">
@@ -2236,6 +2515,63 @@ border: 0;
 </div>
 </footer>
     <script>
+      // Welcome Modal Functions
+      function showWelcomeModal() {
+        const modal = document.getElementById('welcomeModal');
+        if (modal) {
+          modal.style.display = 'flex';
+          // Prevent body scroll
+          document.body.style.overflow = 'hidden';
+          
+          // Track welcome modal display
+          if (typeof gtag !== 'undefined') {
+            gtag('event', 'view', {
+              'event_category': 'Welcome Modal',
+              'event_label': 'First Visit Welcome'
+            });
+          }
+        }
+      }
+      
+      function closeWelcomeModal() {
+        const modal = document.getElementById('welcomeModal');
+        if (modal) {
+          modal.style.display = 'none';
+          // Restore body scroll
+          document.body.style.overflow = '';
+          
+          // Track welcome modal close
+          if (typeof gtag !== 'undefined') {
+            gtag('event', 'close', {
+              'event_category': 'Welcome Modal',
+              'event_label': 'Welcome Modal Closed'
+            });
+          }
+        }
+      }
+      
+      // Check if this is the first visit
+      function checkFirstVisit() {
+        const hasVisited = localStorage.getItem('specifys_visited');
+        if (!hasVisited) {
+          // First visit - show welcome modal after a short delay
+          setTimeout(() => {
+            showWelcomeModal();
+          }, 1000);
+          
+          // Mark as visited
+          localStorage.setItem('specifys_visited', 'true');
+          
+          // Track first visit
+          if (typeof gtag !== 'undefined') {
+            gtag('event', 'first_visit', {
+              'event_category': 'User Engagement',
+              'event_label': 'First Time Visitor'
+            });
+          }
+        }
+      }
+
       // Global feedback functions
       function openFeedbackModal() {
         const modal = document.getElementById('feedbackModal');
@@ -2600,6 +2936,27 @@ const modal = document.getElementById('feedbackModal');
 if (modal && modal.style.display === 'flex') {
 closeFeedbackModal();
 }
+const welcomeModal = document.getElementById('welcomeModal');
+if (welcomeModal && welcomeModal.style.display === 'flex') {
+closeWelcomeModal();
+}
+}
+});
+
+// Check for first visit when page loads
+document.addEventListener('DOMContentLoaded', () => {
+checkFirstVisit();
+});
+
+// Close welcome modal when clicking outside
+document.addEventListener('DOMContentLoaded', () => {
+const welcomeModal = document.getElementById('welcomeModal');
+if (welcomeModal) {
+welcomeModal.addEventListener('click', (e) => {
+if (e.target.id === 'welcomeModal') {
+closeWelcomeModal();
+}
+});
 }
 });
 });

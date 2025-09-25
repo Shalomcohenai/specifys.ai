@@ -25,6 +25,11 @@
   <script defer src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/marked@9.1.6/marked.min.js"></script>
+  
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap');
 
@@ -281,6 +286,276 @@
     @keyframes slideIn {
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Registration Modal Styles */
+    .registration-modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 10000;
+      backdrop-filter: blur(5px);
+    }
+
+    .registration-modal-overlay.show {
+      display: flex;
+      animation: modalFadeIn 0.3s ease-out;
+    }
+
+    .registration-modal {
+      background: var(--chat-bg);
+      border-radius: 20px;
+      max-width: 500px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+      animation: modalSlideUp 0.3s ease-out;
+      border: 2px solid var(--border-color);
+    }
+
+    .registration-modal-header {
+      display: flex;
+      justify-content: flex-end;
+      padding: 15px 20px 0;
+    }
+
+    .registration-modal-close {
+      background: none;
+      border: none;
+      color: var(--secondary-color);
+      font-size: 20px;
+      cursor: pointer;
+      padding: 5px;
+      border-radius: 50%;
+      width: 35px;
+      height: 35px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    .registration-modal-close:hover {
+      background: var(--light-gray);
+      color: var(--text-color);
+      transform: rotate(90deg);
+    }
+
+    .registration-modal-content {
+      padding: 20px 30px 30px;
+      text-align: center;
+    }
+
+    .registration-modal-icon {
+      font-size: 48px;
+      color: var(--primary-color);
+      margin-bottom: 20px;
+      animation: bounce 2s infinite;
+    }
+
+    .registration-modal-content h3 {
+      color: var(--text-color);
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 15px;
+    }
+
+    .registration-modal-content p {
+      color: var(--secondary-color);
+      font-size: 16px;
+      line-height: 1.6;
+      margin-bottom: 25px;
+    }
+
+    .registration-modal-benefits {
+      margin-bottom: 30px;
+    }
+
+    .benefit-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+      padding: 10px;
+      background: var(--light-gray);
+      border-radius: 12px;
+      text-align: left;
+      transition: all 0.3s ease;
+    }
+
+    .benefit-item:hover {
+      background: rgba(0, 120, 212, 0.1);
+      transform: translateX(5px);
+    }
+
+    .benefit-item i {
+      color: var(--primary-color);
+      font-size: 18px;
+      width: 20px;
+      flex-shrink: 0;
+    }
+
+    .benefit-item span {
+      color: var(--text-color);
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .registration-modal-actions {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .registration-modal-btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 25px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      min-width: 120px;
+      text-decoration: none;
+      display: inline-block;
+      text-align: center;
+    }
+
+    .registration-modal-btn.secondary {
+      background: transparent;
+      color: var(--secondary-color);
+      border: 2px solid var(--border-color);
+    }
+
+    .registration-modal-btn.secondary:hover {
+      background: var(--light-gray);
+      border-color: var(--secondary-color);
+      color: var(--text-color);
+      transform: translateY(-2px);
+    }
+
+    .registration-modal-btn.primary {
+      background: var(--primary-color);
+      color: white;
+      border: 2px solid var(--primary-color);
+    }
+
+    .registration-modal-btn.primary:hover {
+      background: var(--button-hover);
+      border-color: var(--button-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 120, 212, 0.3);
+    }
+
+    @keyframes modalFadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes modalSlideUp {
+      from { 
+        opacity: 0; 
+        transform: translateY(50px) scale(0.9); 
+      }
+      to { 
+        opacity: 1; 
+        transform: translateY(0) scale(1); 
+      }
+    }
+
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+      }
+      40% {
+        transform: translateY(-10px);
+      }
+      60% {
+        transform: translateY(-5px);
+      }
+    }
+
+    /* Mobile Responsive for Modal */
+    @media (max-width: 768px) {
+      .registration-modal {
+        width: 95%;
+        margin: 20px;
+        border-radius: 15px;
+      }
+      
+      .registration-modal-content {
+        padding: 20px;
+      }
+      
+      .registration-modal-content h3 {
+        font-size: 20px;
+      }
+      
+      .registration-modal-content p {
+        font-size: 14px;
+      }
+      
+      .registration-modal-icon {
+        font-size: 40px;
+        margin-bottom: 15px;
+      }
+      
+      .benefit-item {
+        padding: 8px;
+        margin-bottom: 10px;
+      }
+      
+      .benefit-item i {
+        font-size: 16px;
+        width: 18px;
+      }
+      
+      .benefit-item span {
+        font-size: 13px;
+      }
+      
+      .registration-modal-actions {
+        flex-direction: column;
+        gap: 10px;
+      }
+      
+      .registration-modal-btn {
+        width: 100%;
+        padding: 14px 20px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .registration-modal {
+        width: 98%;
+        margin: 10px;
+        border-radius: 12px;
+      }
+      
+      .registration-modal-content {
+        padding: 15px;
+      }
+      
+      .registration-modal-content h3 {
+        font-size: 18px;
+      }
+      
+      .registration-modal-content p {
+        font-size: 13px;
+      }
+      
+      .registration-modal-icon {
+        font-size: 36px;
+        margin-bottom: 12px;
+      }
     }
 
     @media (max-width: 768px) {
@@ -585,6 +860,46 @@
   </style>
 </head>
 <body>
+  <!-- Registration Suggestion Modal -->
+  <div class="registration-modal-overlay" id="registrationModalOverlay">
+    <div class="registration-modal">
+      <div class="registration-modal-header">
+        <button class="registration-modal-close" id="registrationModalClose">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="registration-modal-content">
+        <div class="registration-modal-icon">
+          <i class="fas fa-user-plus"></i>
+        </div>
+        <h3>Save Your Specifications!</h3>
+        <p>Great work! You've created your app specification. Would you like to register and save all your specifications in one place?</p>
+        <div class="registration-modal-benefits">
+          <div class="benefit-item">
+            <i class="fas fa-cloud"></i>
+            <span>Save all your specifications securely</span>
+          </div>
+          <div class="benefit-item">
+            <i class="fas fa-history"></i>
+            <span>Access your previous specifications anytime</span>
+          </div>
+          <div class="benefit-item">
+            <i class="fas fa-edit"></i>
+            <span>Edit and improve your specifications later</span>
+          </div>
+        </div>
+        <div class="registration-modal-actions">
+          <button class="registration-modal-btn secondary" id="registrationModalDismiss">
+            Maybe Later
+          </button>
+          <button class="registration-modal-btn primary" id="registrationModalRegister">
+            Sign Up & Save
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <header class="thematic-header" role="banner">
     <div class="header-left">
     </div>
@@ -1283,6 +1598,80 @@
 
 
     // Global functions for auth (duplicate removed)
+
+    // Registration Modal Functions
+    function showRegistrationModal() {
+      const modal = document.getElementById('registrationModalOverlay');
+      if (modal) {
+        modal.classList.add('show');
+        // Prevent body scroll when modal is open
+        document.body.style.overflow = 'hidden';
+      }
+    }
+
+    function hideRegistrationModal() {
+      const modal = document.getElementById('registrationModalOverlay');
+      if (modal) {
+        modal.classList.remove('show');
+        // Restore body scroll
+        document.body.style.overflow = '';
+      }
+    }
+
+    // Setup modal event listeners
+    document.addEventListener('DOMContentLoaded', function() {
+      const modal = document.getElementById('registrationModalOverlay');
+      const closeBtn = document.getElementById('registrationModalClose');
+      const dismissBtn = document.getElementById('registrationModalDismiss');
+      const registerBtn = document.getElementById('registrationModalRegister');
+
+      if (closeBtn) {
+        closeBtn.addEventListener('click', hideRegistrationModal);
+      }
+
+      if (dismissBtn) {
+        dismissBtn.addEventListener('click', hideRegistrationModal);
+      }
+
+      if (registerBtn) {
+        registerBtn.addEventListener('click', function() {
+          hideRegistrationModal();
+          // Redirect to registration page
+          window.location.href = '../pages/auth.html';
+        });
+      }
+
+      // Close modal when clicking outside
+      if (modal) {
+        modal.addEventListener('click', function(e) {
+          if (e.target === modal) {
+            hideRegistrationModal();
+          }
+        });
+      }
+
+      // Close modal with Escape key
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modal && modal.classList.contains('show')) {
+          hideRegistrationModal();
+        }
+      });
+
+      // Check if we should show the registration modal
+      const shouldShowModal = localStorage.getItem('showRegistrationModal');
+      if (shouldShowModal === 'true') {
+        // Clear the flag
+        localStorage.removeItem('showRegistrationModal');
+        // Show modal after a short delay
+        setTimeout(() => {
+          showRegistrationModal();
+        }, 2000);
+      }
+    });
+
+    // Make modal functions globally accessible
+    window.showRegistrationModal = showRegistrationModal;
+    window.hideRegistrationModal = hideRegistrationModal;
 
     // Initialize theme on page load
     document.addEventListener('DOMContentLoaded', function() {

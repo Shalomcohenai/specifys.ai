@@ -693,10 +693,20 @@ class UnifiedChat {
             }
           }
         } else {
-          // User is not authenticated - redirect to login page
-          console.log('User is not authenticated, redirecting to login page');
-          alert('Please log in to save your results and access your specifications.');
-          window.location.href = '../pages/auth.html';
+          // User is not authenticated - redirect to result page first, then show modal
+          console.log('User is not authenticated, redirecting to result page');
+          
+          // Redirect to appropriate result page
+          if (this.currentMode === 'novice') {
+            console.log('Redirecting to result-novice.html');
+            window.location.href = '/tools/result-novice.html';
+          } else if (this.currentMode === 'market') {
+            console.log('Redirecting to result-market.html');
+            window.location.href = '/tools/result-market.html';
+          }
+          
+          // Store flag to show registration modal on result page
+          localStorage.setItem('showRegistrationModal', 'true');
         }
       }, 2000);
 

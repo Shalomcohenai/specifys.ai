@@ -3,7 +3,7 @@
   <!-- Root URL -->
   <url>
     <loc>https://specifys-ai.com/</loc>
-    <lastmod>2025-01-21</lastmod>
+    <lastmod>2025-09-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
@@ -11,78 +11,93 @@
   <!-- Main Pages -->
   <url>
     <loc>https://specifys-ai.com/index.html</loc>
-    <lastmod>2025-01-21</lastmod>
+    <lastmod>2025-09-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   
   <url>
     <loc>https://specifys-ai.com/blog.html</loc>
-    <lastmod>2025-01-21</lastmod>
+    <lastmod>2025-09-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
 
+  <!-- Root Level Pages -->
+  <url>
+    <loc>https://specifys-ai.com/processing-unified.html</loc>
+    <lastmod>2025-09-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
   <!-- Pages Directory -->
   <url>
+    <loc>https://specifys-ai.com/pages/about.html</loc>
+    <lastmod>2025-09-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <url>
     <loc>https://specifys-ai.com/pages/how.html</loc>
-    <lastmod>2025-01-21</lastmod>
+    <lastmod>2025-09-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   
   <url>
     <loc>https://specifys-ai.com/pages/ToolPicker.html</loc>
-    <lastmod>2025-01-21</lastmod>
+    <lastmod>2025-09-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   
   <url>
     <loc>https://specifys-ai.com/pages/spec.html</loc>
-    <lastmod>2025-01-21</lastmod>
+    <lastmod>2025-09-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   
   <url>
     <loc>https://specifys-ai.com/pages/research.html</loc>
-    <lastmod>2025-01-21</lastmod>
+    <lastmod>2025-09-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   
   <url>
     <loc>https://specifys-ai.com/pages/auth.html</loc>
-    <lastmod>2025-01-21</lastmod>
+    <lastmod>2025-09-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   
   <url>
     <loc>https://specifys-ai.com/pages/profile.html</loc>
-    <lastmod>2025-01-21</lastmod>
+    <lastmod>2025-09-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   
   <url>
     <loc>https://specifys-ai.com/pages/app-dashboard.html</loc>
-    <lastmod>2025-01-21</lastmod>
+    <lastmod>2025-09-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   
   <url>
     <loc>https://specifys-ai.com/pages/admin-dashboard.html</loc>
-    <lastmod>2025-01-21</lastmod>
+    <lastmod>2025-09-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>https://specifys-ai.com/pages/demo.html</loc>
-    <lastmod>2025-01-21</lastmod>
+    <lastmod>2025-09-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -90,35 +105,28 @@
   <!-- Tools Directory -->
   <url>
     <loc>https://specifys-ai.com/tools/map/vibe-coding-tools-map.html</loc>
-    <lastmod>2025-01-21</lastmod>
+    <lastmod>2025-09-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.95</priority>
   </url>
   
   <url>
-    <loc>https://specifys-ai.com/tools/processing-unified.html</loc>
-    <lastmod>2025-01-21</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  
-  <url>
     <loc>https://specifys-ai.com/tools/result.html</loc>
-    <lastmod>2025-01-21</lastmod>
+    <lastmod>2025-09-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   
   <url>
     <loc>https://specifys-ai.com/tools/result-market.html</loc>
-    <lastmod>2025-01-21</lastmod>
+    <lastmod>2025-09-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   
   <url>
     <loc>https://specifys-ai.com/tools/result-novice.html</loc>
-    <lastmod>2025-01-21</lastmod>
+    <lastmod>2025-09-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -126,241 +134,241 @@
   <!-- Blog Articles -->
   <url>
     <loc>https://specifys-ai.com/blog/ai-coding-assistants-2025.html</loc>
-    <lastmod>2025-01-21</lastmod>
+    <lastmod>2025-09-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   
   <url>
     <loc>https://specifys-ai.com/blog/automating-devops-vibe-coding.html</loc>
-    <lastmod>2025-01-21</lastmod>
+    <lastmod>2025-09-25</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</changefreq>
+    <priority>0.8</priority>
   </url>
   
   <url>
     <loc>https://specifys-ai.com/blog/base44-ai-powered-saas-builder.html</loc>
-    <lastmod>2025-01-21</lastmod>
+    <lastmod>2025-09-25</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</changefreq>
+    <priority>0.8</priority>
   </url>
   
   <url>
     <loc>https://specifys-ai.com/blog/base44-supabase-migration-sdk.html</loc>
-    <lastmod>2025-01-21</lastmod>
+    <lastmod>2025-09-25</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</changefreq>
+    <priority>0.8</priority>
   </url>
   
   <url>
     <loc>https://specifys-ai.com/blog/bolt-ai-vibe-coding-scalability-challenges.html</loc>
-    <lastmod>2025-01-21</lastmod>
+    <lastmod>2025-09-25</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</changefreq>
+    <priority>0.8</priority>
   </url>
   
   <url>
     <loc>https://specifys-ai.com/blog/chatgpt-5-app-development.html</loc>
-    <lastmod>2025-01-21</lastmod>
+    <lastmod>2025-09-25</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</changefreq>
+    <priority>0.8</priority>
   </url>
   
   <url>
     <loc>https://specifys-ai.com/blog/cursor-ai-support-fiasco-insights.html</loc>
-    <lastmod>2025-01-21</lastmod>
+    <lastmod>2025-09-25</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</changefreq>
+    <priority>0.8</priority>
   </url>
   
   <url>
     <loc>https://specifys-ai.com/blog/gpt5-vibe-coding-revolution.html</loc>
-    <lastmod>2025-01-21</lastmod>
+    <lastmod>2025-09-25</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</changefreq>
+    <priority>0.8</priority>
   </url>
   
   <url>
     <loc>https://specifys-ai.com/blog/lovable-new-features-2025.html</loc>
-    <lastmod>2025-01-21</lastmod>
+    <lastmod>2025-09-25</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</changefreq>
+    <priority>0.8</priority>
   </url>
   
   <url>
     <loc>https://specifys-ai.com/blog/lovable-vibe-coding-2025.html</loc>
-    <lastmod>2025-01-21</lastmod>
+    <lastmod>2025-09-25</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</changefreq>
+    <priority>0.8</priority>
   </url>
   
   <url>
     <loc>https://specifys-ai.com/blog/no-code-ai-agent-builders.html</loc>
-    <lastmod>2025-01-21</lastmod>
+    <lastmod>2025-09-25</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</changefreq>
+    <priority>0.8</priority>
   </url>
   
   <url>
     <loc>https://specifys-ai.com/blog/open-source-vibe-coding-agents.html</loc>
-    <lastmod>2025-01-21</lastmod>
+    <lastmod>2025-09-25</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</changefreq>
+    <priority>0.8</priority>
   </url>
   
   <url>
     <loc>https://specifys-ai.com/blog/prompt-coding-evolution-vibe-coding.html</loc>
-    <lastmod>2025-01-21</lastmod>
+    <lastmod>2025-09-25</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</changefreq>
+    <priority>0.8</priority>
   </url>
   
   <url>
     <loc>https://specifys-ai.com/blog/security-challenges-vibe-coding.html</loc>
-    <lastmod>2025-01-21</lastmod>
+    <lastmod>2025-09-25</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</changefreq>
+    <priority>0.8</priority>
   </url>
   
   <url>
     <loc>https://specifys-ai.com/blog/top-vibe-coding-tools-2025.html</loc>
-    <lastmod>2025-01-21</lastmod>
+    <lastmod>2025-09-25</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</changefreq>
+    <priority>0.8</priority>
   </url>
   
   <url>
     <loc>https://specifys-ai.com/blog/vibe-coding-app-case-study-2025.html</loc>
-    <lastmod>2025-01-21</lastmod>
+    <lastmod>2025-09-25</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</changefreq>
+    <priority>0.8</priority>
   </url>
   
   <url>
     <loc>https://specifys-ai.com/blog/vibe-coding-game-development.html</loc>
-    <lastmod>2025-01-21</lastmod>
+    <lastmod>2025-09-25</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</changefreq>
+    <priority>0.8</priority>
   </url>
   
   <url>
     <loc>https://specifys-ai.com/blog/vibe-coding-revolution-2025-impact.html</loc>
-    <lastmod>2025-01-21</lastmod>
+    <lastmod>2025-09-25</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</changefreq>
+    <priority>0.8</priority>
   </url>
   
   <url>
     <loc>https://specifys-ai.com/blog/vibe-coding-vs-traditional-programming-2025.html</loc>
-    <lastmod>2025-01-21</lastmod>
+    <lastmod>2025-09-25</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</changefreq>
+    <priority>0.8</priority>
   </url>
   
   <url>
     <loc>https://specifys-ai.com/blog/vibe-coding-web3-dapps.html</loc>
-    <lastmod>2025-01-21</lastmod>
+    <lastmod>2025-09-25</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</changefreq>
+    <priority>0.8</priority>
   </url>
   
   <url>
     <loc>https://specifys-ai.com/blog/windsurf-double-acquisition-impact.html</loc>
-    <lastmod>2025-01-21</lastmod>
+    <lastmod>2025-09-25</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</changefreq>
+    <priority>0.8</priority>
   </url>
 
   <!-- Article Series -->
   <url>
     <loc>https://specifys-ai.com/blog/article1.html</loc>
-    <lastmod>2025-01-21</lastmod>
+    <lastmod>2025-09-25</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.7</changefreq>
+    <priority>0.7</priority>
   </url>
   
   <url>
     <loc>https://specifys-ai.com/blog/article2.html</loc>
-    <lastmod>2025-01-21</lastmod>
+    <lastmod>2025-09-25</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.7</changefreq>
+    <priority>0.7</priority>
   </url>
   
   <url>
     <loc>https://specifys-ai.com/blog/article3.html</loc>
-    <lastmod>2025-01-21</lastmod>
+    <lastmod>2025-09-25</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.7</changefreq>
+    <priority>0.7</priority>
   </url>
   
   <url>
     <loc>https://specifys-ai.com/blog/article4.html</loc>
-    <lastmod>2025-01-21</lastmod>
+    <lastmod>2025-09-25</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.7</changefreq>
+    <priority>0.7</priority>
   </url>
   
   <url>
     <loc>https://specifys-ai.com/blog/article5.html</loc>
-    <lastmod>2025-01-21</lastmod>
+    <lastmod>2025-09-25</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.7</changefreq>
+    <priority>0.7</priority>
   </url>
   
   <url>
     <loc>https://specifys-ai.com/blog/article6.html</loc>
-    <lastmod>2025-01-21</lastmod>
+    <lastmod>2025-09-25</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.7</changefreq>
+    <priority>0.7</priority>
   </url>
   
   <url>
     <loc>https://specifys-ai.com/blog/article7.html</loc>
-    <lastmod>2025-01-21</lastmod>
+    <lastmod>2025-09-25</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.7</changefreq>
+    <priority>0.7</priority>
   </url>
   
   <url>
     <loc>https://specifys-ai.com/blog/article8.html</loc>
-    <lastmod>2025-01-21</lastmod>
+    <lastmod>2025-09-25</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.7</changefreq>
+    <priority>0.7</priority>
   </url>
   
   <url>
     <loc>https://specifys-ai.com/blog/article9.html</loc>
-    <lastmod>2025-01-21</lastmod>
+    <lastmod>2025-09-25</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.7</changefreq>
+    <priority>0.7</priority>
   </url>
   
   <url>
     <loc>https://specifys-ai.com/blog/article10.html</loc>
-    <lastmod>2025-01-21</lastmod>
+    <lastmod>2025-09-25</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.7</changefreq>
+    <priority>0.7</priority>
   </url>
   
   <url>
     <loc>https://specifys-ai.com/blog/article11.html</loc>
-    <lastmod>2025-01-21</lastmod>
+    <lastmod>2025-09-25</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.7</changefreq>
+    <priority>0.7</priority>
   </url>
   
   <url>
     <loc>https://specifys-ai.com/blog/article12.html</loc>
-    <lastmod>2025-01-21</lastmod>
+    <lastmod>2025-09-25</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.7</changefreq>
+    <priority>0.7</priority>
   </url>
 
   <!-- Development/Test Pages -->
   <url>
     <loc>https://specifys-ai.com/template-test.html</loc>
-    <lastmod>2025-01-21</lastmod>
+    <lastmod>2025-09-25</lastmod>
     <changefreq>yearly</changefreq>
-    <priority>0.3</changefreq>
+    <priority>0.3</priority>
   </url>
 </urlset>
