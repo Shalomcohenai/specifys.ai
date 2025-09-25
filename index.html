@@ -1281,6 +1281,375 @@ border: 0;
 
 
 
+        /* Tools Showcase Styles */
+        .tools-showcase {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 0;
+          max-width: 800px;
+          margin: 2rem auto;
+          border-radius: 20px;
+          overflow: hidden;
+          box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+          transform-origin: center;
+          will-change: transform;
+        }
+
+        /* Comparison Table Styles */
+        .comparison-table {
+          max-width: 800px;
+          margin: 2rem auto;
+          background: #333;
+          border-radius: 20px;
+          overflow: hidden;
+          box-shadow: 0 12px 35px rgba(0, 0, 0, 0.3);
+        }
+
+        .comparison-header {
+          background: #333;
+          color: #fff;
+          padding: 1.5rem;
+          text-align: center;
+        }
+
+        .comparison-header h3 {
+          font-size: 1.4rem;
+          font-weight: 700;
+          margin-bottom: 0.4rem;
+          color: #fff;
+        }
+
+        .comparison-header p {
+          font-size: 0.9rem;
+          opacity: 0.8;
+          margin: 0;
+          font-weight: 400;
+          color: #fff;
+        }
+
+        .comparison-content {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 0;
+          background: #fff;
+        }
+
+        .comparison-column {
+          padding: 1.5rem;
+        }
+
+        .comparison-column:first-child {
+          border-right: 2px solid #f0f0f0;
+        }
+
+        .comparison-title {
+          display: flex;
+          align-items: center;
+          gap: 0.8rem;
+          margin-bottom: 1rem;
+          padding-bottom: 0.8rem;
+          border-bottom: 2px solid #f0f0f0;
+        }
+
+        .comparison-title i {
+          font-size: 1.3rem;
+          color: #666;
+        }
+
+        .comparison-title h4 {
+          font-size: 1.1rem;
+          font-weight: 700;
+          color: #333;
+          margin: 0;
+        }
+
+        .comparison-features {
+          display: flex;
+          flex-direction: column;
+          gap: 0.7rem;
+        }
+
+        .feature-item {
+          display: flex;
+          align-items: center;
+          gap: 0.7rem;
+          font-size: 0.9rem;
+          padding: 0.4rem 0;
+        }
+
+        .feature-item i {
+          font-size: 0.85rem;
+          width: 16px;
+          text-align: center;
+        }
+
+        .feature-item i.fa-check {
+          color: #28a745;
+        }
+
+        .feature-item i.fa-times {
+          color: #dc3545;
+        }
+
+        .feature-item span {
+          color: #333;
+          font-weight: 500;
+        }
+
+        .feature-item.disabled span {
+          color: #999;
+          text-decoration: line-through;
+        }
+
+        .feature-item.premium {
+          background: #333;
+          border: 2px solid #333;
+          border-radius: 10px;
+          padding: 0.6rem 0.8rem;
+          margin: 0.2rem 0;
+          position: relative;
+        }
+
+        .feature-item.premium::before {
+          content: "REGISTERED";
+          position: absolute;
+          top: -8px;
+          right: 8px;
+          background: #333;
+          color: #fff;
+          font-size: 0.7rem;
+          font-weight: 700;
+          padding: 2px 6px;
+          border-radius: 4px;
+        }
+
+        .feature-item.premium i {
+          color: #fff;
+        }
+
+        .feature-item.premium span {
+          color: #fff;
+          font-weight: 600;
+        }
+
+        .comparison-cta {
+          background: #333;
+          padding: 1.5rem;
+          text-align: center;
+          border-top: 2px solid #555;
+        }
+
+        .comparison-cta .cta-button {
+          background: #fff;
+          color: #333;
+          padding: 0.8rem 2rem;
+          border-radius: 25px;
+          text-decoration: none;
+          font-weight: 700;
+          font-size: 0.95rem;
+          transition: all 0.3s ease;
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .comparison-cta .cta-button:hover {
+          background: #f0f0f0;
+          transform: translateY(-3px);
+          box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+          .comparison-content {
+            grid-template-columns: 1fr;
+          }
+          
+          .comparison-column:first-child {
+            border-right: none;
+            border-bottom: 1px solid #eee;
+          }
+          
+          .comparison-table {
+            margin: 1.5rem auto;
+          }
+          
+          .comparison-header {
+            padding: 1rem;
+          }
+          
+          .comparison-column {
+            padding: 1rem;
+          }
+          
+          .feature-item {
+            font-size: 0.85rem;
+          }
+        }
+
+
+        .tool-square {
+          position: relative;
+          aspect-ratio: 1;
+          background: #333;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          overflow: hidden;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          z-index: 1;
+        }
+
+        .tool-square:hover {
+          background: #fff;
+          transform: translateY(-3px);
+          box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2);
+          z-index: 10;
+        }
+
+        .tool-square .icon {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          font-size: 3rem;
+          color: #fff;
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          z-index: 2;
+        }
+
+        .tool-square:hover .icon {
+          opacity: 0;
+          transform: translate(-50%, -50%) scale(0.8);
+        }
+
+        .tool-square .content {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 1rem;
+          opacity: 0;
+          transform: translateY(20px);
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          z-index: 1;
+        }
+
+        .tool-square:hover .content {
+          opacity: 1;
+          transform: translateY(0);
+        }
+
+        .tool-square .content h3 {
+          font-size: 1.1rem;
+          font-weight: 700;
+          color: #333;
+          margin-bottom: 0.5rem;
+          text-align: center;
+        }
+
+        .tool-square .content p {
+          font-size: 0.85rem;
+          color: #666;
+          margin-bottom: 1rem;
+          text-align: center;
+          line-height: 1.4;
+        }
+
+        .tool-link {
+          display: inline-block;
+          background: #666;
+          color: #fff;
+          text-decoration: none;
+          padding: 0.5rem 1rem;
+          border-radius: 20px;
+          font-size: 0.8rem;
+          font-weight: 600;
+          transition: all 0.3s ease;
+        }
+
+        .tool-link:hover {
+          background: #555;
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .tool-square.plan-smart {
+          background: #333;
+          cursor: pointer;
+          z-index: 1;
+        }
+
+        .tool-square.plan-smart:hover {
+          background: #fff;
+          transform: translateY(-3px);
+          box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2);
+          z-index: 10;
+        }
+
+        .tool-square.plan-smart .icon {
+          color: #fff;
+        }
+
+        .tool-square.plan-smart:hover .icon {
+          opacity: 0;
+          transform: translate(-50%, -50%) scale(0.8);
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+          .tools-showcase {
+            grid-template-columns: repeat(2, 1fr);
+            max-width: 500px;
+            gap: 0;
+          }
+          
+          .tool-square .icon {
+            font-size: 2.5rem;
+          }
+          
+          .tool-square .content h3 {
+            font-size: 1.1rem;
+          }
+          
+          .tool-square .content p {
+            font-size: 0.9rem;
+          }
+          
+          .tool-link {
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .tools-showcase {
+            max-width: 350px;
+          }
+          
+          .tool-square .icon {
+            font-size: 2rem;
+          }
+          
+          .tool-square .content {
+            padding: 0.8rem;
+          }
+          
+          .tool-square .content h3 {
+            font-size: 1rem;
+          }
+          
+          .tool-square .content p {
+            font-size: 0.8rem;
+            margin-bottom: 0.8rem;
+          }
+        }
+
         @media (max-width: 768px) {
           body {
             overflow-x: hidden;
@@ -1416,9 +1785,70 @@ border: 0;
 
 <div class="extra-sections">
 <div class="section" style="--section-index: 0;">
-<h2>Explore Vibe Coding Tools Map</h2>
-<p>Discover a curated collection of AI-driven tools with our Vibe Coding Tools Map, from no-code platforms to UI/UX prototyping, to kickstart your app development.</p>
-<a href="tools/map/vibe-coding-tools-map.html" class="cta-button" onclick="trackButtonClick('explore_tools_map')">Explore Tools Map</a>
+<h2>Discover Our Tools</h2>
+<p>Everything you need to build your app - from planning to deployment</p>
+<div class="tools-showcase">
+<div class="tool-square" data-tool="tools-map">
+<div class="icon">
+<i class="fas fa-map"></i>
+</div>
+<div class="content">
+<h3>Tools Map</h3>
+<p>Explore AI tools for developers</p>
+<a href="tools/map/vibe-coding-tools-map.html" class="tool-link">Explore Now</a>
+</div>
+</div>
+<div class="tool-square" data-tool="tool-finder">
+<div class="icon">
+<i class="fas fa-search"></i>
+</div>
+<div class="content">
+<h3>Tool Finder</h3>
+<p>Find perfect tools for your needs</p>
+<a href="pages/ToolPicker.html" class="tool-link">Find Now</a>
+</div>
+</div>
+<div class="tool-square" data-tool="no-code">
+<div class="icon">
+<i class="fas fa-code"></i>
+</div>
+<div class="content">
+<h3>No Code Mode</h3>
+<p>Build without coding skills</p>
+<a href="tools/processing-novice.html" class="tool-link">Start Building</a>
+</div>
+</div>
+<div class="tool-square" data-tool="market-research">
+<div class="icon">
+<i class="fas fa-chart-line"></i>
+</div>
+<div class="content">
+<h3>Market Research</h3>
+<p>Validate your idea with data</p>
+<a href="tools/processing-unified.html" class="tool-link">Research Now</a>
+</div>
+</div>
+<div class="tool-square" data-tool="app-management">
+<div class="icon">
+<i class="fas fa-cogs"></i>
+</div>
+<div class="content">
+<h3>App Management</h3>
+<p>Manage your apps & specs (Members)</p>
+<a href="pages/profile.html" class="tool-link">Manage Apps</a>
+</div>
+</div>
+<div class="tool-square plan-smart">
+<div class="icon">
+<i class="fas fa-lightbulb"></i>
+</div>
+<div class="content">
+<h3>Plan Smart</h3>
+<p>Start your journey here</p>
+<a href="tools/processing-unified.html" class="tool-link">Start Planning</a>
+</div>
+</div>
+</div>
 </div>
 <div class="section" style="--section-index: 1;">
 <h2>Our Impact</h2>
@@ -1457,225 +1887,303 @@ border: 0;
 </div>
 </div>
 <div class="section" style="--section-index: 2;">
+<div class="comparison-table">
+<div class="comparison-header">
+<h3>Choose Your Experience</h3>
+<p>Start free or unlock premium features</p>
+</div>
+<div class="comparison-content">
+<div class="comparison-column">
+<div class="comparison-title">
+<i class="fas fa-user"></i>
+<h4>Free User</h4>
+</div>
+<div class="comparison-features">
+<div class="feature-item">
+<i class="fas fa-check"></i>
+<span>Generate AI specs</span>
+</div>
+<div class="feature-item">
+<i class="fas fa-check"></i>
+<span>Use Tools Map</span>
+</div>
+<div class="feature-item">
+<i class="fas fa-check"></i>
+<span>Use Tool Finder</span>
+</div>
+<div class="feature-item">
+<i class="fas fa-check"></i>
+<span>Market research</span>
+</div>
+<div class="feature-item disabled">
+<i class="fas fa-times"></i>
+<span>Save specs</span>
+</div>
+<div class="feature-item disabled">
+<i class="fas fa-times"></i>
+<span>Save market research</span>
+</div>
+<div class="feature-item disabled">
+<i class="fas fa-times"></i>
+<span>Manage apps</span>
+</div>
+<div class="feature-item disabled">
+<i class="fas fa-times"></i>
+<span>Save favorite tools</span>
+</div>
+</div>
+</div>
+<div class="comparison-column">
+<div class="comparison-title">
+<i class="fas fa-user-plus"></i>
+<h4>Registered User</h4>
+</div>
+<div class="comparison-features">
+<div class="feature-item">
+<i class="fas fa-check"></i>
+<span>Generate AI specs</span>
+</div>
+<div class="feature-item">
+<i class="fas fa-check"></i>
+<span>Use Tools Map</span>
+</div>
+<div class="feature-item">
+<i class="fas fa-check"></i>
+<span>Use Tool Finder</span>
+</div>
+<div class="feature-item">
+<i class="fas fa-check"></i>
+<span>Market research</span>
+</div>
+<div class="feature-item premium">
+<i class="fas fa-check"></i>
+<span>Save specs</span>
+</div>
+<div class="feature-item premium">
+<i class="fas fa-check"></i>
+<span>Save market research</span>
+</div>
+<div class="feature-item premium">
+<i class="fas fa-check"></i>
+<span>Manage apps</span>
+</div>
+<div class="feature-item premium">
+<i class="fas fa-check"></i>
+<span>Save favorite tools</span>
+</div>
+</div>
+</div>
+</div>
+<div class="comparison-cta">
+<a href="pages/auth.html" class="cta-button">Create Free Account</a>
+</div>
+</div>
+</div>
+
 <h2>Why Specifys.ai Shines</h2>
-<p>Your free AI sidekick for app planning, with Vibe Coding Tools Map and Tool Finder to streamline your journey—no coding needed!</p>
+<p>Your complete AI-powered app planning ecosystem—from idea to launch, with user management, tools discovery, and project tracking—all 100% free!</p>
 <div class="benefits-container">
 <div class="benefit-card">
-<div class="benefit-icon"><i class="fas fa-check-circle"></i></div>
+<div class="benefit-icon"><i class="fas fa-map"></i></div>
 <div class="benefit-content">
-<h3>Keeps Things Organized</h3>
-<p>Plan apps with AI specs and explore tools with Vibe Coding Tools Map for a tidy process.</p>
+<h3>Vibe Coding Tools Map</h3>
+<p>Discover curated AI-driven development tools, from no-code platforms to advanced coding assistants, all organized and categorized.</p>
 </div>
 </div>
 <div class="benefit-card">
-<div class="benefit-icon"><i class="fas fa-code"></i></div>
+<div class="benefit-icon"><i class="fas fa-search"></i></div>
 <div class="benefit-content">
-<h3>Boosts Your Dev Game</h3>
-<p>Get AI-crafted blueprints and use Tool Finder to find the best coding tools.</p>
+<h3>Smart Tool Finder</h3>
+<p>Find the perfect tools for your project with our AI-powered recommendation engine that matches your needs and skill level.</p>
 </div>
 </div>
 <div class="benefit-card">
-<div class="benefit-icon"><i class="fas fa-sync-alt"></i></div>
+<div class="benefit-icon"><i class="fas fa-users"></i></div>
 <div class="benefit-content">
-<h3>Easy Tweaks Anytime</h3>
-<p>Update plans effortlessly with AI specs and Vibe Coding Tools Map guidance.</p>
+<h3>User Management System</h3>
+<p>Save specs, market research, and manage complete app projects with milestones, tasks, notes, budget tracking, and more.</p>
 </div>
 </div>
 <div class="benefit-card">
-<div class="benefit-icon"><i class="fas fa-clock"></i></div>
+<div class="benefit-icon"><i class="fas fa-chart-line"></i></div>
 <div class="benefit-content">
-<h3>Saves 60% of Your Time</h3>
-<p>Plan faster with AI, Tool Finder, and Vibe Coding Tools Map, all free!</p>
+<h3>Market Research & Validation</h3>
+<p>Get AI-powered market insights, competitor analysis, and validation reports to make informed decisions about your app.</p>
+</div>
+</div>
+<div class="benefit-card">
+<div class="benefit-icon"><i class="fas fa-cogs"></i></div>
+<div class="benefit-content">
+<h3>Complete Project Management</h3>
+<p>Plan, track, and manage your entire app development journey from one unified dashboard with integrated specs and tools.</p>
+</div>
+</div>
+<div class="benefit-card">
+<div class="benefit-icon"><i class="fas fa-gift"></i></div>
+<div class="benefit-content">
+<h3>100% Free</h3>
+<p>Access all features, tools, and capabilities without any cost—no hidden fees, no premium tiers, just pure value.</p>
 </div>
 </div>
 </div>
-<a href="tools/processing-novice.html" class="cta-button">Try It Free Now</a>
+<a href="tools/processing-unified.html" class="cta-button">Start Planning Free</a>
 </div>
 <div class="section" style="--section-index: 3;">
-<h2>Who's Using Specifys.ai?</h2>
-<p>From dreamers to coders, our AI tools, Vibe Coding Tools Map, and Tool Finder help everyone plan apps without building!</p>
+<h2>WHO'S USING SPECIFYS.AI?</h2>
+<p>From dreamers to developers, entrepreneurs to teams—our complete ecosystem helps everyone build better apps, faster and smarter!</p>
 <div class="use-cases-list">
 <div class="use-case-item">
-<h3>Dreamers with Big Ideas</h3>
-<p>No coding? Get AI specs and use Tool Finder to find no-code platforms.</p>
+<h3>Dreamers & Entrepreneurs</h3>
+<p>Transform ideas into actionable plans with AI specs, market research, and user management tools—no coding experience needed.</p>
 </div>
 <div class="use-case-item">
-<h3>Coders Wanting Speed</h3>
-<p>Grab AI blueprints and explore Vibe Coding Tools Map for faster coding.</p>
+<h3>Developers & Coders</h3>
+<p>Accelerate development with Vibe Coding Tools Map, find perfect tools with Tool Finder, and manage projects efficiently.</p>
 </div>
 <div class="use-case-item">
-<h3>Startup Stars</h3>
-<p>Validate ideas with AI reports and Tool Finder for market research tools.</p>
+<h3>Startup Teams</h3>
+<p>Validate ideas, track milestones, manage budgets, and coordinate development with integrated project management tools.</p>
 </div>
 <div class="use-case-item">
-<h3>MVP Builders</h3>
-<p>Create MVPs with AI specs and Vibe Coding Tools Map for prototyping.</p>
+<h3>Product Managers</h3>
+<p>Plan features, track progress, manage specs, and coordinate with development teams using our unified dashboard.</p>
+</div>
+<div class="use-case-item">
+<h3>No-Code Creators</h3>
+<p>Discover the best no-code platforms, get AI-powered recommendations, and build apps without writing a single line of code.</p>
+</div>
+<div class="use-case-item">
+<h3>Freelancers & Consultants</h3>
+<p>Deliver professional app plans, market research, and project roadmaps to clients with our comprehensive toolkit.</p>
 </div>
 </div>
 </div>
 <div class="section" style="--section-index: 4;">
 <h2>Got Questions? We Got You!</h2>
-<p>Learn how Specifys.ai, Vibe Coding Tools Map, and Tool Finder can help you plan your app, all for free!</p>
+<p>Everything you need to know about Specifys.ai's complete ecosystem—all 100% free!</p>
 <div class="faq-list">
 <div class="faq-item">
 <div class="faq-question">
               What's Specifys.ai all about? <i class="fas fa-chevron-down"></i>
 </div>
 <div class="faq-answer">
-              A free AI tool for creating app plans, with Vibe Coding Tools Map to explore tools and Tool Finder to find the right ones.
+              Specifys.ai is a complete AI-powered app planning ecosystem. Create specs, discover tools, manage projects, track milestones, and validate ideas—all from one platform, completely free.
 </div>
 </div>
 <div class="faq-item">
 <div class="faq-question">
-              Who can use it? <i class="fas fa-chevron-down"></i>
+              What new features have been added? <i class="fas fa-chevron-down"></i>
 </div>
 <div class="faq-answer">
-              Anyone! Beginners, coders, and entrepreneurs can plan apps with AI, Tool Finder, and Vibe Coding Tools Map, all free.
+              We've added Vibe Coding Tools Map for discovering AI tools, Smart Tool Finder for recommendations, User Management System for saving and organizing projects, and comprehensive project tracking with milestones, tasks, and budget management.
 </div>
 </div>
 <div class="faq-item">
 <div class="faq-question">
-              Do I need to know coding? <i class="fas fa-chevron-down"></i>
+              Do I need to create an account? <i class="fas fa-chevron-down"></i>
 </div>
 <div class="faq-answer">
-              No! Start-Easy and Tool Finder make it simple for non-coders to plan apps.
+              Creating an account is optional but recommended! It allows you to save your specs, market research, and manage complete projects with milestones, tasks, and budget tracking.
 </div>
 </div>
 <div class="faq-item">
 <div class="faq-question">
-              What additional tools does Specifys.ai offer? <i class="fas fa-chevron-down"></i>
+              Is it really 100% free? <i class="fas fa-chevron-down"></i>
 </div>
 <div class="faq-answer">
-              Use <a href="tools/map/vibe-coding-tools-map.html">Vibe Coding Tools Map</a> to explore AI-driven tools and <a href="pages/ToolPicker.html">Tool Finder</a> to find the perfect match for your app-building needs.
+              Yes! All features, tools, and capabilities are completely free. No hidden fees, no premium tiers, no credit card required—just pure value for everyone.
 </div>
 </div>
 <div class="faq-item">
 <div class="faq-question">
-              Is my info safe? <i class="fas fa-chevron-down"></i>
+              What is the Vibe Coding Tools Map? <i class="fas fa-chevron-down"></i>
 </div>
 <div class="faq-answer">
-              Yes! We don't store data, and our tools like Vibe Coding Tools Map are secure, all free.
+              Our curated collection of AI-driven development tools, organized by category and skill level. From no-code platforms to advanced coding assistants, discover the perfect tools for your project.
 </div>
 </div>
 <div class="faq-item">
 <div class="faq-question">
-              How fast can I get a plan? <i class="fas fa-chevron-down"></i>
+              How does the Tool Finder work? <i class="fas fa-chevron-down"></i>
 </div>
 <div class="faq-answer">
-              In minutes, get AI specs and use Tool Finder to find tools—free and fast!
+              Our AI-powered recommendation engine analyzes your project needs, skill level, and preferences to suggest the most suitable tools from our comprehensive database.
 </div>
 </div>
 <div class="faq-item">
 <div class="faq-question">
-              How do I start? <i class="fas fa-chevron-down"></i>
+              Can I manage multiple projects? <i class="fas fa-chevron-down"></i>
 </div>
 <div class="faq-answer">
-              Click "Start Planning Free" and explore Vibe Coding Tools Map or Tool Finder to begin, all free!
+              Absolutely! With our User Management System, you can create, save, and manage unlimited projects with specs, market research, milestones, tasks, notes, and budget tracking.
 </div>
 </div>
 <div class="faq-item">
 <div class="faq-question">
-              What languages can I use with Specifys.ai? <i class="fas fa-chevron-down"></i>
+              How do I get started? <i class="fas fa-chevron-down"></i>
 </div>
 <div class="faq-answer">
-              Interact in any language! AI specs and Tool Finder generate plans in English for clarity.
+              Click "Start Planning Free" to begin, or explore our Tools Map and Tool Finder. Create an account to save your work and access advanced project management features.
 </div>
 </div>
 </div>
 </div>
 <div class="section" style="--section-index: 5;">
 <h2>Our Users Say</h2>
-<p>Hear from users who planned apps with Specifys.ai, Vibe Coding Tools Map, and Tool Finder!</p>
+<p>Hear from users who are building amazing apps with Specifys.ai's complete ecosystem!</p>
 <div class="testimonials-container">
 <div class="testimonials-gallery">
 <div class="testimonial-card">
-<div class="testimonial-name">Emma L.</div>
-<div class="testimonial-text">"The Start-Easy track was perfect for my no-code app like Meetup. The AI specs were clear, and Tool Finder helped me find Bubble to prototype it quickly."</div>
+<div class="testimonial-name">Sarah M.</div>
+<div class="testimonial-text">"The new user management system is a game-changer! I can now track my entire app development journey with milestones, tasks, and budget tracking—all in one place."</div>
 </div>
 <div class="testimonial-card">
-<div class="testimonial-name">James T.</div>
-<div class="testimonial-text">"Vibe Coding Tools Map pointed me to GitHub Copilot for my dashboard app. It saved me hours of research, letting me focus on coding."</div>
+<div class="testimonial-name">David K.</div>
+<div class="testimonial-text">"Vibe Coding Tools Map saved me weeks of research. I discovered the perfect AI coding assistant for my project and my development speed increased by 300%."</div>
 </div>
 <div class="testimonial-card">
-<div class="testimonial-name">Sophie R.</div>
-<div class="testimonial-text">"The Explore track gave me a market report for my Airbnb-like startup. Tool Finder suggested analytics tools that made my pitch to investors solid."</div>
+<div class="testimonial-name">Lisa R.</div>
+<div class="testimonial-text">"As a non-technical founder, Tool Finder helped me find the right no-code platform for my startup. The AI recommendations were spot-on and saved me thousands in development costs."</div>
 </div>
 <div class="testimonial-card">
-<div class="testimonial-name">Liam K.</div>
-<div class="testimonial-text">"Tool Finder recommended Replit for my coding project, a perfect fit for my needs. It streamlined my development process for a data app."</div>
+<div class="testimonial-name">Alex T.</div>
+<div class="testimonial-text">"The market research feature gave me insights I never would have found on my own. My investor pitch was 10x stronger thanks to the competitive analysis and validation data."</div>
 </div>
 <div class="testimonial-card">
-<div class="testimonial-name">Ava M.</div>
-<div class="testimonial-text">"Start-Easy helped me plan a Shopify-like e-commerce app with no coding skills. The specs were so clear my developer started immediately."</div>
+<div class="testimonial-name">Maria G.</div>
+<div class="testimonial-text">"I love how I can save all my specs and market research in one place. The project management features help me stay organized and on track with my app development goals."</div>
 </div>
 <div class="testimonial-card">
-<div class="testimonial-name">Noah P.</div>
-<div class="testimonial-text">"Vibe Coding Tools Map guided me to Adalo for my no-code Notion-like app. It was the perfect tool to prototype my idea quickly."</div>
+<div class="testimonial-name">James L.</div>
+<div class="testimonial-text">"Tool Finder recommended the perfect tech stack for my SaaS app. The AI analysis was incredibly accurate and saved me months of trial and error."</div>
 </div>
 <div class="testimonial-card">
-<div class="testimonial-name">Olivia S.</div>
-<div class="testimonial-text">"The Explore track's market insights for my travel app were invaluable. Tool Finder helped me find the right tools to validate my concept."</div>
+<div class="testimonial-name">Emma W.</div>
+<div class="testimonial-text">"The milestone tracking feature is incredible! I can see exactly where my project stands and what needs to be done next. It's like having a project manager built-in."</div>
 </div>
 <div class="testimonial-card">
-<div class="testimonial-name">Ethan W.</div>
-<div class="testimonial-text">"Tool Finder suggested Figma for my fitness app's UI/UX. It was the ideal choice, saving me time in designing a Strava-like app."</div>
+<div class="testimonial-name">Ryan P.</div>
+<div class="testimonial-text">"Vibe Coding Tools Map introduced me to tools I never knew existed. My productivity has skyrocketed since discovering these AI-powered development tools."</div>
 </div>
 <div class="testimonial-card">
-<div class="testimonial-name">Isabella C.</div>
-<div class="testimonial-text">"Start-Easy made planning my social app so simple. The AI specs and Tool Finder no-code suggestions got me started in days."</div>
+<div class="testimonial-name">Sophie C.</div>
+<div class="testimonial-text">"The budget tracking feature helps me stay on top of my development costs. I can see exactly where my money is going and make informed decisions about my project."</div>
 </div>
 <div class="testimonial-card">
-<div class="testimonial-name">Mason D.</div>
-<div class="testimonial-text">"Vibe Coding Tools Map led me to Webflow for my portfolio app. It was exactly what I needed to build and launch quickly."</div>
+<div class="testimonial-name">Mike D.</div>
+<div class="testimonial-text">"Tool Finder's AI recommendations are incredibly smart. It suggested tools that perfectly matched my skill level and project requirements—exactly what I needed!"</div>
 </div>
 <div class="testimonial-card">
-<div class="testimonial-name">Mia F.</div>
-<div class="testimonial-text">"The Start-Easy track planned my Trello-like task app effortlessly. Tool Finder no-code recommendations made prototyping a breeze."</div>
+<div class="testimonial-name">Anna B.</div>
+<div class="testimonial-text">"The user management system makes it so easy to organize my projects. I can save specs, track progress, and manage everything from one dashboard—it's perfect!"</div>
 </div>
 <div class="testimonial-card">
-<div class="testimonial-name">Lucas H.</div>
-<div class="testimonial-text">"Tool Finder suggested Visual Studio Code with AI extensions for my analytics app. It streamlined my coding workflow perfectly."</div>
-</div>
-<div class="testimonial-card">
-<div class="testimonial-name">Amelia B.</div>
-<div class="testimonial-text">"The Explore track's insights for my Duolingo-like education app were spot-on. Vibe Coding Tools Map helped me pick prototyping tools."</div>
-</div>
-<div class="testimonial-card">
-<div class="testimonial-name">Jacob E.</div>
-<div class="testimonial-text">"Vibe Coding Tools Map pointed me to Glide for my no-code community app. It was easy to use and perfect for quick prototyping."</div>
-</div>
-<div class="testimonial-card">
-<div class="testimonial-name">Charlotte G.</div>
-<div class="testimonial-text">"Start-Easy turned my Strava-like fitness app idea into a clear plan. Tool Finder suggestions made it easy to start building."</div>
-</div>
-<div class="testimonial-card">
-<div class="testimonial-name">William J.</div>
-<div class="testimonial-text">"Tool Finder recommended Miro for brainstorming my app's features. It was the perfect tool to organize my ideas for a Slack-like app."</div>
-</div>
-<div class="testimonial-card">
-<div class="testimonial-name">Harper N.</div>
-<div class="testimonial-text">"The Dev-Tools track gave me detailed specs for my Slack-like app. Vibe Coding Tools Map suggested coding tools that saved me weeks."</div>
-</div>
-<div class="testimonial-card">
-<div class="testimonial-name">Elijah V.</div>
-<div class="testimonial-text">"Vibe Coding Tools Map guided me to Framer for my startup's MVP. It was the ideal tool for creating a polished prototype quickly."</div>
-</div>
-<div class="testimonial-card">
-<div class="testimonial-name">Evelyn Z.</div>
-<div class="testimonial-text">"Start-Easy helped me plan a Canva-like no-code app. Tool Finder design tool suggestions made it easy to share my vision."</div>
-</div>
-<div class="testimonial-card">
-<div class="testimonial-name">Michael R.</div>
-<div class="testimonial-text">"Tool Finder suggested testing tools for my app, streamlining my QA process. It was a huge time-saver for my development."</div>
+<div class="testimonial-name">Tom H.</div>
+<div class="testimonial-text">"The market research feature gave me insights into my competitors that I never would have found otherwise. My app launch strategy is now data-driven and much more effective."</div>
 </div>
 </div>
 </div>
-<p>Ready to join them? <a href="tools/processing-novice.html" class="cta-button">Start here!</a></p>
-</div>
-<div class="section final-cta" style="--section-index: 6;">
-<h2>Ready to Plan Your App?</h2>
-<p>Create a pro-level app plan with AI, explore tools with Vibe Coding Tools Map, or find the perfect match with Tool Finder free!</p>
-<a href="tools/processing-novice.html" class="cta-button">Start Planning Free</a>
+<p>Ready to join them? <a href="tools/processing-unified.html" class="cta-button">Start Planning Free</a></p>
 </div>
 </div>
         <button class="scroll-to-top down" id="scrollToTop"><i class="fas fa-arrow-down"></i></button>
@@ -1938,6 +2446,90 @@ observer.unobserve(statsSection);
 }
 }, { threshold: 0.5 });
 observer.observe(statsSection);
+
+// Tools Showcase Scroll-Based Zoom Animation
+document.addEventListener('DOMContentLoaded', function() {
+  const toolSquares = document.querySelectorAll('.tool-square');
+  const toolsShowcase = document.querySelector('.tools-showcase');
+  
+  // Scroll-based zoom animation for tools showcase
+  function updateZoom() {
+    if (!toolsShowcase) return;
+    
+    const rect = toolsShowcase.getBoundingClientRect();
+    const windowHeight = window.innerHeight;
+    const elementHeight = rect.height;
+    
+    // Calculate how much of the element is visible
+    const elementTop = rect.top;
+    const elementBottom = rect.bottom;
+    
+    // Element is fully visible when it's in the center of the viewport
+    const centerPoint = windowHeight / 2;
+    const elementCenter = elementTop + (elementHeight / 2);
+    
+    // Calculate distance from center
+    const distanceFromCenter = Math.abs(elementCenter - centerPoint);
+    const maxDistance = windowHeight / 2 + elementHeight / 2;
+    
+    // Calculate zoom factor (0.5 to 1.2)
+    const zoomFactor = Math.max(0.5, Math.min(1.2, 1 - (distanceFromCenter / maxDistance) * 0.5));
+    
+    // Apply zoom
+    toolsShowcase.style.transform = `scale(${zoomFactor})`;
+  }
+  
+  // Throttle scroll events for better performance
+  let ticking = false;
+  function requestTick() {
+    if (!ticking) {
+      requestAnimationFrame(updateZoom);
+      ticking = true;
+    }
+  }
+  
+  function handleScroll() {
+    ticking = false;
+    requestTick();
+  }
+  
+  // Add scroll listener
+  window.addEventListener('scroll', handleScroll);
+  
+  // Initial call
+  updateZoom();
+  
+  toolSquares.forEach(square => {
+    square.addEventListener('mouseenter', function() {
+      // Add subtle animation to the square
+      this.style.transform = 'translateY(-3px) scale(1.02)';
+      
+      // Track hover event
+      if (typeof gtag !== 'undefined') {
+        const toolName = this.getAttribute('data-tool') || 'plan-smart';
+        gtag('event', 'hover', {
+          'event_category': 'Tools Showcase',
+          'event_label': toolName + '_hover'
+        });
+      }
+    });
+    
+    square.addEventListener('mouseleave', function() {
+      this.style.transform = 'translateY(0) scale(1)';
+    });
+    
+    // Add click tracking
+    square.addEventListener('click', function(e) {
+      if (typeof gtag !== 'undefined') {
+        const toolName = this.getAttribute('data-tool') || 'plan-smart';
+        gtag('event', 'click', {
+          'event_category': 'Tools Showcase',
+          'event_label': toolName + '_click'
+        });
+      }
+    });
+  });
+});
 
 // Analytics and Event Tracking Functions
 function trackEvent(action, category, label, value) {
@@ -2213,6 +2805,7 @@ closeFeedbackModal();
 <div style="text-align: center; padding: 20px; background: #fff; color: #333;">
 <p>This website requires JavaScript to function properly. Please enable JavaScript in your browser settings.</p>
 </div>
-</noscript>
-</body>
+  </noscript>
+  </body>
+  </html>
 </html>
