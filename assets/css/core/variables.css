@@ -81,7 +81,7 @@
   --transition-slow: 0.5s ease;
   
   /* ===== Z-Index ===== */
-  --z-header: 100;
+  --z-header: 99999;
   --z-dropdown: 1000;
   --z-modal: 10000;
   

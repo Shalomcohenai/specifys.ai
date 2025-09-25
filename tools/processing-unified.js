@@ -643,15 +643,60 @@ class UnifiedChat {
       this.renderMessages();
       this.scrollToBottom();
 
-      // Redirect to appropriate result page
-      console.log('Redirecting to result page for mode:', this.currentMode);
-      setTimeout(() => {
-        if (this.currentMode === 'novice') {
-          console.log('Redirecting to result-novice.html');
-          window.location.href = 'result-novice.html';
-        } else if (this.currentMode === 'market') {
-          console.log('Redirecting to result-market.html');
-          window.location.href = 'result-market.html';
+      // Check if user is authenticated before redirecting
+      console.log('Checking authentication status before redirect...');
+      
+      // Wait for Firebase auth to be ready
+      setTimeout(async () => {
+        const user = firebase.auth().currentUser;
+        console.log('Current user:', user);
+        
+        if (user) {
+          // User is authenticated - save the result with user ID and redirect to appropriate page
+          console.log('User is authenticated, saving result with user ID:', user.uid);
+          
+          try {
+            // Wait for the save operation to complete
+            await this.saveResultWithUserID(user, generatedContent);
+            
+            // Get the saved spec ID after saving
+            const savedSpecId = localStorage.getItem('savedSpecId');
+            const savedSpecCollection = localStorage.getItem('savedSpecCollection');
+            
+            console.log('Save completed. Saved spec ID:', savedSpecId, 'Collection:', savedSpecCollection);
+            
+            // Redirect to appropriate result page with saved spec ID
+            console.log('Redirecting to result page for mode:', this.currentMode);
+            
+            if (this.currentMode === 'novice') {
+              console.log('Redirecting to result-novice.html');
+              if (savedSpecId && savedSpecCollection === 'specs') {
+                window.location.href = `/tools/result-novice.html?id=${savedSpecId}`;
+              } else {
+                window.location.href = '/tools/result-novice.html';
+              }
+            } else if (this.currentMode === 'market') {
+              console.log('Redirecting to result-market.html');
+              if (savedSpecId && savedSpecCollection === 'marketResearch') {
+                window.location.href = `/tools/result-market.html?id=${savedSpecId}`;
+              } else {
+                window.location.href = '/tools/result-market.html';
+              }
+            }
+          } catch (error) {
+            console.error('Error saving result:', error);
+            // Still redirect even if save failed
+            if (this.currentMode === 'novice') {
+              window.location.href = '/tools/result-novice.html';
+            } else if (this.currentMode === 'market') {
+              window.location.href = '/tools/result-market.html';
+            }
+          }
+        } else {
+          // User is not authenticated - redirect to login page
+          console.log('User is not authenticated, redirecting to login page');
+          alert('Please log in to save your results and access your specifications.');
+          window.location.href = '../pages/auth.html';
         }
       }, 2000);
 
@@ -1000,6 +1045,109 @@ class UnifiedChat {
       loadingOverlay.style.display = 'none';
       console.log('Loading overlay hidden');
     }
+  }
+
+  async saveResultWithUserID(user, generatedContent) {
+    try {
+      console.log('Saving result with user ID:', user.uid);
+      console.log('Generated content length:', generatedContent.length);
+      
+      // Clear any existing saved spec IDs to ensure we get a fresh one
+      localStorage.removeItem('savedSpecId');
+      localStorage.removeItem('savedSpecCollection');
+      
+      // Extract title from spec content
+      let title = "App Specification";
+      const lines = generatedContent.split('\n');
+      for (let line of lines) {
+        line = line.trim();
+        if (line.startsWith('# ') || line.startsWith('## ')) {
+          title = line.replace(/^#+\s*/, '');
+          break;
+        } else if (line.length > 10 && line.length < 100) {
+          title = line;
+          break;
+        }
+      }
+      
+      const mode = this.currentMode || 'unified';
+      const answers = this.answers || {};
+      
+      const specDoc = {
+        title: title,
+        content: generatedContent,
+        userId: user.uid,
+        userName: user.displayName || user.email || 'Unknown User',
+        mode: mode,
+        answers: answers,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      };
+      
+      console.log('Spec document to save:', specDoc);
+      
+      // Save to appropriate collection based on mode
+      let collectionName = 'specs';
+      if (mode === 'market') {
+        collectionName = 'marketResearch';
+      }
+      
+      console.log('Saving to collection:', collectionName);
+      
+      const docRef = await firebase.firestore().collection(collectionName).add(specDoc);
+      console.log('Result saved successfully with ID:', docRef.id);
+      
+      // Store the document ID for later reference
+      localStorage.setItem('savedSpecId', docRef.id);
+      localStorage.setItem('savedSpecCollection', collectionName);
+      
+      console.log('Stored in localStorage - ID:', docRef.id, 'Collection:', collectionName);
+      
+      // Show success notification
+      this.showSaveNotification();
+      
+      return docRef.id;
+      
+    } catch (error) {
+      console.error('Error saving result with user ID:', error);
+      throw error; // Re-throw the error so the calling function can handle it
+    }
+  }
+
+  showSaveNotification() {
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #28a745;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      z-index: 1000;
+      font-size: 14px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      animation: slideUp 0.3s ease-out;
+    `;
+    notification.textContent = 'Specification saved successfully!';
+    
+    // Add animation styles
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes slideUp {
+        from { transform: translateX(-50%) translateY(100%); opacity: 0; }
+        to { transform: translateX(-50%) translateY(0); opacity: 1; }
+      }
+    `;
+    document.head.appendChild(style);
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+      notification.remove();
+      style.remove();
+    }, 3000);
   }
 
 

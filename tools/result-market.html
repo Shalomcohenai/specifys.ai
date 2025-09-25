@@ -20,6 +20,7 @@
   <meta name="twitter:creator" content="@specifys_ai" />
   <title>specifys.ai - Market Result</title>
   <link rel="icon" type="image/x-icon" href="../favicon.ico" />
+  <link rel="stylesheet" href="../assets/css/main.css" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" />
@@ -51,32 +52,6 @@
     }
 
 
-    .thematic-header {
-      position: fixed;
-      top: 0;
-      width: 100%;
-      padding: 15px 20px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-      background: rgba(255, 255, 255, 0.9);
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-
-
-    .thematic-header .logo a {
-      text-decoration: none;
-      color: #333;
-      font-size: 1.6rem;
-      font-weight: 700;
-      transition: color 0.3s ease;
-    }
-
-
-    .thematic-header .logo a:hover {
-      color: #0078d4;
-    }
 
 
     .carousel-container {
@@ -402,9 +377,6 @@
     }
 
     @media (max-width: 768px) {
-      .thematic-header .logo a {
-        font-size: 1.4rem;
-      }
 
       .theme-toggle {
         right: 15px;
@@ -476,9 +448,6 @@
     }
 
     @media (max-width: 480px) {
-      .thematic-header .logo a {
-        font-size: 1.2rem;
-      }
 
       .theme-toggle {
         right: 10px;
@@ -554,175 +523,11 @@
       }
     }
 
-    /* Header Layout Styles */
-    .thematic-header {
-      position: fixed;
-      top: 0;
-      width: 100%;
-      padding: 15px 24px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      z-index: 100;
-      background: rgba(255, 255, 255, 0.9);
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-
-
-    .header-logo {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 35px;
-      height: 35px;
-      background: #333;
-      border-radius: 8px;
-      color: #fff;
-      font-size: 1.8rem;
-      font-weight: 700;
-      text-decoration: none;
-    }
-
-    body.dark-mode .header-logo {
-      background: #444;
-    }
-
-    .header-logo:hover {
-      background: #0078d4;
-    }
-
-    .header-right {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      z-index: 10000;
-      position: relative;
-    }
 
 
 
-    /* Auth System Styles */
-    .auth-buttons {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-
-    .auth-btn {
-      padding: 0.5rem 1rem;
-      border: 2px solid #0078d4;
-      border-radius: 8px;
-      text-decoration: none;
-      font-size: 0.9rem;
-      font-weight: 500;
-      transition: all 0.3s ease;
-      cursor: pointer;
-      background: transparent;
-      color: #0078d4;
-    }
-
-    .auth-btn:hover {
-      background: #0078d4;
-      color: white;
-      transform: translateY(-2px);
-    }
-
-    .auth-btn.primary {
-      background: #0078d4;
-      color: white;
-    }
-
-    .auth-btn.primary:hover {
-      background: #005a9e;
-    }
-
-    /* User Info & Dropdown */
-    .user-info {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.5rem 1rem;
-      background: rgba(102, 102, 102, 0.1);
-      border-radius: 20px;
-      border: 1px solid rgba(102, 102, 102, 0.2);
-      color: #666;
-      font-size: 0.9rem;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .user-info:hover {
-      background: rgba(102, 102, 102, 0.2);
-      transform: translateY(-2px);
-    }
-
-    .user-avatar {
-      width: 24px;
-      height: 24px;
-      background: #666;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.8rem;
-      font-weight: bold;
-      color: white;
-    }
-
-    .user-dropdown {
-      position: relative;
-      z-index: 10000;
-    }
-
-    .user-dropdown-content {
-      position: fixed;
-      top: 80px;
-      right: 20px;
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      min-width: 150px;
-      z-index: 10001;
-      display: none;
-      overflow: hidden;
-    }
-
-    .user-dropdown-content.show {
-      display: block;
-    }
-
-    body.dark-mode .user-dropdown-content {
-      background: #2a2a2a;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    }
-
-    .user-dropdown-content a,
-    .user-dropdown-content button {
-      display: block;
-      padding: 12px 16px;
-      color: #333;
-      text-decoration: none;
-      border: none;
-      background: none;
-      width: 100%;
-      text-align: left;
-      font-size: 0.9rem;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
-
-    .user-dropdown-content a:hover,
-    .user-dropdown-content button:hover {
-      background: #f0f0f0;
-    }
 
 
-
-    .user-dropdown-content .divider {
-      height: 1px;
-      background: rgba(128, 128, 128, 0.3);
-      margin: 5px 0;
-    }
 
     /* CSS Variables */
     :root {
@@ -741,56 +546,47 @@
       --light-gray: #444;
     }
 
-    /* Dark Mode Toggle */
-    .theme-toggle {
+    /* Scroll to Top Button */
+    .scroll-to-top {
       position: fixed;
       bottom: 20px;
-      left: 20px;
-      background: #fff;
-      color: #333;
+      right: 20px;
+      background: #0078d4;
+      color: #fff;
       border: none;
       border-radius: 50%;
-      width: 40px;
-      height: 40px;
+      width: 50px;
+      height: 50px;
       font-size: 1.2rem;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-      z-index: 1000;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0 4px 12px rgba(0, 120, 212, 0.3);
+      z-index: 99998;
+      transition: all 0.3s ease;
     }
 
-    body.dark-mode .theme-toggle {
-      background: #333;
+    .scroll-to-top:hover {
+      background: #005a9e;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 120, 212, 0.4);
+    }
+
+    .scroll-to-top.show {
+      display: flex;
+    }
+
+    body.dark-mode .scroll-to-top {
+      background: #0078d4;
       color: #fff;
     }
 
-    .theme-toggle:hover {
-      background: #f0f0f0;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-    }
-
-    body.dark-mode .theme-toggle:hover {
-      background: #555;
+    body.dark-mode .scroll-to-top:hover {
+      background: #005a9e;
     }
 
     @media (max-width: 768px) {
-      .thematic-header {
-        padding: 12px 1rem;
-      }
-
-      .header-logo {
-        width: 30px;
-        height: 30px;
-        font-size: 1.4rem;
-      }
-
-      .header-right {
-        gap: 0.3rem;
-      }
 
 
       .header-links-content {
@@ -806,46 +602,12 @@
         font-size: 0.8rem;
       }
 
-      .auth-buttons {
-        gap: 0.3rem;
-      }
-      
-      .auth-btn {
-        padding: 0.3rem 0.6rem;
-        font-size: 0.75rem;
-      }
 
-      .user-dropdown-content {
-        top: 70px;
-        right: 15px;
-        left: auto;
-        min-width: 140px;
-        padding: 8px 0;
-      }
-      
-      .user-dropdown-content a,
-      .user-dropdown-content button {
-        padding: 10px 16px;
-        font-size: 0.8rem;
-      }
-      
-      .user-info {
-        padding: 0.3rem 0.6rem;
-        font-size: 0.75rem;
-        gap: 0.3rem;
-      }
-      
-      .user-avatar {
-        width: 20px;
-        height: 20px;
-        font-size: 0.7rem;
-      }
-
-      .theme-toggle {
+      .scroll-to-top {
         bottom: 15px;
-        left: 15px;
-        width: 35px;
-        height: 35px;
+        right: 15px;
+        width: 45px;
+        height: 45px;
         font-size: 1rem;
       }
     }
@@ -865,37 +627,12 @@
         padding: 10px;
       }
 
-      .user-dropdown-content {
-        top: 70px;
-        right: 10px;
-        left: auto;
-        min-width: 120px;
-        padding: 6px 0;
-      }
-      
-      .user-dropdown-content a,
-      .user-dropdown-content button {
-        padding: 8px 12px;
-        font-size: 0.75rem;
-      }
-      
-      .user-info {
-        padding: 0.3rem 0.6rem;
-        font-size: 0.75rem;
-        gap: 0.3rem;
-      }
-      
-      .user-avatar {
-        width: 18px;
-        height: 18px;
-        font-size: 0.65rem;
-      }
 
-      .theme-toggle {
+      .scroll-to-top {
         bottom: 10px;
-        left: 10px;
-        width: 35px;
-        height: 35px;
+        right: 10px;
+        width: 45px;
+        height: 45px;
         font-size: 1rem;
       }
     }
@@ -907,7 +644,7 @@
     </div>
     <div class="header-center">
       <div class="logo">
-        <a href="../index.html" aria-label="Specifys.ai homepage">Specifys.ai</a>
+        <a href="../index.html" aria-label="Specifys.ai homepage">Specifys.AI</a>
       </div>
     </div>
     <div class="header-right">
@@ -924,9 +661,9 @@
     </div>
   </div>
 
-  <!-- Dark Mode Toggle Button -->
-  <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
-    <i class="fas fa-moon"></i>
+  <!-- Scroll to Top Button -->
+  <button class="scroll-to-top" id="scrollToTop" aria-label="Scroll to top">
+    <i class="fas fa-arrow-up"></i>
   </button>
 
   <div class="platform-container" id="platformContainer" style="display: none;">
@@ -947,6 +684,7 @@
         <a href="../pages/about.html" aria-label="Learn more about specifys.ai">About Us</a>
         <a href="../blog.html" aria-label="Visit our blog">Blog</a>
         <a href="../tools/map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
+        <a href="../pages/ToolPicker.html" aria-label="Use our Tool Finder">Tool Finder</a>
       </div>
       <span class="footer-divider">|</span>
       <div class="footer-social">
@@ -980,7 +718,14 @@
       collection, 
       addDoc,
       serverTimestamp,
-      getFirestore
+      getFirestore,
+      doc,
+      getDoc,
+      query,
+      where,
+      orderBy,
+      limit,
+      getDocs
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     // Firebase configuration
@@ -1075,6 +820,15 @@
       }
       
       try {
+        // Check if this spec was already saved
+        const savedSpecId = localStorage.getItem('savedSpecId');
+        const savedSpecCollection = localStorage.getItem('savedSpecCollection');
+        
+        if (savedSpecId && savedSpecCollection === 'marketResearch') {
+          console.log('Spec already saved with ID:', savedSpecId);
+          return;
+        }
+        
         // Extract title from spec content (first line or first heading)
         let title = "Market Research";
         const lines = specContent.split('\n');
@@ -1100,6 +854,10 @@
         
         const docRef = await addDoc(collection(db, 'marketResearch'), researchDoc);
         console.log('Spec auto-saved successfully:', docRef.id);
+        
+        // Store the document ID for later reference
+        localStorage.setItem('savedSpecId', docRef.id);
+        localStorage.setItem('savedSpecCollection', 'marketResearch');
         
         // Show small notification
         showSaveNotification();
@@ -1149,19 +907,11 @@
       const authButtons = document.getElementById('auth-buttons');
       
       if (user) {
-        // User is logged in
+        // User is logged in - only show avatar
         authButtons.innerHTML = `
-          <div class="user-dropdown">
-            <div class="user-info" onclick="toggleUserDropdown()">
-              <div class="user-avatar">${user.displayName ? user.displayName.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase()}</div>
-              <span class="user-name">${user.displayName || user.email.split('@')[0]}</span>
-            </div>
-            <div class="user-dropdown-content" id="userDropdown">
-              <a href="../pages/profile.html">Profile</a>
-              <div class="divider"></div>
-              <button onclick="logout()">Sign Out</button>
-            </div>
-          </div>
+          <a href='../pages/profile.html' class='user-avatar-link'>
+            <div class='user-avatar'>${user.displayName ? user.displayName.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase()}</div>
+          </a>
         `;
       } else {
         // User is not logged in
@@ -1190,15 +940,134 @@
         });
     };
 
+    // Function to get URL parameter
+    function getUrlParameter(name) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(name);
+    }
+
+    // Function to load saved results for authenticated users
+    async function loadSavedResults(user) {
+      try {
+        console.log('Loading saved results for user:', user.uid);
+        
+        // Check if we have a specific spec ID from URL parameter
+        const specIdFromUrl = getUrlParameter('id');
+        console.log('Spec ID from URL:', specIdFromUrl);
+        
+        if (specIdFromUrl) {
+          console.log('Loading specific saved spec from URL:', specIdFromUrl);
+          // Load the specific saved spec from URL parameter
+          const docRef = doc(db, 'marketResearch', specIdFromUrl);
+          const docSnap = await getDoc(docRef);
+          
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+            console.log('Loaded saved spec from URL:', data);
+            
+            // Verify this spec belongs to the current user
+            if (data.userId === user.uid) {
+              // Update localStorage with the saved content
+              localStorage.setItem('generatedContent', data.content);
+              return true;
+            } else {
+              console.log('Spec does not belong to current user');
+              return false;
+            }
+          } else {
+            console.log('Spec not found with ID:', specIdFromUrl);
+            return false;
+          }
+        }
+        
+        // Check if we have a specific saved spec ID from localStorage
+        const savedSpecId = localStorage.getItem('savedSpecId');
+        const savedSpecCollection = localStorage.getItem('savedSpecCollection');
+        
+        if (savedSpecId && savedSpecCollection === 'marketResearch') {
+          console.log('Loading specific saved spec from localStorage:', savedSpecId);
+          // Load the specific saved spec
+          const docRef = doc(db, 'marketResearch', savedSpecId);
+          const docSnap = await getDoc(docRef);
+          
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+            console.log('Loaded saved spec from localStorage:', data);
+            
+            // Update localStorage with the saved content
+            localStorage.setItem('generatedContent', data.content);
+            
+            // Clear the saved spec ID to prevent duplicate loading
+            localStorage.removeItem('savedSpecId');
+            localStorage.removeItem('savedSpecCollection');
+            
+            return true;
+          }
+        }
+        
+        // If no specific spec, try to load the most recent one for this user
+        console.log('Loading most recent market research for user');
+        const q = query(
+          collection(db, 'marketResearch'),
+          where('userId', '==', user.uid),
+          orderBy('createdAt', 'desc'),
+          limit(1)
+        );
+        
+        const querySnapshot = await getDocs(q);
+        if (!querySnapshot.empty) {
+          const doc = querySnapshot.docs[0];
+          const data = doc.data();
+          console.log('Loaded most recent spec:', data);
+          
+          // Update localStorage with the saved content
+          localStorage.setItem('generatedContent', data.content);
+          
+          return true;
+        }
+        
+        console.log('No saved results found for user');
+        return false;
+        
+      } catch (error) {
+        console.error('Error loading saved results:', error);
+        return false;
+      }
+    }
+
+    // Global variable to track if content is loaded
+    window.contentLoaded = false;
+    window.authUser = null;
+
     // Listen to auth state changes
     onAuthStateChanged(auth, (user) => {
       updateAuthUI(user);
+      window.authUser = user;
       
-      // Auto-save spec if user is authenticated
       if (user) {
-        setTimeout(() => {
-          saveSpecAutomatically();
-        }, 2000); // Wait for page to load
+        // Try to load saved results first
+        loadSavedResults(user).then((hasSavedResults) => {
+          if (hasSavedResults) {
+            console.log('Loaded saved results, updating content');
+            // Update the content without reloading the page
+            window.contentLoaded = true;
+            // Trigger content display
+            if (typeof window.displayContentAfterLoad === 'function') {
+              window.displayContentAfterLoad();
+            }
+          } else {
+            // No saved results, try to auto-save current content
+            setTimeout(() => {
+              saveSpecAutomatically();
+            }, 2000);
+          }
+        });
+      } else {
+        // User not authenticated, mark content as loaded
+        window.contentLoaded = true;
+        if (typeof window.displayContentAfterLoad === 'function') {
+          window.displayContentAfterLoad();
+        }
       }
     });
   </script>
@@ -1380,30 +1249,71 @@
         doc.save("market-research.pdf");
       };
 
-      if (!hasLoaded && fullContent) {
-        hasLoaded = true;
-        showIntroMessages();
-      } else if (!fullContent) {
-        errorMessage.textContent = "No market research content found. Please try again.";
-        errorMessage.style.display = "block";
+      // Wait for auth state to be determined before showing content
+      function waitForAuthAndShowContent() {
+        if (window.contentLoaded !== undefined) {
+          // Auth state has been determined
+          if (!hasLoaded && fullContent && fullContent !== "No market research available.") {
+            hasLoaded = true;
+            showIntroMessages();
+          } else if (!fullContent || fullContent === "No market research available.") {
+            errorMessage.textContent = "No market research content found. Please try again.";
+            errorMessage.style.display = "block";
+          }
+        } else {
+          // Auth state not yet determined, wait a bit more
+          setTimeout(waitForAuthAndShowContent, 100);
+        }
       }
 
-      // Theme toggle functionality
-      const themeToggle = document.getElementById('themeToggle');
-      if (themeToggle) {
-        themeToggle.addEventListener('click', toggleTheme);
+      // Start waiting for auth state
+      waitForAuthAndShowContent();
+
+      // Function to display content after it's loaded from database
+      window.displayContentAfterLoad = function() {
+        console.log('displayContentAfterLoad called');
+        // Get updated content from localStorage
+        const updatedContent = localStorage.getItem("generatedContent") || "No market research available.";
+        console.log('Updated content:', updatedContent);
+        
+        if (updatedContent && updatedContent !== "No market research available.") {
+          // Clear existing content
+          chatContainer.innerHTML = '';
+          
+          // Update fullContent variable
+          fullContent = updatedContent;
+          
+          // Show intro messages and then display content
+          hasLoaded = false;
+          messageIndex = 0;
+          showIntroMessages();
+        } else {
+          errorMessage.textContent = "No market research content found. Please try again.";
+          errorMessage.style.display = "block";
+        }
+      };
+
+      // Scroll to top functionality
+      const scrollToTopBtn = document.getElementById('scrollToTop');
+      if (scrollToTopBtn) {
+        scrollToTopBtn.addEventListener('click', () => {
+          window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+          });
+        });
+
+        // Show/hide scroll to top button based on scroll position
+        window.addEventListener('scroll', () => {
+          if (window.pageYOffset > 300) {
+            scrollToTopBtn.classList.add('show');
+          } else {
+            scrollToTopBtn.classList.remove('show');
+          }
+        });
       }
     });
 
-    // Global functions for menu and user dropdown
-    window.toggleUserDropdown = function() {
-      const dropdown = document.querySelector('.user-dropdown-content');
-      if (dropdown && dropdown.classList.contains('show')) {
-        dropdown.classList.remove('show');
-      } else if (dropdown) {
-        dropdown.classList.add('show');
-      }
-    };
 
     // Global functions for auth
     window.showLoginModal = function() {
@@ -1424,49 +1334,15 @@
         });
     };
 
-    // Theme toggle function
-    function toggleTheme() {
-      document.body.classList.toggle('dark-mode');
-      const isDark = document.body.classList.contains('dark-mode');
-      localStorage.setItem('darkMode', isDark);
-      
-      // Update theme toggle icon
-      const themeToggle = document.getElementById('themeToggle');
-      if (themeToggle) {
-        const icon = themeToggle.querySelector('i');
-        if (icon) {
-          icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
-        }
-      }
-    }
-
     // Initialize theme on page load
     document.addEventListener('DOMContentLoaded', function() {
       const savedTheme = localStorage.getItem('darkMode');
       if (savedTheme === 'true') {
         document.body.classList.add('dark-mode');
-        const themeToggle = document.getElementById('themeToggle');
-        if (themeToggle) {
-          const icon = themeToggle.querySelector('i');
-          if (icon) {
-            icon.className = 'fas fa-sun';
-          }
-        }
       }
     });
 
 
-    // Close user dropdown when clicking outside
-    document.addEventListener('click', function(event) {
-      const userDropdown = document.querySelector('.user-dropdown');
-      const userInfo = document.querySelector('.user-info');
-      const dropdown = document.querySelector('.user-dropdown-content');
-      
-      if (userDropdown && dropdown && dropdown.classList.contains('show') &&
-          !userDropdown.contains(event.target)) {
-        dropdown.classList.remove('show');
-      }
-    });
   </script>
 
   <noscript>
