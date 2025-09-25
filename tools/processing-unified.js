@@ -108,44 +108,6 @@ class UnifiedChat {
       }
     ];
 
-    // Developer Mode Questions
-    this.modeQuestions.developer = [
-      {
-        id: 0,
-        name: 'App Purpose',
-        question: 'What is the main purpose and goal of your app? Describe the core functionality and what problem it solves.',
-        type: 'text',
-        examples: 'My app is a task management platform that helps remote teams collaborate effectively. It solves the problem of scattered communication and missed deadlines by providing a centralized hub for project tracking, team chat, and deadline management.'
-      },
-      {
-        id: 1,
-        name: 'User Workflow',
-        question: 'Describe the primary user journey and workflow through your app. Include key user actions and decision points.',
-        type: 'text',
-        examples: 'Users start by creating or joining a project workspace. They can then create tasks, assign them to team members, set deadlines, and track progress. The app provides real-time notifications for updates and integrates with calendar apps for deadline management.'
-      },
-      {
-        id: 2,
-        name: 'Development Preferences',
-        question: 'What are your preferred development methodologies, tools, and coding standards?',
-        type: 'text',
-        examples: 'I prefer Agile development with 2-week sprints, using Git Flow for version control, and following clean code principles. I use VS Code with ESLint and Prettier, prefer TypeScript for type safety, and follow RESTful API design patterns.'
-      },
-      {
-        id: 3,
-        name: 'Technologies',
-        question: 'What technologies, frameworks, and third-party services do you want to use or are you considering?',
-        type: 'text',
-        examples: 'Frontend: React with TypeScript, Material-UI for components, Redux for state management. Backend: Node.js with Express, PostgreSQL database, Redis for caching. Third-party: Stripe for payments, SendGrid for emails, AWS S3 for file storage.'
-      },
-      {
-        id: 4,
-        name: 'Data Information',
-        question: 'What types of data will your app handle? Describe the main entities, relationships, and data flow.',
-        type: 'text',
-        examples: 'Main entities: Users, Projects, Tasks, Teams, Comments. Users can belong to multiple teams, projects contain multiple tasks, tasks can have multiple assignees and comments. Data includes user profiles, project metadata, task details, and real-time chat messages.'
-      }
-    ];
 
     // Market Research Mode Questions
     this.modeQuestions.market = [
@@ -186,7 +148,6 @@ class UnifiedChat {
     // Clear all localStorage items
     localStorage.removeItem('unifiedAnswers');
     localStorage.removeItem('unifiedAnswers_novice');
-    localStorage.removeItem('unifiedAnswers_developer');
     localStorage.removeItem('unifiedAnswers_market');
     localStorage.removeItem('unifiedChatMessages');
     localStorage.removeItem('unifiedCurrentMode');
@@ -365,11 +326,6 @@ class UnifiedChat {
           <div class="mode-title">NoCode Creator</div>
           <div class="mode-description">Simple app planning for non-programmers</div>
         </div>
-        <div class="mode-option" data-mode="developer">
-          <i class="fas fa-code mode-icon"></i>
-          <div class="mode-title">Developer</div>
-          <div class="mode-description">Technical architecture planning</div>
-        </div>
         <div class="mode-option" data-mode="market">
           <i class="fas fa-chart-line mode-icon"></i>
           <div class="mode-title">Market Research</div>
@@ -419,7 +375,6 @@ class UnifiedChat {
   getModeDisplayName(mode) {
     const names = {
       novice: 'NoCode Creator',
-      developer: 'Developer',
       market: 'Market Research'
     };
     return names[mode] || mode;
@@ -611,10 +566,6 @@ class UnifiedChat {
         apiUrl = 'https://newnocode.shalom-cohen-111.workers.dev/';
         prompt = PROMPTS.novice(this.answers);
         console.log('Using Novice Mode API:', apiUrl);
-      } else if (this.currentMode === 'developer') {
-        apiUrl = 'https://newnocode.shalom-cohen-111.workers.dev';
-        prompt = PROMPTS.developer(this.answers);
-        console.log('Using Developer Mode API:', apiUrl);
       } else if (this.currentMode === 'market') {
         apiUrl = 'https://super-dream-62b3.shalom-cohen-111.workers.dev/';
         prompt = PROMPTS.market(this.answers);
@@ -671,9 +622,6 @@ class UnifiedChat {
         }));
         localStorage.setItem('noCodeAnswers', JSON.stringify(this.answers));
         console.log('Saved formData and noCodeAnswers to localStorage');
-      } else if (this.currentMode === 'developer') {
-        localStorage.setItem('devAnswers', JSON.stringify(this.answers));
-        console.log('Saved devAnswers to localStorage');
       } else if (this.currentMode === 'market') {
         localStorage.setItem('marketAnswers', JSON.stringify(this.answers));
         console.log('Saved marketAnswers to localStorage');
@@ -701,9 +649,6 @@ class UnifiedChat {
         if (this.currentMode === 'novice') {
           console.log('Redirecting to result-novice.html');
           window.location.href = 'result-novice.html';
-        } else if (this.currentMode === 'developer') {
-          console.log('Redirecting to result.html');
-          window.location.href = 'result.html';
         } else if (this.currentMode === 'market') {
           console.log('Redirecting to result-market.html');
           window.location.href = 'result-market.html';
@@ -1177,63 +1122,6 @@ window.generateSpecificationFromProcessingNoviceJs = async function() {
   }
 };
 
-// Keep the original function for developer mode compatibility
-window.generateSpecificationFromProcessingJs = async function() {
-  try {
-    console.log('Starting generateSpecificationFromProcessingJs');
-    const formData = JSON.parse(localStorage.getItem('formData')) || {};
-    const idea = formData.idea || 'Not provided';
-    const topic = formData.topic || 'Not specified';
-    const platform = formData.platform || 'Not specified';
-    console.log('Form data:', { idea, topic, platform });
-
-    const answers = JSON.parse(localStorage.getItem('devAnswers')) || {};
-    console.log('Answers:', answers);
-
-    const userInput = `
-      1. App Purpose: ${answers[0] || 'Not provided'}
-      2. User Workflow: ${answers[1] || 'Not provided'}
-      3. Development Preferences: ${answers[2] || 'Not provided'}
-      4. Technologies: ${answers[3] || 'Not provided'}
-      5. Data Information: ${answers[4] || 'Not provided'}
-    `;
-
-    const fullPrompt = PROMPTS.developer(answers);
-    console.log('Full prompt constructed:', fullPrompt);
-    console.log('Prompt length (characters):', fullPrompt.length);
-    console.log('Sending request with prompt:', fullPrompt);
-    
-    const response = await fetch('https://newnocode.shalom-cohen-111.workers.dev', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ prompt: fullPrompt }),
-    });
-
-    console.log('API response status received:', response.status);
-    const data = await response.json();
-    console.log('API response data received:', data);
-
-    if (!response.ok) {
-      throw new Error(`API Error: ${data.error || 'Unknown error'}`);
-    }
-
-    const generatedContent = data.specification || 'No specification generated';
-    console.log('Generated content extracted:', generatedContent);
-
-    console.log('Saving generated content to localStorage');
-    localStorage.setItem('generatedContent', generatedContent);
-
-
-
-    console.log('Redirecting to result.html immediately');
-    window.location.href = 'result.html';
-  } catch (err) {
-    console.error('Error in generateSpecificationFromProcessingJs:', err.message);
-    alert('Failed to generate specification: ' + err.message);
-  }
-};
 
 // Keep the original function for market mode compatibility
 window.generateSpecificationFromProcessingMarketJs = async function() {
