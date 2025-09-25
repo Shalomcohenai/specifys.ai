@@ -743,6 +743,14 @@
             const userInfo = document.getElementById('user-info');
             
             if (user) {
+                // Check if user has admin access
+                if (!checkAdminAccess(user)) {
+                    // Redirect non-admin users to home page
+                    alert('Access denied. You do not have permission to access the admin dashboard.');
+                    window.location.href = '../index.html';
+                    return;
+                }
+                
                 authButtons.style.display = 'none';
                 userInfo.style.display = 'flex';
                 
@@ -754,6 +762,19 @@
                 userInfo.style.display = 'none';
             }
         });
+        
+        // Check admin access based on email
+        function checkAdminAccess(user) {
+            // Define admin emails - add your specific admin email here
+            const adminEmails = [
+                'specifysai@gmail.com',
+                'admin@specifys.ai',
+                'shalom@specifys.ai'
+                // Add more admin emails as needed
+            ];
+            
+            return adminEmails.includes(user.email.toLowerCase());
+        }
 
         // Logout function
         function logout() {

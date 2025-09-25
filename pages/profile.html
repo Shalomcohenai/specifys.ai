@@ -2886,10 +2886,35 @@
                         </div>
                     </div>
                 `;
+                
+                // Check if user is admin and show/hide admin dashboard button
+                checkAdminAccess(user);
             } else {
                 authButtons.innerHTML = `
                     <button class="auth-btn" onclick="showLoginModal()">Login</button>
                 `;
+            }
+        }
+        
+        // Check admin access based on email
+        function checkAdminAccess(user) {
+            const adminSection = document.querySelector('.admin-section');
+            if (!adminSection) return;
+            
+            // Define admin emails - add your specific admin email here
+            const adminEmails = [
+                'specifysai@gmail.com',
+                'admin@specifys.ai',
+                'shalom@specifys.ai'
+                // Add more admin emails as needed
+            ];
+            
+            const isAdmin = adminEmails.includes(user.email.toLowerCase());
+            
+            if (isAdmin) {
+                adminSection.style.display = 'block';
+            } else {
+                adminSection.style.display = 'none';
             }
         }
 

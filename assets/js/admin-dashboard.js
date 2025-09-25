@@ -853,9 +853,38 @@ class AdminDashboard {
     }
 }
 
+// Check admin access based on email
+function checkAdminAccess(user) {
+    // Define admin emails - add your specific admin email here
+    const adminEmails = [
+        'specifysai@gmail.com',
+        'admin@specifys.ai',
+        'shalom@specifys.ai'
+        // Add more admin emails as needed
+    ];
+    
+    return adminEmails.includes(user.email.toLowerCase());
+}
+
 // Initialize admin dashboard when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    new AdminDashboard();
+    // Check if user is authenticated and has admin access
+    const auth = firebase.auth();
+    auth.onAuthStateChanged((user) => {
+        if (user) {
+            if (!checkAdminAccess(user)) {
+                // Redirect non-admin users to home page
+                alert('Access denied. You do not have permission to access the admin dashboard.');
+                window.location.href = '../index.html';
+                return;
+            }
+            // Initialize dashboard for admin users
+            new AdminDashboard();
+        } else {
+            // Redirect unauthenticated users to home page
+            window.location.href = '../index.html';
+        }
+    });
 });
 
 // Add CSS animations for notifications
