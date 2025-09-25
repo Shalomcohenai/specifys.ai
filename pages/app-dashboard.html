@@ -7,7 +7,8 @@
     <link rel="icon" type="image/x-icon" href="../favicon.ico" alt="Specifys.ai logo icon">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="../assets/css/styles.css">
+    <link rel="stylesheet" href="../assets/css/components/footer.css">
     <style>
         /* Import Montserrat font */
         @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap");
@@ -3093,11 +3094,208 @@
             color: #e0e0e0;
         }
 
+        /* Category Group Styles */
+        .notes-category-group {
+            margin-bottom: 1rem;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        body.dark-mode .notes-category-group {
+            background: #2a2a2a;
+            border-color: #444;
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #f8f9fa;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #e0e0e0;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        body.dark-mode .category-header {
+            background: #3a3a3a;
+            border-bottom-color: #444;
+            color: #e0e0e0;
+        }
+
+        .category-title {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #333;
+        }
+
+        body.dark-mode .category-title {
+            color: #e0e0e0;
+        }
+
+        .category-count {
+            background: #6c757d;
+            color: white;
+            padding: 0.2rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .category-notes {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1rem;
+            padding: 1rem;
+            min-height: 60px;
+        }
+
+        .category-empty {
+            padding: 1.5rem;
+            text-align: center;
+            color: #6c757d;
+            font-style: italic;
+            background: #f8f9fa;
+        }
+
+        body.dark-mode .category-empty {
+            background: #3a3a3a;
+            color: #999;
+        }
+
+        .category-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .category-btn {
+            background: #007bff;
+            border: none;
+            color: white;
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .category-btn:hover {
+            background: #0056b3;
+        }
+
+        body.dark-mode .category-btn {
+            background: #4a9eff;
+        }
+
+        body.dark-mode .category-btn:hover {
+            background: #357abd;
+        }
+
+        /* Note Card Styles */
+        .note-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 1rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+            height: fit-content;
+            min-height: 120px;
+        }
+
+        body.dark-mode .note-card {
+            background: #2a2a2a;
+            border-color: #444;
+            color: #e0e0e0;
+        }
+
+        .note-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .note-card-content {
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 0.75rem;
+            color: #333;
+        }
+
+        body.dark-mode .note-card-content {
+            color: #e0e0e0;
+        }
+
+        .note-card-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+
+        body.dark-mode .note-card-meta {
+            color: #999;
+        }
+
+        .note-card-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.3rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .note-tag {
+            background: #f8f9fa;
+            color: #495057;
+            padding: 0.2rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+
+        body.dark-mode .note-tag {
+            background: #444;
+            color: #ccc;
+        }
+
+        .note-card-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+        }
+
+        .note-card-btn {
+            background: none;
+            border: none;
+            color: #dc3545;
+            cursor: pointer;
+            font-size: 0.8rem;
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .note-card-btn:hover {
+            background: #f8f9fa;
+        }
+
+        body.dark-mode .note-card-btn:hover {
+            background: #444;
+        }
+
         /* Simple Notes Styles */
         .notes-list-simple {
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;
+            gap: 1rem;
         }
 
         .note-item-simple {
@@ -3736,71 +3934,8 @@
         <div id="success-message" class="alert alert-success" style="display: none;"></div>
     </main>
 
-    <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode"><i class="fas fa-moon"></i></button>
 
     <script src="script.js"></script>
-
-    <!-- Header and Theme JavaScript -->
-    <script>
-        // Theme Toggle Functionality
-        function initializeThemeToggle() {
-            const themeToggle = document.getElementById('themeToggle');
-            
-            if (themeToggle) {
-                themeToggle.addEventListener('click', () => {
-                    document.body.classList.toggle('dark-mode');
-                    const isDarkMode = document.body.classList.contains('dark-mode');
-                    
-                    // Update icon
-                    const icon = themeToggle.querySelector('i');
-                    if (icon) {
-                        icon.classList.toggle('fa-moon', !isDarkMode);
-                        icon.classList.toggle('fa-sun', isDarkMode);
-                    }
-                    
-                    // Update aria-label
-                    themeToggle.setAttribute('aria-label', isDarkMode ? 'Toggle light mode' : 'Toggle dark mode');
-                    
-                    // Save to localStorage
-                    localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
-                });
-            }
-        }
-
-
-        // Load Saved Theme
-        function loadSavedTheme() {
-            const savedTheme = localStorage.getItem('theme');
-            const themeToggle = document.getElementById('themeToggle');
-            
-            if (savedTheme === 'dark') {
-                document.body.classList.add('dark-mode');
-                if (themeToggle) {
-                    const icon = themeToggle.querySelector('i');
-                    if (icon) {
-                        icon.classList.replace('fa-moon', 'fa-sun');
-                    }
-                    themeToggle.setAttribute('aria-label', 'Toggle light mode');
-                }
-            } else {
-                document.body.classList.remove('dark-mode');
-                if (themeToggle) {
-                    const icon = themeToggle.querySelector('i');
-                    if (icon) {
-                        icon.classList.replace('fa-sun', 'fa-moon');
-                    }
-                    themeToggle.setAttribute('aria-label', 'Toggle dark mode');
-                }
-                localStorage.setItem('theme', 'light');
-            }
-        }
-
-        // Initialize everything when DOM is loaded
-        document.addEventListener('DOMContentLoaded', () => {
-            initializeThemeToggle();
-            loadSavedTheme();
-        });
-    </script>
 
     <!-- App Dashboard Script -->
     <script type="module">
@@ -4564,7 +4699,8 @@
             
             // Update in Firebase
             try {
-                await db.collection('tasks').doc(taskId).update({
+                const taskRef = doc(db, 'appTasks', taskId);
+                await updateDoc(taskRef, {
                     status: newStatus,
                     updatedAt: new Date().toISOString()
                 });
@@ -4782,38 +4918,98 @@
 
         function renderNotes(notes) {
             const container = document.getElementById('notes-container');
-            if (notes.length === 0) {
-                container.innerHTML = '<div class="text-center text-muted">No notes yet. Add your first note!</div>';
-                return;
-            }
             
-             const notesHTML = notes.map(note => `
-                 <div class="note-item-simple" data-note-id="${note.id}">
-                     <div class="note-header-simple" onclick="showNoteDetails('${note.id}')">
-                         <span class="note-category-simple ${note.category}">${note.category.toUpperCase()}</span>
-                         <span class="note-title-simple">${note.content.length > 80 ? note.content.substring(0, 80) + '...' : note.content}</span>
-                         <div class="note-meta-inline">
-                             <span>${new Date(note.createdAt).toLocaleDateString()}</span>
-                             ${note.tags && note.tags.length > 0 ? `<span>🏷️ ${note.tags.slice(0, 2).join(', ')}</span>` : ''}
-                         </div>
-                     </div>
-                    <div class="note-details-simple" id="note-details-${note.id}" style="display: none;">
-                        <div class="note-content-full">${note.content}</div>
-                        <div class="note-meta-simple">
-                            <span class="note-date-simple">${new Date(note.createdAt).toLocaleDateString()}</span>
+            // Define 10 fixed categories
+            const categories = [
+                { key: 'bugs', name: 'Bugs', icon: 'fas fa-bug' },
+                { key: 'ideas', name: 'Ideas', icon: 'fas fa-lightbulb' },
+                { key: 'architecture', name: 'Architecture', icon: 'fas fa-sitemap' },
+                { key: 'performance', name: 'Performance', icon: 'fas fa-tachometer-alt' },
+                { key: 'security', name: 'Security', icon: 'fas fa-shield-alt' },
+                { key: 'features', name: 'Features', icon: 'fas fa-star' },
+                { key: 'ui', name: 'UI/UX', icon: 'fas fa-palette' },
+                { key: 'database', name: 'Database', icon: 'fas fa-database' },
+                { key: 'api', name: 'API', icon: 'fas fa-code' },
+                { key: 'testing', name: 'Testing', icon: 'fas fa-vial' }
+            ];
+            
+            // Group notes by category
+            const groupedNotes = {};
+            notes.forEach(note => {
+                const category = note.category || 'uncategorized';
+                if (!groupedNotes[category]) {
+                    groupedNotes[category] = [];
+                }
+                groupedNotes[category].push(note);
+            });
+            
+            const categoryHTML = categories.map(category => {
+                const categoryNotes = groupedNotes[category.key] || [];
+                const notesHTML = categoryNotes.map(note => `
+                    <div class="note-card" data-note-id="${note.id}" onclick="showNoteDetails('${note.id}')">
+                        <div class="note-card-meta">
+                            <span>${new Date(note.createdAt).toLocaleDateString()}</span>
                         </div>
-                        <div class="note-actions-simple">
-                            <button onclick="deleteNoteConfirm('${note.id}')" title="Delete" style="color: #dc3545;">
-                                <i class="fas fa-trash"></i> Delete
+                        <div class="note-card-content">
+                            ${note.content.length > 100 ? note.content.substring(0, 100) + '...' : note.content}
+                        </div>
+                        ${note.tags && note.tags.length > 0 ? `
+                            <div class="note-card-tags">
+                                ${note.tags.slice(0, 3).map(tag => `<span class="note-tag">${tag}</span>`).join('')}
+                            </div>
+                        ` : ''}
+                        <div class="note-card-actions" onclick="event.stopPropagation()">
+                            <button class="note-card-btn" onclick="deleteNoteConfirm('${note.id}')" title="Delete">
+                                <i class="fas fa-trash"></i>
                             </button>
                         </div>
                     </div>
-                </div>
-            `).join('');
+                `).join('');
+                
+                const emptyState = categoryNotes.length === 0 ? 
+                    `<div class="category-empty">No notes in this category yet</div>` : '';
+                
+                return `
+                    <div class="notes-category-group">
+                        <div class="category-header">
+                            <div class="category-title">
+                                <i class="${category.icon}"></i>
+                                ${category.name}
+                                <span class="category-count">${categoryNotes.length}</span>
+                            </div>
+                            <div class="category-actions">
+                                <button class="category-btn" onclick="addNoteToCategory('${category.key}')" title="Add note to this category">
+                                    <i class="fas fa-plus"></i> Add Note
+                                </button>
+                            </div>
+                        </div>
+                        <div class="category-notes">
+                            ${categoryNotes.length > 0 ? notesHTML : emptyState}
+                        </div>
+                    </div>
+                `;
+            }).join('');
             
-            container.innerHTML = `<div class="notes-list-simple">${notesHTML}</div>`;
+            container.innerHTML = `<div class="notes-list-simple">${categoryHTML}</div>`;
             
             // Counter will be updated by updateAllStats after all data loads
+        }
+
+        function getCategoryIcon(category) {
+            const icons = {
+                'bugs': 'fas fa-bug',
+                'ideas': 'fas fa-lightbulb',
+                'architecture': 'fas fa-sitemap',
+                'performance': 'fas fa-tachometer-alt',
+                'security': 'fas fa-shield-alt',
+                'features': 'fas fa-star',
+                'ui': 'fas fa-palette',
+                'database': 'fas fa-database',
+                'api': 'fas fa-code',
+                'testing': 'fas fa-vial',
+                'uncategorized': 'fas fa-sticky-note'
+            };
+            return icons[category] || 'fas fa-sticky-note';
         }
         
         // Show note details on title click
@@ -5041,7 +5237,7 @@
                 case 'notes':
                     actionsContainer.innerHTML = `
                         <div class="action-buttons">
-                            <button class="plus-button" onclick="openNoteModal()" title="Add New Note">+</button>
+                            <!-- Plus buttons are now in each category -->
                         </div>
                     `;
                     break;
@@ -5161,7 +5357,11 @@
             document.body.appendChild(modal);
         }
 
-        window.openNoteModal = function() {
+        window.addNoteToCategory = function(category) {
+            openNoteModal(category);
+        }
+
+        window.openNoteModal = function(preselectedCategory = null) {
             const modal = document.createElement('div');
             modal.className = 'modal-overlay';
             modal.innerHTML = `
@@ -5175,11 +5375,16 @@
                             <div class="form-group">
                                 <label>Category</label>
                                 <select id="note-category">
-                                    <option value="bugs">Bugs</option>
-                                    <option value="ideas">Ideas</option>
-                                    <option value="architecture">Architecture</option>
-                                    <option value="performance">Performance</option>
-                                    <option value="security">Security</option>
+                                    <option value="bugs" ${preselectedCategory === 'bugs' ? 'selected' : ''}>🐛 Bugs</option>
+                                    <option value="ideas" ${preselectedCategory === 'ideas' ? 'selected' : ''}>💡 Ideas</option>
+                                    <option value="architecture" ${preselectedCategory === 'architecture' ? 'selected' : ''}>🏗️ Architecture</option>
+                                    <option value="performance" ${preselectedCategory === 'performance' ? 'selected' : ''}>⚡ Performance</option>
+                                    <option value="security" ${preselectedCategory === 'security' ? 'selected' : ''}>🔒 Security</option>
+                                    <option value="features" ${preselectedCategory === 'features' ? 'selected' : ''}>⭐ Features</option>
+                                    <option value="ui" ${preselectedCategory === 'ui' ? 'selected' : ''}>🎨 UI/UX</option>
+                                    <option value="database" ${preselectedCategory === 'database' ? 'selected' : ''}>🗄️ Database</option>
+                                    <option value="api" ${preselectedCategory === 'api' ? 'selected' : ''}>🔌 API</option>
+                                    <option value="testing" ${preselectedCategory === 'testing' ? 'selected' : ''}>🧪 Testing</option>
                                 </select>
                             </div>
                             <div class="form-group">
@@ -6646,5 +6851,28 @@
             updateDashboardCounters();
         }
     </script>
+    
+    <footer>
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="../pages/how.html" aria-label="Learn how specifys.ai works">How It Works</a>
+                <a href="../pages/about.html" aria-label="Learn more about specifys.ai">About Us</a>
+                <a href="../blog.html" aria-label="Visit our blog">Blog</a>
+                <a href="../tools/map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
+                <a href="../pages/ToolPicker.html" aria-label="Use our Tool Finder">Tool Finder</a>
+            </div>
+            <span class="footer-divider">|</span>
+            <div class="footer-social">
+                <a href="https://www.linkedin.com/company/specifys-ai/" aria-label="Follow us on LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                <a href="https://www.facebook.com/profile.php?id=61576402600129&locale=he_IL" target="_blank" aria-label="Follow us on Facebook"><i class="fab fa-facebook-f"></i></a>
+                <a href="https://www.instagram.com/YOUR_PROFILE" aria-label="Follow us on Instagram"><i class="fab fa-instagram"></i></a>
+                <a href="mailto:specifysai@gmail.com" aria-label="Send us an email"><i class="fas fa-envelope"></i></a>
+                <a href="https://www.producthunt.com/products/specifys-ai" target="_blank" aria-label="Check us out on Product Hunt"><i class="fab fa-product-hunt"></i></a>
+            </div>
+        </div>
+        <div class="footer-copyright">
+            © 2025 specifys.ai. All rights reserved.
+        </div>
+    </footer>
 </body>
 </html>
