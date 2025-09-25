@@ -627,7 +627,56 @@
     const db = getFirestore(app);
     const googleProvider = new GoogleAuthProvider();
 
+    // Auth state change handler
+    onAuthStateChanged(auth, (user) => {
+      updateAuthUI(user);
+    });
 
+    // Update auth UI function
+    function updateAuthUI(user) {
+      const authButtons = document.getElementById('auth-buttons');
+      if (!authButtons) return;
+      
+      if (user) {
+        // User is logged in
+        const displayName = user.displayName || user.email.split('@')[0];
+        const firstLetter = displayName.charAt(0).toUpperCase();
+        
+        authButtons.innerHTML = `
+          <div class="user-info" onclick="window.location.href='profile.html'">
+            <div class="user-avatar">${firstLetter}</div>
+            <span>${displayName}</span>
+          </div>
+        `;
+      } else {
+        // User is not logged in
+        authButtons.innerHTML = `
+          <button class="auth-btn" onclick="showLoginModal()">Login</button>
+          <button class="auth-btn primary" onclick="showRegisterModal()">Register</button>
+        `;
+      }
+    }
+
+    // Global auth functions
+    window.showLoginModal = function() {
+      window.location.href = 'auth.html';
+    };
+
+    window.showRegisterModal = function() {
+      window.location.href = 'auth.html';
+    };
+
+    window.logout = function() {
+      signOut(auth)
+        .then(() => {
+          console.log('Logged out successfully');
+          window.location.href = '../index.html';
+        })
+        .catch(error => {
+          console.error('Error logging out:', error);
+          alert('Logout error: ' + error.message);
+        });
+    };
 
     // Basic header functionality
     document.addEventListener('DOMContentLoaded', function() {
@@ -654,72 +703,7 @@
       }
     });
 
-    // Firebase Auth System
-    document.addEventListener('DOMContentLoaded', function() {
-      // Firebase configuration
-      const firebaseConfig = {
-        apiKey: "AIzaSyB9hr0IWM4EREzkKDxBxYoYinV6LJXWXV4",
-        authDomain: "specify-ai.firebaseapp.com",
-        projectId: "specify-ai",
-        storageBucket: "specify-ai.firebasestorage.app",
-        messagingSenderId: "734278787482",
-        appId: "1:734278787482:web:0e312fb6f197e849695a23",
-        measurementId: "G-4YR9LK63MR"
-      };
-
-      // Initialize Firebase
-      firebase.initializeApp(firebaseConfig);
-      const auth = firebase.auth();
-      const db = firebase.firestore();
-
-      // Update auth UI function
-      function updateAuthUI(user) {
-        const authButtons = document.getElementById('auth-buttons');
-        
-        if (user) {
-          // User is logged in
-          const displayName = user.displayName || user.email.split('@')[0];
-          const firstLetter = displayName.charAt(0).toUpperCase();
-          
-          authButtons.innerHTML = `
-            <div class="user-info" onclick="window.location.href='profile.html'">
-              <div class="user-avatar">${firstLetter}</div>
-              <span>${displayName}</span>
-            </div>
-          `;
-        } else {
-          // User is not logged in
-          authButtons.innerHTML = `
-            <button class="auth-btn" onclick="showLoginModal()">Login</button>
-            <button class="auth-btn primary" onclick="showRegisterModal()">Register</button>
-          `;
-        }
-      }
-
-      // Global functions
-      window.showLoginModal = function() {
-        window.location.href = 'auth.html';
-      };
-
-      window.showRegisterModal = function() {
-        window.location.href = 'auth.html';
-      };
-
-      window.logout = function() {
-        auth.signOut()
-          .then(() => {
-            console.log('Logged out successfully');
-          })
-          .catch(error => {
-            console.error('Error logging out:', error);
-          });
-      };
-
-      // Listen to auth state changes
-      auth.onAuthStateChanged((user) => {
-        updateAuthUI(user);
-      });
-    });
+    // Auth functions will be handled by the modern Firebase v9+ script above
 
   </script>
   <noscript>

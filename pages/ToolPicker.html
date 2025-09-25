@@ -771,10 +771,25 @@
     <div class="footer-copyright">© 2025 Specifys.ai. All rights reserved.</div>
   </footer>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script type="module" src="../assets/js/security-utils.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
   <script>
+    // Security utility function
+    function escapeHTML(str) {
+      if (typeof str !== 'string') {
+        return '';
+      }
+      return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#x27;')
+        .replace(/\//g, '&#x2F;');
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
       const searchButton = document.querySelector(".search-button");
       const searchInput = document.querySelector(".search-input");
@@ -868,17 +883,24 @@
           setTimeout(() => errorMessage.style.display = "none", 5000);
         } else {
           const limitedFeatures = data.features.slice(0, 10);
-          featureList.innerHTML = limitedFeatures.map(f => `
-            <div class="feature-item">${f.name}</div>
-          `).join("");
+          // Safe HTML creation with sanitization
+          featureList.innerHTML = limitedFeatures.map(f => {
+            const safeFeatureName = escapeHTML(f.name || '');
+            return `<div class="feature-item">${safeFeatureName}</div>`;
+          }).join("");
           featuresSection.classList.add("show");
         }
 
         const tools = data.tools || [];
         const toolNames = tools.map(t => t.name || "N/A");
-        tool1Name.innerHTML = tools[0] ? `<strong class="${toolNames[0].toLowerCase() === 'lovable' || toolNames[0].toLowerCase() === 'base44' ? 'recommended' : ''}">${toolNames[0]}</strong>` : "N/A";
-        tool2Name.innerHTML = tools[1] ? `<strong class="${toolNames[1].toLowerCase() === 'lovable' || toolNames[1].toLowerCase() === 'base44' ? 'recommended' : ''}">${toolNames[1]}</strong>` : "N/A";
-        tool3Name.innerHTML = tools[2] ? `<strong class="${toolNames[2].toLowerCase() === 'lovable' || toolNames[2].toLowerCase() === 'base44' ? 'recommended' : ''}">${toolNames[2]}</strong>` : "N/A";
+        // Safe HTML creation with sanitization
+        const safeTool1Name = escapeHTML(toolNames[0] || 'N/A');
+        const safeTool2Name = escapeHTML(toolNames[1] || 'N/A');
+        const safeTool3Name = escapeHTML(toolNames[2] || 'N/A');
+        
+        tool1Name.innerHTML = tools[0] ? `<strong class="${toolNames[0].toLowerCase() === 'lovable' || toolNames[0].toLowerCase() === 'base44' ? 'recommended' : ''}">${safeTool1Name}</strong>` : "N/A";
+        tool2Name.innerHTML = tools[1] ? `<strong class="${toolNames[1].toLowerCase() === 'lovable' || toolNames[1].toLowerCase() === 'base44' ? 'recommended' : ''}">${safeTool2Name}</strong>` : "N/A";
+        tool3Name.innerHTML = tools[2] ? `<strong class="${toolNames[2].toLowerCase() === 'lovable' || toolNames[2].toLowerCase() === 'base44' ? 'recommended' : ''}">${safeTool3Name}</strong>` : "N/A";
 
         if (tools.length === 0 || !data.features || data.features.length === 0) {
           errorMessage.textContent = "No tools or components available.";
@@ -886,26 +908,40 @@
           setTimeout(() => errorMessage.style.display = "none", 5000);
         } else {
           const limitedFeatures = data.features.slice(0, 10);
-          let tableContent = limitedFeatures.map(f => `
+          // Safe HTML creation with sanitization
+          let tableContent = limitedFeatures.map(f => {
+            const safeFeatureName = escapeHTML(f.name || '');
+            return `
             <tr>
-              <td>${f.name}</td>
+              <td>${safeFeatureName}</td>
               <td class="feature-check ${tools[0] && tools[0].features.includes(f.name) ? 'check' : 'cross'}"></td>
               <td class="feature-check ${tools[1] && tools[1].features.includes(f.name) ? 'check' : 'cross'}"></td>
               <td class="feature-check ${tools[2] && tools[2].features.includes(f.name) ? 'check' : 'cross'}"></td>
             </tr>
-          `).join("");
+          `;
+          }).join("");
+          
+          // Safe pricing and links
+          const safePricing1 = escapeHTML(tools[0] ? (tools[0].pricing || 'Not specified') : '-');
+          const safePricing2 = escapeHTML(tools[1] ? (tools[1].pricing || 'Not specified') : '-');
+          const safePricing3 = escapeHTML(tools[2] ? (tools[2].pricing || 'Not specified') : '-');
+          
+          const safeLink1 = tools[0] ? (customLinks[tools[0].name.toLowerCase()] || tools[0].link || '#') : '#';
+          const safeLink2 = tools[1] ? (customLinks[tools[1].name.toLowerCase()] || tools[1].link || '#') : '#';
+          const safeLink3 = tools[2] ? (customLinks[tools[2].name.toLowerCase()] || tools[2].link || '#') : '#';
+          
           tableContent += `
             <tr>
               <td>Pricing</td>
-              <td>${tools[0] ? (tools[0].pricing || 'Not specified') : '-'}</td>
-              <td>${tools[1] ? (tools[1].pricing || 'Not specified') : '-'}</td>
-              <td>${tools[2] ? (tools[2].pricing || 'Not specified') : '-'}</td>
+              <td>${safePricing1}</td>
+              <td>${safePricing2}</td>
+              <td>${safePricing3}</td>
             </tr>
             <tr>
               <td>Start Here</td>
-              <td>${tools[0] ? `<a href="${customLinks[tools[0].name.toLowerCase()] || tools[0].link || '#'}" class="start-button" target="_blank">Start Here</a>` : '-'}</td>
-              <td>${tools[1] ? `<a href="${customLinks[tools[1].name.toLowerCase()] || tools[1].link || '#'}" class="start-button" target="_blank">Start Here</a>` : '-'}</td>
-              <td>${tools[2] ? `<a href="${customLinks[tools[2].name.toLowerCase()] || tools[2].link || '#'}" class="start-button" target="_blank">Start Here</a>` : '-'}</td>
+              <td>${tools[0] ? `<a href="${safeLink1}" class="start-button" target="_blank">Start Here</a>` : '-'}</td>
+              <td>${tools[1] ? `<a href="${safeLink2}" class="start-button" target="_blank">Start Here</a>` : '-'}</td>
+              <td>${tools[2] ? `<a href="${safeLink3}" class="start-button" target="_blank">Start Here</a>` : '-'}</td>
             </tr>
           `;
           comparisonTableBody.innerHTML = tableContent;
@@ -1002,71 +1038,7 @@
       }
     });
 
-    // Firebase Auth System
-    document.addEventListener('DOMContentLoaded', function() {
-      // Firebase configuration
-      const firebaseConfig = {
-        apiKey: "AIzaSyB9hr0IWM4EREzkKDxBxYoYinV6LJXWXV4",
-        authDomain: "specify-ai.firebaseapp.com",
-        projectId: "specify-ai",
-        storageBucket: "specify-ai.firebasestorage.app",
-        messagingSenderId: "734278787482",
-        appId: "1:734278787482:web:0e312fb6f197e849695a23",
-        measurementId: "G-4YR9LK63MR"
-      };
-
-      // Initialize Firebase
-      firebase.initializeApp(firebaseConfig);
-      const auth = firebase.auth();
-
-      // Update auth UI function
-      function updateAuthUI(user) {
-        const authButtons = document.getElementById('auth-buttons');
-        
-        if (user) {
-          // User is logged in
-          const displayName = user.displayName || user.email.split('@')[0];
-          const firstLetter = displayName.charAt(0).toUpperCase();
-          
-          authButtons.innerHTML = `
-            <div class="user-info" onclick="window.location.href='profile.html'">
-              <div class="user-avatar">${firstLetter}</div>
-              <span>${displayName}</span>
-            </div>
-          `;
-        } else {
-          // User is not logged in
-          authButtons.innerHTML = `
-            <button class="auth-btn" onclick="showLoginModal()">Login</button>
-            <button class="auth-btn primary" onclick="showRegisterModal()">Register</button>
-          `;
-        }
-      }
-
-      // Global functions
-      window.showLoginModal = function() {
-        window.location.href = 'auth.html';
-      };
-
-      window.showRegisterModal = function() {
-        window.location.href = 'auth.html';
-      };
-
-      window.logout = function() {
-        auth.signOut()
-          .then(() => {
-            console.log('Logged out successfully');
-          })
-          .catch(error => {
-            console.error('Error logging out:', error);
-          });
-      };
-
-      // Listen to auth state changes
-      auth.onAuthStateChanged((user) => {
-        updateAuthUI(user);
-      });
-    });
+    // Auth functions will be handled by the modern Firebase v9+ script above
   </script>
 
   <noscript>
