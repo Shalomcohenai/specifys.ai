@@ -16,7 +16,7 @@
     <meta property="og:title" content="Open-Source Vibe Coding Agents: Community-Driven AI Tools">
     <meta property="og:description" content="Open-source vibe coding agents represent a grassroots movement in AI-assisted development, offering customizable, locally runnable tools that embody the collaborative spirit of the open-source community. These agents allow developers to harness vibe coding without proprietary constraints...">
     <meta property="og:type" content="article">
-    <meta property="og:url" content="http://0.0.0.0:4000/2025/01/19/open-source-vibe-coding-agents/">
+    <meta property="og:url" content="https://specifys-ai.com/2025/01/19/open-source-vibe-coding-agents/">
     
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
@@ -51,19 +51,11 @@
     </div>
     <div class="header-right">
         <div class="auth-buttons" id="auth-buttons">
-            <!-- Logged in user state -->
-            <div class="user-dropdown">
-                <a href="/pages/profile.html" class="user-avatar-link" title="Go to Profile">
-                    <div class="user-avatar">S</div>
-                </a>
-                <div class="user-dropdown-content">
-                    <a href="/pages/profile.html">Profile</a>
-                    <button onclick="logout()">Sign Out</button>
-                </div>
-            </div>
+            <!-- Will be populated by auth system -->
         </div>
     </div>
 </header>
+
 
     
     <!-- Main Content -->
@@ -224,11 +216,17 @@
             <a href="/2025/01/19/no-code-ai-agent-builders/" class="post-nav-link">&larr; Previous Post</a>
             
             
+            <a href="/blog/" class="back-to-blog-btn">
+                <i class="fas fa-arrow-up"></i> Back to Blog
+            </a>
+            
+            
             <a href="/2025/01/19/prompt-coding-evolution-vibe-coding/" class="post-nav-link">Next Post &rarr;</a>
             
         </div>
     </footer>
 </article>
+
 
     </main>
     
@@ -276,14 +274,127 @@
     }
 </script>
 
+
     
     <!-- Scroll to top button -->
     <button class="icon-btn scroll-to-top" id="scrollToTop" aria-label="Scroll to top">
         <i class="fas fa-arrow-up"></i>
     </button>
     
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+
     <!-- JavaScript -->
     <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyB9hr0IWM4EREzkKDxBxYoYinV6LJXWXV4",
+            authDomain: "specify-ai.firebaseapp.com",
+            projectId: "specify-ai",
+            storageBucket: "specify-ai.firebasestorage.app",
+            messagingSenderId: "734278787482",
+            appId: "1:734278787482:web:0e312fb6f197e849695a23",
+            measurementId: "G-4YR9LK63MR"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
+        // Auth UI functions
+        function updateAuthUI(user) {
+            const authButtons = document.getElementById('auth-buttons');
+            if (!authButtons) return;
+            
+            if (user) {
+                // User is logged in
+                const displayName = user.displayName || user.email.split('@')[0];
+                const firstLetter = displayName.charAt(0).toUpperCase();
+                
+                authButtons.innerHTML = `
+                    <div class="user-dropdown">
+                        <div class="user-info" onclick="toggleUserDropdown()">
+                            <div class="user-avatar">${firstLetter}</div>
+                            <span>${displayName}</span>
+                        </div>
+                        <div class="user-dropdown-content">
+                            <a href="/pages/profile.html">Profile</a>
+                            <button onclick="logout()">Sign Out</button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // User is not logged in
+                authButtons.innerHTML = `
+                    <button class="auth-btn" onclick="showLoginModal()">Login</button>
+                `;
+            }
+        }
+
+        // Global auth functions
+        window.showLoginModal = function() {
+            window.location.href = '/pages/auth.html';
+        };
+
+        window.showRegisterModal = function() {
+            window.location.href = '/pages/auth.html';
+        };
+
+        window.logout = function() {
+            auth.signOut()
+                .then(() => {
+                    console.log('Logged out successfully');
+                })
+                .catch(error => {
+                    console.error('Error logging out:', error);
+                });
+        };
+
+        window.toggleUserDropdown = function() {
+            const dropdown = document.querySelector('.user-dropdown-content');
+            if (dropdown && dropdown.classList.contains('show')) {
+                dropdown.classList.remove('show');
+            } else if (dropdown) {
+                dropdown.classList.add('show');
+            }
+        };
+
+        // Close user dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const userDropdown = document.querySelector('.user-dropdown');
+            const userInfo = document.querySelector('.user-info');
+            const dropdown = document.querySelector('.user-dropdown-content');
+            
+            if (userDropdown && dropdown && dropdown.classList.contains('show') && 
+                !userInfo.contains(event.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+
+        // Listen to auth state changes
+        auth.onAuthStateChanged((user) => {
+            updateAuthUI(user);
+        });
+
+        // Initialize auth buttons with default state
+        document.addEventListener('DOMContentLoaded', function() {
+            const authButtons = document.getElementById('auth-buttons');
+            if (authButtons && !authButtons.innerHTML.trim()) {
+                authButtons.innerHTML = `
+                    <button class="auth-btn login-btn">Login</button>
+                `;
+                
+                const loginBtn = authButtons.querySelector('.login-btn');
+                if (loginBtn) {
+                    loginBtn.addEventListener('click', function(event) {
+                        event.stopPropagation();
+                        window.location.href = '/pages/auth.html';
+                    });
+                }
+            }
+        });
+
         // Scroll to top functionality
         document.addEventListener('DOMContentLoaded', function() {
             const scrollToTopBtn = document.getElementById('scrollToTop');
@@ -306,3 +417,4 @@
     </script>
 </body>
 </html>
+

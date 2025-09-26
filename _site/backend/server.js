@@ -18,6 +18,12 @@ app.use(express.json());
 // Serve static files from the current directory
 app.use(express.static('.'));
 
+// Serve blog files from _site/blog directory
+app.use('/blog', express.static('_site/blog'));
+
+// Serve blog posts from _site/2025 directory structure
+app.use('/2025', express.static('_site/2025'));
+
 // CORS middleware to allow requests from your frontend
 app.use((req, res, next) => {
   console.log('Applying CORS middleware...');

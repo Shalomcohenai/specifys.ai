@@ -361,3 +361,4 @@ When adding new features:
 ---
 
 *This documentation is maintained alongside the design system. Please update it when making changes to CSS variables.*
+

@@ -49,6 +49,11 @@ layout: default
             {% if page.previous.url %}
             <a href="{{ page.previous.url | relative_url }}" class="post-nav-link">&larr; Previous Post</a>
             {% endif %}
+            
+            <a href="{{ '/blog/' | relative_url }}" class="back-to-blog-btn">
+                <i class="fas fa-arrow-up"></i> Back to Blog
+            </a>
+            
             {% if page.next.url %}
             <a href="{{ page.next.url | relative_url }}" class="post-nav-link">Next Post &rarr;</a>
             {% endif %}
