@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login/Register - Specifys.ai</title>
+    <link rel="icon" type="image/x-icon" href="../favicon.ico" alt="Specifys.ai logo icon">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/styles.css">
+    <style>
+        /* Import Montserrat font */
+        @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap");
+
+        :root {
+            --bg-color: #f5f5f5;
+            --text-color: #333;
+            --primary-color: #0078d4;
+            --secondary-color: #6c757d;
+            --light-gray: #e9ecef;
+            --border-color: #dee2e6;
+            --chat-bg: #fff;
+            --system-msg-bg: #f8f9fa;
+            --user-msg-bg: #0078d4;
+            --user-msg-text: #fff;
+            --input-bg: #fff;
+            --input-border: #dee2e6;
+            --button-hover: #005ea2;
+            --progress-bg: #e9ecef;
+            --progress-fill: #0078d4;
+            --chat-header-bg: #0078d4;
+            --chat-header-text: #fff;
+        }
+
+        
+        body {
+            font-family: "Montserrat", sans-serif;
+        }
+        
+        /* Header Layout Styles */
+        .thematic-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-color, #f5f5f5);
+            border-bottom: 1px solid var(--border-color, #ddd);
+            z-index: 100;
+            transition: background 0.3s ease, border-color 0.3s ease;
+        }
+
+
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .header-center {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            pointer-events: none;
+        }
+
+        .header-center .logo {
+            pointer-events: auto;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            justify-content: flex-end;
+        }
+
+        /* Logo Styles */
+        .logo a {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-color, #333);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+
+        .logo a:hover {
+            color: var(--primary-color, #0078d4);
+        }
+
+        /* Auth System Styles */
+        .auth-buttons {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            position: relative;
+            z-index: 10000;
+        }
+
+        .auth-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: transparent;
+            color: #666;
+        }
+
+        .auth-btn:hover {
+            color: var(--primary-color, #0078d4);
+            transform: translateY(-2px);
+        }
+
+        .auth-btn.primary {
+            background: var(--primary-color, #0078d4);
+            color: white;
+        }
+
+        .auth-btn.primary:hover {
+            background: var(--button-hover, #005ea2);
+        }
+
+        /* User Info & Dropdown */
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(102, 102, 102, 0.1);
+            border-radius: 20px;
+            border: 1px solid rgba(102, 102, 102, 0.2);
+            color: #666;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .user-info:hover {
+            background: rgba(102, 102, 102, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .user-avatar {
+            width: 24px;
+            height: 24px;
+            background: #666;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        .user-dropdown {
+            position: relative;
+            z-index: 10000;
+        }
+
+        .user-dropdown-content {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: var(--chat-bg, #fff);
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            min-width: 150px;
+            transform: translateY(-20px);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 999999;
+        }
+
+        .user-dropdown-content.show {
+            transform: translateY(0);
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .user-dropdown-content a,
+        .user-dropdown-content button {
+            display: block;
+            width: 100%;
+            padding: 12px 16px;
+            color: var(--text-color, #333);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border: none;
+            background: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+
+        .user-dropdown-content a:hover,
+        .user-dropdown-content button:hover {
+            background: var(--light-gray, #f5f5f5);
+        }
+
+
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .thematic-header {
+                padding: 10px 15px;
+            }
+            
+            .header-left {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+            
+            .header-right {
+                gap: 0.5rem;
+            }
+            
+            .auth-buttons {
+                gap: 0.5rem;
+                margin-right: 0;
+            }
+            
+            .auth-btn {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.8rem;
+            }
+            
+            .user-info {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.8rem;
+            }
+            
+            .user-avatar {
+                width: 20px;
+                height: 20px;
+                font-size: 0.7rem;
+            }
+            
+            
+            .user-dropdown-content {
+                top: 70px;
+                left: 15px;
+                right: auto;
+                min-width: 120px;
+            }
+            
+            .user-dropdown-content a,
+            .user-dropdown-content button {
+                padding: 10px 12px;
+                font-size: 0.8rem;
+            }
+        }
+
+
+        .auth-buttons {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            z-index: 10000;
+            position: relative;
+        }
+
+
+
+        /* Footer Styles */
+        footer {
+            padding: 20px 10px;
+            text-align: center;
+            width: 100%;
+            color: #333;
+            flex-shrink: 0;
+            background: #fff;
+            box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+
+        .footer-content {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: #333;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            font-family: "Montserrat", sans-serif;
+        }
+
+
+        .footer-links a:hover {
+            color: #666;
+        }
+
+        .footer-divider {
+            color: #333;
+            font-size: 1.2rem;
+            font-weight: 300;
+            font-family: "Montserrat", sans-serif;
+        }
+
+
+        .footer-social {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .footer-social a {
+            color: #333;
+            font-size: 1.2rem;
+            transition: transform 0.3s ease, color 0.3s ease;
+        }
+
+
+        .footer-social a:hover {
+            color: #666;
+            transform: scale(1.2);
+        }
+
+        .footer-copyright {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 1rem;
+            font-family: "Montserrat", sans-serif;
+        }
+
+
+        /* Auth Page Styles */
+        .auth-container {
+            min-height: 70vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            margin-top: 80px; /* Space for fixed header */
+        }
+
+        .auth-card {
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 3rem;
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+            border: 1px solid #e1e5e9;
+            font-family: "Montserrat", sans-serif;
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .auth-logo {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 0.5rem;
+            font-family: "Montserrat", sans-serif;
+        }
+
+        .auth-subtitle {
+            color: #666;
+            font-size: 1.1rem;
+            font-family: "Montserrat", sans-serif;
+        }
+
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 1rem;
+            border-radius: 6px;
+            overflow: hidden;
+            background: #f8f9fa;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 0.4rem;
+            text-align: center;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            font-family: "Montserrat", sans-serif;
+            font-size: 0.8rem;
+        }
+
+        .auth-tab.active {
+            background: #23a6d5;
+            color: white;
+        }
+
+        .auth-tab:hover:not(.active) {
+            background: rgba(35, 166, 213, 0.1);
+            color: #23a6d5;
+        }
+
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #333;
+            font-family: "Montserrat", sans-serif;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            font-family: "Montserrat", sans-serif;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #666;
+            box-shadow: 0 0 0 3px rgba(102, 102, 102, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .auth-button {
+            width: 100%;
+            padding: 0.8rem 2rem;
+            background: #666;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: "Montserrat", sans-serif;
+            margin-bottom: 1rem;
+        }
+
+        .auth-button:hover {
+            background: #555;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 102, 102, 0.3);
+        }
+
+        .auth-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .divider {
+            text-align: center;
+            margin: 1.5rem 0;
+            position: relative;
+            color: #666;
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #e1e5e9;
+        }
+
+        .divider span {
+            background: white;
+            padding: 0 1rem;
+        }
+
+        .google-button {
+            width: 100%;
+            padding: 1rem;
+            background: white;
+            color: #333;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-family: "Montserrat", sans-serif;
+        }
+
+        .google-button:hover {
+            border-color: #666;
+            transform: translateY(-2px);
+        }
+
+        .auth-footer {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e1e5e9;
+        }
+
+        .auth-footer a {
+            color: #666;
+            text-decoration: none;
+            font-weight: 500;
+            font-family: "Montserrat", sans-serif;
+        }
+
+        .auth-footer a:hover {
+            text-decoration: underline;
+        }
+
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border: 1px solid #fcc;
+            font-family: "Montserrat", sans-serif;
+        }
+
+        .success-message {
+            background: #efe;
+            color: #3c3;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border: 1px solid #cfc;
+            font-family: "Montserrat", sans-serif;
+        }
+
+
+
+        @media (max-width: 768px) {
+            .thematic-header {
+                padding: 12px 1rem;
+            }
+            
+            .logo a {
+                font-size: 1.4rem;
+            }
+            
+            
+            .header-links-content {
+                top: 70px;
+                right: 15px;
+                min-width: 180px;
+                max-width: calc(100vw - 30px);
+                padding: 12px;
+                width: auto;
+            }
+            
+            .header-links {
+                width: 100vw;
+                height: 100vh;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+            }
+            
+            .header-links a {
+                padding: 10px 0;
+                font-size: 0.8rem;
+            }
+            
+            .auth-container {
+                padding: 1rem;
+                min-height: 50vh;
+                margin-top: 70px;
+            }
+            
+            .auth-card {
+                padding: 2rem;
+                margin: 0.5rem;
+                border-radius: 15px;
+            }
+            
+            .auth-logo {
+                font-size: 2rem;
+            }
+            
+            .footer-content {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .footer-links a {
+                font-size: 0.8rem;
+            }
+            
+            .footer-divider {
+                display: none;
+            }
+            
+            .footer-social a {
+                font-size: 1rem;
+            }
+            
+        }
+    </style>
+</head>
+<body class="page-default">
+
+    <main class="auth-page-layout">
+        <!-- Logo -->
+        <div class="auth-logo">
+            <a href="../index.html">Specifys.ai</a>
+        </div>
+        
+        <!-- Left Panel - Steps Animation -->
+        <div class="auth-left-panel">
+            <div class="steps-container">
+                <!-- Steps will be generated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Right Panel - Compact Login -->
+        <div class="auth-right-panel">
+            <div class="compact-login-container">
+                <div class="compact-login-header">
+                    <h1>Welcome Back</h1>
+                    <p>Sign in to continue your app development journey</p>
+                </div>
+
+                <div class="auth-tabs">
+                    <button class="auth-tab active" onclick="switchTab('login')">Login</button>
+                    <button class="auth-tab" onclick="switchTab('register')">Register</button>
+                </div>
+
+                <div id="error-message" class="error-message" style="display: none;"></div>
+                <div id="success-message" class="success-message" style="display: none;"></div>
+
+                <!-- Login Form -->
+                <form id="login-form" class="auth-form active">
+                    <div class="compact-form-group">
+                        <label for="login-email">Email</label>
+                        <input type="email" id="login-email" required>
+                    </div>
+                    <div class="compact-form-group">
+                        <label for="login-password">Password</label>
+                        <input type="password" id="login-password" required>
+                    </div>
+                    <button type="submit" class="compact-btn compact-btn-primary" id="login-btn">
+                        <span id="login-btn-text">Sign In</span>
+                    </button>
+                </form>
+
+                <!-- Register Form -->
+                <form id="register-form" class="auth-form">
+                    <div class="compact-form-group">
+                        <label for="register-email">Email</label>
+                        <input type="email" id="register-email" required>
+                    </div>
+                    <div class="compact-form-group">
+                        <label for="register-password">Password</label>
+                        <input type="password" id="register-password" required minlength="6">
+                    </div>
+                    <div class="compact-form-group">
+                        <label for="register-confirm">Confirm Password</label>
+                        <input type="password" id="register-confirm" required minlength="6">
+                    </div>
+                    <button type="submit" class="compact-btn compact-btn-primary" id="register-btn">
+                        <span id="register-btn-text">Sign Up</span>
+                    </button>
+                </form>
+
+                <div class="compact-divider">
+                    <span>or</span>
+                </div>
+
+                <button class="compact-btn compact-btn-google" onclick="loginWithGoogle()">
+                    <span>G</span> Continue with Google
+                </button>
+
+                <div class="compact-auth-links">
+                    <p>Don't have an account? <a href="#" onclick="switchTab('register')">Sign up here</a></p>
+                    <p><a href="../index.html">← Back to Home</a></p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+
+    <script src="../assets/js/script.js"></script>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Import Firebase SDK
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { 
+            createUserWithEmailAndPassword, 
+            signInWithEmailAndPassword, 
+            signOut, 
+            onAuthStateChanged,
+            GoogleAuthProvider,
+            signInWithPopup,
+            getAuth
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyB9hr0IWM4EREzkKDxBxYoYinV6LJXWXV4",
+            authDomain: "specify-ai.firebaseapp.com",
+            projectId: "specify-ai",
+            storageBucket: "specify-ai.firebasestorage.app",
+            messagingSenderId: "734278787482",
+            appId: "1:734278787482:web:0e312fb6f197e849695a23",
+            measurementId: "G-4YR9LK63MR"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const googleProvider = new GoogleAuthProvider();
+
+        // Tab switching
+        function switchTab(tab) {
+            // Update tab buttons
+            document.querySelectorAll('.auth-tab').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`[onclick="switchTab('${tab}')"]`).classList.add('active');
+            
+            // Update forms
+            document.querySelectorAll('.auth-form').forEach(form => form.classList.remove('active'));
+            document.getElementById(`${tab}-form`).classList.add('active');
+            
+            // Clear messages
+            hideMessages();
+        }
+
+        // Show/hide messages
+        function showError(message) {
+            // Create a temporary error notification
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: #dc3545;
+                color: white;
+                padding: 12px 20px;
+                border-radius: 6px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                z-index: 10000;
+                font-size: 14px;
+                font-weight: 500;
+                animation: slideUp 0.3s ease-out;
+            `;
+            notification.textContent = message;
+            
+            // Add animation styles
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideUp {
+                    from { transform: translateX(-50%) translateY(100%); opacity: 0; }
+                    to { transform: translateX(-50%) translateY(0); opacity: 1; }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            document.body.appendChild(notification);
+            
+            // Remove after 5 seconds
+            setTimeout(() => {
+                notification.remove();
+                style.remove();
+            }, 5000);
+        }
+
+        function showSuccess(message) {
+            // Create a temporary success notification
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: #28a745;
+                color: white;
+                padding: 12px 20px;
+                border-radius: 6px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                z-index: 10000;
+                font-size: 14px;
+                font-weight: 500;
+                animation: slideUp 0.3s ease-out;
+            `;
+            notification.textContent = message;
+            
+            // Add animation styles
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideUp {
+                    from { transform: translateX(-50%) translateY(100%); opacity: 0; }
+                    to { transform: translateX(-50%) translateY(0); opacity: 1; }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            document.body.appendChild(notification);
+            
+            // Remove after 3 seconds
+            setTimeout(() => {
+                notification.remove();
+                style.remove();
+            }, 3000);
+        }
+
+        function hideMessages() {
+            document.getElementById('error-message').style.display = 'none';
+            document.getElementById('success-message').style.display = 'none';
+        }
+
+        // Auth functions
+        async function registerWithEmail(email, password) {
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                return userCredential.user;
+            } catch (error) {
+                throw new Error(getAuthErrorMessage(error.code));
+            }
+        }
+
+        async function loginWithEmail(email, password) {
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                return userCredential.user;
+            } catch (error) {
+                throw new Error(getAuthErrorMessage(error.code));
+            }
+        }
+
+        async function loginWithGoogle() {
+            try {
+                const result = await signInWithPopup(auth, googleProvider);
+                return result.user;
+            } catch (error) {
+                throw new Error(getAuthErrorMessage(error.code));
+            }
+        }
+
+        // Error messages
+        function getAuthErrorMessage(errorCode) {
+            const errorMessages = {
+                        'auth/user-not-found': 'User not found',
+        'auth/wrong-password': 'Wrong password',
+        'auth/email-already-in-use': 'Email already in use',
+        'auth/weak-password': 'Password too weak',
+        'auth/invalid-email': 'Invalid email',
+                'auth/user-disabled': 'Account disabled',
+                'auth/too-many-requests': 'Too many attempts, try again later',
+                'auth/operation-not-allowed': 'Operation not allowed',
+                'auth/requires-recent-login': 'Requires recent login',
+                'auth/popup-closed-by-user': 'Login window closed',
+                'auth/cancelled-popup-request': 'Request cancelled',
+                'auth/popup-blocked': 'Login window blocked',
+                'auth/account-exists-with-different-credential': 'Account exists with different credential',
+                'auth/credential-already-in-use': 'Credential already in use',
+                'auth/invalid-credential': 'Invalid credential',
+                'auth/timeout': 'Timeout, try again',
+                'auth/network-request-failed': 'Network error, check internet connection'
+            };
+            
+            return errorMessages[errorCode] || 'Unknown error';
+        }
+
+        // Form handlers
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            const btn = document.getElementById('login-btn');
+            const btnText = document.getElementById('login-btn-text');
+            
+            btn.disabled = true;
+            btnText.textContent = 'Logging in...';
+            
+            try {
+                await loginWithEmail(email, password);
+                showSuccess('Login successful! Redirecting to homepage...');
+                setTimeout(() => {
+                    window.location.href = '../index.html';
+                }, 1500);
+            } catch (error) {
+                showError(error.message);
+            } finally {
+                btn.disabled = false;
+                btnText.textContent = 'Login';
+            }
+        });
+
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            const confirmPassword = document.getElementById('register-confirm').value;
+            
+            if (password !== confirmPassword) {
+                showError('Passwords do not match');
+                return;
+            }
+            
+            const btn = document.getElementById('register-btn');
+            const btnText = document.getElementById('register-btn-text');
+            
+            btn.disabled = true;
+            btnText.textContent = 'Registering...';
+            
+            try {
+                await registerWithEmail(email, password);
+                showSuccess('Registration successful! Redirecting to homepage...');
+                setTimeout(() => {
+                    window.location.href = '../index.html';
+                }, 1500);
+            } catch (error) {
+                showError(error.message);
+            } finally {
+                btn.disabled = false;
+                btnText.textContent = 'Register';
+            }
+        });
+
+        // Google login
+        window.loginWithGoogle = async function() {
+            try {
+                await loginWithGoogle();
+                showSuccess('Login successful! Redirecting to homepage...');
+                setTimeout(() => {
+                    window.location.href = '../index.html';
+                }, 1500);
+            } catch (error) {
+                showError(error.message);
+            }
+        };
+
+        // Global functions
+        window.switchTab = switchTab;
+
+        // Auth UI functions
+        function updateAuthUI(user) {
+            const authButtons = document.getElementById('auth-buttons');
+            if (!authButtons) return;
+            
+            if (user) {
+                // User is logged in
+                const displayName = user.displayName || user.email.split('@')[0];
+                const firstLetter = displayName.charAt(0).toUpperCase();
+                
+                authButtons.innerHTML = `
+                    <div class="user-info" onclick="window.location.href='profile.html'">
+                        <div class="user-avatar">${firstLetter}</div>
+                        <span>${displayName}</span>
+                    </div>
+                `;
+            } else {
+                // User is not logged in
+                authButtons.innerHTML = `
+                    <button class="auth-btn" onclick="showLoginModal()">Login</button>
+                    <button class="auth-btn primary" onclick="showRegisterModal()">Register</button>
+                `;
+            }
+        }
+
+        window.showLoginModal = function() {
+            window.location.href = 'auth.html';
+        };
+
+        window.showRegisterModal = function() {
+            window.location.href = 'auth.html';
+        };
+
+        window.logout = function() {
+            signOut(auth)
+                .then(() => {
+                    console.log('Logged out successfully');
+                    window.location.href = '../index.html';
+                })
+                .catch(error => {
+                    console.error('Error logging out:', error);
+                    alert('Logout error: ' + error.message);
+                });
+        };
+
+        // Redirect if already logged in
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                window.location.href = '../index.html';
+            }
+        });
+    </script>
+
+
+    <script>
+        // Basic header functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            
+        });
+
+        // Global functions for user dropdown
+        window.toggleUserDropdown = function() {
+            const dropdown = document.querySelector('.user-dropdown-content');
+            if (dropdown && dropdown.classList.contains('show')) {
+                dropdown.classList.remove('show');
+            } else if (dropdown) {
+                dropdown.classList.add('show');
+            }
+        };
+
+        // Close user dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const userDropdown = document.querySelector('.user-dropdown');
+            const userInfo = document.querySelector('.user-info');
+            const dropdown = document.querySelector('.user-dropdown-content');
+            
+            if (userDropdown && dropdown && dropdown.classList.contains('show') && 
+                !userInfo.contains(event.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+
+        // Initialize auth buttons with default state
+        document.addEventListener('DOMContentLoaded', function() {
+            const authButtons = document.getElementById('auth-buttons');
+            if (authButtons && !authButtons.innerHTML.trim()) {
+                authButtons.innerHTML = `
+                    <button class="auth-btn login-btn">Login</button>
+                `;
+                
+                const loginBtn = authButtons.querySelector('.login-btn');
+                if (loginBtn) {
+                    loginBtn.addEventListener('click', function(event) {
+                        event.stopPropagation();
+                        window.location.href = 'auth.html';
+                    });
+                }
+            }
+        });
+
+        // Auth functions will be handled by the modern Firebase v9+ script above
+    </script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+<!-- Header -->
+<header class="thematic-header" role="banner">
+    <div class="header-left">
+    </div>
+    <div class="header-center">
+        <div class="logo">
+            <a href="{{ '/' | relative_url }}" aria-label="Specifys.ai homepage">Specifys.AI</a>
+        </div>
+    </div>
+    <div class="header-right">
+        <div class="auth-buttons" id="auth-buttons">
+            <!-- Logged in user state -->
+            <div class="user-dropdown">
+                <a href="{{ '/pages/profile.html' | relative_url }}" class="user-avatar-link" title="Go to Profile">
+                    <div class="user-avatar">S</div>
+                </a>
+                <div class="user-dropdown-content">
+                    <a href="{{ '/pages/profile.html' | relative_url }}">Profile</a>
+                    <button onclick="logout()">Sign Out</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>

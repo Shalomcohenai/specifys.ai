@@ -1,0 +1,69 @@
+# Jekyll Configuration for Specifys.ai Blog
+# GitHub Pages compatible setup
+
+# Site settings
+title: "Specifys.ai Blog"
+description: "AI-powered development tools and insights"
+url: "https://specifys-ai.com"
+baseurl: ""
+
+# Build settings
+markdown: kramdown
+highlighter: rouge
+permalink: /:year/:month/:day/:title/
+
+# Collections
+collections:
+  posts:
+    output: true
+    permalink: /:year/:month/:day/:title/
+
+# Defaults
+defaults:
+  - scope:
+      path: ""
+      type: "posts"
+    values:
+      layout: "post"
+
+# Plugins (GitHub Pages compatible)
+plugins:
+  - jekyll-redirect-from
+  - jekyll-sitemap
+  - jekyll-feed
+
+# Exclude files from processing
+exclude:
+  - README.md
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor
+  - .sass-cache
+  - .jekyll-cache
+  - .jekyll-metadata
+  - .gitignore
+  - .git
+  - .DS_Store
+  - Thumbs.db
+
+# Include files
+include:
+  - _redirects
+
+# Sass settings
+sass:
+  sass_dir: assets/css
+  style: compressed
+
+# Kramdown settings
+kramdown:
+  input: GFM
+  hard_wrap: false
+  syntax_highlighter: rouge
+  syntax_highlighter_opts:
+    css_class: 'highlight'
+    span:
+      line_numbers: false
+    block:
+      line_numbers: false

@@ -1,0 +1,92 @@
+/* Main CSS - Specifys.ai */
+/* קובץ ראשי שמחבר את כל הקבצים */
+
+/* Import core styles */
+@import url('./core/variables.css');
+@import url('./core/fonts.css');
+@import url('./core/reset.css');
+@import url('./core/typography.css');
+@import url('./core/base.css');
+
+/* Import components */
+@import url('./components/buttons.css');
+@import url('./components/header.css');
+@import url('./components/footer.css');
+@import url('./components/icons.css');
+@import url('./components/mermaid.css');
+@import url('./components/tables.css');
+
+/* Additional utilities */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+/* Animation utilities */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.6s ease-out;
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.8s ease-out;
+}
+
+/* Responsive design helpers */
+@media (max-width: 768px) {
+  .hide-mobile {
+    display: none !important;
+  }
+}
+
+@media (min-width: 769px) {
+  .hide-desktop {
+    display: none !important;
+  }
+}
+
+/* Print styles */
+@media print {
+  .thematic-header,
+  .scroll-to-top,
+  .footer-social {
+    display: none !important;
+  }
+  
+  .content-box {
+    box-shadow: none !important;
+    border: 1px solid #ccc !important;
+  }
+  
+  body {
+    background: white !important;
+    color: black !important;
+  }
+}

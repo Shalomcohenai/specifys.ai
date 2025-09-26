@@ -1,0 +1,123 @@
+/* CSS Variables - Specifys.ai Design System */
+/* מבוסס על הדף about.html */
+
+:root {
+  /* ===== צבעים ראשיים ===== */
+  --primary-color: #0078d4;
+  --primary-hover: #005ea2;
+  --primary-light: #e3f2fd;
+  
+  --secondary-color: #6c757d;
+  --secondary-hover: #5a6268;
+  
+  --success-color: #28a745;
+  --warning-color: #ffc107;
+  --danger-color: #dc3545;
+  --info-color: #17a2b8;
+  
+  /* ===== צבעי רקע ===== */
+  --bg-color: #f5f5f5;
+  --bg-primary: #ffffff;
+  --bg-secondary: #f5f5f5;
+  --light-gray: #e9ecef;
+  
+  /* ===== צבעי טקסט ===== */
+  --text-color: #333;
+  --text-secondary: #666;
+  --text-muted: #999;
+  --text-white: #ffffff;
+  
+  /* ===== צבעי גבול ===== */
+  --border-color: #dee2e6;
+  --border-light: #e9ecef;
+  
+  /* ===== מרחקים ===== */
+  --spacing-xs: 0.25rem;    /* 4px */
+  --spacing-sm: 0.5rem;     /* 8px */
+  --spacing-md: 1rem;       /* 16px */
+  --spacing-lg: 1.5rem;     /* 24px */
+  --spacing-xl: 2rem;       /* 32px */
+  
+  /* ===== פונטים ===== */
+  /* Font families are now defined in fonts.css */
+  --font-family-primary: var(--font-primary);
+  
+  /* Font sizes are now defined in fonts.css */
+  --font-size-xs: var(--font-size-xs);
+  --font-size-sm: var(--font-size-sm);
+  --font-size-base: var(--font-size-base);
+  --font-size-lg: var(--font-size-lg);
+  --font-size-xl: var(--font-size-xl);
+  --font-size-2xl: var(--font-size-2xl);
+  --font-size-3xl: var(--font-size-3xl);
+  --font-size-4xl: var(--font-size-4xl);
+  
+  /* Font weights are now defined in fonts.css */
+  --font-weight-normal: var(--font-weight-normal);
+  --font-weight-medium: var(--font-weight-medium);
+  --font-weight-semibold: var(--font-weight-semibold);
+  --font-weight-bold: var(--font-weight-bold);
+  
+  /* Line heights are now defined in fonts.css */
+  --line-height-normal: var(--line-height-normal);
+  --line-height-tight: var(--line-height-tight);
+  
+  /* ===== רדיוסים ===== */
+  --border-radius-sm: 0.25rem;   /* 4px */
+  --border-radius-md: 0.5rem;     /* 8px */
+  --border-radius-lg: 1rem;       /* 16px */
+  --border-radius-xl: 1.5rem;     /* 24px */
+  --border-radius-full: 50%;
+  
+  /* ===== צללים ===== */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 6px 16px rgba(0, 0, 0, 0.15);
+  --shadow-xl: 0 8px 32px rgba(0, 0, 0, 0.3);
+  
+  /* ===== מעברים ===== */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.3s ease;
+  --transition-slow: 0.5s ease;
+  
+  /* ===== Z-Index ===== */
+  --z-header: 99999;
+  --z-dropdown: 1000;
+  --z-modal: 10000;
+  
+  /* ===== גדלים ===== */
+  --header-height: 80px;
+  --footer-height: 60px;
+  
+  /* ===== משתנים ספציפיים לדפים ===== */
+  --chat-bg: #fff;
+  --system-msg-bg: #f8f9fa;
+  --user-msg-bg: #0078d4;
+  --user-msg-text: #fff;
+  --input-bg: #fff;
+  --input-border: #dee2e6;
+  --button-hover: #005ea2;
+  --progress-bg: #e9ecef;
+  --progress-fill: #0078d4;
+  --chat-header-bg: #0078d4;
+  --chat-header-text: #fff;
+}
+
+/* תמה כהה (לעתיד) */
+:root[data-theme="dark"] {
+  --bg-color: #1a1a1a;
+  --bg-primary: #2d2d2d;
+  --bg-secondary: #333333;
+  
+  --text-color: #ffffff;
+  --text-secondary: #cccccc;
+  --text-muted: #999999;
+  
+  --border-color: #404040;
+  --border-light: #333333;
+  
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 6px 16px rgba(0, 0, 0, 0.3);
+  --shadow-xl: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
