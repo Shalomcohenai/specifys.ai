@@ -193,3 +193,4 @@ bundle exec jekyll serve
 ---
 
 *This workflow is designed for local development. Posts will be included in the Jekyll build when deployed.*
+
