@@ -167,16 +167,189 @@
   background: var(--light-gray);
 }
 
+/* Mobile Menu Toggle */
+.mobile-menu-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: space-around;
+  width: 24px;
+  height: 24px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  z-index: 1001;
+}
+
+.hamburger-line {
+  width: 100%;
+  height: 2px;
+  background: var(--text-color);
+  transition: all 0.3s ease;
+  transform-origin: center;
+}
+
+.mobile-menu-toggle.active .hamburger-line:nth-child(1) {
+  transform: rotate(45deg) translate(5px, 5px);
+}
+
+.mobile-menu-toggle.active .hamburger-line:nth-child(2) {
+  opacity: 0;
+}
+
+.mobile-menu-toggle.active .hamburger-line:nth-child(3) {
+  transform: rotate(-45deg) translate(7px, -6px);
+}
+
+/* Logo with icon */
+.logo-icon {
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  background: var(--primary-color);
+  color: white;
+  border-radius: 50%;
+  text-align: center;
+  line-height: 32px;
+  font-weight: var(--font-weight-bold);
+  font-size: 1.2rem;
+  margin-right: 8px;
+}
+
+.logo-text {
+  font-size: 1.2rem;
+  font-weight: var(--font-weight-bold);
+}
+
+/* Mobile Menu Overlay */
+.mobile-menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.mobile-menu-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.mobile-menu-content {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 280px;
+  height: 100%;
+  background: var(--bg-color);
+  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.mobile-menu-overlay.active .mobile-menu-content {
+  transform: translateX(0);
+}
+
+.mobile-menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.mobile-menu-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--text-color);
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: background 0.3s ease;
+}
+
+.mobile-menu-close:hover {
+  background: var(--light-gray);
+}
+
+.mobile-menu-nav {
+  flex: 1;
+  padding: 20px 0;
+}
+
+.mobile-menu-item {
+  display: flex;
+  align-items: center;
+  padding: 16px 20px;
+  color: var(--text-color);
+  text-decoration: none;
+  transition: background 0.3s ease;
+  border-left: 3px solid transparent;
+}
+
+.mobile-menu-item:hover {
+  background: var(--light-gray);
+  border-left-color: var(--primary-color);
+}
+
+.mobile-menu-item i {
+  width: 24px;
+  margin-right: 12px;
+  font-size: 1.1rem;
+}
+
+.mobile-menu-footer {
+  padding: 20px;
+  border-top: 1px solid var(--border-color);
+}
+
+.auth-buttons-mobile {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.auth-buttons-mobile .auth-btn {
+  width: 100%;
+  text-align: center;
+  padding: 12px;
+  font-size: 1rem;
+}
+
 /* Mobile Responsive */
 @media (max-width: 768px) {
   .thematic-header {
-    padding: 10px 15px;
+    padding: 12px 16px;
+    height: 60px;
   }
   
-  .header-left {
+  .mobile-menu-toggle {
     display: flex;
-    align-items: center;
-    gap: 0.5rem;
+  }
+  
+  .logo a {
+    font-size: 1.1rem;
+  }
+  
+  .logo-icon {
+    width: 28px;
+    height: 28px;
+    line-height: 28px;
+    font-size: 1rem;
+    margin-right: 6px;
+  }
+  
+  .logo-text {
+    font-size: 1rem;
   }
   
   .header-right {
@@ -199,13 +372,13 @@
   }
   
   .user-avatar {
-    width: 20px;
-    height: 20px;
-    font-size: 0.7rem;
+    width: 28px;
+    height: 28px;
+    font-size: 0.8rem;
   }
   
   .user-dropdown-content {
-    top: 70px;
+    top: 60px;
     left: 15px;
     right: auto;
     min-width: 120px;
@@ -215,5 +388,36 @@
   .user-dropdown-content button {
     padding: 10px 12px;
     font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .thematic-header {
+    padding: 10px 12px;
+    height: 56px;
+  }
+  
+  .logo a {
+    font-size: 1rem;
+  }
+  
+  .logo-icon {
+    width: 24px;
+    height: 24px;
+    line-height: 24px;
+    font-size: 0.9rem;
+    margin-right: 4px;
+  }
+  
+  .logo-text {
+    font-size: 0.9rem;
+  }
+  
+  .mobile-menu-content {
+    width: 100%;
+  }
+  
+  .user-dropdown-content {
+    top: 56px;
   }
 }

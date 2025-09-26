@@ -150,6 +150,7 @@
   .content-box {
     margin: 40px 15px;
     padding: 20px;
+    margin-top: 80px; /* Space for mobile header */
   }
   
   .d-md-none { display: none; }
@@ -168,6 +169,7 @@
   .content-box {
     margin: 40px 10px;
     padding: 15px;
+    margin-top: 76px; /* Space for mobile header */
   }
   
   .d-sm-none { display: none; }

@@ -1,10 +1,18 @@
 <!-- Header -->
 <header class="thematic-header" role="banner">
     <div class="header-left">
+        <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Toggle mobile menu">
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+        </button>
     </div>
     <div class="header-center">
         <div class="logo">
-            <a href="{{ '/' | relative_url }}" aria-label="Specifys.ai homepage">Specifys.AI</a>
+            <a href="{{ '/' | relative_url }}" aria-label="Specifys.ai homepage">
+                <span class="logo-icon">S</span>
+                <span class="logo-text">Specifys.AI</span>
+            </a>
         </div>
     </div>
     <div class="header-right">
@@ -13,4 +21,161 @@
         </div>
     </div>
 </header>
+
+<!-- Mobile Menu Overlay -->
+<div class="mobile-menu-overlay" id="mobile-menu-overlay">
+    <div class="mobile-menu-content">
+        <div class="mobile-menu-header">
+            <div class="logo">
+                <a href="{{ '/' | relative_url }}" aria-label="Specifys.ai homepage">
+                    <span class="logo-icon">S</span>
+                    <span class="logo-text">Specifys.AI</span>
+                </a>
+            </div>
+            <button class="mobile-menu-close" id="mobile-menu-close" aria-label="Close mobile menu">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <nav class="mobile-menu-nav">
+            <a href="{{ '/' | relative_url }}" class="mobile-menu-item">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+            <a href="{{ '/pages/profile.html' | relative_url }}" class="mobile-menu-item">
+                <i class="fas fa-user"></i>
+                <span>Profile</span>
+            </a>
+            <a href="{{ '/pages/app-dashboard.html' | relative_url }}" class="mobile-menu-item">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="{{ '/pages/about.html' | relative_url }}" class="mobile-menu-item">
+                <i class="fas fa-info-circle"></i>
+                <span>About</span>
+            </a>
+            <a href="{{ '/blog/' | relative_url }}" class="mobile-menu-item">
+                <i class="fas fa-blog"></i>
+                <span>Blog</span>
+            </a>
+        </nav>
+        <div class="mobile-menu-footer">
+            <div class="auth-buttons-mobile" id="auth-buttons-mobile">
+                <!-- Will be populated by auth system -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Mobile menu functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+    const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
+    const mobileMenuClose = document.getElementById('mobile-menu-close');
+    
+    if (mobileMenuToggle && mobileMenuOverlay && mobileMenuClose) {
+        // Open mobile menu
+        mobileMenuToggle.addEventListener('click', function() {
+            mobileMenuOverlay.classList.add('active');
+            mobileMenuToggle.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        
+        // Close mobile menu
+        function closeMobileMenu() {
+            mobileMenuOverlay.classList.remove('active');
+            mobileMenuToggle.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+        
+        mobileMenuClose.addEventListener('click', closeMobileMenu);
+        
+        // Close on overlay click
+        mobileMenuOverlay.addEventListener('click', function(e) {
+            if (e.target === mobileMenuOverlay) {
+                closeMobileMenu();
+            }
+        });
+        
+        // Close on escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && mobileMenuOverlay.classList.contains('active')) {
+                closeMobileMenu();
+            }
+        });
+        
+        // Close on menu item click
+        const mobileMenuItems = document.querySelectorAll('.mobile-menu-item');
+        mobileMenuItems.forEach(item => {
+            item.addEventListener('click', closeMobileMenu);
+        });
+    }
+    
+    // Update mobile auth buttons when auth state changes
+    function updateMobileAuthUI(user) {
+        const authButtonsMobile = document.getElementById('auth-buttons-mobile');
+        if (!authButtonsMobile) return;
+        
+        if (user) {
+            // User is logged in
+            const displayName = user.displayName || user.email.split('@')[0];
+            const firstLetter = displayName.charAt(0).toUpperCase();
+            
+            authButtonsMobile.innerHTML = `
+                <div class="user-info-mobile" onclick="window.location.href='profile.html'">
+                    <div class="user-avatar-mobile">${firstLetter}</div>
+                    <span>${displayName}</span>
+                </div>
+                <button class="auth-btn" onclick="logout()">Logout</button>
+            `;
+        } else {
+            // User is not logged in
+            authButtonsMobile.innerHTML = `
+                <button class="auth-btn" onclick="window.location.href='auth.html'">Login</button>
+                <button class="auth-btn primary" onclick="window.location.href='auth.html'">Register</button>
+            `;
+        }
+    }
+    
+    // Make function globally available
+    window.updateMobileAuthUI = updateMobileAuthUI;
+});
+</script>
+
+<style>
+/* Mobile auth styles */
+.user-info-mobile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: var(--light-gray);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.user-info-mobile:hover {
+    background: #e9ecef;
+}
+
+.user-avatar-mobile {
+    width: 32px;
+    height: 32px;
+    background: var(--primary-color);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    font-weight: var(--font-weight-bold);
+    color: white;
+}
+
+.user-info-mobile span {
+    font-size: 0.9rem;
+    font-weight: var(--font-weight-medium);
+    color: var(--text-color);
+}
+</style>
 

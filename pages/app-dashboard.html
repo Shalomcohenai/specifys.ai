@@ -34,6 +34,205 @@
             input, textarea, select {
                 font-size: 16px !important;
             }
+            
+            .dashboard-container {
+                padding: 1rem;
+                margin-top: 80px;
+            }
+
+            .dashboard-section {
+                padding: 1rem;
+            }
+            
+            /* Mobile header improvements */
+            .dashboard-header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+            
+            .app-info-compact h1 {
+                font-size: 1.5rem;
+                margin-bottom: 0.5rem;
+            }
+            
+            .back-to-profile-container {
+                justify-content: center;
+                margin-top: 0;
+            }
+            
+            .back-to-profile-btn {
+                padding: 10px 20px;
+                font-size: 13px;
+            }
+            
+            /* Mobile stats */
+            .dashboard-stats {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 0.5rem;
+                margin-top: 1rem;
+            }
+            
+            .stat-item {
+                background: rgba(255, 255, 255, 0.7);
+                padding: 0.6rem 0.4rem;
+                border-radius: 6px;
+                text-align: center;
+                border: 1px solid rgba(255, 255, 255, 0.3);
+            }
+            
+            .stat-number {
+                font-size: 1.1rem;
+                font-weight: 700;
+                color: #333;
+                display: block;
+                margin-bottom: 0.2rem;
+                line-height: 1.2;
+            }
+            
+            .stat-label {
+                font-size: 0.7rem;
+                color: #666;
+                line-height: 1.1;
+            }
+            
+            /* Mobile tab navigation */
+            .tab-header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .tab-buttons {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.5rem;
+                width: 100%;
+            }
+            
+            .tab-button {
+                padding: 0.8rem 0.5rem;
+                font-size: 0.8rem;
+                text-align: center;
+                min-height: 44px;
+                border-radius: 8px;
+                border: 1px solid #e0e0e0;
+                background: #f8f9fa;
+            }
+            
+            .tab-button.active {
+                background: #007bff;
+                color: white;
+                border-color: #007bff;
+            }
+            
+            .tab-button i {
+                display: block;
+                margin: 0 0 0.25rem 0;
+                font-size: 1rem;
+            }
+            
+            .tab-actions {
+                padding: 0.5rem;
+                text-align: center;
+            }
+            
+            .plus-button {
+                width: 44px;
+                height: 44px;
+                border-radius: 50%;
+                font-size: 1.5rem;
+            }
+            
+            .tab-content {
+                padding: 1rem;
+            }
+            
+            /* Mobile card improvements */
+            .app-card, .spec-card {
+                padding: 1rem;
+                margin-bottom: 1rem;
+            }
+            
+            .app-card-title, .spec-card-title {
+                font-size: 1.1rem;
+                margin-bottom: 0.5rem;
+            }
+            
+            .app-card-description, .spec-card-description {
+                font-size: 0.9rem;
+                margin-bottom: 1rem;
+            }
+            
+            .app-card-meta, .spec-card-meta {
+                font-size: 0.8rem;
+                margin-bottom: 1rem;
+            }
+            
+            .app-card-actions, .spec-card-actions {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .app-card-actions .btn, .spec-card-actions .btn {
+                width: 100%;
+                min-height: 40px;
+                font-size: 0.85rem;
+            }
+            
+            /* Mobile table improvements */
+            .table-responsive {
+                border-radius: 8px;
+                overflow-x: auto;
+            }
+            
+            .table {
+                font-size: 0.85rem;
+            }
+            
+            .table th, .table td {
+                padding: 0.5rem;
+                white-space: nowrap;
+            }
+            
+            /* Mobile form improvements */
+            .form-control {
+                min-height: 44px;
+                font-size: 1rem;
+            }
+            
+            .btn {
+                min-height: 44px;
+                font-size: 0.9rem;
+            }
+            
+            /* Mobile modal improvements */
+            .modal-dialog {
+                margin: 1rem;
+                max-width: calc(100% - 2rem);
+            }
+            
+            .modal-content {
+                border-radius: 12px;
+            }
+            
+            .modal-header {
+                padding: 1rem;
+            }
+            
+            .modal-body {
+                padding: 1rem;
+            }
+            
+            .modal-footer {
+                padding: 1rem;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .modal-footer .btn {
+                width: 100%;
+            }
         }
         
         /* CSS Variables */
@@ -360,7 +559,105 @@
         @media (max-width: 480px) {
             .dashboard-container {
                 padding: 0.8rem;
-                margin-top: 70px;
+                margin-top: 76px;
+            }
+            
+            .dashboard-section {
+                padding: 0.8rem;
+            }
+            
+            .app-info-compact h1 {
+                font-size: 1.3rem;
+            }
+            
+            .back-to-profile-btn {
+                padding: 8px 16px;
+                font-size: 12px;
+            }
+            
+            .dashboard-stats {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.4rem;
+            }
+            
+            .stat-item {
+                padding: 0.5rem 0.3rem;
+            }
+            
+            .stat-number {
+                font-size: 1rem;
+                margin-bottom: 0.15rem;
+            }
+            
+            .stat-label {
+                font-size: 0.65rem;
+            }
+            
+            .tab-buttons {
+                grid-template-columns: 1fr;
+                gap: 0.3rem;
+            }
+            
+            .tab-button {
+                padding: 0.6rem 0.4rem;
+                font-size: 0.75rem;
+                min-height: 40px;
+            }
+            
+            .tab-button i {
+                font-size: 0.9rem;
+            }
+            
+            .tab-content {
+                padding: 0.8rem;
+            }
+            
+            .app-card, .spec-card {
+                padding: 0.8rem;
+            }
+            
+            .app-card-title, .spec-card-title {
+                font-size: 1rem;
+            }
+            
+            .app-card-description, .spec-card-description {
+                font-size: 0.85rem;
+            }
+            
+            .app-card-meta, .spec-card-meta {
+                font-size: 0.75rem;
+            }
+            
+            .app-card-actions .btn, .spec-card-actions .btn {
+                min-height: 36px;
+                font-size: 0.8rem;
+            }
+            
+            .table {
+                font-size: 0.8rem;
+            }
+            
+            .table th, .table td {
+                padding: 0.4rem;
+            }
+            
+            .form-control {
+                min-height: 40px;
+                font-size: 0.9rem;
+            }
+            
+            .btn {
+                min-height: 40px;
+                font-size: 0.85rem;
+            }
+            
+            .modal-dialog {
+                margin: 0.5rem;
+                max-width: calc(100% - 1rem);
+            }
+            
+            .modal-header, .modal-body, .modal-footer {
+                padding: 0.8rem;
             }
         }
 
@@ -384,9 +681,14 @@
         
         @media (max-width: 480px) {
             .top-dashboard {
-                padding: 1rem;
+                padding: 0.6rem;
                 border-radius: 6px;
                 margin-bottom: 1rem;
+            }
+            
+            .dashboard-stats {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.4rem;
             }
         }
 
@@ -4278,19 +4580,20 @@
             }
 
             .top-dashboard {
-                padding: 1rem;
+                padding: 0.8rem;
             }
 
             .dashboard-header {
                 flex-direction: column;
                 text-align: center;
-                gap: 1rem;
+                gap: 0.8rem;
             }
 
             .dashboard-stats {
-                gap: 1rem;
-                flex-wrap: wrap;
-                justify-content: center;
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 0.5rem;
+                margin-top: 0.8rem;
             }
             
             .app-stats {
@@ -4500,6 +4803,7 @@
 
 
     <script src="script.js"></script>
+    <script src="../assets/js/mobile-optimizations.js"></script>
 
     <!-- App Dashboard Script -->
     <script type="module">
@@ -7291,6 +7595,11 @@
                 authButtons.innerHTML = `
                     <button class="auth-btn" onclick="showLoginModal()">Login</button>
                 `;
+            }
+            
+            // Update mobile auth UI if function exists
+            if (window.updateMobileAuthUI) {
+                window.updateMobileAuthUI(user);
             }
         }
 

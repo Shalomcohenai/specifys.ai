@@ -104,24 +104,20 @@ footer {
 /* Responsive footer */
 @media (max-width: 768px) {
   footer {
-    padding: 15px 1rem;
+    padding: 8px 16px;
+    height: 40px;
   }
   
   .footer-content {
-    flex-direction: column;
-    gap: 10px;
-  }
-  
-  .footer-links a {
-    font-size: 0.8rem;
-  }
-  
-  .footer-divider {
     display: none;
   }
   
-  .footer-social a {
-    font-size: 1rem;
+  .footer-copyright {
+    font-size: 10px;
+    color: #adb5bd;
+    text-align: center;
+    margin: 0;
+    padding: 8px 0;
   }
   
   .scroll-to-top {
@@ -135,19 +131,20 @@ footer {
 
 @media (max-width: 480px) {
   footer {
-    padding: 10px 0.5rem;
+    padding: 6px 12px;
+    height: 36px;
   }
   
   .footer-content {
-    gap: 8px;
+    display: none;
   }
   
-  .footer-links a {
-    font-size: 0.75rem;
-  }
-  
-  .footer-social a {
-    font-size: 0.9rem;
+  .footer-copyright {
+    font-size: 9px;
+    color: #adb5bd;
+    text-align: center;
+    margin: 0;
+    padding: 6px 0;
   }
   
   .scroll-to-top {

@@ -59,10 +59,60 @@
   animation: fadeInUp 0.8s ease-out;
 }
 
-/* Responsive design helpers */
+/* Mobile Touch Optimizations */
 @media (max-width: 768px) {
   .hide-mobile {
     display: none !important;
+  }
+  
+  /* Touch-friendly elements */
+  .btn, button, a {
+    min-height: 44px;
+    min-width: 44px;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  
+  /* Prevent zoom on input focus */
+  input, textarea, select {
+    font-size: 16px !important;
+  }
+  
+  /* Smooth scrolling */
+  html {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+  
+  /* Better touch targets */
+  .clickable {
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  /* Swipe gestures support */
+  .swipeable {
+    touch-action: pan-x;
+    overflow-x: auto;
+  }
+  
+  /* Mobile-optimized spacing */
+  .mobile-spacing {
+    padding: 1rem;
+    margin: 0.5rem;
+  }
+  
+  /* Mobile-optimized text */
+  .mobile-text {
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+  
+  /* Mobile-optimized cards */
+  .mobile-card {
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1rem;
   }
 }
 

@@ -727,6 +727,7 @@
 
 
     <script src="../assets/js/script.js"></script>
+    <script src="../assets/js/mobile-optimizations.js"></script>
 
     <!-- Firebase SDK -->
     <script type="module">
@@ -1004,6 +1005,11 @@
                     <button class="auth-btn" onclick="showLoginModal()">Login</button>
                     <button class="auth-btn primary" onclick="showRegisterModal()">Register</button>
                 `;
+            }
+            
+            // Update mobile auth UI if function exists
+            if (window.updateMobileAuthUI) {
+                window.updateMobileAuthUI(user);
             }
         }
 
