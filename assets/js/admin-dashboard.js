@@ -1,4 +1,16 @@
 // Admin Dashboard JavaScript
+
+// Security utilities for safe HTML rendering
+function escapeHTML(str) {
+    if (typeof str !== 'string') return '';
+    return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#x27;');
+}
+
 class AdminDashboard {
     constructor() {
         // Check if Firebase is available
@@ -442,12 +454,12 @@ class AdminDashboard {
 
         tbody.innerHTML = users.map(user => `
             <tr>
-                <td>${user.email || 'N/A'}</td>
+                <td>${escapeHTML(user.email || 'N/A')}</td>
                 <td>${this.formatDate(user.createdAt)}</td>
                 <td><span class="status-badge status-${user.newsletterSubscription ? 'subscribed' : 'unsubscribed'}">${user.newsletterSubscription ? 'Subscribed' : 'Unsubscribed'}</span></td>
                 <td>${this.formatDate(user.lastActive)}</td>
                 <td>
-                    <button class="btn-delete" onclick="adminDashboard.confirmDeleteUser('${user.id}', '${user.email}')">
+                    <button class="btn-delete" onclick="adminDashboard.confirmDeleteUser('${escapeHTML(user.id)}', '${escapeHTML(user.email)}')">
                         <i class="fas fa-trash"></i> Delete
                     </button>
                 </td>
@@ -628,7 +640,7 @@ class AdminDashboard {
 
         tbody.innerHTML = userActivity.slice(0, 10).map((user, index) => `
             <tr>
-                <td><strong>${index + 1}.</strong> ${user.email}</td>
+                <td><strong>${index + 1}.</strong> ${escapeHTML(user.email)}</td>
                 <td>${user.dashboards}</td>
                 <td>${user.specs}</td>
                 <td>${user.notes}</td>

@@ -10,6 +10,9 @@
     <meta name="author" content="Specifys.ai">
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
     
+    <!-- Content Security Policy -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.gstatic.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https: http:; connect-src 'self' https://firestore.googleapis.com https://www.googleapis.com https://identitytoolkit.googleapis.com https://www.google-analytics.com; frame-src 'self' https:;">
+    
     <!-- Canonical URL -->
     
     <link rel="canonical" href="http://localhost:4000/pages/admin-dashboard.html">
@@ -21,6 +24,9 @@
     <meta property="og:description" content="Specifys.ai Admin Dashboard - Analytics & Management">
     <meta property="og:type" content="website">
     <meta property="og:url" content="http://localhost:4000/pages/admin-dashboard.html">
+    <meta property="og:image" content="http://localhost:4000/assets/images/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
     <meta property="og:locale" content="en_US">
     
     
@@ -30,6 +36,7 @@
     <meta name="twitter:creator" content="@specifysai">
     <meta name="twitter:title" content="Admin Dashboard">
     <meta name="twitter:description" content="Specifys.ai Admin Dashboard - Analytics & Management">
+    <meta name="twitter:image" content="http://localhost:4000/assets/images/og-image.png">
     
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
@@ -388,7 +395,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <body>
     <!-- Header -->
-    <!-- Header -->
+    <!-- Skip to main content link for accessibility -->
+<a href="#main-content" class="skip-link">Skip to main content</a>
+
+<!-- Header -->
 <header class="thematic-header" role="banner">
     <div class="header-center">
         <div class="logo">
@@ -444,7 +454,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     
     <!-- Main Content -->
-    <main class="main-content">
+    <main id="main-content" class="main-content">
         <main class="admin-container">
     <!-- Dashboard Header -->
     <div class="dashboard-header">
@@ -973,7 +983,6 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="footer-social">
       <a href="https://www.linkedin.com/company/specifys-ai/" target="_blank" aria-label="Follow us on LinkedIn"><i class="fab fa-linkedin-in"></i></a>
       <a href="https://www.facebook.com/profile.php?id=61576402600129&locale=he_IL" target="_blank" aria-label="Follow us on Facebook"><i class="fab fa-facebook-f"></i></a>
-      <a href="https://www.instagram.com/YOUR_PROFILE" target="_blank" aria-label="Follow us on Instagram"><i class="fab fa-instagram"></i></a>
       <a href="mailto:specifysai@gmail.com" aria-label="Send us an email"><i class="fas fa-envelope"></i></a>
       <a href="https://www.producthunt.com/products/specifys-ai" target="_blank" aria-label="Check us out on Product Hunt"><i class="fab fa-product-hunt"></i></a>
     </div>
