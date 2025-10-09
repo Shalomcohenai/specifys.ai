@@ -11,7 +11,7 @@
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
     
     <!-- Content Security Policy -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.gstatic.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https: http:; connect-src 'self' https://firestore.googleapis.com https://www.googleapis.com https://identitytoolkit.googleapis.com https://www.google-analytics.com; frame-src 'self' https:;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.gstatic.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https: http:; connect-src 'self' https://firestore.googleapis.com https://www.googleapis.com https://identitytoolkit.googleapis.com https://www.google-analytics.com https://www.google.com https://www.googletagmanager.com; frame-src 'self' https:;">
     
     <!-- Canonical URL -->
     
@@ -46,6 +46,8 @@
     
       
         <link rel="stylesheet" href="/assets/css/pages/admin-dashboard.css">
+      
+        <link rel="stylesheet" href="/assets/css/pages/blog-manager.css">
       
     
     
@@ -572,6 +574,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <button class="tab-btn" data-tab="dashboards">App Dashboards</button>
             <button class="tab-btn" data-tab="activity">User Activity</button>
             <button class="tab-btn" data-tab="analytics">Analytics</button>
+            <button class="tab-btn" data-tab="blog">Blog Management</button>
         </div>
 
         <!-- Tab 1: Users Management -->
@@ -887,6 +890,178 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             </div>
         </div>
+
+        <!-- Tab 6: Blog Management -->
+        <div class="tab-content" id="blog-tab">
+            <div class="blog-management-section">
+                <!-- Create New Post Section -->
+                <div class="create-post-section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-pen-fancy"></i> Create New Blog Post</h2>
+                        <button class="btn-toggle-form" id="toggle-form-btn" onclick="blogManager.toggleForm()">
+                            <i class="fas fa-plus"></i> New Post
+                        </button>
+                    </div>
+
+                    <div class="post-form-container" id="post-form-container" style="display: none;">
+                        <form id="create-post-form" class="create-post-form">
+                            <div class="form-row">
+                                <div class="form-group full-width">
+                                    <label for="post-title">
+                                        <i class="fas fa-heading"></i> Post Title <span class="required">*</span>
+                                    </label>
+                                    <input type="text" id="post-title" name="title" required 
+                                           placeholder="Enter post title (English only)" maxlength="100">
+                                    <small class="form-help">Maximum 60 characters recommended for SEO</small>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group full-width">
+                                    <label for="post-description">
+                                        <i class="fas fa-align-left"></i> Description <span class="required">*</span>
+                                    </label>
+                                    <textarea id="post-description" name="description" required 
+                                              placeholder="Enter SEO description (English only)" 
+                                              maxlength="160" rows="2"></textarea>
+                                    <small class="form-help char-counter">
+                                        <span id="desc-char-count">0</span>/160 characters
+                                    </small>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="post-date">
+                                        <i class="fas fa-calendar"></i> Publish Date <span class="required">*</span>
+                                    </label>
+                                    <input type="date" id="post-date" name="date" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="post-author">
+                                        <i class="fas fa-user"></i> Author
+                                    </label>
+                                    <input type="text" id="post-author" name="author" 
+                                           placeholder="specifys.ai Team" value="specifys.ai Team">
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group full-width">
+                                    <label for="post-tags">
+                                        <i class="fas fa-tags"></i> Tags
+                                    </label>
+                                    <input type="text" id="post-tags" name="tags" 
+                                           placeholder="ai, development, tools (comma-separated)">
+                                    <small class="form-help">Separate tags with commas</small>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group full-width">
+                                    <label for="post-content">
+                                        <i class="fas fa-file-alt"></i> Content <span class="required">*</span>
+                                    </label>
+                                    <div class="editor-toolbar">
+                                        <button type="button" class="toolbar-btn" onclick="blogManager.insertMarkdown('## ')" title="Heading 2">
+                                            <i class="fas fa-heading"></i> H2
+                                        </button>
+                                        <button type="button" class="toolbar-btn" onclick="blogManager.insertMarkdown('### ')" title="Heading 3">
+                                            <i class="fas fa-heading"></i> H3
+                                        </button>
+                                        <button type="button" class="toolbar-btn" onclick="blogManager.insertMarkdown('**', '**')" title="Bold">
+                                            <i class="fas fa-bold"></i>
+                                        </button>
+                                        <button type="button" class="toolbar-btn" onclick="blogManager.insertMarkdown('*', '*')" title="Italic">
+                                            <i class="fas fa-italic"></i>
+                                        </button>
+                                        <button type="button" class="toolbar-btn" onclick="blogManager.insertMarkdown('- ')" title="List">
+                                            <i class="fas fa-list-ul"></i>
+                                        </button>
+                                        <button type="button" class="toolbar-btn" onclick="blogManager.insertMarkdown('[', '](url)')" title="Link">
+                                            <i class="fas fa-link"></i>
+                                        </button>
+                                        <button type="button" class="toolbar-btn" onclick="blogManager.insertMarkdown('```\n', '\n```')" title="Code Block">
+                                            <i class="fas fa-code"></i>
+                                        </button>
+                                    </div>
+                                    <textarea id="post-content" name="content" required 
+                                              placeholder="Write your post content in Markdown format..." 
+                                              rows="15"></textarea>
+                                    <small class="form-help">Supports Markdown formatting</small>
+                                </div>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="button" class="btn btn-secondary" onclick="blogManager.previewPost()">
+                                    <i class="fas fa-eye"></i> Preview
+                                </button>
+                                <button type="button" class="btn btn-secondary" onclick="blogManager.resetForm()">
+                                    <i class="fas fa-undo"></i> Reset
+                                </button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-rocket"></i> Publish Post
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Existing Posts List Section -->
+                <div class="posts-list-section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-newspaper"></i> Published Posts</h2>
+                        <button class="btn-refresh" onclick="blogManager.loadPosts()">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                    </div>
+
+                    <div class="filters-row">
+                        <input type="text" id="posts-search" class="search-input" 
+                               placeholder="Search posts by title...">
+                        <input type="date" id="posts-date-from" class="filter-input" 
+                               placeholder="From date">
+                        <input type="date" id="posts-date-to" class="filter-input" 
+                               placeholder="To date">
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Date</th>
+                                    <th>Author</th>
+                                    <th>Tags</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="posts-table-body">
+                                <tr>
+                                    <td colspan="5" class="loading-cell">Loading posts...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Preview Modal -->
+    <div id="preview-modal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2><i class="fas fa-eye"></i> Post Preview</h2>
+                <span class="modal-close" onclick="blogManager.closePreviewModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <article class="post-preview-content" id="preview-content">
+                    <!-- Preview will be rendered here -->
+                </article>
+            </div>
+        </div>
     </div>
 
     <!-- Modal for viewing spec content -->
@@ -980,12 +1155,18 @@ document.addEventListener('DOMContentLoaded', function() {
             // User is admin - initialize dashboard
             if (typeof AdminDashboard !== 'undefined') {
                 window.adminDashboard = new AdminDashboard();
-                    }
-                });
-            });
+            }
+            
+            // Initialize Blog Manager
+            if (typeof BlogManager !== 'undefined') {
+                window.blogManager = new BlogManager();
+            }
+        });
+    });
 </script>
 
 <script src="/assets/js/admin-dashboard.js"></script>
+<script src="/assets/js/blog-manager.js"></script>
 
 
     </main>

@@ -4,6 +4,7 @@ const express = require('express');
 const fetch = require('node-fetch');
 const dotenv = require('dotenv');
 const { syncAllUsers } = require('./server/user-management');
+const blogRoutes = require('./server/blog-routes');
 
 // Load environment variables from .env file
 console.log('Loading environment variables...');
@@ -53,6 +54,11 @@ app.post('/api/sync-users', async (req, res) => {
     });
   }
 });
+
+// Blog Management Endpoints
+app.post('/api/blog/create-post', blogRoutes.createPost);
+app.get('/api/blog/list-posts', blogRoutes.listPosts);
+app.post('/api/blog/delete-post', blogRoutes.deletePost);
 
 // Endpoint to handle API requests to Grok
 app.post('/api/generate-spec', async (req, res) => {
