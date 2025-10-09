@@ -739,8 +739,8 @@ document.addEventListener('DOMContentLoaded', function() {
                             </tbody>
                         </table>
                 </div>
+                </div>
             </div>
-        </div>
 
         <!-- Tab 4: User Activity -->
         <div class="tab-content" id="activity-tab">
@@ -751,28 +751,28 @@ document.addEventListener('DOMContentLoaded', function() {
                         <i class="fas fa-sync-alt"></i> Refresh
                     </button>
                 </div>
-
+                
                 <!-- Saved Tools Section -->
                 <div class="activity-subsection">
                     <h3><i class="fas fa-bookmark"></i> Most Saved Tools</h3>
                     <div class="table-wrapper">
-                        <table class="admin-table">
-                            <thead>
-                                <tr>
+                <table class="admin-table">
+                    <thead>
+                        <tr>
                                     <th>Tool Name</th>
                                     <th>Times Saved</th>
                                     <th>Unique Users</th>
                                     <th>Popularity</th>
-                                </tr>
-                            </thead>
+                        </tr>
+                    </thead>
                             <tbody id="saved-tools-table-body">
                                 <tr>
                                     <td colspan="4" class="loading-cell">Loading saved tools data...</td>
                                 </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
                 <!-- Most Active Users Section -->
                 <div class="activity-subsection">
@@ -891,13 +891,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
     <!-- Modal for viewing spec content -->
     <div id="spec-modal" class="modal">
-        <div class="modal-content">
+        <div class="modal-content modal-large">
             <div class="modal-header">
                 <h2 id="modal-title">Specification</h2>
-                <span class="modal-close" onclick="adminDashboard.closeModal()">&times;</span>
+                <div class="modal-header-actions">
+                    <button class="btn-toggle-view" id="toggle-view-btn" onclick="adminDashboard.toggleView()">
+                        <i class="fas fa-code"></i> Show Raw
+                    </button>
+                    <span class="modal-close" onclick="adminDashboard.closeModal()">&times;</span>
                 </div>
+            </div>
             <div class="modal-body">
-                <div id="modal-spec-content" class="spec-content"></div>
+                <div id="modal-spec-content" class="spec-content rendered-view"></div>
+                <pre id="modal-spec-raw" class="spec-content-raw" style="display: none;"></pre>
             </div>
                 </div>
             </div>
@@ -919,6 +925,22 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         </div>
     </main>
+
+<!-- Mermaid.js for diagram rendering -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+
+<!-- Marked.js for Markdown rendering -->
+<script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
+
+<script>
+    // Initialize Mermaid
+    mermaid.initialize({ 
+        startOnLoad: false,
+        theme: 'default',
+        securityLevel: 'loose',
+        fontFamily: 'Montserrat, sans-serif'
+    });
+</script>
 
     <script>
     // Check admin access

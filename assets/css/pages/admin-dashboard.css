@@ -615,6 +615,10 @@ body.dark-mode .status-unsubscribed {
     flex-direction: column;
 }
 
+.modal-large {
+    max-width: 1200px;
+}
+
 .modal-confirm {
     max-width: 500px;
 }
@@ -632,6 +636,31 @@ body.dark-mode .status-unsubscribed {
     font-weight: 600;
     color: var(--text-color);
     margin: 0;
+}
+
+.modal-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.btn-toggle-view {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.8rem;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    font-family: "Montserrat", sans-serif;
+}
+
+.btn-toggle-view:hover {
+    background: var(--hover-color);
 }
 
 .modal-close {
@@ -656,8 +685,95 @@ body.dark-mode .status-unsubscribed {
 
 .spec-content {
     line-height: 1.8;
-    white-space: pre-wrap;
     font-family: "Montserrat", sans-serif;
+}
+
+.spec-content.rendered-view {
+    white-space: normal;
+}
+
+.spec-content.rendered-view h1,
+.spec-content.rendered-view h2,
+.spec-content.rendered-view h3 {
+    color: var(--text-color);
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.spec-content.rendered-view h1 {
+    font-size: 1.8rem;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 0.5rem;
+}
+
+.spec-content.rendered-view h2 {
+    font-size: 1.5rem;
+}
+
+.spec-content.rendered-view h3 {
+    font-size: 1.2rem;
+}
+
+.spec-content.rendered-view p {
+    margin-bottom: 1rem;
+}
+
+.spec-content.rendered-view ul,
+.spec-content.rendered-view ol {
+    margin-bottom: 1rem;
+    padding-left: 2rem;
+}
+
+.spec-content.rendered-view li {
+    margin-bottom: 0.5rem;
+}
+
+.spec-content.rendered-view code {
+    background: var(--light-gray);
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.9rem;
+}
+
+.spec-content.rendered-view pre {
+    background: var(--light-gray);
+    padding: 1rem;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin-bottom: 1rem;
+}
+
+.spec-content.rendered-view pre code {
+    background: none;
+    padding: 0;
+}
+
+/* Mermaid diagrams styling */
+.spec-content.rendered-view .mermaid {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin: 1.5rem 0;
+    border: 1px solid var(--border-color);
+    text-align: center;
+}
+
+body.dark-mode .spec-content.rendered-view .mermaid {
+    background: #2a2a2a;
+}
+
+.spec-content-raw {
+    white-space: pre-wrap;
+    background: var(--light-gray);
+    padding: 1.5rem;
+    border-radius: 8px;
+    font-family: monospace;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: var(--text-color);
+    overflow-x: auto;
+    margin: 0;
 }
 
 .modal-actions {

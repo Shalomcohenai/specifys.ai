@@ -398,7 +398,7 @@ class AdminDashboard {
                     </td>
                 </tr>
             `;
-            }
+        }
             throw error;
         }
     }
@@ -517,50 +517,72 @@ class AdminDashboard {
 
     // Load activity data (saved tools, likes, notes, expenses)
     async loadActivityData() {
+        console.log('📊 Loading activity data...');
+        
+        // Load saved tools with individual error handling
         try {
-            console.log('📊 Loading activity data...');
-            
-            // Load saved tools
             const savedToolsSnapshot = await this.db.collectionGroup('savedTools').get();
             this.allSavedTools = savedToolsSnapshot.docs.map(doc => ({
                 id: doc.id,
                 ...doc.data()
             }));
-            console.log(`Loaded ${this.allSavedTools.length} saved tools`);
+            console.log(`✅ Loaded ${this.allSavedTools.length} saved tools`);
+        } catch (error) {
+            console.warn('⚠️ Could not load saved tools:', error.code, error.message);
+            this.allSavedTools = [];
+            if (error.code === 'permission-denied') {
+                console.warn('💡 Deploy updated Firestore Rules to enable saved tools data');
+            }
+        }
 
-            // Load likes
+        // Load likes with individual error handling
+        try {
             const likesSnapshot = await this.db.collection('userLikes').get();
             this.allLikes = likesSnapshot.docs.map(doc => ({
                 id: doc.id,
                 ...doc.data()
             }));
-            console.log(`Loaded ${this.allLikes.length} likes`);
+            console.log(`✅ Loaded ${this.allLikes.length} likes`);
+        } catch (error) {
+            console.warn('⚠️ Could not load likes:', error.code, error.message);
+            this.allLikes = [];
+            if (error.code === 'permission-denied') {
+                console.warn('💡 Deploy updated Firestore Rules to enable likes data');
+            }
+        }
 
-            // Load notes
+        // Load notes with individual error handling
+        try {
             const notesSnapshot = await this.db.collection('appNotes').get();
             this.allNotes = notesSnapshot.docs.map(doc => ({
                 id: doc.id,
                 ...doc.data()
             }));
-            console.log(`Loaded ${this.allNotes.length} notes`);
+            console.log(`✅ Loaded ${this.allNotes.length} notes`);
+        } catch (error) {
+            console.warn('⚠️ Could not load notes:', error.code, error.message);
+            this.allNotes = [];
+        }
 
-            // Load expenses
+        // Load expenses with individual error handling
+        try {
             const expensesSnapshot = await this.db.collection('appExpenses').get();
             this.allExpenses = expensesSnapshot.docs.map(doc => ({
                 id: doc.id,
                 ...doc.data()
             }));
-            console.log(`Loaded ${this.allExpenses.length} expenses`);
-
-            // Render activity tables
-            this.renderSavedToolsTable();
-            this.renderActiveUsersTable();
-            this.updateEngagementStats();
-            
+            console.log(`✅ Loaded ${this.allExpenses.length} expenses`);
         } catch (error) {
-            console.error('Error loading activity data:', error);
-            this.showNotification('Error loading activity data: ' + error.message, 'error');
+            console.warn('⚠️ Could not load expenses:', error.code, error.message);
+            this.allExpenses = [];
         }
+
+        // Render activity tables
+        this.renderSavedToolsTable();
+        this.renderActiveUsersTable();
+        this.updateEngagementStats();
+        
+        console.log('📊 Activity data loading completed');
     }
 
     // Render saved tools table
@@ -569,7 +591,20 @@ class AdminDashboard {
         if (!tbody) return;
         
         if (!this.allSavedTools || this.allSavedTools.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" class="loading-cell">No saved tools found</td></tr>';
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="4" style="text-align: center; padding: 20px;">
+                        <div style="color: var(--warning-color);">
+                            <i class="fas fa-exclamation-triangle"></i> No saved tools data available
+                        </div>
+                        <small style="color: var(--primary-color);">
+                            This might be due to:<br>
+                            1. No users have saved tools yet, OR<br>
+                            2. Firestore Rules need to be updated (check console for permission errors)
+                        </small>
+                    </td>
+                        </tr>
+            `;
             return;
         }
 
@@ -603,7 +638,7 @@ class AdminDashboard {
                 <td>${tool.count}</td>
                 <td>${tool.uniqueUsers}</td>
                 <td>${tool.popularity}%</td>
-            </tr>
+                            </tr>
         `).join('');
     }
 
@@ -613,7 +648,18 @@ class AdminDashboard {
         if (!tbody) return;
         
         if (!this.allUsers || this.allUsers.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" class="loading-cell">No users found</td></tr>';
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="5" style="text-align: center; padding: 20px;">
+                        <div style="color: var(--warning-color);">
+                            <i class="fas fa-exclamation-triangle"></i> No users data available
+                        </div>
+                        <small style="color: var(--primary-color);">
+                            Click "Sync Users" button to sync your user data
+                        </small>
+                    </td>
+                        </tr>
+            `;
             return;
         }
 
@@ -634,13 +680,24 @@ class AdminDashboard {
         }).filter(u => u.total > 0).sort((a, b) => b.total - a.total);
 
         if (userActivity.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" class="loading-cell">No user activity found</td></tr>';
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="5" style="text-align: center; padding: 20px;">
+                        <div style="color: var(--info-color);">
+                            <i class="fas fa-info-circle"></i> No active users yet
+                        </div>
+                        <small style="color: var(--primary-color);">
+                            Users will appear here once they create dashboards, specs, or notes
+                        </small>
+                    </td>
+                            </tr>
+            `;
             return;
         }
 
         tbody.innerHTML = userActivity.slice(0, 10).map((user, index) => `
             <tr>
-                <td><strong>${index + 1}.</strong> ${escapeHTML(user.email)}</td>
+                <td><strong>${index + 1}.</strong> ${user.email}</td>
                 <td>${user.dashboards}</td>
                 <td>${user.specs}</td>
                 <td>${user.notes}</td>
@@ -707,7 +764,7 @@ class AdminDashboard {
                             <i class="fas fa-eye"></i> View
                         </button>
                     </td>
-                </tr>
+                            </tr>
             `;
         }).join('');
     }
@@ -975,7 +1032,7 @@ class AdminDashboard {
         this.renderDashboardsTable(filtered);
     }
 
-    // View spec in modal
+    // View spec in modal with Mermaid rendering
     async viewSpec(specId, collection) {
         try {
             const doc = await this.db.collection(collection).doc(specId).get();
@@ -985,12 +1042,93 @@ class AdminDashboard {
             }
 
             const data = doc.data();
+            const content = data.content || 'No content available';
+            
             document.getElementById('modal-title').textContent = data.title || 'Specification';
-            document.getElementById('modal-spec-content').textContent = data.content || 'No content available';
+            
+            // Store raw content for toggle
+            document.getElementById('modal-spec-raw').textContent = content;
+            
+            // Render with Markdown and Mermaid
+            await this.renderSpecContent(content);
+            
+            // Show modal
             document.getElementById('spec-modal').style.display = 'block';
+            
+            // Reset toggle button
+            const toggleBtn = document.getElementById('toggle-view-btn');
+            if (toggleBtn) {
+                toggleBtn.innerHTML = '<i class="fas fa-code"></i> Show Raw';
+            }
         } catch (error) {
             console.error('Error viewing spec:', error);
             this.showNotification('Error loading spec: ' + error.message, 'error');
+        }
+    }
+
+    // Render spec content with Markdown and Mermaid
+    async renderSpecContent(content) {
+        const container = document.getElementById('modal-spec-content');
+        if (!container) return;
+
+        try {
+            // First, convert Markdown to HTML
+            let html = marked.parse(content);
+            
+            // Replace mermaid code blocks with divs for rendering
+            html = html.replace(/<pre><code class="language-mermaid">([\s\S]*?)<\/code><\/pre>/g, 
+                '<div class="mermaid">$1</div>');
+            
+            // Also handle ```mermaid blocks that might not have the language class
+            html = html.replace(/<pre><code>mermaid\n([\s\S]*?)<\/code><\/pre>/g, 
+                '<div class="mermaid">$1</div>');
+            
+            // Set the HTML
+            container.innerHTML = html;
+            
+            // Render all Mermaid diagrams
+            const mermaidDivs = container.querySelectorAll('.mermaid');
+            if (mermaidDivs.length > 0) {
+                console.log(`🎨 Rendering ${mermaidDivs.length} Mermaid diagrams...`);
+                
+                for (let i = 0; i < mermaidDivs.length; i++) {
+                    const div = mermaidDivs[i];
+                    const code = div.textContent;
+                    const id = `mermaid-${Date.now()}-${i}`;
+                    
+                    try {
+                        const { svg } = await mermaid.render(id, code);
+                        div.innerHTML = svg;
+                        console.log(`✅ Rendered diagram ${i + 1}`);
+                    } catch (error) {
+                        console.error(`Error rendering Mermaid diagram ${i + 1}:`, error);
+                        div.innerHTML = `<pre style="color: var(--danger-color);">Error rendering diagram:\n${code}</pre>`;
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Error rendering content:', error);
+            // Fallback to plain text
+            container.textContent = content;
+        }
+    }
+
+    // Toggle between rendered and raw view
+    toggleView() {
+        const renderedView = document.getElementById('modal-spec-content');
+        const rawView = document.getElementById('modal-spec-raw');
+        const toggleBtn = document.getElementById('toggle-view-btn');
+        
+        if (renderedView.style.display === 'none') {
+            // Show rendered view
+            renderedView.style.display = 'block';
+            rawView.style.display = 'none';
+            toggleBtn.innerHTML = '<i class="fas fa-code"></i> Show Raw';
+        } else {
+            // Show raw view
+            renderedView.style.display = 'none';
+            rawView.style.display = 'block';
+            toggleBtn.innerHTML = '<i class="fas fa-eye"></i> Show Rendered';
         }
     }
 
@@ -1003,45 +1141,74 @@ class AdminDashboard {
                 return;
             }
 
-            const data = doc.data();
+                const data = doc.data();
             const tasks = this.allTasks.filter(t => t.appId === dashboardId);
             const milestones = this.allMilestones.filter(m => m.appId === dashboardId);
             const notes = this.allNotes.filter(n => n.appId === dashboardId);
             const expenses = this.allExpenses.filter(e => e.appId === dashboardId);
 
-            let content = `App Name: ${data.appName || 'N/A'}\n`;
-            content += `User: ${data.userEmail || 'N/A'}\n`;
-            content += `Created: ${this.formatDate(data.createdAt)}\n\n`;
+            // Create formatted content in Markdown
+            let content = `# ${data.appName || 'App Dashboard'}\n\n`;
+            content += `**User:** ${data.userEmail || 'N/A'}  \n`;
+            content += `**Created:** ${this.formatDate(data.createdAt)}\n\n`;
             
-            content += `Tasks (${tasks.length}):\n`;
-            tasks.forEach(task => {
-                content += `- ${task.title || 'Untitled'} (${task.status || 'pending'})\n`;
-            });
+            content += `## Tasks (${tasks.length})\n\n`;
+            if (tasks.length > 0) {
+                tasks.forEach(task => {
+                    const status = task.status || 'pending';
+                    const icon = status === 'completed' ? '✅' : status === 'in-progress' ? '🔄' : '⏳';
+                    content += `- ${icon} **${task.title || 'Untitled'}** - ${status}\n`;
+                });
+            } else {
+                content += `*No tasks yet*\n`;
+            }
             
-            content += `\nMilestones (${milestones.length}):\n`;
-            milestones.forEach(milestone => {
-                content += `- ${milestone.title || 'Untitled'}\n`;
-            });
+            content += `\n## Milestones (${milestones.length})\n\n`;
+            if (milestones.length > 0) {
+                milestones.forEach(milestone => {
+                    content += `- 🎯 ${milestone.title || 'Untitled'}\n`;
+                });
+            } else {
+                content += `*No milestones yet*\n`;
+            }
             
-            content += `\nNotes (${notes.length}):\n`;
-            notes.forEach(note => {
-                content += `- ${note.content || 'No content'}\n`;
-            });
+            content += `\n## Notes (${notes.length})\n\n`;
+            if (notes.length > 0) {
+                notes.forEach((note, i) => {
+                    content += `${i + 1}. ${note.content || 'No content'}\n\n`;
+                });
+            } else {
+                content += `*No notes yet*\n`;
+            }
             
-            content += `\nExpenses (${expenses.length}):\n`;
-            let totalExpenses = 0;
-            expenses.forEach(expense => {
-                const amount = expense.amount || 0;
-                totalExpenses += amount;
-                content += `- ${expense.description || 'N/A'}: $${amount}\n`;
-            });
+            content += `\n## Expenses (${expenses.length})\n\n`;
             if (expenses.length > 0) {
-                content += `Total: $${totalExpenses}\n`;
+                let totalExpenses = 0;
+                expenses.forEach(expense => {
+                    const amount = expense.amount || 0;
+                    totalExpenses += amount;
+                    content += `- 💰 **${expense.description || 'N/A'}:** $${amount}\n`;
+                });
+                content += `\n**Total Expenses:** $${totalExpenses}\n`;
+            } else {
+                content += `*No expenses tracked yet*\n`;
             }
 
             document.getElementById('modal-title').textContent = data.appName || 'App Dashboard';
-            document.getElementById('modal-spec-content').textContent = content;
+            
+            // Store raw content for toggle
+            document.getElementById('modal-spec-raw').textContent = content;
+            
+            // Render with Markdown
+            await this.renderSpecContent(content);
+            
             document.getElementById('spec-modal').style.display = 'block';
+            
+            // Reset toggle button
+            const toggleBtn = document.getElementById('toggle-view-btn');
+            if (toggleBtn) {
+                toggleBtn.innerHTML = '<i class="fas fa-code"></i> Show Raw';
+            }
         } catch (error) {
             console.error('Error viewing dashboard:', error);
             this.showNotification('Error loading dashboard: ' + error.message, 'error');
