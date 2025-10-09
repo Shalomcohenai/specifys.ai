@@ -41,7 +41,7 @@ async function githubRequest(endpoint, method = 'GET', data = null) {
     
     if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.message || `GitHub API error: ${response.status}`);
+        throw new Error(`${response.status}: ${error.message || 'GitHub API error'}`);
     }
 
     return response.json();
