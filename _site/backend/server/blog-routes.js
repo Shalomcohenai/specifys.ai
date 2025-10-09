@@ -219,9 +219,9 @@ async function listPosts(req, res) {
             .filter(post => post !== null)
             .sort((a, b) => new Date(b.date) - new Date(a.date));
 
-        // Fetch full metadata for recent posts (last 20)
+        // Fetch full metadata for all posts
         const recentPosts = await Promise.all(
-            posts.slice(0, 20).map(async (post) => {
+            posts.map(async (post) => {
                 try {
                     const fileData = await getFileFromGitHub(`_posts/${post.filename}`);
                     const content = Buffer.from(fileData.content, 'base64').toString('utf-8');
