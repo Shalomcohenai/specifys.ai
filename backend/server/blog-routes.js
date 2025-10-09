@@ -172,8 +172,8 @@ async function createPost(req, res) {
         const commitMessage = `Add blog post: ${title}`;
         await updateFileInGitHub(filePath, markdownContent, commitMessage);
 
-        // Update sitemap
-        await updateSitemap(date, slug, title);
+        // Note: Sitemap will be auto-updated by Jekyll build
+        // await updateSitemap(date, slug, title);
 
         res.json({
             success: true,
@@ -282,8 +282,8 @@ async function deletePost(req, res) {
 
         await deleteFileFromGitHub(filePath, commitMessage);
 
-        // Update sitemap to remove the post
-        await removeFromSitemap(filename);
+        // Note: Sitemap will be auto-updated by Jekyll build
+        // await removeFromSitemap(filename);
 
         res.json({
             success: true,
