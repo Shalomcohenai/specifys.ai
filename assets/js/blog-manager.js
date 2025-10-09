@@ -353,16 +353,6 @@ class BlogManager {
     }
 }
 
-// Initialize when DOM is ready
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-        if (typeof BlogManager !== 'undefined') {
-            window.blogManager = new BlogManager();
-        }
-    });
-} else {
-    if (typeof BlogManager !== 'undefined') {
-        window.blogManager = new BlogManager();
-    }
-}
+// Note: BlogManager is initialized in admin-dashboard.html after auth check
+// Do not auto-initialize here to avoid conflicts
 
