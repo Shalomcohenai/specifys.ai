@@ -364,4 +364,28 @@
     <priority>0.7</priority>
   </url>
 
+
+  <url>
+    <loc>https://specifys-ai.com/blog/bugbot-by-cursor-the-ai-that-debugs-its-own-code.html</loc>
+    <lastmod>2025-10-09</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+
+  <url>
+    <loc>https://specifys-ai.com/blog/kiro-by-amazon-the-autonomous-ide-that-organizes-the-chaos-of-vibe-coding.html</loc>
+    <lastmod>2025-10-09</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+
+  <url>
+    <loc>https://specifys-ai.com/blog/alphaevolve-by-deepmind-the-ai-that-invents-new-algorithms.html</loc>
+    <lastmod>2025-10-09</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
 </urlset>

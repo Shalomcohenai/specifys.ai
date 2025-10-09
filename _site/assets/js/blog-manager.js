@@ -7,6 +7,10 @@ class BlogManager {
         this.formContainer = null;
         this.previewModal = null;
         this.posts = [];
+        // Determine API URL based on environment
+        this.apiUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:3001'
+            : 'https://specifys-ai.com'; // Use same domain in production
         this.init();
     }
 
@@ -164,7 +168,7 @@ class BlogManager {
 
         try {
             // Send to backend
-            const response = await fetch('http://localhost:3001/api/blog/create-post', {
+            const response = await fetch(`${this.apiUrl}/api/blog/create-post`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -211,7 +215,7 @@ class BlogManager {
         tbody.innerHTML = '<tr><td colspan="5" class="loading-cell">Loading posts...</td></tr>';
 
         try {
-            const response = await fetch('http://localhost:3001/api/blog/list-posts');
+            const response = await fetch(`${this.apiUrl}/api/blog/list-posts`);
             const result = await response.json();
 
             if (result.success && result.posts) {
@@ -288,7 +292,7 @@ class BlogManager {
         }
 
         try {
-            const response = await fetch('http://localhost:3001/api/blog/delete-post', {
+            const response = await fetch(`${this.apiUrl}/api/blog/delete-post`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

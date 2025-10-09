@@ -40,8 +40,16 @@ async function githubRequest(endpoint, method = 'GET', data = null) {
     const response = await fetch(`https://api.github.com${endpoint}`, options);
     
     if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || `GitHub API error: ${response.status}`);
+        let errorMessage = `GitHub API error: ${response.status}`;
+        try {
+            const error = await response.json();
+            errorMessage = error.message || errorMessage;
+        } catch (e) {
+            // If response is not JSON, use status code
+        }
+        const err = new Error(errorMessage);
+        err.status = response.status;
+        throw err;
     }
 
     return response.json();
@@ -53,7 +61,7 @@ async function getFileFromGitHub(filePath) {
         const endpoint = `/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${filePath}?ref=${GITHUB_CONFIG.branch}`;
         return await githubRequest(endpoint);
     } catch (error) {
-        if (error.message.includes('404')) {
+        if (error.status === 404 || error.message.includes('404') || error.message.includes('Not Found')) {
             return null; // File doesn't exist
         }
         throw error;
@@ -302,8 +310,8 @@ async function deletePost(req, res) {
 // Helper: Update sitemap with new post
 async function updateSitemap(date, slug, title) {
     try {
-        // Get current sitemap
-        const sitemapFile = await getFileFromGitHub('sitemap.xml');
+        // Get current sitemap (retry with fresh SHA if needed)
+        let sitemapFile = await getFileFromGitHub('sitemap.xml');
         if (!sitemapFile) {
             console.error('Sitemap file not found');
             return;
@@ -326,17 +334,35 @@ async function updateSitemap(date, slug, title) {
         // Insert before closing </urlset> tag
         const updatedSitemap = sitemapContent.replace('</urlset>', `${newEntry}\n\n</urlset>`);
 
-        // Upload updated sitemap
-        await updateFileInGitHub(
-            'sitemap.xml',
-            updatedSitemap,
-            `Update sitemap: Add ${title}`,
-            sitemapFile.sha
-        );
-
-        console.log('Sitemap updated successfully');
+        // Upload updated sitemap with retry on conflict
+        try {
+            await updateFileInGitHub(
+                'sitemap.xml',
+                updatedSitemap,
+                `Update sitemap: Add ${title}`,
+                sitemapFile.sha
+            );
+            console.log('✅ Sitemap updated successfully');
+        } catch (updateError) {
+            if (updateError.status === 409 || updateError.message.includes('expected')) {
+                // SHA conflict - get fresh file and retry once
+                console.log('⚠️ Sitemap conflict, retrying with fresh SHA...');
+                sitemapFile = await getFileFromGitHub('sitemap.xml');
+                const freshContent = Buffer.from(sitemapFile.content, 'base64').toString('utf-8');
+                const freshUpdated = freshContent.replace('</urlset>', `${newEntry}\n\n</urlset>`);
+                await updateFileInGitHub(
+                    'sitemap.xml',
+                    freshUpdated,
+                    `Update sitemap: Add ${title}`,
+                    sitemapFile.sha
+                );
+                console.log('✅ Sitemap updated on retry');
+            } else {
+                throw updateError;
+            }
+        }
     } catch (error) {
-        console.error('Error updating sitemap:', error);
+        console.error('❌ Error updating sitemap (non-critical):', error.message);
         // Don't fail the post creation if sitemap update fails
     }
 }
