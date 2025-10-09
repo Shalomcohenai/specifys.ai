@@ -592,7 +592,7 @@ extra_css:
         }
 
         // Initialize animation
-        document.addEventListener('DOMContentLoaded', function() {
+        function initAnimation() {
             // Get elements after DOM is loaded
             titleElement = document.getElementById('dynamic-title');
             descriptionElement = document.getElementById('dynamic-description');
@@ -600,7 +600,7 @@ extra_css:
             
             // Check if elements exist
             if (!titleElement || !descriptionElement) {
-                console.error('Animation elements not found');
+                // Elements not found - silently skip animation
                 return;
             }
             
@@ -609,7 +609,15 @@ extra_css:
             
             // Start the animation
             setInterval(updateStep, 2000); // Change every 2 seconds
-        });
+        }
+
+        // Initialize when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initAnimation);
+        } else {
+            // DOM already loaded
+            initAnimation();
+        }
     </script>
 
 
