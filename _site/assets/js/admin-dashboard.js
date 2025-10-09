@@ -1,741 +1,1010 @@
-// Admin Dashboard JavaScript Functions
-// This file contains all the admin-specific functionality
-
+// Admin Dashboard JavaScript
 class AdminDashboard {
     constructor() {
+        // Check if Firebase is available
+        if (typeof firebase === 'undefined') {
+            console.error('Firebase is not loaded');
+            this.updateFirebaseStatus('error', 'Firebase not loaded');
+            return;
+        }
+        
+        this.db = firebase.firestore();
+        this.auth = firebase.auth();
+        this.currentUser = null;
+        this.allUsers = [];
+        this.allSpecs = [];
+        this.allMarketResearch = [];
+        this.allDashboards = [];
+        this.allTasks = [];
+        this.allMilestones = [];
+        this.autoRefreshInterval = null;
+        this.lastRefreshTime = null;
+        
         this.init();
     }
 
-    init() {
-        // Clear all tables immediately on init
-        this.clearAllTables();
-        this.checkFirebaseConnection();
-        this.loadDashboardData();
-        this.setupEventListeners();
-        // Removed automatic updates - only manual refresh
-    }
+    async init() {
+        // Setup event listeners
+        this.setupTabs();
+        this.setupSubTabs();
+        this.setupFilters();
     
     // Check Firebase connection
-    async checkFirebaseConnection() {
-        try {
-            const db = firebase.firestore();
-            
-            // Enable offline persistence
-            await db.enablePersistence({
-                synchronizeTabs: true
-            }).catch((err) => {
-                if (err.code === 'failed-precondition') {
-                    console.warn('Multiple tabs open, persistence can only be enabled in one tab at a time.');
-                } else if (err.code === 'unimplemented') {
-                    console.warn('The current browser does not support all features required for persistence');
-                }
-            });
-            
-            // Test connection with a simple read
-            const testDoc = await db.collection('test').doc('connection').get();
-            
-            // Update connection status
-            this.updateConnectionStatus(true);
-            
-        } catch (error) {
-            console.error('Firebase connection error:', error);
-            this.updateConnectionStatus(false);
-            
-            // Check if it's a permission error
-            if (error.code === 'permission-denied') {
-                this.showError('Firebase permission denied. Please check your authentication.');
-            } else if (error.code === 'unavailable') {
-                this.showError('Firebase service unavailable. Please check your internet connection.');
-            } else {
-                this.showError('Firebase connection failed. Please refresh the page.');
-            }
-        }
-    }
-    
-    // Update connection status indicator
-    updateConnectionStatus(isConnected) {
-        const statusElement = document.getElementById('connection-status');
-        if (!statusElement) return;
+        this.updateFirebaseStatus('connecting', 'Connecting to Firebase...');
         
-        if (isConnected) {
-            statusElement.innerHTML = '<i class="fas fa-circle" style="font-size: 8px; margin-right: 5px; color: var(--success-color);"></i>Connected to Firebase';
-            statusElement.style.color = 'var(--success-color)';
-        } else {
-            statusElement.innerHTML = '<i class="fas fa-circle" style="font-size: 8px; margin-right: 5px; color: var(--danger-color);"></i>Firebase Connection Failed';
-            statusElement.style.color = 'var(--danger-color)';
-        }
-    }
-    
-    // No sample data creation - only real data from Firebase
-
-    // Load initial dashboard data
-    async loadDashboardData() {
-        try {
-            this.showInfo('Loading dashboard data from Firebase...');
-            
-            // Clear all tables first
-            this.clearAllTables();
-            
-            const stats = await this.fetchStats();
-            const toolUsage = await this.fetchToolUsage();
-            const userActivity = await this.fetchUserActivity();
-            
-            this.updateStatsCards(stats);
-            this.updateToolUsageTable(toolUsage);
-            this.updateUserActivityTable(userActivity);
-            
-            this.showSuccess('Dashboard data loaded successfully from Firebase');
-        } catch (error) {
-            console.error('Error loading dashboard data:', error);
-            this.showError('Failed to load dashboard data from Firebase. Please check your connection.');
-            
-            // Show empty tables on error
-            this.clearAllTables();
-        }
-    }
-    
-    // Clear all tables
-    clearAllTables() {
-        const allTbodies = document.querySelectorAll('.admin-table tbody');
-        allTbodies.forEach((tbody, index) => {
-            if (index === 0) {
-                // Tool usage table
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="5" style="text-align: center; color: var(--primary-color); padding: 20px;">
-                            Loading tool usage data from Firebase...
-                        </td>
-                    </tr>
-                `;
-            } else if (index === 1) {
-                // Specs table
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="5" style="text-align: center; color: var(--primary-color); padding: 20px;">
-                            Loading spec data from Firebase...
-                        </td>
-                    </tr>
-                `;
-            } else if (index === 2) {
-                // User activity table
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="5" style="text-align: center; color: var(--primary-color); padding: 20px;">
-                            Loading user activity data from Firebase...
-                        </td>
-                    </tr>
-                `;
+        // Get current user
+        this.auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                this.currentUser = user;
+                this.updateFirebaseStatus('connected', 'Connected to Firebase');
+                await this.loadAllData();
+                
+                // Setup auto-refresh every 24 hours
+                this.setupAutoRefresh();
+            } else {
+                this.updateFirebaseStatus('error', 'Not authenticated');
             }
         });
     }
 
-    // Fetch statistics from Firebase
-    async fetchStats() {
+    // Update Firebase connection status
+    updateFirebaseStatus(status, text) {
+        const statusIndicator = document.getElementById('firebase-status');
+        if (!statusIndicator) return;
+        
+        const statusDot = statusIndicator.querySelector('.status-dot');
+        const statusText = statusIndicator.querySelector('.status-text');
+        
+        // Remove all status classes
+        statusDot.classList.remove('connected', 'error');
+        
+        // Add appropriate class
+        if (status === 'connected') {
+            statusDot.classList.add('connected');
+        } else if (status === 'error') {
+            statusDot.classList.add('error');
+        }
+        
+        statusText.textContent = text;
+    }
+
+    // Setup auto-refresh every 24 hours
+    setupAutoRefresh() {
+        // Clear existing interval if any
+        if (this.autoRefreshInterval) {
+            clearInterval(this.autoRefreshInterval);
+        }
+        
+        // Refresh every 24 hours (86400000 ms)
+        this.autoRefreshInterval = setInterval(() => {
+            console.log('Auto-refreshing data (24 hours passed)...');
+            this.refreshAllData();
+        }, 86400000);
+    }
+
+    // Manual refresh all data
+    async refreshAllData() {
+        const refreshBtn = document.getElementById('refresh-all-data');
+        if (refreshBtn) {
+            refreshBtn.classList.add('refreshing');
+            refreshBtn.disabled = true;
+        }
+        
+        this.showNotification('Refreshing all data...', 'info');
+        
         try {
-            const db = firebase.firestore();
-            
-            // Get total users
-            const usersSnapshot = await db.collection('users').get();
-            const totalUsers = usersSnapshot.size;
-            
-            // Get total specs
-            const specsSnapshot = await db.collection('specs').get();
-            const totalSpecs = specsSnapshot.size;
-            
-            // Get total chats
-            const chatsSnapshot = await db.collection('chats').get();
-            const totalChats = chatsSnapshot.size;
-            
-            // Get incomplete chats
-            let incompleteChats = 0;
-            chatsSnapshot.forEach(doc => {
-                const data = doc.data();
-                if (data.status !== 'completed' && data.status !== 'cancelled') {
-                    incompleteChats++;
-                }
-            });
-            
-            // Get active tools (tools used in last 7 days)
-            const sevenDaysAgo = new Date();
-            sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-            const toolUsageSnapshot = await db.collection('toolUsage')
-                .where('timestamp', '>=', sevenDaysAgo)
-                .get();
-            const activeTools = new Set();
-            toolUsageSnapshot.forEach(doc => {
-                activeTools.add(doc.data().toolName);
-            });
-            
-            // Get daily usage (today)
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            const tomorrow = new Date(today);
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            
-            const dailyUsageSnapshot = await db.collection('toolUsage')
-                .where('timestamp', '>=', today)
-                .where('timestamp', '<', tomorrow)
-                .get();
-            const dailyUsage = dailyUsageSnapshot.size;
-            
-            return {
-                totalUsers,
-                activeTools: activeTools.size,
-                totalSpecs,
-                totalChats,
-                incompleteChats,
-                dailyUsage
-            };
+            await this.loadAllData();
+            this.lastRefreshTime = new Date();
+            this.updateLastRefreshTime();
+            this.showNotification('Data refreshed successfully', 'success');
         } catch (error) {
-            console.error('Error fetching stats:', error);
-            throw error; // Re-throw to be handled by loadDashboardData
+            console.error('Error refreshing data:', error);
+            this.showNotification('Error refreshing data: ' + error.message, 'error');
+        } finally {
+            if (refreshBtn) {
+                refreshBtn.classList.remove('refreshing');
+                refreshBtn.disabled = false;
+            }
         }
     }
 
-    // Fetch tool usage data
-    async fetchToolUsage() {
+    // Sync current user to Firestore (creates user document if missing)
+    async syncUsersFromAuth() {
+        const syncBtn = document.getElementById('sync-users-btn');
+        if (syncBtn) {
+            syncBtn.classList.add('syncing');
+            syncBtn.disabled = true;
+        }
+        
+        this.showNotification('🔄 Creating user documents in Firestore...', 'info');
+        console.log('🔄 Starting user sync process...');
+        
         try {
-            const db = firebase.firestore();
-            const toolUsageSnapshot = await db.collection('toolUsage').get();
+            // For now, we can only sync the current user and create a template
+            // A full sync would require Firebase Admin SDK with service account
             
-            const toolStats = {};
-            toolUsageSnapshot.forEach(doc => {
-                const data = doc.data();
-                const toolName = data.toolName || 'Unknown Tool';
+            if (!this.currentUser) {
+                throw new Error('No user logged in');
+            }
+            
+            // Create/update current user document
+            const userRef = this.db.collection('users').doc(this.currentUser.uid);
+            const userDoc = await userRef.get();
+            
+            if (!userDoc.exists) {
+                console.log('Creating user document for current user...');
+                await userRef.set({
+                    email: this.currentUser.email,
+                    displayName: this.currentUser.displayName || this.currentUser.email.split('@')[0],
+                    emailVerified: this.currentUser.emailVerified,
+                    createdAt: new Date().toISOString(),
+                    lastActive: new Date().toISOString(),
+                    newsletterSubscription: false
+                });
+                console.log('✅ Current user document created');
+                this.showNotification('✅ Current user synced! Note: Other users will be synced when they login.', 'success');
+            } else {
+                // Update lastActive
+                await userRef.update({
+                    lastActive: new Date().toISOString()
+                });
+                console.log('✅ Current user document updated');
+                this.showNotification('✅ Current user updated! Note: Other users will be synced when they login.', 'success');
+            }
+            
+            // Reload users data
+            await this.loadUsersData();
+            this.updateStatsCards();
+            this.updateAnalytics();
+            
+        } catch (error) {
+            console.error('❌ Error syncing users:', error);
+            this.showNotification('❌ Error: ' + error.message, 'error');
+        } finally {
+            if (syncBtn) {
+                syncBtn.classList.remove('syncing');
+                syncBtn.disabled = false;
+            }
+        }
+    }
+
+    // Update last refresh time display
+    updateLastRefreshTime() {
+        const lastRefreshEl = document.getElementById('last-refresh-time');
+        if (!lastRefreshEl) return;
+        
+        if (!this.lastRefreshTime) {
+            lastRefreshEl.textContent = 'Never refreshed';
+            return;
+        }
+        
+        const now = new Date();
+        const diff = now - this.lastRefreshTime;
+        const minutes = Math.floor(diff / 60000);
+        const hours = Math.floor(diff / 3600000);
+        
+        if (minutes < 1) {
+            lastRefreshEl.textContent = 'Just now';
+        } else if (minutes < 60) {
+            lastRefreshEl.textContent = `Last refresh: ${minutes} min ago`;
+        } else if (hours < 24) {
+            lastRefreshEl.textContent = `Last refresh: ${hours} hours ago`;
+        } else {
+            lastRefreshEl.textContent = `Last refresh: ${this.lastRefreshTime.toLocaleString()}`;
+        }
+    }
+
+    // Setup main tabs
+    setupTabs() {
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const targetTab = btn.dataset.tab;
                 
-                if (!toolStats[toolName]) {
-                    toolStats[toolName] = {
-                        usage: 0,
-                        lastWeek: 0,
-                        thisWeek: 0
-                    };
+                // Remove active class from all
+                tabBtns.forEach(b => b.classList.remove('active'));
+                tabContents.forEach(c => c.classList.remove('active'));
+                
+                // Add active class to clicked
+                btn.classList.add('active');
+                document.getElementById(`${targetTab}-tab`).classList.add('active');
+            });
+        });
+    }
+
+    // Setup sub tabs
+    setupSubTabs() {
+        const subTabBtns = document.querySelectorAll('.sub-tab-btn');
+        const subTabContents = document.querySelectorAll('.sub-tab-content');
+
+        subTabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const targetSubTab = btn.dataset.subtab;
+                
+                // Remove active class from all
+                subTabBtns.forEach(b => b.classList.remove('active'));
+                subTabContents.forEach(c => c.classList.remove('active'));
+                
+                // Add active class to clicked
+                btn.classList.add('active');
+                document.getElementById(`${targetSubTab}-subtab`).classList.add('active');
+            });
+        });
+    }
+
+    // Setup filters and search
+    setupFilters() {
+        // Users filters
+        document.getElementById('users-search')?.addEventListener('input', (e) => {
+            this.filterUsers(e.target.value, document.getElementById('users-newsletter-filter').value);
+        });
+        
+        document.getElementById('users-newsletter-filter')?.addEventListener('change', (e) => {
+            this.filterUsers(document.getElementById('users-search').value, e.target.value);
+        });
+
+        // Specs filters
+        document.getElementById('specs-search')?.addEventListener('input', () => this.filterSpecs());
+        document.getElementById('specs-user-filter')?.addEventListener('input', () => this.filterSpecs());
+        document.getElementById('specs-date-from')?.addEventListener('change', () => this.filterSpecs());
+        document.getElementById('specs-date-to')?.addEventListener('change', () => this.filterSpecs());
+
+        // Market Research filters
+        document.getElementById('market-search')?.addEventListener('input', () => this.filterMarketResearch());
+        document.getElementById('market-user-filter')?.addEventListener('input', () => this.filterMarketResearch());
+        document.getElementById('market-date-from')?.addEventListener('change', () => this.filterMarketResearch());
+        document.getElementById('market-date-to')?.addEventListener('change', () => this.filterMarketResearch());
+
+        // Dashboards filters
+        document.getElementById('dashboards-search')?.addEventListener('input', () => this.filterDashboards());
+        document.getElementById('dashboards-user-filter')?.addEventListener('input', () => this.filterDashboards());
+        document.getElementById('dashboards-date-from')?.addEventListener('change', () => this.filterDashboards());
+        document.getElementById('dashboards-date-to')?.addEventListener('change', () => this.filterDashboards());
+    }
+
+    // Load all data
+    async loadAllData() {
+        try {
+            console.log('=== Starting to load all data ===');
+            console.log('Current user:', this.currentUser?.email);
+            
+            // Load data sequentially to better track errors
+            await this.loadUsersData();
+            await this.loadSpecsData();
+            await this.loadMarketResearchData();
+            await this.loadDashboardsData();
+            
+            console.log('=== All data loaded successfully ===');
+            
+            this.updateStatsCards();
+            this.updateAnalytics();
+            
+            // Update last refresh time
+            this.lastRefreshTime = new Date();
+            this.updateLastRefreshTime();
+        } catch (error) {
+            console.error('=== Error loading data ===', error);
+            this.showNotification('Error loading data: ' + error.message, 'error');
+        }
+    }
+
+    // Load users data
+    async loadUsersData() {
+        try {
+            console.log('📊 Loading users data...');
+            console.log('Current user email:', this.currentUser?.email);
+            console.log('Current user UID:', this.currentUser?.uid);
+            
+            const usersSnapshot = await this.db.collection('users').get();
+            
+            console.log(`📊 Received ${usersSnapshot.size} user documents from Firebase`);
+            
+            // NO MOCK DATA - Only real data from Firebase
+            this.allUsers = usersSnapshot.docs.map(doc => {
+                const data = doc.data();
+                console.log(`User doc ${doc.id}:`, data);
+                return {
+                    id: doc.id,
+                    ...data
+                };
+            });
+            
+            console.log(`✅ Successfully loaded ${this.allUsers.length} users from Firebase`);
+            console.log('Users array:', this.allUsers);
+            
+            if (this.allUsers.length === 0) {
+                console.warn('⚠️ No users found in Firebase. This might be a permissions issue or empty collection.');
+                console.warn('Checking if current user is admin...');
+                const adminEmails = ['specifysai@gmail.com', 'admin@specifys.ai', 'shalom@specifys.ai'];
+                const isAdmin = adminEmails.includes(this.currentUser?.email?.toLowerCase());
+                console.warn('Is admin?', isAdmin);
+            }
+            
+            this.renderUsersTable(this.allUsers);
+        } catch (error) {
+            console.error('❌ Error loading users:', error);
+            console.error('Error code:', error.code);
+            console.error('Error message:', error.message);
+            console.error('Full error:', error);
+            
+            // Show error in table
+            const tbody = document.getElementById('users-table-body');
+            if (tbody) {
+                let errorMessage = error.message;
+                if (error.code === 'permission-denied') {
+                    errorMessage = 'Permission denied. Firestore Rules not deployed yet.';
                 }
                 
-                toolStats[toolName].usage++;
-                
-                // Calculate weekly trends
-                const timestamp = data.timestamp?.toDate() || new Date();
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: var(--danger-color); padding: 20px;">
+                            <strong>Error loading users:</strong> ${errorMessage}
+                            <br><br>
+                            <small>
+                                <strong>Possible reasons:</strong><br>
+                                1. Firestore Rules not deployed yet (most likely)<br>
+                                2. Current user email: ${this.currentUser?.email}<br>
+                                3. Please deploy the rules manually via Firebase Console
+                            </small>
+                        </td>
+                    </tr>
+                `;
+            }
+            
+            // Don't throw - continue loading other data
+            this.allUsers = [];
+        }
+    }
+
+    // Load specs data
+    async loadSpecsData() {
+        try {
+            console.log('Loading specs data...');
+            const specsSnapshot = await this.db.collection('specs').get();
+            
+            // NO MOCK DATA - Only real data from Firebase
+            this.allSpecs = specsSnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+            
+            console.log(`Loaded ${this.allSpecs.length} specs from Firebase`);
+            this.renderSpecsTable(this.allSpecs);
+        } catch (error) {
+            console.error('Error loading specs:', error);
+            const tbody = document.getElementById('specs-table-body');
+            if (tbody) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: var(--danger-color); padding: 20px;">
+                            Error: ${error.message}
+                        </td>
+                    </tr>
+                `;
+            }
+            throw error;
+        }
+    }
+
+    // Load market research data
+    async loadMarketResearchData() {
+        try {
+            console.log('Loading market research data...');
+            const marketSnapshot = await this.db.collection('marketResearch').get();
+            
+            // NO MOCK DATA - Only real data from Firebase
+            this.allMarketResearch = marketSnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+            
+            console.log(`Loaded ${this.allMarketResearch.length} market research items from Firebase`);
+            this.renderMarketResearchTable(this.allMarketResearch);
+        } catch (error) {
+            console.error('Error loading market research:', error);
+            const tbody = document.getElementById('market-table-body');
+            if (tbody) {
+            tbody.innerHTML = `
+                <tr>
+                        <td colspan="5" style="text-align: center; color: var(--danger-color); padding: 20px;">
+                            Error: ${error.message}
+                    </td>
+                </tr>
+            `;
+            }
+            throw error;
+        }
+    }
+
+    // Load dashboards data
+    async loadDashboardsData() {
+        try {
+            console.log('Loading dashboards data...');
+            
+            // NO MOCK DATA - Only real data from Firebase
+            const dashboardsSnapshot = await this.db.collection('apps').get();
+            this.allDashboards = dashboardsSnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+
+            // Load tasks and milestones
+            const tasksSnapshot = await this.db.collection('appTasks').get();
+            this.allTasks = tasksSnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+
+            const milestonesSnapshot = await this.db.collection('appMilestones').get();
+            this.allMilestones = milestonesSnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+            
+            console.log(`Loaded ${this.allDashboards.length} dashboards, ${this.allTasks.length} tasks, ${this.allMilestones.length} milestones from Firebase`);
+            this.renderDashboardsTable(this.allDashboards);
+        } catch (error) {
+            console.error('Error loading dashboards:', error);
+            const tbody = document.getElementById('dashboards-table-body');
+            if (tbody) {
+            tbody.innerHTML = `
+                <tr>
+                        <td colspan="7" style="text-align: center; color: var(--danger-color); padding: 20px;">
+                            Error: ${error.message}
+                    </td>
+                </tr>
+            `;
+        }
+            throw error;
+        }
+    }
+
+    // Render users table
+    renderUsersTable(users) {
+        const tbody = document.getElementById('users-table-body');
+        
+        if (!users || users.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" class="loading-cell">No users found</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = users.map(user => `
+            <tr>
+                <td>${user.email || 'N/A'}</td>
+                <td>${this.formatDate(user.createdAt)}</td>
+                <td><span class="status-badge status-${user.newsletterSubscription ? 'subscribed' : 'unsubscribed'}">${user.newsletterSubscription ? 'Subscribed' : 'Unsubscribed'}</span></td>
+                <td>${this.formatDate(user.lastActive)}</td>
+                <td>
+                    <button class="btn-delete" onclick="adminDashboard.confirmDeleteUser('${user.id}', '${user.email}')">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    // Render specs table
+    renderSpecsTable(specs) {
+        const tbody = document.getElementById('specs-table-body');
+        
+        if (!specs || specs.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" class="loading-cell">No specs found</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = specs.map(spec => `
+            <tr>
+                <td>${spec.title || 'Untitled'}</td>
+                <td>${spec.userName || 'Unknown'}</td>
+                <td>${this.formatDate(spec.createdAt)}</td>
+                <td>${spec.mode || 'N/A'}</td>
+                <td>
+                    <button class="btn-view" onclick="adminDashboard.viewSpec('${spec.id}', 'specs')">
+                        <i class="fas fa-eye"></i> View
+                    </button>
+                </td>
+                </tr>
+            `).join('');
+    }
+
+    // Render market research table
+    renderMarketResearchTable(research) {
+        const tbody = document.getElementById('market-table-body');
+        
+        if (!research || research.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" class="loading-cell">No market research found</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = research.map(item => `
+            <tr>
+                <td>${item.title || 'Untitled'}</td>
+                <td>${item.userName || 'Unknown'}</td>
+                <td>${this.formatDate(item.createdAt)}</td>
+                <td>${item.mode || 'Market Research'}</td>
+                <td>
+                    <button class="btn-view" onclick="adminDashboard.viewSpec('${item.id}', 'marketResearch')">
+                        <i class="fas fa-eye"></i> View
+                    </button>
+                    </td>
+                </tr>
+        `).join('');
+    }
+
+    // Render dashboards table
+    renderDashboardsTable(dashboards) {
+        const tbody = document.getElementById('dashboards-table-body');
+        
+        if (!dashboards || dashboards.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" class="loading-cell">No app dashboards found</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = dashboards.map(dashboard => {
+            const tasksCount = this.allTasks.filter(t => t.appId === dashboard.id).length;
+            const milestonesCount = this.allMilestones.filter(m => m.appId === dashboard.id).length;
+            
+            return `
+                <tr>
+                    <td>${dashboard.appName || 'Untitled App'}</td>
+                    <td>${dashboard.userEmail || 'Unknown'}</td>
+                    <td>${this.formatDate(dashboard.createdAt)}</td>
+                    <td><span class="status-badge status-active">Active</span></td>
+                    <td>${tasksCount}</td>
+                    <td>${milestonesCount}</td>
+                    <td>
+                        <button class="btn-view" onclick="adminDashboard.viewDashboard('${dashboard.id}')">
+                            <i class="fas fa-eye"></i> View
+                        </button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    // Update stats cards - NO MOCK DATA, only real Firebase data
+    updateStatsCards() {
                 const oneWeekAgo = new Date();
                 oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
                 
-                if (timestamp >= oneWeekAgo) {
-                    toolStats[toolName].thisWeek++;
-                } else {
-                    toolStats[toolName].lastWeek++;
-                }
-            });
-            
-            // Convert to array and calculate percentages
-            const totalUsage = Object.values(toolStats).reduce((sum, tool) => sum + tool.usage, 0);
-            const toolArray = Object.entries(toolStats).map(([name, stats]) => {
-                const percentage = totalUsage > 0 ? (stats.usage / totalUsage * 100).toFixed(1) : 0;
-                const trend = stats.lastWeek > 0 ? 
-                    ((stats.thisWeek - stats.lastWeek) / stats.lastWeek * 100).toFixed(1) : 0;
-                
-                return {
-                    name,
-                    usage: stats.usage,
-                    percentage: parseFloat(percentage),
-                    trend: parseFloat(trend),
-                    status: 'active'
-                };
-            }).sort((a, b) => b.usage - a.usage);
-            
-            return toolArray;
-        } catch (error) {
-            console.error('Error fetching tool usage:', error);
-            throw error; // Re-throw to be handled by loadDashboardData
-        }
+        console.log('Updating stats cards with real data:');
+        console.log(`- Total users: ${this.allUsers.length}`);
+        console.log(`- Total dashboards: ${this.allDashboards.length}`);
+        console.log(`- Total specs: ${this.allSpecs.length}`);
+        console.log(`- Total market research: ${this.allMarketResearch.length}`);
+
+        // Total users - REAL DATA ONLY
+        document.getElementById('total-users').textContent = this.allUsers.length;
+
+        // New users this week - REAL DATA ONLY
+        const newUsersWeek = this.allUsers.filter(u => {
+            const created = this.getDate(u.createdAt);
+            return created && created >= oneWeekAgo;
+        }).length;
+        document.getElementById('new-users-week').textContent = newUsersWeek;
+
+        // Total dashboards - REAL DATA ONLY
+        document.getElementById('total-dashboards').textContent = this.allDashboards.length;
+
+        // New dashboards this week - REAL DATA ONLY
+        const newDashboardsWeek = this.allDashboards.filter(d => {
+            const created = this.getDate(d.createdAt);
+            return created && created >= oneWeekAgo;
+        }).length;
+        document.getElementById('new-dashboards-week').textContent = newDashboardsWeek;
+
+        // Total specs - REAL DATA ONLY
+        document.getElementById('total-specs').textContent = this.allSpecs.length;
+
+        // Total market research - REAL DATA ONLY
+        document.getElementById('total-market-research').textContent = this.allMarketResearch.length;
     }
 
-    // Fetch user activity data
-    async fetchUserActivity() {
+    // Update analytics
+    updateAnalytics() {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        const oneWeekAgo = new Date();
+        oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+        oneWeekAgo.setHours(0, 0, 0, 0);
+        
+        const oneMonthAgo = new Date();
+        oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+        oneMonthAgo.setHours(0, 0, 0, 0);
+
+        // Users analytics
+        const usersToday = this.allUsers.filter(u => {
+            const created = this.getDate(u.createdAt);
+            return created && created >= today;
+        }).length;
+        
+        const usersWeek = this.allUsers.filter(u => {
+            const created = this.getDate(u.createdAt);
+            return created && created >= oneWeekAgo;
+        }).length;
+        
+        const usersMonth = this.allUsers.filter(u => {
+            const created = this.getDate(u.createdAt);
+            return created && created >= oneMonthAgo;
+        }).length;
+
+        document.getElementById('users-today').textContent = usersToday;
+        document.getElementById('users-week').textContent = usersWeek;
+        document.getElementById('users-month').textContent = usersMonth;
+
+        // Dashboards analytics
+        const dashboardsToday = this.allDashboards.filter(d => {
+            const created = this.getDate(d.createdAt);
+            return created && created >= today;
+        }).length;
+        
+        const dashboardsWeek = this.allDashboards.filter(d => {
+            const created = this.getDate(d.createdAt);
+            return created && created >= oneWeekAgo;
+        }).length;
+        
+        const dashboardsMonth = this.allDashboards.filter(d => {
+            const created = this.getDate(d.createdAt);
+            return created && created >= oneMonthAgo;
+        }).length;
+
+        document.getElementById('dashboards-today').textContent = dashboardsToday;
+        document.getElementById('dashboards-week').textContent = dashboardsWeek;
+        document.getElementById('dashboards-month').textContent = dashboardsMonth;
+
+        // Specs analytics
+        const specsToday = this.allSpecs.filter(s => {
+            const created = this.getDate(s.createdAt);
+            return created && created >= today;
+        }).length;
+        
+        const specsWeek = this.allSpecs.filter(s => {
+            const created = this.getDate(s.createdAt);
+            return created && created >= oneWeekAgo;
+        }).length;
+        
+        const specsMonth = this.allSpecs.filter(s => {
+            const created = this.getDate(s.createdAt);
+            return created && created >= oneMonthAgo;
+        }).length;
+
+        document.getElementById('specs-today').textContent = specsToday;
+        document.getElementById('specs-week').textContent = specsWeek;
+        document.getElementById('specs-month').textContent = specsMonth;
+    }
+
+    // Filter users
+    filterUsers(searchTerm = '', newsletterFilter = 'all') {
+        let filtered = [...this.allUsers];
+
+        // Search filter
+        if (searchTerm) {
+            const term = searchTerm.toLowerCase();
+            filtered = filtered.filter(u => 
+                (u.email || '').toLowerCase().includes(term)
+            );
+        }
+
+        // Newsletter filter
+        if (newsletterFilter === 'subscribed') {
+            filtered = filtered.filter(u => u.newsletterSubscription === true);
+        } else if (newsletterFilter === 'unsubscribed') {
+            filtered = filtered.filter(u => !u.newsletterSubscription);
+        }
+
+        this.renderUsersTable(filtered);
+    }
+
+    // Filter specs
+    filterSpecs() {
+        const searchTerm = document.getElementById('specs-search').value.toLowerCase();
+        const userFilter = document.getElementById('specs-user-filter').value.toLowerCase();
+        const dateFrom = document.getElementById('specs-date-from').value;
+        const dateTo = document.getElementById('specs-date-to').value;
+
+        let filtered = [...this.allSpecs];
+
+        if (searchTerm) {
+            filtered = filtered.filter(s => 
+                (s.title || '').toLowerCase().includes(searchTerm)
+            );
+        }
+
+        if (userFilter) {
+            filtered = filtered.filter(s => 
+                (s.userName || '').toLowerCase().includes(userFilter)
+            );
+        }
+
+        if (dateFrom) {
+            const fromDate = new Date(dateFrom);
+            filtered = filtered.filter(s => {
+                const created = this.getDate(s.createdAt);
+                return created && created >= fromDate;
+            });
+        }
+
+        if (dateTo) {
+            const toDate = new Date(dateTo);
+            toDate.setHours(23, 59, 59, 999);
+            filtered = filtered.filter(s => {
+                const created = this.getDate(s.createdAt);
+                return created && created <= toDate;
+            });
+        }
+
+        this.renderSpecsTable(filtered);
+    }
+
+    // Filter market research
+    filterMarketResearch() {
+        const searchTerm = document.getElementById('market-search').value.toLowerCase();
+        const userFilter = document.getElementById('market-user-filter').value.toLowerCase();
+        const dateFrom = document.getElementById('market-date-from').value;
+        const dateTo = document.getElementById('market-date-to').value;
+
+        let filtered = [...this.allMarketResearch];
+
+        if (searchTerm) {
+            filtered = filtered.filter(m => 
+                (m.title || '').toLowerCase().includes(searchTerm)
+            );
+        }
+
+        if (userFilter) {
+            filtered = filtered.filter(m => 
+                (m.userName || '').toLowerCase().includes(userFilter)
+            );
+        }
+
+        if (dateFrom) {
+            const fromDate = new Date(dateFrom);
+            filtered = filtered.filter(m => {
+                const created = this.getDate(m.createdAt);
+                return created && created >= fromDate;
+            });
+        }
+
+        if (dateTo) {
+            const toDate = new Date(dateTo);
+            toDate.setHours(23, 59, 59, 999);
+            filtered = filtered.filter(m => {
+                const created = this.getDate(m.createdAt);
+                return created && created <= toDate;
+            });
+        }
+
+        this.renderMarketResearchTable(filtered);
+    }
+
+    // Filter dashboards
+    filterDashboards() {
+        const searchTerm = document.getElementById('dashboards-search').value.toLowerCase();
+        const userFilter = document.getElementById('dashboards-user-filter').value.toLowerCase();
+        const dateFrom = document.getElementById('dashboards-date-from').value;
+        const dateTo = document.getElementById('dashboards-date-to').value;
+
+        let filtered = [...this.allDashboards];
+
+        if (searchTerm) {
+            filtered = filtered.filter(d => 
+                (d.appName || '').toLowerCase().includes(searchTerm)
+            );
+        }
+
+        if (userFilter) {
+            filtered = filtered.filter(d => 
+                (d.userEmail || '').toLowerCase().includes(userFilter)
+            );
+        }
+
+        if (dateFrom) {
+            const fromDate = new Date(dateFrom);
+            filtered = filtered.filter(d => {
+                const created = this.getDate(d.createdAt);
+                return created && created >= fromDate;
+            });
+        }
+
+        if (dateTo) {
+            const toDate = new Date(dateTo);
+            toDate.setHours(23, 59, 59, 999);
+            filtered = filtered.filter(d => {
+                const created = this.getDate(d.createdAt);
+                return created && created <= toDate;
+            });
+        }
+
+        this.renderDashboardsTable(filtered);
+    }
+
+    // View spec in modal
+    async viewSpec(specId, collection) {
         try {
-            const db = firebase.firestore();
-            const activities = [];
-            
-            // Get recent specs
-            const specsSnapshot = await db.collection('specs')
-                .orderBy('createdAt', 'desc')
-                .limit(10)
-                .get();
-            
-            specsSnapshot.forEach(doc => {
-                const data = doc.data();
-                const createdAt = data.createdAt?.toDate() || new Date();
-                activities.push({
-                    user: data.userEmail || 'Unknown User',
-                    activity: 'Created spec',
-                    tool: data.specType || 'Unknown Type',
-                    time: this.getTimeAgo(createdAt),
-                    status: 'completed',
-                    timestamp: createdAt
-                });
-            });
-            
-            // Get recent chats
-            const chatsSnapshot = await db.collection('chats')
-                .orderBy('createdAt', 'desc')
-                .limit(10)
-                .get();
-            
-            chatsSnapshot.forEach(doc => {
-                const data = doc.data();
-                const createdAt = data.createdAt?.toDate() || new Date();
-                activities.push({
-                    user: data.userEmail || 'Unknown User',
-                    activity: data.status === 'completed' ? 'Completed chat' : 
-                             data.status === 'in_progress' ? 'Started chat' : 'Abandoned chat',
-                    tool: data.chatType || 'Unknown Type',
-                    time: this.getTimeAgo(createdAt),
-                    status: data.status || 'unknown',
-                    timestamp: createdAt
-                });
-            });
-            
-            // Get recent tool usage
-            const toolUsageSnapshot = await db.collection('toolUsage')
-                .orderBy('timestamp', 'desc')
-                .limit(10)
-                .get();
-            
-            toolUsageSnapshot.forEach(doc => {
-                const data = doc.data();
-                const timestamp = data.timestamp?.toDate() || new Date();
-                activities.push({
-                    user: data.userEmail || 'Unknown User',
-                    activity: 'Used tool',
-                    tool: data.toolName || 'Unknown Tool',
-                    time: this.getTimeAgo(timestamp),
-                    status: 'completed',
-                    timestamp: timestamp
-                });
-            });
-            
-            // Sort by timestamp and return top 10
-            return activities
-                .sort((a, b) => b.timestamp - a.timestamp)
-                .slice(0, 10);
-                
+            const doc = await this.db.collection(collection).doc(specId).get();
+            if (!doc.exists) {
+                this.showNotification('Spec not found', 'error');
+                return;
+            }
+
+            const data = doc.data();
+            document.getElementById('modal-title').textContent = data.title || 'Specification';
+            document.getElementById('modal-spec-content').textContent = data.content || 'No content available';
+            document.getElementById('spec-modal').style.display = 'block';
         } catch (error) {
-            console.error('Error fetching user activity:', error);
-            throw error; // Re-throw to be handled by loadDashboardData
-        }
-    }
-    
-    // Helper function to get time ago string
-    getTimeAgo(date) {
-        const now = new Date();
-        const diffInSeconds = Math.floor((now - date) / 1000);
-        
-        if (diffInSeconds < 60) {
-            return `${diffInSeconds} seconds ago`;
-        } else if (diffInSeconds < 3600) {
-            const minutes = Math.floor(diffInSeconds / 60);
-            return `${minutes} min ago`;
-        } else if (diffInSeconds < 86400) {
-            const hours = Math.floor(diffInSeconds / 3600);
-            return `${hours} hours ago`;
-        } else {
-            const days = Math.floor(diffInSeconds / 86400);
-            return `${days} days ago`;
+            console.error('Error viewing spec:', error);
+            this.showNotification('Error loading spec: ' + error.message, 'error');
         }
     }
 
-    // Update stats cards
-    updateStatsCards(stats) {
-        document.getElementById('total-users').textContent = stats.totalUsers.toLocaleString();
-        document.getElementById('active-tools').textContent = stats.activeTools.toLocaleString();
-        document.getElementById('total-specs').textContent = stats.totalSpecs.toLocaleString();
-        document.getElementById('total-chats').textContent = stats.totalChats.toLocaleString();
-        document.getElementById('incomplete-chats').textContent = stats.incompleteChats.toLocaleString();
-        document.getElementById('daily-usage').textContent = stats.dailyUsage.toLocaleString();
-    }
-
-    // Update tool usage table
-    updateToolUsageTable(toolUsage) {
-        const tbody = document.querySelector('.admin-table tbody');
-        if (!tbody) return;
-
-        // Clear any existing data first
-        tbody.innerHTML = '';
-        
-        // Only show real data from Firebase
-        if (toolUsage && toolUsage.length > 0) {
-            tbody.innerHTML = toolUsage.map(tool => `
-                <tr>
-                    <td><i class="fas fa-search"></i> ${tool.name}</td>
-                    <td>${tool.usage.toLocaleString()}</td>
-                    <td>${tool.percentage}%</td>
-                    <td><span class="stat-card-change ${tool.trend > 0 ? 'positive' : 'negative'}">${tool.trend > 0 ? '↗' : '↘'} ${Math.abs(tool.trend)}%</span></td>
-                    <td><span class="status-badge status-active">Active</span></td>
-                </tr>
-            `).join('');
-        } else {
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="5" style="text-align: center; color: var(--primary-color); padding: 20px;">
-                        No real tool usage data found in Firebase
-                    </td>
-                </tr>
-            `;
-        }
-    }
-
-    // Update user activity table
-    updateUserActivityTable(userActivity) {
-        const tbody = document.querySelectorAll('.admin-table tbody')[2]; // Third table
-        if (!tbody) return;
-
-        // Clear any existing data first
-        tbody.innerHTML = '';
-        
-        // Only show real data from Firebase
-        if (userActivity && userActivity.length > 0) {
-            tbody.innerHTML = userActivity.map(activity => `
-                <tr>
-                    <td>${activity.user}</td>
-                    <td>${activity.activity}</td>
-                    <td>${activity.tool}</td>
-                    <td>${activity.time}</td>
-                    <td><span class="status-badge status-${activity.status === 'completed' ? 'active' : activity.status === 'in_progress' ? 'pending' : 'inactive'}">${this.formatStatus(activity.status)}</span></td>
-                </tr>
-            `).join('');
-        } else {
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="5" style="text-align: center; color: var(--primary-color); padding: 20px;">
-                        No real user activity data found in Firebase
-                    </td>
-                </tr>
-            `;
-        }
-    }
-
-    // Format status for display
-    formatStatus(status) {
-        const statusMap = {
-            'completed': 'Completed',
-            'in_progress': 'In Progress',
-            'abandoned': 'Abandoned'
-        };
-        return statusMap[status] || status;
-    }
-
-    // Charts removed - only real data tables
-
-    // Setup event listeners
-    setupEventListeners() {
-        // Refresh button
-        const refreshBtn = document.getElementById('refresh-btn');
-        if (refreshBtn) {
-            refreshBtn.addEventListener('click', () => this.manualRefresh());
-        }
-
-        // Export buttons
-        const exportBtns = document.querySelectorAll('.export-btn');
-        exportBtns.forEach(btn => {
-            btn.addEventListener('click', (e) => this.exportData(e.target.dataset.format));
-        });
-
-        // Search functionality
-        const searchInput = document.getElementById('search-input');
-        if (searchInput) {
-            searchInput.addEventListener('input', (e) => this.filterTables(e.target.value));
-        }
-    }
-
-    // Manual refresh only - no automatic updates
-    manualRefresh() {
-        this.showInfo('Refreshing data from Firebase...');
-        this.loadDashboardData();
-    }
-
-    // Export data functionality
-    exportData(format) {
-        switch (format) {
-            case 'csv':
-                this.exportToCSV();
-                break;
-            case 'pdf':
-                this.exportToPDF();
-                break;
-            case 'excel':
-                this.exportToExcel();
-                break;
-            default:
-                console.error('Unknown export format:', format);
-        }
-    }
-
-    // Export to CSV
-    exportToCSV() {
-        const data = this.getTableData();
-        const csv = this.convertToCSV(data);
-        this.downloadFile(csv, 'admin-dashboard-data.csv', 'text/csv');
-    }
-
-    // Export to PDF
-    exportToPDF() {
+    // View dashboard details
+    async viewDashboard(dashboardId) {
         try {
-            // Create a simple HTML report
-            const reportData = this.generateReportData();
-            const htmlContent = this.generateHTMLReport(reportData);
-            
-            // Open in new window for printing
-            const printWindow = window.open('', '_blank');
-            printWindow.document.write(htmlContent);
-            printWindow.document.close();
-            printWindow.focus();
-            
-            // Wait for content to load then print
-            setTimeout(() => {
-                printWindow.print();
-            }, 500);
-            
-            this.showSuccess('PDF report opened for printing');
+            const doc = await this.db.collection('apps').doc(dashboardId).get();
+            if (!doc.exists) {
+                this.showNotification('Dashboard not found', 'error');
+                return;
+            }
+
+            const data = doc.data();
+            const tasks = this.allTasks.filter(t => t.appId === dashboardId);
+            const milestones = this.allMilestones.filter(m => m.appId === dashboardId);
+
+            let content = `App Name: ${data.appName || 'N/A'}\n`;
+            content += `User: ${data.userEmail || 'N/A'}\n`;
+            content += `Created: ${this.formatDate(data.createdAt)}\n\n`;
+            content += `Tasks (${tasks.length}):\n`;
+            tasks.forEach(task => {
+                content += `- ${task.title || 'Untitled'} (${task.status || 'pending'})\n`;
+            });
+            content += `\nMilestones (${milestones.length}):\n`;
+            milestones.forEach(milestone => {
+                content += `- ${milestone.title || 'Untitled'}\n`;
+            });
+
+            document.getElementById('modal-title').textContent = data.appName || 'App Dashboard';
+            document.getElementById('modal-spec-content').textContent = content;
+            document.getElementById('spec-modal').style.display = 'block';
         } catch (error) {
-            console.error('Error generating PDF:', error);
-            this.showError('Failed to generate PDF report');
+            console.error('Error viewing dashboard:', error);
+            this.showNotification('Error loading dashboard: ' + error.message, 'error');
         }
     }
 
-    // Export to Excel
-    exportToExcel() {
+    // Close modal
+    closeModal() {
+        document.getElementById('spec-modal').style.display = 'none';
+    }
+
+    // Confirm delete user
+    confirmDeleteUser(userId, userEmail) {
+        document.getElementById('confirm-message').textContent = 
+            `Are you sure you want to delete user "${userEmail}"? This will also delete all their specs, dashboards, and data.`;
+        
+        const confirmBtn = document.getElementById('confirm-delete-btn');
+        confirmBtn.onclick = () => this.deleteUser(userId);
+        
+        document.getElementById('confirm-modal').style.display = 'block';
+    }
+
+    // Delete user
+    async deleteUser(userId) {
         try {
-            const data = this.getTableData();
-            const csvContent = this.convertToCSV(data);
-            
-            // Convert CSV to Excel format (simple approach)
-            const excelContent = this.convertCSVToExcel(csvContent);
-            this.downloadFile(excelContent, 'admin-dashboard-data.xls', 'application/vnd.ms-excel');
-            
-            this.showSuccess('Excel file downloaded successfully');
+            this.closeConfirmModal();
+            this.showNotification('Deleting user...', 'info');
+
+            // Delete user document
+            await this.db.collection('users').doc(userId).delete();
+
+            // Delete user's specs
+            const specsSnapshot = await this.db.collection('specs')
+                .where('userId', '==', userId).get();
+            const specsDeletePromises = specsSnapshot.docs.map(doc => doc.ref.delete());
+            await Promise.all(specsDeletePromises);
+
+            // Delete user's market research
+            const marketSnapshot = await this.db.collection('marketResearch')
+                .where('userId', '==', userId).get();
+            const marketDeletePromises = marketSnapshot.docs.map(doc => doc.ref.delete());
+            await Promise.all(marketDeletePromises);
+
+            // Delete user's apps
+            const appsSnapshot = await this.db.collection('apps')
+                .where('userId', '==', userId).get();
+            const appsDeletePromises = appsSnapshot.docs.map(doc => doc.ref.delete());
+            await Promise.all(appsDeletePromises);
+
+            // Delete user's tasks
+            const tasksSnapshot = await this.db.collection('appTasks')
+                .where('userId', '==', userId).get();
+            const tasksDeletePromises = tasksSnapshot.docs.map(doc => doc.ref.delete());
+            await Promise.all(tasksDeletePromises);
+
+            // Delete user's milestones
+            const milestonesSnapshot = await this.db.collection('appMilestones')
+                .where('userId', '==', userId).get();
+            const milestonesDeletePromises = milestonesSnapshot.docs.map(doc => doc.ref.delete());
+            await Promise.all(milestonesDeletePromises);
+
+            this.showNotification('User deleted successfully', 'success');
+            await this.loadAllData();
         } catch (error) {
-            console.error('Error generating Excel:', error);
-            this.showError('Failed to generate Excel file');
+            console.error('Error deleting user:', error);
+            this.showNotification('Error deleting user: ' + error.message, 'error');
         }
     }
-    
-    // Generate report data
-    generateReportData() {
-        const stats = {
-            totalUsers: document.getElementById('total-users').textContent,
-            activeTools: document.getElementById('active-tools').textContent,
-            totalSpecs: document.getElementById('total-specs').textContent,
-            totalChats: document.getElementById('total-chats').textContent,
-            incompleteChats: document.getElementById('incomplete-chats').textContent,
-            dailyUsage: document.getElementById('daily-usage').textContent
-        };
-        
-        const toolUsage = this.getTableData()[0] || [];
-        const userActivity = this.getTableData()[2] || [];
-        
-        return { stats, toolUsage, userActivity };
-    }
-    
-    // Generate HTML report
-    generateHTMLReport(data) {
-        const currentDate = new Date().toLocaleDateString();
-        
-        return `
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>Specifys.ai Admin Report - ${currentDate}</title>
-                <style>
-                    body { font-family: Arial, sans-serif; margin: 20px; }
-                    h1 { color: #0078d4; }
-                    h2 { color: #666; border-bottom: 2px solid #0078d4; }
-                    table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-                    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-                    th { background-color: #f2f2f2; }
-                    .stats { display: flex; justify-content: space-around; margin: 20px 0; }
-                    .stat-item { text-align: center; padding: 20px; background: #f9f9f9; border-radius: 8px; }
-                    .stat-value { font-size: 24px; font-weight: bold; color: #0078d4; }
-                    .stat-label { color: #666; }
-                </style>
-            </head>
-            <body>
-                <h1>Specifys.ai Admin Dashboard Report</h1>
-                <p>Generated on: ${currentDate}</p>
-                
-                <h2>Statistics Overview</h2>
-                <div class="stats">
-                    <div class="stat-item">
-                        <div class="stat-value">${data.stats.totalUsers}</div>
-                        <div class="stat-label">Total Users</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value">${data.stats.activeTools}</div>
-                        <div class="stat-label">Active Tools</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value">${data.stats.totalSpecs}</div>
-                        <div class="stat-label">Total Specs</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value">${data.stats.totalChats}</div>
-                        <div class="stat-label">Total Chats</div>
-                    </div>
-                </div>
-                
-                <h2>Tool Usage</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Tool Name</th>
-                            <th>Usage Count</th>
-                            <th>Percentage</th>
-                            <th>Trend</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${data.toolUsage.map(row => `
-                            <tr>
-                                <td>${row[0]}</td>
-                                <td>${row[1]}</td>
-                                <td>${row[2]}</td>
-                                <td>${row[3]}</td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-                
-                <h2>Recent User Activity</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>User</th>
-                            <th>Activity</th>
-                            <th>Tool Used</th>
-                            <th>Time</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${data.userActivity.map(row => `
-                            <tr>
-                                <td>${row[0]}</td>
-                                <td>${row[1]}</td>
-                                <td>${row[2]}</td>
-                                <td>${row[3]}</td>
-                                <td>${row[4]}</td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-            </body>
-            </html>
-        `;
-    }
-    
-    // Convert CSV to Excel format
-    convertCSVToExcel(csvContent) {
-        // Simple Excel format - just add BOM for UTF-8
-        return '\uFEFF' + csvContent;
+
+    // Close confirm modal
+    closeConfirmModal() {
+        document.getElementById('confirm-modal').style.display = 'none';
     }
 
-    // Get table data for export
-    getTableData() {
-        const tables = document.querySelectorAll('.admin-table');
-        const data = [];
+    // Format date
+    formatDate(timestamp) {
+        if (!timestamp) return 'N/A';
         
-        tables.forEach(table => {
-            const rows = Array.from(table.querySelectorAll('tr'));
-            const tableData = rows.map(row => {
-                const cells = Array.from(row.querySelectorAll('td, th'));
-                return cells.map(cell => cell.textContent.trim());
-            });
-            data.push(tableData);
-        });
+        let date;
+        if (timestamp.toDate) {
+            date = timestamp.toDate();
+        } else if (timestamp instanceof Date) {
+            date = timestamp;
+        } else if (typeof timestamp === 'string') {
+            date = new Date(timestamp);
+        } else {
+            return 'N/A';
+        }
+
+        if (isNaN(date.getTime())) return 'N/A';
         
-        return data;
-    }
-
-    // Convert data to CSV format
-    convertToCSV(data) {
-        return data.map(table => 
-            table.map(row => row.join(',')).join('\n')
-        ).join('\n\n');
-    }
-
-    // Download file
-    downloadFile(content, filename, mimeType) {
-        const blob = new Blob([content], { type: mimeType });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = filename;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-    }
-
-    // Filter tables based on search input
-    filterTables(searchTerm) {
-        const tables = document.querySelectorAll('.admin-table tbody');
-        const term = searchTerm.toLowerCase();
-        
-        tables.forEach(tbody => {
-            const rows = Array.from(tbody.querySelectorAll('tr'));
-            rows.forEach(row => {
-                const text = row.textContent.toLowerCase();
-                const shouldShow = text.includes(term);
-                row.style.display = shouldShow ? '' : 'none';
-            });
+        return date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
         });
     }
 
-    // Show success message
-    showSuccess(message) {
-        this.showNotification(message, 'success');
-    }
-
-    // Show error message
-    showError(message) {
-        this.showNotification(message, 'error');
-    }
-
-    // Show info message
-    showInfo(message) {
-        this.showNotification(message, 'info');
+    // Get date object
+    getDate(timestamp) {
+        if (!timestamp) return null;
+        
+        if (timestamp.toDate) {
+            return timestamp.toDate();
+        } else if (timestamp instanceof Date) {
+            return timestamp;
+        } else if (typeof timestamp === 'string') {
+            return new Date(timestamp);
+        }
+        
+        return null;
     }
 
     // Show notification
-    showNotification(message, type) {
-        // Create notification element
+    showNotification(message, type = 'info') {
         const notification = document.createElement('div');
         notification.className = `notification notification-${type}`;
-        notification.innerHTML = `
-            <div class="notification-content">
-                <i class="fas fa-${this.getNotificationIcon(type)}"></i>
-                <span>${message}</span>
-            </div>
-        `;
-
-        // Add styles
         notification.style.cssText = `
             position: fixed;
             bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: ${this.getNotificationColor(type)};
+            right: 20px;
+            background: ${type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : '#17a2b8'};
             color: white;
-            padding: 12px 20px;
+            padding: 1rem 1.5rem;
             border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            z-index: 1000;
-            animation: slideUp 0.3s ease-out;
+            z-index: 10001;
+            animation: slideIn 0.3s ease-out;
         `;
+        notification.textContent = message;
 
-        // Add to page
         document.body.appendChild(notification);
 
-        // Remove after 3 seconds
         setTimeout(() => {
-            notification.style.animation = 'slideDown 0.3s ease-out';
+            notification.style.animation = 'slideOut 0.3s ease-out';
             setTimeout(() => {
                 if (notification.parentNode) {
                     notification.parentNode.removeChild(notification);
@@ -743,173 +1012,45 @@ class AdminDashboard {
             }, 300);
         }, 3000);
     }
-
-    // Get notification icon
-    getNotificationIcon(type) {
-        const icons = {
-            'success': 'check-circle',
-            'error': 'exclamation-circle',
-            'info': 'info-circle'
-        };
-        return icons[type] || 'info-circle';
-    }
-
-    // Get notification color
-    getNotificationColor(type) {
-        const colors = {
-            'success': '#28a745',
-            'error': '#dc3545',
-            'info': '#17a2b8'
-        };
-        return colors[type] || '#17a2b8';
-    }
-
-    // Get user analytics
-    async getUserAnalytics() {
-        try {
-            // This would connect to Firebase and get real user data
-            const db = firebase.firestore();
-            const usersSnapshot = await db.collection('users').get();
-            const specsSnapshot = await db.collection('specs').get();
-            const chatsSnapshot = await db.collection('chats').get();
-            
-            return {
-                totalUsers: usersSnapshot.size,
-                totalSpecs: specsSnapshot.size,
-                totalChats: chatsSnapshot.size,
-                activeUsers: await this.getActiveUsers(),
-                completionRate: await this.getCompletionRate()
-            };
-        } catch (error) {
-            console.error('Error fetching user analytics:', error);
-            return null;
-        }
-    }
-
-    // Get active users (users who used the site in the last 7 days)
-    async getActiveUsers() {
-        const db = firebase.firestore();
-        const sevenDaysAgo = new Date();
-        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-        
-        const activeUsersSnapshot = await db.collection('users')
-            .where('lastActive', '>=', sevenDaysAgo)
-            .get();
-            
-        return activeUsersSnapshot.size;
-    }
-
-    // Get completion rate for chat sessions
-    async getCompletionRate() {
-        const db = firebase.firestore();
-        const chatsSnapshot = await db.collection('chats').get();
-        
-        let completed = 0;
-        let total = chatsSnapshot.size;
-        
-        chatsSnapshot.forEach(doc => {
-            const data = doc.data();
-            if (data.status === 'completed') {
-                completed++;
-            }
-        });
-        
-        return total > 0 ? (completed / total * 100).toFixed(1) : 0;
-    }
-
-    // Get tool usage analytics
-    async getToolUsageAnalytics() {
-        try {
-            const db = firebase.firestore();
-            const toolUsageSnapshot = await db.collection('toolUsage').get();
-            
-            const toolStats = {};
-            toolUsageSnapshot.forEach(doc => {
-                const data = doc.data();
-                const toolName = data.toolName;
-                
-                if (!toolStats[toolName]) {
-                    toolStats[toolName] = {
-                        count: 0,
-                        users: new Set()
-                    };
-                }
-                
-                toolStats[toolName].count++;
-                toolStats[toolName].users.add(data.userId);
-            });
-            
-            // Convert to array and sort by usage
-            return Object.entries(toolStats).map(([name, stats]) => ({
-                name,
-                usage: stats.count,
-                uniqueUsers: stats.users.size
-            })).sort((a, b) => b.usage - a.usage);
-            
-        } catch (error) {
-            console.error('Error fetching tool usage analytics:', error);
-            return [];
-        }
-    }
 }
 
-// Check admin access based on email
-function checkAdminAccess(user) {
-    // Define admin emails - add your specific admin email here
-    const adminEmails = [
-        'specifysai@gmail.com',
-        'admin@specifys.ai',
-        'shalom@specifys.ai'
-        // Add more admin emails as needed
-    ];
+// Close modals when clicking outside
+window.onclick = function(event) {
+    const specModal = document.getElementById('spec-modal');
+    const confirmModal = document.getElementById('confirm-modal');
     
-    return adminEmails.includes(user.email.toLowerCase());
+    if (event.target === specModal) {
+        adminDashboard.closeModal();
+    }
+    if (event.target === confirmModal) {
+        adminDashboard.closeConfirmModal();
+    }
 }
 
-// Initialize admin dashboard when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    // Check if user is authenticated and has admin access
-    const auth = firebase.auth();
-    auth.onAuthStateChanged((user) => {
-        if (user) {
-            if (!checkAdminAccess(user)) {
-                // Redirect non-admin users to home page
-                alert('Access denied. You do not have permission to access the admin dashboard.');
-                window.location.href = '../index.html';
-                return;
-            }
-            // Initialize dashboard for admin users
-            new AdminDashboard();
-        } else {
-            // Redirect unauthenticated users to home page
-            window.location.href = '../index.html';
-        }
-    });
-});
-
-// Add CSS animations for notifications
+// Add animations
 const style = document.createElement('style');
 style.textContent = `
-    @keyframes slideUp {
+    @keyframes slideIn {
         from {
-            transform: translateX(-50%) translateY(100%);
+            transform: translateX(100%);
             opacity: 0;
         }
         to {
-            transform: translateX(-50%) translateY(0);
+            transform: translateX(0);
             opacity: 1;
         }
     }
     
-    @keyframes slideDown {
+    @keyframes slideOut {
         from {
-            transform: translateX(-50%) translateY(0);
+            transform: translateX(0);
             opacity: 1;
         }
         to {
-            transform: translateX(-50%) translateY(100%);
+            transform: translateX(100%);
             opacity: 0;
         }
     }
 `;
 document.head.appendChild(style);
+

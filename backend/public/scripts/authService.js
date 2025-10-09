@@ -1,4 +1,4 @@
-import { auth } from './firebaseConfig.js';
+import { auth, db } from './firebaseConfig.js';
 import { 
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword, 
@@ -7,9 +7,33 @@ import {
   GoogleAuthProvider,
   signInWithPopup
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 // Google Auth Provider
 const googleProvider = new GoogleAuthProvider();
+
+/**
+ * Create or update user document in Firestore
+ * @param {User} user - Firebase User object
+ */
+async function createUserDocument(user) {
+  try {
+    const userRef = doc(db, 'users', user.uid);
+    await setDoc(userRef, {
+      email: user.email,
+      displayName: user.displayName || user.email.split('@')[0],
+      emailVerified: user.emailVerified,
+      createdAt: serverTimestamp(),
+      lastActive: serverTimestamp(),
+      newsletterSubscription: false
+    }, { merge: true }); // merge: true will update existing or create new
+    
+    console.log('✅ User document created/updated in Firestore');
+  } catch (error) {
+    console.error('❌ Error creating user document:', error);
+    // Don't throw - this shouldn't prevent login/registration
+  }
+}
 
 /**
  * Register a new user with email and password
@@ -21,6 +45,10 @@ export async function registerWithEmail(email, password) {
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     console.log('User registered successfully:', userCredential.user.email);
+    
+    // Create user document in Firestore
+    await createUserDocument(userCredential.user);
+    
     return userCredential.user;
   } catch (error) {
     console.error('Registration error:', error);
@@ -38,6 +66,10 @@ export async function loginWithEmail(email, password) {
   try {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     console.log('User logged in successfully:', userCredential.user.email);
+    
+    // Create/update user document in Firestore
+    await createUserDocument(userCredential.user);
+    
     return userCredential.user;
   } catch (error) {
     console.error('Login error:', error);
@@ -53,6 +85,10 @@ export async function loginWithGoogle() {
   try {
     const result = await signInWithPopup(auth, googleProvider);
     console.log('Google login successful:', result.user.email);
+    
+    // Create/update user document in Firestore
+    await createUserDocument(result.user);
+    
     return result.user;
   } catch (error) {
     console.error('Google login error:', error);

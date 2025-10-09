@@ -2,10 +2,12 @@
 # GitHub Pages compatible setup
 
 # Site settings
-title: "Specifys.ai Blog"
-description: "AI-powered development tools and insights"
+title: "Specifys.ai"
+description: "AI-powered app planning platform - Generate specifications, discover development tools, and plan your app smarter with AI-driven insights"
 url: "https://specifys-ai.com"
 baseurl: ""
+author: "Specifys.ai"
+keywords: "AI development tools, app specification generator, no-code platform, AI-powered planning, vibe coding"
 
 # Build settings
 markdown: kramdown
@@ -46,6 +48,12 @@ exclude:
   - .git
   - .DS_Store
   - Thumbs.db
+  - package.json
+  - package-lock.json
+  - create-post.js
+  - create-post.sh
+  - create-post.bat
+  - config/
 
 # Include files
 include:
@@ -67,4 +75,18 @@ kramdown:
       line_numbers: false
     block:
       line_numbers: false
+
+# SEO settings
+lang: en
+locale: en_US
+timezone: America/New_York
+
+# Social links
+twitter:
+  username: specifysai
+linkedin:
+  url: https://www.linkedin.com/company/specifys-ai/
+
+# Google Analytics
+google_analytics: G-RWBT69JCM7
 

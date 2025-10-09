@@ -1,815 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login/Register - Specifys.ai</title>
-    <link rel="icon" type="image/x-icon" href="../favicon.ico" alt="Specifys.ai logo icon">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="../assets/css/styles.css">
-    <style>
-        /* Import Montserrat font */
-        @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap");
-
-        :root {
-            --bg-color: #f5f5f5;
-            --text-color: #333;
-            --primary-color: #0078d4;
-            --secondary-color: #6c757d;
-            --light-gray: #e9ecef;
-            --border-color: #dee2e6;
-            --chat-bg: #fff;
-            --system-msg-bg: #f8f9fa;
-            --user-msg-bg: #0078d4;
-            --user-msg-text: #fff;
-            --input-bg: #fff;
-            --input-border: #dee2e6;
-            --button-hover: #005ea2;
-            --progress-bg: #e9ecef;
-            --progress-fill: #0078d4;
-            --chat-header-bg: #0078d4;
-            --chat-header-text: #fff;
-        }
-
-        
-        body {
-            font-family: "Montserrat", sans-serif;
-        }
-        
-        /* Header Layout Styles */
-        .thematic-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 20px;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            background: var(--bg-color, #f5f5f5);
-            border-bottom: 1px solid var(--border-color, #ddd);
-            z-index: 100;
-            transition: background 0.3s ease, border-color 0.3s ease;
-        }
-
-
-        .header-left {
-            display: flex;
-            align-items: center;
-        }
-
-        .header-center {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: absolute;
-            left: 0;
-            right: 0;
-            top: 0;
-            bottom: 0;
-            pointer-events: none;
-        }
-
-        .header-center .logo {
-            pointer-events: auto;
-        }
-
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            justify-content: flex-end;
-        }
-
-        /* Logo Styles */
-        .logo a {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--text-color, #333);
-            text-decoration: none;
-            transition: color 0.3s ease;
-        }
-
-
-        .logo a:hover {
-            color: var(--primary-color, #0078d4);
-        }
-
-        /* Auth System Styles */
-        .auth-buttons {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            position: relative;
-            z-index: 10000;
-        }
-
-        .auth-btn {
-            padding: 0.5rem 1rem;
-            border: none;
-            border-radius: 8px;
-            text-decoration: none;
-            font-size: 0.9rem;
-            font-weight: 700;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            background: transparent;
-            color: #666;
-        }
-
-        .auth-btn:hover {
-            color: var(--primary-color, #0078d4);
-            transform: translateY(-2px);
-        }
-
-        .auth-btn.primary {
-            background: var(--primary-color, #0078d4);
-            color: white;
-        }
-
-        .auth-btn.primary:hover {
-            background: var(--button-hover, #005ea2);
-        }
-
-        /* User Info & Dropdown */
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1rem;
-            background: rgba(102, 102, 102, 0.1);
-            border-radius: 20px;
-            border: 1px solid rgba(102, 102, 102, 0.2);
-            color: #666;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .user-info:hover {
-            background: rgba(102, 102, 102, 0.2);
-            transform: translateY(-2px);
-        }
-
-        .user-avatar {
-            width: 24px;
-            height: 24px;
-            background: #666;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8rem;
-            font-weight: bold;
-            color: white;
-        }
-
-        .user-dropdown {
-            position: relative;
-            z-index: 10000;
-        }
-
-        .user-dropdown-content {
-            position: fixed;
-            top: 80px;
-            right: 20px;
-            background: var(--chat-bg, #fff);
-            border-radius: 12px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-            min-width: 150px;
-            transform: translateY(-20px);
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-            z-index: 999999;
-        }
-
-        .user-dropdown-content.show {
-            transform: translateY(0);
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .user-dropdown-content a,
-        .user-dropdown-content button {
-            display: block;
-            width: 100%;
-            padding: 12px 16px;
-            color: var(--text-color, #333);
-            text-decoration: none;
-            font-size: 0.9rem;
-            font-weight: 500;
-            border: none;
-            background: none;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-align: left;
-        }
-
-        .user-dropdown-content a:hover,
-        .user-dropdown-content button:hover {
-            background: var(--light-gray, #f5f5f5);
-        }
-
-
-
-        /* Mobile Responsive */
-        @media (max-width: 768px) {
-            .thematic-header {
-                padding: 10px 15px;
-            }
-            
-            .header-left {
-                display: flex;
-                align-items: center;
-                gap: 0.5rem;
-            }
-            
-            .header-right {
-                gap: 0.5rem;
-            }
-            
-            .auth-buttons {
-                gap: 0.5rem;
-                margin-right: 0;
-            }
-            
-            .auth-btn {
-                padding: 0.4rem 0.8rem;
-                font-size: 0.8rem;
-            }
-            
-            .user-info {
-                padding: 0.4rem 0.8rem;
-                font-size: 0.8rem;
-            }
-            
-            .user-avatar {
-                width: 20px;
-                height: 20px;
-                font-size: 0.7rem;
-            }
-            
-            
-            .user-dropdown-content {
-                top: 70px;
-                left: 15px;
-                right: auto;
-                min-width: 120px;
-            }
-            
-            .user-dropdown-content a,
-            .user-dropdown-content button {
-                padding: 10px 12px;
-                font-size: 0.8rem;
-            }
-        }
-
-
-        .auth-buttons {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            z-index: 10000;
-            position: relative;
-        }
-
-
-
-        /* Footer Styles */
-        footer {
-            padding: 20px 10px;
-            text-align: center;
-            width: 100%;
-            color: #333;
-            flex-shrink: 0;
-            background: #fff;
-            box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-
-        .footer-content {
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            justify-content: center;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-
-        .footer-links {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-
-        .footer-links a {
-            color: #333;
-            text-decoration: none;
-            font-size: 0.85rem;
-            font-weight: 500;
-            transition: color 0.3s ease;
-            font-family: "Montserrat", sans-serif;
-        }
-
-
-        .footer-links a:hover {
-            color: #666;
-        }
-
-        .footer-divider {
-            color: #333;
-            font-size: 1.2rem;
-            font-weight: 300;
-            font-family: "Montserrat", sans-serif;
-        }
-
-
-        .footer-social {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-
-        .footer-social a {
-            color: #333;
-            font-size: 1.2rem;
-            transition: transform 0.3s ease, color 0.3s ease;
-        }
-
-
-        .footer-social a:hover {
-            color: #666;
-            transform: scale(1.2);
-        }
-
-        .footer-copyright {
-            font-size: 0.8rem;
-            color: #666;
-            margin-top: 1rem;
-            font-family: "Montserrat", sans-serif;
-        }
-
-
-        /* Auth Page Styles */
-        .auth-container {
-            min-height: 70vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem;
-            margin-top: 80px; /* Space for fixed header */
-        }
-
-        .auth-card {
-            background: #fff;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            padding: 3rem;
-            width: 100%;
-            max-width: 450px;
-            text-align: center;
-            border: 1px solid #e1e5e9;
-            font-family: "Montserrat", sans-serif;
-        }
-
-        .auth-header {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-
-        .auth-logo {
-            font-size: 3rem;
-            font-weight: 700;
-            color: #333;
-            margin-bottom: 0.5rem;
-            font-family: "Montserrat", sans-serif;
-        }
-
-        .auth-subtitle {
-            color: #666;
-            font-size: 1.1rem;
-            font-family: "Montserrat", sans-serif;
-        }
-
-        .auth-tabs {
-            display: flex;
-            margin-bottom: 1rem;
-            border-radius: 6px;
-            overflow: hidden;
-            background: #f8f9fa;
-        }
-
-        .auth-tab {
-            flex: 1;
-            padding: 0.4rem;
-            text-align: center;
-            background: transparent;
-            border: none;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 600;
-            font-family: "Montserrat", sans-serif;
-            font-size: 0.8rem;
-        }
-
-        .auth-tab.active {
-            background: #23a6d5;
-            color: white;
-        }
-
-        .auth-tab:hover:not(.active) {
-            background: rgba(35, 166, 213, 0.1);
-            color: #23a6d5;
-        }
-
-        .auth-form {
-            display: none;
-        }
-
-        .auth-form.active {
-            display: block;
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .form-label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            color: #333;
-            font-family: "Montserrat", sans-serif;
-        }
-
-        .form-input {
-            width: 100%;
-            padding: 1rem;
-            border: 2px solid #e1e5e9;
-            border-radius: 10px;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            font-family: "Montserrat", sans-serif;
-        }
-
-        .form-input:focus {
-            outline: none;
-            border-color: #666;
-            box-shadow: 0 0 0 3px rgba(102, 102, 102, 0.1);
-            transform: translateY(-2px);
-        }
-
-        .auth-button {
-            width: 100%;
-            padding: 0.8rem 2rem;
-            background: #666;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-family: "Montserrat", sans-serif;
-            margin-bottom: 1rem;
-        }
-
-        .auth-button:hover {
-            background: #555;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 102, 102, 0.3);
-        }
-
-        .auth-button:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .divider {
-            text-align: center;
-            margin: 1.5rem 0;
-            position: relative;
-            color: #666;
-        }
-
-        .divider::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: #e1e5e9;
-        }
-
-        .divider span {
-            background: white;
-            padding: 0 1rem;
-        }
-
-        .google-button {
-            width: 100%;
-            padding: 1rem;
-            background: white;
-            color: #333;
-            border: 2px solid #e1e5e9;
-            border-radius: 10px;
-            font-size: 1rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            font-family: "Montserrat", sans-serif;
-        }
-
-        .google-button:hover {
-            border-color: #666;
-            transform: translateY(-2px);
-        }
-
-        .auth-footer {
-            text-align: center;
-            margin-top: 2rem;
-            padding-top: 2rem;
-            border-top: 1px solid #e1e5e9;
-        }
-
-        .auth-footer a {
-            color: #666;
-            text-decoration: none;
-            font-weight: 500;
-            font-family: "Montserrat", sans-serif;
-        }
-
-        .auth-footer a:hover {
-            text-decoration: underline;
-        }
-
-        .error-message {
-            background: #fee;
-            color: #c33;
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            border: 1px solid #fcc;
-            font-family: "Montserrat", sans-serif;
-        }
-
-        .success-message {
-            background: #efe;
-            color: #3c3;
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            border: 1px solid #cfc;
-            font-family: "Montserrat", sans-serif;
-        }
-
-        /* Newsletter and Privacy Checkbox Styles */
-        .checkbox-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .checkbox-label {
-            display: flex;
-            align-items: flex-start;
-            cursor: pointer;
-            font-size: 0.8rem;
-            color: #666;
-            font-family: "Montserrat", sans-serif;
-            line-height: 1.4;
-            word-wrap: break-word;
-            hyphens: none;
-        }
-
-        .checkbox-label input[type="checkbox"] {
-            display: none;
-        }
-
-        .checkmark {
-            width: 18px;
-            height: 18px;
-            border: 2px solid #e1e5e9;
-            border-radius: 4px;
-            margin-right: 10px;
-            position: relative;
-            background: #fff;
-            transition: all 0.3s ease;
-            flex-shrink: 0;
-            margin-top: 2px;
-        }
-
-        .checkbox-label input[type="checkbox"]:checked + .checkmark {
-            background: #666;
-            border-color: #666;
-        }
-
-        .checkbox-label input[type="checkbox"]:checked + .checkmark::after {
-            content: '';
-            position: absolute;
-            left: 5px;
-            top: 2px;
-            width: 4px;
-            height: 8px;
-            border: solid white;
-            border-width: 0 2px 2px 0;
-            transform: rotate(45deg);
-        }
-
-        .checkbox-label:hover .checkmark {
-            border-color: #666;
-        }
-
-        .privacy-link {
-            color: #666;
-            text-decoration: underline;
-            cursor: pointer;
-            font-weight: 500;
-            white-space: nowrap;
-        }
-
-        .privacy-link:hover {
-            color: #333;
-        }
-
-        /* Privacy Policy Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 10000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-        }
-
-        .modal-content {
-            background-color: #fff;
-            margin: 5% auto;
-            padding: 2rem;
-            border-radius: 12px;
-            width: 90%;
-            max-width: 600px;
-            max-height: 80vh;
-            overflow-y: auto;
-            font-family: "Montserrat", sans-serif;
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid #e1e5e9;
-        }
-
-        .modal-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #333;
-        }
-
-        .close {
-            color: #666;
-            font-size: 2rem;
-            font-weight: bold;
-            cursor: pointer;
-            line-height: 1;
-        }
-
-        .close:hover {
-            color: #333;
-        }
-
-        .modal-body {
-            color: #666;
-            line-height: 1.6;
-        }
-
-        .modal-body h3 {
-            color: #333;
-            font-size: 1.1rem;
-            margin-top: 1.5rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .modal-body p {
-            margin-bottom: 1rem;
-        }
-
-        .modal-body ul {
-            margin-bottom: 1rem;
-            padding-left: 1.5rem;
-        }
-
-        .modal-body li {
-            margin-bottom: 0.5rem;
-        }
-
-        @media (max-width: 768px) {
-            .modal-content {
-                margin: 10% auto;
-                padding: 1.5rem;
-                width: 95%;
-            }
-            
-            .modal-title {
-                font-size: 1.3rem;
-            }
-            
-            .checkbox-label {
-                font-size: 0.75rem;
-                line-height: 1.3;
-            }
-            
-            .privacy-link {
-                white-space: nowrap;
-                display: inline;
-            }
-        }
-
-
-
-        @media (max-width: 768px) {
-            .thematic-header {
-                padding: 12px 1rem;
-            }
-            
-            .logo a {
-                font-size: 1.4rem;
-            }
-            
-            
-            .header-links-content {
-                top: 70px;
-                right: 15px;
-                min-width: 180px;
-                max-width: calc(100vw - 30px);
-                padding: 12px;
-                width: auto;
-            }
-            
-            .header-links {
-                width: 100vw;
-                height: 100vh;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-            }
-            
-            .header-links a {
-                padding: 10px 0;
-                font-size: 0.8rem;
-            }
-            
-            .auth-container {
-                padding: 1rem;
-                min-height: 50vh;
-                margin-top: 70px;
-            }
-            
-            .auth-card {
-                padding: 2rem;
-                margin: 0.5rem;
-                border-radius: 15px;
-            }
-            
-            .auth-logo {
-                font-size: 2rem;
-            }
-            
-            .footer-content {
-                flex-direction: column;
-                gap: 10px;
-            }
-            
-            .footer-links a {
-                font-size: 0.8rem;
-            }
-            
-            .footer-divider {
-                display: none;
-            }
-            
-            .footer-social a {
-                font-size: 1rem;
-            }
-            
-        }
-    </style>
-</head>
-<body class="page-default">
+---
+layout: auth
+title: "Sign In / Register"
+description: "Create account"
+permalink: /pages/auth.html
+extra_css:
+  - /assets/css/pages/auth.css
+---
 
     <main class="auth-page-layout">
         <!-- Logo -->
@@ -820,7 +16,13 @@
         <!-- Left Panel - Steps Animation -->
         <div class="auth-left-panel">
             <div class="steps-container">
-                <!-- Steps will be generated by JavaScript -->
+                <h2 id="dynamic-title">App Specification</h2>
+                <p id="dynamic-description">Define your app requirements, features, and functionality with our intelligent specification tool. Create detailed technical specifications and user stories.</p>
+                <div class="steps-indicators">
+                    <span class="step-dot active"></span>
+                    <span class="step-dot"></span>
+                    <span class="step-dot"></span>
+                </div>
             </div>
         </div>
 
@@ -1089,8 +291,10 @@
         }
 
         function hideMessages() {
-            document.getElementById('error-message').style.display = 'none';
-            document.getElementById('success-message').style.display = 'none';
+            const errorMsg = document.getElementById('error-message');
+            const successMsg = document.getElementById('success-message');
+            if (errorMsg) errorMsg.style.display = 'none';
+            if (successMsg) successMsg.style.display = 'none';
         }
 
         // Auth functions
@@ -1168,7 +372,7 @@
                 showError(error.message);
             } finally {
                 btn.disabled = false;
-                btnText.textContent = 'Login';
+                btnText.textContent = 'Sign In';
             }
         });
 
@@ -1223,7 +427,7 @@
                 showError(error.message);
             } finally {
                 btn.disabled = false;
-                btnText.textContent = 'Register';
+                btnText.textContent = 'Sign Up';
             }
         });
 
@@ -1318,6 +522,73 @@
                 window.location.href = '../index.html';
             }
         });
+
+        // Animated headers for left panel
+        const stepsData = [
+            {
+                title: "App Specification",
+                description: "Define your app requirements, features, and functionality with our intelligent specification tool. Create detailed technical specifications and user stories."
+            },
+            {
+                title: "Development Management",
+                description: "Manage your app development process efficiently with our project management tools. Track progress, coordinate teams, and ensure timely delivery."
+            },
+            {
+                title: "AI-Powered Planning",
+                description: "Leverage artificial intelligence to create comprehensive app specifications. Get detailed project plans, technical requirements, and market analysis."
+            }
+        ];
+
+        let currentStep = 0;
+        let titleElement, descriptionElement, stepDots;
+
+        function updateStep() {
+            if (!titleElement || !descriptionElement) return;
+            
+            // Fade out
+            titleElement.style.opacity = '0';
+            descriptionElement.style.opacity = '0';
+            
+            setTimeout(() => {
+                // Update content
+                titleElement.textContent = stepsData[currentStep].title;
+                descriptionElement.textContent = stepsData[currentStep].description;
+                
+                // Update step indicators
+                if (stepDots) {
+                    stepDots.forEach((dot, index) => {
+                        dot.classList.toggle('active', index === currentStep);
+                    });
+                }
+                
+                // Fade in
+                titleElement.style.opacity = '1';
+                descriptionElement.style.opacity = '1';
+                
+                // Move to next step
+                currentStep = (currentStep + 1) % stepsData.length;
+            }, 300);
+        }
+
+        // Initialize animation
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get elements after DOM is loaded
+            titleElement = document.getElementById('dynamic-title');
+            descriptionElement = document.getElementById('dynamic-description');
+            stepDots = document.querySelectorAll('.step-dot');
+            
+            // Check if elements exist
+            if (!titleElement || !descriptionElement) {
+                console.error('Animation elements not found');
+                return;
+            }
+            
+            titleElement.style.transition = 'opacity 0.3s ease';
+            descriptionElement.style.transition = 'opacity 0.3s ease';
+            
+            // Start the animation
+            setInterval(updateStep, 2000); // Change every 2 seconds
+        });
     </script>
 
 
@@ -1370,5 +641,3 @@
 
         // Auth functions will be handled by the modern Firebase v9+ script above
     </script>
-</body>
-</html>

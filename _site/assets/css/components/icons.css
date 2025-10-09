@@ -40,15 +40,25 @@
 .scroll-to-top {
   bottom: var(--spacing-lg);
   right: var(--spacing-lg);
+  display: flex !important;
   transform: rotate(180deg);
+  transition: transform var(--transition-normal);
+}
+
+.scroll-to-top.scrolled-down {
+  transform: rotate(0deg);
 }
 
 .scroll-to-top:hover {
-  transform: translateY(-3px) rotate(0deg);
+  box-shadow: var(--shadow-lg);
+}
+
+.scroll-to-top.scrolled-down:hover {
+  box-shadow: var(--shadow-lg);
 }
 
 .scroll-to-top:active {
-  transform: translateY(-1px) rotate(0deg);
+  opacity: 0.8;
 }
 
 /* Responsive adjustments */

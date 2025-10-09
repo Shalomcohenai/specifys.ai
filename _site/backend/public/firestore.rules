@@ -1,34 +1,47 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Admin access function
+    function isAdmin() {
+      return request.auth != null && (
+        request.auth.token.email == 'specifysai@gmail.com' ||
+        request.auth.token.email == 'admin@specifys.ai' ||
+        request.auth.token.email == 'shalom@specifys.ai'
+      );
+    }
+    
     // Rules for specs collection
     match /specs/{document} {
-      allow read, write: if request.auth != null 
-        && resource.data.userId == request.auth.uid;
+      allow read: if request.auth != null && 
+        (resource.data.userId == request.auth.uid || isAdmin());
+      allow write: if request.auth != null && resource.data.userId == request.auth.uid;
       allow create: if request.auth != null 
         && request.resource.data.userId == request.auth.uid;
     }
     
     // Rules for marketResearch collection
     match /marketResearch/{document} {
-      allow read, write: if request.auth != null 
-        && resource.data.userId == request.auth.uid;
+      allow read: if request.auth != null && 
+        (resource.data.userId == request.auth.uid || isAdmin());
+      allow write: if request.auth != null && resource.data.userId == request.auth.uid;
       allow create: if request.auth != null 
         && request.resource.data.userId == request.auth.uid;
     }
     
     // Rules for apps collection
     match /apps/{document} {
-      allow read, write: if request.auth != null 
-        && resource.data.userId == request.auth.uid;
+      allow read: if request.auth != null && 
+        (resource.data.userId == request.auth.uid || isAdmin());
+      allow write: if request.auth != null && resource.data.userId == request.auth.uid;
       allow create: if request.auth != null 
         && request.resource.data.userId == request.auth.uid;
     }
     
-    // Rules for users collection
+    // Rules for users collection - allow admin to read all
     match /users/{document} {
-      allow read, write: if request.auth != null 
-        && request.auth.uid == document;
+      allow read: if request.auth != null && 
+        (request.auth.uid == document || isAdmin());
+      allow write: if request.auth != null && request.auth.uid == document;
     }
     
     // Rules for userTools collection (saved tools)
@@ -49,32 +62,36 @@ service cloud.firestore {
     
     // Rules for appTasks collection
     match /appTasks/{document} {
-      allow read, write: if request.auth != null 
-        && resource.data.userId == request.auth.uid;
+      allow read: if request.auth != null && 
+        (resource.data.userId == request.auth.uid || isAdmin());
+      allow write: if request.auth != null && resource.data.userId == request.auth.uid;
       allow create: if request.auth != null 
         && request.resource.data.userId == request.auth.uid;
     }
     
     // Rules for appMilestones collection
     match /appMilestones/{document} {
-      allow read, write: if request.auth != null 
-        && resource.data.userId == request.auth.uid;
+      allow read: if request.auth != null && 
+        (resource.data.userId == request.auth.uid || isAdmin());
+      allow write: if request.auth != null && resource.data.userId == request.auth.uid;
       allow create: if request.auth != null 
         && request.resource.data.userId == request.auth.uid;
     }
     
     // Rules for appNotes collection
     match /appNotes/{document} {
-      allow read, write: if request.auth != null 
-        && resource.data.userId == request.auth.uid;
+      allow read: if request.auth != null && 
+        (resource.data.userId == request.auth.uid || isAdmin());
+      allow write: if request.auth != null && resource.data.userId == request.auth.uid;
       allow create: if request.auth != null 
         && request.resource.data.userId == request.auth.uid;
     }
     
     // Rules for appExpenses collection
     match /appExpenses/{document} {
-      allow read, write: if request.auth != null 
-        && resource.data.userId == request.auth.uid;
+      allow read: if request.auth != null && 
+        (resource.data.userId == request.auth.uid || isAdmin());
+      allow write: if request.auth != null && resource.data.userId == request.auth.uid;
       allow create: if request.auth != null 
         && request.resource.data.userId == request.auth.uid;
     }

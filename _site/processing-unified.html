@@ -1,1935 +1,854 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Choose your mode and answer guided questions to refine your app idea with specifys.ai.">
-  <meta name="keywords" content="processing app idea, guided questions, AI specification, app development, specifys.ai, NoCode app builder, app specification tool, market research">
-  <meta name="author" content="specifys.ai Team">
-  <meta name="robots" content="index, follow">
-  <meta name="googlebot" content="index, follow">
-  <meta name="bingbot" content="index, follow">
-  <meta name="revisit-after" content="7 days">
-  <meta name="language" content="English">
-  <meta name="copyright" content="© 2025 specifys.ai">
-  <meta name="publisher" content="specifys.ai">
-  <meta name="distribution" content="global">
-  <meta name="rating" content="general">
-  <meta name="theme-color" content="#0078d4">
-  <link rel="canonical" href="https://specifys-ai.com/processing-unified.html">
-  <meta property="og:title" content="specifys.ai - Unified App Planning Mode">
-  <meta property="og:description" content="Choose your mode and answer guided questions to refine your app idea with specifys.ai.">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://specifys-ai.com/processing-unified.html">
-  <meta property="og:image" content="https://specifys-ai.com/favicon.ico">
-  <meta property="og:image:alt" content="Unified App Planning Mode with specifys.ai">
-  <meta property="og:site_name" content="Specifys.ai">
-  <meta property="og:locale" content="en_US">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="specifys.ai - Unified App Planning Mode">
-  <meta name="twitter:description" content="Choose your mode and answer guided questions to refine your app idea with specifys.ai.">
-  <meta name="twitter:image" content="https://specifys-ai.com/favicon.ico">
-  <meta name="twitter:site" content="@specifys_ai">
-  <meta name="twitter:creator" content="@specifys_ai">
-  <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebPage",
-      "headline": "specifys.ai - Unified App Planning Mode",
-      "description": "Choose your mode and answer guided questions to refine your app idea with specifys.ai.",
-      "image": "favicon.ico",
-      "author": {
-        "@type": "Organization",
-        "name": "specifys.ai Team"
-      },
-      "publisher": {
-        "@type": "Organization",
-        "name": "Specifys.ai",
-        "logo": {
-          "@type": "ImageObject",
-          "url": "favicon.ico"
-        }
-      },
-      "url": "processing-unified.html",
-      "mainEntityOfPage": {
-        "@type": "WebPage",
-        "@id": "processing-unified.html"
-      },
-      "keywords": "processing app idea, guided questions, AI specification, app development, specifys.ai, NoCode app builder, app specification tool, market research"
-    }
-  </script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-RWBT69JCM7');
-    gtag('config', 'AW-1000505244');
-  </script>
-  <title>specifys.ai - Unified App Planning Mode</title>
-  <link rel="icon" type="image/x-icon" href="../favicon.ico">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
-  <script defer src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"></script>
-  <script defer src="./tools/prompts.js"></script>
-  <script defer src="./tools/processing-unified.js"></script>
-  
-
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap');
-
-    :root {
-      --bg-color: #f8f9fa;
-      --text-color: #333;
-      --primary-color: #0078d4;
-      --secondary-color: #6c757d;
-      --light-gray: #e9ecef;
-      --border-color: #dee2e6;
-      --chat-bg: #fff;
-      --system-msg-bg: #f8f9fa;
-      --user-msg-bg: #0078d4;
-      --user-msg-text: #fff;
-      --input-bg: #fff;
-      --input-border: #dee2e6;
-      --button-hover: #005ea2;
-      --progress-bg: #e9ecef;
-      --progress-fill: #0078d4;
-      --chat-header-bg: #0078d4;
-      --chat-header-text: #fff;
-    }
-
-
-    /* Header Layout Styles */
-    .thematic-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 15px 20px;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      background: var(--bg-color);
-      border-bottom: 1px solid var(--border-color);
-      z-index: 100;
-      transition: background 0.3s ease, border-color 0.3s ease;
-    }
-
-
-    .header-left {
-      display: flex;
-      align-items: center;
-    }
-
-    .header-center {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      position: absolute;
-      left: 0;
-      right: 0;
-      top: 0;
-      bottom: 0;
-      pointer-events: none;
-    }
-
-    .header-center .logo {
-      pointer-events: auto;
-    }
-
-    .header-right {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    /* Logo Styles */
-    .logo a {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--text-color);
-      text-decoration: none;
-      transition: color 0.3s ease;
-    }
-
-    .logo a:hover {
-      color: var(--primary-color);
-    }
-
-
-
-
-    /* Auth System Styles */
-    .auth-buttons {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      position: relative;
-      z-index: 10000;
-    }
-
-    .auth-btn {
-      padding: 0.5rem 1rem;
-      border: none;
-      border-radius: 8px;
-      text-decoration: none;
-      font-size: 0.9rem;
-      font-weight: 700;
-      transition: all 0.3s ease;
-      cursor: pointer;
-      background: transparent;
-      color: #666;
-    }
-
-    .auth-btn:hover {
-      color: var(--primary-color);
-      transform: translateY(-2px);
-    }
-
-    .auth-btn.primary {
-      background: var(--primary-color);
-      color: white;
-    }
-
-    .auth-btn.primary:hover {
-      background: var(--button-hover);
-    }
-
-    /* User Info Styles */
-    .user-info {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.5rem 1rem;
-      background: rgba(102, 102, 102, 0.1);
-      border-radius: 20px;
-      border: 1px solid rgba(102, 102, 102, 0.2);
-      color: #666;
-      font-size: 0.9rem;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .user-info:hover {
-      background: rgba(102, 102, 102, 0.2);
-      transform: translateY(-2px);
-    }
-
-    .user-avatar {
-      width: 24px;
-      height: 24px;
-      background: #666;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.8rem;
-      font-weight: bold;
-      color: white;
-    }
-
-    /* User Dropdown */
-    .user-dropdown {
-      position: relative;
-      z-index: 10000;
-    }
-
-    .user-dropdown-content {
-      position: fixed;
-      top: 80px;
-      right: 20px;
-      background: var(--chat-bg);
-      border-radius: 12px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-      min-width: 150px;
-      transform: translateY(-20px);
-      opacity: 0;
-      visibility: hidden;
-      transition: all 0.3s ease;
-      z-index: 999999;
-    }
-
-    .user-dropdown-content.show {
-      transform: translateY(0);
-      opacity: 1;
-      visibility: visible;
-    }
-
-    .user-dropdown-content a,
-    .user-dropdown-content button {
-      display: block;
-      width: 100%;
-      padding: 12px 16px;
-      color: var(--text-color);
-      text-decoration: none;
-      font-size: 0.9rem;
-      font-weight: 500;
-      border: none;
-      background: none;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      text-align: left;
-    }
-
-    .user-dropdown-content a:hover,
-    .user-dropdown-content button:hover {
-      background: var(--light-gray);
-    }
-
-
-
-    /* Mobile Responsive */
-    @media (max-width: 768px) {
-      .thematic-header {
-        padding: 10px 15px;
-      }
-      
-      .header-left {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-      }
-      
-      .header-right {
-        gap: 0.5rem;
-      }
-      
-      
-      .auth-buttons {
-        gap: 0.5rem;
-        margin-right: 0;
-      }
-      
-      .auth-btn {
-        padding: 0.4rem 0.8rem;
-        font-size: 0.8rem;
-      }
-      
-      .user-info {
-        padding: 0.4rem 0.8rem;
-        font-size: 0.8rem;
-      }
-      
-      .user-avatar {
-        width: 20px;
-        height: 20px;
-        font-size: 0.7rem;
-      }
-      
-      
-      .user-dropdown-content {
-        top: 70px;
-        left: 15px;
-        right: auto;
-        min-width: 120px;
-      }
-      
-      .user-dropdown-content a,
-      .user-dropdown-content button {
-        padding: 10px 12px;
-        font-size: 0.8rem;
-      }
-      
-      .header-links {
-        background: rgba(0,0,0,0.9);
-      }
-      
-      .header-links-content {
-        top: 70px;
-        right: 15px;
-        min-width: 160px;
-      }
-      
-      .header-links a {
-        padding: 8px 12px;
-        font-size: 0.8rem;
-      }
-    }
-
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Montserrat', sans-serif;
-      background-color: var(--bg-color);
-      color: var(--text-color);
-      line-height: 1.6;
-      transition: background-color 0.3s ease, color 0.3s ease;
-    }
-
-    .chat-container {
-      max-width: 800px;
-      margin: 20px auto;
-      background: var(--chat-bg);
-      border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-      overflow: visible;
-      height: calc(100vh - 80px);
-      min-height: 700px;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .chat-header {
-      background: var(--chat-header-bg);
-      color: var(--chat-header-text);
-      padding: 20px;
-      text-align: center;
-      margin-top: 80px;
-      position: relative;
-      z-index: 1;
-    }
-
-    .chat-header {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-    }
-
-    .reset-button {
-      position: absolute;
-      right: 20px;
-      width: 36px;
-      height: 36px;
-      border: 1px solid var(--chat-header-text);
-      background: transparent;
-      color: var(--chat-header-text);
-      border-radius: 50%;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-      opacity: 0;
-      visibility: hidden;
-      transform: scale(0.8);
-    }
-
-    .reset-button:hover {
-      background: var(--chat-header-text);
-      color: var(--chat-header-bg);
-      transform: scale(1.1);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    }
-
-    .reset-button.show {
-      opacity: 1;
-      visibility: visible;
-      transform: scale(1);
-    }
-
-    .chat-header h1 {
-      font-size: 1.5rem;
-      font-weight: 600;
-      margin: 0;
-      text-align: center;
-    }
-
-
-
-
-
-    /* Loading Animation */
-    .loading-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.7);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-      backdrop-filter: blur(5px);
-    }
-
-    .loading-content {
-      background: var(--chat-bg);
-      padding: 40px;
-      border-radius: 20px;
-      text-align: center;
-      border: 2px solid var(--border-color);
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-    }
-
-    .loading-spinner {
-      width: 60px;
-      height: 60px;
-      border: 4px solid var(--border-color);
-      border-top: 4px solid var(--primary-color);
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin: 0 auto 20px;
-    }
-
-    .loading-text {
-      color: var(--text-color);
-      font-size: 18px;
-      font-weight: 600;
-      margin-bottom: 10px;
-    }
-
-    .loading-subtext {
-      color: var(--secondary-color);
-      font-size: 14px;
-      opacity: 0.8;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    .progress-dots {
-      display: inline-block;
-      animation: progressDots 1.5s infinite;
-    }
-
-    @keyframes progressDots {
-      0%, 20% { content: "Generating"; }
-      40% { content: "Generating."; }
-      60% { content: "Generating.."; }
-      80%, 100% { content: "Generating..."; }
-    }
-
-    .chat-messages {
-      flex: 1;
-      overflow-y: auto;
-      overflow-x: visible;
-      padding: 20px;
-      background: var(--chat-bg);
-      position: relative;
-      z-index: 1;
-    }
-
-    .message {
-      margin-bottom: 20px;
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      animation: fadeIn 0.3s ease-in;
-    }
-
-    .message.system {
-      flex-direction: row;
-    }
-
-    .message.user {
-      flex-direction: row-reverse;
-    }
-
-    .message-avatar {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 16px;
-      font-weight: 600;
-      flex-shrink: 0;
-    }
-
-    .message.system .message-avatar {
-      background: var(--secondary-color);
-      color: white;
-    }
-
-    .message.user .message-avatar {
-      background: var(--primary-color);
-      color: white;
-    }
-
-    .message-content {
-      flex: 1;
-      max-width: 70%;
-    }
-
-    .message.system .message-content {
-      background: var(--system-msg-bg);
-      padding: 16px;
-      border-radius: 18px;
-      border: 1px solid var(--border-color);
-      color: var(--text-color);
-      transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
-    }
-
-    .message.user .message-content {
-      background: var(--user-msg-bg);
-      color: var(--user-msg-text);
-      padding: 16px;
-      border-radius: 18px;
-      position: relative;
-      border: 2px solid white;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    /* Edit button for user messages */
-    .edit-button {
-      position: absolute;
-      bottom: -8px;
-      right: 20px;
-      background: #0078d4;
-      color: white;
-      border: 2px solid white;
-      border-radius: 12px;
-      padding: 6px 10px;
-      font-size: 11px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-      z-index: 10;
-    }
-
-    .edit-button:hover {
-      background: #005ea2;
-      transform: translateY(-1px);
-      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
-    }
-
-    .edit-button:active {
-      transform: translateY(0);
-    }
-
-    /* Edit mode styles */
-    .message.user.editing .message-content {
-      background: var(--input-bg);
-      border: 2px solid var(--primary-color);
-    }
-
-    .edit-input {
-      width: 100%;
-      min-height: 60px;
-      border: none;
-      outline: none;
-      background: transparent;
-      color: var(--text-color);
-      font-size: 16px;
-      line-height: 1.5;
-      resize: vertical;
-      font-family: inherit;
-    }
-
-    .edit-controls {
-      display: flex;
-      gap: 8px;
-      margin-top: 8px;
-      justify-content: flex-end;
-    }
-
-    .edit-yesno-container {
-      display: flex;
-      gap: 1rem;
-      margin: 0.5rem 0;
-    }
-
-    .edit-yesno-label {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      cursor: pointer;
-      padding: 0.5rem 1rem;
-      border: 2px solid #e1e5e9;
-      border-radius: 8px;
-      transition: all 0.3s ease;
-      background: white;
-    }
-
-    .edit-yesno-label:hover {
-      border-color: #0078d4;
-      background: #f8f9fa;
-    }
-
-    .edit-yesno-label input[type="radio"] {
-      margin: 0;
-    }
-
-    .edit-yesno-label input[type="radio"]:checked + * {
-      color: #0078d4;
-      font-weight: 600;
-    }
-
-    .edit-yesno-label:has(input[type="radio"]:checked) {
-      border-color: #0078d4;
-      background: rgba(0, 120, 212, 0.1);
-    }
-
-
-    .edit-save-btn,
-    .edit-cancel-btn {
-      padding: 6px 12px;
-      border: none;
-      border-radius: 6px;
-      font-size: 12px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .edit-save-btn {
-      background: var(--primary-color);
-      color: white;
-    }
-
-    .edit-save-btn:hover {
-      background: var(--button-hover);
-    }
-
-    .edit-cancel-btn {
-      background: var(--secondary-color);
-      color: white;
-    }
-
-    .edit-cancel-btn:hover {
-      background: #5a6268;
-    }
-
-    .message-text {
-      font-size: 13px;
-      line-height: 1.5;
-      word-wrap: break-word;
-    }
-
-    .message.examples .message-content {
-      background: var(--light-gray);
-      border-left: 4px solid var(--primary-color);
-    }
-
-    .examples-title {
-      font-weight: 600;
-      color: var(--primary-color);
-      margin-bottom: 8px;
-      font-size: 13px;
-    }
-
-    .examples-text {
-      font-style: italic;
-      color: var(--secondary-color);
-      font-size: 12px;
-    }
-
-    .chat-input-container {
-      padding: 20px;
-      background: var(--chat-bg);
-      border-top: 1px solid var(--border-color);
-      transition: background-color 0.3s ease;
-      position: relative;
-      z-index: 1;
-    }
-
-    .chat-input-wrapper {
-      display: flex;
-      gap: 12px;
-      align-items: flex-end;
-    }
-
-    .chat-input {
-      flex: 1;
-      padding: 16px;
-      border: 2px solid var(--input-border);
-      border-radius: 20px;
-      font-size: 13px;
-      font-family: inherit;
-      background: var(--input-bg);
-      color: var(--text-color);
-      resize: none;
-      min-height: 60px;
-      max-height: 120px;
-      transition: border-color 0.3s ease, background-color 0.3s ease, color 0.3s ease;
-    }
-
-    .chat-input:focus {
-      outline: none;
-      border-color: var(--primary-color);
-    }
-
-    .send-button {
-      padding: 16px 24px;
-      background: var(--primary-color);
-      color: white;
-      border: none;
-      border-radius: 20px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-      min-width: 100px;
-    }
-
-    .send-button:hover:not(:disabled) {
-      background: var(--button-hover);
-    }
-
-    .send-button:disabled {
-      background: var(--secondary-color);
-      cursor: not-allowed;
-    }
-
-    .progress-container {
-      padding: 20px;
-      background: var(--chat-bg);
-      border-top: 1px solid var(--border-color);
-      transition: background-color 0.3s ease;
-      position: relative;
-      z-index: 1;
-    }
-
-    .progress-bar {
-      width: 100%;
-      height: 6px;
-      background: var(--progress-bg);
-      border-radius: 3px;
-      overflow: hidden;
-    }
-
-    .progress-fill {
-      height: 100%;
-      background: var(--progress-fill);
-      transition: width 0.3s ease;
-      border-radius: 3px;
-    }
-
-    .progress-text {
-      text-align: center;
-      margin-top: 8px;
-      font-size: 0.8rem;
-      color: var(--secondary-color);
-      transition: color 0.3s ease;
-    }
-
-    .mode-selection {
-      display: flex;
-      gap: 16px;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin-top: 20px;
-    }
-
-    .mode-option {
-      padding: 16px 24px;
-      background: var(--light-gray);
-      border: 2px solid var(--border-color);
-      border-radius: 12px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      text-align: center;
-      min-width: 200px;
-      transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
-    }
-
-    .mode-option:hover {
-      border-color: var(--primary-color);
-      background: var(--chat-bg);
-      transform: translateY(-2px);
-    }
-
-    .mode-option.selected {
-      border-color: var(--primary-color);
-      background: var(--primary-color);
-      color: white;
-    }
-
-    .mode-icon {
-      font-size: 20px;
-      margin-bottom: 8px;
-      display: block;
-    }
-
-    .mode-title {
-      font-weight: 600;
-      margin-bottom: 4px;
-      font-size: 13px;
-    }
-
-    .mode-description {
-      font-size: 12px;
-      opacity: 0.8;
-    }
-
-    .yes-no-buttons {
-      display: flex;
-      gap: 12px;
-      margin-top: 12px;
-    }
-
-    .yes-no-button {
-      padding: 10px 24px;
-      border: 2px solid var(--border-color);
-      background: var(--input-bg);
-      color: var(--text-color);
-      border-radius: 20px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      font-weight: 500;
-      font-size: 13px;
-    }
-
-    .yes-no-button:hover {
-      border-color: var(--primary-color);
-      background: var(--primary-color);
-      color: white;
-    }
-
-    .yes-no-button.selected {
-      border-color: var(--primary-color);
-      background: var(--primary-color);
-      color: white;
-    }
-
-    .yes-no-button:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-      background: var(--secondary-color);
-      border-color: var(--secondary-color);
-    }
-
-    .yes-no-button:disabled:hover {
-      background: var(--secondary-color);
-      border-color: var(--secondary-color);
-      transform: none;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* Registration Modal Styles */
-    .registration-modal-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.7);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 10000;
-      backdrop-filter: blur(5px);
-    }
-
-    .registration-modal-overlay.show {
-      display: flex;
-      animation: modalFadeIn 0.3s ease-out;
-    }
-
-    .registration-modal {
-      background: var(--chat-bg);
-      border-radius: 20px;
-      max-width: 500px;
-      width: 90%;
-      max-height: 90vh;
-      overflow-y: auto;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-      animation: modalSlideUp 0.3s ease-out;
-      border: 2px solid var(--border-color);
-    }
-
-    .registration-modal-header {
-      display: flex;
-      justify-content: flex-end;
-      padding: 15px 20px 0;
-    }
-
-    .registration-modal-close {
-      background: none;
-      border: none;
-      color: var(--secondary-color);
-      font-size: 20px;
-      cursor: pointer;
-      padding: 5px;
-      border-radius: 50%;
-      width: 35px;
-      height: 35px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.3s ease;
-    }
-
-    .registration-modal-close:hover {
-      background: var(--light-gray);
-      color: var(--text-color);
-      transform: rotate(90deg);
-    }
-
-    .registration-modal-content {
-      padding: 20px 30px 30px;
-      text-align: center;
-    }
-
-    .registration-modal-icon {
-      font-size: 48px;
-      color: var(--primary-color);
-      margin-bottom: 20px;
-      animation: bounce 2s infinite;
-    }
-
-    .registration-modal-content h3 {
-      color: var(--text-color);
-      font-size: 24px;
-      font-weight: 700;
-      margin-bottom: 15px;
-    }
-
-    .registration-modal-content p {
-      color: var(--secondary-color);
-      font-size: 16px;
-      line-height: 1.6;
-      margin-bottom: 25px;
-    }
-
-    .registration-modal-benefits {
-      margin-bottom: 30px;
-    }
-
-    .benefit-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 12px;
-      padding: 10px;
-      background: var(--light-gray);
-      border-radius: 12px;
-      text-align: left;
-      transition: all 0.3s ease;
-    }
-
-    .benefit-item:hover {
-      background: rgba(0, 120, 212, 0.1);
-      transform: translateX(5px);
-    }
-
-    .benefit-item i {
-      color: var(--primary-color);
-      font-size: 18px;
-      width: 20px;
-      flex-shrink: 0;
-    }
-
-    .benefit-item span {
-      color: var(--text-color);
-      font-size: 14px;
-      font-weight: 500;
-    }
-
-    .registration-modal-actions {
-      display: flex;
-      gap: 15px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-
-    .registration-modal-btn {
-      padding: 12px 24px;
-      border: none;
-      border-radius: 25px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      min-width: 120px;
-      text-decoration: none;
-      display: inline-block;
-      text-align: center;
-    }
-
-    .registration-modal-btn.secondary {
-      background: transparent;
-      color: var(--secondary-color);
-      border: 2px solid var(--border-color);
-    }
-
-    .registration-modal-btn.secondary:hover {
-      background: var(--light-gray);
-      border-color: var(--secondary-color);
-      color: var(--text-color);
-      transform: translateY(-2px);
-    }
-
-    .registration-modal-btn.primary {
-      background: var(--primary-color);
-      color: white;
-      border: 2px solid var(--primary-color);
-    }
-
-    .registration-modal-btn.primary:hover {
-      background: var(--button-hover);
-      border-color: var(--button-hover);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0, 120, 212, 0.3);
-    }
-
-    @keyframes modalFadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
-    @keyframes modalSlideUp {
-      from { 
-        opacity: 0; 
-        transform: translateY(50px) scale(0.9); 
-      }
-      to { 
-        opacity: 1; 
-        transform: translateY(0) scale(1); 
-      }
-    }
-
-    @keyframes bounce {
-      0%, 20%, 50%, 80%, 100% {
-        transform: translateY(0);
-      }
-      40% {
-        transform: translateY(-10px);
-      }
-      60% {
-        transform: translateY(-5px);
-      }
-    }
-
-    /* Mobile Responsive for Modal */
-    @media (max-width: 768px) {
-      .registration-modal {
-        width: 95%;
-        margin: 20px;
-        border-radius: 15px;
-      }
-      
-      .registration-modal-content {
-        padding: 20px;
-      }
-      
-      .registration-modal-content h3 {
-        font-size: 20px;
-      }
-      
-      .registration-modal-content p {
-        font-size: 14px;
-      }
-      
-      .registration-modal-icon {
-        font-size: 40px;
-        margin-bottom: 15px;
-      }
-      
-      .benefit-item {
-        padding: 8px;
-        margin-bottom: 10px;
-      }
-      
-      .benefit-item i {
-        font-size: 16px;
-        width: 18px;
-      }
-      
-      .benefit-item span {
-        font-size: 13px;
-      }
-      
-      .registration-modal-actions {
-        flex-direction: column;
-        gap: 10px;
-      }
-      
-      .registration-modal-btn {
-        width: 100%;
-        padding: 14px 20px;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .registration-modal {
-        width: 98%;
-        margin: 10px;
-        border-radius: 12px;
-      }
-      
-      .registration-modal-content {
-        padding: 15px;
-      }
-      
-      .registration-modal-content h3 {
-        font-size: 18px;
-      }
-      
-      .registration-modal-content p {
-        font-size: 13px;
-      }
-      
-      .registration-modal-icon {
-        font-size: 36px;
-        margin-bottom: 12px;
-      }
-    }
-
-    @media (max-width: 768px) {
-      .chat-container {
-        margin: 5px;
-        height: calc(100vh - 40px);
-        min-height: 500px;
-        border-radius: 8px;
-      }
-      
-      .chat-header {
-        margin-top: 60px;
-        padding: 15px;
-      }
-      
-      .reset-button {
-        right: 15px;
-        width: 34px;
-        height: 34px;
-        font-size: 16px;
-      }
-      
-      .reset-button.show {
-        opacity: 1;
-        visibility: visible;
-        transform: scale(1);
-      }
-      
-      /* Mobile styles for edit button */
-      .edit-button {
-        bottom: -6px;
-        right: 15px;
-        padding: 4px 8px;
-        font-size: 10px;
-        border-radius: 8px;
-      }
-      
-      .edit-input {
-        font-size: 14px;
-        min-height: 50px;
-      }
-      
-      .edit-controls {
-        gap: 6px;
-        margin-top: 6px;
-      }
-      
-      .edit-save-btn,
-      .edit-cancel-btn {
-        padding: 4px 8px;
-        font-size: 11px;
-      }
-      
-      .chat-header h1 {
-        font-size: 1.2rem;
-      }
-      
-
-      
-      .chat-messages {
-        padding: 15px;
-      }
-      
-      .message {
-        margin-bottom: 15px;
-        gap: 8px;
-      }
-      
-      .message-avatar {
-        width: 28px;
-        height: 28px;
-        font-size: 12px;
-      }
-      
-      .message-content {
-        max-width: 90%;
-        padding: 12px;
-        font-size: 0.8rem;
-      }
-      
-      .message-text {
-        font-size: 0.8rem;
-        line-height: 1.4;
-      }
-      
-      .mode-selection {
-        flex-direction: column;
-        align-items: center;
-        gap: 12px;
-        margin-top: 15px;
-      }
-      
-      .mode-option {
-        min-width: 260px;
-        padding: 12px 20px;
-      }
-      
-      .mode-icon {
-        font-size: 16px;
-        margin-bottom: 6px;
-      }
-      
-      .mode-title {
-        font-size: 0.8rem;
-      }
-      
-      .mode-description {
-        font-size: 0.7rem;
-      }
-      
-      .yes-no-buttons {
-        flex-direction: column;
-        gap: 8px;
-        margin-top: 8px;
-      }
-      
-      .yes-no-button {
-        text-align: center;
-        padding: 8px 16px;
-        font-size: 0.8rem;
-      }
-      
-      .yes-no-button:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-        background: var(--secondary-color);
-        border-color: var(--secondary-color);
-      }
-      
-      .chat-input-container {
-        padding: 15px;
-      }
-      
-      .chat-input {
-        padding: 12px 14px;
-        font-size: 0.8rem;
-        min-height: 50px;
-        max-height: 100px;
-      }
-      
-      .send-button {
-        padding: 12px 20px;
-        font-size: 0.8rem;
-        min-width: 80px;
-      }
-      
-      .progress-container {
-        padding: 15px;
-      }
-      
-      .progress-text {
-        font-size: 0.7rem;
-        margin-top: 6px;
-      }
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta name="theme-color" content="#000000">
+    <title>Processing Unified - Specifys.ai - Specifys.ai</title>
+    <meta name="description" content="Plan your app with AI-powered specification generator">
+    <meta name="keywords" content="AI development tools, app specification generator, no-code platform, AI-powered planning, vibe coding, AI app builder, specification generator, market research tool, app planning tool, development tools, AI tools">
+    <meta name="author" content="Specifys.ai">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
     
-    @media (max-width: 480px) {
-      .chat-container {
-        margin: 2px;
-        height: calc(100vh - 20px);
-        min-height: 450px;
-        border-radius: 6px;
-      }
+    <!-- Canonical URL -->
+    
+    <link rel="canonical" href="http://localhost:4000/processing-unified.html">
+    
+    
+    <!-- Open Graph -->
+    <meta property="og:site_name" content="Specifys.ai">
+    <meta property="og:title" content="Processing Unified - Specifys.ai">
+    <meta property="og:description" content="Plan your app with AI-powered specification generator">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="http://localhost:4000/processing-unified.html">
+    <meta property="og:locale" content="en_US">
+    
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@specifysai">
+    <meta name="twitter:creator" content="@specifysai">
+    <meta name="twitter:title" content="Processing Unified - Specifys.ai">
+    <meta name="twitter:description" content="Plan your app with AI-powered specification generator">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="/assets/css/main.css">
+    
       
-      .chat-header {
-        margin-top: 50px;
-        padding: 12px;
-      }
+        <link rel="stylesheet" href="/assets/css/pages/processing-unified.css">
       
-      .reset-button {
-        right: 12px;
-        width: 32px;
-        height: 32px;
-        font-size: 14px;
-      }
-      
-      .reset-button.show {
-        opacity: 1;
-        visibility: visible;
-        transform: scale(1);
-      }
-      
-      .chat-header h1 {
-        font-size: 1.1rem;
-      }
-      
+    
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Mermaid for diagrams (used in demo, spec, research pages) -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+    
+    <!-- Marked for markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked@4.3.0/marked.min.js"></script>
+    
+    <!-- Highlight.js for syntax highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    
+    <!-- jsPDF for PDF export (used in research pages) -->
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
+    <!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-RWBT69JCM7"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-RWBT69JCM7');
+</script>
 
-      
-      .chat-messages {
-        padding: 12px;
-      }
-      
-      .message {
-        margin-bottom: 12px;
-        gap: 6px;
-      }
-      
-      .message-avatar {
-        width: 24px;
-        height: 24px;
-        font-size: 10px;
-      }
-      
-      .message-content {
-        max-width: 95%;
-        padding: 10px;
-        font-size: 0.75rem;
-      }
-      
-      .message-text {
-        font-size: 0.75rem;
-        line-height: 1.3;
-      }
-      
-      .mode-selection {
-        gap: 10px;
-        margin-top: 12px;
-      }
-      
-      .mode-option {
-        min-width: 240px;
-        padding: 10px 16px;
-      }
-      
-      .mode-icon {
-        font-size: 15px;
-        margin-bottom: 4px;
-      }
-      
-      .mode-title {
-        font-size: 0.75rem;
-      }
-      
-      .mode-description {
-        font-size: 0.65rem;
-      }
-      
-      .yes-no-buttons {
-        gap: 6px;
-        margin-top: 6px;
-      }
-      
-      .yes-no-button {
-        padding: 6px 12px;
-        font-size: 0.75rem;
-      }
-      
-      .chat-input-container {
-        padding: 12px;
-      }
-      
-      .chat-input {
-        padding: 10px 12px;
-        font-size: 0.75rem;
-        min-height: 44px;
-        max-height: 80px;
-      }
-      
-      .send-button {
-        padding: 10px 16px;
-        font-size: 0.75rem;
-        min-width: 70px;
-      }
-      
-      .progress-container {
-        padding: 12px;
-      }
-      
-      .progress-text {
-        font-size: 0.75rem;
-        margin-top: 4px;
+
+    <script>
+// Central Analytics Event Tracking System for Specifys.ai
+// This file contains reusable tracking functions for consistent analytics across the site
+
+// Check if gtag is available
+function isGtagAvailable() {
+  return typeof gtag !== 'undefined';
+}
+
+// Track button clicks with detailed categorization
+function trackButtonClick(buttonName, category, source, additionalData = {}) {
+  if (isGtagAvailable()) {
+    gtag('event', 'click', {
+      'event_category': category || 'Button Click',
+      'event_label': buttonName,
+      'event_source': source || 'unknown',
+      ...additionalData
+    });
+  }
+}
+
+// Track CTA (Call-to-Action) clicks
+function trackCTA(ctaName, location) {
+  if (isGtagAvailable()) {
+    gtag('event', 'cta_click', {
+      'event_category': 'CTA',
+      'event_label': ctaName,
+      'cta_location': location
+    });
+  }
+}
+
+// Track navigation events
+function trackNavigation(destination, source) {
+  if (isGtagAvailable()) {
+    gtag('event', 'navigation', {
+      'event_category': 'Navigation',
+      'event_label': destination,
+      'navigation_source': source
+    });
+  }
+}
+
+// Track tool usage
+function trackToolUsage(toolName, action) {
+  if (isGtagAvailable()) {
+    gtag('event', 'tool_usage', {
+      'event_category': 'Tools',
+      'event_label': toolName,
+      'tool_action': action
+    });
+  }
+}
+
+// Track form submissions
+function trackFormSubmit(formName, formType) {
+  if (isGtagAvailable()) {
+    gtag('event', 'form_submit', {
+      'event_category': 'Form',
+      'event_label': formName,
+      'form_type': formType
+    });
+  }
+}
+
+// Track user authentication events
+function trackAuthEvent(action, method) {
+  if (isGtagAvailable()) {
+    gtag('event', action, {
+      'event_category': 'Authentication',
+      'event_label': action,
+      'auth_method': method || 'email'
+    });
+  }
+}
+
+// Track downloads
+function trackDownload(fileName, fileType) {
+  if (isGtagAvailable()) {
+    gtag('event', 'download', {
+      'event_category': 'Downloads',
+      'event_label': fileName,
+      'file_type': fileType
+    });
+  }
+}
+
+// Track spec/result generations
+function trackGeneration(type, mode) {
+  if (isGtagAvailable()) {
+    gtag('event', 'generation_start', {
+      'event_category': 'Generation',
+      'event_label': type,
+      'generation_mode': mode
+    });
+  }
+}
+
+// Track generation completion
+function trackGenerationComplete(type, mode, success) {
+  if (isGtagAvailable()) {
+    gtag('event', 'generation_complete', {
+      'event_category': 'Generation',
+      'event_label': type,
+      'generation_mode': mode,
+      'success': success
+    });
+  }
+}
+
+// Track external link clicks
+function trackExternalLink(linkUrl, linkText) {
+  if (isGtagAvailable()) {
+    gtag('event', 'click', {
+      'event_category': 'External Link',
+      'event_label': linkText || linkUrl,
+      'link_url': linkUrl
+    });
+  }
+}
+
+// Track modal interactions
+function trackModal(modalName, action) {
+  if (isGtagAvailable()) {
+    gtag('event', 'modal_' + action, {
+      'event_category': 'Modal',
+      'event_label': modalName,
+      'modal_action': action
+    });
+  }
+}
+
+// Track FAQ interactions
+function trackFAQ(question, action) {
+  if (isGtagAvailable()) {
+    gtag('event', 'faq_' + action, {
+      'event_category': 'FAQ',
+      'event_label': question,
+      'faq_action': action
+    });
+  }
+}
+
+// Track search actions
+function trackSearch(searchTerm, searchType) {
+  if (isGtagAvailable()) {
+    gtag('event', 'search', {
+      'event_category': 'Search',
+      'search_term': searchTerm,
+      'search_type': searchType
+    });
+  }
+}
+
+// Track video/demo views
+function trackDemoView(demoName, viewDuration) {
+  if (isGtagAvailable()) {
+    gtag('event', 'demo_view', {
+      'event_category': 'Demo',
+      'event_label': demoName,
+      'view_duration': viewDuration
+    });
+  }
+}
+
+// Track user engagement time
+function trackEngagement(pageName, timeSpent) {
+  if (isGtagAvailable()) {
+    gtag('event', 'user_engagement', {
+      'event_category': 'Engagement',
+      'event_label': pageName,
+      'engagement_time_msec': timeSpent
+    });
+  }
+}
+
+// Track errors
+function trackError(errorType, errorMessage, errorLocation) {
+  if (isGtagAvailable()) {
+    gtag('event', 'error', {
+      'event_category': 'Error',
+      'event_label': errorType,
+      'error_message': errorMessage,
+      'error_location': errorLocation
+    });
+  }
+}
+
+// Track user preferences
+function trackPreference(preferenceName, preferenceValue) {
+  if (isGtagAvailable()) {
+    gtag('event', 'preference_change', {
+      'event_category': 'Preferences',
+      'event_label': preferenceName,
+      'preference_value': preferenceValue
+    });
+  }
+}
+
+// Track scroll depth
+let scrollDepthTracked = {25: false, 50: false, 75: false, 100: false};
+function initScrollTracking(pageName) {
+  window.addEventListener('scroll', function() {
+    const scrollPercent = Math.round((window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100);
+    
+    if (scrollPercent >= 25 && !scrollDepthTracked[25]) {
+      scrollDepthTracked[25] = true;
+      if (isGtagAvailable()) {
+        gtag('event', 'scroll', {
+          'event_category': 'Scroll Depth',
+          'event_label': pageName,
+          'scroll_depth': '25%'
+        });
       }
     }
-  </style>
+    if (scrollPercent >= 50 && !scrollDepthTracked[50]) {
+      scrollDepthTracked[50] = true;
+      if (isGtagAvailable()) {
+        gtag('event', 'scroll', {
+          'event_category': 'Scroll Depth',
+          'event_label': pageName,
+          'scroll_depth': '50%'
+        });
+      }
+    }
+    if (scrollPercent >= 75 && !scrollDepthTracked[75]) {
+      scrollDepthTracked[75] = true;
+      if (isGtagAvailable()) {
+        gtag('event', 'scroll', {
+          'event_category': 'Scroll Depth',
+          'event_label': pageName,
+          'scroll_depth': '75%'
+        });
+      }
+    }
+    if (scrollPercent >= 100 && !scrollDepthTracked[100]) {
+      scrollDepthTracked[100] = true;
+      if (isGtagAvailable()) {
+        gtag('event', 'scroll', {
+          'event_category': 'Scroll Depth',
+          'event_label': pageName,
+          'scroll_depth': '100%'
+        });
+      }
+    }
+  });
+}
+
+// Auto-initialize scroll tracking when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+  const pageName = document.title || window.location.pathname;
+  initScrollTracking(pageName);
+});
+</script>
+
+
+    <!-- Structured Data (JSON-LD) for SEO -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "name": "Specifys.ai",
+      "url": "https://specifys-ai.com",
+      "logo": "https://specifys-ai.com/favicon.ico",
+      "description": "AI-powered app planning and specification generation platform",
+      "sameAs": [
+        "https://www.linkedin.com/company/specifys-ai/"
+      ],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "email": "specifysai@gmail.com",
+        "contactType": "Customer Service"
+      }
+    },
+    {
+      "@type": "WebSite",
+      "name": "Specifys.ai",
+      "url": "https://specifys-ai.com",
+      "description": "Plan your app smarter with AI-driven insights and tools",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://specifys-ai.com/pages/ToolPicker.html?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "Specifys.ai",
+      "applicationCategory": "DevelopmentApplication",
+      "operatingSystem": "Web",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "ratingCount": "250"
+      },
+      "description": "AI-powered app planning platform with specification generator, market research tools, and vibe coding tools map"
+    }
+  ]
+}
+</script>
+
+
 </head>
+
+
 <body>
-  <header class="thematic-header" role="banner">
-    <div class="header-left">
-    </div>
+    <!-- Header -->
+    <!-- Header -->
+<header class="thematic-header" role="banner">
     <div class="header-center">
-      <div class="logo">
-        <a href="../index.html" aria-label="Specifys.ai homepage">Specifys.ai</a>
-      </div>
+        <div class="logo">
+            <a href="/" aria-label="Specifys.ai homepage">
+                <span class="logo-text">Specifys.AI</span>
+            </a>
+        </div>
     </div>
     <div class="header-right">
-      <div class="auth-buttons" id="auth-buttons">
-        <!-- Will be populated by auth system -->
-      </div>
+        <div class="auth-buttons" id="auth-buttons">
+            <!-- Will be populated by auth system -->
+        </div>
     </div>
-  </header>
+</header>
 
-  <!-- Loading Overlay -->
-  <div class="loading-overlay" id="loadingOverlay">
-    <div class="loading-content">
-      <div class="loading-spinner"></div>
-      <div class="loading-text">Generating Your Specification</div>
-      <div class="loading-subtext">This may take a few moments...</div>
-    </div>
+<style>
+/* Logo dark grey color - using site's color palette */
+.logo a,
+.logo-text {
+    color: #333 !important;
+}
+
+.logo a:hover {
+    color: #444 !important;
+}
+</style>
+
+
+    
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-content">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">Generating Your Specification</div>
+    <div class="loading-subtext">This may take a few moments...</div>
   </div>
+</div>
 
-  <!-- Registration Suggestion Modal -->
-  <div class="registration-modal-overlay" id="registrationModalOverlay">
-    <div class="registration-modal">
-      <div class="registration-modal-header">
-        <button class="registration-modal-close" id="registrationModalClose">
-          <i class="fas fa-times"></i>
+<!-- Registration Suggestion Modal -->
+<div class="registration-modal-overlay" id="registrationModalOverlay">
+  <div class="registration-modal">
+    <div class="registration-modal-header">
+      <button class="registration-modal-close" id="registrationModalClose">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="registration-modal-content">
+      <div class="registration-modal-icon">
+        <i class="fas fa-user-plus"></i>
+      </div>
+      <h3>Save Your Specifications!</h3>
+      <p>Great work! You've created your app specification. Would you like to register and save all your specifications in one place?</p>
+      <div class="registration-modal-benefits">
+        <div class="benefit-item">
+          <i class="fas fa-cloud"></i>
+          <span>Save all your specifications securely</span>
+        </div>
+        <div class="benefit-item">
+          <i class="fas fa-history"></i>
+          <span>Access your previous specifications anytime</span>
+        </div>
+        <div class="benefit-item">
+          <i class="fas fa-edit"></i>
+          <span>Edit and improve your specifications later</span>
+        </div>
+      </div>
+      <div class="registration-modal-actions">
+        <button class="registration-modal-btn secondary" id="registrationModalDismiss">
+          Maybe Later
         </button>
-      </div>
-      <div class="registration-modal-content">
-        <div class="registration-modal-icon">
-          <i class="fas fa-user-plus"></i>
-        </div>
-        <h3>Save Your Specifications!</h3>
-        <p>Great work! You've created your app specification. Would you like to register and save all your specifications in one place?</p>
-        <div class="registration-modal-benefits">
-          <div class="benefit-item">
-            <i class="fas fa-cloud"></i>
-            <span>Save all your specifications securely</span>
-          </div>
-          <div class="benefit-item">
-            <i class="fas fa-history"></i>
-            <span>Access your previous specifications anytime</span>
-          </div>
-          <div class="benefit-item">
-            <i class="fas fa-edit"></i>
-            <span>Edit and improve your specifications later</span>
-          </div>
-        </div>
-        <div class="registration-modal-actions">
-          <button class="registration-modal-btn secondary" id="registrationModalDismiss">
-            Maybe Later
-          </button>
-          <button class="registration-modal-btn primary" id="registrationModalRegister">
-            Sign Up & Save
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Main Chat Container -->
-  <div class="chat-container">
-    <div class="chat-header">
-            <button id="resetButton" class="reset-button" title="Reset chat">
-              <i class="fas fa-undo"></i>
-            </button>
-      <h1>Plan Your App</h1>
-    </div>
-    
-    <div class="chat-messages" id="chatMessages">
-      <!-- Messages will be dynamically added here -->
-    </div>
-    
-    <div class="chat-input-container" id="chatInputArea">
-      <div class="chat-input-wrapper">
-        <textarea 
-          id="chatInput" 
-          class="chat-input" 
-          placeholder="Type your answer here..."
-          rows="1"
-        ></textarea>
-        <button id="sendButton" class="send-button">
-          <i class="fas fa-paper-plane"></i>
+        <button class="registration-modal-btn primary" id="registrationModalRegister">
+          Sign Up & Save
         </button>
       </div>
     </div>
-    
-    <div class="progress-container">
-      <div class="progress-bar">
-        <div class="progress-fill" id="progressFill"></div>
-      </div>
-      <div class="progress-text" id="progressText">Ready to start</div>
-    </div>
   </div>
+</div>
 
-
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<!-- Main Chat Container -->
+<div class="chat-container">
+  <div class="chat-header">
+    <button id="resetButton" class="reset-button" title="Reset chat">
+      <i class="fas fa-undo"></i>
+    </button>
+    <h1>Plan Your App</h1>
+  </div>
   
-  <!-- Auth System Script -->
-  <script>
-    // Firebase configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyB9hr0IWM4EREzkKDxBxYoYinV6LJXWXV4",
-      authDomain: "specify-ai.firebaseapp.com",
-      projectId: "specify-ai",
-      storageBucket: "specify-ai.firebasestorage.app",
-      messagingSenderId: "734278787482",
-      appId: "1:734278787482:web:0e312fb6f197e849695a23",
-      measurementId: "G-4YR9LK63MR"
-    };
+  <div class="chat-messages" id="chatMessages">
+    <!-- Messages will be dynamically added here -->
+  </div>
+  
+  <div class="chat-input-container" id="chatInputArea">
+    <div class="chat-input-wrapper">
+      <textarea 
+        id="chatInput" 
+        class="chat-input" 
+        placeholder="Type your answer here..."
+        rows="1"
+      ></textarea>
+      <button id="sendButton" class="send-button">
+        <i class="fas fa-paper-plane"></i>
+      </button>
+    </div>
+  </div>
+  
+  <div class="progress-container">
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+    <div class="progress-text" id="progressText">Ready to start</div>
+  </div>
+</div>
 
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
+<!-- Prompts Data (must load before processing-unified.js) -->
+<script src="/tools/prompts.js"></script>
+
+<!-- Chat Logic -->
+<script defer src="/tools/processing-unified.js"></script>
+
+<noscript>
+  <div style="text-align: center; padding: 20px; background: #fff; color: #333;">
+    <p>This website requires JavaScript to function properly. Please enable JavaScript in your browser settings.</p>
+  </div>
+</noscript>
+
+<!-- Page-specific functionality -->
+<script>
+  // Auto-save function for this page
+  async function autoSaveSpec() {
+    if (!firebase.auth().currentUser) {
+      console.log('User not authenticated, skipping auto-save');
+      return;
+    }
     
-
-    // Update auth UI function
-    function updateAuthUI(user) {
-      const authButtons = document.getElementById('auth-buttons');
-      
-      if (user) {
-        // User is logged in
-        const displayName = user.displayName || user.email.split('@')[0];
-        const firstLetter = displayName.charAt(0).toUpperCase();
-        
-        authButtons.innerHTML = `
-          <div class="user-dropdown">
-            <div class="user-info" onclick="toggleUserDropdown()">
-              <div class="user-avatar">${firstLetter}</div>
-              <span>${displayName}</span>
-            </div>
-            <div class="user-dropdown-content">
-              <a href="../pages/profile.html">Profile</a>
-              <button onclick="logout()">Sign Out</button>
-            </div>
-          </div>
-        `;
-      } else {
-        // User is not logged in
-        authButtons.innerHTML = `
-          <button class="auth-btn" onclick="showLoginModal()">Login</button>
-          <button class="auth-btn primary" onclick="showRegisterModal()">Register</button>
-        `;
-      }
+    const specContent = localStorage.getItem('generatedContent');
+    if (!specContent) {
+      console.log('No spec content to save');
+      return;
     }
-
-    // Global functions
-    window.showLoginModal = function() {
-      window.location.href = '../pages/auth.html';
-    };
-
-    window.showRegisterModal = function() {
-      window.location.href = '../pages/auth.html';
-    };
-
-    window.logout = function() {
-      auth.signOut()
-        .then(() => {
-          console.log('Logged out successfully');
-        })
-        .catch(error => {
-          console.error('Error logging out:', error);
-        });
-    };
-
-    // Listen to auth state changes
-    auth.onAuthStateChanged((user) => {
-      updateAuthUI(user);
-    });
-
-    // Initialize auth buttons with default state
-    document.addEventListener('DOMContentLoaded', function() {
-      const authButtons = document.getElementById('auth-buttons');
-      if (authButtons && !authButtons.innerHTML.trim()) {
-        authButtons.innerHTML = `
-          <button class="auth-btn login-btn">Login</button>
-        `;
-        
-        const loginBtn = authButtons.querySelector('.login-btn');
-        if (loginBtn) {
-          loginBtn.addEventListener('click', function(event) {
-            event.stopPropagation();
-            window.location.href = '../pages/auth.html';
-          });
-        }
-      }
-    });
-
-    // Auto-save function instead of manual save button
-    async function autoSaveSpec() {
-      if (!auth.currentUser) {
-        console.log('User not authenticated, skipping auto-save');
-        return;
-      }
-      
-      const specContent = localStorage.getItem('generatedContent');
-      if (!specContent) {
-        console.log('No spec content to save');
-        return;
-      }
-      
-      try {
-        // Extract title from spec content
-        let title = "App Specification";
-        const lines = specContent.split('\n');
-        for (let line of lines) {
-          line = line.trim();
-          if (line.startsWith('# ') || line.startsWith('## ')) {
-            title = line.replace(/^#+\s*/, '');
-            break;
-          } else if (line.length > 10 && line.length < 100) {
-            title = line;
-            break;
-          }
-        }
-        
-        const mode = localStorage.getItem('unifiedCurrentMode') || 'unified';
-        const answers = JSON.parse(localStorage.getItem(`unifiedAnswers_${mode}`) || '{}');
-        
-        const specDoc = {
-          title: title,
-          content: specContent,
-          userId: auth.currentUser.uid,
-          userName: auth.currentUser.displayName || auth.currentUser.email || 'Unknown User',
-          mode: mode,
-          answers: answers,
-          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        };
-        
-        const docRef = await db.collection('specs').add(specDoc);
-        console.log('Spec auto-saved successfully:', docRef.id);
-        
-        // Show small notification
-        showSaveNotification();
-      } catch (error) {
-        console.error('Error auto-saving spec:', error);
-      }
-    }
-
-    function showSaveNotification() {
-      const notification = document.createElement('div');
-      notification.style.cssText = `
-        position: fixed;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: #28a745;
-        color: white;
-        padding: 10px 20px;
-        border-radius: 8px;
-        z-index: 1000;
-        font-size: 14px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        animation: slideUp 0.3s ease-out;
-      `;
-      notification.textContent = 'Specification auto-saved!';
-      
-      // Add animation styles
-      const style = document.createElement('style');
-      style.textContent = `
-        @keyframes slideUp {
-          from { transform: translateX(-50%) translateY(100%); opacity: 0; }
-          to { transform: translateX(-50%) translateY(0); opacity: 1; }
-        }
-      `;
-      document.head.appendChild(style);
-      
-      document.body.appendChild(notification);
-      
-      setTimeout(() => {
-        notification.remove();
-        style.remove();
-      }, 3000);
-    }
-
-
-    // User dropdown functionality
-    function toggleUserDropdown() {
-      const dropdown = document.querySelector('.user-dropdown-content');
-      if (dropdown.classList.contains('show')) {
-        dropdown.classList.remove('show');
-      } else {
-        dropdown.classList.add('show');
-      }
-    }
-
-    // Make functions global
-    window.toggleUserDropdown = toggleUserDropdown;
     
-    // Define toggleMenu function (placeholder for compatibility)
-    window.toggleMenu = function() {
-      console.log('toggleMenu called - this function is not implemented');
-    };
-
-
-    // Event listeners
-    document.addEventListener('DOMContentLoaded', function() {
-      
-      
-      
-      // Close user dropdown when clicking outside
-      document.addEventListener('click', function(event) {
-        const userDropdown = document.querySelector('.user-dropdown');
-        const userInfo = document.querySelector('.user-info');
-        const dropdown = document.querySelector('.user-dropdown-content');
-        
-        if (userDropdown && dropdown && dropdown.classList.contains('show') && 
-            !userInfo.contains(event.target)) {
-          dropdown.classList.remove('show');
+    try {
+      // Extract title from spec content
+      let title = "App Specification";
+      const lines = specContent.split('\n');
+      for (let line of lines) {
+        line = line.trim();
+        if (line.startsWith('# ') || line.startsWith('## ')) {
+          title = line.replace(/^#+\s*/, '');
+          break;
+        } else if (line.length > 10 && line.length < 100) {
+          title = line;
+          break;
         }
+      }
+      
+      const mode = localStorage.getItem('unifiedCurrentMode') || 'unified';
+      const answers = JSON.parse(localStorage.getItem(`unifiedAnswers_${mode}`) || '{}');
+      
+      const specDoc = {
+        title: title,
+        content: specContent,
+        userId: firebase.auth().currentUser.uid,
+        userName: firebase.auth().currentUser.displayName || firebase.auth().currentUser.email || 'Unknown User',
+        mode: mode,
+        answers: answers,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      };
+      
+      const docRef = await firebase.firestore().collection('specs').add(specDoc);
+      console.log('Spec auto-saved successfully:', docRef.id);
+      
+      // Show small notification
+      showSaveNotification();
+    } catch (error) {
+      console.error('Error auto-saving spec:', error);
+    }
+  }
+
+  function showSaveNotification() {
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #28a745;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      z-index: 1000;
+      font-size: 14px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      animation: slideUp 0.3s ease-out;
+    `;
+    notification.textContent = 'Specification auto-saved!';
+    
+    // Add animation styles
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes slideUp {
+        from { transform: translateX(-50%) translateY(100%); opacity: 0; }
+        to { transform: translateX(-50%) translateY(0); opacity: 1; }
+      }
+    `;
+    document.head.appendChild(style);
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+      notification.remove();
+      style.remove();
+    }, 3000);
+  }
+
+  // Registration Modal Functions
+  function showRegistrationModal() {
+    const modal = document.getElementById('registrationModalOverlay');
+    if (modal) {
+      modal.classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+
+  function hideRegistrationModal() {
+    const modal = document.getElementById('registrationModalOverlay');
+    if (modal) {
+      modal.classList.remove('show');
+      document.body.style.overflow = '';
+    }
+  }
+
+  // Setup modal event listeners
+  document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('registrationModalOverlay');
+    const closeBtn = document.getElementById('registrationModalClose');
+    const dismissBtn = document.getElementById('registrationModalDismiss');
+    const registerBtn = document.getElementById('registrationModalRegister');
+
+    if (closeBtn) {
+      closeBtn.addEventListener('click', hideRegistrationModal);
+    }
+
+    if (dismissBtn) {
+      dismissBtn.addEventListener('click', hideRegistrationModal);
+    }
+
+    if (registerBtn) {
+      registerBtn.addEventListener('click', function() {
+        hideRegistrationModal();
+        window.location.href = '../pages/auth.html';
       });
-      
-      
-      // Mobile header layout adjustment
-      function adjustMobileLayout() {
-        const headerLeft = document.querySelector('.header-left');
-        const headerRight = document.querySelector('.header-right');
-        const authButtons = document.getElementById('auth-buttons');
-        
-        if (window.innerWidth <= 768) {
-          // Move auth buttons to left side on mobile
-          if (authButtons && headerLeft) {
-            headerLeft.appendChild(authButtons);
-          }
-        } else {
-          // Move auth buttons back to right side on desktop
-          if (authButtons && headerRight) {
-            headerRight.insertBefore(authButtons, headerRight.firstChild);
-          }
-        }
-      }
-      
-      // Initial adjustment
-      adjustMobileLayout();
-      
-      // Adjust on window resize
-      window.addEventListener('resize', adjustMobileLayout);
-    });
-
-    // Update updateAuthUI function to include user dropdown
-    function updateAuthUI(user) {
-      const authButtons = document.getElementById('auth-buttons');
-      
-      if (user) {
-        // User is logged in
-        authButtons.innerHTML = `
-          <div class="user-dropdown">
-            <div class="user-info">
-              <div class="user-avatar">${user.displayName ? user.displayName.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase()}</div>
-              <span>${user.displayName || user.email.split('@')[0]}</span>
-            </div>
-            <div class="user-dropdown-content">
-              <a href="../pages/profile.html">Profile</a>
-              <button class="logout-btn">Sign Out</button>
-            </div>
-          </div>
-        `;
-        
-        // Add event listeners after creating the HTML
-        const userInfo = authButtons.querySelector('.user-info');
-        const logoutBtn = authButtons.querySelector('.logout-btn');
-        
-        if (userInfo) {
-          userInfo.addEventListener('click', function(event) {
-            event.stopPropagation();
-            toggleUserDropdown();
-          });
-        }
-        
-        if (logoutBtn) {
-          logoutBtn.addEventListener('click', function(event) {
-            event.stopPropagation();
-            logout();
-          });
-        }
-      } else {
-        // User is not logged in
-        authButtons.innerHTML = `
-          <button class="auth-btn login-btn">Login</button>
-        `;
-        
-        // Add event listener for login button
-        const loginBtn = authButtons.querySelector('.login-btn');
-        if (loginBtn) {
-          loginBtn.addEventListener('click', function(event) {
-            event.stopPropagation();
-            showLoginModal();
-          });
-        }
-      }
     }
 
-    // Registration Modal Functions
-    function showRegistrationModal() {
-      const modal = document.getElementById('registrationModalOverlay');
-      if (modal) {
-        modal.classList.add('show');
-        // Prevent body scroll when modal is open
-        document.body.style.overflow = 'hidden';
-      }
-    }
-
-    function hideRegistrationModal() {
-      const modal = document.getElementById('registrationModalOverlay');
-      if (modal) {
-        modal.classList.remove('show');
-        // Restore body scroll
-        document.body.style.overflow = '';
-      }
-    }
-
-    // Setup modal event listeners
-    document.addEventListener('DOMContentLoaded', function() {
-      const modal = document.getElementById('registrationModalOverlay');
-      const closeBtn = document.getElementById('registrationModalClose');
-      const dismissBtn = document.getElementById('registrationModalDismiss');
-      const registerBtn = document.getElementById('registrationModalRegister');
-
-      if (closeBtn) {
-        closeBtn.addEventListener('click', hideRegistrationModal);
-      }
-
-      if (dismissBtn) {
-        dismissBtn.addEventListener('click', hideRegistrationModal);
-      }
-
-      if (registerBtn) {
-        registerBtn.addEventListener('click', function() {
-          hideRegistrationModal();
-          // Redirect to registration page
-          window.location.href = '../pages/auth.html';
-        });
-      }
-
-      // Close modal when clicking outside
-      if (modal) {
-        modal.addEventListener('click', function(e) {
-          if (e.target === modal) {
-            hideRegistrationModal();
-          }
-        });
-      }
-
-      // Close modal with Escape key
-      document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && modal && modal.classList.contains('show')) {
+    // Close modal when clicking outside
+    if (modal) {
+      modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
           hideRegistrationModal();
         }
       });
+    }
+
+    // Close modal with Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && modal && modal.classList.contains('show')) {
+        hideRegistrationModal();
+      }
     });
-
-    // Make modal functions globally accessible
-    window.showRegistrationModal = showRegistrationModal;
-    window.hideRegistrationModal = hideRegistrationModal;
-
-    // Listen to auth state changes
-    auth.onAuthStateChanged((user) => {
-      updateAuthUI(user);
-      
-      // Auto-save spec if user is authenticated and content exists
+    
+    // Auto-save spec when user is authenticated and content exists
+    firebase.auth().onAuthStateChanged((user) => {
       if (user) {
         const specContent = localStorage.getItem('generatedContent');
         if (specContent) {
           setTimeout(() => {
             autoSaveSpec();
-          }, 2000); // Wait for page to load
+          }, 2000);
         }
       }
     });
-  </script>
+  });
 
-
-  <noscript>
-    <div style="text-align: center; padding: 20px; background: #fff; color: #333;">
-      <p>This website requires JavaScript to function properly. Please enable JavaScript in your browser settings.</p>
+  // Make modal functions globally accessible
+  window.showRegistrationModal = showRegistrationModal;
+  window.hideRegistrationModal = hideRegistrationModal;
+</script>
+    </main>
+    
+    <!-- Footer -->
+    <!-- Footer -->
+<footer>
+  <div class="footer-content">
+    <div class="footer-links">
+      <a href="/pages/how.html" aria-label="Learn how specifys.ai works">How It Works</a>
+      <a href="/pages/about.html" aria-label="Learn more about specifys.ai">About Us</a>
+      <a href="/blog/" aria-label="Visit our blog">Blog</a>
+      <a href="/tools/map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
+      <a href="/pages/ToolPicker.html" aria-label="Use our Tool Finder">Tool Finder</a>
     </div>
-  </noscript>
+    <span class="footer-divider">|</span>
+    <div class="footer-social">
+      <a href="https://www.linkedin.com/company/specifys-ai/" target="_blank" aria-label="Follow us on LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+      <a href="https://www.facebook.com/profile.php?id=61576402600129&locale=he_IL" target="_blank" aria-label="Follow us on Facebook"><i class="fab fa-facebook-f"></i></a>
+      <a href="https://www.instagram.com/YOUR_PROFILE" target="_blank" aria-label="Follow us on Instagram"><i class="fab fa-instagram"></i></a>
+      <a href="mailto:specifysai@gmail.com" aria-label="Send us an email"><i class="fas fa-envelope"></i></a>
+      <a href="https://www.producthunt.com/products/specifys-ai" target="_blank" aria-label="Check us out on Product Hunt"><i class="fab fa-product-hunt"></i></a>
+    </div>
+  </div>
+  <div class="footer-copyright">
+    © 2025 specifys.ai. All rights reserved.
+  </div>
+</footer>
+
+    
+    <!-- Scroll to top button -->
+    <!-- Scroll to top button -->
+<button class="icon-btn scroll-to-top" id="scrollToTop" aria-label="Scroll">
+  <i class="fas fa-arrow-up"></i>
+</button>
+
+<script>
+  // Scroll button functionality
+  document.addEventListener('DOMContentLoaded', function() {
+    const scrollBtn = document.getElementById('scrollToTop');
+    
+    if (scrollBtn) {
+      // Handle click - scroll to top or bottom based on current state
+      scrollBtn.addEventListener("click", () => {
+        if (window.scrollY > 300) {
+          // If scrolled down, go to top
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        } else {
+          // If at top, scroll to bottom
+          window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+        }
+      });
+      
+      // Rotate button based on scroll position
+      window.addEventListener("scroll", () => {
+        if (window.scrollY > 300) {
+          scrollBtn.classList.add("scrolled-down");
+          scrollBtn.setAttribute("aria-label", "Scroll to top");
+        } else {
+          scrollBtn.classList.remove("scrolled-down");
+          scrollBtn.setAttribute("aria-label", "Scroll to bottom");
+        }
+      });
+    }
+  });
+</script>
+
+
+    
+    <!-- Firebase SDK & Auth -->
+    
+    <!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<script>
+  // Firebase Configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyB9hr0IWM4EREzkKDxBxYoYinV6LJXWXV4",
+    authDomain: "specify-ai.firebaseapp.com",
+    projectId: "specify-ai",
+    storageBucket: "specify-ai.firebasestorage.app",
+    messagingSenderId: "734278787482",
+    appId: "1:734278787482:web:0e312fb6f197e849695a23",
+    measurementId: "G-4YR9LK63MR"
+  };
+
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+</script>
+
+
+    <script>
+  // Auth UI functions
+  function updateAuthUI(user) {
+    const authButtons = document.getElementById('auth-buttons');
+    if (!authButtons) return;
+    
+    if (user) {
+      // User is logged in
+      const displayName = user.displayName || user.email.split('@')[0];
+      const firstLetter = displayName.charAt(0).toUpperCase();
+      
+      authButtons.innerHTML = `
+        <a href="/pages/profile.html" class="user-info" style="text-decoration: none;">
+          <div class="user-avatar">${firstLetter}</div>
+          <span>${displayName}</span>
+        </a>
+      `;
+    } else {
+      // User is not logged in
+      authButtons.innerHTML = `
+        <button class="auth-btn" onclick="showLoginModal()">Login</button>
+      `;
+    }
+  }
+
+  // Global auth functions
+  window.showLoginModal = function() {
+    if (typeof trackButtonClick !== 'undefined') {
+      trackButtonClick('Show Login', 'Authentication', 'header');
+    }
+    window.location.href = '/pages/auth.html';
+  };
+
+  window.showRegisterModal = function() {
+    if (typeof trackButtonClick !== 'undefined') {
+      trackButtonClick('Show Register', 'Authentication', 'header');
+    }
+    window.location.href = '/pages/auth.html';
+  };
+
+  window.logout = function() {
+    if (typeof trackAuthEvent !== 'undefined') {
+      trackAuthEvent('logout', 'email');
+    }
+    auth.signOut()
+      .then(() => {
+        console.log('Logged out successfully');
+      })
+      .catch(error => {
+        console.error('Error logging out:', error);
+      });
+  };
+
+  // Listen to auth state changes
+  auth.onAuthStateChanged((user) => {
+    updateAuthUI(user);
+  });
+
+  // Initialize auth buttons with default state
+  document.addEventListener('DOMContentLoaded', function() {
+    const authButtons = document.getElementById('auth-buttons');
+    if (authButtons && !authButtons.innerHTML.trim()) {
+      authButtons.innerHTML = `
+        <button class="auth-btn login-btn">Login</button>
+      `;
+      
+      const loginBtn = authButtons.querySelector('.login-btn');
+      if (loginBtn) {
+        loginBtn.addEventListener('click', function(event) {
+          event.stopPropagation();
+          window.location.href = '/pages/auth.html';
+        });
+      }
+    }
+  });
+</script>
+
+
+    
 </body>
 </html>

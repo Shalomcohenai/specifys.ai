@@ -1,0 +1,224 @@
+/* How It Works Page Styles */
+
+/* Intro paragraph */
+.how-intro {
+  font-size: 1.1rem;
+  color: #666;
+  text-align: center;
+  margin-bottom: 40px;
+  line-height: 1.6;
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Track cards specific styles */
+.tracks-container {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  overflow-x: auto;
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+  max-width: 1100px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.track-card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+  flex: 1;
+  min-width: 280px;
+  display: flex;
+  flex-direction: column;
+}
+
+.track-card:hover {
+  transform: translateY(-5px);
+}
+
+.track-card h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0078d4;
+  margin-bottom: 15px;
+}
+
+.track-card p {
+  font-size: 1rem;
+  color: #666;
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+.track-card ul {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 20px;
+  flex-grow: 1;
+}
+
+.track-card li {
+  font-size: 0.95rem;
+  color: #333;
+  margin-bottom: 10px;
+  position: relative;
+  padding-left: 20px;
+}
+
+.track-card li::before {
+  content: "\f058";
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+  color: #0078d4;
+  position: absolute;
+  left: 0;
+  top: 2px;
+}
+
+/* Tools Section */
+.tools-section {
+  margin-top: 50px;
+  padding-top: 40px;
+  border-top: 2px solid #e9ecef;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.tools-section h2 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 20px;
+  font-size: 2rem;
+}
+
+.tools-section > p {
+  text-align: center;
+  color: #666;
+  margin-bottom: 40px;
+  font-size: 1.1rem;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.tools-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 30px;
+  margin-top: 30px;
+  max-width: 1100px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.tool-card {
+  background: #fff;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.tool-card.tools-map {
+  border-left: 5px solid #0078d4;
+}
+
+.tool-card.tool-finder {
+  border-left: 5px solid #28a745;
+}
+
+.tool-card.spec-generator {
+  border-left: 5px solid #ffc107;
+}
+
+.tool-card.market-research {
+  border-left: 5px solid #dc3545;
+}
+
+.tool-icon {
+  font-size: 2.5rem;
+  margin-bottom: 20px;
+}
+
+.tool-icon.tools-map-icon {
+  color: #0078d4;
+}
+
+.tool-icon.tool-finder-icon {
+  color: #28a745;
+}
+
+.tool-icon.spec-generator-icon {
+  color: #ffc107;
+}
+
+.tool-icon.market-research-icon {
+  color: #dc3545;
+}
+
+.tool-card h3 {
+  color: #333;
+  margin-bottom: 15px;
+  font-size: 1.4rem;
+}
+
+.tool-card > p {
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.tool-card ul {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 25px;
+}
+
+.tool-card li {
+  margin-bottom: 8px;
+  color: #333;
+  position: relative;
+  padding-left: 20px;
+}
+
+.tool-card li i.fa-check {
+  position: absolute;
+  left: 0;
+  top: 2px;
+}
+
+.tool-card.tools-map li i.fa-check {
+  color: #0078d4;
+}
+
+.tool-card.tool-finder li i.fa-check {
+  color: #28a745;
+}
+
+.tool-card.spec-generator li i.fa-check {
+  color: #ffc107;
+}
+
+.tool-card.market-research li i.fa-check {
+  color: #dc3545;
+}
+
+@media (max-width: 768px) {
+  .tracks-container {
+    flex-direction: column;
+  }
+  
+  .track-card {
+    min-width: 100%;
+  }
+  
+  .tools-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+

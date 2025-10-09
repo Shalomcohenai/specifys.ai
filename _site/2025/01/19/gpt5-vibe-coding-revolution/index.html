@@ -2,10 +2,13 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vibe Coding with GPT-5: Revolutionizing App Development - Specifys.ai Blog</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta name="theme-color" content="#000000">
+    <title>Vibe Coding with GPT-5: Revolutionizing App Development - Specifys.ai</title>
     <meta name="description" content="Vibe coding, the art of building software through intuitive, natural language prompts, has been supercharged by OpenAI's GPT-5. This AI model transforms app development by enabling developers and non-coders alike to create complex applications...">
-    <meta name="robots" content="index, follow">
+    <meta name="keywords" content="AI development tools, app specification generator, no-code platform, AI-powered planning, vibe coding, AI app builder, specification generator, market research tool, app planning tool, development tools, AI tools">
+    <meta name="author" content="Specifys.ai">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
     
     <!-- Canonical URL -->
     
@@ -13,13 +16,22 @@
     
     
     <!-- Open Graph -->
+    <meta property="og:site_name" content="Specifys.ai">
     <meta property="og:title" content="Vibe Coding with GPT-5: Revolutionizing App Development">
     <meta property="og:description" content="Vibe coding, the art of building software through intuitive, natural language prompts, has been supercharged by OpenAI's GPT-5. This AI model transforms app development by enabling developers and non-coders alike to create complex applications...">
     <meta property="og:type" content="article">
-    <meta property="og:url" content="https://specifys-ai.com/2025/01/19/gpt5-vibe-coding-revolution/">
+    <meta property="og:url" content="http://localhost:4000/2025/01/19/gpt5-vibe-coding-revolution/">
+    <meta property="og:locale" content="en_US">
+    
+    <meta property="article:author" content="Specifys.ai">
+    <meta property="article:published_time" content="2025-01-19T00:00:00-05:00">
+    <meta property="article:modified_time" content="2025-01-19T00:00:00-05:00">
+    
     
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@specifysai">
+    <meta name="twitter:creator" content="@specifysai">
     <meta name="twitter:title" content="Vibe Coding with GPT-5: Revolutionizing App Development">
     <meta name="twitter:description" content="Vibe coding, the art of building software through intuitive, natural language prompts, has been supercharged by OpenAI's GPT-5. This AI model transforms app development by enabling developers and non-coders alike to create complex applications...">
     
@@ -28,25 +40,384 @@
     
     <!-- CSS -->
     <link rel="stylesheet" href="/assets/css/main.css">
-    <link rel="stylesheet" href="/assets/css/blog.css">
+    
     
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Mermaid for diagrams (used in demo, spec, research pages) -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+    
+    <!-- Marked for markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked@4.3.0/marked.min.js"></script>
+    
+    <!-- Highlight.js for syntax highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    
+    <!-- jsPDF for PDF export (used in research pages) -->
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
+    <!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-RWBT69JCM7"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-RWBT69JCM7');
+</script>
+
+
+    <script>
+// Central Analytics Event Tracking System for Specifys.ai
+// This file contains reusable tracking functions for consistent analytics across the site
+
+// Check if gtag is available
+function isGtagAvailable() {
+  return typeof gtag !== 'undefined';
+}
+
+// Track button clicks with detailed categorization
+function trackButtonClick(buttonName, category, source, additionalData = {}) {
+  if (isGtagAvailable()) {
+    gtag('event', 'click', {
+      'event_category': category || 'Button Click',
+      'event_label': buttonName,
+      'event_source': source || 'unknown',
+      ...additionalData
+    });
+  }
+}
+
+// Track CTA (Call-to-Action) clicks
+function trackCTA(ctaName, location) {
+  if (isGtagAvailable()) {
+    gtag('event', 'cta_click', {
+      'event_category': 'CTA',
+      'event_label': ctaName,
+      'cta_location': location
+    });
+  }
+}
+
+// Track navigation events
+function trackNavigation(destination, source) {
+  if (isGtagAvailable()) {
+    gtag('event', 'navigation', {
+      'event_category': 'Navigation',
+      'event_label': destination,
+      'navigation_source': source
+    });
+  }
+}
+
+// Track tool usage
+function trackToolUsage(toolName, action) {
+  if (isGtagAvailable()) {
+    gtag('event', 'tool_usage', {
+      'event_category': 'Tools',
+      'event_label': toolName,
+      'tool_action': action
+    });
+  }
+}
+
+// Track form submissions
+function trackFormSubmit(formName, formType) {
+  if (isGtagAvailable()) {
+    gtag('event', 'form_submit', {
+      'event_category': 'Form',
+      'event_label': formName,
+      'form_type': formType
+    });
+  }
+}
+
+// Track user authentication events
+function trackAuthEvent(action, method) {
+  if (isGtagAvailable()) {
+    gtag('event', action, {
+      'event_category': 'Authentication',
+      'event_label': action,
+      'auth_method': method || 'email'
+    });
+  }
+}
+
+// Track downloads
+function trackDownload(fileName, fileType) {
+  if (isGtagAvailable()) {
+    gtag('event', 'download', {
+      'event_category': 'Downloads',
+      'event_label': fileName,
+      'file_type': fileType
+    });
+  }
+}
+
+// Track spec/result generations
+function trackGeneration(type, mode) {
+  if (isGtagAvailable()) {
+    gtag('event', 'generation_start', {
+      'event_category': 'Generation',
+      'event_label': type,
+      'generation_mode': mode
+    });
+  }
+}
+
+// Track generation completion
+function trackGenerationComplete(type, mode, success) {
+  if (isGtagAvailable()) {
+    gtag('event', 'generation_complete', {
+      'event_category': 'Generation',
+      'event_label': type,
+      'generation_mode': mode,
+      'success': success
+    });
+  }
+}
+
+// Track external link clicks
+function trackExternalLink(linkUrl, linkText) {
+  if (isGtagAvailable()) {
+    gtag('event', 'click', {
+      'event_category': 'External Link',
+      'event_label': linkText || linkUrl,
+      'link_url': linkUrl
+    });
+  }
+}
+
+// Track modal interactions
+function trackModal(modalName, action) {
+  if (isGtagAvailable()) {
+    gtag('event', 'modal_' + action, {
+      'event_category': 'Modal',
+      'event_label': modalName,
+      'modal_action': action
+    });
+  }
+}
+
+// Track FAQ interactions
+function trackFAQ(question, action) {
+  if (isGtagAvailable()) {
+    gtag('event', 'faq_' + action, {
+      'event_category': 'FAQ',
+      'event_label': question,
+      'faq_action': action
+    });
+  }
+}
+
+// Track search actions
+function trackSearch(searchTerm, searchType) {
+  if (isGtagAvailable()) {
+    gtag('event', 'search', {
+      'event_category': 'Search',
+      'search_term': searchTerm,
+      'search_type': searchType
+    });
+  }
+}
+
+// Track video/demo views
+function trackDemoView(demoName, viewDuration) {
+  if (isGtagAvailable()) {
+    gtag('event', 'demo_view', {
+      'event_category': 'Demo',
+      'event_label': demoName,
+      'view_duration': viewDuration
+    });
+  }
+}
+
+// Track user engagement time
+function trackEngagement(pageName, timeSpent) {
+  if (isGtagAvailable()) {
+    gtag('event', 'user_engagement', {
+      'event_category': 'Engagement',
+      'event_label': pageName,
+      'engagement_time_msec': timeSpent
+    });
+  }
+}
+
+// Track errors
+function trackError(errorType, errorMessage, errorLocation) {
+  if (isGtagAvailable()) {
+    gtag('event', 'error', {
+      'event_category': 'Error',
+      'event_label': errorType,
+      'error_message': errorMessage,
+      'error_location': errorLocation
+    });
+  }
+}
+
+// Track user preferences
+function trackPreference(preferenceName, preferenceValue) {
+  if (isGtagAvailable()) {
+    gtag('event', 'preference_change', {
+      'event_category': 'Preferences',
+      'event_label': preferenceName,
+      'preference_value': preferenceValue
+    });
+  }
+}
+
+// Track scroll depth
+let scrollDepthTracked = {25: false, 50: false, 75: false, 100: false};
+function initScrollTracking(pageName) {
+  window.addEventListener('scroll', function() {
+    const scrollPercent = Math.round((window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100);
+    
+    if (scrollPercent >= 25 && !scrollDepthTracked[25]) {
+      scrollDepthTracked[25] = true;
+      if (isGtagAvailable()) {
+        gtag('event', 'scroll', {
+          'event_category': 'Scroll Depth',
+          'event_label': pageName,
+          'scroll_depth': '25%'
+        });
+      }
+    }
+    if (scrollPercent >= 50 && !scrollDepthTracked[50]) {
+      scrollDepthTracked[50] = true;
+      if (isGtagAvailable()) {
+        gtag('event', 'scroll', {
+          'event_category': 'Scroll Depth',
+          'event_label': pageName,
+          'scroll_depth': '50%'
+        });
+      }
+    }
+    if (scrollPercent >= 75 && !scrollDepthTracked[75]) {
+      scrollDepthTracked[75] = true;
+      if (isGtagAvailable()) {
+        gtag('event', 'scroll', {
+          'event_category': 'Scroll Depth',
+          'event_label': pageName,
+          'scroll_depth': '75%'
+        });
+      }
+    }
+    if (scrollPercent >= 100 && !scrollDepthTracked[100]) {
+      scrollDepthTracked[100] = true;
+      if (isGtagAvailable()) {
+        gtag('event', 'scroll', {
+          'event_category': 'Scroll Depth',
+          'event_label': pageName,
+          'scroll_depth': '100%'
+        });
+      }
+    }
+  });
+}
+
+// Auto-initialize scroll tracking when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+  const pageName = document.title || window.location.pathname;
+  initScrollTracking(pageName);
+});
+</script>
+
+
+    <!-- Structured Data (JSON-LD) for SEO -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "name": "Specifys.ai",
+      "url": "https://specifys-ai.com",
+      "logo": "https://specifys-ai.com/favicon.ico",
+      "description": "AI-powered app planning and specification generation platform",
+      "sameAs": [
+        "https://www.linkedin.com/company/specifys-ai/"
+      ],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "email": "specifysai@gmail.com",
+        "contactType": "Customer Service"
+      }
+    },
+    {
+      "@type": "WebSite",
+      "name": "Specifys.ai",
+      "url": "https://specifys-ai.com",
+      "description": "Plan your app smarter with AI-driven insights and tools",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://specifys-ai.com/pages/ToolPicker.html?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "Specifys.ai",
+      "applicationCategory": "DevelopmentApplication",
+      "operatingSystem": "Web",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "ratingCount": "250"
+      },
+      "description": "AI-powered app planning platform with specification generator, market research tools, and vibe coding tools map"
+    },
+    {
+      "@type": "Article",
+      "headline": "Vibe Coding with GPT-5: Revolutionizing App Development",
+      "description": "Vibe coding, the art of building software through intuitive, natural language prompts, has been supercharged by OpenAI's GPT-5. This AI model transforms app ...",
+      "author": {
+        "@type": "Organization",
+        "name": "Specifys.ai"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "Specifys.ai",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://specifys-ai.com/favicon.ico"
+        }
+      },
+      "datePublished": "2025-01-19T00:00:00-05:00",
+      "dateModified": "2025-01-19T00:00:00-05:00",
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "http://localhost:4000/2025/01/19/gpt5-vibe-coding-revolution/"
+      }
+    }
+  ]
+}
+</script>
+
+
 </head>
+
+
 <body>
     <!-- Header -->
     <!-- Header -->
 <header class="thematic-header" role="banner">
-    <div class="header-left">
-    </div>
     <div class="header-center">
         <div class="logo">
-            <a href="/" aria-label="Specifys.ai homepage">Specifys.AI</a>
+            <a href="/" aria-label="Specifys.ai homepage">
+                <span class="logo-text">Specifys.AI</span>
+            </a>
         </div>
     </div>
     <div class="header-right">
@@ -55,6 +426,18 @@
         </div>
     </div>
 </header>
+
+<style>
+/* Logo dark grey color - using site's color palette */
+.logo a,
+.logo-text {
+    color: #333 !important;
+}
+
+.logo a:hover {
+    color: #444 !important;
+}
+</style>
 
 
     
@@ -65,7 +448,7 @@
         <h1 class="post-title">Vibe Coding with GPT-5: Revolutionizing App Development</h1>
         
         <div class="post-meta">
-            <time datetime="2025-01-19T00:00:00+02:00" class="post-date">
+            <time datetime="2025-01-19T00:00:00-05:00" class="post-date">
                 January 19, 2025
             </time>
             
@@ -488,6 +871,7 @@
 
 <p><em>This post was created as part of the Specifys.ai blog migration to provide comprehensive content for our readers.</em></p>
 
+
     </div>
     
     <footer class="post-footer">
@@ -540,188 +924,172 @@
     <!-- Footer -->
     <!-- Footer -->
 <footer>
-    <div class="footer-content">
-        <div class="footer-links">
-            <a href="/pages/how.html" aria-label="Learn how specifys.ai works">How It Works</a>
-            <a href="/pages/about.html" aria-label="Learn more about specifys.ai">About Us</a>
-            <a href="/blog/" aria-label="Visit our blog">Blog</a>
-            <a href="/tools/map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
-            <a href="/pages/ToolPicker.html" aria-label="Use our Tool Finder">Tool Finder</a>
-        </div>
-        <span class="footer-divider">|</span>
-        <div class="footer-social">
-            <a href="https://www.linkedin.com/company/specifys-ai/" aria-label="Follow us on LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-            <a href="https://www.facebook.com/profile.php?id=61576402600129&locale=he_IL" target="_blank" aria-label="Follow us on Facebook"><i class="fab fa-facebook-f"></i></a>
-            <a href="https://www.instagram.com/YOUR_PROFILE" aria-label="Follow us on Instagram"><i class="fab fa-instagram"></i></a>
-            <a href="mailto:specifysai@gmail.com" aria-label="Send us an email"><i class="fas fa-envelope"></i></a>
-            <a href="https://www.producthunt.com/products/specifys-ai" target="_blank" aria-label="Check us out on Product Hunt"><i class="fab fa-product-hunt"></i></a>
-        </div>
+  <div class="footer-content">
+    <div class="footer-links">
+      <a href="/pages/how.html" aria-label="Learn how specifys.ai works">How It Works</a>
+      <a href="/pages/about.html" aria-label="Learn more about specifys.ai">About Us</a>
+      <a href="/blog/" aria-label="Visit our blog">Blog</a>
+      <a href="/tools/map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
+      <a href="/pages/ToolPicker.html" aria-label="Use our Tool Finder">Tool Finder</a>
     </div>
-    <div class="footer-copyright">© 2025 specifys.ai. All rights reserved.</div>
+    <span class="footer-divider">|</span>
+    <div class="footer-social">
+      <a href="https://www.linkedin.com/company/specifys-ai/" target="_blank" aria-label="Follow us on LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+      <a href="https://www.facebook.com/profile.php?id=61576402600129&locale=he_IL" target="_blank" aria-label="Follow us on Facebook"><i class="fab fa-facebook-f"></i></a>
+      <a href="https://www.instagram.com/YOUR_PROFILE" target="_blank" aria-label="Follow us on Instagram"><i class="fab fa-instagram"></i></a>
+      <a href="mailto:specifysai@gmail.com" aria-label="Send us an email"><i class="fas fa-envelope"></i></a>
+      <a href="https://www.producthunt.com/products/specifys-ai" target="_blank" aria-label="Check us out on Product Hunt"><i class="fab fa-product-hunt"></i></a>
+    </div>
+  </div>
+  <div class="footer-copyright">
+    © 2025 specifys.ai. All rights reserved.
+  </div>
 </footer>
 
+    
+    <!-- Scroll to top button -->
+    <!-- Scroll to top button -->
+<button class="icon-btn scroll-to-top" id="scrollToTop" aria-label="Scroll">
+  <i class="fas fa-arrow-up"></i>
+</button>
+
 <script>
-    function logout() {
-        alert('Logged out successfully!');
-        // Here you would normally handle the actual logout
-    }
+  // Scroll button functionality
+  document.addEventListener('DOMContentLoaded', function() {
+    const scrollBtn = document.getElementById('scrollToTop');
     
-    // Function to update user avatar with first letter of email
-    function updateUserAvatar(email) {
-        const firstLetter = email.charAt(0).toUpperCase();
-        const userAvatar = document.querySelector('.user-avatar');
-        if (userAvatar) {
-            userAvatar.textContent = firstLetter;
+    if (scrollBtn) {
+      // Handle click - scroll to top or bottom based on current state
+      scrollBtn.addEventListener("click", () => {
+        if (window.scrollY > 300) {
+          // If scrolled down, go to top
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        } else {
+          // If at top, scroll to bottom
+          window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
         }
+      });
+      
+      // Rotate button based on scroll position
+      window.addEventListener("scroll", () => {
+        if (window.scrollY > 300) {
+          scrollBtn.classList.add("scrolled-down");
+          scrollBtn.setAttribute("aria-label", "Scroll to top");
+        } else {
+          scrollBtn.classList.remove("scrolled-down");
+          scrollBtn.setAttribute("aria-label", "Scroll to bottom");
+        }
+      });
     }
-    
-    // Function to test different email addresses
-    function testEmail(email) {
-        updateUserAvatar(email);
-    }
+  });
 </script>
 
 
     
-    <!-- Scroll to top button -->
-    <button class="icon-btn scroll-to-top" id="scrollToTop" aria-label="Scroll to top">
-        <i class="fas fa-arrow-up"></i>
-    </button>
+    <!-- Firebase SDK & Auth -->
     
     <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
-    <!-- JavaScript -->
+<script>
+  // Firebase Configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyB9hr0IWM4EREzkKDxBxYoYinV6LJXWXV4",
+    authDomain: "specify-ai.firebaseapp.com",
+    projectId: "specify-ai",
+    storageBucket: "specify-ai.firebasestorage.app",
+    messagingSenderId: "734278787482",
+    appId: "1:734278787482:web:0e312fb6f197e849695a23",
+    measurementId: "G-4YR9LK63MR"
+  };
+
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+</script>
+
+
     <script>
-        // Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyB9hr0IWM4EREzkKDxBxYoYinV6LJXWXV4",
-            authDomain: "specify-ai.firebaseapp.com",
-            projectId: "specify-ai",
-            storageBucket: "specify-ai.firebasestorage.app",
-            messagingSenderId: "734278787482",
-            appId: "1:734278787482:web:0e312fb6f197e849695a23",
-            measurementId: "G-4YR9LK63MR"
-        };
+  // Auth UI functions
+  function updateAuthUI(user) {
+    const authButtons = document.getElementById('auth-buttons');
+    if (!authButtons) return;
+    
+    if (user) {
+      // User is logged in
+      const displayName = user.displayName || user.email.split('@')[0];
+      const firstLetter = displayName.charAt(0).toUpperCase();
+      
+      authButtons.innerHTML = `
+        <a href="/pages/profile.html" class="user-info" style="text-decoration: none;">
+          <div class="user-avatar">${firstLetter}</div>
+          <span>${displayName}</span>
+        </a>
+      `;
+    } else {
+      // User is not logged in
+      authButtons.innerHTML = `
+        <button class="auth-btn" onclick="showLoginModal()">Login</button>
+      `;
+    }
+  }
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
+  // Global auth functions
+  window.showLoginModal = function() {
+    if (typeof trackButtonClick !== 'undefined') {
+      trackButtonClick('Show Login', 'Authentication', 'header');
+    }
+    window.location.href = '/pages/auth.html';
+  };
 
-        // Auth UI functions
-        function updateAuthUI(user) {
-            const authButtons = document.getElementById('auth-buttons');
-            if (!authButtons) return;
-            
-            if (user) {
-                // User is logged in
-                const displayName = user.displayName || user.email.split('@')[0];
-                const firstLetter = displayName.charAt(0).toUpperCase();
-                
-                authButtons.innerHTML = `
-                    <div class="user-dropdown">
-                        <div class="user-info" onclick="toggleUserDropdown()">
-                            <div class="user-avatar">${firstLetter}</div>
-                            <span>${displayName}</span>
-                        </div>
-                        <div class="user-dropdown-content">
-                            <a href="/pages/profile.html">Profile</a>
-                            <button onclick="logout()">Sign Out</button>
-                        </div>
-                    </div>
-                `;
-            } else {
-                // User is not logged in
-                authButtons.innerHTML = `
-                    <button class="auth-btn" onclick="showLoginModal()">Login</button>
-                `;
-            }
-        }
+  window.showRegisterModal = function() {
+    if (typeof trackButtonClick !== 'undefined') {
+      trackButtonClick('Show Register', 'Authentication', 'header');
+    }
+    window.location.href = '/pages/auth.html';
+  };
 
-        // Global auth functions
-        window.showLoginModal = function() {
-            window.location.href = '/pages/auth.html';
-        };
+  window.logout = function() {
+    if (typeof trackAuthEvent !== 'undefined') {
+      trackAuthEvent('logout', 'email');
+    }
+    auth.signOut()
+      .then(() => {
+        console.log('Logged out successfully');
+      })
+      .catch(error => {
+        console.error('Error logging out:', error);
+      });
+  };
 
-        window.showRegisterModal = function() {
-            window.location.href = '/pages/auth.html';
-        };
+  // Listen to auth state changes
+  auth.onAuthStateChanged((user) => {
+    updateAuthUI(user);
+  });
 
-        window.logout = function() {
-            auth.signOut()
-                .then(() => {
-                    console.log('Logged out successfully');
-                })
-                .catch(error => {
-                    console.error('Error logging out:', error);
-                });
-        };
-
-        window.toggleUserDropdown = function() {
-            const dropdown = document.querySelector('.user-dropdown-content');
-            if (dropdown && dropdown.classList.contains('show')) {
-                dropdown.classList.remove('show');
-            } else if (dropdown) {
-                dropdown.classList.add('show');
-            }
-        };
-
-        // Close user dropdown when clicking outside
-        document.addEventListener('click', function(event) {
-            const userDropdown = document.querySelector('.user-dropdown');
-            const userInfo = document.querySelector('.user-info');
-            const dropdown = document.querySelector('.user-dropdown-content');
-            
-            if (userDropdown && dropdown && dropdown.classList.contains('show') && 
-                !userInfo.contains(event.target)) {
-                dropdown.classList.remove('show');
-            }
+  // Initialize auth buttons with default state
+  document.addEventListener('DOMContentLoaded', function() {
+    const authButtons = document.getElementById('auth-buttons');
+    if (authButtons && !authButtons.innerHTML.trim()) {
+      authButtons.innerHTML = `
+        <button class="auth-btn login-btn">Login</button>
+      `;
+      
+      const loginBtn = authButtons.querySelector('.login-btn');
+      if (loginBtn) {
+        loginBtn.addEventListener('click', function(event) {
+          event.stopPropagation();
+          window.location.href = '/pages/auth.html';
         });
+      }
+    }
+  });
+</script>
 
-        // Listen to auth state changes
-        auth.onAuthStateChanged((user) => {
-            updateAuthUI(user);
-        });
 
-        // Initialize auth buttons with default state
-        document.addEventListener('DOMContentLoaded', function() {
-            const authButtons = document.getElementById('auth-buttons');
-            if (authButtons && !authButtons.innerHTML.trim()) {
-                authButtons.innerHTML = `
-                    <button class="auth-btn login-btn">Login</button>
-                `;
-                
-                const loginBtn = authButtons.querySelector('.login-btn');
-                if (loginBtn) {
-                    loginBtn.addEventListener('click', function(event) {
-                        event.stopPropagation();
-                        window.location.href = '/pages/auth.html';
-                    });
-                }
-            }
-        });
-
-        // Scroll to top functionality
-        document.addEventListener('DOMContentLoaded', function() {
-            const scrollToTopBtn = document.getElementById('scrollToTop');
-            
-            if (scrollToTopBtn) {
-                scrollToTopBtn.addEventListener("click", () => {
-                    window.scrollTo({ top: 0, behavior: "smooth" });
-                });
-                
-                // Show/hide scroll to top button
-                window.addEventListener("scroll", () => {
-                    if (window.scrollY > 300) {
-                        scrollToTopBtn.style.display = "flex";
-                    } else {
-                        scrollToTopBtn.style.display = "none";
-                    }
-                });
-            }
-        });
-    </script>
+    
 </body>
 </html>
-

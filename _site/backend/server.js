@@ -3,6 +3,7 @@ console.log('Starting server setup...');
 const express = require('express');
 const fetch = require('node-fetch');
 const dotenv = require('dotenv');
+const { syncAllUsers } = require('./server/user-management');
 
 // Load environment variables from .env file
 console.log('Loading environment variables...');
@@ -30,6 +31,27 @@ app.use((req, res, next) => {
   res.header('*', 'http://localhost:8080');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
   next();
+});
+
+// Endpoint to sync users from Firebase Auth to Firestore
+app.post('/api/sync-users', async (req, res) => {
+  console.log('🔄 Sync users request received');
+  
+  try {
+    const result = await syncAllUsers();
+    console.log('✅ User sync completed successfully');
+    res.json({
+      success: true,
+      message: 'Users synced successfully',
+      result: result
+    });
+  } catch (error) {
+    console.error('❌ Error syncing users:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
 });
 
 // Endpoint to handle API requests to Grok

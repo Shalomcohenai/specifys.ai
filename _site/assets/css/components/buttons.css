@@ -19,6 +19,7 @@
 
 .btn:hover {
   background: var(--button-hover);
+  color: var(--text-white);
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
 }
@@ -186,39 +187,57 @@
 /* Responsive buttons */
 @media (max-width: 768px) {
   .btn {
-    padding: 8px 16px;
-    font-size: 0.9rem;
+    padding: 8px 12px;
+    font-size: 16px;
+    min-height: 44px;
+  }
+  
+  .btn-sm {
+    padding: 6px 10px;
+    font-size: 14px;
+    min-height: 40px;
   }
   
   .btn-lg {
-    padding: 10px 20px;
-    font-size: var(--font-size-base);
+    padding: 10px 16px;
+    font-size: 18px;
+    min-height: 48px;
   }
   
   .btn-xl {
-    padding: 12px 24px;
-    font-size: var(--font-size-lg);
+    padding: 12px 20px;
+    font-size: 20px;
+    min-height: 52px;
+  }
+  
+  /* Remove hover effects on mobile - they don't work well on touch */
+  .btn:hover {
+    transform: none;
   }
 }
 
 @media (max-width: 480px) {
   .btn {
-    padding: 6px 12px;
-    font-size: 0.8rem;
+    padding: 8px 10px;
+    font-size: 16px;
+    min-height: 44px;
   }
   
   .btn-sm {
-    padding: 4px 8px;
-    font-size: 0.7rem;
+    padding: 6px 8px;
+    font-size: 14px;
+    min-height: 40px;
   }
   
   .btn-lg {
-    padding: 8px 16px;
-    font-size: 0.9rem;
+    padding: 10px 14px;
+    font-size: 18px;
+    min-height: 48px;
   }
   
   .btn-xl {
-    padding: 10px 20px;
-    font-size: var(--font-size-base);
+    padding: 12px 16px;
+    font-size: 20px;
+    min-height: 52px;
   }
 }

@@ -2,4399 +2,430 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta name="theme-color" content="#000000">
     <title>App Dashboard - Specifys.ai</title>
-    <link rel="icon" type="image/x-icon" href="../favicon.ico" alt="Specifys.ai logo icon">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <meta name="description" content="Manage your app project">
+    <meta name="keywords" content="AI development tools, app specification generator, no-code platform, AI-powered planning, vibe coding, AI app builder, specification generator, market research tool, app planning tool, development tools, AI tools">
+    <meta name="author" content="Specifys.ai">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    
+    <!-- Canonical URL -->
+    
+    <link rel="canonical" href="http://localhost:4000/pages/app-dashboard.html">
+    
+    
+    <!-- Open Graph -->
+    <meta property="og:site_name" content="Specifys.ai">
+    <meta property="og:title" content="App Dashboard">
+    <meta property="og:description" content="Manage your app project">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="http://localhost:4000/pages/app-dashboard.html">
+    <meta property="og:locale" content="en_US">
+    
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@specifysai">
+    <meta name="twitter:creator" content="@specifysai">
+    <meta name="twitter:title" content="App Dashboard">
+    <meta name="twitter:description" content="Manage your app project">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="/assets/css/main.css">
+    
+      
+        <link rel="stylesheet" href="/assets/css/pages/app-dashboard.css">
+      
+    
+    
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="../assets/css/styles.css">
-    <link rel="stylesheet" href="../assets/css/components/footer.css">
-    <style>
-        /* Import Montserrat font */
-        @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap");
-        
-        body {
-            font-family: "Montserrat", sans-serif;
-            -webkit-text-size-adjust: 100%;
-            -webkit-tap-highlight-color: transparent;
-        }
-        
-        /* Mobile touch improvements */
-        @media (max-width: 768px) {
-            * {
-                -webkit-tap-highlight-color: transparent;
-            }
-            
-            .btn, button, a {
-                -webkit-tap-highlight-color: transparent;
-                touch-action: manipulation;
-            }
-            
-            /* Prevent zoom on input focus */
-            input, textarea, select {
-                font-size: 16px !important;
-            }
-        }
-        
-        /* CSS Variables */
-        :root {
-            --bg-color: #fff;
-            --text-color: #333;
-            --primary-color: #666;
-            --border-color: #e0e0e0;
-            --hover-color: #555;
-            --light-gray: #f5f5f5;
-            --chat-bg: #fff;
-        }
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Mermaid for diagrams (used in demo, spec, research pages) -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+    
+    <!-- Marked for markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked@4.3.0/marked.min.js"></script>
+    
+    <!-- Highlight.js for syntax highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    
+    <!-- jsPDF for PDF export (used in research pages) -->
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
+    <!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-RWBT69JCM7"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-RWBT69JCM7');
+</script>
+
+
+    <script>
+// Central Analytics Event Tracking System for Specifys.ai
+// This file contains reusable tracking functions for consistent analytics across the site
+
+// Check if gtag is available
+function isGtagAvailable() {
+  return typeof gtag !== 'undefined';
+}
+
+// Track button clicks with detailed categorization
+function trackButtonClick(buttonName, category, source, additionalData = {}) {
+  if (isGtagAvailable()) {
+    gtag('event', 'click', {
+      'event_category': category || 'Button Click',
+      'event_label': buttonName,
+      'event_source': source || 'unknown',
+      ...additionalData
+    });
+  }
+}
+
+// Track CTA (Call-to-Action) clicks
+function trackCTA(ctaName, location) {
+  if (isGtagAvailable()) {
+    gtag('event', 'cta_click', {
+      'event_category': 'CTA',
+      'event_label': ctaName,
+      'cta_location': location
+    });
+  }
+}
+
+// Track navigation events
+function trackNavigation(destination, source) {
+  if (isGtagAvailable()) {
+    gtag('event', 'navigation', {
+      'event_category': 'Navigation',
+      'event_label': destination,
+      'navigation_source': source
+    });
+  }
+}
+
+// Track tool usage
+function trackToolUsage(toolName, action) {
+  if (isGtagAvailable()) {
+    gtag('event', 'tool_usage', {
+      'event_category': 'Tools',
+      'event_label': toolName,
+      'tool_action': action
+    });
+  }
+}
+
+// Track form submissions
+function trackFormSubmit(formName, formType) {
+  if (isGtagAvailable()) {
+    gtag('event', 'form_submit', {
+      'event_category': 'Form',
+      'event_label': formName,
+      'form_type': formType
+    });
+  }
+}
+
+// Track user authentication events
+function trackAuthEvent(action, method) {
+  if (isGtagAvailable()) {
+    gtag('event', action, {
+      'event_category': 'Authentication',
+      'event_label': action,
+      'auth_method': method || 'email'
+    });
+  }
+}
+
+// Track downloads
+function trackDownload(fileName, fileType) {
+  if (isGtagAvailable()) {
+    gtag('event', 'download', {
+      'event_category': 'Downloads',
+      'event_label': fileName,
+      'file_type': fileType
+    });
+  }
+}
+
+// Track spec/result generations
+function trackGeneration(type, mode) {
+  if (isGtagAvailable()) {
+    gtag('event', 'generation_start', {
+      'event_category': 'Generation',
+      'event_label': type,
+      'generation_mode': mode
+    });
+  }
+}
+
+// Track generation completion
+function trackGenerationComplete(type, mode, success) {
+  if (isGtagAvailable()) {
+    gtag('event', 'generation_complete', {
+      'event_category': 'Generation',
+      'event_label': type,
+      'generation_mode': mode,
+      'success': success
+    });
+  }
+}
+
+// Track external link clicks
+function trackExternalLink(linkUrl, linkText) {
+  if (isGtagAvailable()) {
+    gtag('event', 'click', {
+      'event_category': 'External Link',
+      'event_label': linkText || linkUrl,
+      'link_url': linkUrl
+    });
+  }
+}
+
+// Track modal interactions
+function trackModal(modalName, action) {
+  if (isGtagAvailable()) {
+    gtag('event', 'modal_' + action, {
+      'event_category': 'Modal',
+      'event_label': modalName,
+      'modal_action': action
+    });
+  }
+}
+
+// Track FAQ interactions
+function trackFAQ(question, action) {
+  if (isGtagAvailable()) {
+    gtag('event', 'faq_' + action, {
+      'event_category': 'FAQ',
+      'event_label': question,
+      'faq_action': action
+    });
+  }
+}
+
+// Track search actions
+function trackSearch(searchTerm, searchType) {
+  if (isGtagAvailable()) {
+    gtag('event', 'search', {
+      'event_category': 'Search',
+      'search_term': searchTerm,
+      'search_type': searchType
+    });
+  }
+}
+
+// Track video/demo views
+function trackDemoView(demoName, viewDuration) {
+  if (isGtagAvailable()) {
+    gtag('event', 'demo_view', {
+      'event_category': 'Demo',
+      'event_label': demoName,
+      'view_duration': viewDuration
+    });
+  }
+}
+
+// Track user engagement time
+function trackEngagement(pageName, timeSpent) {
+  if (isGtagAvailable()) {
+    gtag('event', 'user_engagement', {
+      'event_category': 'Engagement',
+      'event_label': pageName,
+      'engagement_time_msec': timeSpent
+    });
+  }
+}
+
+// Track errors
+function trackError(errorType, errorMessage, errorLocation) {
+  if (isGtagAvailable()) {
+    gtag('event', 'error', {
+      'event_category': 'Error',
+      'event_label': errorType,
+      'error_message': errorMessage,
+      'error_location': errorLocation
+    });
+  }
+}
+
+// Track user preferences
+function trackPreference(preferenceName, preferenceValue) {
+  if (isGtagAvailable()) {
+    gtag('event', 'preference_change', {
+      'event_category': 'Preferences',
+      'event_label': preferenceName,
+      'preference_value': preferenceValue
+    });
+  }
+}
+
+// Track scroll depth
+let scrollDepthTracked = {25: false, 50: false, 75: false, 100: false};
+function initScrollTracking(pageName) {
+  window.addEventListener('scroll', function() {
+    const scrollPercent = Math.round((window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100);
+    
+    if (scrollPercent >= 25 && !scrollDepthTracked[25]) {
+      scrollDepthTracked[25] = true;
+      if (isGtagAvailable()) {
+        gtag('event', 'scroll', {
+          'event_category': 'Scroll Depth',
+          'event_label': pageName,
+          'scroll_depth': '25%'
+        });
+      }
+    }
+    if (scrollPercent >= 50 && !scrollDepthTracked[50]) {
+      scrollDepthTracked[50] = true;
+      if (isGtagAvailable()) {
+        gtag('event', 'scroll', {
+          'event_category': 'Scroll Depth',
+          'event_label': pageName,
+          'scroll_depth': '50%'
+        });
+      }
+    }
+    if (scrollPercent >= 75 && !scrollDepthTracked[75]) {
+      scrollDepthTracked[75] = true;
+      if (isGtagAvailable()) {
+        gtag('event', 'scroll', {
+          'event_category': 'Scroll Depth',
+          'event_label': pageName,
+          'scroll_depth': '75%'
+        });
+      }
+    }
+    if (scrollPercent >= 100 && !scrollDepthTracked[100]) {
+      scrollDepthTracked[100] = true;
+      if (isGtagAvailable()) {
+        gtag('event', 'scroll', {
+          'event_category': 'Scroll Depth',
+          'event_label': pageName,
+          'scroll_depth': '100%'
+        });
+      }
+    }
+  });
+}
+
+// Auto-initialize scroll tracking when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+  const pageName = document.title || window.location.pathname;
+  initScrollTracking(pageName);
+});
+</script>
+
+
+    <!-- Structured Data (JSON-LD) for SEO -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "name": "Specifys.ai",
+      "url": "https://specifys-ai.com",
+      "logo": "https://specifys-ai.com/favicon.ico",
+      "description": "AI-powered app planning and specification generation platform",
+      "sameAs": [
+        "https://www.linkedin.com/company/specifys-ai/"
+      ],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "email": "specifysai@gmail.com",
+        "contactType": "Customer Service"
+      }
+    },
+    {
+      "@type": "WebSite",
+      "name": "Specifys.ai",
+      "url": "https://specifys-ai.com",
+      "description": "Plan your app smarter with AI-driven insights and tools",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://specifys-ai.com/pages/ToolPicker.html?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "Specifys.ai",
+      "applicationCategory": "DevelopmentApplication",
+      "operatingSystem": "Web",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "ratingCount": "250"
+      },
+      "description": "AI-powered app planning platform with specification generator, market research tools, and vibe coding tools map"
+    }
+  ]
+}
+</script>
 
 
-        /* Header Layout */
-        .thematic-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 20px;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            background: var(--bg-color);
-            border-bottom: 1px solid var(--border-color);
-            z-index: 100;
-        }
-
-        .header-left {
-            display: flex;
-            align-items: center;
-        }
-
-        .header-center {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: absolute;
-            left: 0;
-            right: 0;
-            top: 0;
-            bottom: 0;
-            pointer-events: none;
-        }
-
-        .header-center .logo {
-            pointer-events: auto;
-        }
-
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        /* Logo Styles */
-        .logo a {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--text-color);
-            text-decoration: none;
-            transition: color 0.3s ease;
-        }
-
-
-        .logo a:hover {
-            color: var(--primary-color);
-        }
-
-
-
-        /* Auth System Styles */
-        .auth-buttons {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .auth-btn {
-            padding: 0.5rem 1rem;
-            border: 2px solid var(--primary-color);
-            border-radius: 8px;
-            text-decoration: none;
-            font-size: 0.9rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            background: transparent;
-            color: var(--primary-color);
-        }
-
-        .auth-btn:hover {
-            background: var(--primary-color);
-            color: white;
-            transform: translateY(-2px);
-        }
-
-        .auth-btn.primary {
-            background: var(--primary-color);
-            color: white;
-        }
-
-        .auth-btn.primary:hover {
-            background: var(--hover-color);
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1rem;
-            background: rgba(128, 128, 128, 0.1);
-            border-radius: 20px;
-            border: 1px solid rgba(128, 128, 128, 0.2);
-            color: #666;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .user-info:hover {
-            background: rgba(128, 128, 128, 0.2);
-            transform: translateY(-1px);
-        }
-
-        .user-avatar {
-            width: 24px;
-            height: 24px;
-            background: #666;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8rem;
-            font-weight: bold;
-            color: white;
-        }
-
-        .user-name {
-            color: #666;
-            font-weight: 500;
-        }
-
-
-
-
-
-        /* User Dropdown */
-        .user-dropdown {
-            position: relative;
-            display: inline-block;
-        }
-
-        .user-dropdown-content {
-            display: none;
-            position: absolute;
-            top: 50px;
-            right: 0;
-            background: var(--bg-color);
-            min-width: 160px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            border-radius: 12px;
-            z-index: 100000;
-            padding: 10px 0;
-        }
-
-        .user-dropdown-content.show {
-            display: block;
-        }
-
-        .user-dropdown-content a,
-        .user-dropdown-content button {
-            color: var(--text-color);
-            padding: 12px 20px;
-            text-decoration: none;
-            display: block;
-            font-size: 0.9rem;
-            font-weight: 500;
-            border: none;
-            background: none;
-            width: 100%;
-            text-align: left;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            border-radius: 0;
-        }
-
-        .user-dropdown-content a:hover,
-        .user-dropdown-content button:hover {
-            background-color: rgba(35, 166, 213, 0.1);
-        }
-
-        .user-dropdown-content .divider {
-            height: 1px;
-            background: var(--border-color);
-            margin: 5px 0;
-        }
-        
-        /* Mobile Header Responsive */
-        @media (max-width: 768px) {
-            .thematic-header {
-                padding: 12px 16px;
-                flex-wrap: wrap;
-                min-height: 60px;
-            }
-            
-            .header-left {
-                order: 1;
-                flex: 1;
-            }
-            
-            .header-center {
-                order: 2;
-                position: static;
-                flex: 2;
-                justify-content: center;
-            }
-            
-            .header-right {
-                order: 3;
-                flex: 1;
-                justify-content: flex-end;
-                gap: 0.4rem;
-            }
-            
-            .logo a {
-                font-size: 1.1rem;
-            }
-            
-            .auth-buttons {
-                gap: 0.4rem;
-                flex-wrap: wrap;
-            }
-            
-            .auth-btn {
-                padding: 8px 12px;
-                font-size: 0.8rem;
-                min-height: 40px;
-                min-width: 80px;
-            }
-            
-            .user-info {
-                padding: 6px 10px;
-                font-size: 0.8rem;
-                min-height: 40px;
-            }
-            
-            .user-avatar {
-                width: 20px;
-                height: 20px;
-                font-size: 0.7rem;
-            }
-            
-            .user-dropdown-content {
-                top: 65px;
-                left: 10px;
-                right: auto;
-                min-width: 140px;
-                max-width: calc(100vw - 20px);
-            }
-            
-            .user-dropdown-content a,
-            .user-dropdown-content button {
-                padding: 14px 18px;
-                font-size: 0.9rem;
-                min-height: 44px;
-                display: flex;
-                align-items: center;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .thematic-header {
-                padding: 10px 12px;
-                min-height: 55px;
-            }
-            
-            .logo a {
-                font-size: 1rem;
-            }
-            
-            .auth-btn {
-                padding: 6px 10px;
-                font-size: 0.75rem;
-                min-height: 36px;
-                min-width: 70px;
-            }
-            
-            .user-info {
-                padding: 4px 8px;
-                font-size: 0.75rem;
-                min-height: 36px;
-            }
-            
-            .user-avatar {
-                width: 18px;
-                height: 18px;
-                font-size: 0.6rem;
-            }
-            
-            .user-dropdown-content {
-                top: 60px;
-                left: 8px;
-                min-width: 120px;
-            }
-        }
-
-        /* Dashboard Container */
-        .dashboard-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 2rem;
-            margin-top: 80px;
-        }
-        
-        @media (max-width: 768px) {
-            .dashboard-container {
-                padding: 1rem;
-                margin-top: 80px;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .dashboard-container {
-                padding: 0.8rem;
-                margin-top: 70px;
-            }
-        }
-
-        /* Top Dashboard */
-        .top-dashboard {
-            background: linear-gradient(135deg, #f5f5f5 0%, #e9ecef 100%);
-            color: #333;
-            padding: 1.5rem 2rem;
-            border-radius: 12px;
-            margin-bottom: 2rem;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        }
-        
-        @media (max-width: 768px) {
-            .top-dashboard {
-                padding: 1rem 1.5rem;
-                border-radius: 8px;
-                margin-bottom: 1.5rem;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .top-dashboard {
-                padding: 1rem;
-                border-radius: 6px;
-                margin-bottom: 1rem;
-            }
-        }
-
-        .dashboard-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 2rem;
-        }
-        
-        @media (max-width: 768px) {
-            .dashboard-header {
-                flex-direction: column;
-                text-align: center;
-                gap: 1rem;
-                align-items: stretch;
-            }
-        }
-
-        .app-info-compact h1 {
-            margin: 0 0 0.5rem 0;
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: #333;
-        }
-        
-        @media (max-width: 768px) {
-            .app-info-compact h1 {
-                font-size: 1.5rem;
-                margin-bottom: 0.8rem;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .app-info-compact h1 {
-                font-size: 1.3rem;
-                margin-bottom: 0.6rem;
-            }
-        }
-
-        .app-info-compact p {
-            margin: 0;
-            opacity: 0.8;
-            font-size: 0.95rem;
-            color: #666;
-        }
-        
-        @media (max-width: 768px) {
-            .app-info-compact p {
-                font-size: 0.9rem;
-                margin-bottom: 1rem;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .app-info-compact p {
-                font-size: 0.85rem;
-                margin-bottom: 0.8rem;
-            }
-        }
-
-        .dashboard-stats {
-            display: flex;
-            gap: 2rem;
-            align-items: center;
-        }
-        
-        @media (max-width: 768px) {
-            .dashboard-stats {
-                flex-direction: column;
-                gap: 1rem;
-                align-items: center;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .dashboard-stats {
-                gap: 0.8rem;
-            }
-        }
-
-        .app-icon {
-            width: 80px;
-            height: 80px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2.5rem;
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            backdrop-filter: blur(10px);
-        }
-        
-        @media (max-width: 768px) {
-            .app-icon {
-                width: 60px;
-                height: 60px;
-                font-size: 2rem;
-                border-radius: 15px;
-                border: 3px solid rgba(255, 255, 255, 0.3);
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .app-icon {
-                width: 50px;
-                height: 50px;
-                font-size: 1.5rem;
-                border-radius: 12px;
-                border: 2px solid rgba(255, 255, 255, 0.3);
-            }
-        }
-
-        .app-info {
-            flex: 1;
-        }
-
-        .app-info h1 {
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
-            font-weight: 700;
-            color: #333;
-        }
-
-        .app-info p {
-            font-size: 1.2rem;
-            opacity: 0.9;
-            margin-bottom: 1.5rem;
-            color: #666;
-        }
-
-        .app-stats {
-            display: flex;
-            gap: 2rem;
-        }
-
-        .stat-item {
-            text-align: center;
-        }
-
-        .stat-number {
-            display: block;
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 0.25rem;
-            color: #333;
-        }
-
-        .stat-label {
-            font-size: 0.9rem;
-            opacity: 0.8;
-            color: #666;
-        }
-
-
-        /* Dashboard Grid Layout */
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        .dashboard-section.compact {
-            padding: 1.5rem;
-            margin-bottom: 0;
-            height: fit-content;
-            max-height: 400px;
-            overflow-y: auto;
-        }
-        
-        @media (max-width: 768px) {
-            .dashboard-section.compact {
-                padding: 1rem;
-                max-height: 300px;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .dashboard-section.compact {
-                padding: 0.8rem;
-                max-height: 250px;
-            }
-        }
-
-        .dashboard-section.full-width {
-            grid-column: span 2;
-        }
-        
-        @media (max-width: 768px) {
-            .dashboard-section.full-width {
-                grid-column: span 1;
-            }
-        }
-
-        .section-header.compact {
-            margin-bottom: 1rem;
-            padding-bottom: 0.5rem;
-        }
-        
-        @media (max-width: 768px) {
-            .section-header.compact {
-                margin-bottom: 0.8rem;
-                padding-bottom: 0.4rem;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .section-header.compact {
-                margin-bottom: 0.6rem;
-                padding-bottom: 0.3rem;
-            }
-        }
-
-        .section-header.compact h3 {
-            font-size: 1.4rem;
-        }
-        
-        @media (max-width: 768px) {
-            .section-header.compact h3 {
-                font-size: 1.2rem;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .section-header.compact h3 {
-                font-size: 1.1rem;
-            }
-        }
-
-        .section-content.compact {
-            max-height: 200px;
-            overflow-y: auto;
-        }
-        
-        @media (max-width: 768px) {
-            .section-content.compact {
-                max-height: 150px;
-                -webkit-overflow-scrolling: touch;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .section-content.compact {
-                max-height: 120px;
-            }
-        }
-
-        /* Dashboard Sections */
-        .dashboard-section {
-            background: white;
-            padding: 2rem;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-            margin-bottom: 2rem;
-        }
-        
-        @media (max-width: 768px) {
-            .dashboard-section {
-                padding: 1.5rem;
-                border-radius: 10px;
-                margin-bottom: 1.5rem;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .dashboard-section {
-                padding: 1rem;
-                border-radius: 8px;
-                margin-bottom: 1rem;
-            }
-        }
-
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-            padding-bottom: 1rem;
-            border-bottom: 2px solid #f0f0f0;
-        }
-        
-        @media (max-width: 768px) {
-            .section-header {
-                flex-direction: column;
-                gap: 1rem;
-                align-items: stretch;
-                margin-bottom: 1.5rem;
-                padding-bottom: 0.8rem;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .section-header {
-                margin-bottom: 1rem;
-                padding-bottom: 0.6rem;
-            }
-        }
-
-        .section-header h3 {
-            font-size: 1.8rem;
-            color: #333;
-            margin: 0;
-        }
-        
-        @media (max-width: 768px) {
-            .section-header h3 {
-                font-size: 1.5rem;
-                text-align: center;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .section-header h3 {
-                font-size: 1.3rem;
-            }
-        }
-
-        .section-actions {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-        }
-        
-        @media (max-width: 768px) {
-            .section-actions {
-                flex-direction: column;
-                gap: 0.8rem;
-                width: 100%;
-            }
-            
-            .section-actions .btn {
-                width: 100%;
-                min-height: 44px;
-                font-size: 0.9rem;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .section-actions {
-                gap: 0.6rem;
-            }
-            
-            .section-actions .btn {
-                min-height: 42px;
-                font-size: 0.85rem;
-            }
-        }
-
-
-        /* Button Styles */
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
-        }
-        
-        @media (max-width: 768px) {
-            .btn {
-                padding: 0.8rem 1.2rem;
-                font-size: 0.9rem;
-                min-height: 44px;
-                border-radius: 6px;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .btn {
-                padding: 0.7rem 1rem;
-                font-size: 0.85rem;
-                min-height: 42px;
-                border-radius: 5px;
-            }
-        }
-
-        .btn-primary {
-            background: #666;
-            color: white;
-            border-color: #666;
-        }
-
-        .btn-primary:hover {
-            background: #555;
-            border-color: #555;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-        }
-
-        .btn-outline-secondary {
-            background: transparent;
-            color: #666;
-            border-color: #666;
-        }
-
-        .btn-outline-secondary:hover {
-            background: #666;
-            color: white;
-        }
-
-        /* Card Styles */
-        .card {
-            border: 1px solid #e9ecef;
-            border-radius: 12px;
-            transition: all 0.3s ease;
-        }
-
-        .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-
-        .card-body {
-            padding: 1.5rem;
-        }
-
-        .card-title {
-            color: #333;
-            font-weight: 600;
-            margin-bottom: 0.75rem;
-        }
-
-        .card-text {
-            color: #666;
-            margin-bottom: 1rem;
-        }
-
-        /* Badge Styles */
-        .badge {
-            font-size: 0.75rem;
-            padding: 0.5rem 0.75rem;
-            border-radius: 6px;
-        }
-
-        /* Loading Styles */
-        .loading {
-            text-align: center;
-            padding: 3rem;
-            color: #666;
-            font-style: italic;
-        }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        /* Feature List Styles */
-        .feature-list {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .version-section {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 1.5rem;
-            border-left: 4px solid #666;
-        }
-
-
-        .version-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-
-        .version-title {
-            font-size: 1.3rem;
-            font-weight: 600;
-            color: #333;
-            margin: 0;
-        }
-
-
-        .version-date {
-            font-size: 0.9rem;
-            color: #666;
-            font-style: italic;
-        }
-
-
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1rem;
-        }
-
-        .feature-card {
-            background: white;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 1rem;
-            transition: all 0.3s ease;
-        }
-
-        .feature-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-
-
-        .feature-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 0.5rem;
-        }
-
-
-        .feature-description {
-            color: #666;
-            font-size: 0.9rem;
-            line-height: 1.4;
-            margin-bottom: 0.5rem;
-        }
-
-
-        .feature-status {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            border-radius: 15px;
-            font-size: 0.8rem;
-            font-weight: 500;
-            text-transform: capitalize;
-        }
-
-        .feature-status.planned {
-            background: #e3f2fd;
-            color: #1976d2;
-        }
-
-        .feature-status.in-development {
-            background: #fff3e0;
-            color: #f57c00;
-        }
-
-        .feature-status.completed {
-            background: #e8f5e8;
-            color: #388e3c;
-        }
-
-
-        body.dark-mode .feature-status.in-development {
-            background: rgba(245, 124, 0, 0.2);
-            color: #ffb74d;
-        }
-
-        body.dark-mode .feature-status.completed {
-            background: rgba(56, 142, 60, 0.2);
-            color: #81c784;
-        }
-
-        .feature-actions {
-            display: flex;
-            gap: 0.5rem;
-            margin-top: 0.5rem;
-        }
-
-        .feature-actions button {
-            background: none;
-            border: none;
-            color: #666;
-            cursor: pointer;
-            padding: 0.25rem;
-            border-radius: 4px;
-            transition: all 0.3s ease;
-        }
-
-        .feature-actions button:hover {
-            background: #f0f0f0;
-            color: #333;
-        }
-
-        body.dark-mode .feature-actions button {
-            color: #999;
-        }
-
-        body.dark-mode .feature-actions button:hover {
-            background: #444;
-            color: #e0e0e0;
-        }
-
-        /* Features Roadmap Styles */
-        .features-roadmap {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .version-roadmap-item {
-            background: white;
-            border: 1px solid #e0e0e0;
-            border-radius: 12px;
-            padding: 1.5rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .version-roadmap-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-
-        body.dark-mode .version-roadmap-item {
-            background: #2a2a2a;
-            border-color: #444;
-        }
-
-        .version-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-
-        .version-info {
-            display: flex;
-            flex-direction: column;
-            gap: 0.25rem;
-        }
-
-        .version-name {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: #333;
-        }
-
-        body.dark-mode .version-name {
-            color: #e0e0e0;
-        }
-
-        .version-progress-text {
-            font-size: 0.9rem;
-            color: #666;
-        }
-
-        body.dark-mode .version-progress-text {
-            color: #999;
-        }
-
-        .version-status-badge {
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 500;
-        }
-
-        .version-status-badge.completed {
-            background: #e8f5e8;
-            color: #2e7d32;
-        }
-
-        .version-status-badge.in-progress {
-            background: #fff3e0;
-            color: #ef6c00;
-        }
-
-        .version-status-badge.planning {
-            background: #e3f2fd;
-            color: #1565c0;
-        }
-
-        body.dark-mode .version-status-badge.completed {
-            background: rgba(46, 125, 50, 0.2);
-            color: #81c784;
-        }
-
-        body.dark-mode .version-status-badge.in-progress {
-            background: rgba(239, 108, 0, 0.2);
-            color: #ffb74d;
-        }
-
-        body.dark-mode .version-status-badge.planning {
-            background: rgba(21, 101, 192, 0.2);
-            color: #64b5f6;
-        }
-
-        .version-progress-bar {
-            width: 100%;
-            height: 8px;
-            background: #f0f0f0;
-            border-radius: 4px;
-            overflow: hidden;
-        }
-
-        body.dark-mode .version-progress-bar {
-            background: #444;
-        }
-
-        .version-progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #4caf50, #81c784);
-            transition: width 0.3s ease;
-        }
-
-        .version-features-details {
-            margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 1px solid #f0f0f0;
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-
-        body.dark-mode .version-features-details {
-            border-top-color: #444;
-        }
-
-        .feature-item-roadmap {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 0.75rem;
-            background: #f8f9fa;
-            border-radius: 8px;
-        }
-
-        body.dark-mode .feature-item-roadmap {
-            background: #333;
-        }
-
-        .feature-status-icon {
-            font-size: 1.2rem;
-        }
-
-        .feature-content-roadmap {
-            flex: 1;
-        }
-
-        .feature-title-roadmap {
-            font-weight: 500;
-            color: #333;
-            margin-bottom: 0.25rem;
-        }
-
-        body.dark-mode .feature-title-roadmap {
-            color: #e0e0e0;
-        }
-
-        .feature-description-roadmap {
-            font-size: 0.9rem;
-            color: #666;
-            line-height: 1.4;
-        }
-
-        body.dark-mode .feature-description-roadmap {
-            color: #999;
-        }
-
-        /* Expenses Tracker Styles */
-        .expenses-tracker {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
-
-        .expenses-summary {
-            background: #f8f9fa;
-            border: 1px solid #e0e0e0;
-            border-radius: 12px;
-            padding: 1.5rem;
-        }
-
-        body.dark-mode .expenses-summary {
-            background: #2a2a2a;
-            border-color: #444;
-        }
-
-        .summary-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 1rem;
-        }
-
-        body.dark-mode .summary-title {
-            color: #e0e0e0;
-        }
-
-        .summary-categories {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-        }
-
-        .category-chip {
-            padding: 0.25rem 0.75rem;
-            border-radius: 15px;
-            font-size: 0.8rem;
-            font-weight: 500;
-        }
-
-        .category-chip.development {
-            background: #e3f2fd;
-            color: #1976d2;
-        }
-
-        .category-chip.hosting {
-            background: #f3e5f5;
-            color: #7b1fa2;
-        }
-
-        .category-chip.tools {
-            background: #fff3e0;
-            color: #f57c00;
-        }
-
-        .category-chip.marketing {
-            background: #e8f5e8;
-            color: #388e3c;
-        }
-
-        body.dark-mode .category-chip.development {
-            background: rgba(25, 118, 210, 0.2);
-            color: #64b5f6;
-        }
-
-        body.dark-mode .category-chip.hosting {
-            background: rgba(123, 31, 162, 0.2);
-            color: #ce93d8;
-        }
-
-        body.dark-mode .category-chip.tools {
-            background: rgba(245, 124, 0, 0.2);
-            color: #ffb74d;
-        }
-
-        body.dark-mode .category-chip.marketing {
-            background: rgba(56, 142, 60, 0.2);
-            color: #81c784;
-        }
-
-        .expenses-list-simple {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .expense-item-simple {
-            background: white;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .expense-item-simple:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        body.dark-mode .expense-item-simple {
-            background: #2a2a2a;
-            border-color: #444;
-        }
-
-        .expense-summary {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 1rem;
-        }
-
-        .expense-amount-simple {
-            font-weight: 600;
-            color: #d32f2f;
-            font-size: 1rem;
-            min-width: 80px;
-        }
-
-        body.dark-mode .expense-amount-simple {
-            color: #ef9a9a;
-        }
-
-        .expense-description-simple {
-            flex: 1;
-            color: #333;
-            font-weight: 500;
-        }
-
-        body.dark-mode .expense-description-simple {
-            color: #e0e0e0;
-        }
-
-        .expense-date-simple {
-            color: #666;
-            font-size: 0.85rem;
-        }
-
-        body.dark-mode .expense-date-simple {
-            color: #999;
-        }
-
-        .expense-details-simple {
-            padding: 0 1rem 1rem 1rem;
-            border-top: 1px solid #f0f0f0;
-        }
-
-        body.dark-mode .expense-details-simple {
-            border-top-color: #444;
-        }
-
-        .expense-category-detail {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            border-radius: 15px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            margin: 0.5rem 0;
-        }
-
-        .expense-category-detail.development {
-            background: #e3f2fd;
-            color: #1976d2;
-        }
-
-        .expense-category-detail.hosting {
-            background: #f3e5f5;
-            color: #7b1fa2;
-        }
-
-        .expense-category-detail.tools {
-            background: #fff3e0;
-            color: #f57c00;
-        }
-
-        .expense-category-detail.marketing {
-            background: #e8f5e8;
-            color: #388e3c;
-        }
-
-        body.dark-mode .expense-category-detail.development {
-            background: rgba(25, 118, 210, 0.2);
-            color: #64b5f6;
-        }
-
-        body.dark-mode .expense-category-detail.hosting {
-            background: rgba(123, 31, 162, 0.2);
-            color: #ce93d8;
-        }
-
-        body.dark-mode .expense-category-detail.tools {
-            background: rgba(245, 124, 0, 0.2);
-            color: #ffb74d;
-        }
-
-        body.dark-mode .expense-category-detail.marketing {
-            background: rgba(56, 142, 60, 0.2);
-            color: #81c784;
-        }
-
-        .expense-notes-detail {
-            margin: 0.5rem 0;
-            color: #666;
-            font-style: italic;
-            line-height: 1.4;
-        }
-
-        body.dark-mode .expense-notes-detail {
-            color: #999;
-        }
-
-        .expense-actions-simple {
-            display: flex;
-            gap: 0.5rem;
-            margin-top: 1rem;
-        }
-
-        .expense-actions-simple button {
-            background: #f0f0f0;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.85rem;
-            transition: all 0.3s ease;
-        }
-
-        .expense-actions-simple button:hover {
-            background: #e0e0e0;
-        }
-
-        body.dark-mode .expense-actions-simple button {
-            background: #444;
-            color: #e0e0e0;
-        }
-
-        body.dark-mode .expense-actions-simple button:hover {
-            background: #555;
-        }
-
-        /* Tabbed Section Styles */
-        .tabbed-section {
-            background: white;
-            border: 1px solid #e0e0e0;
-            border-radius: 12px;
-            overflow: hidden;
-        }
-
-        body.dark-mode .tabbed-section {
-            background: #2a2a2a;
-            border-color: #444;
-        }
-
-        .tab-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #e0e0e0;
-            background: #f8f9fa;
-        }
-
-        body.dark-mode .tab-header {
-            border-bottom-color: #444;
-            background: #333;
-        }
-
-        .tab-buttons {
-            display: flex;
-        }
-
-        .tab-button {
-            background: none;
-            border: none;
-            padding: 1rem 1.5rem;
-            cursor: pointer;
-            font-size: 0.95rem;
-            font-weight: 500;
-            color: #666;
-            transition: all 0.3s ease;
-            border-bottom: 3px solid transparent;
-        }
-
-        .tab-button:hover {
-            background: rgba(0,0,0,0.05);
-            color: #333;
-        }
-
-        .tab-button.active {
-            color: #007bff;
-            border-bottom-color: #007bff;
-            background: rgba(0,123,255,0.1);
-        }
-
-        body.dark-mode .tab-button {
-            color: #999;
-        }
-
-        body.dark-mode .tab-button:hover {
-            background: rgba(255,255,255,0.05);
-            color: #e0e0e0;
-        }
-
-        body.dark-mode .tab-button.active {
-            color: #64b5f6;
-            border-bottom-color: #64b5f6;
-            background: rgba(100,181,246,0.1);
-        }
-
-        .tab-actions {
-            padding: 0.5rem 1rem;
-        }
-
-        .tab-content {
-            padding: 1.5rem;
-        }
-
-        .tab-pane {
-            display: none;
-        }
-
-        .tab-pane.active {
-            display: block;
-        }
-
-        /* Flat Gray Icons Styling */
-        .section-header h3 i,
-        .tab-button i,
-        .btn i {
-            color: #666;
-            margin-right: 0.5rem;
-        }
-
-        body.dark-mode .section-header h3 i,
-        body.dark-mode .tab-button i,
-        body.dark-mode .btn i {
-            color: #999;
-        }
-
-        /* Unified Dashboard Styles */
-        .unified-dashboard {
-            margin-bottom: 2rem;
-        }
-
-        .unified-dashboard .tabbed-section {
-            min-height: auto;
-        }
-
-        .unified-dashboard .tab-content.expanded {
-            padding: 2rem;
-            min-height: 600px;
-            height: auto;
-            overflow-y: visible;
-        }
-
-        .unified-dashboard .tab-header {
-            position: sticky;
-            top: 0;
-            z-index: 10;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        body.dark-mode .unified-dashboard .tab-header {
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-        }
-
-        .unified-dashboard .tab-buttons {
-            flex-wrap: wrap;
-            gap: 0.25rem;
-        }
-
-        .unified-dashboard .tab-button {
-            padding: 0.75rem 1rem;
-            font-size: 0.9rem;
-            white-space: nowrap;
-        }
-
-        @media (max-width: 768px) {
-            .unified-dashboard .tab-buttons {
-                justify-content: flex-start;
-                overflow-x: auto;
-                flex-wrap: nowrap;
-                padding-bottom: 0.5rem;
-                -webkit-overflow-scrolling: touch;
-            }
-            
-            .unified-dashboard .tab-button {
-                padding: 0.6rem 0.8rem;
-                font-size: 0.85rem;
-                min-width: auto;
-                min-height: 44px;
-                flex-shrink: 0;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .unified-dashboard .tab-button {
-                padding: 0.5rem 0.6rem;
-                font-size: 0.8rem;
-                min-height: 42px;
-            }
-        }
-
-        /* Specs and Research Card Styles */
-        .specs-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 1.5rem;
-            margin-top: 1rem;
-        }
-
-        .spec-card, .research-card {
-            background: white;
-            border: 1px solid #e0e0e0;
-            border-radius: 12px;
-            padding: 1.5rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-
-        .spec-card:hover, .research-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            border-color: #666;
-        }
-
-        body.dark-mode .spec-card, 
-        body.dark-mode .research-card {
-            background: #2a2a2a;
-            border-color: #444;
-        }
-
-        body.dark-mode .spec-card:hover, 
-        body.dark-mode .research-card:hover {
-            border-color: #999;
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 1rem;
-        }
-
-        .card-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #333;
-            margin: 0;
-            flex: 1;
-            line-height: 1.3;
-        }
-
-
-        .card-link-icon {
-            color: #666;
-            font-size: 0.9rem;
-            margin-left: 0.5rem;
-            opacity: 0.7;
-        }
-
-        body.dark-mode .card-link-icon {
-            color: #999;
-        }
-
-        .card-description {
-            color: #666;
-            font-size: 0.9rem;
-            line-height: 1.4;
-            margin: 0 0 1rem 0;
-        }
-
-        body.dark-mode .card-description {
-            color: #999;
-        }
-
-        .card-meta {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.8rem;
-        }
-
-        .card-date {
-            color: #888;
-        }
-
-        body.dark-mode .card-date {
-            color: #aaa;
-        }
-
-        .card-status, .card-type {
-            background: #f0f0f0;
-            color: #666;
-            padding: 0.25rem 0.5rem;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 500;
-        }
-
-        body.dark-mode .card-status,
-        body.dark-mode .card-type {
-            background: #444;
-            color: #ccc;
-        }
-
-        @media (max-width: 768px) {
-            .specs-grid {
-                grid-template-columns: 1fr;
-                gap: 1rem;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .specs-grid {
-                gap: 0.8rem;
-            }
-        }
-
-
-        /* Task Status Colors */
-        .note-category-simple.to-do,
-        .note-category-simple.todo {
-            background: #e3f2fd;
-            color: #1976d2;
-        }
-
-        .note-category-simple.in-progress {
-            background: #fff3e0;
-            color: #ef6c00;
-        }
-
-        .note-category-simple.done {
-            background: #e8f5e8;
-            color: #2e7d32;
-        }
-
-        body.dark-mode .note-category-simple.to-do,
-        body.dark-mode .note-category-simple.todo {
-            background: rgba(25, 118, 210, 0.2);
-            color: #64b5f6;
-        }
-
-        body.dark-mode .note-category-simple.in-progress {
-            background: rgba(239, 108, 0, 0.2);
-            color: #ffb74d;
-        }
-
-        body.dark-mode .note-category-simple.done {
-            background: rgba(46, 125, 50, 0.2);
-            color: #81c784;
-        }
-
-        /* Timeline Container Spacing */
-        .timeline-container {
-            padding: 0 2rem;
-        }
-
-        .timeline-milestones {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 1rem;
-            margin: 0 1rem;
-        }
-
-        /* Milestone Info Panel */
-        .milestone-info-panel {
-            margin-top: 2rem;
-            padding: 0;
-            background: transparent;
-            border: none;
-            border-radius: 0;
-        }
-
-        body.dark-mode .milestone-info-panel {
-            background: transparent;
-            border: none;
-        }
-
-        .milestone-info-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 0.5rem;
-            border-bottom: 2px solid #e0e0e0;
-            padding-bottom: 0.5rem;
-        }
-
-        body.dark-mode .milestone-info-title {
-            color: #e0e0e0;
-            border-bottom-color: #444;
-        }
-
-        .milestone-info-description {
-            color: #666;
-            font-size: 0.9rem;
-            line-height: 1.4;
-            margin-bottom: 0.75rem;
-        }
-
-        body.dark-mode .milestone-info-description {
-            color: #999;
-        }
-
-        .milestone-info-meta {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.85rem;
-            padding-top: 0.5rem;
-            border-top: 1px solid #f0f0f0;
-        }
-
-        body.dark-mode .milestone-info-meta {
-            border-top-color: #333;
-        }
-
-        .milestone-info-date {
-            color: #888;
-            font-weight: 500;
-        }
-
-        body.dark-mode .milestone-info-date {
-            color: #aaa;
-        }
-
-        .milestone-info-progress {
-            font-weight: 600;
-            color: #4caf50;
-            background: rgba(76, 175, 80, 0.1);
-            padding: 0.25rem 0.5rem;
-            border-radius: 12px;
-            font-size: 0.8rem;
-        }
-
-        body.dark-mode .milestone-info-progress {
-            color: #81c784;
-            background: rgba(129, 199, 132, 0.2);
-        }
-
-        /* Minimalist Plus Button */
-        .plus-button {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: #666;
-            border: none;
-            color: white;
-            font-size: 18px;
-            font-weight: 300;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 2px 6px rgba(102, 102, 102, 0.2);
-        }
-
-        .plus-button:hover {
-            background: #555;
-            transform: scale(1.1);
-            box-shadow: 0 4px 12px rgba(102, 102, 102, 0.3);
-        }
-
-        .plus-button:active {
-            transform: scale(0.95);
-        }
-
-        body.dark-mode .plus-button {
-            background: #999;
-            color: #1a1a1a;
-            box-shadow: 0 2px 6px rgba(153, 153, 153, 0.2);
-        }
-
-        body.dark-mode .plus-button:hover {
-            background: #aaa;
-            box-shadow: 0 4px 12px rgba(153, 153, 153, 0.3);
-        }
-
-
-
-        /* Button container for plus and edit buttons */
-        .action-buttons {
-            display: flex;
-            align-items: center;
-        }
-
-        /* Feature input styling in modal */
-        .feature-input {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-
-        .feature-input .feature-text {
-            flex: 1;
-            padding: 0.75rem;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            background: var(--bg-color);
-            color: var(--text-color);
-            font-size: 0.9rem;
-        }
-
-        .feature-input .remove-feature {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            border: none;
-            background: #dc3545;
-            color: white;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
-        }
-
-        .feature-input .remove-feature:hover {
-            background: #c82333;
-            transform: scale(1.1);
-        }
-
-        body.dark-mode .feature-input .feature-text {
-            background: #333;
-            border-color: #555;
-            color: #e0e0e0;
-        }
-
-        /* Feature status circles */
-        .feature-status-circle {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            border: 2px solid transparent;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-right: 15px;
-            flex-shrink: 0;
-        }
-
-        .feature-status-circle.planned {
-            background: #6c757d;
-            border-color: #5a6268;
-        }
-
-        .feature-status-circle.in-progress {
-            background: #fd7e14;
-            border-color: #dc6502;
-        }
-
-        .feature-status-circle.completed {
-            background: #28a745;
-            border-color: #1e7e34;
-        }
-
-        .feature-status-circle:hover {
-            transform: scale(1.2);
-            box-shadow: 0 0 10px rgba(0,0,0,0.3);
-        }
-
-        /* Delete version button */
-        .delete-version-btn {
-            background: none;
-            border: none;
-            color: #dc3545;
-            cursor: pointer;
-            padding: 5px;
-            border-radius: 4px;
-            transition: all 0.2s ease;
-            margin-left: 10px;
-        }
-
-        .delete-version-btn:hover {
-            background: #dc3545;
-            color: white;
-            transform: scale(1.1);
-        }
-
-        /* Version actions container */
-        .version-actions {
-            display: flex;
-            align-items: center;
-        }
-
-        /* Update feature item layout */
-        .feature-item-roadmap {
-            display: flex;
-            align-items: center;
-            padding: 10px;
-            margin: 5px 0;
-            background: var(--bg-color);
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            transition: all 0.2s ease;
-        }
-
-        .feature-item-roadmap:hover {
-            background: var(--hover-bg);
-            border-color: #007bff;
-        }
-
-        body.dark-mode .feature-item-roadmap {
-            background: #333;
-            border-color: #555;
-        }
-
-        body.dark-mode .feature-item-roadmap:hover {
-            background: #404040;
-            border-color: #007bff;
-        }
-
-        /* Milestones Setup Modal Styles */
-        .milestone-input {
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            background: var(--bg-color);
-        }
-
-        .milestone-input-header {
-            margin-bottom: 1rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .milestone-input-header h4 {
-            margin: 0;
-            color: #007bff;
-            font-size: 1.1rem;
-        }
-
-        body.dark-mode .milestone-input {
-            background: #333;
-            border-color: #555;
-        }
-
-        body.dark-mode .milestone-input-header {
-            border-bottom-color: #555;
-        }
-
-        body.dark-mode .milestone-input-header h4 {
-            color: #66b3ff;
-        }
-
-        /* Milestone Count Controls */
-        .milestone-count-controls {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-top: 0.5rem;
-        }
-
-        .milestone-count-controls input {
-            flex: 1;
-            max-width: 200px;
-        }
-
-        .milestone-count-controls .btn {
-            white-space: nowrap;
-            font-size: 0.9rem;
-            padding: 8px 12px;
-        }
-
-        body.dark-mode .milestone-count-controls .btn-outline-primary {
-            border-color: #007bff;
-            color: #007bff;
-            background: transparent;
-        }
-
-        body.dark-mode .milestone-count-controls .btn-outline-primary:hover {
-            background: #007bff;
-            color: white;
-        }
-
-        /* Delete Mode Button - looks like plus but with delete function */
-        .plus-button.delete-mode {
-            background: #f8f9fa;
-            color: #6c757d;
-            border: 1px solid #dee2e6;
-        }
-
-        .plus-button.delete-mode:hover {
-            background: #dc3545;
-            color: white;
-            border-color: #dc3545;
-            transform: translateY(-1px);
-        }
-
-        body.dark-mode .plus-button.delete-mode {
-            background: #2a2a2a;
-            color: #888;
-            border-color: #444;
-        }
-
-        body.dark-mode .plus-button.delete-mode:hover {
-            background: #dc3545;
-            color: white;
-            border-color: #dc3545;
-        }
-
-        /* Modal Overlay - Full Screen Background */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10000;
-            backdrop-filter: blur(2px);
-        }
-
-        /* Modal Content - Center Window */
-        .modal-content {
-            background: var(--bg-color);
-            border-radius: 12px;
-            max-width: 500px;
-            width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            animation: modalSlideIn 0.3s ease-out;
-        }
-        
-        @media (max-width: 768px) {
-            .modal-content {
-                width: 95%;
-                max-width: none;
-                max-height: 90vh;
-                border-radius: 8px;
-                margin: 10px;
-                -webkit-overflow-scrolling: touch;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .modal-content {
-                width: 98%;
-                max-height: 95vh;
-                border-radius: 6px;
-                margin: 5px;
-            }
-        }
-
-        .modal-content.minimal {
-            max-width: 450px;
-            width: 85%;
-        }
-        
-        @media (max-width: 768px) {
-            .modal-content.minimal {
-                width: 95%;
-                max-width: none;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .modal-content.minimal {
-                width: 98%;
-            }
-        }
-
-        /* Modal Animation */
-        @keyframes modalSlideIn {
-            from {
-                opacity: 0;
-                transform: scale(0.9) translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1) translateY(0);
-            }
-        }
-
-        /* Modal Header */
-        .modal-header {
-            padding: 1.5rem 2rem 0 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--border-color);
-            margin-bottom: 1.5rem;
-        }
-        
-        @media (max-width: 768px) {
-            .modal-header {
-                padding: 1rem 1.5rem 0 1.5rem;
-                margin-bottom: 1rem;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .modal-header {
-                padding: 0.8rem 1rem 0 1rem;
-                margin-bottom: 0.8rem;
-            }
-        }
-
-        .modal-header h3 {
-            margin: 0;
-            color: var(--text-color);
-            font-size: 1.25rem;
-            font-weight: 600;
-        }
-        
-        @media (max-width: 768px) {
-            .modal-header h3 {
-                font-size: 1.1rem;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .modal-header h3 {
-                font-size: 1rem;
-            }
-        }
-
-        .modal-close {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            color: var(--text-color);
-            cursor: pointer;
-            padding: 0;
-            width: 30px;
-            height: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            transition: background 0.2s ease;
-        }
-        
-        @media (max-width: 768px) {
-            .modal-close {
-                width: 36px;
-                height: 36px;
-                font-size: 1.3rem;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .modal-close {
-                width: 32px;
-                height: 32px;
-                font-size: 1.2rem;
-            }
-        }
-
-        .modal-close:hover {
-            background: var(--border-color);
-        }
-
-        /* Modal Body */
-        .modal-body {
-            padding: 0 2rem 1.5rem 2rem;
-        }
-        
-        @media (max-width: 768px) {
-            .modal-body {
-                padding: 0 1.5rem 1rem 1.5rem;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .modal-body {
-                padding: 0 1rem 0.8rem 1rem;
-            }
-        }
-
-        /* Modal Footer */
-        .modal-footer {
-            padding: 1rem 2rem 1.5rem 2rem;
-            display: flex;
-            gap: 0.75rem;
-            justify-content: flex-end;
-            border-top: 1px solid var(--border-color);
-        }
-        
-        @media (max-width: 768px) {
-            .modal-footer {
-                padding: 1rem 1.5rem 1.2rem 1.5rem;
-                flex-direction: column;
-                gap: 0.8rem;
-            }
-            
-            .modal-footer .btn {
-                width: 100%;
-                min-height: 44px;
-                font-size: 0.9rem;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .modal-footer {
-                padding: 0.8rem 1rem 1rem 1rem;
-                gap: 0.6rem;
-            }
-            
-            .modal-footer .btn {
-                min-height: 42px;
-                font-size: 0.85rem;
-            }
-        }
-
-        /* Form Styles in Modal */
-        .modal-body .form-group {
-            margin-bottom: 1rem;
-        }
-        
-        @media (max-width: 768px) {
-            .modal-body .form-group {
-                margin-bottom: 1.2rem;
-            }
-            
-            .modal-body .form-group label {
-                font-size: 0.95rem;
-                margin-bottom: 6px;
-            }
-            
-            .modal-body .form-group input,
-            .modal-body .form-group textarea,
-            .modal-body .form-group select {
-                padding: 12px 16px;
-                font-size: 1rem;
-                min-height: 48px;
-                border-radius: 6px;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .modal-body .form-group {
-                margin-bottom: 1rem;
-            }
-            
-            .modal-body .form-group input,
-            .modal-body .form-group textarea,
-            .modal-body .form-group select {
-                padding: 10px 14px;
-                font-size: 0.95rem;
-                min-height: 44px;
-                border-radius: 5px;
-            }
-        }
-
-        .modal-body .form-row {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-        
-        @media (max-width: 768px) {
-            .modal-body .form-row {
-                flex-direction: column;
-                gap: 0.8rem;
-                margin-bottom: 1.2rem;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .modal-body .form-row {
-                gap: 0.6rem;
-                margin-bottom: 1rem;
-            }
-        }
-
-        .modal-body .form-row .form-group {
-            flex: 1;
-            margin-bottom: 0;
-        }
-
-        .modal-body label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            color: var(--text-color);
-        }
-
-        .modal-body input,
-        .modal-body textarea,
-        .modal-body select {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            background: var(--bg-color);
-            color: var(--text-color);
-            font-size: 0.9rem;
-            transition: border-color 0.2s ease;
-        }
-
-        .modal-body input:focus,
-        .modal-body textarea:focus,
-        .modal-body select:focus {
-            outline: none;
-            border-color: #007bff;
-            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
-        }
-
-        /* Button Styles in Modal */
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border-radius: 6px;
-            border: none;
-            font-size: 0.9rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .btn-primary {
-            background: #007bff;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #0056b3;
-        }
-
-        .btn-secondary {
-            background: var(--border-color);
-            color: var(--text-color);
-        }
-
-        .btn-secondary:hover {
-            background: #999;
-        }
-
-        /* Dark Mode Modal Styles */
-        body.dark-mode .modal-content {
-            background: #2a2a2a;
-            border: 1px solid #444;
-        }
-
-        body.dark-mode .modal-header {
-            border-bottom-color: #444;
-        }
-
-        body.dark-mode .modal-footer {
-            border-top-color: #444;
-        }
-
-        body.dark-mode .modal-body input,
-        body.dark-mode .modal-body textarea,
-        body.dark-mode .modal-body select {
-            background: #333;
-            border-color: #555;
-            color: #e0e0e0;
-        }
-
-        body.dark-mode .btn-secondary {
-            background: #555;
-            color: #e0e0e0;
-        }
-
-        body.dark-mode .btn-secondary:hover {
-            background: #666;
-        }
-
-        /* Confirmation popup styling */
-        .modal-content.confirmation {
-            max-width: 400px;
-            margin: 15vh auto;
-        }
-
-        .modal-content.confirmation .modal-body {
-            padding: 2rem;
-            text-align: center;
-        }
-
-        .modal-content.confirmation .modal-body p {
-            margin: 0;
-            font-size: 1.1rem;
-            color: #333;
-        }
-
-        body.dark-mode .modal-content.confirmation .modal-body p {
-            color: #e0e0e0;
-        }
-
-        /* Enhanced Note Header Styles */
-        .note-header-simple {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 1rem;
-            cursor: pointer;
-            transition: background 0.3s ease;
-        }
-
-        .note-header-simple:hover {
-            background: rgba(0,0,0,0.02);
-        }
-
-        body.dark-mode .note-header-simple:hover {
-            background: rgba(255,255,255,0.02);
-        }
-
-        .note-category-simple {
-            flex-shrink: 0;
-            min-width: 80px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .note-category-simple:hover {
-            transform: scale(1.05);
-        }
-
-        .note-title-simple {
-            flex: 1;
-            font-weight: 500;
-            color: #333;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        body.dark-mode .note-title-simple {
-            color: #e0e0e0;
-        }
-
-        .note-meta-inline {
-            flex-shrink: 0;
-            font-size: 0.8rem;
-            color: #888;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        body.dark-mode .note-meta-inline {
-            color: #aaa;
-        }
-
-        .note-priority {
-            padding: 0.2rem 0.5rem;
-            border-radius: 10px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
-        .note-priority.high {
-            background: #ffebee;
-            color: #c62828;
-        }
-
-        .note-priority.medium {
-            background: #fff3e0;
-            color: #ef6c00;
-        }
-
-        .note-priority.low {
-            background: #e8f5e8;
-            color: #2e7d32;
-        }
-
-        body.dark-mode .note-priority.high {
-            background: rgba(198, 40, 40, 0.2);
-            color: #ef9a9a;
-        }
-
-        body.dark-mode .note-priority.medium {
-            background: rgba(239, 108, 0, 0.2);
-            color: #ffb74d;
-        }
-
-        body.dark-mode .note-priority.low {
-            background: rgba(46, 125, 50, 0.2);
-            color: #81c784;
-        }
-
-        /* Task Management Styles */
-        .tasks-list {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .task-card {
-            background: white;
-            border: 1px solid #e0e0e0;
-            border-radius: 10px;
-            padding: 1.5rem;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-
-        .task-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-
-        body.dark-mode .task-card {
-            background: #2a2a2a;
-            border-color: #444;
-        }
-
-        .task-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.5rem;
-        }
-
-        .task-title {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: #333;
-            margin: 0;
-        }
-
-        body.dark-mode .task-title {
-            color: #e0e0e0;
-        }
-
-        .task-priority {
-            padding: 0.25rem 0.75rem;
-            border-radius: 15px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
-        .task-priority.high {
-            background: #ffebee;
-            color: #c62828;
-        }
-
-        .task-priority.medium {
-            background: #fff3e0;
-            color: #ef6c00;
-        }
-
-        .task-priority.low {
-            background: #e8f5e8;
-            color: #2e7d32;
-        }
-
-        body.dark-mode .task-priority.high {
-            background: rgba(198, 40, 40, 0.2);
-            color: #ffcdd2;
-        }
-
-        body.dark-mode .task-priority.medium {
-            background: rgba(239, 108, 0, 0.2);
-            color: #ffb74d;
-        }
-
-        body.dark-mode .task-priority.low {
-            background: rgba(46, 125, 50, 0.2);
-            color: #81c784;
-        }
-
-        .task-description {
-            color: #666;
-            font-size: 0.9rem;
-            line-height: 1.4;
-            margin-bottom: 1rem;
-        }
-
-        body.dark-mode .task-description {
-            color: #cccccc;
-        }
-
-        .task-meta {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-            margin-bottom: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .task-category {
-            background: #f0f0f0;
-            color: #666;
-            padding: 0.25rem 0.75rem;
-            border-radius: 15px;
-            font-size: 0.8rem;
-        }
-
-        body.dark-mode .task-category {
-            background: #444;
-            color: #999;
-        }
-
-        .task-status {
-            padding: 0.25rem 0.75rem;
-            border-radius: 15px;
-            font-size: 0.8rem;
-            font-weight: 500;
-            text-transform: capitalize;
-        }
-
-        .task-status.todo {
-            background: #e3f2fd;
-            color: #1976d2;
-        }
-
-        .task-status.in-progress {
-            background: #fff3e0;
-            color: #f57c00;
-        }
-
-        .task-status.done {
-            background: #e8f5e8;
-            color: #388e3c;
-        }
-
-        body.dark-mode .task-status.todo {
-            background: rgba(25, 118, 210, 0.2);
-            color: #64b5f6;
-        }
-
-        body.dark-mode .task-status.in-progress {
-            background: rgba(245, 124, 0, 0.2);
-            color: #ffb74d;
-        }
-
-        body.dark-mode .task-status.done {
-            background: rgba(56, 142, 60, 0.2);
-            color: #81c784;
-        }
-
-        .task-due {
-            color: #666;
-            font-size: 0.8rem;
-            font-style: italic;
-        }
-
-        body.dark-mode .task-due {
-            color: #999;
-        }
-
-        .task-actions {
-            display: flex;
-            gap: 0.5rem;
-            justify-content: flex-end;
-        }
-
-        .task-actions button {
-            background: none;
-            border: none;
-            color: #666;
-            cursor: pointer;
-            padding: 0.5rem;
-            border-radius: 6px;
-            transition: all 0.3s ease;
-        }
-
-        .task-actions button:hover {
-            background: #f0f0f0;
-            color: #333;
-        }
-
-        body.dark-mode .task-actions button {
-            color: #999;
-        }
-
-        body.dark-mode .task-actions button:hover {
-            background: #444;
-            color: #e0e0e0;
-        }
-
-        /* Simple Task List Styles */
-        .tasks-list-simple {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .task-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: white;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 1rem;
-            transition: all 0.3s ease;
-        }
-
-        .task-item:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        body.dark-mode .task-item {
-            background: #2a2a2a;
-            border-color: #444;
-        }
-
-        .task-content {
-            flex: 1;
-            cursor: pointer;
-        }
-
-        .task-title {
-            font-size: 1rem;
-            font-weight: 500;
-            color: #333;
-        }
-
-        body.dark-mode .task-title {
-            color: #e0e0e0;
-        }
-
-        .task-status-badge {
-            padding: 0.25rem 0.75rem;
-            border-radius: 15px;
-            font-size: 0.8rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: capitalize;
-        }
-
-        .task-status-badge:hover {
-            transform: scale(1.05);
-        }
-
-        .task-status-badge.todo {
-            background: #e3f2fd;
-            color: #1976d2;
-        }
-
-        .task-status-badge.in-progress {
-            background: #fff3e0;
-            color: #f57c00;
-        }
-
-        .task-status-badge.done {
-            background: #e8f5e8;
-            color: #388e3c;
-        }
-
-        body.dark-mode .task-status-badge.todo {
-            background: rgba(25, 118, 210, 0.2);
-            color: #64b5f6;
-        }
-
-        body.dark-mode .task-status-badge.in-progress {
-            background: rgba(245, 124, 0, 0.2);
-            color: #ffb74d;
-        }
-
-        body.dark-mode .task-status-badge.done {
-            background: rgba(56, 142, 60, 0.2);
-            color: #81c784;
-        }
-
-        .task-details {
-            margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 1px solid #f0f0f0;
-            color: #666;
-            line-height: 1.5;
-        }
-
-        body.dark-mode .task-details {
-            border-top-color: #444;
-            color: #cccccc;
-        }
-
-        .task-details p {
-            margin: 0.5rem 0;
-        }
-
-        .task-details .task-actions {
-            margin-top: 1rem;
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .task-details .task-actions button {
-            background: #f0f0f0;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.85rem;
-            transition: all 0.3s ease;
-        }
-
-        .task-details .task-actions button:hover {
-            background: #e0e0e0;
-        }
-
-        body.dark-mode .task-details .task-actions button {
-            background: #444;
-            color: #e0e0e0;
-        }
-
-        body.dark-mode .task-details .task-actions button:hover {
-            background: #555;
-        }
-
-        /* Form Row for side-by-side inputs */
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-        }
-
-        @media (max-width: 768px) {
-            .form-row {
-                grid-template-columns: 1fr;
-                gap: 0.8rem;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .form-row {
-                gap: 0.6rem;
-            }
-        }
-
-        /* Milestone Management Styles */
-        .milestones-list {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .milestone-card {
-            background: white;
-            border: 1px solid #e0e0e0;
-            border-radius: 10px;
-            padding: 1.5rem;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-
-        .milestone-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-
-        body.dark-mode .milestone-card {
-            background: #2a2a2a;
-            border-color: #444;
-        }
-
-        .milestone-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.5rem;
-        }
-
-        .milestone-title {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: #333;
-            margin: 0;
-        }
-
-        body.dark-mode .milestone-title {
-            color: #e0e0e0;
-        }
-
-        .milestone-status {
-            padding: 0.25rem 0.75rem;
-            border-radius: 15px;
-            font-size: 0.8rem;
-            font-weight: 500;
-            text-transform: capitalize;
-        }
-
-        .milestone-status.in-progress {
-            background: #fff3e0;
-            color: #f57c00;
-        }
-
-        .milestone-status.completed {
-            background: #e8f5e8;
-            color: #388e3c;
-        }
-
-        body.dark-mode .milestone-status.in-progress {
-            background: rgba(245, 124, 0, 0.2);
-            color: #ffb74d;
-        }
-
-        body.dark-mode .milestone-status.completed {
-            background: rgba(56, 142, 60, 0.2);
-            color: #81c784;
-        }
-
-        .milestone-description {
-            color: #666;
-            font-size: 0.9rem;
-            line-height: 1.4;
-            margin-bottom: 1rem;
-        }
-
-        body.dark-mode .milestone-description {
-            color: #cccccc;
-        }
-
-        .milestone-progress {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        .progress-bar {
-            flex: 1;
-            height: 8px;
-            background: #f0f0f0;
-            border-radius: 4px;
-            overflow: hidden;
-        }
-
-        body.dark-mode .progress-bar {
-            background: #444;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #4caf50, #8bc34a);
-            border-radius: 4px;
-            transition: width 0.3s ease;
-        }
-
-        .progress-text {
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: #333;
-            min-width: 40px;
-            text-align: right;
-        }
-
-        body.dark-mode .progress-text {
-            color: #e0e0e0;
-        }
-
-        .milestone-meta {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-            margin-bottom: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .milestone-due {
-            color: #666;
-            font-size: 0.8rem;
-            font-style: italic;
-        }
-
-        body.dark-mode .milestone-due {
-            color: #999;
-        }
-
-        .milestone-actions {
-            display: flex;
-            gap: 0.5rem;
-            justify-content: flex-end;
-        }
-
-        .milestone-actions button {
-            background: none;
-            border: none;
-            color: #666;
-            cursor: pointer;
-            padding: 0.5rem;
-            border-radius: 6px;
-            transition: all 0.3s ease;
-        }
-
-        .milestone-actions button:hover {
-            background: #f0f0f0;
-            color: #333;
-        }
-
-        body.dark-mode .milestone-actions button {
-            color: #999;
-        }
-
-        body.dark-mode .milestone-actions button:hover {
-            background: #444;
-            color: #e0e0e0;
-        }
-
-        .progress-display {
-            text-align: center;
-            margin-top: 0.5rem;
-        }
-
-        .progress-display span {
-            font-weight: 600;
-            color: #333;
-        }
-
-        body.dark-mode .progress-display span {
-            color: #e0e0e0;
-        }
-
-        /* Milestone Timeline Styles */
-        .milestones-timeline {
-            padding: 2rem 1rem;
-        }
-
-        /* Milestone Container */
-        .milestone-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            position: relative;
-        }
-
-        /* Interactive Milestone Points */
-        .milestone-point {
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-            z-index: 2;
-        }
-
-        .milestone-point:hover {
-            transform: scale(1.2);
-            z-index: 10;
-        }
-
-        .milestone-point.planned {
-            background: #6c757d;
-            border-color: #5a6268;
-        }
-
-        .milestone-point.current {
-            background: #fd7e14;
-            border-color: #dc6502;
-            animation: pulse 2s infinite;
-        }
-
-        .milestone-point.completed {
-            background: #28a745;
-            border-color: #1e7e34;
-        }
-
-        .milestone-point.locked {
-            background: #e9ecef;
-            border-color: #dee2e6;
-            cursor: not-allowed !important;
-            opacity: 0.5;
-        }
-
-        .milestone-point.locked:hover {
-            transform: none !important;
-            background: #e9ecef !important;
-        }
-
-        /* Milestone Labels and Percentages */
-        .milestone-label {
-            margin-top: 0.5rem;
-            text-align: center;
-            font-size: 0.8rem;
-            max-width: 80px;
-            word-wrap: break-word;
-        }
-
-        .milestone-percentage {
-            font-size: 0.75rem;
-            font-weight: bold;
-            margin-top: 0.25rem;
-            text-align: center;
-            padding: 2px 6px;
-            border-radius: 10px;
-            min-width: 30px;
-        }
-
-        .milestone-percentage.planned {
-            background: #6c757d;
-            color: white;
-        }
-
-        .milestone-percentage.current {
-            background: #fd7e14;
-            color: white;
-        }
-
-        .milestone-percentage.completed {
-            background: #28a745;
-            color: white;
-        }
-
-        .milestone-percentage.locked {
-            background: #e9ecef;
-            color: #6c757d;
-            opacity: 0.6;
-        }
-
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(253, 126, 20, 0.7); }
-            70% { box-shadow: 0 0 0 10px rgba(253, 126, 20, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(253, 126, 20, 0); }
-        }
-
-        /* Dark Mode Support for Milestones */
-        body.dark-mode .milestone-label {
-            color: #e0e0e0;
-        }
-
-        body.dark-mode .milestone-percentage.planned {
-            background: #5a6268;
-            color: #e0e0e0;
-        }
-
-        body.dark-mode .milestone-percentage.current {
-            background: #dc6502;
-            color: white;
-        }
-
-        body.dark-mode .milestone-percentage.completed {
-            background: #1e7e34;
-            color: white;
-        }
-
-        body.dark-mode .milestone-point.locked {
-            background: #444;
-            border-color: #555;
-            opacity: 0.4;
-        }
-
-        body.dark-mode .milestone-percentage.locked {
-            background: #444;
-            color: #888;
-            opacity: 0.5;
-        }
-
-        .timeline-container {
-            position: relative;
-            margin: 2rem 0;
-        }
-
-        /* Milestone Percentages Bar Above Timeline */
-        .milestone-percentages-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-            padding: 0 20px;
-        }
-
-        .milestone-percentage-above {
-            font-size: 0.8rem;
-            font-weight: bold;
-            padding: 4px 8px;
-            border-radius: 12px;
-            min-width: 35px;
-            text-align: center;
-        }
-
-        .milestone-percentage-above.planned {
-            background: #6c757d;
-            color: white;
-        }
-
-        .milestone-percentage-above.current {
-            background: #fd7e14;
-            color: white;
-        }
-
-        .milestone-percentage-above.completed {
-            background: #28a745;
-            color: white;
-        }
-
-        .milestone-percentage-above.locked {
-            background: #e9ecef;
-            color: #6c757d;
-            opacity: 0.6;
-        }
-
-        /* Dark Mode Support for Above Percentages */
-        body.dark-mode .milestone-percentage-above.planned {
-            background: #5a6268;
-            color: #e0e0e0;
-        }
-
-        body.dark-mode .milestone-percentage-above.current {
-            background: #dc6502;
-            color: white;
-        }
-
-        body.dark-mode .milestone-percentage-above.completed {
-            background: #1e7e34;
-            color: white;
-        }
-
-        body.dark-mode .milestone-percentage-above.locked {
-            background: #444;
-            color: #888;
-            opacity: 0.5;
-        }
-
-        /* Expense Frequency Badges */
-        .expense-frequency-badge {
-            font-size: 0.7rem;
-            padding: 2px 6px;
-            border-radius: 8px;
-            font-weight: bold;
-            margin-left: 8px;
-        }
-
-        .expense-frequency-badge.weekly {
-            background: #17a2b8;
-            color: white;
-        }
-
-        .expense-frequency-badge.monthly {
-            background: #fd7e14;
-            color: white;
-        }
-
-        .expense-frequency-badge.quarterly {
-            background: #6f42c1;
-            color: white;
-        }
-
-        .expense-frequency-badge.yearly {
-            background: #28a745;
-            color: white;
-        }
-
-        .expense-frequency-detail {
-            font-size: 0.85rem;
-            color: #666;
-            margin: 5px 0;
-            font-weight: 500;
-        }
-
-        body.dark-mode .expense-frequency-detail {
-            color: #aaa;
-        }
-
-        .timeline-bar {
-            position: relative;
-            height: 8px;
-            background: #f0f0f0;
-            border-radius: 4px;
-            margin: 2rem 0;
-        }
-
-        body.dark-mode .timeline-bar {
-            background: #444;
-        }
-
-        .timeline-progress {
-            height: 100%;
-            background: linear-gradient(90deg, #4caf50, #8bc34a);
-            border-radius: 4px;
-            transition: width 0.5s ease;
-        }
-
-        .timeline-milestones {
-            position: relative;
-            display: flex;
-            justify-content: space-between;
-            margin-top: -4px;
-        }
-
-        .milestone-point {
-            position: relative;
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            z-index: 2;
-        }
-
-        .milestone-point.completed {
-            background: #4caf50;
-            border: 3px solid #fff;
-            box-shadow: 0 0 0 2px #4caf50;
-        }
-
-        .milestone-point.current {
-            background: #f57c00;
-            border: 3px solid #fff;
-            box-shadow: 0 0 0 2px #f57c00;
-            animation: pulse 2s infinite;
-        }
-
-        .milestone-point.planned {
-            background: #e0e0e0;
-            border: 3px solid #fff;
-            box-shadow: 0 0 0 2px #e0e0e0;
-        }
-
-        body.dark-mode .milestone-point.completed {
-            box-shadow: 0 0 0 2px #4caf50;
-        }
-
-        body.dark-mode .milestone-point.current {
-            box-shadow: 0 0 0 2px #f57c00;
-        }
-
-        body.dark-mode .milestone-point.planned {
-            background: #666;
-            box-shadow: 0 0 0 2px #666;
-        }
-
-        .milestone-point:hover {
-            transform: scale(1.2);
-        }
-
-        .milestone-label {
-            position: absolute;
-            top: 25px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 0.8rem;
-            color: #666;
-            white-space: nowrap;
-            font-weight: 500;
-        }
-
-        body.dark-mode .milestone-label {
-            color: #999;
-        }
-
-        .milestone-details {
-            background: white;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 1rem;
-            margin-top: 2rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            display: none;
-        }
-
-        body.dark-mode .milestone-details {
-            background: #2a2a2a;
-            border-color: #444;
-            color: #e0e0e0;
-        }
-
-        .milestone-details.active {
-            display: block;
-        }
-
-        .milestone-details h4 {
-            margin: 0 0 0.5rem 0;
-            color: #333;
-        }
-
-        body.dark-mode .milestone-details h4 {
-            color: #e0e0e0;
-        }
-
-        .milestone-details p {
-            margin: 0;
-            color: #666;
-            line-height: 1.4;
-        }
-
-        body.dark-mode .milestone-details p {
-            color: #cccccc;
-        }
-
-        @keyframes pulse {
-            0% {
-                box-shadow: 0 0 0 2px #f57c00, 0 0 0 4px rgba(245, 124, 0, 0.3);
-            }
-            50% {
-                box-shadow: 0 0 0 2px #f57c00, 0 0 0 8px rgba(245, 124, 0, 0.1);
-            }
-            100% {
-                box-shadow: 0 0 0 2px #f57c00, 0 0 0 4px rgba(245, 124, 0, 0.3);
-            }
-        }
-
-        /* Developer Notes Styles */
-        .notes-list {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .note-card {
-            background: white;
-            border: 1px solid #e0e0e0;
-            border-radius: 10px;
-            padding: 1.5rem;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-
-        .note-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-
-        body.dark-mode .note-card {
-            background: #2a2a2a;
-            border-color: #444;
-        }
-
-        .note-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-
-        .note-category {
-            padding: 0.25rem 0.75rem;
-            border-radius: 15px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
-        .note-category.general {
-            background: #f0f0f0;
-            color: #666;
-        }
-
-        .note-category.architecture {
-            background: #e3f2fd;
-            color: #1976d2;
-        }
-
-        .note-category.bugs {
-            background: #ffebee;
-            color: #c62828;
-        }
-
-        .note-category.ideas {
-            background: #f3e5f5;
-            color: #7b1fa2;
-        }
-
-        .note-category.performance {
-            background: #fff3e0;
-            color: #f57c00;
-        }
-
-        .note-category.security {
-            background: #ffebee;
-            color: #d32f2f;
-        }
-
-        .note-category.ui-ux {
-            background: #e8f5e8;
-            color: #388e3c;
-        }
-
-        .note-category.database {
-            background: #fff8e1;
-            color: #f9a825;
-        }
-
-        .note-category.api {
-            background: #e0f2f1;
-            color: #00695c;
-        }
-
-        .note-category.testing {
-            background: #fce4ec;
-            color: #ad1457;
-        }
-
-        body.dark-mode .note-category.general {
-            background: #444;
-            color: #999;
-        }
-
-        body.dark-mode .note-category.architecture {
-            background: rgba(25, 118, 210, 0.2);
-            color: #64b5f6;
-        }
-
-        body.dark-mode .note-category.bugs {
-            background: rgba(198, 40, 40, 0.2);
-            color: #ffcdd2;
-        }
-
-        body.dark-mode .note-category.ideas {
-            background: rgba(123, 31, 162, 0.2);
-            color: #ce93d8;
-        }
-
-        body.dark-mode .note-category.performance {
-            background: rgba(245, 124, 0, 0.2);
-            color: #ffb74d;
-        }
-
-        body.dark-mode .note-category.security {
-            background: rgba(211, 47, 47, 0.2);
-            color: #ef9a9a;
-        }
-
-        body.dark-mode .note-category.ui-ux {
-            background: rgba(56, 142, 60, 0.2);
-            color: #81c784;
-        }
-
-        body.dark-mode .note-category.database {
-            background: rgba(249, 168, 37, 0.2);
-            color: #ffcc02;
-        }
-
-        body.dark-mode .note-category.api {
-            background: rgba(0, 105, 92, 0.2);
-            color: #4db6ac;
-        }
-
-        body.dark-mode .note-category.testing {
-            background: rgba(173, 20, 87, 0.2);
-            color: #f48fb1;
-        }
-
-        .note-date {
-            color: #666;
-            font-size: 0.8rem;
-            font-style: italic;
-        }
-
-        body.dark-mode .note-date {
-            color: #999;
-        }
-
-        .note-content {
-            color: #333;
-            font-size: 0.95rem;
-            line-height: 1.5;
-            margin-bottom: 1rem;
-            white-space: pre-wrap;
-        }
-
-        body.dark-mode .note-content {
-            color: #e0e0e0;
-        }
-
-        .note-tags {
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .note-tag {
-            background: #f0f0f0;
-            color: #666;
-            padding: 0.25rem 0.5rem;
-            border-radius: 12px;
-            font-size: 0.75rem;
-        }
-
-        body.dark-mode .note-tag {
-            background: #444;
-            color: #999;
-        }
-
-        .note-actions {
-            display: flex;
-            gap: 0.5rem;
-            justify-content: flex-end;
-        }
-
-        .note-actions button {
-            background: none;
-            border: none;
-            color: #666;
-            cursor: pointer;
-            padding: 0.5rem;
-            border-radius: 6px;
-            transition: all 0.3s ease;
-        }
-
-        .note-actions button:hover {
-            background: #f0f0f0;
-            color: #333;
-        }
-
-        body.dark-mode .note-actions button {
-            color: #999;
-        }
-
-        body.dark-mode .note-actions button:hover {
-            background: #444;
-            color: #e0e0e0;
-        }
-
-        /* Category Group Styles */
-        .notes-category-group {
-            margin-bottom: 1rem;
-            background: white;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        body.dark-mode .notes-category-group {
-            background: #2a2a2a;
-            border-color: #444;
-        }
-
-        .category-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: #f8f9fa;
-            padding: 0.75rem 1rem;
-            border-bottom: 1px solid #e0e0e0;
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-
-        body.dark-mode .category-header {
-            background: #3a3a3a;
-            border-bottom-color: #444;
-            color: #e0e0e0;
-        }
-
-        .category-title {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: #333;
-        }
-
-        body.dark-mode .category-title {
-            color: #e0e0e0;
-        }
-
-        .category-count {
-            background: #6c757d;
-            color: white;
-            padding: 0.2rem 0.5rem;
-            border-radius: 12px;
-            font-size: 0.8rem;
-            font-weight: 500;
-        }
-
-        .category-notes {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 1rem;
-            padding: 1rem;
-            min-height: 60px;
-        }
-
-        .category-empty {
-            padding: 1.5rem;
-            text-align: center;
-            color: #6c757d;
-            font-style: italic;
-            background: #f8f9fa;
-        }
-
-        body.dark-mode .category-empty {
-            background: #3a3a3a;
-            color: #999;
-        }
-
-        .category-actions {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .category-btn {
-            background: #007bff;
-            border: none;
-            color: white;
-            padding: 0.4rem 0.8rem;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.8rem;
-            transition: background 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 0.3rem;
-        }
-
-        .category-btn:hover {
-            background: #0056b3;
-        }
-
-        body.dark-mode .category-btn {
-            background: #4a9eff;
-        }
-
-        body.dark-mode .category-btn:hover {
-            background: #357abd;
-        }
-
-        /* Note Card Styles */
-        .note-card {
-            background: white;
-            border: 1px solid #e0e0e0;
-            border-radius: 12px;
-            padding: 1rem;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s, box-shadow 0.2s;
-            cursor: pointer;
-            height: fit-content;
-            min-height: 120px;
-        }
-
-        body.dark-mode .note-card {
-            background: #2a2a2a;
-            border-color: #444;
-            color: #e0e0e0;
-        }
-
-        .note-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-        }
-
-        .note-card-content {
-            font-size: 0.9rem;
-            line-height: 1.5;
-            margin-bottom: 0.75rem;
-            color: #333;
-        }
-
-        body.dark-mode .note-card-content {
-            color: #e0e0e0;
-        }
-
-        .note-card-meta {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.8rem;
-            color: #666;
-            margin-bottom: 0.5rem;
-        }
-
-        body.dark-mode .note-card-meta {
-            color: #999;
-        }
-
-        .note-card-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.3rem;
-            margin-bottom: 0.75rem;
-        }
-
-        .note-tag {
-            background: #f8f9fa;
-            color: #495057;
-            padding: 0.2rem 0.5rem;
-            border-radius: 12px;
-            font-size: 0.7rem;
-            font-weight: 500;
-        }
-
-        body.dark-mode .note-tag {
-            background: #444;
-            color: #ccc;
-        }
-
-        .note-card-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 0.5rem;
-        }
-
-        .note-card-btn {
-            background: none;
-            border: none;
-            color: #dc3545;
-            cursor: pointer;
-            font-size: 0.8rem;
-            padding: 0.3rem 0.6rem;
-            border-radius: 4px;
-            transition: background 0.2s;
-        }
-
-        .note-card-btn:hover {
-            background: #f8f9fa;
-        }
-
-        body.dark-mode .note-card-btn:hover {
-            background: #444;
-        }
-
-        /* Simple Notes Styles */
-        .notes-list-simple {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .note-item-simple {
-            background: white;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-        }
-
-        .note-item-simple:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        body.dark-mode .note-item-simple {
-            background: #2a2a2a;
-            border-color: #444;
-        }
-
-        .note-header-simple {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 1rem;
-            cursor: pointer;
-        }
-
-        .note-category-simple {
-            padding: 0.25rem 0.75rem;
-            border-radius: 15px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
-        .note-category-simple.general {
-            background: #f0f0f0;
-            color: #666;
-        }
-
-        .note-category-simple.architecture {
-            background: #e3f2fd;
-            color: #1976d2;
-        }
-
-        .note-category-simple.bugs {
-            background: #ffebee;
-            color: #c62828;
-        }
-
-        .note-category-simple.ideas {
-            background: #f3e5f5;
-            color: #7b1fa2;
-        }
-
-        .note-category-simple.performance {
-            background: #fff3e0;
-            color: #f57c00;
-        }
-
-        .note-category-simple.security {
-            background: #ffebee;
-            color: #d32f2f;
-        }
-
-        body.dark-mode .note-category-simple.general {
-            background: #444;
-            color: #999;
-        }
-
-        body.dark-mode .note-category-simple.architecture {
-            background: rgba(25, 118, 210, 0.2);
-            color: #64b5f6;
-        }
-
-        body.dark-mode .note-category-simple.bugs {
-            background: rgba(198, 40, 40, 0.2);
-            color: #ffcdd2;
-        }
-
-        body.dark-mode .note-category-simple.ideas {
-            background: rgba(123, 31, 162, 0.2);
-            color: #ce93d8;
-        }
-
-        body.dark-mode .note-category-simple.performance {
-            background: rgba(245, 124, 0, 0.2);
-            color: #ffb74d;
-        }
-
-        body.dark-mode .note-category-simple.security {
-            background: rgba(211, 47, 47, 0.2);
-            color: #ef9a9a;
-        }
-
-        .note-title-simple {
-            flex: 1;
-            font-size: 0.95rem;
-            color: #333;
-            font-weight: 500;
-        }
-
-        body.dark-mode .note-title-simple {
-            color: #e0e0e0;
-        }
-
-        .note-details-simple {
-            padding: 0 1rem 1rem 1rem;
-            border-top: 1px solid #f0f0f0;
-        }
-
-        body.dark-mode .note-details-simple {
-            border-top-color: #444;
-        }
-
-        .note-content-full {
-            color: #333;
-            line-height: 1.5;
-            margin: 1rem 0;
-            white-space: pre-wrap;
-        }
-
-        body.dark-mode .note-content-full {
-            color: #e0e0e0;
-        }
-
-        .note-meta-simple {
-            margin: 1rem 0;
-        }
-
-        .note-date-simple {
-            color: #666;
-            font-size: 0.8rem;
-            font-style: italic;
-        }
-
-        body.dark-mode .note-date-simple {
-            color: #999;
-        }
-
-        .note-actions-simple {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .note-actions-simple button {
-            background: #f0f0f0;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.85rem;
-            transition: all 0.3s ease;
-        }
-
-        .note-actions-simple button:hover {
-            background: #e0e0e0;
-        }
-
-        body.dark-mode .note-actions-simple button {
-            background: #444;
-            color: #e0e0e0;
-        }
-
-        body.dark-mode .note-actions-simple button:hover {
-            background: #555;
-        }
-
-        /* Simple Item Styles (for Specs & Research) */
-        .simple-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0.75rem 1rem;
-            background: white;
-            border: 1px solid #e0e0e0;
-            border-radius: 6px;
-            margin-bottom: 0.5rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .simple-item:hover {
-            background: #f8f9fa;
-            transform: translateX(4px);
-        }
-
-        body.dark-mode .simple-item {
-            background: #2a2a2a;
-            border-color: #444;
-        }
-
-        body.dark-mode .simple-item:hover {
-            background: #333;
-        }
-
-        .simple-title {
-            font-size: 0.9rem;
-            color: #333;
-            font-weight: 500;
-        }
-
-        body.dark-mode .simple-title {
-            color: #e0e0e0;
-        }
-
-        .simple-arrow {
-            color: #666;
-            font-size: 1rem;
-        }
-
-        body.dark-mode .simple-arrow {
-            color: #999;
-        }
-
-        /* Expense Management Styles */
-        .expenses-list {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .expense-card {
-            background: white;
-            border: 1px solid #e0e0e0;
-            border-radius: 10px;
-            padding: 1.5rem;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-
-        .expense-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-
-        body.dark-mode .expense-card {
-            background: #2a2a2a;
-            border-color: #444;
-        }
-
-        .expense-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.5rem;
-        }
-
-        .expense-description {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #333;
-            margin: 0;
-        }
-
-        body.dark-mode .expense-description {
-            color: #e0e0e0;
-        }
-
-        .expense-amount {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: #2e7d32;
-        }
-
-        body.dark-mode .expense-amount {
-            color: #81c784;
-        }
-
-        .expense-meta {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-            margin-bottom: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .expense-category {
-            padding: 0.25rem 0.75rem;
-            border-radius: 15px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
-        .expense-category.development {
-            background: #e3f2fd;
-            color: #1976d2;
-        }
-
-        .expense-category.design {
-            background: #f3e5f5;
-            color: #7b1fa2;
-        }
-
-        .expense-category.marketing {
-            background: #e8f5e8;
-            color: #388e3c;
-        }
-
-        .expense-category.hosting {
-            background: #fff3e0;
-            color: #f57c00;
-        }
-
-        .expense-category.tools {
-            background: #e0f2f1;
-            color: #00695c;
-        }
-
-        .expense-category.consulting {
-            background: #fce4ec;
-            color: #ad1457;
-        }
-
-        .expense-category.other {
-            background: #f0f0f0;
-            color: #666;
-        }
-
-        body.dark-mode .expense-category.development {
-            background: rgba(25, 118, 210, 0.2);
-            color: #64b5f6;
-        }
-
-        body.dark-mode .expense-category.design {
-            background: rgba(123, 31, 162, 0.2);
-            color: #ce93d8;
-        }
-
-        body.dark-mode .expense-category.marketing {
-            background: rgba(56, 142, 60, 0.2);
-            color: #81c784;
-        }
-
-        body.dark-mode .expense-category.hosting {
-            background: rgba(245, 124, 0, 0.2);
-            color: #ffb74d;
-        }
-
-        body.dark-mode .expense-category.tools {
-            background: rgba(0, 105, 92, 0.2);
-            color: #4db6ac;
-        }
-
-        body.dark-mode .expense-category.consulting {
-            background: rgba(173, 20, 87, 0.2);
-            color: #f48fb1;
-        }
-
-        body.dark-mode .expense-category.other {
-            background: #444;
-            color: #999;
-        }
-
-        .expense-date {
-            color: #666;
-            font-size: 0.8rem;
-            font-style: italic;
-        }
-
-        body.dark-mode .expense-date {
-            color: #999;
-        }
-
-        .expense-notes {
-            color: #666;
-            font-size: 0.9rem;
-            font-style: italic;
-            margin-bottom: 1rem;
-        }
-
-        body.dark-mode .expense-notes {
-            color: #999;
-        }
-
-        .expense-actions {
-            display: flex;
-            gap: 0.5rem;
-            justify-content: flex-end;
-        }
-
-        .expense-actions button {
-            background: none;
-            border: none;
-            color: #666;
-            cursor: pointer;
-            padding: 0.5rem;
-            border-radius: 6px;
-            transition: all 0.3s ease;
-        }
-
-        .expense-actions button:hover {
-            background: #f0f0f0;
-            color: #333;
-        }
-
-        body.dark-mode .expense-actions button {
-            color: #999;
-        }
-
-        body.dark-mode .expense-actions button:hover {
-            background: #444;
-            color: #e0e0e0;
-        }
-
-        /* Responsive Grid */
-        @media (max-width: 768px) {
-            .dashboard-grid {
-                grid-template-columns: 1fr;
-                gap: 1rem;
-            }
-            
-            .dashboard-section.full-width {
-                grid-column: span 1;
-            }
-
-            .top-dashboard {
-                padding: 1rem;
-            }
-
-            .dashboard-header {
-                flex-direction: column;
-                text-align: center;
-                gap: 1rem;
-            }
-
-            .dashboard-stats {
-                gap: 1rem;
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-            
-            .app-stats {
-                justify-content: center;
-            }
-            
-            .section-header {
-                flex-direction: column;
-                gap: 1rem;
-                align-items: stretch;
-            }
-            
-            .section-actions {
-                flex-direction: column;
-                gap: 1rem;
-            }
-
-            .dashboard-container {
-                padding: 1rem;
-            }
-
-            .dashboard-section {
-                padding: 1.5rem;
-            }
-        }
-
-        /* Back to Profile Button Styles */
-        .back-to-profile-container {
-            display: flex;
-            justify-content: flex-start;
-            padding: 10px 0;
-            margin-top: 10px;
-        }
-
-        .back-to-profile-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 12px 24px;
-            background: #6c757d;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-family: 'Montserrat', sans-serif;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-        }
-
-        .back-to-profile-btn:hover {
-            background: #007bff;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
-        }
-
-        .back-to-profile-btn:active {
-            transform: translateY(0);
-        }
-
-        body.dark-mode .back-to-profile-btn {
-            background: #495057;
-        }
-
-        body.dark-mode .back-to-profile-btn:hover {
-            background: #4299e1;
-            box-shadow: 0 4px 12px rgba(66, 153, 225, 0.3);
-        }
-
-        .back-to-profile-btn i {
-            font-size: 12px;
-        }
-    </style>
 </head>
-<body class="page-default">
-    <header class="thematic-header" role="banner">
-        <div class="header-left">
-        </div>
-        <div class="header-center">
-            <div class="logo">
-                <a href="../index.html" aria-label="Specifys.ai homepage">Specifys.ai</a>
-            </div>
-        </div>
-        <div class="header-right">
-            <div class="auth-buttons" id="auth-buttons">
-                <!-- Will be populated by auth system -->
-            </div>
-        </div>
-    </header>
 
-    <main class="dashboard-container">
-        <!-- Top Dashboard Header -->
-        <div class="top-dashboard">
-            <div class="dashboard-header">
-                <div class="app-info-compact">
-                    <h1 id="app-name">Loading...</h1>
-                    <!-- Back to Profile Button -->
-                    <div class="back-to-profile-container">
-                        <button class="back-to-profile-btn" onclick="goBackToProfile()">
-                            <i class="fas fa-arrow-left"></i>
-                            Back to Profile
-                        </button>
-                    </div>
+
+<body>
+    <!-- Header -->
+    <!-- Header -->
+<header class="thematic-header" role="banner">
+    <div class="header-center">
+        <div class="logo">
+            <a href="/" aria-label="Specifys.ai homepage">
+                <span class="logo-text">Specifys.AI</span>
+            </a>
+        </div>
+    </div>
+    <div class="header-right">
+        <div class="auth-buttons" id="auth-buttons">
+            <!-- Will be populated by auth system -->
+        </div>
+    </div>
+</header>
+
+<style>
+/* Logo dark grey color - using site's color palette */
+.logo a,
+.logo-text {
+    color: #333 !important;
+}
+
+.logo a:hover {
+    color: #444 !important;
+}
+</style>
+
+
+    
+    <!-- Main Content -->
+    <main class="main-content">
+            <main class="container">
+        <!-- Dashboard Header -->
+        <div class="dashboard-section">
+            <div class="dashboard-overview">
+                <div class="dashboard-title">
+                    <h1 id="app-name">App Dashboard</h1>
                 </div>
                 <div class="dashboard-stats">
                     <div class="stat-item">
@@ -4499,7 +530,8 @@
     </main>
 
 
-    <script src="script.js"></script>
+    <script src="/assets/js/script.js"></script>
+    <script src="/assets/js/mobile-optimizations.js"></script>
 
     <!-- App Dashboard Script -->
     <script type="module">
@@ -7292,6 +3324,11 @@
                     <button class="auth-btn" onclick="showLoginModal()">Login</button>
                 `;
             }
+            
+            // Update mobile auth UI if function exists
+            if (window.updateMobileAuthUI) {
+                window.updateMobileAuthUI(user);
+            }
         }
 
         // Global auth functions
@@ -7416,27 +3453,178 @@
         }
     </script>
     
-    <footer>
-        <div class="footer-content">
-            <div class="footer-links">
-                <a href="../pages/how.html" aria-label="Learn how specifys.ai works">How It Works</a>
-                <a href="../pages/about.html" aria-label="Learn more about specifys.ai">About Us</a>
-                <a href="../blog/" aria-label="Visit our blog">Blog</a>
-                <a href="../tools/map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
-                <a href="../pages/ToolPicker.html" aria-label="Use our Tool Finder">Tool Finder</a>
-            </div>
-            <span class="footer-divider">|</span>
-            <div class="footer-social">
-                <a href="https://www.linkedin.com/company/specifys-ai/" aria-label="Follow us on LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-                <a href="https://www.facebook.com/profile.php?id=61576402600129&locale=he_IL" target="_blank" aria-label="Follow us on Facebook"><i class="fab fa-facebook-f"></i></a>
-                <a href="https://www.instagram.com/YOUR_PROFILE" aria-label="Follow us on Instagram"><i class="fab fa-instagram"></i></a>
-                <a href="mailto:specifysai@gmail.com" aria-label="Send us an email"><i class="fas fa-envelope"></i></a>
-                <a href="https://www.producthunt.com/products/specifys-ai" target="_blank" aria-label="Check us out on Product Hunt"><i class="fab fa-product-hunt"></i></a>
-            </div>
-        </div>
-        <div class="footer-copyright">
-            © 2025 specifys.ai. All rights reserved.
-        </div>
-    </footer>
+
+    </main>
+    
+    <!-- Footer -->
+    <!-- Footer -->
+<footer>
+  <div class="footer-content">
+    <div class="footer-links">
+      <a href="/pages/how.html" aria-label="Learn how specifys.ai works">How It Works</a>
+      <a href="/pages/about.html" aria-label="Learn more about specifys.ai">About Us</a>
+      <a href="/blog/" aria-label="Visit our blog">Blog</a>
+      <a href="/tools/map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
+      <a href="/pages/ToolPicker.html" aria-label="Use our Tool Finder">Tool Finder</a>
+    </div>
+    <span class="footer-divider">|</span>
+    <div class="footer-social">
+      <a href="https://www.linkedin.com/company/specifys-ai/" target="_blank" aria-label="Follow us on LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+      <a href="https://www.facebook.com/profile.php?id=61576402600129&locale=he_IL" target="_blank" aria-label="Follow us on Facebook"><i class="fab fa-facebook-f"></i></a>
+      <a href="https://www.instagram.com/YOUR_PROFILE" target="_blank" aria-label="Follow us on Instagram"><i class="fab fa-instagram"></i></a>
+      <a href="mailto:specifysai@gmail.com" aria-label="Send us an email"><i class="fas fa-envelope"></i></a>
+      <a href="https://www.producthunt.com/products/specifys-ai" target="_blank" aria-label="Check us out on Product Hunt"><i class="fab fa-product-hunt"></i></a>
+    </div>
+  </div>
+  <div class="footer-copyright">
+    © 2025 specifys.ai. All rights reserved.
+  </div>
+</footer>
+
+    
+    <!-- Scroll to top button -->
+    <!-- Scroll to top button -->
+<button class="icon-btn scroll-to-top" id="scrollToTop" aria-label="Scroll">
+  <i class="fas fa-arrow-up"></i>
+</button>
+
+<script>
+  // Scroll button functionality
+  document.addEventListener('DOMContentLoaded', function() {
+    const scrollBtn = document.getElementById('scrollToTop');
+    
+    if (scrollBtn) {
+      // Handle click - scroll to top or bottom based on current state
+      scrollBtn.addEventListener("click", () => {
+        if (window.scrollY > 300) {
+          // If scrolled down, go to top
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        } else {
+          // If at top, scroll to bottom
+          window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+        }
+      });
+      
+      // Rotate button based on scroll position
+      window.addEventListener("scroll", () => {
+        if (window.scrollY > 300) {
+          scrollBtn.classList.add("scrolled-down");
+          scrollBtn.setAttribute("aria-label", "Scroll to top");
+        } else {
+          scrollBtn.classList.remove("scrolled-down");
+          scrollBtn.setAttribute("aria-label", "Scroll to bottom");
+        }
+      });
+    }
+  });
+</script>
+
+
+    
+    <!-- Firebase SDK & Auth -->
+    
+    <!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<script>
+  // Firebase Configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyB9hr0IWM4EREzkKDxBxYoYinV6LJXWXV4",
+    authDomain: "specify-ai.firebaseapp.com",
+    projectId: "specify-ai",
+    storageBucket: "specify-ai.firebasestorage.app",
+    messagingSenderId: "734278787482",
+    appId: "1:734278787482:web:0e312fb6f197e849695a23",
+    measurementId: "G-4YR9LK63MR"
+  };
+
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+</script>
+
+
+    <script>
+  // Auth UI functions
+  function updateAuthUI(user) {
+    const authButtons = document.getElementById('auth-buttons');
+    if (!authButtons) return;
+    
+    if (user) {
+      // User is logged in
+      const displayName = user.displayName || user.email.split('@')[0];
+      const firstLetter = displayName.charAt(0).toUpperCase();
+      
+      authButtons.innerHTML = `
+        <a href="/pages/profile.html" class="user-info" style="text-decoration: none;">
+          <div class="user-avatar">${firstLetter}</div>
+          <span>${displayName}</span>
+        </a>
+      `;
+    } else {
+      // User is not logged in
+      authButtons.innerHTML = `
+        <button class="auth-btn" onclick="showLoginModal()">Login</button>
+      `;
+    }
+  }
+
+  // Global auth functions
+  window.showLoginModal = function() {
+    if (typeof trackButtonClick !== 'undefined') {
+      trackButtonClick('Show Login', 'Authentication', 'header');
+    }
+    window.location.href = '/pages/auth.html';
+  };
+
+  window.showRegisterModal = function() {
+    if (typeof trackButtonClick !== 'undefined') {
+      trackButtonClick('Show Register', 'Authentication', 'header');
+    }
+    window.location.href = '/pages/auth.html';
+  };
+
+  window.logout = function() {
+    if (typeof trackAuthEvent !== 'undefined') {
+      trackAuthEvent('logout', 'email');
+    }
+    auth.signOut()
+      .then(() => {
+        console.log('Logged out successfully');
+      })
+      .catch(error => {
+        console.error('Error logging out:', error);
+      });
+  };
+
+  // Listen to auth state changes
+  auth.onAuthStateChanged((user) => {
+    updateAuthUI(user);
+  });
+
+  // Initialize auth buttons with default state
+  document.addEventListener('DOMContentLoaded', function() {
+    const authButtons = document.getElementById('auth-buttons');
+    if (authButtons && !authButtons.innerHTML.trim()) {
+      authButtons.innerHTML = `
+        <button class="auth-btn login-btn">Login</button>
+      `;
+      
+      const loginBtn = authButtons.querySelector('.login-btn');
+      if (loginBtn) {
+        loginBtn.addEventListener('click', function(event) {
+          event.stopPropagation();
+          window.location.href = '/pages/auth.html';
+        });
+      }
+    }
+  });
+</script>
+
+
+    
 </body>
 </html>

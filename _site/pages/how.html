@@ -1,974 +1,732 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="How It Works - Specifys.ai">
-  <meta name="description" content="Learn how specifys.ai works to transform your app idea into reality.">
-  <meta name="keywords" content="specifys.ai, how it works, app development, vibe coding">
-  <meta name="author" content="specifys.ai Team">
-  <meta name="robots" content="index, follow">
-  <meta name="googlebot" content="index, follow">
-  <meta name="bingbot" content="index, follow">
-  <meta name="revisit-after" content="7 days">
-  <meta name="language" content="English">
-  <meta name="copyright" content="© 2025 specifys.ai">
-  <meta name="publisher" content="specifys.ai">
-  <meta name="distribution" content="global">
-  <meta name="rating" content="general">
-  <meta name="theme-color" content="#0078d4">
-  <meta name="canonical" content="how.html">
-  <meta property="og:title" content="How It Works - specifys.ai">
-  <meta property="og:description" content="Learn how specifys.ai works to transform your app idea into reality.">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="how.html">
-  <meta property="og:image" content="assets/og-image.jpg">
-  <meta property="og:image:alt" content="How It Works with specifys.ai">
-  <meta property="og:site_name" content="Specifys.ai">
-  <meta property="og:locale" content="en_US">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="How It Works - specifys.ai">
-  <meta name="twitter:description" content="Learn how specifys.ai works to transform your app idea into reality.">
-  <meta name="twitter:image" content="assets/og-image.jpg">
-  <meta name="twitter:site" content="@specifys_ai">
-  <meta name="twitter:creator" content="@specifys_ai">
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "WebPage",
-    "headline": "How It Works - specifys.ai",
-    "description": "Learn how specifys.ai works to transform your app idea into reality.",
-            "image": "assets/og-image.jpg",
-    "author": {
-      "@type": "Organization",
-      "name": "specifys.ai Team"
-    },
-    "publisher": {
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta name="theme-color" content="#000000">
+    <title>How It Works - Specifys.ai</title>
+    <meta name="description" content="Learn how specifys.ai works to transform your app idea into reality.">
+    <meta name="keywords" content="AI development tools, app specification generator, no-code platform, AI-powered planning, vibe coding, AI app builder, specification generator, market research tool, app planning tool, development tools, AI tools">
+    <meta name="author" content="Specifys.ai">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    
+    <!-- Canonical URL -->
+    
+    <link rel="canonical" href="http://localhost:4000/pages/how.html">
+    
+    
+    <!-- Open Graph -->
+    <meta property="og:site_name" content="Specifys.ai">
+    <meta property="og:title" content="How It Works">
+    <meta property="og:description" content="Learn how specifys.ai works to transform your app idea into reality.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="http://localhost:4000/pages/how.html">
+    <meta property="og:locale" content="en_US">
+    
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@specifysai">
+    <meta name="twitter:creator" content="@specifysai">
+    <meta name="twitter:title" content="How It Works">
+    <meta name="twitter:description" content="Learn how specifys.ai works to transform your app idea into reality.">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="/assets/css/main.css">
+    
+      
+        <link rel="stylesheet" href="/assets/css/tracks.css">
+      
+        <link rel="stylesheet" href="/assets/css/pages/how.css">
+      
+    
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Mermaid for diagrams (used in demo, spec, research pages) -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+    
+    <!-- Marked for markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked@4.3.0/marked.min.js"></script>
+    
+    <!-- Highlight.js for syntax highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    
+    <!-- jsPDF for PDF export (used in research pages) -->
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
+    <!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-RWBT69JCM7"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-RWBT69JCM7');
+</script>
+
+
+    <script>
+// Central Analytics Event Tracking System for Specifys.ai
+// This file contains reusable tracking functions for consistent analytics across the site
+
+// Check if gtag is available
+function isGtagAvailable() {
+  return typeof gtag !== 'undefined';
+}
+
+// Track button clicks with detailed categorization
+function trackButtonClick(buttonName, category, source, additionalData = {}) {
+  if (isGtagAvailable()) {
+    gtag('event', 'click', {
+      'event_category': category || 'Button Click',
+      'event_label': buttonName,
+      'event_source': source || 'unknown',
+      ...additionalData
+    });
+  }
+}
+
+// Track CTA (Call-to-Action) clicks
+function trackCTA(ctaName, location) {
+  if (isGtagAvailable()) {
+    gtag('event', 'cta_click', {
+      'event_category': 'CTA',
+      'event_label': ctaName,
+      'cta_location': location
+    });
+  }
+}
+
+// Track navigation events
+function trackNavigation(destination, source) {
+  if (isGtagAvailable()) {
+    gtag('event', 'navigation', {
+      'event_category': 'Navigation',
+      'event_label': destination,
+      'navigation_source': source
+    });
+  }
+}
+
+// Track tool usage
+function trackToolUsage(toolName, action) {
+  if (isGtagAvailable()) {
+    gtag('event', 'tool_usage', {
+      'event_category': 'Tools',
+      'event_label': toolName,
+      'tool_action': action
+    });
+  }
+}
+
+// Track form submissions
+function trackFormSubmit(formName, formType) {
+  if (isGtagAvailable()) {
+    gtag('event', 'form_submit', {
+      'event_category': 'Form',
+      'event_label': formName,
+      'form_type': formType
+    });
+  }
+}
+
+// Track user authentication events
+function trackAuthEvent(action, method) {
+  if (isGtagAvailable()) {
+    gtag('event', action, {
+      'event_category': 'Authentication',
+      'event_label': action,
+      'auth_method': method || 'email'
+    });
+  }
+}
+
+// Track downloads
+function trackDownload(fileName, fileType) {
+  if (isGtagAvailable()) {
+    gtag('event', 'download', {
+      'event_category': 'Downloads',
+      'event_label': fileName,
+      'file_type': fileType
+    });
+  }
+}
+
+// Track spec/result generations
+function trackGeneration(type, mode) {
+  if (isGtagAvailable()) {
+    gtag('event', 'generation_start', {
+      'event_category': 'Generation',
+      'event_label': type,
+      'generation_mode': mode
+    });
+  }
+}
+
+// Track generation completion
+function trackGenerationComplete(type, mode, success) {
+  if (isGtagAvailable()) {
+    gtag('event', 'generation_complete', {
+      'event_category': 'Generation',
+      'event_label': type,
+      'generation_mode': mode,
+      'success': success
+    });
+  }
+}
+
+// Track external link clicks
+function trackExternalLink(linkUrl, linkText) {
+  if (isGtagAvailable()) {
+    gtag('event', 'click', {
+      'event_category': 'External Link',
+      'event_label': linkText || linkUrl,
+      'link_url': linkUrl
+    });
+  }
+}
+
+// Track modal interactions
+function trackModal(modalName, action) {
+  if (isGtagAvailable()) {
+    gtag('event', 'modal_' + action, {
+      'event_category': 'Modal',
+      'event_label': modalName,
+      'modal_action': action
+    });
+  }
+}
+
+// Track FAQ interactions
+function trackFAQ(question, action) {
+  if (isGtagAvailable()) {
+    gtag('event', 'faq_' + action, {
+      'event_category': 'FAQ',
+      'event_label': question,
+      'faq_action': action
+    });
+  }
+}
+
+// Track search actions
+function trackSearch(searchTerm, searchType) {
+  if (isGtagAvailable()) {
+    gtag('event', 'search', {
+      'event_category': 'Search',
+      'search_term': searchTerm,
+      'search_type': searchType
+    });
+  }
+}
+
+// Track video/demo views
+function trackDemoView(demoName, viewDuration) {
+  if (isGtagAvailable()) {
+    gtag('event', 'demo_view', {
+      'event_category': 'Demo',
+      'event_label': demoName,
+      'view_duration': viewDuration
+    });
+  }
+}
+
+// Track user engagement time
+function trackEngagement(pageName, timeSpent) {
+  if (isGtagAvailable()) {
+    gtag('event', 'user_engagement', {
+      'event_category': 'Engagement',
+      'event_label': pageName,
+      'engagement_time_msec': timeSpent
+    });
+  }
+}
+
+// Track errors
+function trackError(errorType, errorMessage, errorLocation) {
+  if (isGtagAvailable()) {
+    gtag('event', 'error', {
+      'event_category': 'Error',
+      'event_label': errorType,
+      'error_message': errorMessage,
+      'error_location': errorLocation
+    });
+  }
+}
+
+// Track user preferences
+function trackPreference(preferenceName, preferenceValue) {
+  if (isGtagAvailable()) {
+    gtag('event', 'preference_change', {
+      'event_category': 'Preferences',
+      'event_label': preferenceName,
+      'preference_value': preferenceValue
+    });
+  }
+}
+
+// Track scroll depth
+let scrollDepthTracked = {25: false, 50: false, 75: false, 100: false};
+function initScrollTracking(pageName) {
+  window.addEventListener('scroll', function() {
+    const scrollPercent = Math.round((window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100);
+    
+    if (scrollPercent >= 25 && !scrollDepthTracked[25]) {
+      scrollDepthTracked[25] = true;
+      if (isGtagAvailable()) {
+        gtag('event', 'scroll', {
+          'event_category': 'Scroll Depth',
+          'event_label': pageName,
+          'scroll_depth': '25%'
+        });
+      }
+    }
+    if (scrollPercent >= 50 && !scrollDepthTracked[50]) {
+      scrollDepthTracked[50] = true;
+      if (isGtagAvailable()) {
+        gtag('event', 'scroll', {
+          'event_category': 'Scroll Depth',
+          'event_label': pageName,
+          'scroll_depth': '50%'
+        });
+      }
+    }
+    if (scrollPercent >= 75 && !scrollDepthTracked[75]) {
+      scrollDepthTracked[75] = true;
+      if (isGtagAvailable()) {
+        gtag('event', 'scroll', {
+          'event_category': 'Scroll Depth',
+          'event_label': pageName,
+          'scroll_depth': '75%'
+        });
+      }
+    }
+    if (scrollPercent >= 100 && !scrollDepthTracked[100]) {
+      scrollDepthTracked[100] = true;
+      if (isGtagAvailable()) {
+        gtag('event', 'scroll', {
+          'event_category': 'Scroll Depth',
+          'event_label': pageName,
+          'scroll_depth': '100%'
+        });
+      }
+    }
+  });
+}
+
+// Auto-initialize scroll tracking when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+  const pageName = document.title || window.location.pathname;
+  initScrollTracking(pageName);
+});
+</script>
+
+
+    <!-- Structured Data (JSON-LD) for SEO -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
       "@type": "Organization",
       "name": "Specifys.ai",
-      "logo": {
-        "@type": "ImageObject",
-        "url": "assets/logo.png"
+      "url": "https://specifys-ai.com",
+      "logo": "https://specifys-ai.com/favicon.ico",
+      "description": "AI-powered app planning and specification generation platform",
+      "sameAs": [
+        "https://www.linkedin.com/company/specifys-ai/"
+      ],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "email": "specifysai@gmail.com",
+        "contactType": "Customer Service"
       }
     },
-            "url": "how.html",
-    "mainEntityOfPage": {
-      "@type": "WebPage",
-              "@id": "how.html"
+    {
+      "@type": "WebSite",
+      "name": "Specifys.ai",
+      "url": "https://specifys-ai.com",
+      "description": "Plan your app smarter with AI-driven insights and tools",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://specifys-ai.com/pages/ToolPicker.html?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
     },
-    "keywords": "specifys.ai, how it works, app development, vibe coding"
-  }
-  </script>
-  <title>How It Works - Specifys.ai</title>
-  <link rel="icon" type="image/x-icon" href="../favicon.ico">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-
-  
-  <!-- Breadcrumbs CSS -->
-  <style>
-    .breadcrumb-nav {
-      background: #f8f9fa;
-      padding: 10px 20px;
-      border-bottom: 1px solid #e9ecef;
+    {
+      "@type": "SoftwareApplication",
+      "name": "Specifys.ai",
+      "applicationCategory": "DevelopmentApplication",
+      "operatingSystem": "Web",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "ratingCount": "250"
+      },
+      "description": "AI-powered app planning platform with specification generator, market research tools, and vibe coding tools map"
     }
-    
-    .breadcrumb-list {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      align-items: center;
-    }
-    
-    .breadcrumb-item {
-      display: flex;
-      align-items: center;
-    }
-    
-    .breadcrumb-item:not(:last-child)::after {
-      content: ">";
-      margin: 0 10px;
-      color: #6c757d;
-    }
-    
-    .breadcrumb-item a {
-      color: #0078d4;
-      text-decoration: none;
-      font-weight: 500;
-    }
-    
-    .breadcrumb-item a:hover {
-      text-decoration: underline;
-    }
-    
-    .breadcrumb-item[aria-current="page"] {
-      color: #6c757d;
-      font-weight: 600;
-    }
-    
-  </style>
-  
-  <style>
-    @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap");
-
-    :root {
-      --bg-color: #f5f5f5;
-      --text-color: #333;
-      --primary-color: #0078d4;
-      --secondary-color: #6c757d;
-      --light-gray: #e9ecef;
-      --border-color: #dee2e6;
-      --chat-bg: #fff;
-      --system-msg-bg: #f8f9fa;
-      --user-msg-bg: #0078d4;
-      --user-msg-text: #fff;
-      --input-bg: #fff;
-      --input-border: #dee2e6;
-      --button-hover: #005ea2;
-      --progress-bg: #e9ecef;
-      --progress-fill: #0078d4;
-      --chat-header-bg: #0078d4;
-      --chat-header-text: #fff;
-    }
+  ]
+}
+</script>
 
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    html { height: 100%; }
-    body { font-family: "Montserrat", sans-serif; position: relative; overflow-x: hidden; display: flex; flex-direction: column; min-height: 100%; background: #f5f5f5; transition: background 0.3s ease, color 0.3s ease; }
-    
-    .content-box { max-width: 1200px; margin: 80px auto 40px; padding: 30px; background: rgba(255, 255, 255, 0.95); border-radius: 15px; box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15); flex-grow: 1; }
-    .content-box h1 { font-size: clamp(1.8rem, 4vw, 2.5rem); font-weight: 700; color: #333; margin-bottom: 20px; text-align: center; }
-    .content-box > p { font-size: 1.1rem; color: #666; text-align: center; margin-bottom: 40px; line-height: 1.6; }
-    .tracks-container { display: flex; flex-direction: row; gap: 20px; overflow-x: auto; padding-bottom: 10px; }
-    .track-card { background: #fff; border-radius: 10px; padding: 20px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); transition: transform 0.3s ease; flex: 1; min-width: 280px; display: flex; flex-direction: column; }
-    .track-card:hover { transform: translateY(-5px); }
-    .track-card h2 { font-size: 1.5rem; font-weight: 700; color: #0078d4; margin-bottom: 15px; }
-    .track-card p { font-size: 1rem; color: #666; margin-bottom: 20px; line-height: 1.6; flex-grow: 0; }
-    .track-card ul { list-style: none; padding: 0; margin-bottom: 20px; flex-grow: 1; }
-    .track-card li { font-size: 0.95rem; color: #333; margin-bottom: 10px; position: relative; padding-left: 20px; }
-    .track-card li::before { content: "\f058"; font-family: "Font Awesome 6 Free"; font-weight: 900; color: #0078d4; position: absolute; left: 0; top: 2px; }
-    .track-card .btn { display: inline-block; padding: 10px 20px; background: #0078d4; color: #fff; text-decoration: none; border-radius: 5px; font-size: 1rem; font-weight: 700; transition: background-color 0.3s ease, transform 0.3s ease; align-self: center; }
-    .track-card .btn:hover { background: #005ea2; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); }
-    
-    @media (max-width: 768px) {
-      .content-box { margin: 40px 15px; padding: 20px; }
-      .content-box h1 { font-size: clamp(1.4rem, 3vw, 2rem); }
-      .content-box > p { font-size: 1rem; }
-      .track-card { min-width: 240px; padding: 15px; }
-      .track-card h2 { font-size: 1.3rem; }
-      .track-card p, .track-card li { font-size: 0.9rem; }
-      .track-card .btn { padding: 8px 16px; font-size: 0.9rem; }
-    }
-    @media (max-width: 480px) {
-      .content-box { margin: 40px 10px; padding: 15px; }
-      .content-box h1 { font-size: clamp(1.2rem, 3vw, 1.8rem); }
-      .track-card h2 { font-size: 1.2rem; }
-      .track-card p, .track-card li { font-size: 0.85rem; }
-      .track-card .btn { padding: 6px 12px; font-size: 0.8rem; }
-    }
-
-    /* Header Layout Styles */
-    .thematic-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 15px 20px;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      background: var(--bg-color, #f5f5f5);
-      border-bottom: 1px solid var(--border-color, #ddd);
-      z-index: 100;
-      transition: background 0.3s ease, border-color 0.3s ease;
-    }
-
-
-    .header-left {
-      display: flex;
-      align-items: center;
-    }
-
-    .header-center {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      position: absolute;
-      left: 0;
-      right: 0;
-      top: 0;
-      bottom: 0;
-      pointer-events: none;
-    }
-
-    .header-center .logo {
-      pointer-events: auto;
-    }
-
-    .header-right {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    /* Logo Styles */
-    .logo a {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--text-color, #333);
-      text-decoration: none;
-      transition: color 0.3s ease;
-    }
-
-
-    .logo a:hover {
-      color: var(--primary-color, #0078d4);
-    }
-
-
-    /* Auth System Styles */
-    .auth-buttons {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      position: relative;
-      z-index: 10000;
-    }
-
-    .auth-btn {
-      padding: 0.5rem 1rem;
-      border: none;
-      border-radius: 8px;
-      text-decoration: none;
-      font-size: 0.9rem;
-      font-weight: 700;
-      transition: all 0.3s ease;
-      cursor: pointer;
-      background: transparent;
-      color: #666;
-    }
-
-    .auth-btn:hover {
-      color: var(--primary-color, #0078d4);
-      transform: translateY(-2px);
-    }
-
-    .auth-btn.primary {
-      background: var(--primary-color, #0078d4);
-      color: white;
-    }
-
-    .auth-btn.primary:hover {
-      background: var(--button-hover, #005ea2);
-    }
-
-    /* User Info & Dropdown */
-    .user-info {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.5rem 1rem;
-      background: rgba(102, 102, 102, 0.1);
-      border-radius: 20px;
-      border: 1px solid rgba(102, 102, 102, 0.2);
-      color: #666;
-      font-size: 0.9rem;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .user-info:hover {
-      background: rgba(102, 102, 102, 0.2);
-      transform: translateY(-2px);
-    }
-
-    .user-avatar {
-      width: 24px;
-      height: 24px;
-      background: #666;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.8rem;
-      font-weight: bold;
-      color: white;
-    }
-
-
-
-
-
-    /* Mobile Responsive */
-    @media (max-width: 768px) {
-      .thematic-header {
-        padding: 10px 15px;
-      }
-      
-      .header-left {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-      }
-      
-      .header-right {
-        gap: 0.5rem;
-      }
-      
-      
-      .auth-buttons {
-        gap: 0.5rem;
-        margin-right: 0;
-      }
-      
-      .auth-btn {
-        padding: 0.4rem 0.8rem;
-        font-size: 0.8rem;
-      }
-      
-      .user-info {
-        padding: 0.4rem 0.8rem;
-        font-size: 0.8rem;
-      }
-      
-      .user-avatar {
-        width: 20px;
-        height: 20px;
-        font-size: 0.7rem;
-      }
-      
-      
-      
-    }
-
-    /* Footer Styles */
-    footer {
-      padding: 20px 10px;
-      text-align: center;
-      width: 100%;
-      color: #333;
-      flex-shrink: 0;
-      background: #fff;
-      box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
-    }
-
-
-    .footer-content {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: center;
-      gap: 20px;
-      flex-wrap: wrap;
-    }
-
-    .footer-links {
-      display: flex;
-      justify-content: center;
-      gap: 15px;
-      flex-wrap: wrap;
-    }
-
-    .footer-links a {
-      color: #333;
-      text-decoration: none;
-      font-size: 0.85rem;
-      font-weight: 500;
-      transition: color 0.3s ease;
-    }
-
-
-    .footer-links a:hover {
-      color: #0078d4;
-    }
-
-    .footer-divider {
-      color: #333;
-      font-size: 1.2rem;
-      font-weight: 300;
-    }
-
-
-    .footer-social {
-      display: flex;
-      justify-content: center;
-      gap: 15px;
-      flex-wrap: wrap;
-    }
-
-    .footer-social a {
-      color: #333;
-      font-size: 1.2rem;
-      transition: transform 0.3s ease, color 0.3s ease;
-    }
-
-
-    .footer-social a:hover {
-      color: #0078d4;
-      transform: scale(1.2);
-    }
-
-    .footer-copyright {
-      font-size: 0.8rem;
-      color: #666;
-      margin-top: 1rem;
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    /* Scroll to Top Button */
-    .scroll-to-top {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: #0078d4;
-      color: #fff;
-      border: none;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      font-size: 1.2rem;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-      z-index: 1000;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .scroll-to-top:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-    }
-
-  </style>
 </head>
+
+
 <body>
-  <!-- Breadcrumbs Navigation -->
-  <nav aria-label="Breadcrumb" class="breadcrumb-nav">
-    <ol class="breadcrumb-list">
-      <li class="breadcrumb-item"><a href="../index.html">Home</a></li>
-      <li class="breadcrumb-item" aria-current="page">How It Works</li>
-    </ol>
-  </nav>
-  
-  <header class="thematic-header" role="banner">
-    <div class="header-left">
-    </div>
+    <!-- Header -->
+    <!-- Header -->
+<header class="thematic-header" role="banner">
     <div class="header-center">
-    <div class="logo">
-      <a href="../index.html" aria-label="Specifys.ai homepage">Specifys.ai</a>
-      </div>
+        <div class="logo">
+            <a href="/" aria-label="Specifys.ai homepage">
+                <span class="logo-text">Specifys.AI</span>
+            </a>
+        </div>
     </div>
     <div class="header-right">
-      <div class="auth-buttons" id="auth-buttons">
-        <!-- Will be populated by auth system -->
-      </div>
+        <div class="auth-buttons" id="auth-buttons">
+            <!-- Will be populated by auth system -->
+        </div>
     </div>
-  </header>
-  <div class="content-box">
-    <h1>How It Works</h1>
-    <p>Specifys.ai empowers you to transform your app idea into reality with our AI-driven platform, supporting vibe coding for a creative and intuitive development flow. Choose from our specialized tracks to create detailed specifications or conduct comprehensive market research for your project.</p>
-    <div class="tracks-container">
-      <div class="track-card">
-        <h2>Non-Programmers</h2>
-        <p>Perfect for people without coding experience who want a clear specification for a fully coded app to share with developers.</p>
-        <ul>
-          <li>Describe your app idea in simple terms.</li>
-          <li>Answer guided questions about features and users.</li>
-          <li>Receive a user-friendly specification for a coded app.</li>
-          <li>Export as PDF to share with developers.</li>
-        </ul>
-        <a href="../tools/processing-novice.html" class="btn" aria-label="Start creating your app specification">Start Non-Programmers Track</a>
-      </div>
-      <div class="track-card">
-        <h2>Entrepreneurs</h2>
-        <p>Ideal for visionaries who want to validate their app idea with in-depth market research.</p>
-        <ul>
-          <li>Share your app concept and target market.</li>
-          <li>Answer questions about competition and goals.</li>
-          <li>Receive a detailed market research report.</li>
-          <li>Export as PDF to pitch to investors or stakeholders.</li>
-        </ul>
-        <a href="../tools/processing-market.html" class="btn" aria-label="Start researching your app idea">Start Entrepreneurs Track</a>
-      </div>
-    </div>
+</header>
+
+<style>
+/* Logo dark grey color - using site's color palette */
+.logo a,
+.logo-text {
+    color: #333 !important;
+}
+
+.logo a:hover {
+    color: #444 !important;
+}
+</style>
+
+
     
-    <!-- Available Tools Section -->
-    <div class="tools-section" style="margin-top: 50px; padding-top: 40px; border-top: 2px solid #e9ecef;">
-      <h2 style="text-align: center; color: #0078d4; margin-bottom: 30px;">Our Comprehensive Tool Suite</h2>
-      <p style="text-align: center; color: #666; margin-bottom: 40px; font-size: 1.1rem;">Explore our powerful collection of AI-driven tools designed to support every aspect of your app development journey.</p>
-      
-      <div class="tools-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 30px; margin-top: 30px;">
-        
-        <!-- Vibe Coding Tools Map -->
-        <div class="tool-card" style="background: #fff; padding: 30px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); border-left: 5px solid #0078d4;">
-          <div class="tool-icon" style="font-size: 2.5rem; color: #0078d4; margin-bottom: 20px;">
-            <i class="fas fa-map-marked-alt"></i>
-          </div>
-          <h3 style="color: #333; margin-bottom: 15px; font-size: 1.4rem;">Vibe Coding Tools Map</h3>
-          <p style="color: #666; line-height: 1.6; margin-bottom: 20px;">Navigate through our comprehensive map of AI-powered development tools. Discover the perfect tools for your specific project needs, from no-code platforms to advanced coding environments.</p>
-          <ul style="list-style: none; padding: 0; margin-bottom: 25px;">
-            <li style="margin-bottom: 8px; color: #333; position: relative; padding-left: 20px;">
-              <i class="fas fa-check" style="color: #0078d4; position: absolute; left: 0; top: 2px;"></i>
-              Curated collection of 100+ AI development tools
-            </li>
-            <li style="margin-bottom: 8px; color: #333; position: relative; padding-left: 20px;">
-              <i class="fas fa-check" style="color: #0078d4; position: absolute; left: 0; top: 2px;"></i>
-              Interactive filtering by category and features
-            </li>
-            <li style="margin-bottom: 8px; color: #333; position: relative; padding-left: 20px;">
-              <i class="fas fa-check" style="color: #0078d4; position: absolute; left: 0; top: 2px;"></i>
-              Detailed tool comparisons and recommendations
-            </li>
-          </ul>
-          <a href="../tools/map/vibe-coding-tools-map.html" class="btn" style="background: #0078d4; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 700; display: inline-block; transition: all 0.3s ease;">Explore Tools Map</a>
-        </div>
+    <!-- Main Content -->
+    <main class="main-content">
+        <p class="how-intro">Specifys.ai empowers you to transform your app idea into reality with our AI-driven platform, supporting vibe coding for a creative and intuitive development flow. Choose from our specialized tracks to create detailed specifications or conduct comprehensive market research for your project.</p>
 
-        <!-- AI Tool Finder -->
-        <div class="tool-card" style="background: #fff; padding: 30px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); border-left: 5px solid #28a745;">
-          <div class="tool-icon" style="font-size: 2.5rem; color: #28a745; margin-bottom: 20px;">
-            <i class="fas fa-search-plus"></i>
-          </div>
-          <h3 style="color: #333; margin-bottom: 15px; font-size: 1.4rem;">AI Tool Finder</h3>
-          <p style="color: #666; line-height: 1.6; margin-bottom: 20px;">Our intelligent tool recommendation system analyzes your project requirements and suggests the most suitable development platforms and tools for your specific needs.</p>
-          <ul style="list-style: none; padding: 0; margin-bottom: 25px;">
-            <li style="margin-bottom: 8px; color: #333; position: relative; padding-left: 20px;">
-              <i class="fas fa-check" style="color: #28a745; position: absolute; left: 0; top: 2px;"></i>
-              Personalized tool recommendations
-            </li>
-            <li style="margin-bottom: 8px; color: #333; position: relative; padding-left: 20px;">
-              <i class="fas fa-check" style="color: #28a745; position: absolute; left: 0; top: 2px;"></i>
-              Skill level and project type matching
-            </li>
-            <li style="margin-bottom: 8px; color: #333; position: relative; padding-left: 20px;">
-              <i class="fas fa-check" style="color: #28a745; position: absolute; left: 0; top: 2px;"></i>
-              Direct integration with recommended tools
-            </li>
-          </ul>
-          <a href="ToolPicker.html" class="btn" style="background: #28a745; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 700; display: inline-block; transition: all 0.3s ease;">Find Your Tools</a>
-        </div>
-
-        <!-- Specification Generator -->
-        <div class="tool-card" style="background: #fff; padding: 30px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); border-left: 5px solid #ffc107;">
-          <div class="tool-icon" style="font-size: 2.5rem; color: #ffc107; margin-bottom: 20px;">
-            <i class="fas fa-file-alt"></i>
-          </div>
-          <h3 style="color: #333; margin-bottom: 15px; font-size: 1.4rem;">Smart Specification Generator</h3>
-          <p style="color: #666; line-height: 1.6; margin-bottom: 20px;">Transform your app ideas into comprehensive, developer-ready specifications using our AI-powered generation system.</p>
-          <ul style="list-style: none; padding: 0; margin-bottom: 25px;">
-            <li style="margin-bottom: 8px; color: #333; position: relative; padding-left: 20px;">
-              <i class="fas fa-check" style="color: #ffc107; position: absolute; left: 0; top: 2px;"></i>
-              Interactive questionnaire system
-            </li>
-            <li style="margin-bottom: 8px; color: #333; position: relative; padding-left: 20px;">
-              <i class="fas fa-check" style="color: #ffc107; position: absolute; left: 0; top: 2px;"></i>
-              Technical and business requirement analysis
-            </li>
-            <li style="margin-bottom: 8px; color: #333; position: relative; padding-left: 20px;">
-              <i class="fas fa-check" style="color: #ffc107; position: absolute; left: 0; top: 2px;"></i>
-              Export to multiple formats (PDF, JSON, Markdown)
-            </li>
-          </ul>
-          <a href="../tools/processing-unified.html" class="btn" style="background: #ffc107; color: #333; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 700; display: inline-block; transition: all 0.3s ease;">Generate Specification</a>
-        </div>
-
-        <!-- Market Research Analyzer -->
-        <div class="tool-card" style="background: #fff; padding: 30px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); border-left: 5px solid #dc3545;">
-          <div class="tool-icon" style="font-size: 2.5rem; color: #dc3545; margin-bottom: 20px;">
-            <i class="fas fa-chart-line"></i>
-          </div>
-          <h3 style="color: #333; margin-bottom: 15px; font-size: 1.4rem;">Market Research Analyzer</h3>
-          <p style="color: #666; line-height: 1.6; margin-bottom: 20px;">Conduct comprehensive market research and competitive analysis to validate your app idea and identify market opportunities.</p>
-          <ul style="list-style: none; padding: 0; margin-bottom: 25px;">
-            <li style="margin-bottom: 8px; color: #333; position: relative; padding-left: 20px;">
-              <i class="fas fa-check" style="color: #dc3545; position: absolute; left: 0; top: 2px;"></i>
-              Competitive landscape analysis
-            </li>
-            <li style="margin-bottom: 8px; color: #333; position: relative; padding-left: 20px;">
-              <i class="fas fa-check" style="color: #dc3545; position: absolute; left: 0; top: 2px;"></i>
-              Target audience identification
-            </li>
-            <li style="margin-bottom: 8px; color: #333; position: relative; padding-left: 20px;">
-              <i class="fas fa-check" style="color: #dc3545; position: absolute; left: 0; top: 2px;"></i>
-              Investment-ready market reports
-            </li>
-          </ul>
-          <a href="../tools/processing-market.html" class="btn" style="background: #dc3545; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 700; display: inline-block; transition: all 0.3s ease;">Analyze Market</a>
-        </div>
-
-        <!-- Project Dashboard -->
-        <div class="tool-card" style="background: #fff; padding: 30px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); border-left: 5px solid #6f42c1;">
-          <div class="tool-icon" style="font-size: 2.5rem; color: #6f42c1; margin-bottom: 20px;">
-            <i class="fas fa-tachometer-alt"></i>
-          </div>
-          <h3 style="color: #333; margin-bottom: 15px; font-size: 1.4rem;">Project Dashboard</h3>
-          <p style="color: #666; line-height: 1.6; margin-bottom: 20px;">Manage all your app projects in one centralized location with our comprehensive project management dashboard.</p>
-          <ul style="list-style: none; padding: 0; margin-bottom: 25px;">
-            <li style="margin-bottom: 8px; color: #333; position: relative; padding-left: 20px;">
-              <i class="fas fa-check" style="color: #6f42c1; position: absolute; left: 0; top: 2px;"></i>
-              Project progress tracking
-            </li>
-            <li style="margin-bottom: 8px; color: #333; position: relative; padding-left: 20px;">
-              <i class="fas fa-check" style="color: #6f42c1; position: absolute; left: 0; top: 2px;"></i>
-              Document and asset management
-            </li>
-            <li style="margin-bottom: 8px; color: #333; position: relative; padding-left: 20px;">
-              <i class="fas fa-check" style="color: #6f42c1; position: absolute; left: 0; top: 2px;"></i>
-              Team collaboration features
-            </li>
-          </ul>
-          <a href="app-dashboard.html" class="btn" style="background: #6f42c1; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 700; display: inline-block; transition: all 0.3s ease;">Access Dashboard</a>
-        </div>
-
-        <!-- Development Environment -->
-        <div class="tool-card" style="background: #fff; padding: 30px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); border-left: 5px solid #17a2b8;">
-          <div class="tool-icon" style="font-size: 2.5rem; color: #17a2b8; margin-bottom: 20px;">
-            <i class="fas fa-code-branch"></i>
-          </div>
-          <h3 style="color: #333; margin-bottom: 15px; font-size: 1.4rem;">Smart Development Environment</h3>
-          <p style="color: #666; line-height: 1.6; margin-bottom: 20px;">Our integrated development environment connects specifications with market research and provides intelligent project management for vibe coding applications.</p>
-          <ul style="list-style: none; padding: 0; margin-bottom: 25px;">
-            <li style="margin-bottom: 8px; color: #333; position: relative; padding-left: 20px;">
-              <i class="fas fa-check" style="color: #17a2b8; position: absolute; left: 0; top: 2px;"></i>
-              Seamless specification-to-code workflow
-            </li>
-            <li style="margin-bottom: 8px; color: #333; position: relative; padding-left: 20px;">
-              <i class="fas fa-check" style="color: #17a2b8; position: absolute; left: 0; top: 2px;"></i>
-              AI-powered development assistance
-            </li>
-            <li style="margin-bottom: 8px; color: #333; position: relative; padding-left: 20px;">
-              <i class="fas fa-check" style="color: #17a2b8; position: absolute; left: 0; top: 2px;"></i>
-              Real-time collaboration tools
-            </li>
-          </ul>
-          <a href="../index.html" class="btn" style="background: #17a2b8; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 700; display: inline-block; transition: all 0.3s ease;">Try Development Environment</a>
-        </div>
-
-      </div>
-    </div>
-    
-    <!-- Smart Development Environment Section -->
-    <div class="development-environment-section" style="margin-top: 50px; padding-top: 40px; border-top: 2px solid #e9ecef;">
-      <h2 style="text-align: center; color: #0078d4; margin-bottom: 30px;">Smart Development Environment</h2>
-      <p style="text-align: center; color: #666; margin-bottom: 40px; font-size: 1.1rem;">Experience the future of app development with our integrated environment that seamlessly connects specifications, market research, and intelligent project management.</p>
-      
-      <div class="environment-overview" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px; border-radius: 20px; color: white; margin-bottom: 40px;">
-        <h3 style="text-align: center; margin-bottom: 20px; font-size: 1.8rem;">Revolutionary Vibe Coding Platform</h3>
-        <p style="text-align: center; font-size: 1.2rem; line-height: 1.6; opacity: 0.9;">Our development environment allows users to "connect" specifications and market research with intelligent vibe coding app management, including budget management, milestone tracking, and team task management.</p>
-      </div>
-      
-      <div class="environment-features" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; margin-top: 30px;">
-        
-        <!-- Specification Integration -->
-        <div class="feature-card" style="background: #fff; padding: 30px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); border-top: 5px solid #0078d4;">
-          <div class="feature-icon" style="font-size: 3rem; color: #0078d4; margin-bottom: 20px; text-align: center;">
-            <i class="fas fa-link"></i>
-          </div>
-          <h3 style="color: #333; margin-bottom: 15px; font-size: 1.4rem; text-align: center;">Specification Integration</h3>
-          <p style="color: #666; line-height: 1.6; margin-bottom: 20px;">Seamlessly connect your generated specifications with the development process. Our AI automatically translates your requirements into actionable development tasks.</p>
-          <ul style="list-style: none; padding: 0;">
-            <li style="margin-bottom: 10px; color: #333; position: relative; padding-left: 25px;">
-              <i class="fas fa-check-circle" style="color: #0078d4; position: absolute; left: 0; top: 2px;"></i>
-              Automatic requirement parsing and task generation
-            </li>
-            <li style="margin-bottom: 10px; color: #333; position: relative; padding-left: 25px;">
-              <i class="fas fa-check-circle" style="color: #0078d4; position: absolute; left: 0; top: 2px;"></i>
-              Real-time specification updates
-            </li>
-            <li style="margin-bottom: 10px; color: #333; position: relative; padding-left: 25px;">
-              <i class="fas fa-check-circle" style="color: #0078d4; position: absolute; left: 0; top: 2px;"></i>
-              Version control and change tracking
-            </li>
-          </ul>
-        </div>
-
-        <!-- Market Research Connection -->
-        <div class="feature-card" style="background: #fff; padding: 30px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); border-top: 5px solid #28a745;">
-          <div class="feature-icon" style="font-size: 3rem; color: #28a745; margin-bottom: 20px; text-align: center;">
-            <i class="fas fa-chart-network"></i>
-          </div>
-          <h3 style="color: #333; margin-bottom: 15px; font-size: 1.4rem; text-align: center;">Market Research Connection</h3>
-          <p style="color: #666; line-height: 1.6; margin-bottom: 20px;">Integrate market research findings directly into your development workflow. Make data-driven decisions throughout the entire app creation process.</p>
-          <ul style="list-style: none; padding: 0;">
-            <li style="margin-bottom: 10px; color: #333; position: relative; padding-left: 25px;">
-              <i class="fas fa-check-circle" style="color: #28a745; position: absolute; left: 0; top: 2px;"></i>
-              Competitive analysis integration
-            </li>
-            <li style="margin-bottom: 10px; color: #333; position: relative; padding-left: 25px;">
-              <i class="fas fa-check-circle" style="color: #28a745; position: absolute; left: 0; top: 2px;"></i>
-              Target audience insights in development
-            </li>
-            <li style="margin-bottom: 10px; color: #333; position: relative; padding-left: 25px;">
-              <i class="fas fa-check-circle" style="color: #28a745; position: absolute; left: 0; top: 2px;"></i>
-              Market validation during development
-            </li>
-          </ul>
-        </div>
-
-        <!-- Budget Management -->
-        <div class="feature-card" style="background: #fff; padding: 30px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); border-top: 5px solid #ffc107;">
-          <div class="feature-icon" style="font-size: 3rem; color: #ffc107; margin-bottom: 20px; text-align: center;">
-            <i class="fas fa-wallet"></i>
-          </div>
-          <h3 style="color: #333; margin-bottom: 15px; font-size: 1.4rem; text-align: center;">Smart Budget Management</h3>
-          <p style="color: #666; line-height: 1.6; margin-bottom: 20px;">Intelligent budget tracking and management system that helps you stay on track with your project finances throughout the development lifecycle.</p>
-          <ul style="list-style: none; padding: 0;">
-            <li style="margin-bottom: 10px; color: #333; position: relative; padding-left: 25px;">
-              <i class="fas fa-check-circle" style="color: #ffc107; position: absolute; left: 0; top: 2px;"></i>
-              Automated cost estimation
-            </li>
-            <li style="margin-bottom: 10px; color: #333; position: relative; padding-left: 25px;">
-              <i class="fas fa-check-circle" style="color: #ffc107; position: absolute; left: 0; top: 2px;"></i>
-              Real-time budget tracking
-            </li>
-            <li style="margin-bottom: 10px; color: #333; position: relative; padding-left: 25px;">
-              <i class="fas fa-check-circle" style="color: #ffc107; position: absolute; left: 0; top: 2px;"></i>
-              Resource allocation optimization
-            </li>
-          </ul>
-        </div>
-
-        <!-- Milestone Management -->
-        <div class="feature-card" style="background: #fff; padding: 30px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); border-top: 5px solid #dc3545;">
-          <div class="feature-icon" style="font-size: 3rem; color: #dc3545; margin-bottom: 20px; text-align: center;">
-            <i class="fas fa-flag-checkered"></i>
-          </div>
-          <h3 style="color: #333; margin-bottom: 15px; font-size: 1.4rem; text-align: center;">Intelligent Milestone Management</h3>
-          <p style="color: #666; line-height: 1.6; margin-bottom: 20px;">AI-powered milestone tracking that automatically adjusts timelines based on progress, complexity, and resource availability.</p>
-          <ul style="list-style: none; padding: 0;">
-            <li style="margin-bottom: 10px; color: #333; position: relative; padding-left: 25px;">
-              <i class="fas fa-check-circle" style="color: #dc3545; position: absolute; left: 0; top: 2px;"></i>
-              Dynamic timeline adjustment
-            </li>
-            <li style="margin-bottom: 10px; color: #333; position: relative; padding-left: 25px;">
-              <i class="fas fa-check-circle" style="color: #dc3545; position: absolute; left: 0; top: 2px;"></i>
-              Progress visualization and reporting
-            </li>
-            <li style="margin-bottom: 10px; color: #333; position: relative; padding-left: 25px;">
-              <i class="fas fa-check-circle" style="color: #dc3545; position: absolute; left: 0; top: 2px;"></i>
-              Risk assessment and mitigation
-            </li>
-          </ul>
-        </div>
-
-        <!-- Team Task Management -->
-        <div class="feature-card" style="background: #fff; padding: 30px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); border-top: 5px solid #6f42c1;">
-          <div class="feature-icon" style="font-size: 3rem; color: #6f42c1; margin-bottom: 20px; text-align: center;">
-            <i class="fas fa-users-cog"></i>
-          </div>
-          <h3 style="color: #333; margin-bottom: 15px; font-size: 1.4rem; text-align: center;">Advanced Team Management</h3>
-          <p style="color: #666; line-height: 1.6; margin-bottom: 20px;">Comprehensive team collaboration tools with intelligent task assignment, skill matching, and performance tracking.</p>
-          <ul style="list-style: none; padding: 0;">
-            <li style="margin-bottom: 10px; color: #333; position: relative; padding-left: 25px;">
-              <i class="fas fa-check-circle" style="color: #6f42c1; position: absolute; left: 0; top: 2px;"></i>
-              AI-powered task assignment
-            </li>
-            <li style="margin-bottom: 10px; color: #333; position: relative; padding-left: 25px;">
-              <i class="fas fa-check-circle" style="color: #6f42c1; position: absolute; left: 0; top: 2px;"></i>
-              Real-time collaboration tools
-            </li>
-            <li style="margin-bottom: 10px; color: #333; position: relative; padding-left: 25px;">
-              <i class="fas fa-check-circle" style="color: #6f42c1; position: absolute; left: 0; top: 2px;"></i>
-              Performance analytics and insights
-            </li>
-          </ul>
-        </div>
-
-        <!-- Vibe Coding Intelligence -->
-        <div class="feature-card" style="background: #fff; padding: 30px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); border-top: 5px solid #17a2b8;">
-          <div class="feature-icon" style="font-size: 3rem; color: #17a2b8; margin-bottom: 20px; text-align: center;">
-            <i class="fas fa-brain"></i>
-          </div>
-          <h3 style="color: #333; margin-bottom: 15px; font-size: 1.4rem; text-align: center;">Vibe Coding Intelligence</h3>
-          <p style="color: #666; line-height: 1.6; margin-bottom: 20px;">Advanced AI that understands your coding style and preferences, providing intelligent suggestions and automating repetitive development tasks.</p>
-          <ul style="list-style: none; padding: 0;">
-            <li style="margin-bottom: 10px; color: #333; position: relative; padding-left: 25px;">
-              <i class="fas fa-check-circle" style="color: #17a2b8; position: absolute; left: 0; top: 2px;"></i>
-              Context-aware code suggestions
-            </li>
-            <li style="margin-bottom: 10px; color: #333; position: relative; padding-left: 25px;">
-              <i class="fas fa-check-circle" style="color: #17a2b8; position: absolute; left: 0; top: 2px;"></i>
-              Automated testing and debugging
-            </li>
-            <li style="margin-bottom: 10px; color: #333; position: relative; padding-left: 25px;">
-              <i class="fas fa-check-circle" style="color: #17a2b8; position: absolute; left: 0; top: 2px;"></i>
-              Learning from your development patterns
-            </li>
-          </ul>
-        </div>
-
-      </div>
-      
-      <div class="environment-cta" style="text-align: center; margin-top: 40px; padding: 30px; background: #f8f9fa; border-radius: 15px;">
-        <h3 style="color: #333; margin-bottom: 15px; font-size: 1.5rem;">Ready to Experience the Future of App Development?</h3>
-        <p style="color: #666; margin-bottom: 25px; font-size: 1.1rem;">Join thousands of developers and entrepreneurs who are already using our smart development environment to build amazing applications.</p>
-        <a href="../index.html" class="btn" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 1.1rem; transition: all 0.3s ease; display: inline-block;">Try Development Environment</a>
-      </div>
-    </div>
-    
+<div class="tracks-container">
+  <div class="track-card">
+    <h2>Non-Programmers</h2>
+    <p>Perfect for people without coding experience who want a clear specification for a fully coded app to share with developers.</p>
+    <ul>
+      <li>Describe your app idea in simple terms.</li>
+      <li>Answer guided questions about features and users.</li>
+      <li>Receive a user-friendly specification for a coded app.</li>
+      <li>Export as PDF to share with developers.</li>
+    </ul>
+    <a href="/tools/processing-novice.html" class="btn" aria-label="Start creating your app specification" onclick="trackButtonClick('Start Non-Programmers Track', 'How It Works', 'track_card')">Start Non-Programmers Track</a>
   </div>
-  <button class="scroll-to-top" id="scrollToTop" aria-label="Scroll to top"><i class="fas fa-arrow-up"></i></button>
-  <footer>
-    <div class="footer-content">
-      <div class="footer-links">
-        <a href="../index.html" aria-label="Go to homepage">Home</a>
-        <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
-        <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
-        <a href="../blog/" aria-label="Visit our blog">Blog</a>
+  <div class="track-card">
+    <h2>Entrepreneurs</h2>
+    <p>Ideal for visionaries who want to validate their app idea with in-depth market research.</p>
+    <ul>
+      <li>Share your app concept and target market.</li>
+      <li>Answer questions about competition and goals.</li>
+      <li>Receive a detailed market research report.</li>
+      <li>Export as PDF to pitch to investors or stakeholders.</li>
+    </ul>
+    <a href="/tools/processing-market.html" class="btn" aria-label="Start researching your app idea" onclick="trackButtonClick('Start Entrepreneurs Track', 'How It Works', 'track_card')">Start Entrepreneurs Track</a>
+  </div>
+</div>
+
+<!-- Available Tools Section -->
+<div class="tools-section">
+  <h2>Available Tools</h2>
+  <p>Explore our powerful collection of AI-driven tools designed to support every aspect of your app development journey.</p>
+  
+  <div class="tools-grid">
+    
+    <!-- Vibe Coding Tools Map -->
+    <div class="tool-card tools-map">
+      <div class="tool-icon tools-map-icon">
+        <i class="fas fa-map-marked-alt"></i>
       </div>
-      <span class="footer-divider">|</span>
-      <div class="footer-social">
-        <a href="https://www.linkedin.com/company/specifys-ai/" aria-label="Follow us on LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-        <a href="https://www.facebook.com/profile.php?id=61576402600129&locale=he_IL" target="_blank" aria-label="Follow us on Facebook"><i class="fab fa-facebook-f"></i></a>
-        <a href="https://www.instagram.com/YOUR_PROFILE" aria-label="Follow us on Instagram"><i class="fab fa-instagram"></i></a>
-        <a href="mailto:specifysai@gmail.com" aria-label="Send us an email"><i class="fas fa-envelope"></i></a>
-        <a href="https://www.producthunt.com/products/specifys-ai" target="_blank" aria-label="Check us out on Product Hunt"><i class="fab fa-product-hunt"></i></a>
-      </div>
+      <h3>Vibe Coding Tools Map</h3>
+      <p>Navigate through our comprehensive map of AI-powered development tools.</p>
+      <ul>
+        <li>
+          <i class="fas fa-check"></i>
+          Curated collection of 100+ AI development tools
+        </li>
+        <li>
+          <i class="fas fa-check"></i>
+          Interactive filtering by category and features
+        </li>
+        <li>
+          <i class="fas fa-check"></i>
+          Detailed tool comparisons and recommendations
+        </li>
+      </ul>
+      <a href="/tools/map/vibe-coding-tools-map.html" class="btn" onclick="trackToolUsage('Vibe Coding Tools Map', 'explore_from_how')">Explore Tools Map</a>
     </div>
-    <div class="footer-copyright">© 2025 specifys.ai. All rights reserved.</div>
-  </footer>
 
-  <script type="module">
-    // Import Firebase SDK
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { 
-      createUserWithEmailAndPassword, 
-      signInWithEmailAndPassword, 
-      signOut, 
-      onAuthStateChanged,
-      GoogleAuthProvider,
-      signInWithPopup,
-      getAuth
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    <!-- AI Tool Finder -->
+    <div class="tool-card tool-finder">
+      <div class="tool-icon tool-finder-icon">
+        <i class="fas fa-search-plus"></i>
+      </div>
+      <h3>AI Tool Finder</h3>
+      <p>Our intelligent tool recommendation system analyzes your project requirements.</p>
+      <ul>
+        <li>
+          <i class="fas fa-check"></i>
+          Personalized tool recommendations
+        </li>
+        <li>
+          <i class="fas fa-check"></i>
+          Skill level and project type matching
+        </li>
+        <li>
+          <i class="fas fa-check"></i>
+          Direct integration with recommended tools
+        </li>
+      </ul>
+      <a href="/pages/ToolPicker.html" class="btn" onclick="trackToolUsage('Tool Finder', 'find_from_how')">Find Your Tools</a>
+    </div>
 
-    import { 
-      collection, 
-      addDoc,
-      serverTimestamp,
-      getFirestore
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    <!-- Specification Generator -->
+    <div class="tool-card spec-generator">
+      <div class="tool-icon spec-generator-icon">
+        <i class="fas fa-file-alt"></i>
+      </div>
+      <h3>Smart Specification Generator</h3>
+      <p>Transform your app ideas into comprehensive, developer-ready specifications.</p>
+      <ul>
+        <li>
+          <i class="fas fa-check"></i>
+          Interactive questionnaire system
+        </li>
+        <li>
+          <i class="fas fa-check"></i>
+          Technical and business requirement analysis
+        </li>
+        <li>
+          <i class="fas fa-check"></i>
+          Export to multiple formats (PDF, JSON, Markdown)
+        </li>
+      </ul>
+      <a href="/processing-unified.html" class="btn" onclick="trackButtonClick('Generate Specification', 'Tools', 'how_page')">Generate Specification</a>
+    </div>
 
-    // Firebase configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyB9hr0IWM4EREzkKDxBxYoYinV6LJXWXV4",
-      authDomain: "specify-ai.firebaseapp.com",
-      projectId: "specify-ai",
-      storageBucket: "specify-ai.firebasestorage.app",
-      messagingSenderId: "734278787482",
-      appId: "1:734278787482:web:0e312fb6f197e849695a23",
-      measurementId: "G-4YR9LK63MR"
-    };
+    <!-- Market Research Analyzer -->
+    <div class="tool-card market-research">
+      <div class="tool-icon market-research-icon">
+        <i class="fas fa-chart-line"></i>
+      </div>
+      <h3>Market Research Analyzer</h3>
+      <p>Conduct comprehensive market research and competitive analysis.</p>
+      <ul>
+        <li>
+          <i class="fas fa-check"></i>
+          Competitive landscape analysis
+        </li>
+        <li>
+          <i class="fas fa-check"></i>
+          Target audience identification
+        </li>
+        <li>
+          <i class="fas fa-check"></i>
+          Investment-ready market reports
+        </li>
+      </ul>
+      <a href="/tools/processing-market.html" class="btn" onclick="trackButtonClick('Analyze Market', 'Tools', 'how_page')">Analyze Market</a>
+    </div>
 
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    const googleProvider = new GoogleAuthProvider();
+  </div>
+</div>
 
-    // Auth state change handler
-    onAuthStateChanged(auth, (user) => {
-      updateAuthUI(user);
-    });
 
-    // Update auth UI function
-    function updateAuthUI(user) {
-      const authButtons = document.getElementById('auth-buttons');
-      if (!authButtons) return;
+    </main>
+    
+    <!-- Footer -->
+    <!-- Footer -->
+<footer>
+  <div class="footer-content">
+    <div class="footer-links">
+      <a href="/pages/how.html" aria-label="Learn how specifys.ai works">How It Works</a>
+      <a href="/pages/about.html" aria-label="Learn more about specifys.ai">About Us</a>
+      <a href="/blog/" aria-label="Visit our blog">Blog</a>
+      <a href="/tools/map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
+      <a href="/pages/ToolPicker.html" aria-label="Use our Tool Finder">Tool Finder</a>
+    </div>
+    <span class="footer-divider">|</span>
+    <div class="footer-social">
+      <a href="https://www.linkedin.com/company/specifys-ai/" target="_blank" aria-label="Follow us on LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+      <a href="https://www.facebook.com/profile.php?id=61576402600129&locale=he_IL" target="_blank" aria-label="Follow us on Facebook"><i class="fab fa-facebook-f"></i></a>
+      <a href="https://www.instagram.com/YOUR_PROFILE" target="_blank" aria-label="Follow us on Instagram"><i class="fab fa-instagram"></i></a>
+      <a href="mailto:specifysai@gmail.com" aria-label="Send us an email"><i class="fas fa-envelope"></i></a>
+      <a href="https://www.producthunt.com/products/specifys-ai" target="_blank" aria-label="Check us out on Product Hunt"><i class="fab fa-product-hunt"></i></a>
+    </div>
+  </div>
+  <div class="footer-copyright">
+    © 2025 specifys.ai. All rights reserved.
+  </div>
+</footer>
+
+    
+    <!-- Scroll to top button -->
+    <!-- Scroll to top button -->
+<button class="icon-btn scroll-to-top" id="scrollToTop" aria-label="Scroll">
+  <i class="fas fa-arrow-up"></i>
+</button>
+
+<script>
+  // Scroll button functionality
+  document.addEventListener('DOMContentLoaded', function() {
+    const scrollBtn = document.getElementById('scrollToTop');
+    
+    if (scrollBtn) {
+      // Handle click - scroll to top or bottom based on current state
+      scrollBtn.addEventListener("click", () => {
+        if (window.scrollY > 300) {
+          // If scrolled down, go to top
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        } else {
+          // If at top, scroll to bottom
+          window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+        }
+      });
       
-      if (user) {
-        // User is logged in
-        const displayName = user.displayName || user.email.split('@')[0];
-        const firstLetter = displayName.charAt(0).toUpperCase();
-        
-        authButtons.innerHTML = `
-          <div class="user-info" onclick="window.location.href='profile.html'">
-            <div class="user-avatar">${firstLetter}</div>
-            <span>${displayName}</span>
-          </div>
-        `;
-      } else {
-        // User is not logged in
-        authButtons.innerHTML = `
-          <button class="auth-btn" onclick="showLoginModal()">Login</button>
-          <button class="auth-btn primary" onclick="showRegisterModal()">Register</button>
-        `;
+      // Rotate button based on scroll position
+      window.addEventListener("scroll", () => {
+        if (window.scrollY > 300) {
+          scrollBtn.classList.add("scrolled-down");
+          scrollBtn.setAttribute("aria-label", "Scroll to top");
+        } else {
+          scrollBtn.classList.remove("scrolled-down");
+          scrollBtn.setAttribute("aria-label", "Scroll to bottom");
+        }
+      });
+    }
+  });
+</script>
+
+
+    
+    <!-- Firebase SDK & Auth -->
+    
+    <!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<script>
+  // Firebase Configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyB9hr0IWM4EREzkKDxBxYoYinV6LJXWXV4",
+    authDomain: "specify-ai.firebaseapp.com",
+    projectId: "specify-ai",
+    storageBucket: "specify-ai.firebasestorage.app",
+    messagingSenderId: "734278787482",
+    appId: "1:734278787482:web:0e312fb6f197e849695a23",
+    measurementId: "G-4YR9LK63MR"
+  };
+
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+</script>
+
+
+    <script>
+  // Auth UI functions
+  function updateAuthUI(user) {
+    const authButtons = document.getElementById('auth-buttons');
+    if (!authButtons) return;
+    
+    if (user) {
+      // User is logged in
+      const displayName = user.displayName || user.email.split('@')[0];
+      const firstLetter = displayName.charAt(0).toUpperCase();
+      
+      authButtons.innerHTML = `
+        <a href="/pages/profile.html" class="user-info" style="text-decoration: none;">
+          <div class="user-avatar">${firstLetter}</div>
+          <span>${displayName}</span>
+        </a>
+      `;
+    } else {
+      // User is not logged in
+      authButtons.innerHTML = `
+        <button class="auth-btn" onclick="showLoginModal()">Login</button>
+      `;
+    }
+  }
+
+  // Global auth functions
+  window.showLoginModal = function() {
+    if (typeof trackButtonClick !== 'undefined') {
+      trackButtonClick('Show Login', 'Authentication', 'header');
+    }
+    window.location.href = '/pages/auth.html';
+  };
+
+  window.showRegisterModal = function() {
+    if (typeof trackButtonClick !== 'undefined') {
+      trackButtonClick('Show Register', 'Authentication', 'header');
+    }
+    window.location.href = '/pages/auth.html';
+  };
+
+  window.logout = function() {
+    if (typeof trackAuthEvent !== 'undefined') {
+      trackAuthEvent('logout', 'email');
+    }
+    auth.signOut()
+      .then(() => {
+        console.log('Logged out successfully');
+      })
+      .catch(error => {
+        console.error('Error logging out:', error);
+      });
+  };
+
+  // Listen to auth state changes
+  auth.onAuthStateChanged((user) => {
+    updateAuthUI(user);
+  });
+
+  // Initialize auth buttons with default state
+  document.addEventListener('DOMContentLoaded', function() {
+    const authButtons = document.getElementById('auth-buttons');
+    if (authButtons && !authButtons.innerHTML.trim()) {
+      authButtons.innerHTML = `
+        <button class="auth-btn login-btn">Login</button>
+      `;
+      
+      const loginBtn = authButtons.querySelector('.login-btn');
+      if (loginBtn) {
+        loginBtn.addEventListener('click', function(event) {
+          event.stopPropagation();
+          window.location.href = '/pages/auth.html';
+        });
       }
     }
-
-    // Global auth functions
-    window.showLoginModal = function() {
-      window.location.href = 'auth.html';
-    };
-
-    window.showRegisterModal = function() {
-      window.location.href = 'auth.html';
-    };
-
-    window.logout = function() {
-      signOut(auth)
-        .then(() => {
-          console.log('Logged out successfully');
-          window.location.href = '../index.html';
-        })
-        .catch(error => {
-          console.error('Error logging out:', error);
-          alert('Logout error: ' + error.message);
-        });
-    };
-
-    // Basic header functionality
-    document.addEventListener('DOMContentLoaded', function() {
-      
-      
-    });
+  });
+</script>
 
 
-    // Initialize auth buttons with default state
-    document.addEventListener('DOMContentLoaded', function() {
-      const authButtons = document.getElementById('auth-buttons');
-      if (authButtons && !authButtons.innerHTML.trim()) {
-        authButtons.innerHTML = `
-          <button class="auth-btn login-btn">Login</button>
-        `;
-        
-        const loginBtn = authButtons.querySelector('.login-btn');
-        if (loginBtn) {
-          loginBtn.addEventListener('click', function(event) {
-            event.stopPropagation();
-            window.location.href = 'auth.html';
-          });
-        }
-      }
-    });
-
-    // Auth functions will be handled by the modern Firebase v9+ script above
-
-  </script>
-  <noscript>
-    <div style="text-align: center; padding: 20px; background: #fff; color: #333;">
-      <p>This website requires JavaScript to function properly. Please enable JavaScript in your browser settings.</p>
-    </div>
-  </noscript>
+    
 </body>
 </html>

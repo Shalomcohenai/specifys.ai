@@ -1,753 +1,820 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="AI Tool Finder - Specifys.ai">
-  <meta name="description" content="Find the best NoCode or coding tool for your app with Specifys.ai's AI Tool Finder.">
-  <meta name="keywords" content="NoCode tool Finder, coding tool Finder, app development tools, Specifys.ai, vibe coding">
-  <meta name="author" content="Specifys.ai Team">
-  <meta name="robots" content="index, follow">
-  <meta name="googlebot" content="index, follow">
-  <meta name="bingbot" content="index, follow">
-  <meta name="revisit-after" content="7 days">
-  <meta name="language" content="English">
-  <meta name="copyright" content="© 2025 Specifys.ai">
-  <meta name="publisher" content="Specifys.ai">
-  <meta name="distribution" content="global">
-  <meta name="rating" content="general">
-  <meta name="theme-color" content="#0078d4">
-  <meta name="canonical" content="https://specifys.ai/ToolFinder.html">
-  <meta property="og:title" content="Specifys.ai - AI Tool Finder">
-  <meta property="og:description" content="Find the best NoCode or coding tool for your app with Specifys.ai's AI Tool Finder.">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://specifys.ai/ToolFinder.html">
-  <meta property="og:image" content="https://specifys.ai/assets/og-image.jpg">
-  <meta property="og:image:alt" content="AI Tool Finder by Specifys.ai">
-  <meta property="og:site_name" content="Specifys.ai">
-  <meta property="og:locale" content="en_US">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Specifys.ai - AI Tool Finder">
-  <meta name="twitter:description" content="Find the best NoCode or coding tool for your app with Specifys.ai's AI Tool Finder.">
-  <meta name="twitter:image" content="https://specifys.ai/assets/og-image.jpg">
-  <meta name="twitter:site" content="@specifys_ai">
-  <meta name="twitter:creator" content="@specifys_ai">
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "WebPage",
-    "headline": "Specifys.ai - AI Tool Finder",
-    "description": "Find the best NoCode or coding tool for your app with Specifys.ai's AI Tool Finder.",
-    "image": "https://specifys.ai/assets/og-image.jpg",
-    "author": {
-      "@type": "Organization",
-      "name": "Specifys.ai Team"
-    },
-    "publisher": {
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta name="theme-color" content="#000000">
+    <title>Tool Finder - Specifys.ai</title>
+    <meta name="description" content="Find the perfect AI tools for your project">
+    <meta name="keywords" content="AI development tools, app specification generator, no-code platform, AI-powered planning, vibe coding, AI app builder, specification generator, market research tool, app planning tool, development tools, AI tools">
+    <meta name="author" content="Specifys.ai">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    
+    <!-- Canonical URL -->
+    
+    <link rel="canonical" href="http://localhost:4000/pages/ToolPicker.html">
+    
+    
+    <!-- Open Graph -->
+    <meta property="og:site_name" content="Specifys.ai">
+    <meta property="og:title" content="Tool Finder">
+    <meta property="og:description" content="Find the perfect AI tools for your project">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="http://localhost:4000/pages/ToolPicker.html">
+    <meta property="og:locale" content="en_US">
+    
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@specifysai">
+    <meta name="twitter:creator" content="@specifysai">
+    <meta name="twitter:title" content="Tool Finder">
+    <meta name="twitter:description" content="Find the perfect AI tools for your project">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="/assets/css/main.css">
+    
+      
+        <link rel="stylesheet" href="/assets/css/pages/ToolPicker.css">
+      
+    
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Mermaid for diagrams (used in demo, spec, research pages) -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+    
+    <!-- Marked for markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked@4.3.0/marked.min.js"></script>
+    
+    <!-- Highlight.js for syntax highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    
+    <!-- jsPDF for PDF export (used in research pages) -->
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
+    <!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-RWBT69JCM7"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-RWBT69JCM7');
+</script>
+
+
+    <script>
+// Central Analytics Event Tracking System for Specifys.ai
+// This file contains reusable tracking functions for consistent analytics across the site
+
+// Check if gtag is available
+function isGtagAvailable() {
+  return typeof gtag !== 'undefined';
+}
+
+// Track button clicks with detailed categorization
+function trackButtonClick(buttonName, category, source, additionalData = {}) {
+  if (isGtagAvailable()) {
+    gtag('event', 'click', {
+      'event_category': category || 'Button Click',
+      'event_label': buttonName,
+      'event_source': source || 'unknown',
+      ...additionalData
+    });
+  }
+}
+
+// Track CTA (Call-to-Action) clicks
+function trackCTA(ctaName, location) {
+  if (isGtagAvailable()) {
+    gtag('event', 'cta_click', {
+      'event_category': 'CTA',
+      'event_label': ctaName,
+      'cta_location': location
+    });
+  }
+}
+
+// Track navigation events
+function trackNavigation(destination, source) {
+  if (isGtagAvailable()) {
+    gtag('event', 'navigation', {
+      'event_category': 'Navigation',
+      'event_label': destination,
+      'navigation_source': source
+    });
+  }
+}
+
+// Track tool usage
+function trackToolUsage(toolName, action) {
+  if (isGtagAvailable()) {
+    gtag('event', 'tool_usage', {
+      'event_category': 'Tools',
+      'event_label': toolName,
+      'tool_action': action
+    });
+  }
+}
+
+// Track form submissions
+function trackFormSubmit(formName, formType) {
+  if (isGtagAvailable()) {
+    gtag('event', 'form_submit', {
+      'event_category': 'Form',
+      'event_label': formName,
+      'form_type': formType
+    });
+  }
+}
+
+// Track user authentication events
+function trackAuthEvent(action, method) {
+  if (isGtagAvailable()) {
+    gtag('event', action, {
+      'event_category': 'Authentication',
+      'event_label': action,
+      'auth_method': method || 'email'
+    });
+  }
+}
+
+// Track downloads
+function trackDownload(fileName, fileType) {
+  if (isGtagAvailable()) {
+    gtag('event', 'download', {
+      'event_category': 'Downloads',
+      'event_label': fileName,
+      'file_type': fileType
+    });
+  }
+}
+
+// Track spec/result generations
+function trackGeneration(type, mode) {
+  if (isGtagAvailable()) {
+    gtag('event', 'generation_start', {
+      'event_category': 'Generation',
+      'event_label': type,
+      'generation_mode': mode
+    });
+  }
+}
+
+// Track generation completion
+function trackGenerationComplete(type, mode, success) {
+  if (isGtagAvailable()) {
+    gtag('event', 'generation_complete', {
+      'event_category': 'Generation',
+      'event_label': type,
+      'generation_mode': mode,
+      'success': success
+    });
+  }
+}
+
+// Track external link clicks
+function trackExternalLink(linkUrl, linkText) {
+  if (isGtagAvailable()) {
+    gtag('event', 'click', {
+      'event_category': 'External Link',
+      'event_label': linkText || linkUrl,
+      'link_url': linkUrl
+    });
+  }
+}
+
+// Track modal interactions
+function trackModal(modalName, action) {
+  if (isGtagAvailable()) {
+    gtag('event', 'modal_' + action, {
+      'event_category': 'Modal',
+      'event_label': modalName,
+      'modal_action': action
+    });
+  }
+}
+
+// Track FAQ interactions
+function trackFAQ(question, action) {
+  if (isGtagAvailable()) {
+    gtag('event', 'faq_' + action, {
+      'event_category': 'FAQ',
+      'event_label': question,
+      'faq_action': action
+    });
+  }
+}
+
+// Track search actions
+function trackSearch(searchTerm, searchType) {
+  if (isGtagAvailable()) {
+    gtag('event', 'search', {
+      'event_category': 'Search',
+      'search_term': searchTerm,
+      'search_type': searchType
+    });
+  }
+}
+
+// Track video/demo views
+function trackDemoView(demoName, viewDuration) {
+  if (isGtagAvailable()) {
+    gtag('event', 'demo_view', {
+      'event_category': 'Demo',
+      'event_label': demoName,
+      'view_duration': viewDuration
+    });
+  }
+}
+
+// Track user engagement time
+function trackEngagement(pageName, timeSpent) {
+  if (isGtagAvailable()) {
+    gtag('event', 'user_engagement', {
+      'event_category': 'Engagement',
+      'event_label': pageName,
+      'engagement_time_msec': timeSpent
+    });
+  }
+}
+
+// Track errors
+function trackError(errorType, errorMessage, errorLocation) {
+  if (isGtagAvailable()) {
+    gtag('event', 'error', {
+      'event_category': 'Error',
+      'event_label': errorType,
+      'error_message': errorMessage,
+      'error_location': errorLocation
+    });
+  }
+}
+
+// Track user preferences
+function trackPreference(preferenceName, preferenceValue) {
+  if (isGtagAvailable()) {
+    gtag('event', 'preference_change', {
+      'event_category': 'Preferences',
+      'event_label': preferenceName,
+      'preference_value': preferenceValue
+    });
+  }
+}
+
+// Track scroll depth
+let scrollDepthTracked = {25: false, 50: false, 75: false, 100: false};
+function initScrollTracking(pageName) {
+  window.addEventListener('scroll', function() {
+    const scrollPercent = Math.round((window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100);
+    
+    if (scrollPercent >= 25 && !scrollDepthTracked[25]) {
+      scrollDepthTracked[25] = true;
+      if (isGtagAvailable()) {
+        gtag('event', 'scroll', {
+          'event_category': 'Scroll Depth',
+          'event_label': pageName,
+          'scroll_depth': '25%'
+        });
+      }
+    }
+    if (scrollPercent >= 50 && !scrollDepthTracked[50]) {
+      scrollDepthTracked[50] = true;
+      if (isGtagAvailable()) {
+        gtag('event', 'scroll', {
+          'event_category': 'Scroll Depth',
+          'event_label': pageName,
+          'scroll_depth': '50%'
+        });
+      }
+    }
+    if (scrollPercent >= 75 && !scrollDepthTracked[75]) {
+      scrollDepthTracked[75] = true;
+      if (isGtagAvailable()) {
+        gtag('event', 'scroll', {
+          'event_category': 'Scroll Depth',
+          'event_label': pageName,
+          'scroll_depth': '75%'
+        });
+      }
+    }
+    if (scrollPercent >= 100 && !scrollDepthTracked[100]) {
+      scrollDepthTracked[100] = true;
+      if (isGtagAvailable()) {
+        gtag('event', 'scroll', {
+          'event_category': 'Scroll Depth',
+          'event_label': pageName,
+          'scroll_depth': '100%'
+        });
+      }
+    }
+  });
+}
+
+// Auto-initialize scroll tracking when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+  const pageName = document.title || window.location.pathname;
+  initScrollTracking(pageName);
+});
+</script>
+
+
+    <!-- Structured Data (JSON-LD) for SEO -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
       "@type": "Organization",
       "name": "Specifys.ai",
-      "logo": {
-        "@type": "ImageObject",
-        "url": "https://specifys.ai/assets/logo.png"
+      "url": "https://specifys-ai.com",
+      "logo": "https://specifys-ai.com/favicon.ico",
+      "description": "AI-powered app planning and specification generation platform",
+      "sameAs": [
+        "https://www.linkedin.com/company/specifys-ai/"
+      ],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "email": "specifysai@gmail.com",
+        "contactType": "Customer Service"
       }
     },
-    "url": "https://specifys.ai/ToolFinder.html",
-    "mainEntityOfPage": {
-      "@type": "WebPage",
-      "@id": "https://specifys.ai/ToolFinder.html"
+    {
+      "@type": "WebSite",
+      "name": "Specifys.ai",
+      "url": "https://specifys-ai.com",
+      "description": "Plan your app smarter with AI-driven insights and tools",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://specifys-ai.com/pages/ToolPicker.html?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
     },
-    "keywords": "NoCode tool Finder, coding tool Finder, app development tools, Specifys.ai, vibe coding"
-  }
-  </script>
-  <title>Specifys.ai - AI Tool Finder</title>
-  <link rel="icon" type="image/x-icon" href="../favicon.ico">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <link rel="stylesheet" href="../assets/css/main.css">
-
-  <style>
-    @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap");
-
-    :root {
-      --bg-color: #f5f5f5;
-      --text-color: #333;
-      --primary-color: #0078d4;
-      --secondary-color: #6c757d;
-      --light-gray: #e9ecef;
-      --border-color: #dee2e6;
-      --chat-bg: #fff;
-      --system-msg-bg: #f8f9fa;
-      --user-msg-bg: #0078d4;
-      --user-msg-text: #fff;
-      --input-bg: #fff;
-      --input-border: #dee2e6;
-      --button-hover: #005ea2;
-      --progress-bg: #e9ecef;
-      --progress-fill: #0078d4;
-      --chat-header-bg: #0078d4;
-      --chat-header-text: #fff;
+    {
+      "@type": "SoftwareApplication",
+      "name": "Specifys.ai",
+      "applicationCategory": "DevelopmentApplication",
+      "operatingSystem": "Web",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "ratingCount": "250"
+      },
+      "description": "AI-powered app planning platform with specification generator, market research tools, and vibe coding tools map"
     }
+  ]
+}
+</script>
 
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    html { height: 100%; }
-    body { 
-      font-family: "Montserrat", sans-serif; 
-      position: relative; 
-      overflow-x: hidden; 
-      display: flex; 
-      flex-direction: column; 
-      min-height: 100%; 
-      background: #f5f5f5; 
-      transition: background 0.3s ease, color 0.3s ease; 
-    }
-    
-    .content-box { 
-      max-width: 1000px; 
-      width: 90vw; 
-      min-width: 320px; 
-      margin: 80px auto 80px; 
-      padding: 40px; 
-      background: rgba(255, 255, 255, 0.98); 
-      border-radius: 20px; 
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); 
-      flex-grow: 1; 
-    }
-    .content-box h1 { 
-      font-size: clamp(2rem, 4vw, 2.8rem); 
-      font-weight: 700; 
-      color: #333; 
-      margin-bottom: 0.5rem; 
-      text-align: center; 
-    }
-    .content-box h2 { 
-      font-size: 1.2rem; 
-      font-weight: 500; 
-      color: #666; 
-      margin-bottom: 30px; 
-      text-align: center; 
-    }
-    .search-box { 
-      margin-bottom: 40px; 
-      position: relative; 
-      display: flex; 
-      flex-direction: column; 
-      align-items: center; 
-    }
-    .search-instructions { 
-      font-size: 1.1rem; 
-      color: #333; 
-      margin-bottom: 15px; 
-      text-align: center; 
-    }
-    .search-input { 
-      width: 100%; 
-      max-width: 800px; 
-      min-height: 200px; 
-      padding: 15px 20px; 
-      font-size: 1rem; 
-      font-weight: 400; 
-      border: 1px solid #e5e7eb; 
-      border-radius: 10px; 
-      background: #fff; 
-      color: #333; 
-      resize: vertical; 
-      line-height: 1.5; 
-      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05); 
-      max-height: 400px; 
-    }
-    
-
-    
-    .search-input:focus { 
-      border-color: #0078d4; 
-      outline: none; 
-      box-shadow: 0 0 8px rgba(0, 120, 212, 0.3); 
-    }
-    .search-button { 
-      margin-top: 15px; 
-      background: #0078d4; 
-      border: none; 
-      border-radius: 8px; 
-      padding: 12px 30px; 
-      color: #fff; 
-      font-size: 1.1rem; 
-      font-weight: 700; 
-      cursor: pointer; 
-      transition: background-color 0.3s ease, transform 0.3s ease; 
-    }
-    .search-button:hover { 
-      background: #005ea2; 
-      transform: translateY(-3px); 
-    }
-    .search-loading { 
-      display: none; 
-      margin-left: 10px; 
-      margin-top: 15px; 
-      width: 24px; 
-      height: 24px; 
-      border: 4px solid #0078d4; 
-      border-top: 4px solid transparent; 
-      border-radius: 50%; 
-      animation: spin 0.8s linear infinite; 
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    .char-counter { 
-      margin-top: 10px; 
-      font-size: 1rem; 
-      color: #666; 
-      text-align: right; 
-    }
-    .char-counter.too-short { color: #d32f2f; }
-    .char-counter.medium { color: #f0ad4e; }
-    .char-counter.good { color: #2e7d32; }
-    .features-section { 
-      margin-bottom: 40px; 
-      display: none; 
-      opacity: 0; 
-      transform: translateY(20px); 
-    }
-    .features-section.show { 
-      display: block; 
-      animation: slideIn 0.5s forwards; 
-    }
-    @keyframes slideIn {
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .features-section h3 { 
-      font-size: 1.8rem; 
-      font-weight: 700; 
-      color: #0078d4; 
-      margin-bottom: 20px; 
-    }
-    .features-list { 
-      display: flex; 
-      flex-wrap: wrap; 
-      gap: 15px; 
-    }
-    .feature-item { 
-      background: #fff; 
-      border: 1px solid #e5e7eb; 
-      border-radius: 10px; 
-      padding: 10px 30px 10px 15px; 
-      font-size: 1rem; 
-      font-weight: 400; 
-      color: #333; 
-      position: relative; 
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); 
-      transition: transform 0.3s ease; 
-    }
-    .feature-item:hover { transform: translateY(-3px); }
-    .feature-item::after { 
-      content: "\f058"; 
-      font-family: "Font Awesome 6 Free"; 
-      font-weight: 900; 
-      color: #0078d4; 
-      position: absolute; 
-      right: 10px; 
-      top: 50%; 
-      transform: translateY(-50%); 
-      font-size: 1.2rem; 
-    }
-    .comparison-table { 
-      margin-top: 40px; 
-      display: none; 
-      overflow-x: auto; 
-    }
-    .comparison-table.show { display: block; }
-    .comparison-table h4 { 
-      font-size: 1.8rem; 
-      font-weight: 700; 
-      color: #0078d4; 
-      margin-bottom: 20px; 
-    }
-    .comparison-table table { 
-      width: 100%; 
-      max-width: 100%; 
-      border-collapse: separate; 
-      border-spacing: 0; 
-      background: #fff; 
-      border-radius: 12px; 
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); 
-      table-layout: auto; 
-    }
-    .comparison-table th, .comparison-table td { 
-      padding: 15px; 
-      font-size: 1rem; 
-      font-weight: 400; 
-      color: #333; 
-      border: 1px solid #e5e7eb; 
-      text-align: center; 
-      min-width: 100px; 
-      word-break: break-word; 
-    }
-    .comparison-table th { 
-      background: rgba(0, 120, 212, 0.15); 
-      font-weight: 700; 
-      border-top: none; 
-    }
-    .comparison-table th.tool-name { 
-      font-weight: 700; 
-      color: #333; 
-      text-decoration: none; 
-    }
-    .comparison-table td { 
-      background: #fff; 
-      transition: background-color 0.3s ease; 
-    }
-    .comparison-table td:hover { background: rgba(0, 120, 212, 0.05); }
-    .comparison-table th:first-child, .comparison-table td:first-child { 
-      text-align: left; 
-      border-left: none; 
-    }
-    .comparison-table th:last-child, .comparison-table td:last-child { 
-      border-right: none; 
-    }
-    .comparison-table tr:last-child td { border-bottom: none; }
-    .comparison-table .feature-check::before { 
-      font-family: "Font Awesome 6 Free"; 
-      font-weight: 900; 
-      font-size: 1.2rem; 
-      display: inline-block; 
-    }
-    .comparison-table .feature-check.check::before { 
-      content: "\f058"; 
-      color: #2e7d32; 
-    }
-    .comparison-table .feature-check.cross::before { 
-      content: "\f057"; 
-      color: #d32f2f; 
-    }
-    .comparison-table .start-button { 
-      background: #0078d4; 
-      color: #fff; 
-      border: none; 
-      border-radius: 8px; 
-      padding: 10px 20px; 
-      font-size: 1rem; 
-      font-weight: 600; 
-      cursor: pointer; 
-      text-decoration: none; 
-      display: inline-block; 
-      transition: background-color 0.3s ease, transform 0.3s ease; 
-    }
-    .comparison-table .start-button:hover { 
-      background: #005ea2; 
-      transform: translateY(-2px); 
-    }
-    .recommended { 
-      background: #e6f3ff; 
-      font-weight: 700; 
-    }
-    .recommended::after { 
-      content: "Recommended"; 
-      background: #28a745; 
-      color: #fff; 
-      padding: 2px 8px; 
-      border-radius: 10px; 
-      font-size: 0.8rem; 
-      margin-left: 8px; 
-    }
-    .error-message { 
-      color: #d32f2f; 
-      font-size: 1.1rem; 
-      text-align: center; 
-      margin-top: 20px; 
-      display: none; 
-    }
-    .success-message { 
-      color: #2e7d32; 
-      font-size: 1.1rem; 
-      text-align: center; 
-      margin-top: 20px; 
-      display: none; 
-    }
-    footer { 
-      padding: 15px; 
-      text-align: center; 
-      width: 100%; 
-      color: #333; 
-      flex-shrink: 0; 
-      background: #fff; 
-      box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1); 
-    }
-
-    .footer-content { 
-      display: flex; 
-      flex-direction: row; 
-      align-items: center; 
-      justify-content: center; 
-      gap: 15px; 
-      flex-wrap: wrap; 
-    }
-    .footer-links { 
-      display: flex; 
-      justify-content: center; 
-      gap: 20px; 
-    }
-    .footer-links a { 
-      color: #333; 
-      text-decoration: none; 
-      font-size: 0.9rem; 
-      font-weight: 500; 
-      transition: color 0.3s ease; 
-    }
-
-
-    .footer-links a:hover { color: #0078d4; }
-    .footer-social { 
-      display: flex; 
-      justify-content: center; 
-      gap: 12px; 
-      flex-wrap: wrap; 
-    }
-    .footer-social a { 
-      color: #333; 
-      font-size: 1.3rem; 
-      transition: transform 0.3s ease, color 0.3s ease; 
-    }
-
-
-    .footer-social a:hover { 
-      color: #0078d4; 
-      transform: scale(1.2); 
-    }
-    .footer-copyright { 
-      font-size: 0.85rem; 
-      color: #666; 
-      margin-top: 10px; 
-    }
-
-    @media (max-width: 768px) {
-      .content-box { margin: 70px 15px 60px; padding: 30px; }
-      .content-box h1 { font-size: clamp(1.6rem, 3.5vw, 2.2rem); }
-      .content-box h2 { font-size: 1.1rem; }
-      .search-input { max-width: 100%; min-height: 80px; font-size: 0.55rem; padding: 12px 15px; }
-      .search-button { padding: 10px 25px; font-size: 1rem; }
-      .search-loading { margin-left: 10px; margin-top: 12px; }
-      .comparison-table { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-      .comparison-table th, .comparison-table td { font-size: 0.9rem; padding: 10px; min-width: 80px; }
-      .features-section h3, .comparison-table h4 { font-size: 1.5rem; }
-      .feature-item { font-size: 0.9rem; padding: 8px 25px 8px 12px; }
-      .comparison-table .start-button { padding: 8px 15px; font-size: 0.9rem; }
-      .footer-content { gap: 10px; }
-      .footer-links { gap: 15px; }
-      .footer-links a { font-size: 0.85rem; }
-      .footer-social { gap: 10px; }
-      .footer-social a { font-size: 1.1rem; }
-    }
-    @media (max-width: 480px) {
-      .content-box { margin: 60px 10px 50px; padding: 20px; }
-      .content-box h1 { font-size: clamp(1.4rem, 3vw, 1.8rem); }
-      .content-box h2 { font-size: 1rem; }
-      .search-input { min-height: 70px; font-size: 0.1rem; padding: 10px 12px; }
-      .search-button { padding: 8px 20px; font-size: 0.9rem; }
-      .search-loading { margin-left: 8px; margin-top: 10px; width: 20px; height: 20px; }
-      .comparison-table th, .comparison-table td { font-size: 0.8rem; padding: 8px; min-width: 60px; }
-      .features-section h3, .comparison-table h4 { font-size: 1.3rem; }
-      .feature-item { font-size: 0.85rem; padding: 6px 20px 6px 10px; }
-      .comparison-table .start-button { padding: 6px 12px; font-size: 0.8rem; }
-      .footer-content { gap: 8px; }
-      .footer-links { gap: 10px; }
-      .footer-links a { font-size: 0.8rem; }
-      .footer-social { gap: 8px; }
-      .footer-social a { font-size: 1rem; }
-    }
-  </style>
 </head>
+
+
 <body>
-  <header class="thematic-header" role="banner">
-    <div class="header-left">
-    </div>
+    <!-- Header -->
+    <!-- Header -->
+<header class="thematic-header" role="banner">
     <div class="header-center">
-      <div class="logo">
-        <a href="../index.html" aria-label="Specifys.ai homepage">Specifys.AI</a>
-      </div>
+        <div class="logo">
+            <a href="/" aria-label="Specifys.ai homepage">
+                <span class="logo-text">Specifys.AI</span>
+            </a>
+        </div>
     </div>
     <div class="header-right">
-      <div class="auth-buttons" id="auth-buttons">
-        <!-- Will be populated by auth system -->
-      </div>
+        <div class="auth-buttons" id="auth-buttons">
+            <!-- Will be populated by auth system -->
+        </div>
     </div>
-  </header>
-  <div class="content-box">
-    <h1>AI Tool Finder</h1>
-    <h2>AI helps you match the best tool for your app</h2>
-    <div class="search-box">
-      <div class="search-instructions">Describe your app's general idea, including the features and functionalities you want to implement. The more detailed your description, the more accurate the tool recommendations will be.</div>
-      <textarea class="search-input" placeholder="Describe your app" aria-label="Describe your app" maxlength="2000"></textarea>
-      <div class="char-counter">0/2000 characters</div>
-      <div style="display: flex; align-items: center; margin-top: 15px;">
-        <button class="search-button"><i class="fas fa-paper-plane"></i> Submit</button>
-        <div class="search-loading"></div>
-      </div>
+</header>
+
+<style>
+/* Logo dark grey color - using site's color palette */
+.logo a,
+.logo-text {
+    color: #333 !important;
+}
+
+.logo a:hover {
+    color: #444 !important;
+}
+</style>
+
+
+    
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="content-box">
+  <h1>Tool Finder</h1>
+  <h2>AI helps you match the best tool for your app</h2>
+  
+  <div class="tool-finder-section">
+    <div class="search-instructions">
+      Describe your app's general idea, including the features and functionalities you want to implement. The more detailed your description, the more accurate the tool recommendations will be.
     </div>
-    <div class="features-section">
-      <h3>App Components</h3>
-      <div class="features-list"></div>
+    
+    <div class="form-group">
+      <textarea 
+        id="ideaInput"
+        class="form-control search-input" 
+        placeholder="Describe your app" 
+        aria-label="Describe your app" 
+        maxlength="2000"
+        rows="8"
+      ></textarea>
+      <div class="char-counter text-secondary">0/2000 characters</div>
     </div>
-    <div class="comparison-table">
-      <h4>Tool Comparison</h4>
-      <table>
+    
+    <div class="button-container">
+      <button class="btn btn-primary search-button">
+        <i class="fas fa-paper-plane"></i> Find Tools
+      </button>
+    </div>
+  </div>
+
+  <div class="features-section hidden">
+    <h3>App Components</h3>
+    <div class="features-list"></div>
+  </div>
+
+  <div class="comparison-section hidden">
+    <h3>Recommended Tools Comparison</h3>
+    <div class="table-container">
+      <table class="table table-striped">
         <thead>
           <tr>
-            <th>Component</th>
-            <th class="tool-name tool1-name">Tool 1</th>
-            <th class="tool-name tool2-name">Tool 2</th>
-            <th class="tool-name tool3-name">Tool 3</th>
+            <th>Feature</th>
+            <th>Tool 1</th>
+            <th>Tool 2</th>
+            <th>Tool 3</th>
           </tr>
         </thead>
-        <tbody></tbody>
+        <tbody class="comparison-table-body">
+          <!-- Dynamic content will be inserted here -->
+        </tbody>
       </table>
     </div>
-    <div class="error-message" id="error-message"></div>
-    <div class="success-message" id="success-message"></div>
   </div>
-  <footer>
-    <div class="footer-content">
-      <div class="footer-links">
-        <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
-        <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
-        <a href="../blog/" aria-label="Visit our blog">Blog</a>
-        <a href="../tools/map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
-        <a href="ToolPicker.html" aria-label="Use our Tool Finder">Tool Finder</a>
-      </div>
-      <span class="footer-divider">|</span>
-      <div class="footer-social">
-        <a href="https://www.linkedin.com/company/specifys-ai/" target="_blank" aria-label="Follow us on LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-        <a href="https://www.facebook.com/profile.php?id=61576402600129" target="_blank" aria-label="Follow us on Facebook"><i class="fab fa-facebook-f"></i></a>
-        <a href="https://www.instagram.com/YOUR_PROFILE" target="_blank" aria-label="Follow us on Instagram"><i class="fab fa-instagram"></i></a>
-        <a href="mailto:specifysai@gmail.com" aria-label="Send us an email"><i class="fas fa-envelope"></i></a>
-        <a href="https://www.producthunt.com/products/specifys-ai" target="_blank" aria-label="Check us out on Product Hunt"><i class="fab fa-product-hunt"></i></a>
-      </div>
-    </div>
-    <div class="footer-copyright">© 2025 Specifys.ai. All rights reserved.</div>
-  </footer>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <script type="module" src="../assets/js/security-utils.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-  <script>
-    // Security utility function
-    function escapeHTML(str) {
-      if (typeof str !== 'string') {
-        return '';
+
+  <div class="alert alert-danger error-message hidden"></div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.querySelector('.search-input');
+    const searchButton = document.querySelector('.search-button');
+    const charCounter = document.querySelector('.char-counter');
+    const featuresSection = document.querySelector('.features-section');
+    const comparisonSection = document.querySelector('.comparison-section');
+    const comparisonTableBody = document.querySelector('.comparison-table-body');
+    const errorMessage = document.querySelector('.error-message');
+
+    // Character counter
+    searchInput.addEventListener('input', function() {
+      const count = this.value.length;
+      charCounter.textContent = `${count}/2000 characters`;
+      
+      // Remove all color classes
+      charCounter.classList.remove('text-danger', 'text-warning', 'text-secondary');
+      
+      if (count > 1800) {
+        charCounter.classList.add('text-danger');
+      } else if (count > 1500) {
+        charCounter.classList.add('text-warning');
+      } else {
+        charCounter.classList.add('text-secondary');
       }
-      return str
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#x27;')
-        .replace(/\//g, '&#x2F;');
+    });
+
+    // Simulate tool fetching and recommendation
+    function fetchTools(description) {
+      return new Promise((resolve) => {
+        searchButton.disabled = true;
+        searchButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Finding Tools...';
+        
+        // Simulate API call delay
+        setTimeout(() => {
+          // Mock data - in real implementation, this would be an API call
+          const mockTools = [
+            {
+              name: "Bubble",
+              category: "NoCode Platform",
+              features: ["Visual Editor", "Database", "API Integration", "User Authentication"],
+              link: "https://bubble.io"
+            },
+            {
+              name: "Webflow",
+              category: "Design + Code",
+              features: ["Visual Design", "CMS", "E-commerce", "Custom Code"],
+              link: "https://webflow.com"
+            },
+            {
+              name: "Glide",
+              category: "NoCode App Builder",
+              features: ["Mobile Apps", "Data Integration", "User Management", "Custom Logic"],
+              link: "https://glideapps.com"
+            }
+          ];
+          
+          resolve(mockTools);
+          
+          searchButton.disabled = false;
+          searchButton.innerHTML = '<i class="fas fa-paper-plane"></i> Find Tools';
+        }, 2000);
+      });
     }
 
-    document.addEventListener("DOMContentLoaded", () => {
-      const searchButton = document.querySelector(".search-button");
-      const searchInput = document.querySelector(".search-input");
-      const searchLoading = document.querySelector(".search-loading");
-      const featureList = document.querySelector(".features-list");
-      const comparisonTable = document.querySelector(".comparison-table");
-      const comparisonTableBody = document.querySelector(".comparison-table tbody");
-      const tool1Name = document.querySelector(".tool1-name");
-      const tool2Name = document.querySelector(".tool2-name");
-      const tool3Name = document.querySelector(".tool3-name");
-      const errorMessage = document.querySelector("#error-message");
-      const successMessage = document.querySelector("#success-message");
-      const featuresSection = document.querySelector(".features-section");
-      const charCounter = document.querySelector(".char-counter");
-
-      const customLinks = {
-        'base44': 'https://base44.com/?via=shalom-cohen',
-        'lovable': 'https://lovable.dev/?via=shalom',
-        'bubble': 'https://bubble.io/'
-      };
-
-      const placeholders = [
-        "A no-code e-commerce platform with product listings, payment integration via Stripe, user authentication, and a responsive design for mobile and desktop users. Features include inventory management, order tracking, customer reviews, and SEO optimization to boost online visibility. The platform supports multi-language options and integrates with social media for marketing, ensuring a seamless shopping experience for users and efficient store management for owners.",
-        "A social media app with real-time chat, push notifications, user profiles, and content sharing capabilities. It includes multimedia support for photos and videos, hashtag searches, and privacy settings for posts. The app integrates with third-party APIs for analytics and advertising, offers group chat functionality, and ensures cross-platform compatibility for iOS and Android, fostering community engagement and user retention through a modern, intuitive interface.",
-        "A fitness tracker app with user profiles, personalized workout plans, and progress tracking. It integrates with wearable devices to monitor steps, calories, and heart rate, offering real-time feedback. Features include goal setting, achievement badges, social sharing, and a nutrition log. The app supports offline mode, syncs data to the cloud, and provides a responsive dashboard for users to analyze their fitness journey on both mobile and web platforms.",
-        "A project management tool with task assignments, deadline tracking, and team collaboration features. It includes Kanban boards, Gantt charts, and time tracking for productivity analysis. The tool supports file uploads, comment threads, and integrations with tools like Slack and Google Drive. Designed for small to medium teams, it offers role-based access, custom workflows, and a mobile app for on-the-go updates, ensuring efficient project execution.",
-        "A blog platform with a commenting system, admin dashboard, and SEO optimization. It supports customizable templates, social media integration, and RSS feeds to drive traffic. Features include draft scheduling, user roles for contributors, and analytics for post performance. The platform ensures fast load times, mobile responsiveness, and security with CAPTCHA for comments, providing a robust solution for content creators to engage their audience."
-      ];
-      let placeholderIndex = 0;
-      function rotatePlaceholders() {
-        if (!searchInput.value) {
-          searchInput.placeholder = placeholders[placeholderIndex];
-          placeholderIndex = (placeholderIndex + 1) % placeholders.length;
-        }
-      }
-      rotatePlaceholders();
-      setInterval(rotatePlaceholders, 3000);
-
-      function updateCharCounter(length) {
-        charCounter.textContent = `${length}/2000 characters`;
-        charCounter.className = "char-counter";
-        if (length < 50) {
-          charCounter.classList.add("too-short");
-        } else if (length <= 200) {
-          charCounter.classList.add("medium");
-        } else {
-          charCounter.classList.add("good");
-        }
-      }
-
-      searchInput.addEventListener("input", () => {
-        searchInput.style.height = "auto";
-        searchInput.style.height = `${searchInput.scrollHeight}px`;
-        updateCharCounter(searchInput.value.length);
-      });
-
-      async function fetchTools(description) {
-        searchLoading.style.display = "block";
-        try {
-          const response = await fetch('https://toolpicker.shalom-cohen-111.workers.dev', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ description, features: [] })
-          });
-          if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
-          const data = await response.json();
-          console.log('API Response:', JSON.stringify(data, null, 2));
-          successMessage.textContent = "Tools loaded successfully!";
-          successMessage.style.display = "block";
-          setTimeout(() => successMessage.style.display = "none", 3000);
-          return data;
-        } catch (error) {
-          console.error('Fetch Error:', error);
-          errorMessage.textContent = `Error: ${error.message}`;
-          errorMessage.style.display = "block";
-          setTimeout(() => errorMessage.style.display = "none", 5000);
-          return { tools: [], features: [] };
-        } finally {
-          searchLoading.style.display = "none";
-        }
-      }
-
-      function updateUI(data) {
-        featureList.innerHTML = "";
-        comparisonTableBody.innerHTML = "";
-        errorMessage.style.display = "none";
-
-        if (!data.features || data.features.length === 0) {
-          errorMessage.textContent = "No components detected.";
-          errorMessage.style.display = "block";
-          setTimeout(() => errorMessage.style.display = "none", 5000);
-        } else {
-          const limitedFeatures = data.features.slice(0, 10);
-          // Safe HTML creation with sanitization
-          featureList.innerHTML = limitedFeatures.map(f => {
-            const safeFeatureName = escapeHTML(f.name || '');
-            return `<div class="feature-item">${safeFeatureName}</div>`;
-          }).join("");
-          featuresSection.classList.add("show");
-        }
-
-        const tools = data.tools || [];
-        const toolNames = tools.map(t => t.name || "N/A");
-        // Safe HTML creation with sanitization
-        const safeTool1Name = escapeHTML(toolNames[0] || 'N/A');
-        const safeTool2Name = escapeHTML(toolNames[1] || 'N/A');
-        const safeTool3Name = escapeHTML(toolNames[2] || 'N/A');
-        
-        tool1Name.innerHTML = tools[0] ? `<strong class="${toolNames[0].toLowerCase() === 'lovable' || toolNames[0].toLowerCase() === 'base44' ? 'recommended' : ''}">${safeTool1Name}</strong>` : "N/A";
-        tool2Name.innerHTML = tools[1] ? `<strong class="${toolNames[1].toLowerCase() === 'lovable' || toolNames[1].toLowerCase() === 'base44' ? 'recommended' : ''}">${safeTool2Name}</strong>` : "N/A";
-        tool3Name.innerHTML = tools[2] ? `<strong class="${toolNames[2].toLowerCase() === 'lovable' || toolNames[2].toLowerCase() === 'base44' ? 'recommended' : ''}">${safeTool3Name}</strong>` : "N/A";
-
-        if (tools.length === 0 || !data.features || data.features.length === 0) {
-          errorMessage.textContent = "No tools or components available.";
-          errorMessage.style.display = "block";
-          setTimeout(() => errorMessage.style.display = "none", 5000);
-        } else {
-          const limitedFeatures = data.features.slice(0, 10);
-          // Safe HTML creation with sanitization
-          let tableContent = limitedFeatures.map(f => {
-            const safeFeatureName = escapeHTML(f.name || '');
-            return `
-            <tr>
-              <td>${safeFeatureName}</td>
-              <td class="feature-check ${tools[0] && tools[0].features.includes(f.name) ? 'check' : 'cross'}"></td>
-              <td class="feature-check ${tools[1] && tools[1].features.includes(f.name) ? 'check' : 'cross'}"></td>
-              <td class="feature-check ${tools[2] && tools[2].features.includes(f.name) ? 'check' : 'cross'}"></td>
-            </tr>
-          `;
-          }).join("");
-          
-          // Safe pricing and links
-          const safePricing1 = escapeHTML(tools[0] ? (tools[0].pricing || 'Not specified') : '-');
-          const safePricing2 = escapeHTML(tools[1] ? (tools[1].pricing || 'Not specified') : '-');
-          const safePricing3 = escapeHTML(tools[2] ? (tools[2].pricing || 'Not specified') : '-');
-          
-          const safeLink1 = tools[0] ? (customLinks[tools[0].name.toLowerCase()] || tools[0].link || '#') : '#';
-          const safeLink2 = tools[1] ? (customLinks[tools[1].name.toLowerCase()] || tools[1].link || '#') : '#';
-          const safeLink3 = tools[2] ? (customLinks[tools[2].name.toLowerCase()] || tools[2].link || '#') : '#';
-          
-          tableContent += `
-            <tr>
-              <td>Pricing</td>
-              <td>${safePricing1}</td>
-              <td>${safePricing2}</td>
-              <td>${safePricing3}</td>
-            </tr>
-            <tr>
-              <td>Start Here</td>
-              <td>${tools[0] ? `<a href="${safeLink1}" class="start-button" target="_blank">Start Here</a>` : '-'}</td>
-              <td>${tools[1] ? `<a href="${safeLink2}" class="start-button" target="_blank">Start Here</a>` : '-'}</td>
-              <td>${tools[2] ? `<a href="${safeLink3}" class="start-button" target="_blank">Start Here</a>` : '-'}</td>
-            </tr>
-          `;
-          comparisonTableBody.innerHTML = tableContent;
-          comparisonTable.classList.add("show");
-          comparisonTable.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-      }
-
-      searchButton.addEventListener("click", () => {
-        if (searchInput.value.trim().length < 50) {
-          errorMessage.textContent = "Description must be at least 50 characters.";
-          errorMessage.style.display = "block";
-          setTimeout(() => errorMessage.style.display = "none", 5000);
-          return;
-        }
-        featuresSection.classList.remove("show");
-        comparisonTable.classList.remove("show");
-        fetchTools(searchInput.value).then(data => {
-          if (data) updateUI(data);
+    function updateUI(tools) {
+      // Update features section
+      const featuresList = document.querySelector('.features-list');
+      featuresList.innerHTML = '';
+      
+      tools.forEach((tool, index) => {
+        tool.features.forEach(feature => {
+          const featureItem = document.createElement('div');
+          featureItem.className = 'feature-item';
+          featureItem.textContent = feature;
+          featuresList.appendChild(featureItem);
         });
       });
+      
+      featuresSection.classList.remove('hidden');
 
-    });
+      // Update comparison table
+      const tableContent = `
+        <tr>
+          <td><strong>Platform</strong></td>
+          <td>${tools[0]?.name || '-'}</td>
+          <td>${tools[1]?.name || '-'}</td>
+          <td>${tools[2]?.name || '-'}</td>
+        </tr>
+        <tr>
+          <td><strong>Category</strong></td>
+          <td>${tools[0]?.category || '-'}</td>
+          <td>${tools[1]?.category || '-'}</td>
+          <td>${tools[2]?.category || '-'}</td>
+        </tr>
+        <tr>
+          <td><strong>Key Features</strong></td>
+          <td>${tools[0]?.features.slice(0, 2).join(', ') || '-'}</td>
+          <td>${tools[1]?.features.slice(0, 2).join(', ') || '-'}</td>
+          <td>${tools[2]?.features.slice(0, 2).join(', ') || '-'}</td>
+        </tr>
+        <tr>
+          <td><strong>Get Started</strong></td>
+          <td>${tools[0] ? `<a href="${tools[0].link}" class="btn btn-sm btn-primary" target="_blank">Start Here</a>` : '-'}</td>
+          <td>${tools[1] ? `<a href="${tools[1].link}" class="btn btn-sm btn-primary" target="_blank">Start Here</a>` : '-'}</td>
+          <td>${tools[2] ? `<a href="${tools[2].link}" class="btn btn-sm btn-primary" target="_blank">Start Here</a>` : '-'}</td>
+        </tr>
+      `;
+      comparisonTableBody.innerHTML = tableContent;
+      comparisonSection.classList.remove('hidden');
+      comparisonSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
 
-    // Initialize auth buttons with default state
-    document.addEventListener('DOMContentLoaded', function() {
-      const authButtons = document.getElementById('auth-buttons');
-      if (authButtons && !authButtons.innerHTML.trim()) {
-        authButtons.innerHTML = `
-          <button class="auth-btn login-btn">Login</button>
-        `;
-        
-        const loginBtn = authButtons.querySelector('.login-btn');
-        if (loginBtn) {
-          loginBtn.addEventListener('click', function(event) {
-            event.stopPropagation();
-            window.location.href = 'auth.html';
-          });
-        }
+    searchButton.addEventListener('click', () => {
+      if (searchInput.value.trim().length < 50) {
+        errorMessage.textContent = 'Description must be at least 50 characters.';
+        errorMessage.classList.remove('hidden');
+        setTimeout(() => errorMessage.classList.add('hidden'), 5000);
+        return;
       }
+      
+      featuresSection.classList.add('hidden');
+      comparisonSection.classList.add('hidden');
+      errorMessage.classList.add('hidden');
+      
+      fetchTools(searchInput.value).then(data => {
+        if (data) updateUI(data);
+      });
     });
 
-  </script>
+    // Add column hover effect for comparison table
+    function addColumnHoverEffect() {
+      const table = document.querySelector('.comparison-section .table');
+      if (!table) return;
 
-  <noscript>
-    <div style="text-align: center; padding: 20px; background: #fff; color: #333;">
-      <p>This website requires JavaScript to function properly. Please enable JavaScript in your browser settings.</p>
+      const cells = table.querySelectorAll('td, th');
+      
+      cells.forEach(cell => {
+        cell.addEventListener('mouseenter', function() {
+          const cellIndex = Array.from(this.parentElement.children).indexOf(this);
+          
+          // Highlight all cells in the same column
+          const rows = table.querySelectorAll('tr');
+          rows.forEach(row => {
+            const targetCell = row.children[cellIndex];
+            if (targetCell) {
+              targetCell.classList.add('column-highlight');
+            }
+          });
+        });
+
+        cell.addEventListener('mouseleave', function() {
+          // Remove highlight from all cells
+          const allCells = table.querySelectorAll('.column-highlight');
+          allCells.forEach(c => c.classList.remove('column-highlight'));
+        });
+      });
+    }
+
+    // Call this function after the table is rendered
+    const originalUpdateUI = updateUI;
+    updateUI = function(tools) {
+      originalUpdateUI(tools);
+      setTimeout(addColumnHoverEffect, 100);
+    };
+  });
+</script>
+
+<script src="/assets/js/typingEffect.js"></script>
+    </main>
+    
+    <!-- Footer -->
+    <!-- Footer -->
+<footer>
+  <div class="footer-content">
+    <div class="footer-links">
+      <a href="/pages/how.html" aria-label="Learn how specifys.ai works">How It Works</a>
+      <a href="/pages/about.html" aria-label="Learn more about specifys.ai">About Us</a>
+      <a href="/blog/" aria-label="Visit our blog">Blog</a>
+      <a href="/tools/map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
+      <a href="/pages/ToolPicker.html" aria-label="Use our Tool Finder">Tool Finder</a>
     </div>
-  </noscript>
+    <span class="footer-divider">|</span>
+    <div class="footer-social">
+      <a href="https://www.linkedin.com/company/specifys-ai/" target="_blank" aria-label="Follow us on LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+      <a href="https://www.facebook.com/profile.php?id=61576402600129&locale=he_IL" target="_blank" aria-label="Follow us on Facebook"><i class="fab fa-facebook-f"></i></a>
+      <a href="https://www.instagram.com/YOUR_PROFILE" target="_blank" aria-label="Follow us on Instagram"><i class="fab fa-instagram"></i></a>
+      <a href="mailto:specifysai@gmail.com" aria-label="Send us an email"><i class="fas fa-envelope"></i></a>
+      <a href="https://www.producthunt.com/products/specifys-ai" target="_blank" aria-label="Check us out on Product Hunt"><i class="fab fa-product-hunt"></i></a>
+    </div>
+  </div>
+  <div class="footer-copyright">
+    © 2025 specifys.ai. All rights reserved.
+  </div>
+</footer>
+
+    
+    <!-- Scroll to top button -->
+    <!-- Scroll to top button -->
+<button class="icon-btn scroll-to-top" id="scrollToTop" aria-label="Scroll">
+  <i class="fas fa-arrow-up"></i>
+</button>
+
+<script>
+  // Scroll button functionality
+  document.addEventListener('DOMContentLoaded', function() {
+    const scrollBtn = document.getElementById('scrollToTop');
+    
+    if (scrollBtn) {
+      // Handle click - scroll to top or bottom based on current state
+      scrollBtn.addEventListener("click", () => {
+        if (window.scrollY > 300) {
+          // If scrolled down, go to top
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        } else {
+          // If at top, scroll to bottom
+          window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+        }
+      });
+      
+      // Rotate button based on scroll position
+      window.addEventListener("scroll", () => {
+        if (window.scrollY > 300) {
+          scrollBtn.classList.add("scrolled-down");
+          scrollBtn.setAttribute("aria-label", "Scroll to top");
+        } else {
+          scrollBtn.classList.remove("scrolled-down");
+          scrollBtn.setAttribute("aria-label", "Scroll to bottom");
+        }
+      });
+    }
+  });
+</script>
+
+
+    
+    <!-- Firebase SDK & Auth -->
+    
+    <!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<script>
+  // Firebase Configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyB9hr0IWM4EREzkKDxBxYoYinV6LJXWXV4",
+    authDomain: "specify-ai.firebaseapp.com",
+    projectId: "specify-ai",
+    storageBucket: "specify-ai.firebasestorage.app",
+    messagingSenderId: "734278787482",
+    appId: "1:734278787482:web:0e312fb6f197e849695a23",
+    measurementId: "G-4YR9LK63MR"
+  };
+
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+</script>
+
+
+    <script>
+  // Auth UI functions
+  function updateAuthUI(user) {
+    const authButtons = document.getElementById('auth-buttons');
+    if (!authButtons) return;
+    
+    if (user) {
+      // User is logged in
+      const displayName = user.displayName || user.email.split('@')[0];
+      const firstLetter = displayName.charAt(0).toUpperCase();
+      
+      authButtons.innerHTML = `
+        <a href="/pages/profile.html" class="user-info" style="text-decoration: none;">
+          <div class="user-avatar">${firstLetter}</div>
+          <span>${displayName}</span>
+        </a>
+      `;
+    } else {
+      // User is not logged in
+      authButtons.innerHTML = `
+        <button class="auth-btn" onclick="showLoginModal()">Login</button>
+      `;
+    }
+  }
+
+  // Global auth functions
+  window.showLoginModal = function() {
+    if (typeof trackButtonClick !== 'undefined') {
+      trackButtonClick('Show Login', 'Authentication', 'header');
+    }
+    window.location.href = '/pages/auth.html';
+  };
+
+  window.showRegisterModal = function() {
+    if (typeof trackButtonClick !== 'undefined') {
+      trackButtonClick('Show Register', 'Authentication', 'header');
+    }
+    window.location.href = '/pages/auth.html';
+  };
+
+  window.logout = function() {
+    if (typeof trackAuthEvent !== 'undefined') {
+      trackAuthEvent('logout', 'email');
+    }
+    auth.signOut()
+      .then(() => {
+        console.log('Logged out successfully');
+      })
+      .catch(error => {
+        console.error('Error logging out:', error);
+      });
+  };
+
+  // Listen to auth state changes
+  auth.onAuthStateChanged((user) => {
+    updateAuthUI(user);
+  });
+
+  // Initialize auth buttons with default state
+  document.addEventListener('DOMContentLoaded', function() {
+    const authButtons = document.getElementById('auth-buttons');
+    if (authButtons && !authButtons.innerHTML.trim()) {
+      authButtons.innerHTML = `
+        <button class="auth-btn login-btn">Login</button>
+      `;
+      
+      const loginBtn = authButtons.querySelector('.login-btn');
+      if (loginBtn) {
+        loginBtn.addEventListener('click', function(event) {
+          event.stopPropagation();
+          window.location.href = '/pages/auth.html';
+        });
+      }
+    }
+  });
+</script>
+
+
+    
 </body>
 </html>

@@ -147,10 +147,19 @@
 
 /* Responsive utilities */
 @media (max-width: 768px) {
+  .container {
+    padding: 0 8px;
+  }
+  
+  .container-fluid {
+    padding: 0 8px;
+  }
+  
   .content-box {
-    margin: 40px 15px;
-    padding: 20px;
-    margin-top: 80px; /* Space for mobile header */
+    margin: 8px;
+    padding: 12px;
+    margin-top: 64px; /* Space for mobile header */
+    border-radius: 8px;
   }
   
   .d-md-none { display: none; }
@@ -166,10 +175,19 @@
 }
 
 @media (max-width: 480px) {
+  .container {
+    padding: 0 6px;
+  }
+  
+  .container-fluid {
+    padding: 0 6px;
+  }
+  
   .content-box {
-    margin: 40px 10px;
-    padding: 15px;
-    margin-top: 76px; /* Space for mobile header */
+    margin: 6px;
+    padding: 10px;
+    margin-top: 62px; /* Space for mobile header */
+    border-radius: 6px;
   }
   
   .d-sm-none { display: none; }

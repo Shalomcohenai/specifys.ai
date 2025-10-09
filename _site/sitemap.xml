@@ -3,7 +3,7 @@
   <!-- Root URL -->
   <url>
     <loc>https://specifys-ai.com/</loc>
-    <lastmod>2025-09-25</lastmod>
+    <lastmod>2025-10-09</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
@@ -11,14 +11,14 @@
   <!-- Main Pages -->
   <url>
     <loc>https://specifys-ai.com/index.html</loc>
-    <lastmod>2025-09-25</lastmod>
+    <lastmod>2025-10-09</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   
   <url>
     <loc>https://specifys-ai.com/blog.html</loc>
-    <lastmod>2025-09-25</lastmod>
+    <lastmod>2025-10-09</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
@@ -26,9 +26,9 @@
   <!-- Root Level Pages -->
   <url>
     <loc>https://specifys-ai.com/processing-unified.html</loc>
-    <lastmod>2025-09-25</lastmod>
+    <lastmod>2025-10-09</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.9</priority>
   </url>
 
   <!-- Pages Directory -->
@@ -105,7 +105,7 @@
   <!-- Tools Directory -->
   <url>
     <loc>https://specifys-ai.com/tools/map/vibe-coding-tools-map.html</loc>
-    <lastmod>2025-09-25</lastmod>
+    <lastmod>2025-10-09</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.95</priority>
   </url>
@@ -364,11 +364,4 @@
     <priority>0.7</priority>
   </url>
 
-  <!-- Development/Test Pages -->
-  <url>
-    <loc>https://specifys-ai.com/template-test.html</loc>
-    <lastmod>2025-09-25</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.3</priority>
-  </url>
 </urlset>
