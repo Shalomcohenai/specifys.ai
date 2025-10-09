@@ -14,7 +14,7 @@
     
     <!-- Canonical URL -->
     
-    <link rel="canonical" href="http://localhost:4000/pages/demo.html">
+    <link rel="canonical" href="https://specifys-ai.com/pages/demo.html">
     
     
     <!-- Open Graph -->
@@ -22,8 +22,8 @@
     <meta property="og:title" content="Demo">
     <meta property="og:description" content="See Specifys.ai in action">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="http://localhost:4000/pages/demo.html">
-    <meta property="og:image" content="http://localhost:4000/assets/images/og-image.png">
+    <meta property="og:url" content="https://specifys-ai.com/pages/demo.html">
+    <meta property="og:image" content="https://specifys-ai.com/assets/images/og-image.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:locale" content="en_US">
@@ -35,7 +35,7 @@
     <meta name="twitter:creator" content="@specifysai">
     <meta name="twitter:title" content="Demo">
     <meta name="twitter:description" content="See Specifys.ai in action">
-    <meta name="twitter:image" content="http://localhost:4000/assets/images/og-image.png">
+    <meta name="twitter:image" content="https://specifys-ai.com/assets/images/og-image.png">
     
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
@@ -46,6 +46,7 @@
       
         <link rel="stylesheet" href="/assets/css/pages/demo.css">
       
+    
     
     
     <!-- Font Awesome -->
@@ -454,10 +455,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     <!-- Main Content -->
     <main id="main-content" class="main-content">
-        <!-- Header -->
-    
-
-    <!-- Main Content -->
+        <!-- Main Content -->
     <div class="demo-container">
         <div class="demo-header">
             <h1>Demo</h1>
@@ -531,23 +529,39 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
     </div>
 
-    <!-- Footer -->
-    
-
-    <script>
+<script>
         // Global variables for content
         let specificationContent = '';
         let researchContent = '';
+        let mermaidInitialized = false;
         
-        // Initialize Mermaid
-        mermaid.initialize({ 
-            startOnLoad: false,
-            theme: document.body.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
-        });
+        // Wait for required libraries to load
+        function waitForLibraries() {
+            return new Promise((resolve) => {
+                const checkLibraries = () => {
+                    if (typeof mermaid !== 'undefined' && typeof marked !== 'undefined') {
+                        if (!mermaidInitialized) {
+                            mermaid.initialize({ 
+                                startOnLoad: false,
+                                theme: document.body.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+                            });
+                            mermaidInitialized = true;
+                        }
+                        resolve();
+                    } else {
+                        setTimeout(checkLibraries, 100);
+                    }
+                };
+                checkLibraries();
+            });
+        }
         
         // Load content from demotext.text
         async function loadDemoContent() {
             try {
+                // Wait for libraries to load first
+                await waitForLibraries();
+                
                 const response = await fetch('demotext.text');
                 const text = await response.text();
                 
@@ -614,7 +628,9 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             
             // Re-initialize Mermaid for new diagrams
-            mermaid.init(undefined, contentDiv.querySelectorAll('.mermaid'));
+            if (typeof mermaid !== 'undefined' && mermaidInitialized) {
+                mermaid.init(undefined, contentDiv.querySelectorAll('.mermaid'));
+            }
         }
         
         // Show error message
@@ -711,6 +727,7 @@ document.addEventListener('DOMContentLoaded', function() {
             updateAuthUI(null);
         };
     </script>
+
     </main>
     
     <!-- Footer -->
@@ -881,6 +898,10 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 
+    
+    
+    <!-- Extra JavaScript -->
+    
     
 </body>
 </html>

@@ -141,3 +141,4 @@ service cloud.firestore {
 - לחץ על Refresh Data
 - כל הסטטיסטיקות יעבדו!
 
+

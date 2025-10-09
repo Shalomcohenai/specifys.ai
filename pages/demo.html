@@ -7,10 +7,7 @@ extra_css:
   - /assets/css/pages/demo.css
 ---
 
-<!-- Header -->
-    
-
-    <!-- Main Content -->
+<!-- Main Content -->
     <div class="demo-container">
         <div class="demo-header">
             <h1>Demo</h1>
@@ -84,23 +81,39 @@ extra_css:
         </div>
     </div>
 
-    <!-- Footer -->
-    
-
-    <script>
+<script>
         // Global variables for content
         let specificationContent = '';
         let researchContent = '';
+        let mermaidInitialized = false;
         
-        // Initialize Mermaid
-        mermaid.initialize({ 
-            startOnLoad: false,
-            theme: document.body.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
-        });
+        // Wait for required libraries to load
+        function waitForLibraries() {
+            return new Promise((resolve) => {
+                const checkLibraries = () => {
+                    if (typeof mermaid !== 'undefined' && typeof marked !== 'undefined') {
+                        if (!mermaidInitialized) {
+                            mermaid.initialize({ 
+                                startOnLoad: false,
+                                theme: document.body.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+                            });
+                            mermaidInitialized = true;
+                        }
+                        resolve();
+                    } else {
+                        setTimeout(checkLibraries, 100);
+                    }
+                };
+                checkLibraries();
+            });
+        }
         
         // Load content from demotext.text
         async function loadDemoContent() {
             try {
+                // Wait for libraries to load first
+                await waitForLibraries();
+                
                 const response = await fetch('demotext.text');
                 const text = await response.text();
                 
@@ -167,7 +180,9 @@ extra_css:
             });
             
             // Re-initialize Mermaid for new diagrams
-            mermaid.init(undefined, contentDiv.querySelectorAll('.mermaid'));
+            if (typeof mermaid !== 'undefined' && mermaidInitialized) {
+                mermaid.init(undefined, contentDiv.querySelectorAll('.mermaid'));
+            }
         }
         
         // Show error message

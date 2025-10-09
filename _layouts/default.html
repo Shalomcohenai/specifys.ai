@@ -21,5 +21,17 @@
     {% include firebase-init.html %}
     {% include firebase-auth.html %}
     {% endunless %}
+    
+    <!-- Extra JavaScript -->
+    {% if page.extra_js %}
+      {% for js in page.extra_js %}
+        <script src="{{ js | relative_url }}"></script>
+      {% endfor %}
+    {% endif %}
+    {% if layout.extra_js %}
+      {% for js in layout.extra_js %}
+        <script src="{{ js | relative_url }}"></script>
+      {% endfor %}
+    {% endif %}
 </body>
 </html>

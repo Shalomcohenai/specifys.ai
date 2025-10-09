@@ -8,8 +8,7 @@ const blogRoutes = require('./server/blog-routes');
 
 // Load environment variables from .env file
 console.log('Loading environment variables...');
-const path = require('path');
-dotenv.config({ path: path.join(__dirname, '.env') });
+dotenv.config();
 
 const app = express();
 const port = 3001; // Changed to 3001 to avoid potential port conflicts

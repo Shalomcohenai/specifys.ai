@@ -106,22 +106,14 @@
 .form-group input[type="text"],
 .form-group input[type="date"],
 .form-group textarea {
-    background: rgba(255, 255, 255, 0.95);
-    border: 2px solid rgba(102, 126, 234, 0.3);
-    border-radius: 10px;
-    padding: 0.875rem 1.125rem;
-    color: #000000;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    color: #e0e0e0;
     font-family: 'Inter', sans-serif;
     font-size: 0.95rem;
     transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-.form-group input[type="text"]:hover,
-.form-group input[type="date"]:hover,
-.form-group textarea:hover {
-    border-color: rgba(102, 126, 234, 0.5);
-    background: rgba(255, 255, 255, 1);
 }
 
 .form-group input[type="text"]:focus,
@@ -129,9 +121,8 @@
 .form-group textarea:focus {
     outline: none;
     border-color: #667eea;
-    background: rgba(255, 255, 255, 1);
-    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15), 0 4px 12px rgba(102, 126, 234, 0.3);
-    transform: translateY(-1px);
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
 .form-group textarea {
