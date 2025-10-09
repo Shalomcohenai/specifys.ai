@@ -180,6 +180,7 @@ extra_css:
             signInWithPopup,
             getAuth
         } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
         // Firebase configuration
         const firebaseConfig = {
@@ -195,7 +196,25 @@ extra_css:
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
+        const db = getFirestore(app);
         const googleProvider = new GoogleAuthProvider();
+
+        // Create user document in Firestore
+        async function createUserDocument(user) {
+            try {
+                const userRef = doc(db, 'users', user.uid);
+                await setDoc(userRef, {
+                    email: user.email,
+                    displayName: user.displayName || user.email.split('@')[0],
+                    emailVerified: user.emailVerified,
+                    createdAt: serverTimestamp(),
+                    lastActive: serverTimestamp(),
+                    newsletterSubscription: false
+                }, { merge: true });
+            } catch (error) {
+                console.error('❌ Error creating user document:', error);
+            }
+        }
 
         // Tab switching
         function switchTab(tab) {
@@ -301,6 +320,7 @@ extra_css:
         async function registerWithEmail(email, password) {
             try {
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                await createUserDocument(userCredential.user);
                 return userCredential.user;
             } catch (error) {
                 throw new Error(getAuthErrorMessage(error.code));
@@ -310,6 +330,7 @@ extra_css:
         async function loginWithEmail(email, password) {
             try {
                 const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                await createUserDocument(userCredential.user);
                 return userCredential.user;
             } catch (error) {
                 throw new Error(getAuthErrorMessage(error.code));
@@ -319,6 +340,7 @@ extra_css:
         async function loginWithGoogle() {
             try {
                 const result = await signInWithPopup(auth, googleProvider);
+                await createUserDocument(result.user);
                 return result.user;
             } catch (error) {
                 throw new Error(getAuthErrorMessage(error.code));
@@ -507,7 +529,6 @@ extra_css:
         window.logout = function() {
             signOut(auth)
                 .then(() => {
-                    console.log('Logged out successfully');
                     window.location.href = '../index.html';
                 })
                 .catch(error => {

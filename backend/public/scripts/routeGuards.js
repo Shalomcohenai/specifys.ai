@@ -12,7 +12,6 @@ export function requireAuth(redirectTo = '/login.html') {
       if (user) {
         resolve(user);
       } else {
-        console.log('User not authenticated, redirecting to:', redirectTo);
         window.location.href = redirectTo;
         reject(new Error('User not authenticated'));
       }
@@ -30,7 +29,6 @@ export function redirectIfAuthed(redirectTo = '/dashboard.html') {
       unsubscribe(); // Stop listening after first check
       
       if (user) {
-        console.log('User already authenticated, redirecting to:', redirectTo);
         window.location.href = redirectTo;
         reject(new Error('User already authenticated'));
       } else {
@@ -78,7 +76,7 @@ export function protectRoute(callback, redirectTo = '/login.html') {
   requireAuth(redirectTo)
     .then(callback)
     .catch((error) => {
-      console.log('Route protection failed:', error.message);
+      // Route protection failed
     });
 }
 
@@ -88,5 +86,4 @@ export function protectRoute(callback, redirectTo = '/login.html') {
  */
 export function initRouteGuards() {
   // Add any global route guard logic here
-  console.log('Route guards initialized');
 }

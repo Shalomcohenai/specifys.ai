@@ -27,8 +27,6 @@ async function createUserDocument(user) {
       lastActive: serverTimestamp(),
       newsletterSubscription: false
     }, { merge: true }); // merge: true will update existing or create new
-    
-    console.log('✅ User document created/updated in Firestore');
   } catch (error) {
     console.error('❌ Error creating user document:', error);
     // Don't throw - this shouldn't prevent login/registration
@@ -44,7 +42,6 @@ async function createUserDocument(user) {
 export async function registerWithEmail(email, password) {
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    console.log('User registered successfully:', userCredential.user.email);
     
     // Create user document in Firestore
     await createUserDocument(userCredential.user);
@@ -65,7 +62,6 @@ export async function registerWithEmail(email, password) {
 export async function loginWithEmail(email, password) {
   try {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    console.log('User logged in successfully:', userCredential.user.email);
     
     // Create/update user document in Firestore
     await createUserDocument(userCredential.user);
@@ -84,7 +80,6 @@ export async function loginWithEmail(email, password) {
 export async function loginWithGoogle() {
   try {
     const result = await signInWithPopup(auth, googleProvider);
-    console.log('Google login successful:', result.user.email);
     
     // Create/update user document in Firestore
     await createUserDocument(result.user);
@@ -103,7 +98,6 @@ export async function loginWithGoogle() {
 export async function logout() {
   try {
     await signOut(auth);
-    console.log('User logged out successfully');
   } catch (error) {
     console.error('Logout error:', error);
     throw new Error('שגיאה ביציאה מהחשבון');

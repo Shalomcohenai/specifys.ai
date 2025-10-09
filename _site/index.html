@@ -434,7 +434,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="header-center">
         <div class="logo">
             <a href="/" aria-label="Specifys.ai homepage">
-                <span class="logo-text">Specifys.AI</span>
+                <span class="logo-text">Specifys<span class="logo-dot">.</span>AI</span>
             </a>
         </div>
     </div>
@@ -446,14 +446,39 @@ document.addEventListener('DOMContentLoaded', function() {
 </header>
 
 <style>
-/* Logo dark grey color - using site's color palette */
+/* Logo dark grey color - adjusted size */
 .logo a,
 .logo-text {
     color: #333 !important;
+    font-size: 1.66rem !important;
+}
+
+/* Only the dot in cyan */
+.logo-dot {
+    color: #0078d4 !important;
 }
 
 .logo a:hover {
     color: #444 !important;
+}
+
+.logo a:hover .logo-dot {
+    color: #005ea2 !important;
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+    .logo a,
+    .logo-text {
+        font-size: 1.22rem !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .logo a,
+    .logo-text {
+        font-size: 1.11rem !important;
+    }
 }
 </style>
 
@@ -476,7 +501,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <!-- Hero Section -->
 <div class="hero-hero-section">
   <div class="hero-container">
-    <h1 class="hero-title">Specifys.AI</h1>
+    <h1 class="hero-title">Specifys<span class="hero-dot">.</span>AI</h1>
     <div class="hero-subtitle">
       <p>Plan your app smarter</p>
       <p>Build faster with AI-driven insights</p>
@@ -1006,6 +1031,10 @@ document.addEventListener('DOMContentLoaded', function() {
   animation: fadeInUp 0.8s ease-out 0.5s forwards;
 }
 
+.hero-dot {
+  color: #0078d4;
+}
+
 .hero-subtitle {
   font-family: "Montserrat", sans-serif;
   font-size: clamp(0.8rem, 2.4vw, 1.6rem);
@@ -1031,7 +1060,7 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .hero-button {
-  font-family: var(--font-family-primary);
+  font-family: "Montserrat", sans-serif;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1041,8 +1070,8 @@ document.addEventListener('DOMContentLoaded', function() {
   text-decoration: none;
   padding: 0.56rem 1.4rem;
   border-radius: 17.5px;
-  font-size: 0.5rem;
-  font-weight: 600;
+  font-size: 0.9rem;
+  font-weight: 700;
   transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   animation: gentleBounce 4s ease-in-out infinite;
   box-shadow: 0 2.1px 7px rgba(0, 0, 0, 0.1);
@@ -1055,6 +1084,7 @@ document.addEventListener('DOMContentLoaded', function() {
   transform: translateY(-2px) scale(1.03);
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
   background: #f8f9fa;
+  text-decoration: none;
 }
 
 .hero-demo-link {
@@ -1066,7 +1096,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .demo-link {
   font-family: "Montserrat", sans-serif;
-  color: rgba(255, 255, 255, 0.7);
+  color: #fff;
+  opacity: 0.85;
   text-decoration: none;
   font-size: 0.8rem;
   font-weight: 400;
@@ -1074,8 +1105,9 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .demo-link:hover {
-  color: rgba(255, 255, 255, 1);
+  opacity: 1;
   transform: translateY(-1px);
+  text-decoration: none;
 }
 
 /* Extra Sections */
@@ -1305,8 +1337,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .cta-button:hover {
   background: #005ea2;
+  color: #fff;
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  text-decoration: none;
 }
 
 /* Testimonials */

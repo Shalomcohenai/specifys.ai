@@ -84,6 +84,8 @@
 
 .read-more-btn:hover {
   background: #005ea2;
+  color: #fff;
+  text-decoration: none;
   box-shadow: var(--shadow-md);
 }
 

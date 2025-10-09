@@ -39,7 +39,6 @@ export async function createSpec(specData) {
     };
     
     const docRef = await addDoc(collection(db, SPECS_COLLECTION), specDoc);
-    console.log('Spec created successfully:', docRef.id);
     return docRef.id;
   } catch (error) {
     console.error('Error creating spec:', error);
@@ -74,7 +73,6 @@ export async function fetchUserSpecs(userId) {
       });
     });
     
-    console.log(`Fetched ${specs.length} specs for user ${userId}`);
     return specs;
   } catch (error) {
     console.error('Error fetching user specs:', error);
@@ -94,7 +92,6 @@ export async function deleteSpec(specId) {
     }
     
     await deleteDoc(doc(db, SPECS_COLLECTION, specId));
-    console.log('Spec deleted successfully:', specId);
   } catch (error) {
     console.error('Error deleting spec:', error);
     throw new Error('שגיאה במחיקת המפרט: ' + error.message);
@@ -126,7 +123,6 @@ export async function updateSpec(specId, updateData) {
     });
     
     await updateDoc(doc(db, SPECS_COLLECTION, specId), updatePayload);
-    console.log('Spec updated successfully:', specId);
   } catch (error) {
     console.error('Error updating spec:', error);
     throw new Error('שגיאה בעדכון המפרט: ' + error.message);

@@ -114,6 +114,10 @@
   animation: fadeInUp 0.8s ease-out 0.5s forwards;
 }
 
+.hero-dot {
+  color: #0078d4;
+}
+
 .hero-subtitle {
   font-family: "Montserrat", sans-serif;
   font-size: clamp(0.8rem, 2.4vw, 1.6rem);
@@ -139,7 +143,7 @@
 }
 
 .hero-button {
-  font-family: var(--font-family-primary);
+  font-family: "Montserrat", sans-serif;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -149,8 +153,8 @@
   text-decoration: none;
   padding: 0.56rem 1.4rem;
   border-radius: 17.5px;
-  font-size: 0.5rem;
-  font-weight: 600;
+  font-size: 0.9rem;
+  font-weight: 700;
   transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   animation: gentleBounce 4s ease-in-out infinite;
   box-shadow: 0 2.1px 7px rgba(0, 0, 0, 0.1);
@@ -163,6 +167,7 @@
   transform: translateY(-2px) scale(1.03);
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
   background: #f8f9fa;
+  text-decoration: none;
 }
 
 .hero-demo-link {
@@ -174,7 +179,8 @@
 
 .demo-link {
   font-family: "Montserrat", sans-serif;
-  color: rgba(255, 255, 255, 0.7);
+  color: #fff;
+  opacity: 0.85;
   text-decoration: none;
   font-size: 0.8rem;
   font-weight: 400;
@@ -182,8 +188,9 @@
 }
 
 .demo-link:hover {
-  color: rgba(255, 255, 255, 1);
+  opacity: 1;
   transform: translateY(-1px);
+  text-decoration: none;
 }
 
 /* Extra Sections */
@@ -413,8 +420,10 @@
 
 .cta-button:hover {
   background: #005ea2;
+  color: #fff;
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  text-decoration: none;
 }
 
 /* Testimonials */

@@ -50,15 +50,12 @@ class MermaidManager {
         try {
             // Wait for Mermaid to be available
             if (typeof mermaid === 'undefined') {
-                console.log('Waiting for Mermaid to load...');
                 await this.waitForMermaid();
             }
 
             // Initialize Mermaid with configuration
             mermaid.initialize(this.config);
             this.isInitialized = true;
-            
-            console.log('Mermaid initialized successfully');
         } catch (error) {
             console.error('Failed to initialize Mermaid:', error);
         }
@@ -94,7 +91,6 @@ class MermaidManager {
             const script = document.createElement('script');
             script.src = 'https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js';
             script.onload = () => {
-                console.log('Mermaid loaded successfully');
                 resolve();
             };
             script.onerror = (error) => {

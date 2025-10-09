@@ -393,7 +393,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="header-center">
         <div class="logo">
             <a href="/" aria-label="Specifys.ai homepage">
-                <span class="logo-text">Specifys.AI</span>
+                <span class="logo-text">Specifys<span class="logo-dot">.</span>AI</span>
             </a>
         </div>
     </div>
@@ -405,14 +405,39 @@ document.addEventListener('DOMContentLoaded', function() {
 </header>
 
 <style>
-/* Logo dark grey color - using site's color palette */
+/* Logo dark grey color - adjusted size */
 .logo a,
 .logo-text {
     color: #333 !important;
+    font-size: 1.66rem !important;
+}
+
+/* Only the dot in cyan */
+.logo-dot {
+    color: #0078d4 !important;
 }
 
 .logo a:hover {
     color: #444 !important;
+}
+
+.logo a:hover .logo-dot {
+    color: #005ea2 !important;
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+    .logo a,
+    .logo-text {
+        font-size: 1.22rem !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .logo a,
+    .logo-text {
+        font-size: 1.11rem !important;
+    }
 }
 </style>
 
@@ -494,7 +519,6 @@ document.addEventListener('DOMContentLoaded', function() {
   // Load specification function
   async function loadSpec(specId) {
     try {
-      console.log('Loading spec with ID:', specId);
       const specDoc = await getDoc(doc(db, 'specs', specId));
       
       if (specDoc.exists()) {
@@ -653,7 +677,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Update the display
             document.getElementById("specTitle").textContent = newTitle.trim();
-            console.log("✅ Spec title updated successfully");
             
           } catch (error) {
             console.error("Error updating spec title:", error);
@@ -667,7 +690,6 @@ document.addEventListener('DOMContentLoaded', function() {
   // Listen to auth state changes
   onAuthStateChanged(auth, (user) => {
     if (user) {
-      console.log('User authenticated:', user.uid);
       const urlParams = new URLSearchParams(window.location.search);
       const specId = urlParams.get('id');
       
@@ -677,7 +699,6 @@ document.addEventListener('DOMContentLoaded', function() {
         showError('No specification ID provided');
       }
     } else {
-      console.log('User not authenticated');
       showError('Please log in to view this specification');
     }
   });

@@ -393,7 +393,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="header-center">
         <div class="logo">
             <a href="/" aria-label="Specifys.ai homepage">
-                <span class="logo-text">Specifys.AI</span>
+                <span class="logo-text">Specifys<span class="logo-dot">.</span>AI</span>
             </a>
         </div>
     </div>
@@ -405,14 +405,39 @@ document.addEventListener('DOMContentLoaded', function() {
 </header>
 
 <style>
-/* Logo dark grey color - using site's color palette */
+/* Logo dark grey color - adjusted size */
 .logo a,
 .logo-text {
     color: #333 !important;
+    font-size: 1.66rem !important;
+}
+
+/* Only the dot in cyan */
+.logo-dot {
+    color: #0078d4 !important;
 }
 
 .logo a:hover {
     color: #444 !important;
+}
+
+.logo a:hover .logo-dot {
+    color: #005ea2 !important;
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+    .logo a,
+    .logo-text {
+        font-size: 1.22rem !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .logo a,
+    .logo-text {
+        font-size: 1.11rem !important;
+    }
 }
 </style>
 
@@ -424,8 +449,8 @@ document.addEventListener('DOMContentLoaded', function() {
     <!-- Dashboard Header -->
     <div class="dashboard-header">
         <div class="header-left">
-            <h1>Admin Dashboard</h1>
-            <p>Monitor and manage Specifys.ai platform</p>
+        <h1>Admin Dashboard</h1>
+        <p>Monitor and manage Specifys.ai platform</p>
         </div>
         <div class="header-right">
             <div class="firebase-status">
@@ -495,6 +520,38 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="stat-card-value" id="total-market-research">0</div>
             <div class="stat-card-label">Total Market Research</div>
         </div>
+
+        <div class="stat-card">
+            <div class="stat-card-icon">
+                <i class="fas fa-bookmark"></i>
+            </div>
+            <div class="stat-card-value" id="total-saved-tools">0</div>
+            <div class="stat-card-label">Saved Tools</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-card-icon">
+                <i class="fas fa-heart"></i>
+            </div>
+            <div class="stat-card-value" id="total-likes">0</div>
+            <div class="stat-card-label">Total Likes</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-card-icon">
+                <i class="fas fa-sticky-note"></i>
+            </div>
+            <div class="stat-card-value" id="total-notes">0</div>
+            <div class="stat-card-label">App Notes</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-card-icon">
+                <i class="fas fa-dollar-sign"></i>
+            </div>
+            <div class="stat-card-value" id="total-expenses">0</div>
+            <div class="stat-card-label">Tracked Expenses</div>
+        </div>
     </div>
 
     <!-- Main Tabs Navigation -->
@@ -503,6 +560,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <button class="tab-btn active" data-tab="users">Users Management</button>
             <button class="tab-btn" data-tab="specs">Specs & Market Research</button>
             <button class="tab-btn" data-tab="dashboards">App Dashboards</button>
+            <button class="tab-btn" data-tab="activity">User Activity</button>
             <button class="tab-btn" data-tab="analytics">Analytics</button>
         </div>
 
@@ -650,29 +708,115 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
                 
                 <div class="table-wrapper">
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                                <th>App Name</th>
-                                <th>User Email</th>
-                                <th>Created Date</th>
-                                <th>Status</th>
-                                <th>Tasks Count</th>
-                                <th>Milestones Count</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                        <tbody id="dashboards-table-body">
-                            <tr>
-                                <td colspan="7" class="loading-cell">Loading app dashboards data...</td>
-                            </tr>
-                    </tbody>
-                </table>
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>App Name</th>
+                                    <th>User Email</th>
+                                    <th>Created Date</th>
+                                    <th>Status</th>
+                                    <th>Tasks</th>
+                                    <th>Milestones</th>
+                                    <th>Notes</th>
+                                    <th>Expenses</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dashboards-table-body">
+                                <tr>
+                                    <td colspan="9" class="loading-cell">Loading app dashboards data...</td>
+                                </tr>
+                            </tbody>
+                        </table>
                 </div>
             </div>
         </div>
 
-        <!-- Tab 4: Analytics -->
+        <!-- Tab 4: User Activity -->
+        <div class="tab-content" id="activity-tab">
+            <div class="table-section">
+                <div class="section-header">
+                    <h2>User Activity & Engagement</h2>
+                    <button class="btn-refresh" onclick="adminDashboard.loadActivityData()">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+
+                <!-- Saved Tools Section -->
+                <div class="activity-subsection">
+                    <h3><i class="fas fa-bookmark"></i> Most Saved Tools</h3>
+                    <div class="table-wrapper">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Tool Name</th>
+                                    <th>Times Saved</th>
+                                    <th>Unique Users</th>
+                                    <th>Popularity</th>
+                                </tr>
+                            </thead>
+                            <tbody id="saved-tools-table-body">
+                                <tr>
+                                    <td colspan="4" class="loading-cell">Loading saved tools data...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Most Active Users Section -->
+                <div class="activity-subsection">
+                    <h3><i class="fas fa-users"></i> Most Active Users</h3>
+                    <div class="table-wrapper">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>User Email</th>
+                                    <th>Dashboards</th>
+                                    <th>Specs</th>
+                                    <th>Notes</th>
+                                    <th>Total Activity</th>
+                                </tr>
+                            </thead>
+                            <tbody id="active-users-table-body">
+                                <tr>
+                                    <td colspan="5" class="loading-cell">Loading active users data...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Engagement Stats -->
+                <div class="activity-subsection">
+                    <h3><i class="fas fa-chart-line"></i> Engagement Statistics</h3>
+                    <div class="engagement-stats-grid">
+                        <div class="engagement-stat-card">
+                            <div class="stat-icon"><i class="fas fa-percentage"></i></div>
+                            <div class="stat-value" id="users-with-dashboards-percent">0%</div>
+                            <div class="stat-label">Users with Dashboards</div>
+                        </div>
+                        <div class="engagement-stat-card">
+                            <div class="stat-icon"><i class="fas fa-percentage"></i></div>
+                            <div class="stat-value" id="users-with-saved-tools-percent">0%</div>
+                            <div class="stat-label">Users with Saved Tools</div>
+                        </div>
+                        <div class="engagement-stat-card">
+                            <div class="stat-icon"><i class="fas fa-chart-bar"></i></div>
+                            <div class="stat-value" id="avg-dashboards-per-user">0</div>
+                            <div class="stat-label">Avg Dashboards/User</div>
+                        </div>
+                        <div class="engagement-stat-card">
+                            <div class="stat-icon"><i class="fas fa-chart-bar"></i></div>
+                            <div class="stat-value" id="avg-specs-per-user">0</div>
+                            <div class="stat-label">Avg Specs/User</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 5: Analytics -->
         <div class="tab-content" id="analytics-tab">
             <div class="analytics-grid">
                 <!-- User Analytics -->
@@ -745,7 +889,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="modal-body">
                 <div id="modal-spec-content" class="spec-content"></div>
             </div>
-        </div>
+                </div>
             </div>
             
     <!-- Confirmation Modal for Delete -->
@@ -766,16 +910,16 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
     </main>
 
-<script>
+    <script>
     // Check admin access
-    function checkAdminAccess(user) {
-        const adminEmails = [
-            'specifysai@gmail.com',
-            'admin@specifys.ai',
-            'shalom@specifys.ai'
-        ];
-        return adminEmails.includes(user.email.toLowerCase());
-    }
+        function checkAdminAccess(user) {
+            const adminEmails = [
+                'specifysai@gmail.com',
+                'admin@specifys.ai',
+                'shalom@specifys.ai'
+            ];
+            return adminEmails.includes(user.email.toLowerCase());
+        }
 
     // Wait for Firebase to be ready (loaded from layout)
     document.addEventListener('DOMContentLoaded', function() {
@@ -804,9 +948,9 @@ document.addEventListener('DOMContentLoaded', function() {
             // User is admin - initialize dashboard
             if (typeof AdminDashboard !== 'undefined') {
                 window.adminDashboard = new AdminDashboard();
-            }
-        });
-    });
+                    }
+                });
+            });
 </script>
 
 <script src="/assets/js/admin-dashboard.js"></script>

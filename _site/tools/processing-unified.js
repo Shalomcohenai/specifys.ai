@@ -129,19 +129,15 @@ class UnifiedChat {
   }
 
   init() {
-    console.log('UnifiedChat init() called');
-    
     // Check if this is a fresh page load (not a refresh)
     const isRefresh = performance.navigation.type === 1;
     if (isRefresh) {
-      console.log('Page was refreshed, clearing localStorage');
       this.clearAllLocalStorage();
     }
     
     this.loadSavedData();
     this.setupEventListeners();
     this.startChat();
-    console.log('UnifiedChat init() completed');
   }
 
   clearAllLocalStorage() {
@@ -157,7 +153,6 @@ class UnifiedChat {
     localStorage.removeItem('devAnswers');
     localStorage.removeItem('marketAnswers');
     localStorage.removeItem('generatedContent');
-    console.log('All localStorage cleared');
   }
 
   loadSavedData() {
@@ -223,12 +218,9 @@ class UnifiedChat {
   }
 
   startChat() {
-    console.log('startChat() called, messages length:', this.messages.length);
     if (this.messages.length === 0) {
-      console.log('No messages, showing intro messages');
       this.showIntroMessages();
     } else {
-      console.log('Messages exist, rendering them');
       this.renderMessages();
     }
     // Update back button visibility
@@ -236,7 +228,6 @@ class UnifiedChat {
   }
 
   showIntroMessages() {
-    console.log('showIntroMessages() called');
     const introMessages = [
       "Hi! 👋 I'm your personal assistant and my job is to help you reach the perfect application! You can talk to me in any language you want, but for convenience you'll receive the final document in English",
       "💡 Tip: You can edit any of your answers by clicking the 'edit' button on your messages, and restart anytime with the reset button above",
@@ -245,7 +236,6 @@ class UnifiedChat {
 
     let messageIndex = 0;
     const showNextMessage = () => {
-      console.log('showNextMessage called, index:', messageIndex);
       if (messageIndex < introMessages.length) {
         const message = {
           id: Date.now() + messageIndex,
@@ -255,14 +245,12 @@ class UnifiedChat {
         };
         
         this.messages.push(message);
-        console.log('Added intro message:', message);
         this.renderMessages();
         this.scrollToBottom();
         
         messageIndex++;
         setTimeout(showNextMessage, 1500);
       } else {
-        console.log('All intro messages shown, showing mode selection');
         setTimeout(() => {
           this.showModeSelection();
           this.updateResetButtonVisibility();
@@ -283,18 +271,15 @@ class UnifiedChat {
   }
 
   renderMessages() {
-    console.log('renderMessages() called');
     const chatMessages = document.getElementById('chatMessages');
     if (!chatMessages) {
       console.error('chatMessages element not found!');
       return;
     }
-    console.log('Found chatMessages element, clearing and rendering', this.messages.length, 'messages');
 
     chatMessages.innerHTML = '';
 
     this.messages.forEach((message, index) => {
-      console.log('Rendering message', index, ':', message);
       if (message.isModeSelection) {
         // Render mode selection with buttons
         this.renderModeSelection(chatMessages);
@@ -544,9 +529,6 @@ class UnifiedChat {
 
   async generateSpecification() {
     try {
-      console.log('Starting generateSpecification for mode:', this.currentMode);
-      console.log('Answers:', this.answers);
-      
       // Show loading overlay
       this.showLoadingOverlay();
 
@@ -565,16 +547,10 @@ class UnifiedChat {
       if (this.currentMode === 'novice') {
         apiUrl = 'https://newnocode.shalom-cohen-111.workers.dev/';
         prompt = PROMPTS.novice(this.answers);
-        console.log('Using Novice Mode API:', apiUrl);
       } else if (this.currentMode === 'market') {
         apiUrl = 'https://super-dream-62b3.shalom-cohen-111.workers.dev/';
         prompt = PROMPTS.market(this.answers);
-        console.log('Using Market Mode API:', apiUrl);
       }
-
-      console.log('Full prompt constructed:', prompt);
-      console.log('Prompt length (characters):', prompt.length);
-      console.log('Sending request with prompt:', prompt);
 
       const response = await fetch(apiUrl, {
         method: 'POST',
@@ -584,17 +560,12 @@ class UnifiedChat {
         body: JSON.stringify({ prompt: prompt }),
       });
 
-      console.log('API response status received:', response.status);
-      console.log('API response headers:', Object.fromEntries(response.headers.entries()));
-
       let data;
       try {
         data = await response.json();
-        console.log('API response data received:', data);
       } catch (parseError) {
         console.error('Failed to parse API response as JSON:', parseError);
         const textResponse = await response.text();
-        console.log('Raw API response:', textResponse);
         throw new Error(`API Error: Failed to parse response (Status: ${response.status})`);
       }
 
@@ -604,8 +575,6 @@ class UnifiedChat {
       }
       
       const generatedContent = data.specification || 'No specification generated';
-      console.log('Generated content extracted:', generatedContent);
-      console.log('Generated content length:', generatedContent.length);
 
       // Store the generated content
       localStorage.setItem('generatedContent', generatedContent);
@@ -621,10 +590,8 @@ class UnifiedChat {
           currentMode: 'nocode'
         }));
         localStorage.setItem('noCodeAnswers', JSON.stringify(this.answers));
-        console.log('Saved formData and noCodeAnswers to localStorage');
       } else if (this.currentMode === 'market') {
         localStorage.setItem('marketAnswers', JSON.stringify(this.answers));
-        console.log('Saved marketAnswers to localStorage');
       }
 
 
@@ -644,16 +611,13 @@ class UnifiedChat {
       this.scrollToBottom();
 
       // Check if user is authenticated before redirecting
-      console.log('Checking authentication status before redirect...');
       
       // Wait for Firebase auth to be ready
       setTimeout(async () => {
         const user = firebase.auth().currentUser;
-        console.log('Current user:', user);
         
         if (user) {
           // User is authenticated - save the result with user ID and redirect to appropriate page
-          console.log('User is authenticated, saving result with user ID:', user.uid);
           
           try {
             // Wait for the save operation to complete
@@ -663,13 +627,9 @@ class UnifiedChat {
             const savedSpecId = localStorage.getItem('savedSpecId');
             const savedSpecCollection = localStorage.getItem('savedSpecCollection');
             
-            console.log('Save completed. Saved spec ID:', savedSpecId, 'Collection:', savedSpecCollection);
-            
             // Redirect to appropriate result page with saved spec ID
-            console.log('Redirecting to result page for mode:', this.currentMode);
             
             if (this.currentMode === 'novice') {
-              console.log('Redirecting to result-novice.html');
               if (savedSpecId && savedSpecCollection === 'specs') {
                 window.location.href = `/tools/result-novice.html?id=${savedSpecId}`;
               } else {

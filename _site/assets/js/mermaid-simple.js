@@ -36,7 +36,6 @@ const SimpleMermaidManager = {
             });
             
             this.initialized = true;
-            console.log('Simple Mermaid initialized');
         } catch (error) {
             console.error('Failed to initialize Mermaid:', error);
         }
@@ -68,8 +67,6 @@ const SimpleMermaidManager = {
             // Render chart
             const { svg } = await mermaid.render(chartId, definition);
             chartDiv.innerHTML = svg;
-            
-            console.log(`Chart rendered in ${containerId}`);
             
         } catch (error) {
             console.error(`Failed to render chart:`, error);
@@ -121,6 +118,5 @@ window.SimpleMermaidManager = SimpleMermaidManager;
 
 // Auto-initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOM ready, initializing Simple Mermaid...');
     SimpleMermaidManager.init();
 });

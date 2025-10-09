@@ -3,7 +3,7 @@
     <div class="header-center">
         <div class="logo">
             <a href="{{ '/' | relative_url }}" aria-label="Specifys.ai homepage">
-                <span class="logo-text">Specifys.AI</span>
+                <span class="logo-text">Specifys<span class="logo-dot">.</span>AI</span>
             </a>
         </div>
     </div>
@@ -15,14 +15,39 @@
 </header>
 
 <style>
-/* Logo dark grey color - using site's color palette */
+/* Logo dark grey color - adjusted size */
 .logo a,
 .logo-text {
     color: #333 !important;
+    font-size: 1.66rem !important;
+}
+
+/* Only the dot in cyan */
+.logo-dot {
+    color: #0078d4 !important;
 }
 
 .logo a:hover {
     color: #444 !important;
+}
+
+.logo a:hover .logo-dot {
+    color: #005ea2 !important;
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+    .logo a,
+    .logo-text {
+        font-size: 1.22rem !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .logo a,
+    .logo-text {
+        font-size: 1.11rem !important;
+    }
 }
 </style>
 

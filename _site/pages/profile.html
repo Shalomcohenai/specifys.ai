@@ -393,7 +393,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="header-center">
         <div class="logo">
             <a href="/" aria-label="Specifys.ai homepage">
-                <span class="logo-text">Specifys.AI</span>
+                <span class="logo-text">Specifys<span class="logo-dot">.</span>AI</span>
             </a>
         </div>
     </div>
@@ -405,14 +405,39 @@ document.addEventListener('DOMContentLoaded', function() {
 </header>
 
 <style>
-/* Logo dark grey color - using site's color palette */
+/* Logo dark grey color - adjusted size */
 .logo a,
 .logo-text {
     color: #333 !important;
+    font-size: 1.66rem !important;
+}
+
+/* Only the dot in cyan */
+.logo-dot {
+    color: #0078d4 !important;
 }
 
 .logo a:hover {
     color: #444 !important;
+}
+
+.logo a:hover .logo-dot {
+    color: #005ea2 !important;
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+    .logo a,
+    .logo-text {
+        font-size: 1.22rem !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .logo a,
+    .logo-text {
+        font-size: 1.11rem !important;
+    }
 }
 </style>
 
@@ -543,46 +568,6 @@ document.addEventListener('DOMContentLoaded', function() {
             
         });
 
-        // Global functions for user dropdown
-        window.toggleUserDropdown = function() {
-            const dropdown = document.querySelector('.user-dropdown-content');
-            if (dropdown && dropdown.classList.contains('show')) {
-                dropdown.classList.remove('show');
-            } else if (dropdown) {
-                dropdown.classList.add('show');
-            }
-        };
-
-        // Close user dropdown when clicking outside
-        document.addEventListener('click', function(event) {
-            const userDropdown = document.querySelector('.user-dropdown');
-            const userInfo = document.querySelector('.user-info');
-            const dropdown = document.querySelector('.user-dropdown-content');
-            
-            if (userDropdown && dropdown && dropdown.classList.contains('show') && 
-                !userInfo.contains(event.target)) {
-                dropdown.classList.remove('show');
-            }
-        });
-
-        // Initialize auth buttons with default state
-        document.addEventListener('DOMContentLoaded', function() {
-            const authButtons = document.getElementById('auth-buttons');
-            if (authButtons && !authButtons.innerHTML.trim()) {
-                authButtons.innerHTML = `
-                    <button class="auth-btn login-btn">Login</button>
-                `;
-                
-                const loginBtn = authButtons.querySelector('.login-btn');
-                if (loginBtn) {
-                    loginBtn.addEventListener('click', function(event) {
-                        event.stopPropagation();
-                        window.location.href = 'auth.html';
-                    });
-                }
-            }
-        });
-
         // Auth UI functions will be handled by the modern Firebase v9+ script below
     </script>
 
@@ -599,6 +584,7 @@ document.addEventListener('DOMContentLoaded', function() {
             signInWithPopup,
             getAuth
         } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { doc as firestoreDoc, setDoc as firestoreSetDoc, serverTimestamp as firestoreServerTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
         import { 
             collection, 
@@ -632,6 +618,23 @@ document.addEventListener('DOMContentLoaded', function() {
         const db = getFirestore(app);
         const googleProvider = new GoogleAuthProvider();
 
+        // Create user document in Firestore
+        async function createUserDocumentInProfile(user) {
+            try {
+                const userRef = firestoreDoc(db, 'users', user.uid);
+                await firestoreSetDoc(userRef, {
+                    email: user.email,
+                    displayName: user.displayName || user.email.split('@')[0],
+                    emailVerified: user.emailVerified,
+                    createdAt: firestoreServerTimestamp(),
+                    lastActive: firestoreServerTimestamp(),
+                    newsletterSubscription: false
+                }, { merge: true });
+            } catch (error) {
+                console.error('❌ Error creating user document:', error);
+            }
+        }
+
         let currentUser = null;
         let userSpecs = [];
         let userApps = [];
@@ -643,9 +646,13 @@ document.addEventListener('DOMContentLoaded', function() {
         let updateTimeout;
 
         // Auth state change handler
-        onAuthStateChanged(auth, (user) => {
+        onAuthStateChanged(auth, async (user) => {
             if (user) {
                 currentUser = user;
+                
+                // Create/update user document in Firestore
+                await createUserDocumentInProfile(user);
+                
                 updateProfileInfo(user);
                 loadUserApps();
                 loadUserSpecs();
@@ -703,7 +710,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         id: doc.id,
                         ...doc.data()
                     };
-                    console.log('📱 Loaded app:', appData.name, 'linkedSpecs:', appData.linkedSpecs, 'linkedResearch:', appData.linkedResearch);
                     userApps.push(appData);
                 });
                 
@@ -1293,7 +1299,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Refresh the display
                 renderApps();
-                console.log("✅ App updated successfully");
             } catch (error) {
                 console.error("Error updating app:", error);
                 alert("Failed to update app. Please try again.");
@@ -1315,7 +1320,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Refresh the display
                 renderApps();
-                console.log("✅ App deleted successfully");
             } catch (error) {
                 console.error("Error deleting app:", error);
                 alert("Failed to delete app. Please try again.");
@@ -1357,7 +1361,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Update link button appearance after re-render
                 setTimeout(updateLinkButtonAppearance, 100);
                 
-                console.log('✅ Spec title updated successfully');
                 showSuccess('Specification title updated successfully!');
                 
             } catch (error) {
@@ -1386,8 +1389,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Show success message
                 alert('Specification removed successfully from interface');
-                
-                console.log('Spec removed from UI:', specId);
                 
             } catch (error) {
                 console.error('Error removing spec from UI:', error);
@@ -1569,25 +1570,24 @@ document.addEventListener('DOMContentLoaded', function() {
         // Auth UI functions
         function updateAuthUI(user) {
             const authButtons = document.getElementById('auth-buttons');
+            if (!authButtons) return;
             
             if (user) {
+                // User is logged in
+                const displayName = user.displayName || user.email.split('@')[0];
+                const firstLetter = displayName.charAt(0).toUpperCase();
+                
                 authButtons.innerHTML = `
-                    <div class="user-dropdown">
-                        <div class="user-info" onclick="toggleUserDropdown()">
-                            <div class="user-avatar">${user.displayName ? user.displayName.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase()}</div>
-                            <span class="user-name">${user.displayName || user.email.split('@')[0]}</span>
-                        </div>
-                        <div class="user-dropdown-content" id="userDropdown">
-                            <a href="profile.html">Profile</a>
-                            <div class="divider"></div>
-                            <button onclick="logout()">Sign Out</button>
-                        </div>
-                    </div>
+                    <a href="/pages/profile.html" class="user-info" style="text-decoration: none;">
+                        <div class="user-avatar">${firstLetter}</div>
+                        <span>${displayName}</span>
+                    </a>
                 `;
                 
                 // Check if user is admin and show/hide admin dashboard button
                 checkAdminAccess(user);
             } else {
+                // User is not logged in
                 authButtons.innerHTML = `
                     <button class="auth-btn" onclick="showLoginModal()">Login</button>
                 `;
@@ -1641,7 +1641,8 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!password) return;
             
             signInWithEmailAndPassword(auth, email, password)
-                .then(() => {
+                .then(async (userCredential) => {
+                    await createUserDocumentInProfile(userCredential.user);
                     alert('Logged in successfully!');
                 })
                 .catch(error => {
@@ -1662,7 +1663,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             createUserWithEmailAndPassword(auth, email, password)
-                .then(() => {
+                .then(async (userCredential) => {
+                    await createUserDocumentInProfile(userCredential.user);
                     alert('Registered successfully!');
                 })
                 .catch(error => {
@@ -1684,24 +1686,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
         };
 
-        window.toggleUserDropdown = function() {
-            const dropdown = document.getElementById('userDropdown');
-            if (dropdown) {
-                dropdown.classList.toggle('show');
-            }
-        };
-
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function(event) {
-            const dropdown = document.getElementById('userDropdown');
-            const userInfo = document.querySelector('.user-info');
-            
-            if (dropdown && userInfo) {
-                if (!userInfo.contains(event.target) && !dropdown.contains(event.target)) {
-                    dropdown.classList.remove('show');
-                }
-            }
-        });
 
         // Global function for linking spec to app
         window.linkSpecToApp = function(specId) {
@@ -2072,109 +2056,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     
     <!-- Firebase SDK & Auth -->
-    
-    <!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-
-<script>
-  // Firebase Configuration
-  const firebaseConfig = {
-    apiKey: "AIzaSyB9hr0IWM4EREzkKDxBxYoYinV6LJXWXV4",
-    authDomain: "specify-ai.firebaseapp.com",
-    projectId: "specify-ai",
-    storageBucket: "specify-ai.firebasestorage.app",
-    messagingSenderId: "734278787482",
-    appId: "1:734278787482:web:0e312fb6f197e849695a23",
-    measurementId: "G-4YR9LK63MR"
-  };
-
-  // Initialize Firebase
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db = firebase.firestore();
-</script>
-
-
-    <script>
-  // Auth UI functions
-  function updateAuthUI(user) {
-    const authButtons = document.getElementById('auth-buttons');
-    if (!authButtons) return;
-    
-    if (user) {
-      // User is logged in
-      const displayName = user.displayName || user.email.split('@')[0];
-      const firstLetter = displayName.charAt(0).toUpperCase();
-      
-      authButtons.innerHTML = `
-        <a href="/pages/profile.html" class="user-info" style="text-decoration: none;">
-          <div class="user-avatar">${firstLetter}</div>
-          <span>${displayName}</span>
-        </a>
-      `;
-    } else {
-      // User is not logged in
-      authButtons.innerHTML = `
-        <button class="auth-btn" onclick="showLoginModal()">Login</button>
-      `;
-    }
-  }
-
-  // Global auth functions
-  window.showLoginModal = function() {
-    if (typeof trackButtonClick !== 'undefined') {
-      trackButtonClick('Show Login', 'Authentication', 'header');
-    }
-    window.location.href = '/pages/auth.html';
-  };
-
-  window.showRegisterModal = function() {
-    if (typeof trackButtonClick !== 'undefined') {
-      trackButtonClick('Show Register', 'Authentication', 'header');
-    }
-    window.location.href = '/pages/auth.html';
-  };
-
-  window.logout = function() {
-    if (typeof trackAuthEvent !== 'undefined') {
-      trackAuthEvent('logout', 'email');
-    }
-    auth.signOut()
-      .then(() => {
-        console.log('Logged out successfully');
-      })
-      .catch(error => {
-        console.error('Error logging out:', error);
-      });
-  };
-
-  // Listen to auth state changes
-  auth.onAuthStateChanged((user) => {
-    updateAuthUI(user);
-  });
-
-  // Initialize auth buttons with default state
-  document.addEventListener('DOMContentLoaded', function() {
-    const authButtons = document.getElementById('auth-buttons');
-    if (authButtons && !authButtons.innerHTML.trim()) {
-      authButtons.innerHTML = `
-        <button class="auth-btn login-btn">Login</button>
-      `;
-      
-      const loginBtn = authButtons.querySelector('.login-btn');
-      if (loginBtn) {
-        loginBtn.addEventListener('click', function(event) {
-          event.stopPropagation();
-          window.location.href = '/pages/auth.html';
-        });
-      }
-    }
-  });
-</script>
-
-
     
 </body>
 </html>

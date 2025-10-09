@@ -1,5 +1,11 @@
 /* How It Works Page Styles */
 
+/* Add spacing for header and footer on this page only */
+body .main-content {
+  padding-top: 80px;
+  padding-bottom: 60px;
+}
+
 /* Intro paragraph */
 .how-intro {
   font-size: 1.1rem;
@@ -209,6 +215,11 @@
 }
 
 @media (max-width: 768px) {
+  body .main-content {
+    padding-top: 70px;
+    padding-bottom: 50px;
+  }
+  
   .tracks-container {
     flex-direction: column;
   }
@@ -219,6 +230,13 @@
   
   .tools-grid {
     grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 480px) {
+  body .main-content {
+    padding-top: 68px;
+    padding-bottom: 40px;
   }
 }
 

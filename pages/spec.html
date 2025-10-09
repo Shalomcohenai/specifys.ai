@@ -81,7 +81,6 @@ extra_css:
   // Load specification function
   async function loadSpec(specId) {
     try {
-      console.log('Loading spec with ID:', specId);
       const specDoc = await getDoc(doc(db, 'specs', specId));
       
       if (specDoc.exists()) {
@@ -240,7 +239,6 @@ extra_css:
 
             // Update the display
             document.getElementById("specTitle").textContent = newTitle.trim();
-            console.log("✅ Spec title updated successfully");
             
           } catch (error) {
             console.error("Error updating spec title:", error);
@@ -254,7 +252,6 @@ extra_css:
   // Listen to auth state changes
   onAuthStateChanged(auth, (user) => {
     if (user) {
-      console.log('User authenticated:', user.uid);
       const urlParams = new URLSearchParams(window.location.search);
       const specId = urlParams.get('id');
       
@@ -264,7 +261,6 @@ extra_css:
         showError('No specification ID provided');
       }
     } else {
-      console.log('User not authenticated');
       showError('Please log in to view this specification');
     }
   });

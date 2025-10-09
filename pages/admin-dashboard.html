@@ -11,8 +11,8 @@ extra_css:
     <!-- Dashboard Header -->
     <div class="dashboard-header">
         <div class="header-left">
-            <h1>Admin Dashboard</h1>
-            <p>Monitor and manage Specifys.ai platform</p>
+        <h1>Admin Dashboard</h1>
+        <p>Monitor and manage Specifys.ai platform</p>
         </div>
         <div class="header-right">
             <div class="firebase-status">
@@ -82,6 +82,38 @@ extra_css:
             <div class="stat-card-value" id="total-market-research">0</div>
             <div class="stat-card-label">Total Market Research</div>
         </div>
+
+        <div class="stat-card">
+            <div class="stat-card-icon">
+                <i class="fas fa-bookmark"></i>
+            </div>
+            <div class="stat-card-value" id="total-saved-tools">0</div>
+            <div class="stat-card-label">Saved Tools</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-card-icon">
+                <i class="fas fa-heart"></i>
+            </div>
+            <div class="stat-card-value" id="total-likes">0</div>
+            <div class="stat-card-label">Total Likes</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-card-icon">
+                <i class="fas fa-sticky-note"></i>
+            </div>
+            <div class="stat-card-value" id="total-notes">0</div>
+            <div class="stat-card-label">App Notes</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-card-icon">
+                <i class="fas fa-dollar-sign"></i>
+            </div>
+            <div class="stat-card-value" id="total-expenses">0</div>
+            <div class="stat-card-label">Tracked Expenses</div>
+        </div>
     </div>
 
     <!-- Main Tabs Navigation -->
@@ -90,6 +122,7 @@ extra_css:
             <button class="tab-btn active" data-tab="users">Users Management</button>
             <button class="tab-btn" data-tab="specs">Specs & Market Research</button>
             <button class="tab-btn" data-tab="dashboards">App Dashboards</button>
+            <button class="tab-btn" data-tab="activity">User Activity</button>
             <button class="tab-btn" data-tab="analytics">Analytics</button>
         </div>
 
@@ -237,29 +270,115 @@ extra_css:
                 </div>
                 
                 <div class="table-wrapper">
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                                <th>App Name</th>
-                                <th>User Email</th>
-                                <th>Created Date</th>
-                                <th>Status</th>
-                                <th>Tasks Count</th>
-                                <th>Milestones Count</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                        <tbody id="dashboards-table-body">
-                            <tr>
-                                <td colspan="7" class="loading-cell">Loading app dashboards data...</td>
-                            </tr>
-                    </tbody>
-                </table>
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>App Name</th>
+                                    <th>User Email</th>
+                                    <th>Created Date</th>
+                                    <th>Status</th>
+                                    <th>Tasks</th>
+                                    <th>Milestones</th>
+                                    <th>Notes</th>
+                                    <th>Expenses</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dashboards-table-body">
+                                <tr>
+                                    <td colspan="9" class="loading-cell">Loading app dashboards data...</td>
+                                </tr>
+                            </tbody>
+                        </table>
                 </div>
             </div>
         </div>
 
-        <!-- Tab 4: Analytics -->
+        <!-- Tab 4: User Activity -->
+        <div class="tab-content" id="activity-tab">
+            <div class="table-section">
+                <div class="section-header">
+                    <h2>User Activity & Engagement</h2>
+                    <button class="btn-refresh" onclick="adminDashboard.loadActivityData()">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+
+                <!-- Saved Tools Section -->
+                <div class="activity-subsection">
+                    <h3><i class="fas fa-bookmark"></i> Most Saved Tools</h3>
+                    <div class="table-wrapper">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Tool Name</th>
+                                    <th>Times Saved</th>
+                                    <th>Unique Users</th>
+                                    <th>Popularity</th>
+                                </tr>
+                            </thead>
+                            <tbody id="saved-tools-table-body">
+                                <tr>
+                                    <td colspan="4" class="loading-cell">Loading saved tools data...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Most Active Users Section -->
+                <div class="activity-subsection">
+                    <h3><i class="fas fa-users"></i> Most Active Users</h3>
+                    <div class="table-wrapper">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>User Email</th>
+                                    <th>Dashboards</th>
+                                    <th>Specs</th>
+                                    <th>Notes</th>
+                                    <th>Total Activity</th>
+                                </tr>
+                            </thead>
+                            <tbody id="active-users-table-body">
+                                <tr>
+                                    <td colspan="5" class="loading-cell">Loading active users data...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Engagement Stats -->
+                <div class="activity-subsection">
+                    <h3><i class="fas fa-chart-line"></i> Engagement Statistics</h3>
+                    <div class="engagement-stats-grid">
+                        <div class="engagement-stat-card">
+                            <div class="stat-icon"><i class="fas fa-percentage"></i></div>
+                            <div class="stat-value" id="users-with-dashboards-percent">0%</div>
+                            <div class="stat-label">Users with Dashboards</div>
+                        </div>
+                        <div class="engagement-stat-card">
+                            <div class="stat-icon"><i class="fas fa-percentage"></i></div>
+                            <div class="stat-value" id="users-with-saved-tools-percent">0%</div>
+                            <div class="stat-label">Users with Saved Tools</div>
+                        </div>
+                        <div class="engagement-stat-card">
+                            <div class="stat-icon"><i class="fas fa-chart-bar"></i></div>
+                            <div class="stat-value" id="avg-dashboards-per-user">0</div>
+                            <div class="stat-label">Avg Dashboards/User</div>
+                        </div>
+                        <div class="engagement-stat-card">
+                            <div class="stat-icon"><i class="fas fa-chart-bar"></i></div>
+                            <div class="stat-value" id="avg-specs-per-user">0</div>
+                            <div class="stat-label">Avg Specs/User</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 5: Analytics -->
         <div class="tab-content" id="analytics-tab">
             <div class="analytics-grid">
                 <!-- User Analytics -->
@@ -332,7 +451,7 @@ extra_css:
             <div class="modal-body">
                 <div id="modal-spec-content" class="spec-content"></div>
             </div>
-        </div>
+                </div>
             </div>
             
     <!-- Confirmation Modal for Delete -->
@@ -353,16 +472,16 @@ extra_css:
         </div>
     </main>
 
-<script>
+    <script>
     // Check admin access
-    function checkAdminAccess(user) {
-        const adminEmails = [
-            'specifysai@gmail.com',
-            'admin@specifys.ai',
-            'shalom@specifys.ai'
-        ];
-        return adminEmails.includes(user.email.toLowerCase());
-    }
+        function checkAdminAccess(user) {
+            const adminEmails = [
+                'specifysai@gmail.com',
+                'admin@specifys.ai',
+                'shalom@specifys.ai'
+            ];
+            return adminEmails.includes(user.email.toLowerCase());
+        }
 
     // Wait for Firebase to be ready (loaded from layout)
     document.addEventListener('DOMContentLoaded', function() {
@@ -391,9 +510,9 @@ extra_css:
             // User is admin - initialize dashboard
             if (typeof AdminDashboard !== 'undefined') {
                 window.adminDashboard = new AdminDashboard();
-            }
-        });
-    });
+                    }
+                });
+            });
 </script>
 
 <script src="/assets/js/admin-dashboard.js"></script>

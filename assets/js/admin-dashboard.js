@@ -17,6 +17,10 @@ class AdminDashboard {
         this.allDashboards = [];
         this.allTasks = [];
         this.allMilestones = [];
+        this.allSavedTools = [];
+        this.allLikes = [];
+        this.allNotes = [];
+        this.allExpenses = [];
         this.autoRefreshInterval = null;
         this.lastRefreshTime = null;
         
@@ -77,7 +81,6 @@ class AdminDashboard {
         
         // Refresh every 24 hours (86400000 ms)
         this.autoRefreshInterval = setInterval(() => {
-            console.log('Auto-refreshing data (24 hours passed)...');
             this.refreshAllData();
         }, 86400000);
     }
@@ -117,7 +120,6 @@ class AdminDashboard {
         }
         
         this.showNotification('🔄 Creating user documents in Firestore...', 'info');
-        console.log('🔄 Starting user sync process...');
         
         try {
             // For now, we can only sync the current user and create a template
@@ -132,7 +134,6 @@ class AdminDashboard {
             const userDoc = await userRef.get();
             
             if (!userDoc.exists) {
-                console.log('Creating user document for current user...');
                 await userRef.set({
                     email: this.currentUser.email,
                     displayName: this.currentUser.displayName || this.currentUser.email.split('@')[0],
@@ -141,14 +142,12 @@ class AdminDashboard {
                     lastActive: new Date().toISOString(),
                     newsletterSubscription: false
                 });
-                console.log('✅ Current user document created');
                 this.showNotification('✅ Current user synced! Note: Other users will be synced when they login.', 'success');
             } else {
                 // Update lastActive
                 await userRef.update({
                     lastActive: new Date().toISOString()
                 });
-                console.log('✅ Current user document updated');
                 this.showNotification('✅ Current user updated! Note: Other users will be synced when they login.', 'success');
             }
             
@@ -189,7 +188,7 @@ class AdminDashboard {
             lastRefreshEl.textContent = `Last refresh: ${minutes} min ago`;
         } else if (hours < 24) {
             lastRefreshEl.textContent = `Last refresh: ${hours} hours ago`;
-        } else {
+                } else {
             lastRefreshEl.textContent = `Last refresh: ${this.lastRefreshTime.toLocaleString()}`;
         }
     }
@@ -230,8 +229,8 @@ class AdminDashboard {
                 // Add active class to clicked
                 btn.classList.add('active');
                 document.getElementById(`${targetSubTab}-subtab`).classList.add('active');
+                });
             });
-        });
     }
 
     // Setup filters and search
@@ -267,16 +266,12 @@ class AdminDashboard {
     // Load all data
     async loadAllData() {
         try {
-            console.log('=== Starting to load all data ===');
-            console.log('Current user:', this.currentUser?.email);
-            
             // Load data sequentially to better track errors
             await this.loadUsersData();
             await this.loadSpecsData();
             await this.loadMarketResearchData();
             await this.loadDashboardsData();
-            
-            console.log('=== All data loaded successfully ===');
+            await this.loadActivityData();
             
             this.updateStatsCards();
             this.updateAnalytics();
@@ -293,34 +288,16 @@ class AdminDashboard {
     // Load users data
     async loadUsersData() {
         try {
-            console.log('📊 Loading users data...');
-            console.log('Current user email:', this.currentUser?.email);
-            console.log('Current user UID:', this.currentUser?.uid);
-            
             const usersSnapshot = await this.db.collection('users').get();
-            
-            console.log(`📊 Received ${usersSnapshot.size} user documents from Firebase`);
             
             // NO MOCK DATA - Only real data from Firebase
             this.allUsers = usersSnapshot.docs.map(doc => {
                 const data = doc.data();
-                console.log(`User doc ${doc.id}:`, data);
                 return {
                     id: doc.id,
                     ...data
                 };
             });
-            
-            console.log(`✅ Successfully loaded ${this.allUsers.length} users from Firebase`);
-            console.log('Users array:', this.allUsers);
-            
-            if (this.allUsers.length === 0) {
-                console.warn('⚠️ No users found in Firebase. This might be a permissions issue or empty collection.');
-                console.warn('Checking if current user is admin...');
-                const adminEmails = ['specifysai@gmail.com', 'admin@specifys.ai', 'shalom@specifys.ai'];
-                const isAdmin = adminEmails.includes(this.currentUser?.email?.toLowerCase());
-                console.warn('Is admin?', isAdmin);
-            }
             
             this.renderUsersTable(this.allUsers);
         } catch (error) {
@@ -361,7 +338,6 @@ class AdminDashboard {
     // Load specs data
     async loadSpecsData() {
         try {
-            console.log('Loading specs data...');
             const specsSnapshot = await this.db.collection('specs').get();
             
             // NO MOCK DATA - Only real data from Firebase
@@ -370,19 +346,18 @@ class AdminDashboard {
                 ...doc.data()
             }));
             
-            console.log(`Loaded ${this.allSpecs.length} specs from Firebase`);
             this.renderSpecsTable(this.allSpecs);
         } catch (error) {
             console.error('Error loading specs:', error);
             const tbody = document.getElementById('specs-table-body');
             if (tbody) {
-                tbody.innerHTML = `
-                    <tr>
+            tbody.innerHTML = `
+                <tr>
                         <td colspan="5" style="text-align: center; color: var(--danger-color); padding: 20px;">
                             Error: ${error.message}
-                        </td>
-                    </tr>
-                `;
+                    </td>
+                </tr>
+            `;
             }
             throw error;
         }
@@ -391,7 +366,6 @@ class AdminDashboard {
     // Load market research data
     async loadMarketResearchData() {
         try {
-            console.log('Loading market research data...');
             const marketSnapshot = await this.db.collection('marketResearch').get();
             
             // NO MOCK DATA - Only real data from Firebase
@@ -400,7 +374,6 @@ class AdminDashboard {
                 ...doc.data()
             }));
             
-            console.log(`Loaded ${this.allMarketResearch.length} market research items from Firebase`);
             this.renderMarketResearchTable(this.allMarketResearch);
         } catch (error) {
             console.error('Error loading market research:', error);
@@ -421,8 +394,6 @@ class AdminDashboard {
     // Load dashboards data
     async loadDashboardsData() {
         try {
-            console.log('Loading dashboards data...');
-            
             // NO MOCK DATA - Only real data from Firebase
             const dashboardsSnapshot = await this.db.collection('apps').get();
             this.allDashboards = dashboardsSnapshot.docs.map(doc => ({
@@ -443,7 +414,6 @@ class AdminDashboard {
                 ...doc.data()
             }));
             
-            console.log(`Loaded ${this.allDashboards.length} dashboards, ${this.allTasks.length} tasks, ${this.allMilestones.length} milestones from Firebase`);
             this.renderDashboardsTable(this.allDashboards);
         } catch (error) {
             console.error('Error loading dashboards:', error);
@@ -533,18 +503,182 @@ class AdminDashboard {
         `).join('');
     }
 
-    // Render dashboards table
+    // Load activity data (saved tools, likes, notes, expenses)
+    async loadActivityData() {
+        try {
+            console.log('📊 Loading activity data...');
+            
+            // Load saved tools
+            const savedToolsSnapshot = await this.db.collectionGroup('savedTools').get();
+            this.allSavedTools = savedToolsSnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+            console.log(`Loaded ${this.allSavedTools.length} saved tools`);
+
+            // Load likes
+            const likesSnapshot = await this.db.collection('userLikes').get();
+            this.allLikes = likesSnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+            console.log(`Loaded ${this.allLikes.length} likes`);
+
+            // Load notes
+            const notesSnapshot = await this.db.collection('appNotes').get();
+            this.allNotes = notesSnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+            console.log(`Loaded ${this.allNotes.length} notes`);
+
+            // Load expenses
+            const expensesSnapshot = await this.db.collection('appExpenses').get();
+            this.allExpenses = expensesSnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+            console.log(`Loaded ${this.allExpenses.length} expenses`);
+
+            // Render activity tables
+            this.renderSavedToolsTable();
+            this.renderActiveUsersTable();
+            this.updateEngagementStats();
+            
+        } catch (error) {
+            console.error('Error loading activity data:', error);
+            this.showNotification('Error loading activity data: ' + error.message, 'error');
+        }
+    }
+
+    // Render saved tools table
+    renderSavedToolsTable() {
+        const tbody = document.getElementById('saved-tools-table-body');
+        if (!tbody) return;
+        
+        if (!this.allSavedTools || this.allSavedTools.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" class="loading-cell">No saved tools found</td></tr>';
+            return;
+        }
+
+        // Group by tool name and count
+        const toolStats = {};
+        this.allSavedTools.forEach(tool => {
+            const toolName = tool.toolName || 'Unknown Tool';
+            if (!toolStats[toolName]) {
+                toolStats[toolName] = {
+                    count: 0,
+                    users: new Set()
+                };
+            }
+            toolStats[toolName].count++;
+            if (tool.userId) {
+                toolStats[toolName].users.add(tool.userId);
+            }
+        });
+
+        // Convert to array and sort
+        const toolArray = Object.entries(toolStats).map(([name, stats]) => ({
+            name,
+            count: stats.count,
+            uniqueUsers: stats.users.size,
+            popularity: ((stats.users.size / Math.max(this.allUsers.length, 1)) * 100).toFixed(1)
+        })).sort((a, b) => b.count - a.count);
+
+        tbody.innerHTML = toolArray.slice(0, 10).map((tool, index) => `
+            <tr>
+                <td><strong>${index + 1}.</strong> ${tool.name}</td>
+                <td>${tool.count}</td>
+                <td>${tool.uniqueUsers}</td>
+                <td>${tool.popularity}%</td>
+            </tr>
+        `).join('');
+    }
+
+    // Render active users table
+    renderActiveUsersTable() {
+        const tbody = document.getElementById('active-users-table-body');
+        if (!tbody) return;
+        
+        if (!this.allUsers || this.allUsers.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" class="loading-cell">No users found</td></tr>';
+            return;
+        }
+
+        // Calculate activity per user
+        const userActivity = this.allUsers.map(user => {
+            const dashboards = this.allDashboards.filter(d => d.userId === user.id).length;
+            const specs = this.allSpecs.filter(s => s.userId === user.id).length;
+            const notes = this.allNotes.filter(n => n.userId === user.id).length;
+            const total = dashboards + specs + notes;
+
+            return {
+                email: user.email || 'N/A',
+                dashboards,
+                specs,
+                notes,
+                total
+            };
+        }).filter(u => u.total > 0).sort((a, b) => b.total - a.total);
+
+        if (userActivity.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" class="loading-cell">No user activity found</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = userActivity.slice(0, 10).map((user, index) => `
+            <tr>
+                <td><strong>${index + 1}.</strong> ${user.email}</td>
+                <td>${user.dashboards}</td>
+                <td>${user.specs}</td>
+                <td>${user.notes}</td>
+                <td><strong>${user.total}</strong></td>
+                        </tr>
+        `).join('');
+    }
+
+    // Update engagement statistics
+    updateEngagementStats() {
+        if (this.allUsers.length === 0) {
+            document.getElementById('users-with-dashboards-percent').textContent = '0%';
+            document.getElementById('users-with-saved-tools-percent').textContent = '0%';
+            document.getElementById('avg-dashboards-per-user').textContent = '0';
+            document.getElementById('avg-specs-per-user').textContent = '0';
+            return;
+        }
+
+        // Users with dashboards percentage
+        const usersWithDashboards = new Set(this.allDashboards.map(d => d.userId)).size;
+        const dashboardsPercent = ((usersWithDashboards / this.allUsers.length) * 100).toFixed(1);
+        document.getElementById('users-with-dashboards-percent').textContent = dashboardsPercent + '%';
+
+        // Users with saved tools percentage
+        const usersWithTools = new Set(this.allSavedTools.map(t => t.userId).filter(Boolean)).size;
+        const toolsPercent = ((usersWithTools / this.allUsers.length) * 100).toFixed(1);
+        document.getElementById('users-with-saved-tools-percent').textContent = toolsPercent + '%';
+
+        // Average dashboards per user
+        const avgDashboards = (this.allDashboards.length / this.allUsers.length).toFixed(1);
+        document.getElementById('avg-dashboards-per-user').textContent = avgDashboards;
+
+        // Average specs per user
+        const avgSpecs = (this.allSpecs.length / this.allUsers.length).toFixed(1);
+        document.getElementById('avg-specs-per-user').textContent = avgSpecs;
+    }
+
     renderDashboardsTable(dashboards) {
         const tbody = document.getElementById('dashboards-table-body');
         
         if (!dashboards || dashboards.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="7" class="loading-cell">No app dashboards found</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="9" class="loading-cell">No app dashboards found</td></tr>';
             return;
         }
 
         tbody.innerHTML = dashboards.map(dashboard => {
             const tasksCount = this.allTasks.filter(t => t.appId === dashboard.id).length;
             const milestonesCount = this.allMilestones.filter(m => m.appId === dashboard.id).length;
+            const notesCount = this.allNotes.filter(n => n.appId === dashboard.id).length;
+            const expensesCount = this.allExpenses.filter(e => e.appId === dashboard.id).length;
             
             return `
                 <tr>
@@ -554,6 +688,8 @@ class AdminDashboard {
                     <td><span class="status-badge status-active">Active</span></td>
                     <td>${tasksCount}</td>
                     <td>${milestonesCount}</td>
+                    <td>${notesCount}</td>
+                    <td>${expensesCount}</td>
                     <td>
                         <button class="btn-view" onclick="adminDashboard.viewDashboard('${dashboard.id}')">
                             <i class="fas fa-eye"></i> View
@@ -568,12 +704,6 @@ class AdminDashboard {
     updateStatsCards() {
                 const oneWeekAgo = new Date();
                 oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-                
-        console.log('Updating stats cards with real data:');
-        console.log(`- Total users: ${this.allUsers.length}`);
-        console.log(`- Total dashboards: ${this.allDashboards.length}`);
-        console.log(`- Total specs: ${this.allSpecs.length}`);
-        console.log(`- Total market research: ${this.allMarketResearch.length}`);
 
         // Total users - REAL DATA ONLY
         document.getElementById('total-users').textContent = this.allUsers.length;
@@ -600,6 +730,18 @@ class AdminDashboard {
 
         // Total market research - REAL DATA ONLY
         document.getElementById('total-market-research').textContent = this.allMarketResearch.length;
+
+        // Total saved tools - REAL DATA ONLY
+        document.getElementById('total-saved-tools').textContent = this.allSavedTools.length;
+
+        // Total likes - REAL DATA ONLY
+        document.getElementById('total-likes').textContent = this.allLikes.length;
+
+        // Total notes - REAL DATA ONLY
+        document.getElementById('total-notes').textContent = this.allNotes.length;
+
+        // Total expenses - REAL DATA ONLY
+        document.getElementById('total-expenses').textContent = this.allExpenses.length;
     }
 
     // Update analytics
@@ -852,18 +994,38 @@ class AdminDashboard {
             const data = doc.data();
             const tasks = this.allTasks.filter(t => t.appId === dashboardId);
             const milestones = this.allMilestones.filter(m => m.appId === dashboardId);
+            const notes = this.allNotes.filter(n => n.appId === dashboardId);
+            const expenses = this.allExpenses.filter(e => e.appId === dashboardId);
 
             let content = `App Name: ${data.appName || 'N/A'}\n`;
             content += `User: ${data.userEmail || 'N/A'}\n`;
             content += `Created: ${this.formatDate(data.createdAt)}\n\n`;
+            
             content += `Tasks (${tasks.length}):\n`;
             tasks.forEach(task => {
                 content += `- ${task.title || 'Untitled'} (${task.status || 'pending'})\n`;
             });
+            
             content += `\nMilestones (${milestones.length}):\n`;
             milestones.forEach(milestone => {
                 content += `- ${milestone.title || 'Untitled'}\n`;
             });
+            
+            content += `\nNotes (${notes.length}):\n`;
+            notes.forEach(note => {
+                content += `- ${note.content || 'No content'}\n`;
+            });
+            
+            content += `\nExpenses (${expenses.length}):\n`;
+            let totalExpenses = 0;
+            expenses.forEach(expense => {
+                const amount = expense.amount || 0;
+                totalExpenses += amount;
+                content += `- ${expense.description || 'N/A'}: $${amount}\n`;
+            });
+            if (expenses.length > 0) {
+                content += `Total: $${totalExpenses}\n`;
+            }
 
             document.getElementById('modal-title').textContent = data.appName || 'App Dashboard';
             document.getElementById('modal-spec-content').textContent = content;

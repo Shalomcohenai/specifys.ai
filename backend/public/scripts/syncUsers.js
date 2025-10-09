@@ -13,8 +13,6 @@ import {
  */
 export async function syncExistingUsers() {
   try {
-    console.log('Starting user sync process...');
-    
     // Get all specs to find unique userIds
     const specsSnapshot = await getDocs(collection(db, 'specs'));
     const userIds = new Set();
@@ -44,8 +42,6 @@ export async function syncExistingUsers() {
       }
     });
     
-    console.log(`Found ${userIds.size} unique user IDs from existing data`);
-    
     // Check which users don't have user documents
     const missingUsers = [];
     for (const userId of userIds) {
@@ -56,8 +52,6 @@ export async function syncExistingUsers() {
         missingUsers.push(userId);
       }
     }
-    
-    console.log(`Found ${missingUsers.length} users missing user documents`);
     
     // Create user documents for missing users
     for (const userId of missingUsers) {
@@ -71,13 +65,11 @@ export async function syncExistingUsers() {
         };
         
         await createUserDocument(mockUser);
-        console.log(`Created user document for ${userId}`);
       } catch (error) {
         console.error(`Failed to create user document for ${userId}:`, error);
       }
     }
     
-    console.log('User sync process completed!');
     return {
       totalUserIds: userIds.size,
       missingUsers: missingUsers.length,

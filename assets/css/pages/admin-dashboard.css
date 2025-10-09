@@ -672,6 +672,64 @@ body.dark-mode .status-unsubscribed {
     font-size: 1.1rem;
 }
 
+/* Activity Subsection */
+.activity-subsection {
+    margin-bottom: 2rem;
+}
+
+.activity-subsection h3 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 1rem;
+}
+
+.activity-subsection h3 i {
+    color: var(--primary-color);
+}
+
+/* Engagement Stats Grid */
+.engagement-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.engagement-stat-card {
+    background: var(--light-gray);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.5rem;
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.engagement-stat-card:hover {
+    transform: translateY(-2px);
+}
+
+.engagement-stat-card .stat-icon {
+    font-size: 2rem;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.engagement-stat-card .stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-color);
+    margin-bottom: 0.5rem;
+}
+
+.engagement-stat-card .stat-label {
+    font-size: 0.85rem;
+    color: var(--primary-color);
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .admin-container {
