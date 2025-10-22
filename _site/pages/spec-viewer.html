@@ -480,6 +480,14 @@ document.addEventListener('DOMContentLoaded', function() {
             <span id="marketStatus" class="status-value pending">Pending</span>
         </div>
         <div class="status-item">
+            <span class="status-label">Design:</span>
+            <span id="designStatus" class="status-value pending">Pending</span>
+        </div>
+        <div class="status-item">
+            <span class="status-label">Diagrams:</span>
+            <span id="diagramsStatus" class="status-value pending">Pending</span>
+        </div>
+        <div class="status-item">
             <span class="status-label">Storage:</span>
             <span id="storageStatus" class="status-value pending">Loading...</span>
         </div>
@@ -494,6 +502,12 @@ document.addEventListener('DOMContentLoaded', function() {
         </button>
         <button class="tab-button" onclick="showTab('market')" id="marketTab" disabled>
             📊 Market Research
+        </button>
+        <button class="tab-button" onclick="showTab('design')" id="designTab" disabled>
+            🎨 Design & Branding
+        </button>
+        <button class="tab-button" onclick="showTab('diagrams')" id="diagramsTab" disabled>
+            📊 Diagrams
         </button>
         <button class="tab-button" onclick="showTab('raw')" id="rawTab">
             🔍 Raw Data
@@ -543,6 +557,36 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div id="market-data" class="content-body"></div>
             </div>
             
+            <div id="design-content" class="tab-content" style="display: none;">
+                <div class="content-header">
+                    <h2>🎨 Design & Branding</h2>
+                    <button id="retryDesignBtn" class="btn btn-secondary retry-btn" onclick="retryDesign()" style="display: none;">
+                        🔄 Retry
+                    </button>
+                </div>
+                <div id="design-data" class="content-body">
+                    <div class="locked-tab-message">
+                        <h3>🔒 Design & Branding</h3>
+                        <p>Please approve the Overview and generate Technical & Market specifications first to create design guidelines.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="diagrams-content" class="tab-content" style="display: none;">
+                <div class="content-header">
+                    <h2>📊 Diagrams</h2>
+                    <button id="generateDiagramsBtn" class="btn btn-primary" onclick="generateDiagrams()" style="display: none;">
+                        Generate Diagrams
+                    </button>
+                </div>
+                <div id="diagrams-data" class="content-body">
+                    <div class="locked-tab-message">
+                        <h3>🔒 Diagrams</h3>
+                        <p>Please approve the Overview and generate Technical & Market specifications first to create visual diagrams.</p>
+                    </div>
+                </div>
+            </div>
+            
             <div id="raw-content" class="tab-content" style="display: none;">
                 <div class="content-header">
                 <h2>🔍 Raw JSON Data</h2>
@@ -553,6 +597,28 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         </div>
     </div>
+</div>
+
+<!-- Fullscreen Modal for Diagrams -->
+<div id="fullscreenModal" class="fullscreen-modal" style="display: none;">
+    <div class="fullscreen-header">
+        <h3 id="fullscreenTitle"></h3>
+        <div class="fullscreen-controls">
+            <button onclick="zoomIn()" class="btn-icon" title="Zoom In">
+                <i class="fas fa-plus"></i>
+            </button>
+            <button onclick="zoomOut()" class="btn-icon" title="Zoom Out">
+                <i class="fas fa-minus"></i>
+            </button>
+            <button onclick="resetZoom()" class="btn-icon" title="Reset Zoom">
+                <i class="fas fa-home"></i>
+            </button>
+            <button onclick="closeFullscreen()" class="btn-icon" title="Close">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+    <div class="fullscreen-content" id="fullscreenContent"></div>
 </div>
 
 <!-- Registration Modal for Unauthenticated Users -->
@@ -1037,13 +1103,228 @@ document.addEventListener('DOMContentLoaded', function() {
         margin: 10px;
     }
 }
+
+/* Diagrams Styling */
+.diagram-container {
+    margin-bottom: 30px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+    background: white;
+}
+
+.diagram-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.diagram-header h3 {
+    margin: 0;
+    font-size: 18px;
+    color: #333;
+}
+
+.diagram-controls {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-icon {
+    background: #0078d4;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 36px;
+}
+
+.btn-icon:hover {
+    background: #106ebe;
+}
+
+.diagram-content {
+    padding: 20px;
+    min-height: 200px;
+    position: relative;
+}
+
+.diagram-status {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: #666;
+}
+
+.status-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #ccc;
+}
+
+.status-indicator.ready {
+    background: #28a745;
+}
+
+.status-indicator.error {
+    background: #dc3545;
+}
+
+.status-indicator.refreshing {
+    background: #ffc107;
+    animation: pulse 1s infinite;
+}
+
+.status-indicator.generating {
+    background: #17a2b8;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+.status-text {
+    font-weight: 500;
+}
+
+.fullscreen-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    color: white;
+}
+
+.fullscreen-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.8);
+    border-bottom: 1px solid #333;
+}
+
+.fullscreen-header h3 {
+    margin: 0;
+    font-size: 24px;
+}
+
+.fullscreen-controls {
+    display: flex;
+    gap: 15px;
+}
+
+.fullscreen-controls .btn-icon {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.fullscreen-controls .btn-icon:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.fullscreen-content {
+    flex: 1;
+    padding: 20px;
+    overflow: auto;
+    cursor: grab;
+    transform-origin: center;
+    transition: transform 0.2s ease;
+}
+
+.fullscreen-content:active {
+    cursor: grabbing;
+}
+
+.fullscreen-content .mermaid {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.diagram-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    color: #666;
+}
+
+.diagram-error {
+    padding: 20px;
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 4px;
+    color: #721c24;
+}
+
+.diagram-error .btn {
+    margin-top: 10px;
+}
+
+@media (max-width: 768px) {
+    .diagram-header {
+        flex-direction: column;
+        gap: 15px;
+        align-items: stretch;
+    }
+    
+    .diagram-controls {
+        justify-content: center;
+    }
+    
+    .fullscreen-header {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .fullscreen-controls {
+        justify-content: center;
+    }
+}
 </style>
 
 <script src="/tools/prompts.js"></script>
+<script src="/assets/js/mermaid.js"></script>
 <script>
 let currentSpecData = null;
 let currentTab = 'overview';
 let isLoading = false;
+
+// Diagrams variables
+let diagramsData = null;
+let currentZoom = 1;
+let currentPanX = 0;
+let currentPanY = 0;
+let autoRefreshInterval = null;
+let healthCheckInterval = null;
+let isDragging = false;
+let dragStartX = 0;
+let dragStartY = 0;
 
 // Get spec ID from URL if provided
 const urlParams = new URLSearchParams(window.location.search);
@@ -1052,28 +1333,35 @@ const urlSpecId = urlParams.get('id');
 console.log('🚀 Spec Viewer - Starting...');
 
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🔍 DOMContentLoaded event fired');
+    // Initialize MermaidManager
+    try {
+        if (typeof mermaidManager !== 'undefined' && mermaidManager) {
+            mermaidManager.initialize().then(() => {
+                console.log('✅ MermaidManager initialized');
+            }).catch(error => {
+                console.error('❌ Failed to initialize MermaidManager:', error);
+                // Try to load mermaid directly as fallback
+                loadMermaidFallback();
+            });
+        } else {
+            console.log('⚠️ MermaidManager not available, loading fallback');
+            loadMermaidFallback();
+        }
+    } catch (error) {
+        console.error('❌ Failed to access MermaidManager:', error);
+        loadMermaidFallback();
+    }
     
     // Initialize Firebase auth state listener
     firebase.auth().onAuthStateChanged(function(user) {
-        console.log('🔍 Auth state changed:', user ? 'User logged in' : 'User logged out');
         if (user) {
-            console.log('🔍 User details:', {
-                uid: user.uid,
-                email: user.email,
-                displayName: user.displayName
-            });
-            
             // Load spec after user authentication
             if (urlSpecId) {
-                console.log('🔍 Loading spec after authentication:', urlSpecId);
                 loadSpec(urlSpecId);
             } else {
-                console.log('🔍 No spec ID provided, user is authenticated');
                 showError('No specification ID provided in URL');
             }
         } else {
-            console.log('🔍 User not authenticated');
             showError('User must be authenticated to view specifications');
         }
         
@@ -1091,13 +1379,42 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('✅ Spec Viewer - Ready!');
 });
 
+// Fallback function to load mermaid directly
+function loadMermaidFallback() {
+    console.log('🔄 Loading Mermaid as fallback...');
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js';
+    script.onload = () => {
+        console.log('✅ Mermaid loaded as fallback');
+        if (typeof mermaid !== 'undefined') {
+            mermaid.initialize({
+                theme: 'base',
+                themeVariables: {
+                    primaryColor: '#0078d4',
+                    primaryTextColor: '#333333',
+                    primaryBorderColor: '#0078d4',
+                    lineColor: '#333333',
+                    secondaryColor: '#f5f5f5',
+                    tertiaryColor: '#ffffff',
+                    background: '#ffffff',
+                    mainBkg: '#ffffff',
+                    secondBkg: '#f5f5f5',
+                    tertiaryBkg: '#ffffff'
+                }
+            });
+        }
+    };
+    script.onerror = (error) => {
+        console.error('❌ Failed to load Mermaid fallback:', error);
+    };
+    document.head.appendChild(script);
+}
+
 // Check authentication status and show modal if needed
 function checkAuthenticationStatus(user) {
     const showModal = localStorage.getItem('showRegistrationModal');
-    console.log('🔍 Checking auth status:', { user: !!user, showModal });
     
     if (!user && showModal === 'true') {
-        console.log('🔍 Showing registration modal for unauthenticated user');
         showRegistrationModal();
         localStorage.removeItem('showRegistrationModal');
     }
@@ -1123,7 +1440,6 @@ function closeRegistrationModal() {
 
 // Continue as guest
 function continueAsGuest() {
-    console.log('🔍 User chose to continue as guest');
     closeRegistrationModal();
     
     // Show a notification about guest mode
@@ -1167,20 +1483,17 @@ function showNotification(message, type = 'info') {
         }
     }, 5000);
     
-    console.log(`📢 Notification shown: ${message}`);
 }
 
 async function loadSpec(specId) {
     try {
         showLoading();
         
-        console.log('🔍 loadSpec called with specId:', specId);
         
         if (!specId) {
             throw new Error('No specification ID provided');
         }
         
-        console.log('📡 Loading spec from Firebase:', specId);
         
         // Load from Firebase (user is always authenticated)
         const user = firebase.auth().currentUser;
@@ -1213,11 +1526,6 @@ async function loadSpec(specId) {
 }
 
 function displaySpec(data) {
-    console.log('🔍 displaySpec called with data:', data);
-    console.log('🔍 Data keys:', Object.keys(data));
-    console.log('🔍 Overview content:', data.overview ? 'Present' : 'Missing');
-    console.log('🔍 Technical content:', data.technical ? 'Present' : 'Missing');
-    console.log('🔍 Market content:', data.market ? 'Present' : 'Missing');
     
     hideLoading();
     hideError();
@@ -1225,88 +1533,68 @@ function displaySpec(data) {
     
     // Update page title
     document.getElementById('spec-title').textContent = data.title || 'App Specification';
-    console.log('🔍 Updated page title to:', data.title || 'App Specification');
     
     // Update status indicators
     updateStatus('overview', data.status?.overview || 'ready');
     updateStatus('technical', data.status?.technical || 'pending');
     updateStatus('market', data.status?.market || 'pending');
+    updateDiagramsStatus(data.diagrams?.generated ? 'ready' : 'pending');
     updateStorageStatus(); // Add storage status update
-    console.log('🔍 Updated status indicators');
     
     // Display content for each tab
     displayOverview(data.overview);
     displayTechnical(data.technical);
     displayMarket(data.market);
+    displayDiagramsFromData(data);
     displayRaw(data);
-    console.log('🔍 Displayed content for all tabs');
     
     // Handle approval state
     if (data.overviewApproved) {
         enableAllTabs();
         hideApproveButton();
-        console.log('🔍 Overview already approved, enabling all tabs');
     } else {
         showApproveButton();
         disableTechnicalTabs();
-        console.log('🔍 Overview not approved, showing approve button');
     }
     
     // Show overview tab by default
     showTab('overview');
-    console.log('🔍 Switched to overview tab');
     
     // Spec is already saved to Firebase from processing page
 }
 
 function displayOverview(overview) {
-    console.log('🔍 displayOverview called with:', overview);
     const container = document.getElementById('overview-data');
-    console.log('🔍 Overview container element:', container);
     
     if (!overview) {
-        console.log('🔍 No overview content, showing placeholder');
         container.innerHTML = '<p class="text-muted">Overview not available...</p>';
         return;
     }
     
-    console.log('🔍 Overview content type:', typeof overview);
-    console.log('🔍 Overview content length:', overview.length);
     
     // Format the overview content
     const formattedContent = formatTextContent(overview);
-    console.log('🔍 Formatted content length:', formattedContent.length);
     container.innerHTML = formattedContent;
-    console.log('🔍 Overview display completed');
 }
 
 function displayTechnical(technical) {
-    console.log('🔍 displayTechnical called with:', technical);
-    console.log('🔍 Technical content type:', typeof technical);
-    console.log('🔍 Technical content length:', technical ? technical.length : 0);
     
     const container = document.getElementById('technical-data');
-    console.log('🔍 Technical container element:', container);
     
     if (!technical) {
-        console.log('🔍 No technical content, showing locked message');
         container.innerHTML = '<div class="locked-tab-message"><h3>🔒 Technical Specification</h3><p>Please approve the Overview first to generate the technical specification.</p></div>';
         return;
     }
     
     if (technical === 'error') {
-        console.log('🔍 Technical content is error, showing error message');
         container.innerHTML = '<div class="locked-tab-message"><h3>❌ Error Generating Technical Specification</h3><p>There was an error generating the technical specification. Please try again.</p></div>';
         document.getElementById('retryTechnicalBtn').style.display = 'inline-block';
         return;
     }
     
     // Format the technical content
-    console.log('🔍 Formatting technical content...');
     const formattedContent = formatTextContent(technical);
-    console.log('🔍 Formatted technical content length:', formattedContent.length);
     container.innerHTML = formattedContent;
-    console.log('🔍 Technical display completed');
 }
 
 function displayMarket(market) {
@@ -1332,13 +1620,44 @@ function displayRaw(data) {
     document.getElementById('raw-data').textContent = JSON.stringify(data, null, 2);
 }
 
+function displayDiagramsFromData(data) {
+    const container = document.getElementById('diagrams-data');
+    
+    if (!data.diagrams?.generated || !data.diagrams?.diagrams) {
+        // Show locked message or generate button
+        if (data.overviewApproved && data.technical && data.market) {
+            container.innerHTML = `
+                <div class="locked-tab-message">
+                    <h3>📊 Diagrams</h3>
+                    <p>Click "Generate Diagrams" to create visual representations of your specification.</p>
+                </div>
+            `;
+        } else {
+            container.innerHTML = `
+                <div class="locked-tab-message">
+                    <h3>🔒 Diagrams</h3>
+                    <p>Please approve the Overview and generate Technical & Market specifications first to create visual diagrams.</p>
+                </div>
+            `;
+        }
+        return;
+    }
+    
+    // Store diagrams data globally
+    diagramsData = data.diagrams.diagrams;
+    
+    // Display diagrams
+    displayDiagrams(diagramsData);
+    
+    // Start auto-refresh system
+    if (diagramsData && diagramsData.length > 0) {
+        startAutoRefresh();
+    }
+}
+
 function formatTextContent(content) {
-    console.log('🔍 formatTextContent called with:', content);
-    console.log('🔍 Content type:', typeof content);
-    console.log('🔍 Content length:', content ? content.length : 0);
     
     if (!content) {
-        console.log('🔍 No content, returning placeholder');
         return '<p>No content available</p>';
     }
     
@@ -1346,16 +1665,13 @@ function formatTextContent(content) {
     let parsedContent;
     try {
         parsedContent = JSON.parse(content);
-        console.log('🔍 Content is valid JSON:', parsedContent);
         return formatJSONContent(parsedContent);
     } catch (error) {
-        console.log('🔍 Content is not JSON, treating as plain text');
         return formatPlainTextContent(content);
     }
 }
 
 function formatJSONContent(jsonData) {
-    console.log('🔍 formatJSONContent called with:', jsonData);
     let html = '';
     
     // Handle applicationSummary
@@ -1608,16 +1924,13 @@ function formatJSONContent(jsonData) {
         html += '</div>';
     }
     
-    console.log('🔍 Formatted JSON HTML:', html);
     return html || '<div class="content-section"><p>No structured content available</p></div>';
 }
 
 function formatPlainTextContent(content) {
-    console.log('🔍 formatPlainTextContent called with:', content);
     
     // Split by common section headers and format
     const sections = content.split(/\n(?=[A-Z][a-z\s]+:)/);
-    console.log('🔍 Split into sections:', sections.length);
     
     let html = '';
     
@@ -1646,7 +1959,6 @@ function formatPlainTextContent(content) {
 }
 
 function updateStatus(type, status) {
-    console.log(`🔍 Updating ${type} status to:`, status);
     const element = document.getElementById(`${type}Status`);
     element.textContent = status;
     element.className = `status-value ${status}`;
@@ -1655,19 +1967,10 @@ function updateStatus(type, status) {
 
 
 function updateStorageStatus() {
-    console.log('🔍 Updating storage status...');
     
     const user = firebase.auth().currentUser;
     const hasSpecId = currentSpecData && currentSpecData.id;
     const hasUserId = currentSpecData && currentSpecData.userId;
-    
-    console.log('🔍 Storage status check:', {
-        user: !!user,
-        hasSpecId: hasSpecId,
-        hasUserId: hasUserId,
-        userId: currentSpecData?.userId,
-        userName: currentSpecData?.userName
-    });
     
     let status, statusClass;
     
@@ -1681,7 +1984,6 @@ function updateStorageStatus() {
         statusClass = 'local';
     }
     
-    console.log(`🔍 Storage status: ${status} (${statusClass})`);
     
     const element = document.getElementById('storageStatus');
     element.textContent = status;
@@ -1716,11 +2018,13 @@ function showTab(tabName) {
 function enableAllTabs() {
     document.getElementById('technicalTab').disabled = false;
     document.getElementById('marketTab').disabled = false;
+    document.getElementById('diagramsTab').disabled = false;
 }
 
 function disableTechnicalTabs() {
     document.getElementById('technicalTab').disabled = true;
     document.getElementById('marketTab').disabled = true;
+    document.getElementById('diagramsTab').disabled = true;
 }
 
 function showApproveButton() {
@@ -1794,7 +2098,6 @@ async function approveOverview() {
         // Check if user is authenticated
         const user = firebase.auth().currentUser;
         if (!user) {
-            console.log('🔍 User not authenticated, showing registration modal');
             showRegistrationModal();
             return;
         }
@@ -1837,15 +2140,11 @@ async function approveOverview() {
             generateMarketSpec()
         ]);
         
-        console.log('🔍 Technical result:', technicalResult);
-        console.log('🔍 Market result:', marketResult);
         
         // Handle results
         const technicalContent = technicalResult.status === 'fulfilled' ? technicalResult.value : 'error';
         const marketContent = marketResult.status === 'fulfilled' ? marketResult.value : 'error';
         
-        console.log('🔍 Technical content:', technicalContent);
-        console.log('🔍 Market content:', marketContent);
         
         // Update Firebase with results if user is authenticated
         if (user && currentSpecData && currentSpecData.id) {
@@ -1925,13 +2224,10 @@ async function approveOverview() {
     }
 }
 
-async function generateTechnicalSpec() {
-    console.log('🚀 Starting generateTechnicalSpec...');
-    console.log('🔍 Current spec data:', currentSpecData);
+async function generateTechnicalSpec(retryCount = 0, maxRetries = 2) {
+    console.log(`🚀 Starting generateTechnicalSpec... (attempt ${retryCount + 1}/${maxRetries + 1})`);
     
     const prompt = PROMPTS.technical(currentSpecData.overview, currentSpecData.answers);
-    console.log('🔍 Generated technical prompt:', prompt);
-    console.log('🔍 Technical prompt length:', prompt.length);
     
     const requestBody = {
         stage: 'technical',
@@ -1944,14 +2240,11 @@ async function generateTechnicalSpec() {
         }
     };
     
-    console.log('🔍 Technical API Request Body:', JSON.stringify(requestBody, null, 2));
-    console.log('🔍 Technical API URL: https://spspec.shalom-cohen-111.workers.dev/generate');
     
-    console.log('📡 Making technical API call...');
     
     // Create AbortController for timeout
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+    const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
     
     try {
         const response = await fetch('https://spspec.shalom-cohen-111.workers.dev/generate', {
@@ -1965,7 +2258,6 @@ async function generateTechnicalSpec() {
         
         clearTimeout(timeoutId);
         
-        console.log('📡 Technical API Response received:');
         console.log('  - Status:', response.status);
         console.log('  - Status Text:', response.statusText);
         console.log('  - OK:', response.ok);
@@ -1977,18 +2269,11 @@ async function generateTechnicalSpec() {
         }
         
         const responseText = await response.text();
-        console.log('🔍 Raw technical response text:', responseText);
-        console.log('🔍 Technical response text length:', responseText.length);
         
         const data = JSON.parse(responseText);
         console.log('✅ Successfully parsed technical JSON response:', data);
-        console.log('🔍 Data.technical exists:', !!data.technical);
-        console.log('🔍 Data.technical type:', typeof data.technical);
-        console.log('🔍 Data.technical content:', data.technical);
         
         const result = data.technical ? JSON.stringify(data.technical, null, 2) : 'No technical specification generated';
-        console.log('🔍 Final technical result:', result);
-        console.log('🔍 Technical result length:', result.length);
         
         return result;
         
@@ -1996,8 +2281,16 @@ async function generateTechnicalSpec() {
         clearTimeout(timeoutId);
         
         if (error.name === 'AbortError') {
-            console.error('❌ Technical API call timed out after 30 seconds');
-            throw new Error('API call timed out. Please try again.');
+            console.error(`❌ Technical API call timed out after 60 seconds (attempt ${retryCount + 1})`);
+            
+            // Auto-retry on timeout if we haven't exceeded max retries
+            if (retryCount < maxRetries) {
+                console.log(`🔄 Auto-retrying technical spec generation... (${retryCount + 1}/${maxRetries})`);
+                await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds before retry
+                return await generateTechnicalSpec(retryCount + 1, maxRetries);
+            } else {
+                throw new Error('API call timed out after 60 seconds. Please try again.');
+            }
         } else {
             console.error('❌ Technical API call failed:', error);
             throw error;
@@ -2007,11 +2300,8 @@ async function generateTechnicalSpec() {
 
 async function generateMarketSpec() {
     console.log('🚀 Starting generateMarketSpec...');
-    console.log('🔍 Current spec data:', currentSpecData);
     
     const prompt = PROMPTS.market(currentSpecData.overview, currentSpecData.answers);
-    console.log('🔍 Generated market prompt:', prompt);
-    console.log('🔍 Market prompt length:', prompt.length);
     
     const requestBody = {
         stage: 'market',
@@ -2024,10 +2314,7 @@ async function generateMarketSpec() {
         }
     };
     
-    console.log('🔍 Market API Request Body:', JSON.stringify(requestBody, null, 2));
-    console.log('🔍 Market API URL: https://spspec.shalom-cohen-111.workers.dev/generate');
     
-    console.log('📡 Making market API call...');
     
     // Create AbortController for timeout
     const controller = new AbortController();
@@ -2045,7 +2332,6 @@ async function generateMarketSpec() {
         
         clearTimeout(timeoutId);
         
-        console.log('📡 Market API Response received:');
         console.log('  - Status:', response.status);
         console.log('  - Status Text:', response.statusText);
         console.log('  - OK:', response.ok);
@@ -2057,18 +2343,11 @@ async function generateMarketSpec() {
         }
         
         const responseText = await response.text();
-        console.log('🔍 Raw market response text:', responseText);
-        console.log('🔍 Market response text length:', responseText.length);
         
         const data = JSON.parse(responseText);
         console.log('✅ Successfully parsed market JSON response:', data);
-        console.log('🔍 Data.market exists:', !!data.market);
-        console.log('🔍 Data.market type:', typeof data.market);
-        console.log('🔍 Data.market content:', data.market);
         
         const result = data.market ? JSON.stringify(data.market, null, 2) : 'No market research generated';
-        console.log('🔍 Final market result:', result);
-        console.log('🔍 Market result length:', result.length);
         
         return result;
         
@@ -2094,7 +2373,6 @@ async function retryTechnical() {
             document.getElementById('retryTechnicalBtn').disabled = true;
             document.getElementById('retryTechnicalBtn').textContent = `⏳ Retrying... (${retryCount + 1}/${maxRetries})`;
             
-            console.log(`🔄 Technical retry attempt ${retryCount + 1}/${maxRetries}`);
             
             const technicalContent = await generateTechnicalSpec();
             
@@ -2142,7 +2420,6 @@ async function retryTechnical() {
                 return;
             } else {
                 // Wait before next retry
-                console.log(`⏳ Waiting 2 seconds before retry ${retryCount + 1}...`);
                 await new Promise(resolve => setTimeout(resolve, 2000));
             }
         }
@@ -2158,7 +2435,6 @@ async function retryMarket() {
             document.getElementById('retryMarketBtn').disabled = true;
             document.getElementById('retryMarketBtn').textContent = `⏳ Retrying... (${retryCount + 1}/${maxRetries})`;
             
-            console.log(`🔄 Market retry attempt ${retryCount + 1}/${maxRetries}`);
             
             const marketContent = await generateMarketSpec();
             
@@ -2206,7 +2482,6 @@ async function retryMarket() {
                 return;
             } else {
                 // Wait before next retry
-                console.log(`⏳ Waiting 2 seconds before retry ${retryCount + 1}...`);
                 await new Promise(resolve => setTimeout(resolve, 2000));
             }
         }
@@ -2237,6 +2512,524 @@ function hideError() {
 function retryLoad() {
     if (urlSpecId) {
         loadSpec(urlSpecId);
+    }
+}
+
+// Diagrams Functions
+async function generateDiagrams() {
+    if (isLoading) return;
+    
+    try {
+        isLoading = true;
+        const generateBtn = document.getElementById('generateDiagramsBtn');
+        generateBtn.disabled = true;
+        generateBtn.textContent = '⏳ Generating Diagrams...';
+        
+        console.log('🚀 Starting diagram generation...');
+        
+        // Check if technical spec exists
+        if (!currentSpecData.technical || currentSpecData.technical === 'error') {
+            throw new Error('Technical specification must be generated first');
+        }
+        
+        // Create prompt for diagrams
+        const prompt = PROMPTS.diagrams(currentSpecData.technical, currentSpecData.overview);
+        
+        const requestBody = {
+            stage: 'diagrams',
+            prompt: prompt,
+            specId: currentSpecData.id
+        };
+        
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
+        
+        try {
+            const response = await fetch('https://spspec.shalom-cohen-111.workers.dev/generate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestBody),
+                signal: controller.signal
+            });
+            
+            clearTimeout(timeoutId);
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('❌ Diagrams API Error Response:', errorText);
+                throw new Error(`API Error: ${response.status} - ${errorText}`);
+            }
+            
+            const result = await response.json();
+            
+            if (result.diagrams && Array.isArray(result.diagrams)) {
+                // Store diagrams data globally
+                diagramsData = result.diagrams;
+                
+                // Save to Firebase
+                const user = firebase.auth().currentUser;
+                if (user && currentSpecData && currentSpecData.id) {
+                    try {
+                        await firebase.firestore().collection('specs').doc(currentSpecData.id).update({
+                            diagrams: {
+                                generated: true,
+                                diagrams: diagramsData,
+                                generatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                            },
+                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                        console.log('✅ Diagrams saved to Firebase');
+                    } catch (error) {
+                        console.warn('⚠️ Failed to save diagrams to Firebase:', error);
+                    }
+                }
+                
+                // Display diagrams
+                displayDiagrams(diagramsData);
+                
+                // Update status
+                updateDiagramsStatus('ready');
+                
+                // Hide generate button
+                generateBtn.style.display = 'none';
+                
+                // Start auto-refresh system
+                startAutoRefresh();
+                
+            } else {
+                throw new Error('Invalid response format: missing diagrams array');
+            }
+            
+        } catch (error) {
+            clearTimeout(timeoutId);
+            
+            if (error.name === 'AbortError') {
+                console.error('❌ Diagrams API call timed out after 60 seconds');
+                throw new Error('Request timed out. Please try again.');
+            } else {
+                console.error('❌ Diagrams API call failed:', error);
+                throw error;
+            }
+        }
+        
+    } catch (error) {
+        console.error('❌ Error generating diagrams:', error);
+        showError(`Failed to generate diagrams: ${error.message}`);
+        
+        // Reset button
+        const generateBtn = document.getElementById('generateDiagramsBtn');
+        generateBtn.disabled = false;
+        generateBtn.textContent = 'Generate Diagrams';
+    } finally {
+        isLoading = false;
+    }
+}
+
+function displayDiagrams(diagramsArray) {
+    const container = document.getElementById('diagrams-data');
+    
+    if (!diagramsArray || diagramsArray.length === 0) {
+        container.innerHTML = '<div class="diagram-error"><h3>❌ No Diagrams Generated</h3><p>Failed to generate diagrams. Please try again.</p></div>';
+        return;
+    }
+    
+    // Clear container
+    container.innerHTML = '';
+    
+    // Create diagram containers for each diagram
+    diagramsArray.forEach((diagram, index) => {
+        const diagramContainer = document.createElement('div');
+        diagramContainer.className = 'diagram-container';
+        diagramContainer.id = `diagram-${diagram.id}`;
+        
+        // Create header
+        const header = document.createElement('div');
+        header.className = 'diagram-header';
+        header.innerHTML = `
+            <h3>${diagram.title}</h3>
+            <div class="diagram-controls">
+                <button onclick="openFullscreen('${diagram.id}')" class="btn-icon" title="Fullscreen">
+                    <i class="fas fa-expand"></i>
+                </button>
+                <button onclick="refreshDiagram('${diagram.id}')" class="btn-icon" title="Refresh">
+                    <i class="fas fa-sync"></i>
+                </button>
+            </div>
+        `;
+        
+        // Create content area
+        const content = document.createElement('div');
+        content.className = 'diagram-content';
+        content.id = `diagram-${diagram.id}-content`;
+        
+        // Create status indicator
+        const status = document.createElement('div');
+        status.className = 'diagram-status';
+        status.innerHTML = `
+            <div class="status-indicator generating"></div>
+            <span class="status-text">Generating...</span>
+        `;
+        
+        content.appendChild(status);
+        
+        // Add loading placeholder
+        content.innerHTML += '<div class="diagram-loading">🔄 Rendering diagram...</div>';
+        
+        diagramContainer.appendChild(header);
+        diagramContainer.appendChild(content);
+        container.appendChild(diagramContainer);
+        
+        // Render diagram with delay to avoid conflicts
+        setTimeout(() => {
+            renderSingleDiagram(diagram, `diagram-${diagram.id}-content`);
+        }, index * 500); // Stagger rendering to avoid conflicts
+    });
+}
+
+async function renderSingleDiagram(diagramData, containerId) {
+    const container = document.getElementById(containerId);
+    const statusIndicator = container.parentElement.querySelector('.status-indicator');
+    const statusText = container.parentElement.querySelector('.status-text');
+
+    try {
+        // Validate Mermaid syntax
+        if (!diagramData.mermaidCode || typeof diagramData.mermaidCode !== 'string') {
+            throw new Error('Invalid Mermaid code');
+        }
+
+        // Clear loading state
+        container.innerHTML = '';
+
+        // Create Mermaid element
+        const mermaidElement = document.createElement('div');
+        mermaidElement.className = 'mermaid';
+        mermaidElement.id = `mermaid-${diagramData.id}`;
+        mermaidElement.textContent = diagramData.mermaidCode;
+
+        container.appendChild(mermaidElement);
+
+        // Initialize Mermaid if available
+        if (typeof mermaid !== 'undefined') {
+            try {
+                await mermaid.init(undefined, mermaidElement);
+                statusIndicator.className = 'status-indicator ready';
+                statusText.textContent = 'Ready';
+                console.log(`✅ Diagram ${diagramData.id} rendered successfully`);
+            } catch (mermaidError) {
+                console.error(`❌ Mermaid rendering error for ${diagramData.id}:`, mermaidError);
+                // Try with MermaidManager if available
+                if (mermaidManager && mermaidManager.isInitialized) {
+                    try {
+                        await mermaidManager.renderChart(mermaidElement.id, diagramData.mermaidCode);
+                        statusIndicator.className = 'status-indicator ready';
+                        statusText.textContent = 'Ready';
+                        console.log(`✅ Diagram ${diagramData.id} rendered with MermaidManager`);
+                    } catch (managerError) {
+                        console.error(`❌ MermaidManager rendering failed for ${diagramData.id}:`, managerError);
+                        throw new Error('Mermaid rendering failed');
+                    }
+                } else {
+                    throw new Error('Mermaid rendering failed');
+                }
+            }
+        } else if (mermaidManager && mermaidManager.isInitialized) {
+            // Try MermaidManager if mermaid not available
+            try {
+                await mermaidManager.renderChart(mermaidElement.id, diagramData.mermaidCode);
+                statusIndicator.className = 'status-indicator ready';
+                statusText.textContent = 'Ready';
+                console.log(`✅ Diagram ${diagramData.id} rendered with MermaidManager`);
+            } catch (managerError) {
+                console.error(`❌ MermaidManager rendering error for ${diagramData.id}:`, managerError);
+                throw new Error('Mermaid rendering failed');
+            }
+        } else {
+            // Fallback: show raw code if Mermaid not available
+            container.innerHTML = `<pre style="background: #f8f9fa; padding: 20px; border-radius: 4px; overflow-x: auto;">${diagramData.mermaidCode}</pre>`;
+            statusIndicator.className = 'status-indicator ready';
+            statusText.textContent = 'Ready (Raw)';
+        }
+
+    } catch (error) {
+        console.error(`❌ Error rendering diagram ${diagramData.id}:`, error);
+
+        container.innerHTML = `
+            <div class="diagram-error">
+                <h4>❌ Rendering Error</h4>
+                <p>Failed to render diagram: ${error.message}</p>
+                <button onclick="fixBrokenDiagram('${diagramData.id}')" class="btn btn-secondary">
+                    🔧 Fix Diagram
+                </button>
+            </div>
+        `;
+
+        statusIndicator.className = 'status-indicator error';
+        statusText.textContent = 'Error';
+    }
+}
+
+function openFullscreen(diagramId) {
+    const diagramData = diagramsData.find(d => d.id === diagramId);
+    if (!diagramData) return;
+    
+    const modal = document.getElementById('fullscreenModal');
+    const title = document.getElementById('fullscreenTitle');
+    const content = document.getElementById('fullscreenContent');
+    
+    title.textContent = diagramData.title;
+    
+    // Clone the diagram content
+    const originalContent = document.getElementById(`diagram-${diagramId}-content`);
+    content.innerHTML = originalContent.innerHTML;
+    
+    // Re-render Mermaid in fullscreen
+    const mermaidElement = content.querySelector('.mermaid');
+    if (mermaidElement && typeof mermaid !== 'undefined') {
+        mermaid.init(undefined, mermaidElement).catch(error => {
+            console.error('Fullscreen mermaid error:', error);
+            // Try MermaidManager as fallback
+            if (mermaidManager && mermaidManager.isInitialized) {
+                mermaidManager.renderChart(mermaidElement.id, diagramData.mermaidCode).catch(managerError => {
+                    console.error('Fullscreen MermaidManager error:', managerError);
+                    content.innerHTML = `<pre style="color: white; padding: 20px;">${diagramData.mermaidCode}</pre>`;
+                });
+            } else {
+                content.innerHTML = `<pre style="color: white; padding: 20px;">${diagramData.mermaidCode}</pre>`;
+            }
+        });
+    } else if (mermaidElement && mermaidManager && mermaidManager.isInitialized) {
+        // Try MermaidManager if mermaid not available
+        mermaidManager.renderChart(mermaidElement.id, diagramData.mermaidCode).catch(error => {
+            console.error('Fullscreen MermaidManager error:', error);
+            content.innerHTML = `<pre style="color: white; padding: 20px;">${diagramData.mermaidCode}</pre>`;
+        });
+    }
+    
+    // Reset zoom and pan
+    currentZoom = 1;
+    currentPanX = 0;
+    currentPanY = 0;
+    updateTransform();
+    
+    // Show modal
+    modal.style.display = 'flex';
+    
+    // Add ESC key listener
+    document.addEventListener('keydown', handleEscKey);
+    
+    // Add mouse event listeners for panning
+    content.addEventListener('mousedown', handleMouseDown);
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+}
+
+function closeFullscreen() {
+    const modal = document.getElementById('fullscreenModal');
+    modal.style.display = 'none';
+    
+    // Remove event listeners
+    document.removeEventListener('keydown', handleEscKey);
+    document.removeEventListener('mousemove', handleMouseMove);
+    document.removeEventListener('mouseup', handleMouseUp);
+    
+    // Reset dragging state
+    isDragging = false;
+}
+
+function handleEscKey(event) {
+    if (event.key === 'Escape') {
+        closeFullscreen();
+    }
+}
+
+function handleMouseDown(event) {
+    if (event.target.closest('.mermaid')) {
+        isDragging = true;
+        dragStartX = event.clientX - currentPanX;
+        dragStartY = event.clientY - currentPanY;
+        event.preventDefault();
+    }
+}
+
+function handleMouseMove(event) {
+    if (isDragging) {
+        currentPanX = event.clientX - dragStartX;
+        currentPanY = event.clientY - dragStartY;
+        updateTransform();
+    }
+}
+
+function handleMouseUp() {
+    isDragging = false;
+}
+
+function zoomIn() {
+    currentZoom = Math.min(currentZoom * 1.2, 3);
+    updateTransform();
+}
+
+function zoomOut() {
+    currentZoom = Math.max(currentZoom / 1.2, 0.5);
+    updateTransform();
+}
+
+function resetZoom() {
+    currentZoom = 1;
+    currentPanX = 0;
+    currentPanY = 0;
+    updateTransform();
+}
+
+function updateTransform() {
+    const content = document.getElementById('fullscreenContent');
+    if (content) {
+        content.style.transform = `translate(${currentPanX}px, ${currentPanY}px) scale(${currentZoom})`;
+    }
+}
+
+function startAutoRefresh() {
+    if (autoRefreshInterval) {
+        clearInterval(autoRefreshInterval);
+    }
+    
+    if (healthCheckInterval) {
+        clearInterval(healthCheckInterval);
+    }
+    
+    // Health check every 5 seconds
+    healthCheckInterval = setInterval(() => {
+        checkDiagramsHealth();
+    }, 5000);
+    
+    // Auto refresh every 10 seconds
+    autoRefreshInterval = setInterval(() => {
+        if (diagramsData && diagramsData.length > 0) {
+            diagramsData.forEach(diagram => {
+                // Check if diagram needs refresh (has error status)
+                const statusIndicator = document.querySelector(`#diagram-${diagram.id} .status-indicator`);
+                if (statusIndicator && statusIndicator.classList.contains('error')) {
+                    console.log(`⚠️ Diagram ${diagram.id} needs refresh`);
+                    refreshDiagram(diagram.id);
+                }
+            });
+        }
+    }, 10000);
+    
+    console.log('✅ Auto-refresh system started');
+}
+
+function stopAutoRefresh() {
+    if (autoRefreshInterval) {
+        clearInterval(autoRefreshInterval);
+        autoRefreshInterval = null;
+    }
+    
+    if (healthCheckInterval) {
+        clearInterval(healthCheckInterval);
+        healthCheckInterval = null;
+    }
+    
+    console.log('⏹️ Auto-refresh system stopped');
+}
+
+function checkDiagramsHealth() {
+    if (!diagramsData || diagramsData.length === 0) return;
+    
+    diagramsData.forEach(diagram => {
+        const container = document.getElementById(`diagram-${diagram.id}-content`);
+        if (container) {
+            const mermaidElement = container.querySelector('.mermaid');
+            if (!mermaidElement || mermaidElement.children.length === 0) {
+                console.log(`⚠️ Diagram ${diagram.id} appears broken, refreshing...`);
+                refreshDiagram(diagram.id);
+            }
+        }
+    });
+}
+
+async function refreshDiagram(diagramId) {
+    const diagramData = diagramsData.find(d => d.id === diagramId);
+    if (!diagramData) return;
+    
+    const statusIndicator = document.querySelector(`#diagram-${diagramId} .status-indicator`);
+    const statusText = document.querySelector(`#diagram-${diagramId} .status-text`);
+    
+    if (statusIndicator) {
+        statusIndicator.className = 'status-indicator refreshing';
+    }
+    if (statusText) {
+        statusText.textContent = 'Refreshing...';
+    }
+    
+    try {
+        await renderSingleDiagram(diagramData, `diagram-${diagramId}-content`);
+        console.log(`✅ Diagram ${diagramId} refreshed successfully`);
+    } catch (error) {
+        console.error(`❌ Failed to refresh diagram ${diagramId}:`, error);
+        // Try to fix the diagram
+        await fixBrokenDiagram(diagramId);
+    }
+}
+
+async function fixBrokenDiagram(diagramId) {
+    console.log(`🔧 Attempting to fix diagram ${diagramId}`);
+    
+    const diagramData = diagramsData.find(d => d.id === diagramId);
+    if (!diagramData) return;
+    
+    try {
+        const requestBody = {
+            stage: 'diagrams',
+            prompt: `Fix this broken Mermaid diagram syntax:\n\n${diagramData.mermaidCode}\n\nReturn ONLY the corrected Mermaid code.`,
+            specId: currentSpecData.id
+        };
+        
+        const response = await fetch('https://spspec.shalom-cohen-111.workers.dev/generate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestBody)
+        });
+        
+        if (!response.ok) {
+            throw new Error(`API Error: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        
+        if (result.correctedCode) {
+            diagramData.mermaidCode = result.correctedCode;
+        } else if (data.correctedCode) {
+            diagramData.mermaidCode = data.correctedCode;
+        }
+        
+        // Update Firebase
+        const user = firebase.auth().currentUser;
+        if (user && currentSpecData && currentSpecData.id) {
+            await firebase.firestore().collection('specs').doc(currentSpecData.id).update({
+                'diagrams.diagrams': diagramsData,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        }
+        
+        // Re-render the diagram
+        await renderSingleDiagram(diagramData, `diagram-${diagramId}-content`);
+        
+        console.log(`✅ Diagram ${diagramId} fixed successfully`);
+        
+    } catch (error) {
+        console.error(`❌ Failed to fix diagram ${diagramId}:`, error);
+    }
+}
+
+function updateDiagramsStatus(status) {
+    const statusElement = document.getElementById('diagramsStatus');
+    if (statusElement) {
+        statusElement.textContent = status === 'ready' ? 'Ready' : 'Pending';
+        statusElement.className = `status-value ${status}`;
     }
 }
 

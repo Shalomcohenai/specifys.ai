@@ -1,13 +1,400 @@
----
-layout: auth
-title: "Sign In / Register"
-description: "Create account"
-permalink: /pages/auth.html
-extra_css:
-  - /assets/css/pages/auth.css
----
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta name="theme-color" content="#000000">
+    <title>Sign In / Register - Specifys.ai</title>
+    <meta name="description" content="Create account">
+    <meta name="keywords" content="AI development tools, app specification generator, no-code platform, AI-powered planning, vibe coding, AI app builder, specification generator, market research tool, app planning tool, development tools, AI tools">
+    <meta name="author" content="Specifys.ai">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    
+    <!-- Content Security Policy - Removed to fix Google Analytics/Ads issues -->
+    
+    <!-- Canonical URL -->
+    
+    <link rel="canonical" href="http://localhost:3000/pages/auth.html">
+    
+    
+    <!-- Open Graph -->
+    <meta property="og:site_name" content="Specifys.ai">
+    <meta property="og:title" content="Sign In / Register">
+    <meta property="og:description" content="Create account">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="http://localhost:3000/pages/auth.html">
+    <meta property="og:image" content="http://localhost:3000/assets/images/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:locale" content="en_US">
+    
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@specifysai">
+    <meta name="twitter:creator" content="@specifysai">
+    <meta name="twitter:title" content="Sign In / Register">
+    <meta name="twitter:description" content="Create account">
+    <meta name="twitter:image" content="http://localhost:3000/assets/images/og-image.png">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="/assets/css/main.css">
+    
+      
+        <link rel="stylesheet" href="/assets/css/pages/auth.css">
+      
+    
+    
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Mermaid for diagrams (used in demo, spec, research pages) -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+    
+    <!-- Marked for markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked@4.3.0/marked.min.js"></script>
+    
+    <!-- Highlight.js for syntax highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    
+    <!-- jsPDF for PDF export (used in research pages) -->
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
+    <!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-RWBT69JCM7"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-RWBT69JCM7');
+</script>
 
-    <main class="auth-page-layout">
+
+    <script>
+// Central Analytics Event Tracking System for Specifys.ai
+// This file contains reusable tracking functions for consistent analytics across the site
+
+// Check if gtag is available
+function isGtagAvailable() {
+  return typeof gtag !== 'undefined';
+}
+
+// Track button clicks with detailed categorization
+function trackButtonClick(buttonName, category, source, additionalData = {}) {
+  if (isGtagAvailable()) {
+    gtag('event', 'click', {
+      'event_category': category || 'Button Click',
+      'event_label': buttonName,
+      'event_source': source || 'unknown',
+      ...additionalData
+    });
+  }
+}
+
+// Track CTA (Call-to-Action) clicks
+function trackCTA(ctaName, location) {
+  if (isGtagAvailable()) {
+    gtag('event', 'cta_click', {
+      'event_category': 'CTA',
+      'event_label': ctaName,
+      'cta_location': location
+    });
+  }
+}
+
+// Track navigation events
+function trackNavigation(destination, source) {
+  if (isGtagAvailable()) {
+    gtag('event', 'navigation', {
+      'event_category': 'Navigation',
+      'event_label': destination,
+      'navigation_source': source
+    });
+  }
+}
+
+// Track tool usage
+function trackToolUsage(toolName, action) {
+  if (isGtagAvailable()) {
+    gtag('event', 'tool_usage', {
+      'event_category': 'Tools',
+      'event_label': toolName,
+      'tool_action': action
+    });
+  }
+}
+
+// Track form submissions
+function trackFormSubmit(formName, formType) {
+  if (isGtagAvailable()) {
+    gtag('event', 'form_submit', {
+      'event_category': 'Form',
+      'event_label': formName,
+      'form_type': formType
+    });
+  }
+}
+
+// Track user authentication events
+function trackAuthEvent(action, method) {
+  if (isGtagAvailable()) {
+    gtag('event', action, {
+      'event_category': 'Authentication',
+      'event_label': action,
+      'auth_method': method || 'email'
+    });
+  }
+}
+
+// Track downloads
+function trackDownload(fileName, fileType) {
+  if (isGtagAvailable()) {
+    gtag('event', 'download', {
+      'event_category': 'Downloads',
+      'event_label': fileName,
+      'file_type': fileType
+    });
+  }
+}
+
+// Track spec/result generations
+function trackGeneration(type, mode) {
+  if (isGtagAvailable()) {
+    gtag('event', 'generation_start', {
+      'event_category': 'Generation',
+      'event_label': type,
+      'generation_mode': mode
+    });
+  }
+}
+
+// Track generation completion
+function trackGenerationComplete(type, mode, success) {
+  if (isGtagAvailable()) {
+    gtag('event', 'generation_complete', {
+      'event_category': 'Generation',
+      'event_label': type,
+      'generation_mode': mode,
+      'success': success
+    });
+  }
+}
+
+// Track external link clicks
+function trackExternalLink(linkUrl, linkText) {
+  if (isGtagAvailable()) {
+    gtag('event', 'click', {
+      'event_category': 'External Link',
+      'event_label': linkText || linkUrl,
+      'link_url': linkUrl
+    });
+  }
+}
+
+// Track modal interactions
+function trackModal(modalName, action) {
+  if (isGtagAvailable()) {
+    gtag('event', 'modal_' + action, {
+      'event_category': 'Modal',
+      'event_label': modalName,
+      'modal_action': action
+    });
+  }
+}
+
+// Track FAQ interactions
+function trackFAQ(question, action) {
+  if (isGtagAvailable()) {
+    gtag('event', 'faq_' + action, {
+      'event_category': 'FAQ',
+      'event_label': question,
+      'faq_action': action
+    });
+  }
+}
+
+// Track search actions
+function trackSearch(searchTerm, searchType) {
+  if (isGtagAvailable()) {
+    gtag('event', 'search', {
+      'event_category': 'Search',
+      'search_term': searchTerm,
+      'search_type': searchType
+    });
+  }
+}
+
+// Track video/demo views
+function trackDemoView(demoName, viewDuration) {
+  if (isGtagAvailable()) {
+    gtag('event', 'demo_view', {
+      'event_category': 'Demo',
+      'event_label': demoName,
+      'view_duration': viewDuration
+    });
+  }
+}
+
+// Track user engagement time
+function trackEngagement(pageName, timeSpent) {
+  if (isGtagAvailable()) {
+    gtag('event', 'user_engagement', {
+      'event_category': 'Engagement',
+      'event_label': pageName,
+      'engagement_time_msec': timeSpent
+    });
+  }
+}
+
+// Track errors
+function trackError(errorType, errorMessage, errorLocation) {
+  if (isGtagAvailable()) {
+    gtag('event', 'error', {
+      'event_category': 'Error',
+      'event_label': errorType,
+      'error_message': errorMessage,
+      'error_location': errorLocation
+    });
+  }
+}
+
+// Track user preferences
+function trackPreference(preferenceName, preferenceValue) {
+  if (isGtagAvailable()) {
+    gtag('event', 'preference_change', {
+      'event_category': 'Preferences',
+      'event_label': preferenceName,
+      'preference_value': preferenceValue
+    });
+  }
+}
+
+// Track scroll depth
+let scrollDepthTracked = {25: false, 50: false, 75: false, 100: false};
+function initScrollTracking(pageName) {
+  window.addEventListener('scroll', function() {
+    const scrollPercent = Math.round((window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100);
+    
+    if (scrollPercent >= 25 && !scrollDepthTracked[25]) {
+      scrollDepthTracked[25] = true;
+      if (isGtagAvailable()) {
+        gtag('event', 'scroll', {
+          'event_category': 'Scroll Depth',
+          'event_label': pageName,
+          'scroll_depth': '25%'
+        });
+      }
+    }
+    if (scrollPercent >= 50 && !scrollDepthTracked[50]) {
+      scrollDepthTracked[50] = true;
+      if (isGtagAvailable()) {
+        gtag('event', 'scroll', {
+          'event_category': 'Scroll Depth',
+          'event_label': pageName,
+          'scroll_depth': '50%'
+        });
+      }
+    }
+    if (scrollPercent >= 75 && !scrollDepthTracked[75]) {
+      scrollDepthTracked[75] = true;
+      if (isGtagAvailable()) {
+        gtag('event', 'scroll', {
+          'event_category': 'Scroll Depth',
+          'event_label': pageName,
+          'scroll_depth': '75%'
+        });
+      }
+    }
+    if (scrollPercent >= 100 && !scrollDepthTracked[100]) {
+      scrollDepthTracked[100] = true;
+      if (isGtagAvailable()) {
+        gtag('event', 'scroll', {
+          'event_category': 'Scroll Depth',
+          'event_label': pageName,
+          'scroll_depth': '100%'
+        });
+      }
+    }
+  });
+}
+
+// Auto-initialize scroll tracking when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+  const pageName = document.title || window.location.pathname;
+  initScrollTracking(pageName);
+});
+</script>
+
+
+    <!-- Structured Data (JSON-LD) for SEO -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "name": "Specifys.ai",
+      "url": "https://specifys-ai.com",
+      "logo": "https://specifys-ai.com/favicon.ico",
+      "description": "AI-powered app planning and specification generation platform",
+      "sameAs": [
+        "https://www.linkedin.com/company/specifys-ai/"
+      ],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "email": "specifysai@gmail.com",
+        "contactType": "Customer Service"
+      }
+    },
+    {
+      "@type": "WebSite",
+      "name": "Specifys.ai",
+      "url": "https://specifys-ai.com",
+      "description": "Plan your app smarter with AI-driven insights and tools",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://specifys-ai.com/pages/ToolPicker.html?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "Specifys.ai",
+      "applicationCategory": "DevelopmentApplication",
+      "operatingSystem": "Web",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "ratingCount": "250"
+      },
+      "description": "AI-powered app planning platform with specification generator, market research tools, and vibe coding tools map"
+    }
+  ]
+}
+</script>
+
+
+</head>
+
+
+<body class="page-default">
+        <main class="auth-page-layout">
         <!-- Logo -->
         <div class="auth-logo">
             <a href="../index.html">Specifys.ai</a>
@@ -670,3 +1057,9 @@ extra_css:
 
         // Auth functions will be handled by the modern Firebase v9+ script above
     </script>
+
+    
+    <!-- Auth page uses its own Firebase module scripts -->
+</body>
+</html>
+

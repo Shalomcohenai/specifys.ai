@@ -282,7 +282,6 @@ class UnifiedChat {
   async generateSpecification() {
     try {
       console.log('🚀 Starting generateSpecification...');
-      console.log('🔍 Current answers:', this.answers);
       
       // Show loading overlay
       this.showLoadingOverlay();
@@ -299,8 +298,6 @@ class UnifiedChat {
 
       // Prepare the prompt for overview generation
       const prompt = PROMPTS.overview(this.answers);
-      console.log('🔍 Generated prompt:', prompt);
-      console.log('🔍 Prompt length:', prompt.length);
 
       // Prepare API request body
       const requestBody = {
@@ -314,11 +311,8 @@ class UnifiedChat {
         }
       };
       
-      console.log('🔍 API Request Body:', JSON.stringify(requestBody, null, 2));
-      console.log('🔍 API URL: https://spspec.shalom-cohen-111.workers.dev/generate');
 
       // Call the Worker API
-      console.log('📡 Making API call...');
       const response = await fetch('https://spspec.shalom-cohen-111.workers.dev/generate', {
         method: 'POST',
         headers: {
@@ -327,17 +321,10 @@ class UnifiedChat {
         body: JSON.stringify(requestBody),
       });
 
-      console.log('📡 API Response received:');
-      console.log('  - Status:', response.status);
-      console.log('  - Status Text:', response.statusText);
-      console.log('  - Headers:', Object.fromEntries(response.headers.entries()));
-      console.log('  - OK:', response.ok);
 
       let data;
       try {
         const responseText = await response.text();
-        console.log('🔍 Raw response text:', responseText);
-        console.log('🔍 Response text length:', responseText.length);
         
         data = JSON.parse(responseText);
         console.log('✅ Successfully parsed JSON response:', data);
@@ -355,15 +342,8 @@ class UnifiedChat {
       }
       
       // Extract overview content from the structured response
-      console.log('🔍 Processing API response...');
-      console.log('🔍 Data structure:', Object.keys(data));
-      console.log('🔍 Data.overview exists:', !!data.overview);
-      console.log('🔍 Data.overview type:', typeof data.overview);
-      console.log('🔍 Data.overview content:', data.overview);
       
       const overviewContent = data.overview ? JSON.stringify(data.overview, null, 2) : 'No overview generated';
-      console.log('🔍 Final overview content:', overviewContent);
-      console.log('🔍 Overview content length:', overviewContent.length);
 
       // Hide loading overlay
       this.hideLoadingOverlay();
@@ -380,12 +360,10 @@ class UnifiedChat {
       this.scrollToBottom();
 
       // Save to Firebase immediately (user is always authenticated)
-      console.log('💾 Saving to Firebase...');
       const firebaseId = await this.saveSpecToFirebase(overviewContent, this.answers);
       console.log('✅ Saved to Firebase successfully with ID:', firebaseId);
       
       // Store in localStorage for backup
-      console.log('💾 Storing in localStorage as backup...');
       localStorage.setItem('generatedOverviewContent', overviewContent);
       localStorage.setItem('initialAnswers', JSON.stringify(this.answers));
       console.log('✅ Stored in localStorage successfully');
@@ -415,7 +393,6 @@ class UnifiedChat {
 
   async saveSpecToFirebase(overviewContent, answers) {
     try {
-      console.log('Saving spec to Firebase...');
       
       const user = firebase.auth().currentUser;
       if (!user) {
@@ -433,7 +410,6 @@ class UnifiedChat {
           }
         }
       } catch (e) {
-        console.log('🔍 Could not parse overview for title extraction');
       }
       
       const specDoc = {
@@ -454,7 +430,6 @@ class UnifiedChat {
         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
       };
       
-      console.log('📄 Spec document to save:', specDoc);
       
       const docRef = await firebase.firestore().collection('specs').add(specDoc);
       console.log('✅ Spec saved successfully with ID:', docRef.id);
@@ -488,7 +463,6 @@ class UnifiedChat {
   }
 
   renderSystemMessage(container, content, examples, questionType) {
-    console.log('renderSystemMessage called with:', { content, examples, questionType });
     const messageDiv = document.createElement('div');
     messageDiv.className = 'message system';
     
@@ -519,7 +493,6 @@ class UnifiedChat {
     messageDiv.appendChild(avatar);
     messageDiv.appendChild(contentDiv);
     container.appendChild(messageDiv);
-    console.log('System message rendered and added to container');
   }
 
   renderUserMessage(container, content) {
@@ -644,7 +617,6 @@ class UnifiedChat {
       // Re-render the specific message to update the UI
       this.renderMessages();
       
-      console.log('Message edited and saved:', { originalContent, newContent });
     }
   }
 
@@ -816,7 +788,6 @@ class UnifiedChat {
     const loadingOverlay = document.getElementById('loadingOverlay');
     if (loadingOverlay) {
       loadingOverlay.style.display = 'flex';
-      console.log('Loading overlay shown');
     }
   }
 
@@ -824,7 +795,6 @@ class UnifiedChat {
     const loadingOverlay = document.getElementById('loadingOverlay');
     if (loadingOverlay) {
       loadingOverlay.style.display = 'none';
-      console.log('Loading overlay hidden');
     }
   }
 }
@@ -832,10 +802,7 @@ class UnifiedChat {
 // Initialize the chat when DOM is loaded
 let unifiedChat;
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('DOMContentLoaded event fired');
-  console.log('Creating new UnifiedChat instance');
   unifiedChat = new UnifiedChat();
-  console.log('UnifiedChat instance created:', unifiedChat);
 });
 
 // Demo Apps Data
