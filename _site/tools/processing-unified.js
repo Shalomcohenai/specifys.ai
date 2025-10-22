@@ -1,129 +1,49 @@
-// Unified Chat System for All Modes
+// New 4-Question Specification Flow
+// Simplified chat system for app specification generation
+
 class UnifiedChat {
   constructor() {
-    this.currentMode = null;
     this.currentQuestionIndex = 0;
-    this.answers = {};
+    this.answers = [];
     this.messages = [];
-    this.modeQuestions = {};
+    this.questions = [];
     
-    // Initialize all mode questions
-    this.initializeModeQuestions();
+    // Initialize questions
+    this.initializeQuestions();
     
     this.init();
   }
 
-  initializeModeQuestions() {
-    // NoCode Creators Mode Questions
-    this.modeQuestions.novice = [
+  initializeQuestions() {
+    // Single set of 4 questions for all users
+    this.questions = [
       {
         id: 0,
-        name: 'App Overview',
-        question: 'What is the general purpose and idea of your app?',
+        name: 'App Description',
+        question: 'Describe your application',
         type: 'text',
         examples: 'My app, FitTrack, is a fitness and nutrition tracking platform designed to help users achieve their health goals. It allows users to log workouts, track meals, set fitness targets, and receive personalized recommendations based on their progress.'
       },
       {
         id: 1,
         name: 'User Workflow',
-        question: 'Describe the typical workflow of a user using your app.',
+        question: 'Describe the workflow',
         type: 'text',
         examples: 'A typical user starts by creating a profile and setting goals (e.g., weight loss or muscle gain). They log daily meals via a barcode scanner or manual input and record workouts by selecting exercises from a library. The app suggests meal plans and workout routines based on their progress.'
       },
       {
         id: 2,
-        name: 'Design',
-        question: 'What design elements are most important for your app?',
+        name: 'Additional Details',
+        question: 'Additional details',
         type: 'text',
-        examples: 'The app should have a clean, modern interface with a calming color palette (blues and greens). Large, bold typography ensures readability, and intuitive navigation with a bottom tab bar is key. Interactive charts for progress tracking and minimalistic icons enhance the user experience.'
+        examples: 'The app should integrate with health wearables like Apple Watch and support push notifications for workout reminders. Future plans include adding a community feature for user challenges and social sharing.'
       },
       {
         id: 3,
-        name: 'Features',
-        question: 'What key features do you want your app to have?',
-        type: 'text',
-        examples: 'Key features include: 1) AI-driven workout and meal suggestions, 2) Barcode scanner for food logging, 3) Social sharing to connect with friends, 4) Progress tracking with visual charts, 5) In-app reminders, and 6) Integration with wearables like Fitbit for real-time data.'
-      },
-      {
-        id: 4,
         name: 'Target Audience',
-        question: 'Who is your target audience?',
+        question: 'Target audience and goals',
         type: 'text',
         examples: 'The target audience is health-conscious individuals aged 18-45, primarily fitness enthusiasts and beginners looking to improve their lifestyle. They are tech-savvy, use smartphones daily, and value convenience and personalization in their fitness journey.'
-      },
-      {
-        id: 5,
-        name: 'User Account System',
-        question: 'Does your app require a user account system?',
-        type: 'yesno'
-      },
-      {
-        id: 6,
-        name: 'AI Features',
-        question: 'Does your app use or integrate with AI features?',
-        type: 'yesno'
-      },
-      {
-        id: 7,
-        name: 'Free to Use',
-        question: 'Will your app be free to use?',
-        type: 'yesno'
-      },
-      {
-        id: 8,
-        name: 'Notifications',
-        question: 'Does your app need to send notifications?',
-        type: 'yesno'
-      },
-      {
-        id: 9,
-        name: 'Offline Mode',
-        question: 'Does your app need to work offline?',
-        type: 'yesno'
-      },
-      {
-        id: 10,
-        name: 'Multiple Languages',
-        question: 'Will your app support multiple languages?',
-        type: 'yesno'
-      },
-      {
-        id: 11,
-        name: 'Social Media Integration',
-        question: 'Does your app require integration with social media?',
-        type: 'yesno'
-      },
-      {
-        id: 12,
-        name: 'Analytics',
-        question: 'Will your app collect user data for analytics?',
-        type: 'yesno'
-      },
-      {
-        id: 13,
-        name: 'Additional Notes',
-        question: 'Any additional notes or requirements for your app?',
-        type: 'text',
-        examples: 'The app should integrate with health wearables like Apple Watch and support push notifications for workout reminders. Future plans include adding a community feature for user challenges.'
-      }
-    ];
-
-
-    // Market Research Mode Questions
-    this.modeQuestions.market = [
-      {
-        id: 0,
-        name: 'Description',
-        question: 'What is the purpose of your app, its key features, and who is the target audience (e.g., age, interests, needs)?',
-        type: 'text',
-        examples: 'FitTrack helps fitness enthusiasts track workouts and progress. Features: workout logging, progress charts, community challenges. Target: adults 18-40 who exercise regularly.'
-      },
-      {
-        id: 1,
-        name: 'Features',
-        question: 'What are the key features that make your app unique or valuable in the market?',
-        type: 'text',
-        examples: 'Workout logging with voice input, real-time progress charts, social sharing, personalized plans, and integration with wearables.'
       }
     ];
   }
@@ -153,17 +73,15 @@ class UnifiedChat {
     localStorage.removeItem('devAnswers');
     localStorage.removeItem('marketAnswers');
     localStorage.removeItem('generatedContent');
+    localStorage.removeItem('currentSpecId');
+    localStorage.removeItem('currentAnswers');
   }
 
   loadSavedData() {
-    // Load saved answers based on mode
-    const savedMode = localStorage.getItem('unifiedCurrentMode');
-    if (savedMode && this.modeQuestions[savedMode]) {
-      this.currentMode = savedMode;
-      const savedAnswers = localStorage.getItem(`unifiedAnswers_${savedMode}`);
+    // Load saved answers
+    const savedAnswers = localStorage.getItem('currentAnswers');
       if (savedAnswers) {
         this.answers = JSON.parse(savedAnswers);
-      }
     }
 
     // Load saved messages
@@ -174,10 +92,7 @@ class UnifiedChat {
   }
 
   saveData() {
-    if (this.currentMode) {
-      localStorage.setItem('unifiedCurrentMode', this.currentMode);
-      localStorage.setItem(`unifiedAnswers_${this.currentMode}`, JSON.stringify(this.answers));
-    }
+    localStorage.setItem('currentAnswers', JSON.stringify(this.answers));
     localStorage.setItem('unifiedChatMessages', JSON.stringify(this.messages));
   }
 
@@ -223,15 +138,14 @@ class UnifiedChat {
     } else {
       this.renderMessages();
     }
-    // Update back button visibility
     this.updateResetButtonVisibility();
   }
 
   showIntroMessages() {
     const introMessages = [
-      "Hi! 👋 I'm your personal assistant and my job is to help you reach the perfect application! You can talk to me in any language you want, but for convenience you'll receive the final document in English",
+      "Hi! 👋 I'm your personal assistant and my job is to help you create the perfect application specification!",
       "💡 Tip: You can edit any of your answers by clicking the 'edit' button on your messages, and restart anytime with the reset button above",
-      "First, let's choose which mode you'd like to use..."
+      "Let's start with 4 simple questions about your app idea..."
     ];
 
     let messageIndex = 0;
@@ -252,7 +166,7 @@ class UnifiedChat {
         setTimeout(showNextMessage, 1500);
       } else {
         setTimeout(() => {
-          this.showModeSelection();
+          this.askQuestion();
           this.updateResetButtonVisibility();
         }, 500);
       }
@@ -261,117 +175,13 @@ class UnifiedChat {
     showNextMessage();
   }
 
-  showModeSelection() {
-    // Don't add to messages array, just render directly
-    const chatMessages = document.getElementById('chatMessages');
-    if (chatMessages) {
-      this.renderModeSelection(chatMessages);
-      this.scrollToBottom();
-    }
-  }
-
-  renderMessages() {
-    const chatMessages = document.getElementById('chatMessages');
-    if (!chatMessages) {
-      console.error('chatMessages element not found!');
-      return;
-    }
-
-    chatMessages.innerHTML = '';
-
-    this.messages.forEach((message, index) => {
-      if (message.isModeSelection) {
-        // Render mode selection with buttons
-        this.renderModeSelection(chatMessages);
-      } else if (message.isIntro) {
-        this.renderSystemMessage(chatMessages, message.content);
-      } else if (message.type === 'system') {
-        this.renderSystemMessage(chatMessages, message.content, message.examples, message.questionType);
-      } else if (message.type === 'user') {
-        this.renderUserMessage(chatMessages, message.content);
-      }
-    });
-  }
-
-  renderModeSelection(container) {
-    const messageDiv = document.createElement('div');
-    messageDiv.className = 'message system';
-    
-    const avatar = document.createElement('div');
-    avatar.className = 'message-avatar';
-    avatar.textContent = 'S';
-
-    const contentDiv = document.createElement('div');
-    contentDiv.className = 'message-content';
-    contentDiv.innerHTML = `
-      <div class="message-text">Which mode would you like to use?</div>
-      <div class="mode-selection">
-        <div class="mode-option" data-mode="novice">
-          <i class="fas fa-magic mode-icon"></i>
-          <div class="mode-title">NoCode Creator</div>
-          <div class="mode-description">Simple app planning for non-programmers</div>
-        </div>
-        <div class="mode-option" data-mode="market">
-          <i class="fas fa-chart-line mode-icon"></i>
-          <div class="mode-title">Market Research</div>
-          <div class="mode-description">Market analysis and business planning</div>
-        </div>
-      </div>
-    `;
-
-    messageDiv.appendChild(avatar);
-    messageDiv.appendChild(contentDiv);
-    container.appendChild(messageDiv);
-
-    // Add event listeners to mode options
-    const modeOptions = contentDiv.querySelectorAll('.mode-option');
-    modeOptions.forEach(option => {
-      option.addEventListener('click', () => {
-        const selectedMode = option.dataset.mode;
-        this.selectMode(selectedMode);
-      });
-    });
-  }
-
-  selectMode(mode) {
-    this.currentMode = mode;
-    this.currentQuestionIndex = 0;
-    this.answers = {};
-    
-    // Clear mode selection message and add confirmation
-    this.messages = this.messages.filter(msg => !msg.isModeSelection);
-    
-    const confirmationMessage = {
-      id: Date.now(),
-      type: 'system',
-      content: `Great choice! You've selected ${this.getModeDisplayName(mode)} mode. Let's start with the questions...`
-    };
-    
-    this.messages.push(confirmationMessage);
-    this.renderMessages();
-    this.scrollToBottom();
-    
-    setTimeout(() => {
-      this.askQuestion();
-      this.updateResetButtonVisibility();
-    }, 1000);
-  }
-
-  getModeDisplayName(mode) {
-    const names = {
-      novice: 'NoCode Creator',
-      market: 'Market Research'
-    };
-    return names[mode] || mode;
-  }
-
   askQuestion() {
-    if (!this.currentMode || this.currentQuestionIndex >= this.modeQuestions[this.currentMode].length) {
+    if (this.currentQuestionIndex >= this.questions.length) {
       this.showCompletionMessage();
       return;
     }
 
-    const question = this.modeQuestions[this.currentMode][this.currentQuestionIndex];
+    const question = this.questions[this.currentQuestionIndex];
     const message = {
       id: Date.now(),
       type: 'system',
@@ -394,64 +204,9 @@ class UnifiedChat {
     const chatInput = document.getElementById('chatInput');
     const sendButton = document.getElementById('sendButton');
     
-    if (question.type === 'yesno') {
-      chatInput.style.display = 'none';
-      sendButton.style.display = 'none';
-      
-      // Add yes/no buttons
-      this.addYesNoButtons();
-    } else {
       chatInput.style.display = 'block';
       sendButton.style.display = 'block';
       sendButton.disabled = true;
-      
-      // Remove yes/no buttons if they exist
-      this.removeYesNoButtons();
-    }
-  }
-
-  addYesNoButtons() {
-    const chatInputArea = document.getElementById('chatInputArea');
-    
-    // Remove existing yes/no buttons
-    this.removeYesNoButtons();
-    
-    const yesNoContainer = document.createElement('div');
-    yesNoContainer.className = 'yes-no-buttons';
-    yesNoContainer.innerHTML = `
-      <button class="yes-no-button" data-answer="yes">Yes</button>
-      <button class="yes-no-button" data-answer="no">No</button>
-    `;
-    
-    chatInputArea.appendChild(yesNoContainer);
-    
-    // Add event listeners
-    const buttons = yesNoContainer.querySelectorAll('.yes-no-button');
-    buttons.forEach(button => {
-      button.addEventListener('click', () => {
-        const answer = button.dataset.answer;
-        this.handleYesNoAnswer(answer);
-      });
-    });
-  }
-
-  removeYesNoButtons() {
-    const existingButtons = document.querySelector('.yes-no-buttons');
-    if (existingButtons) {
-      existingButtons.remove();
-    }
-  }
-
-  handleYesNoAnswer(answer) {
-    // Disable all yes/no buttons immediately to prevent multiple clicks
-    const buttons = document.querySelectorAll('.yes-no-button');
-    buttons.forEach(button => {
-      button.disabled = true;
-      button.style.opacity = '0.6';
-      button.style.cursor = 'not-allowed';
-    });
-    
-    this.handleAnswer(answer);
   }
 
   handleSend() {
@@ -466,7 +221,7 @@ class UnifiedChat {
   }
 
   handleAnswer(answer) {
-    const currentQuestion = this.modeQuestions[this.currentMode][this.currentQuestionIndex];
+    const currentQuestion = this.questions[this.currentQuestionIndex];
     
     if (!currentQuestion) {
       console.error('No current question found');
@@ -485,9 +240,6 @@ class UnifiedChat {
     };
     this.messages.push(userMessage);
 
-    // Remove yes/no buttons immediately after answer
-    this.removeYesNoButtons();
-
     // Render messages
     this.renderMessages();
     this.scrollToBottom();
@@ -502,7 +254,7 @@ class UnifiedChat {
     this.updateResetButtonVisibility();
 
     // Ask next question or complete
-    if (this.currentQuestionIndex < this.modeQuestions[this.currentMode].length) {
+    if (this.currentQuestionIndex < this.questions.length) {
       setTimeout(() => {
         this.askQuestion();
       }, 1000);
@@ -515,7 +267,7 @@ class UnifiedChat {
     const completionMessage = {
       id: Date.now(),
       type: 'system',
-      content: 'Perfect! I have all the information I need. Let me generate your specification...'
+      content: 'Perfect! I have all the information I need. Let me generate your application overview...'
     };
 
     this.messages.push(completionMessage);
@@ -529,72 +281,89 @@ class UnifiedChat {
 
   async generateSpecification() {
     try {
+      console.log('🚀 Starting generateSpecification...');
+      console.log('🔍 Current answers:', this.answers);
+      
       // Show loading overlay
       this.showLoadingOverlay();
 
       const loadingMessage = {
         id: Date.now(),
         type: 'system',
-        content: '🔄 Generating your specification... This may take a few moments.'
+        content: '🔄 Generating your application overview... This may take a few moments.'
       };
 
       this.messages.push(loadingMessage);
       this.renderMessages();
       this.scrollToBottom();
 
-      let apiUrl, prompt;
-      
-      if (this.currentMode === 'novice') {
-        apiUrl = 'https://newnocode.shalom-cohen-111.workers.dev/';
-        prompt = PROMPTS.novice(this.answers);
-      } else if (this.currentMode === 'market') {
-        apiUrl = 'https://super-dream-62b3.shalom-cohen-111.workers.dev/';
-        prompt = PROMPTS.market(this.answers);
-      }
+      // Prepare the prompt for overview generation
+      const prompt = PROMPTS.overview(this.answers);
+      console.log('🔍 Generated prompt:', prompt);
+      console.log('🔍 Prompt length:', prompt.length);
 
-      const response = await fetch(apiUrl, {
+      // Prepare API request body
+      const requestBody = {
+        stage: 'overview',
+        locale: 'en-US',
+        temperature: 0,
+        prompt: {
+          system: 'You are a professional product manager and UX architect. Generate a comprehensive application overview based on user input.',
+          developer: 'Create a detailed overview that includes application summary, core features, user journey, target audience, problem statement, and unique value proposition.',
+          user: prompt
+        }
+      };
+      
+      console.log('🔍 API Request Body:', JSON.stringify(requestBody, null, 2));
+      console.log('🔍 API URL: https://spspec.shalom-cohen-111.workers.dev/generate');
+
+      // Call the Worker API
+      console.log('📡 Making API call...');
+      const response = await fetch('https://spspec.shalom-cohen-111.workers.dev/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ prompt: prompt }),
+        body: JSON.stringify(requestBody),
       });
+
+      console.log('📡 API Response received:');
+      console.log('  - Status:', response.status);
+      console.log('  - Status Text:', response.statusText);
+      console.log('  - Headers:', Object.fromEntries(response.headers.entries()));
+      console.log('  - OK:', response.ok);
 
       let data;
       try {
-        data = await response.json();
+        const responseText = await response.text();
+        console.log('🔍 Raw response text:', responseText);
+        console.log('🔍 Response text length:', responseText.length);
+        
+        data = JSON.parse(responseText);
+        console.log('✅ Successfully parsed JSON response:', data);
       } catch (parseError) {
-        console.error('Failed to parse API response as JSON:', parseError);
+        console.error('❌ Failed to parse API response as JSON:', parseError);
         const textResponse = await response.text();
+        console.error('❌ Raw response that failed to parse:', textResponse);
         throw new Error(`API Error: Failed to parse response (Status: ${response.status})`);
       }
 
       if (!response.ok) {
-        console.error('API Error Details:', data);
-        throw new Error(`API Error: ${data.error || data.message || response.status}`);
+        console.error('❌ API Error Details:', data);
+        console.error('❌ Response not OK - Status:', response.status);
+        throw new Error(`API Error: ${data.error?.message || data.message || response.status}`);
       }
       
-      const generatedContent = data.specification || 'No specification generated';
-
-      // Store the generated content
-      localStorage.setItem('generatedContent', generatedContent);
-      localStorage.setItem('unifiedCurrentMode', this.currentMode);
-      localStorage.setItem(`unifiedAnswers_${this.currentMode}`, JSON.stringify(this.answers));
+      // Extract overview content from the structured response
+      console.log('🔍 Processing API response...');
+      console.log('🔍 Data structure:', Object.keys(data));
+      console.log('🔍 Data.overview exists:', !!data.overview);
+      console.log('🔍 Data.overview type:', typeof data.overview);
+      console.log('🔍 Data.overview content:', data.overview);
       
-      // Store additional data for compatibility with original systems
-      if (this.currentMode === 'novice') {
-        localStorage.setItem('formData', JSON.stringify({ 
-          idea: this.answers[0] || 'Not provided',
-          topic: 'App Planning',
-          platform: 'Mobile/Web',
-          currentMode: 'nocode'
-        }));
-        localStorage.setItem('noCodeAnswers', JSON.stringify(this.answers));
-      } else if (this.currentMode === 'market') {
-        localStorage.setItem('marketAnswers', JSON.stringify(this.answers));
-      }
-
-
+      const overviewContent = data.overview ? JSON.stringify(data.overview, null, 2) : 'No overview generated';
+      console.log('🔍 Final overview content:', overviewContent);
+      console.log('🔍 Overview content length:', overviewContent.length);
 
       // Hide loading overlay
       this.hideLoadingOverlay();
@@ -603,72 +372,28 @@ class UnifiedChat {
       const successMessage = {
         id: Date.now(),
         type: 'system',
-        content: '✅ Specification generated successfully! Redirecting to results...'
+        content: '✅ Application overview generated successfully! Redirecting to specification viewer...'
       };
 
       this.messages.push(successMessage);
       this.renderMessages();
       this.scrollToBottom();
 
-      // Check if user is authenticated before redirecting
+      // Save to Firebase immediately (user is always authenticated)
+      console.log('💾 Saving to Firebase...');
+      const firebaseId = await this.saveSpecToFirebase(overviewContent, this.answers);
+      console.log('✅ Saved to Firebase successfully with ID:', firebaseId);
       
-      // Wait for Firebase auth to be ready
-      setTimeout(async () => {
-        const user = firebase.auth().currentUser;
-        
-        if (user) {
-          // User is authenticated - save the result with user ID and redirect to appropriate page
-          
-          try {
-            // Wait for the save operation to complete
-            await this.saveResultWithUserID(user, generatedContent);
-            
-            // Get the saved spec ID after saving
-            const savedSpecId = localStorage.getItem('savedSpecId');
-            const savedSpecCollection = localStorage.getItem('savedSpecCollection');
-            
-            // Redirect to appropriate result page with saved spec ID
-            
-            if (this.currentMode === 'novice') {
-              if (savedSpecId && savedSpecCollection === 'specs') {
-                window.location.href = `/tools/result-novice.html?id=${savedSpecId}`;
-              } else {
-                window.location.href = '/tools/result-novice.html';
-              }
-            } else if (this.currentMode === 'market') {
-              console.log('Redirecting to result-market.html');
-              if (savedSpecId && savedSpecCollection === 'marketResearch') {
-                window.location.href = `/tools/result-market.html?id=${savedSpecId}`;
-              } else {
-                window.location.href = '/tools/result-market.html';
-              }
-            }
-          } catch (error) {
-            console.error('Error saving result:', error);
-            // Still redirect even if save failed
-            if (this.currentMode === 'novice') {
-              window.location.href = '/tools/result-novice.html';
-            } else if (this.currentMode === 'market') {
-              window.location.href = '/tools/result-market.html';
-            }
-          }
-        } else {
-          // User is not authenticated - redirect to result page first, then show modal
-          console.log('User is not authenticated, redirecting to result page');
-          
-          // Redirect to appropriate result page
-          if (this.currentMode === 'novice') {
-            console.log('Redirecting to result-novice.html');
-            window.location.href = '/tools/result-novice.html';
-          } else if (this.currentMode === 'market') {
-            console.log('Redirecting to result-market.html');
-            window.location.href = '/tools/result-market.html';
-          }
-          
-          // Store flag to show registration modal on result page
-          localStorage.setItem('showRegistrationModal', 'true');
-        }
-      }, 2000);
+      // Store in localStorage for backup
+      console.log('💾 Storing in localStorage as backup...');
+      localStorage.setItem('generatedOverviewContent', overviewContent);
+      localStorage.setItem('initialAnswers', JSON.stringify(this.answers));
+      console.log('✅ Stored in localStorage successfully');
+      
+      // Redirect to spec viewer with Firebase ID
+      setTimeout(() => {
+        window.location.href = `/pages/spec-viewer.html?id=${firebaseId}`;
+      }, 1000);
 
     } catch (error) {
       console.error('Error generating specification:', error);
@@ -686,6 +411,80 @@ class UnifiedChat {
       this.renderMessages();
       this.scrollToBottom();
     }
+  }
+
+  async saveSpecToFirebase(overviewContent, answers) {
+    try {
+      console.log('Saving spec to Firebase...');
+      
+      const user = firebase.auth().currentUser;
+      if (!user) {
+        throw new Error('User must be authenticated to save to Firebase');
+      }
+      
+      // Extract title from overview content
+      let title = "App Specification";
+      try {
+        const overviewObj = JSON.parse(overviewContent);
+        if (overviewObj.applicationSummary && overviewObj.applicationSummary.paragraphs) {
+          const firstParagraph = overviewObj.applicationSummary.paragraphs[0];
+          if (firstParagraph && firstParagraph.length > 10 && firstParagraph.length < 100) {
+            title = firstParagraph.substring(0, 50) + '...';
+          }
+        }
+      } catch (e) {
+        console.log('🔍 Could not parse overview for title extraction');
+      }
+      
+      const specDoc = {
+        title: title,
+        overview: overviewContent,
+        technical: null,
+        market: null,
+        status: {
+          overview: "ready",
+          technical: "pending",
+          market: "pending"
+        },
+        overviewApproved: false,
+        answers: answers,
+        userId: user.uid,
+        userName: user.displayName || user.email || 'Anonymous User',
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      };
+      
+      console.log('📄 Spec document to save:', specDoc);
+      
+      const docRef = await firebase.firestore().collection('specs').add(specDoc);
+      console.log('✅ Spec saved successfully with ID:', docRef.id);
+      
+      return docRef.id;
+      
+    } catch (error) {
+      console.error('❌ Error saving spec to Firebase:', error);
+      throw error;
+    }
+  }
+
+  renderMessages() {
+    const chatMessages = document.getElementById('chatMessages');
+    if (!chatMessages) {
+      console.error('chatMessages element not found!');
+      return;
+    }
+
+    chatMessages.innerHTML = '';
+
+    this.messages.forEach((message, index) => {
+      if (message.isIntro) {
+        this.renderSystemMessage(chatMessages, message.content);
+      } else if (message.type === 'system') {
+        this.renderSystemMessage(chatMessages, message.content, message.examples, message.questionType);
+      } else if (message.type === 'user') {
+        this.renderUserMessage(chatMessages, message.content);
+      }
+    });
   }
 
   renderSystemMessage(container, content, examples, questionType) {
@@ -830,10 +629,10 @@ class UnifiedChat {
     if (messageIndex !== -1) {
       this.messages[messageIndex].content = newContent;
       
-      // Update the corresponding answer in localStorage
-      const questionIndex = Math.floor((messageIndex - 1) / 2); // Assuming pairs of system + user messages
-      if (questionIndex >= 0 && questionIndex < this.modeQuestions[this.currentMode].length) {
-        const question = this.modeQuestions[this.currentMode][questionIndex];
+      // Update the corresponding answer in answers array
+      const questionIndex = Math.floor((messageIndex - 1) / 2);
+      if (questionIndex >= 0 && questionIndex < this.questions.length) {
+        const question = this.questions[questionIndex];
         if (question) {
           this.answers[question.id] = newContent;
         }
@@ -841,6 +640,9 @@ class UnifiedChat {
       
       // Save to localStorage
       this.saveData();
+      
+      // Re-render the specific message to update the UI
+      this.renderMessages();
       
       console.log('Message edited and saved:', { originalContent, newContent });
     }
@@ -869,55 +671,9 @@ class UnifiedChat {
     contentDiv.appendChild(editButton);
   }
 
-  saveEditedMessage(originalContent, newContent) {
-    // Update the message in the messages array
-    const messageIndex = this.messages.findIndex(msg => 
-      msg.type === 'user' && msg.content === originalContent
-    );
-    
-    if (messageIndex !== -1) {
-      this.messages[messageIndex].content = newContent;
-      
-      // Update the corresponding answer in localStorage
-      const questionIndex = Math.floor((messageIndex - 1) / 2); // Assuming pairs of system + user messages
-      if (questionIndex >= 0 && questionIndex < this.modeQuestions[this.currentMode].length) {
-        const question = this.modeQuestions[this.currentMode][questionIndex];
-        if (question) {
-          this.answers[question.id] = newContent;
-        }
-      }
-      
-      // Save to localStorage
-      this.saveData();
-      
-      // Re-render the specific message to update the UI
-      this.renderMessages();
-      
-      console.log('Message edited and saved:', { originalContent, newContent });
-    }
-  }
-
   updateProgress() {
-    if (!this.currentMode) return;
-
-    // Count only text questions (yes/no questions are grouped as one)
-    const textQuestions = this.modeQuestions[this.currentMode].filter(q => q.type === 'text');
-    const yesNoQuestions = this.modeQuestions[this.currentMode].filter(q => q.type === 'yesno');
-    const totalQuestions = textQuestions.length + (yesNoQuestions.length > 0 ? 1 : 0);
-    
-    // Calculate current question number (treat all yes/no as one question)
-    let currentQuestionNumber = 0;
-    for (let i = 0; i <= this.currentQuestionIndex; i++) {
-      const question = this.modeQuestions[this.currentMode][i];
-      if (question.type === 'text') {
-        currentQuestionNumber++;
-      } else if (question.type === 'yesno' && i === this.currentQuestionIndex) {
-        // This is the first yes/no question, count it as one
-        currentQuestionNumber++;
-        break;
-      }
-    }
-    
+    const totalQuestions = this.questions.length;
+    const currentQuestionNumber = this.currentQuestionIndex + 1;
     const progress = (currentQuestionNumber / totalQuestions) * 100;
     
     const progressFill = document.getElementById('progressFill');
@@ -930,6 +686,30 @@ class UnifiedChat {
     if (progressText) {
       progressText.textContent = `Question ${currentQuestionNumber} of ${totalQuestions}`;
     }
+  }
+
+  showSubmitButton() {
+    const chatInputArea = document.getElementById('chatInputArea');
+    if (!chatInputArea) return;
+
+    // Hide the regular input
+    const chatInputWrapper = chatInputArea.querySelector('.chat-input-wrapper');
+    if (chatInputWrapper) {
+      chatInputWrapper.style.display = 'none';
+    }
+
+    // Create submit button if it doesn't exist
+    let submitButton = document.getElementById('submitButton');
+    if (!submitButton) {
+      submitButton = document.createElement('button');
+      submitButton.id = 'submitButton';
+      submitButton.className = 'submit-button';
+      submitButton.innerHTML = '<i class="fas fa-rocket"></i> Generate Specification';
+      submitButton.onclick = () => this.generateSpecification();
+      chatInputArea.appendChild(submitButton);
+    }
+
+    submitButton.style.display = 'block';
   }
 
   scrollToBottom() {
@@ -955,9 +735,8 @@ class UnifiedChat {
   resetChat() {
     if (confirm('Are you sure you want to reset the chat? This will clear all your progress.')) {
       // Clear all data
-      this.currentMode = null;
       this.currentQuestionIndex = 0;
-      this.answers = {};
+      this.answers = [];
       this.messages = [];
       
       // Clear all localStorage items
@@ -968,9 +747,6 @@ class UnifiedChat {
       if (chatMessages) {
         chatMessages.innerHTML = '';
       }
-      
-      // Remove any yes/no buttons
-      this.removeYesNoButtons();
       
       // Reset input
       const chatInput = document.getElementById('chatInput');
@@ -997,9 +773,44 @@ class UnifiedChat {
     }
   }
 
-
-
-
+  resetForDemo() {
+    // Clear all data without confirmation
+    this.currentQuestionIndex = 0;
+    this.answers = [];
+    this.messages = [];
+    
+    // Clear UI
+    const chatMessages = document.getElementById('chatMessages');
+    if (chatMessages) {
+      chatMessages.innerHTML = '';
+    }
+    
+    // Reset input
+    const chatInput = document.getElementById('chatInput');
+    if (chatInput) {
+      chatInput.value = '';
+      chatInput.style.display = 'block';
+    }
+    
+    // Reset send button
+    const sendButton = document.getElementById('sendButton');
+    if (sendButton) {
+      sendButton.style.display = 'block';
+      sendButton.disabled = true;
+    }
+    
+    // Update progress
+    this.updateProgress();
+    
+    // Update button visibility
+    this.updateResetButtonVisibility();
+    
+    // Hide submit button if it exists
+    const submitButton = document.getElementById('submitButton');
+    if (submitButton) {
+      submitButton.style.display = 'none';
+    }
+  }
 
   showLoadingOverlay() {
     const loadingOverlay = document.getElementById('loadingOverlay');
@@ -1016,111 +827,6 @@ class UnifiedChat {
       console.log('Loading overlay hidden');
     }
   }
-
-  async saveResultWithUserID(user, generatedContent) {
-    try {
-      console.log('Saving result with user ID:', user.uid);
-      console.log('Generated content length:', generatedContent.length);
-      
-      // Clear any existing saved spec IDs to ensure we get a fresh one
-      localStorage.removeItem('savedSpecId');
-      localStorage.removeItem('savedSpecCollection');
-      
-      // Extract title from spec content
-      let title = "App Specification";
-      const lines = generatedContent.split('\n');
-      for (let line of lines) {
-        line = line.trim();
-        if (line.startsWith('# ') || line.startsWith('## ')) {
-          title = line.replace(/^#+\s*/, '');
-          break;
-        } else if (line.length > 10 && line.length < 100) {
-          title = line;
-          break;
-        }
-      }
-      
-      const mode = this.currentMode || 'unified';
-      const answers = this.answers || {};
-      
-      const specDoc = {
-        title: title,
-        content: generatedContent,
-        userId: user.uid,
-        userName: user.displayName || user.email || 'Unknown User',
-        mode: mode,
-        answers: answers,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-      };
-      
-      console.log('Spec document to save:', specDoc);
-      
-      // Save to appropriate collection based on mode
-      let collectionName = 'specs';
-      if (mode === 'market') {
-        collectionName = 'marketResearch';
-      }
-      
-      console.log('Saving to collection:', collectionName);
-      
-      const docRef = await firebase.firestore().collection(collectionName).add(specDoc);
-      console.log('Result saved successfully with ID:', docRef.id);
-      
-      // Store the document ID for later reference
-      localStorage.setItem('savedSpecId', docRef.id);
-      localStorage.setItem('savedSpecCollection', collectionName);
-      
-      console.log('Stored in localStorage - ID:', docRef.id, 'Collection:', collectionName);
-      
-      // Show success notification
-      this.showSaveNotification();
-      
-      return docRef.id;
-      
-    } catch (error) {
-      console.error('Error saving result with user ID:', error);
-      throw error; // Re-throw the error so the calling function can handle it
-    }
-  }
-
-  showSaveNotification() {
-    const notification = document.createElement('div');
-    notification.style.cssText = `
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #28a745;
-      color: white;
-      padding: 10px 20px;
-      border-radius: 8px;
-      z-index: 1000;
-      font-size: 14px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      animation: slideUp 0.3s ease-out;
-    `;
-    notification.textContent = 'Specification saved successfully!';
-    
-    // Add animation styles
-    const style = document.createElement('style');
-    style.textContent = `
-      @keyframes slideUp {
-        from { transform: translateX(-50%) translateY(100%); opacity: 0; }
-        to { transform: translateX(-50%) translateY(0); opacity: 1; }
-      }
-    `;
-    document.head.appendChild(style);
-    
-    document.body.appendChild(notification);
-    
-    setTimeout(() => {
-      notification.remove();
-      style.remove();
-    }, 3000);
-  }
-
-
 }
 
 // Initialize the chat when DOM is loaded
@@ -1132,155 +838,134 @@ document.addEventListener('DOMContentLoaded', () => {
   console.log('UnifiedChat instance created:', unifiedChat);
 });
 
+// Demo Apps Data
+const DEMO_APPS = {
+  fitness: {
+    name: "Fitness Tracker",
+    answers: [
+      "FitTrack is a comprehensive fitness and nutrition tracking mobile application designed to help users achieve their health and wellness goals. The app combines workout logging, meal tracking, progress monitoring, and personalized recommendations in one platform.",
+      "Users start by creating a profile and setting fitness goals (weight loss, muscle gain, endurance, etc.). They log daily workouts by selecting exercises from a comprehensive library, track meals using barcode scanning or manual input, and monitor their progress through charts and analytics. The app provides personalized workout plans and meal suggestions based on their goals and preferences.",
+      "The app integrates with popular fitness wearables like Apple Watch, Fitbit, and Garmin for automatic activity tracking. It includes social features for sharing achievements and participating in challenges with friends. Future features include AI-powered personal trainer recommendations and integration with local gyms for class bookings.",
+      "Target audience includes fitness enthusiasts aged 18-45, both beginners and advanced users who want to track their health journey. They are health-conscious individuals who use smartphones daily and value convenience, personalization, and data-driven insights in their fitness routine."
+    ]
+  },
+  food: {
+    name: "Food Delivery Platform",
+    answers: [
+      "QuickEats is a food delivery platform that connects users with local restaurants and food vendors. The app allows users to browse menus, place orders, track deliveries in real-time, and manage their food preferences and dietary restrictions.",
+      "Users browse restaurants by cuisine type, location, or ratings, select items from digital menus with detailed descriptions and photos, customize orders with special instructions, and place orders with multiple payment options. They can track their delivery in real-time with GPS updates and receive notifications about order status changes.",
+      "The app includes features like scheduled ordering for future meals, group ordering for office lunches, loyalty programs with points and discounts, and integration with popular payment methods. It supports multiple languages and dietary filters (vegetarian, vegan, gluten-free, etc.).",
+      "Target audience includes busy professionals aged 22-50, students, and families who value convenience and time-saving solutions. They are tech-savvy individuals who frequently order food online and appreciate variety, quality, and reliable delivery services."
+    ]
+  },
+  social: {
+    name: "Social Network Platform",
+    answers: [
+      "ConnectHub is a social networking platform focused on professional networking and career development. The app helps users build meaningful professional relationships, discover job opportunities, share industry insights, and grow their professional network.",
+      "Users create professional profiles highlighting their skills, experience, and career goals. They can connect with colleagues, industry professionals, and potential employers, share articles and insights, participate in industry discussions, and discover job opportunities through their network connections.",
+      "The app includes features like industry-specific groups, mentorship matching, skill endorsements, company insights, and event networking. It integrates with LinkedIn for seamless profile import and includes AI-powered job recommendations based on user preferences and network activity.",
+      "Target audience includes working professionals aged 25-55 across various industries, job seekers, entrepreneurs, and students preparing for their careers. They are career-focused individuals who value professional growth, networking opportunities, and staying updated with industry trends."
+    ]
+  },
+  education: {
+    name: "Learning Platform",
+    answers: [
+      "EduMaster is an online learning platform that offers interactive courses, skill assessments, and personalized learning paths across various subjects and professional skills. The platform combines video lessons, interactive exercises, quizzes, and peer collaboration to create an engaging learning experience.",
+      "Users browse courses by category, skill level, or instructor, enroll in courses with structured learning paths, complete interactive lessons and assignments, take quizzes and assessments to track progress, and earn certificates upon completion. They can also participate in discussion forums and peer review activities.",
+      "The platform includes adaptive learning technology that adjusts content difficulty based on user performance, gamification elements like badges and leaderboards, offline learning capabilities, and integration with popular productivity tools. It supports multiple learning formats including video, audio, text, and interactive simulations.",
+      "Target audience includes lifelong learners aged 18-65, professionals seeking skill development, students looking for supplementary education, and organizations training their employees. They are motivated individuals who value continuous learning, skill development, and career advancement."
+    ]
+  },
+  finance: {
+    name: "Personal Finance Manager",
+    answers: [
+      "MoneyWise is a comprehensive personal finance management application that helps users track expenses, create budgets, monitor investments, and achieve their financial goals. The app provides insights into spending patterns and offers personalized financial advice.",
+      "Users connect their bank accounts and credit cards for automatic transaction tracking, categorize expenses, set monthly budgets for different categories, track savings goals, monitor investment portfolios, and receive alerts for unusual spending or bill due dates. The app generates detailed reports and financial insights.",
+      "The app includes features like bill reminders, subscription management, investment tracking, tax preparation assistance, and integration with financial institutions. It uses bank-level security and supports multiple currencies for international users. Future features include AI-powered financial coaching and retirement planning tools.",
+      "Target audience includes working adults aged 25-55 who want to take control of their finances, young professionals starting their financial journey, and individuals planning for major life events like buying a home or retirement. They are financially conscious individuals who value organization, planning, and achieving financial stability."
+    ]
+  }
+};
+
+// Global function to load demo app
+function loadDemoApp(appType) {
+  if (!unifiedChat) {
+    console.error('UnifiedChat not initialized');
+    return;
+  }
+
+  const app = DEMO_APPS[appType];
+  if (!app) {
+    console.error('Demo app not found:', appType);
+    return;
+  }
+
+  console.log('Loading demo app:', app.name);
+  
+  // Hide demo section
+  const demoSection = document.getElementById('demoAppsSection');
+  if (demoSection) {
+    demoSection.classList.add('hidden');
+  }
+
+  // Reset chat state
+  unifiedChat.resetForDemo();
+  
+  // Auto-fill answers
+  unifiedChat.answers = [...app.answers];
+  
+  // Show all questions and answers immediately
+  unifiedChat.messages = [];
+  unifiedChat.currentQuestionIndex = 0;
+  
+  // Add system message
+  unifiedChat.messages.push({
+    id: Date.now(),
+    type: 'system',
+    content: `🚀 Demo Mode: ${app.name} loaded! Here are your answers:`
+  });
+
+  // Add each question and answer
+  app.answers.forEach((answer, index) => {
+    const question = unifiedChat.questions[index];
+    
+    // Add question
+    unifiedChat.messages.push({
+      id: Date.now() + index * 1000,
+      type: 'system',
+      content: `${index + 1}. ${question.question}`
+    });
+    
+    // Add answer
+    unifiedChat.messages.push({
+      id: Date.now() + index * 1000 + 500,
+      type: 'user',
+      content: answer
+    });
+  });
+
+  // Add final message
+  unifiedChat.messages.push({
+    id: Date.now() + 10000,
+    type: 'system',
+    content: '✅ All answers ready! Generating specification automatically...'
+  });
+
+  // Render messages
+  unifiedChat.renderMessages();
+  unifiedChat.scrollToBottom();
+  
+  // Update progress
+  unifiedChat.updateProgress();
+  
+  // Auto-generate specification after a short delay
+  setTimeout(() => {
+    console.log('🚀 Auto-generating specification for demo app:', app.name);
+    unifiedChat.generateSpecification();
+  }, 2000);
+  
+  console.log('Demo app loaded successfully:', app.name);
+}
+
 // Make the chat globally accessible
 window.unifiedChat = unifiedChat;
-
-// Keep the original functions for compatibility
-window.generateSpecificationFromProcessingNoviceJs = async function() {
-  try {
-    console.log('Starting generateSpecificationFromProcessingNoviceJs');
-    const formData = JSON.parse(localStorage.getItem('formData')) || {};
-    const idea = formData.idea || 'Not provided';
-    const topic = formData.topic || 'Not specified';
-    const platform = formData.platform || 'Not specified';
-    console.log('Form data:', { idea, topic, platform });
-
-    const answers = JSON.parse(localStorage.getItem('noCodeAnswers')) || {};
-    console.log('Answers:', answers);
-
-    let details = '';
-    const steps = [
-      { name: 'App Overview', question: 'What is the general purpose and idea of your app?' },
-      { name: 'User Workflow', question: 'Describe the typical workflow of a user using your app.' },
-      { name: 'Design', question: 'What design elements are most important for your app?' },
-      { name: 'Features', question: 'What key features do you want your app to have?' },
-      { name: 'Target Audience', question: 'Who is your target audience?' },
-      { name: 'User Account System', question: 'Does your app require a user account system?', type: 'yesno' },
-      { name: 'AI Features', question: 'Does your app use or integrate with AI features?', type: 'yesno' },
-      { name: 'Free to Use', question: 'Will your app be free to use?', type: 'yesno' },
-      { name: 'Notifications', question: 'Does your app need to send notifications?', type: 'yesno' },
-      { name: 'Offline Mode', question: 'Does your app need to work offline?', type: 'yesno' },
-      { name: 'Multiple Languages', question: 'Will your app support multiple languages?', type: 'yesno' },
-      { name: 'Social Media Integration', question: 'Does your app require integration with social media?', type: 'yesno' },
-      { name: 'Analytics', question: 'Will your app collect user data for analytics?', type: 'yesno' },
-      { name: 'Additional Notes', question: 'Any additional notes or requirements for your app?' }
-    ];
-
-    steps.forEach((step, index) => {
-      const response = index < 5 ? answers[index] || 'Not provided' : 
-                      index < 13 ? answers[`yesNo_${index}`] || 'Not specified' : 
-                      answers[index] || 'Not provided';
-      if (step.type === 'yesno') {
-        details += `${step.question}: ${response}\n`;
-      } else {
-        details += `${step.name}: ${response}\n`;
-      }
-    });
-
-    const fullPrompt = PROMPTS.novice(answers);
-    console.log('Full prompt:', fullPrompt);
-
-    // Send the prompt to the worker
-    console.log('Sending request to worker...');
-    console.log('Worker URL:', 'https://newnocode.shalom-cohen-111.workers.dev/');
-    console.log('Request payload:', { prompt: fullPrompt });
-    
-    const response = await fetch('https://newnocode.shalom-cohen-111.workers.dev/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ prompt: fullPrompt }),
-    });
-
-    console.log('Worker response status:', response.status);
-    console.log('Worker response headers:', Object.fromEntries(response.headers.entries()));
-    
-    if (!response.ok) {
-      console.error('Worker returned error status:', response.status);
-      console.error('Response status text:', response.statusText);
-      throw new Error(`Worker Error: HTTP ${response.status} - ${response.statusText}`);
-    }
-
-    const responseText = await response.text();
-    console.log('Worker raw response text:', responseText);
-    
-    let data;
-    try {
-      data = JSON.parse(responseText);
-      console.log('Worker parsed response data:', data);
-    } catch (parseError) {
-      console.error('Failed to parse worker response as JSON:', parseError);
-      console.error('Raw response that failed to parse:', responseText);
-      throw new Error(`Worker returned invalid JSON: ${parseError.message}`);
-    }
-
-    if (!data.specification) {
-      console.error('Worker response missing specification field:', data);
-      throw new Error('Worker response missing specification field');
-    }
-
-    const generatedContent = data.specification;
-    console.log('Generated content from worker length:', generatedContent.length);
-    console.log('Generated content preview (first 200 chars):', generatedContent.substring(0, 200));
-
-    // Store the generated content for the result page
-    localStorage.setItem('generatedContent', generatedContent);
-    localStorage.setItem('formData', JSON.stringify({ idea, topic, platform, currentMode: 'nocode' }));
-    localStorage.setItem('noCodeAnswers', JSON.stringify(answers));
-    
-    console.log('Successfully stored data in localStorage, redirecting to result page...');
-
-    // Redirect to result page
-    window.location.href = 'result-novice.html';
-    
-  } catch (error) {
-    console.error('Error in generateSpecificationFromProcessingNoviceJs:', error);
-    throw error;
-  }
-};
-
-
-// Keep the original function for market mode compatibility
-window.generateSpecificationFromProcessingMarketJs = async function() {
-  try {
-    const answers = JSON.parse(localStorage.getItem('marketAnswers')) || {};
-    const currentMode = localStorage.getItem('currentMode') || 'market';
-
-    let details = '';
-    const steps = [
-      { name: 'App Name and Platform', question: 'What is the name of your app idea and which platform will it be on (e.g., iOS, Android, Web)?' },
-      { name: 'Description', question: 'Describe your app\'s purpose, key features, and target audience.' },
-      { name: 'Key Features', question: 'What are the main features you want your app to have?' }
-    ];
-
-    steps.forEach((step, index) => {
-      const response = answers[index] || 'Not provided';
-      details += `${step.name}: ${response}\n`;
-    });
-
-    const fullPrompt = PROMPTS.market(answers);
-
-    const response = await fetch('https://super-dream-62b3.shalom-cohen-111.workers.dev/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ prompt: fullPrompt }),
-    });
-
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(`API Error: ${data.error || 'Unknown error'}`);
-    }
-
-    const generatedContent = data.specification || 'No market research generated';
-    console.log('Generated content extracted:', generatedContent);
-    localStorage.setItem('generatedContent', generatedContent);
-
-    window.location.href = 'result-market.html';
-  } catch (err) {
-    console.error('Error generating specification:', err);
-    alert('Failed to generate market research: ' + err.message);
-  }
-};

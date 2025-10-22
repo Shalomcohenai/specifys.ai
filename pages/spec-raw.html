@@ -1,0 +1,378 @@
+---
+layout: default
+title: Raw Spec Viewer
+description: Displays raw JSON data for debugging
+permalink: /pages/spec-raw.html
+---
+
+<div class="container">
+    <h1>Raw Spec Viewer</h1>
+    <p>This page displays raw JSON data for debugging purposes.</p>
+    
+    <div class="tabs">
+        <button class="tab-button active" onclick="showTab('overview')">Overview</button>
+        <button class="tab-button" onclick="showTab('technical')">Technical</button>
+        <button class="tab-button" onclick="showTab('market')">Market</button>
+    </div>
+    
+    <div class="content">
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Loading specification...</p>
+        </div>
+        
+        <div id="error" class="error" style="display: none;">
+            <h3>Error</h3>
+            <p id="error-message"></p>
+            <button onclick="retryLoad()" class="retry-btn">Retry</button>
+        </div>
+        
+        <div id="content" style="display: none;">
+            <div class="copy-section">
+                <button id="copyRawBtn" class="copy-btn">📋 Copy Raw Data</button>
+                <span id="copyStatus" class="copy-status"></span>
+            </div>
+            
+            <pre id="json-display" class="json-display"></pre>
+        </div>
+    </div>
+</div>
+
+<style>
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+h1 {
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.tabs {
+    display: flex;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.tab-button {
+    background: none;
+    border: none;
+    padding: 12px 24px;
+    cursor: pointer;
+    font-size: 16px;
+    color: #666;
+    border-bottom: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.tab-button:hover {
+    color: #007bff;
+    background-color: #f8f9fa;
+}
+
+.tab-button.active {
+    color: #007bff;
+    border-bottom-color: #007bff;
+    font-weight: 600;
+}
+
+.loading {
+    text-align: center;
+    padding: 40px;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #007bff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.error {
+    text-align: center;
+    padding: 40px;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 8px;
+    color: #721c24;
+}
+
+.retry-btn {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-top: 15px;
+}
+
+.retry-btn:hover {
+    background: #c82333;
+}
+
+.copy-section {
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.copy-btn {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s;
+}
+
+.copy-btn:hover {
+    background: #0056b3;
+}
+
+.copy-status {
+    font-size: 12px;
+    color: #28a745;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.copy-status.show {
+    opacity: 1;
+}
+
+.copy-status.error {
+    color: #dc3545;
+}
+
+.json-display {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 20px;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 14px;
+    line-height: 1.5;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.content {
+    margin-top: 20px;
+}
+</style>
+
+<script>
+let currentSpecData = null;
+
+// Get spec ID and status from URL
+const urlParams = new URLSearchParams(window.location.search);
+const specId = urlParams.get('id');
+const status = urlParams.get('status');
+
+console.log('🚀 Raw Spec Viewer - Starting...');
+console.log('📋 Spec ID:', specId);
+console.log('📋 Status:', status);
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Setup copy button
+    document.getElementById('copyRawBtn').addEventListener('click', copyRawData);
+    
+    if (specId) {
+        loadSpec(specId);
+    } else if (status === 'generating') {
+        generateNewSpec();
+    } else {
+        showError('No spec ID provided');
+    }
+});
+
+async function loadSpec(specId) {
+    try {
+        console.log('📡 Loading spec:', specId);
+        
+        const response = await fetch(`http://localhost:10000/api/v2/spec/${specId}`);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        console.log('✅ Spec loaded:', data);
+        
+        currentSpecData = data;
+        displayRawData(data);
+        
+    } catch (error) {
+        console.error('❌ Error loading spec:', error);
+        showError(`Error loading spec: ${error.message}`);
+    }
+}
+
+async function generateNewSpec() {
+    try {
+        console.log('🔨 Starting spec generation...');
+        
+        // Get answers from localStorage
+        const answers = JSON.parse(localStorage.getItem('specAnswers') || '{}');
+        console.log('📝 Generating spec with answers:', answers);
+        
+        const response = await fetch('http://localhost:10000/api/v2/spec/create', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                userId: 'demo-user',
+                answers: answers,
+                overview: 'Generating overview...',
+                status: 'overview_ready'
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        console.log('✅ Spec created:', data.specId);
+        
+        // Start polling for updates
+        pollSpecStatus(data.specId);
+        
+    } catch (error) {
+        console.error('❌ Error generating spec:', error);
+        showError(`Error generating spec: ${error.message}`);
+    }
+}
+
+async function pollSpecStatus(specId) {
+    let attempts = 0;
+    const maxAttempts = 60; // 5 minutes with 5-second intervals
+    
+    const poll = async () => {
+        attempts++;
+        console.log(`🔍 Checking spec status (attempt ${attempts}/${maxAttempts})...`);
+        
+        try {
+            const response = await fetch(`http://localhost:10000/api/v2/spec/${specId}`);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
+            const data = await response.json();
+            console.log('📊 Current status:', data.status);
+            
+            // Check if all stages are ready
+            if (data.status && 
+                data.status.technical === 'ready' && 
+                data.status.market === 'ready' &&
+                data.status.overview === 'ready') {
+                
+                console.log('✅ All stages complete!');
+                currentSpecData = data;
+                displayRawData(data);
+                return;
+            }
+            
+            // Continue polling if not complete and within limits
+            if (attempts < maxAttempts) {
+                setTimeout(poll, 5000); // Poll every 5 seconds
+            } else {
+                console.log('⏰ Polling timeout reached');
+                showError('Specification generation timed out. Please try again.');
+            }
+            
+        } catch (error) {
+            console.error('❌ Error polling spec status:', error);
+            if (attempts < maxAttempts) {
+                setTimeout(poll, 5000);
+            } else {
+                showError(`Error polling spec status: ${error.message}`);
+            }
+        }
+    };
+    
+    poll();
+}
+
+function displayRawData(data) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('error').style.display = 'none';
+    document.getElementById('content').style.display = 'block';
+    
+    // Display raw JSON
+    document.getElementById('json-display').textContent = JSON.stringify(data, null, 2);
+}
+
+function showError(message) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('error').style.display = 'block';
+    document.getElementById('error-message').textContent = message;
+}
+
+function retryLoad() {
+    if (specId) {
+        loadSpec(specId);
+    } else if (status === 'generating') {
+        generateNewSpec();
+    }
+}
+
+function copyRawData() {
+    if (!currentSpecData) {
+        showCopyStatus('No data to copy', 'error');
+        return;
+    }
+    
+    const rawData = {
+        url: window.location.href,
+        timestamp: new Date().toISOString(),
+        specData: currentSpecData
+    };
+    
+    const textToCopy = `=== SPECIFICATION RAW DATA ===
+URL: ${rawData.url}
+Timestamp: ${rawData.timestamp}
+
+=== RAW JSON DATA ===
+${JSON.stringify(rawData.specData, null, 2)}`;
+    
+    navigator.clipboard.writeText(textToCopy).then(() => {
+        showCopyStatus('✅ Copied to clipboard!', 'success');
+    }).catch(err => {
+        console.error('Failed to copy:', err);
+        showCopyStatus('❌ Copy failed', 'error');
+    });
+}
+
+function showCopyStatus(message, type) {
+    const statusEl = document.getElementById('copyStatus');
+    statusEl.textContent = message;
+    statusEl.className = `copy-status show ${type}`;
+    
+    setTimeout(() => {
+        statusEl.className = 'copy-status';
+    }, 3000);
+}
+</script>
+

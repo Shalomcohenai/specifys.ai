@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     <meta name="theme-color" content="#000000">
-    <title>Ensuring Code Quality in AI-Generated Apps - Specifys.ai</title>
-    <meta name="description" content="As vibe-coding penetrates enterprise development, organizations are embracing unprecedented speed, yet they face growing risks...">
+    <title>Raw Spec Viewer - Specifys.ai</title>
+    <meta name="description" content="Displays raw JSON data for debugging">
     <meta name="keywords" content="AI development tools, app specification generator, no-code platform, AI-powered planning, vibe coding, AI app builder, specification generator, market research tool, app planning tool, development tools, AI tools">
     <meta name="author" content="Specifys.ai">
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
@@ -14,31 +14,27 @@
     
     <!-- Canonical URL -->
     
-    <link rel="canonical" href="https://specifys-ai.com/blog/article4.html">
+    <link rel="canonical" href="http://localhost:3000/pages/spec-raw.html">
     
     
     <!-- Open Graph -->
     <meta property="og:site_name" content="Specifys.ai">
-    <meta property="og:title" content="Ensuring Code Quality in AI-Generated Apps">
-    <meta property="og:description" content="As vibe-coding penetrates enterprise development, organizations are embracing unprecedented speed, yet they face growing risks...">
-    <meta property="og:type" content="article">
-    <meta property="og:url" content="http://localhost:3000/2025/09/26/article4/">
+    <meta property="og:title" content="Raw Spec Viewer">
+    <meta property="og:description" content="Displays raw JSON data for debugging">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="http://localhost:3000/pages/spec-raw.html">
     <meta property="og:image" content="http://localhost:3000/assets/images/og-image.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:locale" content="en_US">
-    
-    <meta property="article:author" content="Specifys.ai">
-    <meta property="article:published_time" content="2025-09-26T00:00:00-04:00">
-    <meta property="article:modified_time" content="2025-09-26T00:00:00-04:00">
     
     
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@specifysai">
     <meta name="twitter:creator" content="@specifysai">
-    <meta name="twitter:title" content="Ensuring Code Quality in AI-Generated Apps">
-    <meta name="twitter:description" content="As vibe-coding penetrates enterprise development, organizations are embracing unprecedented speed, yet they face growing risks...">
+    <meta name="twitter:title" content="Raw Spec Viewer">
+    <meta name="twitter:description" content="Displays raw JSON data for debugging">
     <meta name="twitter:image" content="http://localhost:3000/assets/images/og-image.png">
     
     <!-- Favicon -->
@@ -47,10 +43,6 @@
     <!-- CSS -->
     <link rel="stylesheet" href="/assets/css/main.css">
     
-    
-      
-        <link rel="stylesheet" href="/assets/css/pages/post.css">
-      
     
     
     <!-- Font Awesome -->
@@ -388,29 +380,6 @@ document.addEventListener('DOMContentLoaded', function() {
         "ratingCount": "250"
       },
       "description": "AI-powered app planning platform with specification generator, market research tools, and vibe coding tools map"
-    },
-    {
-      "@type": "Article",
-      "headline": "Ensuring Code Quality in AI-Generated Apps",
-      "description": "As vibe-coding penetrates enterprise development, organizations are embracing unprecedented speed, yet they face growing risks...",
-      "author": {
-        "@type": "Organization",
-        "name": "Specifys.ai"
-      },
-      "publisher": {
-        "@type": "Organization",
-        "name": "Specifys.ai",
-        "logo": {
-          "@type": "ImageObject",
-          "url": "https://specifys-ai.com/favicon.ico"
-        }
-      },
-      "datePublished": "2025-09-26T00:00:00-04:00",
-      "dateModified": "2025-09-26T00:00:00-04:00",
-      "mainEntityOfPage": {
-        "@type": "WebPage",
-        "@id": "http://localhost:3000/2025/09/26/article4/"
-      }
     }
   ]
 }
@@ -482,234 +451,376 @@ document.addEventListener('DOMContentLoaded', function() {
     
     <!-- Main Content -->
     <main id="main-content" class="main-content">
-        <!-- Reading Progress Bar -->
-<div class="reading-progress-bar" id="reading-progress"></div>
-
-<!-- Breadcrumbs -->
-<nav class="breadcrumbs" aria-label="Breadcrumb">
-    <a href="/">Home</a>
-    <span class="separator">/</span>
-    <a href="/blog/">Blog</a>
-    <span class="separator">/</span>
-    <span class="current">Ensuring Code Quality in AI-Generated...</span>
-</nav>
-
-<article class="post-content">
-    <header class="post-header">
-        <h1 class="post-title">Ensuring Code Quality in AI-Generated Apps</h1>
-        
-        <div class="post-meta">
-            <div class="meta-item">
-                <i class="far fa-calendar-alt"></i>
-                <time datetime="2025-09-26T00:00:00-04:00" class="post-date">
-                    September 26, 2025
-                </time>
-            </div>
-            
-            
-            <div class="meta-item">
-                <i class="far fa-user"></i>
-                <span class="post-author">specifys.ai Team</span>
-            </div>
-            
-            
-            <div class="meta-item">
-                <i class="far fa-clock"></i>
-                <span class="reading-time" id="reading-time">5 min read</span>
-            </div>
-        </div>
-        
-        
-        <div class="post-tags-header">
-            
-            <span class="tag">ai</span>
-            
-            <span class="tag">development</span>
-            
-            <span class="tag">coding</span>
-            
-            <span class="tag">app-development</span>
-            
-        </div>
-        
-        
-        
-        <div class="post-description">
-            <i class="fas fa-quote-left quote-icon"></i>
-            <p>As vibe-coding penetrates enterprise development, organizations are embracing unprecedented speed, yet they face growing risks...</p>
-        </div>
-        
-    </header>
+        <div class="container">
+    <h1>Raw Spec Viewer</h1>
+    <p>This page displays raw JSON data for debugging purposes.</p>
     
-    <!-- Table of Contents (will be generated by JS if needed) -->
-    <aside class="table-of-contents" id="toc-container" style="display: none;">
-        <h3>Table of Contents</h3>
-        <nav id="toc"></nav>
-    </aside>
-    
-    <div class="post-body" id="post-body">
-        <h1 id="ensuring-code-quality-in-ai-generated-apps">Ensuring Code Quality in AI-Generated Apps</h1>
-
-<p>As vibe-coding penetrates enterprise development, organizations are embracing unprecedented speed, yet they face growing risks…</p>
-
-<h2 id="introduction">Introduction</h2>
-
-<p>As vibe-coding penetrates enterprise development, organizations are embracing unprecedented speed, yet they face growing risks…</p>
-
-<h2 id="key-features-and-benefits">Key Features and Benefits</h2>
-
-<h3 id="what-makes-this-special">What Makes This Special</h3>
-
-<p>As vibe-coding penetrates enterprise development, organizations are embracing unprecedented speed, yet they face growing risks…</p>
-
-<h3 id="technical-implementation">Technical Implementation</h3>
-
-<p>The implementation leverages modern AI technologies and development practices to deliver exceptional results.</p>
-
-<h3 id="real-world-applications">Real-World Applications</h3>
-
-<p>This approach has been successfully applied in various scenarios, demonstrating its versatility and effectiveness.</p>
-
-<h2 id="best-practices">Best Practices</h2>
-
-<h3 id="getting-started">Getting Started</h3>
-
-<ol>
-  <li><strong>Initial Setup</strong>: Begin with a clear understanding of your requirements</li>
-  <li><strong>Configuration</strong>: Set up the necessary tools and environments</li>
-  <li><strong>Implementation</strong>: Follow the step-by-step process</li>
-  <li><strong>Testing</strong>: Ensure everything works as expected</li>
-  <li><strong>Deployment</strong>: Launch your solution</li>
-</ol>
-
-<h3 id="common-pitfalls-to-avoid">Common Pitfalls to Avoid</h3>
-
-<ul>
-  <li><strong>Overcomplicating</strong>: Keep solutions simple and focused</li>
-  <li><strong>Ignoring Security</strong>: Always consider security implications</li>
-  <li><strong>Skipping Testing</strong>: Thorough testing is essential</li>
-  <li><strong>Poor Documentation</strong>: Document your work for future reference</li>
-</ul>
-
-<h2 id="advanced-techniques">Advanced Techniques</h2>
-
-<h3 id="optimization-strategies">Optimization Strategies</h3>
-
-<ul>
-  <li>Performance tuning</li>
-  <li>Resource management</li>
-  <li>Scalability considerations</li>
-  <li>Monitoring and analytics</li>
-</ul>
-
-<h3 id="integration-patterns">Integration Patterns</h3>
-
-<ul>
-  <li>API integrations</li>
-  <li>Database connections</li>
-  <li>Third-party services</li>
-  <li>Cloud platforms</li>
-</ul>
-
-<h2 id="case-studies-and-examples">Case Studies and Examples</h2>
-
-<h3 id="success-stories">Success Stories</h3>
-
-<p>Real-world examples of successful implementations demonstrate the practical value of this approach.</p>
-
-<h3 id="performance-metrics">Performance Metrics</h3>
-
-<p>Key performance indicators show measurable improvements in efficiency and effectiveness.</p>
-
-<h2 id="future-outlook">Future Outlook</h2>
-
-<h3 id="emerging-trends">Emerging Trends</h3>
-
-<p>The landscape continues to evolve with new technologies and methodologies.</p>
-
-<h3 id="roadmap">Roadmap</h3>
-
-<p>Upcoming features and improvements will further enhance the capabilities.</p>
-
-<h2 id="conclusion">Conclusion</h2>
-
-<p>As vibe-coding penetrates enterprise development, organizations are embracing unprecedented speed, yet they face growing risks…</p>
-
-<p>This comprehensive approach provides a solid foundation for success in modern development practices.</p>
-
-<hr />
-
-<p><em>This post was created as part of the Specifys.ai blog migration to provide comprehensive content for our readers.</em></p>
-
+    <div class="tabs">
+        <button class="tab-button active" onclick="showTab('overview')">Overview</button>
+        <button class="tab-button" onclick="showTab('technical')">Technical</button>
+        <button class="tab-button" onclick="showTab('market')">Market</button>
     </div>
     
-    <footer class="post-footer">
-        <!-- Share Buttons -->
-        <div class="share-section">
-            <h4>Share this article</h4>
-            <div class="share-buttons">
-                <a href="#" class="share-btn twitter" onclick="shareOnTwitter(event)" aria-label="Share on Twitter">
-                    <i class="fab fa-twitter"></i>
-                </a>
-                <a href="#" class="share-btn linkedin" onclick="shareOnLinkedIn(event)" aria-label="Share on LinkedIn">
-                    <i class="fab fa-linkedin-in"></i>
-                </a>
-                <a href="#" class="share-btn facebook" onclick="shareOnFacebook(event)" aria-label="Share on Facebook">
-                    <i class="fab fa-facebook-f"></i>
-                </a>
-                <a href="#" class="share-btn copy" onclick="copyLink(event)" aria-label="Copy link">
-                    <i class="fas fa-link"></i>
-                </a>
+    <div class="content">
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Loading specification...</p>
+        </div>
+        
+        <div id="error" class="error" style="display: none;">
+            <h3>Error</h3>
+            <p id="error-message"></p>
+            <button onclick="retryLoad()" class="retry-btn">Retry</button>
+        </div>
+        
+        <div id="content" style="display: none;">
+            <div class="copy-section">
+                <button id="copyRawBtn" class="copy-btn">📋 Copy Raw Data</button>
+                <span id="copyStatus" class="copy-status"></span>
             </div>
+            
+            <pre id="json-display" class="json-display"></pre>
         </div>
-        
-        
-        <div class="post-tags-footer">
-            <h4>Related Topics</h4>
-            <div class="post-tags">
-                
-                <span class="tag">ai</span>
-                
-                <span class="tag">development</span>
-                
-                <span class="tag">coding</span>
-                
-                <span class="tag">app-development</span>
-                
-            </div>
-        </div>
-        
-        
-        <!-- Navigation -->
-        <div class="post-navigation">
-            
-            <a href="/2025/09/26/article3/" class="post-nav-link prev">
-                <span class="nav-label">Previous Article</span>
-                <span class="nav-title">Boost Developer Productivity with AI-Agent Coding</span>
-            </a>
-            
-            
-            
-            <a href="/2025/09/26/article5/" class="post-nav-link next">
-                <span class="nav-label">Next Article</span>
-                <span class="nav-title">Ultimate Review of Vibe-Coding Platforms: Lovab...</span>
-            </a>
-            
-        </div>
-        
-        <div class="back-to-blog">
-            <a href="/blog/" class="back-to-blog-btn">
-                <i class="fas fa-arrow-left"></i>
-                <span>Back to All Articles</span>
-            </a>
-        </div>
-    </footer>
-</article>
+    </div>
+</div>
 
-<!-- Back to Top Button -->
-<button class="back-to-top" id="back-to-top" aria-label="Back to top">
-    <i class="fas fa-arrow-up"></i>
-</button>
+<style>
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+h1 {
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.tabs {
+    display: flex;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.tab-button {
+    background: none;
+    border: none;
+    padding: 12px 24px;
+    cursor: pointer;
+    font-size: 16px;
+    color: #666;
+    border-bottom: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.tab-button:hover {
+    color: #007bff;
+    background-color: #f8f9fa;
+}
+
+.tab-button.active {
+    color: #007bff;
+    border-bottom-color: #007bff;
+    font-weight: 600;
+}
+
+.loading {
+    text-align: center;
+    padding: 40px;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #007bff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.error {
+    text-align: center;
+    padding: 40px;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 8px;
+    color: #721c24;
+}
+
+.retry-btn {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-top: 15px;
+}
+
+.retry-btn:hover {
+    background: #c82333;
+}
+
+.copy-section {
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.copy-btn {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.2s;
+}
+
+.copy-btn:hover {
+    background: #0056b3;
+}
+
+.copy-status {
+    font-size: 12px;
+    color: #28a745;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.copy-status.show {
+    opacity: 1;
+}
+
+.copy-status.error {
+    color: #dc3545;
+}
+
+.json-display {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 20px;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 14px;
+    line-height: 1.5;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.content {
+    margin-top: 20px;
+}
+</style>
+
+<script>
+let currentSpecData = null;
+
+// Get spec ID and status from URL
+const urlParams = new URLSearchParams(window.location.search);
+const specId = urlParams.get('id');
+const status = urlParams.get('status');
+
+console.log('🚀 Raw Spec Viewer - Starting...');
+console.log('📋 Spec ID:', specId);
+console.log('📋 Status:', status);
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Setup copy button
+    document.getElementById('copyRawBtn').addEventListener('click', copyRawData);
+    
+    if (specId) {
+        loadSpec(specId);
+    } else if (status === 'generating') {
+        generateNewSpec();
+    } else {
+        showError('No spec ID provided');
+    }
+});
+
+async function loadSpec(specId) {
+    try {
+        console.log('📡 Loading spec:', specId);
+        
+        const response = await fetch(`http://localhost:10000/api/v2/spec/${specId}`);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        console.log('✅ Spec loaded:', data);
+        
+        currentSpecData = data;
+        displayRawData(data);
+        
+    } catch (error) {
+        console.error('❌ Error loading spec:', error);
+        showError(`Error loading spec: ${error.message}`);
+    }
+}
+
+async function generateNewSpec() {
+    try {
+        console.log('🔨 Starting spec generation...');
+        
+        // Get answers from localStorage
+        const answers = JSON.parse(localStorage.getItem('specAnswers') || '{}');
+        console.log('📝 Generating spec with answers:', answers);
+        
+        const response = await fetch('http://localhost:10000/api/v2/spec/create', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                userId: 'demo-user',
+                answers: answers,
+                overview: 'Generating overview...',
+                status: 'overview_ready'
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        console.log('✅ Spec created:', data.specId);
+        
+        // Start polling for updates
+        pollSpecStatus(data.specId);
+        
+    } catch (error) {
+        console.error('❌ Error generating spec:', error);
+        showError(`Error generating spec: ${error.message}`);
+    }
+}
+
+async function pollSpecStatus(specId) {
+    let attempts = 0;
+    const maxAttempts = 60; // 5 minutes with 5-second intervals
+    
+    const poll = async () => {
+        attempts++;
+        console.log(`🔍 Checking spec status (attempt ${attempts}/${maxAttempts})...`);
+        
+        try {
+            const response = await fetch(`http://localhost:10000/api/v2/spec/${specId}`);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
+            const data = await response.json();
+            console.log('📊 Current status:', data.status);
+            
+            // Check if all stages are ready
+            if (data.status && 
+                data.status.technical === 'ready' && 
+                data.status.market === 'ready' &&
+                data.status.overview === 'ready') {
+                
+                console.log('✅ All stages complete!');
+                currentSpecData = data;
+                displayRawData(data);
+                return;
+            }
+            
+            // Continue polling if not complete and within limits
+            if (attempts < maxAttempts) {
+                setTimeout(poll, 5000); // Poll every 5 seconds
+            } else {
+                console.log('⏰ Polling timeout reached');
+                showError('Specification generation timed out. Please try again.');
+            }
+            
+        } catch (error) {
+            console.error('❌ Error polling spec status:', error);
+            if (attempts < maxAttempts) {
+                setTimeout(poll, 5000);
+            } else {
+                showError(`Error polling spec status: ${error.message}`);
+            }
+        }
+    };
+    
+    poll();
+}
+
+function displayRawData(data) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('error').style.display = 'none';
+    document.getElementById('content').style.display = 'block';
+    
+    // Display raw JSON
+    document.getElementById('json-display').textContent = JSON.stringify(data, null, 2);
+}
+
+function showError(message) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('error').style.display = 'block';
+    document.getElementById('error-message').textContent = message;
+}
+
+function retryLoad() {
+    if (specId) {
+        loadSpec(specId);
+    } else if (status === 'generating') {
+        generateNewSpec();
+    }
+}
+
+function copyRawData() {
+    if (!currentSpecData) {
+        showCopyStatus('No data to copy', 'error');
+        return;
+    }
+    
+    const rawData = {
+        url: window.location.href,
+        timestamp: new Date().toISOString(),
+        specData: currentSpecData
+    };
+    
+    const textToCopy = `=== SPECIFICATION RAW DATA ===
+URL: ${rawData.url}
+Timestamp: ${rawData.timestamp}
+
+=== RAW JSON DATA ===
+${JSON.stringify(rawData.specData, null, 2)}`;
+    
+    navigator.clipboard.writeText(textToCopy).then(() => {
+        showCopyStatus('✅ Copied to clipboard!', 'success');
+    }).catch(err => {
+        console.error('Failed to copy:', err);
+        showCopyStatus('❌ Copy failed', 'error');
+    });
+}
+
+function showCopyStatus(message, type) {
+    const statusEl = document.getElementById('copyStatus');
+    statusEl.textContent = message;
+    statusEl.className = `copy-status show ${type}`;
+    
+    setTimeout(() => {
+        statusEl.className = 'copy-status';
+    }, 3000);
+}
+</script>
 
 
     </main>
@@ -886,10 +997,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     <!-- Extra JavaScript -->
     
-    
-      
-        <script src="/assets/js/post.js"></script>
-      
     
 </body>
 </html>

@@ -1,0 +1,218 @@
+---
+layout: default
+title: "Processing V2 - Specifys.ai"
+description: "Plan your app with AI-powered specification generator"
+permalink: /processing-v2.html
+---
+
+<div class="container">
+    <header class="page-header">
+        <h1>🚀 Create Your App Specification</h1>
+        <p>Answer a few questions and we'll generate a comprehensive specification for your app</p>
+    </header>
+
+    <form id="specForm" class="spec-form">
+        <div class="form-group">
+            <label for="idea">What is your app idea? *</label>
+            <textarea id="idea" name="idea" required placeholder="Describe your app idea in detail..."></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="workflow">How will users interact with your app? *</label>
+            <textarea id="workflow" name="workflow" required placeholder="Describe the user workflow and main features..."></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="features">What are the key features you want? *</label>
+            <textarea id="features" name="features" required placeholder="List the main features and functionality..."></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="additional">Any additional requirements or notes?</label>
+            <textarea id="additional" name="additional" placeholder="Integration requirements, target audience, technical preferences, etc..."></textarea>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" id="submitBtn" class="btn btn-primary">
+                <span class="btn-text">Generate Specification</span>
+                <span class="btn-icon">→</span>
+            </button>
+        </div>
+    </form>
+
+    <div id="loading" class="loading">
+        <div class="spinner"></div>
+        <p>Generating your specification...</p>
+    </div>
+</div>
+
+<style>
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.page-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.page-header h1 {
+    color: #333;
+    margin-bottom: 15px;
+    font-size: 2.5rem;
+    font-weight: 700;
+}
+
+.page-header p {
+    color: #666;
+    font-size: 1.2rem;
+    line-height: 1.6;
+}
+
+.spec-form {
+    background: white;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+.form-group {
+    margin-bottom: 30px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #333;
+    font-size: 16px;
+}
+
+.form-group textarea {
+    width: 100%;
+    min-height: 120px;
+    padding: 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 16px;
+    font-family: inherit;
+    line-height: 1.5;
+    resize: vertical;
+    transition: border-color 0.3s ease;
+}
+
+.form-group textarea:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+}
+
+.form-group textarea::placeholder {
+    color: #999;
+}
+
+.form-actions {
+    text-align: center;
+    margin-top: 40px;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 15px 30px;
+    border: none;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,123,255,0.3);
+}
+
+.btn-primary:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-icon {
+    font-size: 20px;
+    transition: transform 0.3s ease;
+}
+
+.btn-primary:hover:not(:disabled) .btn-icon {
+    transform: translateX(3px);
+}
+
+.loading {
+    display: none;
+    text-align: center;
+    padding: 60px 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    margin-top: 20px;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #007bff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading p {
+    color: #666;
+    font-size: 18px;
+    margin: 0;
+}
+
+.error {
+    border-color: #dc3545 !important;
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1) !important;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 20px 15px;
+    }
+    
+    .page-header h1 {
+        font-size: 2rem;
+    }
+    
+    .spec-form {
+        padding: 30px 20px;
+    }
+    
+    .btn {
+        padding: 12px 24px;
+        font-size: 16px;
+    }
+}
+</style>
+
+<script src="/tools/processing-v2-simple.js"></script>
+

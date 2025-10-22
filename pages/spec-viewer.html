@@ -1,0 +1,1798 @@
+---
+layout: default
+title: Specification Viewer
+description: Interactive specification viewer with approval workflow
+permalink: /pages/spec-viewer.html
+---
+
+<div class="container">
+    <header class="page-header">
+        <div class="header-content">
+            <div class="header-left">
+        <h1>📋 Specification Viewer</h1>
+                <p id="spec-title">Loading specification...</p>
+        </div>
+            <div class="header-right">
+                <a href="/pages/app-dashboard.html" class="btn btn-outline">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+        </div>
+    </div>
+    </header>
+
+    <div class="status-bar">
+        <div class="status-item">
+            <span class="status-label">Overview:</span>
+            <span id="overviewStatus" class="status-value pending">Pending</span>
+        </div>
+        <div class="status-item">
+            <span class="status-label">Technical:</span>
+            <span id="technicalStatus" class="status-value pending">Pending</span>
+        </div>
+        <div class="status-item">
+            <span class="status-label">Market:</span>
+            <span id="marketStatus" class="status-value pending">Pending</span>
+        </div>
+        <div class="status-item">
+            <span class="status-label">Storage:</span>
+            <span id="storageStatus" class="status-value pending">Loading...</span>
+        </div>
+    </div>
+
+    <div class="tabs">
+        <button class="tab-button active" onclick="showTab('overview')" id="overviewTab">
+            📖 Overview
+        </button>
+        <button class="tab-button" onclick="showTab('technical')" id="technicalTab" disabled>
+            ⚙️ Technical
+        </button>
+        <button class="tab-button" onclick="showTab('market')" id="marketTab" disabled>
+            📊 Market Research
+        </button>
+        <button class="tab-button" onclick="showTab('raw')" id="rawTab">
+            🔍 Raw Data
+        </button>
+    </div>
+
+    <div class="content">
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Loading specification...</p>
+        </div>
+        
+        <div id="error" class="error" style="display: none;">
+            <h3>❌ Error</h3>
+            <p id="error-message"></p>
+            <button onclick="retryLoad()" class="btn btn-primary">Retry</button>
+        </div>
+        
+        <div id="content" style="display: none;">
+            <div id="overview-content" class="tab-content">
+                <div class="content-header">
+                    <h2>📖 Application Overview</h2>
+                    <button id="approveBtn" class="btn btn-success approve-btn" onclick="approveOverview()">
+                        ✅ Approve Overview
+                    </button>
+                </div>
+                <div id="overview-data" class="content-body"></div>
+            </div>
+            
+            <div id="technical-content" class="tab-content" style="display: none;">
+                <div class="content-header">
+                <h2>⚙️ Technical Specification</h2>
+                    <button id="retryTechnicalBtn" class="btn btn-secondary retry-btn" onclick="retryTechnical()" style="display: none;">
+                        🔄 Retry
+                    </button>
+                </div>
+                <div id="technical-data" class="content-body"></div>
+            </div>
+            
+            <div id="market-content" class="tab-content" style="display: none;">
+                <div class="content-header">
+                    <h2>📊 Market Research</h2>
+                    <button id="retryMarketBtn" class="btn btn-secondary retry-btn" onclick="retryMarket()" style="display: none;">
+                        🔄 Retry
+                    </button>
+                </div>
+                <div id="market-data" class="content-body"></div>
+            </div>
+            
+            <div id="raw-content" class="tab-content" style="display: none;">
+                <div class="content-header">
+                <h2>🔍 Raw JSON Data</h2>
+                </div>
+                <div class="content-body">
+                <pre id="raw-data"></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Registration Modal for Unauthenticated Users -->
+<div id="registrationModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>🔐 Authentication Required</h3>
+            <span class="close" onclick="closeRegistrationModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+            <p>To save and manage your specifications, please sign in or create an account.</p>
+            <div class="auth-buttons">
+                <a href="/pages/auth.html" class="btn btn-primary">
+                    <i class="fas fa-sign-in-alt"></i> Sign In / Register
+                </a>
+                <button onclick="continueAsGuest()" class="btn btn-secondary">
+                    <i class="fas fa-user-secret"></i> Continue as Guest
+                </button>
+            </div>
+            <p class="guest-note">
+                <small>As a guest, your specifications will only be saved locally and may be lost if you clear your browser data.</small>
+            </p>
+        </div>
+    </div>
+</div>
+
+<style>
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.page-header {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.header-left {
+    flex: 1;
+    text-align: left;
+}
+
+.header-right {
+    flex: 0 0 auto;
+}
+
+.btn-outline {
+    background: transparent;
+    color: var(--primary-color);
+    border: 2px solid var(--primary-color);
+    padding: 8px 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-outline:hover {
+    background: var(--primary-color);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.page-header h1 {
+    color: #333;
+    margin-bottom: 10px;
+    font-size: 2.5rem;
+}
+
+.page-header p {
+    color: #666;
+    font-size: 1.1rem;
+}
+
+.status-bar {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.status-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.status-label {
+    font-weight: 600;
+    color: #666;
+    font-size: 12px;
+    text-transform: uppercase;
+}
+
+.status-value {
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.status-value.pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status-value.ready {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-value.error {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.status-value.firebase {
+    background: #28a745;
+    color: white;
+}
+
+.status-value.local {
+    background: #ffc107;
+    color: #212529;
+}
+
+.status-value.guest {
+    background: #6c757d;
+    color: white;
+}
+
+.tabs {
+    display: flex;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.tab-button {
+    background: none;
+    border: none;
+    padding: 12px 24px;
+    cursor: pointer;
+    font-size: 16px;
+    color: #666;
+    border-bottom: 2px solid transparent;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tab-button:hover:not(:disabled) {
+    color: #007bff;
+    background-color: #f8f9fa;
+}
+
+.tab-button.active {
+    color: #007bff;
+    border-bottom-color: #007bff;
+    font-weight: 600;
+}
+
+.tab-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.tab-content {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    min-height: 400px;
+}
+
+.content-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 20px 0 20px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.content-header h2 {
+    margin: 0;
+    color: #333;
+    padding-bottom: 10px;
+}
+
+.content-body {
+    padding: 20px;
+}
+
+.btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn-primary {
+    background: #007bff;
+    color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background: #0056b3;
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover:not(:disabled) {
+    background: #545b62;
+}
+
+.btn-success {
+    background: #28a745;
+    color: white;
+}
+
+.btn-success:hover:not(:disabled) {
+    background: #1e7e34;
+}
+
+.approve-btn {
+    font-size: 16px;
+    padding: 12px 24px;
+    font-weight: 600;
+}
+
+.retry-btn {
+    font-size: 14px;
+    padding: 8px 16px;
+}
+
+.loading {
+    text-align: center;
+    padding: 60px;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #007bff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.error {
+    text-align: center;
+    padding: 40px;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 8px;
+    color: #721c24;
+}
+
+.error h3 {
+    margin-top: 0;
+}
+
+#raw-data {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 20px;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 14px;
+    line-height: 1.5;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.content-section {
+    margin-bottom: 30px;
+}
+
+.content-section h3 {
+    color: #333;
+    margin-bottom: 15px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.content-section p {
+    line-height: 1.6;
+    color: #555;
+}
+
+.locked-tab-message {
+    text-align: center;
+    padding: 40px;
+    color: #666;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 2px dashed #dee2e6;
+}
+
+.locked-tab-message h3 {
+    color: #495057;
+    margin-bottom: 10px;
+}
+
+.locked-tab-message p {
+    margin: 0;
+    font-size: 14px;
+}
+
+@media (max-width: 768px) {
+    .status-bar {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .tabs {
+        flex-wrap: wrap;
+    }
+    
+    .content-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
+    }
+    
+    .approve-btn {
+        width: 100%;
+    }
+}
+
+/* Registration Modal Styles */
+.modal {
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+        justify-content: center;
+    }
+    
+.modal-content {
+    background: var(--bg-primary);
+    border-radius: var(--border-radius-lg);
+    padding: 0;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border-color);
+}
+
+.modal-header {
+    padding: var(--spacing-lg);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: var(--font-size-lg);
+}
+
+.close {
+    color: var(--text-secondary);
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.close:hover {
+    color: var(--text-primary);
+}
+
+.modal-body {
+    padding: var(--spacing-lg);
+}
+
+.auth-buttons {
+    display: flex;
+    gap: var(--spacing-md);
+    margin: var(--spacing-lg) 0;
+}
+
+.auth-buttons .btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+        justify-content: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md);
+    text-decoration: none;
+    border-radius: var(--border-radius-md);
+    font-weight: var(--font-weight-medium);
+    transition: all 0.3s ease;
+}
+
+.auth-buttons .btn-primary {
+    background: linear-gradient(135deg, var(--primary-color), #005ea2);
+    color: white;
+    border: none;
+}
+
+.auth-buttons .btn-primary:hover {
+    background: linear-gradient(135deg, #005ea2, var(--primary-color));
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.auth-buttons .btn-secondary {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.auth-buttons .btn-secondary:hover {
+    background: var(--bg-tertiary);
+    border-color: var(--primary-color);
+}
+
+.guest-note {
+    color: var(--text-secondary);
+    font-size: var(--font-size-sm);
+    margin: var(--spacing-md) 0 0 0;
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    .auth-buttons {
+        flex-direction: column;
+    }
+    
+    .modal-content {
+        width: 95%;
+        margin: 10px;
+    }
+}
+</style>
+
+<script src="{{ '/tools/prompts.js' | relative_url }}"></script>
+<script>
+let currentSpecData = null;
+let currentTab = 'overview';
+let isLoading = false;
+
+// Get spec ID from URL if provided
+const urlParams = new URLSearchParams(window.location.search);
+const urlSpecId = urlParams.get('id');
+
+console.log('🚀 Spec Viewer - Starting...');
+
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🔍 DOMContentLoaded event fired');
+    
+    // Initialize Firebase auth state listener
+    firebase.auth().onAuthStateChanged(function(user) {
+        console.log('🔍 Auth state changed:', user ? 'User logged in' : 'User logged out');
+        if (user) {
+            console.log('🔍 User details:', {
+                uid: user.uid,
+                email: user.email,
+                displayName: user.displayName
+            });
+            
+            // Load spec after user authentication
+            if (urlSpecId) {
+                console.log('🔍 Loading spec after authentication:', urlSpecId);
+                loadSpec(urlSpecId);
+            } else {
+                console.log('🔍 No spec ID provided, user is authenticated');
+                showError('No specification ID provided in URL');
+            }
+        } else {
+            console.log('🔍 User not authenticated');
+            showError('User must be authenticated to view specifications');
+        }
+        
+        // Check if we need to show registration modal
+        checkAuthenticationStatus(user);
+        
+        // Update storage status when auth state changes
+        if (currentSpecData) {
+            updateStorageStatus();
+        }
+    });
+    
+    // Load spec will be triggered after user authentication
+    
+    console.log('✅ Spec Viewer - Ready!');
+});
+
+// Check authentication status and show modal if needed
+function checkAuthenticationStatus(user) {
+    const showModal = localStorage.getItem('showRegistrationModal');
+    console.log('🔍 Checking auth status:', { user: !!user, showModal });
+    
+    if (!user && showModal === 'true') {
+        console.log('🔍 Showing registration modal for unauthenticated user');
+        showRegistrationModal();
+        localStorage.removeItem('showRegistrationModal');
+    }
+}
+
+// Show registration modal
+function showRegistrationModal() {
+    const modal = document.getElementById('registrationModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        console.log('✅ Registration modal shown');
+    }
+}
+
+// Close registration modal
+function closeRegistrationModal() {
+    const modal = document.getElementById('registrationModal');
+    if (modal) {
+        modal.style.display = 'none';
+        console.log('✅ Registration modal closed');
+    }
+}
+
+// Continue as guest
+function continueAsGuest() {
+    console.log('🔍 User chose to continue as guest');
+    closeRegistrationModal();
+    
+    // Show a notification about guest mode
+    showNotification('You are now in guest mode. Your specifications will only be saved locally.', 'info');
+}
+
+// Show notification function
+function showNotification(message, type = 'info') {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.innerHTML = `
+        <div class="notification-content">
+            <span class="notification-message">${message}</span>
+            <button class="notification-close" onclick="this.parentElement.parentElement.remove()">&times;</button>
+        </div>
+    `;
+    
+    // Add styles
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${type === 'error' ? '#dc3545' : type === 'success' ? '#28a745' : '#007bff'};
+        color: white;
+        padding: 15px 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        z-index: 1001;
+        max-width: 400px;
+        animation: slideIn 0.3s ease;
+    `;
+    
+    // Add to page
+    document.body.appendChild(notification);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        if (notification.parentElement) {
+            notification.remove();
+        }
+    }, 5000);
+    
+    console.log(`📢 Notification shown: ${message}`);
+}
+
+async function loadSpec(specId) {
+    try {
+        showLoading();
+        
+        console.log('🔍 loadSpec called with specId:', specId);
+        
+        if (!specId) {
+            throw new Error('No specification ID provided');
+        }
+        
+        console.log('📡 Loading spec from Firebase:', specId);
+        
+        // Load from Firebase (user is always authenticated)
+        const user = firebase.auth().currentUser;
+        if (!user) {
+            throw new Error('User must be authenticated to view specifications');
+        }
+        
+        const doc = await firebase.firestore().collection('specs').doc(specId).get();
+        if (!doc.exists) {
+            throw new Error('Specification not found');
+        }
+        
+        const specData = doc.data();
+        
+        // Check if user has permission to view this spec
+        if (specData.userId !== user.uid) {
+            console.warn('❌ User does not have permission to view this spec');
+            showError('You do not have permission to view this specification.');
+            return;
+        }
+        
+        currentSpecData = { id: doc.id, ...specData };
+        console.log('✅ Spec loaded from Firebase:', currentSpecData);
+        displaySpec(currentSpecData);
+        
+    } catch (error) {
+        console.error('❌ Error loading spec:', error);
+        showError(`Error loading spec: ${error.message}`);
+    }
+}
+
+function displaySpec(data) {
+    console.log('🔍 displaySpec called with data:', data);
+    console.log('🔍 Data keys:', Object.keys(data));
+    console.log('🔍 Overview content:', data.overview ? 'Present' : 'Missing');
+    console.log('🔍 Technical content:', data.technical ? 'Present' : 'Missing');
+    console.log('🔍 Market content:', data.market ? 'Present' : 'Missing');
+    
+    hideLoading();
+    hideError();
+    document.getElementById('content').style.display = 'block';
+    
+    // Update page title
+    document.getElementById('spec-title').textContent = data.title || 'App Specification';
+    console.log('🔍 Updated page title to:', data.title || 'App Specification');
+    
+    // Update status indicators
+    updateStatus('overview', data.status?.overview || 'ready');
+    updateStatus('technical', data.status?.technical || 'pending');
+    updateStatus('market', data.status?.market || 'pending');
+    updateStorageStatus(); // Add storage status update
+    console.log('🔍 Updated status indicators');
+    
+    // Display content for each tab
+    displayOverview(data.overview);
+    displayTechnical(data.technical);
+    displayMarket(data.market);
+    displayRaw(data);
+    console.log('🔍 Displayed content for all tabs');
+    
+    // Handle approval state
+    if (data.overviewApproved) {
+        enableAllTabs();
+        hideApproveButton();
+        console.log('🔍 Overview already approved, enabling all tabs');
+    } else {
+        showApproveButton();
+        disableTechnicalTabs();
+        console.log('🔍 Overview not approved, showing approve button');
+    }
+    
+    // Show overview tab by default
+    showTab('overview');
+    console.log('🔍 Switched to overview tab');
+    
+    // Spec is already saved to Firebase from processing page
+}
+
+function displayOverview(overview) {
+    console.log('🔍 displayOverview called with:', overview);
+    const container = document.getElementById('overview-data');
+    console.log('🔍 Overview container element:', container);
+    
+    if (!overview) {
+        console.log('🔍 No overview content, showing placeholder');
+        container.innerHTML = '<p class="text-muted">Overview not available...</p>';
+        return;
+    }
+    
+    console.log('🔍 Overview content type:', typeof overview);
+    console.log('🔍 Overview content length:', overview.length);
+    
+    // Format the overview content
+    const formattedContent = formatTextContent(overview);
+    console.log('🔍 Formatted content length:', formattedContent.length);
+    container.innerHTML = formattedContent;
+    console.log('🔍 Overview display completed');
+}
+
+function displayTechnical(technical) {
+    console.log('🔍 displayTechnical called with:', technical);
+    console.log('🔍 Technical content type:', typeof technical);
+    console.log('🔍 Technical content length:', technical ? technical.length : 0);
+    
+    const container = document.getElementById('technical-data');
+    console.log('🔍 Technical container element:', container);
+    
+    if (!technical) {
+        console.log('🔍 No technical content, showing locked message');
+        container.innerHTML = '<div class="locked-tab-message"><h3>🔒 Technical Specification</h3><p>Please approve the Overview first to generate the technical specification.</p></div>';
+        return;
+    }
+    
+    if (technical === 'error') {
+        console.log('🔍 Technical content is error, showing error message');
+        container.innerHTML = '<div class="locked-tab-message"><h3>❌ Error Generating Technical Specification</h3><p>There was an error generating the technical specification. Please try again.</p></div>';
+        document.getElementById('retryTechnicalBtn').style.display = 'inline-block';
+        return;
+    }
+    
+    // Format the technical content
+    console.log('🔍 Formatting technical content...');
+    const formattedContent = formatTextContent(technical);
+    console.log('🔍 Formatted technical content length:', formattedContent.length);
+    container.innerHTML = formattedContent;
+    console.log('🔍 Technical display completed');
+}
+
+function displayMarket(market) {
+    const container = document.getElementById('market-data');
+    
+    if (!market) {
+        container.innerHTML = '<div class="locked-tab-message"><h3>🔒 Market Research</h3><p>Please approve the Overview first to generate the market research.</p></div>';
+        return;
+    }
+    
+    if (market === 'error') {
+        container.innerHTML = '<div class="locked-tab-message"><h3>❌ Error Generating Market Research</h3><p>There was an error generating the market research. Please try again.</p></div>';
+        document.getElementById('retryMarketBtn').style.display = 'inline-block';
+        return;
+    }
+    
+    // Format the market content
+    const formattedContent = formatTextContent(market);
+    container.innerHTML = formattedContent;
+}
+
+function displayRaw(data) {
+    document.getElementById('raw-data').textContent = JSON.stringify(data, null, 2);
+}
+
+function formatTextContent(content) {
+    console.log('🔍 formatTextContent called with:', content);
+    console.log('🔍 Content type:', typeof content);
+    console.log('🔍 Content length:', content ? content.length : 0);
+    
+    if (!content) {
+        console.log('🔍 No content, returning placeholder');
+        return '<p>No content available</p>';
+    }
+    
+    // Check if content is JSON
+    let parsedContent;
+    try {
+        parsedContent = JSON.parse(content);
+        console.log('🔍 Content is valid JSON:', parsedContent);
+        return formatJSONContent(parsedContent);
+    } catch (error) {
+        console.log('🔍 Content is not JSON, treating as plain text');
+        return formatPlainTextContent(content);
+    }
+}
+
+function formatJSONContent(jsonData) {
+    console.log('🔍 formatJSONContent called with:', jsonData);
+    let html = '';
+    
+    // Handle applicationSummary
+    if (jsonData.applicationSummary && jsonData.applicationSummary.paragraphs) {
+        html += '<div class="content-section">';
+        html += '<h3>📋 Application Summary</h3>';
+        jsonData.applicationSummary.paragraphs.forEach(paragraph => {
+            html += `<p>${paragraph}</p>`;
+        });
+        html += '</div>';
+    }
+    
+    // Handle coreFeatures
+    if (jsonData.coreFeatures && Array.isArray(jsonData.coreFeatures)) {
+        html += '<div class="content-section">';
+        html += '<h3>⭐ Core Features</h3>';
+        html += '<ul>';
+        jsonData.coreFeatures.forEach(feature => {
+            html += `<li>${feature}</li>`;
+        });
+        html += '</ul>';
+        html += '</div>';
+    }
+    
+    // Handle userJourney
+    if (jsonData.userJourney && jsonData.userJourney.steps) {
+        html += '<div class="content-section">';
+        html += '<h3>🛤️ User Journey</h3>';
+        html += '<ol>';
+        jsonData.userJourney.steps.forEach(step => {
+            html += `<li>${step}</li>`;
+        });
+        html += '</ol>';
+        html += '</div>';
+    }
+    
+    // Handle targetAudience
+    if (jsonData.targetAudience) {
+        html += '<div class="content-section">';
+        html += '<h3>🎯 Target Audience</h3>';
+        
+        if (jsonData.targetAudience.primary && Array.isArray(jsonData.targetAudience.primary)) {
+            html += '<h4>Primary Audience:</h4>';
+            html += '<ul>';
+            jsonData.targetAudience.primary.forEach(audience => {
+                html += `<li>${audience}</li>`;
+            });
+            html += '</ul>';
+        }
+        
+        if (jsonData.targetAudience.secondary && Array.isArray(jsonData.targetAudience.secondary)) {
+            html += '<h4>Secondary Audience:</h4>';
+            html += '<ul>';
+            jsonData.targetAudience.secondary.forEach(audience => {
+                html += `<li>${audience}</li>`;
+            });
+            html += '</ul>';
+        }
+        
+        html += '</div>';
+    }
+    
+    // Handle problemStatement
+    if (jsonData.problemStatement) {
+        html += '<div class="content-section">';
+        html += '<h3>❓ Problem Statement</h3>';
+        html += `<p>${jsonData.problemStatement}</p>`;
+        html += '</div>';
+    }
+    
+    // Handle uniqueValueProposition
+    if (jsonData.uniqueValueProposition) {
+        html += '<div class="content-section">';
+        html += '<h3>💡 Unique Value Proposition</h3>';
+        html += `<p>${jsonData.uniqueValueProposition}</p>`;
+        html += '</div>';
+    }
+    
+    // Handle Technical Content
+    if (jsonData.dataModels) {
+        html += '<div class="content-section">';
+        html += '<h3>🏗️ Data Models</h3>';
+        
+        if (jsonData.dataModels.entities && Array.isArray(jsonData.dataModels.entities)) {
+            jsonData.dataModels.entities.forEach(entity => {
+                html += `<h4>${entity.name}</h4>`;
+                html += '<p>This entity represents the following data structure:</p>';
+                html += '<ul>';
+                if (entity.attributes && Array.isArray(entity.attributes)) {
+                    entity.attributes.forEach(attr => {
+                        html += `<li><strong>${attr.name}</strong> (${attr.type})${attr.required ? ' - Required' : ''}${attr.enum ? ` - Options: ${attr.enum.join(', ')}` : ''}</li>`;
+                    });
+                }
+                html += '</ul>';
+            });
+        }
+        html += '</div>';
+    }
+    
+    // Handle Database Schema
+    if (jsonData.databaseSchema) {
+        html += '<div class="content-section">';
+        html += '<h3>🗄️ Database Schema</h3>';
+        
+        if (jsonData.databaseSchema.tables && Array.isArray(jsonData.databaseSchema.tables)) {
+            jsonData.databaseSchema.tables.forEach(table => {
+                html += `<h4>${table.name} Table</h4>`;
+                html += '<p>This table stores the following information:</p>';
+                html += '<ul>';
+                if (table.columns && Array.isArray(table.columns)) {
+                    table.columns.forEach(column => {
+                        html += `<li><strong>${column.name}</strong> (${column.type})${column.constraints ? ` - ${column.constraints.join(', ')}` : ''}</li>`;
+                    });
+                }
+                html += '</ul>';
+            });
+        }
+        html += '</div>';
+    }
+    
+    // Handle API Endpoints
+    if (jsonData.api) {
+        html += '<div class="content-section">';
+        html += '<h3>🔌 API Endpoints</h3>';
+        
+        if (jsonData.api.endpoints && Array.isArray(jsonData.api.endpoints)) {
+            jsonData.api.endpoints.forEach(endpoint => {
+                html += `<h4>${endpoint.method} ${endpoint.path}</h4>`;
+                html += `<p>${endpoint.description}</p>`;
+                if (endpoint.requestBody) {
+                    html += '<p><strong>Request Body:</strong> ' + endpoint.requestBody.type + '</p>';
+                }
+                if (endpoint.responses) {
+                    html += '<p><strong>Responses:</strong></p>';
+                    html += '<ul>';
+                    Object.keys(endpoint.responses).forEach(statusCode => {
+                        html += `<li>${statusCode}: ${endpoint.responses[statusCode].description}</li>`;
+                    });
+                    html += '</ul>';
+                }
+            });
+        }
+        html += '</div>';
+    }
+    
+    // Handle Security
+    if (jsonData.security) {
+        html += '<div class="content-section">';
+        html += '<h3>🔒 Security</h3>';
+        
+        if (jsonData.security.authentication) {
+            html += `<h4>Authentication</h4>`;
+            html += `<p>Type: ${jsonData.security.authentication.type}</p>`;
+            html += `<p>${jsonData.security.authentication.description}</p>`;
+        }
+        
+        if (jsonData.security.authorization && jsonData.security.authorization.roles) {
+            html += '<h4>Authorization</h4>';
+            html += '<p>The system supports the following user roles:</p>';
+            html += '<ul>';
+            jsonData.security.authorization.roles.forEach(role => {
+                html += `<li><strong>${role.role}</strong>: ${role.permissions.join(', ')}</li>`;
+            });
+            html += '</ul>';
+        }
+        
+        if (jsonData.security.dataProtection) {
+            html += '<h4>Data Protection</h4>';
+            if (jsonData.security.dataProtection.encryption) {
+                html += `<p>Encryption: ${jsonData.security.dataProtection.encryption.algorithm} (${jsonData.security.dataProtection.encryption.enabled ? 'Enabled' : 'Disabled'})</p>`;
+            }
+            if (jsonData.security.dataProtection.passwordHashing) {
+                html += `<p>Password Hashing: ${jsonData.security.dataProtection.passwordHashing.algorithm} (Work Factor: ${jsonData.security.dataProtection.passwordHashing.workFactor})</p>`;
+            }
+        }
+        html += '</div>';
+    }
+    
+    // Handle Integration Points
+    if (jsonData.integrationPoints) {
+        html += '<div class="content-section">';
+        html += '<h3>🔗 Integration Points</h3>';
+        
+        if (jsonData.integrationPoints.externalAPIs && Array.isArray(jsonData.integrationPoints.externalAPIs)) {
+            html += '<h4>External APIs</h4>';
+            html += '<ul>';
+            jsonData.integrationPoints.externalAPIs.forEach(api => {
+                html += `<li><strong>${api.name}</strong>: ${api.description}${api.url ? ` (${api.url})` : ''}</li>`;
+            });
+            html += '</ul>';
+        }
+        
+        if (jsonData.integrationPoints.internalServices && Array.isArray(jsonData.integrationPoints.internalServices)) {
+            html += '<h4>Internal Services</h4>';
+            html += '<ul>';
+            jsonData.integrationPoints.internalServices.forEach(service => {
+                html += `<li><strong>${service.name}</strong>: ${service.description}</li>`;
+            });
+            html += '</ul>';
+        }
+        html += '</div>';
+    }
+    
+    // Handle Market Content
+    if (jsonData.marketOverview) {
+        html += '<div class="content-section">';
+        html += '<h3>📊 Market Overview</h3>';
+        html += `<p>${jsonData.marketOverview}</p>`;
+        html += '</div>';
+    }
+    
+    if (jsonData.competitors && jsonData.competitors.list && Array.isArray(jsonData.competitors.list)) {
+        html += '<div class="content-section">';
+        html += '<h3>🏢 Competitors Analysis</h3>';
+        html += '<ul>';
+        jsonData.competitors.list.forEach(competitor => {
+            if (typeof competitor === 'object' && competitor.name && competitor.description) {
+                html += `<li><strong>${competitor.name}</strong>: ${competitor.description}</li>`;
+            } else if (typeof competitor === 'string') {
+                html += `<li>${competitor}</li>`;
+            } else {
+                html += `<li>${JSON.stringify(competitor)}</li>`;
+            }
+        });
+        html += '</ul>';
+        html += '</div>';
+    }
+    
+    if (jsonData.targetAudience && jsonData.targetAudience.personas && Array.isArray(jsonData.targetAudience.personas)) {
+        html += '<div class="content-section">';
+        html += '<h3>👥 Target Audience Personas</h3>';
+        html += '<ul>';
+        jsonData.targetAudience.personas.forEach(persona => {
+            if (typeof persona === 'object' && persona.name && persona.description) {
+                html += `<li><strong>${persona.name}</strong> (Age: ${persona.age || 'N/A'}): ${persona.description}</li>`;
+            } else if (typeof persona === 'string') {
+                html += `<li>${persona}</li>`;
+            } else {
+                html += `<li>${JSON.stringify(persona)}</li>`;
+            }
+        });
+        html += '</ul>';
+        html += '</div>';
+    }
+    
+    if (jsonData.pricingStrategy) {
+        html += '<div class="content-section">';
+        html += '<h3>💰 Pricing Strategy</h3>';
+        html += `<p>${jsonData.pricingStrategy}</p>`;
+        html += '</div>';
+    }
+    
+    console.log('🔍 Formatted JSON HTML:', html);
+    return html || '<div class="content-section"><p>No structured content available</p></div>';
+}
+
+function formatPlainTextContent(content) {
+    console.log('🔍 formatPlainTextContent called with:', content);
+    
+    // Split by common section headers and format
+    const sections = content.split(/\n(?=[A-Z][a-z\s]+:)/);
+    console.log('🔍 Split into sections:', sections.length);
+    
+    let html = '';
+    
+    sections.forEach((section, index) => {
+        const lines = section.trim().split('\n');
+        if (lines.length === 0) return;
+        
+        const firstLine = lines[0];
+        const restOfContent = lines.slice(1).join('\n').trim();
+        
+        if (firstLine.includes(':') && restOfContent) {
+            // This is a section header
+            html += `<div class="content-section">
+                <h3>${firstLine}</h3>
+                <p>${restOfContent.replace(/\n/g, '<br>')}</p>
+            </div>`;
+        } else {
+            // Regular content
+            html += `<div class="content-section">
+                <p>${section.replace(/\n/g, '<br>')}</p>
+            </div>`;
+        }
+    });
+    
+    return html || `<div class="content-section"><p>${content.replace(/\n/g, '<br>')}</p></div>`;
+}
+
+function updateStatus(type, status) {
+    console.log(`🔍 Updating ${type} status to:`, status);
+    const element = document.getElementById(`${type}Status`);
+    element.textContent = status;
+    element.className = `status-value ${status}`;
+    console.log(`✅ ${type} status updated to:`, status);
+}
+
+
+function updateStorageStatus() {
+    console.log('🔍 Updating storage status...');
+    
+    const user = firebase.auth().currentUser;
+    const hasSpecId = currentSpecData && currentSpecData.id;
+    const hasUserId = currentSpecData && currentSpecData.userId;
+    
+    console.log('🔍 Storage status check:', {
+        user: !!user,
+        hasSpecId: hasSpecId,
+        hasUserId: hasUserId,
+        userId: currentSpecData?.userId,
+        userName: currentSpecData?.userName
+    });
+    
+    let status, statusClass;
+    
+    if (hasSpecId && hasUserId && user && currentSpecData.userId === user.uid) {
+        // Spec is saved in Firebase and belongs to current user
+        status = 'Firebase';
+        statusClass = 'firebase';
+    } else {
+        // Spec belongs to current user but not saved to Firebase yet (shouldn't happen now)
+        status = 'Local';
+        statusClass = 'local';
+    }
+    
+    console.log(`🔍 Storage status: ${status} (${statusClass})`);
+    
+    const element = document.getElementById('storageStatus');
+    element.textContent = status;
+    element.className = `status-value ${statusClass}`;
+    
+    console.log(`✅ Storage status updated to: ${status}`);
+}
+
+function showTab(tabName) {
+    // Hide all tab contents
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.style.display = 'none';
+    });
+    
+    // Remove active class from all buttons
+    document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Show selected tab content
+    document.getElementById(`${tabName}-content`).style.display = 'block';
+    
+    // Add active class to selected button
+    const tabButton = document.getElementById(`${tabName}Tab`);
+    if (tabButton && !tabButton.disabled) {
+        tabButton.classList.add('active');
+    }
+    
+    currentTab = tabName;
+}
+
+function enableAllTabs() {
+    document.getElementById('technicalTab').disabled = false;
+    document.getElementById('marketTab').disabled = false;
+}
+
+function disableTechnicalTabs() {
+    document.getElementById('technicalTab').disabled = true;
+    document.getElementById('marketTab').disabled = true;
+}
+
+function showApproveButton() {
+    document.getElementById('approveBtn').style.display = 'inline-block';
+}
+
+function hideApproveButton() {
+    document.getElementById('approveBtn').style.display = 'none';
+}
+
+// Function to save spec to Firebase
+async function saveSpecToFirebase(user, specData) {
+    try {
+        console.log('Saving spec to Firebase...');
+        
+        if (!user) {
+            throw new Error('User must be authenticated to save to Firebase');
+        }
+        
+        const specDoc = {
+            title: specData.title || 'App Specification',
+            overview: specData.overview,
+            technical: specData.technical,
+            market: specData.market,
+            status: specData.status || {
+                overview: "ready",
+                technical: "pending",
+                market: "pending"
+            },
+            overviewApproved: specData.overviewApproved || false,
+            answers: specData.answers || [],
+            userId: user.uid,
+            userName: user.displayName || user.email || 'Anonymous User',
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        
+        console.log('📄 Spec document to save:', specDoc);
+        
+        const docRef = await firebase.firestore().collection('specs').add(specDoc);
+        console.log('✅ Spec saved successfully with ID:', docRef.id);
+        
+        // Show success notification
+        showNotification('Specification saved successfully!', 'success');
+        
+        // Update storage status
+        updateStorageStatus();
+        
+        return docRef.id;
+        
+    } catch (error) {
+        console.error('❌ Error saving spec to Firebase:', error);
+        
+        // Show error notification
+        showNotification(`Failed to save specification: ${error.message}`, 'error');
+        
+        throw error;
+    }
+}
+
+async function approveOverview() {
+    if (isLoading) return;
+    
+    try {
+        isLoading = true;
+        document.getElementById('approveBtn').disabled = true;
+        document.getElementById('approveBtn').textContent = '⏳ Generating...';
+        
+        console.log('✅ Approving overview and generating additional specs...');
+        
+        // Check if user is authenticated
+        const user = firebase.auth().currentUser;
+        if (!user) {
+            console.log('🔍 User not authenticated, showing registration modal');
+            showRegistrationModal();
+            return;
+        }
+        
+        // Note: Spec should already be saved to Firebase from processing-unified.js
+        // Only update the approval status here
+        
+        // Update Firebase if user is authenticated and spec has ID
+        if (user && currentSpecData && currentSpecData.id) {
+            try {
+                await firebase.firestore().collection('specs').doc(currentSpecData.id).update({
+                    overviewApproved: true,
+                    status: {
+                        overview: "ready",
+                        technical: "generating",
+                        market: "generating"
+                    },
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                console.log('✅ Firebase updated with approval status');
+            } catch (error) {
+                console.warn('⚠️ Failed to update Firebase:', error);
+                showNotification('Failed to update database. Continuing locally...', 'error');
+            }
+        }
+        
+        // Update local data
+        currentSpecData.overviewApproved = true;
+        currentSpecData.status.technical = "generating";
+        currentSpecData.status.market = "generating";
+        
+        // Update UI
+        updateStatus('technical', 'generating');
+        updateStatus('market', 'generating');
+        
+        // Generate technical and market specs in parallel
+        console.log('🚀 Starting parallel generation of technical and market specs...');
+        const [technicalResult, marketResult] = await Promise.allSettled([
+            generateTechnicalSpec(),
+            generateMarketSpec()
+        ]);
+        
+        console.log('🔍 Technical result:', technicalResult);
+        console.log('🔍 Market result:', marketResult);
+        
+        // Handle results
+        const technicalContent = technicalResult.status === 'fulfilled' ? technicalResult.value : 'error';
+        const marketContent = marketResult.status === 'fulfilled' ? marketResult.value : 'error';
+        
+        console.log('🔍 Technical content:', technicalContent);
+        console.log('🔍 Market content:', marketContent);
+        
+        // Update Firebase with results if user is authenticated
+        if (user && currentSpecData && currentSpecData.id) {
+            try {
+                await firebase.firestore().collection('specs').doc(currentSpecData.id).update({
+                    technical: technicalContent,
+                    market: marketContent,
+                    status: {
+                        overview: "ready",
+                        technical: technicalContent === 'error' ? "error" : "ready",
+                        market: marketContent === 'error' ? "error" : "ready"
+                    },
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                console.log('✅ Firebase updated with technical and market content');
+            } catch (error) {
+                console.warn('⚠️ Failed to update Firebase with results:', error);
+                showNotification('Failed to save results to database. Saved locally only.', 'error');
+            }
+        }
+        
+        // Update local data
+        currentSpecData.technical = technicalContent;
+        currentSpecData.market = marketContent;
+        currentSpecData.status.technical = technicalContent === 'error' ? "error" : "ready";
+        currentSpecData.status.market = marketContent === 'error' ? "error" : "ready";
+        
+        // Update localStorage (for both authenticated and unauthenticated users)
+        localStorage.setItem('generatedOverviewContent', currentSpecData.overview);
+        localStorage.setItem('generatedTechnicalContent', technicalContent);
+        localStorage.setItem('generatedMarketContent', marketContent);
+        if (currentSpecData.id) {
+            localStorage.setItem(`specBackup_${currentSpecData.id}`, JSON.stringify(currentSpecData));
+        }
+        
+        // Update UI
+        updateStatus('technical', currentSpecData.status.technical);
+        updateStatus('market', currentSpecData.status.market);
+        
+        displayTechnical(technicalContent);
+        displayMarket(marketContent);
+        
+        enableAllTabs();
+        hideApproveButton();
+        
+        // Show success message
+        if (technicalContent !== 'error' && marketContent !== 'error') {
+            showNotification('Technical and market specifications generated successfully!', 'success');
+        } else {
+            showNotification('Some specifications failed to generate. You can retry using the retry buttons.', 'error');
+        }
+        
+        console.log('✅ Additional specs generated successfully');
+        
+    } catch (error) {
+        console.error('❌ Error generating additional specs:', error);
+        console.error('❌ Error details:', error.message);
+        console.error('❌ Error stack:', error.stack);
+        
+        // Show error notification
+        showNotification(`Error generating specifications: ${error.message}`, 'error');
+        
+        // Update status to error
+        updateStatus('technical', 'error');
+        updateStatus('market', 'error');
+        
+        displayTechnical('error');
+        displayMarket('error');
+        
+        enableAllTabs();
+        hideApproveButton();
+        
+    } finally {
+        isLoading = false;
+        document.getElementById('approveBtn').disabled = false;
+        document.getElementById('approveBtn').textContent = '✅ Approve Overview';
+    }
+}
+
+async function generateTechnicalSpec() {
+    console.log('🚀 Starting generateTechnicalSpec...');
+    console.log('🔍 Current spec data:', currentSpecData);
+    
+    const prompt = PROMPTS.technical(currentSpecData.overview, currentSpecData.answers);
+    console.log('🔍 Generated technical prompt:', prompt);
+    console.log('🔍 Technical prompt length:', prompt.length);
+    
+    const requestBody = {
+        stage: 'technical',
+        locale: 'en-US',
+        temperature: 0,
+        prompt: {
+            system: 'You are a highly experienced software architect and lead developer. Generate a detailed technical specification.',
+            developer: 'Create a comprehensive technical specification including data models, database schema, API design, security, and integration points.',
+            user: prompt
+        }
+    };
+    
+    console.log('🔍 Technical API Request Body:', JSON.stringify(requestBody, null, 2));
+    console.log('🔍 Technical API URL: https://spspec.shalom-cohen-111.workers.dev/generate');
+    
+    console.log('📡 Making technical API call...');
+    
+    // Create AbortController for timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+    
+    try {
+        const response = await fetch('https://spspec.shalom-cohen-111.workers.dev/generate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestBody),
+            signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+        
+        console.log('📡 Technical API Response received:');
+        console.log('  - Status:', response.status);
+        console.log('  - Status Text:', response.statusText);
+        console.log('  - OK:', response.ok);
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('❌ Technical API Error Response:', errorText);
+            throw new Error(`API Error: ${response.status} - ${errorText}`);
+        }
+        
+        const responseText = await response.text();
+        console.log('🔍 Raw technical response text:', responseText);
+        console.log('🔍 Technical response text length:', responseText.length);
+        
+        const data = JSON.parse(responseText);
+        console.log('✅ Successfully parsed technical JSON response:', data);
+        console.log('🔍 Data.technical exists:', !!data.technical);
+        console.log('🔍 Data.technical type:', typeof data.technical);
+        console.log('🔍 Data.technical content:', data.technical);
+        
+        const result = data.technical ? JSON.stringify(data.technical, null, 2) : 'No technical specification generated';
+        console.log('🔍 Final technical result:', result);
+        console.log('🔍 Technical result length:', result.length);
+        
+        return result;
+        
+    } catch (error) {
+        clearTimeout(timeoutId);
+        
+        if (error.name === 'AbortError') {
+            console.error('❌ Technical API call timed out after 30 seconds');
+            throw new Error('API call timed out. Please try again.');
+        } else {
+            console.error('❌ Technical API call failed:', error);
+            throw error;
+        }
+    }
+}
+
+async function generateMarketSpec() {
+    console.log('🚀 Starting generateMarketSpec...');
+    console.log('🔍 Current spec data:', currentSpecData);
+    
+    const prompt = PROMPTS.market(currentSpecData.overview, currentSpecData.answers);
+    console.log('🔍 Generated market prompt:', prompt);
+    console.log('🔍 Market prompt length:', prompt.length);
+    
+    const requestBody = {
+        stage: 'market',
+        locale: 'en-US',
+        temperature: 0,
+        prompt: {
+            system: 'You are a market research specialist and business analyst. Generate comprehensive market research insights.',
+            developer: 'Create detailed market analysis including market overview, competitors analysis, target audience personas, and pricing strategy.',
+            user: prompt
+        }
+    };
+    
+    console.log('🔍 Market API Request Body:', JSON.stringify(requestBody, null, 2));
+    console.log('🔍 Market API URL: https://spspec.shalom-cohen-111.workers.dev/generate');
+    
+    console.log('📡 Making market API call...');
+    
+    // Create AbortController for timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+    
+    try {
+        const response = await fetch('https://spspec.shalom-cohen-111.workers.dev/generate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestBody),
+            signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+        
+        console.log('📡 Market API Response received:');
+        console.log('  - Status:', response.status);
+        console.log('  - Status Text:', response.statusText);
+        console.log('  - OK:', response.ok);
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('❌ Market API Error Response:', errorText);
+            throw new Error(`API Error: ${response.status} - ${errorText}`);
+        }
+        
+        const responseText = await response.text();
+        console.log('🔍 Raw market response text:', responseText);
+        console.log('🔍 Market response text length:', responseText.length);
+        
+        const data = JSON.parse(responseText);
+        console.log('✅ Successfully parsed market JSON response:', data);
+        console.log('🔍 Data.market exists:', !!data.market);
+        console.log('🔍 Data.market type:', typeof data.market);
+        console.log('🔍 Data.market content:', data.market);
+        
+        const result = data.market ? JSON.stringify(data.market, null, 2) : 'No market research generated';
+        console.log('🔍 Final market result:', result);
+        console.log('🔍 Market result length:', result.length);
+        
+        return result;
+        
+    } catch (error) {
+        clearTimeout(timeoutId);
+        
+        if (error.name === 'AbortError') {
+            console.error('❌ Market API call timed out after 30 seconds');
+            throw new Error('API call timed out. Please try again.');
+        } else {
+            console.error('❌ Market API call failed:', error);
+            throw error;
+        }
+    }
+}
+
+async function retryTechnical() {
+    const maxRetries = 3;
+    let retryCount = 0;
+    
+    while (retryCount < maxRetries) {
+        try {
+            document.getElementById('retryTechnicalBtn').disabled = true;
+            document.getElementById('retryTechnicalBtn').textContent = `⏳ Retrying... (${retryCount + 1}/${maxRetries})`;
+            
+            console.log(`🔄 Technical retry attempt ${retryCount + 1}/${maxRetries}`);
+            
+            const technicalContent = await generateTechnicalSpec();
+            
+            // Update Firebase
+            const user = firebase.auth().currentUser;
+            if (user && currentSpecData) {
+                await firebase.firestore().collection('specs').doc(currentSpecData.id).update({
+                    technical: technicalContent,
+                    status: {
+                        ...currentSpecData.status,
+                        technical: "ready"
+                    },
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            }
+            
+            // Update local data
+            currentSpecData.technical = technicalContent;
+            currentSpecData.status.technical = "ready";
+            
+            // Update localStorage backup
+            localStorage.setItem(`specBackup_${currentSpecData.id}`, JSON.stringify(currentSpecData));
+            
+            // Update UI
+            updateStatus('technical', 'ready');
+            displayTechnical(technicalContent);
+            document.getElementById('retryTechnicalBtn').style.display = 'none';
+            
+            showNotification('Technical specification generated successfully!', 'success');
+            console.log('✅ Technical retry successful');
+            return;
+            
+        } catch (error) {
+            retryCount++;
+            console.error(`❌ Technical retry attempt ${retryCount} failed:`, error);
+            
+            if (retryCount >= maxRetries) {
+                // Final failure
+                document.getElementById('retryTechnicalBtn').disabled = false;
+                document.getElementById('retryTechnicalBtn').textContent = '🔄 Retry';
+                
+                showNotification(`Failed to generate technical specification after ${maxRetries} attempts. ${error.message}`, 'error');
+                updateStatus('technical', 'error');
+                console.error('❌ All technical retry attempts failed');
+                return;
+            } else {
+                // Wait before next retry
+                console.log(`⏳ Waiting 2 seconds before retry ${retryCount + 1}...`);
+                await new Promise(resolve => setTimeout(resolve, 2000));
+            }
+        }
+    }
+}
+
+async function retryMarket() {
+    const maxRetries = 3;
+    let retryCount = 0;
+    
+    while (retryCount < maxRetries) {
+        try {
+            document.getElementById('retryMarketBtn').disabled = true;
+            document.getElementById('retryMarketBtn').textContent = `⏳ Retrying... (${retryCount + 1}/${maxRetries})`;
+            
+            console.log(`🔄 Market retry attempt ${retryCount + 1}/${maxRetries}`);
+            
+            const marketContent = await generateMarketSpec();
+            
+            // Update Firebase
+            const user = firebase.auth().currentUser;
+            if (user && currentSpecData) {
+                await firebase.firestore().collection('specs').doc(currentSpecData.id).update({
+                    market: marketContent,
+                    status: {
+                        ...currentSpecData.status,
+                        market: "ready"
+                    },
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            }
+            
+            // Update local data
+            currentSpecData.market = marketContent;
+            currentSpecData.status.market = "ready";
+            
+            // Update localStorage backup
+            localStorage.setItem(`specBackup_${currentSpecData.id}`, JSON.stringify(currentSpecData));
+            
+            // Update UI
+            updateStatus('market', 'ready');
+            displayMarket(marketContent);
+            document.getElementById('retryMarketBtn').style.display = 'none';
+            
+            showNotification('Market research generated successfully!', 'success');
+            console.log('✅ Market retry successful');
+            return;
+            
+        } catch (error) {
+            retryCount++;
+            console.error(`❌ Market retry attempt ${retryCount} failed:`, error);
+            
+            if (retryCount >= maxRetries) {
+                // Final failure
+                document.getElementById('retryMarketBtn').disabled = false;
+                document.getElementById('retryMarketBtn').textContent = '🔄 Retry';
+                
+                showNotification(`Failed to generate market research after ${maxRetries} attempts. ${error.message}`, 'error');
+                updateStatus('market', 'error');
+                console.error('❌ All market retry attempts failed');
+                return;
+            } else {
+                // Wait before next retry
+                console.log(`⏳ Waiting 2 seconds before retry ${retryCount + 1}...`);
+                await new Promise(resolve => setTimeout(resolve, 2000));
+            }
+        }
+    }
+}
+
+function showLoading() {
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('error').style.display = 'none';
+    document.getElementById('content').style.display = 'none';
+}
+
+function hideLoading() {
+    document.getElementById('loading').style.display = 'none';
+}
+
+function showError(message) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('error').style.display = 'block';
+    document.getElementById('error-message').textContent = message;
+    document.getElementById('content').style.display = 'none';
+}
+
+function hideError() {
+    document.getElementById('error').style.display = 'none';
+}
+
+function retryLoad() {
+    if (urlSpecId) {
+        loadSpec(urlSpecId);
+    }
+}
+
+console.log('✅ Spec Viewer - Ready!');
+</script>
