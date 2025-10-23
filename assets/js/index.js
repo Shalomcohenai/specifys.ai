@@ -1,19 +1,9 @@
-// Index Page Specific JavaScript - Specifys.ai
-// This file contains all the JavaScript functionality specific to the index page
-
-// ===== WELCOME MODAL FUNCTIONS =====
+// Welcome Modal Functions
 function showWelcomeModal() {
   const modal = document.getElementById('welcomeModal');
   if (modal) {
     modal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
-    
-    if (typeof gtag !== 'undefined') {
-      gtag('event', 'view', {
-        'event_category': 'Welcome Modal',
-        'event_label': 'First Visit Welcome'
-      });
-    }
   }
 }
 
@@ -21,227 +11,452 @@ function closeWelcomeModal() {
   const modal = document.getElementById('welcomeModal');
   if (modal) {
     modal.style.display = 'none';
-    document.body.style.overflow = '';
-    
-    if (typeof gtag !== 'undefined') {
-      gtag('event', 'close', {
-        'event_category': 'Welcome Modal',
-        'event_label': 'Welcome Modal Closed'
-      });
-    }
+    document.body.style.overflow = 'auto';
   }
 }
 
-// Check if this is the first visit
 function checkFirstVisit() {
-  const hasVisited = localStorage.getItem('specifys_visited');
+  const hasVisited = localStorage.getItem('hasVisited');
   if (!hasVisited) {
+    setTimeout(showWelcomeModal, 1000);
+    localStorage.setItem('hasVisited', 'true');
+  }
+}
+
+// Menu Toggle
+function toggleMenu() {
+  const menu = document.querySelector('.clip-path-menu');
+  const navicon = document.querySelector('.navicon');
+  
+  if (menu && navicon) {
+    menu.classList.toggle('active');
+    navicon.classList.toggle('active');
+  }
+}
+
+// FAQ Toggle
+function toggleFAQ(index) {
+  const faqItem = document.querySelector(`.faq-item:nth-child(${index + 1})`);
+  if (faqItem) {
+    faqItem.classList.toggle('active');
+  }
+}
+
+// Counter Animation
+function animateCounter(element, target, duration = 2000) {
+  let start = 0;
+  const increment = target / (duration / 16);
+  
+  function updateCounter() {
+    start += increment;
+    if (start < target) {
+      element.textContent = Math.floor(start);
+      requestAnimationFrame(updateCounter);
+    } else {
+      element.textContent = target;
+    }
+  }
+  
+  updateCounter();
+}
+
+// Tools Showcase Animation
+function animateToolsShowcase() {
+  const tools = document.querySelectorAll('.tool-square');
+  tools.forEach((tool, index) => {
     setTimeout(() => {
-      showWelcomeModal();
-    }, 1000);
-    
-    localStorage.setItem('specifys_visited', 'true');
-    
-    if (typeof gtag !== 'undefined') {
-      gtag('event', 'first_visit', {
-        'event_category': 'User Engagement',
-        'event_label': 'First Time Visitor'
-      });
-    }
-  }
-}
-
-// ===== MENU TOGGLE FUNCTIONALITY =====
-function initMenuToggle() {
-  const menuToggle = document.querySelector('.menu-toggle');
-  const clipPathMenu = document.querySelector('.clip-path-menu');
-
-  if (menuToggle && clipPathMenu) {
-    menuToggle.addEventListener('click', () => {
-      const isActive = clipPathMenu.classList.contains('active');
-      clipPathMenu.classList.toggle('active');
-      menuToggle.setAttribute('aria-expanded', !isActive);
-    });
-
-    // Close menu when clicking outside
-    document.addEventListener('click', (e) => {
-      if (!menuToggle.contains(e.target) && !clipPathMenu.contains(e.target)) {
-        clipPathMenu.classList.remove('active');
-        menuToggle.setAttribute('aria-expanded', 'false');
-      }
-    });
-  }
-}
-
-// ===== FAQ ACCORDION FUNCTIONALITY =====
-function initFAQAccordion() {
-  document.querySelectorAll('.faq-question').forEach(question => {
-    question.addEventListener("click", () => {
-      const answer = question.nextElementSibling;
-      const isOpen = answer.classList.contains("open");
-      
-      // Close all other FAQ items
-      document.querySelectorAll(".faq-answer").forEach(ans => {
-        ans.classList.remove("open");
-        ans.previousElementSibling.classList.remove("open");
-      });
-      
-      // Toggle current FAQ item
-      if (!isOpen) {
-        answer.classList.add("open");
-        question.classList.add("open");
-      }
-    });
+      tool.style.opacity = '1';
+      tool.style.transform = 'translateY(0)';
+    }, index * 100);
   });
 }
 
-// ===== COUNTER ANIMATION FOR STATS =====
-function initCounterAnimation() {
-  const statNumbers = document.querySelectorAll('.stat-number');
-  let hasAnimated = false;
-
-  function animateCounter(element, target, duration = 2000) {
-    let start = 0;
-    const increment = target / (duration / 16);
-    function updateCounter() {
-      if (start < target) {
-        start += increment;
-        element.textContent = Math.floor(start) + "+";
-        requestAnimationFrame(updateCounter);
-      } else {
-        element.textContent = target + "+";
-      }
-    }
-    requestAnimationFrame(updateCounter);
-  }
-
-  const statsSection = document.querySelector(".stats-list");
-  if (statsSection) {
-    const observer = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting && !hasAnimated) {
-        statNumbers.forEach(stat => {
-          const target = parseInt(stat.getAttribute("data-target"));
-          animateCounter(stat, target);
-        });
-        hasAnimated = true;
-        observer.unobserve(statsSection);
-      }
-    }, { threshold: 0.5 });
-    observer.observe(statsSection);
-  }
-}
-
-// ===== TOOLS SHOWCASE INTERACTIONS =====
-function initToolsShowcase() {
-  document.addEventListener('DOMContentLoaded', function() {
-    const toolSquares = document.querySelectorAll('.tool-square');
-    const toolsShowcase = document.querySelector('.tools-showcase');
-    
-    // Check if device is mobile
-    const isMobile = window.matchMedia('(max-width: 768px)').matches;
-    
-    toolSquares.forEach(square => {
-      square.addEventListener('click', function(e) {
-        if (isMobile) {
-          // Check if clicking on a link inside the content
-          const clickedLink = e.target.closest('.tool-link');
-          const isExpanded = this.classList.contains('active');
-          
-          if (!isExpanded && !clickedLink) {
-            // First click on the square: show content
-            e.preventDefault();
-            e.stopPropagation();
-            // Remove active class from all other squares
-            toolSquares.forEach(s => s.classList.remove('active'));
-            // Add active class to clicked square
-            this.classList.add('active');
-          } else if (clickedLink && isExpanded) {
-            // Second click on the link: allow navigation
-            if (typeof gtag !== 'undefined') {
-              const toolName = this.getAttribute('data-tool') || 'plan-smart';
-              gtag('event', 'click', {
-                'event_category': 'Tools Showcase',
-                'event_label': toolName + '_navigate'
-              });
-            }
-          } else if (!clickedLink && isExpanded) {
-            // Clicking on expanded square (not on link): keep it expanded
-            e.preventDefault();
-          }
-        } else {
-          // Desktop: track click
-          if (typeof gtag !== 'undefined') {
-            const toolName = this.getAttribute('data-tool') || 'plan-smart';
-            gtag('event', 'click', {
-              'event_category': 'Tools Showcase',
-              'event_label': toolName + '_click'
-            });
-          }
-        }
-      });
-    });
-    
-    // Close expanded square when clicking outside
-    if (isMobile) {
-      document.addEventListener('click', function(e) {
-        if (!e.target.closest('.tool-square')) {
-          toolSquares.forEach(s => s.classList.remove('active'));
-        }
-      });
-    }
-  });
-}
-
-// ===== ANALYTICS TRACKING FUNCTIONS =====
+// Track Start Now Click
 function trackStartNowClick() {
   if (typeof gtag !== 'undefined') {
     gtag('event', 'click', {
-      'event_category': 'engagement',
-      'event_label': 'start_now_button',
-      'event_source': 'hero_section'
+      event_category: 'engagement',
+      event_label: 'start_now_button'
     });
   }
 }
 
-// ===== KEYBOARD AND SCROLL EVENT HANDLERS =====
-function initEventHandlers() {
-  // Close modal with Escape key
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      const welcomeModal = document.getElementById('welcomeModal');
-      if (welcomeModal && welcomeModal.style.display === 'flex') {
-        closeWelcomeModal();
-      }
+// Interactive Questions System
+let currentQuestionIndex = 0;
+let answers = [];
+
+const questions = [
+  "Describe your application",
+  "Describe the workflow", 
+  "Target audience and goals",
+  "Additional details"
+];
+
+// Modern Input Container Functions
+function showModernInput() {
+  const inputContainer = document.getElementById('modernInputContainer');
+  const questionsDisplay = document.getElementById('questionsDisplay');
+  
+  if (inputContainer) {
+    inputContainer.style.display = 'block';
+    setTimeout(() => {
+      inputContainer.classList.add('fade-in');
+    }, 100);
+  }
+  
+  if (questionsDisplay) {
+    questionsDisplay.style.display = 'block';
+    showCurrentQuestion();
+    setTimeout(() => {
+      questionsDisplay.classList.add('fade-in');
+    }, 100);
+  }
+}
+
+function showCurrentQuestion() {
+  const currentQuestionElement = document.getElementById('currentQuestion');
+  if (currentQuestionElement && currentQuestionIndex < questions.length) {
+    currentQuestionElement.textContent = questions[currentQuestionIndex];
+  }
+}
+
+function nextQuestion() {
+  const textarea = document.getElementById('mainInput');
+  const answer = textarea.value.trim();
+  
+  if (!answer) return;
+  
+  // Save the answer
+  answers[currentQuestionIndex] = answer;
+  
+  // Clear the textarea
+  textarea.value = '';
+  
+  // Move to next question
+  currentQuestionIndex++;
+  
+  if (currentQuestionIndex < questions.length) {
+    // Show next question with fade transition
+    const currentQuestionElement = document.getElementById('currentQuestion');
+    if (currentQuestionElement) {
+      currentQuestionElement.style.opacity = '0';
+      setTimeout(() => {
+        currentQuestionElement.textContent = questions[currentQuestionIndex];
+        currentQuestionElement.style.opacity = '1';
+      }, 300);
+    }
+         } else {
+           // All questions completed - call API
+           console.log('All questions completed:', answers);
+           generateSpecification();
+         }
+}
+
+function setupModernInput() {
+  const textarea = document.getElementById('mainInput');
+  const sendBtn = document.getElementById('sendBtn');
+  
+  if (!textarea || !sendBtn) return;
+  
+  function autoResize() {
+    textarea.style.height = 'auto';
+    textarea.style.height = textarea.scrollHeight + 'px';
+  }
+  
+  textarea.addEventListener('input', autoResize);
+  
+         sendBtn.addEventListener('click', function() {
+           nextQuestion();
+           autoResize();
+         });
+         
+         // Demo button functionality
+         const demoBtn = document.getElementById('demoBtn');
+         if (demoBtn) {
+           demoBtn.addEventListener('click', function() {
+             fillDemoAnswers();
+           });
+         }
+  
+  textarea.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendBtn.click();
+    }
+    
+    if (e.key === ' ') {
+      console.log('AI shortcut triggered');
+    }
+    
+    if (e.key === '/') {
+      console.log('Saved replies triggered');
     }
   });
+  
+  document.querySelectorAll('.control-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const title = this.getAttribute('title');
+      console.log(title + ' clicked');
+    });
+  });
+}
 
-  // Close welcome modal when clicking outside
-  document.addEventListener('DOMContentLoaded', () => {
-    const welcomeModal = document.getElementById('welcomeModal');
-    if (welcomeModal) {
-      welcomeModal.addEventListener('click', (e) => {
-        if (e.target.id === 'welcomeModal') {
-          closeWelcomeModal();
+// Event Listeners
+document.addEventListener('DOMContentLoaded', function() {
+  checkFirstVisit();
+  setupModernInput();
+  
+  const startButton = document.getElementById('startButton');
+  if (startButton) {
+    startButton.addEventListener('click', function() {
+      trackStartNowClick();
+      
+      const heroContent = document.getElementById('heroContent');
+      const heroTitle = document.querySelector('.hero-main-title');
+      const heroSubtitle = document.querySelector('.hero-subtitle');
+      const heroButtonContainer = document.querySelector('.hero-button-container');
+      
+      if (heroContent) heroContent.classList.add('fade-out');
+      if (heroTitle) heroTitle.classList.add('fade-out');
+      if (heroSubtitle) heroSubtitle.classList.add('fade-out');
+      if (heroButtonContainer) heroButtonContainer.classList.add('fade-out');
+      
+      setTimeout(() => {
+        showModernInput();
+      }, 1000);
+    });
+  }
+  
+  const navicon = document.querySelector('.navicon');
+  if (navicon) {
+    navicon.addEventListener('click', toggleMenu);
+  }
+  
+  const faqItems = document.querySelectorAll('.faq-item');
+  faqItems.forEach((item, index) => {
+    item.addEventListener('click', () => toggleFAQ(index));
+  });
+  
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const counter = entry.target.querySelector('.counter');
+        if (counter) {
+          const target = parseInt(counter.dataset.target);
+          animateCounter(counter, target);
+          observer.unobserve(entry.target);
+        }
+      }
+    });
+  });
+  
+  const statsItems = document.querySelectorAll('.stat-item');
+  statsItems.forEach(item => observer.observe(item));
+  
+  const toolsSection = document.querySelector('.tools-showcase');
+  if (toolsSection) {
+    const toolsObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          animateToolsShowcase();
+          toolsObserver.unobserve(entry.target);
         }
       });
+    });
+    toolsObserver.observe(toolsSection);
+  }
+  
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      closeWelcomeModal();
     }
   });
-}
+});
 
-// ===== INITIALIZATION FUNCTION =====
-function initIndexPage() {
-  // Initialize all components when DOM is ready
-  document.addEventListener('DOMContentLoaded', function() {
-    initMenuToggle();
-    initFAQAccordion();
-    initCounterAnimation();
-    initToolsShowcase();
-    initEventHandlers();
+// ===== API INTEGRATION =====
+
+// Generate specification function (copied from processing-unified.js)
+async function generateSpecification() {
+  try {
+    console.log('🚀 Starting generateSpecification...');
     
-    // Check for first visit
-    checkFirstVisit();
-  });
+    // Show loading overlay
+    showLoadingOverlay();
+    
+    // Prepare the prompt for overview generation
+    const prompt = PROMPTS.overview(answers);
+    
+    // Prepare API request body (exactly like processing-unified.js)
+    const requestBody = {
+      stage: 'overview',
+      locale: 'en-US',
+      temperature: 0,
+      prompt: {
+        system: 'You are a professional product manager and UX architect. Generate a comprehensive application overview based on user input.',
+        developer: 'Create a detailed overview that includes application summary, core features, user journey, target audience, problem statement, and unique value proposition.',
+        user: prompt
+      }
+    };
+    
+    // Call the Worker API (same endpoint as processing-unified.js)
+    const response = await fetch('https://spspec.shalom-cohen-111.workers.dev/generate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestBody),
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const overviewContent = await response.text();
+    console.log('✅ API response received:', overviewContent);
+    console.log('📊 API response length:', overviewContent.length);
+    console.log('📊 API response type:', typeof overviewContent);
+    
+    // Save to Firebase and redirect (same as processing-unified.js)
+    const firebaseId = await saveSpecToFirebase(overviewContent, answers);
+    console.log('✅ Saved to Firebase successfully with ID:', firebaseId);
+    
+    // Store in localStorage for backup
+    localStorage.setItem('generatedOverviewContent', overviewContent);
+    localStorage.setItem('initialAnswers', JSON.stringify(answers));
+    console.log('✅ Stored in localStorage successfully');
+    
+    // Redirect to spec viewer with Firebase ID
+    setTimeout(() => {
+      window.location.href = `/pages/spec-viewer.html?id=${firebaseId}`;
+    }, 1000);
+    
+  } catch (error) {
+    console.error('Error generating specification:', error);
+    
+    // Hide loading overlay
+    hideLoadingOverlay();
+    
+    // Show error message
+    alert('Error generating specification. Please try again.');
+  }
 }
 
-// Auto-initialize when script loads
-initIndexPage();
+// Loading overlay functions
+function showLoadingOverlay() {
+  const overlay = document.getElementById('loadingOverlay');
+  if (overlay) {
+    overlay.style.display = 'flex';
+  }
+}
+
+function hideLoadingOverlay() {
+  const overlay = document.getElementById('loadingOverlay');
+  if (overlay) {
+    overlay.style.display = 'none';
+  }
+}
+
+// Firebase integration function (copied from processing-unified.js)
+async function saveSpecToFirebase(overviewContent, answers) {
+  try {
+    
+    const user = firebase.auth().currentUser;
+    if (!user) {
+      throw new Error('User must be authenticated to save to Firebase');
+    }
+    
+    // Extract title from overview content
+    let title = "App Specification";
+    try {
+      const overviewObj = JSON.parse(overviewContent);
+      if (overviewObj.applicationSummary && overviewObj.applicationSummary.paragraphs) {
+        const firstParagraph = overviewObj.applicationSummary.paragraphs[0];
+        if (firstParagraph && firstParagraph.length > 10 && firstParagraph.length < 100) {
+          title = firstParagraph.substring(0, 50) + '...';
+        }
+      }
+    } catch (e) {
+      // Use default title if parsing fails
+    }
+    
+    // Parse the overview content to extract the overview data
+    let overviewData = {};
+    try {
+      overviewData = JSON.parse(overviewContent);
+      console.log('✅ Overview data parsed successfully:', overviewData);
+    } catch (e) {
+      console.error('Failed to parse overview content:', e);
+      overviewData = { ideaSummary: overviewContent };
+      console.log('⚠️ Using fallback overview data:', overviewData);
+    }
+    
+    const specDoc = {
+      title: title,
+      overview: overviewContent, // Save as string, same as processing-unified.js
+      technical: null,
+      market: null,
+      status: {
+        overview: "ready",
+        technical: "pending",
+        market: "pending"
+      },
+      overviewApproved: false,
+      userId: user.uid,
+      userName: user.displayName || user.email || 'Unknown User',
+      mode: 'unified',
+      answers: answers,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+    
+    console.log('📝 Saving spec document to Firebase:', {
+      title: specDoc.title,
+      hasOverview: !!specDoc.overview,
+      overviewType: typeof specDoc.overview,
+      overviewLength: specDoc.overview ? specDoc.overview.length : 0,
+      answersCount: specDoc.answers.length,
+      mode: specDoc.mode,
+      status: specDoc.status
+    });
+    
+    const docRef = await firebase.firestore().collection('specs').add(specDoc);
+    console.log('Spec saved to Firebase with ID:', docRef.id);
+    
+    return docRef.id;
+  } catch (error) {
+    console.error('Error saving to Firebase:', error);
+    throw error;
+  }
+}
+
+// Demo function to fill answers automatically
+function fillDemoAnswers() {
+  console.log('🚀 Filling demo answers...');
+  
+  // Demo answers for a fitness tracking app
+  const demoAnswers = [
+    "FitTracker Pro is a comprehensive fitness tracking mobile application that helps users monitor their daily physical activities, set fitness goals, and track their progress over time. The app includes features like step counting, workout logging, nutrition tracking, and social challenges to keep users motivated on their fitness journey.",
+    
+    "Users start by creating a profile and setting their fitness goals. They can log daily activities like walking, running, or gym workouts. The app tracks calories burned, steps taken, and workout duration. Users can also log their meals and water intake. The app provides weekly progress reports and sends motivational notifications to keep users engaged.",
+    
+    "The target audience includes fitness enthusiasts aged 18-45 who want to track their health and fitness progress. This includes gym-goers, runners, cyclists, and anyone looking to maintain a healthy lifestyle. The app is designed for both beginners who need guidance and advanced users who want detailed analytics.",
+    
+    "The app includes social features where users can connect with friends, participate in fitness challenges, and share their achievements. It also integrates with popular fitness wearables and includes a premium subscription tier with advanced analytics, personalized workout plans, and nutrition coaching."
+  ];
+  
+  // Fill all answers at once
+  answers = [...demoAnswers];
+  
+  // Show a loading message
+  const textarea = document.getElementById('mainInput');
+  if (textarea) {
+    textarea.value = "🚀 Demo answers loaded! Sending to API...";
+    textarea.style.color = '#ff6b35';
+  }
+  
+  // Wait a moment then call the API
+  setTimeout(() => {
+    console.log('🚀 Demo answers:', answers);
+    generateSpecification();
+  }, 1000);
+}

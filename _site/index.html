@@ -500,35 +500,93 @@ document.addEventListener('DOMContentLoaded', function() {
     <!-- Main Content -->
     <main id="main-content" class="main-content">
         <!-- Custom menu for homepage -->
-<nav class="clip-path-menu">
-  <div class="navicon">
-    <div></div>
-  </div>
-  <a href="/blog/" aria-label="Visit our blog">Blog</a>
-  <a href="/pages/about.html" aria-label="Learn more about specifys.ai">About Us</a>
-  <a href="/pages/how.html" aria-label="Learn how specifys.ai works">How It Works</a>
-  <a href="/tools/map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
-  <a href="/pages/ToolPicker.html" aria-label="Use our Tool Finder">Tool Finder</a>
-</nav>
 
 <!-- Hero Section -->
 <div class="hero-hero-section">
-  <div class="hero-container">
-    <h1 class="hero-title">Specifys<span class="hero-dot">.</span>AI</h1>
-    <div class="hero-subtitle">
-      <p>Plan your app smarter</p>
-      <p>Build faster with AI-driven insights</p>
-    </div>
+  <div id="particles-js"></div>
+  
+  <!-- Hero Content -->
+  <div class="hero-content" id="heroContent">
+    <h1 class="hero-main-title">Build faster with AI-driven insights.</h1>
+    
     <div class="hero-button-container">
-      <a href="/processing-unified.html" class="hero-button" onclick="trackStartNowClick()">
-        <span class="button-text">Start Now</span>
-        <span class="button-arrow">→</span>
-      </a>
+      <button class="hero-cta-button" id="startButton">Start Here</button>
     </div>
-    <div class="hero-demo-link">
-      <a href="/pages/demo.html" class="demo-link">View Demo</a>
+    
+    <h2 class="hero-subtitle">Plan your app smarter</h2>
     </div>
+    
+    <!-- Questions Display -->
+    <div class="questions-display" id="questionsDisplay" style="display: none;">
+      <div class="current-question" id="currentQuestion">
+        Describe your application
+      </div>
+    </div>
+    
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+      <div class="loading-content">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Generating Your Specification</div>
+        <div class="loading-subtext">This may take a few moments...</div>
+      </div>
+    </div>
+    
+    <!-- Modern Input Container -->
+    <div class="modern-input-container" id="modernInputContainer" style="display: none;">
+      <div class="input-instruction">
+        Start Typing or Press 'Space' for AI or Press '/' for saved replies
   </div>
+      
+      <div class="input-area">
+        <textarea 
+          class="main-input" 
+          id="mainInput"
+          placeholder="Type your message here..."
+          rows="1"
+        ></textarea>
+      </div>
+      
+      <div class="input-controls">
+        <div class="left-controls">
+          <button class="control-btn" title="Add">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+          </button>
+          
+          <div class="separator"></div>
+          
+          <button class="control-btn" title="Attach file">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
+            </svg>
+          </button>
+          
+          <button class="control-btn" title="Bookmark">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"></path>
+            </svg>
+          </button>
+          
+          <button class="control-btn" title="AI Assistant">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
+            </svg>
+          </button>
+        </div>
+        
+           <button class="send-btn" id="sendBtn">
+             Next >
+           </button>
+           
+           <button class="demo-btn" id="demoBtn" title="Fill demo answers and send automatically">
+             🚀 Demo
+           </button>
+      </div>
+    </div>
+  
 </div>
 
 <div class="extra-sections">
@@ -1107,8 +1165,128 @@ document.addEventListener('DOMContentLoaded', function() {
 
     
     
+    <!-- Particles.js -->
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    
+    <!-- Prompts Data (for API calls) - must load before index.js -->
+    <script src="/tools/prompts.js"></script>
+    
     <!-- Index Page JavaScript -->
     <script defer src="/assets/js/index.js"></script>
+    
+    <!-- Particles Animation -->
+    <script>
+      particlesJS("particles-js", {
+        "particles": {
+          "number": {
+            "value": 80,
+            "density": {
+              "enable": true,
+              "value_area": 800
+            }
+          },
+          "color": {
+            "value": "#ffffff"
+          },
+          "shape": {
+            "type": "circle",
+            "stroke": {
+              "width": 0,
+              "color": "#000000"
+            },
+            "polygon": {
+              "nb_sides": 5
+            },
+            "image": {
+              "src": "img/github.svg",
+              "width": 100,
+              "height": 100
+            }
+          },
+          "opacity": {
+            "value": 0.5,
+            "random": false,
+            "anim": {
+              "enable": false,
+              "speed": 1,
+              "opacity_min": 0.1,
+              "sync": false
+            }
+          },
+          "size": {
+            "value": 3,
+            "random": true,
+            "anim": {
+              "enable": false,
+              "speed": 40,
+              "size_min": 0.1,
+              "sync": false
+            }
+          },
+          "line_linked": {
+            "enable": true,
+            "distance": 150,
+            "color": "#ffffff",
+            "opacity": 0.4,
+            "width": 1
+          },
+          "move": {
+            "enable": true,
+            "speed": 6,
+            "direction": "none",
+            "random": false,
+            "straight": false,
+            "out_mode": "out",
+            "bounce": false,
+            "attract": {
+              "enable": false,
+              "rotateX": 600,
+              "rotateY": 1200
+            }
+          }
+        },
+        "interactivity": {
+          "detect_on": "canvas",
+          "events": {
+            "onhover": {
+              "enable": false,
+              "mode": "repulse"
+            },
+            "onclick": {
+              "enable": true,
+              "mode": "push"
+            },
+            "resize": true
+          },
+          "modes": {
+            "grab": {
+              "distance": 400,
+              "line_linked": {
+                "opacity": 1
+              }
+            },
+            "bubble": {
+              "distance": 400,
+              "size": 40,
+              "duration": 2,
+              "opacity": 8,
+              "speed": 3
+            },
+            "repulse": {
+              "distance": 200,
+              "duration": 0.4
+            },
+            "push": {
+              "particles_nb": 4
+            },
+            "remove": {
+              "particles_nb": 2
+            }
+          }
+        },
+        "retina_detect": true
+      });
+    </script>
     
 </body>
 </html>

@@ -1617,6 +1617,10 @@ function displaySpec(data) {
 function displayOverview(overview) {
     const container = document.getElementById('overview-data');
     
+    // Debug logging
+    console.log('DEBUG: displayOverview called with:', overview);
+    console.log('DEBUG: Overview type:', typeof overview);
+    
     if (!overview) {
         container.innerHTML = '<p class="text-muted">Overview not available...</p>';
         return;
@@ -1731,12 +1735,18 @@ function formatTextContent(content) {
         return '<p>No content available</p>';
     }
     
+    // Debug logging
+    console.log('DEBUG: formatTextContent called with:', content);
+    console.log('DEBUG: Content type:', typeof content);
+    
     // Check if content is JSON
     let parsedContent;
     try {
         parsedContent = JSON.parse(content);
+        console.log('DEBUG: Successfully parsed JSON content:', parsedContent);
         return formatJSONContent(parsedContent);
     } catch (error) {
+        console.log('DEBUG: Content is not JSON, treating as plain text');
         return formatPlainTextContent(content);
     }
 }
@@ -1752,6 +1762,18 @@ function formatJSONContent(jsonData) {
             console.error('Failed to parse JSON:', e);
             return '<div class="error">Failed to parse JSON data</div>';
         }
+    }
+    
+    // Debug logging to understand data structure
+    console.log('DEBUG: formatJSONContent received data:', jsonData);
+    console.log('DEBUG: Data type:', typeof jsonData);
+    console.log('DEBUG: Data keys:', Object.keys(jsonData || {}));
+    
+    // Handle nested overview structure (overview.overview)
+    if (jsonData.overview && typeof jsonData.overview === 'object') {
+        console.log('DEBUG: Found nested overview structure, extracting inner overview');
+        console.log('DEBUG: Inner overview keys:', Object.keys(jsonData.overview || {}));
+        jsonData = jsonData.overview;
     }
     
     // Handle new Overview structure
