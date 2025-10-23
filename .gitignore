@@ -69,3 +69,16 @@ Thumbs.db
 # Optional: Local development files
 *.local
 local.*
+
+# Jekyll build directory
+_site/
+
+# Ruby gems directory
+vendor/
+
+# Backup files
+*.backup
+
+# Firebase service account credentials
+firebase-service-account.json
+backend/firebase-service-account.json

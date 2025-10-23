@@ -27,6 +27,7 @@ export default {
       }
 
       if (url.pathname === "/generate") return cors(await handleGenerate(request, env));
+      if (url.pathname === "/fix-diagram") return cors(await handleFixDiagram(request, env));
 
       return cors(json({ error: { code: "NOT_FOUND", message: "Unknown route" } }, 404));
     } catch (e) {
@@ -370,6 +371,56 @@ async function handleGenerate(request, env) {
   }
 }
 
+// ---------- /fix-diagram handler (single diagram repair) ----------
+async function handleFixDiagram(request, env) {
+  const correlationId = cryptoRandomId();
+  try {
+    const { diagramId, diagramType, brokenCode, technicalSpec, overview } = await request.json();
+
+    if (!diagramId || !diagramType || !brokenCode) {
+      return json({
+        error: { code: "BAD_REQUEST", message: "Expected { diagramId, diagramType, brokenCode }" },
+        correlationId
+      }, 400);
+    }
+
+    const prompt = {
+      system: 'You are a Mermaid diagram syntax expert. Fix broken Mermaid diagram code.',
+      developer: 'Return ONLY the corrected Mermaid code without any explanations or additional text.',
+      user: `Fix this broken ${diagramType} Mermaid diagram:\n\n${brokenCode}\n\nTechnical context: ${technicalSpec || 'N/A'}\nOverview: ${overview || 'N/A'}\n\nReturn ONLY the corrected Mermaid code.`
+    };
+
+    let result;
+    try {
+      result = await retryWithRepair(env, prompt, 'rawText', (obj) => {
+        // For diagram fixing, we just want the raw corrected code
+        return { ok: true, value: { correctedCode: obj.content || obj.text || obj } };
+      });
+    } catch (e) {
+      const msg = String(e && e.message || e);
+      return json({
+        error: { code: "OPENAI_UPSTREAM_ERROR", message: msg },
+        correlationId
+      }, 502);
+    }
+
+    if (result.__failed) {
+      return json({
+        error: { code: "INVALID_MODEL_OUTPUT", message: "Validation failed", issues: result.issues },
+        correlationId
+      }, 422);
+    }
+
+    return json({
+      diagramId,
+      correctedCode: result.correctedCode,
+      correlationId
+    });
+  } catch (e) {
+    return json({ error: { code: "SERVER_ERROR", message: String(e) }, correlationId }, 500);
+  }
+}
+
 // ---------- /selftest handler (diagnostics) ----------
 async function handleSelfTest(env) {
   try {
@@ -393,3 +444,7 @@ async function handleSelfTest(env) {
     return json({ error: String(e) }, 500);
   }
 }
+
+
+
+

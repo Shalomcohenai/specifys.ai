@@ -1,6 +1,9 @@
 /* Main CSS - Specifys.ai */
 /* קובץ ראשי שמחבר את כל הקבצים */
 
+/* Font Awesome Classic Regular */
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css');
+
 /* Import core styles */
 @import url('./core/variables.css');
 @import url('./core/fonts.css');
@@ -15,6 +18,44 @@
 @import url('./components/icons.css');
 @import url('./components/mermaid.css');
 @import url('./components/tables.css');
+
+/* Font Awesome Icon Styles */
+.fa {
+  color: #333333 !important;
+  margin-right: 8px;
+}
+
+/* Icon specific styles */
+.tool-square .icon .fa,
+.benefit-icon .fa {
+  font-size: 2em;
+  color: #333333 !important;
+  margin-right: 0;
+}
+
+.comparison-title .fa {
+  font-size: 1.2em;
+  margin-right: 10px;
+}
+
+.feature-item .fa {
+  margin-right: 8px;
+}
+
+.faq-question .fa {
+  margin-left: 10px;
+  margin-right: 0;
+}
+
+.footer-social .fa {
+  font-size: 1.2em;
+  margin-right: 0;
+  margin-left: 10px;
+}
+
+.scroll-to-top .fa {
+  margin-right: 0;
+}
 
 /* Additional utilities */
 .visually-hidden {

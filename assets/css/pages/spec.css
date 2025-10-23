@@ -71,6 +71,27 @@
     gap: 0.5rem;
   }
   
+  .spec-meta .icon {
+    width: 1rem;
+    height: 1rem;
+  }
+  
+  .platform-box .icon {
+    width: 1.2rem;
+    height: 1.2rem;
+  }
+  
+  .edit-title-btn .icon {
+    width: 1rem;
+    height: 1rem;
+  }
+  
+  .loading-message .icon {
+    width: 1.2rem;
+    height: 1.2rem;
+    margin-right: 0.5rem;
+  }
+  
   .chat-container {
     display: flex;
     flex-direction: column;
@@ -187,6 +208,10 @@
     transition: all 0.3s ease;
     border: none;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    justify-content: center;
   }
   
   .platform-box:hover {

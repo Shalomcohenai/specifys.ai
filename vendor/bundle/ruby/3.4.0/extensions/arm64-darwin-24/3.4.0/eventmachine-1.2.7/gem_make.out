@@ -3,10 +3,10 @@ current directory: /Users/shalom/Desktop/new/specifys-dark-mode/vendor/bundle/ru
 creating Makefile
 
 current directory: /Users/shalom/Desktop/new/specifys-dark-mode/vendor/bundle/ruby/3.4.0/gems/eventmachine-1.2.7/ext/fastfilereader
-make DESTDIR\= sitearchdir\=./.gem.20250926-50421-92y0p3 sitelibdir\=./.gem.20250926-50421-92y0p3 clean
+make DESTDIR\= sitearchdir\=./.gem.20251023-63731-4zu8bd sitelibdir\=./.gem.20251023-63731-4zu8bd clean
 
 current directory: /Users/shalom/Desktop/new/specifys-dark-mode/vendor/bundle/ruby/3.4.0/gems/eventmachine-1.2.7/ext/fastfilereader
-make DESTDIR\= sitearchdir\=./.gem.20250926-50421-92y0p3 sitelibdir\=./.gem.20250926-50421-92y0p3
+make DESTDIR\= sitearchdir\=./.gem.20251023-63731-4zu8bd sitelibdir\=./.gem.20251023-63731-4zu8bd
 compiling mapper.cpp
 compiling rubymain.cpp
 rubymain.cpp:53:12: warning: 'rb_data_object_wrap_warning' is deprecated: by TypedData [-Wdeprecated-declarations]
@@ -217,8 +217,8 @@ rubymain.cpp:65:2: warning: call to 'rb_data_object_get_warning(unsigned long)' 
 linking shared-object fastfilereaderext.bundle
 
 current directory: /Users/shalom/Desktop/new/specifys-dark-mode/vendor/bundle/ruby/3.4.0/gems/eventmachine-1.2.7/ext/fastfilereader
-make DESTDIR\= sitearchdir\=./.gem.20250926-50421-92y0p3 sitelibdir\=./.gem.20250926-50421-92y0p3 install
-/usr/bin/install -c -m 0755 fastfilereaderext.bundle ./.gem.20250926-50421-92y0p3
+make DESTDIR\= sitearchdir\=./.gem.20251023-63731-4zu8bd sitelibdir\=./.gem.20251023-63731-4zu8bd install
+/usr/bin/install -c -m 0755 fastfilereaderext.bundle ./.gem.20251023-63731-4zu8bd
 
 current directory: /Users/shalom/Desktop/new/specifys-dark-mode/vendor/bundle/ruby/3.4.0/gems/eventmachine-1.2.7/ext/fastfilereader
-make DESTDIR\= sitearchdir\=./.gem.20250926-50421-92y0p3 sitelibdir\=./.gem.20250926-50421-92y0p3 clean
+make DESTDIR\= sitearchdir\=./.gem.20251023-63731-4zu8bd sitelibdir\=./.gem.20251023-63731-4zu8bd clean

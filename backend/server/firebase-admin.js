@@ -26,13 +26,8 @@ try {
         app = admin.app();
     }
     
-    console.log('✅ Firebase Admin SDK initialized successfully');
 } catch (error) {
     console.error('❌ Firebase Admin SDK initialization failed:', error.message);
-    console.log('Make sure you have:');
-    console.log('1. Set FIREBASE_SERVICE_ACCOUNT_KEY environment variable, OR');
-    console.log('2. Set GOOGLE_APPLICATION_CREDENTIALS to your service account key file, OR');
-    console.log('3. Run "firebase login" and "gcloud auth application-default login"');
 }
 
 const db = admin.firestore();

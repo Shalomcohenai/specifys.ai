@@ -87,7 +87,6 @@ async function processFeedback(data) {
     }
     
     // 3. Log the feedback
-    console.log('Feedback processed successfully:', {
       email: email || 'Not provided',
       feedback: feedback.substring(0, 100) + '...',
       type: type || 'general',
@@ -133,7 +132,6 @@ async function sendEmail(userEmail, feedback, type, timestamp) {
     `
   }
   
-  console.log('📧 Email would be sent:', emailData)
   
   // TODO: Implement actual email sending using Cloudflare Email Workers
   // Example:
@@ -166,7 +164,6 @@ async function forwardToGoogleSheets(userEmail, feedback, type, timestamp) {
       throw new Error(`Google Sheets API error: ${response.status}`)
     }
     
-    console.log('✅ Feedback forwarded to Google Sheets')
     
   } catch (error) {
     console.error('❌ Error forwarding to Google Sheets:', error.message)

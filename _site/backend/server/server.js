@@ -1,22 +1,17 @@
-console.log('Starting server setup...');
-
 const express = require('express');
 const fetch = require('node-fetch');
 const dotenv = require('dotenv');
 const config = require('./config');
 
-console.log('Loading environment variables...');
 dotenv.config();
 
 const app = express();
 const port = config.port;
 // Middleware to parse JSON bodies
-console.log('Setting up middleware...');
 app.use(express.json());
 
 // CORS middleware to allow requests from your frontend
 app.use((req, res, next) => {
-  console.log('Applying CORS middleware...');
   const origin = req.headers.origin;
   
   // Check if origin is in allowed list
@@ -39,11 +34,9 @@ app.use((req, res, next) => {
 
 // Feedback endpoint
 app.post('/api/feedback', async (req, res) => {
-  console.log('Received feedback request:', req.body);
   const { email, feedback, type, source } = req.body;
 
   if (!feedback) {
-    console.log('Error: Feedback text is required');
     return res.status(400).json({ error: 'Feedback text is required' });
   }
 
@@ -53,9 +46,6 @@ app.post('/api/feedback', async (req, res) => {
     
     // 2. Save to Google Sheets via Google Apps Script
     await saveToGoogleSheets(email, feedback, type, source);
-    
-    // 3. Log to console for debugging
-    console.log('Feedback saved successfully:', { email, feedback, type, source, timestamp: new Date().toISOString() });
     
     res.json({ success: true, message: 'Feedback submitted successfully' });
   } catch (error) {
@@ -107,20 +97,14 @@ async function sendFeedbackEmail(email, feedback) {
       };
       
       const info = await transporter.sendMail(mailOptions);
-      console.log('✅ Email sent successfully:', info.messageId);
       
     } else {
       // Fallback: log to console
-      console.log('📧 Email configuration not available, logging to console instead');
-      console.log('📧 Email would be sent to:', feedbackEmail || 'No feedback email configured');
-      console.log('📝 Feedback content:', feedback);
-      console.log('👤 From user:', email || 'No email provided');
     }
     
   } catch (error) {
     console.error('❌ Error sending email:', error.message);
     // Don't fail the entire request if email fails
-    console.log('📧 Email failed, but continuing with other operations...');
   }
 }
 

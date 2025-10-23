@@ -11,7 +11,34 @@ const PROMPTS = {
 
     return `Return ONLY valid JSON (no text/markdown). Top-level key MUST be overview. If a value is unknown, return an empty array/object—never omit required keys.
 
-Create a detailed overview that includes applicationSummary with paragraphs array, coreFeatures array, userJourney with steps and diagram, targetAudience with primary/secondary arrays and diagram, problemStatement string, and uniqueValueProposition string.
+Create a comprehensive and detailed overview based on the user input. Analyze the provided information thoroughly and generate extensive content:
+
+{
+  "overview": {
+    "ideaSummary": "A detailed, comprehensive description (3-4 sentences) of what the application does, what problem it solves for users, and why it's important. Include the core functionality, main benefits, and how it addresses user pain points.",
+    "targetAudience": {
+      "ageRange": "Specific age range with reasoning (e.g., '25-45 years old, representing working professionals')",
+      "sector": "Detailed industry or business sector with context (e.g., 'Healthcare sector, specifically telemedicine and patient management')",
+      "interests": ["Array of 5-7 detailed interests, hobbies, or professional activities"],
+      "needs": ["Array of 5-7 specific, detailed needs this app addresses with explanations"]
+    },
+    "valueProposition": "A comprehensive explanation (2-3 sentences) of what makes this app unique compared to competitors, including specific advantages, unique features, and the main value it provides to users",
+    "coreFeaturesOverview": ["List of 6-8 main features with brief descriptions of what each feature does and how it benefits users"],
+    "userJourneySummary": "A detailed, step-by-step description (4-5 sentences) of how a user would use the app from start to finish, including onboarding, main workflows, and key interactions"
+  }
+}
+
+IMPORTANT DETAILED REQUIREMENTS: 
+- ideaSummary should be 3-4 sentences with comprehensive explanation of purpose, functionality, and benefits
+- targetAudience.ageRange should include reasoning for the age group
+- targetAudience.sector should be specific with industry context
+- targetAudience.interests should be 5-7 detailed interests or professional activities
+- targetAudience.needs should be 5-7 specific needs with explanations
+- valueProposition should be 2-3 sentences explaining uniqueness and competitive advantages
+- coreFeaturesOverview should be 6-8 features with brief descriptions of functionality and benefits
+- userJourneySummary should be 4-5 sentences describing complete user flow including onboarding and key interactions
+- All content should be detailed, comprehensive, and provide substantial value
+- All values must be strings or arrays, never null or undefined
 
 User Input:
 App Description: ${appDescription}
@@ -29,17 +56,47 @@ Target Audience: ${targetAudience}`;
 
     return `Return ONLY valid JSON (no text/markdown). Top-level key MUST be technical. If a value is unknown, return an empty array/object—never omit required keys.
 
-Create a comprehensive technical specification with readable text descriptions. Return JSON with technical key containing:
+Create a comprehensive technical specification with TEXTUAL descriptions only (no diagrams). Return JSON with technical key containing:
 
-1. dataModels: Object with entities array containing entities with name and attributes array
-2. databaseSchema: Object with tables array containing tables with name and columns array  
-3. api: Object with endpoints array containing endpoints with path, method, description, requestBody, and responses
-4. security: Object with authentication, authorization (roles array), and dataProtection details
-5. integrationPoints: Object with externalAPIs and internalServices arrays
+{
+  "technical": {
+    "techStack": {
+      "frontend": "Client-side technologies",
+      "backend": "Server-side technologies", 
+      "database": "Database technology",
+      "storage": "Storage solutions",
+      "authentication": "Authentication methods"
+    },
+    "architectureOverview": "Textual description of system structure (client-server, API routes, data flow)",
+    "databaseSchema": {
+      "description": "Textual description of tables, relationships, and general data logic",
+      "tables": ["Table 1 description", "Table 2 description"],
+      "relationships": "Description of how tables relate to each other"
+    },
+    "apiEndpoints": [
+      {
+        "path": "/api/endpoint",
+        "method": "GET/POST/PUT/DELETE",
+        "description": "What this endpoint does",
+        "requestExample": "Example request body",
+        "responseExample": "Example response"
+      }
+    ],
+    "securityAuthentication": {
+      "authentication": "Authentication methods and flow",
+      "authorization": "Authorization and permissions",
+      "encryption": "Data encryption methods",
+      "securityMeasures": "Additional security measures"
+    },
+    "integrationExternalApis": {
+      "thirdPartyServices": ["Service 1", "Service 2"],
+      "integrations": "Description of external API integrations",
+      "dataFlow": "How external data flows into the system"
+    }
+  }
+}
 
-CRITICAL: The dataModels must have an "entities" array and databaseSchema must have a "tables" array. These are required fields.
-
-Make sure all descriptions are clear and readable text, not technical jargon.
+IMPORTANT: All descriptions must be textual only. Diagrams will be generated separately.
 
 Application Overview:
 ${overviewContent}
@@ -60,14 +117,46 @@ Target Audience: ${targetAudience}`;
 
     return `Return ONLY valid JSON (no text/markdown). Top-level key MUST be market. If a value is unknown, return an empty array/object—never omit required keys.
 
-Create detailed market analysis with readable text descriptions. Return JSON with market key containing:
+Create detailed market analysis. Return JSON with market key containing:
 
-1. marketOverview: String with comprehensive market analysis and trends
-2. competitors: Object with list array containing competitor names and brief descriptions
-3. targetAudience: Object with personas array containing detailed user personas
-4. pricingStrategy: String with detailed pricing recommendations and rationale
-
-Make sure all descriptions are clear and readable text, not technical jargon.
+{
+  "market": {
+    "industryOverview": {
+      "trends": "Current industry trends and developments",
+      "marketData": "Relevant market statistics and forecasts",
+      "growthProjections": "Future market growth expectations"
+    },
+    "targetAudienceInsights": {
+      "needsAnalysis": "Analysis of user needs and pain points",
+      "usageHabits": "How target audience currently behaves",
+      "demographics": "Detailed demographic breakdown"
+    },
+    "competitiveLandscape": [
+      {
+        "competitor": "Competitor name",
+        "advantages": "Their strengths",
+        "disadvantages": "Their weaknesses",
+        "marketPosition": "Their position in the market"
+      }
+    ],
+    "swotAnalysis": {
+      "strengths": ["Strength 1", "Strength 2"],
+      "weaknesses": ["Weakness 1", "Weakness 2"],
+      "opportunities": ["Opportunity 1", "Opportunity 2"],
+      "threats": ["Threat 1", "Threat 2"]
+    },
+    "monetizationModel": {
+      "proposedModels": ["Subscription", "Pay-per-use", "Freemium"],
+      "recommendations": "Recommended monetization strategy",
+      "pricingStrategy": "Suggested pricing approach"
+    },
+    "marketingStrategy": {
+      "channels": "Marketing channels to use",
+      "community": "Community building strategies",
+      "partnerships": "Potential partnerships and collaborations"
+    }
+  }
+}
 
 Application Overview:
 ${overviewContent}
@@ -90,12 +179,43 @@ Target Audience: ${targetAudience}`;
 
 Create comprehensive design guidelines and branding elements. Return JSON with design key containing:
 
-1. colorPalette: Object with primary, secondary, accent colors and their hex codes
-2. typography: Object with heading, body, and caption font specifications
-3. uiComponents: Object with button, input, card, and navigation component styles
-4. brandingGuidelines: Object with logo concepts, brand personality, and visual identity
-5. layoutPrinciples: Object with spacing, grid system, and responsive design guidelines
-6. accessibility: Object with contrast ratios, font sizes, and accessibility considerations
+{
+  "design": {
+    "visualStyleGuide": {
+      "colors": {
+        "primary": "#hexcode",
+        "secondary": "#hexcode", 
+        "accent": "#hexcode",
+        "background": "#hexcode",
+        "text": "#hexcode"
+      },
+      "typography": {
+        "headings": "Font family and specifications for headings",
+        "body": "Font family and specifications for body text",
+        "captions": "Font family and specifications for captions"
+      },
+      "spacing": "Spacing guidelines and grid system",
+      "buttons": "Button styles and variations",
+      "animations": "Animation guidelines and transitions"
+    },
+    "logoIconography": {
+      "logoConcepts": "Logo design concepts and variations",
+      "colorVersions": "Different color versions of the logo",
+      "iconSet": "Icon set specifications and style"
+    },
+    "uiLayout": {
+      "landingPage": "Landing page layout structure",
+      "dashboard": "Dashboard layout and components",
+      "navigation": "Navigation structure and patterns",
+      "responsiveDesign": "Responsive design guidelines"
+    },
+    "uxPrinciples": {
+      "userFlow": "User flow and navigation principles",
+      "accessibility": "Accessibility guidelines and considerations",
+      "informationHierarchy": "Information hierarchy and content organization"
+    }
+  }
+}
 
 Make sure all descriptions are clear and actionable for designers and developers.
 
@@ -109,55 +229,64 @@ Additional Details: ${additionalDetails}
 Target Audience: ${targetAudience}`;
   },
 
+  // Diagrams prompt - generates Mermaid diagrams
   diagrams: (technicalContent, overviewContent) => {
     return `Return ONLY valid JSON (no text/markdown). Top-level key MUST be diagrams. If a value is unknown, return an empty array/object—never omit required keys.
 
 Generate 6 Mermaid diagrams based on the technical specification. Return JSON with diagrams key containing an array of 6 diagram objects, each with:
 
-1. id: String identifier (user_flow, system_architecture, information_architecture, data_schema, sequence, frontend_components)
-2. type: String Mermaid diagram type (flowchart, graph, erDiagram, sequenceDiagram)
-3. title: String descriptive title
-4. description: String brief description of what the diagram shows
-5. mermaidCode: String valid Mermaid syntax for the diagram
-6. status: String always "success"
-
-DIAGRAM REQUIREMENTS:
-
-1. User Flow Diagram (id: "user_flow", type: "flowchart"):
-   - Show complete user journey through application screens
-   - Include all navigation paths, decision points, and user actions
-   - Use flowchart syntax with nodes and edges
-   - Example: graph TD\n    A[Start] --> B[Login] --> C{Dashboard}
-
-2. System Architecture Diagram (id: "system_architecture", type: "graph"):
-   - Show overall system structure and layers
-   - Include frontend, backend, database, external APIs, services
-   - Use graph syntax with subgraphs for layers
-   - Example: graph TB\n    subgraph Frontend\n        A[React App]\n    end
-
-3. Information System Architecture Diagram (id: "information_architecture", type: "graph"):
-   - Show data flows, input/output processes, integration points
-   - Include information processing workflows
-   - Use graph syntax with directional edges
-   - Example: graph LR\n    A[Input] --> B[Process] --> C[Output]
-
-4. Data Schema Diagram (id: "data_schema", type: "erDiagram"):
-   - Show all data entities, attributes, relationships
-   - Include primary keys, foreign keys, and constraints
-   - Use erDiagram syntax with entities and relationships
-   - Example: erDiagram\n    USER ||--o{ ORDER : places\n    USER {\n        int id PK\n        string name\n    }
-
-5. Sequence Diagram (id: "sequence", type: "sequenceDiagram"):
-   - Show interaction flow for key user process (login, purchase, etc.)
-   - Include all actors, messages, and time sequence
-   - Use sequenceDiagram syntax with participants and messages
-   - Example: sequenceDiagram\n    participant U as User\n    participant S as System\n    U->>S: Login Request
-
-6. Frontend Components Diagram (id: "frontend_components", type: "graph"):
-   - Show main UI components, modules, and their relationships
-   - Include frontend application structure
-   - Use graph syntax with component nodes
-   - Example: graph TD\n    A[App Component] --> B[Header]\n    A --> C[Main Content]
+{
+  "diagrams": [
+    {
+      "id": "user_flow",
+      "type": "flowchart",
+      "title": "User Flow Diagram",
+      "description": "User journey through application screens and actions",
+      "mermaidCode": "Valid Mermaid flowchart syntax",
+      "status": "success"
+    },
+    {
+      "id": "system_architecture",
+      "type": "graph", 
+      "title": "System Architecture Diagram",
+      "description": "Overall system structure, layers, servers, APIs, and communication",
+      "mermaidCode": "Valid Mermaid graph syntax",
+      "status": "success"
+    },
+    {
+      "id": "information_architecture",
+      "type": "graph",
+      "title": "Information System Architecture Diagram", 
+      "description": "Information system including IO processes, integrations, and interfaces",
+      "mermaidCode": "Valid Mermaid graph syntax",
+      "status": "success"
+    },
+    {
+      "id": "data_schema",
+      "type": "erDiagram",
+      "title": "Data Schema Diagram (ERD)",
+      "description": "Entity structure, relationships, primary/foreign keys",
+      "mermaidCode": "Valid Mermaid erDiagram syntax",
+      "status": "success"
+    },
+    {
+      "id": "sequence",
+      "type": "sequenceDiagram",
+      "title": "Sequence Diagram",
+      "description": "Sequence of actions for specific events (login, purchase, etc.)",
+      "mermaidCode": "Valid Mermaid sequenceDiagram syntax",
+      "status": "success"
+    },
+    {
+      "id": "frontend_components",
+      "type": "graph",
+      "title": "Component Diagram (Frontend)",
+      "description": "Structure of main UI components, modules, and their relationships",
+      "mermaidCode": "Valid Mermaid graph syntax",
+      "status": "success"
+    }
+  ]
+}
 
 CRITICAL REQUIREMENTS:
 - All mermaidCode must be valid Mermaid syntax
@@ -171,6 +300,32 @@ ${technicalContent}
 
 Application Overview:
 ${overviewContent}`;
+  },
+
+  // Raw text prompt - generates raw AI response
+  rawText: (answers) => {
+    const appDescription = answers[0] || 'Not provided';
+    const workflow = answers[1] || 'Not provided';
+    const additionalDetails = answers[2] || 'Not provided';
+    const targetAudience = answers[3] || 'Not provided';
+
+    return `Return ONLY valid JSON (no text/markdown). Top-level key MUST be rawText. If a value is unknown, return an empty array/object—never omit required keys.
+
+Create a comprehensive raw text response. Return JSON with rawText key containing:
+
+{
+  "rawText": {
+    "content": "Complete raw text response from AI API - this should be the direct, unprocessed response that can be displayed as plain text",
+    "paragraphs": ["Paragraph 1", "Paragraph 2", "Paragraph 3"],
+    "summary": "Brief summary of the main points"
+  }
+}
+
+User Input:
+App Description: ${appDescription}
+User Workflow: ${workflow}
+Additional Details: ${additionalDetails}
+Target Audience: ${targetAudience}`;
   }
 };
 

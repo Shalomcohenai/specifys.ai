@@ -11,28 +11,33 @@ const PROMPTS = {
 
     return `Return ONLY valid JSON (no text/markdown). Top-level key MUST be overview. If a value is unknown, return an empty array/object—never omit required keys.
 
-Create a comprehensive overview based on the user input. Analyze the provided information and generate:
+Create a comprehensive and detailed overview based on the user input. Analyze the provided information thoroughly and generate extensive content:
 
 {
   "overview": {
-    "ideaSummary": "A clear, concise description of what the application does and what problem it solves for users",
+    "ideaSummary": "A detailed, comprehensive description (3-4 sentences) of what the application does, what problem it solves for users, and why it's important. Include the core functionality, main benefits, and how it addresses user pain points.",
     "targetAudience": {
-      "ageRange": "Specific age range (e.g., '25-45', '18-65', '30-55')",
-      "sector": "Industry or business sector (e.g., 'Healthcare', 'E-commerce', 'Education')",
-      "interests": ["Array of 3-5 key interests or hobbies"],
-      "needs": ["Array of 3-5 specific needs this app addresses"]
+      "ageRange": "Specific age range with reasoning (e.g., '25-45 years old, representing working professionals')",
+      "sector": "Detailed industry or business sector with context (e.g., 'Healthcare sector, specifically telemedicine and patient management')",
+      "interests": ["Array of 5-7 detailed interests, hobbies, or professional activities"],
+      "needs": ["Array of 5-7 specific, detailed needs this app addresses with explanations"]
     },
-    "valueProposition": "What makes this app unique compared to competitors - the main benefit",
-    "coreFeaturesOverview": ["List of 4-6 main features the app provides"],
-    "userJourneySummary": "Step-by-step description of how a user would use the app from start to finish"
+    "valueProposition": "A comprehensive explanation (2-3 sentences) of what makes this app unique compared to competitors, including specific advantages, unique features, and the main value it provides to users",
+    "coreFeaturesOverview": ["List of 6-8 main features with brief descriptions of what each feature does and how it benefits users"],
+    "userJourneySummary": "A detailed, step-by-step description (4-5 sentences) of how a user would use the app from start to finish, including onboarding, main workflows, and key interactions"
   }
 }
 
-IMPORTANT: 
-- ideaSummary should be 1-2 sentences explaining the core purpose
-- targetAudience.interests and needs should be arrays of strings
-- coreFeaturesOverview should be an array of 4-6 feature names
-- userJourneySummary should describe the complete user flow
+IMPORTANT DETAILED REQUIREMENTS: 
+- ideaSummary should be 3-4 sentences with comprehensive explanation of purpose, functionality, and benefits
+- targetAudience.ageRange should include reasoning for the age group
+- targetAudience.sector should be specific with industry context
+- targetAudience.interests should be 5-7 detailed interests or professional activities
+- targetAudience.needs should be 5-7 specific needs with explanations
+- valueProposition should be 2-3 sentences explaining uniqueness and competitive advantages
+- coreFeaturesOverview should be 6-8 features with brief descriptions of functionality and benefits
+- userJourneySummary should be 4-5 sentences describing complete user flow including onboarding and key interactions
+- All content should be detailed, comprehensive, and provide substantial value
 - All values must be strings or arrays, never null or undefined
 
 User Input:

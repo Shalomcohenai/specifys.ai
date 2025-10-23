@@ -3,10 +3,10 @@ current directory: /Users/shalom/Desktop/new/specifys-dark-mode/vendor/bundle/ru
 creating Makefile
 
 current directory: /Users/shalom/Desktop/new/specifys-dark-mode/vendor/bundle/ruby/3.4.0/gems/http_parser.rb-0.8.0/ext/ruby_http_parser
-make DESTDIR\= sitearchdir\=./.gem.20250926-50421-hpo3ls sitelibdir\=./.gem.20250926-50421-hpo3ls clean
+make DESTDIR\= sitearchdir\=./.gem.20251023-63731-2zyvur sitelibdir\=./.gem.20251023-63731-2zyvur clean
 
 current directory: /Users/shalom/Desktop/new/specifys-dark-mode/vendor/bundle/ruby/3.4.0/gems/http_parser.rb-0.8.0/ext/ruby_http_parser
-make DESTDIR\= sitearchdir\=./.gem.20250926-50421-hpo3ls sitelibdir\=./.gem.20250926-50421-hpo3ls
+make DESTDIR\= sitearchdir\=./.gem.20251023-63731-2zyvur sitelibdir\=./.gem.20251023-63731-2zyvur
 compiling ruby_http_parser.c
 ruby_http_parser.c:296:10: warning: 'rb_data_object_wrap_warning' is deprecated: by TypedData [-Wdeprecated-declarations]
   296 |   return Data_Wrap_Struct(klass, ParserWrapper_mark, ParserWrapper_free, wrapper);
@@ -666,8 +666,8 @@ compiling ryah_http_parser.c
 linking shared-object ruby_http_parser.bundle
 
 current directory: /Users/shalom/Desktop/new/specifys-dark-mode/vendor/bundle/ruby/3.4.0/gems/http_parser.rb-0.8.0/ext/ruby_http_parser
-make DESTDIR\= sitearchdir\=./.gem.20250926-50421-hpo3ls sitelibdir\=./.gem.20250926-50421-hpo3ls install
-/usr/bin/install -c -m 0755 ruby_http_parser.bundle ./.gem.20250926-50421-hpo3ls
+make DESTDIR\= sitearchdir\=./.gem.20251023-63731-2zyvur sitelibdir\=./.gem.20251023-63731-2zyvur install
+/usr/bin/install -c -m 0755 ruby_http_parser.bundle ./.gem.20251023-63731-2zyvur
 
 current directory: /Users/shalom/Desktop/new/specifys-dark-mode/vendor/bundle/ruby/3.4.0/gems/http_parser.rb-0.8.0/ext/ruby_http_parser
-make DESTDIR\= sitearchdir\=./.gem.20250926-50421-hpo3ls sitelibdir\=./.gem.20250926-50421-hpo3ls clean
+make DESTDIR\= sitearchdir\=./.gem.20251023-63731-2zyvur sitelibdir\=./.gem.20251023-63731-2zyvur clean

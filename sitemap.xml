@@ -53,19 +53,6 @@
     <priority>0.8</priority>
   </url>
   
-  <url>
-    <loc>https://specifys-ai.com/pages/spec.html</loc>
-    <lastmod>2025-09-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  
-  <url>
-    <loc>https://specifys-ai.com/pages/research.html</loc>
-    <lastmod>2025-09-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
   
   <url>
     <loc>https://specifys-ai.com/pages/auth.html</loc>
@@ -110,26 +97,6 @@
     <priority>0.95</priority>
   </url>
   
-  <url>
-    <loc>https://specifys-ai.com/tools/result.html</loc>
-    <lastmod>2025-09-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  
-  <url>
-    <loc>https://specifys-ai.com/tools/result-market.html</loc>
-    <lastmod>2025-09-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  
-  <url>
-    <loc>https://specifys-ai.com/tools/result-novice.html</loc>
-    <lastmod>2025-09-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
 
   <!-- Blog Articles -->
   <url>

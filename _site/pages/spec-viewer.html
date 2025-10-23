@@ -45,8 +45,22 @@
     
     
     
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Font Awesome Classic Regular -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    
+    <!-- Custom Icon Styles -->
+    <style>
+      .fa {
+        color: #333333 !important;
+        margin-right: 8px;
+      }
+    </style>
+    
+    <script>
+      console.log('FONT AWESOME CLASSIC REGULAR LOADED');
+      console.log('Updated:', new Date().toLocaleString());
+      console.log('All emojis replaced with Font Awesome icons');
+    </script>
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -78,6 +92,14 @@
 
 
     <script>
+// ========================================
+// SPEC-VIEWER PAGE - FONT AWESOME CLASSIC REGULAR
+// ========================================
+console.log('SPEC-VIEWER: Font Awesome Classic Regular Loaded!');
+console.log('Updated:', new Date().toLocaleString());
+console.log('All emojis replaced with Font Awesome icons in dark gray');
+console.log('If you see this message, you are viewing the updated version');
+
 // Central Analytics Event Tracking System for Specifys.ai
 // This file contains reusable tracking functions for consistent analytics across the site
 
@@ -451,16 +473,16 @@ document.addEventListener('DOMContentLoaded', function() {
     
     <!-- Main Content -->
     <main id="main-content" class="main-content">
-        <div class="container">
+<div class="container">
     <header class="page-header">
         <div class="header-content">
             <div class="header-left">
-        <h1>📋 Specification Viewer</h1>
+        <h1><i class="fa fa-clipboard"></i> Specification Viewer</h1>
                 <p id="spec-title">Loading specification...</p>
         </div>
             <div class="header-right">
                 <a href="/pages/app-dashboard.html" class="btn btn-outline">
-                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                    Dashboard
                 </a>
         </div>
     </div>
@@ -495,22 +517,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
     <div class="tabs">
         <button class="tab-button active" onclick="showTab('overview')" id="overviewTab">
-            📖 Overview
+            <i class="fa fa-book"></i> Overview
         </button>
         <button class="tab-button" onclick="showTab('technical')" id="technicalTab" disabled>
-            ⚙️ Technical
+            <i class="fa fa-cog"></i> Technical
         </button>
         <button class="tab-button" onclick="showTab('market')" id="marketTab" disabled>
-            📊 Market Research
+            <i class="fa fa-bar-chart"></i> Market Research
         </button>
         <button class="tab-button" onclick="showTab('design')" id="designTab" disabled>
-            🎨 Design & Branding
+            <i class="fa fa-paint-brush"></i> Design & Branding
         </button>
         <button class="tab-button" onclick="showTab('diagrams')" id="diagramsTab" disabled>
-            📊 Diagrams
+            <i class="fa fa-sitemap"></i> Diagrams
         </button>
         <button class="tab-button" onclick="showTab('raw')" id="rawTab">
-            🔍 Raw Data
+            <i class="fa fa-code"></i> Raw Data
         </button>
     </div>
 
@@ -521,7 +543,7 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
         
         <div id="error" class="error" style="display: none;">
-            <h3>❌ Error</h3>
+            <h3><i class="fa fa-times-circle"></i> Error</h3>
             <p id="error-message"></p>
             <button onclick="retryLoad()" class="btn btn-primary">Retry</button>
         </div>
@@ -529,9 +551,9 @@ document.addEventListener('DOMContentLoaded', function() {
         <div id="content" style="display: none;">
             <div id="overview-content" class="tab-content">
                 <div class="content-header">
-                    <h2>📖 Application Overview</h2>
+                    <h2><i class="fa fa-book"></i> Application Overview</h2>
                     <button id="approveBtn" class="btn btn-success approve-btn" onclick="approveOverview()">
-                        ✅ Approve Overview
+                        <i class="fa fa-check"></i> Approve Overview
                     </button>
                 </div>
                 <div id="overview-data" class="content-body"></div>
@@ -539,9 +561,9 @@ document.addEventListener('DOMContentLoaded', function() {
             
             <div id="technical-content" class="tab-content" style="display: none;">
                 <div class="content-header">
-                <h2>⚙️ Technical Specification</h2>
+                <h2><i class="fa fa-cog"></i> Technical Specification</h2>
                     <button id="retryTechnicalBtn" class="btn btn-secondary retry-btn" onclick="retryTechnical()" style="display: none;">
-                        🔄 Retry
+                        <i class="fa fa-refresh"></i> Retry
                     </button>
                 </div>
                 <div id="technical-data" class="content-body"></div>
@@ -549,9 +571,9 @@ document.addEventListener('DOMContentLoaded', function() {
             
             <div id="market-content" class="tab-content" style="display: none;">
                 <div class="content-header">
-                    <h2>📊 Market Research</h2>
+                    <h2><i class="fa fa-bar-chart"></i> Market Research</h2>
                     <button id="retryMarketBtn" class="btn btn-secondary retry-btn" onclick="retryMarket()" style="display: none;">
-                        🔄 Retry
+                        <i class="fa fa-refresh"></i> Retry
                     </button>
                 </div>
                 <div id="market-data" class="content-body"></div>
@@ -559,14 +581,14 @@ document.addEventListener('DOMContentLoaded', function() {
             
             <div id="design-content" class="tab-content" style="display: none;">
                 <div class="content-header">
-                    <h2>🎨 Design & Branding</h2>
+                    <h2><i class="fa fa-paint-brush"></i> Design & Branding</h2>
                     <button id="retryDesignBtn" class="btn btn-secondary retry-btn" onclick="retryDesign()" style="display: none;">
-                        🔄 Retry
+                        <i class="fa fa-refresh"></i> Retry
                     </button>
                 </div>
                 <div id="design-data" class="content-body">
                     <div class="locked-tab-message">
-                        <h3>🔒 Design & Branding</h3>
+                        <h3><i class="fa fa-lock"></i> Design & Branding</h3>
                         <p>Please approve the Overview and generate Technical & Market specifications first to create design guidelines.</p>
                     </div>
                 </div>
@@ -574,14 +596,14 @@ document.addEventListener('DOMContentLoaded', function() {
             
             <div id="diagrams-content" class="tab-content" style="display: none;">
                 <div class="content-header">
-                    <h2>📊 Diagrams</h2>
+                    <h2><i class="fa fa-bar-chart"></i> Diagrams</h2>
                     <button id="generateDiagramsBtn" class="btn btn-primary" onclick="generateDiagrams()" style="display: none;">
                         Generate Diagrams
                     </button>
                 </div>
                 <div id="diagrams-data" class="content-body">
                     <div class="locked-tab-message">
-                        <h3>🔒 Diagrams</h3>
+                        <h3><i class="fa fa-lock"></i> Diagrams</h3>
                         <p>Please approve the Overview and generate Technical & Market specifications first to create visual diagrams.</p>
                     </div>
                 </div>
@@ -589,7 +611,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             <div id="raw-content" class="tab-content" style="display: none;">
                 <div class="content-header">
-                <h2>🔍 Raw JSON Data</h2>
+                <h2><i class="fa fa-search"></i> Raw JSON Data</h2>
                 </div>
                 <div class="content-body">
                 <pre id="raw-data"></pre>
@@ -605,16 +627,16 @@ document.addEventListener('DOMContentLoaded', function() {
         <h3 id="fullscreenTitle"></h3>
         <div class="fullscreen-controls">
             <button onclick="zoomIn()" class="btn-icon" title="Zoom In">
-                <i class="fas fa-plus"></i>
+                +
             </button>
             <button onclick="zoomOut()" class="btn-icon" title="Zoom Out">
-                <i class="fas fa-minus"></i>
+                -
             </button>
             <button onclick="resetZoom()" class="btn-icon" title="Reset Zoom">
-                <i class="fas fa-home"></i>
+                ⌂
             </button>
             <button onclick="closeFullscreen()" class="btn-icon" title="Close">
-                <i class="fas fa-times"></i>
+                ×
             </button>
         </div>
     </div>
@@ -625,17 +647,17 @@ document.addEventListener('DOMContentLoaded', function() {
 <div id="registrationModal" class="modal" style="display: none;">
     <div class="modal-content">
         <div class="modal-header">
-            <h3>🔐 Authentication Required</h3>
+            <h3><i class="fa fa-key"></i> Authentication Required</h3>
             <span class="close" onclick="closeRegistrationModal()">&times;</span>
         </div>
         <div class="modal-body">
             <p>To save and manage your specifications, please sign in or create an account.</p>
             <div class="auth-buttons">
                 <a href="/pages/auth.html" class="btn btn-primary">
-                    <i class="fas fa-sign-in-alt"></i> Sign In / Register
+                    Sign In / Register
                 </a>
                 <button onclick="continueAsGuest()" class="btn btn-secondary">
-                    <i class="fas fa-user-secret"></i> Continue as Guest
+                    Continue as Guest
                 </button>
             </div>
             <p class="guest-note">
@@ -1190,6 +1212,11 @@ document.addEventListener('DOMContentLoaded', function() {
     animation: pulse 1s infinite;
 }
 
+.status-indicator.fixing {
+    background: #fd7e14;
+    animation: pulse 1s infinite;
+}
+
 .status-indicator.generating {
     background: #17a2b8;
     animation: pulse 1s infinite;
@@ -1286,6 +1313,23 @@ document.addEventListener('DOMContentLoaded', function() {
     margin-top: 10px;
 }
 
+.diagram-fixing {
+    padding: 20px;
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    border-radius: 4px;
+    color: #856404;
+    text-align: center;
+}
+
+.diagram-fixing h4 {
+    margin: 0 0 10px 0;
+}
+
+.diagram-fixing p {
+    margin: 0;
+}
+
 @media (max-width: 768px) {
     .diagram-header {
         flex-direction: column;
@@ -1330,25 +1374,25 @@ let dragStartY = 0;
 const urlParams = new URLSearchParams(window.location.search);
 const urlSpecId = urlParams.get('id');
 
-console.log('🚀 Spec Viewer - Starting...');
+console.log('Spec Viewer - Starting...');
 
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize MermaidManager
     try {
         if (typeof mermaidManager !== 'undefined' && mermaidManager) {
             mermaidManager.initialize().then(() => {
-                console.log('✅ MermaidManager initialized');
+                console.log('MermaidManager initialized');
             }).catch(error => {
-                console.error('❌ Failed to initialize MermaidManager:', error);
+                console.error('Failed to initialize MermaidManager:', error);
                 // Try to load mermaid directly as fallback
                 loadMermaidFallback();
             });
         } else {
-            console.log('⚠️ MermaidManager not available, loading fallback');
+            console.log('MermaidManager not available, loading fallback');
             loadMermaidFallback();
         }
     } catch (error) {
-        console.error('❌ Failed to access MermaidManager:', error);
+        console.error('Failed to access MermaidManager:', error);
         loadMermaidFallback();
     }
     
@@ -1376,16 +1420,16 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Load spec will be triggered after user authentication
     
-    console.log('✅ Spec Viewer - Ready!');
+    console.log('Spec Viewer - Ready!');
 });
 
 // Fallback function to load mermaid directly
 function loadMermaidFallback() {
-    console.log('🔄 Loading Mermaid as fallback...');
+    console.log('Loading Mermaid as fallback...');
     const script = document.createElement('script');
     script.src = 'https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js';
     script.onload = () => {
-        console.log('✅ Mermaid loaded as fallback');
+        console.log('Mermaid loaded as fallback');
         if (typeof mermaid !== 'undefined') {
             mermaid.initialize({
                 theme: 'base',
@@ -1405,7 +1449,7 @@ function loadMermaidFallback() {
         }
     };
     script.onerror = (error) => {
-        console.error('❌ Failed to load Mermaid fallback:', error);
+        console.error('Failed to load Mermaid fallback:', error);
     };
     document.head.appendChild(script);
 }
@@ -1425,7 +1469,7 @@ function showRegistrationModal() {
     const modal = document.getElementById('registrationModal');
     if (modal) {
         modal.style.display = 'flex';
-        console.log('✅ Registration modal shown');
+        console.log('Registration modal shown');
     }
 }
 
@@ -1434,7 +1478,7 @@ function closeRegistrationModal() {
     const modal = document.getElementById('registrationModal');
     if (modal) {
         modal.style.display = 'none';
-        console.log('✅ Registration modal closed');
+        console.log('Registration modal closed');
     }
 }
 
@@ -1510,17 +1554,17 @@ async function loadSpec(specId) {
         
         // Check if user has permission to view this spec
         if (specData.userId !== user.uid) {
-            console.warn('❌ User does not have permission to view this spec');
+            console.warn('User does not have permission to view this spec');
             showError('You do not have permission to view this specification.');
             return;
         }
         
         currentSpecData = { id: doc.id, ...specData };
-        console.log('✅ Spec loaded from Firebase:', currentSpecData);
+        console.log('Spec loaded from Firebase:', currentSpecData);
         displaySpec(currentSpecData);
         
     } catch (error) {
-        console.error('❌ Error loading spec:', error);
+        console.error('Error loading spec:', error);
         showError(`Error loading spec: ${error.message}`);
     }
 }
@@ -1538,6 +1582,7 @@ function displaySpec(data) {
     updateStatus('overview', data.status?.overview || 'ready');
     updateStatus('technical', data.status?.technical || 'pending');
     updateStatus('market', data.status?.market || 'pending');
+    updateStatus('design', data.status?.design || 'pending');
     updateDiagramsStatus(data.diagrams?.generated ? 'ready' : 'pending');
     updateStorageStatus(); // Add storage status update
     
@@ -1545,6 +1590,7 @@ function displaySpec(data) {
     displayOverview(data.overview);
     displayTechnical(data.technical);
     displayMarket(data.market);
+    displayDesign(data.design);
     displayDiagramsFromData(data);
     displayRaw(data);
     
@@ -1552,6 +1598,11 @@ function displaySpec(data) {
     if (data.overviewApproved) {
         enableAllTabs();
         hideApproveButton();
+        
+        // Show generate diagrams button if technical spec is ready
+        if (data.status?.technical === 'ready') {
+            document.getElementById('generateDiagramsBtn').style.display = 'inline-block';
+        }
     } else {
         showApproveButton();
         disableTechnicalTabs();
@@ -1582,12 +1633,12 @@ function displayTechnical(technical) {
     const container = document.getElementById('technical-data');
     
     if (!technical) {
-        container.innerHTML = '<div class="locked-tab-message"><h3>🔒 Technical Specification</h3><p>Please approve the Overview first to generate the technical specification.</p></div>';
+        container.innerHTML = '<div class="locked-tab-message"><h3><i class="fa fa-lock"></i> Technical Specification</h3><p>Please approve the Overview first to generate the technical specification.</p></div>';
         return;
     }
     
     if (technical === 'error') {
-        container.innerHTML = '<div class="locked-tab-message"><h3>❌ Error Generating Technical Specification</h3><p>There was an error generating the technical specification. Please try again.</p></div>';
+        container.innerHTML = '<div class="locked-tab-message"><h3><i class="fa fa-exclamation-triangle"></i> Error Generating Technical Specification</h3><p>There was an error generating the technical specification. Please try again.</p></div>';
         document.getElementById('retryTechnicalBtn').style.display = 'inline-block';
         return;
     }
@@ -1601,18 +1652,37 @@ function displayMarket(market) {
     const container = document.getElementById('market-data');
     
     if (!market) {
-        container.innerHTML = '<div class="locked-tab-message"><h3>🔒 Market Research</h3><p>Please approve the Overview first to generate the market research.</p></div>';
+        container.innerHTML = '<div class="locked-tab-message"><h3><i class="fa fa-lock"></i> Market Research</h3><p>Please approve the Overview first to generate the market research.</p></div>';
         return;
     }
     
     if (market === 'error') {
-        container.innerHTML = '<div class="locked-tab-message"><h3>❌ Error Generating Market Research</h3><p>There was an error generating the market research. Please try again.</p></div>';
+        container.innerHTML = '<div class="locked-tab-message"><h3><i class="fa fa-exclamation-triangle"></i> Error Generating Market Research</h3><p>There was an error generating the market research. Please try again.</p></div>';
         document.getElementById('retryMarketBtn').style.display = 'inline-block';
         return;
     }
     
     // Format the market content
     const formattedContent = formatTextContent(market);
+    container.innerHTML = formattedContent;
+}
+
+function displayDesign(design) {
+    const container = document.getElementById('design-data');
+    
+    if (!design) {
+        container.innerHTML = '<div class="locked-tab-message"><h3><i class="fa fa-lock"></i> Design & Branding</h3><p>Please approve the Overview first to generate the design specification.</p></div>';
+        return;
+    }
+    
+    if (design === 'error') {
+        container.innerHTML = '<div class="locked-tab-message"><h3><i class="fa fa-exclamation-triangle"></i> Error Generating Design Specification</h3><p>There was an error generating the design specification. Please try again.</p></div>';
+        document.getElementById('retryDesignBtn').style.display = 'inline-block';
+        return;
+    }
+    
+    // Format the design content
+    const formattedContent = formatTextContent(design);
     container.innerHTML = formattedContent;
 }
 
@@ -1628,14 +1698,14 @@ function displayDiagramsFromData(data) {
         if (data.overviewApproved && data.technical && data.market) {
             container.innerHTML = `
                 <div class="locked-tab-message">
-                    <h3>📊 Diagrams</h3>
+                    <h3><i class="fa fa-bar-chart"></i> Diagrams</h3>
                     <p>Click "Generate Diagrams" to create visual representations of your specification.</p>
                 </div>
             `;
         } else {
             container.innerHTML = `
                 <div class="locked-tab-message">
-                    <h3>🔒 Diagrams</h3>
+                    <h3><i class="fa fa-lock"></i> Diagrams</h3>
                     <p>Please approve the Overview and generate Technical & Market specifications first to create visual diagrams.</p>
                 </div>
             `;
@@ -1674,10 +1744,90 @@ function formatTextContent(content) {
 function formatJSONContent(jsonData) {
     let html = '';
     
+    // Parse JSON strings if they exist
+    if (typeof jsonData === 'string') {
+        try {
+            jsonData = JSON.parse(jsonData);
+        } catch (e) {
+            console.error('Failed to parse JSON:', e);
+            return '<div class="error">Failed to parse JSON data</div>';
+        }
+    }
+    
+    // Handle new Overview structure
+    if (jsonData.ideaSummary) {
+        html += '<div class="content-section">';
+        html += '<h3><i class="fa fa-lightbulb-o"></i> Idea Summary</h3>';
+        html += `<p>${jsonData.ideaSummary}</p>`;
+        html += '</div>';
+    }
+    
+    // Handle new Target Audience structure
+    if (jsonData.targetAudience) {
+        html += '<div class="content-section">';
+        html += '<h3><i class="fa fa-bullseye"></i> Target Audience</h3>';
+        
+        if (jsonData.targetAudience.ageRange) {
+            html += `<p><strong>Age Range:</strong> ${jsonData.targetAudience.ageRange}</p>`;
+        }
+        
+        if (jsonData.targetAudience.sector) {
+            html += `<p><strong>Sector:</strong> ${jsonData.targetAudience.sector}</p>`;
+        }
+        
+        if (jsonData.targetAudience.interests && Array.isArray(jsonData.targetAudience.interests)) {
+            html += '<h4>Interests:</h4>';
+            html += '<ul>';
+            jsonData.targetAudience.interests.forEach(interest => {
+                html += `<li>${interest}</li>`;
+            });
+            html += '</ul>';
+        }
+        
+        if (jsonData.targetAudience.needs && Array.isArray(jsonData.targetAudience.needs)) {
+            html += '<h4>Needs:</h4>';
+            html += '<ul>';
+            jsonData.targetAudience.needs.forEach(need => {
+                html += `<li>${need}</li>`;
+            });
+            html += '</ul>';
+        }
+        
+        html += '</div>';
+    }
+    
+    // Handle new Value Proposition
+    if (jsonData.valueProposition) {
+        html += '<div class="content-section">';
+        html += '<h3><i class="fa fa-diamond"></i> Value Proposition</h3>';
+        html += `<p>${jsonData.valueProposition}</p>`;
+        html += '</div>';
+    }
+    
+    // Handle new Core Features Overview
+    if (jsonData.coreFeaturesOverview && Array.isArray(jsonData.coreFeaturesOverview)) {
+        html += '<div class="content-section">';
+        html += '<h3><i class="fa fa-star"></i> Core Features Overview</h3>';
+        html += '<ul>';
+        jsonData.coreFeaturesOverview.forEach(feature => {
+            html += `<li>${feature}</li>`;
+        });
+        html += '</ul>';
+        html += '</div>';
+    }
+    
+    // Handle new User Journey Summary
+    if (jsonData.userJourneySummary) {
+        html += '<div class="content-section">';
+        html += '<h3><i class="fa fa-road"></i> User Journey Summary</h3>';
+        html += `<p>${jsonData.userJourneySummary}</p>`;
+        html += '</div>';
+    }
+    
     // Handle applicationSummary
     if (jsonData.applicationSummary && jsonData.applicationSummary.paragraphs) {
         html += '<div class="content-section">';
-        html += '<h3>📋 Application Summary</h3>';
+        html += '<h3><i class="fa fa-clipboard"></i> Application Summary</h3>';
         jsonData.applicationSummary.paragraphs.forEach(paragraph => {
             html += `<p>${paragraph}</p>`;
         });
@@ -1687,7 +1837,7 @@ function formatJSONContent(jsonData) {
     // Handle coreFeatures
     if (jsonData.coreFeatures && Array.isArray(jsonData.coreFeatures)) {
         html += '<div class="content-section">';
-        html += '<h3>⭐ Core Features</h3>';
+        html += '<h3><i class="fa fa-star"></i> Core Features</h3>';
         html += '<ul>';
         jsonData.coreFeatures.forEach(feature => {
             html += `<li>${feature}</li>`;
@@ -1699,7 +1849,7 @@ function formatJSONContent(jsonData) {
     // Handle userJourney
     if (jsonData.userJourney && jsonData.userJourney.steps) {
         html += '<div class="content-section">';
-        html += '<h3>🛤️ User Journey</h3>';
+        html += '<h3><i class="fa fa-road"></i> User Journey</h3>';
         html += '<ol>';
         jsonData.userJourney.steps.forEach(step => {
             html += `<li>${step}</li>`;
@@ -1708,36 +1858,10 @@ function formatJSONContent(jsonData) {
         html += '</div>';
     }
     
-    // Handle targetAudience
-    if (jsonData.targetAudience) {
-        html += '<div class="content-section">';
-        html += '<h3>🎯 Target Audience</h3>';
-        
-        if (jsonData.targetAudience.primary && Array.isArray(jsonData.targetAudience.primary)) {
-            html += '<h4>Primary Audience:</h4>';
-            html += '<ul>';
-            jsonData.targetAudience.primary.forEach(audience => {
-                html += `<li>${audience}</li>`;
-            });
-            html += '</ul>';
-        }
-        
-        if (jsonData.targetAudience.secondary && Array.isArray(jsonData.targetAudience.secondary)) {
-            html += '<h4>Secondary Audience:</h4>';
-            html += '<ul>';
-            jsonData.targetAudience.secondary.forEach(audience => {
-                html += `<li>${audience}</li>`;
-            });
-            html += '</ul>';
-        }
-        
-        html += '</div>';
-    }
-    
     // Handle problemStatement
     if (jsonData.problemStatement) {
         html += '<div class="content-section">';
-        html += '<h3>❓ Problem Statement</h3>';
+        html += '<h3><i class="fa fa-question-circle"></i> Problem Statement</h3>';
         html += `<p>${jsonData.problemStatement}</p>`;
         html += '</div>';
     }
@@ -1745,70 +1869,223 @@ function formatJSONContent(jsonData) {
     // Handle uniqueValueProposition
     if (jsonData.uniqueValueProposition) {
         html += '<div class="content-section">';
-        html += '<h3>💡 Unique Value Proposition</h3>';
+        html += '<h3><i class="fa fa-lightbulb-o"></i> Unique Value Proposition</h3>';
         html += `<p>${jsonData.uniqueValueProposition}</p>`;
         html += '</div>';
     }
     
-    // Handle Technical Content
-    if (jsonData.dataModels) {
+    // Handle new Technical structure
+    if (jsonData.techStack) {
         html += '<div class="content-section">';
-        html += '<h3>🏗️ Data Models</h3>';
+        html += '<h3><i class="fa fa-wrench"></i> Tech Stack</h3>';
         
-        if (jsonData.dataModels.entities && Array.isArray(jsonData.dataModels.entities)) {
-            jsonData.dataModels.entities.forEach(entity => {
-                html += `<h4>${entity.name}</h4>`;
-                html += '<p>This entity represents the following data structure:</p>';
-                html += '<ul>';
-                if (entity.attributes && Array.isArray(entity.attributes)) {
-                    entity.attributes.forEach(attr => {
-                        html += `<li><strong>${attr.name}</strong> (${attr.type})${attr.required ? ' - Required' : ''}${attr.enum ? ` - Options: ${attr.enum.join(', ')}` : ''}</li>`;
-                    });
-                }
-                html += '</ul>';
-            });
+        if (jsonData.techStack.frontend) {
+            html += `<p><strong>Frontend:</strong> ${jsonData.techStack.frontend}</p>`;
         }
+        
+        if (jsonData.techStack.backend) {
+            html += `<p><strong>Backend:</strong> ${jsonData.techStack.backend}</p>`;
+        }
+        
+        if (jsonData.techStack.database) {
+            html += `<p><strong>Database:</strong> ${jsonData.techStack.database}</p>`;
+        }
+        
+        if (jsonData.techStack.storage) {
+            html += `<p><strong>Storage:</strong> ${jsonData.techStack.storage}</p>`;
+        }
+        
+        if (jsonData.techStack.authentication) {
+            html += `<p><strong>Authentication:</strong> ${jsonData.techStack.authentication}</p>`;
+        }
+        
         html += '</div>';
     }
     
-    // Handle Database Schema
+    // Handle new Architecture Overview
+    if (jsonData.architectureOverview) {
+        html += '<div class="content-section">';
+        html += '<h3><i class="fa fa-building"></i> Architecture Overview</h3>';
+        html += `<p>${jsonData.architectureOverview}</p>`;
+        html += '</div>';
+    }
+    
+    // Handle new Database Schema
     if (jsonData.databaseSchema) {
         html += '<div class="content-section">';
-        html += '<h3>🗄️ Database Schema</h3>';
+        html += '<h3><i class="fa fa-database"></i> Database Schema</h3>';
+        
+        if (jsonData.databaseSchema.description) {
+            html += `<p>${jsonData.databaseSchema.description}</p>`;
+        }
+        
+        if (jsonData.databaseSchema.tables && Array.isArray(jsonData.databaseSchema.tables)) {
+            html += '<h4>Tables:</h4>';
+            jsonData.databaseSchema.tables.forEach(table => {
+                // Check if table is a string or an object
+                if (typeof table === 'string') {
+                    // Handle string format (from new prompt)
+                    html += `<h5>${table}</h5>`;
+                    html += '<p>This table stores the following information:</p>';
+                } else if (typeof table === 'object' && table.name) {
+                    // Handle object format (from old prompt)
+                    html += `<h5>${table.name} Table</h5>`;
+                    html += '<p>This table stores the following information:</p>';
+                    html += '<ul>';
+                    if (table.columns && Array.isArray(table.columns)) {
+                        table.columns.forEach(column => {
+                            html += `<li><strong>${column.name || 'Unnamed'}</strong> (${column.type || 'Unknown'})${column.constraints ? ` - ${column.constraints.join(', ')}` : ''}</li>`;
+                        });
+                    }
+                    html += '</ul>';
+                }
+            });
+        }
+        
+        if (jsonData.databaseSchema.relationships) {
+            html += '<h4>Relationships:</h4>';
+            html += `<p>${jsonData.databaseSchema.relationships}</p>`;
+        }
+        
+        html += '</div>';
+    }
+    
+    // Handle new API Endpoints
+    if (jsonData.apiEndpoints && Array.isArray(jsonData.apiEndpoints)) {
+        html += '<div class="content-section">';
+        html += '<h3><i class="fa fa-plug"></i> API Endpoints</h3>';
+        
+        jsonData.apiEndpoints.forEach(endpoint => {
+            html += `<h4>${endpoint.method || 'N/A'} ${endpoint.path || 'N/A'}</h4>`;
+            html += `<p><strong>Description:</strong> ${endpoint.description || 'No description provided'}</p>`;
+            
+            if (endpoint.requestExample) {
+                html += `<p><strong>Request Example:</strong></p>`;
+                html += `<pre><code>${endpoint.requestExample}</code></pre>`;
+            }
+            
+            if (endpoint.responseExample) {
+                html += `<p><strong>Response Example:</strong></p>`;
+                html += `<pre><code>${endpoint.responseExample}</code></pre>`;
+            }
+        });
+        
+        html += '</div>';
+    }
+    
+    // Handle new Security & Authentication
+    if (jsonData.securityAuthentication) {
+        html += '<div class="content-section">';
+        html += '<h3><i class="fa fa-lock"></i> Security & Authentication</h3>';
+        
+        if (jsonData.securityAuthentication.authentication) {
+            html += `<p><strong>Authentication:</strong> ${jsonData.securityAuthentication.authentication}</p>`;
+        }
+        
+        if (jsonData.securityAuthentication.authorization) {
+            html += `<p><strong>Authorization:</strong> ${jsonData.securityAuthentication.authorization}</p>`;
+        }
+        
+        if (jsonData.securityAuthentication.encryption) {
+            html += `<p><strong>Encryption:</strong> ${jsonData.securityAuthentication.encryption}</p>`;
+        }
+        
+        if (jsonData.securityAuthentication.securityMeasures) {
+            html += `<p><strong>Security Measures:</strong> ${jsonData.securityAuthentication.securityMeasures}</p>`;
+        }
+        
+        html += '</div>';
+    }
+    
+    // Handle new Integration & External APIs
+    if (jsonData.integrationExternalApis) {
+        html += '<div class="content-section">';
+        html += '<h3><i class="fa fa-link"></i> Integration & External APIs</h3>';
+        
+        if (jsonData.integrationExternalApis.thirdPartyServices && Array.isArray(jsonData.integrationExternalApis.thirdPartyServices)) {
+            html += '<h4>Third Party Services:</h4>';
+            html += '<ul>';
+            jsonData.integrationExternalApis.thirdPartyServices.forEach(service => {
+                html += `<li>${service}</li>`;
+            });
+            html += '</ul>';
+        }
+        
+        if (jsonData.integrationExternalApis.integrations) {
+            html += `<p><strong>Integrations:</strong> ${jsonData.integrationExternalApis.integrations}</p>`;
+        }
+        
+        if (jsonData.integrationExternalApis.dataFlow) {
+            html += `<p><strong>Data Flow:</strong> ${jsonData.integrationExternalApis.dataFlow}</p>`;
+        }
+        
+        html += '</div>';
+    }
+    
+    // Handle Data Models (only if they exist)
+    if (jsonData.dataModels && jsonData.dataModels.entities && Array.isArray(jsonData.dataModels.entities)) {
+        html += '<div class="content-section">';
+        html += '<h3><i class="fa fa-building"></i> Data Models</h3>';
+        
+        jsonData.dataModels.entities.forEach(entity => {
+            html += `<h4>${entity.name || 'Unnamed Entity'}</h4>`;
+            html += '<p>This entity represents the following data structure:</p>';
+            html += '<ul>';
+            if (entity.attributes && Array.isArray(entity.attributes)) {
+                entity.attributes.forEach(attr => {
+                    html += `<li><strong>${attr.name || 'Unnamed'}</strong> (${attr.type || 'Unknown'})${attr.required ? ' - Required' : ''}${attr.enum ? ` - Options: ${attr.enum.join(', ')}` : ''}</li>`;
+                });
+            }
+            html += '</ul>';
+        });
+        
+        html += '</div>';
+    }
+    
+    // Handle old Database Schema format (legacy)
+    if (jsonData.databaseSchema && !jsonData.databaseSchema.description) {
+        html += '<div class="content-section">';
+        html += '<h3><i class="fa fa-database"></i> Database Schema (Legacy Format)</h3>';
         
         if (jsonData.databaseSchema.tables && Array.isArray(jsonData.databaseSchema.tables)) {
             jsonData.databaseSchema.tables.forEach(table => {
-                html += `<h4>${table.name} Table</h4>`;
-                html += '<p>This table stores the following information:</p>';
-                html += '<ul>';
-                if (table.columns && Array.isArray(table.columns)) {
-                    table.columns.forEach(column => {
-                        html += `<li><strong>${column.name}</strong> (${column.type})${column.constraints ? ` - ${column.constraints.join(', ')}` : ''}</li>`;
-                    });
+                // Check if table is a string or an object
+                if (typeof table === 'string') {
+                    html += `<h4>${table}</h4>`;
+                    html += '<p>This table stores the following information:</p>';
+                } else if (typeof table === 'object' && table.name) {
+                    html += `<h4>${table.name} Table</h4>`;
+                    html += '<p>This table stores the following information:</p>';
+                    html += '<ul>';
+                    if (table.columns && Array.isArray(table.columns)) {
+                        table.columns.forEach(column => {
+                            html += `<li><strong>${column.name || 'Unnamed'}</strong> (${column.type || 'Unknown'})${column.constraints ? ` - ${column.constraints.join(', ')}` : ''}</li>`;
+                        });
+                    }
+                    html += '</ul>';
                 }
-                html += '</ul>';
             });
         }
         html += '</div>';
     }
     
-    // Handle API Endpoints
+    // Handle old API Endpoints format (legacy)
     if (jsonData.api) {
         html += '<div class="content-section">';
-        html += '<h3>🔌 API Endpoints</h3>';
+        html += '<h3><i class="fa fa-plug"></i> API Endpoints (Legacy Format)</h3>';
         
         if (jsonData.api.endpoints && Array.isArray(jsonData.api.endpoints)) {
             jsonData.api.endpoints.forEach(endpoint => {
-                html += `<h4>${endpoint.method} ${endpoint.path}</h4>`;
-                html += `<p>${endpoint.description}</p>`;
+                html += `<h4>${endpoint.method || 'N/A'} ${endpoint.path || 'N/A'}</h4>`;
+                html += `<p>${endpoint.description || 'No description provided'}</p>`;
                 if (endpoint.requestBody) {
-                    html += '<p><strong>Request Body:</strong> ' + endpoint.requestBody.type + '</p>';
+                    html += '<p><strong>Request Body:</strong> ' + (endpoint.requestBody.type || 'N/A') + '</p>';
                 }
                 if (endpoint.responses) {
                     html += '<p><strong>Responses:</strong></p>';
                     html += '<ul>';
                     Object.keys(endpoint.responses).forEach(statusCode => {
-                        html += `<li>${statusCode}: ${endpoint.responses[statusCode].description}</li>`;
+                        html += `<li>${statusCode}: ${endpoint.responses[statusCode].description || 'No description'}</li>`;
                     });
                     html += '</ul>';
                 }
@@ -1817,15 +2094,15 @@ function formatJSONContent(jsonData) {
         html += '</div>';
     }
     
-    // Handle Security
+    // Handle old Security format (legacy)
     if (jsonData.security) {
         html += '<div class="content-section">';
-        html += '<h3>🔒 Security</h3>';
+        html += '<h3><i class="fa fa-lock"></i> Security (Legacy Format)</h3>';
         
         if (jsonData.security.authentication) {
             html += `<h4>Authentication</h4>`;
-            html += `<p>Type: ${jsonData.security.authentication.type}</p>`;
-            html += `<p>${jsonData.security.authentication.description}</p>`;
+            html += `<p>Type: ${jsonData.security.authentication.type || 'N/A'}</p>`;
+            html += `<p>${jsonData.security.authentication.description || 'No description'}</p>`;
         }
         
         if (jsonData.security.authorization && jsonData.security.authorization.roles) {
@@ -1833,7 +2110,7 @@ function formatJSONContent(jsonData) {
             html += '<p>The system supports the following user roles:</p>';
             html += '<ul>';
             jsonData.security.authorization.roles.forEach(role => {
-                html += `<li><strong>${role.role}</strong>: ${role.permissions.join(', ')}</li>`;
+                html += `<li><strong>${role.role || 'N/A'}</strong>: ${role.permissions ? role.permissions.join(', ') : 'No permissions'}</li>`;
             });
             html += '</ul>';
         }
@@ -1841,25 +2118,25 @@ function formatJSONContent(jsonData) {
         if (jsonData.security.dataProtection) {
             html += '<h4>Data Protection</h4>';
             if (jsonData.security.dataProtection.encryption) {
-                html += `<p>Encryption: ${jsonData.security.dataProtection.encryption.algorithm} (${jsonData.security.dataProtection.encryption.enabled ? 'Enabled' : 'Disabled'})</p>`;
+                html += `<p>Encryption: ${jsonData.security.dataProtection.encryption.algorithm || 'N/A'} (${jsonData.security.dataProtection.encryption.enabled ? 'Enabled' : 'Disabled'})</p>`;
             }
             if (jsonData.security.dataProtection.passwordHashing) {
-                html += `<p>Password Hashing: ${jsonData.security.dataProtection.passwordHashing.algorithm} (Work Factor: ${jsonData.security.dataProtection.passwordHashing.workFactor})</p>`;
+                html += `<p>Password Hashing: ${jsonData.security.dataProtection.passwordHashing.algorithm || 'N/A'} (Work Factor: ${jsonData.security.dataProtection.passwordHashing.workFactor || 'N/A'})</p>`;
             }
         }
         html += '</div>';
     }
     
-    // Handle Integration Points
+    // Handle old Integration Points format (legacy)
     if (jsonData.integrationPoints) {
         html += '<div class="content-section">';
-        html += '<h3>🔗 Integration Points</h3>';
+        html += '<h3><i class="fa fa-link"></i> Integration Points (Legacy Format)</h3>';
         
         if (jsonData.integrationPoints.externalAPIs && Array.isArray(jsonData.integrationPoints.externalAPIs)) {
             html += '<h4>External APIs</h4>';
             html += '<ul>';
             jsonData.integrationPoints.externalAPIs.forEach(api => {
-                html += `<li><strong>${api.name}</strong>: ${api.description}${api.url ? ` (${api.url})` : ''}</li>`;
+                html += `<li><strong>${api.name || 'N/A'}</strong>: ${api.description || 'No description'}${api.url ? ` (${api.url})` : ''}</li>`;
             });
             html += '</ul>';
         }
@@ -1868,24 +2145,289 @@ function formatJSONContent(jsonData) {
             html += '<h4>Internal Services</h4>';
             html += '<ul>';
             jsonData.integrationPoints.internalServices.forEach(service => {
-                html += `<li><strong>${service.name}</strong>: ${service.description}</li>`;
+                html += `<li><strong>${service.name || 'N/A'}</strong>: ${service.description || 'No description'}</li>`;
             });
             html += '</ul>';
         }
+        
+        html += '</div>';
+    }
+    
+    // Handle new Market structure
+    if (jsonData.industryOverview) {
+        html += '<div class="content-section">';
+        html += '<h3><i class="fa fa-bar-chart"></i> Industry Overview</h3>';
+        
+        if (jsonData.industryOverview.trends) {
+            html += `<p><strong>Trends:</strong> ${jsonData.industryOverview.trends}</p>`;
+        }
+        
+        if (jsonData.industryOverview.marketData) {
+            html += `<p><strong>Market Data:</strong> ${jsonData.industryOverview.marketData}</p>`;
+        }
+        
+        if (jsonData.industryOverview.growthProjections) {
+            html += `<p><strong>Growth Projections:</strong> ${jsonData.industryOverview.growthProjections}</p>`;
+        }
+        
+        html += '</div>';
+    }
+    
+    // Handle new Target Audience Insights
+    if (jsonData.targetAudienceInsights) {
+        html += '<div class="content-section">';
+        html += '<h3><i class="fa fa-users"></i> Target Audience Insights</h3>';
+        
+        if (jsonData.targetAudienceInsights.needsAnalysis) {
+            html += `<p><strong>Needs Analysis:</strong> ${jsonData.targetAudienceInsights.needsAnalysis}</p>`;
+        }
+        
+        if (jsonData.targetAudienceInsights.usageHabits) {
+            html += `<p><strong>Usage Habits:</strong> ${jsonData.targetAudienceInsights.usageHabits}</p>`;
+        }
+        
+        if (jsonData.targetAudienceInsights.demographics) {
+            html += `<p><strong>Demographics:</strong> ${jsonData.targetAudienceInsights.demographics}</p>`;
+        }
+        
+        html += '</div>';
+    }
+    
+    // Handle new Competitive Landscape
+    if (jsonData.competitiveLandscape && Array.isArray(jsonData.competitiveLandscape)) {
+        html += '<div class="content-section">';
+        html += '<h3><i class="fa fa-building"></i> Competitive Landscape</h3>';
+        
+        jsonData.competitiveLandscape.forEach(competitor => {
+            html += `<h4>${competitor.competitor || 'Unnamed Competitor'}</h4>`;
+            html += `<p><strong>Advantages:</strong> ${competitor.advantages || 'No advantages listed'}</p>`;
+            html += `<p><strong>Disadvantages:</strong> ${competitor.disadvantages || 'No disadvantages listed'}</p>`;
+            html += `<p><strong>Market Position:</strong> ${competitor.marketPosition || 'No market position specified'}</p>`;
+        });
+        
+        html += '</div>';
+    }
+    
+    // Handle new SWOT Analysis
+    if (jsonData.swotAnalysis) {
+        html += '<div class="content-section">';
+        html += '<h3><i class="fa fa-search"></i> SWOT Analysis</h3>';
+        
+        if (jsonData.swotAnalysis.strengths && Array.isArray(jsonData.swotAnalysis.strengths)) {
+            html += '<h4>Strengths:</h4>';
+            html += '<ul>';
+            jsonData.swotAnalysis.strengths.forEach(strength => {
+                html += `<li>${strength || 'No strength specified'}</li>`;
+            });
+            html += '</ul>';
+        }
+        
+        if (jsonData.swotAnalysis.weaknesses && Array.isArray(jsonData.swotAnalysis.weaknesses)) {
+            html += '<h4>Weaknesses:</h4>';
+            html += '<ul>';
+            jsonData.swotAnalysis.weaknesses.forEach(weakness => {
+                html += `<li>${weakness || 'No weakness specified'}</li>`;
+            });
+            html += '</ul>';
+        }
+        
+        if (jsonData.swotAnalysis.opportunities && Array.isArray(jsonData.swotAnalysis.opportunities)) {
+            html += '<h4>Opportunities:</h4>';
+            html += '<ul>';
+            jsonData.swotAnalysis.opportunities.forEach(opportunity => {
+                html += `<li>${opportunity || 'No opportunity specified'}</li>`;
+            });
+            html += '</ul>';
+        }
+        
+        if (jsonData.swotAnalysis.threats && Array.isArray(jsonData.swotAnalysis.threats)) {
+            html += '<h4>Threats:</h4>';
+            html += '<ul>';
+            jsonData.swotAnalysis.threats.forEach(threat => {
+                html += `<li>${threat || 'No threat specified'}</li>`;
+            });
+            html += '</ul>';
+        }
+        
+        html += '</div>';
+    }
+    
+    // Handle new Monetization Model
+    if (jsonData.monetizationModel) {
+        html += '<div class="content-section">';
+        html += '<h3><i class="fa fa-money"></i> Monetization Model</h3>';
+        
+        if (jsonData.monetizationModel.proposedModels && Array.isArray(jsonData.monetizationModel.proposedModels)) {
+            html += '<h4>Proposed Models:</h4>';
+            html += '<ul>';
+            jsonData.monetizationModel.proposedModels.forEach(model => {
+                html += `<li>${model}</li>`;
+            });
+            html += '</ul>';
+        }
+        
+        if (jsonData.monetizationModel.recommendations) {
+            html += `<p><strong>Recommendations:</strong> ${jsonData.monetizationModel.recommendations}</p>`;
+        }
+        
+        if (jsonData.monetizationModel.pricingStrategy) {
+            html += `<p><strong>Pricing Strategy:</strong> ${jsonData.monetizationModel.pricingStrategy}</p>`;
+        }
+        
+        html += '</div>';
+    }
+    
+    // Handle new Marketing Strategy
+    if (jsonData.marketingStrategy) {
+        html += '<div class="content-section">';
+        html += '<h3><i class="fa fa-bullhorn"></i> Marketing Strategy</h3>';
+        
+        if (jsonData.marketingStrategy.channels) {
+            html += `<p><strong>Channels:</strong> ${jsonData.marketingStrategy.channels}</p>`;
+        }
+        
+        if (jsonData.marketingStrategy.community) {
+            html += `<p><strong>Community:</strong> ${jsonData.marketingStrategy.community}</p>`;
+        }
+        
+        if (jsonData.marketingStrategy.partnerships) {
+            html += `<p><strong>Partnerships:</strong> ${jsonData.marketingStrategy.partnerships}</p>`;
+        }
+        
+        html += '</div>';
+    }
+    
+    // Handle new Design structure
+    if (jsonData.visualStyleGuide) {
+        html += '<div class="content-section">';
+        html += '<h3><i class="fa fa-paint-brush"></i> Visual Style Guide</h3>';
+        
+        if (jsonData.visualStyleGuide.colors) {
+            html += '<h4>Colors:</h4>';
+            html += '<ul>';
+            if (jsonData.visualStyleGuide.colors.primary) {
+                html += `<li><strong>Primary:</strong> ${jsonData.visualStyleGuide.colors.primary}</li>`;
+            }
+            if (jsonData.visualStyleGuide.colors.secondary) {
+                html += `<li><strong>Secondary:</strong> ${jsonData.visualStyleGuide.colors.secondary}</li>`;
+            }
+            if (jsonData.visualStyleGuide.colors.accent) {
+                html += `<li><strong>Accent:</strong> ${jsonData.visualStyleGuide.colors.accent}</li>`;
+            }
+            if (jsonData.visualStyleGuide.colors.background) {
+                html += `<li><strong>Background:</strong> ${jsonData.visualStyleGuide.colors.background}</li>`;
+            }
+            if (jsonData.visualStyleGuide.colors.text) {
+                html += `<li><strong>Text:</strong> ${jsonData.visualStyleGuide.colors.text}</li>`;
+            }
+            html += '</ul>';
+        }
+        
+        if (jsonData.visualStyleGuide.typography) {
+            html += '<h4>Typography:</h4>';
+            html += '<ul>';
+            if (jsonData.visualStyleGuide.typography.headings) {
+                html += `<li><strong>Headings:</strong> ${jsonData.visualStyleGuide.typography.headings}</li>`;
+            }
+            if (jsonData.visualStyleGuide.typography.body) {
+                html += `<li><strong>Body:</strong> ${jsonData.visualStyleGuide.typography.body}</li>`;
+            }
+            if (jsonData.visualStyleGuide.typography.captions) {
+                html += `<li><strong>Captions:</strong> ${jsonData.visualStyleGuide.typography.captions}</li>`;
+            }
+            html += '</ul>';
+        }
+        
+        if (jsonData.visualStyleGuide.spacing) {
+            html += `<p><strong>Spacing:</strong> ${jsonData.visualStyleGuide.spacing}</p>`;
+        }
+        
+        if (jsonData.visualStyleGuide.buttons) {
+            html += `<p><strong>Buttons:</strong> ${jsonData.visualStyleGuide.buttons}</p>`;
+        }
+        
+        if (jsonData.visualStyleGuide.animations) {
+            html += `<p><strong>Animations:</strong> ${jsonData.visualStyleGuide.animations}</p>`;
+        }
+        
+        html += '</div>';
+    }
+    
+    // Handle new Logo & Iconography
+    if (jsonData.logoIconography) {
+        html += '<div class="content-section">';
+        html += '<h3><i class="fa fa-picture-o"></i> Logo & Iconography</h3>';
+        
+        if (jsonData.logoIconography.logoConcepts) {
+            html += `<p><strong>Logo Concepts:</strong> ${jsonData.logoIconography.logoConcepts}</p>`;
+        }
+        
+        if (jsonData.logoIconography.colorVersions) {
+            html += `<p><strong>Color Versions:</strong> ${jsonData.logoIconography.colorVersions}</p>`;
+        }
+        
+        if (jsonData.logoIconography.iconSet) {
+            html += `<p><strong>Icon Set:</strong> ${jsonData.logoIconography.iconSet}</p>`;
+        }
+        
+        html += '</div>';
+    }
+    
+    // Handle new UI Layout
+    if (jsonData.uiLayout) {
+        html += '<div class="content-section">';
+        html += '<h3><i class="fa fa-mobile"></i> UI Layout</h3>';
+        
+        if (jsonData.uiLayout.landingPage) {
+            html += `<p><strong>Landing Page:</strong> ${jsonData.uiLayout.landingPage}</p>`;
+        }
+        
+        if (jsonData.uiLayout.dashboard) {
+            html += `<p><strong>Dashboard:</strong> ${jsonData.uiLayout.dashboard}</p>`;
+        }
+        
+        if (jsonData.uiLayout.navigation) {
+            html += `<p><strong>Navigation:</strong> ${jsonData.uiLayout.navigation}</p>`;
+        }
+        
+        if (jsonData.uiLayout.responsiveDesign) {
+            html += `<p><strong>Responsive Design:</strong> ${jsonData.uiLayout.responsiveDesign}</p>`;
+        }
+        
+        html += '</div>';
+    }
+    
+    // Handle new UX Principles
+    if (jsonData.uxPrinciples) {
+        html += '<div class="content-section">';
+        html += '<h3><i class="fa fa-bullseye"></i> UX Principles</h3>';
+        
+        if (jsonData.uxPrinciples.userFlow) {
+            html += `<p><strong>User Flow:</strong> ${jsonData.uxPrinciples.userFlow}</p>`;
+        }
+        
+        if (jsonData.uxPrinciples.accessibility) {
+            html += `<p><strong>Accessibility:</strong> ${jsonData.uxPrinciples.accessibility}</p>`;
+        }
+        
+        if (jsonData.uxPrinciples.informationHierarchy) {
+            html += `<p><strong>Information Hierarchy:</strong> ${jsonData.uxPrinciples.informationHierarchy}</p>`;
+        }
+        
         html += '</div>';
     }
     
     // Handle Market Content
     if (jsonData.marketOverview) {
         html += '<div class="content-section">';
-        html += '<h3>📊 Market Overview</h3>';
+        html += '<h3><i class="fa fa-bar-chart"></i> Market Overview</h3>';
         html += `<p>${jsonData.marketOverview}</p>`;
         html += '</div>';
     }
     
     if (jsonData.competitors && jsonData.competitors.list && Array.isArray(jsonData.competitors.list)) {
         html += '<div class="content-section">';
-        html += '<h3>🏢 Competitors Analysis</h3>';
+        html += '<h3><i class="fa fa-building"></i> Competitors Analysis</h3>';
         html += '<ul>';
         jsonData.competitors.list.forEach(competitor => {
             if (typeof competitor === 'object' && competitor.name && competitor.description) {
@@ -1902,7 +2444,7 @@ function formatJSONContent(jsonData) {
     
     if (jsonData.targetAudience && jsonData.targetAudience.personas && Array.isArray(jsonData.targetAudience.personas)) {
         html += '<div class="content-section">';
-        html += '<h3>👥 Target Audience Personas</h3>';
+        html += '<h3><i class="fa fa-users"></i> Target Audience Personas</h3>';
         html += '<ul>';
         jsonData.targetAudience.personas.forEach(persona => {
             if (typeof persona === 'object' && persona.name && persona.description) {
@@ -1919,7 +2461,7 @@ function formatJSONContent(jsonData) {
     
     if (jsonData.pricingStrategy) {
         html += '<div class="content-section">';
-        html += '<h3>💰 Pricing Strategy</h3>';
+        html += '<h3><i class="fa fa-money"></i> Pricing Strategy</h3>';
         html += `<p>${jsonData.pricingStrategy}</p>`;
         html += '</div>';
     }
@@ -1962,7 +2504,7 @@ function updateStatus(type, status) {
     const element = document.getElementById(`${type}Status`);
     element.textContent = status;
     element.className = `status-value ${status}`;
-    console.log(`✅ ${type} status updated to:`, status);
+    console.log(`${type} status updated to:`, status);
 }
 
 
@@ -1989,7 +2531,7 @@ function updateStorageStatus() {
     element.textContent = status;
     element.className = `status-value ${statusClass}`;
     
-    console.log(`✅ Storage status updated to: ${status}`);
+    console.log(`Storage status updated to: ${status}`);
 }
 
 function showTab(tabName) {
@@ -2018,12 +2560,14 @@ function showTab(tabName) {
 function enableAllTabs() {
     document.getElementById('technicalTab').disabled = false;
     document.getElementById('marketTab').disabled = false;
+    document.getElementById('designTab').disabled = false;
     document.getElementById('diagramsTab').disabled = false;
 }
 
 function disableTechnicalTabs() {
     document.getElementById('technicalTab').disabled = true;
     document.getElementById('marketTab').disabled = true;
+    document.getElementById('designTab').disabled = true;
     document.getElementById('diagramsTab').disabled = true;
 }
 
@@ -2062,10 +2606,10 @@ async function saveSpecToFirebase(user, specData) {
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         };
         
-        console.log('📄 Spec document to save:', specDoc);
+        console.log('Spec document to save:', specDoc);
         
         const docRef = await firebase.firestore().collection('specs').add(specDoc);
-        console.log('✅ Spec saved successfully with ID:', docRef.id);
+        console.log('Spec saved successfully with ID:', docRef.id);
         
         // Show success notification
         showNotification('Specification saved successfully!', 'success');
@@ -2076,7 +2620,7 @@ async function saveSpecToFirebase(user, specData) {
         return docRef.id;
         
     } catch (error) {
-        console.error('❌ Error saving spec to Firebase:', error);
+        console.error('Error saving spec to Firebase:', error);
         
         // Show error notification
         showNotification(`Failed to save specification: ${error.message}`, 'error');
@@ -2091,9 +2635,9 @@ async function approveOverview() {
     try {
         isLoading = true;
         document.getElementById('approveBtn').disabled = true;
-        document.getElementById('approveBtn').textContent = '⏳ Generating...';
+        document.getElementById('approveBtn').textContent = 'Generating...';
         
-        console.log('✅ Approving overview and generating additional specs...');
+        console.log('Approving overview and generating additional specs...');
         
         // Check if user is authenticated
         const user = firebase.auth().currentUser;
@@ -2113,13 +2657,14 @@ async function approveOverview() {
                     status: {
                         overview: "ready",
                         technical: "generating",
-                        market: "generating"
+                        market: "generating",
+                        design: "generating"
                     },
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
-                console.log('✅ Firebase updated with approval status');
+                console.log('Firebase updated with approval status');
             } catch (error) {
-                console.warn('⚠️ Failed to update Firebase:', error);
+                console.warn('Failed to update Firebase:', error);
                 showNotification('Failed to update database. Continuing locally...', 'error');
             }
         }
@@ -2128,81 +2673,133 @@ async function approveOverview() {
         currentSpecData.overviewApproved = true;
         currentSpecData.status.technical = "generating";
         currentSpecData.status.market = "generating";
+        currentSpecData.status.design = "generating";
         
         // Update UI
         updateStatus('technical', 'generating');
         updateStatus('market', 'generating');
+        updateStatus('design', 'generating');
         
-        // Generate technical and market specs in parallel
-        console.log('🚀 Starting parallel generation of technical and market specs...');
-        const [technicalResult, marketResult] = await Promise.allSettled([
-            generateTechnicalSpec(),
-            generateMarketSpec()
-        ]);
+        // Generate technical, market, and design specs sequentially
+        console.log('Starting sequential generation of technical, market, and design specs...');
         
+        // Generate Technical Spec first
+        console.log('Generating Technical Specification...');
+        let technicalContent;
+        try {
+            technicalContent = await generateTechnicalSpec();
+            console.log('Technical specification generated successfully');
+        } catch (error) {
+            console.error('Technical specification failed:', error);
+            technicalContent = 'error';
+        }
         
-        // Handle results
-        const technicalContent = technicalResult.status === 'fulfilled' ? technicalResult.value : 'error';
-        const marketContent = marketResult.status === 'fulfilled' ? marketResult.value : 'error';
+        // Update UI and Firebase for Technical
+        currentSpecData.technical = technicalContent;
+        currentSpecData.status.technical = technicalContent === 'error' ? "error" : "ready";
+        updateStatus('technical', currentSpecData.status.technical);
+        displayTechnical(technicalContent);
         
-        
-        // Update Firebase with results if user is authenticated
         if (user && currentSpecData && currentSpecData.id) {
             try {
                 await firebase.firestore().collection('specs').doc(currentSpecData.id).update({
                     technical: technicalContent,
-                    market: marketContent,
-                    status: {
-                        overview: "ready",
-                        technical: technicalContent === 'error' ? "error" : "ready",
-                        market: marketContent === 'error' ? "error" : "ready"
-                    },
+                    'status.technical': currentSpecData.status.technical,
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
-                console.log('✅ Firebase updated with technical and market content');
             } catch (error) {
-                console.warn('⚠️ Failed to update Firebase with results:', error);
-                showNotification('Failed to save results to database. Saved locally only.', 'error');
+                console.warn('Failed to update Firebase with technical content:', error);
             }
         }
         
-        // Update local data
-        currentSpecData.technical = technicalContent;
+        // Generate Market Spec second
+        console.log('Generating Market Specification...');
+        let marketContent;
+        try {
+            marketContent = await generateMarketSpec();
+            console.log('Market specification generated successfully');
+        } catch (error) {
+            console.error('Market specification failed:', error);
+            marketContent = 'error';
+        }
+        
+        // Update UI and Firebase for Market
         currentSpecData.market = marketContent;
-        currentSpecData.status.technical = technicalContent === 'error' ? "error" : "ready";
         currentSpecData.status.market = marketContent === 'error' ? "error" : "ready";
+        updateStatus('market', currentSpecData.status.market);
+        displayMarket(marketContent);
+        
+        if (user && currentSpecData && currentSpecData.id) {
+            try {
+                await firebase.firestore().collection('specs').doc(currentSpecData.id).update({
+                    market: marketContent,
+                    'status.market': currentSpecData.status.market,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            } catch (error) {
+                console.warn('Failed to update Firebase with market content:', error);
+            }
+        }
+        
+        // Generate Design Spec third
+        console.log('Generating Design Specification...');
+        let designContent;
+        try {
+            designContent = await generateDesignSpec();
+            console.log('Design specification generated successfully');
+        } catch (error) {
+            console.error('Design specification failed:', error);
+            designContent = 'error';
+        }
+        
+        // Update UI and Firebase for Design
+        currentSpecData.design = designContent;
+        currentSpecData.status.design = designContent === 'error' ? "error" : "ready";
+        updateStatus('design', currentSpecData.status.design);
+        displayDesign(designContent);
+        
+        if (user && currentSpecData && currentSpecData.id) {
+            try {
+                await firebase.firestore().collection('specs').doc(currentSpecData.id).update({
+                    design: designContent,
+                    'status.design': currentSpecData.status.design,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            } catch (error) {
+                console.warn('Failed to update Firebase with design content:', error);
+            }
+        }
         
         // Update localStorage (for both authenticated and unauthenticated users)
         localStorage.setItem('generatedOverviewContent', currentSpecData.overview);
         localStorage.setItem('generatedTechnicalContent', technicalContent);
         localStorage.setItem('generatedMarketContent', marketContent);
+        localStorage.setItem('generatedDesignContent', designContent);
         if (currentSpecData.id) {
             localStorage.setItem(`specBackup_${currentSpecData.id}`, JSON.stringify(currentSpecData));
         }
         
-        // Update UI
-        updateStatus('technical', currentSpecData.status.technical);
-        updateStatus('market', currentSpecData.status.market);
-        
-        displayTechnical(technicalContent);
-        displayMarket(marketContent);
-        
         enableAllTabs();
         hideApproveButton();
         
+        // Show generate diagrams button if technical spec is ready
+        if (currentSpecData.status.technical === 'ready') {
+            document.getElementById('generateDiagramsBtn').style.display = 'inline-block';
+        }
+        
         // Show success message
-        if (technicalContent !== 'error' && marketContent !== 'error') {
-            showNotification('Technical and market specifications generated successfully!', 'success');
+        if (technicalContent !== 'error' && marketContent !== 'error' && designContent !== 'error') {
+            showNotification('All specifications generated successfully!', 'success');
         } else {
             showNotification('Some specifications failed to generate. You can retry using the retry buttons.', 'error');
         }
         
-        console.log('✅ Additional specs generated successfully');
+        console.log('Additional specs generated successfully');
         
     } catch (error) {
-        console.error('❌ Error generating additional specs:', error);
-        console.error('❌ Error details:', error.message);
-        console.error('❌ Error stack:', error.stack);
+        console.error('Error generating additional specs:', error);
+        console.error('Error details:', error.message);
+        console.error('Error stack:', error.stack);
         
         // Show error notification
         showNotification(`Error generating specifications: ${error.message}`, 'error');
@@ -2210,9 +2807,11 @@ async function approveOverview() {
         // Update status to error
         updateStatus('technical', 'error');
         updateStatus('market', 'error');
+        updateStatus('design', 'error');
         
         displayTechnical('error');
         displayMarket('error');
+        displayDesign('error');
         
         enableAllTabs();
         hideApproveButton();
@@ -2220,12 +2819,12 @@ async function approveOverview() {
     } finally {
         isLoading = false;
         document.getElementById('approveBtn').disabled = false;
-        document.getElementById('approveBtn').textContent = '✅ Approve Overview';
+        document.getElementById('approveBtn').textContent = 'Approve Overview';
     }
 }
 
 async function generateTechnicalSpec(retryCount = 0, maxRetries = 2) {
-    console.log(`🚀 Starting generateTechnicalSpec... (attempt ${retryCount + 1}/${maxRetries + 1})`);
+    console.log(`Starting generateTechnicalSpec... (attempt ${retryCount + 1}/${maxRetries + 1})`);
     
     const prompt = PROMPTS.technical(currentSpecData.overview, currentSpecData.answers);
     
@@ -2264,14 +2863,14 @@ async function generateTechnicalSpec(retryCount = 0, maxRetries = 2) {
         
         if (!response.ok) {
             const errorText = await response.text();
-            console.error('❌ Technical API Error Response:', errorText);
+            console.error('Technical API Error Response:', errorText);
             throw new Error(`API Error: ${response.status} - ${errorText}`);
         }
         
         const responseText = await response.text();
         
         const data = JSON.parse(responseText);
-        console.log('✅ Successfully parsed technical JSON response:', data);
+        console.log('Successfully parsed technical JSON response:', data);
         
         const result = data.technical ? JSON.stringify(data.technical, null, 2) : 'No technical specification generated';
         
@@ -2281,25 +2880,25 @@ async function generateTechnicalSpec(retryCount = 0, maxRetries = 2) {
         clearTimeout(timeoutId);
         
         if (error.name === 'AbortError') {
-            console.error(`❌ Technical API call timed out after 60 seconds (attempt ${retryCount + 1})`);
+            console.error(`Technical API call timed out after 60 seconds (attempt ${retryCount + 1})`);
             
             // Auto-retry on timeout if we haven't exceeded max retries
             if (retryCount < maxRetries) {
-                console.log(`🔄 Auto-retrying technical spec generation... (${retryCount + 1}/${maxRetries})`);
+                console.log(`Auto-retrying technical spec generation... (${retryCount + 1}/${maxRetries})`);
                 await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds before retry
                 return await generateTechnicalSpec(retryCount + 1, maxRetries);
             } else {
                 throw new Error('API call timed out after 60 seconds. Please try again.');
             }
         } else {
-            console.error('❌ Technical API call failed:', error);
+            console.error('Technical API call failed:', error);
             throw error;
         }
     }
 }
 
 async function generateMarketSpec() {
-    console.log('🚀 Starting generateMarketSpec...');
+    console.log('Starting generateMarketSpec...');
     
     const prompt = PROMPTS.market(currentSpecData.overview, currentSpecData.answers);
     
@@ -2338,14 +2937,14 @@ async function generateMarketSpec() {
         
         if (!response.ok) {
             const errorText = await response.text();
-            console.error('❌ Market API Error Response:', errorText);
+            console.error('Market API Error Response:', errorText);
             throw new Error(`API Error: ${response.status} - ${errorText}`);
         }
         
         const responseText = await response.text();
         
         const data = JSON.parse(responseText);
-        console.log('✅ Successfully parsed market JSON response:', data);
+        console.log('Successfully parsed market JSON response:', data);
         
         const result = data.market ? JSON.stringify(data.market, null, 2) : 'No market research generated';
         
@@ -2355,10 +2954,76 @@ async function generateMarketSpec() {
         clearTimeout(timeoutId);
         
         if (error.name === 'AbortError') {
-            console.error('❌ Market API call timed out after 30 seconds');
+            console.error('Market API call timed out after 30 seconds');
             throw new Error('API call timed out. Please try again.');
         } else {
-            console.error('❌ Market API call failed:', error);
+            console.error('Market API call failed:', error);
+            throw error;
+        }
+    }
+}
+
+async function generateDesignSpec() {
+    console.log('Starting generateDesignSpec...');
+    
+    const prompt = PROMPTS.design(currentSpecData.overview, currentSpecData.answers);
+    
+    const requestBody = {
+        stage: 'design',
+        locale: 'en-US',
+        temperature: 0,
+        prompt: {
+            system: 'You are a UX/UI design specialist and branding expert. Generate comprehensive design guidelines and branding elements.',
+            developer: 'Create detailed design specifications including color schemes, typography, UI components, user experience guidelines, and branding elements.',
+            user: prompt
+        }
+    };
+    
+    
+    
+    // Create AbortController for timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+    
+    try {
+        const response = await fetch('https://spspec.shalom-cohen-111.workers.dev/generate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestBody),
+            signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+        
+        console.log('  - Status:', response.status);
+        console.log('  - Status Text:', response.statusText);
+        console.log('  - OK:', response.ok);
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Design API Error Response:', errorText);
+            throw new Error(`API Error: ${response.status} - ${errorText}`);
+        }
+        
+        const responseText = await response.text();
+        
+        const data = JSON.parse(responseText);
+        console.log('Successfully parsed design JSON response:', data);
+        
+        const result = data.design ? JSON.stringify(data.design, null, 2) : 'No design specification generated';
+        
+        return result;
+        
+    } catch (error) {
+        clearTimeout(timeoutId);
+        
+        if (error.name === 'AbortError') {
+            console.error('Design API call timed out after 30 seconds');
+            throw new Error('API call timed out. Please try again.');
+        } else {
+            console.error('Design API call failed:', error);
             throw error;
         }
     }
@@ -2402,21 +3067,21 @@ async function retryTechnical() {
             document.getElementById('retryTechnicalBtn').style.display = 'none';
             
             showNotification('Technical specification generated successfully!', 'success');
-            console.log('✅ Technical retry successful');
+            console.log('Technical retry successful');
             return;
             
         } catch (error) {
             retryCount++;
-            console.error(`❌ Technical retry attempt ${retryCount} failed:`, error);
+            console.error(`Technical retry attempt ${retryCount} failed:`, error);
             
             if (retryCount >= maxRetries) {
                 // Final failure
                 document.getElementById('retryTechnicalBtn').disabled = false;
-                document.getElementById('retryTechnicalBtn').textContent = '🔄 Retry';
+                document.getElementById('retryTechnicalBtn').textContent = 'Retry';
                 
                 showNotification(`Failed to generate technical specification after ${maxRetries} attempts. ${error.message}`, 'error');
                 updateStatus('technical', 'error');
-                console.error('❌ All technical retry attempts failed');
+                console.error('All technical retry attempts failed');
                 return;
             } else {
                 // Wait before next retry
@@ -2464,21 +3129,21 @@ async function retryMarket() {
             document.getElementById('retryMarketBtn').style.display = 'none';
             
             showNotification('Market research generated successfully!', 'success');
-            console.log('✅ Market retry successful');
+            console.log('Market retry successful');
             return;
             
         } catch (error) {
             retryCount++;
-            console.error(`❌ Market retry attempt ${retryCount} failed:`, error);
+            console.error(`Market retry attempt ${retryCount} failed:`, error);
             
             if (retryCount >= maxRetries) {
                 // Final failure
                 document.getElementById('retryMarketBtn').disabled = false;
-                document.getElementById('retryMarketBtn').textContent = '🔄 Retry';
+                document.getElementById('retryMarketBtn').textContent = 'Retry';
                 
                 showNotification(`Failed to generate market research after ${maxRetries} attempts. ${error.message}`, 'error');
                 updateStatus('market', 'error');
-                console.error('❌ All market retry attempts failed');
+                console.error('All market retry attempts failed');
                 return;
             } else {
                 // Wait before next retry
@@ -2523,9 +3188,9 @@ async function generateDiagrams() {
         isLoading = true;
         const generateBtn = document.getElementById('generateDiagramsBtn');
         generateBtn.disabled = true;
-        generateBtn.textContent = '⏳ Generating Diagrams...';
+        generateBtn.textContent = 'Generating Diagrams...';
         
-        console.log('🚀 Starting diagram generation...');
+        console.log('Starting diagram generation...');
         
         // Check if technical spec exists
         if (!currentSpecData.technical || currentSpecData.technical === 'error') {
@@ -2537,8 +3202,13 @@ async function generateDiagrams() {
         
         const requestBody = {
             stage: 'diagrams',
-            prompt: prompt,
-            specId: currentSpecData.id
+            locale: 'en-US',
+            temperature: 0,
+            prompt: {
+                system: 'You are a highly experienced software architect and technical diagram specialist. Generate detailed Mermaid diagrams.',
+                developer: 'Create comprehensive technical diagrams including user flow, system architecture, data schema, sequence diagrams, and component diagrams.',
+                user: prompt
+            }
         };
         
         const controller = new AbortController();
@@ -2558,7 +3228,7 @@ async function generateDiagrams() {
             
             if (!response.ok) {
                 const errorText = await response.text();
-                console.error('❌ Diagrams API Error Response:', errorText);
+                console.error('Diagrams API Error Response:', errorText);
                 throw new Error(`API Error: ${response.status} - ${errorText}`);
             }
             
@@ -2580,9 +3250,9 @@ async function generateDiagrams() {
                             },
                             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                         });
-                        console.log('✅ Diagrams saved to Firebase');
+                        console.log('Diagrams saved to Firebase');
                     } catch (error) {
-                        console.warn('⚠️ Failed to save diagrams to Firebase:', error);
+                        console.warn('Failed to save diagrams to Firebase:', error);
                     }
                 }
                 
@@ -2606,16 +3276,16 @@ async function generateDiagrams() {
             clearTimeout(timeoutId);
             
             if (error.name === 'AbortError') {
-                console.error('❌ Diagrams API call timed out after 60 seconds');
+                console.error('Diagrams API call timed out after 60 seconds');
                 throw new Error('Request timed out. Please try again.');
             } else {
-                console.error('❌ Diagrams API call failed:', error);
+                console.error('Diagrams API call failed:', error);
                 throw error;
             }
         }
         
     } catch (error) {
-        console.error('❌ Error generating diagrams:', error);
+        console.error('Error generating diagrams:', error);
         showError(`Failed to generate diagrams: ${error.message}`);
         
         // Reset button
@@ -2631,7 +3301,7 @@ function displayDiagrams(diagramsArray) {
     const container = document.getElementById('diagrams-data');
     
     if (!diagramsArray || diagramsArray.length === 0) {
-        container.innerHTML = '<div class="diagram-error"><h3>❌ No Diagrams Generated</h3><p>Failed to generate diagrams. Please try again.</p></div>';
+        container.innerHTML = '<div class="diagram-error"><h3><i class="fa fa-times-circle"></i> No Diagrams Generated</h3><p>Failed to generate diagrams. Please try again.</p></div>';
         return;
     }
     
@@ -2651,10 +3321,10 @@ function displayDiagrams(diagramsArray) {
             <h3>${diagram.title}</h3>
             <div class="diagram-controls">
                 <button onclick="openFullscreen('${diagram.id}')" class="btn-icon" title="Fullscreen">
-                    <i class="fas fa-expand"></i>
+                    ⛶
                 </button>
                 <button onclick="refreshDiagram('${diagram.id}')" class="btn-icon" title="Refresh">
-                    <i class="fas fa-sync"></i>
+                    ↻
                 </button>
             </div>
         `;
@@ -2716,7 +3386,7 @@ async function renderSingleDiagram(diagramData, containerId) {
                 await mermaid.init(undefined, mermaidElement);
                 statusIndicator.className = 'status-indicator ready';
                 statusText.textContent = 'Ready';
-                console.log(`✅ Diagram ${diagramData.id} rendered successfully`);
+                console.log(`Diagram ${diagramData.id} rendered successfully`);
             } catch (mermaidError) {
                 console.error(`❌ Mermaid rendering error for ${diagramData.id}:`, mermaidError);
                 // Try with MermaidManager if available
@@ -2725,13 +3395,15 @@ async function renderSingleDiagram(diagramData, containerId) {
                         await mermaidManager.renderChart(mermaidElement.id, diagramData.mermaidCode);
                         statusIndicator.className = 'status-indicator ready';
                         statusText.textContent = 'Ready';
-                        console.log(`✅ Diagram ${diagramData.id} rendered with MermaidManager`);
+                        console.log(`Diagram ${diagramData.id} rendered with MermaidManager`);
                     } catch (managerError) {
                         console.error(`❌ MermaidManager rendering failed for ${diagramData.id}:`, managerError);
-                        throw new Error('Mermaid rendering failed');
+                        // Auto-fix broken diagram
+                        await autoFixBrokenDiagram(diagramData.id);
                     }
                 } else {
-                    throw new Error('Mermaid rendering failed');
+                    // Auto-fix broken diagram
+                    await autoFixBrokenDiagram(diagramData.id);
                 }
             }
         } else if (mermaidManager && mermaidManager.isInitialized) {
@@ -2740,10 +3412,11 @@ async function renderSingleDiagram(diagramData, containerId) {
                 await mermaidManager.renderChart(mermaidElement.id, diagramData.mermaidCode);
                 statusIndicator.className = 'status-indicator ready';
                 statusText.textContent = 'Ready';
-                console.log(`✅ Diagram ${diagramData.id} rendered with MermaidManager`);
+                console.log(`Diagram ${diagramData.id} rendered with MermaidManager`);
             } catch (managerError) {
                 console.error(`❌ MermaidManager rendering error for ${diagramData.id}:`, managerError);
-                throw new Error('Mermaid rendering failed');
+                // Auto-fix broken diagram
+                await autoFixBrokenDiagram(diagramData.id);
             }
         } else {
             // Fallback: show raw code if Mermaid not available
@@ -2754,19 +3427,8 @@ async function renderSingleDiagram(diagramData, containerId) {
 
     } catch (error) {
         console.error(`❌ Error rendering diagram ${diagramData.id}:`, error);
-
-        container.innerHTML = `
-            <div class="diagram-error">
-                <h4>❌ Rendering Error</h4>
-                <p>Failed to render diagram: ${error.message}</p>
-                <button onclick="fixBrokenDiagram('${diagramData.id}')" class="btn btn-secondary">
-                    🔧 Fix Diagram
-                </button>
-            </div>
-        `;
-
-        statusIndicator.className = 'status-indicator error';
-        statusText.textContent = 'Error';
+        // Auto-fix broken diagram
+        await autoFixBrokenDiagram(diagramData.id);
     }
 }
 
@@ -2917,7 +3579,7 @@ function startAutoRefresh() {
         }
     }, 10000);
     
-    console.log('✅ Auto-refresh system started');
+    console.log('Auto-refresh system started');
 }
 
 function stopAutoRefresh() {
@@ -2941,12 +3603,124 @@ function checkDiagramsHealth() {
         const container = document.getElementById(`diagram-${diagram.id}-content`);
         if (container) {
             const mermaidElement = container.querySelector('.mermaid');
-            if (!mermaidElement || mermaidElement.children.length === 0) {
+            const errorElement = container.querySelector('.diagram-error');
+            const fixingElement = container.querySelector('.diagram-fixing');
+            
+            // Only refresh if diagram is truly broken and not already being fixed
+            if ((!mermaidElement || mermaidElement.children.length === 0) && 
+                !errorElement && 
+                !fixingElement &&
+                !fixAttempts.has(diagram.id)) {
+                
                 console.log(`⚠️ Diagram ${diagram.id} appears broken, refreshing...`);
                 refreshDiagram(diagram.id);
             }
         }
     });
+}
+
+async function autoFixBrokenDiagram(diagramId) {
+    console.log(`Auto-fixing broken diagram ${diagramId}`);
+    
+    const diagramData = diagramsData.find(d => d.id === diagramId);
+    if (!diagramData) return;
+    
+    // Check if we've already tried to fix this diagram too many times
+    const attempts = fixAttempts.get(diagramId) || 0;
+    if (attempts >= 3) {
+        console.log(`❌ Max auto-fix attempts (${attempts}) reached for diagram ${diagramId}, stopping auto-fix`);
+        return;
+    }
+    
+    // Increment attempt counter
+    fixAttempts.set(diagramId, attempts + 1);
+    
+    const container = document.getElementById(`diagram-${diagramId}-content`);
+    if (!container) {
+        console.error(`❌ Container not found for diagram ${diagramId}`);
+        return;
+    }
+    
+    const statusIndicator = container.parentElement?.querySelector('.status-indicator');
+    const statusText = container.parentElement?.querySelector('.status-text');
+    
+    // Show fixing status with null checks
+    if (statusIndicator) {
+        statusIndicator.className = 'status-indicator fixing';
+    }
+    if (statusText) {
+        statusText.textContent = 'Auto-fixing...';
+    }
+    container.innerHTML = '<div class="diagram-fixing"><h4><i class="fa fa-wrench"></i> Auto-fixing diagram...</h4><p>Please wait while we fix the syntax errors.</p></div>';
+    
+    try {
+        const requestBody = {
+            diagramId: diagramId,
+            diagramType: diagramData.type || 'flowchart',
+            brokenCode: diagramData.mermaidCode,
+            technicalSpec: currentSpecData.technical || 'N/A',
+            overview: currentSpecData.overview || 'N/A'
+        };
+        
+        const response = await fetch('https://spspec.shalom-cohen-111.workers.dev/fix-diagram', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestBody)
+        });
+        
+        if (!response.ok) {
+            throw new Error(`API Error: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        
+        if (result.correctedCode) {
+            // Update the diagram data
+            diagramData.mermaidCode = result.correctedCode;
+            
+            // Update Firebase
+            const user = firebase.auth().currentUser;
+            if (user && currentSpecData && currentSpecData.id) {
+                await firebase.firestore().collection('specs').doc(currentSpecData.id).update({
+                    'diagrams.diagrams': diagramsData,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            }
+            
+            // Re-render the diagram with corrected code
+            await renderSingleDiagram(diagramData, `diagram-${diagramId}-content`);
+            
+            // Reset fix attempts counter on success
+            fixAttempts.delete(diagramId);
+            
+            console.log(`Diagram ${diagramId} auto-fixed successfully`);
+        } else {
+            throw new Error('No corrected code received from API');
+        }
+        
+    } catch (error) {
+        console.error(`❌ Failed to auto-fix diagram ${diagramId}:`, error);
+        
+        // Show error with manual fix option
+        container.innerHTML = `
+            <div class="diagram-error">
+                <h4>❌ Auto-fix Failed</h4>
+                <p>Could not automatically fix the diagram: ${error.message}</p>
+                <button onclick="fixBrokenDiagram('${diagramId}')" class="btn btn-secondary">
+                    <i class="fa fa-wrench"></i> Try Manual Fix
+                </button>
+            </div>
+        `;
+        
+        if (statusIndicator) {
+            statusIndicator.className = 'status-indicator error';
+        }
+        if (statusText) {
+            statusText.textContent = 'Auto-fix Failed';
+        }
+    }
 }
 
 async function refreshDiagram(diagramId) {
@@ -2965,7 +3739,7 @@ async function refreshDiagram(diagramId) {
     
     try {
         await renderSingleDiagram(diagramData, `diagram-${diagramId}-content`);
-        console.log(`✅ Diagram ${diagramId} refreshed successfully`);
+        console.log(`Diagram ${diagramId} refreshed successfully`);
     } catch (error) {
         console.error(`❌ Failed to refresh diagram ${diagramId}:`, error);
         // Try to fix the diagram
@@ -2973,20 +3747,35 @@ async function refreshDiagram(diagramId) {
     }
 }
 
+// Track fix attempts to prevent infinite loops
+const fixAttempts = new Map();
+
 async function fixBrokenDiagram(diagramId) {
-    console.log(`🔧 Attempting to fix diagram ${diagramId}`);
+    console.log(`Attempting to fix diagram ${diagramId}`);
     
     const diagramData = diagramsData.find(d => d.id === diagramId);
     if (!diagramData) return;
     
+    // Check if we've already tried to fix this diagram too many times
+    const attempts = fixAttempts.get(diagramId) || 0;
+    if (attempts >= 3) {
+        console.log(`❌ Max fix attempts (${attempts}) reached for diagram ${diagramId}, stopping auto-fix`);
+        return;
+    }
+    
+    // Increment attempt counter
+    fixAttempts.set(diagramId, attempts + 1);
+    
     try {
         const requestBody = {
-            stage: 'diagrams',
-            prompt: `Fix this broken Mermaid diagram syntax:\n\n${diagramData.mermaidCode}\n\nReturn ONLY the corrected Mermaid code.`,
-            specId: currentSpecData.id
+            diagramId: diagramId,
+            diagramType: diagramData.type || 'flowchart',
+            brokenCode: diagramData.mermaidCode,
+            technicalSpec: currentSpecData.technical || 'N/A',
+            overview: currentSpecData.overview || 'N/A'
         };
         
-        const response = await fetch('https://spspec.shalom-cohen-111.workers.dev/generate', {
+        const response = await fetch('https://spspec.shalom-cohen-111.workers.dev/fix-diagram', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -3002,23 +3791,26 @@ async function fixBrokenDiagram(diagramId) {
         
         if (result.correctedCode) {
             diagramData.mermaidCode = result.correctedCode;
-        } else if (data.correctedCode) {
-            diagramData.mermaidCode = data.correctedCode;
+            
+            // Update Firebase
+            const user = firebase.auth().currentUser;
+            if (user && currentSpecData && currentSpecData.id) {
+                await firebase.firestore().collection('specs').doc(currentSpecData.id).update({
+                    'diagrams.diagrams': diagramsData,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            }
+            
+            // Re-render the diagram
+            await renderSingleDiagram(diagramData, `diagram-${diagramId}-content`);
+            
+            // Reset fix attempts counter on success
+            fixAttempts.delete(diagramId);
+            
+            console.log(`Diagram ${diagramId} fixed successfully`);
+        } else {
+            throw new Error('No corrected code received from API');
         }
-        
-        // Update Firebase
-        const user = firebase.auth().currentUser;
-        if (user && currentSpecData && currentSpecData.id) {
-            await firebase.firestore().collection('specs').doc(currentSpecData.id).update({
-                'diagrams.diagrams': diagramsData,
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-        }
-        
-        // Re-render the diagram
-        await renderSingleDiagram(diagramData, `diagram-${diagramId}-content`);
-        
-        console.log(`✅ Diagram ${diagramId} fixed successfully`);
         
     } catch (error) {
         console.error(`❌ Failed to fix diagram ${diagramId}:`, error);
@@ -3033,7 +3825,7 @@ function updateDiagramsStatus(status) {
     }
 }
 
-console.log('✅ Spec Viewer - Ready!');
+console.log('Spec Viewer - Ready!');
 </script>
     </main>
     
@@ -3050,10 +3842,18 @@ console.log('✅ Spec Viewer - Ready!');
     </div>
     <span class="footer-divider">|</span>
     <div class="footer-social">
-      <a href="https://www.linkedin.com/company/specifys-ai/" target="_blank" aria-label="Follow us on LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-      <a href="https://www.facebook.com/profile.php?id=61576402600129&locale=he_IL" target="_blank" aria-label="Follow us on Facebook"><i class="fab fa-facebook-f"></i></a>
-      <a href="mailto:specifysai@gmail.com" aria-label="Send us an email"><i class="fas fa-envelope"></i></a>
-      <a href="https://www.producthunt.com/products/specifys-ai" target="_blank" aria-label="Check us out on Product Hunt"><i class="fab fa-product-hunt"></i></a>
+      <a href="https://www.linkedin.com/company/specifys-ai/" target="_blank" aria-label="Follow us on LinkedIn">
+        LinkedIn
+      </a>
+      <a href="https://www.facebook.com/profile.php?id=61576402600129&locale=he_IL" target="_blank" aria-label="Follow us on Facebook">
+        Facebook
+      </a>
+      <a href="mailto:specifysai@gmail.com" aria-label="Send us an email">
+        Email
+      </a>
+      <a href="https://www.producthunt.com/products/specifys-ai" target="_blank" aria-label="Check us out on Product Hunt">
+        Product Hunt
+      </a>
     </div>
   </div>
   <div class="footer-copyright">
@@ -3065,7 +3865,7 @@ console.log('✅ Spec Viewer - Ready!');
     <!-- Scroll to top button -->
     <!-- Scroll to top button -->
 <button class="icon-btn scroll-to-top" id="scrollToTop" aria-label="Scroll">
-  <i class="fas fa-arrow-up"></i>
+  ↑
 </button>
 
 <script>
@@ -3201,6 +4001,20 @@ console.log('✅ Spec Viewer - Ready!');
         });
       }
     }
+    
+    // Debug: Count icons after page load
+    setTimeout(() => {
+      const fontAwesomeIcons = document.querySelectorAll('i.fa');
+      console.log('FINAL DEBUG:');
+      console.log('Font Awesome Icons found:', fontAwesomeIcons.length);
+      console.log('Expected: Font Awesome > 0');
+      
+      if (fontAwesomeIcons.length > 0) {
+        console.log('SUCCESS: Font Awesome Classic Regular icons loaded!');
+      } else {
+        console.log('ISSUE: No Font Awesome icons found');
+      }
+    }, 1000);
   });
 </script>
 

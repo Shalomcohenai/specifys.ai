@@ -334,7 +334,6 @@ async function updateSitemap(date, slug, title) {
             sitemapFile.sha
         );
 
-        console.log('Sitemap updated successfully');
     } catch (error) {
         console.error('Error updating sitemap:', error);
         // Don't fail the post creation if sitemap update fails
@@ -372,7 +371,6 @@ async function removeFromSitemap(filename) {
             sitemapFile.sha
         );
 
-        console.log('Post removed from sitemap');
     } catch (error) {
         console.error('Error removing from sitemap:', error);
     }

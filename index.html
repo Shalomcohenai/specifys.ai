@@ -42,23 +42,26 @@
     
     <!-- CSS -->
     <link rel="stylesheet" href="/assets/css/main.css">
+    <link rel="stylesheet" href="/assets/css/pages/index.css">
     
     
     
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Font Awesome Classic Regular -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="dns-prefetch" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet"></noscript>
     
     <!-- Mermaid for diagrams (used in demo, spec, research pages) -->
-    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
     
     <!-- Marked for markdown parsing -->
-    <script src="https://cdn.jsdelivr.net/npm/marked@4.3.0/marked.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/marked@4.3.0/marked.min.js"></script>
     
     <!-- Highlight.js for syntax highlighting -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
@@ -76,7 +79,7 @@
   gtag('config', 'G-RWBT69JCM7');
 </script>
 
-
+    <!-- Analytics Events -->
     <script>
 // Central Analytics Event Tracking System for Specifys.ai
 // This file contains reusable tracking functions for consistent analytics across the site
@@ -536,7 +539,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="tools-showcase">
       <div class="tool-square" data-tool="tools-map">
         <div class="icon">
-          <i class="fas fa-map"></i>
+          <i class="fa fa-map"></i>
         </div>
         <div class="content">
           <h3>Tools Map</h3>
@@ -546,7 +549,7 @@ document.addEventListener('DOMContentLoaded', function() {
       </div>
       <div class="tool-square" data-tool="tool-finder">
         <div class="icon">
-          <i class="fas fa-search"></i>
+          <i class="fa fa-search"></i>
         </div>
         <div class="content">
           <h3>Tool Finder</h3>
@@ -556,7 +559,7 @@ document.addEventListener('DOMContentLoaded', function() {
       </div>
       <div class="tool-square" data-tool="no-code">
         <div class="icon">
-          <i class="fas fa-code"></i>
+          <i class="fa fa-code"></i>
         </div>
         <div class="content">
           <h3>No Code Mode</h3>
@@ -566,7 +569,7 @@ document.addEventListener('DOMContentLoaded', function() {
       </div>
       <div class="tool-square" data-tool="market-research">
         <div class="icon">
-          <i class="fas fa-chart-line"></i>
+          <i class="fa fa-line-chart"></i>
         </div>
         <div class="content">
           <h3>Market Research</h3>
@@ -576,7 +579,7 @@ document.addEventListener('DOMContentLoaded', function() {
       </div>
       <div class="tool-square" data-tool="app-management">
         <div class="icon">
-          <i class="fas fa-cogs"></i>
+          <i class="fa fa-cogs"></i>
         </div>
         <div class="content">
           <h3>App Management</h3>
@@ -586,7 +589,7 @@ document.addEventListener('DOMContentLoaded', function() {
       </div>
       <div class="tool-square plan-smart">
         <div class="icon">
-          <i class="fas fa-lightbulb"></i>
+          <i class="fa fa-lightbulb-o"></i>
         </div>
         <div class="content">
           <h3>Plan Smart</h3>
@@ -645,80 +648,80 @@ document.addEventListener('DOMContentLoaded', function() {
       <div class="comparison-content">
         <div class="comparison-column">
           <div class="comparison-title">
-            <i class="fas fa-user"></i>
+            <i class="fa fa-user"></i>
             <h4>Free User</h4>
           </div>
           <div class="comparison-features">
             <div class="feature-item">
-              <i class="fas fa-check"></i>
+              <i class="fa fa-check"></i>
               <span>Generate AI specs</span>
             </div>
             <div class="feature-item">
-              <i class="fas fa-check"></i>
+              <i class="fa fa-check"></i>
               <span>Use Tools Map</span>
             </div>
             <div class="feature-item">
-              <i class="fas fa-check"></i>
+              <i class="fa fa-check"></i>
               <span>Use Tool Finder</span>
             </div>
             <div class="feature-item">
-              <i class="fas fa-check"></i>
+              <i class="fa fa-check"></i>
               <span>Market research</span>
             </div>
             <div class="feature-item disabled">
-              <i class="fas fa-times"></i>
+              <i class="fa fa-times"></i>
               <span>Save specs</span>
             </div>
             <div class="feature-item disabled">
-              <i class="fas fa-times"></i>
+              <i class="fa fa-times"></i>
               <span>Save market research</span>
             </div>
             <div class="feature-item disabled">
-              <i class="fas fa-times"></i>
+              <i class="fa fa-times"></i>
               <span>Manage apps</span>
             </div>
             <div class="feature-item disabled">
-              <i class="fas fa-times"></i>
+              <i class="fa fa-times"></i>
               <span>Save favorite tools</span>
             </div>
           </div>
         </div>
         <div class="comparison-column">
           <div class="comparison-title">
-            <i class="fas fa-user-plus"></i>
+            <i class="fa fa-user-plus"></i>
             <h4>Registered User</h4>
           </div>
           <div class="comparison-features">
             <div class="feature-item">
-              <i class="fas fa-check"></i>
+              <i class="fa fa-check"></i>
               <span>Generate AI specs</span>
             </div>
             <div class="feature-item">
-              <i class="fas fa-check"></i>
+              <i class="fa fa-check"></i>
               <span>Use Tools Map</span>
             </div>
             <div class="feature-item">
-              <i class="fas fa-check"></i>
+              <i class="fa fa-check"></i>
               <span>Use Tool Finder</span>
             </div>
             <div class="feature-item">
-              <i class="fas fa-check"></i>
+              <i class="fa fa-check"></i>
               <span>Market research</span>
             </div>
             <div class="feature-item premium">
-              <i class="fas fa-check"></i>
+              <i class="fa fa-check"></i>
               <span>Save specs</span>
             </div>
             <div class="feature-item premium">
-              <i class="fas fa-check"></i>
+              <i class="fa fa-check"></i>
               <span>Save market research</span>
             </div>
             <div class="feature-item premium">
-              <i class="fas fa-check"></i>
+              <i class="fa fa-check"></i>
               <span>Manage apps</span>
             </div>
             <div class="feature-item premium">
-              <i class="fas fa-check"></i>
+              <i class="fa fa-check"></i>
               <span>Save favorite tools</span>
             </div>
           </div>
@@ -736,42 +739,42 @@ document.addEventListener('DOMContentLoaded', function() {
     <p>Your complete AI-powered app planning ecosystem—from idea to launch!</p>
     <div class="benefits-container">
       <div class="benefit-card">
-        <div class="benefit-icon"><i class="fas fa-map"></i></div>
+        <div class="benefit-icon"><i class="fa fa-map"></i></div>
         <div class="benefit-content">
           <h3>Vibe Coding Tools Map</h3>
           <p>Discover curated AI-driven development tools, all organized and categorized.</p>
         </div>
       </div>
       <div class="benefit-card">
-        <div class="benefit-icon"><i class="fas fa-search"></i></div>
+        <div class="benefit-icon"><i class="fa fa-search"></i></div>
         <div class="benefit-content">
           <h3>Smart Tool Finder</h3>
           <p>Find the perfect tools for your project with our AI-powered recommendation engine.</p>
         </div>
       </div>
       <div class="benefit-card">
-        <div class="benefit-icon"><i class="fas fa-users"></i></div>
+        <div class="benefit-icon"><i class="fa fa-users"></i></div>
         <div class="benefit-content">
           <h3>User Management System</h3>
           <p>Save specs, market research, and manage complete app projects.</p>
         </div>
       </div>
       <div class="benefit-card">
-        <div class="benefit-icon"><i class="fas fa-chart-line"></i></div>
+        <div class="benefit-icon"><i class="fa fa-line-chart"></i></div>
         <div class="benefit-content">
           <h3>Market Research & Validation</h3>
           <p>Get AI-powered market insights and competitor analysis.</p>
         </div>
       </div>
       <div class="benefit-card">
-        <div class="benefit-icon"><i class="fas fa-cogs"></i></div>
+        <div class="benefit-icon"><i class="fa fa-cogs"></i></div>
         <div class="benefit-content">
           <h3>Complete Project Management</h3>
           <p>Plan, track, and manage your entire app development journey.</p>
         </div>
       </div>
       <div class="benefit-card">
-        <div class="benefit-icon"><i class="fas fa-gift"></i></div>
+        <div class="benefit-icon"><i class="fa fa-gift"></i></div>
         <div class="benefit-content">
           <h3>100% Free</h3>
           <p>Access all features without any cost—no hidden fees.</p>
@@ -820,7 +823,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="faq-list">
       <div class="faq-item">
         <div class="faq-question">
-          What's Specifys.ai all about? <i class="fas fa-chevron-down"></i>
+          What's Specifys.ai all about? <i class="fa fa-chevron-down"></i>
         </div>
         <div class="faq-answer">
           Specifys.ai is a complete AI-powered app planning ecosystem. Create specs, discover tools, manage projects—all free.
@@ -828,7 +831,7 @@ document.addEventListener('DOMContentLoaded', function() {
       </div>
       <div class="faq-item">
         <div class="faq-question">
-          Do I need to create an account? <i class="fas fa-chevron-down"></i>
+          Do I need to create an account? <i class="fa fa-chevron-down"></i>
         </div>
         <div class="faq-answer">
           Creating an account is optional but recommended! It allows you to save your specs and manage projects.
@@ -836,7 +839,7 @@ document.addEventListener('DOMContentLoaded', function() {
       </div>
       <div class="faq-item">
         <div class="faq-question">
-          Is it really 100% free? <i class="fas fa-chevron-down"></i>
+          Is it really 100% free? <i class="fa fa-chevron-down"></i>
         </div>
         <div class="faq-answer">
           Yes! All features are completely free. No hidden fees, no premium tiers.
@@ -844,7 +847,7 @@ document.addEventListener('DOMContentLoaded', function() {
       </div>
       <div class="faq-item">
         <div class="faq-question">
-          What is the Vibe Coding Tools Map? <i class="fas fa-chevron-down"></i>
+          What is the Vibe Coding Tools Map? <i class="fa fa-chevron-down"></i>
         </div>
         <div class="faq-answer">
           Our curated collection of AI-driven development tools, organized by category.
@@ -852,7 +855,7 @@ document.addEventListener('DOMContentLoaded', function() {
       </div>
       <div class="faq-item">
         <div class="faq-question">
-          How does the Tool Finder work? <i class="fas fa-chevron-down"></i>
+          How does the Tool Finder work? <i class="fa fa-chevron-down"></i>
         </div>
         <div class="faq-answer">
           Our AI analyzes your project needs and suggests the most suitable tools.
@@ -905,15 +908,15 @@ document.addEventListener('DOMContentLoaded', function() {
       <p>You can now save your specifications and manage your applications!</p>
       <div class="welcome-features">
         <div class="feature-highlight">
-          <i class="fas fa-save"></i>
+          <i class="fa fa-save"></i>
           <span>Save your specs</span>
         </div>
         <div class="feature-highlight">
-          <i class="fas fa-cogs"></i>
+          <i class="fa fa-cogs"></i>
           <span>Manage your apps</span>
         </div>
         <div class="feature-highlight">
-          <i class="fas fa-chart-line"></i>
+          <i class="fa fa-line-chart"></i>
           <span>Track progress</span>
         </div>
       </div>
@@ -925,1271 +928,8 @@ document.addEventListener('DOMContentLoaded', function() {
   </div>
 </div>
 
-<style>
-/* Index Page Specific Styles */
 
-/* Menu Toggle Button */
-.menu-toggle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 35px;
-  height: 35px;
-  background: #333;
-  border: none;
-  border-radius: 8px;
-  font-size: 1.3rem;
-  color: #fff;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
 
-.menu-toggle:hover {
-  background: #0078d4;
-}
-
-/* Clip-path menu */
-.clip-path-menu {
-  position: fixed;
-  top: 80px;
-  left: 20px;
-  width: 300px;
-  background: transparent;
-  color: rgba(0, 0, 0, 0.87);
-  z-index: 1000;
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(-20px);
-  transition: all 0.3s ease;
-}
-
-.clip-path-menu.active {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0);
-}
-
-.clip-path-menu a {
-  display: block;
-  line-height: 50px;
-  padding: 0 20px;
-  color: inherit;
-  cursor: pointer;
-  text-decoration: none;
-  font-weight: 500;
-  font-size: 0.9rem;
-  transition: opacity 0.3s ease, transform 0.3s ease, background-color 0.15s ease, color 0.15s ease;
-  background: white;
-  margin: 2px 0;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  opacity: 0;
-  transform: translateY(-10px);
-}
-
-.clip-path-menu.active a {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.clip-path-menu.active a:nth-child(2) { transition-delay: 0.1s; }
-.clip-path-menu.active a:nth-child(3) { transition-delay: 0.2s; }
-.clip-path-menu.active a:nth-child(4) { transition-delay: 0.3s; }
-.clip-path-menu.active a:nth-child(5) { transition-delay: 0.4s; }
-.clip-path-menu.active a:nth-child(6) { transition-delay: 0.5s; }
-
-.clip-path-menu a:hover { 
-  background: #0078d4; 
-  color: white;
-}
-
-/* Hero Section */
-.hero-hero-section {
-  width: 100%;
-  background: #fff;
-  padding: 8rem 0 4rem 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 105vh;
-}
-
-.hero-container {
-  width: 90%;
-  max-width: 1000px;
-  text-align: center;
-  background: #333;
-  border-radius: 20px;
-  padding: 6rem 2rem;
-  margin: 0 auto;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-  opacity: 0;
-  transform: translateY(20px);
-  animation: fadeInUp 1s ease-out 0.2s forwards;
-  min-height: 60vh;
-}
-
-.hero-title {
-  font-family: "Montserrat", sans-serif;
-  font-size: clamp(3rem, 10vw, 6rem);
-  font-weight: 700;
-  color: #fff;
-  margin-bottom: 2rem;
-  letter-spacing: 0.05em;
-  opacity: 0;
-  transform: translateY(30px);
-  animation: fadeInUp 0.8s ease-out 0.5s forwards;
-}
-
-.hero-dot {
-  color: #0078d4;
-}
-
-.hero-subtitle {
-  font-family: "Montserrat", sans-serif;
-  font-size: clamp(0.8rem, 2.4vw, 1.6rem);
-  font-weight: 400;
-  color: #fff;
-  margin: 0;
-  opacity: 0.85;
-  line-height: 1.3;
-  opacity: 0;
-  transform: translateY(30px);
-  animation: fadeInUp 0.8s ease-out 0.8s forwards;
-}
-
-.hero-subtitle p {
-  margin: 0.5rem 0;
-}
-
-.hero-button-container {
-  margin-top: 2rem;
-  opacity: 0;
-  transform: translateY(30px);
-  animation: fadeInUp 0.8s ease-out 1.1s forwards;
-}
-
-.hero-button {
-  font-family: "Montserrat", sans-serif;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.4rem;
-  background: #fff;
-  color: #333;
-  text-decoration: none;
-  padding: 0.56rem 1.4rem;
-  border-radius: 17.5px;
-  font-size: 0.9rem;
-  font-weight: 700;
-  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  animation: gentleBounce 4s ease-in-out infinite;
-  box-shadow: 0 2.1px 7px rgba(0, 0, 0, 0.1);
-  position: relative;
-  overflow: hidden;
-  min-width: 98px;
-}
-
-.hero-button:hover {
-  transform: translateY(-2px) scale(1.03);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-  background: #f8f9fa;
-  text-decoration: none;
-}
-
-.hero-demo-link {
-  margin-top: 2rem;
-  opacity: 0;
-  transform: translateY(20px);
-  animation: fadeInUp 0.8s ease-out 1.4s forwards;
-}
-
-.demo-link {
-  font-family: "Montserrat", sans-serif;
-  color: #fff;
-  opacity: 0.85;
-  text-decoration: none;
-  font-size: 0.8rem;
-  font-weight: 400;
-  transition: all 0.3s ease;
-}
-
-.demo-link:hover {
-  opacity: 1;
-  transform: translateY(-1px);
-  text-decoration: none;
-}
-
-/* Extra Sections */
-.extra-sections {
-  width: 100%;
-  max-width: 1200px;
-  padding: 4rem 1.5rem;
-  text-align: center;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.section {
-  margin-bottom: 4rem;
-  opacity: 0;
-  transform: translateY(20px);
-  animation: fadeInUp 1s ease forwards;
-  animation-delay: calc(0.2s * var(--section-index));
-  text-align: center;
-  width: 100%;
-}
-
-.section h2 {
-  font-size: clamp(2rem, 5vw, 3rem);
-  font-weight: 700;
-  color: #333;
-  margin-bottom: 1.5rem;
-}
-
-.section p {
-  font-size: clamp(1rem, 2vw, 1.2rem);
-  font-weight: 500;
-  color: #333;
-  max-width: 800px;
-  margin: 0 auto 1rem;
-  line-height: 1.6;
-}
-
-/* Stats List */
-.stats-list {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
-  margin: 2rem 0;
-  width: 100%;
-  max-width: 1000px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.stat-item {
-  padding: 1.5rem;
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 10px;
-  transition: transform 0.3s ease;
-}
-
-.stat-item:hover {
-  transform: translateY(-5px);
-}
-
-.stat-item h3 {
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: #333;
-  margin-bottom: 0.5rem;
-}
-
-.stat-item .stat-number {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #333;
-  margin-bottom: 0.5rem;
-}
-
-.stat-item p {
-  font-size: 1rem;
-  color: #333;
-}
-
-/* Use Cases */
-.use-cases-list {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
-  margin: 2rem 0;
-  max-width: 1000px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.use-case-item {
-  padding: 1.5rem;
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 10px;
-  transition: transform 0.3s ease;
-}
-
-.use-case-item:hover {
-  transform: translateY(-5px);
-}
-
-.use-case-item h3 {
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: #333;
-  margin-bottom: 0.5rem;
-}
-
-.use-case-item p {
-  font-size: 1rem;
-  color: #333;
-}
-
-/* Benefits */
-.benefits-container {
-  max-width: 800px;
-  margin: 2rem auto;
-  display: flex;
-  flex-direction: column;
-}
-
-.benefit-card {
-  display: flex;
-  align-items: center;
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 10px;
-  padding: 1.5rem;
-  margin-bottom: 1rem;
-  transition: transform 0.3s ease;
-}
-
-.benefit-card:hover {
-  transform: translateY(-5px);
-}
-
-.benefit-icon {
-  font-size: 2rem;
-  color: #333;
-  margin-right: 1rem;
-}
-
-.benefit-content {
-  text-align: center;
-  flex: 1;
-}
-
-.benefit-content h3 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #333;
-  margin-bottom: 0.5rem;
-}
-
-.benefit-content p {
-  font-size: 1rem;
-  color: #333;
-  line-height: 1.6;
-}
-
-/* FAQ */
-.faq-list {
-  max-width: 800px;
-  margin: 2rem auto;
-  text-align: center;
-}
-
-.faq-item {
-  margin-bottom: 1rem;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
-}
-
-.faq-question {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem 0;
-  cursor: pointer;
-  font-size: 1.1rem;
-  font-weight: 500;
-  color: #333;
-  transition: color 0.3s ease;
-}
-
-.faq-question:hover {
-  color: #0078d4;
-}
-
-.faq-question i {
-  transition: transform 0.3s ease;
-}
-
-.faq-question.open i {
-  transform: rotate(180deg);
-}
-
-.faq-answer {
-  max-height: 0;
-  overflow: hidden;
-  font-size: 1rem;
-  color: #333;
-  padding: 0 1rem;
-  transition: max-height 0.3s ease, padding 0.3s ease;
-}
-
-.faq-answer.open {
-  max-height: 200px;
-  padding: 1rem;
-}
-
-/* CTA Button */
-.cta-button {
-  display: inline-block;
-  background: #0078d4;
-  color: #fff;
-  border: none;
-  border-radius: 30px;
-  padding: 0.8rem 2rem;
-  font-size: 1rem;
-  font-weight: 700;
-  text-decoration: none;
-  transition: all 0.3s ease;
-  margin-top: 1rem;
-}
-
-.cta-button:hover {
-  background: #005ea2;
-  color: #fff;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  text-decoration: none;
-}
-
-/* Testimonials */
-.testimonials-container {
-  overflow: hidden;
-  position: relative;
-  width: 100%;
-  max-width: 1200px;
-  margin: 2rem auto;
-}
-
-.testimonials-gallery {
-  display: flex;
-  animation: scrollTestimonials 60s linear infinite;
-}
-
-.testimonials-gallery:hover {
-  animation-play-state: paused;
-}
-
-.testimonial-card {
-  flex: 0 0 300px;
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 10px;
-  padding: 1.5rem;
-  margin-right: 1.5rem;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease;
-}
-
-.testimonial-card:hover {
-  transform: translateY(-5px);
-}
-
-.testimonial-name {
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: #333;
-  margin-bottom: 0.5rem;
-}
-
-.testimonial-text {
-  font-size: 1rem;
-  color: #333;
-  line-height: 1.6;
-}
-
-/* Tools Showcase */
-.tools-showcase {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0;
-  max-width: 800px;
-  margin: 2rem auto;
-  border-radius: 20px;
-  overflow: hidden;
-  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
-}
-
-.tool-square {
-  position: relative;
-  aspect-ratio: 1;
-  background: #333;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.tool-square:hover,
-.tool-square.active {
-  background: #fff;
-  transform: translateY(-3px);
-  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2);
-  z-index: 10;
-}
-
-.tool-square .icon {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 3rem;
-  color: #fff;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.tool-square:hover .icon,
-.tool-square.active .icon {
-  opacity: 0;
-  transform: translate(-50%, -50%) scale(0.8);
-}
-
-.tool-square .content {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  opacity: 0;
-  transform: translateY(20px);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  pointer-events: none;
-}
-
-.tool-square:hover .content,
-.tool-square.active .content {
-  opacity: 1;
-  transform: translateY(0);
-  pointer-events: auto;
-}
-
-.tool-square .content h3 {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #333;
-  margin-bottom: 0.5rem;
-  text-align: center;
-}
-
-.tool-square .content p {
-  font-size: 0.85rem;
-  color: #666;
-  margin-bottom: 1rem;
-  text-align: center;
-  line-height: 1.4;
-}
-
-.tool-link {
-  display: inline-block;
-  background: #666;
-  color: #fff !important;
-  text-decoration: none;
-  padding: 0.5rem 1rem;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  transition: all 0.3s ease;
-}
-
-.tool-link:hover {
-  background: #555;
-  color: #fff !important;
-  text-decoration: none !important;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-}
-
-/* Mobile: Add visual indicator when expanded */
-@media (max-width: 768px) {
-  .tool-square.active .tool-link {
-    animation: pulseButton 1.5s ease-in-out infinite;
-  }
-  
-  @keyframes pulseButton {
-    0%, 100% {
-      transform: scale(1);
-    }
-    50% {
-      transform: scale(1.05);
-    }
-  }
-}
-
-/* Comparison Table */
-.comparison-table {
-  max-width: 800px;
-  margin: 2rem auto;
-  background: #333;
-  border-radius: 20px;
-  overflow: hidden;
-  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.3);
-}
-
-.comparison-header {
-  background: #333;
-  color: #fff;
-  padding: 1.5rem;
-  text-align: center;
-}
-
-.comparison-header h3 {
-  font-size: 1.4rem;
-  font-weight: 700;
-  margin-bottom: 0.4rem;
-  color: #fff;
-}
-
-.comparison-header p {
-  font-size: 0.9rem;
-  opacity: 0.8;
-  margin: 0;
-  color: #fff;
-}
-
-.comparison-content {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0;
-  background: #fff;
-}
-
-.comparison-column {
-  padding: 1.5rem;
-}
-
-.comparison-column:first-child {
-  border-right: 2px solid #f0f0f0;
-}
-
-.comparison-title {
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-  margin-bottom: 1rem;
-  padding-bottom: 0.8rem;
-  border-bottom: 2px solid #f0f0f0;
-}
-
-.comparison-title i {
-  font-size: 1.3rem;
-  color: #666;
-}
-
-.comparison-title h4 {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #333;
-  margin: 0;
-}
-
-.comparison-features {
-  display: flex;
-  flex-direction: column;
-  gap: 0.7rem;
-}
-
-.feature-item {
-  display: flex;
-  align-items: center;
-  gap: 0.7rem;
-  font-size: 0.9rem;
-  padding: 0.4rem 0;
-}
-
-.feature-item i {
-  font-size: 0.85rem;
-  width: 16px;
-  text-align: center;
-}
-
-.feature-item i.fa-check {
-  color: #28a745;
-}
-
-.feature-item i.fa-times {
-  color: #dc3545;
-}
-
-.feature-item span {
-  color: #333;
-  font-weight: 500;
-}
-
-.feature-item.disabled span {
-  color: #999;
-  text-decoration: line-through;
-}
-
-.feature-item.premium {
-  background: #333;
-  border: 2px solid #333;
-  border-radius: 10px;
-  padding: 0.6rem 0.8rem;
-  margin: 0.2rem 0;
-  position: relative;
-}
-
-.feature-item.premium::before {
-  content: "REGISTERED";
-  position: absolute;
-  top: -8px;
-  right: 8px;
-  background: #333;
-  color: #fff;
-  font-size: 0.7rem;
-  font-weight: 700;
-  padding: 2px 6px;
-  border-radius: 4px;
-}
-
-.feature-item.premium i {
-  color: #fff;
-}
-
-.feature-item.premium span {
-  color: #fff;
-  font-weight: 600;
-}
-
-.comparison-cta {
-  background: #333;
-  padding: 1.5rem;
-  text-align: center;
-  border-top: 2px solid #555;
-}
-
-.comparison-cta .cta-button {
-  background: #fff;
-  color: #333;
-}
-
-.comparison-cta .cta-button:hover {
-  background: #f0f0f0;
-}
-
-/* Welcome Modal */
-.welcome-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.8);
-  z-index: 1000;
-  display: none;
-  justify-content: center;
-  align-items: center;
-  animation: fadeIn 0.3s ease-out;
-}
-
-.welcome-content {
-  background: #fff;
-  width: 90%;
-  max-width: 500px;
-  border-radius: 20px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  overflow: hidden;
-  animation: slideInUp 0.4s ease-out;
-}
-
-.welcome-header {
-  background: linear-gradient(135deg, #0078d4, #4A90E2);
-  color: #fff;
-  padding: 2rem 2rem 1rem;
-  text-align: center;
-}
-
-.welcome-header h3 {
-  margin: 0;
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #fff;
-}
-
-.welcome-close {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background: rgba(255, 255, 255, 0.2);
-  border: none;
-  color: #fff;
-  font-size: 1.5rem;
-  cursor: pointer;
-  padding: 0.5rem;
-  width: 35px;
-  height: 35px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  transition: all 0.3s ease;
-}
-
-.welcome-close:hover {
-  background: rgba(255, 255, 255, 0.3);
-}
-
-.welcome-body {
-  padding: 2rem;
-  text-align: center;
-}
-
-.welcome-features {
-  display: flex;
-  justify-content: center;
-  gap: 1.5rem;
-  margin: 2rem 0;
-  flex-wrap: wrap;
-}
-
-.feature-highlight {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 1rem;
-  background: #f8f9fa;
-  border-radius: 12px;
-  min-width: 100px;
-}
-
-.feature-highlight i {
-  font-size: 1.5rem;
-  color: #0078d4;
-}
-
-.feature-highlight span {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #333;
-}
-
-.welcome-actions {
-  display: flex;
-  gap: 1rem;
-  padding: 1rem 2rem 2rem;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-.btn-continue {
-  background: #f0f0f0;
-  color: #666;
-  border: none;
-  border-radius: 25px;
-  padding: 0.8rem 1.5rem;
-  font-size: 0.95rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.btn-continue:hover {
-  background: #e0e0e0;
-}
-
-.btn-register {
-  background: #0078d4;
-  color: #fff;
-  text-decoration: none;
-  border-radius: 25px;
-  padding: 0.8rem 1.5rem;
-  font-size: 0.95rem;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(0, 120, 212, 0.3);
-}
-
-.btn-register:hover {
-  background: #005ea2;
-  box-shadow: 0 6px 20px rgba(0, 120, 212, 0.4);
-}
-
-/* Animations */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes gentleBounce {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-3px);
-  }
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes slideInUp {
-  from {
-    opacity: 0;
-    transform: translateY(50px) scale(0.9);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-@keyframes scrollTestimonials {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-1500px); }
-}
-
-/* Mobile Responsive */
-@media (max-width: 1024px) {
-  .use-cases-list {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 768px) {
-  .hero-hero-section {
-    min-height: 90vh;
-    padding: 4rem 0 2rem 0;
-  }
-  
-  .hero-container {
-    width: calc(100% - 16px);
-    padding: 2rem 12px 1.5rem 12px;
-    min-height: 45vh;
-    margin: 8px;
-    border-radius: 12px;
-  }
-  
-  .extra-sections {
-    padding: 2rem 8px;
-  }
-  
-  .section {
-    padding: 0 8px;
-  }
-  
-  .tools-showcase {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 6px;
-    border-radius: 12px;
-  }
-  
-  .stats-list {
-    grid-template-columns: 1fr;
-    gap: 10px;
-    padding: 0 8px;
-  }
-  
-  .use-cases-list {
-    grid-template-columns: 1fr;
-    gap: 10px;
-    padding: 0 8px;
-  }
-  
-  .benefits-container {
-    padding: 0 8px;
-  }
-  
-  .benefit-card {
-    padding: 12px;
-    margin-bottom: 8px;
-  }
-  
-  .faq-list {
-    padding: 0 8px;
-  }
-  
-  .comparison-table {
-    margin: 1rem 8px;
-  }
-  
-  .comparison-content {
-    grid-template-columns: 1fr;
-  }
-  
-  .comparison-column {
-    padding: 12px;
-  }
-  
-  .comparison-column:first-child {
-    border-right: none;
-    border-bottom: 1px solid #eee;
-  }
-  
-  .testimonials-gallery {
-    flex-direction: column;
-    animation: none;
-  }
-  
-  .testimonial-card {
-    margin-bottom: 1rem;
-    margin-right: 0;
-  }
-}
-
-@media (max-width: 480px) {
-  .hero-hero-section {
-    min-height: 85vh;
-    padding: 3rem 0 1.5rem 0;
-  }
-  
-  .hero-container {
-    width: calc(100% - 12px);
-    padding: 2rem 10px 1.5rem 10px;
-    margin: 6px;
-    border-radius: 10px;
-  }
-  
-  .extra-sections {
-    padding: 1.5rem 6px;
-  }
-  
-  .section {
-    padding: 0 6px;
-  }
-  
-  .stats-list,
-  .use-cases-list,
-  .benefits-container,
-  .faq-list {
-    padding: 0 6px;
-  }
-}
-</style>
-
-
-<script>
-// Welcome Modal Functions
-function showWelcomeModal() {
-  const modal = document.getElementById('welcomeModal');
-  if (modal) {
-    modal.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-    
-    if (typeof gtag !== 'undefined') {
-      gtag('event', 'view', {
-        'event_category': 'Welcome Modal',
-        'event_label': 'First Visit Welcome'
-      });
-    }
-  }
-}
-
-function closeWelcomeModal() {
-  const modal = document.getElementById('welcomeModal');
-  if (modal) {
-    modal.style.display = 'none';
-    document.body.style.overflow = '';
-    
-    if (typeof gtag !== 'undefined') {
-      gtag('event', 'close', {
-        'event_category': 'Welcome Modal',
-        'event_label': 'Welcome Modal Closed'
-      });
-    }
-  }
-}
-
-// Check if this is the first visit
-function checkFirstVisit() {
-  const hasVisited = localStorage.getItem('specifys_visited');
-  if (!hasVisited) {
-    setTimeout(() => {
-      showWelcomeModal();
-    }, 1000);
-    
-    localStorage.setItem('specifys_visited', 'true');
-    
-    if (typeof gtag !== 'undefined') {
-      gtag('event', 'first_visit', {
-        'event_category': 'User Engagement',
-        'event_label': 'First Time Visitor'
-      });
-    }
-  }
-}
-
-// Menu Toggle
-const menuToggle = document.querySelector('.menu-toggle');
-const clipPathMenu = document.querySelector('.clip-path-menu');
-
-if (menuToggle && clipPathMenu) {
-  menuToggle.addEventListener('click', () => {
-    const isActive = clipPathMenu.classList.contains('active');
-    clipPathMenu.classList.toggle('active');
-    menuToggle.setAttribute('aria-expanded', !isActive);
-  });
-
-  // Close menu when clicking outside
-  document.addEventListener('click', (e) => {
-    if (!menuToggle.contains(e.target) && !clipPathMenu.contains(e.target)) {
-      clipPathMenu.classList.remove('active');
-      menuToggle.setAttribute('aria-expanded', 'false');
-    }
-  });
-}
-
-// FAQ Toggle
-document.querySelectorAll('.faq-question').forEach(question => {
-  question.addEventListener("click", () => {
-    const answer = question.nextElementSibling;
-    const isOpen = answer.classList.contains("open");
-    document.querySelectorAll(".faq-answer").forEach(ans => {
-      ans.classList.remove("open");
-      ans.previousElementSibling.classList.remove("open");
-    });
-    if (!isOpen) {
-      answer.classList.add("open");
-      question.classList.add("open");
-    }
-  });
-});
-
-// Counter Animation
-const statNumbers = document.querySelectorAll('.stat-number');
-let hasAnimated = false;
-
-function animateCounter(element, target, duration = 2000) {
-  let start = 0;
-  const increment = target / (duration / 16);
-  function updateCounter() {
-    if (start < target) {
-      start += increment;
-      element.textContent = Math.floor(start) + "+";
-      requestAnimationFrame(updateCounter);
-    } else {
-      element.textContent = target + "+";
-    }
-  }
-  requestAnimationFrame(updateCounter);
-}
-
-const statsSection = document.querySelector(".stats-list");
-if (statsSection) {
-  const observer = new IntersectionObserver((entries) => {
-    if (entries[0].isIntersecting && !hasAnimated) {
-      statNumbers.forEach(stat => {
-        const target = parseInt(stat.getAttribute("data-target"));
-        animateCounter(stat, target);
-      });
-      hasAnimated = true;
-      observer.unobserve(statsSection);
-    }
-  }, { threshold: 0.5 });
-  observer.observe(statsSection);
-}
-
-// Tools Showcase Animation
-document.addEventListener('DOMContentLoaded', function() {
-  const toolSquares = document.querySelectorAll('.tool-square');
-  const toolsShowcase = document.querySelector('.tools-showcase');
-  
-  // Check if device is mobile
-  const isMobile = window.matchMedia('(max-width: 768px)').matches;
-  
-  toolSquares.forEach(square => {
-    square.addEventListener('click', function(e) {
-      if (isMobile) {
-        // Check if clicking on a link inside the content
-        const clickedLink = e.target.closest('.tool-link');
-        const isExpanded = this.classList.contains('active');
-        
-        if (!isExpanded && !clickedLink) {
-          // First click on the square: show content
-          e.preventDefault();
-          e.stopPropagation();
-          // Remove active class from all other squares
-          toolSquares.forEach(s => s.classList.remove('active'));
-          // Add active class to clicked square
-          this.classList.add('active');
-        } else if (clickedLink && isExpanded) {
-          // Second click on the link: allow navigation
-          if (typeof gtag !== 'undefined') {
-            const toolName = this.getAttribute('data-tool') || 'plan-smart';
-            gtag('event', 'click', {
-              'event_category': 'Tools Showcase',
-              'event_label': toolName + '_navigate'
-            });
-          }
-        } else if (!clickedLink && isExpanded) {
-          // Clicking on expanded square (not on link): keep it expanded
-          e.preventDefault();
-        }
-      } else {
-        // Desktop: track click
-        if (typeof gtag !== 'undefined') {
-          const toolName = this.getAttribute('data-tool') || 'plan-smart';
-          gtag('event', 'click', {
-            'event_category': 'Tools Showcase',
-            'event_label': toolName + '_click'
-          });
-        }
-      }
-    });
-  });
-  
-  // Close expanded square when clicking outside
-  if (isMobile) {
-    document.addEventListener('click', function(e) {
-      if (!e.target.closest('.tool-square')) {
-        toolSquares.forEach(s => s.classList.remove('active'));
-      }
-    });
-  }
-  
-  // Check for first visit
-  checkFirstVisit();
-});
-
-// Analytics Functions
-function trackStartNowClick() {
-  if (typeof gtag !== 'undefined') {
-    gtag('event', 'click', {
-      'event_category': 'engagement',
-      'event_label': 'start_now_button',
-      'event_source': 'hero_section'
-    });
-  }
-}
-
-// Close modal with Escape key
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') {
-    const welcomeModal = document.getElementById('welcomeModal');
-    if (welcomeModal && welcomeModal.style.display === 'flex') {
-      closeWelcomeModal();
-    }
-  }
-});
-
-// Close welcome modal when clicking outside
-document.addEventListener('DOMContentLoaded', () => {
-  const welcomeModal = document.getElementById('welcomeModal');
-  if (welcomeModal) {
-    welcomeModal.addEventListener('click', (e) => {
-      if (e.target.id === 'welcomeModal') {
-        closeWelcomeModal();
-      }
-    });
-  }
-});
-</script>
 
 
 
@@ -2209,10 +949,10 @@ document.addEventListener('DOMContentLoaded', () => {
     </div>
     <span class="footer-divider">|</span>
     <div class="footer-social">
-      <a href="https://www.linkedin.com/company/specifys-ai/" target="_blank" aria-label="Follow us on LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-      <a href="https://www.facebook.com/profile.php?id=61576402600129&locale=he_IL" target="_blank" aria-label="Follow us on Facebook"><i class="fab fa-facebook-f"></i></a>
-      <a href="mailto:specifysai@gmail.com" aria-label="Send us an email"><i class="fas fa-envelope"></i></a>
-      <a href="https://www.producthunt.com/products/specifys-ai" target="_blank" aria-label="Check us out on Product Hunt"><i class="fab fa-product-hunt"></i></a>
+      <a href="https://www.linkedin.com/company/specifys-ai/" target="_blank" aria-label="Follow us on LinkedIn"><i class="fa fa-linkedin"></i></a>
+      <a href="https://www.facebook.com/profile.php?id=61576402600129&locale=he_IL" target="_blank" aria-label="Follow us on Facebook"><i class="fa fa-facebook"></i></a>
+      <a href="mailto:specifysai@gmail.com" aria-label="Send us an email"><i class="fa fa-envelope"></i></a>
+      <a href="https://www.producthunt.com/products/specifys-ai" target="_blank" aria-label="Check us out on Product Hunt"><i class="fa fa-product-hunt"></i></a>
     </div>
   </div>
   <div class="footer-copyright">
@@ -2224,7 +964,7 @@ document.addEventListener('DOMContentLoaded', () => {
     <!-- Scroll to top button -->
     <!-- Scroll to top button -->
 <button class="icon-btn scroll-to-top" id="scrollToTop" aria-label="Scroll">
-  <i class="fas fa-arrow-up"></i>
+  <i class="fa fa-arrow-up"></i>
 </button>
 
 <script>
@@ -2286,6 +1026,7 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 
 
+    <!-- Firebase Auth -->
     <script>
   // Auth UI functions
   function updateAuthUI(user) {
@@ -2366,8 +1107,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     
     
-    <!-- Extra JavaScript -->
-    
+    <!-- Index Page JavaScript -->
+    <script defer src="/assets/js/index.js"></script>
     
 </body>
 </html>
