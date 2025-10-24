@@ -474,12 +474,6 @@ document.addEventListener('DOMContentLoaded', function() {
     <!-- Main Content -->
     <main id="main-content" class="main-content">
 <div class="container">
-    <!-- Page Title Section -->
-    <div class="page-title-section">
-        <h1><i class="fa fa-clipboard"></i> Specification Viewer</h1>
-        <p id="spec-title">Loading specification...</p>
-    </div>
-
     <div class="tabs">
         <button class="tab-button active" onclick="showTab('overview')" id="overviewTab">
             <i class="fa fa-book"></i> Overview
@@ -636,27 +630,9 @@ document.addEventListener('DOMContentLoaded', function() {
 .container {
     max-width: 1400px;
     margin: 0 auto;
+    margin-top: 80px;
     padding: 20px;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
-
-.page-title-section {
-    text-align: center;
-    margin-bottom: 30px;
-    padding-bottom: 20px;
-    border-bottom: 2px solid #e0e0e0;
-}
-
-.page-title-section h1 {
-    color: #333;
-    margin-bottom: 10px;
-    font-size: 2.5rem;
-}
-
-.page-title-section p {
-    color: #666;
-    font-size: 1.1rem;
-    margin-bottom: 20px;
 }
 
 .status-bar {
@@ -723,38 +699,89 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .tabs {
     display: flex;
+    background: #f5f5f5;
+    border-radius: 12px;
+    padding: 6px;
     margin-bottom: 20px;
-    border-bottom: 2px solid #e0e0e0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
 .tab-button {
-    background: none;
+    background: transparent;
     border: none;
-    padding: 12px 24px;
+    padding: 12px 20px;
     cursor: pointer;
-    font-size: 16px;
+    font-family: var(--font-primary);
+    font-weight: 500;
+    font-size: 15px;
     color: #666;
-    border-bottom: 2px solid transparent;
-    transition: all 0.3s ease;
+    border-radius: 8px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
+    flex: 1;
+    position: relative;
 }
 
 .tab-button:hover:not(:disabled) {
-    color: #007bff;
-    background-color: #f8f9fa;
+    background: rgba(255,255,255,0.7);
+    color: #333;
+    transform: translateY(-1px);
 }
 
 .tab-button.active {
-    color: #007bff;
-    border-bottom-color: #007bff;
+    background: white;
+    color: #333;
     font-weight: 600;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    transform: translateY(-1px);
+    animation: tabActivate 0.3s ease-out;
+}
+
+.tab-button:not(.active) {
+    color: #888;
+}
+
+.tab-button:not(.active) .fa {
+    color: #aaa;
 }
 
 .tab-button:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+}
+
+@keyframes tabActivate {
+    0% {
+        transform: translateY(0);
+        box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    }
+    100% {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+}
+
+.tab-button.loading .fa {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.tab-button.success .fa {
+    color: #28a745;
+}
+
+.tab-button.error .fa {
+    color: #dc3545;
+}
+
+.tab-button.pending .fa {
+    color: #ffc107;
 }
 
 .tab-content {
@@ -1601,12 +1628,20 @@ function displaySpec(data) {
     document.getElementById('content').style.display = 'block';
     
     // Update page title
-    document.getElementById('spec-title').textContent = data.title || 'App Specification';
+    const specTitleElement = document.getElementById('spec-title');
+    if (specTitleElement) {
+        specTitleElement.textContent = data.title || 'App Specification';
+    }
     
-    // Update status indicators
-    updateStatus('overview', data.status?.overview || 'ready');
-    updateStatus('technical', data.status?.technical || 'pending');
-    updateStatus('market', data.status?.market || 'pending');
+        // Update status indicators
+        updateStatus('overview', data.status?.overview || 'ready');
+        updateStatus('technical', data.status?.technical || 'pending');
+        updateStatus('market', data.status?.market || 'pending');
+        
+        // Update tab statuses
+        setTabStatus('overviewTab', data.status?.overview === 'ready' ? 'success' : 'pending');
+        setTabStatus('technicalTab', data.status?.technical === 'ready' ? 'success' : 'pending');
+        setTabStatus('marketTab', data.status?.market === 'ready' ? 'success' : 'pending');
     updateStatus('design', data.status?.design || 'pending');
     updateDiagramsStatus(data.diagrams?.generated ? 'ready' : 'pending');
     updateStorageStatus(); // Add storage status update
@@ -2605,6 +2640,49 @@ function showTab(tabName) {
     }
     
     currentTab = tabName;
+}
+
+// Functions for tab loading states
+function setTabLoading(tabId, isLoading = true) {
+    const tabButton = document.getElementById(tabId);
+    if (!tabButton) return;
+    
+    if (isLoading) {
+        tabButton.classList.add('loading');
+        // Replace icon with spinner
+        const icon = tabButton.querySelector('.fa');
+        if (icon) {
+            icon.className = 'fa fa-spinner';
+        }
+    } else {
+        tabButton.classList.remove('loading');
+        // Restore original icon
+        const originalIcons = {
+            'overviewTab': 'fa-book',
+            'technicalTab': 'fa-cog',
+            'marketTab': 'fa-bar-chart',
+            'designTab': 'fa-paint-brush',
+            'diagramsTab': 'fa-sitemap',
+            'rawTab': 'fa-code'
+        };
+        const icon = tabButton.querySelector('.fa');
+        if (icon && originalIcons[tabId]) {
+            icon.className = `fa ${originalIcons[tabId]}`;
+        }
+    }
+}
+
+function setTabStatus(tabId, status) {
+    const tabButton = document.getElementById(tabId);
+    if (!tabButton) return;
+    
+    // Remove all status classes
+    tabButton.classList.remove('success', 'error', 'pending', 'loading');
+    
+    // Add new status class
+    if (status) {
+        tabButton.classList.add(status);
+    }
 }
 
 function enableAllTabs() {
