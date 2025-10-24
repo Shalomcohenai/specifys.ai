@@ -510,7 +510,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <h1 class="hero-main-title">Build faster with AI-driven insights.</h1>
     
     <div class="hero-button-container">
-      <button class="hero-cta-button" id="startButton">Start Here</button>
+      <button class="hero-cta-button" id="startButton">Start</button>
     </div>
     
     <h2 class="hero-subtitle">Plan your app smarter</h2>
@@ -982,6 +982,42 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="welcome-actions">
       <button type="button" onclick="closeWelcomeModal()" class="btn-continue">Continue Exploring</button>
       <a href="/pages/auth.html" class="btn-register" onclick="trackCTA('Create Free Account', 'welcome_modal')">Create Free Account</a>
+    </div>
+  </div>
+</div>
+
+<!-- Registration Required Modal -->
+<div id="registrationModal" class="welcome-modal" style="display: none;">
+  <div class="welcome-content">
+    <div class="welcome-header">
+      <h3>🔐 Registration Required</h3>
+      <button class="welcome-close" onclick="closeRegistrationModal()" aria-label="Close registration message">×</button>
+    </div>
+    <div class="welcome-body">
+      <p><strong>To start planning your app, you need to create a free account!</strong></p>
+      <p>Registration allows you to:</p>
+      <div class="welcome-features">
+        <div class="feature-highlight">
+          <i class="fa fa-save"></i>
+          <span>Save your specifications</span>
+        </div>
+        <div class="feature-highlight">
+          <i class="fa fa-cogs"></i>
+          <span>Manage your projects</span>
+        </div>
+        <div class="feature-highlight">
+          <i class="fa fa-line-chart"></i>
+          <span>Track your progress</span>
+        </div>
+        <div class="feature-highlight">
+          <i class="fa fa-gift"></i>
+          <span>Access all features for free</span>
+        </div>
+      </div>
+    </div>
+    <div class="welcome-actions">
+      <button type="button" onclick="closeRegistrationModal()" class="btn-continue">Maybe Later</button>
+      <a href="/pages/auth.html" class="btn-register" onclick="trackCTA('Create Free Account', 'registration_modal')">Create Free Account</a>
     </div>
   </div>
 </div>

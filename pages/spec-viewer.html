@@ -474,45 +474,10 @@ document.addEventListener('DOMContentLoaded', function() {
     <!-- Main Content -->
     <main id="main-content" class="main-content">
 <div class="container">
-    <header class="page-header">
-        <div class="header-content">
-            <div class="header-left">
+    <!-- Page Title Section -->
+    <div class="page-title-section">
         <h1><i class="fa fa-clipboard"></i> Specification Viewer</h1>
-                <p id="spec-title">Loading specification...</p>
-        </div>
-            <div class="header-right">
-                <a href="/pages/app-dashboard.html" class="btn btn-outline">
-                    Dashboard
-                </a>
-        </div>
-    </div>
-    </header>
-
-    <div class="status-bar">
-        <div class="status-item">
-            <span class="status-label">Overview:</span>
-            <span id="overviewStatus" class="status-value pending">Pending</span>
-        </div>
-        <div class="status-item">
-            <span class="status-label">Technical:</span>
-            <span id="technicalStatus" class="status-value pending">Pending</span>
-        </div>
-        <div class="status-item">
-            <span class="status-label">Market:</span>
-            <span id="marketStatus" class="status-value pending">Pending</span>
-        </div>
-        <div class="status-item">
-            <span class="status-label">Design:</span>
-            <span id="designStatus" class="status-value pending">Pending</span>
-        </div>
-        <div class="status-item">
-            <span class="status-label">Diagrams:</span>
-            <span id="diagramsStatus" class="status-value pending">Pending</span>
-        </div>
-        <div class="status-item">
-            <span class="status-label">Storage:</span>
-            <span id="storageStatus" class="status-value pending">Loading...</span>
-        </div>
+        <p id="spec-title">Loading specification...</p>
     </div>
 
     <div class="tabs">
@@ -675,59 +640,23 @@ document.addEventListener('DOMContentLoaded', function() {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-.page-header {
+.page-title-section {
+    text-align: center;
     margin-bottom: 30px;
     padding-bottom: 20px;
     border-bottom: 2px solid #e0e0e0;
 }
 
-.header-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-.header-left {
-    flex: 1;
-    text-align: left;
-}
-
-.header-right {
-    flex: 0 0 auto;
-}
-
-.btn-outline {
-    background: transparent;
-    color: var(--primary-color);
-    border: 2px solid var(--primary-color);
-    padding: 8px 16px;
-    border-radius: 6px;
-    text-decoration: none;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.btn-outline:hover {
-    background: var(--primary-color);
-    color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
-.page-header h1 {
+.page-title-section h1 {
     color: #333;
     margin-bottom: 10px;
     font-size: 2.5rem;
 }
 
-.page-header p {
+.page-title-section p {
     color: #666;
     font-size: 1.1rem;
+    margin-bottom: 20px;
 }
 
 .status-bar {
@@ -1497,36 +1426,131 @@ function showNotification(message, type = 'info') {
     notification.className = `notification notification-${type}`;
     notification.innerHTML = `
         <div class="notification-content">
-            <span class="notification-message">${message}</span>
-            <button class="notification-close" onclick="this.parentElement.parentElement.remove()">&times;</button>
+            <div class="notification-icon">
+                ${type === 'success' ? '<i class="fa fa-check-circle"></i>' : 
+                  type === 'error' ? '<i class="fa fa-exclamation-circle"></i>' : 
+                  '<i class="fa fa-info-circle"></i>'}
+            </div>
+            <div class="notification-text">
+                <span class="notification-message">${message}</span>
+            </div>
+            <button class="notification-close" onclick="this.parentElement.parentElement.remove()">
+                <i class="fa fa-times"></i>
+            </button>
         </div>
     `;
     
     // Add styles
     notification.style.cssText = `
         position: fixed;
-        top: 20px;
-        right: 20px;
-        background: ${type === 'error' ? '#dc3545' : type === 'success' ? '#28a745' : '#007bff'};
-        color: white;
-        padding: 15px 20px;
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        z-index: 1001;
-        max-width: 400px;
-        animation: slideIn 0.3s ease;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%) translateY(100px);
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        color: #333;
+        padding: 0;
+        border-radius: 12px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+        z-index: 10000;
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+        max-width: 500px;
+        width: 90%;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        animation: slideUpIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        overflow: hidden;
     `;
+    
+    // Add CSS for notification content
+    const style = document.createElement('style');
+    style.textContent = `
+        .notification-content {
+            display: flex;
+            align-items: center;
+            padding: 16px 20px;
+            gap: 12px;
+        }
+        
+        .notification-icon {
+            font-size: 18px;
+            flex-shrink: 0;
+            color: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'};
+        }
+        
+        .notification-text {
+            flex: 1;
+            line-height: 1.4;
+        }
+        
+        .notification-message {
+            font-weight: 500;
+            color: #1f2937;
+        }
+        
+        .notification-close {
+            background: none;
+            border: none;
+            color: #6b7280;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+        
+        .notification-close:hover {
+            background: rgba(0, 0, 0, 0.05);
+            color: #374151;
+        }
+        
+        @keyframes slideUpIn {
+            from {
+                transform: translateX(-50%) translateY(100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(-50%) translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideUpOut {
+            from {
+                transform: translateX(-50%) translateY(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(-50%) translateY(100px);
+                opacity: 0;
+            }
+        }
+        
+        .notification.notification-removing {
+            animation: slideUpOut 0.3s ease forwards;
+        }
+    `;
+    
+    // Add styles to head if not already added
+    if (!document.querySelector('#notification-styles')) {
+        style.id = 'notification-styles';
+        document.head.appendChild(style);
+    }
     
     // Add to page
     document.body.appendChild(notification);
     
-    // Auto remove after 5 seconds
+    // Auto remove after 6 seconds with smooth animation
     setTimeout(() => {
         if (notification.parentElement) {
-            notification.remove();
+            notification.classList.add('notification-removing');
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.remove();
+                }
+            }, 300);
         }
-    }, 5000);
-    
+    }, 6000);
 }
 
 async function loadSpec(specId) {
@@ -1566,6 +1590,7 @@ async function loadSpec(specId) {
     } catch (error) {
         console.error('Error loading spec:', error);
         showError(`Error loading spec: ${error.message}`);
+        showNotification('Failed to load specification. Please try again.', 'error');
     }
 }
 
@@ -2524,9 +2549,11 @@ function formatPlainTextContent(content) {
 
 function updateStatus(type, status) {
     const element = document.getElementById(`${type}Status`);
-    element.textContent = status;
-    element.className = `status-value ${status}`;
-    console.log(`${type} status updated to:`, status);
+    if (element) {
+        element.textContent = status;
+        element.className = `status-value ${status}`;
+        console.log(`${type} status updated to:`, status);
+    }
 }
 
 
@@ -2550,10 +2577,11 @@ function updateStorageStatus() {
     
     
     const element = document.getElementById('storageStatus');
-    element.textContent = status;
-    element.className = `status-value ${statusClass}`;
-    
-    console.log(`Storage status updated to: ${status}`);
+    if (element) {
+        element.textContent = status;
+        element.className = `status-value ${statusClass}`;
+        console.log(`Storage status updated to: ${status}`);
+    }
 }
 
 function showTab(tabName) {
@@ -2907,9 +2935,11 @@ async function generateTechnicalSpec(retryCount = 0, maxRetries = 2) {
             // Auto-retry on timeout if we haven't exceeded max retries
             if (retryCount < maxRetries) {
                 console.log(`Auto-retrying technical spec generation... (${retryCount + 1}/${maxRetries})`);
+                showNotification(`Technical API timeout, retrying... (${retryCount + 1}/${maxRetries})`, 'info');
                 await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds before retry
                 return await generateTechnicalSpec(retryCount + 1, maxRetries);
             } else {
+                showNotification('Technical API timed out after multiple attempts. Please try again.', 'error');
                 throw new Error('API call timed out after 60 seconds. Please try again.');
             }
         } else {
@@ -2977,9 +3007,11 @@ async function generateMarketSpec() {
         
         if (error.name === 'AbortError') {
             console.error('Market API call timed out after 30 seconds');
+            showNotification('Market API timed out. Please try again.', 'error');
             throw new Error('API call timed out. Please try again.');
         } else {
             console.error('Market API call failed:', error);
+            showNotification(`Market API error: ${error.message}`, 'error');
             throw error;
         }
     }
@@ -3043,9 +3075,11 @@ async function generateDesignSpec() {
         
         if (error.name === 'AbortError') {
             console.error('Design API call timed out after 30 seconds');
+            showNotification('Design API timed out. Please try again.', 'error');
             throw new Error('API call timed out. Please try again.');
         } else {
             console.error('Design API call failed:', error);
+            showNotification(`Design API error: ${error.message}`, 'error');
             throw error;
         }
     }
@@ -3297,18 +3331,21 @@ async function generateDiagrams() {
         } catch (error) {
             clearTimeout(timeoutId);
             
-            if (error.name === 'AbortError') {
-                console.error('Diagrams API call timed out after 60 seconds');
-                throw new Error('Request timed out. Please try again.');
-            } else {
-                console.error('Diagrams API call failed:', error);
-                throw error;
-            }
+        if (error.name === 'AbortError') {
+            console.error('Diagrams API call timed out after 60 seconds');
+            showNotification('Diagrams API timed out. Please try again.', 'error');
+            throw new Error('Request timed out. Please try again.');
+        } else {
+            console.error('Diagrams API call failed:', error);
+            showNotification(`Diagrams API error: ${error.message}`, 'error');
+            throw error;
+        }
         }
         
     } catch (error) {
         console.error('Error generating diagrams:', error);
         showError(`Failed to generate diagrams: ${error.message}`);
+        showNotification('Failed to generate diagrams. Please try again.', 'error');
         
         // Reset button
         const generateBtn = document.getElementById('generateDiagramsBtn');

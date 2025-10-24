@@ -15,6 +15,23 @@ function closeWelcomeModal() {
   }
 }
 
+// Registration Modal Functions
+function showRegistrationModal() {
+  const modal = document.getElementById('registrationModal');
+  if (modal) {
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  }
+}
+
+function closeRegistrationModal() {
+  const modal = document.getElementById('registrationModal');
+  if (modal) {
+    modal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+  }
+}
+
 function checkFirstVisit() {
   const hasVisited = localStorage.getItem('hasVisited');
   if (!hasVisited) {
@@ -79,6 +96,41 @@ function trackStartNowClick() {
       event_label: 'start_now_button'
     });
   }
+}
+
+// Check if user is authenticated
+function isUserAuthenticated() {
+  return firebase.auth().currentUser !== null;
+}
+
+// Handle Start button click based on authentication status
+function handleStartButtonClick() {
+  trackStartNowClick();
+  
+  if (isUserAuthenticated()) {
+    // User is authenticated - proceed with normal flow
+    proceedWithAppPlanning();
+  } else {
+    // User is not authenticated - show registration modal
+    showRegistrationModal();
+  }
+}
+
+// Proceed with app planning (original Start button functionality)
+function proceedWithAppPlanning() {
+  const heroContent = document.getElementById('heroContent');
+  const heroTitle = document.querySelector('.hero-main-title');
+  const heroSubtitle = document.querySelector('.hero-subtitle');
+  const heroButtonContainer = document.querySelector('.hero-button-container');
+  
+  if (heroContent) heroContent.classList.add('fade-out');
+  if (heroTitle) heroTitle.classList.add('fade-out');
+  if (heroSubtitle) heroSubtitle.classList.add('fade-out');
+  if (heroButtonContainer) heroButtonContainer.classList.add('fade-out');
+  
+  setTimeout(() => {
+    showModernInput();
+  }, 1000);
 }
 
 // Interactive Questions System
@@ -208,23 +260,7 @@ document.addEventListener('DOMContentLoaded', function() {
   
   const startButton = document.getElementById('startButton');
   if (startButton) {
-    startButton.addEventListener('click', function() {
-      trackStartNowClick();
-      
-      const heroContent = document.getElementById('heroContent');
-      const heroTitle = document.querySelector('.hero-main-title');
-      const heroSubtitle = document.querySelector('.hero-subtitle');
-      const heroButtonContainer = document.querySelector('.hero-button-container');
-      
-      if (heroContent) heroContent.classList.add('fade-out');
-      if (heroTitle) heroTitle.classList.add('fade-out');
-      if (heroSubtitle) heroSubtitle.classList.add('fade-out');
-      if (heroButtonContainer) heroButtonContainer.classList.add('fade-out');
-      
-      setTimeout(() => {
-        showModernInput();
-      }, 1000);
-    });
+    startButton.addEventListener('click', handleStartButtonClick);
   }
   
   const navicon = document.querySelector('.navicon');
@@ -269,6 +305,7 @@ document.addEventListener('DOMContentLoaded', function() {
   document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
       closeWelcomeModal();
+      closeRegistrationModal();
     }
   });
 });
@@ -419,10 +456,32 @@ async function saveSpecToFirebase(overviewContent, answers) {
       status: specDoc.status
     });
     
-    const docRef = await firebase.firestore().collection('specs').add(specDoc);
-    console.log('Spec saved to Firebase with ID:', docRef.id);
+    // Check if we have an existing spec ID in localStorage or URL
+    let existingSpecId = localStorage.getItem('currentSpecId');
+    if (!existingSpecId) {
+      // Check URL parameters for existing spec ID
+      const urlParams = new URLSearchParams(window.location.search);
+      existingSpecId = urlParams.get('id');
+    }
     
-    return docRef.id;
+    let docRef;
+    if (existingSpecId) {
+      // Update existing document
+      docRef = firebase.firestore().collection('specs').doc(existingSpecId);
+      await docRef.update({
+        ...specDoc,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      console.log('Spec updated in Firebase with ID:', existingSpecId);
+    } else {
+      // Create new document
+      docRef = await firebase.firestore().collection('specs').add(specDoc);
+      console.log('Spec saved to Firebase with ID:', docRef.id);
+      // Store the new ID for future updates
+      localStorage.setItem('currentSpecId', docRef.id);
+    }
+    
+    return docRef.id || existingSpecId;
   } catch (error) {
     console.error('Error saving to Firebase:', error);
     throw error;
