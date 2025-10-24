@@ -508,12 +508,25 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
         
         <div id="content" style="display: none;">
+            <!-- Approval Actions Container -->
+            <div id="approval-container" class="approval-container">
+                <div class="approval-message">
+                    <i class="fa fa-info-circle"></i>
+                    <span>Please review the Overview specification below. You can edit it if needed, then approve to generate Technical and Market specifications.</span>
+                </div>
+                <div class="approval-actions">
+                    <button id="editBtn" class="btn btn-secondary" onclick="toggleEditMode()">
+                        <i class="fa fa-pencil"></i> Edit
+                    </button>
+                    <button id="approveBtn" class="btn btn-success" onclick="approveOverview()">
+                        <i class="fa fa-check"></i> Approve Overview
+                    </button>
+                </div>
+            </div>
+            
             <div id="overview-content" class="tab-content">
                 <div class="content-header">
                     <h2><i class="fa fa-book"></i> Application Overview</h2>
-                    <button id="approveBtn" class="btn btn-success approve-btn" onclick="approveOverview()">
-                        <i class="fa fa-check"></i> Approve Overview
-                    </button>
                 </div>
                 <div id="overview-data" class="content-body"></div>
             </div>
@@ -573,7 +586,37 @@ document.addEventListener('DOMContentLoaded', function() {
                 <h2><i class="fa fa-search"></i> Raw JSON Data</h2>
                 </div>
                 <div class="content-body">
-                <pre id="raw-data"></pre>
+                    <div class="raw-sections">
+                        <div class="raw-section">
+                            <h3><i class="fa fa-book"></i> Overview Raw</h3>
+                            <pre id="raw-overview" class="raw-display"></pre>
+                        </div>
+                        
+                        <div class="raw-section">
+                            <h3><i class="fa fa-cog"></i> Technical Raw</h3>
+                            <pre id="raw-technical" class="raw-display"></pre>
+                        </div>
+                        
+                        <div class="raw-section">
+                            <h3><i class="fa fa-chart-line"></i> Market Raw</h3>
+                            <pre id="raw-market" class="raw-display"></pre>
+                        </div>
+                        
+                        <div class="raw-section">
+                            <h3><i class="fa fa-palette"></i> Design Raw</h3>
+                            <pre id="raw-design" class="raw-display"></pre>
+                        </div>
+                        
+                        <div class="raw-section">
+                            <h3><i class="fa fa-sitemap"></i> Diagrams Raw</h3>
+                            <pre id="raw-diagrams" class="raw-display"></pre>
+                        </div>
+                        
+                        <div class="raw-section">
+                            <h3><i class="fa fa-database"></i> Complete Raw</h3>
+                            <pre id="raw-complete" class="raw-display"></pre>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -782,6 +825,82 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .tab-button.pending .fa {
     color: #ffc107;
+}
+
+.approval-container {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 15px 20px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid #e0e0e0;
+}
+
+.approval-message {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #666;
+    font-size: 14px;
+    flex: 1;
+}
+
+.approval-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.overview-editor {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    min-height: 400px;
+    font-family: var(--font-secondary);
+    font-size: 14px;
+    line-height: 1.6;
+    resize: vertical;
+}
+
+.raw-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.raw-section {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 15px;
+    border: 1px solid #e0e0e0;
+}
+
+.raw-section h3 {
+    margin: 0 0 10px 0;
+    color: #333;
+    font-size: 16px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.raw-display {
+    background: #2d3748;
+    color: #e2e8f0;
+    padding: 15px;
+    border-radius: 6px;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 12px;
+    line-height: 1.4;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #4a5568;
 }
 
 .tab-content {
@@ -1666,6 +1785,11 @@ function displaySpec(data) {
     } else {
         showApproveButton();
         disableTechnicalTabs();
+        // Show approval container when overview is not approved
+        const approvalContainer = document.getElementById('approval-container');
+        if (approvalContainer) {
+            approvalContainer.style.display = 'flex';
+        }
     }
     
     // Show overview tab by default
@@ -1686,10 +1810,15 @@ function displayOverview(overview) {
         return;
     }
     
+    // Store original overview for editing
+    window.originalOverview = overview;
     
-    // Format the overview content
+    // Format and display
     const formattedContent = formatTextContent(overview);
-    container.innerHTML = formattedContent;
+    container.innerHTML = `<div id="overview-display">${formattedContent}</div>`;
+    
+    // Update raw data
+    document.getElementById('raw-overview').textContent = JSON.stringify(overview, null, 2);
 }
 
 function displayTechnical(technical) {
@@ -1710,6 +1839,9 @@ function displayTechnical(technical) {
     // Format the technical content
     const formattedContent = formatTextContent(technical);
     container.innerHTML = formattedContent;
+    
+    // Update raw data
+    document.getElementById('raw-technical').textContent = JSON.stringify(technical, null, 2);
 }
 
 function displayMarket(market) {
@@ -1729,6 +1861,9 @@ function displayMarket(market) {
     // Format the market content
     const formattedContent = formatTextContent(market);
     container.innerHTML = formattedContent;
+    
+    // Update raw data
+    document.getElementById('raw-market').textContent = JSON.stringify(market, null, 2);
 }
 
 function displayDesign(design) {
@@ -1748,10 +1883,21 @@ function displayDesign(design) {
     // Format the design content
     const formattedContent = formatTextContent(design);
     container.innerHTML = formattedContent;
+    
+    // Update raw data
+    document.getElementById('raw-design').textContent = JSON.stringify(design, null, 2);
 }
 
 function displayRaw(data) {
-    document.getElementById('raw-data').textContent = JSON.stringify(data, null, 2);
+    // Display individual sections
+    document.getElementById('raw-overview').textContent = data.overview ? JSON.stringify(data.overview, null, 2) : 'No overview data available';
+    document.getElementById('raw-technical').textContent = data.technical ? JSON.stringify(data.technical, null, 2) : 'No technical data available';
+    document.getElementById('raw-market').textContent = data.market ? JSON.stringify(data.market, null, 2) : 'No market data available';
+    document.getElementById('raw-design').textContent = data.design ? JSON.stringify(data.design, null, 2) : 'No design data available';
+    document.getElementById('raw-diagrams').textContent = data.diagrams ? JSON.stringify(data.diagrams, null, 2) : 'No diagrams data available';
+    
+    // Display complete data
+    document.getElementById('raw-complete').textContent = JSON.stringify(data, null, 2);
 }
 
 function displayDiagramsFromData(data) {
@@ -1782,6 +1928,9 @@ function displayDiagramsFromData(data) {
     
     // Display diagrams
     displayDiagrams(diagramsData);
+    
+    // Update raw data
+    document.getElementById('raw-diagrams').textContent = JSON.stringify(data.diagrams, null, 2);
     
     // Start auto-refresh system
     if (diagramsData && diagramsData.length > 0) {
@@ -2685,6 +2834,59 @@ function setTabStatus(tabId, status) {
     }
 }
 
+// Edit mode variables and functions
+let isEditMode = false;
+
+function toggleEditMode() {
+    const editBtn = document.getElementById('editBtn');
+    const container = document.getElementById('overview-data');
+    
+    if (!isEditMode) {
+        // Enter edit mode
+        isEditMode = true;
+        editBtn.innerHTML = '<i class="fa fa-save"></i> Save';
+        editBtn.onclick = saveOverviewEdit;
+        
+        // Convert to editable textarea
+        const currentContent = window.originalOverview || currentSpecData.overview;
+        container.innerHTML = `<textarea id="overview-editor" class="overview-editor">${currentContent}</textarea>`;
+    }
+}
+
+async function saveOverviewEdit() {
+    const editBtn = document.getElementById('editBtn');
+    const editor = document.getElementById('overview-editor');
+    const editedContent = editor.value;
+    
+    try {
+        // Update local data
+        currentSpecData.overview = editedContent;
+        window.originalOverview = editedContent;
+        
+        // Save to Firebase
+        const user = firebase.auth().currentUser;
+        if (user && currentSpecData.id) {
+            await firebase.firestore().collection('specs').doc(currentSpecData.id).update({
+                overview: editedContent,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            showNotification('Overview saved successfully!', 'success');
+        }
+        
+        // Exit edit mode
+        isEditMode = false;
+        editBtn.innerHTML = '<i class="fa fa-pencil"></i> Edit';
+        editBtn.onclick = toggleEditMode;
+        
+        // Display updated content
+        displayOverview(editedContent);
+        
+    } catch (error) {
+        console.error('Error saving overview:', error);
+        showNotification('Failed to save overview: ' + error.message, 'error');
+    }
+}
+
 function enableAllTabs() {
     document.getElementById('technicalTab').disabled = false;
     document.getElementById('marketTab').disabled = false;
@@ -2705,6 +2907,11 @@ function showApproveButton() {
 
 function hideApproveButton() {
     document.getElementById('approveBtn').style.display = 'none';
+    // Hide the entire approval container after approval
+    const approvalContainer = document.getElementById('approval-container');
+    if (approvalContainer) {
+        approvalContainer.style.display = 'none';
+    }
 }
 
 // Function to save spec to Firebase
