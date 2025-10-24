@@ -928,6 +928,42 @@ document.addEventListener('DOMContentLoaded', function() {
     display: flex;
     align-items: center;
     gap: 8px;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.visualization-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.viz-btn {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 10px 16px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #495057;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 500;
+}
+
+.viz-btn:hover {
+    background: #e9ecef;
+    border-color: #adb5bd;
+    color: #212529;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.viz-btn i {
+    font-size: 16px;
 }
 
 .color-strip-palette {
@@ -1054,6 +1090,317 @@ document.addEventListener('DOMContentLoaded', function() {
     .font-mini-label {
         min-width: auto;
     }
+    
+    .visualization-buttons {
+        flex-direction: column;
+        gap: 4px;
+    }
+    
+    .viz-btn {
+        font-size: 11px;
+        padding: 4px 8px;
+    }
+}
+
+/* Visualization Modal Styles */
+.viz-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.8);
+    display: none;
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+}
+
+.viz-modal-content {
+    background: white;
+    border-radius: 12px;
+    max-width: 90vw;
+    max-height: 90vh;
+    width: 100%;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+}
+
+.viz-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid #e9ecef;
+    background: #f8f9fa;
+}
+
+.viz-header h3 {
+    margin: 0;
+    color: #495057;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.viz-close {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #6c757d;
+    padding: 5px;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.viz-close:hover {
+    background: #e9ecef;
+    color: #495057;
+}
+
+.viz-body {
+    padding: 20px;
+    overflow-y: auto;
+    max-height: calc(90vh - 80px);
+}
+
+.template-container {
+    display: none;
+}
+
+.template-container.active {
+    display: block;
+}
+
+/* Mobile Template Styles */
+.mobile-mockup {
+    width: 300px;
+    margin: 0 auto;
+    border: 8px solid #333;
+    border-radius: 25px;
+    background: #000;
+    padding: 10px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+
+.mobile-screen {
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    height: 600px;
+    position: relative;
+}
+
+.mobile-header {
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+}
+
+.mobile-logo {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.mobile-menu {
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.mobile-hero {
+    padding: 40px 20px;
+    text-align: center;
+}
+
+.mobile-hero h2 {
+    font-size: 24px;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+.mobile-hero p {
+    font-size: 16px;
+    margin-bottom: 25px;
+    opacity: 0.9;
+}
+
+.mobile-cta {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.mobile-cta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.mobile-cards {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.mobile-card {
+    padding: 20px;
+    border-radius: 8px;
+    background: white;
+}
+
+.mobile-card h3 {
+    font-size: 18px;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.mobile-card p {
+    font-size: 14px;
+    margin-bottom: 10px;
+    opacity: 0.8;
+}
+
+.mobile-card span {
+    font-size: 12px;
+    font-style: italic;
+    cursor: pointer;
+}
+
+.mobile-footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 15px 20px;
+    text-align: center;
+}
+
+.mobile-footer p {
+    margin: 0;
+    font-size: 12px;
+}
+
+/* Web Template Styles */
+.web-mockup {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+.web-screen {
+    background: white;
+}
+
+.web-nav {
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+}
+
+.web-logo {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.web-menu {
+    display: flex;
+    gap: 25px;
+}
+
+.web-menu a {
+    text-decoration: none;
+    font-size: 16px;
+    transition: opacity 0.2s;
+}
+
+.web-menu a:hover {
+    opacity: 0.8;
+}
+
+.web-hero {
+    padding: 60px 30px;
+    text-align: center;
+}
+
+.web-hero-content h1 {
+    font-size: 36px;
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+
+.web-hero-content p {
+    font-size: 18px;
+    margin-bottom: 30px;
+    opacity: 0.9;
+}
+
+.web-cta {
+    padding: 15px 30px;
+    border: none;
+    border-radius: 6px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.web-cta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.web-features {
+    padding: 40px 30px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.web-feature {
+    padding: 25px;
+    border-radius: 8px;
+    background: white;
+    text-align: center;
+}
+
+.web-feature h3 {
+    font-size: 20px;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+.web-feature p {
+    font-size: 16px;
+    margin-bottom: 15px;
+    opacity: 0.8;
+}
+
+.web-feature span {
+    font-size: 14px;
+    font-style: italic;
+    cursor: pointer;
+}
+
+.web-footer {
+    padding: 20px 30px;
+    text-align: center;
+}
+
+.web-footer p {
+    margin: 0;
+    font-size: 14px;
 }
 
 
@@ -2044,7 +2391,17 @@ function displayDesign(design) {
     // Colors section
     if (Object.keys(designData.colors).length > 0) {
         paletteHTML += '<div class="palette-section">';
-        paletteHTML += '<div class="palette-title"><i class="fa fa-palette"></i> Color Palette</div>';
+        paletteHTML += '<div class="palette-title">';
+        paletteHTML += '<i class="fa fa-palette"></i> Color Palette';
+        paletteHTML += '<div class="visualization-buttons">';
+        paletteHTML += '<button class="viz-btn mobile-btn" onclick="openVisualizer(\'mobile\')">';
+        paletteHTML += '<i class="fa fa-mobile"></i> Mobile Preview';
+        paletteHTML += '</button>';
+        paletteHTML += '<button class="viz-btn web-btn" onclick="openVisualizer(\'web\')">';
+        paletteHTML += '<i class="fa fa-desktop"></i> Web Preview';
+        paletteHTML += '</button>';
+        paletteHTML += '</div>';
+        paletteHTML += '</div>';
         paletteHTML += '<div class="color-strip-palette">';
         
         Object.entries(designData.colors).forEach(([name, code]) => {
@@ -2242,6 +2599,70 @@ function copyToClipboard(text) {
         showNotification('Failed to copy to clipboard', 'error');
     });
 }
+
+function openVisualizer(type) {
+    const modal = document.getElementById('color-visualizer-modal');
+    const title = document.getElementById('viz-title');
+    const mobileTemplate = document.getElementById('mobile-template');
+    const webTemplate = document.getElementById('web-template');
+    
+    // הסתר את כל הטמפלייטים
+    mobileTemplate.style.display = 'none';
+    webTemplate.style.display = 'none';
+    
+    if (type === 'mobile') {
+        title.textContent = 'Mobile App Preview';
+        mobileTemplate.style.display = 'block';
+        applyColorsToTemplate('mobile');
+    } else {
+        title.textContent = 'Web App Preview';
+        webTemplate.style.display = 'block';
+        applyColorsToTemplate('web');
+    }
+    
+    modal.style.display = 'flex';
+}
+
+function applyColorsToTemplate(type) {
+    const designData = parseDesignData(currentSpecData.design);
+    const colors = designData.colors;
+    const typography = designData.typography;
+    
+    const template = type === 'mobile' ? 
+        document.getElementById('mobile-template') : 
+        document.getElementById('web-template');
+    
+    // החלף את כל הצבעים
+    template.style.setProperty('--primary-color', colors.Primary || '#4CAF50');
+    template.style.setProperty('--secondary-color', colors.Secondary || '#FF9800');
+    template.style.setProperty('--accent-color', colors.Accent || '#2196F3');
+    template.style.setProperty('--background-color', colors.Background || '#FFFFFF');
+    template.style.setProperty('--text-color', colors.Text || '#212121');
+    
+    // החלף את כל הפונטים
+    template.style.setProperty('--heading-font', typography.Headings || 'Roboto, Bold, 24px');
+    template.style.setProperty('--body-font', typography.Body || 'Roboto, Regular, 16px');
+    template.style.setProperty('--caption-font', typography.Captions || 'Roboto, Italic, 12px');
+}
+
+function closeVisualizer() {
+    document.getElementById('color-visualizer-modal').style.display = 'none';
+}
+
+// סגור את המודאל כשלוחצים מחוץ לו
+document.addEventListener('click', function(e) {
+    const modal = document.getElementById('color-visualizer-modal');
+    if (e.target === modal) {
+        closeVisualizer();
+    }
+});
+
+// סגור את המודאל עם Escape
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeVisualizer();
+    }
+});
 
 function displayRaw(data) {
     // Display individual sections
@@ -4724,6 +5145,202 @@ console.log('Spec Viewer - Ready!');
     
     <!-- Extra JavaScript -->
     
-    
-</body>
+    <!-- Color Visualization Modal -->
+    <div id="color-visualizer-modal" class="viz-modal">
+        <div class="viz-modal-content">
+            <div class="viz-header">
+                <h3 id="viz-title">Mobile App Preview</h3>
+                <button class="viz-close" onclick="closeVisualizer()">
+                    <i class="fa fa-times"></i>
+                </button>
+            </div>
+            <div class="viz-body">
+                <div id="mobile-template" class="template-container">
+                    <div class="mobile-mockup">
+                        <div class="mobile-screen">
+                            <!-- Header עם Primary Color -->
+                            <div class="mobile-header" style="background: var(--primary-color);">
+                                <div class="mobile-logo" style="color: white;">App</div>
+                                <div class="mobile-menu" style="color: white;">☰</div>
+                            </div>
+                            
+                            <!-- Hero Section עם Secondary Color -->
+                            <div class="mobile-hero" style="background: var(--secondary-color);">
+                                <h2 style="color: var(--text-color); font-family: var(--heading-font);">
+                                    Welcome to Our App
+                                </h2>
+                                <p style="color: var(--text-color); font-family: var(--body-font);">
+                                    Experience amazing features
+                                </p>
+                                <button class="mobile-cta" style="background: var(--accent-color); color: white; font-family: var(--body-font);">
+                                    Get Started
+                                </button>
+                            </div>
+                            
+                            <!-- Stats Section -->
+                            <div class="mobile-stats" style="background: var(--background-color); padding: 20px;">
+                                <h3 style="color: var(--primary-color); font-family: var(--heading-font); text-align: center; margin-bottom: 15px;">Statistics</h3>
+                                <div class="stats-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                                    <div class="stat-item" style="text-align: center; padding: 10px; background: white; border-radius: 6px; border: 1px solid var(--primary-color);">
+                                        <div style="font-size: 20px; font-weight: bold; color: var(--primary-color); font-family: var(--heading-font);">1.2K</div>
+                                        <div style="font-size: 12px; color: var(--text-color); font-family: var(--caption-font);">Users</div>
+                                    </div>
+                                    <div class="stat-item" style="text-align: center; padding: 10px; background: white; border-radius: 6px; border: 1px solid var(--accent-color);">
+                                        <div style="font-size: 20px; font-weight: bold; color: var(--accent-color); font-family: var(--heading-font);">98%</div>
+                                        <div style="font-size: 12px; color: var(--text-color); font-family: var(--caption-font);">Satisfaction</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Cards Section עם Background Color -->
+                            <div class="mobile-cards" style="background: var(--background-color);">
+                                <div class="mobile-card" style="border: 2px solid var(--primary-color);">
+                                    <h3 style="color: var(--primary-color); font-family: var(--heading-font);">Feature 1</h3>
+                                    <p style="color: var(--text-color); font-family: var(--body-font);">Description text</p>
+                                    <span style="color: var(--secondary-color); font-family: var(--caption-font);">Learn more</span>
+                                </div>
+                                <div class="mobile-card" style="border: 2px solid var(--accent-color);">
+                                    <h3 style="color: var(--accent-color); font-family: var(--heading-font);">Feature 2</h3>
+                                    <p style="color: var(--text-color); font-family: var(--body-font);">Description text</p>
+                                    <span style="color: var(--secondary-color); font-family: var(--caption-font);">Learn more</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Chart Section -->
+                            <div class="mobile-chart" style="background: var(--background-color); padding: 20px;">
+                                <h3 style="color: var(--primary-color); font-family: var(--heading-font); text-align: center; margin-bottom: 15px;">Analytics</h3>
+                                <div class="chart-container" style="background: white; border-radius: 8px; padding: 15px; border: 1px solid var(--secondary-color);">
+                                    <div class="chart-bars" style="display: flex; align-items: end; gap: 8px; height: 80px;">
+                                        <div style="background: var(--primary-color); height: 60%; width: 20px; border-radius: 2px;"></div>
+                                        <div style="background: var(--secondary-color); height: 80%; width: 20px; border-radius: 2px;"></div>
+                                        <div style="background: var(--accent-color); height: 45%; width: 20px; border-radius: 2px;"></div>
+                                        <div style="background: var(--primary-color); height: 70%; width: 20px; border-radius: 2px;"></div>
+                                        <div style="background: var(--secondary-color); height: 55%; width: 20px; border-radius: 2px;"></div>
+                                    </div>
+                                    <div style="text-align: center; margin-top: 10px; font-size: 12px; color: var(--text-color); font-family: var(--caption-font);">Monthly Growth</div>
+                                </div>
+                            </div>
+                            
+                            <!-- Footer עם Primary Color -->
+                            <div class="mobile-footer" style="background: var(--primary-color);">
+                                <p style="color: white; font-family: var(--caption-font);">© 2024 App Name</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="web-template" class="template-container">
+                    <div class="web-mockup">
+                        <div class="web-screen">
+                            <!-- Navigation עם Primary Color -->
+                            <nav class="web-nav" style="background: var(--primary-color);">
+                                <div class="web-logo" style="color: white; font-family: var(--heading-font);">Website</div>
+                                <div class="web-menu">
+                                    <a href="#" style="color: white; font-family: var(--body-font);">Home</a>
+                                    <a href="#" style="color: white; font-family: var(--body-font);">About</a>
+                                    <a href="#" style="color: white; font-family: var(--body-font);">Contact</a>
+                                </div>
+                            </nav>
+                            
+                            <!-- Hero Section עם Secondary Color -->
+                            <section class="web-hero" style="background: var(--secondary-color);">
+                                <div class="web-hero-content">
+                                    <h1 style="color: var(--text-color); font-family: var(--heading-font);">
+                                        Welcome to Our Website
+                                    </h1>
+                                    <p style="color: var(--text-color); font-family: var(--body-font);">
+                                        We create amazing digital experiences
+                                    </p>
+                                    <button class="web-cta" style="background: var(--accent-color); color: white; font-family: var(--body-font);">
+                                        Learn More
+                                    </button>
+                                </div>
+                            </section>
+                            
+                        <!-- Stats Section -->
+                        <section class="web-stats" style="background: var(--background-color); padding: 40px 30px;">
+                            <h2 style="color: var(--primary-color); font-family: var(--heading-font); text-align: center; margin-bottom: 30px;">Our Impact</h2>
+                            <div class="stats-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;">
+                                <div class="stat-item" style="text-align: center; padding: 20px; background: white; border-radius: 8px; border: 2px solid var(--primary-color);">
+                                    <div style="font-size: 36px; font-weight: bold; color: var(--primary-color); font-family: var(--heading-font);">10K+</div>
+                                    <div style="font-size: 16px; color: var(--text-color); font-family: var(--body-font);">Active Users</div>
+                                </div>
+                                <div class="stat-item" style="text-align: center; padding: 20px; background: white; border-radius: 8px; border: 2px solid var(--secondary-color);">
+                                    <div style="font-size: 36px; font-weight: bold; color: var(--secondary-color); font-family: var(--heading-font);">99%</div>
+                                    <div style="font-size: 16px; color: var(--text-color); font-family: var(--body-font);">Uptime</div>
+                                </div>
+                                <div class="stat-item" style="text-align: center; padding: 20px; background: white; border-radius: 8px; border: 2px solid var(--accent-color);">
+                                    <div style="font-size: 36px; font-weight: bold; color: var(--accent-color); font-family: var(--heading-font);">24/7</div>
+                                    <div style="font-size: 16px; color: var(--text-color); font-family: var(--body-font);">Support</div>
+                                </div>
+                                <div class="stat-item" style="text-align: center; padding: 20px; background: white; border-radius: 8px; border: 2px solid var(--primary-color);">
+                                    <div style="font-size: 36px; font-weight: bold; color: var(--primary-color); font-family: var(--heading-font);">5★</div>
+                                    <div style="font-size: 16px; color: var(--text-color); font-family: var(--body-font);">Rating</div>
+                                </div>
+                            </div>
+                        </section>
+                        
+                        <!-- Features Grid עם Background Color -->
+                        <section class="web-features" style="background: var(--background-color);">
+                            <div class="web-feature" style="border: 1px solid var(--primary-color);">
+                                <h3 style="color: var(--primary-color); font-family: var(--heading-font);">Service 1</h3>
+                                <p style="color: var(--text-color); font-family: var(--body-font);">Description</p>
+                                <span style="color: var(--secondary-color); font-family: var(--caption-font);">Details</span>
+                            </div>
+                            <div class="web-feature" style="border: 1px solid var(--accent-color);">
+                                <h3 style="color: var(--accent-color); font-family: var(--heading-font);">Service 2</h3>
+                                <p style="color: var(--text-color); font-family: var(--body-font);">Description</p>
+                                <span style="color: var(--secondary-color); font-family: var(--caption-font);">Details</span>
+                            </div>
+                            <div class="web-feature" style="border: 1px solid var(--secondary-color);">
+                                <h3 style="color: var(--secondary-color); font-family: var(--heading-font);">Service 3</h3>
+                                <p style="color: var(--text-color); font-family: var(--body-font);">Description</p>
+                                <span style="color: var(--primary-color); font-family: var(--caption-font);">Details</span>
+                            </div>
+                        </section>
+                        
+                        <!-- Chart Section -->
+                        <section class="web-chart" style="background: var(--background-color); padding: 40px 30px;">
+                            <h2 style="color: var(--primary-color); font-family: var(--heading-font); text-align: center; margin-bottom: 30px;">Performance Analytics</h2>
+                            <div class="chart-container" style="background: white; border-radius: 12px; padding: 30px; border: 2px solid var(--secondary-color); max-width: 600px; margin: 0 auto;">
+                                <div class="chart-bars" style="display: flex; align-items: end; gap: 15px; height: 120px; justify-content: center;">
+                                    <div style="background: var(--primary-color); height: 60%; width: 30px; border-radius: 4px;"></div>
+                                    <div style="background: var(--secondary-color); height: 80%; width: 30px; border-radius: 4px;"></div>
+                                    <div style="background: var(--accent-color); height: 45%; width: 30px; border-radius: 4px;"></div>
+                                    <div style="background: var(--primary-color); height: 70%; width: 30px; border-radius: 4px;"></div>
+                                    <div style="background: var(--secondary-color); height: 55%; width: 30px; border-radius: 4px;"></div>
+                                    <div style="background: var(--accent-color); height: 90%; width: 30px; border-radius: 4px;"></div>
+                                </div>
+                                <div style="text-align: center; margin-top: 20px; font-size: 16px; color: var(--text-color); font-family: var(--body-font);">Monthly Growth Trends</div>
+                                <div style="text-align: center; margin-top: 10px; font-size: 14px; color: var(--secondary-color); font-family: var(--caption-font);">Q1 2024 Performance</div>
+                            </div>
+                        </section>
+                        
+                        <!-- Testimonials Section -->
+                        <section class="web-testimonials" style="background: var(--secondary-color); padding: 40px 30px;">
+                            <h2 style="color: var(--text-color); font-family: var(--heading-font); text-align: center; margin-bottom: 30px;">What Our Clients Say</h2>
+                            <div class="testimonials-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+                                <div class="testimonial" style="background: white; padding: 25px; border-radius: 8px; border: 1px solid var(--primary-color);">
+                                    <p style="color: var(--text-color); font-family: var(--body-font); font-style: italic; margin-bottom: 15px;">"Amazing service and great results!"</p>
+                                    <div style="color: var(--primary-color); font-family: var(--heading-font); font-weight: bold;">John Doe</div>
+                                    <div style="color: var(--secondary-color); font-family: var(--caption-font);">CEO, Company A</div>
+                                </div>
+                                <div class="testimonial" style="background: white; padding: 25px; border-radius: 8px; border: 1px solid var(--accent-color);">
+                                    <p style="color: var(--text-color); font-family: var(--body-font); font-style: italic; margin-bottom: 15px;">"Exceeded all our expectations."</p>
+                                    <div style="color: var(--accent-color); font-family: var(--heading-font); font-weight: bold;">Jane Smith</div>
+                                    <div style="color: var(--secondary-color); font-family: var(--caption-font);">CTO, Company B</div>
+                                </div>
+                            </div>
+                        </section>
+                            
+                            <!-- Footer עם Primary Color -->
+                            <footer class="web-footer" style="background: var(--primary-color);">
+                                <p style="color: white; font-family: var(--caption-font);">© 2024 Website Name</p>
+                            </footer>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </html>
