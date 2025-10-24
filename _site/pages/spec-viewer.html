@@ -903,6 +903,161 @@ document.addEventListener('DOMContentLoaded', function() {
     border: 1px solid #4a5568;
 }
 
+/* Minimal Design Palette Styles */
+.minimal-design-palette {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid #e9ecef;
+}
+
+.palette-section {
+    margin-bottom: 20px;
+}
+
+.palette-section:last-child {
+    margin-bottom: 0;
+}
+
+.palette-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.color-strip-palette {
+    display: flex;
+    height: 60px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin-bottom: 10px;
+}
+
+.color-strip-item {
+    flex: 1;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.color-strip-item:hover {
+    transform: scaleY(1.05);
+    z-index: 10;
+}
+
+.color-strip-item:first-child {
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+}
+
+.color-strip-item:last-child {
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+}
+
+.color-strip-name {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    font-size: 10px;
+    font-weight: 600;
+    background: rgba(0,0,0,0.3);
+    padding: 2px 6px;
+    border-radius: 3px;
+}
+
+.color-strip-code {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    font-size: 9px;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    background: rgba(0,0,0,0.4);
+    padding: 2px 4px;
+    border-radius: 2px;
+}
+
+.typography-mini-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.font-mini-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px;
+    background: white;
+    border-radius: 4px;
+    border: 1px solid #e9ecef;
+}
+
+.font-mini-label {
+    font-size: 11px;
+    color: #6c757d;
+    font-weight: 500;
+    min-width: 60px;
+}
+
+.font-mini-sample {
+    flex: 1;
+    font-size: 12px;
+    color: #495057;
+}
+
+.font-mini-details {
+    font-size: 9px;
+    color: #868e96;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    background: #f8f9fa;
+    padding: 2px 4px;
+    border-radius: 2px;
+}
+
+@media (max-width: 768px) {
+    .color-strip-palette {
+        height: 50px;
+    }
+    
+    .color-strip-name {
+        font-size: 9px;
+        top: 6px;
+        left: 6px;
+    }
+    
+    .color-strip-code {
+        font-size: 8px;
+        bottom: 6px;
+        right: 6px;
+    }
+    
+    .font-mini-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+    }
+    
+    .font-mini-label {
+        min-width: auto;
+    }
+}
+
+
+
 .tab-content {
     background: white;
     border-radius: 8px;
@@ -1880,12 +2035,212 @@ function displayDesign(design) {
         return;
     }
     
-    // Format the design content
+    // Parse design data for colors and typography
+    const designData = parseDesignData(design);
+    
+    // Build minimal palette HTML
+    let paletteHTML = '<div class="minimal-design-palette">';
+    
+    // Colors section
+    if (Object.keys(designData.colors).length > 0) {
+        paletteHTML += '<div class="palette-section">';
+        paletteHTML += '<div class="palette-title"><i class="fa fa-palette"></i> Color Palette</div>';
+        paletteHTML += '<div class="color-strip-palette">';
+        
+        Object.entries(designData.colors).forEach(([name, code]) => {
+            paletteHTML += `
+                <div class="color-strip-item" style="background-color: ${code};" onclick="copyToClipboard('${code}')">
+                    <div class="color-strip-name">${name}</div>
+                    <div class="color-strip-code">${code}</div>
+                </div>
+            `;
+        });
+        
+        paletteHTML += '</div></div>';
+    }
+    
+    // Typography section
+    if (Object.keys(designData.typography).length > 0) {
+        paletteHTML += '<div class="palette-section">';
+        paletteHTML += '<div class="palette-title"><i class="fa fa-font"></i> Typography</div>';
+        paletteHTML += '<div class="typography-mini-list">';
+        
+        Object.entries(designData.typography).forEach(([name, value]) => {
+            paletteHTML += `
+                <div class="font-mini-item">
+                    <div class="font-mini-label">${name}</div>
+                    <div class="font-mini-sample" style="${getTypographyStyle(value)}">Sample Text</div>
+                    <div class="font-mini-details">${value}</div>
+                </div>
+            `;
+        });
+        
+        paletteHTML += '</div></div>';
+    }
+    
+    paletteHTML += '</div>';
+    
+    // Format the remaining design content
     const formattedContent = formatTextContent(design);
-    container.innerHTML = formattedContent;
+    
+    // Combine palette with formatted content
+    container.innerHTML = paletteHTML + '<div style="margin-top: 20px;">' + formattedContent + '</div>';
     
     // Update raw data
     document.getElementById('raw-design').textContent = JSON.stringify(design, null, 2);
+}
+
+function parseDesignData(designContent) {
+    const result = {
+        colors: {},
+        typography: {}
+    };
+    
+    try {
+        let content = designContent;
+        if (typeof designContent === 'string') {
+            content = designContent;
+        }
+        
+        // Extract colors using multiple patterns
+        const colorPatterns = [
+            /Colors?:\s*([\s\S]*?)(?=Typography|$)/i,
+            /Color\s+Palette:\s*([\s\S]*?)(?=Typography|$)/i,
+            /Primary:\s*(#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{3})/i,
+            /Secondary:\s*(#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{3})/i,
+            /Accent:\s*(#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{3})/i,
+            /Background:\s*(#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{3})/i,
+            /Text:\s*(#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{3})/i
+        ];
+        
+        colorPatterns.forEach(pattern => {
+            const matches = content.match(pattern);
+            if (matches) {
+                if (pattern.source.includes('Colors?:') || pattern.source.includes('Color\\s+Palette:')) {
+                    const colorText = matches[1];
+                    const colorLines = colorText.split('\n');
+                    
+                    colorLines.forEach(line => {
+                        const match = line.match(/^\s*([^:]+):\s*(#[0-9A-Fa-f]{6}|#[0-9A-Fa-f]{3})/);
+                        if (match) {
+                            const name = match[1].trim();
+                            const code = match[2].trim();
+                            result.colors[name] = code;
+                        }
+                    });
+                } else {
+                    const match = content.match(pattern);
+                    if (match) {
+                        const name = pattern.source.match(/([^:]+):/)[1].trim();
+                        const code = match[1];
+                        result.colors[name] = code;
+                    }
+                }
+            }
+        });
+        
+        // Extract typography using multiple patterns
+        const typographyPatterns = [
+            /Typography:\s*([\s\S]*?)(?=\n\n|$)/i,
+            /Font\s+Family:\s*([\s\S]*?)(?=\n\n|$)/i,
+            /Headings?:\s*([^,\n]+(?:,\s*[^,\n]+)*)/i,
+            /Body:\s*([^,\n]+(?:,\s*[^,\n]+)*)/i,
+            /Captions?:\s*([^,\n]+(?:,\s*[^,\n]+)*)/i
+        ];
+        
+        typographyPatterns.forEach(pattern => {
+            const matches = content.match(pattern);
+            if (matches) {
+                if (pattern.source.includes('Typography:') || pattern.source.includes('Font\\s+Family:')) {
+                    const typographyText = matches[1];
+                    const typographyLines = typographyText.split('\n');
+                    
+                    typographyLines.forEach(line => {
+                        const match = line.match(/^\s*([^:]+):\s*(.+)$/);
+                        if (match) {
+                            const name = match[1].trim();
+                            const value = match[2].trim();
+                            result.typography[name] = value;
+                        }
+                    });
+                } else {
+                    const match = content.match(pattern);
+                    if (match) {
+                        const name = pattern.source.match(/([^:]+):/)[1].trim();
+                        const value = match[1].trim();
+                        result.typography[name] = value;
+                    }
+                }
+            }
+        });
+        
+        // Fallback defaults if no colors/typography found
+        if (Object.keys(result.colors).length === 0) {
+            result.colors = {
+                'Primary': '#4CAF50',
+                'Secondary': '#FF9800',
+                'Accent': '#2196F3',
+                'Background': '#FFFFFF',
+                'Text': '#212121'
+            };
+        }
+        
+        if (Object.keys(result.typography).length === 0) {
+            result.typography = {
+                'Headings': 'Roboto, Bold, 24px',
+                'Body': 'Roboto, Regular, 16px',
+                'Captions': 'Roboto, Italic, 12px'
+            };
+        }
+        
+    } catch (error) {
+        console.error('Error parsing design data:', error);
+        // Use fallback defaults
+        result.colors = {
+            'Primary': '#4CAF50',
+            'Secondary': '#FF9800',
+            'Accent': '#2196F3',
+            'Background': '#FFFFFF',
+            'Text': '#212121'
+        };
+        result.typography = {
+            'Headings': 'Roboto, Bold, 24px',
+            'Body': 'Roboto, Regular, 16px',
+            'Captions': 'Roboto, Italic, 12px'
+        };
+    }
+    
+    return result;
+}
+
+function getTypographyStyle(value) {
+    const parts = value.split(',').map(p => p.trim());
+    let style = '';
+    
+    parts.forEach(part => {
+        if (part.includes('px')) {
+            style += `font-size: ${part}; `;
+        } else if (part.toLowerCase() === 'bold') {
+            style += 'font-weight: bold; ';
+        } else if (part.toLowerCase() === 'italic') {
+            style += 'font-style: italic; ';
+        } else if (part.toLowerCase() === 'regular') {
+            style += 'font-weight: normal; ';
+        } else {
+            style += `font-family: ${part}; `;
+        }
+    });
+    
+    return style;
+}
+
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => {
+        showNotification(`Copied ${text} to clipboard!`, 'success');
+    }).catch(err => {
+        console.error('Failed to copy:', err);
+        showNotification('Failed to copy to clipboard', 'error');
+    });
 }
 
 function displayRaw(data) {
@@ -1899,6 +2254,8 @@ function displayRaw(data) {
     // Display complete data
     document.getElementById('raw-complete').textContent = JSON.stringify(data, null, 2);
 }
+
+
 
 function displayDiagramsFromData(data) {
     const container = document.getElementById('diagrams-data');

@@ -1,4 +1,7 @@
-// Welcome Modal Functions
+// Index Page JavaScript - Specifys.ai
+// Optimized and cleaned up version
+
+// ===== MODAL FUNCTIONS =====
 function showWelcomeModal() {
   const modal = document.getElementById('welcomeModal');
   if (modal) {
@@ -15,7 +18,6 @@ function closeWelcomeModal() {
   }
 }
 
-// Registration Modal Functions
 function showRegistrationModal() {
   const modal = document.getElementById('registrationModal');
   if (modal) {
@@ -32,6 +34,7 @@ function closeRegistrationModal() {
   }
 }
 
+// ===== FIRST VISIT CHECK =====
 function checkFirstVisit() {
   const hasVisited = localStorage.getItem('hasVisited');
   if (!hasVisited) {
@@ -40,7 +43,7 @@ function checkFirstVisit() {
   }
 }
 
-// Menu Toggle
+// ===== MENU TOGGLE =====
 function toggleMenu() {
   const menu = document.querySelector('.clip-path-menu');
   const navicon = document.querySelector('.navicon');
@@ -51,15 +54,21 @@ function toggleMenu() {
   }
 }
 
-// FAQ Toggle
+// ===== FAQ TOGGLE =====
 function toggleFAQ(index) {
   const faqItem = document.querySelector(`.faq-item:nth-child(${index + 1})`);
   if (faqItem) {
-    faqItem.classList.toggle('active');
+    const question = faqItem.querySelector('.faq-question');
+    const answer = faqItem.querySelector('.faq-answer');
+    
+    if (question && answer) {
+      question.classList.toggle('open');
+      answer.classList.toggle('open');
+    }
   }
 }
 
-// Counter Animation
+// ===== COUNTER ANIMATION =====
 function animateCounter(element, target, duration = 2000) {
   let start = 0;
   const increment = target / (duration / 16);
@@ -77,7 +86,7 @@ function animateCounter(element, target, duration = 2000) {
   updateCounter();
 }
 
-// Tools Showcase Animation
+// ===== TOOLS SHOWCASE ANIMATION =====
 function animateToolsShowcase() {
   const tools = document.querySelectorAll('.tool-square');
   tools.forEach((tool, index) => {
@@ -88,7 +97,7 @@ function animateToolsShowcase() {
   });
 }
 
-// Track Start Now Click
+// ===== ANALYTICS TRACKING =====
 function trackStartNowClick() {
   if (typeof gtag !== 'undefined') {
     gtag('event', 'click', {
@@ -98,25 +107,23 @@ function trackStartNowClick() {
   }
 }
 
-// Check if user is authenticated
+// ===== AUTHENTICATION CHECK =====
 function isUserAuthenticated() {
   return firebase.auth().currentUser !== null;
 }
 
-// Handle Start button click based on authentication status
+// ===== START BUTTON HANDLER =====
 function handleStartButtonClick() {
   trackStartNowClick();
   
   if (isUserAuthenticated()) {
-    // User is authenticated - proceed with normal flow
     proceedWithAppPlanning();
   } else {
-    // User is not authenticated - show registration modal
     showRegistrationModal();
   }
 }
 
-// Proceed with app planning (original Start button functionality)
+// ===== APP PLANNING FLOW =====
 function proceedWithAppPlanning() {
   const heroContent = document.getElementById('heroContent');
   const heroTitle = document.querySelector('.hero-main-title');
@@ -133,7 +140,7 @@ function proceedWithAppPlanning() {
   }, 1000);
 }
 
-// Interactive Questions System
+// ===== INTERACTIVE QUESTIONS SYSTEM =====
 let currentQuestionIndex = 0;
 let answers = [];
 
@@ -144,7 +151,6 @@ const questions = [
   "Additional details"
 ];
 
-// Modern Input Container Functions
 function showModernInput() {
   const inputContainer = document.getElementById('modernInputContainer');
   const questionsDisplay = document.getElementById('questionsDisplay');
@@ -197,13 +203,14 @@ function nextQuestion() {
         currentQuestionElement.style.opacity = '1';
       }, 300);
     }
-         } else {
-           // All questions completed - call API
-           console.log('All questions completed:', answers);
-           generateSpecification();
-         }
+  } else {
+    // All questions completed - call API
+    console.log('All questions completed:', answers);
+    generateSpecification();
+  }
 }
 
+// ===== MODERN INPUT SETUP =====
 function setupModernInput() {
   const textarea = document.getElementById('mainInput');
   const sendBtn = document.getElementById('sendBtn');
@@ -217,19 +224,19 @@ function setupModernInput() {
   
   textarea.addEventListener('input', autoResize);
   
-         sendBtn.addEventListener('click', function() {
-           nextQuestion();
-           autoResize();
-         });
-         
-         // Demo button functionality
-         const demoBtn = document.getElementById('demoBtn');
-         if (demoBtn) {
-           demoBtn.addEventListener('click', function() {
-             fillDemoAnswers();
-           });
-         }
+  sendBtn.addEventListener('click', function() {
+    nextQuestion();
+    autoResize();
+  });
   
+  // Demo button functionality
+  const demoBtn = document.getElementById('demoBtn');
+  if (demoBtn) {
+    demoBtn.addEventListener('click', function() {
+      fillDemoAnswers();
+    });
+  }
+
   textarea.addEventListener('keydown', function(e) {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -253,66 +260,39 @@ function setupModernInput() {
   });
 }
 
-// Event Listeners
-document.addEventListener('DOMContentLoaded', function() {
-  checkFirstVisit();
-  setupModernInput();
+// ===== DEMO FUNCTIONALITY =====
+function fillDemoAnswers() {
+  console.log('🚀 Filling demo answers...');
   
-  const startButton = document.getElementById('startButton');
-  if (startButton) {
-    startButton.addEventListener('click', handleStartButtonClick);
+  // Demo answers for a fitness tracking app
+  const demoAnswers = [
+    "FitTracker Pro is a comprehensive fitness tracking mobile application that helps users monitor their daily physical activities, set fitness goals, and track their progress over time. The app includes features like step counting, workout logging, nutrition tracking, and social challenges to keep users motivated on their fitness journey.",
+    
+    "Users start by creating a profile and setting their fitness goals. They can log daily activities like walking, running, or gym workouts. The app tracks calories burned, steps taken, and workout duration. Users can also log their meals and water intake. The app provides weekly progress reports and sends motivational notifications to keep users engaged.",
+    
+    "The target audience includes fitness enthusiasts aged 18-45 who want to track their health and fitness progress. This includes gym-goers, runners, cyclists, and anyone looking to maintain a healthy lifestyle. The app is designed for both beginners who need guidance and advanced users who want detailed analytics.",
+    
+    "The app includes social features where users can connect with friends, participate in fitness challenges, and share their achievements. It also integrates with popular fitness wearables and includes a premium subscription tier with advanced analytics, personalized workout plans, and nutrition coaching."
+  ];
+  
+  // Fill all answers at once
+  answers = [...demoAnswers];
+  
+  // Show a loading message
+  const textarea = document.getElementById('mainInput');
+  if (textarea) {
+    textarea.value = "🚀 Demo answers loaded! Sending to API...";
+    textarea.style.color = '#ff6b35';
   }
   
-  const navicon = document.querySelector('.navicon');
-  if (navicon) {
-    navicon.addEventListener('click', toggleMenu);
-  }
-  
-  const faqItems = document.querySelectorAll('.faq-item');
-  faqItems.forEach((item, index) => {
-    item.addEventListener('click', () => toggleFAQ(index));
-  });
-  
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        const counter = entry.target.querySelector('.counter');
-        if (counter) {
-          const target = parseInt(counter.dataset.target);
-          animateCounter(counter, target);
-          observer.unobserve(entry.target);
-        }
-      }
-    });
-  });
-  
-  const statsItems = document.querySelectorAll('.stat-item');
-  statsItems.forEach(item => observer.observe(item));
-  
-  const toolsSection = document.querySelector('.tools-showcase');
-  if (toolsSection) {
-    const toolsObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          animateToolsShowcase();
-          toolsObserver.unobserve(entry.target);
-        }
-      });
-    });
-    toolsObserver.observe(toolsSection);
-  }
-  
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-      closeWelcomeModal();
-      closeRegistrationModal();
-    }
-  });
-});
+  // Wait a moment then call the API
+  setTimeout(() => {
+    console.log('🚀 Demo answers:', answers);
+    generateSpecification();
+  }, 1000);
+}
 
 // ===== API INTEGRATION =====
-
-// Generate specification function (copied from processing-unified.js)
 async function generateSpecification() {
   try {
     console.log('🚀 Starting generateSpecification...');
@@ -323,7 +303,7 @@ async function generateSpecification() {
     // Prepare the prompt for overview generation
     const prompt = PROMPTS.overview(answers);
     
-    // Prepare API request body (exactly like processing-unified.js)
+    // Prepare API request body
     const requestBody = {
       stage: 'overview',
       locale: 'en-US',
@@ -335,7 +315,7 @@ async function generateSpecification() {
       }
     };
     
-    // Call the Worker API (same endpoint as processing-unified.js)
+    // Call the Worker API
     const response = await fetch('https://spspec.shalom-cohen-111.workers.dev/generate', {
       method: 'POST',
       headers: {
@@ -350,10 +330,8 @@ async function generateSpecification() {
     
     const overviewContent = await response.text();
     console.log('✅ API response received:', overviewContent);
-    console.log('📊 API response length:', overviewContent.length);
-    console.log('📊 API response type:', typeof overviewContent);
     
-    // Save to Firebase and redirect (same as processing-unified.js)
+    // Save to Firebase and redirect
     const firebaseId = await saveSpecToFirebase(overviewContent, answers);
     console.log('✅ Saved to Firebase successfully with ID:', firebaseId);
     
@@ -378,7 +356,7 @@ async function generateSpecification() {
   }
 }
 
-// Loading overlay functions
+// ===== LOADING OVERLAY FUNCTIONS =====
 function showLoadingOverlay() {
   const overlay = document.getElementById('loadingOverlay');
   if (overlay) {
@@ -393,10 +371,9 @@ function hideLoadingOverlay() {
   }
 }
 
-// Firebase integration function (copied from processing-unified.js)
+// ===== FIREBASE INTEGRATION =====
 async function saveSpecToFirebase(overviewContent, answers) {
   try {
-    
     const user = firebase.auth().currentUser;
     if (!user) {
       throw new Error('User must be authenticated to save to Firebase');
@@ -429,7 +406,7 @@ async function saveSpecToFirebase(overviewContent, answers) {
     
     const specDoc = {
       title: title,
-      overview: overviewContent, // Save as string, same as processing-unified.js
+      overview: overviewContent,
       technical: null,
       market: null,
       status: {
@@ -488,34 +465,61 @@ async function saveSpecToFirebase(overviewContent, answers) {
   }
 }
 
-// Demo function to fill answers automatically
-function fillDemoAnswers() {
-  console.log('🚀 Filling demo answers...');
+// ===== EVENT LISTENERS =====
+document.addEventListener('DOMContentLoaded', function() {
+  checkFirstVisit();
+  setupModernInput();
   
-  // Demo answers for a fitness tracking app
-  const demoAnswers = [
-    "FitTracker Pro is a comprehensive fitness tracking mobile application that helps users monitor their daily physical activities, set fitness goals, and track their progress over time. The app includes features like step counting, workout logging, nutrition tracking, and social challenges to keep users motivated on their fitness journey.",
-    
-    "Users start by creating a profile and setting their fitness goals. They can log daily activities like walking, running, or gym workouts. The app tracks calories burned, steps taken, and workout duration. Users can also log their meals and water intake. The app provides weekly progress reports and sends motivational notifications to keep users engaged.",
-    
-    "The target audience includes fitness enthusiasts aged 18-45 who want to track their health and fitness progress. This includes gym-goers, runners, cyclists, and anyone looking to maintain a healthy lifestyle. The app is designed for both beginners who need guidance and advanced users who want detailed analytics.",
-    
-    "The app includes social features where users can connect with friends, participate in fitness challenges, and share their achievements. It also integrates with popular fitness wearables and includes a premium subscription tier with advanced analytics, personalized workout plans, and nutrition coaching."
-  ];
-  
-  // Fill all answers at once
-  answers = [...demoAnswers];
-  
-  // Show a loading message
-  const textarea = document.getElementById('mainInput');
-  if (textarea) {
-    textarea.value = "🚀 Demo answers loaded! Sending to API...";
-    textarea.style.color = '#ff6b35';
+  const startButton = document.getElementById('startButton');
+  if (startButton) {
+    startButton.addEventListener('click', handleStartButtonClick);
   }
   
-  // Wait a moment then call the API
-  setTimeout(() => {
-    console.log('🚀 Demo answers:', answers);
-    generateSpecification();
-  }, 1000);
-}
+  const navicon = document.querySelector('.navicon');
+  if (navicon) {
+    navicon.addEventListener('click', toggleMenu);
+  }
+  
+  const faqItems = document.querySelectorAll('.faq-item');
+  faqItems.forEach((item, index) => {
+    item.addEventListener('click', () => toggleFAQ(index));
+  });
+  
+  // Intersection Observer for animations
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const counter = entry.target.querySelector('.stat-number');
+        if (counter) {
+          const target = parseInt(counter.dataset.target);
+          animateCounter(counter, target);
+          observer.unobserve(entry.target);
+        }
+      }
+    });
+  });
+  
+  const statsItems = document.querySelectorAll('.stat-item');
+  statsItems.forEach(item => observer.observe(item));
+  
+  const toolsSection = document.querySelector('.tools-showcase');
+  if (toolsSection) {
+    const toolsObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          animateToolsShowcase();
+          toolsObserver.unobserve(entry.target);
+        }
+      });
+    });
+    toolsObserver.observe(toolsSection);
+  }
+  
+  // Keyboard shortcuts
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      closeWelcomeModal();
+      closeRegistrationModal();
+    }
+  });
+});

@@ -456,140 +456,100 @@ document.addEventListener('DOMContentLoaded', function() {
             <!-- Will be populated by auth system -->
         </div>
     </div>
-</header>
-
-<style>
-/* Logo dark grey color - adjusted size */
-.logo a,
-.logo-text {
-    color: #333 !important;
-    font-size: 1.66rem !important;
-}
-
-/* Only the dot in cyan */
-.logo-dot {
-    color: #0078d4 !important;
-}
-
-.logo a:hover {
-    color: #444 !important;
-}
-
-.logo a:hover .logo-dot {
-    color: #005ea2 !important;
-}
-
-/* Mobile adjustments */
-@media (max-width: 768px) {
-    .logo a,
-    .logo-text {
-        font-size: 1.22rem !important;
-    }
-}
-
-@media (max-width: 480px) {
-    .logo a,
-    .logo-text {
-        font-size: 1.11rem !important;
-    }
-}
-</style>
-
+    </header>
 
     
     <!-- Main Content -->
     <main id="main-content" class="main-content">
-        <!-- Custom menu for homepage -->
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div id="particles-js"></div>
+            
+            <!-- Hero Content -->
+            <div class="hero-content" id="heroContent">
+                <h1 class="hero-main-title">Build faster with AI-driven insights.</h1>
+                
+                <div class="hero-button-container">
+                    <button class="hero-cta-button" id="startButton">Start</button>
+                </div>
+                
+                <h2 class="hero-subtitle">Plan your app smarter</h2>
+            </div>
+            
+            <!-- Questions Display -->
+            <div class="questions-display" id="questionsDisplay" style="display: none;">
+                <div class="current-question" id="currentQuestion">
+                    Describe your application
+                </div>
+            </div>
+            
+            <!-- Loading Overlay -->
+            <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+                <div class="loading-content">
+                    <div class="loading-spinner"></div>
+                    <div class="loading-text">Generating Your Specification</div>
+                    <div class="loading-subtext">This may take a few moments...</div>
+                </div>
+            </div>
+            
+            <!-- Modern Input Container -->
+            <div class="modern-input-container" id="modernInputContainer" style="display: none;">
+                <div class="input-instruction">
+                    Start Typing or Press 'Space' for AI or Press '/' for saved replies
+                </div>
+                
+                <div class="input-area">
+                    <textarea 
+                        class="main-input" 
+                        id="mainInput"
+                        placeholder="Type your message here..."
+                        rows="1"
+                    ></textarea>
+                </div>
+                
+                <div class="input-controls">
+                    <div class="left-controls">
+                        <button class="control-btn" title="Add">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                        </button>
+                        
+                        <div class="separator"></div>
+                        
+                        <button class="control-btn" title="Attach file">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
+                            </svg>
+                        </button>
+                        
+                        <button class="control-btn" title="Bookmark">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"></path>
+                            </svg>
+                        </button>
+                        
+                        <button class="control-btn" title="AI Assistant">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <button class="send-btn" id="sendBtn">
+                        Next >
+                    </button>
+                    
+                    <button class="demo-btn" id="demoBtn" title="Fill demo answers and send automatically">
+                        🚀 Demo
+                    </button>
+                </div>
+            </div>
+        </section>
 
-<!-- Hero Section -->
-<div class="hero-hero-section">
-  <div id="particles-js"></div>
-  
-  <!-- Hero Content -->
-  <div class="hero-content" id="heroContent">
-    <h1 class="hero-main-title">Build faster with AI-driven insights.</h1>
-    
-    <div class="hero-button-container">
-      <button class="hero-cta-button" id="startButton">Start</button>
-    </div>
-    
-    <h2 class="hero-subtitle">Plan your app smarter</h2>
-    </div>
-    
-    <!-- Questions Display -->
-    <div class="questions-display" id="questionsDisplay" style="display: none;">
-      <div class="current-question" id="currentQuestion">
-        Describe your application
-      </div>
-    </div>
-    
-    <!-- Loading Overlay -->
-    <div class="loading-overlay" id="loadingOverlay" style="display: none;">
-      <div class="loading-content">
-        <div class="loading-spinner"></div>
-        <div class="loading-text">Generating Your Specification</div>
-        <div class="loading-subtext">This may take a few moments...</div>
-      </div>
-    </div>
-    
-    <!-- Modern Input Container -->
-    <div class="modern-input-container" id="modernInputContainer" style="display: none;">
-      <div class="input-instruction">
-        Start Typing or Press 'Space' for AI or Press '/' for saved replies
-  </div>
-      
-      <div class="input-area">
-        <textarea 
-          class="main-input" 
-          id="mainInput"
-          placeholder="Type your message here..."
-          rows="1"
-        ></textarea>
-      </div>
-      
-      <div class="input-controls">
-        <div class="left-controls">
-          <button class="control-btn" title="Add">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="12" y1="5" x2="12" y2="19"></line>
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
-          </button>
-          
-          <div class="separator"></div>
-          
-          <button class="control-btn" title="Attach file">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
-            </svg>
-          </button>
-          
-          <button class="control-btn" title="Bookmark">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"></path>
-            </svg>
-          </button>
-          
-          <button class="control-btn" title="AI Assistant">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
-            </svg>
-          </button>
-        </div>
-        
-           <button class="send-btn" id="sendBtn">
-             Next >
-           </button>
-           
-           <button class="demo-btn" id="demoBtn" title="Fill demo answers and send automatically">
-             🚀 Demo
-           </button>
-      </div>
-    </div>
-  
-</div>
-
-<div class="extra-sections">
+        <!-- Content Sections -->
+        <div class="extra-sections">
   <!-- Tools Section -->
   <div class="section" style="--section-index: 0;">
     <h2>Discover Our Tools</h2>
@@ -951,10 +911,11 @@ document.addEventListener('DOMContentLoaded', function() {
       </div>
     </div>
     <p>Ready to join them? <a href="/processing-unified.html" class="cta-button" onclick="trackCTA('Start Planning Free', 'testimonials_section')">Start Planning Free</a></p>
-  </div>
-</div>
+        </div>
+    </main>
 
-<!-- Welcome Modal -->
+    <!-- Modals -->
+    <!-- Welcome Modal -->
 <div id="welcomeModal" class="welcome-modal" style="display: none;">
   <div class="welcome-content">
     <div class="welcome-header">
@@ -1021,16 +982,7 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
   </div>
 </div>
-
-
-
-
-
-
-
-    </main>
     
-    <!-- Footer -->
     <!-- Footer -->
 <footer>
   <div class="footer-content">
@@ -1055,7 +1007,6 @@ document.addEventListener('DOMContentLoaded', function() {
 </footer>
 
     
-    <!-- Scroll to top button -->
     <!-- Scroll to top button -->
 <button class="icon-btn scroll-to-top" id="scrollToTop" aria-label="Scroll">
   <i class="fa fa-arrow-up"></i>
