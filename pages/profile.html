@@ -481,14 +481,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="stat-label">Apps</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-number" id="specs-count">0</div>
-                    <div class="stat-label">Specs</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number" id="research-count">0</div>
-                    <div class="stat-label">Research</div>
-                </div>
-                <div class="stat-item">
                     <div class="stat-number" id="saved-tools-count">0</div>
                     <div class="stat-label">Tools</div>
                 </div>
@@ -496,10 +488,10 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
 
 
-        <!-- User's Apps Section -->
+        <!-- Workspace Section -->
         <div class="profile-specs-section">
             <div class="section-header">
-                <h3>My Apps</h3>
+                <h3>Workspace</h3>
                 <div class="section-actions">
                     <button class="create-app-btn" onclick="showCreateAppModal()">
                         <i class="fas fa-plus"></i>
@@ -507,12 +499,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             </div>
 
-            <div id="apps-container" class="apps-grid">
-                <div class="loading">Loading apps...</div>
+            <div id="workspace-container" class="workspace-grid">
+                <div class="loading">Loading workspace...</div>
             </div>
         </div>
 
-        <!-- User's Content Section (Tabbed) -->
+        <!-- User's Content Section - Saved Tools Only -->
         <div class="profile-specs-section">
             <div class="section-header">
                 <h3>My Content</h3>
@@ -521,13 +513,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="tabbed-section">
                 <div class="tab-header">
                     <div class="tab-buttons">
-                        <button class="tab-button active" onclick="switchProfileTab('specs')" data-tab="specs">
-                            <i class="fas fa-clipboard-list"></i> Specifications
-                        </button>
-                        <button class="tab-button" onclick="switchProfileTab('research')" data-tab="research">
-                            <i class="fas fa-search"></i> Market Research
-                        </button>
-                        <button class="tab-button" onclick="switchProfileTab('tools')" data-tab="tools">
+                        <button class="tab-button active" data-tab="tools">
                             <i class="fas fa-wrench"></i> Saved Tools
                         </button>
                     </div>
@@ -538,17 +524,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 </div>
                 <div class="tab-content expanded">
-                    <div class="tab-pane active" id="specs-tab">
-                        <div id="specs-container" class="apps-grid">
-                            <div class="loading">Loading specifications...</div>
-                        </div>
-                    </div>
-                    <div class="tab-pane" id="research-tab">
-                        <div id="research-container" class="apps-grid">
-                            <div class="loading">Loading market research...</div>
-                        </div>
-                    </div>
-                    <div class="tab-pane" id="tools-tab">
+                    <div class="tab-pane active" id="tools-tab">
                         <div id="tools-container" class="apps-grid">
                             <div class="loading">Loading tools...</div>
                         </div>
@@ -664,10 +640,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 await createUserDocumentInProfile(user);
                 
                 updateProfileInfo(user);
-                loadUserApps();
-                loadUserSpecs();
+                loadWorkspace();
                 loadUserSavedTools();
-                loadUserMarketResearch();
                 updateAuthUI(user);
             } else {
                 // Redirect to login if not authenticated
@@ -699,6 +673,290 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Check admin access and show/hide admin dashboard button
             checkAdminAccess(user);
+        }
+
+        // Load workspace data (apps + specs + research)
+        async function loadWorkspace() {
+            if (!currentUser) return;
+            
+            try {
+                const workspaceItems = [];
+                
+                // Load Apps
+                const appsQuery = query(
+                    collection(db, 'apps'),
+                    where('userId', '==', currentUser.uid),
+                    orderBy('createdAt', 'desc')
+                );
+                const appsSnapshot = await getDocs(appsQuery);
+                appsSnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    workspaceItems.push({
+                        id: doc.id,
+                        type: 'app',
+                        title: data.name,
+                        description: data.description,
+                        createdAt: data.createdAt,
+                        updatedAt: data.updatedAt,
+                        status: data.status,
+                        viewUrl: `app-dashboard.html?id=${doc.id}`
+                    });
+                });
+                
+                // Load ALL Specs (both new and old)
+                const specsQuery = query(
+                    collection(db, 'specs'),
+                    where('userId', '==', currentUser.uid),
+                    orderBy('createdAt', 'desc')
+                );
+                const specsSnapshot = await getDocs(specsQuery);
+                specsSnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    
+                    // Determine if it's a new spec (from spec-viewer) or old spec
+                    const isNewSpec = data.technical !== undefined || data.market !== undefined;
+                    const isMarketResearch = data.mode === 'market';
+                    
+                    if (isMarketResearch) {
+                        // Old market research
+                        workspaceItems.push({
+                            id: doc.id,
+                            type: 'research',
+                            title: data.title,
+                            createdAt: data.createdAt,
+                            viewUrl: `research.html?id=${doc.id}`
+                        });
+                    } else if (isNewSpec) {
+                        // New spec from spec-viewer
+                        workspaceItems.push({
+                            id: doc.id,
+                            type: 'new-spec',
+                            title: data.title,
+                            description: data.overview ? data.overview.substring(0, 100) + '...' : 'Complete specification with technical details',
+                            overview: data.overview,
+                            createdAt: data.createdAt,
+                            updatedAt: data.updatedAt,
+                            status: data.status,
+                            viewUrl: `spec-viewer.html?id=${doc.id}`
+                        });
+                    } else {
+                        // Old spec
+                        workspaceItems.push({
+                            id: doc.id,
+                            type: 'old-spec',
+                            title: data.title,
+                            description: 'Legacy specification document',
+                            createdAt: data.createdAt,
+                            updatedAt: data.updatedAt,
+                            viewUrl: `spec.html?id=${doc.id}`
+                        });
+                    }
+                });
+                
+                // Load Market Research from dedicated collection
+                const researchQuery = query(
+                    collection(db, 'marketResearch'),
+                    where('userId', '==', currentUser.uid)
+                );
+                const researchSnapshot = await getDocs(researchQuery);
+                researchSnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    workspaceItems.push({
+                        id: doc.id,
+                        type: 'research',
+                        title: data.title,
+                        description: 'Market research and analysis',
+                        createdAt: data.createdAt,
+                        updatedAt: data.updatedAt,
+                        viewUrl: `research.html?id=${doc.id}`
+                    });
+                });
+                
+                // Sort by creation date (newest first)
+                workspaceItems.sort((a, b) => {
+                    const dateA = a.createdAt?.toDate?.() || new Date(a.createdAt);
+                    const dateB = b.createdAt?.toDate?.() || new Date(b.createdAt);
+                    return dateB - dateA;
+                });
+                
+                // Update stats - only apps count
+                const appsCount = workspaceItems.filter(item => item.type === 'app').length;
+                document.getElementById('apps-count').textContent = appsCount;
+                
+                renderWorkspace(workspaceItems);
+                
+            } catch (error) {
+                console.error('Error loading workspace:', error);
+                document.getElementById('workspace-container').innerHTML = '<div class="error">Error loading workspace</div>';
+            }
+        }
+
+        // Render workspace items
+        function renderWorkspace(items) {
+            const workspaceContainer = document.getElementById('workspace-container');
+            
+            if (items.length === 0) {
+                workspaceContainer.innerHTML = `
+                    <div class="no-specs">
+                        <div class="no-specs-icon"><i class="fas fa-folder-open"></i></div>
+                        <h4>Your workspace is empty</h4>
+                        <p>Create your first app or specification to get started!</p>
+                        <button class="btn" onclick="showCreateAppModal()">
+                            Create New App
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+            
+            workspaceContainer.innerHTML = items.map(item => {
+                const date = new Date(item.createdAt?.toDate?.() || item.createdAt).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                });
+                
+                
+                // Determine progress based on item type
+                let progressItems = [];
+                
+                if (item.type === 'app') {
+                    progressItems = [
+                        { name: 'Planning', status: 'ready' },
+                        { name: 'Design', status: 'in-progress' },
+                        { name: 'Development', status: 'pending' },
+                        { name: 'Testing', status: 'not-started' },
+                        { name: 'Launch', status: 'not-started' }
+                    ];
+                } else if (item.type === 'new-spec') {
+                    // For spec-viewer specs, check actual status
+                    const status = item.status || {};
+                    progressItems = [
+                        { name: 'Overview', status: status.overview || 'ready' },
+                        { name: 'Technical', status: status.technical || 'pending' },
+                        { name: 'Market', status: status.market || 'pending' },
+                        { name: 'Design', status: 'pending' },
+                        { name: 'Review', status: 'not-started' }
+                    ];
+                } else {
+                    // For old specs and research
+                    progressItems = [
+                        { name: 'Analysis', status: 'ready' },
+                        { name: 'Research', status: 'ready' },
+                        { name: 'Documentation', status: 'in-progress' },
+                        { name: 'Review', status: 'pending' }
+                    ];
+                }
+                
+                const progressHTML = progressItems.map(progress => `
+                    <div class="progress-item ${progress.status}" data-tooltip="${getTooltipText(progress.status)}">
+                        ${getStatusIcon(progress.status)}
+                        <span>${progress.name}</span>
+                    </div>
+                `).join('');
+                
+                return `
+                    <div class="workspace-item ${item.type}" data-item-id="${item.id}" data-item-type="${item.type}" data-tooltip="${getItemTooltip(item)}">
+                        <div class="workspace-item-header">
+                            <h4 class="workspace-item-title">${item.title}</h4>
+                            <p class="workspace-item-description">${getItemDescription(item)}</p>
+                        </div>
+                        
+                        <div class="workspace-progress">
+                            <div class="workspace-progress-title">Progress:</div>
+                            <div class="progress-items">
+                                ${progressHTML}
+                            </div>
+                        </div>
+                        
+                        <div class="workspace-item-footer">
+                            <div class="workspace-item-dates">
+                                <small>Created: ${date}</small>
+                            </div>
+                            <a href="${item.viewUrl}" class="workspace-view-btn">
+                                View Project →
+                            </a>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Helper function to get tooltip text
+        function getTooltipText(status) {
+            switch(status) {
+                case 'ready': return 'Completed and ready';
+                case 'in-progress': return 'Currently in progress';
+                case 'pending': return 'Waiting to start';
+                case 'not-started': return 'Not yet started';
+                default: return 'Unknown status';
+            }
+        }
+
+        // Helper function to get item tooltip
+        function getItemTooltip(item) {
+            if (item.type === 'app') {
+                return 'Mobile application project - Click to view dashboard';
+            } else if (item.type === 'new-spec') {
+                return 'Complete specification with technical details - Click to view';
+            } else if (item.type === 'old-spec') {
+                return 'Legacy specification document - Click to view';
+            } else if (item.type === 'research') {
+                return 'Market research and analysis - Click to view';
+            }
+            return 'Project documentation - Click to view';
+        }
+
+        // Helper function to get status icon
+        function getStatusIcon(status) {
+            switch(status) {
+                case 'ready': return '<i class="fas fa-check-circle"></i>';
+                case 'in-progress': return '<i class="fas fa-clock"></i>';
+                case 'pending': return '<i class="fas fa-circle"></i>';
+                case 'not-started': return '<i class="fas fa-times-circle"></i>';
+                default: return '<i class="fas fa-circle"></i>';
+            }
+        }
+
+        // Helper function to get item description
+        function getItemDescription(item) {
+            if (item.description) {
+                return item.description;
+            }
+            
+            if (item.type === 'app') {
+                return item.description || 'Mobile application project';
+            } else if (item.type === 'new-spec') {
+                // Extract description from overview JSON
+                if (item.overview) {
+                    try {
+                        const overviewData = typeof item.overview === 'string' ? JSON.parse(item.overview) : item.overview;
+                        if (overviewData.ideaSummary) {
+                            return overviewData.ideaSummary.substring(0, 120) + (overviewData.ideaSummary.length > 120 ? '...' : '');
+                        }
+                    } catch (e) {
+                        // If parsing fails, remove the fixed JSON prefix and clean the text
+                        const jsonPrefix = '{"overview":{"ideaSummary":"';
+                        let cleanOverview = item.overview;
+                        
+                        // Remove the fixed JSON prefix if it exists
+                        if (cleanOverview.startsWith(jsonPrefix)) {
+                            cleanOverview = cleanOverview.substring(jsonPrefix.length);
+                        }
+                        
+                        // Remove JSON characters and clean up
+                        cleanOverview = cleanOverview.replace(/[{}":,]/g, '').trim();
+                        
+                        return cleanOverview.substring(0, 120) + (cleanOverview.length > 120 ? '...' : '');
+                    }
+                }
+                return 'Complete specification with technical details';
+            } else if (item.type === 'old-spec') {
+                return 'Legacy specification document';
+            } else if (item.type === 'research') {
+                return 'Market research and analysis';
+            }
+            return 'Project documentation';
         }
 
         // Load user apps

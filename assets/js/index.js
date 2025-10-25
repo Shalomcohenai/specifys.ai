@@ -210,6 +210,29 @@ function nextQuestion() {
   }
 }
 
+function previousQuestion() {
+  if (currentQuestionIndex > 0) {
+    // Move to previous question
+    currentQuestionIndex--;
+    
+    // Restore the previous answer
+    const textarea = document.getElementById('mainInput');
+    if (textarea) {
+      textarea.value = answers[currentQuestionIndex] || '';
+    }
+    
+    // Show previous question with fade transition
+    const currentQuestionElement = document.getElementById('currentQuestion');
+    if (currentQuestionElement) {
+      currentQuestionElement.style.opacity = '0';
+      setTimeout(() => {
+        currentQuestionElement.textContent = questions[currentQuestionIndex];
+        currentQuestionElement.style.opacity = '1';
+      }, 300);
+    }
+  }
+}
+
 // ===== MODERN INPUT SETUP =====
 function setupModernInput() {
   const textarea = document.getElementById('mainInput');

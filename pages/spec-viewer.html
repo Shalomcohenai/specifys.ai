@@ -811,8 +811,37 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* אנימציית טעינה לכרטיסיות */
+.tab-loader {
+  width: 16px;
+  height: 16px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: 
+    radial-gradient(farthest-side,#666 94%,#0000) top/2px 2px no-repeat,
+    conic-gradient(#0000 30%,#666);
+  mask: radial-gradient(farthest-side,#0000 calc(100% - 2px),#000 0);
+  -webkit-mask: radial-gradient(farthest-side,#0000 calc(100% - 2px),#000 0);
+  animation: tabLoaderSpin 1s infinite linear;
+  display: inline-block;
+  margin-right: 8px;
+}
+
+@keyframes tabLoaderSpin { 
+  100%{transform: rotate(1turn)}
+}
+
+.tab-button.loading {
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+.tab-button.loading .tab-loader {
+  animation: tabLoaderSpin 1s infinite linear;
 }
 
 .tab-button.success .fa {
@@ -3518,6 +3547,36 @@ function updateStatus(type, status) {
     }
 }
 
+function updateTabLoadingState(type, isLoading) {
+    const tabButton = document.getElementById(`${type}Tab`);
+    if (!tabButton) return;
+    
+    if (isLoading) {
+        // הוספת מצב טעינה
+        tabButton.classList.add('loading');
+        
+        // שמירת הטקסט המקורי
+        const originalText = tabButton.innerHTML;
+        tabButton.setAttribute('data-original-text', originalText);
+        
+        // עדכון הטקסט עם אנימציית טעינה
+        const icon = tabButton.querySelector('i').className;
+        const text = tabButton.textContent.trim();
+        tabButton.innerHTML = `<div class="tab-loader"></div><i class="${icon}"></i> ${text}`;
+        
+    } else {
+        // הסרת מצב הטעינה
+        tabButton.classList.remove('loading');
+        
+        // החזרת הטקסט המקורי
+        const originalText = tabButton.getAttribute('data-original-text');
+        if (originalText) {
+            tabButton.innerHTML = originalText;
+            tabButton.removeAttribute('data-original-text');
+        }
+    }
+}
+
 
 function updateStorageStatus() {
     
@@ -3789,9 +3848,9 @@ async function approveOverview() {
         currentSpecData.status.design = "generating";
         
         // Update UI
-        updateStatus('technical', 'generating');
-        updateStatus('market', 'generating');
-        updateStatus('design', 'generating');
+        updateTabLoadingState('technical', true);
+        updateTabLoadingState('market', true);
+        updateTabLoadingState('design', true);
         
         // Generate technical, market, and design specs sequentially
         console.log('Starting sequential generation of technical, market, and design specs...');
@@ -3811,6 +3870,7 @@ async function approveOverview() {
         currentSpecData.technical = technicalContent;
         currentSpecData.status.technical = technicalContent === 'error' ? "error" : "ready";
         updateStatus('technical', currentSpecData.status.technical);
+        updateTabLoadingState('technical', false);
         displayTechnical(technicalContent);
         
         if (user && currentSpecData && currentSpecData.id) {
@@ -3840,6 +3900,7 @@ async function approveOverview() {
         currentSpecData.market = marketContent;
         currentSpecData.status.market = marketContent === 'error' ? "error" : "ready";
         updateStatus('market', currentSpecData.status.market);
+        updateTabLoadingState('market', false);
         displayMarket(marketContent);
         
         if (user && currentSpecData && currentSpecData.id) {
@@ -3869,6 +3930,7 @@ async function approveOverview() {
         currentSpecData.design = designContent;
         currentSpecData.status.design = designContent === 'error' ? "error" : "ready";
         updateStatus('design', currentSpecData.status.design);
+        updateTabLoadingState('design', false);
         displayDesign(designContent);
         
         if (user && currentSpecData && currentSpecData.id) {
@@ -3921,6 +3983,11 @@ async function approveOverview() {
         updateStatus('technical', 'error');
         updateStatus('market', 'error');
         updateStatus('design', 'error');
+        
+        // Remove loading animations
+        updateTabLoadingState('technical', false);
+        updateTabLoadingState('market', false);
+        updateTabLoadingState('design', false);
         
         displayTechnical('error');
         displayMarket('error');
@@ -4157,6 +4224,8 @@ async function retryTechnical() {
             document.getElementById('retryTechnicalBtn').disabled = true;
             document.getElementById('retryTechnicalBtn').textContent = `⏳ Retrying... (${retryCount + 1}/${maxRetries})`;
             
+            // Add loading animation
+            updateTabLoadingState('technical', true);
             
             const technicalContent = await generateTechnicalSpec();
             
@@ -4182,6 +4251,7 @@ async function retryTechnical() {
             
             // Update UI
             updateStatus('technical', 'ready');
+            updateTabLoadingState('technical', false);
             displayTechnical(technicalContent);
             document.getElementById('retryTechnicalBtn').style.display = 'none';
             
@@ -4197,6 +4267,7 @@ async function retryTechnical() {
                 // Final failure
                 document.getElementById('retryTechnicalBtn').disabled = false;
                 document.getElementById('retryTechnicalBtn').textContent = 'Retry';
+                updateTabLoadingState('technical', false);
                 
                 showNotification(`Failed to generate technical specification after ${maxRetries} attempts. ${error.message}`, 'error');
                 updateStatus('technical', 'error');
@@ -4219,6 +4290,8 @@ async function retryMarket() {
             document.getElementById('retryMarketBtn').disabled = true;
             document.getElementById('retryMarketBtn').textContent = `⏳ Retrying... (${retryCount + 1}/${maxRetries})`;
             
+            // Add loading animation
+            updateTabLoadingState('market', true);
             
             const marketContent = await generateMarketSpec();
             
@@ -4244,6 +4317,7 @@ async function retryMarket() {
             
             // Update UI
             updateStatus('market', 'ready');
+            updateTabLoadingState('market', false);
             displayMarket(marketContent);
             document.getElementById('retryMarketBtn').style.display = 'none';
             
@@ -4259,10 +4333,74 @@ async function retryMarket() {
                 // Final failure
                 document.getElementById('retryMarketBtn').disabled = false;
                 document.getElementById('retryMarketBtn').textContent = 'Retry';
+                updateTabLoadingState('market', false);
                 
                 showNotification(`Failed to generate market research after ${maxRetries} attempts. ${error.message}`, 'error');
                 updateStatus('market', 'error');
                 console.error('All market retry attempts failed');
+                return;
+            } else {
+                // Wait before next retry
+                await new Promise(resolve => setTimeout(resolve, 2000));
+            }
+        }
+    }
+}
+
+async function retryDesign() {
+    const maxRetries = 3;
+    let retryCount = 0;
+    
+    while (retryCount < maxRetries) {
+        try {
+            document.getElementById('retryDesignBtn').disabled = true;
+            document.getElementById('retryDesignBtn').textContent = `⏳ Retrying... (${retryCount + 1}/${maxRetries})`;
+            
+            // Add loading animation
+            updateTabLoadingState('design', true);
+            
+            const designContent = await generateDesignSpec();
+            
+            // Update Firebase
+            const user = firebase.auth().currentUser;
+            if (user && currentSpecData) {
+                await firebase.firestore().collection('specs').doc(currentSpecData.id).update({
+                    design: designContent,
+                    'status.design': 'ready',
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            }
+            
+            // Update local data
+            currentSpecData.design = designContent;
+            currentSpecData.status.design = "ready";
+            
+            // Update localStorage backup
+            localStorage.setItem(`specBackup_${currentSpecData.id}`, JSON.stringify(currentSpecData));
+            
+            // Update UI
+            updateStatus('design', 'ready');
+            updateTabLoadingState('design', false);
+            displayDesign(designContent);
+            document.getElementById('retryDesignBtn').style.display = 'none';
+            
+            showNotification('Design specification generated successfully!', 'success');
+            console.log('Design retry successful');
+            return;
+            
+        } catch (error) {
+            retryCount++;
+            console.error(`Design retry attempt ${retryCount} failed:`, error);
+            
+            if (retryCount >= maxRetries) {
+                // Final failure
+                document.getElementById('retryDesignBtn').disabled = false;
+                document.getElementById('retryDesignBtn').textContent = 'Retry';
+                updateTabLoadingState('design', false);
+                
+                showNotification(`Failed to generate design specification after ${maxRetries} attempts. ${error.message}`, 'error');
+                updateStatus('design', 'error');
+                console.error('All design retry attempts failed');
                 return;
             } else {
                 // Wait before next retry
