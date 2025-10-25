@@ -116,11 +116,8 @@ function isUserAuthenticated() {
 function handleStartButtonClick() {
   trackStartNowClick();
   
-  if (isUserAuthenticated()) {
-    proceedWithAppPlanning();
-  } else {
-    showRegistrationModal();
-  }
+  // Always proceed with app planning (remove authentication requirement)
+  proceedWithAppPlanning();
 }
 
 // ===== APP PLANNING FLOW =====
@@ -143,12 +140,27 @@ function proceedWithAppPlanning() {
 // ===== INTERACTIVE QUESTIONS SYSTEM =====
 let currentQuestionIndex = 0;
 let answers = [];
+let selectedPlatforms = {
+  mobile: false,
+  web: false
+};
+
+// Speech recognition variables
+let recognition = null;
+let isRecording = false;
 
 const questions = [
   "Describe your application",
   "Describe the workflow", 
   "Target audience and goals",
   "Additional details"
+];
+
+const questionDetails = [
+  "Describe the main idea of your application - including core features, target audience, and the problem it solves",
+  "Walk through a typical user journey step by step - explain how users interact with different features and workflows",
+  "Define your primary user demographics (age, profession, etc.) and explain what goals users want to achieve with your app",
+  "Add any technical requirements, integrations with other services, future features, or special considerations"
 ];
 
 function showModernInput() {
@@ -173,10 +185,115 @@ function showModernInput() {
 
 function showCurrentQuestion() {
   const currentQuestionElement = document.getElementById('currentQuestion');
+  const currentQuestionDetailElement = document.getElementById('currentQuestionDetail');
+  
   if (currentQuestionElement && currentQuestionIndex < questions.length) {
+    // Remove any existing animation classes
+    currentQuestionElement.classList.remove('fade-out', 'fade-in', 'slide-in');
+    if (currentQuestionDetailElement) {
+      currentQuestionDetailElement.classList.remove('fade-out', 'fade-in', 'slide-in');
+    }
+    
+    // Set the new question text
     currentQuestionElement.textContent = questions[currentQuestionIndex];
+    
+    // Set the question detail
+    if (currentQuestionDetailElement) {
+      currentQuestionDetailElement.textContent = questionDetails[currentQuestionIndex];
+    }
+    
+    // Add slide-in animation for the first question
+    currentQuestionElement.classList.add('slide-in');
+    if (currentQuestionDetailElement) {
+      currentQuestionDetailElement.classList.add('slide-in');
+    }
+  }
+  
+  // Update progress dots
+  updateProgressDots();
+  
+  // Update lightbulb tooltip based on current question
+  updateLightbulbTooltip();
+}
+
+function updateProgressDots() {
+  const dots = document.querySelectorAll('.progress-dot');
+  dots.forEach((dot, index) => {
+    dot.classList.remove('current', 'completed');
+    
+    if (index < currentQuestionIndex) {
+      // Completed questions
+      dot.classList.add('completed');
+    } else if (index === currentQuestionIndex) {
+      // Current question
+      dot.classList.add('current');
+    }
+  });
+}
+
+function updateLightbulbTooltip() {
+  const tooltipContent = document.querySelector('.tooltip-content');
+  if (tooltipContent) {
+    const tooltips = [
+      "💡 Be specific about your app's main purpose and core features\n💡 Mention the platform (web, mobile, desktop) you're targeting\n💡 Include key functionalities that make your app unique\n💡 Describe the problem your app solves for users",
+      "💡 Walk through a typical user journey step by step\n💡 Explain how users interact with different features\n💡 Describe the main user actions and workflows\n💡 Include any important user flows or processes", 
+      "💡 Define your primary user demographics (age, profession, etc.)\n💡 Explain what goals users want to achieve with your app\n💡 Describe your target market and user needs\n💡 Mention any specific user personas or segments",
+      "💡 Add any technical requirements or constraints\n💡 Mention integrations with other services or platforms\n💡 Include future features or expansion plans\n💡 Add any special considerations or unique aspects"
+    ];
+    
+    const currentTooltip = tooltips[currentQuestionIndex] || "💡 Provide detailed and specific information for better results";
+    tooltipContent.textContent = currentTooltip;
   }
 }
+
+function jumpToQuestion(questionIndex) {
+  if (questionIndex >= 0 && questionIndex < questions.length) {
+    currentQuestionIndex = questionIndex;
+    
+    // Restore answer if exists
+    const textarea = document.getElementById('mainInput');
+    if (textarea) {
+      textarea.value = answers[currentQuestionIndex] || '';
+    }
+    
+    // Show the question with animation
+    const currentQuestionElement = document.getElementById('currentQuestion');
+    if (currentQuestionElement) {
+      currentQuestionElement.classList.add('fade-out');
+      const currentQuestionDetailElement = document.getElementById('currentQuestionDetail');
+      if (currentQuestionDetailElement) {
+        currentQuestionDetailElement.classList.add('fade-out');
+      }
+      
+      setTimeout(() => {
+        currentQuestionElement.textContent = questions[currentQuestionIndex];
+        if (currentQuestionDetailElement) {
+          currentQuestionDetailElement.textContent = questionDetails[currentQuestionIndex];
+        }
+        currentQuestionElement.classList.remove('fade-out');
+        currentQuestionElement.classList.add('slide-in');
+        if (currentQuestionDetailElement) {
+          currentQuestionDetailElement.classList.remove('fade-out');
+          currentQuestionDetailElement.classList.add('slide-in');
+        }
+        updateProgressDots();
+        updateLightbulbTooltip();
+      }, 600);
+    }
+  }
+}
+  const tooltipContent = document.querySelector('.tooltip-content');
+  if (tooltipContent) {
+    const tooltips = [
+      "💡 Be specific about your app's main purpose and core features\n💡 Mention the platform (web, mobile, desktop) you're targeting\n💡 Include key functionalities that make your app unique\n💡 Describe the problem your app solves for users",
+      "💡 Walk through a typical user journey step by step\n💡 Explain how users interact with different features\n💡 Describe the main user actions and workflows\n💡 Include any important user flows or processes", 
+      "💡 Define your primary user demographics (age, profession, etc.)\n💡 Explain what goals users want to achieve with your app\n💡 Describe your target market and user needs\n💡 Mention any specific user personas or segments",
+      "💡 Add any technical requirements or constraints\n💡 Mention integrations with other services or platforms\n💡 Include future features or expansion plans\n💡 Add any special considerations or unique aspects"
+    ];
+    
+    const currentTooltip = tooltips[currentQuestionIndex] || "💡 Provide detailed and specific information for better results";
+    tooltipContent.textContent = currentTooltip;
+  }
 
 function nextQuestion() {
   const textarea = document.getElementById('mainInput');
@@ -194,14 +311,33 @@ function nextQuestion() {
   currentQuestionIndex++;
   
   if (currentQuestionIndex < questions.length) {
-    // Show next question with fade transition
+    // Show next question with enhanced transition
     const currentQuestionElement = document.getElementById('currentQuestion');
     if (currentQuestionElement) {
-      currentQuestionElement.style.opacity = '0';
+      // Add fade-out animation
+      currentQuestionElement.classList.add('fade-out');
+      const currentQuestionDetailElement = document.getElementById('currentQuestionDetail');
+      if (currentQuestionDetailElement) {
+        currentQuestionDetailElement.classList.add('fade-out');
+      }
+      
+      // Wait for fade-out to complete, then show new question
       setTimeout(() => {
         currentQuestionElement.textContent = questions[currentQuestionIndex];
-        currentQuestionElement.style.opacity = '1';
-      }, 300);
+        if (currentQuestionDetailElement) {
+          currentQuestionDetailElement.textContent = questionDetails[currentQuestionIndex];
+        }
+        currentQuestionElement.classList.remove('fade-out');
+        currentQuestionElement.classList.add('slide-in');
+        if (currentQuestionDetailElement) {
+          currentQuestionDetailElement.classList.remove('fade-out');
+          currentQuestionDetailElement.classList.add('slide-in');
+        }
+        // Update tooltip for the new question
+        updateLightbulbTooltip();
+        // Update progress dots
+        updateProgressDots();
+      }, 600); // Match the CSS transition duration
     }
   } else {
     // All questions completed - call API
@@ -221,14 +357,26 @@ function previousQuestion() {
       textarea.value = answers[currentQuestionIndex] || '';
     }
     
-    // Show previous question with fade transition
+    // Show previous question with enhanced transition
     const currentQuestionElement = document.getElementById('currentQuestion');
     if (currentQuestionElement) {
-      currentQuestionElement.style.opacity = '0';
+      // Add fade-out animation
+      currentQuestionElement.classList.add('fade-out');
+      
+      // Wait for fade-out to complete, then show previous question
       setTimeout(() => {
         currentQuestionElement.textContent = questions[currentQuestionIndex];
-        currentQuestionElement.style.opacity = '1';
-      }, 300);
+        const currentQuestionDetailElement = document.getElementById('currentQuestionDetail');
+        if (currentQuestionDetailElement) {
+          currentQuestionDetailElement.textContent = questionDetails[currentQuestionIndex];
+        }
+        currentQuestionElement.classList.remove('fade-out');
+        currentQuestionElement.classList.add('slide-in');
+        // Update tooltip for the new question
+        updateLightbulbTooltip();
+        // Update progress dots
+        updateProgressDots();
+      }, 600); // Match the CSS transition duration
     }
   }
 }
@@ -274,10 +422,192 @@ function setupModernInput() {
   
   document.querySelectorAll('.control-btn').forEach(btn => {
     btn.addEventListener('click', function() {
-      const title = this.getAttribute('title');
-      console.log(title + ' clicked');
+      const id = this.getAttribute('id');
+      
+      if (id === 'phoneBtn') {
+        // Toggle mobile selection
+        selectedPlatforms.mobile = !selectedPlatforms.mobile;
+        this.classList.toggle('selected');
+      } else if (id === 'computerBtn') {
+        // Toggle web selection
+        selectedPlatforms.web = !selectedPlatforms.web;
+        this.classList.toggle('selected');
+      } else if (id === 'microphoneBtn') {
+        // Handle microphone click - start/stop recording
+        toggleRecording();
+      } else if (id === 'lightbulbBtn') {
+        // Handle lightbulb click - show tips or suggestions
+        showLightbulbTips();
+      } else {
+        console.log(id + ' clicked');
+      }
     });
   });
+  
+  // Add hover events for lightbulb tooltip - only on lightbulb button
+  const lightbulbBtn = document.getElementById('lightbulbBtn');
+  const lightbulbTooltip = document.getElementById('lightbulbTooltip');
+  
+  if (lightbulbBtn && lightbulbTooltip) {
+    lightbulbBtn.addEventListener('mouseenter', function() {
+      lightbulbTooltip.classList.add('show');
+    });
+    
+    lightbulbBtn.addEventListener('mouseleave', function() {
+      lightbulbTooltip.classList.remove('show');
+    });
+    
+    // Also hide tooltip when hovering over the tooltip itself
+    lightbulbTooltip.addEventListener('mouseenter', function() {
+      lightbulbTooltip.classList.add('show');
+    });
+    
+    lightbulbTooltip.addEventListener('mouseleave', function() {
+      lightbulbTooltip.classList.remove('show');
+    });
+  }
+  
+  // Ensure other buttons don't trigger lightbulb tooltip
+  const phoneBtn = document.getElementById('phoneBtn');
+  const computerBtn = document.getElementById('computerBtn');
+  
+  if (phoneBtn) {
+    phoneBtn.addEventListener('mouseenter', function() {
+      if (lightbulbTooltip) {
+        lightbulbTooltip.classList.remove('show');
+      }
+    });
+  }
+  
+  if (computerBtn) {
+    computerBtn.addEventListener('mouseenter', function() {
+      if (lightbulbTooltip) {
+        lightbulbTooltip.classList.remove('show');
+      }
+    });
+  }
+  
+  // Add click events for progress dots
+  const progressDots = document.querySelectorAll('.progress-dot');
+  progressDots.forEach((dot, index) => {
+    dot.addEventListener('click', function() {
+      jumpToQuestion(index);
+    });
+  });
+}
+
+// ===== LIGHTBULB TIPS FUNCTIONALITY =====
+function showLightbulbTips() {
+  const currentQuestion = questions[currentQuestionIndex];
+  let tips = [];
+  
+  // Generate tips based on current question
+  switch(currentQuestionIndex) {
+    case 0: // Describe your application
+      tips = [
+        "💡 Be specific about your app's main purpose and core features",
+        "💡 Mention the platform (web, mobile, desktop) you're targeting",
+        "💡 Include key functionalities that make your app unique",
+        "💡 Describe the problem your app solves for users"
+      ];
+      break;
+    case 1: // Describe the workflow
+      tips = [
+        "💡 Walk through a typical user journey step by step",
+        "💡 Explain how users interact with different features",
+        "💡 Describe the main user actions and workflows",
+        "💡 Include any important user flows or processes"
+      ];
+      break;
+    case 2: // Target audience and goals
+      tips = [
+        "💡 Define your primary user demographics (age, profession, etc.)",
+        "💡 Explain what goals users want to achieve with your app",
+        "💡 Describe your target market and user needs",
+        "💡 Mention any specific user personas or segments"
+      ];
+      break;
+    case 3: // Additional details
+      tips = [
+        "💡 Add any technical requirements or constraints",
+        "💡 Mention integrations with other services or platforms",
+        "💡 Include future features or expansion plans",
+        "💡 Add any special considerations or unique aspects"
+      ];
+      break;
+    default:
+      tips = ["💡 Provide detailed and specific information for better results"];
+  }
+  
+  // Show tips in a simple alert for now (can be enhanced with a modal later)
+  const tipsText = `Tips for "${currentQuestion}":\n\n${tips.join('\n')}`;
+  alert(tipsText);
+}
+
+// ===== SPEECH RECOGNITION FUNCTIONALITY =====
+function initSpeechRecognition() {
+  if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SpeechRecognition();
+    
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = 'en-US';
+    
+    recognition.onstart = function() {
+      isRecording = true;
+      updateMicrophoneButton();
+      console.log('Speech recognition started');
+    };
+    
+    recognition.onresult = function(event) {
+      const transcript = event.results[0][0].transcript;
+      const textarea = document.getElementById('mainInput');
+      if (textarea) {
+        textarea.value = transcript;
+        // Trigger auto-resize
+        textarea.style.height = 'auto';
+        textarea.style.height = textarea.scrollHeight + 'px';
+      }
+    };
+    
+    recognition.onerror = function(event) {
+      console.error('Speech recognition error:', event.error);
+      isRecording = false;
+      updateMicrophoneButton();
+    };
+    
+    recognition.onend = function() {
+      isRecording = false;
+      updateMicrophoneButton();
+      console.log('Speech recognition ended');
+    };
+  } else {
+    console.log('Speech recognition not supported');
+  }
+}
+
+function toggleRecording() {
+  if (!recognition) {
+    initSpeechRecognition();
+  }
+  
+  if (isRecording) {
+    recognition.stop();
+  } else {
+    recognition.start();
+  }
+}
+
+function updateMicrophoneButton() {
+  const micBtn = document.getElementById('microphoneBtn');
+  if (micBtn) {
+    if (isRecording) {
+      micBtn.classList.add('recording');
+    } else {
+      micBtn.classList.remove('recording');
+    }
+  }
 }
 
 // ===== DEMO FUNCTIONALITY =====
@@ -323,6 +653,17 @@ async function generateSpecification() {
     // Prepare the prompt for overview generation
     const prompt = PROMPTS.overview(answers);
     
+    // Add platform information to the prompt
+    const platformInfo = [];
+    if (selectedPlatforms.mobile) platformInfo.push("Mobile App");
+    if (selectedPlatforms.web) platformInfo.push("Web App");
+    
+    const platformText = platformInfo.length > 0 
+      ? `Target Platform: ${platformInfo.join(', ')}` 
+      : 'Target Platform: Not specified';
+    
+    const enhancedPrompt = `${prompt}\n\n${platformText}`;
+    
     // Prepare API request body
     const requestBody = {
       stage: 'overview',
@@ -331,7 +672,7 @@ async function generateSpecification() {
       prompt: {
         system: 'You are a professional product manager and UX architect. Generate a comprehensive application overview based on user input.',
         developer: 'Create a detailed overview that includes application summary, core features, user journey, target audience, problem statement, and unique value proposition.',
-        user: prompt
+        user: enhancedPrompt
       }
     };
     

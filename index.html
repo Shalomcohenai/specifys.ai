@@ -481,6 +481,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="current-question" id="currentQuestion">
                     Describe your application
                 </div>
+                <div class="question-detail" id="currentQuestionDetail">
+                    Describe the main idea of your application - including core features, target audience, and the problem it solves
+                </div>
             </div>
             
             <!-- Loading Overlay -->
@@ -509,41 +512,65 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 <div class="input-controls">
                     <div class="left-controls">
-                        <button class="control-btn" title="Add">
+                        <button class="control-btn" title="Microphone" id="microphoneBtn">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <line x1="12" y1="5" x2="12" y2="19"></line>
-                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                                <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                                <line x1="12" y1="19" x2="12" y2="23"></line>
+                                <line x1="8" y1="23" x2="16" y2="23"></line>
                             </svg>
                         </button>
                         
                         <div class="separator"></div>
                         
-                        <button class="control-btn" title="Attach file">
+                        <button class="control-btn" id="phoneBtn" data-tooltip="Click for mobile app">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
+                                <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+                                <line x1="12" y1="18" x2="12.01" y2="18"></line>
                             </svg>
                         </button>
                         
-                        <button class="control-btn" title="Bookmark">
+                        <button class="control-btn" id="computerBtn" data-tooltip="Click for web app">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"></path>
+                                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                                <line x1="8" y1="21" x2="16" y2="21"></line>
+                                <line x1="12" y1="17" x2="12" y2="21"></line>
                             </svg>
                         </button>
                         
-                        <button class="control-btn" title="AI Assistant">
+                        <div class="separator"></div>
+                        
+                        <button class="control-btn" title="Lightbulb" id="lightbulbBtn">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
+                                <path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z"/>
                             </svg>
+                        </button>
+                    </div>
+                    
+                    <div class="progress-dots">
+                        <div class="progress-dot" data-question="0" title="Question 1"></div>
+                        <div class="progress-dot" data-question="1" title="Question 2"></div>
+                        <div class="progress-dot" data-question="2" title="Question 3"></div>
+                        <div class="progress-dot" data-question="3" title="Question 4"></div>
+                    </div>
+                    
+                    <div class="demo-section">
+                        <button class="demo-btn" id="demoBtn" title="Fill demo answers and send automatically">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                            </svg>
+                            Demo
                         </button>
                     </div>
                     
                     <button class="send-btn" id="sendBtn">
                         Next >
                     </button>
-                    
-                    <button class="demo-btn" id="demoBtn" title="Fill demo answers and send automatically">
-                        🚀 Demo
-                    </button>
+                </div>
+                
+                <!-- Lightbulb Tooltip -->
+                <div class="lightbulb-tooltip" id="lightbulbTooltip">
+                    <div class="tooltip-content"></div>
                 </div>
             </div>
         </section>
