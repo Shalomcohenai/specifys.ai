@@ -266,12 +266,9 @@ function setupModernInput() {
       sendBtn.click();
     }
     
-    if (e.key === ' ') {
-      console.log('AI shortcut triggered');
-    }
-    
-    if (e.key === '/') {
-      console.log('Saved replies triggered');
+    if (e.key === 'Backspace' && textarea.value === '') {
+      e.preventDefault();
+      previousQuestion();
     }
   });
   
