@@ -7,12 +7,27 @@ const Joi = require('joi');
 
 // Input validation schemas
 const createSpecSchema = Joi.object({
-    userInput: Joi.string().required().min(10).max(5000)
+    userInput: Joi.string().required().min(10).max(5000).pattern(/^[a-zA-Z0-9\s\.,!?\-_()]+$/)
 });
 
 const checkEditSchema = Joi.object({
-    specId: Joi.string().required()
+    specId: Joi.string().required().pattern(/^[a-zA-Z0-9\-_]+$/)
 });
+
+// Input validation middleware
+function validateInput(schema) {
+    return (req, res, next) => {
+        const { error, value } = schema.validate(req.body);
+        if (error) {
+            return res.status(400).json({ 
+                error: 'Invalid input', 
+                details: error.details.map(d => d.message) 
+            });
+        }
+        req.body = value;
+        next();
+    };
+}
 
 /**
  * Middleware to verify Firebase ID token
@@ -39,19 +54,10 @@ async function verifyFirebaseToken(req, res, next) {
  * Route to create a new specification
  * POST /api/specs/create
  */
-router.post('/create', verifyFirebaseToken, async (req, res) => {
+router.post('/create', verifyFirebaseToken, validateInput(createSpecSchema), async (req, res) => {
     try {
-        // Validate input
-        const { error, value } = createSpecSchema.validate(req.body);
-        if (error) {
-            return res.status(400).json({ 
-                error: 'Invalid input', 
-                details: error.details[0].message 
-            });
-        }
-
         const userId = req.user.uid;
-        const { userInput } = value;
+        const { userInput } = req.body;
 
         // Check if user can create a spec
         const canCreateResult = await checkUserCanCreateSpec(userId);

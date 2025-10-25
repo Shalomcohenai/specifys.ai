@@ -914,72 +914,86 @@ body.dark-mode .spec-content.rendered-view .mermaid {
     background: var(--hover-color);
 }
 
-/* Payment Analytics Styles */
-.payments-analytics-container {
-    padding: 0;
-}
-
-.analytics-section {
-    margin-bottom: 3rem;
-    background: var(--bg-color);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    padding: 2rem;
-}
-
-.analytics-section h2 {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: var(--text-color);
-    margin-bottom: 1.5rem;
-}
-
-.analytics-section h2 i {
-    color: var(--primary-color);
-}
-
-.revenue-grid {
+/* Conversion Funnel Styles */
+.conversion-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 1.5rem;
     margin-bottom: 2rem;
 }
 
-.revenue-card {
+.conversion-card {
     background: var(--light-gray);
     border: 1px solid var(--border-color);
     border-radius: 8px;
     padding: 1.5rem;
     text-align: center;
+    position: relative;
+    overflow: hidden;
 }
 
-.revenue-card h3 {
+.conversion-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--primary-color);
+}
+
+.conversion-card h3 {
     font-size: 0.9rem;
     color: var(--primary-color);
     margin-bottom: 0.5rem;
+    font-weight: 600;
 }
 
-.revenue-value {
-    font-size: 2rem;
+.conversion-value {
+    font-size: 2.2rem;
     font-weight: 700;
     color: var(--text-color);
     margin-bottom: 0.5rem;
 }
 
-.revenue-change {
-    font-size: 0.85rem;
+.conversion-label {
+    font-size: 0.8rem;
+    color: var(--primary-color);
+    font-weight: 500;
+}
+
+.funnel-breakdown {
+    margin-top: 2rem;
+}
+
+.funnel-breakdown h3 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.2rem;
     font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 1rem;
 }
 
-.revenue-change.positive {
+.funnel-breakdown h3 i {
+    color: var(--primary-color);
+}
+
+/* Conversion rate styling */
+.conversion-rate-high {
     color: var(--success-color);
+    font-weight: 700;
 }
 
-.revenue-change.negative {
+.conversion-rate-medium {
+    color: #ffc107;
+    font-weight: 700;
+}
+
+.conversion-rate-low {
     color: var(--danger-color);
+    font-weight: 700;
 }
 
 .subscription-stats-grid {
@@ -1113,5 +1127,505 @@ body.dark-mode .status-cancelled {
 body.dark-mode .status-expired {
     background: #dc3545;
     color: #ffffff;
+}
+
+/* Simplified Dashboard Styles */
+.overview-container {
+    padding: 0;
+}
+
+.overview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.overview-section {
+    background: var(--bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 2rem;
+}
+
+.overview-section h2 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 1.5rem;
+}
+
+.overview-section h2 i {
+    color: var(--primary-color);
+}
+
+.quick-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+}
+
+.quick-stat {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--light-gray);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.quick-stat .stat-icon {
+    font-size: 2rem;
+    color: var(--primary-color);
+}
+
+.quick-stat .stat-info {
+    flex: 1;
+}
+
+.quick-stat .stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-color);
+    margin-bottom: 0.25rem;
+}
+
+.quick-stat .stat-label {
+    font-size: 0.85rem;
+    color: var(--primary-color);
+}
+
+.activity-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.activity-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.activity-item:last-child {
+    border-bottom: none;
+}
+
+.activity-icon {
+    font-size: 1.2rem;
+    color: var(--primary-color);
+    width: 20px;
+    text-align: center;
+}
+
+.activity-text {
+    color: var(--text-color);
+    font-size: 0.9rem;
+}
+
+.quick-actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+}
+
+.quick-action-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1.5rem 1rem;
+    background: var(--light-gray);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    color: var(--text-color);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.quick-action-btn:hover {
+    background: var(--primary-color);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.quick-action-btn i {
+    font-size: 1.5rem;
+}
+
+.quick-action-btn span {
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+/* Content Management Styles */
+.content-container {
+    padding: 0;
+}
+
+.content-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.content-section {
+    background: var(--bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 2rem;
+}
+
+.content-section h2 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 1.5rem;
+}
+
+.content-section h2 i {
+    color: var(--primary-color);
+}
+
+.content-stats {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+.content-stat {
+    text-align: center;
+}
+
+.content-stat .stat-value {
+    display: block;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-color);
+    margin-bottom: 0.25rem;
+}
+
+.content-stat .stat-label {
+    font-size: 0.85rem;
+    color: var(--primary-color);
+}
+
+.content-info {
+    margin-bottom: 1.5rem;
+}
+
+.content-info p {
+    color: var(--primary-color);
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.content-info code {
+    background: var(--light-gray);
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.85rem;
+}
+
+/* Simplified Analytics */
+.analytics-container {
+    padding: 0;
+}
+
+.analytics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.analytics-card {
+    background: var(--bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 2rem;
+}
+
+.analytics-card h3 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 1.5rem;
+}
+
+.analytics-card h3 i {
+    color: var(--primary-color);
+}
+
+.analytics-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.analytics-stat {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    background: var(--light-gray);
+    border-radius: 8px;
+}
+
+.analytics-stat .stat-label {
+    color: var(--primary-color);
+    font-size: 0.95rem;
+}
+
+.analytics-stat .stat-value {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-color);
+}
+
+/* Tab button improvements */
+.tab-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 1.5rem;
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid transparent;
+    color: var(--primary-color);
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    font-family: "Montserrat", sans-serif;
+}
+
+.tab-btn i {
+    font-size: 1rem;
+}
+
+.tab-btn:hover {
+    background: var(--bg-color);
+    color: var(--text-color);
+}
+
+.tab-btn.active {
+    background: var(--bg-color);
+    color: var(--text-color);
+    border-bottom-color: var(--primary-color);
+}
+
+/* User Permissions Management Styles */
+.permissions-container {
+    padding: 0;
+}
+
+.permissions-header {
+    margin-bottom: 2rem;
+}
+
+.permissions-header h2 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 0.5rem;
+}
+
+.permissions-header h2 i {
+    color: var(--primary-color);
+}
+
+.permissions-header p {
+    color: var(--primary-color);
+    font-size: 0.95rem;
+}
+
+.permissions-filters {
+    margin-bottom: 2rem;
+}
+
+.filter-group {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.filter-select {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: var(--bg-color);
+    color: var(--text-color);
+    font-size: 0.9rem;
+    min-width: 150px;
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.permissions-actions {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.permissions-actions h3 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 1rem;
+}
+
+.permissions-actions h3 i {
+    color: var(--primary-color);
+}
+
+.credits-display {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: var(--text-color);
+}
+
+.credits-display.unlimited {
+    color: var(--primary-color);
+    font-size: 1.3rem;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-small {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.8rem;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    height: 32px;
+}
+
+.btn-small.btn-primary {
+    background: var(--primary-color);
+    color: white;
+}
+
+.btn-small.btn-primary:hover {
+    background: var(--hover-color);
+}
+
+.btn-small.btn-success {
+    background: var(--success-color);
+    color: white;
+}
+
+.btn-small.btn-success:hover {
+    background: #28a745;
+}
+
+.btn-small i {
+    font-size: 0.8rem;
+}
+
+/* Modal improvements for permissions */
+.modal-content {
+    max-width: 500px;
+    width: 90%;
+}
+
+.modal-body .form-group {
+    margin-bottom: 1.5rem;
+}
+
+.modal-body .form-group label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    color: var(--text-color);
+    cursor: pointer;
+}
+
+.modal-body .form-group input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--primary-color);
+}
+
+.modal-body .form-group input[type="number"] {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: var(--bg-color);
+    color: var(--text-color);
+    font-size: 0.9rem;
+}
+
+.modal-body .form-group input[type="number"]:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+/* Dark mode adjustments for permissions */
+body.dark-mode .filter-select {
+    background: var(--bg-color);
+    color: var(--text-color);
+    border-color: var(--border-color);
+}
+
+body.dark-mode .modal-body .form-group input[type="number"] {
+    background: var(--bg-color);
+    color: var(--text-color);
+    border-color: var(--border-color);
+}
+
+/* Responsive permissions */
+@media (max-width: 768px) {
+    .filter-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .filter-group .search-input,
+    .filter-group .filter-select {
+        width: 100%;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    
+    .btn-small {
+        width: 100%;
+        justify-content: center;
+    }
 }
 

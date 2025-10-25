@@ -166,7 +166,7 @@ class PaywallManager {
             this.trackPurchaseAttempt(optionId);
 
             // Open Lemon Squeezy checkout
-            const checkoutUrl = `https://${config.lemon_store_id}.lemonsqueezy.com/checkout/buy/${product.variant_id}`;
+            const checkoutUrl = `https://${config.lemon_store_id}.lemonsqueezy.com/buy/${product.variant_id}`;
             
             // Open in new window
             const checkoutWindow = window.open(checkoutUrl, '_blank', 'width=600,height=700,scrollbars=yes,resizable=yes');
@@ -228,7 +228,7 @@ class PaywallManager {
                 }
 
                 const token = await user.getIdToken();
-                const response = await fetch('/api/specs/entitlements', {
+                const response = await fetch('http://localhost:3001/api/specs/entitlements', {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }

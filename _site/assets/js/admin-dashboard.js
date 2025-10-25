@@ -36,6 +36,7 @@ class AdminDashboard {
         this.allPurchases = [];
         this.allSubscriptions = [];
         this.allEntitlements = [];
+        this.allBuyClicks = [];
         this.autoRefreshInterval = null;
         this.lastRefreshTime = null;
         
@@ -47,6 +48,7 @@ class AdminDashboard {
         this.setupTabs();
         this.setupSubTabs();
         this.setupFilters();
+        this.setupPermissionsFilters();
     
     // Check Firebase connection
         this.updateFirebaseStatus('connecting', 'Connecting to Firebase...');
@@ -315,6 +317,25 @@ class AdminDashboard {
         document.getElementById('dashboards-date-to')?.addEventListener('change', () => this.filterDashboards());
     }
 
+    // Setup permissions filters
+    setupPermissionsFilters() {
+        // Permissions search
+        const permissionsSearch = document.getElementById('permissions-search');
+        if (permissionsSearch) {
+            permissionsSearch.addEventListener('input', () => {
+                this.updatePermissionsTable();
+            });
+        }
+
+        // Permissions plan filter
+        const permissionsPlanFilter = document.getElementById('permissions-plan-filter');
+        if (permissionsPlanFilter) {
+            permissionsPlanFilter.addEventListener('change', () => {
+                this.updatePermissionsTable();
+            });
+        }
+    }
+
     // Load all data
     async loadAllData() {
         try {
@@ -325,9 +346,13 @@ class AdminDashboard {
             await this.loadDashboardsData();
             await this.loadActivityData();
             await this.loadPaymentData();
+            await this.loadPermissionsData();
+            await this.loadBuyClicksData();
             
             this.updateStatsCards();
             this.updateAnalytics();
+            this.updateOverviewTab();
+            this.updateContentTab();
             
             // Update last refresh time
             this.lastRefreshTime = new Date();
@@ -512,6 +537,12 @@ class AdminDashboard {
     renderSpecsTable(specs) {
         const tbody = document.getElementById('specs-table-body');
         
+        // Check if the element exists (it might not exist in simplified interface)
+        if (!tbody) {
+            console.log('Specs table not found - using simplified interface');
+            return;
+        }
+        
         if (!specs || specs.length === 0) {
             tbody.innerHTML = '<tr><td colspan="5" class="loading-cell">No specs found</td></tr>';
             return;
@@ -535,6 +566,12 @@ class AdminDashboard {
     // Render market research table
     renderMarketResearchTable(research) {
         const tbody = document.getElementById('market-table-body');
+        
+        // Check if the element exists (it might not exist in simplified interface)
+        if (!tbody) {
+            console.log('Market research table not found - using simplified interface');
+            return;
+        }
         
         if (!research || research.length === 0) {
             tbody.innerHTML = '<tr><td colspan="5" class="loading-cell">No market research found</td></tr>';
@@ -750,34 +787,50 @@ class AdminDashboard {
     // Update engagement statistics
     updateEngagementStats() {
         if (this.allUsers.length === 0) {
-            document.getElementById('users-with-dashboards-percent').textContent = '0%';
-            document.getElementById('users-with-saved-tools-percent').textContent = '0%';
-            document.getElementById('avg-dashboards-per-user').textContent = '0';
-            document.getElementById('avg-specs-per-user').textContent = '0';
+            // Check if elements exist before updating
+            const dashboardsPercentEl = document.getElementById('users-with-dashboards-percent');
+            const toolsPercentEl = document.getElementById('users-with-saved-tools-percent');
+            const avgDashboardsEl = document.getElementById('avg-dashboards-per-user');
+            const avgSpecsEl = document.getElementById('avg-specs-per-user');
+            
+            if (dashboardsPercentEl) dashboardsPercentEl.textContent = '0%';
+            if (toolsPercentEl) toolsPercentEl.textContent = '0%';
+            if (avgDashboardsEl) avgDashboardsEl.textContent = '0';
+            if (avgSpecsEl) avgSpecsEl.textContent = '0';
             return;
         }
 
         // Users with dashboards percentage
         const usersWithDashboards = new Set(this.allDashboards.map(d => d.userId)).size;
         const dashboardsPercent = ((usersWithDashboards / this.allUsers.length) * 100).toFixed(1);
-        document.getElementById('users-with-dashboards-percent').textContent = dashboardsPercent + '%';
+        const dashboardsPercentEl = document.getElementById('users-with-dashboards-percent');
+        if (dashboardsPercentEl) dashboardsPercentEl.textContent = dashboardsPercent + '%';
 
         // Users with saved tools percentage
         const usersWithTools = new Set(this.allSavedTools.map(t => t.userId).filter(Boolean)).size;
         const toolsPercent = ((usersWithTools / this.allUsers.length) * 100).toFixed(1);
-        document.getElementById('users-with-saved-tools-percent').textContent = toolsPercent + '%';
+        const toolsPercentEl = document.getElementById('users-with-saved-tools-percent');
+        if (toolsPercentEl) toolsPercentEl.textContent = toolsPercent + '%';
 
         // Average dashboards per user
         const avgDashboards = (this.allDashboards.length / this.allUsers.length).toFixed(1);
-        document.getElementById('avg-dashboards-per-user').textContent = avgDashboards;
+        const avgDashboardsEl = document.getElementById('avg-dashboards-per-user');
+        if (avgDashboardsEl) avgDashboardsEl.textContent = avgDashboards;
 
         // Average specs per user
         const avgSpecs = (this.allSpecs.length / this.allUsers.length).toFixed(1);
-        document.getElementById('avg-specs-per-user').textContent = avgSpecs;
+        const avgSpecsEl = document.getElementById('avg-specs-per-user');
+        if (avgSpecsEl) avgSpecsEl.textContent = avgSpecs;
     }
 
     renderDashboardsTable(dashboards) {
         const tbody = document.getElementById('dashboards-table-body');
+        
+        // Check if the element exists (it might not exist in simplified interface)
+        if (!tbody) {
+            console.log('Dashboards table not found - using simplified interface');
+            return;
+        }
         
         if (!dashboards || dashboards.length === 0) {
             tbody.innerHTML = '<tr><td colspan="9" class="loading-cell">No app dashboards found</td></tr>';
@@ -810,48 +863,56 @@ class AdminDashboard {
         }).join('');
     }
 
+    // Helper function to safely update element text content
+    safeUpdateTextContent(elementId, value) {
+        const element = document.getElementById(elementId);
+        if (element) {
+            element.textContent = value;
+        }
+    }
+
     // Update stats cards - NO MOCK DATA, only real Firebase data
     updateStatsCards() {
                 const oneWeekAgo = new Date();
                 oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
         // Total users - REAL DATA ONLY
-        document.getElementById('total-users').textContent = this.allUsers.length;
+        this.safeUpdateTextContent('total-users', this.allUsers.length);
 
         // New users this week - REAL DATA ONLY
         const newUsersWeek = this.allUsers.filter(u => {
             const created = this.getDate(u.createdAt);
             return created && created >= oneWeekAgo;
         }).length;
-        document.getElementById('new-users-week').textContent = newUsersWeek;
+        this.safeUpdateTextContent('new-users-week', newUsersWeek);
 
         // Total dashboards - REAL DATA ONLY
-        document.getElementById('total-dashboards').textContent = this.allDashboards.length;
+        this.safeUpdateTextContent('total-dashboards', this.allDashboards.length);
 
         // New dashboards this week - REAL DATA ONLY
         const newDashboardsWeek = this.allDashboards.filter(d => {
             const created = this.getDate(d.createdAt);
             return created && created >= oneWeekAgo;
         }).length;
-        document.getElementById('new-dashboards-week').textContent = newDashboardsWeek;
+        this.safeUpdateTextContent('new-dashboards-week', newDashboardsWeek);
 
         // Total specs - REAL DATA ONLY
-        document.getElementById('total-specs').textContent = this.allSpecs.length;
+        this.safeUpdateTextContent('total-specs', this.allSpecs.length);
 
         // Total market research - REAL DATA ONLY
-        document.getElementById('total-market-research').textContent = this.allMarketResearch.length;
+        this.safeUpdateTextContent('total-market-research', this.allMarketResearch.length);
 
         // Total saved tools - REAL DATA ONLY
-        document.getElementById('total-saved-tools').textContent = this.allSavedTools.length;
+        this.safeUpdateTextContent('total-saved-tools', this.allSavedTools.length);
 
         // Total likes - REAL DATA ONLY
-        document.getElementById('total-likes').textContent = this.allLikes.length;
+        this.safeUpdateTextContent('total-likes', this.allLikes.length);
 
         // Total notes - REAL DATA ONLY
-        document.getElementById('total-notes').textContent = this.allNotes.length;
+        this.safeUpdateTextContent('total-notes', this.allNotes.length);
 
         // Total expenses - REAL DATA ONLY
-        document.getElementById('total-expenses').textContent = this.allExpenses.length;
+        this.safeUpdateTextContent('total-expenses', this.allExpenses.length);
     }
 
     // Update analytics
@@ -883,9 +944,10 @@ class AdminDashboard {
             return created && created >= oneMonthAgo;
         }).length;
 
-        document.getElementById('users-today').textContent = usersToday;
-        document.getElementById('users-week').textContent = usersWeek;
-        document.getElementById('users-month').textContent = usersMonth;
+        // Update analytics tab elements
+        this.safeUpdateTextContent('analytics-users-today', usersToday);
+        this.safeUpdateTextContent('analytics-users-week', usersWeek);
+        this.safeUpdateTextContent('analytics-users-month', usersMonth);
 
         // Dashboards analytics
         const dashboardsToday = this.allDashboards.filter(d => {
@@ -903,9 +965,9 @@ class AdminDashboard {
             return created && created >= oneMonthAgo;
         }).length;
 
-        document.getElementById('dashboards-today').textContent = dashboardsToday;
-        document.getElementById('dashboards-week').textContent = dashboardsWeek;
-        document.getElementById('dashboards-month').textContent = dashboardsMonth;
+        this.safeUpdateTextContent('analytics-dashboards-today', dashboardsToday);
+        this.safeUpdateTextContent('analytics-dashboards-week', dashboardsWeek);
+        this.safeUpdateTextContent('analytics-dashboards-month', dashboardsMonth);
 
         // Specs analytics
         const specsToday = this.allSpecs.filter(s => {
@@ -923,9 +985,9 @@ class AdminDashboard {
             return created && created >= oneMonthAgo;
         }).length;
 
-        document.getElementById('specs-today').textContent = specsToday;
-        document.getElementById('specs-week').textContent = specsWeek;
-        document.getElementById('specs-month').textContent = specsMonth;
+        this.safeUpdateTextContent('analytics-specs-today', specsToday);
+        this.safeUpdateTextContent('analytics-specs-week', specsWeek);
+        this.safeUpdateTextContent('analytics-specs-month', specsMonth);
     }
 
     // Update payment statistics
@@ -1201,6 +1263,698 @@ class AdminDashboard {
     getUserEmailById(userId) {
         const user = this.allUsers.find(u => u.id === userId);
         return user ? user.email : null;
+    }
+
+    // Update overview tab
+    updateOverviewTab() {
+        // Update quick stats
+        document.getElementById('overview-total-users').textContent = this.allUsers.length;
+        document.getElementById('overview-total-revenue').textContent = `₪${this.calculateTotalRevenue().toFixed(0)}`;
+        document.getElementById('overview-total-specs').textContent = this.allSpecs.length;
+        document.getElementById('overview-active-subscriptions').textContent = this.allSubscriptions.filter(sub => 
+            sub.status === 'active' || sub.status === 'trialing'
+        ).length;
+
+        // Update recent activity
+        this.updateRecentActivity();
+    }
+
+    // Calculate total revenue
+    calculateTotalRevenue() {
+        return this.allPurchases.reduce((sum, purchase) => {
+            return sum + (purchase.total_amount_cents || 0);
+        }, 0) / 100;
+    }
+
+    // Update recent activity list
+    updateRecentActivity() {
+        const activityList = document.getElementById('recent-activity-list');
+        if (!activityList) return;
+
+        const activities = [];
+
+        // Add recent users
+        const recentUsers = this.allUsers
+            .filter(user => {
+                const created = this.getDate(user.createdAt);
+                const oneWeekAgo = new Date();
+                oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+                return created && created >= oneWeekAgo;
+            })
+            .slice(0, 3);
+
+        recentUsers.forEach(user => {
+            activities.push({
+                icon: 'fas fa-user-plus',
+                text: `New user registered: ${user.email}`,
+                time: this.getDate(user.createdAt)
+            });
+        });
+
+        // Add recent specs
+        const recentSpecs = this.allSpecs
+            .filter(spec => {
+                const created = this.getDate(spec.createdAt);
+                const oneWeekAgo = new Date();
+                oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+                return created && created >= oneWeekAgo;
+            })
+            .slice(0, 3);
+
+        recentSpecs.forEach(spec => {
+            activities.push({
+                icon: 'fas fa-file-alt',
+                text: `New spec created: ${spec.title || 'Untitled'}`,
+                time: this.getDate(spec.createdAt)
+            });
+        });
+
+        // Add recent purchases
+        const recentPurchases = this.allPurchases
+            .filter(purchase => {
+                const created = this.getDate(purchase.purchased_at);
+                const oneWeekAgo = new Date();
+                oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+                return created && created >= oneWeekAgo;
+            })
+            .slice(0, 3);
+
+        recentPurchases.forEach(purchase => {
+            activities.push({
+                icon: 'fas fa-shekel-sign',
+                text: `New purchase: ₪${((purchase.total_amount_cents || 0) / 100).toFixed(0)}`,
+                time: this.getDate(purchase.purchased_at)
+            });
+        });
+
+        // Sort by time and take latest 10
+        activities.sort((a, b) => b.time - a.time);
+        const recentActivities = activities.slice(0, 10);
+
+        // Render activities
+        activityList.innerHTML = '';
+        if (recentActivities.length === 0) {
+            activityList.innerHTML = `
+                <div class="activity-item">
+                    <div class="activity-icon"><i class="fas fa-info-circle"></i></div>
+                    <div class="activity-text">No recent activity</div>
+                </div>
+            `;
+        } else {
+            recentActivities.forEach(activity => {
+                const activityItem = document.createElement('div');
+                activityItem.className = 'activity-item';
+                activityItem.innerHTML = `
+                    <div class="activity-icon"><i class="${activity.icon}"></i></div>
+                    <div class="activity-text">${escapeHTML(activity.text)}</div>
+                `;
+                activityList.appendChild(activityItem);
+            });
+        }
+    }
+
+    // Update content tab
+    updateContentTab() {
+        // Update content stats
+        document.getElementById('content-total-specs').textContent = this.allSpecs.length;
+        document.getElementById('content-total-market').textContent = this.allMarketResearch.length;
+        document.getElementById('content-total-dashboards').textContent = this.allDashboards.length;
+
+        // Calculate weekly stats
+        const oneWeekAgo = new Date();
+        oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+        const specsWeek = this.allSpecs.filter(spec => {
+            const created = this.getDate(spec.createdAt);
+            return created && created >= oneWeekAgo;
+        }).length;
+
+        const marketWeek = this.allMarketResearch.filter(research => {
+            const created = this.getDate(research.createdAt);
+            return created && created >= oneWeekAgo;
+        }).length;
+
+        const dashboardsWeek = this.allDashboards.filter(dashboard => {
+            const created = this.getDate(dashboard.createdAt);
+            return created && created >= oneWeekAgo;
+        }).length;
+
+        document.getElementById('content-specs-week').textContent = specsWeek;
+        document.getElementById('content-market-week').textContent = marketWeek;
+        document.getElementById('content-dashboards-week').textContent = dashboardsWeek;
+    }
+
+    // Load permissions data
+    async loadPermissionsData() {
+        try {
+            console.log('🔑 Loading permissions data...');
+            
+            // Load entitlements data
+            const entitlementsSnapshot = await this.db.collection('entitlements').get();
+            this.allEntitlements = entitlementsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            
+            console.log(`✅ Loaded ${this.allEntitlements.length} entitlements`);
+            
+            // Update permissions table
+            this.updatePermissionsTable();
+            
+        } catch (error) {
+            console.error('❌ Error loading permissions data:', error);
+            this.showNotification('Error loading permissions data: ' + error.message, 'error');
+        }
+    }
+
+    // Update permissions table
+    updatePermissionsTable() {
+        const tbody = document.getElementById('permissions-table-body');
+        if (!tbody) return;
+
+        // Combine users with their entitlements
+        const userPermissions = this.allUsers.map(user => {
+            const entitlement = this.allEntitlements.find(e => e.userId === user.id);
+            return {
+                user,
+                entitlement: entitlement || {
+                    userId: user.id,
+                    unlimited: false,
+                    can_edit: false,
+                    spec_credits: 0,
+                    lastUpdated: null
+                }
+            };
+        });
+
+        // Filter based on search and plan filter
+        const searchTerm = document.getElementById('permissions-search')?.value.toLowerCase() || '';
+        const planFilter = document.getElementById('permissions-plan-filter')?.value || 'all';
+
+        let filtered = userPermissions.filter(up => {
+            const matchesSearch = up.user.email.toLowerCase().includes(searchTerm);
+            const matchesPlan = planFilter === 'all' || 
+                (planFilter === 'pro' && up.entitlement.unlimited) ||
+                (planFilter === 'free' && !up.entitlement.unlimited);
+            
+            return matchesSearch && matchesPlan;
+        });
+
+        // Render table
+        tbody.innerHTML = '';
+        if (filtered.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="7" class="loading-cell" style="color: #666; font-style: italic;">
+                        No users found matching the criteria
+                    </td>
+                </tr>
+            `;
+        } else {
+            filtered.forEach(up => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${escapeHTML(up.user.email)}</td>
+                    <td>
+                        <span class="status-badge ${up.entitlement.unlimited ? 'status-pro' : 'status-free'}">
+                            ${up.entitlement.unlimited ? 'Pro' : 'Free'}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="credits-display ${up.entitlement.unlimited ? 'unlimited' : ''}">
+                            ${up.entitlement.unlimited ? '∞' : up.entitlement.spec_credits || 0}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="status-badge ${up.entitlement.unlimited ? 'status-active' : 'status-cancelled'}">
+                            ${up.entitlement.unlimited ? 'Yes' : 'No'}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="status-badge ${up.entitlement.can_edit ? 'status-active' : 'status-cancelled'}">
+                            ${up.entitlement.can_edit ? 'Yes' : 'No'}
+                        </span>
+                    </td>
+                    <td>${up.entitlement.lastUpdated ? this.formatDate(up.entitlement.lastUpdated) : 'Never'}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-small btn-primary" onclick="adminDashboard.editUserPermissions('${up.user.id}')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn-small btn-success" onclick="adminDashboard.addCreditsToUser('${up.user.id}')">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+    }
+
+    // Edit user permissions
+    async editUserPermissions(userId) {
+        const user = this.allUsers.find(u => u.id === userId);
+        const entitlement = this.allEntitlements.find(e => e.userId === userId);
+        
+        if (!user) {
+            this.showNotification('User not found', 'error');
+            return;
+        }
+
+        const currentEntitlement = entitlement || {
+            userId: userId,
+            unlimited: false,
+            can_edit: false,
+            spec_credits: 0
+        };
+
+        // Create modal for editing permissions
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3><i class="fas fa-key"></i> Edit Permissions - ${escapeHTML(user.email)}</h3>
+                    <button class="modal-close" onclick="this.closest('.modal').remove()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="edit-unlimited" ${currentEntitlement.unlimited ? 'checked' : ''}>
+                            Unlimited Access (Pro)
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="edit-can-edit" ${currentEntitlement.can_edit ? 'checked' : ''}>
+                            Can Edit Specs
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-spec-credits">Spec Credits:</label>
+                        <input type="number" id="edit-spec-credits" value="${currentEntitlement.spec_credits || 0}" min="0" max="1000">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">Cancel</button>
+                    <button class="btn btn-primary" onclick="adminDashboard.saveUserPermissions('${userId}')">Save Changes</button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+    }
+
+    // Save user permissions
+    async saveUserPermissions(userId) {
+        try {
+            const unlimited = document.getElementById('edit-unlimited').checked;
+            const canEdit = document.getElementById('edit-can-edit').checked;
+            const specCredits = parseInt(document.getElementById('edit-spec-credits').value) || 0;
+
+            const entitlementData = {
+                userId: userId,
+                unlimited: unlimited,
+                can_edit: canEdit,
+                spec_credits: specCredits,
+                lastUpdated: new Date()
+            };
+
+            // Update in Firestore
+            await this.db.collection('entitlements').doc(userId).set(entitlementData, { merge: true });
+            
+            // Update local data
+            const existingIndex = this.allEntitlements.findIndex(e => e.userId === userId);
+            if (existingIndex >= 0) {
+                this.allEntitlements[existingIndex] = { ...this.allEntitlements[existingIndex], ...entitlementData };
+            } else {
+                this.allEntitlements.push(entitlementData);
+            }
+
+            // Close modal and refresh table
+            document.querySelector('.modal').remove();
+            this.updatePermissionsTable();
+            this.showNotification('Permissions updated successfully', 'success');
+
+        } catch (error) {
+            console.error('Error saving permissions:', error);
+            this.showNotification('Error saving permissions: ' + error.message, 'error');
+        }
+    }
+
+    // Add credits to specific user
+    async addCreditsToUser(userId) {
+        const user = this.allUsers.find(u => u.id === userId);
+        if (!user) {
+            this.showNotification('User not found', 'error');
+            return;
+        }
+
+        const creditsToAdd = prompt(`How many spec credits to add to ${user.email}?`, '1');
+        if (!creditsToAdd || isNaN(creditsToAdd)) return;
+
+        try {
+            const entitlement = this.allEntitlements.find(e => e.userId === userId);
+            const currentCredits = entitlement?.spec_credits || 0;
+            const newCredits = currentCredits + parseInt(creditsToAdd);
+
+            await this.db.collection('entitlements').doc(userId).set({
+                userId: userId,
+                spec_credits: newCredits,
+                lastUpdated: new Date()
+            }, { merge: true });
+
+            // Update local data
+            if (entitlement) {
+                entitlement.spec_credits = newCredits;
+                entitlement.lastUpdated = new Date();
+            } else {
+                this.allEntitlements.push({
+                    userId: userId,
+                    spec_credits: newCredits,
+                    lastUpdated: new Date()
+                });
+            }
+
+            this.updatePermissionsTable();
+            this.showNotification(`Added ${creditsToAdd} credits to ${user.email}`, 'success');
+
+        } catch (error) {
+            console.error('Error adding credits:', error);
+            this.showNotification('Error adding credits: ' + error.message, 'error');
+        }
+    }
+
+    // Grant Pro access to user
+    async grantProAccess() {
+        const userEmail = prompt('Enter user email to grant Pro access:');
+        if (!userEmail) return;
+
+        const user = this.allUsers.find(u => u.email.toLowerCase() === userEmail.toLowerCase());
+        if (!user) {
+            this.showNotification('User not found', 'error');
+            return;
+        }
+
+        try {
+            await this.db.collection('entitlements').doc(user.id).set({
+                userId: user.id,
+                unlimited: true,
+                can_edit: true,
+                spec_credits: 999,
+                lastUpdated: new Date()
+            }, { merge: true });
+
+            // Update local data
+            const existingIndex = this.allEntitlements.findIndex(e => e.userId === user.id);
+            if (existingIndex >= 0) {
+                this.allEntitlements[existingIndex] = {
+                    ...this.allEntitlements[existingIndex],
+                    unlimited: true,
+                    can_edit: true,
+                    spec_credits: 999,
+                    lastUpdated: new Date()
+                };
+            } else {
+                this.allEntitlements.push({
+                    userId: user.id,
+                    unlimited: true,
+                    can_edit: true,
+                    spec_credits: 999,
+                    lastUpdated: new Date()
+                });
+            }
+
+            this.updatePermissionsTable();
+            this.showNotification(`Pro access granted to ${user.email}`, 'success');
+
+        } catch (error) {
+            console.error('Error granting Pro access:', error);
+            this.showNotification('Error granting Pro access: ' + error.message, 'error');
+        }
+    }
+
+    // Add spec credits to multiple users
+    async addSpecCredits() {
+        const creditsToAdd = prompt('How many spec credits to add to all users?', '1');
+        if (!creditsToAdd || isNaN(creditsToAdd)) return;
+
+        const confirmAdd = confirm(`Add ${creditsToAdd} credits to all users?`);
+        if (!confirmAdd) return;
+
+        try {
+            const batch = this.db.batch();
+            const credits = parseInt(creditsToAdd);
+
+            this.allUsers.forEach(user => {
+                const entitlementRef = this.db.collection('entitlements').doc(user.id);
+                const currentEntitlement = this.allEntitlements.find(e => e.userId === user.id);
+                const currentCredits = currentEntitlement?.spec_credits || 0;
+                
+                batch.set(entitlementRef, {
+                    userId: user.id,
+                    spec_credits: currentCredits + credits,
+                    lastUpdated: new Date()
+                }, { merge: true });
+            });
+
+            await batch.commit();
+            
+            // Update local data
+            this.allEntitlements.forEach(entitlement => {
+                entitlement.spec_credits = (entitlement.spec_credits || 0) + credits;
+                entitlement.lastUpdated = new Date();
+            });
+
+            this.updatePermissionsTable();
+            this.showNotification(`Added ${credits} credits to all users`, 'success');
+
+        } catch (error) {
+            console.error('Error adding credits to all users:', error);
+            this.showNotification('Error adding credits: ' + error.message, 'error');
+        }
+    }
+
+    // Reset user permissions
+    async resetUserPermissions() {
+        const userEmail = prompt('Enter user email to reset permissions:');
+        if (!userEmail) return;
+
+        const user = this.allUsers.find(u => u.email.toLowerCase() === userEmail.toLowerCase());
+        if (!user) {
+            this.showNotification('User not found', 'error');
+            return;
+        }
+
+        const confirmReset = confirm(`Reset all permissions for ${user.email}?`);
+        if (!confirmReset) return;
+
+        try {
+            await this.db.collection('entitlements').doc(user.id).set({
+                userId: user.id,
+                unlimited: false,
+                can_edit: false,
+                spec_credits: 0,
+                lastUpdated: new Date()
+            }, { merge: true });
+
+            // Update local data
+            const existingIndex = this.allEntitlements.findIndex(e => e.userId === user.id);
+            if (existingIndex >= 0) {
+                this.allEntitlements[existingIndex] = {
+                    userId: user.id,
+                    unlimited: false,
+                    can_edit: false,
+                    spec_credits: 0,
+                    lastUpdated: new Date()
+                };
+            } else {
+                this.allEntitlements.push({
+                    userId: user.id,
+                    unlimited: false,
+                    can_edit: false,
+                    spec_credits: 0,
+                    lastUpdated: new Date()
+                });
+            }
+
+            this.updatePermissionsTable();
+            this.showNotification(`Permissions reset for ${user.email}`, 'success');
+
+        } catch (error) {
+            console.error('Error resetting permissions:', error);
+            this.showNotification('Error resetting permissions: ' + error.message, 'error');
+        }
+    }
+
+    // Export permissions data
+    exportPermissions() {
+        const userPermissions = this.allUsers.map(user => {
+            const entitlement = this.allEntitlements.find(e => e.userId === user.id);
+            return {
+                email: user.email,
+                plan: entitlement?.unlimited ? 'Pro' : 'Free',
+                spec_credits: entitlement?.spec_credits || 0,
+                unlimited_access: entitlement?.unlimited || false,
+                can_edit: entitlement?.can_edit || false,
+                last_updated: entitlement?.lastUpdated ? this.formatDate(entitlement.lastUpdated) : 'Never'
+            };
+        });
+
+        const csv = this.convertToCSV(userPermissions);
+        this.downloadCSV(csv, 'user-permissions.csv');
+        this.showNotification('Permissions data exported successfully', 'success');
+    }
+
+    // Load buy clicks data for conversion funnel analysis
+    async loadBuyClicksData() {
+        try {
+            console.log('🛒 Loading buy clicks data...');
+            
+            // For now, we'll simulate buy clicks data since we don't have a collection yet
+            // In a real implementation, you would track buy button clicks in Firestore
+            this.allBuyClicks = this.simulateBuyClicksData();
+            
+            console.log(`✅ Loaded ${this.allBuyClicks.length} buy clicks`);
+            
+            // Update conversion funnel analytics
+            this.updateConversionFunnelAnalytics();
+            
+        } catch (error) {
+            console.error('❌ Error loading buy clicks data:', error);
+            this.showNotification('Error loading buy clicks data: ' + error.message, 'error');
+        }
+    }
+
+    // Simulate buy clicks data (replace with real Firestore collection)
+    simulateBuyClicksData() {
+        // This simulates buy button clicks based on actual purchases
+        // In reality, you would track clicks separately from purchases
+        const clicks = [];
+        
+        // Generate clicks for each product based on purchases
+        const products = ['671441', '671444', '671446', '671450']; // Product IDs from config
+        
+        products.forEach(productId => {
+            const purchases = this.allPurchases.filter(p => p.product_id === productId);
+            const subscriptions = this.allSubscriptions.filter(s => s.product_id === productId);
+            
+            // Assume 3-5 clicks per actual purchase (simulating abandonment)
+            const totalPurchases = purchases.length + subscriptions.length;
+            const clickMultiplier = Math.random() * 2 + 3; // 3-5x multiplier
+            const totalClicks = Math.floor(totalPurchases * clickMultiplier);
+            
+            for (let i = 0; i < totalClicks; i++) {
+                clicks.push({
+                    id: `click_${productId}_${i}`,
+                    productId: productId,
+                    userId: this.getRandomUserId(),
+                    timestamp: this.getRandomTimestamp(),
+                    completed: i < totalPurchases // First clicks are completed purchases
+                });
+            }
+        });
+        
+        return clicks;
+    }
+
+    // Get random user ID for simulation
+    getRandomUserId() {
+        if (this.allUsers.length === 0) return 'anonymous';
+        const randomIndex = Math.floor(Math.random() * this.allUsers.length);
+        return this.allUsers[randomIndex].id;
+    }
+
+    // Get random timestamp for simulation
+    getRandomTimestamp() {
+        const now = new Date();
+        const daysAgo = Math.floor(Math.random() * 30); // Last 30 days
+        const timestamp = new Date(now.getTime() - daysAgo * 24 * 60 * 60 * 1000);
+        return timestamp;
+    }
+
+    // Update conversion funnel analytics
+    updateConversionFunnelAnalytics() {
+        // Calculate total buy clicks
+        const totalBuyClicks = this.allBuyClicks.length;
+        document.getElementById('total-buy-clicks').textContent = totalBuyClicks;
+
+        // Calculate completed purchases
+        const totalPurchases = this.allPurchases.length + this.allSubscriptions.length;
+        document.getElementById('total-purchases').textContent = totalPurchases;
+
+        // Calculate abandoned carts (clicks that didn't result in purchases)
+        const abandonedPurchases = totalBuyClicks - totalPurchases;
+        document.getElementById('abandoned-purchases').textContent = Math.max(0, abandonedPurchases);
+
+        // Calculate conversion rate
+        const conversionRate = totalBuyClicks > 0 ? (totalPurchases / totalBuyClicks * 100).toFixed(1) : 0;
+        document.getElementById('conversion-rate').textContent = `${conversionRate}%`;
+
+        // Update conversion funnel table
+        this.updateConversionFunnelTable();
+    }
+
+    // Update conversion funnel breakdown table
+    updateConversionFunnelTable() {
+        const tbody = document.getElementById('conversion-funnel-table-body');
+        if (!tbody) return;
+
+        // Get product mapping from config
+        const productMapping = {
+            '671441': 'Single AI Specification',
+            '671444': '3-Pack AI Specifications', 
+            '671446': 'Pro Monthly Subscription',
+            '671450': 'Pro Yearly Subscription'
+        };
+
+        const productStats = {};
+
+        // Calculate stats for each product
+        Object.keys(productMapping).forEach(productId => {
+            const clicks = this.allBuyClicks.filter(c => c.productId === productId);
+            const purchases = this.allPurchases.filter(p => p.product_id === productId);
+            const subscriptions = this.allSubscriptions.filter(s => s.product_id === productId);
+            
+            const totalPurchases = purchases.length + subscriptions.length;
+            const buyClicks = clicks.length;
+            const abandoned = Math.max(0, buyClicks - totalPurchases);
+            const conversionRate = buyClicks > 0 ? (totalPurchases / buyClicks * 100).toFixed(1) : 0;
+            
+            // Calculate revenue
+            const revenue = purchases.reduce((sum, p) => sum + (p.total_amount_cents || 0), 0) / 100 +
+                           subscriptions.reduce((sum, s) => sum + (s.total_amount_cents || 0), 0) / 100;
+
+            productStats[productId] = {
+                name: productMapping[productId],
+                buyClicks,
+                purchases: totalPurchases,
+                abandoned,
+                conversionRate: parseFloat(conversionRate),
+                revenue
+            };
+        });
+
+        // Render table
+        tbody.innerHTML = '';
+        Object.values(productStats).forEach(stat => {
+            const row = document.createElement('tr');
+            
+            // Determine conversion rate color
+            let conversionClass = 'conversion-rate-low';
+            if (stat.conversionRate >= 20) conversionClass = 'conversion-rate-high';
+            else if (stat.conversionRate >= 10) conversionClass = 'conversion-rate-medium';
+
+            row.innerHTML = `
+                <td>${escapeHTML(stat.name)}</td>
+                <td>${stat.buyClicks}</td>
+                <td>${stat.purchases}</td>
+                <td>${stat.abandoned}</td>
+                <td class="${conversionClass}">${stat.conversionRate}%</td>
+                <td>₪${stat.revenue.toFixed(0)}</td>
+            `;
+            tbody.appendChild(row);
+        });
     }
 
     // Filter users

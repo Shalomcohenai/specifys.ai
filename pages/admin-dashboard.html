@@ -621,6 +621,9 @@ document.addEventListener('DOMContentLoaded', function() {
             <button class="tab-btn" data-tab="users">
                 <i class="fas fa-users"></i> Users
             </button>
+            <button class="tab-btn" data-tab="permissions">
+                <i class="fas fa-key"></i> Permissions
+            </button>
             <button class="tab-btn" data-tab="payments">
                 <i class="fas fa-shekel-sign"></i> Payments
             </button>
@@ -632,8 +635,84 @@ document.addEventListener('DOMContentLoaded', function() {
             </button>
         </div>
 
-        <!-- Tab 1: Users Management -->
-        <div class="tab-content active" id="users-tab">
+        <!-- Tab 1: Overview -->
+        <div class="tab-content active" id="overview-tab">
+            <div class="overview-container">
+                <div class="overview-grid">
+                    <!-- Quick Stats -->
+                    <div class="overview-section">
+                        <h2><i class="fas fa-chart-bar"></i> Quick Stats</h2>
+                        <div class="quick-stats-grid">
+                            <div class="quick-stat">
+                                <div class="stat-icon"><i class="fas fa-users"></i></div>
+                                <div class="stat-info">
+                                    <div class="stat-value" id="overview-total-users">0</div>
+                                    <div class="stat-label">Total Users</div>
+                                </div>
+                            </div>
+                            <div class="quick-stat">
+                                <div class="stat-icon"><i class="fas fa-shekel-sign"></i></div>
+                                <div class="stat-info">
+                                    <div class="stat-value" id="overview-total-revenue">₪0</div>
+                                    <div class="stat-label">Total Revenue</div>
+                                </div>
+                            </div>
+                            <div class="quick-stat">
+                                <div class="stat-icon"><i class="fas fa-file-alt"></i></div>
+                                <div class="stat-info">
+                                    <div class="stat-value" id="overview-total-specs">0</div>
+                                    <div class="stat-label">Total Specs</div>
+                                </div>
+                            </div>
+                            <div class="quick-stat">
+                                <div class="stat-icon"><i class="fas fa-sync-alt"></i></div>
+                                <div class="stat-info">
+                                    <div class="stat-value" id="overview-active-subscriptions">0</div>
+                                    <div class="stat-label">Active Subscriptions</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity -->
+                    <div class="overview-section">
+                        <h2><i class="fas fa-clock"></i> Recent Activity</h2>
+                        <div class="activity-list" id="recent-activity-list">
+                            <div class="activity-item">
+                                <div class="activity-icon"><i class="fas fa-spinner fa-spin"></i></div>
+                                <div class="activity-text">Loading recent activity...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="overview-section">
+                        <h2><i class="fas fa-bolt"></i> Quick Actions</h2>
+                        <div class="quick-actions-grid">
+                            <button class="quick-action-btn" onclick="adminDashboard.loadUsersData()">
+                                <i class="fas fa-sync-alt"></i>
+                                <span>Refresh Users</span>
+                            </button>
+                            <button class="quick-action-btn" onclick="adminDashboard.loadPaymentData()">
+                                <i class="fas fa-shekel-sign"></i>
+                                <span>Refresh Payments</span>
+                            </button>
+                            <button class="quick-action-btn" onclick="adminDashboard.refreshAllData()">
+                                <i class="fas fa-refresh"></i>
+                                <span>Refresh All</span>
+                            </button>
+                            <button class="quick-action-btn" onclick="window.open('/pages/ToolPicker.html', '_blank')">
+                                <i class="fas fa-external-link-alt"></i>
+                                <span>View Site</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 2: Users Management -->
+        <div class="tab-content" id="users-tab">
         <div class="table-section">
                 <div class="section-header">
                     <h2>Users Management</h2>
@@ -672,281 +751,150 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         </div>
 
-        <!-- Tab 2: Specs & Market Research -->
-        <div class="tab-content" id="specs-tab">
-            <div class="sub-tabs-container">
-                <div class="sub-tabs-nav">
-                    <button class="sub-tab-btn active" data-subtab="all-specs">All Specs</button>
-                    <button class="sub-tab-btn" data-subtab="market-research">Market Research</button>
+        <!-- Tab 3: User Permissions -->
+        <div class="tab-content" id="permissions-tab">
+            <div class="permissions-container">
+                <div class="permissions-header">
+                    <h2><i class="fas fa-key"></i> User Permissions Management</h2>
+                    <p>Manage user entitlements, Pro subscriptions, and spec credits</p>
                 </div>
 
-                <!-- Sub-tab: All Specs -->
-                <div class="sub-tab-content active" id="all-specs-subtab">
-        <div class="table-section">
-                        <div class="section-header">
-                            <h2>All Specifications</h2>
-                            <button class="btn-refresh" onclick="adminDashboard.loadSpecsData()">
-                                <i class="fas fa-sync-alt"></i> Refresh
-                            </button>
-                        </div>
-
-                        <div class="filters-row">
-                            <input type="text" id="specs-search" class="search-input" placeholder="Search by title...">
-                            <input type="text" id="specs-user-filter" class="search-input" placeholder="Filter by user email...">
-                            <input type="date" id="specs-date-from" class="filter-input" placeholder="From date">
-                            <input type="date" id="specs-date-to" class="filter-input" placeholder="To date">
-                        </div>
-
-                        <div class="table-wrapper">
-            <table class="admin-table">
-                <thead>
-                    <tr>
-                                        <th>Title</th>
-                                        <th>User Email</th>
-                                        <th>Created Date</th>
-                                        <th>Mode/Type</th>
-                                        <th>Actions</th>
-                    </tr>
-                </thead>
-                                <tbody id="specs-table-body">
-                                    <tr>
-                                        <td colspan="5" class="loading-cell">Loading specs data...</td>
-                                    </tr>
-                </tbody>
-            </table>
-                        </div>
-                    </div>
-        </div>
-
-                <!-- Sub-tab: Market Research -->
-                <div class="sub-tab-content" id="market-research-subtab">
-        <div class="table-section">
-                        <div class="section-header">
-                            <h2>Market Research</h2>
-                            <button class="btn-refresh" onclick="adminDashboard.loadMarketResearchData()">
-                                <i class="fas fa-sync-alt"></i> Refresh
-                            </button>
-                        </div>
-
-                        <div class="filters-row">
-                            <input type="text" id="market-search" class="search-input" placeholder="Search by title...">
-                            <input type="text" id="market-user-filter" class="search-input" placeholder="Filter by user email...">
-                            <input type="date" id="market-date-from" class="filter-input" placeholder="From date">
-                            <input type="date" id="market-date-to" class="filter-input" placeholder="To date">
-                        </div>
-
-                        <div class="table-wrapper">
-            <table class="admin-table">
-                <thead>
-                    <tr>
-                                        <th>Title</th>
-                                        <th>User Email</th>
-                                        <th>Created Date</th>
-                                        <th>Type</th>
-                                        <th>Actions</th>
-                    </tr>
-                </thead>
-                                <tbody id="market-table-body">
-                                    <tr>
-                                        <td colspan="5" class="loading-cell">Loading market research data...</td>
-                                    </tr>
-                </tbody>
-            </table>
-                        </div>
+                <!-- User Search and Filter -->
+                <div class="permissions-filters">
+                    <div class="filter-group">
+                        <input type="text" id="permissions-search" class="search-input" placeholder="Search by email...">
+                        <select id="permissions-plan-filter" class="filter-select">
+                            <option value="all">All Plans</option>
+                            <option value="free">Free Users</option>
+                            <option value="pro">Pro Users</option>
+                        </select>
+                        <button class="btn-refresh" onclick="adminDashboard.loadPermissionsData()">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <!-- Tab 3: App Dashboards -->
-        <div class="tab-content" id="dashboards-tab">
-        <div class="table-section">
-                <div class="section-header">
-                    <h2>App Dashboards</h2>
-                    <button class="btn-refresh" onclick="adminDashboard.loadDashboardsData()">
-                        <i class="fas fa-sync-alt"></i> Refresh
-                    </button>
-            </div>
-            
-                <div class="filters-row">
-                    <input type="text" id="dashboards-search" class="search-input" placeholder="Search by app name...">
-                    <input type="text" id="dashboards-user-filter" class="search-input" placeholder="Filter by user email...">
-                    <input type="date" id="dashboards-date-from" class="filter-input" placeholder="From date">
-                    <input type="date" id="dashboards-date-to" class="filter-input" placeholder="To date">
-                </div>
-                
+                <!-- Permissions Table -->
                 <div class="table-wrapper">
-                        <table class="admin-table">
-                            <thead>
-                                <tr>
-                                    <th>App Name</th>
-                                    <th>User Email</th>
-                                    <th>Created Date</th>
-                                    <th>Status</th>
-                                    <th>Tasks</th>
-                                    <th>Milestones</th>
-                                    <th>Notes</th>
-                                    <th>Expenses</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="dashboards-table-body">
-                                <tr>
-                                    <td colspan="9" class="loading-cell">Loading app dashboards data...</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                </div>
-                </div>
-            </div>
-
-        <!-- Tab 4: User Activity -->
-        <div class="tab-content" id="activity-tab">
-            <div class="table-section">
-                <div class="section-header">
-                    <h2>User Activity & Engagement</h2>
-                    <button class="btn-refresh" onclick="adminDashboard.loadActivityData()">
-                        <i class="fas fa-sync-alt"></i> Refresh
-                    </button>
-                </div>
-                
-                <!-- Saved Tools Section -->
-                <div class="activity-subsection">
-                    <h3><i class="fas fa-bookmark"></i> Most Saved Tools</h3>
-                    <div class="table-wrapper">
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                                    <th>Tool Name</th>
-                                    <th>Times Saved</th>
-                                    <th>Unique Users</th>
-                                    <th>Popularity</th>
-                        </tr>
-                    </thead>
-                            <tbody id="saved-tools-table-body">
-                                <tr>
-                                    <td colspan="4" class="loading-cell">Loading saved tools data...</td>
-                                </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-                <!-- Most Active Users Section -->
-                <div class="activity-subsection">
-                    <h3><i class="fas fa-users"></i> Most Active Users</h3>
-                    <div class="table-wrapper">
-                        <table class="admin-table">
-                            <thead>
-                                <tr>
-                                    <th>User Email</th>
-                                    <th>Dashboards</th>
-                                    <th>Specs</th>
-                                    <th>Notes</th>
-                                    <th>Total Activity</th>
-                                </tr>
-                            </thead>
-                            <tbody id="active-users-table-body">
-                                <tr>
-                                    <td colspan="5" class="loading-cell">Loading active users data...</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>User Email</th>
+                                <th>Plan</th>
+                                <th>Spec Credits</th>
+                                <th>Unlimited Access</th>
+                                <th>Can Edit</th>
+                                <th>Last Updated</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="permissions-table-body">
+                            <tr>
+                                <td colspan="7" class="loading-cell">Loading permissions data...</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
 
-                <!-- Engagement Stats -->
-                <div class="activity-subsection">
-                    <h3><i class="fas fa-chart-line"></i> Engagement Statistics</h3>
-                    <div class="engagement-stats-grid">
-                        <div class="engagement-stat-card">
-                            <div class="stat-icon"><i class="fas fa-percentage"></i></div>
-                            <div class="stat-value" id="users-with-dashboards-percent">0%</div>
-                            <div class="stat-label">Users with Dashboards</div>
-                        </div>
-                        <div class="engagement-stat-card">
-                            <div class="stat-icon"><i class="fas fa-percentage"></i></div>
-                            <div class="stat-value" id="users-with-saved-tools-percent">0%</div>
-                            <div class="stat-label">Users with Saved Tools</div>
-                        </div>
-                        <div class="engagement-stat-card">
-                            <div class="stat-icon"><i class="fas fa-chart-bar"></i></div>
-                            <div class="stat-value" id="avg-dashboards-per-user">0</div>
-                            <div class="stat-label">Avg Dashboards/User</div>
-                        </div>
-                        <div class="engagement-stat-card">
-                            <div class="stat-icon"><i class="fas fa-chart-bar"></i></div>
-                            <div class="stat-value" id="avg-specs-per-user">0</div>
-                            <div class="stat-label">Avg Specs/User</div>
-                        </div>
+                <!-- Quick Actions -->
+                <div class="permissions-actions">
+                    <h3><i class="fas fa-tools"></i> Quick Actions</h3>
+                    <div class="quick-actions-grid">
+                        <button class="quick-action-btn" onclick="adminDashboard.grantProAccess()">
+                            <i class="fas fa-crown"></i>
+                            <span>Grant Pro Access</span>
+                        </button>
+                        <button class="quick-action-btn" onclick="adminDashboard.addSpecCredits()">
+                            <i class="fas fa-plus-circle"></i>
+                            <span>Add Spec Credits</span>
+                        </button>
+                        <button class="quick-action-btn" onclick="adminDashboard.resetUserPermissions()">
+                            <i class="fas fa-undo"></i>
+                            <span>Reset Permissions</span>
+                        </button>
+                        <button class="quick-action-btn" onclick="adminDashboard.exportPermissions()">
+                            <i class="fas fa-download"></i>
+                            <span>Export Data</span>
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Tab 5: Analytics -->
-        <div class="tab-content" id="analytics-tab">
-            <div class="analytics-grid">
-                <!-- User Analytics -->
-                <div class="analytics-card">
-                    <h3><i class="fas fa-users"></i> User Registration Analytics</h3>
-                    <div class="analytics-stats">
-                        <div class="analytics-stat">
-                            <span class="stat-label">Users registered today:</span>
-                            <span class="stat-value" id="users-today">0</span>
+        <!-- Tab 4: Content Management -->
+        <div class="tab-content" id="content-tab">
+            <div class="content-container">
+                <div class="content-grid">
+                    <!-- Specs Management -->
+                    <div class="content-section">
+                        <h2><i class="fas fa-file-alt"></i> Specifications</h2>
+                        <div class="content-stats">
+                            <div class="content-stat">
+                                <span class="stat-value" id="content-total-specs">0</span>
+                                <span class="stat-label">Total Specs</span>
+                            </div>
+                            <div class="content-stat">
+                                <span class="stat-value" id="content-specs-week">0</span>
+                                <span class="stat-label">This Week</span>
+                            </div>
                         </div>
-                        <div class="analytics-stat">
-                            <span class="stat-label">Users registered this week:</span>
-                            <span class="stat-value" id="users-week">0</span>
-                        </div>
-                        <div class="analytics-stat">
-                            <span class="stat-label">Users registered this month:</span>
-                            <span class="stat-value" id="users-month">0</span>
-                        </div>
+                        <button class="btn-primary" onclick="adminDashboard.loadSpecsData()">
+                            <i class="fas fa-sync-alt"></i> Refresh Specs
+                        </button>
                     </div>
-                </div>
 
-                <!-- Dashboard Analytics -->
-                <div class="analytics-card">
-                    <h3><i class="fas fa-th-large"></i> App Dashboard Analytics</h3>
-                    <div class="analytics-stats">
-                        <div class="analytics-stat">
-                            <span class="stat-label">Dashboards created today:</span>
-                            <span class="stat-value" id="dashboards-today">0</span>
+                    <!-- Market Research -->
+                    <div class="content-section">
+                        <h2><i class="fas fa-chart-line"></i> Market Research</h2>
+                        <div class="content-stats">
+                            <div class="content-stat">
+                                <span class="stat-value" id="content-total-market">0</span>
+                                <span class="stat-label">Total Research</span>
+                            </div>
+                            <div class="content-stat">
+                                <span class="stat-value" id="content-market-week">0</span>
+                                <span class="stat-label">This Week</span>
+                            </div>
                         </div>
-                        <div class="analytics-stat">
-                            <span class="stat-label">Dashboards created this week:</span>
-                            <span class="stat-value" id="dashboards-week">0</span>
-                        </div>
-                        <div class="analytics-stat">
-                            <span class="stat-label">Dashboards created this month:</span>
-                            <span class="stat-value" id="dashboards-month">0</span>
-                        </div>
+                        <button class="btn-primary" onclick="adminDashboard.loadMarketResearchData()">
+                            <i class="fas fa-sync-alt"></i> Refresh Research
+                        </button>
                     </div>
+
+                    <!-- App Dashboards -->
+                    <div class="content-section">
+                        <h2><i class="fas fa-th-large"></i> App Dashboards</h2>
+                        <div class="content-stats">
+                            <div class="content-stat">
+                                <span class="stat-value" id="content-total-dashboards">0</span>
+                                <span class="stat-label">Total Dashboards</span>
+                            </div>
+                            <div class="content-stat">
+                                <span class="stat-value" id="content-dashboards-week">0</span>
+                                <span class="stat-label">This Week</span>
+                            </div>
                         </div>
-                        
-                <!-- Specs Analytics -->
-                <div class="analytics-card">
-                    <h3><i class="fas fa-file-alt"></i> Specs Analytics</h3>
-                    <div class="analytics-stats">
-                        <div class="analytics-stat">
-                            <span class="stat-label">Specs created today:</span>
-                            <span class="stat-value" id="specs-today">0</span>
+                        <button class="btn-primary" onclick="adminDashboard.loadDashboardsData()">
+                            <i class="fas fa-sync-alt"></i> Refresh Dashboards
+                        </button>
+                    </div>
+
+                    <!-- Blog Management -->
+                    <div class="content-section">
+                        <h2><i class="fas fa-newspaper"></i> Blog Management</h2>
+                        <div class="content-info">
+                            <p>Blog posts are managed through the <code>_posts</code> directory.</p>
+                            <p>Use Jekyll's built-in blog system for post creation and management.</p>
                         </div>
-                        <div class="analytics-stat">
-                            <span class="stat-label">Specs created this week:</span>
-                            <span class="stat-value" id="specs-week">0</span>
-                        </div>
-                        <div class="analytics-stat">
-                            <span class="stat-label">Specs created this month:</span>
-                            <span class="stat-value" id="specs-month">0</span>
-                        </div>
+                        <button class="btn-secondary" onclick="window.open('/blog/', '_blank')">
+                            <i class="fas fa-external-link-alt"></i> View Blog
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Tab 6: Payment Analytics -->
+        <!-- Tab 5: Payment Analytics -->
         <div class="tab-content" id="payments-tab">
             <div class="payments-analytics-container">
                 
@@ -973,6 +921,57 @@ document.addEventListener('DOMContentLoaded', function() {
                             <h3>This Year</h3>
                             <div class="revenue-value" id="revenue-year">₪0</div>
                             <div class="revenue-change" id="revenue-year-change">+0%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Conversion Funnel Analytics -->
+                <div class="analytics-section">
+                    <h2><i class="fas fa-funnel-dollar"></i> Conversion Funnel Analytics</h2>
+                    <div class="conversion-grid">
+                        <div class="conversion-card">
+                            <h3>Buy Button Clicks</h3>
+                            <div class="conversion-value" id="total-buy-clicks">0</div>
+                            <div class="conversion-label">Total clicks on buy buttons</div>
+                        </div>
+                        <div class="conversion-card">
+                            <h3>Completed Purchases</h3>
+                            <div class="conversion-value" id="total-purchases">0</div>
+                            <div class="conversion-label">Successful transactions</div>
+                        </div>
+                        <div class="conversion-card">
+                            <h3>Abandoned Carts</h3>
+                            <div class="conversion-value" id="abandoned-purchases">0</div>
+                            <div class="conversion-label">Clicked but didn't buy</div>
+                        </div>
+                        <div class="conversion-card">
+                            <h3>Conversion Rate</h3>
+                            <div class="conversion-value" id="conversion-rate">0%</div>
+                            <div class="conversion-label">Clicks to purchases</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Conversion Funnel Breakdown -->
+                    <div class="funnel-breakdown">
+                        <h3><i class="fas fa-chart-line"></i> Product Conversion Breakdown</h3>
+                        <div class="table-wrapper">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>Product</th>
+                                        <th>Buy Clicks</th>
+                                        <th>Purchases</th>
+                                        <th>Abandoned</th>
+                                        <th>Conversion Rate</th>
+                                        <th>Revenue</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="conversion-funnel-table-body">
+                                    <tr>
+                                        <td colspan="6" class="loading-cell">Loading conversion data...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -1091,162 +1090,70 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         </div>
 
-        <!-- Tab 7: Blog Management -->
-        <div class="tab-content" id="blog-tab">
-            <div class="blog-management-section">
-                <!-- Create New Post Section -->
-                <div class="create-post-section">
-                    <div class="section-header">
-                        <h2><i class="fas fa-pen-fancy"></i> Create New Blog Post</h2>
-                        <button class="btn-toggle-form" id="toggle-form-btn" onclick="blogManager.toggleForm()">
-                            <i class="fas fa-plus"></i> New Post
-                        </button>
+        <!-- Tab 6: Analytics -->
+        <div class="tab-content" id="analytics-tab">
+            <div class="analytics-container">
+                <div class="analytics-grid">
+                    <!-- User Analytics -->
+                    <div class="analytics-card">
+                        <h3><i class="fas fa-users"></i> User Registration Analytics</h3>
+                        <div class="analytics-stats">
+                            <div class="analytics-stat">
+                                <span class="stat-label">Users registered today:</span>
+                                <span class="stat-value" id="analytics-users-today">0</span>
+                            </div>
+                            <div class="analytics-stat">
+                                <span class="stat-label">Users registered this week:</span>
+                                <span class="stat-value" id="analytics-users-week">0</span>
+                            </div>
+                            <div class="analytics-stat">
+                                <span class="stat-label">Users registered this month:</span>
+                                <span class="stat-value" id="analytics-users-month">0</span>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="post-form-container" id="post-form-container" style="display: none;">
-                        <form id="create-post-form" class="create-post-form">
-                            <div class="form-row">
-                                <div class="form-group full-width">
-                                    <label for="post-title">
-                                        <i class="fas fa-heading"></i> Post Title <span class="required">*</span>
-                                    </label>
-                                    <input type="text" id="post-title" name="title" required 
-                                           placeholder="Enter post title (English only)" maxlength="100">
-                                    <small class="form-help">Maximum 60 characters recommended for SEO</small>
-                                </div>
+                    <!-- Dashboard Analytics -->
+                    <div class="analytics-card">
+                        <h3><i class="fas fa-th-large"></i> App Dashboard Analytics</h3>
+                        <div class="analytics-stats">
+                            <div class="analytics-stat">
+                                <span class="stat-label">Dashboards created today:</span>
+                                <span class="stat-value" id="analytics-dashboards-today">0</span>
                             </div>
-
-                            <div class="form-row">
-                                <div class="form-group full-width">
-                                    <label for="post-description">
-                                        <i class="fas fa-align-left"></i> Description <span class="required">*</span>
-                                    </label>
-                                    <textarea id="post-description" name="description" required 
-                                              placeholder="Enter SEO description (English only)" 
-                                              maxlength="160" rows="2"></textarea>
-                                    <small class="form-help char-counter">
-                                        <span id="desc-char-count">0</span>/160 characters
-                                    </small>
-                                </div>
+                            <div class="analytics-stat">
+                                <span class="stat-label">Dashboards created this week:</span>
+                                <span class="stat-value" id="analytics-dashboards-week">0</span>
                             </div>
-
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="post-date">
-                                        <i class="fas fa-calendar"></i> Publish Date <span class="required">*</span>
-                                    </label>
-                                    <input type="date" id="post-date" name="date" required>
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="post-author">
-                                        <i class="fas fa-user"></i> Author
-                                    </label>
-                                    <input type="text" id="post-author" name="author" 
-                                           placeholder="specifys.ai Team" value="specifys.ai Team">
-                                </div>
+                            <div class="analytics-stat">
+                                <span class="stat-label">Dashboards created this month:</span>
+                                <span class="stat-value" id="analytics-dashboards-month">0</span>
                             </div>
-
-                            <div class="form-row">
-                                <div class="form-group full-width">
-                                    <label for="post-tags">
-                                        <i class="fas fa-tags"></i> Tags
-                                    </label>
-                                    <input type="text" id="post-tags" name="tags" 
-                                           placeholder="ai, development, tools (comma-separated)">
-                                    <small class="form-help">Separate tags with commas</small>
-                                </div>
-                            </div>
-
-                            <div class="form-row">
-                                <div class="form-group full-width">
-                                    <label for="post-content">
-                                        <i class="fas fa-file-alt"></i> Content <span class="required">*</span>
-                                    </label>
-                                    <div class="editor-toolbar">
-                                        <button type="button" class="toolbar-btn" onclick="blogManager.insertMarkdown('## ')" title="Heading 2">
-                                            <i class="fas fa-heading"></i> H2
-                                        </button>
-                                        <button type="button" class="toolbar-btn" onclick="blogManager.insertMarkdown('### ')" title="Heading 3">
-                                            <i class="fas fa-heading"></i> H3
-                                        </button>
-                                        <button type="button" class="toolbar-btn" onclick="blogManager.insertMarkdown('**', '**')" title="Bold">
-                                            <i class="fas fa-bold"></i>
-                                        </button>
-                                        <button type="button" class="toolbar-btn" onclick="blogManager.insertMarkdown('*', '*')" title="Italic">
-                                            <i class="fas fa-italic"></i>
-                                        </button>
-                                        <button type="button" class="toolbar-btn" onclick="blogManager.insertMarkdown('- ')" title="List">
-                                            <i class="fas fa-list-ul"></i>
-                                        </button>
-                                        <button type="button" class="toolbar-btn" onclick="blogManager.insertMarkdown('[', '](url)')" title="Link">
-                                            <i class="fas fa-link"></i>
-                                        </button>
-                                        <button type="button" class="toolbar-btn" onclick="blogManager.insertMarkdown('```\n', '\n```')" title="Code Block">
-                                            <i class="fas fa-code"></i>
-                                        </button>
-                                    </div>
-                                    <textarea id="post-content" name="content" required 
-                                              placeholder="Write your post content in Markdown format..." 
-                                              rows="15"></textarea>
-                                    <small class="form-help">Supports Markdown formatting</small>
-                                </div>
-                            </div>
-
-                            <div class="form-actions">
-                                <button type="button" class="btn btn-secondary" onclick="blogManager.previewPost()">
-                                    <i class="fas fa-eye"></i> Preview
-                                </button>
-                                <button type="button" class="btn btn-secondary" onclick="blogManager.resetForm()">
-                                    <i class="fas fa-undo"></i> Reset
-                                </button>
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-rocket"></i> Publish Post
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-
-                <!-- Existing Posts List Section -->
-                <div class="posts-list-section">
-                    <div class="section-header">
-                        <h2><i class="fas fa-newspaper"></i> Published Posts</h2>
-                        <button class="btn-refresh" onclick="blogManager.loadPosts()">
-                            <i class="fas fa-sync-alt"></i> Refresh
-                        </button>
+                        </div>
                     </div>
 
-                    <div class="filters-row">
-                        <input type="text" id="posts-search" class="search-input" 
-                               placeholder="Search posts by title...">
-                        <input type="date" id="posts-date-from" class="filter-input" 
-                               placeholder="From date">
-                        <input type="date" id="posts-date-to" class="filter-input" 
-                               placeholder="To date">
-                    </div>
-
-                    <div class="table-wrapper">
-                        <table class="admin-table">
-                            <thead>
-                                <tr>
-                                    <th>Title</th>
-                                    <th>Date</th>
-                                    <th>Author</th>
-                                    <th>Tags</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="posts-table-body">
-                                <tr>
-                                    <td colspan="5" class="loading-cell">Loading posts...</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <!-- Specs Analytics -->
+                    <div class="analytics-card">
+                        <h3><i class="fas fa-file-alt"></i> Specs Analytics</h3>
+                        <div class="analytics-stats">
+                            <div class="analytics-stat">
+                                <span class="stat-label">Specs created today:</span>
+                                <span class="stat-value" id="analytics-specs-today">0</span>
+                            </div>
+                            <div class="analytics-stat">
+                                <span class="stat-label">Specs created this week:</span>
+                                <span class="stat-value" id="analytics-specs-week">0</span>
+                            </div>
+                            <div class="analytics-stat">
+                                <span class="stat-label">Specs created this month:</span>
+                                <span class="stat-value" id="analytics-specs-month">0</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+
     </div>
 
     <!-- Preview Modal -->
@@ -1459,6 +1366,21 @@ document.addEventListener('DOMContentLoaded', function() {
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
   const db = firebase.firestore();
+
+  // Listen to auth state changes
+  auth.onAuthStateChanged((user) => {
+    updateAuthUI(user);
+  });
+
+  // Initialize auth buttons with default state
+  document.addEventListener('DOMContentLoaded', function() {
+    const authButtons = document.getElementById('auth-buttons');
+    if (authButtons && !authButtons.innerHTML.trim()) {
+      authButtons.innerHTML = `
+        <button class="auth-btn login-btn">Login</button>
+      `;
+    }
+  });
 </script>
 
 
@@ -1515,28 +1437,6 @@ document.addEventListener('DOMContentLoaded', function() {
       });
   };
 
-  // Listen to auth state changes
-  auth.onAuthStateChanged((user) => {
-    updateAuthUI(user);
-  });
-
-  // Initialize auth buttons with default state
-  document.addEventListener('DOMContentLoaded', function() {
-    const authButtons = document.getElementById('auth-buttons');
-    if (authButtons && !authButtons.innerHTML.trim()) {
-      authButtons.innerHTML = `
-        <button class="auth-btn login-btn">Login</button>
-      `;
-      
-      const loginBtn = authButtons.querySelector('.login-btn');
-      if (loginBtn) {
-        loginBtn.addEventListener('click', function(event) {
-          event.stopPropagation();
-          window.location.href = '/pages/auth.html';
-        });
-      }
-    }
-  });
 </script>
 
 

@@ -5,6 +5,7 @@ PORT=3001
 FIREBASE_PROJECT_ID=specify-ai
 FIREBASE_SERVICE_ACCOUNT_KEY_FILE=firebase-service-account.json
 FIREBASE_STORAGE_BUCKET=specify-ai.appspot.com
+FIREBASE_API_KEY=AIzaSyB9hr0IWM4EREzkKDxBxYoYinV6LJXWXV4
 
 # Lemon Squeezy Configuration
 LEMON_WEBHOOK_SECRET=specifys_ai_secret_2025

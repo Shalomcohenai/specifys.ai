@@ -17,14 +17,12 @@ const securityHeaders = helmet({
       defaultSrc: ["'self'"],
       scriptSrc: [
         "'self'",
-        "'unsafe-inline'", // Required for inline scripts (can be removed later)
         "https://www.gstatic.com",
         "https://cdn.jsdelivr.net",
         "https://cdnjs.cloudflare.com"
       ],
       styleSrc: [
         "'self'",
-        "'unsafe-inline'", // Required for inline styles
         "https://cdn.jsdelivr.net",
         "https://cdnjs.cloudflare.com",
         "https://fonts.googleapis.com"
@@ -245,33 +243,56 @@ function securityLogger(action) {
 }
 
 /**
- * Admin authentication middleware (placeholder)
- * In production, this should check actual admin permissions
+ * Admin authentication middleware
+ * Verifies Firebase ID token and checks admin permissions
  * @param {Request} req 
  * @param {Response} res 
  * @param {Function} next 
  */
-function requireAdmin(req, res, next) {
-  // TODO: Implement actual admin authentication
-  // For now, this is a placeholder that logs the attempt
-  
-  const authHeader = req.headers.authorization;
-  
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    console.warn('🚨 Unauthorized admin access attempt from IP:', req.ip);
+async function requireAdmin(req, res, next) {
+  try {
+    const authHeader = req.headers.authorization;
+    
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      console.warn('🚨 Unauthorized admin access attempt from IP:', req.ip);
+      return res.status(401).json({ 
+        error: 'Authentication required',
+        message: 'Admin access requires valid authentication token'
+      });
+    }
+
+    const idToken = authHeader.split('Bearer ')[1];
+    
+    // Import Firebase Admin dynamically to avoid circular dependency
+    const { auth } = require('./firebase-admin');
+    const decodedToken = await auth.verifyIdToken(idToken);
+    
+    // Check if user is admin
+    const adminEmails = [
+      'specifysai@gmail.com',
+      'admin@specifys.ai', 
+      'shalom@specifys.ai'
+    ];
+    
+    if (!adminEmails.includes(decodedToken.email)) {
+      console.warn('🚨 Non-admin user attempted admin access:', decodedToken.email, 'from IP:', req.ip);
+      return res.status(403).json({ 
+        error: 'Forbidden',
+        message: 'Admin access required'
+      });
+    }
+    
+    req.adminUser = decodedToken;
+    console.log('✅ Admin access granted to:', decodedToken.email);
+    next();
+    
+  } catch (error) {
+    console.error('🚨 Admin authentication error:', error.message);
     return res.status(401).json({ 
-      error: 'Authentication required',
-      message: 'Admin access requires valid authentication token'
+      error: 'Invalid token',
+      message: 'Authentication failed'
     });
   }
-
-  // TODO: Verify the token
-  // const token = authHeader.substring(7);
-  // const isValidAdmin = verifyAdminToken(token);
-  
-  console.warn('⚠️ Admin endpoint accessed - token validation not implemented');
-  
-  next();
 }
 
 module.exports = {

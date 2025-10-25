@@ -5,6 +5,7 @@ const { syncAllUsers } = require('./server/user-management');
 const blogRoutes = require('./server/blog-routes');
 const specRoutes = require('./server/spec-routes');
 const { handleLemonWebhook } = require('./server/lemon-webhook');
+const { securityHeaders, rateLimiters } = require('./server/security');
 
 // Load environment variables from .env file
 console.log('Loading environment variables...');
@@ -13,22 +14,14 @@ dotenv.config();
 const app = express();
 const port = 3001; // Changed to 3001 to avoid potential port conflicts
 
-// Middleware to parse JSON bodies
-console.log('Setting up middleware...');
+// Apply security headers
+app.use(securityHeaders);
 
-// Lemon Squeezy webhook endpoint (must be before express.json())
-app.post('/api/webhook/lemon', express.raw({type: 'application/json'}), handleLemonWebhook);
-
-app.use(express.json());
-
-// Serve static files from the parent directory (main site)
-app.use(express.static('..'));
-
-// Serve blog files from _site/blog directory
-app.use('/blog', express.static('../_site/blog'));
-
-// Serve blog posts from _site/2025 directory structure
-app.use('/2025', express.static('../_site/2025'));
+// Apply rate limiting
+app.use('/api/', rateLimiters.general);
+app.use('/api/admin/', rateLimiters.admin);
+app.use('/api/auth/', rateLimiters.auth);
+app.use('/api/feedback', rateLimiters.feedback);
 
 // CORS middleware to allow requests from your frontend
 app.use((req, res, next) => {
@@ -56,14 +49,28 @@ app.use((req, res, next) => {
   next();
 });
 
-// Middleware to parse JSON bodies
-console.log('Setting up middleware...');
-
 // Lemon Squeezy webhook endpoint (must be before express.json())
 app.post('/api/webhook/lemon', express.raw({type: 'application/json'}), handleLemonWebhook);
 
+// Middleware to parse JSON bodies
+app.use(express.json());
+
+// Serve static files from the parent directory (main site)
+app.use(express.static('..'));
+
+// Serve blog files from _site/blog directory
+app.use('/blog', express.static('../_site/blog'));
+
+// Serve blog posts from _site/2025 directory structure
+app.use('/2025', express.static('../_site/2025'));
+
 // Spec routes with authorization
 app.use('/api/specs', specRoutes);
+
+// Basic route for server status
+app.get('/api/status', (req, res) => {
+  res.status(200).json({ message: 'Server is running' });
+});
 
 // Endpoint to sync users from Firebase Auth to Firestore
 app.post('/api/sync-users', async (req, res) => {
