@@ -116,7 +116,15 @@ function isUserAuthenticated() {
 function handleStartButtonClick() {
   trackStartNowClick();
   
-  // Always proceed with app planning (remove authentication requirement)
+  // Check if user is authenticated
+  if (!isUserAuthenticated()) {
+    // Show alert and redirect to auth page
+    alert('You must be logged in to create a specification. Please sign in or register first.');
+    window.location.href = '/pages/auth.html';
+    return;
+  }
+  
+  // Proceed with app planning only if authenticated
   proceedWithAppPlanning();
 }
 
