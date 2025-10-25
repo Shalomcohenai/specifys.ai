@@ -449,6 +449,93 @@ document.addEventListener('DOMContentLoaded', function() {
         font-size: 1.11rem !important;
     }
 }
+
+/* Profile Credits Display Styles */
+.credits-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.credits-display-large {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.credits-circle-large {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 18px;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    transition: all 0.2s ease;
+    cursor: pointer;
+    position: relative;
+}
+
+.credits-circle-large:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+}
+
+.credits-circle-large.pro {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
+}
+
+.credits-circle-large.pro:hover {
+    box-shadow: 0 6px 16px rgba(251, 191, 36, 0.4);
+}
+
+.credits-circle-large.unlimited {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.credits-circle-large.unlimited:hover {
+    box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+}
+
+.credits-label {
+    font-size: 12px;
+    color: #6b7280;
+    font-weight: 500;
+    text-align: center;
+}
+
+/* Mobile adjustments for profile credits */
+@media (max-width: 768px) {
+    .credits-circle-large {
+        width: 50px;
+        height: 50px;
+        font-size: 16px;
+    }
+    
+    .credits-label {
+        font-size: 11px;
+    }
+}
+
+@media (max-width: 480px) {
+    .credits-circle-large {
+        width: 45px;
+        height: 45px;
+        font-size: 14px;
+    }
+    
+    .credits-label {
+        font-size: 10px;
+    }
+}
 </style>
 
 
@@ -483,6 +570,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="stat-item">
                     <div class="stat-number" id="saved-tools-count">0</div>
                     <div class="stat-label">Tools</div>
+                </div>
+                <div class="stat-item credits-stat">
+                    <div class="credits-display-large" id="profile-credits-display">
+                        <div class="credits-circle-large" id="profile-credits-circle">
+                            <span id="profile-credits-text">0</span>
+                        </div>
+                        <div class="credits-label">Specs</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -590,9 +685,9 @@ document.addEventListener('DOMContentLoaded', function() {
         // Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyB9hr0IWM4EREzkKDxBxYoYinV6LJXWXV4",
-            authDomain: "specify-ai.firebaseapp.com",
-            projectId: "specify-ai",
-            storageBucket: "specify-ai.firebasestorage.app",
+    authDomain: "specify-ai.firebaseapp.com",
+    projectId: "specify-ai",
+    storageBucket: "specify-ai.firebasestorage.app",
             messagingSenderId: "734278787482",
             appId: "1:734278787482:web:0e312fb6f197e849695a23",
             measurementId: "G-4YR9LK63MR"
@@ -673,6 +768,83 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Check admin access and show/hide admin dashboard button
             checkAdminAccess(user);
+            
+            // Update credits display
+            updateProfileCredits();
+        }
+
+        // Update profile credits display
+        async function updateProfileCredits() {
+            if (!currentUser) return;
+
+            try {
+                const token = await currentUser.getIdToken();
+                const response = await fetch('http://localhost:3001/api/specs/entitlements', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    console.error('Failed to fetch entitlements for profile');
+                    return;
+                }
+
+                const data = await response.json();
+                renderProfileCredits(data);
+
+            } catch (error) {
+                console.error('Error updating profile credits:', error);
+            }
+        }
+
+        // Render profile credits display
+        function renderProfileCredits(entitlements) {
+            const creditsText = document.getElementById('profile-credits-text');
+            const creditsCircle = document.getElementById('profile-credits-circle');
+            
+            if (!creditsText || !creditsCircle) return;
+
+            const { entitlements: userEntitlements, user } = entitlements;
+            
+            // Remove existing classes
+            creditsCircle.classList.remove('pro', 'unlimited');
+            
+            let displayText = '';
+            let cssClass = '';
+
+            if (userEntitlements.unlimited) {
+                // Pro subscription - unlimited
+                displayText = 'UL';
+                cssClass = 'unlimited';
+            } else if (userEntitlements.spec_credits > 0) {
+                // Has purchased credits
+                displayText = userEntitlements.spec_credits.toString();
+                cssClass = 'pro';
+            } else if (user.free_specs_remaining > 0) {
+                // Free specs remaining
+                displayText = user.free_specs_remaining.toString();
+            } else {
+                // No credits
+                displayText = '0';
+            }
+
+            creditsText.textContent = displayText;
+            
+            if (cssClass) {
+                creditsCircle.classList.add(cssClass);
+            }
+
+            // Add click handler to redirect to pricing page
+            creditsCircle.onclick = () => {
+                if (userEntitlements.unlimited) {
+                    // Pro user - maybe show subscription management
+                    alert('You have unlimited specifications with Pro subscription!');
+                } else {
+                    // Show pricing page
+                    window.location.href = '/pages/pricing.html';
+                }
+            };
         }
 
         // Load workspace data (apps + specs + research)

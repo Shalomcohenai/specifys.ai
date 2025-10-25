@@ -1,0 +1,56 @@
+{
+  "lemon_store_id": "230339",
+  "webhook_id": "57567",
+  "currency": "ILS",
+  "products": {
+    "single_spec": {
+      "product_id": "671441",
+      "variant_id": "1055336",
+      "name": "Single AI Specification",
+      "price_nis": 19,
+      "type": "one_time",
+      "grants": {
+        "spec_credits": 1,
+        "can_edit": false,
+        "unlimited": false
+      }
+    },
+    "three_pack": {
+      "product_id": "671442",
+      "variant_id": "1055344",
+      "name": "3-Pack AI Specifications",
+      "price_nis": 38,
+      "type": "one_time",
+      "grants": {
+        "spec_credits": 3,
+        "can_edit": false,
+        "unlimited": false
+      }
+    },
+    "pro_monthly": {
+      "product_id": "671443",
+      "variant_id": "1055346",
+      "name": "Pro Monthly Subscription",
+      "price_nis": 115,
+      "type": "subscription",
+      "grants": {
+        "spec_credits": 0,
+        "can_edit": true,
+        "unlimited": true
+      }
+    },
+    "pro_yearly": {
+      "product_id": "671444",
+      "variant_id": "1055354",
+      "name": "Pro Yearly Subscription",
+      "price_nis": 1150,
+      "type": "subscription",
+      "grants": {
+        "spec_credits": 0,
+        "can_edit": true,
+        "unlimited": true
+      }
+    }
+  },
+  "webhook_secret": "specifys_ai_secret_2025"
+}

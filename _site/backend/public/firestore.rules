@@ -1,7 +1,6 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Admin access function
     function isAdmin() {
       return request.auth != null && (
         request.auth.token.email == 'specifysai@gmail.com' ||
@@ -9,93 +8,56 @@ service cloud.firestore {
         request.auth.token.email == 'shalom@specifys.ai'
       );
     }
-    
-    // Rules for specs collection
-    match /specs/{document} {
-      allow read: if request.auth != null && 
-        (resource.data.userId == request.auth.uid || isAdmin());
-      allow write: if request.auth != null && resource.data.userId == request.auth.uid;
-      allow create: if request.auth != null 
-        && request.resource.data.userId == request.auth.uid;
+
+    // General rule for documents with userId field
+    match /{document=**} {
+      allow read, write: if request.auth != null && request.auth.uid == resource.data.userId || isAdmin();
     }
-    
-    // Rules for marketResearch collection
-    match /marketResearch/{document} {
-      allow read: if request.auth != null && 
-        (resource.data.userId == request.auth.uid || isAdmin());
-      allow write: if request.auth != null && resource.data.userId == request.auth.uid;
-      allow create: if request.auth != null 
-        && request.resource.data.userId == request.auth.uid;
+
+    // Users collection
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId || isAdmin();
+      allow create: if request.auth != null && request.auth.uid == userId;
     }
-    
-    // Rules for apps collection
-    match /apps/{document} {
-      allow read: if request.auth != null && 
-        (resource.data.userId == request.auth.uid || isAdmin());
-      allow write: if request.auth != null && resource.data.userId == request.auth.uid;
-      allow create: if request.auth != null 
-        && request.resource.data.userId == request.auth.uid;
+
+    // UserTools subcollections
+    match /userTools/{userId}/{document=**} {
+      allow read, write: if request.auth != null && userId == request.auth.uid || isAdmin();
+      allow create: if request.auth != null && userId == request.auth.uid;
     }
-    
-    // Rules for users collection - allow admin to read all
-    match /users/{document} {
-      allow read: if request.auth != null && 
-        (request.auth.uid == document || isAdmin());
-      allow write: if request.auth != null && request.auth.uid == document;
+
+    // Entitlements collection
+    match /entitlements/{document} {
+      allow read, write: if request.auth != null && request.auth.uid == resource.data.userId || isAdmin();
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
     }
-    
-    // Rules for userTools collection (saved tools)
-    match /userTools/{userId}/savedTools/{toolId} {
-      allow read: if request.auth != null && 
-        (userId == request.auth.uid || isAdmin());
-      allow write: if request.auth != null && userId == request.auth.uid;
-      allow create: if request.auth != null 
-        && userId == request.auth.uid;
+
+    // Purchases collection
+    match /purchases/{document} {
+      allow read, write: if request.auth != null && request.auth.uid == resource.data.userId || isAdmin();
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
     }
-    
-    // Rules for userLikes collection
-    match /userLikes/{document} {
-      allow read: if request.auth != null && 
-        (resource.data.userId == request.auth.uid || isAdmin());
-      allow write: if request.auth != null && resource.data.userId == request.auth.uid;
-      allow create: if request.auth != null 
-        && request.resource.data.userId == request.auth.uid;
+
+    // Subscriptions collection
+    match /subscriptions/{document} {
+      allow read, write: if request.auth != null && request.auth.uid == resource.data.userId || isAdmin();
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
     }
-    
-    // Rules for appTasks collection
-    match /appTasks/{document} {
-      allow read: if request.auth != null && 
-        (resource.data.userId == request.auth.uid || isAdmin());
-      allow write: if request.auth != null && resource.data.userId == request.auth.uid;
-      allow create: if request.auth != null 
-        && request.resource.data.userId == request.auth.uid;
+
+    // Pending entitlements collection
+    match /pending_entitlements/{document} {
+      allow read: if request.auth != null && (resource.data.email == request.auth.token.email || isAdmin());
+      allow write, create: if isAdmin();
     }
-    
-    // Rules for appMilestones collection
-    match /appMilestones/{document} {
-      allow read: if request.auth != null && 
-        (resource.data.userId == request.auth.uid || isAdmin());
-      allow write: if request.auth != null && resource.data.userId == request.auth.uid;
-      allow create: if request.auth != null 
-        && request.resource.data.userId == request.auth.uid;
+
+    // Audit logs collection (admin only)
+    match /audit_logs/{document} {
+      allow read, write, create: if isAdmin();
     }
-    
-    // Rules for appNotes collection
-    match /appNotes/{document} {
-      allow read: if request.auth != null && 
-        (resource.data.userId == request.auth.uid || isAdmin());
-      allow write: if request.auth != null && resource.data.userId == request.auth.uid;
-      allow create: if request.auth != null 
-        && request.resource.data.userId == request.auth.uid;
-    }
-    
-    // Rules for appExpenses collection
-    match /appExpenses/{document} {
-      allow read: if request.auth != null && 
-        (resource.data.userId == request.auth.uid || isAdmin());
-      allow write: if request.auth != null && resource.data.userId == request.auth.uid;
-      allow create: if request.auth != null 
-        && request.resource.data.userId == request.auth.uid;
+
+    // Processed webhook events collection (admin only)
+    match /processed_webhook_events/{document} {
+      allow read, write, create: if isAdmin();
     }
   }
 }

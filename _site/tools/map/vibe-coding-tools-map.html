@@ -408,6 +408,11 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
     </div>
     <div class="header-right">
+        <div class="credits-display" id="credits-display" style="display: none;">
+            <div class="credits-circle" id="credits-circle">
+                <span id="credits-text">0</span>
+            </div>
+        </div>
         <div class="auth-buttons" id="auth-buttons">
             <!-- Will be populated by auth system -->
         </div>
@@ -449,7 +454,105 @@ document.addEventListener('DOMContentLoaded', function() {
         font-size: 1.11rem !important;
     }
 }
+
+/* Credits Display Styles */
+.credits-display {
+    display: flex;
+    align-items: center;
+    margin-right: 16px;
+}
+
+.credits-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 14px;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+    transition: all 0.2s ease;
+    cursor: pointer;
+    position: relative;
+}
+
+.credits-circle:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.credits-circle.pro {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    box-shadow: 0 2px 8px rgba(251, 191, 36, 0.3);
+}
+
+.credits-circle.pro:hover {
+    box-shadow: 0 4px 12px rgba(251, 191, 36, 0.4);
+}
+
+.credits-circle.unlimited {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+}
+
+.credits-circle.unlimited:hover {
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+}
+
+/* Tooltip for credits */
+.credits-circle::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: -35px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    z-index: 1000;
+}
+
+.credits-circle:hover::after {
+    opacity: 1;
+}
+
+/* Mobile adjustments for credits */
+@media (max-width: 768px) {
+    .credits-display {
+        margin-right: 12px;
+    }
+    
+    .credits-circle {
+        width: 36px;
+        height: 36px;
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .credits-display {
+        margin-right: 8px;
+    }
+    
+    .credits-circle {
+        width: 32px;
+        height: 32px;
+        font-size: 11px;
+    }
+}
 </style>
+
+<!-- Credits Display Script -->
+<script src="/assets/js/credits-display.js"></script>
 
 
     
@@ -1990,9 +2093,9 @@ document.addEventListener('DOMContentLoaded', function() {
       // Firebase configuration
       const firebaseConfig = {
         apiKey: "AIzaSyB9hr0IWM4EREzkKDxBxYoYinV6LJXWXV4",
-        authDomain: "specify-ai.firebaseapp.com",
-        projectId: "specify-ai",
-        storageBucket: "specify-ai.firebasestorage.app",
+    authDomain: "specify-ai.firebaseapp.com",
+    projectId: "specify-ai",
+    storageBucket: "specify-ai.firebasestorage.app",
         messagingSenderId: "734278787482",
         appId: "1:734278787482:web:0e312fb6f197e849695a23",
         measurementId: "G-4YR9LK63MR"

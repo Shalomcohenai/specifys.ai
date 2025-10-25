@@ -8,12 +8,19 @@ try {
     // Check if Firebase Admin is already initialized
     if (admin.apps.length === 0) {
         // Initialize with service account key (recommended for production)
-        if (process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
+        if (process.env.FIREBASE_SERVICE_ACCOUNT_KEY_FILE) {
+            const serviceAccount = require(`../${process.env.FIREBASE_SERVICE_ACCOUNT_KEY_FILE}`);
+            app = admin.initializeApp({
+                credential: admin.credential.cert(serviceAccount),
+                projectId: process.env.FIREBASE_PROJECT_ID || 'specify-ai',
+                storageBucket: process.env.FIREBASE_STORAGE_BUCKET || 'specify-ai.appspot.com'
+            });
+        } else if (process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
             const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
             app = admin.initializeApp({
                 credential: admin.credential.cert(serviceAccount),
                 projectId: process.env.FIREBASE_PROJECT_ID || 'specify-ai',
-                storageBucket: process.env.FIREBASE_STORAGE_BUCKET || 'specify-ai.firebasestorage.app'
+                storageBucket: process.env.FIREBASE_STORAGE_BUCKET || 'specify-ai.appspot.com'
             });
         } else {
             // For development - initialize with default credentials

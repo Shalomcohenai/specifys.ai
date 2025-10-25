@@ -1,10 +1,10 @@
-console.log('Starting server setup...');
-
 const express = require('express');
 const fetch = require('node-fetch');
 const dotenv = require('dotenv');
 const { syncAllUsers } = require('./server/user-management');
 const blogRoutes = require('./server/blog-routes');
+const specRoutes = require('./server/spec-routes');
+const { handleLemonWebhook } = require('./server/lemon-webhook');
 
 // Load environment variables from .env file
 console.log('Loading environment variables...');
@@ -15,23 +15,29 @@ const port = 3001; // Changed to 3001 to avoid potential port conflicts
 
 // Middleware to parse JSON bodies
 console.log('Setting up middleware...');
+
+// Lemon Squeezy webhook endpoint (must be before express.json())
+app.post('/api/webhook/lemon', express.raw({type: 'application/json'}), handleLemonWebhook);
+
 app.use(express.json());
 
-// Serve static files from the current directory
-app.use(express.static('.'));
+// Serve static files from the parent directory (main site)
+app.use(express.static('..'));
 
 // Serve blog files from _site/blog directory
-app.use('/blog', express.static('_site/blog'));
+app.use('/blog', express.static('../_site/blog'));
 
 // Serve blog posts from _site/2025 directory structure
-app.use('/2025', express.static('_site/2025'));
+app.use('/2025', express.static('../_site/2025'));
 
 // CORS middleware to allow requests from your frontend
 app.use((req, res, next) => {
   console.log('Applying CORS middleware...');
   const allowedOrigins = [
+    'http://localhost:3000',
     'http://localhost:4000',
     'http://localhost:8080',
+    'http://127.0.0.1:3000',
     'http://127.0.0.1:4000',
     'https://specifys-ai.com'
   ];
@@ -49,6 +55,15 @@ app.use((req, res, next) => {
   }
   next();
 });
+
+// Middleware to parse JSON bodies
+console.log('Setting up middleware...');
+
+// Lemon Squeezy webhook endpoint (must be before express.json())
+app.post('/api/webhook/lemon', express.raw({type: 'application/json'}), handleLemonWebhook);
+
+// Spec routes with authorization
+app.use('/api/specs', specRoutes);
 
 // Endpoint to sync users from Firebase Auth to Firestore
 app.post('/api/sync-users', async (req, res) => {
@@ -76,7 +91,7 @@ app.post('/api/blog/create-post', blogRoutes.createPost);
 app.get('/api/blog/list-posts', blogRoutes.listPosts);
 app.post('/api/blog/delete-post', blogRoutes.deletePost);
 
-// Endpoint to handle API requests to Grok
+// Legacy endpoint to handle API requests to Grok (deprecated - use /api/specs/create instead)
 app.post('/api/generate-spec', async (req, res) => {
   console.log('Received request:', req.body);
   const { userInput } = req.body;
@@ -129,6 +144,12 @@ app.post('/api/generate-spec', async (req, res) => {
 console.log('Attempting to start server on port', port);
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
+  console.log('Available endpoints:');
+  console.log('  POST /api/webhook/lemon - Lemon Squeezy webhook');
+  console.log('  POST /api/specs/create - Create spec with authorization');
+  console.log('  GET  /api/specs/entitlements - Get user entitlements');
+  console.log('  GET  /api/specs/status - Get spec creation status');
+  console.log('  POST /api/specs/check-edit - Check edit permissions');
 }).on('error', (err) => {
   console.error('Failed to start server:', err.message);
 });

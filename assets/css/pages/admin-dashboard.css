@@ -914,3 +914,204 @@ body.dark-mode .spec-content.rendered-view .mermaid {
     background: var(--hover-color);
 }
 
+/* Payment Analytics Styles */
+.payments-analytics-container {
+    padding: 0;
+}
+
+.analytics-section {
+    margin-bottom: 3rem;
+    background: var(--bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 2rem;
+}
+
+.analytics-section h2 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 1.5rem;
+}
+
+.analytics-section h2 i {
+    color: var(--primary-color);
+}
+
+.revenue-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.revenue-card {
+    background: var(--light-gray);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.revenue-card h3 {
+    font-size: 0.9rem;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.revenue-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-color);
+    margin-bottom: 0.5rem;
+}
+
+.revenue-change {
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.revenue-change.positive {
+    color: var(--success-color);
+}
+
+.revenue-change.negative {
+    color: var(--danger-color);
+}
+
+.subscription-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.subscription-stat-card {
+    background: var(--light-gray);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.5rem;
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.subscription-stat-card:hover {
+    transform: translateY(-2px);
+}
+
+.subscription-stat-card .stat-icon {
+    font-size: 2rem;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.subscription-stat-card .stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-color);
+    margin-bottom: 0.5rem;
+}
+
+.subscription-stat-card .stat-label {
+    font-size: 0.85rem;
+    color: var(--primary-color);
+}
+
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background: var(--light-gray);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: var(--primary-color);
+    transition: width 0.3s ease;
+}
+
+.status-purchase {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+.status-subscription {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-refund {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.status-pro {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status-free {
+    background: #e2e3e5;
+    color: #383d41;
+}
+
+.status-active {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-cancelled {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.status-expired {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+/* Dark mode adjustments */
+body.dark-mode .status-purchase {
+    background: #17a2b8;
+    color: #ffffff;
+}
+
+body.dark-mode .status-subscription {
+    background: #28a745;
+    color: #ffffff;
+}
+
+body.dark-mode .status-refund {
+    background: #dc3545;
+    color: #ffffff;
+}
+
+body.dark-mode .status-pro {
+    background: #ffc107;
+    color: #000000;
+}
+
+body.dark-mode .status-free {
+    background: #6c757d;
+    color: #ffffff;
+}
+
+body.dark-mode .status-active {
+    background: #28a745;
+    color: #ffffff;
+}
+
+body.dark-mode .status-cancelled {
+    background: #dc3545;
+    color: #ffffff;
+}
+
+body.dark-mode .status-expired {
+    background: #dc3545;
+    color: #ffffff;
+}
+

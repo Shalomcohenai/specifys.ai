@@ -33,6 +33,9 @@ class AdminDashboard {
         this.allLikes = [];
         this.allNotes = [];
         this.allExpenses = [];
+        this.allPurchases = [];
+        this.allSubscriptions = [];
+        this.allEntitlements = [];
         this.autoRefreshInterval = null;
         this.lastRefreshTime = null;
         
@@ -95,6 +98,43 @@ class AdminDashboard {
         this.autoRefreshInterval = setInterval(() => {
             this.refreshAllData();
         }, 86400000);
+    }
+
+    // Load payment data from Firestore
+    async loadPaymentData() {
+        try {
+            // Load purchases
+            const purchasesSnapshot = await this.db.collection('purchases').get();
+            this.allPurchases = purchasesSnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+
+            // Load subscriptions
+            const subscriptionsSnapshot = await this.db.collection('subscriptions').get();
+            this.allSubscriptions = subscriptionsSnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+
+            // Load entitlements
+            const entitlementsSnapshot = await this.db.collection('entitlements').get();
+            this.allEntitlements = entitlementsSnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+
+            this.updatePaymentStats();
+            this.updateRevenueAnalytics();
+            this.updateProductPerformance();
+            this.updateSubscriptionAnalytics();
+            this.updateTransactionsTable();
+            this.updateUserPaymentsTable();
+
+        } catch (error) {
+            console.error('Error loading payment data:', error);
+            this.showNotification('❌ Error loading payment data: ' + error.message, 'error');
+        }
     }
 
     // Manual refresh all data
@@ -284,6 +324,7 @@ class AdminDashboard {
             await this.loadMarketResearchData();
             await this.loadDashboardsData();
             await this.loadActivityData();
+            await this.loadPaymentData();
             
             this.updateStatsCards();
             this.updateAnalytics();
@@ -885,6 +926,281 @@ class AdminDashboard {
         document.getElementById('specs-today').textContent = specsToday;
         document.getElementById('specs-week').textContent = specsWeek;
         document.getElementById('specs-month').textContent = specsMonth;
+    }
+
+    // Update payment statistics
+    updatePaymentStats() {
+        // Calculate total revenue
+        const totalRevenue = this.allPurchases.reduce((sum, purchase) => {
+            return sum + (purchase.total_amount_cents || 0);
+        }, 0) / 100; // Convert cents to shekels
+
+        // Calculate monthly revenue
+        const oneMonthAgo = new Date();
+        oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+        
+        const monthlyRevenue = this.allPurchases.filter(purchase => {
+            const purchaseDate = this.getDate(purchase.purchased_at);
+            return purchaseDate && purchaseDate >= oneMonthAgo;
+        }).reduce((sum, purchase) => {
+            return sum + (purchase.total_amount_cents || 0);
+        }, 0) / 100;
+
+        // Count active subscriptions
+        const activeSubscriptions = this.allSubscriptions.filter(sub => 
+            sub.status === 'active' || sub.status === 'trialing'
+        ).length;
+
+        // Count Pro users
+        const proUsers = this.allEntitlements.filter(entitlement => 
+            entitlement.unlimited === true
+        ).length;
+
+        // Calculate conversion rate
+        const totalUsers = this.allUsers.length;
+        const payingUsers = new Set([
+            ...this.allPurchases.map(p => p.userId),
+            ...this.allSubscriptions.map(s => s.userId)
+        ]).size;
+        const conversionRate = totalUsers > 0 ? (payingUsers / totalUsers * 100).toFixed(1) : 0;
+
+        // Update DOM elements
+        document.getElementById('total-revenue').textContent = `₪${totalRevenue.toFixed(0)}`;
+        document.getElementById('total-purchases').textContent = this.allPurchases.length;
+        document.getElementById('active-subscriptions').textContent = activeSubscriptions;
+        document.getElementById('pro-users').textContent = proUsers;
+        document.getElementById('monthly-revenue').textContent = `₪${monthlyRevenue.toFixed(0)}`;
+        document.getElementById('conversion-rate').textContent = `${conversionRate}%`;
+    }
+
+    // Update revenue analytics
+    updateRevenueAnalytics() {
+        const today = new Date();
+        const oneWeekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+        const oneMonthAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+        const oneYearAgo = new Date(today.getTime() - 365 * 24 * 60 * 60 * 1000);
+
+        // Calculate revenue for different periods
+        const revenueToday = this.calculateRevenueForPeriod(today, today);
+        const revenueWeek = this.calculateRevenueForPeriod(oneWeekAgo, today);
+        const revenueMonth = this.calculateRevenueForPeriod(oneMonthAgo, today);
+        const revenueYear = this.calculateRevenueForPeriod(oneYearAgo, today);
+
+        // Update DOM
+        document.getElementById('revenue-today').textContent = `₪${revenueToday.toFixed(0)}`;
+        document.getElementById('revenue-week').textContent = `₪${revenueWeek.toFixed(0)}`;
+        document.getElementById('revenue-month').textContent = `₪${revenueMonth.toFixed(0)}`;
+        document.getElementById('revenue-year').textContent = `₪${revenueYear.toFixed(0)}`;
+    }
+
+    // Calculate revenue for a specific period
+    calculateRevenueForPeriod(startDate, endDate) {
+        return this.allPurchases.filter(purchase => {
+            const purchaseDate = this.getDate(purchase.purchased_at);
+            return purchaseDate && purchaseDate >= startDate && purchaseDate <= endDate;
+        }).reduce((sum, purchase) => {
+            return sum + (purchase.total_amount_cents || 0);
+        }, 0) / 100;
+    }
+
+    // Update product performance table
+    updateProductPerformance() {
+        const productStats = {};
+        
+        // Initialize product stats
+        const products = {
+            '671441': { name: 'Single AI Specification', price: 19 },
+            '671442': { name: '3-Pack AI Specifications', price: 38 },
+            '671443': { name: 'Pro Monthly Subscription', price: 115 },
+            '671444': { name: 'Pro Yearly Subscription', price: 1150 }
+        };
+
+        Object.keys(products).forEach(productId => {
+            productStats[productId] = {
+                ...products[productId],
+                salesCount: 0,
+                revenue: 0
+            };
+        });
+
+        // Calculate stats from purchases
+        this.allPurchases.forEach(purchase => {
+            if (productStats[purchase.product_id]) {
+                productStats[purchase.product_id].salesCount++;
+                productStats[purchase.product_id].revenue += (purchase.total_amount_cents || 0) / 100;
+            }
+        });
+
+        // Calculate stats from subscriptions
+        this.allSubscriptions.forEach(subscription => {
+            if (productStats[subscription.product_id]) {
+                productStats[subscription.product_id].salesCount++;
+                // For subscriptions, calculate monthly revenue
+                const monthlyRevenue = productStats[subscription.product_id].price;
+                productStats[subscription.product_id].revenue += monthlyRevenue;
+            }
+        });
+
+        // Update table
+        const tbody = document.getElementById('product-performance-table');
+        tbody.innerHTML = '';
+
+        Object.values(productStats).forEach(product => {
+            const conversionRate = this.allUsers.length > 0 ? 
+                (product.salesCount / this.allUsers.length * 100).toFixed(1) : 0;
+            
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${escapeHTML(product.name)}</td>
+                <td>₪${product.price}</td>
+                <td>${product.salesCount}</td>
+                <td>₪${product.revenue.toFixed(0)}</td>
+                <td>${conversionRate}%</td>
+                <td>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${Math.min(conversionRate * 10, 100)}%"></div>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+    }
+
+    // Update subscription analytics
+    updateSubscriptionAnalytics() {
+        const oneMonthAgo = new Date();
+        oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+
+        const totalSubscribers = this.allSubscriptions.length;
+        const newSubscribersMonth = this.allSubscriptions.filter(sub => {
+            const createdDate = this.getDate(sub.created_at);
+            return createdDate && createdDate >= oneMonthAgo;
+        }).length;
+
+        const cancelledSubscriptionsMonth = this.allSubscriptions.filter(sub => {
+            const cancelledDate = this.getDate(sub.cancelled_at);
+            return cancelledDate && cancelledDate >= oneMonthAgo;
+        }).length;
+
+        const churnRate = totalSubscribers > 0 ? 
+            (cancelledSubscriptionsMonth / totalSubscribers * 100).toFixed(1) : 0;
+
+        document.getElementById('total-subscribers').textContent = totalSubscribers;
+        document.getElementById('new-subscribers-month').textContent = newSubscribersMonth;
+        document.getElementById('cancelled-subscriptions-month').textContent = cancelledSubscriptionsMonth;
+        document.getElementById('churn-rate').textContent = `${churnRate}%`;
+    }
+
+    // Update transactions table
+    updateTransactionsTable() {
+        const tbody = document.getElementById('transactions-table-body');
+        tbody.innerHTML = '';
+
+        // Combine purchases and subscriptions
+        const allTransactions = [
+            ...this.allPurchases.map(p => ({ ...p, type: 'purchase' })),
+            ...this.allSubscriptions.map(s => ({ ...s, type: 'subscription' }))
+        ].sort((a, b) => {
+            const dateA = this.getDate(a.purchased_at || a.created_at);
+            const dateB = this.getDate(b.purchased_at || b.created_at);
+            return dateB - dateA;
+        });
+
+        allTransactions.slice(0, 50).forEach(transaction => {
+            const date = this.getDate(transaction.purchased_at || transaction.created_at);
+            const userEmail = this.getUserEmailById(transaction.userId);
+            
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${date ? date.toLocaleDateString() : 'N/A'}</td>
+                <td>${escapeHTML(userEmail || 'Unknown')}</td>
+                <td>${escapeHTML(this.getProductName(transaction.product_id))}</td>
+                <td>₪${((transaction.total_amount_cents || 0) / 100).toFixed(0)}</td>
+                <td><span class="status-badge status-${transaction.type}">${transaction.type}</span></td>
+                <td><span class="status-badge status-${transaction.status}">${transaction.status}</span></td>
+                <td>
+                    <button class="btn-view" onclick="adminDashboard.viewTransaction('${transaction.id}', '${transaction.type}')">
+                        <i class="fas fa-eye"></i> View
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+    }
+
+    // Update user payments table
+    updateUserPaymentsTable() {
+        const tbody = document.getElementById('user-payments-table-body');
+        tbody.innerHTML = '';
+
+        // Create user payment summary
+        const userPayments = {};
+        
+        this.allUsers.forEach(user => {
+            userPayments[user.id] = {
+                email: user.email,
+                plan: 'free',
+                totalSpent: 0,
+                purchases: 0,
+                subscriptions: 0,
+                lastPayment: null,
+                status: 'active'
+            };
+        });
+
+        // Add purchase data
+        this.allPurchases.forEach(purchase => {
+            if (userPayments[purchase.userId]) {
+                userPayments[purchase.userId].totalSpent += (purchase.total_amount_cents || 0) / 100;
+                userPayments[purchase.userId].purchases++;
+                userPayments[purchase.userId].lastPayment = purchase.purchased_at;
+            }
+        });
+
+        // Add subscription data
+        this.allSubscriptions.forEach(subscription => {
+            if (userPayments[subscription.userId]) {
+                userPayments[subscription.userId].plan = 'pro';
+                userPayments[subscription.userId].subscriptions++;
+                userPayments[subscription.userId].lastPayment = subscription.created_at;
+                userPayments[subscription.userId].status = subscription.status;
+            }
+        });
+
+        // Sort by total spent
+        const sortedUsers = Object.values(userPayments)
+            .sort((a, b) => b.totalSpent - a.totalSpent);
+
+        sortedUsers.forEach(user => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${escapeHTML(user.email)}</td>
+                <td><span class="status-badge status-${user.plan}">${user.plan}</span></td>
+                <td>₪${user.totalSpent.toFixed(0)}</td>
+                <td>${user.purchases}</td>
+                <td>${user.subscriptions}</td>
+                <td>${user.lastPayment ? this.getDate(user.lastPayment).toLocaleDateString() : 'Never'}</td>
+                <td><span class="status-badge status-${user.status}">${user.status}</span></td>
+            `;
+            tbody.appendChild(row);
+        });
+    }
+
+    // Get product name by ID
+    getProductName(productId) {
+        const products = {
+            '671441': 'Single AI Specification',
+            '671442': '3-Pack AI Specifications',
+            '671443': 'Pro Monthly Subscription',
+            '671444': 'Pro Yearly Subscription'
+        };
+        return products[productId] || 'Unknown Product';
+    }
+
+    // Get user email by ID
+    getUserEmailById(userId) {
+        const user = this.allUsers.find(u => u.id === userId);
+        return user ? user.email : null;
     }
 
     // Filter users

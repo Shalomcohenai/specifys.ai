@@ -211,18 +211,23 @@ class BlogManager {
         tbody.innerHTML = '<tr><td colspan="5" class="loading-cell">Loading posts...</td></tr>';
 
         try {
-            const response = await fetch('http://localhost:3001/api/blog/list-posts');
-            const result = await response.json();
-
-            if (result.success && result.posts) {
-                this.posts = result.posts;
-                this.renderPosts(this.posts);
-            } else {
-                throw new Error(result.error || 'Failed to load posts');
-            }
+            // For now, show a simple message that blog management is disabled
+            // This prevents the API error and simplifies the interface
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="5" class="loading-cell" style="color: #666; font-style: italic;">
+                        Blog management is currently disabled. 
+                        Posts are managed through the _posts directory.
+                    </td>
+                </tr>
+            `;
+            
+            // Initialize empty posts array
+            this.posts = [];
+            
         } catch (error) {
             console.error('Error loading posts:', error);
-            tbody.innerHTML = `<tr><td colspan="5" class="loading-cell" style="color: #ff6b6b;">Error loading posts: ${error.message}</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="5" class="loading-cell" style="color: #ff6b6b;">Blog management disabled</td></tr>`;
         }
     }
 

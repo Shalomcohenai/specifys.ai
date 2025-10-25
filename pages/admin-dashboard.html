@@ -562,6 +562,54 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="stat-card-value" id="total-expenses">0</div>
             <div class="stat-card-label">Tracked Expenses</div>
         </div>
+
+        <div class="stat-card">
+            <div class="stat-card-icon">
+                <i class="fas fa-shekel-sign"></i>
+            </div>
+            <div class="stat-card-value" id="total-revenue">₪0</div>
+            <div class="stat-card-label">Total Revenue</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-card-icon">
+                <i class="fas fa-shopping-cart"></i>
+            </div>
+            <div class="stat-card-value" id="total-purchases">0</div>
+            <div class="stat-card-label">Total Purchases</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-card-icon">
+                <i class="fas fa-sync-alt"></i>
+            </div>
+            <div class="stat-card-value" id="active-subscriptions">0</div>
+            <div class="stat-card-label">Active Subscriptions</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-card-icon">
+                <i class="fas fa-crown"></i>
+            </div>
+            <div class="stat-card-value" id="pro-users">0</div>
+            <div class="stat-card-label">Pro Users</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-card-icon">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="stat-card-value" id="monthly-revenue">₪0</div>
+            <div class="stat-card-label">Monthly Revenue</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-card-icon">
+                <i class="fas fa-percentage"></i>
+            </div>
+            <div class="stat-card-value" id="conversion-rate">0%</div>
+            <div class="stat-card-label">Conversion Rate</div>
+        </div>
     </div>
 
     <!-- Main Tabs Navigation -->
@@ -572,6 +620,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <button class="tab-btn" data-tab="dashboards">App Dashboards</button>
             <button class="tab-btn" data-tab="activity">User Activity</button>
             <button class="tab-btn" data-tab="analytics">Analytics</button>
+            <button class="tab-btn" data-tab="payments">Payment Analytics</button>
             <button class="tab-btn" data-tab="blog">Blog Management</button>
         </div>
 
@@ -889,7 +938,152 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         </div>
 
-        <!-- Tab 6: Blog Management -->
+        <!-- Tab 6: Payment Analytics -->
+        <div class="tab-content" id="payments-tab">
+            <div class="payments-analytics-container">
+                
+                <!-- Revenue Overview -->
+                <div class="analytics-section">
+                    <h2><i class="fas fa-chart-bar"></i> Revenue Overview</h2>
+                    <div class="revenue-grid">
+                        <div class="revenue-card">
+                            <h3>Today's Revenue</h3>
+                            <div class="revenue-value" id="revenue-today">₪0</div>
+                            <div class="revenue-change" id="revenue-today-change">+0%</div>
+                        </div>
+                        <div class="revenue-card">
+                            <h3>This Week</h3>
+                            <div class="revenue-value" id="revenue-week">₪0</div>
+                            <div class="revenue-change" id="revenue-week-change">+0%</div>
+                        </div>
+                        <div class="revenue-card">
+                            <h3>This Month</h3>
+                            <div class="revenue-value" id="revenue-month">₪0</div>
+                            <div class="revenue-change" id="revenue-month-change">+0%</div>
+                        </div>
+                        <div class="revenue-card">
+                            <h3>This Year</h3>
+                            <div class="revenue-value" id="revenue-year">₪0</div>
+                            <div class="revenue-change" id="revenue-year-change">+0%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product Performance -->
+                <div class="analytics-section">
+                    <h2><i class="fas fa-box"></i> Product Performance</h2>
+                    <div class="table-wrapper">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Price</th>
+                                    <th>Sales Count</th>
+                                    <th>Revenue</th>
+                                    <th>Conversion Rate</th>
+                                    <th>Popularity</th>
+                                </tr>
+                            </thead>
+                            <tbody id="product-performance-table">
+                                <tr>
+                                    <td colspan="6" class="loading-cell">Loading product data...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Subscription Analytics -->
+                <div class="analytics-section">
+                    <h2><i class="fas fa-sync-alt"></i> Subscription Analytics</h2>
+                    <div class="subscription-stats-grid">
+                        <div class="subscription-stat-card">
+                            <div class="stat-icon"><i class="fas fa-users"></i></div>
+                            <div class="stat-value" id="total-subscribers">0</div>
+                            <div class="stat-label">Total Subscribers</div>
+                        </div>
+                        <div class="subscription-stat-card">
+                            <div class="stat-icon"><i class="fas fa-plus-circle"></i></div>
+                            <div class="stat-value" id="new-subscribers-month">0</div>
+                            <div class="stat-label">New This Month</div>
+                        </div>
+                        <div class="subscription-stat-card">
+                            <div class="stat-icon"><i class="fas fa-minus-circle"></i></div>
+                            <div class="stat-value" id="cancelled-subscriptions-month">0</div>
+                            <div class="stat-label">Cancelled This Month</div>
+                        </div>
+                        <div class="subscription-stat-card">
+                            <div class="stat-icon"><i class="fas fa-percentage"></i></div>
+                            <div class="stat-value" id="churn-rate">0%</div>
+                            <div class="stat-label">Churn Rate</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Transactions -->
+                <div class="analytics-section">
+                    <h2><i class="fas fa-receipt"></i> Recent Transactions</h2>
+                    <div class="filters-row">
+                        <select id="transaction-type-filter" class="filter-select">
+                            <option value="all">All Transactions</option>
+                            <option value="purchase">One-time Purchases</option>
+                            <option value="subscription">Subscriptions</option>
+                            <option value="refund">Refunds</option>
+                        </select>
+                        <input type="date" id="transaction-date-from" class="filter-input" placeholder="From date">
+                        <input type="date" id="transaction-date-to" class="filter-input" placeholder="To date">
+                    </div>
+                    <div class="table-wrapper">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>User Email</th>
+                                    <th>Product</th>
+                                    <th>Amount</th>
+                                    <th>Type</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="transactions-table-body">
+                                <tr>
+                                    <td colspan="7" class="loading-cell">Loading transactions...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- User Payment Analytics -->
+                <div class="analytics-section">
+                    <h2><i class="fas fa-user-dollar"></i> User Payment Analytics</h2>
+                    <div class="table-wrapper">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>User Email</th>
+                                    <th>Plan</th>
+                                    <th>Total Spent</th>
+                                    <th>Purchases</th>
+                                    <th>Subscriptions</th>
+                                    <th>Last Payment</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="user-payments-table-body">
+                                <tr>
+                                    <td colspan="7" class="loading-cell">Loading user payment data...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Tab 7: Blog Management -->
         <div class="tab-content" id="blog-tab">
             <div class="blog-management-section">
                 <!-- Create New Post Section -->

@@ -655,6 +655,13 @@ async function generateSpecification() {
   try {
     console.log('🚀 Starting generateSpecification...');
     
+    // Check if user is authenticated
+    const user = firebase.auth().currentUser;
+    if (!user) {
+      showRegistrationModal();
+      return;
+    }
+    
     // Show loading overlay
     showLoadingOverlay();
     
@@ -672,33 +679,39 @@ async function generateSpecification() {
     
     const enhancedPrompt = `${prompt}\n\n${platformText}`;
     
-    // Prepare API request body
-    const requestBody = {
-      stage: 'overview',
-      locale: 'en-US',
-      temperature: 0,
-      prompt: {
-        system: 'You are a professional product manager and UX architect. Generate a comprehensive application overview based on user input.',
-        developer: 'Create a detailed overview that includes application summary, core features, user journey, target audience, problem statement, and unique value proposition.',
-        user: enhancedPrompt
-      }
-    };
+    // Get Firebase auth token
+    const token = await user.getIdToken();
     
-    // Call the Worker API
-    const response = await fetch('https://spspec.shalom-cohen-111.workers.dev/generate', {
+    // Call the new API endpoint with authorization
+    const response = await fetch('/api/specs/create', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
       },
-      body: JSON.stringify(requestBody),
+      body: JSON.stringify({
+        userInput: enhancedPrompt
+      })
     });
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+
+    if (response.status === 402) {
+      // Payment required - show paywall
+      const paywallData = await response.json();
+      hideLoadingOverlay();
+      showPaywall(paywallData.paywall);
+      return;
     }
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to generate specification');
+    }
+
+    const data = await response.json();
+    console.log('✅ Successfully received specification:', data);
     
-    const overviewContent = await response.text();
-    console.log('✅ API response received:', overviewContent);
+    // Extract overview content from the response
+    const overviewContent = data.specification || 'No overview generated';
     
     // Save to Firebase and redirect
     const firebaseId = await saveSpecToFirebase(overviewContent, answers);
@@ -831,6 +844,20 @@ async function saveSpecToFirebase(overviewContent, answers) {
   } catch (error) {
     console.error('Error saving to Firebase:', error);
     throw error;
+  }
+}
+
+// ===== PAYWALL FUNCTIONS =====
+function showPaywall(paywallData) {
+  if (window.paywallManager) {
+    window.paywallManager.showPaywall(paywallData, (entitlements) => {
+      // Success callback - retry specification generation
+      console.log('Purchase successful, retry specification generation');
+      generateSpecification();
+    });
+  } else {
+    // Fallback if paywall manager not loaded
+    alert('Payment required to create more specifications. Please refresh the page and try again.');
   }
 }
 

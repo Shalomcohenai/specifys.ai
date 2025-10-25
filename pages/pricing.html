@@ -1,0 +1,566 @@
+---
+layout: default
+title: Pricing - Specifys.ai
+description: Choose the perfect plan for your app development needs. Free tier available, premium plans with unlimited specifications.
+---
+
+<div class="pricing-page">
+    <!-- Hero Section -->
+    <div class="pricing-hero">
+        <div class="container">
+            <h1>Choose Your Plan</h1>
+            <p>Start free or unlock premium features for unlimited app development</p>
+        </div>
+    </div>
+
+    <!-- Pricing Cards -->
+    <div class="pricing-container">
+        <div class="container">
+            <div class="pricing-grid">
+                
+                <!-- Free Plan -->
+                <div class="pricing-card free">
+                    <div class="plan-header">
+                        <h3>Free</h3>
+                        <div class="price">
+                            <span class="currency">₪</span>
+                            <span class="amount">0</span>
+                            <span class="period">/month</span>
+                        </div>
+                    </div>
+                    <div class="plan-features">
+                        <ul>
+                            <li><i class="fas fa-check"></i> 1 Free Specification</li>
+                            <li><i class="fas fa-check"></i> Access to Tools Map</li>
+                            <li><i class="fas fa-check"></i> Tool Finder</li>
+                            <li><i class="fas fa-check"></i> Market Research</li>
+                            <li><i class="fas fa-times"></i> Save Specifications</li>
+                            <li><i class="fas fa-times"></i> Edit Specifications</li>
+                        </ul>
+                    </div>
+                    <div class="plan-cta">
+                        <button class="btn btn-outline" onclick="trackCTA('Free Plan', 'pricing_page')">
+                            Current Plan
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Single Spec -->
+                <div class="pricing-card single">
+                    <div class="plan-badge">Most Popular</div>
+                    <div class="plan-header">
+                        <h3>Single Spec</h3>
+                        <div class="price">
+                            <span class="currency">₪</span>
+                            <span class="amount">19</span>
+                            <span class="period">one-time</span>
+                        </div>
+                    </div>
+                    <div class="plan-features">
+                        <ul>
+                            <li><i class="fas fa-check"></i> 1 Additional Specification</li>
+                            <li><i class="fas fa-check"></i> Access to Tools Map</li>
+                            <li><i class="fas fa-check"></i> Tool Finder</li>
+                            <li><i class="fas fa-check"></i> Market Research</li>
+                            <li><i class="fas fa-check"></i> Save Specifications</li>
+                            <li><i class="fas fa-times"></i> Edit Specifications</li>
+                        </ul>
+                    </div>
+                    <div class="plan-cta">
+                        <button class="btn btn-primary" onclick="purchaseSpec('single_spec')">
+                            Buy Now
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 3-Pack -->
+                <div class="pricing-card pack">
+                    <div class="plan-header">
+                        <h3>3-Pack</h3>
+                        <div class="price">
+                            <span class="currency">₪</span>
+                            <span class="amount">38</span>
+                            <span class="period">one-time</span>
+                        </div>
+                        <div class="savings">Save ₪19</div>
+                    </div>
+                    <div class="plan-features">
+                        <ul>
+                            <li><i class="fas fa-check"></i> 3 Additional Specifications</li>
+                            <li><i class="fas fa-check"></i> Access to Tools Map</li>
+                            <li><i class="fas fa-check"></i> Tool Finder</li>
+                            <li><i class="fas fa-check"></i> Market Research</li>
+                            <li><i class="fas fa-check"></i> Save Specifications</li>
+                            <li><i class="fas fa-times"></i> Edit Specifications</li>
+                        </ul>
+                    </div>
+                    <div class="plan-cta">
+                        <button class="btn btn-primary" onclick="purchaseSpec('three_pack')">
+                            Buy Now
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Pro Monthly -->
+                <div class="pricing-card pro">
+                    <div class="plan-badge">Best Value</div>
+                    <div class="plan-header">
+                        <h3>Pro Monthly</h3>
+                        <div class="price">
+                            <span class="currency">₪</span>
+                            <span class="amount">115</span>
+                            <span class="period">/month</span>
+                        </div>
+                    </div>
+                    <div class="plan-features">
+                        <ul>
+                            <li><i class="fas fa-check"></i> Unlimited Specifications</li>
+                            <li><i class="fas fa-check"></i> Edit All Specifications</li>
+                            <li><i class="fas fa-check"></i> Access to Tools Map</li>
+                            <li><i class="fas fa-check"></i> Tool Finder</li>
+                            <li><i class="fas fa-check"></i> Market Research</li>
+                            <li><i class="fas fa-check"></i> Priority Support</li>
+                        </ul>
+                    </div>
+                    <div class="plan-cta">
+                        <button class="btn btn-primary" onclick="purchaseSpec('pro_monthly')">
+                            Subscribe
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Pro Yearly -->
+                <div class="pricing-card pro-yearly">
+                    <div class="plan-header">
+                        <h3>Pro Yearly</h3>
+                        <div class="price">
+                            <span class="currency">₪</span>
+                            <span class="amount">1,150</span>
+                            <span class="period">/year</span>
+                        </div>
+                        <div class="savings">Save ₪230</div>
+                    </div>
+                    <div class="plan-features">
+                        <ul>
+                            <li><i class="fas fa-check"></i> Unlimited Specifications</li>
+                            <li><i class="fas fa-check"></i> Edit All Specifications</li>
+                            <li><i class="fas fa-check"></i> Access to Tools Map</li>
+                            <li><i class="fas fa-check"></i> Tool Finder</li>
+                            <li><i class="fas fa-check"></i> Market Research</li>
+                            <li><i class="fas fa-check"></i> Priority Support</li>
+                        </ul>
+                    </div>
+                    <div class="plan-cta">
+                        <button class="btn btn-primary" onclick="purchaseSpec('pro_yearly')">
+                            Subscribe
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- FAQ Section -->
+    <div class="pricing-faq">
+        <div class="container">
+            <h2>Frequently Asked Questions</h2>
+            <div class="faq-grid">
+                <div class="faq-item">
+                    <h4>What's included in the free plan?</h4>
+                    <p>You get 1 free specification to try our AI-powered app planning. You also have access to our Tools Map and Tool Finder.</p>
+                </div>
+                <div class="faq-item">
+                    <h4>Can I edit my specifications?</h4>
+                    <p>Only Pro subscribers can edit specifications. Free users and credit purchasers can view and save their specifications.</p>
+                </div>
+                <div class="faq-item">
+                    <h4>How do credits work?</h4>
+                    <p>Each credit allows you to generate one additional specification. Credits don't expire and can be used anytime.</p>
+                </div>
+                <div class="faq-item">
+                    <h4>Can I cancel my Pro subscription?</h4>
+                    <p>Yes, you can cancel anytime. You'll keep Pro features until the end of your billing period.</p>
+                </div>
+                <div class="faq-item">
+                    <h4>What payment methods do you accept?</h4>
+                    <p>We accept all major credit cards, PayPal, and other payment methods through Lemon Squeezy.</p>
+                </div>
+                <div class="faq-item">
+                    <h4>Is there a money-back guarantee?</h4>
+                    <p>Yes, we offer a 30-day money-back guarantee for all Pro subscriptions.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA Section -->
+    <div class="pricing-cta">
+        <div class="container">
+            <h2>Ready to Build Your App?</h2>
+            <p>Start with our free plan or jump straight to Pro for unlimited specifications</p>
+            <div class="cta-buttons">
+                <a href="/" class="btn btn-outline">Try Free</a>
+                <a href="#pricing" class="btn btn-primary">View Plans</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Pricing Page Styles */
+.pricing-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+.pricing-hero {
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    color: white;
+    padding: 80px 0;
+    text-align: center;
+}
+
+.pricing-hero h1 {
+    font-size: 3rem;
+    margin-bottom: 16px;
+    font-weight: 700;
+}
+
+.pricing-hero p {
+    font-size: 1.25rem;
+    opacity: 0.9;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.pricing-container {
+    padding: 80px 0;
+}
+
+.pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 32px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.pricing-card {
+    background: white;
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    position: relative;
+    border: 2px solid transparent;
+}
+
+.pricing-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+}
+
+.pricing-card.pro {
+    border-color: #fbbf24;
+    transform: scale(1.05);
+}
+
+.pricing-card.pro:hover {
+    transform: scale(1.05) translateY(-8px);
+}
+
+.plan-badge {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    color: white;
+    padding: 8px 24px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.plan-header {
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+.plan-header h3 {
+    font-size: 1.5rem;
+    margin-bottom: 16px;
+    color: #1e293b;
+}
+
+.price {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    margin-bottom: 8px;
+}
+
+.currency {
+    font-size: 1.25rem;
+    color: #64748b;
+}
+
+.amount {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0 4px;
+}
+
+.period {
+    font-size: 1rem;
+    color: #64748b;
+}
+
+.savings {
+    background: #10b981;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.plan-features {
+    margin-bottom: 32px;
+}
+
+.plan-features ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.plan-features li {
+    display: flex;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.plan-features li:last-child {
+    border-bottom: none;
+}
+
+.plan-features i {
+    margin-right: 12px;
+    width: 16px;
+}
+
+.plan-features .fa-check {
+    color: #10b981;
+}
+
+.plan-features .fa-times {
+    color: #ef4444;
+}
+
+.plan-cta {
+    text-align: center;
+}
+
+.btn {
+    display: inline-block;
+    padding: 12px 32px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    border: 2px solid transparent;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+    transform: translateY(-2px);
+}
+
+.btn-outline {
+    background: transparent;
+    color: #64748b;
+    border-color: #e2e8f0;
+}
+
+.btn-outline:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+}
+
+.pricing-faq {
+    background: white;
+    padding: 80px 0;
+}
+
+.pricing-faq h2 {
+    text-align: center;
+    font-size: 2.5rem;
+    margin-bottom: 48px;
+    color: #1e293b;
+}
+
+.faq-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 32px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.faq-item h4 {
+    font-size: 1.25rem;
+    margin-bottom: 12px;
+    color: #1e293b;
+}
+
+.faq-item p {
+    color: #64748b;
+    line-height: 1.6;
+}
+
+.pricing-cta {
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    color: white;
+    padding: 80px 0;
+    text-align: center;
+}
+
+.pricing-cta h2 {
+    font-size: 2.5rem;
+    margin-bottom: 16px;
+}
+
+.pricing-cta p {
+    font-size: 1.25rem;
+    opacity: 0.9;
+    margin-bottom: 32px;
+}
+
+.cta-buttons {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .pricing-hero h1 {
+        font-size: 2rem;
+    }
+    
+    .pricing-hero p {
+        font-size: 1rem;
+    }
+    
+    .pricing-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+    
+    .pricing-card {
+        padding: 24px;
+    }
+    
+    .pricing-card.pro {
+        transform: none;
+    }
+    
+    .pricing-card.pro:hover {
+        transform: translateY(-8px);
+    }
+    
+    .amount {
+        font-size: 2.5rem;
+    }
+    
+    .faq-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+    
+    .cta-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .cta-buttons .btn {
+        width: 200px;
+    }
+}
+</style>
+
+<script>
+// Purchase function
+async function purchaseSpec(productKey) {
+    try {
+        // Check if user is authenticated
+        const user = firebase.auth().currentUser;
+        if (!user) {
+            // Redirect to auth page
+            window.location.href = '/pages/auth.html';
+            return;
+        }
+
+        // Track the purchase attempt
+        trackCTA('Purchase ' + productKey, 'pricing_page');
+
+        // Get Lemon Squeezy checkout URL
+        const config = await fetch('/config/lemon-products.json').then(r => r.json());
+        const product = config.products[productKey];
+        
+        if (!product) {
+            alert('Product not found. Please try again.');
+            return;
+        }
+
+        // Redirect to Lemon Squeezy checkout
+        const checkoutUrl = `https://${config.lemon_store_id}.lemonsqueezy.com/checkout/buy/${product.variant_id}`;
+        window.open(checkoutUrl, '_blank');
+
+    } catch (error) {
+        console.error('Error initiating purchase:', error);
+        alert('Error initiating purchase. Please try again.');
+    }
+}
+
+// Track CTA function (if not already defined)
+function trackCTA(ctaName, location) {
+    if (typeof gtag !== 'undefined') {
+        gtag('event', 'cta_click', {
+            'event_category': 'CTA',
+            'event_label': ctaName,
+            'cta_location': location
+        });
+    }
+}
+
+// Initialize Firebase if not already done
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if Firebase is already initialized
+    if (typeof firebase === 'undefined') {
+        console.log('Firebase not loaded, skipping auth check');
+        return;
+    }
+
+    // Listen to auth state changes
+    firebase.auth().onAuthStateChanged((user) => {
+        if (user) {
+            console.log('User authenticated:', user.email);
+        } else {
+            console.log('User not authenticated');
+        }
+    });
+});
+</script>
