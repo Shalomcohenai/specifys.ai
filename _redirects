@@ -48,3 +48,7 @@
 /blog/article10.html /2025/07/14/ai-powered-specification-next-big-thing/ 301
 /blog/article11.html /2025/07/13/chatgpt-enough-to-build-app/ 301
 /blog/article12.html /2025/07/15/no-code-low-code-vibe-coding-difference/ 301
+
+# Legacy specification viewer redirects
+/pages/spec.html* /pages/legacy-viewer.html 301
+/pages/research.html* /pages/legacy-viewer.html 301

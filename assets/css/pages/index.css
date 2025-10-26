@@ -180,12 +180,12 @@
 
 /* New Orange Start Button */
 .hero-cta-button-new {
-  width: 110px;
-  height: 40px;
+  width: 160px;
+  height: 55px;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  gap: 10px;
+  justify-content: center;
+  gap: 12px;
   background-color: #FF6B35;
   border-radius: 30px;
   color: white;
@@ -195,9 +195,9 @@
   cursor: pointer;
   transition-duration: .2s;
   box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.116);
-  padding-left: 8px;
+  padding: 0;
   transition-duration: .5s;
-  font-size: 0.9rem;
+  font-size: 1.1rem;
 }
 
 @keyframes compassRotation {
@@ -562,27 +562,50 @@
 }
 
 .send-btn {
-  background: var(--secondary-color);
-  color: white;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 12px;
-  font-size: 14px;
-  font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  font-weight: 700;
+  transition: all 0.2s;
+  padding: 10px 20px;
+  border-radius: 100px;
+  background: #cccccc; /* Gray by default, orange when active */
+  border: 1px solid transparent;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 10px;
+  font-size: 15px;
+  color: white;
 }
 
-.send-btn:hover {
-  background: var(--secondary-hover);
-  transform: translateY(-1px);
+.send-btn:hover:not(:disabled) {
+  background: #FF8551; /* Orange hover */
 }
 
-.send-btn:active {
-  transform: translateY(0);
+.send-btn svg {
+  width: 20px;
+  transition: transform 0.3s ease-in-out;
+}
+
+.send-btn:hover:not(:disabled) svg {
+  transform: translateX(5px);
+}
+
+.send-btn:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.send-btn:disabled {
+  background: #cccccc !important;
+  cursor: not-allowed !important;
+  opacity: 0.6;
+}
+
+.send-btn:disabled:hover {
+  background: #cccccc !important;
+  transform: none !important;
+}
+
+.send-btn:disabled svg {
+  transform: none !important;
 }
 
 .demo-btn {
@@ -1523,6 +1546,12 @@
     padding: 4rem 0 2rem 0;
   }
   
+  .hero-cta-button-new {
+    width: 140px;
+    height: 50px;
+    font-size: 1rem;
+  }
+  
   .extra-sections {
     padding: 2rem 8px;
   }
@@ -1594,6 +1623,12 @@
   .hero-section {
     min-height: 85vh;
     padding: 3rem 0 1.5rem 0;
+  }
+  
+  .hero-cta-button-new {
+    width: 130px;
+    height: 48px;
+    font-size: 0.95rem;
   }
   
   .extra-sections {

@@ -7,7 +7,7 @@ const Joi = require('joi');
 
 // Input validation schemas
 const createSpecSchema = Joi.object({
-    userInput: Joi.string().required().min(10).max(5000).pattern(/^[a-zA-Z0-9\s\.,!?\-_()]+$/)
+    userInput: Joi.string().required().min(10).max(10000).pattern(/^[a-zA-Z0-9\s\.,!?\-_()]+$/)
 });
 
 const checkEditSchema = Joi.object({

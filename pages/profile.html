@@ -450,92 +450,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 }
 
-/* Profile Credits Display Styles - Compact Horizontal Design */
-.credits-stat {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 6px;
-}
-
-.credits-display-large {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 6px;
-}
-
-.credits-circle-large {
-    width: 32px;
-    height: 32px;
-    border-radius: 6px;
-    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-weight: 700;
-    font-size: 12px;
-    box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
-    transition: all 0.2s ease;
-    cursor: pointer;
-    position: relative;
-}
-
-.credits-circle-large:hover {
-    transform: scale(1.05);
-    box-shadow: 0 4px 10px rgba(59, 130, 246, 0.4);
-}
-
-.credits-circle-large.pro {
-    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-    box-shadow: 0 2px 6px rgba(251, 191, 36, 0.3);
-}
-
-.credits-circle-large.pro:hover {
-    box-shadow: 0 4px 10px rgba(251, 191, 36, 0.4);
-}
-
-.credits-circle-large.unlimited {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-    box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);
-}
-
-.credits-circle-large.unlimited:hover {
-    box-shadow: 0 4px 10px rgba(16, 185, 129, 0.4);
-}
-
-.credits-label {
-    font-size: 11px;
-    color: #6b7280;
-    font-weight: 500;
-}
-
-/* Mobile adjustments for profile credits */
-@media (max-width: 768px) {
-    .credits-circle-large {
-        width: 28px;
-        height: 28px;
-        font-size: 11px;
-    }
-    
-    .credits-label {
-        font-size: 10px;
-    }
-}
-
-@media (max-width: 480px) {
-    .credits-circle-large {
-        width: 26px;
-        height: 26px;
-        font-size: 10px;
-    }
-    
-    .credits-label {
-        font-size: 9px;
-    }
-}
-
 /* Pagination Styles */
 .pagination-container {
     display: flex;
@@ -588,6 +502,16 @@ document.addEventListener('DOMContentLoaded', function() {
     border-color: #0078d4;
     box-shadow: 0 0 0 3px rgba(0, 120, 212, 0.1);
 }
+
+.sort-select {
+    transition: all 0.2s ease;
+}
+
+.sort-select:focus {
+    outline: none;
+    border-color: #0078d4;
+    box-shadow: 0 0 0 3px rgba(0, 120, 212, 0.1);
+}
 </style>
 
 
@@ -623,14 +547,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="stat-number" id="saved-tools-count">0</div>
                     <div class="stat-label">Tools</div>
                 </div>
-                <div class="stat-item credits-stat">
-                    <div class="credits-display-large" id="profile-credits-display">
-                        <div class="credits-label">Credits:</div>
-                        <div class="credits-circle-large" id="profile-credits-circle">
-                            <span id="profile-credits-text">0</span>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
 
@@ -646,9 +562,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
             </div>
 
-            <!-- Search and Filter -->
-            <div class="workspace-controls" style="margin-bottom: 20px;">
-                <input type="text" id="workspace-search" placeholder="Search workspace items..." class="search-input" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;">
+            <!-- Search and Sort -->
+            <div class="workspace-controls" style="margin-bottom: 20px; display: flex; gap: 12px; flex-wrap: wrap;">
+                <input type="text" id="workspace-search" placeholder="Search workspace items..." class="search-input" style="flex: 1; min-width: 250px; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;">
+                <select id="workspace-sort" class="sort-select" style="padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; background: white; cursor: pointer;">
+                    <option value="newest">Newest First</option>
+                    <option value="oldest">Oldest First</option>
+                    <option value="a-z">A-Z</option>
+                    <option value="z-a">Z-A</option>
+                </select>
             </div>
 
             <div id="workspace-container" class="workspace-grid">
@@ -842,83 +764,6 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Check admin access and show/hide admin dashboard button
             checkAdminAccess(user);
-            
-            // Update credits display
-            updateProfileCredits();
-        }
-
-        // Update profile credits display
-        async function updateProfileCredits() {
-            if (!currentUser) return;
-
-            try {
-                const token = await currentUser.getIdToken();
-                const response = await fetch('http://localhost:3001/api/specs/entitlements', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                if (!response.ok) {
-                    console.error('Failed to fetch entitlements for profile');
-                    return;
-                }
-
-                const data = await response.json();
-                renderProfileCredits(data);
-
-            } catch (error) {
-                console.error('Error updating profile credits:', error);
-            }
-        }
-
-        // Render profile credits display
-        function renderProfileCredits(entitlements) {
-            const creditsText = document.getElementById('profile-credits-text');
-            const creditsCircle = document.getElementById('profile-credits-circle');
-            
-            if (!creditsText || !creditsCircle) return;
-
-            const { entitlements: userEntitlements, user } = entitlements;
-            
-            // Remove existing classes
-            creditsCircle.classList.remove('pro', 'unlimited');
-            
-            let displayText = '';
-            let cssClass = '';
-
-            if (userEntitlements.unlimited) {
-                // Pro subscription - unlimited
-                displayText = 'UL';
-                cssClass = 'unlimited';
-            } else if (userEntitlements.spec_credits > 0) {
-                // Has purchased credits
-                displayText = userEntitlements.spec_credits.toString();
-                cssClass = 'pro';
-            } else if (user.free_specs_remaining > 0) {
-                // Free specs remaining
-                displayText = user.free_specs_remaining.toString();
-            } else {
-                // No credits
-                displayText = '0';
-            }
-
-            creditsText.textContent = displayText;
-            
-            if (cssClass) {
-                creditsCircle.classList.add(cssClass);
-            }
-
-            // Add click handler to redirect to pricing page
-            creditsCircle.onclick = () => {
-                if (userEntitlements.unlimited) {
-                    // Pro user - maybe show subscription management
-                    alert('You have unlimited specifications with Pro subscription!');
-                } else {
-                    // Show pricing page
-                    window.location.href = '/pages/pricing.html';
-                }
-            };
         }
 
         // Load workspace data (apps + specs + research)
@@ -970,7 +815,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             type: 'research',
                             title: data.title,
                             createdAt: data.createdAt,
-                            viewUrl: `research.html?id=${doc.id}`
+                            viewUrl: `legacy-viewer.html?id=${doc.id}`
                         });
                     } else if (isNewSpec) {
                         // New spec from spec-viewer
@@ -994,7 +839,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             description: 'Legacy specification document',
                             createdAt: data.createdAt,
                             updatedAt: data.updatedAt,
-                            viewUrl: `spec.html?id=${doc.id}`
+                            viewUrl: `legacy-viewer.html?id=${doc.id}`
                         });
                     }
                 });
@@ -1014,7 +859,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         description: 'Market research and analysis',
                         createdAt: data.createdAt,
                         updatedAt: data.updatedAt,
-                        viewUrl: `research.html?id=${doc.id}`
+                        viewUrl: `legacy-viewer.html?id=${doc.id}`
                     });
                 });
                 
@@ -1029,9 +874,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 const appsCount = workspaceItems.filter(item => item.type === 'app').length;
                 document.getElementById('apps-count').textContent = appsCount;
                 
-                // Reset pagination
+                // Reset pagination and apply initial sorting
                 currentPage = 1;
                 filteredItems = [...workspaceItems];
+                applySorting(); // Apply initial sorting
                 renderWorkspace(filteredItems);
                 setupPagination();
                 setupSearch();
@@ -1078,28 +924,77 @@ document.addEventListener('DOMContentLoaded', function() {
             };
         }
         
-        // Search setup
+        // Search and Sort setup
         function setupSearch() {
             const searchInput = document.getElementById('workspace-search');
-            if (!searchInput) return;
+            const sortSelect = document.getElementById('workspace-sort');
             
-            searchInput.oninput = (e) => {
-                const searchTerm = e.target.value.toLowerCase();
-                
-                if (searchTerm === '') {
-                    filteredItems = [...workspaceItems];
-                } else {
-                    filteredItems = workspaceItems.filter(item => {
-                        const title = item.title?.toLowerCase() || '';
-                        const description = item.description?.toLowerCase() || '';
-                        return title.includes(searchTerm) || description.includes(searchTerm);
-                    });
+            if (searchInput) {
+                searchInput.oninput = (e) => {
+                    const searchTerm = e.target.value.toLowerCase();
+                    
+                    if (searchTerm === '') {
+                        filteredItems = [...workspaceItems];
+                    } else {
+                        filteredItems = workspaceItems.filter(item => {
+                            const title = item.title?.toLowerCase() || '';
+                            const description = item.description?.toLowerCase() || '';
+                            return title.includes(searchTerm) || description.includes(searchTerm);
+                        });
+                    }
+                    
+                    // Apply sorting to filtered items
+                    applySorting();
+                    
+                    currentPage = 1;
+                    renderWorkspace(filteredItems);
+                    setupPagination();
+                };
+            }
+            
+            if (sortSelect) {
+                sortSelect.onchange = () => {
+                    applySorting();
+                    currentPage = 1;
+                    renderWorkspace(filteredItems);
+                    setupPagination();
+                };
+            }
+        }
+        
+        // Apply sorting to filtered items
+        function applySorting() {
+            const sortSelect = document.getElementById('workspace-sort');
+            if (!sortSelect) return;
+            
+            const sortOrder = sortSelect.value;
+            
+            filteredItems.sort((a, b) => {
+                switch(sortOrder) {
+                    case 'newest':
+                        const dateA = a.createdAt?.toDate?.() || new Date(a.createdAt);
+                        const dateB = b.createdAt?.toDate?.() || new Date(b.createdAt);
+                        return dateB - dateA;
+                    
+                    case 'oldest':
+                        const dateA_old = a.createdAt?.toDate?.() || new Date(a.createdAt);
+                        const dateB_old = b.createdAt?.toDate?.() || new Date(b.createdAt);
+                        return dateA_old - dateB_old;
+                    
+                    case 'a-z':
+                        const titleA = (a.title || '').toLowerCase();
+                        const titleB = (b.title || '').toLowerCase();
+                        return titleA.localeCompare(titleB);
+                    
+                    case 'z-a':
+                        const titleA_z = (a.title || '').toLowerCase();
+                        const titleB_z = (b.title || '').toLowerCase();
+                        return titleB_z.localeCompare(titleA_z);
+                    
+                    default:
+                        return 0;
                 }
-                
-                currentPage = 1;
-                renderWorkspace(filteredItems);
-                setupPagination();
-            };
+            });
         }
 
         // Render workspace items
@@ -1147,12 +1042,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 } else if (item.type === 'new-spec') {
                     // For spec-viewer specs, check actual status
                     const status = item.status || {};
+                    // Check if design exists in the spec data
+                    const hasDesign = item.design !== undefined && item.design !== null;
+                    const designStatus = hasDesign ? 'ready' : (status.design || 'pending');
+                    
                     progressItems = [
                         { name: 'Overview', status: status.overview || 'ready' },
                         { name: 'Technical', status: status.technical || 'pending' },
                         { name: 'Market', status: status.market || 'pending' },
-                        { name: 'Design', status: 'pending' },
-                        { name: 'Review', status: 'not-started' }
+                        { name: 'Design', status: designStatus },
+                        { name: 'Diagrams', status: status.diagrams || 'pending' }
                     ];
                 } else {
                     // For old specs and research
@@ -1160,7 +1059,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         { name: 'Analysis', status: 'ready' },
                         { name: 'Research', status: 'ready' },
                         { name: 'Documentation', status: 'in-progress' },
-                        { name: 'Review', status: 'pending' }
+                        { name: 'Diagrams', status: 'pending' }
                     ];
                 }
                 
@@ -1236,7 +1135,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Helper function to get item description
         function getItemDescription(item) {
-            if (item.description) {
+            // Don't use item.description if it looks like JSON, prefer extracting from overview
+            if (item.description && !item.description.startsWith('{')) {
                 return item.description;
             }
             
@@ -1247,23 +1147,40 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (item.overview) {
                     try {
                         const overviewData = typeof item.overview === 'string' ? JSON.parse(item.overview) : item.overview;
+                        
+                        // The structure is nested: { overview: { ideaSummary: "..." } }
+                        if (overviewData.overview && overviewData.overview.ideaSummary) {
+                            const text = overviewData.overview.ideaSummary;
+                            return text.substring(0, 120) + (text.length > 120 ? '...' : '');
+                        }
+                        
+                        // Fallback for direct structure
                         if (overviewData.ideaSummary) {
-                            return overviewData.ideaSummary.substring(0, 120) + (overviewData.ideaSummary.length > 120 ? '...' : '');
+                            const text = overviewData.ideaSummary;
+                            return text.substring(0, 120) + (text.length > 120 ? '...' : '');
                         }
                     } catch (e) {
-                        // If parsing fails, remove the fixed JSON prefix and clean the text
-                        const jsonPrefix = '{"overview":{"ideaSummary":"';
-                        let cleanOverview = item.overview;
-                        
-                        // Remove the fixed JSON prefix if it exists
-                        if (cleanOverview.startsWith(jsonPrefix)) {
-                            cleanOverview = cleanOverview.substring(jsonPrefix.length);
+                        // If JSON parsing fails, try to extract text using regex
+                        try {
+                            // Try to find ideaSummary in the text
+                            const match = item.overview.match(/"ideaSummary":"([^"]+)"/);
+                            if (match && match[1]) {
+                                const text = match[1].replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+                                return text.substring(0, 120) + (text.length > 120 ? '...' : '');
+                            }
+                            
+                            // Fallback: remove JSON structure and clean
+                            let cleanText = item.overview;
+                            // Remove the prefix if exists
+                            if (cleanText.includes('"ideaSummary":"')) {
+                                cleanText = cleanText.substring(cleanText.indexOf('"ideaSummary":"') + 16);
+                                cleanText = cleanText.substring(0, cleanText.indexOf('"'));
+                                cleanText = cleanText.replace(/\\"/g, '"');
+                                return cleanText.substring(0, 120) + (cleanText.length > 120 ? '...' : '');
+                            }
+                        } catch (e2) {
+                            return 'Complete specification with technical details';
                         }
-                        
-                        // Remove JSON characters and clean up
-                        cleanOverview = cleanOverview.replace(/[{}":,]/g, '').trim();
-                        
-                        return cleanOverview.substring(0, 120) + (cleanOverview.length > 120 ? '...' : '');
                     }
                 }
                 return 'Complete specification with technical details';
@@ -1544,7 +1461,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="app-card" data-spec-id="${spec.id}">
                     <div class="app-card-header">
                         <h4 class="app-card-title">
-                            <a href="spec.html?id=${spec.id}" class="spec-link">${spec.title}</a>
+                            <a href="legacy-viewer.html?id=${spec.id}" class="spec-link">${spec.title}</a>
                         </h4>
                         <div class="app-card-actions">
                             <button class="btn-icon link-spec-btn" data-spec-id="${spec.id}" title="Link to App">
@@ -1598,7 +1515,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="app-card" data-research-id="${research.id}">
                     <div class="app-card-header">
                         <h4 class="app-card-title">
-                            <a href="research.html?id=${research.id}" class="spec-link">${research.title}</a>
+                            <a href="legacy-viewer.html?id=${research.id}" class="spec-link">${research.title}</a>
                         </h4>
                         <div class="app-card-actions">
                             <button class="btn-icon link-research-btn" data-research-id="${research.id}" title="Link to App">
@@ -1701,7 +1618,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="spec-card" data-spec-id="${spec.id}">
                     <div class="spec-card-header">
                         <h4 class="spec-card-title">
-                            <a href="spec.html?id=${spec.id}" class="spec-link">${spec.title}</a>
+                            <a href="legacy-viewer.html?id=${spec.id}" class="spec-link">${spec.title}</a>
                         </h4>
                         <div class="spec-card-actions">
                             <button class="btn-icon link-spec-btn" data-spec-id="${spec.id}" title="Link to App">
@@ -1737,7 +1654,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="spec-card" data-research-id="${research.id}">
                     <div class="spec-card-header">
                         <h4 class="spec-card-title">
-                            <a href="research.html?id=${research.id}" class="spec-link">${research.title}</a>
+                            <a href="legacy-viewer.html?id=${research.id}" class="spec-link">${research.title}</a>
                         </h4>
                         <div class="spec-card-actions">
                             <button class="btn-icon link-research-btn" data-research-id="${research.id}" title="Link to App">

@@ -15,7 +15,8 @@ Create a comprehensive and detailed overview based on the user input. Analyze th
 
 {
   "overview": {
-    "ideaSummary": "A detailed, comprehensive description (3-4 sentences) of what the application does, what problem it solves for users, and why it's important. Include the core functionality, main benefits, and how it addresses user pain points.",
+    "ideaSummary": "A detailed, comprehensive description (500-1500 characters) of what the application does, what problem it solves for users, why it's important, core functionality, main benefits, how it addresses user pain points, and its value to the target audience. This should be substantial and provide complete context.",
+    "problemStatement": "A detailed problem statement (2-3 paragraphs, 400-800 characters) describing: the core problem this app solves, why this problem matters, specific user pain points (both practical and emotional), current workarounds users employ, and the gap that exists in current solutions.",
     "targetAudience": {
       "ageRange": "Specific age range with reasoning (e.g., '25-45 years old, representing working professionals')",
       "sector": "Detailed industry or business sector with context (e.g., 'Healthcare sector, specifically telemedicine and patient management')",
@@ -24,12 +25,25 @@ Create a comprehensive and detailed overview based on the user input. Analyze th
     },
     "valueProposition": "A comprehensive explanation (2-3 sentences) of what makes this app unique compared to competitors, including specific advantages, unique features, and the main value it provides to users",
     "coreFeaturesOverview": ["List of 6-8 main features with brief descriptions of what each feature does and how it benefits users"],
-    "userJourneySummary": "A detailed, step-by-step description (4-5 sentences) of how a user would use the app from start to finish, including onboarding, main workflows, and key interactions"
+    "userJourneySummary": "A detailed, step-by-step description (4-5 sentences) of how a user would use the app from start to finish, including onboarding, main workflows, and key interactions",
+    "detailedUserFlow": {
+      "steps": ["Step 1: User action and system response description", "Step 2: User action and system response description", "Step 3: User action and system response description"],
+      "decisionPoints": "Key user decisions and their implications",
+      "errorHandling": "What happens when errors occur at each step",
+      "confirmations": "What confirmations users receive",
+      "feedbackLoops": "How the system provides feedback to users"
+    },
+    "screenDescriptions": {
+      "screens": ["Screen 1: Name, purpose, key elements, user interactions", "Screen 2: Name, purpose, key elements, user interactions"],
+      "uiComponents": "Key UI components and their purposes",
+      "navigationStructure": "How users move between screens"
+    }
   }
 }
 
 IMPORTANT DETAILED REQUIREMENTS: 
-- ideaSummary should be 3-4 sentences with comprehensive explanation of purpose, functionality, and benefits
+- ideaSummary should be 500-1500 characters with comprehensive explanation of purpose, functionality, benefits, and value
+- problemStatement should be 2-3 paragraphs (400-800 characters) covering: the problem, why it matters, pain points (practical and emotional), current workarounds, and solution gap
 - targetAudience.ageRange should include reasoning for the age group
 - targetAudience.sector should be specific with industry context
 - targetAudience.interests should be 5-7 detailed interests or professional activities
@@ -37,6 +51,10 @@ IMPORTANT DETAILED REQUIREMENTS:
 - valueProposition should be 2-3 sentences explaining uniqueness and competitive advantages
 - coreFeaturesOverview should be 6-8 features with brief descriptions of functionality and benefits
 - userJourneySummary should be 4-5 sentences describing complete user flow including onboarding and key interactions
+- detailedUserFlow.steps should include specific user actions and system responses
+- detailedUserFlow.decisionPoints should describe key decision moments
+- detailedUserFlow.errorHandling should explain error scenarios
+- screenDescriptions.screens should describe each screen's name, purpose, key elements, and interactions
 - All content should be detailed, comprehensive, and provide substantial value
 - All values must be strings or arrays, never null or undefined
 
@@ -92,6 +110,55 @@ Create a comprehensive technical specification with TEXTUAL descriptions only (n
       "thirdPartyServices": ["Service 1", "Service 2"],
       "integrations": "Description of external API integrations",
       "dataFlow": "How external data flows into the system"
+    },
+    "devops": {
+      "deploymentStrategy": "Deployment approach (CI/CD, hosting platforms, containerization)",
+      "infrastructure": "Infrastructure requirements and cloud services",
+      "monitoring": "Monitoring and logging strategy",
+      "scaling": "Scaling strategy and load balancing approach",
+      "backup": "Backup and disaster recovery plan",
+      "automation": "Automation tools and processes"
+    },
+    "dataStorage": {
+      "storageStrategy": "Where and how data will be stored (database choice reasoning)",
+      "dataRetention": "Data retention policies and lifecycle management",
+      "dataBackup": "Backup strategy for data",
+      "storageArchitecture": "Storage architecture and optimization"
+    },
+    "analytics": {
+      "analyticsStrategy": "What metrics and analytics to track",
+      "trackingMethods": "How to implement tracking (events, user behavior)",
+      "analysisTools": "Recommended analytics tools and platforms",
+      "reporting": "Reporting structure and dashboards"
+    },
+    "detailedDataModels": {
+      "models": [
+        {
+          "name": "Model name (e.g., User, Product, Order)",
+          "purpose": "What this model represents and stores",
+          "fields": [
+            {
+              "name": "field_name",
+              "type": "field type (String, Integer, Boolean, etc.)",
+              "required": true,
+              "constraints": "Any constraints (unique, max length, etc.)",
+              "description": "What this field stores"
+            }
+          ],
+          "relationships": "Relationships with other models",
+          "validationRules": "Validation rules for this model"
+        }
+      ],
+      "overallStructure": "How all models relate to each other and the overall data architecture"
+    },
+    "dataFlowDetailed": {
+      "authenticationFlow": "Step-by-step authentication process from user login to system access",
+      "dataSubmissionFlow": "How data moves through the system from user input to storage",
+      "queryPatterns": "Common database queries and their purposes",
+      "cachingStrategy": "What data gets cached and why",
+      "errorScenarios": "Error handling at each step of data flow",
+      "dataValidation": "Where and how data is validated throughout the system",
+      "transactionFlow": "Complex multi-step processes and their flow"
     }
   }
 }
@@ -126,8 +193,35 @@ Create detailed market analysis. Return JSON with market key containing:
       "marketData": "Relevant market statistics and forecasts",
       "growthProjections": "Future market growth expectations"
     },
+    "searchTrends": {
+      "keywords": ["Key search term 1", "Key search term 2", "Key search term 3"],
+      "historicalData": [
+        {
+          "month": "YYYY-MM",
+          "searchVolume": 12345,
+          "trend": "increasing/decreasing/stable",
+          "competition": "low/medium/high"
+        }
+      ],
+      "period": "3 months minimum",
+      "dataFormat": "Each entry should have consistent month format and numeric values suitable for chart visualization",
+      "insights": "Analysis of search trend patterns and what they indicate about market demand"
+    },
     "targetAudienceInsights": {
-      "needsAnalysis": "Analysis of user needs and pain points",
+      "primaryAudience": {
+        "definition": "Detailed description of primary users",
+        "demographics": "Age range, location, income, education, and other demographic details",
+        "psychographics": "Values, motivations, lifestyle, and psychological factors",
+        "behaviors": "How they currently behave, what products/services they use",
+        "technologySkills": "Their comfort level with technology",
+        "specificRoles": ["Role 1 description", "Role 2 description"]
+      },
+      "secondaryAudience": {
+        "definition": "Secondary users who benefit from the app",
+        "demographics": "Demographic details",
+        "relationshipToPrimary": "How they relate to primary users"
+      },
+      "needsAnalysis": "Detailed analysis of user needs and pain points",
       "usageHabits": "How target audience currently behaves",
       "demographics": "Detailed demographic breakdown"
     },
@@ -136,7 +230,13 @@ Create detailed market analysis. Return JSON with market key containing:
         "competitor": "Competitor name",
         "advantages": "Their strengths",
         "disadvantages": "Their weaknesses",
-        "marketPosition": "Their position in the market"
+        "marketPosition": "Their position in the market",
+        "features": ["Feature list of competitor"],
+        "uxStrengths": "What they do well in UX",
+        "uxWeaknesses": "Where they fall short in UX",
+        "monetization": "How they make money",
+        "gaps": ["What they're missing", "Their weaknesses"],
+        "marketShare": "Estimated market share"
       }
     ],
     "swotAnalysis": {
@@ -145,10 +245,145 @@ Create detailed market analysis. Return JSON with market key containing:
       "opportunities": ["Opportunity 1", "Opportunity 2"],
       "threats": ["Threat 1", "Threat 2"]
     },
+    "painPoints": [
+      {
+        "pain": "Specific problem description",
+        "impact": "How it affects users (practical and emotional)",
+        "frequency": "How often this happens",
+        "emotionalImpact": "How it makes users feel",
+        "currentWorkarounds": "What users do now to solve it",
+        "severity": "High/Medium/Low"
+      }
+    ],
+    "businessModelsAnalysis": [
+      {
+        "model": "Model name (Freemium/Subscription/Advertising/B2B/One-time purchase)",
+        "description": "How this model works",
+        "advantages": ["Advantage 1", "Advantage 2"],
+        "disadvantages": ["Disadvantage 1", "Disadvantage 2"],
+        "revenuePotential": "Estimated revenue potential",
+        "fitScore": "How well it fits the product (1-10)",
+        "implementationComplexity": "Easy/Medium/Hard"
+      }
+    ],
+    "qualityAssessment": {
+      "marketFitRating": "Rating 1-10 with detailed reasoning",
+      "technicalFeasibility": "Feasibility rating and specific technical challenges",
+      "executionRiskFactors": ["Risk factor 1", "Risk factor 2"],
+      "marketReadiness": "Is the market ready? Why or why not",
+      "keySuccessFactors": ["Factor 1", "Factor 2"],
+      "goToMarketReadiness": "Ready/Not ready and specific reasons"
+    },
+    "uniqueSellingProposition": {
+      "coreValue": "The unique value offered that competitors don't provide",
+      "differentiationFactors": ["What makes it unique", "Key differentiators"],
+      "competitiveAdvantages": ["Advantage 1", "Advantage 2"],
+      "sustainability": "Can this advantage be sustained? Why",
+      "proofPoints": "Evidence of uniqueness or competitive advantage"
+    },
     "monetizationModel": {
       "proposedModels": ["Subscription", "Pay-per-use", "Freemium"],
       "recommendations": "Recommended monetization strategy",
       "pricingStrategy": "Suggested pricing approach"
+    },
+    "pricingStrategy": {
+      "proposedModels": ["Model 1", "Model 2"],
+      "recommendations": "Recommended pricing approach with justification",
+      "pricingComparison": [
+        {
+          "competitor": "Competitor name",
+          "pricing": "$X/month or free",
+          "features": "What they offer at this price",
+          "valueProposition": "Why people pay for their service"
+        }
+      ],
+      "justification": "Why this pricing structure makes sense",
+      "suggestedPricing": "Recommended pricing structure with tiers"
+    },
+    "expectedROI": {
+      "scenarios": [
+        {
+          "scenario": "Conservative/Optimistic/Realistic",
+          "assumptions": "Key assumptions made",
+          "userProjections": "Expected users over 3 years",
+          "revenueProjections": "Expected revenue over 1-3 years",
+          "costBreakdown": "Development costs + Marketing costs breakdown",
+          "roiCalculation": "ROI percentage and time to breakeven"
+        }
+      ],
+      "riskFactors": ["What could go wrong", "Market risks"],
+      "sensitivityAnalysis": "Key variables that impact projections (e.g., conversion rate, CAC)"
+    },
+    "kpiFramework": {
+      "userMetrics": [
+        {
+          "metric": "Metric name (e.g., DAU, MAU, Conversion Rate, Churn)",
+          "definition": "What it measures",
+          "targetValue": "Target to achieve in first year",
+          "measurementMethod": "How to track and measure it",
+          "importance": "Why this metric matters"
+        }
+      ],
+      "businessMetrics": ["Revenue", "CAC (Customer Acquisition Cost)", "LTV (Lifetime Value)", "Churn Rate", "ARPU"],
+      "productMetrics": ["Engagement Rate", "Retention Rate", "NPS", "Feature Adoption", "Time to Value"]
+    },
+    "nicheInformation": {
+      "nicheDefinition": "What specific niche this app serves",
+      "trends": ["Trend 1 with context", "Trend 2 with context"],
+      "opportunities": ["Opportunity 1", "Opportunity 2"],
+      "challenges": ["Challenge 1", "Challenge 2"],
+      "growthFactors": ["Factor 1 driving growth", "Factor 2 driving growth"],
+      "marketMaturity": "Early stage/Growing/Mature/Declining"
+    },
+    "marketStatistics": {
+      "globalStatistics": [
+        "Stat 1 with context and source",
+        "Stat 2 with context and source"
+      ],
+      "targetMarketSize": "Estimated TAM (Total Addressable Market) / SAM (Serviceable Addressable Market) / SOM (Serviceable Obtainable Market)",
+      "growthRate": "Expected CAGR or growth rate",
+      "keyNumbers": "Important numbers that support market viability"
+    },
+    "threatsOverview": {
+      "externalThreats": [
+        {
+          "threat": "Specific threat description",
+          "probability": "High/Medium/Low with reasoning",
+          "impact": "High/Medium/Low and why",
+          "mitigation": "How to mitigate or address this threat"
+        }
+      ],
+      "competitiveThreats": ["Competitive threat 1", "Competitive threat 2"],
+      "regulatoryThreats": ["Regulatory risk 1", "Regulatory risk 2"],
+      "marketThreats": ["Market risk 1", "Market risk 2"]
+    },
+    "complexityRating": {
+      "overallRating": "Rating 1-10 (10 = very complex)",
+      "technicalComplexity": "Tech challenges and why",
+      "marketComplexity": "Market challenges and barriers",
+      "operationalComplexity": "Operational challenges",
+      "mitigationStrategies": "How to reduce complexity",
+      "developmentTimeline": "Estimated timeline to launch MVP and full version"
+    },
+    "actionableInsights": {
+      "development": {
+        "priorities": ["Must-have feature 1", "Must-have feature 2"],
+        "recommendations": "What to focus on in development",
+        "phases": "Suggested phased rollout approach (MVP, v1, v2)",
+        "mvpFeatures": "Core features for Minimum Viable Product"
+      },
+      "marketFit": {
+        "strategies": ["Go-to-market strategy 1", "Strategy 2"],
+        "partnerships": "Recommended strategic partnerships",
+        "timing": "Best time to launch (when, why)",
+        "targetMarkets": "Which geographic or demographic markets to enter first"
+      },
+      "productPositioning": {
+        "branding": "Branding recommendations and positioning",
+        "messaging": "Key messages to use in marketing",
+        "differentiation": "How to differentiate from competitors in messaging",
+        "marketPosition": "Where to position in the market (premium, affordable, niche, etc.)"
+      }
     },
     "marketingStrategy": {
       "channels": "Marketing channels to use",
@@ -157,6 +392,8 @@ Create detailed market analysis. Return JSON with market key containing:
     }
   }
 }
+
+IMPORTANT: The searchTrends.historicalData should include at least 3 months of data with consistent formatting to enable easy chart/graph visualization.
 
 Application Overview:
 ${overviewContent}
@@ -189,6 +426,8 @@ Create comprehensive design guidelines and branding elements. Return JSON with d
         "background": "#hexcode",
         "text": "#hexcode"
       },
+      "colorHarmony": "Description of the color scheme harmony (monochromatic, analogous, or complementary with 2 tones maximum)",
+      "colorReasoning": "Explanation of why these specific colors and tones were chosen and how they work together",
       "typography": {
         "headings": "Font family and specifications for headings",
         "body": "Font family and specifications for body text",
@@ -216,6 +455,12 @@ Create comprehensive design guidelines and branding elements. Return JSON with d
     }
   }
 }
+
+CRITICAL COLOR REQUIREMENTS:
+- Colors must be harmonious and coherent (use either monochromatic scheme with variations of the same tone, or analogous/complementary scheme with maximum 2 tones)
+- Avoid random color combinations with 3 different tones
+- The color palette should create visual harmony and brand consistency
+- Include detailed explanation of the color harmony approach in colorHarmony field
 
 Make sure all descriptions are clear and actionable for designers and developers.
 

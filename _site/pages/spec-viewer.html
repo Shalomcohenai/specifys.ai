@@ -2538,6 +2538,20 @@ function displayDesign(design) {
         });
         
         paletteHTML += '</div></div>';
+        
+        // Add color harmony and reasoning if available
+        if (designData.colorHarmony || designData.colorReasoning) {
+            paletteHTML += '<div style="margin-top: 20px; padding: 15px; background-color: #f0f8ff; border-left: 4px solid #2196F3; border-radius: 4px;">';
+            if (designData.colorHarmony) {
+                paletteHTML += '<h4><i class="fa fa-palette"></i> Color Harmony</h4>';
+                paletteHTML += `<p style="color: #333;">${designData.colorHarmony}</p>`;
+            }
+            if (designData.colorReasoning) {
+                paletteHTML += '<h4 style="margin-top: 10px;"><i class="fa fa-lightbulb-o"></i> Color Reasoning</h4>';
+                paletteHTML += `<p style="color: #333;">${designData.colorReasoning}</p>`;
+            }
+            paletteHTML += '</div>';
+        }
     }
     
     // Typography section
@@ -2574,11 +2588,39 @@ function displayDesign(design) {
 function parseDesignData(designContent) {
     const result = {
         colors: {},
-        typography: {}
+        typography: {},
+        colorHarmony: '',
+        colorReasoning: ''
     };
     
     try {
         let content = designContent;
+        
+        // Try to parse as JSON first
+        let jsonData;
+        try {
+            jsonData = JSON.parse(designContent);
+            if (jsonData.design && jsonData.design.visualStyleGuide) {
+                if (jsonData.design.visualStyleGuide.colorHarmony) {
+                    result.colorHarmony = jsonData.design.visualStyleGuide.colorHarmony;
+                }
+                if (jsonData.design.visualStyleGuide.colorReasoning) {
+                    result.colorReasoning = jsonData.design.visualStyleGuide.colorReasoning;
+                }
+                // Extract colors from JSON
+                if (jsonData.design.visualStyleGuide.colors) {
+                    result.colors = jsonData.design.visualStyleGuide.colors;
+                }
+                // Extract typography from JSON
+                if (jsonData.design.visualStyleGuide.typography) {
+                    result.typography = jsonData.design.visualStyleGuide.typography;
+                }
+                return result;
+            }
+        } catch (e) {
+            // Not JSON, continue with text parsing
+        }
+        
         if (typeof designContent === 'string') {
             content = designContent;
         }
@@ -2957,6 +2999,80 @@ function formatJSONContent(jsonData) {
         html += '</div>';
     }
     
+    // Handle new Problem Statement
+    if (jsonData.problemStatement) {
+        html += '<div class="content-section">';
+        html += '<h3><i class="fa fa-exclamation-triangle"></i> Problem Statement</h3>';
+        html += `<p>${jsonData.problemStatement}</p>`;
+        html += '</div>';
+    }
+    
+    // Handle new Detailed User Flow
+    if (jsonData.detailedUserFlow) {
+        html += '<div class="content-section">';
+        html += '<h3><i class="fa fa-list-ol"></i> Detailed User Flow</h3>';
+        
+        if (jsonData.detailedUserFlow.steps && Array.isArray(jsonData.detailedUserFlow.steps)) {
+            html += '<h4>Steps:</h4>';
+            html += '<ol>';
+            jsonData.detailedUserFlow.steps.forEach((step, index) => {
+                html += `<li><strong>Step ${index + 1}:</strong> ${step}</li>`;
+            });
+            html += '</ol>';
+        }
+        
+        if (jsonData.detailedUserFlow.decisionPoints) {
+            html += '<h4>Decision Points:</h4>';
+            html += `<p>${jsonData.detailedUserFlow.decisionPoints}</p>`;
+        }
+        
+        if (jsonData.detailedUserFlow.errorHandling) {
+            html += '<h4>Error Handling:</h4>';
+            html += `<p>${jsonData.detailedUserFlow.errorHandling}</p>`;
+        }
+        
+        if (jsonData.detailedUserFlow.confirmations) {
+            html += '<h4>Confirmations:</h4>';
+            html += `<p>${jsonData.detailedUserFlow.confirmations}</p>`;
+        }
+        
+        if (jsonData.detailedUserFlow.feedbackLoops) {
+            html += '<h4>Feedback Loops:</h4>';
+            html += `<p>${jsonData.detailedUserFlow.feedbackLoops}</p>`;
+        }
+        
+        html += '</div>';
+    }
+    
+    // Handle new Screen Descriptions
+    if (jsonData.screenDescriptions) {
+        html += '<div class="content-section">';
+        html += '<h3><i class="fa fa-desktop"></i> Screen Descriptions</h3>';
+        
+        if (jsonData.screenDescriptions.screens && Array.isArray(jsonData.screenDescriptions.screens)) {
+            html += '<h4>Screens:</h4>';
+            jsonData.screenDescriptions.screens.forEach(screen => {
+                if (typeof screen === 'string') {
+                    html += `<p><strong>${screen}</strong></p>`;
+                } else {
+                    html += `<p><strong>${screen.name || 'Unnamed Screen'}:</strong> ${screen.purpose || 'No purpose specified'}</p>`;
+                }
+            });
+        }
+        
+        if (jsonData.screenDescriptions.uiComponents) {
+            html += '<h4>UI Components:</h4>';
+            html += `<p>${jsonData.screenDescriptions.uiComponents}</p>`;
+        }
+        
+        if (jsonData.screenDescriptions.navigationStructure) {
+            html += '<h4>Navigation Structure:</h4>';
+            html += `<p>${jsonData.screenDescriptions.navigationStructure}</p>`;
+        }
+        
+        html += '</div>';
+    }
+    
     // Handle applicationSummary
     if (jsonData.applicationSummary && jsonData.applicationSummary.paragraphs) {
         html += '<div class="content-section">';
@@ -3155,6 +3271,180 @@ function formatJSONContent(jsonData) {
         html += '</div>';
     }
     
+    // Handle new DevOps
+    if (jsonData.devops) {
+        html += '<div class="content-section">';
+        html += '<h3><i class="fa fa-server"></i> DevOps</h3>';
+        
+        if (jsonData.devops.deploymentStrategy) {
+            html += `<p><strong>Deployment Strategy:</strong> ${jsonData.devops.deploymentStrategy}</p>`;
+        }
+        
+        if (jsonData.devops.infrastructure) {
+            html += `<p><strong>Infrastructure:</strong> ${jsonData.devops.infrastructure}</p>`;
+        }
+        
+        if (jsonData.devops.monitoring) {
+            html += `<p><strong>Monitoring:</strong> ${jsonData.devops.monitoring}</p>`;
+        }
+        
+        if (jsonData.devops.scaling) {
+            html += `<p><strong>Scaling:</strong> ${jsonData.devops.scaling}</p>`;
+        }
+        
+        if (jsonData.devops.backup) {
+            html += `<p><strong>Backup:</strong> ${jsonData.devops.backup}</p>`;
+        }
+        
+        if (jsonData.devops.automation) {
+            html += `<p><strong>Automation:</strong> ${jsonData.devops.automation}</p>`;
+        }
+        
+        html += '</div>';
+    }
+    
+    // Handle new Data Storage
+    if (jsonData.dataStorage) {
+        html += '<div class="content-section">';
+        html += '<h3><i class="fa fa-hdd-o"></i> Data Storage Strategy</h3>';
+        
+        if (jsonData.dataStorage.storageStrategy) {
+            html += `<p><strong>Storage Strategy:</strong> ${jsonData.dataStorage.storageStrategy}</p>`;
+        }
+        
+        if (jsonData.dataStorage.dataRetention) {
+            html += `<p><strong>Data Retention:</strong> ${jsonData.dataStorage.dataRetention}</p>`;
+        }
+        
+        if (jsonData.dataStorage.dataBackup) {
+            html += `<p><strong>Data Backup:</strong> ${jsonData.dataStorage.dataBackup}</p>`;
+        }
+        
+        if (jsonData.dataStorage.storageArchitecture) {
+            html += `<p><strong>Storage Architecture:</strong> ${jsonData.dataStorage.storageArchitecture}</p>`;
+        }
+        
+        html += '</div>';
+    }
+    
+    // Handle new Analytics
+    if (jsonData.analytics) {
+        html += '<div class="content-section">';
+        html += '<h3><i class="fa fa-line-chart"></i> Analytics</h3>';
+        
+        if (jsonData.analytics.analyticsStrategy) {
+            html += `<p><strong>Analytics Strategy:</strong> ${jsonData.analytics.analyticsStrategy}</p>`;
+        }
+        
+        if (jsonData.analytics.trackingMethods) {
+            html += `<p><strong>Tracking Methods:</strong> ${jsonData.analytics.trackingMethods}</p>`;
+        }
+        
+        if (jsonData.analytics.analysisTools) {
+            html += `<p><strong>Analysis Tools:</strong> ${jsonData.analytics.analysisTools}</p>`;
+        }
+        
+        if (jsonData.analytics.reporting) {
+            html += `<p><strong>Reporting:</strong> ${jsonData.analytics.reporting}</p>`;
+        }
+        
+        html += '</div>';
+    }
+    
+    // Handle new Detailed Data Models
+    if (jsonData.detailedDataModels) {
+        html += '<div class="content-section">';
+        html += '<h3><i class="fa fa-database"></i> Detailed Data Models</h3>';
+        
+        if (jsonData.detailedDataModels.models && Array.isArray(jsonData.detailedDataModels.models)) {
+            jsonData.detailedDataModels.models.forEach(model => {
+                html += `<h4>${model.name || 'Unnamed Model'}</h4>`;
+                
+                if (model.purpose) {
+                    html += `<p><strong>Purpose:</strong> ${model.purpose}</p>`;
+                }
+                
+                if (model.fields && Array.isArray(model.fields)) {
+                    html += '<h5>Fields:</h5>';
+                    html += '<table style="width: 100%; border-collapse: collapse; margin-top: 10px;">';
+                    html += '<thead><tr style="background-color: #f5f5f5;"><th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Name</th>';
+                    html += '<th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Type</th>';
+                    html += '<th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Required</th>';
+                    html += '<th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Description</th></tr></thead><tbody>';
+                    
+                    model.fields.forEach(field => {
+                        html += `<tr><td style="padding: 10px; border: 1px solid #ddd;">${field.name || 'N/A'}</td>`;
+                        html += `<td style="padding: 10px; border: 1px solid #ddd;">${field.type || 'N/A'}</td>`;
+                        html += `<td style="padding: 10px; border: 1px solid #ddd;">${field.required ? 'Yes' : 'No'}</td>`;
+                        html += `<td style="padding: 10px; border: 1px solid #ddd;">${field.description || 'N/A'}</td></tr>`;
+                    });
+                    
+                    html += '</tbody></table>';
+                }
+                
+                if (model.relationships) {
+                    html += '<h5>Relationships:</h5>';
+                    html += `<p>${model.relationships}</p>`;
+                }
+                
+                if (model.validationRules) {
+                    html += '<h5>Validation Rules:</h5>';
+                    html += `<p>${model.validationRules}</p>`;
+                }
+            });
+        }
+        
+        if (jsonData.detailedDataModels.overallStructure) {
+            html += '<h4>Overall Structure:</h4>';
+            html += `<p>${jsonData.detailedDataModels.overallStructure}</p>`;
+        }
+        
+        html += '</div>';
+    }
+    
+    // Handle new Data Flow Detailed
+    if (jsonData.dataFlowDetailed) {
+        html += '<div class="content-section">';
+        html += '<h3><i class="fa fa-share-alt"></i> Detailed Data Flow</h3>';
+        
+        if (jsonData.dataFlowDetailed.authenticationFlow) {
+            html += '<h4>Authentication Flow:</h4>';
+            html += `<p>${jsonData.dataFlowDetailed.authenticationFlow}</p>`;
+        }
+        
+        if (jsonData.dataFlowDetailed.dataSubmissionFlow) {
+            html += '<h4>Data Submission Flow:</h4>';
+            html += `<p>${jsonData.dataFlowDetailed.dataSubmissionFlow}</p>`;
+        }
+        
+        if (jsonData.dataFlowDetailed.queryPatterns) {
+            html += '<h4>Query Patterns:</h4>';
+            html += `<p>${jsonData.dataFlowDetailed.queryPatterns}</p>`;
+        }
+        
+        if (jsonData.dataFlowDetailed.cachingStrategy) {
+            html += '<h4>Caching Strategy:</h4>';
+            html += `<p>${jsonData.dataFlowDetailed.cachingStrategy}</p>`;
+        }
+        
+        if (jsonData.dataFlowDetailed.errorScenarios) {
+            html += '<h4>Error Scenarios:</h4>';
+            html += `<p>${jsonData.dataFlowDetailed.errorScenarios}</p>`;
+        }
+        
+        if (jsonData.dataFlowDetailed.dataValidation) {
+            html += '<h4>Data Validation:</h4>';
+            html += `<p>${jsonData.dataFlowDetailed.dataValidation}</p>`;
+        }
+        
+        if (jsonData.dataFlowDetailed.transactionFlow) {
+            html += '<h4>Transaction Flow:</h4>';
+            html += `<p>${jsonData.dataFlowDetailed.transactionFlow}</p>`;
+        }
+        
+        html += '</div>';
+    }
+    
     // Handle Data Models (only if they exist)
     if (jsonData.dataModels && jsonData.dataModels.entities && Array.isArray(jsonData.dataModels.entities)) {
         html += '<div class="content-section">';
@@ -3306,6 +3596,50 @@ function formatJSONContent(jsonData) {
         html += '</div>';
     }
     
+    // Handle new Search Trends with chart
+    if (jsonData.searchTrends) {
+        html += '<div class="content-section">';
+        html += '<h3><i class="fa fa-line-chart"></i> Search Trends</h3>';
+        
+        if (jsonData.searchTrends.keywords && Array.isArray(jsonData.searchTrends.keywords)) {
+            html += '<h4>Keywords:</h4>';
+            html += '<ul>';
+            jsonData.searchTrends.keywords.forEach(keyword => {
+                html += `<li>${keyword}</li>`;
+            });
+            html += '</ul>';
+        }
+        
+        if (jsonData.searchTrends.historicalData && Array.isArray(jsonData.searchTrends.historicalData)) {
+            html += '<h4>Historical Data (Last 3+ Months):</h4>';
+            
+            // Create a simple table for the data
+            html += '<div style="overflow-x: auto;"><table class="search-trends-table" style="width: 100%; border-collapse: collapse; margin-top: 15px;">';
+            html += '<thead><tr style="background-color: #f5f5f5;"><th style="padding: 10px; border: 1px solid #ddd;">Month</th>';
+            html += '<th style="padding: 10px; border: 1px solid #ddd;">Search Volume</th>';
+            html += '<th style="padding: 10px; border: 1px solid #ddd;">Trend</th>';
+            html += '<th style="padding: 10px; border: 1px solid #ddd;">Competition</th></tr></thead><tbody>';
+            
+            jsonData.searchTrends.historicalData.forEach(data => {
+                html += `<tr><td style="padding: 10px; border: 1px solid #ddd;">${data.month || 'N/A'}</td>`;
+                html += `<td style="padding: 10px; border: 1px solid #ddd;">${data.searchVolume || 'N/A'}</td>`;
+                html += `<td style="padding: 10px; border: 1px solid #ddd;">${data.trend || 'N/A'}</td>`;
+                html += `<td style="padding: 10px; border: 1px solid #ddd;">${data.competition || 'N/A'}</td></tr>`;
+            });
+            
+            html += '</tbody></table></div>';
+            
+            // Add simple visualization suggestion
+            html += '<p style="margin-top: 15px; color: #666;"><i class="fa fa-info-circle"></i> This data can be visualized as a line chart showing search volume trends over time.</p>';
+        }
+        
+        if (jsonData.searchTrends.insights) {
+            html += `<p><strong>Insights:</strong> ${jsonData.searchTrends.insights}</p>`;
+        }
+        
+        html += '</div>';
+    }
+    
     // Handle new Target Audience Insights
     if (jsonData.targetAudienceInsights) {
         html += '<div class="content-section">';
@@ -3410,6 +3744,602 @@ function formatJSONContent(jsonData) {
         html += '</div>';
     }
     
+    // Handle new Pain Points
+    if (jsonData.painPoints && Array.isArray(jsonData.painPoints)) {
+        html += '<div class="content-section">';
+        html += '<h3><i class="fa fa-exclamation-circle"></i> Pain Points</h3>';
+        
+        jsonData.painPoints.forEach((painPoint, index) => {
+            html += '<div style="margin-bottom: 20px; padding: 15px; border-left: 4px solid #dc3545; background: #fff5f5;">';
+            html += `<h4>Pain Point ${index + 1}</h4>`;
+            
+            if (painPoint.pain) {
+                html += `<p><strong>Problem:</strong> ${painPoint.pain}</p>`;
+            }
+            
+            if (painPoint.impact) {
+                html += `<p><strong>Impact:</strong> ${painPoint.impact}</p>`;
+            }
+            
+            if (painPoint.frequency) {
+                html += `<p><strong>Frequency:</strong> ${painPoint.frequency}</p>`;
+            }
+            
+            if (painPoint.emotionalImpact) {
+                html += `<p><strong>Emotional Impact:</strong> ${painPoint.emotionalImpact}</p>`;
+            }
+            
+            if (painPoint.currentWorkarounds) {
+                html += `<p><strong>Current Workarounds:</strong> ${painPoint.currentWorkarounds}</p>`;
+            }
+            
+            if (painPoint.severity) {
+                html += `<p><strong>Severity:</strong> ${painPoint.severity}</p>`;
+            }
+            
+            html += '</div>';
+        });
+        
+        html += '</div>';
+    }
+    
+    // Handle new Business Models Analysis
+    if (jsonData.businessModelsAnalysis && Array.isArray(jsonData.businessModelsAnalysis)) {
+        html += '<div class="content-section">';
+        html += '<h3><i class="fa fa-money"></i> Business Models Analysis</h3>';
+        
+        jsonData.businessModelsAnalysis.forEach((model, index) => {
+            html += `<div style="margin-bottom: 25px; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">`;
+            html += `<h4><i class="fa fa-cog"></i> ${model.model || 'Model ' + (index + 1)}</h4>`;
+            
+            if (model.description) {
+                html += `<p><strong>Description:</strong> ${model.description}</p>`;
+            }
+            
+            if (model.advantages && Array.isArray(model.advantages)) {
+                html += '<h5>Advantages:</h5>';
+                html += '<ul>';
+                model.advantages.forEach(adv => {
+                    html += `<li>${adv}</li>`;
+                });
+                html += '</ul>';
+            }
+            
+            if (model.disadvantages && Array.isArray(model.disadvantages)) {
+                html += '<h5>Disadvantages:</h5>';
+                html += '<ul>';
+                model.disadvantages.forEach(dis => {
+                    html += `<li>${dis}</li>`;
+                });
+                html += '</ul>';
+            }
+            
+            if (model.revenuePotential) {
+                html += `<p><strong>Revenue Potential:</strong> ${model.revenuePotential}</p>`;
+            }
+            
+            if (model.fitScore) {
+                html += `<p><strong>Fit Score:</strong> ${model.fitScore}</p>`;
+            }
+            
+            if (model.implementationComplexity) {
+                html += `<p><strong>Implementation Complexity:</strong> ${model.implementationComplexity}</p>`;
+            }
+            
+            html += '</div>';
+        });
+        
+        html += '</div>';
+    }
+    
+    // Handle new Quality Assessment
+    if (jsonData.qualityAssessment) {
+        html += '<div class="content-section">';
+        html += '<h3><i class="fa fa-check-circle"></i> Quality Assessment</h3>';
+        
+        if (jsonData.qualityAssessment.marketFitRating) {
+            html += `<p><strong>Market Fit Rating:</strong> ${jsonData.qualityAssessment.marketFitRating}</p>`;
+        }
+        
+        if (jsonData.qualityAssessment.technicalFeasibility) {
+            html += `<p><strong>Technical Feasibility:</strong> ${jsonData.qualityAssessment.technicalFeasibility}</p>`;
+        }
+        
+        if (jsonData.qualityAssessment.executionRiskFactors && Array.isArray(jsonData.qualityAssessment.executionRiskFactors)) {
+            html += '<h4>Execution Risk Factors:</h4>';
+            html += '<ul>';
+            jsonData.qualityAssessment.executionRiskFactors.forEach(risk => {
+                html += `<li>${risk}</li>`;
+            });
+            html += '</ul>';
+        }
+        
+        if (jsonData.qualityAssessment.marketReadiness) {
+            html += `<p><strong>Market Readiness:</strong> ${jsonData.qualityAssessment.marketReadiness}</p>`;
+        }
+        
+        if (jsonData.qualityAssessment.keySuccessFactors && Array.isArray(jsonData.qualityAssessment.keySuccessFactors)) {
+            html += '<h4>Key Success Factors:</h4>';
+            html += '<ul>';
+            jsonData.qualityAssessment.keySuccessFactors.forEach(factor => {
+                html += `<li>${factor}</li>`;
+            });
+            html += '</ul>';
+        }
+        
+        if (jsonData.qualityAssessment.goToMarketReadiness) {
+            html += `<p><strong>Go-To-Market Readiness:</strong> ${jsonData.qualityAssessment.goToMarketReadiness}</p>`;
+        }
+        
+        html += '</div>';
+    }
+    
+    // Handle new Unique Selling Proposition
+    if (jsonData.uniqueSellingProposition) {
+        html += '<div class="content-section">';
+        html += '<h3><i class="fa fa-star"></i> Unique Selling Proposition</h3>';
+        
+        if (jsonData.uniqueSellingProposition.coreValue) {
+            html += `<p><strong>Core Value:</strong> ${jsonData.uniqueSellingProposition.coreValue}</p>`;
+        }
+        
+        if (jsonData.uniqueSellingProposition.differentiationFactors && Array.isArray(jsonData.uniqueSellingProposition.differentiationFactors)) {
+            html += '<h4>Differentiation Factors:</h4>';
+            html += '<ul>';
+            jsonData.uniqueSellingProposition.differentiationFactors.forEach(factor => {
+                html += `<li>${factor}</li>`;
+            });
+            html += '</ul>';
+        }
+        
+        if (jsonData.uniqueSellingProposition.competitiveAdvantages && Array.isArray(jsonData.uniqueSellingProposition.competitiveAdvantages)) {
+            html += '<h4>Competitive Advantages:</h4>';
+            html += '<ul>';
+            jsonData.uniqueSellingProposition.competitiveAdvantages.forEach(adv => {
+                html += `<li>${adv}</li>`;
+            });
+            html += '</ul>';
+        }
+        
+        if (jsonData.uniqueSellingProposition.sustainability) {
+            html += `<p><strong>Sustainability:</strong> ${jsonData.uniqueSellingProposition.sustainability}</p>`;
+        }
+        
+        if (jsonData.uniqueSellingProposition.proofPoints) {
+            html += `<p><strong>Proof Points:</strong> ${jsonData.uniqueSellingProposition.proofPoints}</p>`;
+        }
+        
+        html += '</div>';
+    }
+    
+    // Handle new Monetization Model
+    if (jsonData.monetizationModel) {
+        html += '<div class="content-section">';
+        html += '<h3><i class="fa fa-dollar"></i> Monetization Model</h3>';
+        
+        if (jsonData.monetizationModel.proposedModels && Array.isArray(jsonData.monetizationModel.proposedModels)) {
+            html += '<h4>Proposed Models:</h4>';
+            html += '<ul>';
+            jsonData.monetizationModel.proposedModels.forEach(model => {
+                html += `<li>${model}</li>`;
+            });
+            html += '</ul>';
+        }
+        
+        if (jsonData.monetizationModel.recommendations) {
+            html += `<p><strong>Recommendations:</strong> ${jsonData.monetizationModel.recommendations}</p>`;
+        }
+        
+        if (jsonData.monetizationModel.pricingStrategy) {
+            html += `<p><strong>Pricing Strategy:</strong> ${jsonData.monetizationModel.pricingStrategy}</p>`;
+        }
+        
+        html += '</div>';
+    }
+    
+    // Handle new Pricing Strategy
+    if (jsonData.pricingStrategy) {
+        html += '<div class="content-section">';
+        html += '<h3><i class="fa fa-tag"></i> Detailed Pricing Strategy</h3>';
+        
+        if (jsonData.pricingStrategy.recommendations) {
+            html += `<p><strong>Recommendations:</strong> ${jsonData.pricingStrategy.recommendations}</p>`;
+        }
+        
+        if (jsonData.pricingStrategy.pricingComparison && Array.isArray(jsonData.pricingStrategy.pricingComparison)) {
+            html += '<h4>Pricing Comparison:</h4>';
+            html += '<table style="width: 100%; border-collapse: collapse; margin-top: 15px;">';
+            html += '<thead><tr style="background-color: #f5f5f5;"><th style="padding: 10px; border: 1px solid #ddd;">Competitor</th>';
+            html += '<th style="padding: 10px; border: 1px solid #ddd;">Pricing</th>';
+            html += '<th style="padding: 10px; border: 1px solid #ddd;">Features</th>';
+            html += '<th style="padding: 10px; border: 1px solid #ddd;">Value Prop</th></tr></thead><tbody>';
+            
+            jsonData.pricingStrategy.pricingComparison.forEach(comp => {
+                html += `<tr><td style="padding: 10px; border: 1px solid #ddd;"><strong>${comp.competitor || 'N/A'}</strong></td>`;
+                html += `<td style="padding: 10px; border: 1px solid #ddd;">${comp.pricing || 'N/A'}</td>`;
+                html += `<td style="padding: 10px; border: 1px solid #ddd;">${comp.features || 'N/A'}</td>`;
+                html += `<td style="padding: 10px; border: 1px solid #ddd;">${comp.valueProposition || 'N/A'}</td></tr>`;
+            });
+            
+            html += '</tbody></table>';
+        }
+        
+        if (jsonData.pricingStrategy.justification) {
+            html += '<h4>Justification:</h4>';
+            html += `<p>${jsonData.pricingStrategy.justification}</p>`;
+        }
+        
+        if (jsonData.pricingStrategy.suggestedPricing) {
+            html += '<h4>Suggested Pricing:</h4>';
+            html += `<p>${jsonData.pricingStrategy.suggestedPricing}</p>`;
+        }
+        
+        html += '</div>';
+    }
+    
+    // Handle new Expected ROI
+    if (jsonData.expectedROI) {
+        html += '<div class="content-section">';
+        html += '<h3><i class="fa fa-chart-line"></i> Expected ROI</h3>';
+        
+        if (jsonData.expectedROI.scenarios && Array.isArray(jsonData.expectedROI.scenarios)) {
+            jsonData.expectedROI.scenarios.forEach((scenario, index) => {
+                html += `<div style="margin-bottom: 25px; padding: 20px; border: 1px solid ${index === 1 ? '#28a745' : index === 2 ? '#ffc107' : '#dc3545'}; border-radius: 8px; background: ${index === 1 ? '#f8fff8' : index === 2 ? '#fffef0' : '#fff5f5'};">`;
+                html += `<h4>${scenario.scenario || 'Scenario ' + (index + 1)}</h4>`;
+                
+                if (scenario.assumptions) {
+                    html += `<p><strong>Assumptions:</strong> ${scenario.assumptions}</p>`;
+                }
+                
+                if (scenario.userProjections) {
+                    html += `<p><strong>User Projections:</strong> ${scenario.userProjections}</p>`;
+                }
+                
+                if (scenario.revenueProjections) {
+                    html += `<p><strong>Revenue Projections:</strong> ${scenario.revenueProjections}</p>`;
+                }
+                
+                if (scenario.costBreakdown) {
+                    html += `<p><strong>Cost Breakdown:</strong> ${scenario.costBreakdown}</p>`;
+                }
+                
+                if (scenario.roiCalculation) {
+                    html += `<p><strong>ROI Calculation:</strong> ${scenario.roiCalculation}</p>`;
+                }
+                
+                html += '</div>';
+            });
+        }
+        
+        if (jsonData.expectedROI.riskFactors && Array.isArray(jsonData.expectedROI.riskFactors)) {
+            html += '<h4>Risk Factors:</h4>';
+            html += '<ul>';
+            jsonData.expectedROI.riskFactors.forEach(risk => {
+                html += `<li>${risk}</li>`;
+            });
+            html += '</ul>';
+        }
+        
+        if (jsonData.expectedROI.sensitivityAnalysis) {
+            html += '<h4>Sensitivity Analysis:</h4>';
+            html += `<p>${jsonData.expectedROI.sensitivityAnalysis}</p>`;
+        }
+        
+        html += '</div>';
+    }
+    
+    // Handle new KPI Framework
+    if (jsonData.kpiFramework) {
+        html += '<div class="content-section">';
+        html += '<h3><i class="fa fa-key"></i> KPI Framework</h3>';
+        
+        if (jsonData.kpiFramework.userMetrics && Array.isArray(jsonData.kpiFramework.userMetrics)) {
+            html += '<h4>User Metrics:</h4>';
+            jsonData.kpiFramework.userMetrics.forEach(metric => {
+                html += '<div style="margin-bottom: 15px; padding: 15px; background: #f8f9fa; border-radius: 6px;">';
+                html += `<h5>${metric.metric || 'Unnamed Metric'}</h5>`;
+                
+                if (metric.definition) {
+                    html += `<p><strong>Definition:</strong> ${metric.definition}</p>`;
+                }
+                
+                if (metric.targetValue) {
+                    html += `<p><strong>Target Value:</strong> ${metric.targetValue}</p>`;
+                }
+                
+                if (metric.measurementMethod) {
+                    html += `<p><strong>Measurement Method:</strong> ${metric.measurementMethod}</p>`;
+                }
+                
+                if (metric.importance) {
+                    html += `<p><strong>Importance:</strong> ${metric.importance}</p>`;
+                }
+                
+                html += '</div>';
+            });
+        }
+        
+        if (jsonData.kpiFramework.businessMetrics && Array.isArray(jsonData.kpiFramework.businessMetrics)) {
+            html += '<h4>Business Metrics:</h4>';
+            html += '<ul>';
+            jsonData.kpiFramework.businessMetrics.forEach(metric => {
+                html += `<li>${metric}</li>`;
+            });
+            html += '</ul>';
+        }
+        
+        if (jsonData.kpiFramework.productMetrics && Array.isArray(jsonData.kpiFramework.productMetrics)) {
+            html += '<h4>Product Metrics:</h4>';
+            html += '<ul>';
+            jsonData.kpiFramework.productMetrics.forEach(metric => {
+                html += `<li>${metric}</li>`;
+            });
+            html += '</ul>';
+        }
+        
+        html += '</div>';
+    }
+    
+    // Handle new Niche Information
+    if (jsonData.nicheInformation) {
+        html += '<div class="content-section">';
+        html += '<h3><i class="fa fa-bullseye"></i> Niche Information</h3>';
+        
+        if (jsonData.nicheInformation.nicheDefinition) {
+            html += `<p><strong>Niche Definition:</strong> ${jsonData.nicheInformation.nicheDefinition}</p>`;
+        }
+        
+        if (jsonData.nicheInformation.trends && Array.isArray(jsonData.nicheInformation.trends)) {
+            html += '<h4>Trends:</h4>';
+            html += '<ul>';
+            jsonData.nicheInformation.trends.forEach(trend => {
+                html += `<li>${trend}</li>`;
+            });
+            html += '</ul>';
+        }
+        
+        if (jsonData.nicheInformation.opportunities && Array.isArray(jsonData.nicheInformation.opportunities)) {
+            html += '<h4>Opportunities:</h4>';
+            html += '<ul>';
+            jsonData.nicheInformation.opportunities.forEach(opp => {
+                html += `<li>${opp}</li>`;
+            });
+            html += '</ul>';
+        }
+        
+        if (jsonData.nicheInformation.challenges && Array.isArray(jsonData.nicheInformation.challenges)) {
+            html += '<h4>Challenges:</h4>';
+            html += '<ul>';
+            jsonData.nicheInformation.challenges.forEach(challenge => {
+                html += `<li>${challenge}</li>`;
+            });
+            html += '</ul>';
+        }
+        
+        if (jsonData.nicheInformation.growthFactors && Array.isArray(jsonData.nicheInformation.growthFactors)) {
+            html += '<h4>Growth Factors:</h4>';
+            html += '<ul>';
+            jsonData.nicheInformation.growthFactors.forEach(factor => {
+                html += `<li>${factor}</li>`;
+            });
+            html += '</ul>';
+        }
+        
+        if (jsonData.nicheInformation.marketMaturity) {
+            html += `<p><strong>Market Maturity:</strong> ${jsonData.nicheInformation.marketMaturity}</p>`;
+        }
+        
+        html += '</div>';
+    }
+    
+    // Handle new Market Statistics
+    if (jsonData.marketStatistics) {
+        html += '<div class="content-section">';
+        html += '<h3><i class="fa fa-bar-chart"></i> Market Statistics</h3>';
+        
+        if (jsonData.marketStatistics.globalStatistics && Array.isArray(jsonData.marketStatistics.globalStatistics)) {
+            html += '<h4>Global Statistics:</h4>';
+            html += '<ul>';
+            jsonData.marketStatistics.globalStatistics.forEach(stat => {
+                html += `<li>${stat}</li>`;
+            });
+            html += '</ul>';
+        }
+        
+        if (jsonData.marketStatistics.targetMarketSize) {
+            html += `<p><strong>Target Market Size (TAM/SAM/SOM):</strong> ${jsonData.marketStatistics.targetMarketSize}</p>`;
+        }
+        
+        if (jsonData.marketStatistics.growthRate) {
+            html += `<p><strong>Growth Rate:</strong> ${jsonData.marketStatistics.growthRate}</p>`;
+        }
+        
+        if (jsonData.marketStatistics.keyNumbers) {
+            html += '<h4>Key Numbers:</h4>';
+            html += `<p>${jsonData.marketStatistics.keyNumbers}</p>`;
+        }
+        
+        html += '</div>';
+    }
+    
+    // Handle new Threats Overview
+    if (jsonData.threatsOverview) {
+        html += '<div class="content-section">';
+        html += '<h3><i class="fa fa-shield"></i> Threats Overview</h3>';
+        
+        if (jsonData.threatsOverview.externalThreats && Array.isArray(jsonData.threatsOverview.externalThreats)) {
+            html += '<h4>External Threats:</h4>';
+            jsonData.threatsOverview.externalThreats.forEach(threat => {
+                html += '<div style="margin-bottom: 15px; padding: 15px; border-left: 4px solid #dc3545; background: #fff5f5;">';
+                html += `<h5>${threat.threat || 'Unknown Threat'}</h5>`;
+                
+                if (threat.probability) {
+                    html += `<p><strong>Probability:</strong> ${threat.probability}</p>`;
+                }
+                
+                if (threat.impact) {
+                    html += `<p><strong>Impact:</strong> ${threat.impact}</p>`;
+                }
+                
+                if (threat.mitigation) {
+                    html += `<p><strong>Mitigation:</strong> ${threat.mitigation}</p>`;
+                }
+                
+                html += '</div>';
+            });
+        }
+        
+        if (jsonData.threatsOverview.competitiveThreats && Array.isArray(jsonData.threatsOverview.competitiveThreats)) {
+            html += '<h4>Competitive Threats:</h4>';
+            html += '<ul>';
+            jsonData.threatsOverview.competitiveThreats.forEach(threat => {
+                html += `<li>${threat}</li>`;
+            });
+            html += '</ul>';
+        }
+        
+        if (jsonData.threatsOverview.regulatoryThreats && Array.isArray(jsonData.threatsOverview.regulatoryThreats)) {
+            html += '<h4>Regulatory Threats:</h4>';
+            html += '<ul>';
+            jsonData.threatsOverview.regulatoryThreats.forEach(threat => {
+                html += `<li>${threat}</li>`;
+            });
+            html += '</ul>';
+        }
+        
+        if (jsonData.threatsOverview.marketThreats && Array.isArray(jsonData.threatsOverview.marketThreats)) {
+            html += '<h4>Market Threats:</h4>';
+            html += '<ul>';
+            jsonData.threatsOverview.marketThreats.forEach(threat => {
+                html += `<li>${threat}</li>`;
+            });
+            html += '</ul>';
+        }
+        
+        html += '</div>';
+    }
+    
+    // Handle new Complexity Rating
+    if (jsonData.complexityRating) {
+        html += '<div class="content-section">';
+        html += '<h3><i class="fa fa-cogs"></i> Complexity Rating</h3>';
+        
+        if (jsonData.complexityRating.overallRating) {
+            html += `<p><strong>Overall Rating:</strong> ${jsonData.complexityRating.overallRating}/10</p>`;
+        }
+        
+        if (jsonData.complexityRating.technicalComplexity) {
+            html += `<p><strong>Technical Complexity:</strong> ${jsonData.complexityRating.technicalComplexity}</p>`;
+        }
+        
+        if (jsonData.complexityRating.marketComplexity) {
+            html += `<p><strong>Market Complexity:</strong> ${jsonData.complexityRating.marketComplexity}</p>`;
+        }
+        
+        if (jsonData.complexityRating.operationalComplexity) {
+            html += `<p><strong>Operational Complexity:</strong> ${jsonData.complexityRating.operationalComplexity}</p>`;
+        }
+        
+        if (jsonData.complexityRating.mitigationStrategies) {
+            html += '<h4>Mitigation Strategies:</h4>';
+            html += `<p>${jsonData.complexityRating.mitigationStrategies}</p>`;
+        }
+        
+        if (jsonData.complexityRating.developmentTimeline) {
+            html += '<h4>Development Timeline:</h4>';
+            html += `<p>${jsonData.complexityRating.developmentTimeline}</p>`;
+        }
+        
+        html += '</div>';
+    }
+    
+    // Handle new Actionable Insights
+    if (jsonData.actionableInsights) {
+        html += '<div class="content-section">';
+        html += '<h3><i class="fa fa-lightbulb-o"></i> Actionable Insights</h3>';
+        
+        if (jsonData.actionableInsights.development) {
+            html += '<div style="margin-bottom: 25px;">';
+            html += '<h4><i class="fa fa-code"></i> Development Insights</h4>';
+            
+            if (jsonData.actionableInsights.development.priorities && Array.isArray(jsonData.actionableInsights.development.priorities)) {
+                html += '<h5>Priorities:</h5>';
+                html += '<ul>';
+                jsonData.actionableInsights.development.priorities.forEach(priority => {
+                    html += `<li>${priority}</li>`;
+                });
+                html += '</ul>';
+            }
+            
+            if (jsonData.actionableInsights.development.recommendations) {
+                html += `<p><strong>Recommendations:</strong> ${jsonData.actionableInsights.development.recommendations}</p>`;
+            }
+            
+            if (jsonData.actionableInsights.development.phases) {
+                html += `<p><strong>Phases:</strong> ${jsonData.actionableInsights.development.phases}</p>`;
+            }
+            
+            if (jsonData.actionableInsights.development.mvpFeatures) {
+                html += `<p><strong>MVP Features:</strong> ${jsonData.actionableInsights.development.mvpFeatures}</p>`;
+            }
+            
+            html += '</div>';
+        }
+        
+        if (jsonData.actionableInsights.marketFit) {
+            html += '<div style="margin-bottom: 25px;">';
+            html += '<h4><i class="fa fa-rocket"></i> Market Fit Insights</h4>';
+            
+            if (jsonData.actionableInsights.marketFit.strategies && Array.isArray(jsonData.actionableInsights.marketFit.strategies)) {
+                html += '<h5>Strategies:</h5>';
+                html += '<ul>';
+                jsonData.actionableInsights.marketFit.strategies.forEach(strategy => {
+                    html += `<li>${strategy}</li>`;
+                });
+                html += '</ul>';
+            }
+            
+            if (jsonData.actionableInsights.marketFit.partnerships) {
+                html += `<p><strong>Partnerships:</strong> ${jsonData.actionableInsights.marketFit.partnerships}</p>`;
+            }
+            
+            if (jsonData.actionableInsights.marketFit.timing) {
+                html += `<p><strong>Timing:</strong> ${jsonData.actionableInsights.marketFit.timing}</p>`;
+            }
+            
+            if (jsonData.actionableInsights.marketFit.targetMarkets) {
+                html += `<p><strong>Target Markets:</strong> ${jsonData.actionableInsights.marketFit.targetMarkets}</p>`;
+            }
+            
+            html += '</div>';
+        }
+        
+        if (jsonData.actionableInsights.productPositioning) {
+            html += '<div style="margin-bottom: 25px;">';
+            html += '<h4><i class="fa fa-bullseye"></i> Product Positioning Insights</h4>';
+            
+            if (jsonData.actionableInsights.productPositioning.branding) {
+                html += `<p><strong>Branding:</strong> ${jsonData.actionableInsights.productPositioning.branding}</p>`;
+            }
+            
+            if (jsonData.actionableInsights.productPositioning.messaging) {
+                html += `<p><strong>Messaging:</strong> ${jsonData.actionableInsights.productPositioning.messaging}</p>`;
+            }
+            
+            if (jsonData.actionableInsights.productPositioning.differentiation) {
+                html += `<p><strong>Differentiation:</strong> ${jsonData.actionableInsights.productPositioning.differentiation}</p>`;
+            }
+            
+            if (jsonData.actionableInsights.productPositioning.marketPosition) {
+                html += `<p><strong>Market Position:</strong> ${jsonData.actionableInsights.productPositioning.marketPosition}</p>`;
+            }
+            
+            html += '</div>';
+        }
+        
+        html += '</div>';
+    }
+    
     // Handle new Marketing Strategy
     if (jsonData.marketingStrategy) {
         html += '<div class="content-section">';
@@ -3454,6 +4384,20 @@ function formatJSONContent(jsonData) {
                 html += `<li><strong>Text:</strong> ${jsonData.visualStyleGuide.colors.text}</li>`;
             }
             html += '</ul>';
+        }
+        
+        // Handle Color Harmony and Reasoning (new fields)
+        if (jsonData.visualStyleGuide.colorHarmony) {
+            html += '<div style="margin-top: 15px; padding: 15px; background-color: #f0f8ff; border-left: 4px solid #2196F3; border-radius: 4px;">';
+            html += '<h4><i class="fa fa-palette"></i> Color Harmony</h4>';
+            html += `<p>${jsonData.visualStyleGuide.colorHarmony}</p>`;
+            
+            if (jsonData.visualStyleGuide.colorReasoning) {
+                html += '<h4><i class="fa fa-lightbulb-o"></i> Color Reasoning</h4>';
+                html += `<p>${jsonData.visualStyleGuide.colorReasoning}</p>`;
+            }
+            
+            html += '</div>';
         }
         
         if (jsonData.visualStyleGuide.typography) {

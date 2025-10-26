@@ -310,7 +310,10 @@ function updateProgressDots() {
   dots.forEach((dot, index) => {
     dot.classList.remove('current', 'completed');
     
-    if (index < currentQuestionIndex) {
+    // If we've reached the last question or beyond, mark all as completed
+    if (currentQuestionIndex >= questions.length) {
+      dot.classList.add('completed');
+    } else if (index < currentQuestionIndex) {
       // Completed questions
       dot.classList.add('completed');
     } else if (index === currentQuestionIndex) {
@@ -396,6 +399,13 @@ function nextQuestion() {
   // Clear the textarea
   textarea.value = '';
   
+  // Reset button state
+  const sendBtn = document.getElementById('sendBtn');
+  if (sendBtn) {
+    sendBtn.style.background = '#cccccc';
+    sendBtn.disabled = true;
+  }
+  
   // Move to next question
   currentQuestionIndex++;
   
@@ -426,6 +436,17 @@ function nextQuestion() {
         updateLightbulbTooltip();
         // Update progress dots
         updateProgressDots();
+        
+        // Update button text if last question
+        const sendBtn = document.getElementById('sendBtn');
+        if (sendBtn && sendBtn.querySelector('.send-text')) {
+          const sendText = sendBtn.querySelector('.send-text');
+          if (currentQuestionIndex >= questions.length - 1) {
+            sendText.textContent = 'Generate';
+          } else {
+            sendText.textContent = 'Next';
+          }
+        }
       }, 600); // Match the CSS transition duration
     }
   } else {
@@ -482,11 +503,40 @@ function setupModernInput() {
     textarea.style.height = textarea.scrollHeight + 'px';
   }
   
-  textarea.addEventListener('input', autoResize);
+  // Function to update button state based on text length
+  function updateButtonState() {
+    const textLength = textarea.value.trim().length;
+    const minLength = 20;
+    
+    if (textLength >= minLength) {
+      // Orange (active) button
+      sendBtn.style.background = '#FF6B35';
+      sendBtn.style.cursor = 'pointer';
+      sendBtn.disabled = false;
+    } else {
+      // Gray (disabled) button
+      sendBtn.style.background = '#cccccc';
+      sendBtn.style.cursor = 'not-allowed';
+      sendBtn.disabled = true;
+    }
+  }
+  
+  textarea.addEventListener('input', function() {
+    autoResize();
+    updateButtonState();
+  });
+  
+  textarea.addEventListener('keyup', updateButtonState);
+  
+  // Initialize button state
+  updateButtonState();
   
   sendBtn.addEventListener('click', function() {
+    // Prevent action if button is disabled
+    if (sendBtn.disabled) return;
     nextQuestion();
     autoResize();
+    updateButtonState();
   });
   
   // Demo button functionality
@@ -500,7 +550,10 @@ function setupModernInput() {
   textarea.addEventListener('keydown', function(e) {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      sendBtn.click();
+      // Only allow sending if button is not disabled (20+ characters)
+      if (!sendBtn.disabled) {
+        sendBtn.click();
+      }
     }
     
     if (e.key === 'Backspace' && textarea.value === '') {
@@ -703,19 +756,27 @@ function updateMicrophoneButton() {
 function fillDemoAnswers() {
   console.log('🚀 Filling demo answers...');
   
-  // Demo answers for a fitness tracking app
+  // Demo answers for a recipe sharing and meal planning app
   const demoAnswers = [
-    "FitTracker Pro is a comprehensive fitness tracking mobile application that helps users monitor their daily physical activities, set fitness goals, and track their progress over time. The app includes features like step counting, workout logging, nutrition tracking, and social challenges to keep users motivated on their fitness journey.",
+    "RecipeShare is a social cooking and meal planning mobile application that helps users discover new recipes, plan their weekly meals, create shopping lists, and share their culinary creations with a community of food lovers. The app includes features like personalized recipe recommendations, step-by-step cooking instructions with video tutorials, nutritional information, dietary filters, and the ability to save and organize favorite recipes.",
     
-    "Users start by creating a profile and setting their fitness goals. They can log daily activities like walking, running, or gym workouts. The app tracks calories burned, steps taken, and workout duration. Users can also log their meals and water intake. The app provides weekly progress reports and sends motivational notifications to keep users engaged.",
+    "Users start by browsing recipes or searching for specific dishes based on ingredients, cuisine type, dietary preferences, or cooking time. They can save recipes to their collection and add them to a weekly meal planner. The app automatically generates a shopping list based on selected recipes. Users can follow cooking video tutorials, rate and review recipes, and share their own recipe creations with photos. The app sends meal reminders and grocery shopping notifications.",
     
-    "The target audience includes fitness enthusiasts aged 18-45 who want to track their health and fitness progress. This includes gym-goers, runners, cyclists, and anyone looking to maintain a healthy lifestyle. The app is designed for both beginners who need guidance and advanced users who want detailed analytics.",
+    "The target audience includes home cooks aged 25-55 who enjoy cooking and meal planning. This includes busy professionals who want to meal prep efficiently, families looking for healthy dinner ideas, students learning to cook, and food enthusiasts who want to try new cuisines. The app caters to people with various dietary needs including vegetarian, vegan, gluten-free, keto, and allergy-friendly options.",
     
-    "The app includes social features where users can connect with friends, participate in fitness challenges, and share their achievements. It also integrates with popular fitness wearables and includes a premium subscription tier with advanced analytics, personalized workout plans, and nutrition coaching."
+    "The app includes social features where users can follow other home chefs, create recipe collections, participate in cooking challenges, and get inspiration from community-created content. It integrates with popular grocery delivery services, includes nutrition tracking, meal prep tips, and a premium subscription tier with exclusive chef-created recipes, advanced meal planning tools, and ad-free browsing experience."
   ];
+  
+  // Initialize answers array if it doesn't exist
+  if (!answers) {
+    answers = [];
+  }
   
   // Fill all answers at once
   answers = [...demoAnswers];
+  
+  // Set current question index to last question to trigger generation
+  currentQuestionIndex = questions.length;
   
   // Show a loading message
   const textarea = document.getElementById('mainInput');
@@ -724,9 +785,13 @@ function fillDemoAnswers() {
     textarea.style.color = '#ff6b35';
   }
   
+  // Update progress dots
+  updateProgressDots();
+  
   // Wait a moment then call the API
   setTimeout(() => {
     console.log('🚀 Demo answers:', answers);
+    console.log('🚀 Answers length:', answers.length);
     generateSpecification();
   }, 1000);
 }
@@ -736,9 +801,23 @@ async function generateSpecification() {
   try {
     console.log('🚀 Starting generateSpecification...');
     
+    // Check if answers exist and are valid
+    if (!answers || answers.length !== 4) {
+      console.error('Invalid answers:', answers);
+      hideLoadingOverlay();
+      alert('Error: Invalid answers provided. Please provide answers to all 4 questions.');
+      return;
+    }
+    
+    console.log('✅ Answers validated:', {
+      length: answers.length,
+      answers: answers.map((a, i) => `Answer ${i + 1}: ${a.substring(0, 50)}...`)
+    });
+    
     // Check if user is authenticated
     const user = firebase.auth().currentUser;
     if (!user) {
+      hideLoadingOverlay();
       showRegistrationModal();
       return;
     }
@@ -748,6 +827,8 @@ async function generateSpecification() {
     
     // Prepare the prompt for overview generation
     const prompt = PROMPTS.overview(answers);
+    
+    console.log('✅ Generated prompt:', prompt.substring(0, 200) + '...');
     
     // Add platform information to the prompt
     const platformInfo = [];
@@ -759,6 +840,8 @@ async function generateSpecification() {
       : 'Target Platform: Not specified';
     
     const enhancedPrompt = `${prompt}\n\n${platformText}`;
+    
+    console.log('✅ Enhanced prompt length:', enhancedPrompt.length);
     
     // Get Firebase auth token
     const token = await user.getIdToken();
@@ -775,6 +858,8 @@ async function generateSpecification() {
       })
     });
 
+    console.log('✅ API Response status:', response.status);
+
     if (response.status === 402) {
       // Payment required - show paywall
       const paywallData = await response.json();
@@ -785,6 +870,7 @@ async function generateSpecification() {
 
     if (!response.ok) {
       const errorData = await response.json();
+      console.error('API Error:', errorData);
       throw new Error(errorData.error || 'Failed to generate specification');
     }
 
