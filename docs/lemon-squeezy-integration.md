@@ -36,7 +36,7 @@ The products are already configured in `/config/lemon-products.json`:
 {
   "lemon_store_id": "230339",
   "webhook_id": "57567",
-  "currency": "ILS",
+  "currency": "USD",
   "products": {
     "single_spec": {
       "product_id": "671441",

@@ -129,7 +129,7 @@ class PaywallManager {
                     <div class="option-header">
                         <h3>${option.name}</h3>
                         <div class="option-price">
-                            <span class="currency">₪</span>
+                            <span class="currency">$</span>
                             <span class="amount">${option.price}</span>
                         </div>
                     </div>

@@ -72,30 +72,30 @@ router.post('/create', verifyFirebaseToken, validateInput(createSpecSchema), asy
                         {
                             id: 'single_spec',
                             name: 'Single Spec',
-                            price: 19,
-                            currency: 'ILS',
+                            price: 4.90,
+                            currency: 'USD',
                             description: '1 additional specification'
                         },
                         {
                             id: 'three_pack',
                             name: '3-Pack',
-                            price: 38,
-                            currency: 'ILS',
-                            description: '3 additional specifications (Save ₪19)'
+                            price: 9.90,
+                            currency: 'USD',
+                            description: '3 additional specifications (Save $5)'
                         },
                         {
                             id: 'pro_monthly',
                             name: 'Pro Monthly',
-                            price: 115,
-                            currency: 'ILS',
+                            price: 29.90,
+                            currency: 'USD',
                             description: 'Unlimited specifications + editing'
                         },
                         {
                             id: 'pro_yearly',
                             name: 'Pro Yearly',
-                            price: 1150,
-                            currency: 'ILS',
-                            description: 'Unlimited specifications + editing (Save ₪230)'
+                            price: 299.90,
+                            currency: 'USD',
+                            description: 'Unlimited specifications + editing (Save $58.90)'
                         }
                     ]
                 }

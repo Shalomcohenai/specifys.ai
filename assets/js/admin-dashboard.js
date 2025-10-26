@@ -1027,11 +1027,11 @@ class AdminDashboard {
         const conversionRate = totalUsers > 0 ? (payingUsers / totalUsers * 100).toFixed(1) : 0;
 
         // Update DOM elements
-        document.getElementById('total-revenue').textContent = `₪${totalRevenue.toFixed(0)}`;
+        document.getElementById('total-revenue').textContent = `$${totalRevenue.toFixed(0)}`;
         document.getElementById('total-purchases').textContent = this.allPurchases.length;
         document.getElementById('active-subscriptions').textContent = activeSubscriptions;
         document.getElementById('pro-users').textContent = proUsers;
-        document.getElementById('monthly-revenue').textContent = `₪${monthlyRevenue.toFixed(0)}`;
+        document.getElementById('monthly-revenue').textContent = `$${monthlyRevenue.toFixed(0)}`;
         document.getElementById('conversion-rate').textContent = `${conversionRate}%`;
     }
 
@@ -1049,10 +1049,10 @@ class AdminDashboard {
         const revenueYear = this.calculateRevenueForPeriod(oneYearAgo, today);
 
         // Update DOM
-        document.getElementById('revenue-today').textContent = `₪${revenueToday.toFixed(0)}`;
-        document.getElementById('revenue-week').textContent = `₪${revenueWeek.toFixed(0)}`;
-        document.getElementById('revenue-month').textContent = `₪${revenueMonth.toFixed(0)}`;
-        document.getElementById('revenue-year').textContent = `₪${revenueYear.toFixed(0)}`;
+        document.getElementById('revenue-today').textContent = `$${revenueToday.toFixed(0)}`;
+        document.getElementById('revenue-week').textContent = `$${revenueWeek.toFixed(0)}`;
+        document.getElementById('revenue-month').textContent = `$${revenueMonth.toFixed(0)}`;
+        document.getElementById('revenue-year').textContent = `$${revenueYear.toFixed(0)}`;
     }
 
     // Calculate revenue for a specific period
@@ -1114,9 +1114,9 @@ class AdminDashboard {
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td>${escapeHTML(product.name)}</td>
-                <td>₪${product.price}</td>
+                <td>$${product.price}</td>
                 <td>${product.salesCount}</td>
-                <td>₪${product.revenue.toFixed(0)}</td>
+                <td>$${product.revenue.toFixed(0)}</td>
                 <td>${conversionRate}%</td>
                 <td>
                     <div class="progress-bar">
@@ -1177,7 +1177,7 @@ class AdminDashboard {
                 <td>${date ? date.toLocaleDateString() : 'N/A'}</td>
                 <td>${escapeHTML(userEmail || 'Unknown')}</td>
                 <td>${escapeHTML(this.getProductName(transaction.product_id))}</td>
-                <td>₪${((transaction.total_amount_cents || 0) / 100).toFixed(0)}</td>
+                <td>$${((transaction.total_amount_cents || 0) / 100).toFixed(0)}</td>
                 <td><span class="status-badge status-${transaction.type}">${transaction.type}</span></td>
                 <td><span class="status-badge status-${transaction.status}">${transaction.status}</span></td>
                 <td>
@@ -1238,7 +1238,7 @@ class AdminDashboard {
             row.innerHTML = `
                 <td>${escapeHTML(user.email)}</td>
                 <td><span class="status-badge status-${user.plan}">${user.plan}</span></td>
-                <td>₪${user.totalSpent.toFixed(0)}</td>
+                <td>$${user.totalSpent.toFixed(0)}</td>
                 <td>${user.purchases}</td>
                 <td>${user.subscriptions}</td>
                 <td>${user.lastPayment ? this.getDate(user.lastPayment).toLocaleDateString() : 'Never'}</td>
@@ -1269,7 +1269,7 @@ class AdminDashboard {
     updateOverviewTab() {
         // Update quick stats
         document.getElementById('overview-total-users').textContent = this.allUsers.length;
-        document.getElementById('overview-total-revenue').textContent = `₪${this.calculateTotalRevenue().toFixed(0)}`;
+        document.getElementById('overview-total-revenue').textContent = `$${this.calculateTotalRevenue().toFixed(0)}`;
         document.getElementById('overview-total-specs').textContent = this.allSpecs.length;
         document.getElementById('overview-active-subscriptions').textContent = this.allSubscriptions.filter(sub => 
             sub.status === 'active' || sub.status === 'trialing'
@@ -1342,7 +1342,7 @@ class AdminDashboard {
         recentPurchases.forEach(purchase => {
             activities.push({
                 icon: 'fas fa-shekel-sign',
-                text: `New purchase: ₪${((purchase.total_amount_cents || 0) / 100).toFixed(0)}`,
+                text: `New purchase: $${((purchase.total_amount_cents || 0) / 100).toFixed(0)}`,
                 time: this.getDate(purchase.purchased_at)
             });
         });
@@ -1951,7 +1951,7 @@ class AdminDashboard {
                 <td>${stat.purchases}</td>
                 <td>${stat.abandoned}</td>
                 <td class="${conversionClass}">${stat.conversionRate}%</td>
-                <td>₪${stat.revenue.toFixed(0)}</td>
+                <td>$${stat.revenue.toFixed(0)}</td>
             `;
             tbody.appendChild(row);
         });
