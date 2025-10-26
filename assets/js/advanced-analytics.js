@@ -1,79 +1,122 @@
 /**
  * Advanced Analytics System for Specifys.ai
- * High-resolution tracking for user interactions, time spent, and detailed behavior analysis
- * Integrates with existing Google Analytics 4 setup
+ * Comprehensive tracking system that integrates with Google Analytics 4
+ * Tracks user interactions, performance metrics, and engagement data
  */
 
 class AdvancedAnalytics {
     constructor() {
         this.sessionId = this.generateSessionId();
         this.pageStartTime = Date.now();
-        this.interactionCount = 0;
+        this.lastActivity = Date.now();
         this.scrollDepth = 0;
         this.maxScrollDepth = 0;
-        this.isPageVisible = true;
-        this.lastActivityTime = Date.now();
-        this.idleTimer = null;
-        this.engagementThreshold = 30000; // 30 seconds
-        this.scrollThresholds = [25, 50, 75, 90, 100];
-        this.scrollTracked = {};
-        this.buttonClicks = new Map();
-        this.formInteractions = new Map();
-        this.modalInteractions = new Map();
-        this.tabSwitches = new Map();
-        this.apiCalls = new Map();
-        this.errorCount = 0;
-        this.performanceMetrics = {};
+        this.engagementScore = 0;
+        this.interactionCount = 0;
+        this.isIdle = false;
+        this.idleTimeout = null;
+        this.visibilityHidden = false;
+        this.pageType = this.getPageType();
+        this.userAgent = navigator.userAgent;
+        this.screenResolution = `${screen.width}x${screen.height}`;
+        this.viewportSize = `${window.innerWidth}x${window.innerHeight}`;
+        this.referrer = document.referrer || 'direct';
+        this.language = navigator.language;
+        this.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
         
+        // Performance tracking
+        this.performanceMetrics = {};
+        this.coreWebVitals = {};
+        
+        // Error tracking
+        this.errorCount = 0;
+        this.errors = [];
+        
+        // Form tracking
+        this.formInteractions = new Map();
+        this.formSubmissions = 0;
+        
+        // Modal tracking
+        this.modalInteractions = new Map();
+        this.modalOpens = 0;
+        this.modalCloses = 0;
+        
+        // Tab tracking
+        this.tabSwitches = 0;
+        this.currentTab = null;
+        
+        // Button tracking
+        this.buttonClicks = 0;
+        this.buttonCategories = new Map();
+        
+        // Scroll tracking
+        this.scrollMilestones = {
+            25: false,
+            50: false,
+            75: false,
+            90: false,
+            100: false
+        };
+        
+        // Initialize tracking
         this.init();
     }
 
     init() {
+        console.log('🚀 Advanced Analytics initialized');
+        
+        // Setup all tracking
         this.setupEventListeners();
         this.trackPageLoad();
         this.setupVisibilityTracking();
+        this.setupIdleTracking();
         this.setupScrollTracking();
+        this.setupErrorTracking();
+        this.setupPerformanceTracking();
+        this.setupUnloadTracking();
+        
+        // Initialize specific tracking
         this.setupButtonTracking();
         this.setupFormTracking();
         this.setupModalTracking();
         this.setupTabTracking();
-        this.setupErrorTracking();
-        this.setupPerformanceTracking();
-        this.setupIdleTracking();
-        this.setupUnloadTracking();
-        
-        console.log('🚀 Advanced Analytics initialized');
     }
 
     generateSessionId() {
         return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
     }
 
-    // Core tracking functions
     track(eventName, parameters = {}) {
-        if (!this.isGtagAvailable()) {
-            console.warn('Google Analytics not available');
-            return;
-        }
-
         const enhancedParams = {
             ...parameters,
             session_id: this.sessionId,
+            page_type: this.pageType,
+            timestamp: new Date().toISOString(),
+            user_agent: this.userAgent,
+            screen_resolution: this.screenResolution,
+            viewport_size: this.viewportSize,
+            language: this.language,
+            timezone: this.timezone,
+            referrer: this.referrer,
             page_url: window.location.href,
             page_title: document.title,
-            timestamp: Date.now(),
-            user_agent: navigator.userAgent,
-            screen_resolution: `${screen.width}x${screen.height}`,
-            viewport_size: `${window.innerWidth}x${window.innerHeight}`,
-            interaction_count: this.interactionCount++,
-            scroll_depth: this.scrollDepth,
+            engagement_score: this.engagementScore,
+            interaction_count: this.interactionCount,
             time_on_page: Date.now() - this.pageStartTime,
-            is_mobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+            scroll_depth: this.maxScrollDepth,
+            is_idle: this.isIdle,
+            visibility_hidden: this.visibilityHidden
         };
 
-        gtag('event', eventName, enhancedParams);
-        
-        // Also send to custom analytics endpoint if available
+        // Send to Google Analytics
+        if (this.isGtagAvailable()) {
+            gtag('event', eventName, enhancedParams);
+            console.log('📊 Analytics Event:', eventName, enhancedParams);
+        } else {
+            console.warn('⚠️ Google Analytics not available');
+        }
+
+        // Optional: Send to custom endpoint
         this.sendToCustomEndpoint(eventName, enhancedParams);
     }
 
@@ -82,120 +125,109 @@ class AdvancedAnalytics {
     }
 
     sendToCustomEndpoint(eventName, parameters) {
-        // Optional: Send to custom analytics endpoint
-        if (window.ANALYTICS_ENDPOINT) {
-            fetch(window.ANALYTICS_ENDPOINT, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    event: eventName,
-                    parameters: parameters,
-                    timestamp: new Date().toISOString()
-                })
-            }).catch(error => console.warn('Analytics endpoint error:', error));
+        // Optional: Send to your own analytics endpoint
+        // This is useful for custom dashboards or additional analysis
+        try {
+            // Example: Send to custom endpoint
+            // fetch('/api/analytics', {
+            //     method: 'POST',
+            //     headers: { 'Content-Type': 'application/json' },
+            //     body: JSON.stringify({ event: eventName, data: parameters })
+            // });
+        } catch (error) {
+            console.warn('Custom analytics endpoint error:', error);
         }
     }
 
-    // Page load and navigation tracking
     trackPageLoad() {
         const loadTime = Date.now() - this.pageStartTime;
-        this.performanceMetrics.pageLoadTime = loadTime;
         
         this.track('page_view', {
             page_path: window.location.pathname,
             page_title: document.title,
-            page_location: window.location.href,
             load_time: loadTime,
-            referrer: document.referrer,
-            page_type: this.getPageType(),
-            user_engagement: this.calculateEngagementScore()
+            referrer: this.referrer,
+            page_type: this.pageType
         });
 
-        // Track page performance
-        this.trackPerformanceMetrics();
+        // Track performance metrics after page load
+        setTimeout(() => {
+            this.trackPerformanceMetrics();
+        }, 2000);
     }
 
     getPageType() {
         const path = window.location.pathname;
-        if (path.includes('/dashboard')) return 'dashboard';
+        if (path.includes('/app-dashboard')) return 'dashboard';
+        if (path.includes('/profile')) return 'profile';
         if (path.includes('/spec')) return 'specification';
         if (path.includes('/research')) return 'research';
-        if (path.includes('/profile')) return 'profile';
         if (path.includes('/auth')) return 'authentication';
         if (path === '/' || path === '/index.html') return 'homepage';
         return 'other';
     }
 
-    // Enhanced button click tracking
     setupButtonTracking() {
         document.addEventListener('click', (event) => {
-            const element = event.target;
-            const buttonData = this.extractButtonData(element);
-            
-            if (buttonData) {
-                this.trackButtonClick(buttonData, event);
+            const button = event.target.closest('button, .btn, [role="button"], .tab-button, .plus-button, .action-btn');
+            if (button) {
+                this.trackButtonClick(button, event);
             }
         });
     }
 
     extractButtonData(element) {
-        // Find the closest clickable element
-        const clickableElement = element.closest('button, a, [onclick], [role="button"], .btn, .tab-button, .plus-button, .action-btn');
-        
-        if (!clickableElement) return null;
-
-        const buttonId = clickableElement.id || 
-                        clickableElement.getAttribute('data-id') || 
-                        clickableElement.className.split(' ')[0] ||
-                        'unknown';
-        
-        const buttonText = this.getButtonText(clickableElement);
-        const buttonType = this.getButtonType(clickableElement);
-        const buttonLocation = this.getButtonLocation(clickableElement);
-        const buttonCategory = this.getButtonCategory(clickableElement);
-
         return {
-            id: buttonId,
-            text: buttonText,
-            type: buttonType,
-            location: buttonLocation,
-            category: buttonCategory,
-            element: clickableElement,
-            position: this.getElementPosition(clickableElement)
+            id: element.id || null,
+            text: this.getButtonText(element),
+            type: this.getButtonType(element),
+            location: this.getButtonLocation(element),
+            category: this.getButtonCategory(element),
+            position: this.getElementPosition(element),
+            classes: element.className,
+            attributes: this.getElementAttributes(element)
         };
     }
 
     getButtonText(element) {
-        return element.textContent?.trim() || 
-               element.getAttribute('aria-label') || 
-               element.getAttribute('title') || 
-               element.alt || 
-               'No text';
+        // Try different methods to get button text
+        if (element.textContent) return element.textContent.trim();
+        if (element.title) return element.title;
+        if (element.ariaLabel) return element.ariaLabel;
+        if (element.getAttribute('data-label')) return element.getAttribute('data-label');
+        return 'Unknown Button';
     }
 
     getButtonType(element) {
-        if (element.tagName === 'BUTTON') return 'button';
-        if (element.tagName === 'A') return 'link';
-        if (element.onclick) return 'onclick';
-        if (element.getAttribute('role') === 'button') return 'role-button';
-        return 'other';
+        if (element.classList.contains('tab-button')) return 'tab';
+        if (element.classList.contains('plus-button')) return 'add';
+        if (element.classList.contains('modal-close')) return 'close';
+        if (element.classList.contains('btn-primary')) return 'primary';
+        if (element.classList.contains('btn-secondary')) return 'secondary';
+        if (element.classList.contains('auth-btn')) return 'auth';
+        return 'button';
     }
 
     getButtonLocation(element) {
-        const container = element.closest('.header, .footer, .modal, .sidebar, .main-content, .tab-content, .dashboard-section');
-        return container ? container.className.split(' ')[0] : 'unknown';
+        const header = element.closest('header');
+        const modal = element.closest('.modal');
+        const tab = element.closest('.tab-header');
+        const footer = element.closest('footer');
+        
+        if (header) return 'header';
+        if (modal) return 'modal';
+        if (tab) return 'tab';
+        if (footer) return 'footer';
+        return 'content';
     }
 
     getButtonCategory(element) {
-        if (element.classList.contains('tab-button')) return 'navigation';
-        if (element.classList.contains('plus-button')) return 'action';
-        if (element.classList.contains('auth-btn')) return 'authentication';
-        if (element.classList.contains('modal-close')) return 'modal';
-        if (element.onclick && element.onclick.toString().includes('delete')) return 'destructive';
-        if (element.onclick && element.onclick.toString().includes('submit')) return 'form';
-        return 'general';
+        if (element.onclick && element.onclick.toString().includes('switchUnifiedTab')) return 'navigation';
+        if (element.onclick && element.onclick.toString().includes('openTaskModal')) return 'task_management';
+        if (element.onclick && element.onclick.toString().includes('submit')) return 'form_submission';
+        if (element.onclick && element.onclick.toString().includes('delete')) return 'deletion';
+        if (element.onclick && element.onclick.toString().includes('toggle')) return 'toggle';
+        return 'interaction';
     }
 
     getElementPosition(element) {
@@ -203,53 +235,69 @@ class AdvancedAnalytics {
         return {
             x: Math.round(rect.left + rect.width / 2),
             y: Math.round(rect.top + rect.height / 2),
-            visible: rect.top >= 0 && rect.left >= 0 && 
-                    rect.bottom <= window.innerHeight && 
-                    rect.right <= window.innerWidth
+            viewport_x: Math.round((rect.left + rect.width / 2) / window.innerWidth * 100),
+            viewport_y: Math.round((rect.top + rect.height / 2) / window.innerHeight * 100)
         };
     }
 
+    getElementAttributes(element) {
+        const attrs = {};
+        for (let attr of element.attributes) {
+            if (attr.name.startsWith('data-') || attr.name === 'title' || attr.name === 'aria-label') {
+                attrs[attr.name] = attr.value;
+            }
+        }
+        return attrs;
+    }
+
     trackButtonClick(buttonData, event) {
-        const clickData = {
+        this.buttonClicks++;
+        this.interactionCount++;
+        this.updateLastActivity();
+
+        // Update button category count
+        const category = buttonData.category;
+        this.buttonCategories.set(category, (this.buttonCategories.get(category) || 0) + 1);
+
+        this.track('button_click', {
             button_id: buttonData.id,
             button_text: buttonData.text,
             button_type: buttonData.type,
             button_location: buttonData.location,
             button_category: buttonData.category,
             click_position: buttonData.position,
+            click_x: event.clientX,
+            click_y: event.clientY,
             click_timestamp: Date.now(),
-            time_since_page_load: Date.now() - this.pageStartTime,
-            mouse_x: event.clientX,
-            mouse_y: event.clientY,
-            ctrl_key: event.ctrlKey,
-            shift_key: event.shiftKey,
-            alt_key: event.altKey,
-            meta_key: event.metaKey
-        };
-
-        // Track in local map for analytics
-        this.buttonClicks.set(buttonData.id, {
-            count: (this.buttonClicks.get(buttonData.id)?.count || 0) + 1,
-            lastClick: Date.now(),
-            data: clickData
+            modifier_keys: {
+                ctrl: event.ctrlKey,
+                shift: event.shiftKey,
+                alt: event.altKey,
+                meta: event.metaKey
+            },
+            button_classes: buttonData.classes,
+            button_attributes: buttonData.attributes
         });
-
-        this.track('button_click', clickData);
-        this.updateLastActivity();
     }
 
-    // Enhanced form tracking
     setupFormTracking() {
+        // Track form submissions
         document.addEventListener('submit', (event) => {
             this.trackFormSubmit(event);
         });
 
+        // Track form field interactions
         document.addEventListener('input', (event) => {
-            this.trackFormInput(event);
+            if (event.target.matches('input, textarea, select')) {
+                this.trackFormInput(event);
+            }
         });
 
+        // Track form field changes
         document.addEventListener('change', (event) => {
-            this.trackFormChange(event);
+            if (event.target.matches('input, textarea, select')) {
+                this.trackFormChange(event);
+            }
         });
     }
 
@@ -257,152 +305,152 @@ class AdvancedAnalytics {
         const form = event.target;
         const formData = this.extractFormData(form);
         
-        this.track('form_submit', {
+        this.formSubmissions++;
+        this.interactionCount++;
+        this.updateLastActivity();
+
+        this.track('form_submission', {
             form_id: form.id || 'unknown',
-            form_name: form.name || 'unknown',
-            form_action: form.action || 'unknown',
+            form_class: form.className,
+            form_action: form.action || 'none',
             form_method: form.method || 'get',
             field_count: formData.fields.length,
-            required_fields: formData.requiredFields,
-            optional_fields: formData.optionalFields,
-            validation_errors: formData.validationErrors,
-            time_to_complete: Date.now() - (this.formInteractions.get(form.id)?.startTime || this.pageStartTime)
+            field_types: formData.fieldTypes,
+            validation_errors: this.getFormValidationErrors(form),
+            submission_time: Date.now(),
+            form_data: formData
         });
     }
 
     trackFormInput(event) {
-        const input = event.target;
-        if (input.tagName === 'INPUT' || input.tagName === 'TEXTAREA' || input.tagName === 'SELECT') {
-            const formId = input.closest('form')?.id || 'unknown';
-            
-            if (!this.formInteractions.has(formId)) {
-                this.formInteractions.set(formId, {
-                    startTime: Date.now(),
-                    fieldInteractions: new Map()
-                });
-            }
+        const field = event.target;
+        const form = field.closest('form');
+        
+        if (!form) return;
 
-            const fieldId = input.id || input.name || 'unknown';
-            const fieldData = this.formInteractions.get(formId).fieldInteractions.get(fieldId) || {
-                interactionCount: 0,
-                firstInteraction: Date.now(),
-                lastInteraction: Date.now()
-            };
+        const formId = form.id || 'unknown';
+        const fieldData = {
+            field_id: field.id || 'unknown',
+            field_name: field.name || 'unknown',
+            field_type: field.type || 'text',
+            field_value: field.value,
+            field_required: field.required,
+            form_id: formId
+        };
 
-            fieldData.interactionCount++;
-            fieldData.lastInteraction = Date.now();
-            this.formInteractions.get(formId).fieldInteractions.set(fieldId, fieldData);
-
-            this.track('form_input', {
-                form_id: formId,
-                field_id: fieldId,
-                field_type: input.type || input.tagName.toLowerCase(),
-                field_name: input.name || 'unknown',
-                field_required: input.required,
-                input_length: input.value?.length || 0,
-                interaction_count: fieldData.interactionCount
-            });
+        // Store field interaction
+        if (!this.formInteractions.has(formId)) {
+            this.formInteractions.set(formId, new Map());
         }
+        this.formInteractions.get(formId).set(field.id || field.name, fieldData);
+
+        this.track('form_input', fieldData);
     }
 
     trackFormChange(event) {
-        const input = event.target;
-        if (input.tagName === 'SELECT' || input.type === 'checkbox' || input.type === 'radio') {
-            const formId = input.closest('form')?.id || 'unknown';
-            
-            this.track('form_change', {
-                form_id: formId,
-                field_id: input.id || input.name || 'unknown',
-                field_type: input.type || input.tagName.toLowerCase(),
-                old_value: input.getAttribute('data-old-value') || '',
-                new_value: input.value,
-                change_timestamp: Date.now()
-            });
+        const field = event.target;
+        const form = field.closest('form');
+        
+        if (!form) return;
 
-            input.setAttribute('data-old-value', input.value);
-        }
+        this.track('form_change', {
+            field_id: field.id || 'unknown',
+            field_name: field.name || 'unknown',
+            field_type: field.type || 'text',
+            field_value: field.value,
+            form_id: form.id || 'unknown',
+            change_timestamp: Date.now()
+        });
     }
 
     extractFormData(form) {
         const fields = Array.from(form.elements).filter(el => 
             el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT'
         );
-
+        
         return {
             fields: fields.map(field => ({
                 id: field.id,
                 name: field.name,
-                type: field.type || field.tagName.toLowerCase(),
-                required: field.required,
-                value: field.value
+                type: field.type,
+                value: field.value,
+                required: field.required
             })),
-            requiredFields: fields.filter(field => field.required).length,
-            optionalFields: fields.filter(field => !field.required).length,
-            validationErrors: this.getFormValidationErrors(form)
+            fieldTypes: [...new Set(fields.map(field => field.type))]
         };
     }
 
     getFormValidationErrors(form) {
         const errors = [];
-        const elements = form.elements;
+        const fields = Array.from(form.elements);
         
-        for (let element of elements) {
-            if (!element.validity.valid) {
+        fields.forEach(field => {
+            if (!field.checkValidity()) {
                 errors.push({
-                    field: element.name || element.id,
-                    error: element.validationMessage,
-                    validity: element.validity
+                    field_id: field.id,
+                    field_name: field.name,
+                    error_message: field.validationMessage,
+                    error_type: field.validity
                 });
             }
-        }
+        });
         
         return errors;
     }
 
-    // Enhanced modal tracking
     setupModalTracking() {
-        // Track modal opens
+        // Track modal opens and closes
         document.addEventListener('click', (event) => {
-            const element = event.target;
-            if (element.classList.contains('modal-close') || 
-                element.onclick?.toString().includes('closeModal') ||
-                element.onclick?.toString().includes('openModal')) {
-                this.trackModalInteraction(element, event);
+            if (event.target.matches('.modal-close, [onclick*="closeModal"]')) {
+                this.trackModalInteraction(event.target, 'close');
+            } else if (event.target.matches('[onclick*="openTaskModal"], [onclick*="openNoteModal"], [onclick*="openExpenseModal"]')) {
+                this.trackModalInteraction(event.target, 'open');
             }
         });
 
-        // Track modal content interactions
+        // Track modal content clicks
         document.addEventListener('click', (event) => {
-            const modal = event.target.closest('.modal-content, .modal-overlay');
+            const modal = event.target.closest('.modal-overlay, .modal-content');
             if (modal) {
                 this.trackModalContentClick(modal, event);
             }
         });
     }
 
-    trackModalInteraction(element, event) {
-        const modal = element.closest('.modal-content, .modal-overlay');
-        const modalId = modal?.id || 'unknown';
-        const action = element.classList.contains('modal-close') ? 'close' : 'open';
+    trackModalInteraction(element, action) {
+        const modalType = this.getModalType(element);
         
+        if (action === 'open') {
+            this.modalOpens++;
+        } else if (action === 'close') {
+            this.modalCloses++;
+        }
+        
+        this.interactionCount++;
+        this.updateLastActivity();
+
         this.track('modal_interaction', {
-            modal_id: modalId,
+            modal_type: modalType,
             action: action,
-            element_clicked: element.className,
-            modal_title: modal?.querySelector('.modal-header h3')?.textContent || 'unknown',
-            time_since_page_load: Date.now() - this.pageStartTime
+            element_id: element.id || 'unknown',
+            element_text: element.textContent?.trim() || 'unknown',
+            interaction_timestamp: Date.now()
         });
     }
 
+    getModalType(element) {
+        if (element.onclick && element.onclick.toString().includes('openTaskModal')) return 'task_creation';
+        if (element.onclick && element.onclick.toString().includes('openNoteModal')) return 'note_creation';
+        if (element.onclick && element.onclick.toString().includes('openExpenseModal')) return 'expense_creation';
+        if (element.onclick && element.onclick.toString().includes('closeModal')) return 'modal_close';
+        return 'unknown';
+    }
+
     trackModalContentClick(modal, event) {
-        const modalId = modal.id || 'unknown';
-        const clickedElement = event.target;
-        
         this.track('modal_content_click', {
-            modal_id: modalId,
-            clicked_element: clickedElement.tagName,
-            clicked_class: clickedElement.className,
-            clicked_text: clickedElement.textContent?.trim().substring(0, 50) || '',
+            modal_class: modal.className,
+            click_element: event.target.tagName,
+            click_text: event.target.textContent?.trim() || '',
             click_position: {
                 x: event.clientX,
                 y: event.clientY
@@ -410,44 +458,35 @@ class AdvancedAnalytics {
         });
     }
 
-    // Enhanced tab tracking
     setupTabTracking() {
         document.addEventListener('click', (event) => {
-            const element = event.target;
-            if (element.classList.contains('tab-button') || 
-                element.onclick?.toString().includes('switchTab') ||
-                element.onclick?.toString().includes('switchUnifiedTab')) {
-                this.trackTabSwitch(element, event);
+            if (event.target.matches('.tab-button, [onclick*="switchUnifiedTab"]')) {
+                this.trackTabSwitch(event.target, event);
             }
         });
     }
 
     trackTabSwitch(element, event) {
         const tabName = element.getAttribute('data-tab') || 
-                       element.onclick?.toString().match(/switchTab\(['"]([^'"]+)['"]\)/)?.[1] ||
-                       element.onclick?.toString().match(/switchUnifiedTab\(['"]([^'"]+)['"]\)/)?.[1] ||
+                       element.onclick?.toString().match(/switchUnifiedTab\('([^']+)'\)/)?.[1] || 
                        'unknown';
         
-        const tabContainer = element.closest('.tabbed-section, .unified-dashboard');
-        const containerId = tabContainer?.id || 'unknown';
-        
+        this.tabSwitches++;
+        this.interactionCount++;
+        this.updateLastActivity();
+
         this.track('tab_switch', {
             tab_name: tabName,
-            container_id: containerId,
-            tab_text: element.textContent?.trim() || '',
-            tab_position: Array.from(element.parentNode.children).indexOf(element),
-            time_since_page_load: Date.now() - this.pageStartTime,
-            previous_tab: this.tabSwitches.get(containerId)?.lastTab || 'none'
+            previous_tab: this.currentTab,
+            current_tab: tabName,
+            switch_timestamp: Date.now(),
+            element_id: element.id || 'unknown',
+            element_text: element.textContent?.trim() || 'unknown'
         });
 
-        this.tabSwitches.set(containerId, {
-            lastTab: tabName,
-            switchCount: (this.tabSwitches.get(containerId)?.switchCount || 0) + 1,
-            lastSwitch: Date.now()
-        });
+        this.currentTab = tabName;
     }
 
-    // Enhanced scroll tracking
     setupScrollTracking() {
         let scrollTimeout;
         
@@ -468,145 +507,177 @@ class AdvancedAnalytics {
         this.maxScrollDepth = Math.max(this.maxScrollDepth, scrollPercent);
 
         // Track scroll milestones
-        this.scrollThresholds.forEach(threshold => {
-            if (scrollPercent >= threshold && !this.scrollTracked[threshold]) {
-                this.scrollTracked[threshold] = true;
+        Object.keys(this.scrollMilestones).forEach(milestone => {
+            const milestoneNum = parseInt(milestone);
+            if (scrollPercent >= milestoneNum && !this.scrollMilestones[milestone]) {
+                this.scrollMilestones[milestone] = true;
                 this.track('scroll_depth', {
-                    scroll_percentage: threshold,
+                    scroll_percentage: milestoneNum,
                     scroll_position: scrollTop,
-                    document_height: document.documentElement.scrollHeight,
-                    viewport_height: window.innerHeight,
-                    time_to_scroll: Date.now() - this.pageStartTime
+                    document_height: documentHeight,
+                    viewport_height: window.innerHeight
                 });
             }
         });
     }
 
-    // Enhanced time tracking
     setupIdleTracking() {
-        this.idleTimer = setInterval(() => {
-            const timeSinceLastActivity = Date.now() - this.lastActivityTime;
-            
-            if (timeSinceLastActivity > this.engagementThreshold) {
+        const idleTimeout = 30000; // 30 seconds
+        
+        const resetIdleTimer = () => {
+            clearTimeout(this.idleTimeout);
+            this.idleTimeout = setTimeout(() => {
+                this.isIdle = true;
                 this.track('user_idle', {
-                    idle_duration: timeSinceLastActivity,
-                    total_time_on_page: Date.now() - this.pageStartTime,
-                    interaction_count: this.interactionCount,
-                    scroll_depth: this.scrollDepth,
-                    max_scroll_depth: this.maxScrollDepth
+                    idle_duration: Date.now() - this.lastActivity,
+                    total_session_time: Date.now() - this.pageStartTime
                 });
-            }
-        }, 10000); // Check every 10 seconds
+            }, idleTimeout);
+        };
+
+        // Reset idle timer on user activity
+        ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'].forEach(event => {
+            document.addEventListener(event, () => {
+                if (this.isIdle) {
+                    this.isIdle = false;
+                    this.track('user_active', {
+                        idle_duration: Date.now() - this.lastActivity,
+                        total_session_time: Date.now() - this.pageStartTime
+                    });
+                }
+                this.updateLastActivity();
+                resetIdleTimer();
+            });
+        });
+
+        resetIdleTimer();
     }
 
     updateLastActivity() {
-        this.lastActivityTime = Date.now();
+        this.lastActivity = Date.now();
+        this.engagementScore = this.calculateEngagementScore();
     }
 
-    // Enhanced visibility tracking
     setupVisibilityTracking() {
         document.addEventListener('visibilitychange', () => {
-            this.isPageVisible = !document.hidden;
-            
-            this.track('page_visibility_change', {
-                is_visible: this.isPageVisible,
-                time_on_page: Date.now() - this.pageStartTime,
-                interaction_count: this.interactionCount,
-                scroll_depth: this.scrollDepth
-            });
+            if (document.hidden) {
+                this.visibilityHidden = true;
+                this.track('page_hidden', {
+                    time_on_page: Date.now() - this.pageStartTime,
+                    engagement_score: this.engagementScore
+                });
+            } else {
+                this.visibilityHidden = false;
+                this.track('page_visible', {
+                    time_on_page: Date.now() - this.pageStartTime,
+                    engagement_score: this.engagementScore
+                });
+            }
         });
 
         window.addEventListener('focus', () => {
             this.track('window_focus', {
-                time_on_page: Date.now() - this.pageStartTime,
-                interaction_count: this.interactionCount
+                time_on_page: Date.now() - this.pageStartTime
             });
         });
 
         window.addEventListener('blur', () => {
             this.track('window_blur', {
-                time_on_page: Date.now() - this.pageStartTime,
-                interaction_count: this.interactionCount
+                time_on_page: Date.now() - this.pageStartTime
             });
         });
     }
 
-    // Enhanced error tracking
     setupErrorTracking() {
         window.addEventListener('error', (event) => {
             this.errorCount++;
+            this.errors.push({
+                message: event.message,
+                filename: event.filename,
+                lineno: event.lineno,
+                colno: event.colno,
+                error: event.error,
+                timestamp: Date.now()
+            });
+
             this.track('javascript_error', {
                 error_message: event.message,
                 error_filename: event.filename,
                 error_line: event.lineno,
                 error_column: event.colno,
-                error_stack: event.error?.stack || '',
+                error_stack: event.error?.stack || 'No stack trace',
                 error_count: this.errorCount,
-                time_on_page: Date.now() - this.pageStartTime
+                page_url: window.location.href
             });
         });
 
         window.addEventListener('unhandledrejection', (event) => {
             this.errorCount++;
             this.track('unhandled_promise_rejection', {
-                error_reason: event.reason?.toString() || 'Unknown',
+                error_reason: event.reason,
                 error_count: this.errorCount,
-                time_on_page: Date.now() - this.pageStartTime
+                page_url: window.location.href
             });
         });
     }
 
-    // Enhanced performance tracking
     setupPerformanceTracking() {
-        if ('performance' in window) {
-            window.addEventListener('load', () => {
-                setTimeout(() => {
-                    this.trackPerformanceMetrics();
-                }, 1000);
-            });
-        }
+        // Wait for page to load completely
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                this.trackPerformanceMetrics();
+            }, 1000);
+        });
     }
 
     trackPerformanceMetrics() {
-        if (!('performance' in window)) return;
-
         const navigation = performance.getEntriesByType('navigation')[0];
         const paint = performance.getEntriesByType('paint');
         
         const metrics = {
+            // Core Web Vitals
             dom_content_loaded: navigation.domContentLoadedEventEnd - navigation.domContentLoadedEventStart,
             load_complete: navigation.loadEventEnd - navigation.loadEventStart,
-            first_paint: paint.find(p => p.name === 'first-paint')?.startTime || 0,
             first_contentful_paint: paint.find(p => p.name === 'first-contentful-paint')?.startTime || 0,
+            largest_contentful_paint: this.getLargestContentfulPaint(),
             time_to_interactive: this.getTimeToInteractive(),
+            
+            // Additional metrics
             memory_usage: this.getMemoryUsage(),
-            connection_type: this.getConnectionType()
+            connection_type: this.getConnectionType(),
+            page_size: this.getPageSize(),
+            resource_count: performance.getEntriesByType('resource').length
         };
 
-        this.performanceMetrics = { ...this.performanceMetrics, ...metrics };
+        this.performanceMetrics = metrics;
 
         this.track('performance_metrics', metrics);
+    }
+
+    getLargestContentfulPaint() {
+        // This would need to be implemented with the LCP API
+        return 0;
     }
 
     getTimeToInteractive() {
         // Simplified TTI calculation
         const navigation = performance.getEntriesByType('navigation')[0];
-        return navigation.loadEventEnd - navigation.fetchStart;
+        return navigation.loadEventEnd - navigation.navigationStart;
     }
 
     getMemoryUsage() {
-        if ('memory' in performance) {
+        if (performance.memory) {
             return {
-                used: Math.round(performance.memory.usedJSHeapSize / 1024 / 1024),
-                total: Math.round(performance.memory.totalJSHeapSize / 1024 / 1024),
-                limit: Math.round(performance.memory.jsHeapSizeLimit / 1024 / 1024)
+                used: performance.memory.usedJSHeapSize,
+                total: performance.memory.totalJSHeapSize,
+                limit: performance.memory.jsHeapSizeLimit
             };
         }
         return null;
     }
 
     getConnectionType() {
-        if ('connection' in navigator) {
+        if (navigator.connection) {
             return {
                 effective_type: navigator.connection.effectiveType,
                 downlink: navigator.connection.downlink,
@@ -616,77 +687,86 @@ class AdvancedAnalytics {
         return null;
     }
 
-    // Enhanced unload tracking
+    getPageSize() {
+        // Estimate page size based on DOM elements
+        return {
+            dom_elements: document.querySelectorAll('*').length,
+            text_content_length: document.body.textContent.length,
+            html_length: document.documentElement.outerHTML.length
+        };
+    }
+
     setupUnloadTracking() {
         window.addEventListener('beforeunload', () => {
             this.track('page_unload', {
-                total_time_on_page: Date.now() - this.pageStartTime,
+                session_duration: Date.now() - this.pageStartTime,
+                engagement_score: this.engagementScore,
                 interaction_count: this.interactionCount,
+                button_clicks: this.buttonClicks,
+                form_submissions: this.formSubmissions,
+                modal_interactions: this.modalOpens + this.modalCloses,
+                tab_switches: this.tabSwitches,
                 max_scroll_depth: this.maxScrollDepth,
                 error_count: this.errorCount,
-                button_clicks: Array.from(this.buttonClicks.entries()).map(([id, data]) => ({
-                    button_id: id,
-                    click_count: data.count
-                })),
-                form_interactions: Array.from(this.formInteractions.entries()).map(([id, data]) => ({
-                    form_id: id,
-                    field_count: data.fieldInteractions.size,
-                    duration: Date.now() - data.startTime
-                })),
-                tab_switches: Array.from(this.tabSwitches.entries()).map(([id, data]) => ({
-                    container_id: id,
-                    switch_count: data.switchCount
-                })),
-                engagement_score: this.calculateEngagementScore()
+                time_idle: this.isIdle ? Date.now() - this.lastActivity : 0
             });
         });
     }
 
     calculateEngagementScore() {
-        const timeScore = Math.min((Date.now() - this.pageStartTime) / 60000, 10); // Max 10 points for time
-        const interactionScore = Math.min(this.interactionCount * 0.5, 10); // Max 10 points for interactions
-        const scrollScore = Math.min(this.maxScrollDepth / 10, 10); // Max 10 points for scroll
-        const errorPenalty = Math.min(this.errorCount * 2, 10); // Penalty for errors
+        let score = 0;
         
-        return Math.max(0, timeScore + interactionScore + scrollScore - errorPenalty);
+        // Base score for page visit
+        score += 10;
+        
+        // Interaction scoring
+        score += this.interactionCount * 2;
+        score += this.buttonClicks * 3;
+        score += this.formSubmissions * 5;
+        score += this.tabSwitches * 2;
+        
+        // Scroll engagement
+        score += Math.round(this.maxScrollDepth / 10);
+        
+        // Time on page (in minutes)
+        const timeOnPage = (Date.now() - this.pageStartTime) / 60000;
+        score += Math.round(timeOnPage * 2);
+        
+        // Penalty for errors
+        score -= this.errorCount * 2;
+        
+        return Math.max(0, Math.min(100, score));
     }
 
-    // Event listeners setup
     setupEventListeners() {
-        // Track all clicks
-        document.addEventListener('click', (event) => {
-            this.updateLastActivity();
-        });
-
-        // Track keyboard interactions
+        // Keyboard tracking
         document.addEventListener('keydown', (event) => {
             this.track('keyboard_interaction', {
                 key: event.key,
                 code: event.code,
-                ctrl_key: event.ctrlKey,
-                shift_key: event.shiftKey,
-                alt_key: event.altKey,
-                meta_key: event.metaKey,
-                time_on_page: Date.now() - this.pageStartTime
+                modifier_keys: {
+                    ctrl: event.ctrlKey,
+                    shift: event.shiftKey,
+                    alt: event.altKey,
+                    meta: event.metaKey
+                }
             });
-            this.updateLastActivity();
         });
 
-        // Track mouse movements (throttled)
+        // Mouse movement tracking (throttled)
         let mouseMoveTimeout;
-        document.addEventListener('mousemove', (event) => {
+        document.addEventListener('mousemove', () => {
             clearTimeout(mouseMoveTimeout);
             mouseMoveTimeout = setTimeout(() => {
                 this.track('mouse_movement', {
-                    mouse_x: event.clientX,
-                    mouse_y: event.clientY,
+                    timestamp: Date.now(),
                     time_on_page: Date.now() - this.pageStartTime
                 });
             }, 1000);
         });
     }
 
-    // Public API methods
+    // Public methods for custom tracking
     trackCustomEvent(eventName, parameters = {}) {
         this.track(eventName, parameters);
     }
@@ -694,8 +774,8 @@ class AdvancedAnalytics {
     trackUserAction(action, details = {}) {
         this.track('user_action', {
             action: action,
-            ...details,
-            time_on_page: Date.now() - this.pageStartTime
+            details: details,
+            timestamp: Date.now()
         });
     }
 
@@ -703,8 +783,8 @@ class AdvancedAnalytics {
         this.track('feature_usage', {
             feature: feature,
             action: action,
-            ...details,
-            time_on_page: Date.now() - this.pageStartTime
+            details: details,
+            timestamp: Date.now()
         });
     }
 
@@ -714,8 +794,8 @@ class AdvancedAnalytics {
             method: method,
             status: status,
             duration: duration,
-            ...details,
-            time_on_page: Date.now() - this.pageStartTime
+            details: details,
+            timestamp: Date.now()
         });
     }
 
@@ -723,32 +803,49 @@ class AdvancedAnalytics {
         return {
             sessionId: this.sessionId,
             pageStartTime: this.pageStartTime,
+            lastActivity: this.lastActivity,
+            engagementScore: this.engagementScore,
             interactionCount: this.interactionCount,
-            scrollDepth: this.scrollDepth,
+            buttonClicks: this.buttonClicks,
+            formSubmissions: this.formSubmissions,
+            modalOpens: this.modalOpens,
+            modalCloses: this.modalCloses,
+            tabSwitches: this.tabSwitches,
             maxScrollDepth: this.maxScrollDepth,
             errorCount: this.errorCount,
-            performanceMetrics: this.performanceMetrics,
-            buttonClicks: Object.fromEntries(this.buttonClicks),
-            formInteractions: Object.fromEntries(this.formInteractions),
-            tabSwitches: Object.fromEntries(this.tabSwitches)
+            isIdle: this.isIdle,
+            visibilityHidden: this.visibilityHidden
         };
     }
 }
 
-// Initialize advanced analytics when DOM is ready
+// Initialize analytics when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
     window.advancedAnalytics = new AdvancedAnalytics();
-    
-    // Make it globally available
-    window.trackCustomEvent = (eventName, parameters) => window.advancedAnalytics.trackCustomEvent(eventName, parameters);
-    window.trackUserAction = (action, details) => window.advancedAnalytics.trackUserAction(action, details);
-    window.trackFeatureUsage = (feature, action, details) => window.advancedAnalytics.trackFeatureUsage(feature, action, details);
-    window.trackApiCall = (endpoint, method, status, duration, details) => window.advancedAnalytics.trackApiCall(endpoint, method, status, duration, details);
-    
-    console.log('✅ Advanced Analytics system loaded and ready');
+    console.log('✅ Advanced Analytics loaded and ready');
 });
 
-// Export for module usage
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = AdvancedAnalytics;
-}
+// Global helper functions for easy access
+window.trackEvent = function(eventName, parameters) {
+    if (window.advancedAnalytics) {
+        window.advancedAnalytics.trackCustomEvent(eventName, parameters);
+    }
+};
+
+window.trackUserAction = function(action, details) {
+    if (window.advancedAnalytics) {
+        window.advancedAnalytics.trackUserAction(action, details);
+    }
+};
+
+window.trackFeatureUsage = function(feature, action, details) {
+    if (window.advancedAnalytics) {
+        window.advancedAnalytics.trackFeatureUsage(feature, action, details);
+    }
+};
+
+window.trackApiCall = function(endpoint, method, status, duration, details) {
+    if (window.advancedAnalytics) {
+        window.advancedAnalytics.trackApiCall(endpoint, method, status, duration, details);
+    }
+};
