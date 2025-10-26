@@ -27,10 +27,12 @@ class CreditsDisplayManager {
         firebase.auth().onAuthStateChanged((user) => {
             this.currentUser = user;
             if (user) {
+                console.log('Credits Display: User logged in, showing credits display');
                 this.showCreditsDisplay();
                 this.updateCredits();
                 this.startPolling();
             } else {
+                console.log('Credits Display: User logged out, hiding credits display');
                 this.hideCreditsDisplay();
                 this.stopPolling();
             }
@@ -45,7 +47,13 @@ class CreditsDisplayManager {
     showCreditsDisplay() {
         const creditsDisplay = document.getElementById('credits-display');
         if (creditsDisplay) {
-            creditsDisplay.style.display = 'flex';
+            // Override the !important style
+            creditsDisplay.style.setProperty('display', 'flex', 'important');
+            creditsDisplay.style.visibility = 'visible';
+            creditsDisplay.style.opacity = '1';
+            console.log('Credits Display: Element shown', creditsDisplay);
+        } else {
+            console.error('Credits Display: Element not found');
         }
     }
 
@@ -92,56 +100,77 @@ class CreditsDisplayManager {
      */
     renderCredits(entitlements) {
         const creditsText = document.getElementById('credits-text');
-        const creditsCircle = document.getElementById('credits-circle');
+        const creditsContainer = document.querySelector('.credits-container');
         
-        if (!creditsText || !creditsCircle) return;
+        if (!creditsText || !creditsContainer) return;
 
         const { entitlements: userEntitlements, user } = entitlements;
         
         // Remove existing classes
-        creditsCircle.classList.remove('pro', 'unlimited');
+        creditsContainer.classList.remove('pro', 'unlimited', 'low');
         
         let displayText = '';
-        let tooltip = '';
         let cssClass = '';
 
         if (userEntitlements.unlimited) {
             // Pro subscription - unlimited
-            displayText = 'UL';
-            tooltip = 'Pro: Unlimited specifications';
+            displayText = '∞';
             cssClass = 'unlimited';
         } else if (userEntitlements.spec_credits > 0) {
             // Has purchased credits
             displayText = userEntitlements.spec_credits.toString();
-            tooltip = `${userEntitlements.spec_credits} purchased credit${userEntitlements.spec_credits !== 1 ? 's' : ''} remaining`;
             cssClass = 'pro';
         } else if (user.free_specs_remaining > 0) {
             // Free specs remaining
             displayText = user.free_specs_remaining.toString();
-            tooltip = `${user.free_specs_remaining} free specification${user.free_specs_remaining !== 1 ? 's' : ''} remaining`;
+            // Add 'low' class if only 1-2 remaining
+            if (user.free_specs_remaining <= 2) {
+                cssClass = 'low';
+            }
         } else {
             // No credits
             displayText = '0';
-            tooltip = 'No specifications remaining - purchase credits to continue';
+            cssClass = 'low';
         }
 
         creditsText.textContent = displayText;
-        creditsCircle.setAttribute('data-tooltip', tooltip);
         
         if (cssClass) {
-            creditsCircle.classList.add(cssClass);
+            creditsContainer.classList.add(cssClass);
         }
 
-        // Add click handler to redirect to pricing page
-        creditsCircle.onclick = () => {
-            if (userEntitlements.unlimited) {
-                // Pro user - maybe show subscription management
-                window.location.href = '/pages/profile.html';
-            } else {
-                // Show pricing page
-                window.location.href = '/pages/pricing.html';
-            }
+        // Add click handler to show modal with details
+        creditsContainer.onclick = () => {
+            this.showCreditsModal(entitlements);
         };
+    }
+
+    /**
+     * Show credits details modal
+     * @param {Object} entitlements - User entitlements data
+     */
+    showCreditsModal(entitlements) {
+        const { entitlements: userEntitlements, user } = entitlements;
+        
+        let message = '';
+        
+        if (userEntitlements.unlimited) {
+            message = 'You have unlimited specifications with your Pro subscription!';
+        } else if (userEntitlements.spec_credits > 0) {
+            message = `You have ${userEntitlements.spec_credits} purchased credit${userEntitlements.spec_credits !== 1 ? 's' : ''} remaining.`;
+        } else if (user.free_specs_remaining > 0) {
+            message = `You have ${user.free_specs_remaining} free specification${user.free_specs_remaining !== 1 ? 's' : ''} remaining.`;
+        } else {
+            message = 'You have no specifications remaining.';
+        }
+        
+        // Simple alert for now - can be replaced with custom modal
+        alert(message);
+        
+        // Optionally redirect based on action
+        if (!userEntitlements.unlimited && userEntitlements.spec_credits === 0) {
+            window.location.href = '/pages/pricing.html';
+        }
     }
 
     /**
