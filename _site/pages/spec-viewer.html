@@ -426,6 +426,12 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
     </div>
     <div class="header-right">
+        <div class="credits-display" id="credits-display" style="display: none;">
+            <div class="credits-container">
+                <i class="fas fa-file-alt"></i>
+                <span id="credits-text">0</span>
+            </div>
+        </div>
         <div class="auth-buttons" id="auth-buttons">
             <!-- Will be populated by auth system -->
         </div>
@@ -465,6 +471,95 @@ document.addEventListener('DOMContentLoaded', function() {
     .logo a,
     .logo-text {
         font-size: 1.11rem !important;
+    }
+}
+
+/* Credits Display - Minimalist Style */
+.credits-display {
+    display: flex;
+    align-items: center;
+    margin-right: 12px;
+}
+
+.credits-container {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: rgba(102, 102, 102, 0.1);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+}
+
+.credits-container:hover {
+    background: rgba(102, 102, 102, 0.15);
+    transform: translateY(-1px);
+}
+
+.credits-container i {
+    font-size: 14px;
+    color: #666;
+}
+
+.credits-container span {
+    font-weight: 600;
+    color: #333;
+    min-width: 20px;
+    text-align: center;
+}
+
+/* State variations */
+.credits-container.unlimited {
+    border-color: #10b981;
+}
+
+.credits-container.unlimited i {
+    color: #10b981;
+}
+
+.credits-container.pro {
+    border-color: #f59e0b;
+}
+
+.credits-container.pro i {
+    color: #f59e0b;
+}
+
+.credits-container.low {
+    border-color: #ef4444;
+}
+
+.credits-container.low i {
+    color: #ef4444;
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+    .credits-display {
+        margin-right: 8px;
+    }
+    
+    .credits-container {
+        padding: 5px 10px;
+        font-size: 0.85rem;
+    }
+    
+    .credits-container i {
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .credits-display {
+        margin-right: 6px;
+    }
+    
+    .credits-container {
+        padding: 4px 8px;
+        gap: 4px;
     }
 }
 </style>
@@ -3818,7 +3913,7 @@ async function approveOverview() {
             return;
         }
         
-        // Note: Spec should already be saved to Firebase from processing-unified.js
+        // Note: Spec should already be saved to Firebase from index.js
         // Only update the approval status here
         
         // Update Firebase if user is authenticated and spec has ID
@@ -5481,4 +5576,7 @@ console.log('Spec Viewer - Ready!');
             </div>
         </div>
     </div>
+    
+    <!-- Credits Display Script -->
+    <script src="/assets/js/credits-display.js"></script>
 </html>

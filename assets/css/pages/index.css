@@ -152,6 +152,10 @@
 
 .hero-button-container {
   margin: 2rem 0;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .hero-cta-button {
@@ -172,6 +176,64 @@
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(0, 120, 212, 0.4);
   background: var(--primary-hover);
+}
+
+/* New Orange Start Button */
+.hero-cta-button-new {
+  width: 110px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  background-color: #FF6B35;
+  border-radius: 30px;
+  color: white;
+  font-weight: 600;
+  border: none;
+  position: relative;
+  cursor: pointer;
+  transition-duration: .2s;
+  box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.116);
+  padding-left: 8px;
+  transition-duration: .5s;
+  font-size: 0.9rem;
+}
+
+@keyframes compassRotation {
+  0% { transform: rotate(0deg); }
+  12.5% { transform: rotate(45deg); }
+  25% { transform: rotate(-20deg); }
+  37.5% { transform: rotate(90deg); }
+  50% { transform: rotate(15deg); }
+  62.5% { transform: rotate(180deg); }
+  75% { transform: rotate(120deg); }
+  87.5% { transform: rotate(270deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.hero-cta-button-new .svgIcon {
+  height: 25px;
+  transition-duration: 1.5s;
+  animation: compassRotation 8s ease-in-out infinite;
+}
+
+.hero-cta-button-new .bell path {
+  fill: white;
+}
+
+.hero-cta-button-new:hover {
+  background-color: #FF8551;
+  transition-duration: .5s;
+}
+
+.hero-cta-button-new:active {
+  transform: scale(0.97);
+  transition-duration: .2s;
+}
+
+.hero-cta-button-new:hover .svgIcon {
+  animation-duration: 2s;
 }
 
 .hero-subtitle {
@@ -448,6 +510,48 @@
     opacity: 1;
     transform: translateX(-50%) translateY(0);
   }
+}
+
+/* Bottom Links Container */
+.hero-bottom-links {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  padding: 0 20px;
+  z-index: 2;
+}
+
+.bottom-link {
+  color: #D4541F;
+  font-size: 16px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.bottom-link:hover {
+  color: #FF6B35;
+  text-decoration: none;
+}
+
+.bottom-link::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background-color: #FF6B35;
+  transition: width 0.3s ease;
+}
+
+.bottom-link:hover::after {
+  width: 100%;
 }
 
 .separator {
@@ -846,6 +950,186 @@
 
 .comparison-cta .cta-button:hover {
   background: #f0f0f0;
+}
+
+/* ===== PRICING TABLE HOME ===== */
+.pricing-grid-home {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 0 2rem;
+}
+
+.pricing-card-home {
+  background: white;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  padding: 1.5rem;
+  text-align: center;
+  position: relative;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.pricing-card-home:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.pricing-card-home.highlight {
+  border-color: #28a745;
+  background: #f8fff9;
+}
+
+.pricing-card-home.pro {
+  border-color: #0078d4;
+  background: #f0f8ff;
+}
+
+.badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: #28a745;
+  color: white;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.pricing-card-home.pro .badge {
+  background: #0078d4;
+}
+
+.pricing-card-header h3 {
+  font-size: 1.25rem;
+  margin-bottom: 0.4rem;
+  color: #333;
+  font-weight: 600;
+}
+
+.pricing-card-header p {
+  color: #666;
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+}
+
+.pricing-card-price {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  margin-bottom: 1rem;
+  flex-grow: 0;
+}
+
+.currency {
+  font-size: 1rem;
+  color: #666;
+}
+
+.amount {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: #333;
+  margin: 0 2px;
+}
+
+.period {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.pricing-card-features {
+  flex-grow: 1;
+  margin-bottom: 1.5rem;
+}
+
+.pricing-card-features ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  text-align: left;
+}
+
+.pricing-card-features li {
+  display: flex;
+  align-items: center;
+  padding: 0.4rem 0;
+  font-size: 0.85rem;
+  color: #333;
+}
+
+.pricing-card-features li i {
+  color: #28a745;
+  margin-right: 0.6rem;
+  font-size: 0.9rem;
+}
+
+.pricing-btn {
+  display: block;
+  width: 100%;
+  padding: 0.65rem 1.2rem;
+  background: #333;
+  color: white;
+  text-decoration: none;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  margin-top: auto;
+}
+
+.pricing-btn:hover {
+  background: #0078d4;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 120, 212, 0.3);
+}
+
+.pricing-btn.highlight-btn {
+  background: #28a745;
+}
+
+.pricing-btn.highlight-btn:hover {
+  background: #218838;
+}
+
+.pricing-footer {
+  text-align: center;
+  color: #666;
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+}
+
+/* Tablet Responsive */
+@media (max-width: 968px) and (min-width: 600px) {
+  .pricing-grid-home {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+    padding: 0 1.5rem;
+  }
+}
+
+/* Mobile Responsive */
+@media (max-width: 599px) {
+  .pricing-grid-home {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+    max-width: 500px;
+    padding: 0 1rem;
+  }
+  
+  .pricing-card-home {
+    padding: 1.25rem;
+  }
+  
+  .amount {
+    font-size: 1.75rem;
+  }
 }
 
 /* ===== BENEFITS SECTION ===== */

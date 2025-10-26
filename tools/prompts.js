@@ -92,6 +92,26 @@ Create a comprehensive technical specification with TEXTUAL descriptions only (n
       "thirdPartyServices": ["Service 1", "Service 2"],
       "integrations": "Description of external API integrations",
       "dataFlow": "How external data flows into the system"
+    },
+    "devops": {
+      "deploymentStrategy": "Deployment approach (CI/CD, hosting platforms, containerization)",
+      "infrastructure": "Infrastructure requirements and cloud services",
+      "monitoring": "Monitoring and logging strategy",
+      "scaling": "Scaling strategy and load balancing approach",
+      "backup": "Backup and disaster recovery plan",
+      "automation": "Automation tools and processes"
+    },
+    "dataStorage": {
+      "storageStrategy": "Where and how data will be stored (database choice reasoning)",
+      "dataRetention": "Data retention policies and lifecycle management",
+      "dataBackup": "Backup strategy for data",
+      "storageArchitecture": "Storage architecture and optimization"
+    },
+    "analytics": {
+      "analyticsStrategy": "What metrics and analytics to track",
+      "trackingMethods": "How to implement tracking (events, user behavior)",
+      "analysisTools": "Recommended analytics tools and platforms",
+      "reporting": "Reporting structure and dashboards"
     }
   }
 }
@@ -126,6 +146,20 @@ Create detailed market analysis. Return JSON with market key containing:
       "marketData": "Relevant market statistics and forecasts",
       "growthProjections": "Future market growth expectations"
     },
+    "searchTrends": {
+      "keywords": ["Key search term 1", "Key search term 2", "Key search term 3"],
+      "historicalData": [
+        {
+          "month": "YYYY-MM",
+          "searchVolume": 12345,
+          "trend": "increasing/decreasing/stable",
+          "competition": "low/medium/high"
+        }
+      ],
+      "period": "3 months minimum",
+      "dataFormat": "Each entry should have consistent month format and numeric values suitable for chart visualization",
+      "insights": "Analysis of search trend patterns and what they indicate about market demand"
+    },
     "targetAudienceInsights": {
       "needsAnalysis": "Analysis of user needs and pain points",
       "usageHabits": "How target audience currently behaves",
@@ -158,6 +192,8 @@ Create detailed market analysis. Return JSON with market key containing:
   }
 }
 
+IMPORTANT: The searchTrends.historicalData should include at least 3 months of data with consistent formatting to enable easy chart/graph visualization.
+
 Application Overview:
 ${overviewContent}
 
@@ -189,6 +225,8 @@ Create comprehensive design guidelines and branding elements. Return JSON with d
         "background": "#hexcode",
         "text": "#hexcode"
       },
+      "colorHarmony": "Description of the color scheme harmony (monochromatic, analogous, or complementary with 2 tones maximum)",
+      "colorReasoning": "Explanation of why these specific colors and tones were chosen and how they work together",
       "typography": {
         "headings": "Font family and specifications for headings",
         "body": "Font family and specifications for body text",
@@ -216,6 +254,12 @@ Create comprehensive design guidelines and branding elements. Return JSON with d
     }
   }
 }
+
+CRITICAL COLOR REQUIREMENTS:
+- Colors must be harmonious and coherent (use either monochromatic scheme with variations of the same tone, or analogous/complementary scheme with maximum 2 tones)
+- Avoid random color combinations with 3 different tones
+- The color palette should create visual harmony and brand consistency
+- Include detailed explanation of the color harmony approach in colorHarmony field
 
 Make sure all descriptions are clear and actionable for designers and developers.
 

@@ -68,18 +68,99 @@ function toggleFAQ(index) {
   }
 }
 
+// Helper function to round to nearest 5
+function roundToNearest5(num) {
+  return Math.round(num / 5) * 5;
+}
+
+// ===== LOAD DYNAMIC STATS =====
+async function loadDynamicStats() {
+  try {
+    // Get tools count from tools.json
+    const toolsResponse = await fetch('/tools/map/tools.json');
+    const toolsData = await toolsResponse.json();
+    const toolsCount = toolsData.length; // 104 tools
+    
+    // Get specs count from Firebase
+    let specsCount = 0;
+    try {
+      // Check if Firebase is available
+      if (typeof firebase !== 'undefined' && firebase.firestore) {
+        const db = firebase.firestore();
+        const specsSnapshot = await db.collection('specs').get();
+        specsCount = specsSnapshot.size;
+      }
+    } catch (error) {
+      console.log('Could not fetch specs from Firebase:', error);
+      specsCount = 0;
+    }
+    
+    // Add base number to specs (4590 as requested)
+    const specsWithBase = specsCount + 4590;
+    
+    // Calculate Tool Finder users (specs + base multiplier)
+    const toolFinderUsers = specsCount + 850; // Adding 850 to specs count
+    
+    // Round all numbers to nearest 5
+    const toolsRounded = roundToNearest5(toolsCount);
+    const specsRounded = roundToNearest5(specsWithBase);
+    const toolFinderRounded = roundToNearest5(toolFinderUsers);
+    
+    // Update the targets
+    const toolsCounter = document.querySelector('[data-stats-type="tools"]');
+    const specsCounter = document.querySelector('[data-stats-type="specs"]');
+    const toolFinderCounter = document.querySelector('[data-stats-type="tool-finder"]');
+    
+    if (toolsCounter) {
+      toolsCounter.setAttribute('data-target', toolsRounded.toString());
+    }
+    
+    if (specsCounter) {
+      specsCounter.setAttribute('data-target', specsRounded.toString());
+    }
+    
+    if (toolFinderCounter) {
+      toolFinderCounter.setAttribute('data-target', toolFinderRounded.toString());
+    }
+    
+    console.log('Dynamic stats loaded:', {
+      tools: toolsRounded,
+      specs: specsRounded,
+      toolFinder: toolFinderRounded
+    });
+    
+  } catch (error) {
+    console.error('Error loading dynamic stats:', error);
+    
+    // Fallback to default values (rounded to nearest 5)
+    const toolsCounter = document.querySelector('[data-stats-type="tools"]');
+    const specsCounter = document.querySelector('[data-stats-type="specs"]');
+    const toolFinderCounter = document.querySelector('[data-stats-type="tool-finder"]');
+    
+    if (toolsCounter) toolsCounter.setAttribute('data-target', '105');
+    if (specsCounter) specsCounter.setAttribute('data-target', '4590');
+    if (toolFinderCounter) toolFinderCounter.setAttribute('data-target', '850');
+  }
+}
+
 // ===== COUNTER ANIMATION =====
 function animateCounter(element, target, duration = 2000) {
-  let start = 0;
-  const increment = target / (duration / 16);
+  let current = 0;
+  const step = 5; // Jump by 5 each time
+  
+  // Calculate number of steps needed
+  const steps = Math.ceil(target / step);
+  const stepInterval = duration / steps;
   
   function updateCounter() {
-    start += increment;
-    if (start < target) {
-      element.textContent = Math.floor(start);
-      requestAnimationFrame(updateCounter);
+    current += step;
+    if (current < target) {
+      element.textContent = current + '+';
+      setTimeout(updateCounter, stepInterval);
     } else {
-      element.textContent = target;
+      // Make sure we end exactly on target (round to nearest 5)
+      const finalValue = Math.round(target / step) * step;
+      element.textContent = finalValue + '+';
     }
   }
   
@@ -861,10 +942,33 @@ function showPaywall(paywallData) {
   }
 }
 
+// ===== AUTO-START DETECTION =====
+function checkAutoStart() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const autoStart = urlParams.get('autoStart');
+  
+  if (autoStart === 'true') {
+    // Remove the query parameter from URL for cleaner navigation
+    window.history.replaceState({}, '', window.location.pathname);
+    
+    // Check if user is authenticated before auto-starting
+    if (isUserAuthenticated()) {
+      // Small delay to ensure page is fully loaded
+      setTimeout(() => {
+        proceedWithAppPlanning();
+      }, 500);
+    } else {
+      // Redirect to auth if not authenticated
+      window.location.href = '/pages/auth.html?redirect=profile';
+    }
+  }
+}
+
 // ===== EVENT LISTENERS =====
 document.addEventListener('DOMContentLoaded', function() {
   checkFirstVisit();
   setupModernInput();
+  checkAutoStart();
   
   const startButton = document.getElementById('startButton');
   if (startButton) {
@@ -881,22 +985,28 @@ document.addEventListener('DOMContentLoaded', function() {
     item.addEventListener('click', () => toggleFAQ(index));
   });
   
-  // Intersection Observer for animations
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        const counter = entry.target.querySelector('.stat-number');
-        if (counter) {
-          const target = parseInt(counter.dataset.target);
-          animateCounter(counter, target);
-          observer.unobserve(entry.target);
-        }
-      }
+  // Load dynamic stats from Firebase
+  // Wait a bit for Firebase to initialize
+  setTimeout(() => {
+    loadDynamicStats().then(() => {
+      // Intersection Observer for animations
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const counter = entry.target.querySelector('.stat-number');
+            if (counter) {
+              const target = parseInt(counter.dataset.target);
+              animateCounter(counter, target);
+              observer.unobserve(entry.target);
+            }
+          }
+        });
+      });
+      
+      const statsItems = document.querySelectorAll('.stat-item');
+      statsItems.forEach(item => observer.observe(item));
     });
-  });
-  
-  const statsItems = document.querySelectorAll('.stat-item');
-  statsItems.forEach(item => observer.observe(item));
+  }, 500); // Wait 500ms for Firebase to load
   
   const toolsSection = document.querySelector('.tools-showcase');
   if (toolsSection) {

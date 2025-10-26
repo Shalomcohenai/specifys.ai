@@ -426,6 +426,12 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
     </div>
     <div class="header-right">
+        <div class="credits-display" id="credits-display" style="display: none;">
+            <div class="credits-container">
+                <i class="fas fa-file-alt"></i>
+                <span id="credits-text">0</span>
+            </div>
+        </div>
         <div class="auth-buttons" id="auth-buttons">
             <!-- Will be populated by auth system -->
         </div>
@@ -465,6 +471,95 @@ document.addEventListener('DOMContentLoaded', function() {
     .logo a,
     .logo-text {
         font-size: 1.11rem !important;
+    }
+}
+
+/* Credits Display - Minimalist Style */
+.credits-display {
+    display: flex;
+    align-items: center;
+    margin-right: 12px;
+}
+
+.credits-container {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: rgba(102, 102, 102, 0.1);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+}
+
+.credits-container:hover {
+    background: rgba(102, 102, 102, 0.15);
+    transform: translateY(-1px);
+}
+
+.credits-container i {
+    font-size: 14px;
+    color: #666;
+}
+
+.credits-container span {
+    font-weight: 600;
+    color: #333;
+    min-width: 20px;
+    text-align: center;
+}
+
+/* State variations */
+.credits-container.unlimited {
+    border-color: #10b981;
+}
+
+.credits-container.unlimited i {
+    color: #10b981;
+}
+
+.credits-container.pro {
+    border-color: #f59e0b;
+}
+
+.credits-container.pro i {
+    color: #f59e0b;
+}
+
+.credits-container.low {
+    border-color: #ef4444;
+}
+
+.credits-container.low i {
+    color: #ef4444;
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+    .credits-display {
+        margin-right: 8px;
+    }
+    
+    .credits-container {
+        padding: 5px 10px;
+        font-size: 0.85rem;
+    }
+    
+    .credits-container i {
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .credits-display {
+        margin-right: 6px;
+    }
+    
+    .credits-container {
+        padding: 4px 8px;
+        gap: 4px;
     }
 }
 </style>
@@ -2443,6 +2538,20 @@ function displayDesign(design) {
         });
         
         paletteHTML += '</div></div>';
+        
+        // Add color harmony and reasoning if available
+        if (designData.colorHarmony || designData.colorReasoning) {
+            paletteHTML += '<div style="margin-top: 20px; padding: 15px; background-color: #f0f8ff; border-left: 4px solid #2196F3; border-radius: 4px;">';
+            if (designData.colorHarmony) {
+                paletteHTML += '<h4><i class="fa fa-palette"></i> Color Harmony</h4>';
+                paletteHTML += `<p style="color: #333;">${designData.colorHarmony}</p>`;
+            }
+            if (designData.colorReasoning) {
+                paletteHTML += '<h4 style="margin-top: 10px;"><i class="fa fa-lightbulb-o"></i> Color Reasoning</h4>';
+                paletteHTML += `<p style="color: #333;">${designData.colorReasoning}</p>`;
+            }
+            paletteHTML += '</div>';
+        }
     }
     
     // Typography section
@@ -2479,11 +2588,39 @@ function displayDesign(design) {
 function parseDesignData(designContent) {
     const result = {
         colors: {},
-        typography: {}
+        typography: {},
+        colorHarmony: '',
+        colorReasoning: ''
     };
     
     try {
         let content = designContent;
+        
+        // Try to parse as JSON first
+        let jsonData;
+        try {
+            jsonData = JSON.parse(designContent);
+            if (jsonData.design && jsonData.design.visualStyleGuide) {
+                if (jsonData.design.visualStyleGuide.colorHarmony) {
+                    result.colorHarmony = jsonData.design.visualStyleGuide.colorHarmony;
+                }
+                if (jsonData.design.visualStyleGuide.colorReasoning) {
+                    result.colorReasoning = jsonData.design.visualStyleGuide.colorReasoning;
+                }
+                // Extract colors from JSON
+                if (jsonData.design.visualStyleGuide.colors) {
+                    result.colors = jsonData.design.visualStyleGuide.colors;
+                }
+                // Extract typography from JSON
+                if (jsonData.design.visualStyleGuide.typography) {
+                    result.typography = jsonData.design.visualStyleGuide.typography;
+                }
+                return result;
+            }
+        } catch (e) {
+            // Not JSON, continue with text parsing
+        }
+        
         if (typeof designContent === 'string') {
             content = designContent;
         }
@@ -3060,6 +3197,86 @@ function formatJSONContent(jsonData) {
         html += '</div>';
     }
     
+    // Handle new DevOps
+    if (jsonData.devops) {
+        html += '<div class="content-section">';
+        html += '<h3><i class="fa fa-server"></i> DevOps</h3>';
+        
+        if (jsonData.devops.deploymentStrategy) {
+            html += `<p><strong>Deployment Strategy:</strong> ${jsonData.devops.deploymentStrategy}</p>`;
+        }
+        
+        if (jsonData.devops.infrastructure) {
+            html += `<p><strong>Infrastructure:</strong> ${jsonData.devops.infrastructure}</p>`;
+        }
+        
+        if (jsonData.devops.monitoring) {
+            html += `<p><strong>Monitoring:</strong> ${jsonData.devops.monitoring}</p>`;
+        }
+        
+        if (jsonData.devops.scaling) {
+            html += `<p><strong>Scaling:</strong> ${jsonData.devops.scaling}</p>`;
+        }
+        
+        if (jsonData.devops.backup) {
+            html += `<p><strong>Backup:</strong> ${jsonData.devops.backup}</p>`;
+        }
+        
+        if (jsonData.devops.automation) {
+            html += `<p><strong>Automation:</strong> ${jsonData.devops.automation}</p>`;
+        }
+        
+        html += '</div>';
+    }
+    
+    // Handle new Data Storage
+    if (jsonData.dataStorage) {
+        html += '<div class="content-section">';
+        html += '<h3><i class="fa fa-hdd-o"></i> Data Storage Strategy</h3>';
+        
+        if (jsonData.dataStorage.storageStrategy) {
+            html += `<p><strong>Storage Strategy:</strong> ${jsonData.dataStorage.storageStrategy}</p>`;
+        }
+        
+        if (jsonData.dataStorage.dataRetention) {
+            html += `<p><strong>Data Retention:</strong> ${jsonData.dataStorage.dataRetention}</p>`;
+        }
+        
+        if (jsonData.dataStorage.dataBackup) {
+            html += `<p><strong>Data Backup:</strong> ${jsonData.dataStorage.dataBackup}</p>`;
+        }
+        
+        if (jsonData.dataStorage.storageArchitecture) {
+            html += `<p><strong>Storage Architecture:</strong> ${jsonData.dataStorage.storageArchitecture}</p>`;
+        }
+        
+        html += '</div>';
+    }
+    
+    // Handle new Analytics
+    if (jsonData.analytics) {
+        html += '<div class="content-section">';
+        html += '<h3><i class="fa fa-line-chart"></i> Analytics</h3>';
+        
+        if (jsonData.analytics.analyticsStrategy) {
+            html += `<p><strong>Analytics Strategy:</strong> ${jsonData.analytics.analyticsStrategy}</p>`;
+        }
+        
+        if (jsonData.analytics.trackingMethods) {
+            html += `<p><strong>Tracking Methods:</strong> ${jsonData.analytics.trackingMethods}</p>`;
+        }
+        
+        if (jsonData.analytics.analysisTools) {
+            html += `<p><strong>Analysis Tools:</strong> ${jsonData.analytics.analysisTools}</p>`;
+        }
+        
+        if (jsonData.analytics.reporting) {
+            html += `<p><strong>Reporting:</strong> ${jsonData.analytics.reporting}</p>`;
+        }
+        
+        html += '</div>';
+    }
+    
     // Handle Data Models (only if they exist)
     if (jsonData.dataModels && jsonData.dataModels.entities && Array.isArray(jsonData.dataModels.entities)) {
         html += '<div class="content-section">';
@@ -3206,6 +3423,50 @@ function formatJSONContent(jsonData) {
         
         if (jsonData.industryOverview.growthProjections) {
             html += `<p><strong>Growth Projections:</strong> ${jsonData.industryOverview.growthProjections}</p>`;
+        }
+        
+        html += '</div>';
+    }
+    
+    // Handle new Search Trends with chart
+    if (jsonData.searchTrends) {
+        html += '<div class="content-section">';
+        html += '<h3><i class="fa fa-line-chart"></i> Search Trends</h3>';
+        
+        if (jsonData.searchTrends.keywords && Array.isArray(jsonData.searchTrends.keywords)) {
+            html += '<h4>Keywords:</h4>';
+            html += '<ul>';
+            jsonData.searchTrends.keywords.forEach(keyword => {
+                html += `<li>${keyword}</li>`;
+            });
+            html += '</ul>';
+        }
+        
+        if (jsonData.searchTrends.historicalData && Array.isArray(jsonData.searchTrends.historicalData)) {
+            html += '<h4>Historical Data (Last 3+ Months):</h4>';
+            
+            // Create a simple table for the data
+            html += '<div style="overflow-x: auto;"><table class="search-trends-table" style="width: 100%; border-collapse: collapse; margin-top: 15px;">';
+            html += '<thead><tr style="background-color: #f5f5f5;"><th style="padding: 10px; border: 1px solid #ddd;">Month</th>';
+            html += '<th style="padding: 10px; border: 1px solid #ddd;">Search Volume</th>';
+            html += '<th style="padding: 10px; border: 1px solid #ddd;">Trend</th>';
+            html += '<th style="padding: 10px; border: 1px solid #ddd;">Competition</th></tr></thead><tbody>';
+            
+            jsonData.searchTrends.historicalData.forEach(data => {
+                html += `<tr><td style="padding: 10px; border: 1px solid #ddd;">${data.month || 'N/A'}</td>`;
+                html += `<td style="padding: 10px; border: 1px solid #ddd;">${data.searchVolume || 'N/A'}</td>`;
+                html += `<td style="padding: 10px; border: 1px solid #ddd;">${data.trend || 'N/A'}</td>`;
+                html += `<td style="padding: 10px; border: 1px solid #ddd;">${data.competition || 'N/A'}</td></tr>`;
+            });
+            
+            html += '</tbody></table></div>';
+            
+            // Add simple visualization suggestion
+            html += '<p style="margin-top: 15px; color: #666;"><i class="fa fa-info-circle"></i> This data can be visualized as a line chart showing search volume trends over time.</p>';
+        }
+        
+        if (jsonData.searchTrends.insights) {
+            html += `<p><strong>Insights:</strong> ${jsonData.searchTrends.insights}</p>`;
         }
         
         html += '</div>';
@@ -3359,6 +3620,20 @@ function formatJSONContent(jsonData) {
                 html += `<li><strong>Text:</strong> ${jsonData.visualStyleGuide.colors.text}</li>`;
             }
             html += '</ul>';
+        }
+        
+        // Handle Color Harmony and Reasoning (new fields)
+        if (jsonData.visualStyleGuide.colorHarmony) {
+            html += '<div style="margin-top: 15px; padding: 15px; background-color: #f0f8ff; border-left: 4px solid #2196F3; border-radius: 4px;">';
+            html += '<h4><i class="fa fa-palette"></i> Color Harmony</h4>';
+            html += `<p>${jsonData.visualStyleGuide.colorHarmony}</p>`;
+            
+            if (jsonData.visualStyleGuide.colorReasoning) {
+                html += '<h4><i class="fa fa-lightbulb-o"></i> Color Reasoning</h4>';
+                html += `<p>${jsonData.visualStyleGuide.colorReasoning}</p>`;
+            }
+            
+            html += '</div>';
         }
         
         if (jsonData.visualStyleGuide.typography) {
@@ -3818,7 +4093,7 @@ async function approveOverview() {
             return;
         }
         
-        // Note: Spec should already be saved to Firebase from processing-unified.js
+        // Note: Spec should already be saved to Firebase from index.js
         // Only update the approval status here
         
         // Update Firebase if user is authenticated and spec has ID
@@ -5481,4 +5756,7 @@ console.log('Spec Viewer - Ready!');
             </div>
         </div>
     </div>
+    
+    <!-- Credits Display Script -->
+    <script src="/assets/js/credits-display.js"></script>
 </html>

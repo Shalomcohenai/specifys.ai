@@ -443,7 +443,20 @@ document.addEventListener('DOMContentLoaded', function() {
 <a href="#main-content" class="skip-link">Skip to main content</a>
 
 <!-- Header -->
-{% include header.html %}
+<header class="thematic-header" role="banner">
+    <div class="header-center">
+        <div class="logo">
+            <a href="/" aria-label="Specifys.ai homepage">
+                <span class="logo-text">Specifys<span class="logo-dot">.</span>AI</span>
+            </a>
+        </div>
+    </div>
+    <div class="header-right">
+        <div class="auth-buttons" id="auth-buttons">
+            <!-- Will be populated by auth system -->
+        </div>
+    </div>
+    </header>
 
     
     <!-- Main Content -->
@@ -457,7 +470,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 <h1 class="hero-main-title">Build faster with AI-driven insights.</h1>
                 
                 <div class="hero-button-container">
-                    <button class="hero-cta-button" id="startButton">Start</button>
+                    <button class="hero-cta-button-new" id="startButton">
+                        <svg class="svgIcon" viewBox="0 0 512 512" height="1em" xmlns="http://www.w3.org/2000/svg">
+                            <path class="bell" d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zm50.7-186.9L162.4 380.6c-19.4 7.5-38.5-11.6-31-31l55.5-144.3c3.3-8.5 9.9-15.1 18.4-18.4l144.3-55.5c19.4-7.5 38.5 11.6 31 31L325.1 306.7c-3.2 8.5-9.9 15.1-18.4 18.4zM288 256a32 32 0 1 0 -64 0 32 32 0 1 0 64 0z" fill="white"/>
+                        </svg>
+                        Start
+                    </button>
                 </div>
                 
                 <h2 class="hero-subtitle">Plan your app smarter</h2>
@@ -555,6 +573,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     </button>
                 </div>
                 
+                <!-- Bottom Links -->
+                <div class="container-bottom-links">
+                    <a href="/pages/demo.html" class="bottom-link">Demo</a>
+                    <a href="/pages/pricing.html" class="bottom-link">Pricing</a>
+                </div>
+                
                 <!-- Lightbulb Tooltip -->
                 <div class="lightbulb-tooltip" id="lightbulbTooltip">
                     <div class="tooltip-content"></div>
@@ -589,26 +613,6 @@ document.addEventListener('DOMContentLoaded', function() {
           <a href="/pages/ToolPicker.html" class="tool-link" onclick="trackToolUsage('Tool Finder', 'find_now')">Find Now</a>
         </div>
       </div>
-      <div class="tool-square" data-tool="no-code">
-        <div class="icon">
-          <i class="fa fa-code"></i>
-        </div>
-        <div class="content">
-          <h3>No Code Mode</h3>
-          <p>Build without coding skills</p>
-          <a href="/processing-unified.html" class="tool-link" onclick="trackToolUsage('No Code Mode', 'start_building')">Start Building</a>
-        </div>
-      </div>
-      <div class="tool-square" data-tool="market-research">
-        <div class="icon">
-          <i class="fa fa-line-chart"></i>
-        </div>
-        <div class="content">
-          <h3>Market Research</h3>
-          <p>Validate your idea with data</p>
-          <a href="/processing-unified.html" class="tool-link" onclick="trackToolUsage('Market Research', 'research_now')">Research Now</a>
-        </div>
-      </div>
       <div class="tool-square" data-tool="app-management">
         <div class="icon">
           <i class="fa fa-cogs"></i>
@@ -616,17 +620,7 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="content">
           <h3>App Management</h3>
           <p>Manage your apps & specs (Members)</p>
-          <a href="/pages/profile.html" class="tool-link" onclick="trackToolUsage('App Management', 'manage_apps')">Manage Apps</a>
-        </div>
-      </div>
-      <div class="tool-square plan-smart">
-        <div class="icon">
-          <i class="fa fa-lightbulb-o"></i>
-        </div>
-        <div class="content">
-          <h3>Plan Smart</h3>
-          <p>Start your journey here</p>
-          <a href="/processing-unified.html" class="tool-link" onclick="trackToolUsage('Plan Smart', 'start_planning')">Start Planning</a>
+          <a href="#startButton" class="tool-link" onclick="trackToolUsage('App Management', 'start_planning'); document.getElementById('startButton')?.scrollIntoView({ behavior: 'smooth' });">Start Here</a>
         </div>
       </div>
     </div>
@@ -638,131 +632,100 @@ document.addEventListener('DOMContentLoaded', function() {
     <p>Join thousands who've planned apps with Specifys.ai!</p>
     <div class="stats-list">
       <div class="stat-item">
-        <div class="stat-number" data-target="5000">0</div>
-        <h3>Start-Easy Specs</h3>
-        <p>Non-coders planning apps with AI specs and Tool Finder.</p>
-      </div>
-      <div class="stat-item">
-        <div class="stat-number" data-target="4000">0</div>
-        <h3>Dev-Tools Specs</h3>
-        <p>Developers using AI blueprints and Vibe Coding Tools Map.</p>
-      </div>
-      <div class="stat-item">
-        <div class="stat-number" data-target="6000">0</div>
-        <h3>Explore Specs</h3>
-        <p>Entrepreneurs validating ideas with AI and Tool Finder.</p>
-      </div>
-      <div class="stat-item">
-        <div class="stat-number" data-target="100">0</div>
+        <div class="stat-number" data-target="0" data-stats-type="tools">0+</div>
         <h3>Vibe Coding Tools</h3>
-        <p>Users exploring our curated Vibe Coding Tools Map.</p>
+        <p>Curated tools in our Vibe Coding Tools Map.</p>
       </div>
       <div class="stat-item">
-        <div class="stat-number" data-target="100">0</div>
+        <div class="stat-number" data-target="0" data-stats-type="specs">0+</div>
+        <h3>Specs Created</h3>
+        <p>AI-powered specifications created by our community.</p>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number" data-target="0" data-stats-type="tool-finder">0+</div>
         <h3>Tool Finder Users</h3>
-        <p>Creators finding perfect tools with Tool Finder.</p>
-      </div>
-      <div class="stat-item">
-        <div class="stat-number" data-target="250">0</div>
-        <h3>Apps Planned</h3>
-        <p>Apps planned with AI specs and Vibe Coding Tools.</p>
+        <p>Creators finding perfect tools with our AI-powered Tool Finder.</p>
       </div>
     </div>
   </div>
 
-  <!-- Comparison Table -->
+  <!-- Pricing Table -->
   <div class="section" style="--section-index: 2;">
-    <div class="comparison-table">
-      <div class="comparison-header">
-        <h3>Choose Your Experience</h3>
-        <p>Start free or unlock premium features</p>
-      </div>
-      <div class="comparison-content">
-        <div class="comparison-column">
-          <div class="comparison-title">
-            <i class="fa fa-user"></i>
-            <h4>Free User</h4>
-          </div>
-          <div class="comparison-features">
-            <div class="feature-item">
-              <i class="fa fa-check"></i>
-              <span>Generate AI specs</span>
-            </div>
-            <div class="feature-item">
-              <i class="fa fa-check"></i>
-              <span>Use Tools Map</span>
-            </div>
-            <div class="feature-item">
-              <i class="fa fa-check"></i>
-              <span>Use Tool Finder</span>
-            </div>
-            <div class="feature-item">
-              <i class="fa fa-check"></i>
-              <span>Market research</span>
-            </div>
-            <div class="feature-item disabled">
-              <i class="fa fa-times"></i>
-              <span>Save specs</span>
-            </div>
-            <div class="feature-item disabled">
-              <i class="fa fa-times"></i>
-              <span>Save market research</span>
-            </div>
-            <div class="feature-item disabled">
-              <i class="fa fa-times"></i>
-              <span>Manage apps</span>
-            </div>
-            <div class="feature-item disabled">
-              <i class="fa fa-times"></i>
-              <span>Save favorite tools</span>
-            </div>
-          </div>
+    <h2>Choose Your Plan</h2>
+    <p>Start free or upgrade for unlimited specifications</p>
+    <div class="pricing-grid-home">
+      
+      <!-- Single Spec -->
+      <div class="pricing-card-home">
+        <div class="pricing-card-header">
+          <h3>Single Spec</h3>
+          <p>One-time payment</p>
         </div>
-        <div class="comparison-column">
-          <div class="comparison-title">
-            <i class="fa fa-user-plus"></i>
-            <h4>Registered User</h4>
-          </div>
-          <div class="comparison-features">
-            <div class="feature-item">
-              <i class="fa fa-check"></i>
-              <span>Generate AI specs</span>
-            </div>
-            <div class="feature-item">
-              <i class="fa fa-check"></i>
-              <span>Use Tools Map</span>
-            </div>
-            <div class="feature-item">
-              <i class="fa fa-check"></i>
-              <span>Use Tool Finder</span>
-            </div>
-            <div class="feature-item">
-              <i class="fa fa-check"></i>
-              <span>Market research</span>
-            </div>
-            <div class="feature-item premium">
-              <i class="fa fa-check"></i>
-              <span>Save specs</span>
-            </div>
-            <div class="feature-item premium">
-              <i class="fa fa-check"></i>
-              <span>Save market research</span>
-            </div>
-            <div class="feature-item premium">
-              <i class="fa fa-check"></i>
-              <span>Manage apps</span>
-            </div>
-            <div class="feature-item premium">
-              <i class="fa fa-check"></i>
-              <span>Save favorite tools</span>
-            </div>
-          </div>
+        <div class="pricing-card-price">
+          <span class="currency">₪</span>
+          <span class="amount">19</span>
         </div>
+        <div class="pricing-card-features">
+          <ul>
+            <li><i class="fa fa-check"></i> 1 additional spec</li>
+            <li><i class="fa fa-check"></i> Edit saved specs</li>
+            <li><i class="fa fa-check"></i> All free features</li>
+          </ul>
+        </div>
+        <a href="/pages/pricing.html" class="pricing-btn" onclick="trackCTA('View Single Spec', 'pricing_home')">
+          View Details
+        </a>
       </div>
-      <div class="comparison-cta">
-        <a href="/pages/auth.html" class="cta-button" onclick="trackCTA('Create Free Account', 'comparison_table')">Create Free Account</a>
+
+      <!-- 3-Pack -->
+      <div class="pricing-card-home highlight">
+        <div class="badge">Best Value</div>
+        <div class="pricing-card-header">
+          <h3>3-Pack</h3>
+          <p>Three specs at a discount</p>
+        </div>
+        <div class="pricing-card-price">
+          <span class="currency">₪</span>
+          <span class="amount">38</span>
+        </div>
+        <div class="pricing-card-features">
+          <ul>
+            <li><i class="fa fa-check"></i> 3 additional specs</li>
+            <li><i class="fa fa-check"></i> Edit saved specs</li>
+            <li><i class="fa fa-check"></i> All free features</li>
+          </ul>
+        </div>
+        <a href="/pages/pricing.html" class="pricing-btn highlight-btn" onclick="trackCTA('View 3-Pack', 'pricing_home')">
+          View Details
+        </a>
       </div>
+
+      <!-- Pro -->
+      <div class="pricing-card-home pro">
+        <div class="badge">Popular</div>
+        <div class="pricing-card-header">
+          <h3>Pro</h3>
+          <p>Unlimited specifications</p>
+        </div>
+        <div class="pricing-card-price">
+          <span class="currency">₪</span>
+          <span class="amount">115</span>
+          <span class="period">/month</span>
+        </div>
+        <div class="pricing-card-features">
+          <ul>
+            <li><i class="fa fa-check"></i> Unlimited specs</li>
+            <li><i class="fa fa-check"></i> Edit all specs</li>
+            <li><i class="fa fa-check"></i> Priority support</li>
+          </ul>
+        </div>
+        <a href="/pages/pricing.html" class="pricing-btn" onclick="trackCTA('View Pro Plan', 'pricing_home')">
+          View Details
+        </a>
+      </div>
+      
     </div>
+    <p class="pricing-footer">Start for free • No credit card required</p>
   </div>
 
   <!-- Benefits Section -->
@@ -808,12 +771,12 @@ document.addEventListener('DOMContentLoaded', function() {
       <div class="benefit-card">
         <div class="benefit-icon"><i class="fa fa-gift"></i></div>
         <div class="benefit-content">
-          <h3>100% Free</h3>
-          <p>Access all features without any cost—no hidden fees.</p>
+          <h3>Start Free</h3>
+          <p>Get one specification free, then upgrade for more with flexible pricing plans.</p>
         </div>
       </div>
     </div>
-    <a href="/processing-unified.html" class="cta-button" onclick="trackCTA('Start Planning Free', 'benefits_section')">Start Planning Free</a>
+    <a href="/" class="cta-button" onclick="trackCTA('Start Planning Free', 'benefits_section')">Start Planning Free</a>
   </div>
 
   <!-- Use Cases Section -->
@@ -823,27 +786,27 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="use-cases-list">
       <div class="use-case-item">
         <h3>Dreamers & Entrepreneurs</h3>
-        <p>Transform ideas into actionable plans—no coding experience needed.</p>
+        <p>Transform ideas into actionable plans with one free specification.</p>
       </div>
       <div class="use-case-item">
         <h3>Developers & Coders</h3>
-        <p>Accelerate development with Vibe Coding Tools Map.</p>
+        <p>Create multiple specs and accelerate development with Vibe Coding Tools Map.</p>
       </div>
       <div class="use-case-item">
         <h3>Startup Teams</h3>
-        <p>Validate ideas, track milestones, manage budgets.</p>
+        <p>Validate multiple ideas, track milestones with unlimited specifications on Pro.</p>
       </div>
       <div class="use-case-item">
         <h3>Product Managers</h3>
-        <p>Plan features, track progress, coordinate with teams.</p>
+        <p>Plan and edit specs freely with the Pro subscription.</p>
       </div>
       <div class="use-case-item">
         <h3>No-Code Creators</h3>
-        <p>Build apps without writing a single line of code.</p>
+        <p>Build multiple apps—start free and upgrade as you grow.</p>
       </div>
       <div class="use-case-item">
         <h3>Freelancers & Consultants</h3>
-        <p>Deliver professional app plans to clients.</p>
+        <p>Deliver professional app plans with flexible pricing options.</p>
       </div>
     </div>
   </div>
@@ -858,23 +821,23 @@ document.addEventListener('DOMContentLoaded', function() {
           What's Specifys.ai all about? <i class="fa fa-chevron-down"></i>
         </div>
         <div class="faq-answer">
-          Specifys.ai is a complete AI-powered app planning ecosystem. Create specs, discover tools, manage projects—all free.
+          Specifys.ai is a complete AI-powered app planning ecosystem. Create specifications, discover tools, manage projects, and more.
         </div>
       </div>
       <div class="faq-item">
         <div class="faq-question">
-          Do I need to create an account? <i class="fa fa-chevron-down"></i>
+          Is there a free plan? <i class="fa fa-chevron-down"></i>
         </div>
         <div class="faq-answer">
-          Creating an account is optional but recommended! It allows you to save your specs and manage projects.
+          Yes! Get one specification free to try our platform. Additional specifications start at ₪19.
         </div>
       </div>
       <div class="faq-item">
         <div class="faq-question">
-          Is it really 100% free? <i class="fa fa-chevron-down"></i>
+          Can I edit my specifications? <i class="fa fa-chevron-down"></i>
         </div>
         <div class="faq-answer">
-          Yes! All features are completely free. No hidden fees, no premium tiers.
+          Pro subscribers can edit all specifications. With purchased credits, you can edit saved specifications.
         </div>
       </div>
       <div class="faq-item">
@@ -924,7 +887,7 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
       </div>
     </div>
-    <p>Ready to join them? <a href="/processing-unified.html" class="cta-button" onclick="trackCTA('Start Planning Free', 'testimonials_section')">Start Planning Free</a></p>
+    <p>Ready to join them? <a href="/" class="cta-button" onclick="trackCTA('Start Planning Free', 'testimonials_section')">Start Planning Free</a></p>
         </div>
     </main>
 

@@ -27,12 +27,10 @@ class CreditsDisplayManager {
         firebase.auth().onAuthStateChanged((user) => {
             this.currentUser = user;
             if (user) {
-                console.log('Credits Display: User logged in, showing credits display');
                 this.showCreditsDisplay();
                 this.updateCredits();
                 this.startPolling();
             } else {
-                console.log('Credits Display: User logged out, hiding credits display');
                 this.hideCreditsDisplay();
                 this.stopPolling();
             }
@@ -47,13 +45,7 @@ class CreditsDisplayManager {
     showCreditsDisplay() {
         const creditsDisplay = document.getElementById('credits-display');
         if (creditsDisplay) {
-            // Override the !important style
-            creditsDisplay.style.setProperty('display', 'flex', 'important');
-            creditsDisplay.style.visibility = 'visible';
-            creditsDisplay.style.opacity = '1';
-            console.log('Credits Display: Element shown', creditsDisplay);
-        } else {
-            console.error('Credits Display: Element not found');
+            creditsDisplay.style.display = 'flex';
         }
     }
 

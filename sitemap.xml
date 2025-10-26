@@ -23,14 +23,6 @@
     <priority>0.9</priority>
   </url>
 
-  <!-- Root Level Pages -->
-  <url>
-    <loc>https://specifys-ai.com/processing-unified.html</loc>
-    <lastmod>2025-10-09</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-  </url>
-
   <!-- Pages Directory -->
   <url>
     <loc>https://specifys-ai.com/pages/about.html</loc>

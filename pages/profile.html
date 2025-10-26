@@ -450,33 +450,33 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 }
 
-/* Profile Credits Display Styles */
+/* Profile Credits Display Styles - Compact Horizontal Design */
 .credits-stat {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
-    justify-content: center;
+    gap: 6px;
 }
 
 .credits-display-large {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
 }
 
 .credits-circle-large {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
     background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
     font-weight: 700;
-    font-size: 18px;
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    font-size: 12px;
+    box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
     transition: all 0.2s ease;
     cursor: pointer;
     position: relative;
@@ -484,57 +484,109 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .credits-circle-large:hover {
     transform: scale(1.05);
-    box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+    box-shadow: 0 4px 10px rgba(59, 130, 246, 0.4);
 }
 
 .credits-circle-large.pro {
     background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-    box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
+    box-shadow: 0 2px 6px rgba(251, 191, 36, 0.3);
 }
 
 .credits-circle-large.pro:hover {
-    box-shadow: 0 6px 16px rgba(251, 191, 36, 0.4);
+    box-shadow: 0 4px 10px rgba(251, 191, 36, 0.4);
 }
 
 .credits-circle-large.unlimited {
     background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);
 }
 
 .credits-circle-large.unlimited:hover {
-    box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+    box-shadow: 0 4px 10px rgba(16, 185, 129, 0.4);
 }
 
 .credits-label {
-    font-size: 12px;
+    font-size: 11px;
     color: #6b7280;
     font-weight: 500;
-    text-align: center;
 }
 
 /* Mobile adjustments for profile credits */
 @media (max-width: 768px) {
     .credits-circle-large {
-        width: 50px;
-        height: 50px;
-        font-size: 16px;
-    }
-    
-    .credits-label {
+        width: 28px;
+        height: 28px;
         font-size: 11px;
-    }
-}
-
-@media (max-width: 480px) {
-    .credits-circle-large {
-        width: 45px;
-        height: 45px;
-        font-size: 14px;
     }
     
     .credits-label {
         font-size: 10px;
     }
+}
+
+@media (max-width: 480px) {
+    .credits-circle-large {
+        width: 26px;
+        height: 26px;
+        font-size: 10px;
+    }
+    
+    .credits-label {
+        font-size: 9px;
+    }
+}
+
+/* Pagination Styles */
+.pagination-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    padding: 20px 0;
+}
+
+.pagination-btn {
+    padding: 8px 16px;
+    border: 1px solid #ddd;
+    background: white;
+    color: #333;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 14px;
+}
+
+.pagination-btn:hover:not(:disabled) {
+    background: #f8f9fa;
+    border-color: #0078d4;
+    color: #0078d4;
+}
+
+.pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.pagination-info {
+    font-size: 14px;
+    color: #666;
+    font-weight: 500;
+}
+
+/* Search Input Styles */
+.search-input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #0078d4;
+    box-shadow: 0 0 0 3px rgba(0, 120, 212, 0.1);
 }
 </style>
 
@@ -573,10 +625,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
                 <div class="stat-item credits-stat">
                     <div class="credits-display-large" id="profile-credits-display">
+                        <div class="credits-label">Credits:</div>
                         <div class="credits-circle-large" id="profile-credits-circle">
                             <span id="profile-credits-text">0</span>
                         </div>
-                        <div class="credits-label">Specs</div>
                     </div>
                 </div>
             </div>
@@ -588,14 +640,30 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="section-header">
                 <h3>Workspace</h3>
                 <div class="section-actions">
-                    <button class="create-app-btn" onclick="showCreateAppModal()">
+                    <button class="create-app-btn" onclick="goToCreateSpec()" title="Create New Specification">
                         <i class="fas fa-plus"></i>
                     </button>
                 </div>
             </div>
 
+            <!-- Search and Filter -->
+            <div class="workspace-controls" style="margin-bottom: 20px;">
+                <input type="text" id="workspace-search" placeholder="Search workspace items..." class="search-input" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;">
+            </div>
+
             <div id="workspace-container" class="workspace-grid">
                 <div class="loading">Loading workspace...</div>
+            </div>
+
+            <!-- Pagination -->
+            <div id="workspace-pagination" class="pagination-container" style="display: none; margin-top: 20px; text-align: center;">
+                <button class="pagination-btn" id="prev-page" disabled>
+                    <i class="fas fa-chevron-left"></i> Previous
+                </button>
+                <span class="pagination-info" id="pagination-info">Page 1 of 1</span>
+                <button class="pagination-btn" id="next-page">
+                    Next <i class="fas fa-chevron-right"></i>
+                </button>
             </div>
         </div>
 
@@ -721,6 +789,12 @@ document.addEventListener('DOMContentLoaded', function() {
         let userApps = [];
         let userSavedTools = [];
         let userMarketResearch = [];
+        
+        // Pagination variables
+        let workspaceItems = [];
+        let currentPage = 1;
+        const itemsPerPage = 6;
+        let filteredItems = [];
         
         // Prevent multiple event listeners and debouncing
         let eventListenersSetup = false;
@@ -852,7 +926,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!currentUser) return;
             
             try {
-                const workspaceItems = [];
+                workspaceItems = [];
                 
                 // Load Apps
                 const appsQuery = query(
@@ -955,12 +1029,77 @@ document.addEventListener('DOMContentLoaded', function() {
                 const appsCount = workspaceItems.filter(item => item.type === 'app').length;
                 document.getElementById('apps-count').textContent = appsCount;
                 
-                renderWorkspace(workspaceItems);
+                // Reset pagination
+                currentPage = 1;
+                filteredItems = [...workspaceItems];
+                renderWorkspace(filteredItems);
+                setupPagination();
+                setupSearch();
                 
             } catch (error) {
                 console.error('Error loading workspace:', error);
                 document.getElementById('workspace-container').innerHTML = '<div class="error">Error loading workspace</div>';
             }
+        }
+
+        // Pagination setup
+        function setupPagination() {
+            const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
+            const paginationContainer = document.getElementById('workspace-pagination');
+            const prevBtn = document.getElementById('prev-page');
+            const nextBtn = document.getElementById('next-page');
+            const paginationInfo = document.getElementById('pagination-info');
+            
+            if (totalPages <= 1) {
+                paginationContainer.style.display = 'none';
+                return;
+            }
+            
+            paginationContainer.style.display = 'flex';
+            paginationInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+            
+            prevBtn.disabled = currentPage === 1;
+            nextBtn.disabled = currentPage === totalPages;
+            
+            prevBtn.onclick = () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderWorkspace(filteredItems);
+                    setupPagination();
+                }
+            };
+            
+            nextBtn.onclick = () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderWorkspace(filteredItems);
+                    setupPagination();
+                }
+            };
+        }
+        
+        // Search setup
+        function setupSearch() {
+            const searchInput = document.getElementById('workspace-search');
+            if (!searchInput) return;
+            
+            searchInput.oninput = (e) => {
+                const searchTerm = e.target.value.toLowerCase();
+                
+                if (searchTerm === '') {
+                    filteredItems = [...workspaceItems];
+                } else {
+                    filteredItems = workspaceItems.filter(item => {
+                        const title = item.title?.toLowerCase() || '';
+                        const description = item.description?.toLowerCase() || '';
+                        return title.includes(searchTerm) || description.includes(searchTerm);
+                    });
+                }
+                
+                currentPage = 1;
+                renderWorkspace(filteredItems);
+                setupPagination();
+            };
         }
 
         // Render workspace items
@@ -981,7 +1120,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             
-            workspaceContainer.innerHTML = items.map(item => {
+            // Paginate items
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const paginatedItems = items.slice(startIndex, endIndex);
+            
+            workspaceContainer.innerHTML = paginatedItems.map(item => {
                 const date = new Date(item.createdAt?.toDate?.() || item.createdAt).toLocaleDateString('en-US', {
                     year: 'numeric',
                     month: 'short',
@@ -1388,7 +1532,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div class="no-specs-icon"><i class="fas fa-file-alt"></i></div>
                         <h4>No specifications yet</h4>
                         <p>Create your first specification to get started!</p>
-                        <button class="btn" onclick="window.location.href='processing-unified.html'">
+                        <button class="btn" onclick="window.location.href='../index.html'">
                             Create New Specification
                         </button>
                     </div>
@@ -1662,6 +1806,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         // Global functions for app actions
+        // Navigate to create spec (with auto-start)
+        window.goToCreateSpec = function() {
+            window.location.href = '/index.html?autoStart=true';
+        };
+
         window.showCreateAppModal = function() {
             // Create modal HTML
             const modalHTML = `
