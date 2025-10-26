@@ -4804,6 +4804,7 @@
 
     <script src="script.js"></script>
     <script src="../assets/js/mobile-optimizations.js"></script>
+    <script src="../assets/js/advanced-analytics.js"></script>
 
     <!-- App Dashboard Script -->
     <script type="module">
@@ -4861,6 +4862,17 @@
             if (user) {
                 currentUser = user;
                 appId = getAppIdFromUrl();
+                
+                // Track user authentication with advanced analytics
+                if (window.advancedAnalytics) {
+                    window.advancedAnalytics.trackCustomEvent('user_authenticated', {
+                        user_id: user.uid,
+                        user_email: user.email,
+                        app_id: appId,
+                        time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now())
+                    });
+                }
+                
                 if (appId) {
                     loadAppData();
                 } else {
@@ -4868,6 +4880,13 @@
                 }
                 updateAuthUI(user);
             } else {
+                // Track user logout with advanced analytics
+                if (window.advancedAnalytics) {
+                    window.advancedAnalytics.trackCustomEvent('user_unauthenticated', {
+                        time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now())
+                    });
+                }
+                
                 // Redirect to login if not authenticated
                 window.location.href = '../index.html';
             }
@@ -4876,6 +4895,16 @@
         // Load app data
         async function loadAppData() {
             if (!currentUser || !appId) return;
+            
+            // Track data loading with advanced analytics
+            if (window.advancedAnalytics) {
+                window.advancedAnalytics.trackCustomEvent('data_loading_start', {
+                    data_type: 'app_dashboard',
+                    app_id: appId,
+                    user_id: currentUser.uid,
+                    time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now())
+                });
+            }
             
             try {
                 // Load app details
@@ -4903,10 +4932,33 @@
                 setTimeout(() => {
                     updateAllStats();
                 }, 1000);
+                
+                // Track successful data loading with advanced analytics
+                if (window.advancedAnalytics) {
+                    window.advancedAnalytics.trackCustomEvent('data_loading_complete', {
+                        data_type: 'app_dashboard',
+                        app_id: appId,
+                        user_id: currentUser.uid,
+                        load_time: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now()),
+                        success: true
+                    });
+                }
 
             } catch (error) {
                 console.error('Error loading app data:', error);
                 showError('Failed to load app data');
+                
+                // Track data loading error with advanced analytics
+                if (window.advancedAnalytics) {
+                    window.advancedAnalytics.trackCustomEvent('data_loading_error', {
+                        data_type: 'app_dashboard',
+                        app_id: appId,
+                        user_id: currentUser.uid,
+                        error_message: error.message,
+                        load_time: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now()),
+                        success: false
+                    });
+                }
             }
         }
 
@@ -4922,6 +4974,16 @@
         async function loadAppSpecs() {
             if (!currentApp || !currentApp.linkedSpecs) return;
             
+            // Track specs loading with advanced analytics
+            if (window.advancedAnalytics) {
+                window.advancedAnalytics.trackCustomEvent('data_loading_start', {
+                    data_type: 'specifications',
+                    app_id: currentApp.id,
+                    specs_count: currentApp.linkedSpecs.length,
+                    time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now())
+                });
+            }
+            
             try {
                 const specs = [];
                 for (const specId of currentApp.linkedSpecs) {
@@ -4932,8 +4994,30 @@
                 }
                 
                 renderSpecs(specs);
+                
+                // Track successful specs loading with advanced analytics
+                if (window.advancedAnalytics) {
+                    window.advancedAnalytics.trackCustomEvent('data_loading_complete', {
+                        data_type: 'specifications',
+                        app_id: currentApp.id,
+                        specs_loaded: specs.length,
+                        time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now()),
+                        success: true
+                    });
+                }
             } catch (error) {
                 console.error('Error loading specs:', error);
+                
+                // Track specs loading error with advanced analytics
+                if (window.advancedAnalytics) {
+                    window.advancedAnalytics.trackCustomEvent('data_loading_error', {
+                        data_type: 'specifications',
+                        app_id: currentApp.id,
+                        error_message: error.message,
+                        time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now()),
+                        success: false
+                    });
+                }
             }
         }
 
@@ -4941,10 +5025,31 @@
         async function loadAppResearch() {
             console.log('Loading app research...', currentApp);
             
+            // Track research loading with advanced analytics
+            if (window.advancedAnalytics) {
+                window.advancedAnalytics.trackCustomEvent('data_loading_start', {
+                    data_type: 'market_research',
+                    app_id: currentApp?.id || 'unknown',
+                    research_count: currentApp?.linkedResearch?.length || 0,
+                    time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now())
+                });
+            }
+            
             if (!currentApp || !currentApp.linkedResearch) {
                 console.log('No linked research found');
                 document.getElementById('research-count').textContent = '0';
                 renderResearch([]);
+                
+                // Track no research found with advanced analytics
+                if (window.advancedAnalytics) {
+                    window.advancedAnalytics.trackCustomEvent('data_loading_complete', {
+                        data_type: 'market_research',
+                        app_id: currentApp?.id || 'unknown',
+                        research_loaded: 0,
+                        time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now()),
+                        success: true
+                    });
+                }
                 return;
             }
             
@@ -4980,15 +5085,47 @@
                 
                 console.log('Total research loaded:', research.length);
                 renderResearch(research);
+                
+                // Track successful research loading with advanced analytics
+                if (window.advancedAnalytics) {
+                    window.advancedAnalytics.trackCustomEvent('data_loading_complete', {
+                        data_type: 'market_research',
+                        app_id: currentApp.id,
+                        research_loaded: research.length,
+                        time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now()),
+                        success: true
+                    });
+                }
             } catch (error) {
                 console.error('Error loading research:', error);
                 renderResearch([]);
+                
+                // Track research loading error with advanced analytics
+                if (window.advancedAnalytics) {
+                    window.advancedAnalytics.trackCustomEvent('data_loading_error', {
+                        data_type: 'market_research',
+                        app_id: currentApp.id,
+                        error_message: error.message,
+                        time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now()),
+                        success: false
+                    });
+                }
             }
         }
 
         // Load app tasks
         async function loadAppTasks() {
             if (!currentUser || !appId) return;
+            
+            // Track tasks loading with advanced analytics
+            if (window.advancedAnalytics) {
+                window.advancedAnalytics.trackCustomEvent('data_loading_start', {
+                    data_type: 'tasks',
+                    app_id: appId,
+                    user_id: currentUser.uid,
+                    time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now())
+                });
+            }
             
             try {
                 // Load tasks from Firestore (temporary simple query)
@@ -5014,10 +5151,35 @@
                 
                 renderTasks(tasks);
                 
+                // Track successful tasks loading with advanced analytics
+                if (window.advancedAnalytics) {
+                    window.advancedAnalytics.trackCustomEvent('data_loading_complete', {
+                        data_type: 'tasks',
+                        app_id: appId,
+                        user_id: currentUser.uid,
+                        tasks_loaded: tasks.length,
+                        time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now()),
+                        success: true
+                    });
+                }
+                
             } catch (error) {
                 console.error('Error loading tasks:', error);
                 console.error('Detailed error:', error.message);
                 alert('Error loading tasks. Check console for Firebase index links.');
+                
+                // Track tasks loading error with advanced analytics
+                if (window.advancedAnalytics) {
+                    window.advancedAnalytics.trackCustomEvent('data_loading_error', {
+                        data_type: 'tasks',
+                        app_id: appId,
+                        user_id: currentUser.uid,
+                        error_message: error.message,
+                        time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now()),
+                        success: false
+                    });
+                }
+                
                 // Fallback to sample data if there's an error
                 const sampleTasks = [
                     {
@@ -5074,12 +5236,34 @@
                 
                 // Tasks count will be updated by the main stats function
                 renderTasks(sampleTasks);
+                
+                // Track fallback data loading with advanced analytics
+                if (window.advancedAnalytics) {
+                    window.advancedAnalytics.trackCustomEvent('data_loading_fallback', {
+                        data_type: 'tasks',
+                        app_id: appId,
+                        user_id: currentUser.uid,
+                        fallback_data_count: sampleTasks.length,
+                        time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now()),
+                        success: true
+                    });
+                }
             }
         }
 
         // Load app milestones
         async function loadAppMilestones() {
             if (!currentUser || !appId) return;
+            
+            // Track milestones loading with advanced analytics
+            if (window.advancedAnalytics) {
+                window.advancedAnalytics.trackCustomEvent('data_loading_start', {
+                    data_type: 'milestones',
+                    app_id: appId,
+                    user_id: currentUser.uid,
+                    time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now())
+                });
+            }
             
             try {
                 // Load milestones from Firestore
@@ -5101,8 +5285,33 @@
 
                 renderMilestones(milestones);
                 
+                // Track successful milestones loading with advanced analytics
+                if (window.advancedAnalytics) {
+                    window.advancedAnalytics.trackCustomEvent('data_loading_complete', {
+                        data_type: 'milestones',
+                        app_id: appId,
+                        user_id: currentUser.uid,
+                        milestones_loaded: milestones.length,
+                        time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now()),
+                        success: true
+                    });
+                }
+                
             } catch (error) {
                 console.error('Error loading milestones:', error);
+                
+                // Track milestones loading error with advanced analytics
+                if (window.advancedAnalytics) {
+                    window.advancedAnalytics.trackCustomEvent('data_loading_error', {
+                        data_type: 'milestones',
+                        app_id: appId,
+                        user_id: currentUser.uid,
+                        error_message: error.message,
+                        time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now()),
+                        success: false
+                    });
+                }
+                
                 // Fallback to sample data if there's an error
                 const sampleMilestones = [
                     {
@@ -5154,12 +5363,34 @@
                 
                 // Milestones count will be updated by the main stats function
                 renderMilestones(sampleMilestones);
+                
+                // Track fallback data loading with advanced analytics
+                if (window.advancedAnalytics) {
+                    window.advancedAnalytics.trackCustomEvent('data_loading_fallback', {
+                        data_type: 'milestones',
+                        app_id: appId,
+                        user_id: currentUser.uid,
+                        fallback_data_count: sampleMilestones.length,
+                        time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now()),
+                        success: true
+                    });
+                }
             }
         }
 
         // Load app notes
         async function loadAppNotes() {
             if (!currentUser || !appId) return;
+            
+            // Track notes loading with advanced analytics
+            if (window.advancedAnalytics) {
+                window.advancedAnalytics.trackCustomEvent('data_loading_start', {
+                    data_type: 'notes',
+                    app_id: appId,
+                    user_id: currentUser.uid,
+                    time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now())
+                });
+            }
             
             try {
                 // Load notes from Firestore (temporary simple query)
@@ -5183,10 +5414,35 @@
                 
                 renderNotes(notes);
                 
+                // Track successful notes loading with advanced analytics
+                if (window.advancedAnalytics) {
+                    window.advancedAnalytics.trackCustomEvent('data_loading_complete', {
+                        data_type: 'notes',
+                        app_id: appId,
+                        user_id: currentUser.uid,
+                        notes_loaded: notes.length,
+                        time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now()),
+                        success: true
+                    });
+                }
+                
             } catch (error) {
                 console.error('Error loading notes:', error);
                 console.error('Detailed error:', error.message);
                 alert('Error loading notes. Check console for Firebase index links.');
+                
+                // Track notes loading error with advanced analytics
+                if (window.advancedAnalytics) {
+                    window.advancedAnalytics.trackCustomEvent('data_loading_error', {
+                        data_type: 'notes',
+                        app_id: appId,
+                        user_id: currentUser.uid,
+                        error_message: error.message,
+                        time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now()),
+                        success: false
+                    });
+                }
+                
                 // Fallback to sample data if there's an error
                 const sampleNotes = [
                     {
@@ -5234,12 +5490,34 @@
                 ];
                 
                 renderNotes(sampleNotes);
+                
+                // Track fallback data loading with advanced analytics
+                if (window.advancedAnalytics) {
+                    window.advancedAnalytics.trackCustomEvent('data_loading_fallback', {
+                        data_type: 'notes',
+                        app_id: appId,
+                        user_id: currentUser.uid,
+                        fallback_data_count: sampleNotes.length,
+                        time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now()),
+                        success: true
+                    });
+                }
             }
         }
 
         // Load app features (with sample data for now)
         async function loadAppFeatures() {
             if (!currentUser || !appId) return;
+            
+            // Track features loading with advanced analytics
+            if (window.advancedAnalytics) {
+                window.advancedAnalytics.trackCustomEvent('data_loading_start', {
+                    data_type: 'features',
+                    app_id: appId,
+                    user_id: currentUser.uid,
+                    time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now())
+                });
+            }
             
             try {
                 // Load features from Firestore
@@ -5261,8 +5539,33 @@
 
                 renderFeatures(features);
                 
+                // Track successful features loading with advanced analytics
+                if (window.advancedAnalytics) {
+                    window.advancedAnalytics.trackCustomEvent('data_loading_complete', {
+                        data_type: 'features',
+                        app_id: appId,
+                        user_id: currentUser.uid,
+                        features_loaded: features.length,
+                        time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now()),
+                        success: true
+                    });
+                }
+                
             } catch (error) {
                 console.error('Error loading features:', error);
+                
+                // Track features loading error with advanced analytics
+                if (window.advancedAnalytics) {
+                    window.advancedAnalytics.trackCustomEvent('data_loading_error', {
+                        data_type: 'features',
+                        app_id: appId,
+                        user_id: currentUser.uid,
+                        error_message: error.message,
+                        time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now()),
+                        success: false
+                    });
+                }
+                
                 // Fallback to sample data if there's an error
                 const sampleFeatures = [
                     {
@@ -5308,6 +5611,18 @@
                 ];
                 
                 renderFeatures(sampleFeatures);
+                
+                // Track fallback data loading with advanced analytics
+                if (window.advancedAnalytics) {
+                    window.advancedAnalytics.trackCustomEvent('data_loading_fallback', {
+                        data_type: 'features',
+                        app_id: appId,
+                        user_id: currentUser.uid,
+                        fallback_data_count: sampleFeatures.length,
+                        time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now()),
+                        success: true
+                    });
+                }
             }
         }
 
@@ -5319,6 +5634,16 @@
             }
             
             console.log('📊 Loading expenses for user:', currentUser.uid, 'app:', appId);
+            
+            // Track expenses loading with advanced analytics
+            if (window.advancedAnalytics) {
+                window.advancedAnalytics.trackCustomEvent('data_loading_start', {
+                    data_type: 'expenses',
+                    app_id: appId,
+                    user_id: currentUser.uid,
+                    time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now())
+                });
+            }
             
             try {
                 // Load expenses from Firestore
@@ -5341,8 +5666,33 @@
                 console.log('✅ Found', expenses.length, 'expenses from Firebase');
                 renderExpenses(expenses);
                 
+                // Track successful expenses loading with advanced analytics
+                if (window.advancedAnalytics) {
+                    window.advancedAnalytics.trackCustomEvent('data_loading_complete', {
+                        data_type: 'expenses',
+                        app_id: appId,
+                        user_id: currentUser.uid,
+                        expenses_loaded: expenses.length,
+                        time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now()),
+                        success: true
+                    });
+                }
+                
             } catch (error) {
                 console.error('Error loading expenses:', error);
+                
+                // Track expenses loading error with advanced analytics
+                if (window.advancedAnalytics) {
+                    window.advancedAnalytics.trackCustomEvent('data_loading_error', {
+                        data_type: 'expenses',
+                        app_id: appId,
+                        user_id: currentUser.uid,
+                        error_message: error.message,
+                        error_code: error.code,
+                        time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now()),
+                        success: false
+                    });
+                }
                 
                 // Check if it's a composite index error
                 if (error.code === 'failed-precondition' && error.message.includes('index')) {
@@ -5368,6 +5718,18 @@
                         if (expenses.length > 0) {
                             console.log('✅ Successfully loaded', expenses.length, 'expenses without orderBy');
                             renderExpenses(expenses);
+                            
+                            // Track successful fallback loading with advanced analytics
+                            if (window.advancedAnalytics) {
+                                window.advancedAnalytics.trackCustomEvent('data_loading_fallback', {
+                                    data_type: 'expenses',
+                                    app_id: appId,
+                                    user_id: currentUser.uid,
+                                    fallback_data_count: expenses.length,
+                                    time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now()),
+                                    success: true
+                                });
+                            }
                             return;
                         } else {
                             console.log('📭 No expenses found in database');
@@ -5430,6 +5792,18 @@
                 ];
                 
                 renderExpenses(sampleExpenses);
+                
+                // Track fallback data loading with advanced analytics
+                if (window.advancedAnalytics) {
+                    window.advancedAnalytics.trackCustomEvent('data_loading_fallback', {
+                        data_type: 'expenses',
+                        app_id: appId,
+                        user_id: currentUser.uid,
+                        fallback_data_count: sampleExpenses.length,
+                        time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now()),
+                        success: true
+                    });
+                }
             }
         }
 
@@ -5438,6 +5812,15 @@
             const container = document.getElementById('specs-container');
             if (specs.length === 0) {
                 container.innerHTML = '<div class="text-center text-muted">No specifications linked.</div>';
+                
+                // Track empty specs with advanced analytics
+                if (window.advancedAnalytics) {
+                    window.advancedAnalytics.trackCustomEvent('empty_data_rendered', {
+                        data_type: 'specifications',
+                        app_id: currentApp?.id || 'unknown',
+                        time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now())
+                    });
+                }
                 return;
             }
              container.innerHTML = `
@@ -5456,6 +5839,16 @@
                      `).join('')}
                  </div>
              `;
+             
+             // Track specs rendered with advanced analytics
+             if (window.advancedAnalytics) {
+                 window.advancedAnalytics.trackCustomEvent('data_rendered', {
+                     data_type: 'specifications',
+                     app_id: currentApp?.id || 'unknown',
+                     items_count: specs.length,
+                     time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now())
+                 });
+             }
         }
 
         function renderResearch(research) {
@@ -5467,6 +5860,15 @@
             
             if (research.length === 0) {
                 container.innerHTML = '<div class="text-center text-muted">No market research linked.</div>';
+                
+                // Track empty research with advanced analytics
+                if (window.advancedAnalytics) {
+                    window.advancedAnalytics.trackCustomEvent('empty_data_rendered', {
+                        data_type: 'market_research',
+                        app_id: currentApp?.id || 'unknown',
+                        time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now())
+                    });
+                }
                 return;
             }
             
@@ -5486,12 +5888,31 @@
                      `).join('')}
                  </div>
              `;
+             
+             // Track research rendered with advanced analytics
+             if (window.advancedAnalytics) {
+                 window.advancedAnalytics.trackCustomEvent('data_rendered', {
+                     data_type: 'market_research',
+                     app_id: currentApp?.id || 'unknown',
+                     items_count: research.length,
+                     time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now())
+                 });
+             }
         }
 
         function renderTasks(tasks) {
             const container = document.getElementById('tasks-container');
             if (tasks.length === 0) {
                 container.innerHTML = '<div class="text-center text-muted">No tasks yet. Add your first task!</div>';
+                
+                // Track empty tasks with advanced analytics
+                if (window.advancedAnalytics) {
+                    window.advancedAnalytics.trackCustomEvent('empty_data_rendered', {
+                        data_type: 'tasks',
+                        app_id: currentApp?.id || 'unknown',
+                        time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now())
+                    });
+                }
                 return;
             }
             
@@ -5530,6 +5951,16 @@
             
             container.innerHTML = `<div class="tasks-list-simple">${tasksHTML}</div>`;
             
+            // Track tasks rendered with advanced analytics
+            if (window.advancedAnalytics) {
+                window.advancedAnalytics.trackCustomEvent('data_rendered', {
+                    data_type: 'tasks',
+                    app_id: currentApp?.id || 'unknown',
+                    items_count: tasks.length,
+                    time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now())
+                });
+            }
+            
             // Counter will be updated by updateAllStats after all data loads
         }
         
@@ -5539,6 +5970,16 @@
             if (details) {
                 const isVisible = details.style.display !== 'none';
                 details.style.display = isVisible ? 'none' : 'block';
+                
+                // Track task details toggle with advanced analytics
+                if (window.advancedAnalytics) {
+                    window.advancedAnalytics.trackCustomEvent('task_details_toggle', {
+                        task_id: taskId,
+                        action: isVisible ? 'hide' : 'show',
+                        time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now()),
+                        current_tab: document.querySelector('.unified-dashboard [data-tab].active')?.getAttribute('data-tab') || 'unknown'
+                    });
+                }
             }
         }
         
@@ -5565,6 +6006,18 @@
                 statusBadge.className = 'note-category-simple to-do';
             }
             
+            // Track status change with advanced analytics
+            if (window.advancedAnalytics) {
+                window.advancedAnalytics.trackCustomEvent('status_change', {
+                    item_type: 'task',
+                    item_id: taskId,
+                    old_status: currentText,
+                    new_status: newStatus,
+                    time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now()),
+                    current_tab: document.querySelector('.unified-dashboard [data-tab].active')?.getAttribute('data-tab') || 'unknown'
+                });
+            }
+            
             // Update in Firebase
             try {
                 const taskRef = doc(db, 'appTasks', taskId);
@@ -5583,6 +6036,15 @@
             const container = document.getElementById('milestones-timeline');
             if (milestones.length === 0) {
                 container.innerHTML = '<div class="text-center text-muted">No milestones yet. Add your first milestone!</div>';
+                
+                // Track empty milestones with advanced analytics
+                if (window.advancedAnalytics) {
+                    window.advancedAnalytics.trackCustomEvent('empty_data_rendered', {
+                        data_type: 'milestones',
+                        app_id: currentApp?.id || 'unknown',
+                        time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now())
+                    });
+                }
                 return;
             }
             
@@ -5701,6 +6163,16 @@
                 window.milestonesData[milestone.id] = milestone;
             });
             
+            // Track milestones rendered with advanced analytics
+            if (window.advancedAnalytics) {
+                window.advancedAnalytics.trackCustomEvent('data_rendered', {
+                    data_type: 'milestones',
+                    app_id: currentApp?.id || 'unknown',
+                    items_count: milestones.length,
+                    time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now())
+                });
+            }
+            
             // Counter will be updated by updateAllStats after all data loads
         }
         
@@ -5728,6 +6200,18 @@
                         break;
                     default:
                         newStatus = 'in-progress';
+                }
+                
+                // Track milestone status change with advanced analytics
+                if (window.advancedAnalytics) {
+                    window.advancedAnalytics.trackCustomEvent('milestone_status_change', {
+                        milestone_id: milestoneId,
+                        milestone_title: milestone.title,
+                        old_status: milestone.status,
+                        new_status: newStatus,
+                        time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now()),
+                        current_tab: document.querySelector('.unified-dashboard [data-tab].active')?.getAttribute('data-tab') || 'unknown'
+                    });
                 }
 
                 // Update in Firebase
@@ -5767,6 +6251,16 @@
                         <span class="milestone-info-progress">${milestone.progress}% Complete</span>
                     </div>
                 `;
+                
+                // Track milestone info display with advanced analytics
+                if (window.advancedAnalytics) {
+                    window.advancedAnalytics.trackCustomEvent('milestone_info_display', {
+                        milestone_id: milestoneId,
+                        milestone_title: milestone.title,
+                        time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now()),
+                        current_tab: document.querySelector('.unified-dashboard [data-tab].active')?.getAttribute('data-tab') || 'unknown'
+                    });
+                }
             }
         }
 
@@ -5782,10 +6276,29 @@
             if (selectedDetail) {
                 selectedDetail.classList.add('active');
             }
+            
+            // Track milestone details display with advanced analytics
+            if (window.advancedAnalytics) {
+                window.advancedAnalytics.trackCustomEvent('milestone_details_display', {
+                    milestone_id: milestoneId,
+                    time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now()),
+                    current_tab: document.querySelector('.unified-dashboard [data-tab].active')?.getAttribute('data-tab') || 'unknown'
+                });
+            }
         }
 
         function renderNotes(notes) {
             const container = document.getElementById('notes-container');
+            
+            // Track notes rendering with advanced analytics
+            if (window.advancedAnalytics) {
+                window.advancedAnalytics.trackCustomEvent('data_rendered', {
+                    data_type: 'notes',
+                    app_id: currentApp?.id || 'unknown',
+                    items_count: notes.length,
+                    time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now())
+                });
+            }
             
             // Define 10 fixed categories
             const categories = [
@@ -5886,6 +6399,16 @@
             if (details) {
                 const isVisible = details.style.display !== 'none';
                 details.style.display = isVisible ? 'none' : 'block';
+                
+                // Track note details toggle with advanced analytics
+                if (window.advancedAnalytics) {
+                    window.advancedAnalytics.trackCustomEvent('note_details_toggle', {
+                        note_id: noteId,
+                        action: isVisible ? 'hide' : 'show',
+                        time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now()),
+                        current_tab: document.querySelector('.unified-dashboard [data-tab].active')?.getAttribute('data-tab') || 'unknown'
+                    });
+                }
             }
         }
 
@@ -5893,6 +6416,15 @@
             const container = document.getElementById('features-container');
             if (features.length === 0) {
                 container.innerHTML = '<div class="text-center text-muted">No versions yet. Add your first version!</div>';
+                
+                // Track empty features with advanced analytics
+                if (window.advancedAnalytics) {
+                    window.advancedAnalytics.trackCustomEvent('empty_data_rendered', {
+                        data_type: 'features',
+                        app_id: currentApp?.id || 'unknown',
+                        time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now())
+                    });
+                }
                 return;
             }
 
@@ -5967,6 +6499,16 @@
 
             container.innerHTML = `<div class="features-roadmap">${featureListHTML}</div>`;
             
+            // Track features rendered with advanced analytics
+            if (window.advancedAnalytics) {
+                window.advancedAnalytics.trackCustomEvent('data_rendered', {
+                    data_type: 'features',
+                    app_id: currentApp?.id || 'unknown',
+                    items_count: features.length,
+                    time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now())
+                });
+            }
+            
             // Counter will be updated by updateAllStats after all data loads
         }
         
@@ -5976,6 +6518,16 @@
             if (details) {
                 const isVisible = details.style.display !== 'none';
                 details.style.display = isVisible ? 'none' : 'block';
+                
+                // Track version details toggle with advanced analytics
+                if (window.advancedAnalytics) {
+                    window.advancedAnalytics.trackCustomEvent('version_details_toggle', {
+                        version: version,
+                        action: isVisible ? 'hide' : 'show',
+                        time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now()),
+                        current_tab: document.querySelector('.unified-dashboard [data-tab].active')?.getAttribute('data-tab') || 'unknown'
+                    });
+                }
             }
         }
 
@@ -5983,6 +6535,15 @@
             const container = document.getElementById('expenses-container');
             if (expenses.length === 0) {
                 container.innerHTML = '<div class="text-center text-muted">No expenses yet. Add your first expense!</div>';
+                
+                // Track empty expenses with advanced analytics
+                if (window.advancedAnalytics) {
+                    window.advancedAnalytics.trackCustomEvent('empty_data_rendered', {
+                        data_type: 'expenses',
+                        app_id: currentApp?.id || 'unknown',
+                        time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now())
+                    });
+                }
                 return;
             }
             
@@ -6051,6 +6612,16 @@
                 </div>
             `;
             
+            // Track expenses rendered with advanced analytics
+            if (window.advancedAnalytics) {
+                window.advancedAnalytics.trackCustomEvent('data_rendered', {
+                    data_type: 'expenses',
+                    app_id: currentApp?.id || 'unknown',
+                    items_count: expenses.length,
+                    time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now())
+                });
+            }
+            
             // Counter will be updated by updateAllStats after all data loads
         }
         
@@ -6060,11 +6631,31 @@
             if (details) {
                 const isVisible = details.style.display !== 'none';
                 details.style.display = isVisible ? 'none' : 'block';
+                
+                // Track expense details toggle with advanced analytics
+                if (window.advancedAnalytics) {
+                    window.advancedAnalytics.trackCustomEvent('expense_details_toggle', {
+                        expense_id: expenseId,
+                        action: isVisible ? 'hide' : 'show',
+                        time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now()),
+                        current_tab: document.querySelector('.unified-dashboard [data-tab].active')?.getAttribute('data-tab') || 'unknown'
+                    });
+                }
             }
         }
 
         // Unified Tab Management Function
         window.switchUnifiedTab = function(tabName) {
+            // Track tab switch with advanced analytics
+            if (window.advancedAnalytics) {
+                window.advancedAnalytics.trackCustomEvent('dashboard_tab_switch', {
+                    tab_name: tabName,
+                    previous_tab: document.querySelector('.unified-dashboard [data-tab].active')?.getAttribute('data-tab') || 'none',
+                    time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now()),
+                    user_engagement: window.advancedAnalytics.calculateEngagementScore ? window.advancedAnalytics.calculateEngagementScore() : 0
+                });
+            }
+            
             // Update tab buttons (unified dashboard only)
             document.querySelectorAll('.unified-dashboard [data-tab]').forEach(btn => {
                 btn.classList.remove('active');
@@ -6159,15 +6750,41 @@
 
         // Redirect functions for specs and research
         window.redirectToSpecsCreator = function() {
+            // Track specs creator redirect with advanced analytics
+            if (window.advancedAnalytics) {
+                window.advancedAnalytics.trackCustomEvent('redirect_to_specs_creator', {
+                    time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now()),
+                    current_tab: document.querySelector('.unified-dashboard [data-tab].active')?.getAttribute('data-tab') || 'unknown'
+                });
+            }
+            
             window.open('../processing-unified.html', '_blank');
         }
 
         window.redirectToResearchCreator = function() {
+            // Track research creator redirect with advanced analytics
+            if (window.advancedAnalytics) {
+                window.advancedAnalytics.trackCustomEvent('redirect_to_research_creator', {
+                    time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now()),
+                    current_tab: document.querySelector('.unified-dashboard [data-tab].active')?.getAttribute('data-tab') || 'unknown'
+                });
+            }
+            
             window.open('../processing-unified.html', '_blank');
         }
 
         // Modal functions for other tabs
         window.openTaskModal = function() {
+            // Track modal open with advanced analytics
+            if (window.advancedAnalytics) {
+                window.advancedAnalytics.trackCustomEvent('modal_open', {
+                    modal_type: 'task_creation',
+                    modal_name: 'Add New Task',
+                    time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now()),
+                    current_tab: document.querySelector('.unified-dashboard [data-tab].active')?.getAttribute('data-tab') || 'unknown'
+                });
+            }
+            
             const modal = document.createElement('div');
             modal.className = 'modal-overlay';
             modal.innerHTML = `
@@ -6497,6 +7114,18 @@
                     break;
             }
             
+            // Track feature status change with advanced analytics
+            if (window.advancedAnalytics) {
+                window.advancedAnalytics.trackCustomEvent('feature_status_change', {
+                    feature_id: featureId,
+                    version: version,
+                    old_status: currentStatus,
+                    new_status: newStatus,
+                    time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now()),
+                    current_tab: document.querySelector('.unified-dashboard [data-tab].active')?.getAttribute('data-tab') || 'unknown'
+                });
+            }
+            
             // Update circle visually
             circle.classList.remove('planned', 'in-progress', 'completed');
             circle.classList.add(newStatus);
@@ -6527,6 +7156,19 @@
             const versionsCount = document.querySelectorAll('#features-container .version-roadmap-item').length;
             const milestonesCount = document.querySelectorAll('#milestones-timeline .milestone-point').length;
             const expenseItems = document.querySelectorAll('#expenses-container .expense-item-simple');
+            
+            // Track dashboard stats update with advanced analytics
+            if (window.advancedAnalytics) {
+                window.advancedAnalytics.trackCustomEvent('dashboard_stats_update', {
+                    tasks_count: tasksCount,
+                    notes_count: notesCount,
+                    versions_count: versionsCount,
+                    milestones_count: milestonesCount,
+                    expenses_count: expenseItems.length,
+                    time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now()),
+                    current_tab: document.querySelector('.unified-dashboard [data-tab].active')?.getAttribute('data-tab') || 'unknown'
+                });
+            }
             
             
             // Calculate total budget used from visible expenses
@@ -6712,6 +7354,17 @@
         }
 
         window.closeModal = function() {
+            // Track modal close with advanced analytics
+            if (window.advancedAnalytics) {
+                const modal = document.querySelector('.modal-overlay');
+                const modalTitle = modal?.querySelector('.modal-header h3')?.textContent || 'Unknown Modal';
+                window.advancedAnalytics.trackCustomEvent('modal_close', {
+                    modal_name: modalTitle,
+                    time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now()),
+                    current_tab: document.querySelector('.unified-dashboard [data-tab].active')?.getAttribute('data-tab') || 'unknown'
+                });
+            }
+            
             const modal = document.querySelector('.modal-overlay');
             if (modal) {
                 modal.remove();
@@ -6724,6 +7377,16 @@
             if (!form.checkValidity()) {
                 form.reportValidity();
                 return;
+            }
+            
+            // Track form submission with advanced analytics
+            if (window.advancedAnalytics) {
+                window.advancedAnalytics.trackCustomEvent('form_submission', {
+                    form_type: 'task_creation',
+                    form_name: 'Add New Task',
+                    time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now()),
+                    current_tab: document.querySelector('.unified-dashboard [data-tab].active')?.getAttribute('data-tab') || 'unknown'
+                });
             }
             
             try {
@@ -7022,6 +7685,16 @@
         // Delete Confirmation Functions (simplified - called directly from buttons)
         window.deleteTaskConfirm = async function(taskId) {
             if (confirm('Are you sure you want to delete this task?')) {
+                // Track deletion with advanced analytics
+                if (window.advancedAnalytics) {
+                    window.advancedAnalytics.trackCustomEvent('item_deletion', {
+                        item_type: 'task',
+                        item_id: taskId,
+                        time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now()),
+                        current_tab: document.querySelector('.unified-dashboard [data-tab].active')?.getAttribute('data-tab') || 'unknown'
+                    });
+                }
+                
                 try {
                     await deleteDoc(doc(db, 'appTasks', taskId));
                     showSuccess('Task deleted successfully!');
@@ -7085,6 +7758,15 @@
 
         // Helper function to show success messages
         function showSuccess(message) {
+            // Track success message with advanced analytics
+            if (window.advancedAnalytics) {
+                window.advancedAnalytics.trackCustomEvent('success_message', {
+                    message: message,
+                    time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now()),
+                    current_tab: document.querySelector('.unified-dashboard [data-tab].active')?.getAttribute('data-tab') || 'unknown'
+                });
+            }
+            
             // Create a temporary success notification
             const notification = document.createElement('div');
             notification.style.cssText = `
@@ -7125,6 +7807,15 @@
 
         // Helper function to show error messages
         function showError(message) {
+            // Track error message with advanced analytics
+            if (window.advancedAnalytics) {
+                window.advancedAnalytics.trackCustomEvent('error_message', {
+                    message: message,
+                    time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now()),
+                    current_tab: document.querySelector('.unified-dashboard [data-tab].active')?.getAttribute('data-tab') || 'unknown'
+                });
+            }
+            
             // Create a temporary error notification
             const notification = document.createElement('div');
             notification.style.cssText = `
@@ -7530,14 +8221,38 @@
 
         // Global functions for actions
         window.linkExistingSpec = function() {
+            // Track link existing spec with advanced analytics
+            if (window.advancedAnalytics) {
+                window.advancedAnalytics.trackCustomEvent('link_existing_spec', {
+                    time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now()),
+                    current_tab: document.querySelector('.unified-dashboard [data-tab].active')?.getAttribute('data-tab') || 'unknown'
+                });
+            }
+            
             alert('To link specifications to this app, go to your Profile page and use the Link button on each specification.');
         };
 
         window.createNewSpec = function() {
+            // Track create new spec with advanced analytics
+            if (window.advancedAnalytics) {
+                window.advancedAnalytics.trackCustomEvent('create_new_spec', {
+                    time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now()),
+                    current_tab: document.querySelector('.unified-dashboard [data-tab].active')?.getAttribute('data-tab') || 'unknown'
+                });
+            }
+            
             window.location.href = '../processing-unified.html';
         };
 
         window.addMarketResearch = function() {
+            // Track add market research with advanced analytics
+            if (window.advancedAnalytics) {
+                window.advancedAnalytics.trackCustomEvent('add_market_research', {
+                    time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now()),
+                    current_tab: document.querySelector('.unified-dashboard [data-tab].active')?.getAttribute('data-tab') || 'unknown'
+                });
+            }
+            
             alert('To link market research to this app, go to your Profile page and use the Link button on each research item.');
         };
 
@@ -7605,6 +8320,14 @@
 
         // Global auth functions
         window.logout = function() {
+            // Track logout with advanced analytics
+            if (window.advancedAnalytics) {
+                window.advancedAnalytics.trackCustomEvent('user_logout', {
+                    time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now()),
+                    current_tab: document.querySelector('.unified-dashboard [data-tab].active')?.getAttribute('data-tab') || 'unknown'
+                });
+            }
+            
             signOut(auth)
                 .then(() => {
                     alert('Logged out successfully');
@@ -7638,6 +8361,14 @@
 
         // Back to Profile Function
         window.goBackToProfile = function() {
+            // Track back to profile with advanced analytics
+            if (window.advancedAnalytics) {
+                window.advancedAnalytics.trackCustomEvent('navigation_back_to_profile', {
+                    time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now()),
+                    current_tab: document.querySelector('.unified-dashboard [data-tab].active')?.getAttribute('data-tab') || 'unknown'
+                });
+            }
+            
             // Get the current user ID from the URL or localStorage
             const urlParams = new URLSearchParams(window.location.search);
             const userId = urlParams.get('userId') || localStorage.getItem('currentUserId');
@@ -7670,6 +8401,17 @@
                     requestAnimationFrame(updateCounter);
                 } else {
                     element.textContent = target;
+                    
+                    // Track counter animation completion with advanced analytics
+                    if (window.advancedAnalytics) {
+                        window.advancedAnalytics.trackCustomEvent('counter_animation_complete', {
+                            element_id: element.id,
+                            target_value: target,
+                            duration: duration,
+                            time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now()),
+                            current_tab: document.querySelector('.unified-dashboard [data-tab].active')?.getAttribute('data-tab') || 'unknown'
+                        });
+                    }
                 }
             }
             
@@ -7681,6 +8423,19 @@
 
         // Update all stats with smooth animation
         function updateStatsWithAnimation(stats) {
+            // Track stats animation with advanced analytics
+            if (window.advancedAnalytics) {
+                window.advancedAnalytics.trackCustomEvent('stats_animation', {
+                    tasks_count: stats.tasks,
+                    milestones_count: stats.milestones,
+                    notes_count: stats.notes,
+                    versions_count: stats.versions,
+                    budget_used: stats.budget,
+                    time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now()),
+                    current_tab: document.querySelector('.unified-dashboard [data-tab].active')?.getAttribute('data-tab') || 'unknown'
+                });
+            }
+            
             // If animation is already running, just update the final values without animation
             if (isAnimating) {
                 document.getElementById('tasks-count').textContent = stats.tasks;
@@ -7722,6 +8477,14 @@
         function updateAllStats() {
             // Use the existing updateDashboardCounters function
             updateDashboardCounters();
+            
+            // Track stats update completion with advanced analytics
+            if (window.advancedAnalytics) {
+                window.advancedAnalytics.trackCustomEvent('stats_update_complete', {
+                    time_on_page: Date.now() - (window.advancedAnalytics.pageStartTime || Date.now()),
+                    current_tab: document.querySelector('.unified-dashboard [data-tab].active')?.getAttribute('data-tab') || 'unknown'
+                });
+            }
         }
     </script>
     
