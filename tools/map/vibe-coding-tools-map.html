@@ -124,10 +124,11 @@
       top: 0;
       left: 0;
       right: 0;
-      background: var(--bg-color, #f5f5f5);
-      border-bottom: 1px solid var(--border-color, #ddd);
+      background: var(--header-background, rgba(255, 255, 255, 0.9));
+      border-bottom: 2px solid var(--border-color, #ddd);
       z-index: 100;
       transition: background 0.3s ease, border-color 0.3s ease;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
 
 
@@ -880,8 +881,9 @@
       width: 100%;
       color: var(--footer-text);
       flex-shrink: 0;
-      background: var(--footer-background);
+      background: var(--footer-background, #fff);
       box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+      border-top: 2px solid #ddd;
     }
 
     .footer-content {
@@ -1174,7 +1176,13 @@
       </p>
     </div>
 
-    <div id="root"></div>
+    <div id="root">
+      <div style="padding: 40px; text-align: center; color: #333;">
+        <h2>Loading Vibe Coding Tools Map...</h2>
+        <p style="margin-top: 10px;">Please wait while we load the tools.</p>
+        <div style="margin-top: 20px; font-size: 2rem;">⏳</div>
+      </div>
+    </div>
 
     <div class="newsletter-container hidden" id="newsletter-container">
       <button class="newsletter-close" onclick="closeNewsletter()" aria-label="Close newsletter">
@@ -1221,12 +1229,26 @@
   </footer>
 
   <script type="text/babel">
+    // Check if all libraries are loaded
+    console.log('=== Library Check ===');
+    console.log('React loaded:', typeof React !== 'undefined');
+    console.log('ReactDOM loaded:', typeof ReactDOM !== 'undefined');
+    console.log('Firebase loaded:', typeof firebase !== 'undefined');
+    console.log('Babel loaded:', typeof Babel !== 'undefined');
+
+    if (typeof React === 'undefined' || typeof ReactDOM === 'undefined') {
+      document.getElementById('root').innerHTML = '<div style="padding: 40px; text-align: center; color: red;"><h2>Error: Required libraries failed to load</h2><p>Please check your internet connection and refresh the page.</p></div>';
+      throw new Error('React or ReactDOM not loaded');
+    }
 
     async function fetchTools() {
       try {
+        console.log('Fetching tools.json...');
         const response = await fetch('tools.json');
+        console.log('Response status:', response.status);
         if (!response.ok) throw new Error('Network response was not ok ' + response.status);
         let data = await response.json();
+        console.log('Tools loaded successfully:', data.length, 'tools');
         data = data.filter(tool => tool && tool.category && typeof tool.category === 'string' && tool.category.trim() !== '');
         data = data.map(tool => {
           if (tool.category === "UI/UX Design & Prototyping Tools") {
