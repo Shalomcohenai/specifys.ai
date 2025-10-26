@@ -26,10 +26,9 @@
   <meta name="twitter:image" content="https://specifys-ai.com/assets/og-image.jpg">
   <meta name="twitter:image:alt" content="Vibe Coding Tools Map by Specify.ai">
   <link rel="canonical" href="https://specifys-ai.com/tools/map/vibe-coding-tools-map.html">
-  <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" as="style">
   <link rel="preload" href="https://unpkg.com/react@18/umd/react.development.js" as="script">
   <link rel="preload" href="https://unpkg.com/react-dom@18/umd/react-dom.development.js" as="script">
-  <link rel="prerender" href="vibe-coding-tools-map.html">
+  
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-RWBT69JCM7"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -43,18 +42,22 @@
     });
     gtag('config', 'AW-1000505244');
   </script>
+  
   <title>Vibe Coding Tools Map | Specify.ai</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
+  
+  <!-- Load React, ReactDOM, and Babel -->
   <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  
+  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  
   <style>
-    @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=block");
+    @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap");
 
     :root {
       --background-color: #f5f5f5;
@@ -90,7 +93,6 @@
       --error-message: #ff4444;
     }
 
-
     * {
       margin: 0;
       padding: 0;
@@ -110,9 +112,6 @@
       min-height: 100%;
       background: #f5f5f5 !important;
     }
-    
-    
-    
 
     /* Header Layout Styles */
     .thematic-header {
@@ -124,12 +123,11 @@
       top: 0;
       left: 0;
       right: 0;
-      background: var(--bg-color, #f5f5f5);
-      border-bottom: 1px solid var(--border-color, #ddd);
+      background: var(--header-background);
+      border-bottom: 1px solid #ddd;
       z-index: 100;
       transition: background 0.3s ease, border-color 0.3s ease;
     }
-
 
     .header-left {
       display: flex;
@@ -163,16 +161,14 @@
     .logo a {
       font-size: 1.5rem;
       font-weight: 700;
-      color: var(--text-color, #333);
+      color: #333;
       text-decoration: none;
       transition: color 0.3s ease;
     }
 
-
     .logo a:hover {
-      color: var(--primary-color, #0078d4);
+      color: #0078d4;
     }
-
 
     /* Auth System Styles */
     .auth-buttons {
@@ -197,17 +193,17 @@
     }
 
     .auth-btn:hover {
-      color: var(--primary-color, #0078d4);
+      color: #0078d4;
       transform: translateY(-2px);
     }
 
     .auth-btn.primary {
-      background: var(--primary-color, #0078d4);
+      background: #0078d4;
       color: white;
     }
 
     .auth-btn.primary:hover {
-      background: var(--button-hover, #005ea2);
+      background: #005ea2;
     }
 
     /* User Info & Dropdown */
@@ -252,7 +248,7 @@
       position: fixed;
       top: 80px;
       right: 20px;
-      background: var(--chat-bg, #fff);
+      background: #fff;
       border-radius: 12px;
       box-shadow: 0 8px 32px rgba(0,0,0,0.3);
       min-width: 150px;
@@ -274,7 +270,7 @@
       display: block;
       width: 100%;
       padding: 12px 16px;
-      color: var(--text-color, #333);
+      color: #333;
       text-decoration: none;
       font-size: 0.9rem;
       font-weight: 500;
@@ -287,152 +283,21 @@
 
     .user-dropdown-content a:hover,
     .user-dropdown-content button:hover {
-      background: var(--light-gray, #f5f5f5);
+      background: #f5f5f5;
     }
-
-
-    /* Mobile Responsive */
-    @media (max-width: 768px) {
-      .thematic-header {
-        padding: 10px 15px;
-      }
-      
-      .header-left {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-      }
-      
-      .header-right {
-        gap: 0.5rem;
-      }
-      
-      
-      .auth-buttons {
-        gap: 0.5rem;
-        margin-right: 0;
-      }
-      
-      .auth-btn {
-        padding: 0.4rem 0.8rem;
-        font-size: 0.8rem;
-      }
-      
-      .user-info {
-        padding: 0.4rem 0.8rem;
-        font-size: 0.8rem;
-      }
-      
-      .user-avatar {
-        width: 20px;
-        height: 20px;
-        font-size: 0.7rem;
-      }
-      
-      
-      .user-dropdown-content {
-        top: 70px;
-        left: 15px;
-        right: auto;
-        min-width: 120px;
-      }
-      
-      .user-dropdown-content a,
-      .user-dropdown-content button {
-        padding: 10px 12px;
-        font-size: 0.8rem;
-      }
-      
-    }
-    
-    /* Preserve category colors in both modes */
-    .category-filter .prompt-to-app-builders-btn.active {
-      border-color: #23a6d5 !important;
-      color: #23a6d5 !important;
-    }
-    
-    .category-filter .prototyping-tools-btn.active {
-      border-color: #e57373 !important;
-      color: #e57373 !important;
-    }
-    
-    .category-filter .user-design-btn.active {
-      border-color: #888 !important;
-      color: #888 !important;
-    }
-    
-    .category-filter .ai-augmented-ides-code-assistants-btn.active {
-      border-color: #e73c7e !important;
-      color: #e73c7e !important;
-    }
-    
-    .category-filter .ai-agent-workflow-tools-btn.active {
-      border-color: #ee7752 !important;
-      color: #ee7752 !important;
-    }
-    
-    .category-filter .deployment-marketing-integrations-btn.active {
-      border-color: #2e7d32 !important;
-      color: #2e7d32 !important;
-    }
-    
-    .category-filter .data-driven-app-builders-btn.active {
-      border-color: #0288d1 !important;
-      color: #0288d1 !important;
-    }
-    
-    .category-filter .business-process-automation-btn.active {
-      border-color: #7b1fa2 !important;
-      color: #7b1fa2 !important;
-    }
-    
-    .category-filter .game-development-tools-btn.active {
-      border-color: #d81b60 !important;
-      color: #d81b60 !important;
-    }
-    
-    .category-filter .code-security-tools-btn.active {
-      border-color: #388e3c !important;
-      color: #388e3c !important;
-    }
-    
-    .category-filter .ui-ux-code-tools-btn.active {
-      border-color: #f57c00 !important;
-      color: #f57c00 !important;
-    }
-    
-    .category-filter .educational-coding-tools-btn.active {
-      border-color: #00838f !important;
-      color: #00838f !important;
-    }
-    
-    .category-filter .ar-vr-development-tools-btn.active {
-      border-color: #c2185b !important;
-      color: #c2185b !important;
-    }
-    
-    .category-filter .misc-tools-btn.active {
-      border-color: #6b7280 !important;
-      color: #6b7280 !important;
-    }
-
-
-
-
 
     .main-content-wrapper {
       width: 100%;
       flex-grow: 1;
       display: flex;
-      justify-content: center;
-      align-items: flex-start;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
       padding: 10rem 1.5rem 2rem;
       box-sizing: border-box;
       position: relative;
       max-width: 1200px;
       margin: 0 auto;
-      padding-left: 20px;
-      padding-right: 20px;
     }
 
     .header-text {
@@ -440,10 +305,8 @@
       max-width: 800px;
       text-align: center;
       padding: 0 1rem;
-      position: absolute;
-      top: 6rem;
+      margin-bottom: 2rem;
       color: var(--content-text);
-      z-index: 5;
     }
 
     .header-text h1 {
@@ -483,13 +346,12 @@
       text-align: center;
       width: 100%;
       max-width: 850px;
-      margin: 8rem auto 0;
+      margin: 0 auto 2rem;
       border-radius: 15px;
       box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
       display: flex;
       justify-content: center;
       gap: 15px;
-      margin-bottom: 10px;
       flex-wrap: wrap;
       z-index: 4;
     }
@@ -527,6 +389,11 @@
       left: 100%;
     }
 
+    .category-filter .all-btn.active {
+      border-color: #666;
+      color: #000000;
+    }
+    
     .category-filter .prompt-to-app-builders-btn.active {
       border-color: #23a6d5;
       color: #23a6d5;
@@ -555,11 +422,6 @@
     .category-filter .deployment-marketing-integrations-btn.active {
       border-color: #2e7d32;
       color: #2e7d32;
-    }
-
-    .category-filter .all-btn.active {
-      border-color: #666;
-      color: #000000;
     }
 
     .category-filter .data-driven-app-builders-btn.active {
@@ -712,13 +574,28 @@
       transform: scale(1.2);
     }
 
+    .tool-card.prompt-to-app-builders .tool-link-icon { color: #23a6d5 !important; }
+    .tool-card.prototyping-tools .tool-link-icon { color: #e57373 !important; }
+    .tool-card.user-design .tool-link-icon { color: #888 !important; }
+    .tool-card.ai-augmented-ides-code-assistants .tool-link-icon { color: #e73c7e !important; }
+    .tool-card.ai-agent-workflow-tools .tool-link-icon { color: #ee7752 !important; }
+    .tool-card.deployment-marketing-integrations .tool-link-icon { color: #2e7d32 !important; }
+    .tool-card.data-driven-app-builders .tool-link-icon { color: #0288d1 !important; }
+    .tool-card.business-process-automation .tool-link-icon { color: #7b1fa2 !important; }
+    .tool-card.game-development-tools .tool-link-icon { color: #d81b60 !important; }
+    .tool-card.code-security-tools .tool-link-icon { color: #388e3c !important; }
+    .tool-card.ui-ux-code-tools .tool-link-icon { color: #f57c00 !important; }
+    .tool-card.educational-coding-tools .tool-link-icon { color: #00838f !important; }
+    .tool-card.ar-vr-development-tools .tool-link-icon { color: #c2185b !important; }
+    .tool-card.misc-tools .tool-link-icon { color: #6b7280 !important; }
+
     /* Add to List Button Styles */
     .add-to-list-btn {
       position: absolute;
       bottom: 8px;
       left: 50%;
       transform: translateX(-50%);
-      background: var(--scroll-to-top-background);
+      background: #0078d4;
       color: white;
       border: none;
       border-radius: 15px;
@@ -781,21 +658,6 @@
       opacity: 0;
     }
 
-    .tool-card.prompt-to-app-builders .tool-link-icon { color: #23a6d5 !important; }
-    .tool-card.prototyping-tools .tool-link-icon { color: #e57373 !important; }
-    .tool-card.user-design .tool-link-icon { color: #888 !important; }
-    .tool-card.ai-augmented-ides-code-assistants .tool-link-icon { color: #e73c7e !important; }
-    .tool-card.ai-agent-workflow-tools .tool-link-icon { color: #ee7752 !important; }
-    .tool-card.deployment-marketing-integrations .tool-link-icon { color: #2e7d32 !important; }
-    .tool-card.data-driven-app-builders .tool-link-icon { color: #0288d1 !important; }
-    .tool-card.business-process-automation .tool-link-icon { color: #7b1fa2 !important; }
-    .tool-card.game-development-tools .tool-link-icon { color: #d81b60 !important; }
-    .tool-card.code-security-tools .tool-link-icon { color: #388e3c !important; }
-    .tool-card.ui-ux-code-tools .tool-link-icon { color: #f57c00 !important; }
-    .tool-card.educational-coding-tools .tool-link-icon { color: #00838f !important; }
-    .tool-card.ar-vr-development-tools .tool-link-icon { color: #c2185b !important; }
-    .tool-card.misc-tools .tool-link-icon { color: #6b7280 !important; }
-
     .tool-tooltip {
       visibility: hidden;
       position: absolute;
@@ -822,6 +684,7 @@
     h2 {
       margin-bottom: 1rem;
       color: var(--content-text);
+      text-align: center;
     }
 
     h2.prompt-to-app-builders { color: #23a6d5; }
@@ -852,17 +715,11 @@
       grid-template-columns: repeat(2, 1fr);
       gap: 1rem;
       margin-bottom: 2rem;
+      width: 100%;
     }
 
     .col {
       min-width: 0;
-    }
-
-    /* Mobile - 1 column */
-    @media (max-width: 768px) {
-      .row {
-        grid-template-columns: 1fr;
-      }
     }
 
     .text-center {
@@ -871,10 +728,6 @@
 
     .mb-3 {
       margin-bottom: 1rem;
-    }
-
-    .g-3 {
-      gap: 1rem;
     }
 
     .cta-box {
@@ -1025,7 +878,7 @@
 
     .newsletter-container button {
       padding: 0.3rem 0.8rem;
-      background: var(--scroll-to-top-background);
+      background: #0078d4;
       color: white;
       border-radius: 5px;
       border: none;
@@ -1036,7 +889,7 @@
     }
 
     .newsletter-container button:hover {
-      background: var(--scroll-to-top-hover);
+      background: #005ea2;
     }
 
     .newsletter-container button.loading::after {
@@ -1058,7 +911,6 @@
       color: transparent;
     }
 
-    /* Newsletter Close Button */
     .newsletter-close {
       position: absolute;
       top: 8px;
@@ -1082,91 +934,9 @@
       background-color: rgba(0, 0, 0, 0.1);
     }
 
-
     @keyframes spin {
       0% { transform: translate(-50%, -50%) rotate(0deg); }
       100% { transform: translate(-50%, -50%) rotate(360deg); }
-    }
-
-    .scroll-to-top {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: var(--scroll-to-top-background);
-      color: white;
-      border: none;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      opacity: 0;
-      visibility: hidden;
-      transition: opacity 0.3s ease, visibility 0.3s ease;
-      z-index: 10;
-    }
-
-    .scroll-to-top.visible {
-      opacity: 1;
-      visibility: visible;
-    }
-
-    .scroll-to-top:hover {
-      background: var(--scroll-to-top-hover);
-    }
-
-
-
-    @media (max-width: 768px) {
-      .main-content-wrapper { padding: 8rem 1rem 2rem; max-width: 650px; padding-left: 15px; padding-right: 15px; }
-      .header-text { top: 5rem; }
-      .header-text h1 { font-size: clamp(1.4rem, 3vw, 1.8rem); }
-      .header-text p { font-size: 0.9rem; padding: 10px; }
-      .category-filter { padding: 15px; max-width: 650px; flex-direction: column; gap: 10px; margin-top: 9rem; }
-      .category-filter button { width: 100%; text-align: center; }
-      .show-more-btn { width: 50%; }
-      .tool-card { padding: 10px; min-height: 160px; }
-      .tool-tooltip { top: -40px; right: 0; }
-      .cta-box { padding: 15px; max-width: 650px; }
-      .cta-box p { font-size: 1rem; }
-      footer { padding: 15px 1rem; }
-      .footer-content { flex-direction: column; gap: 10px; }
-      .footer-links a { font-size: 0.8rem; }
-      .footer-divider { font-size: 1rem; }
-      .footer-social a { font-size: 1rem; }
-      .newsletter-container { width: 90%; bottom: 4rem; padding: 0.4rem 0.8rem; }
-      .newsletter-container input { width: 100%; margin-bottom: 0.4rem; }
-      .newsletter-container h3 { font-size: 0.9rem; }
-      .newsletter-container p { font-size: 0.75rem; }
-      .newsletter-container form { flex-direction: column; gap: 0.2rem; }
-      .newsletter-container input { padding: 0.3rem; }
-      .newsletter-container button { padding: 0.3rem 0.8rem; }
-      .newsletter-close { font-size: 0.8rem; width: 18px; height: 18px; }
-      .scroll-to-top { bottom: 20px; right: 15px; width: 40px; height: 40px; }
-    }
-
-    @media (max-width: 480px) {
-
-      .main-content-wrapper { padding: 7rem 0.5rem 2rem; max-width: 90%; padding-left: 10px; padding-right: 10px; }
-      .header-text { top: 4.5rem; }
-      .header-text p { font-size: 0.85rem; padding: 8px; }
-      .category-filter { padding: 10px; max-width: 90%; margin-top: 8.5rem; }
-      .show-more-btn { width: 70%; }
-      .tool-card { padding: 8px; min-height: 140px; }
-      .tool-tooltip { top: -35px; font-size: 0.75rem; right: 0; }
-      .cta-box { padding: 10px; max-width: 90%; }
-      .cta-box p { font-size: 0.9rem; }
-      .footer-content { gap: 8px; }
-      .footer-links a { font-size: 0.75rem; }
-      .footer-divider { font-size: 0.9rem; }
-      .footer-social a { font-size: 0.9rem; }
-      .newsletter-container { bottom: 3.5rem; }
-      .newsletter-container input { width: 100%; }
-      .scroll-to-top { bottom: 15px; right: 10px; width: 40px; height: 40px; }
-      .newsletter-close { font-size: 0.7rem; width: 16px; height: 16px; }
-
     }
 
     .visually-hidden {
@@ -1179,12 +949,122 @@
       clip: rect(0, 0, 0, 0);
       border: 0;
     }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+      .thematic-header {
+        padding: 10px 15px;
+      }
+      
+      .main-content-wrapper {
+        padding: 8rem 1rem 2rem;
+      }
+      
+      .header-text h1 {
+        font-size: clamp(1.4rem, 3vw, 1.8rem);
+      }
+      
+      .header-text p {
+        font-size: 0.9rem;
+        padding: 10px;
+      }
+      
+      .category-filter {
+        padding: 15px;
+        flex-direction: column;
+        gap: 10px;
+      }
+      
+      .category-filter button {
+        width: 100%;
+        text-align: center;
+      }
+      
+      .show-more-btn {
+        width: 50%;
+      }
+      
+      .row {
+        grid-template-columns: 1fr;
+      }
+      
+      .tool-card {
+        padding: 10px;
+        min-height: 160px;
+      }
+      
+      .auth-btn {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+      }
+      
+      .user-info {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+      }
+      
+      .user-avatar {
+        width: 20px;
+        height: 20px;
+        font-size: 0.7rem;
+      }
+      
+      .user-dropdown-content {
+        top: 70px;
+        left: 15px;
+        right: auto;
+        min-width: 120px;
+      }
+      
+      .newsletter-container {
+        width: 90%;
+        bottom: 4rem;
+        padding: 0.4rem 0.8rem;
+      }
+      
+      .newsletter-container input {
+        width: 100%;
+        margin-bottom: 0.4rem;
+      }
+      
+      .newsletter-container form {
+        flex-direction: column;
+        gap: 0.2rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .main-content-wrapper {
+        padding: 7rem 0.5rem 2rem;
+      }
+      
+      .header-text p {
+        font-size: 0.85rem;
+        padding: 8px;
+      }
+      
+      .category-filter {
+        padding: 10px;
+      }
+      
+      .show-more-btn {
+        width: 70%;
+      }
+      
+      .tool-card {
+        padding: 8px;
+        min-height: 140px;
+      }
+      
+      .newsletter-container {
+        bottom: 3.5rem;
+      }
+    }
   </style>
 </head>
 <body>
   <header class="thematic-header" role="banner">
-    <div class="header-left">
-    </div>
+    <div class="header-left"></div>
     <div class="header-center">
       <div class="logo">
         <a href="../../index.html" aria-label="Specifys.ai homepage">Specifys.ai</a>
@@ -1205,7 +1085,12 @@
       </p>
     </div>
 
-    <div id="root"></div>
+    <div id="root">
+      <div style="padding: 20px; text-align: center; color: #666;">
+        <p>Loading Tools Map...</p>
+        <p style="font-size: 0.9em;">If this message persists, please refresh the page.</p>
+      </div>
+    </div>
 
     <div class="newsletter-container hidden" id="newsletter-container">
       <button class="newsletter-close" onclick="closeNewsletter()" aria-label="Close newsletter">
@@ -1218,10 +1103,6 @@
         <button type="submit">Subscribe</button>
       </form>
     </div>
-
-    <button class="scroll-to-top" id="scroll-to-top" onclick="scrollToTop()" aria-label="Scroll to top">
-      <i class="fas fa-arrow-up"></i>
-    </button>
   </div>
 
   <div class="cta-box">
@@ -1252,7 +1133,7 @@
   </footer>
 
   <script type="text/babel">
-
+    // Fetch tools from JSON file
     async function fetchTools() {
       try {
         const response = await fetch('tools.json');
@@ -1277,10 +1158,6 @@
         console.error('Failed to fetch tools:', error);
         return [];
       }
-    }
-
-    function scrollToTop() {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function closeNewsletter() {
@@ -1321,15 +1198,6 @@
       });
     }
 
-    window.addEventListener('scroll', () => {
-      const scrollButton = document.getElementById('scroll-to-top');
-      if (window.scrollY > 200) {
-        scrollButton.classList.add('visible');
-      } else {
-        scrollButton.classList.remove('visible');
-      }
-    });
-
     setTimeout(() => {
       const newsletterContainer = document.getElementById('newsletter-container');
       if (newsletterContainer) {
@@ -1339,11 +1207,13 @@
 
     document.querySelectorAll('a[href*="utm_source=toolsmap"]').forEach(link => {
       link.addEventListener('click', () => {
-        gtag('event', 'click', {
-          'event_category': 'CTA Link',
-          'event_label': link.getAttribute('href').includes('toolsmap_intro') ? 'Intro CTA' : 'Bottom CTA',
-          'value': link.getAttribute('href')
-        });
+        if (typeof gtag !== 'undefined') {
+          gtag('event', 'click', {
+            'event_category': 'CTA Link',
+            'event_label': link.getAttribute('href').includes('toolsmap_intro') ? 'Intro CTA' : 'Bottom CTA',
+            'value': link.getAttribute('href')
+          });
+        }
       });
     });
 
@@ -1374,11 +1244,13 @@
 
       const handleClick = () => {
         if (tool.link !== "#") {
-          gtag('event', 'click', {
-            'event_category': 'Tool Link',
-            'event_label': tool.name,
-            'value': tool.link
-          });
+          if (typeof gtag !== 'undefined') {
+            gtag('event', 'click', {
+              'event_category': 'Tool Link',
+              'event_label': tool.name,
+              'value': tool.link
+            });
+          }
           window.open(tool.link, '_blank', 'noopener,noreferrer');
         }
       };
@@ -1396,17 +1268,17 @@
         
         try {
           if (isAdded) {
-            // Remove tool from saved list
             await firebase.firestore().collection('userTools').doc(user.uid).collection('savedTools').doc(tool.id.toString()).delete();
             setIsAdded(false);
             
-            gtag('event', 'click', {
-              'event_category': 'Remove from List',
-              'event_label': tool.name,
-              'value': 'removed'
-            });
+            if (typeof gtag !== 'undefined') {
+              gtag('event', 'click', {
+                'event_category': 'Remove from List',
+                'event_label': tool.name,
+                'value': 'removed'
+              });
+            }
           } else {
-            // Add tool to saved list
             const toolData = {
               id: tool.id,
               name: tool.name,
@@ -1421,11 +1293,13 @@
             await firebase.firestore().collection('userTools').doc(user.uid).collection('savedTools').doc(tool.id.toString()).set(toolData);
             setIsAdded(true);
             
-            gtag('event', 'click', {
-              'event_category': 'Add to List',
-              'event_label': tool.name,
-              'value': 'saved'
-            });
+            if (typeof gtag !== 'undefined') {
+              gtag('event', 'click', {
+                'event_category': 'Add to List',
+                'event_label': tool.name,
+                'value': 'saved'
+              });
+            }
           }
           
           setIsLoading(false);
@@ -1436,18 +1310,13 @@
         }
       };
 
-      // Check if tool is already saved on component mount and when auth state changes
       React.useEffect(() => {
         const checkIfSaved = async () => {
           const user = firebase.auth().currentUser;
           if (user) {
             try {
               const doc = await firebase.firestore().collection('userTools').doc(user.uid).collection('savedTools').doc(tool.id.toString()).get();
-              if (doc.exists) {
-                setIsAdded(true);
-              } else {
-                setIsAdded(false);
-              }
+              setIsAdded(doc.exists);
             } catch (error) {
               console.error('Error checking saved status:', error);
               setIsAdded(false);
@@ -1459,7 +1328,6 @@
         
         checkIfSaved();
         
-        // Listen for auth state changes
         const unsubscribe = firebase.auth().onAuthStateChanged((user) => {
           checkIfSaved();
         });
@@ -1554,8 +1422,6 @@
             );
             if (section) {
               section.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            } else {
-              console.warn('Section not found for category:', category);
             }
           }, 200);
         }
@@ -1610,7 +1476,7 @@
                 >
                   {selectedCategory}
                 </h2>
-                <div className="row row-cols-1 row-cols-md-2 g-3">
+                <div className="row">
                   {filteredTools.map(tool => (
                     <div key={tool.id} className="col">
                       <ToolCard tool={tool} />
@@ -1627,7 +1493,7 @@
                   >
                     {category}
                   </h2>
-                  <div className="row row-cols-1 row-cols-md-2 g-3">
+                  <div className="row">
                     {tools.filter(tool => tool.category === category).map(tool => (
                       <div key={tool.id} className="col">
                         <ToolCard tool={tool} />
@@ -1652,10 +1518,8 @@
     // Global functions for user dropdown
     window.toggleUserDropdown = function() {
       const dropdown = document.querySelector('.user-dropdown-content');
-      if (dropdown && dropdown.classList.contains('show')) {
-        dropdown.classList.remove('show');
-      } else if (dropdown) {
-        dropdown.classList.add('show');
+      if (dropdown) {
+        dropdown.classList.toggle('show');
       }
     };
 
@@ -1671,9 +1535,8 @@
       }
     });
 
-    // Firebase Auth System - Single initialization
+    // Firebase Auth System
     document.addEventListener('DOMContentLoaded', function() {
-      // Firebase configuration
       const firebaseConfig = {
         apiKey: "AIzaSyB9hr0IWM4EREzkKDxBxYoYinV6LJXWXV4",
         authDomain: "specify-ai.firebaseapp.com",
@@ -1684,17 +1547,16 @@
         measurementId: "G-4YR9LK63MR"
       };
 
-      // Initialize Firebase
       try {
-        firebase.initializeApp(firebaseConfig);
+        if (!firebase.apps.length) {
+          firebase.initializeApp(firebaseConfig);
+        }
       } catch (error) {
-        console.log('Firebase already initialized');
+        console.log('Firebase initialization:', error.message);
       }
       
       const auth = firebase.auth();
-      const db = firebase.firestore();
 
-      // Update auth UI function
       function updateAuthUI(user) {
         const authButtons = document.getElementById('auth-buttons');
         
@@ -1704,7 +1566,6 @@
         }
         
         if (user) {
-          // User is logged in
           const displayName = user.displayName || user.email.split('@')[0];
           const firstLetter = displayName.charAt(0).toUpperCase();
           
@@ -1721,7 +1582,6 @@
             </div>
           `;
         } else {
-          // User is not logged in
           authButtons.innerHTML = `
             <button class="auth-btn" onclick="showLoginModal()">Login</button>
             <button class="auth-btn primary" onclick="showRegisterModal()">Register</button>
@@ -1729,7 +1589,6 @@
         }
       }
 
-      // Global functions
       window.showLoginModal = function() {
         window.location.href = '../../pages/auth.html';
       };
@@ -1740,15 +1599,10 @@
 
       window.logout = function() {
         auth.signOut()
-          .then(() => {
-            console.log('Logged out successfully');
-          })
-          .catch(error => {
-            console.error('Error logging out:', error);
-          });
+          .then(() => console.log('Logged out successfully'))
+          .catch(error => console.error('Error logging out:', error));
       };
 
-      // Listen to auth state changes
       auth.onAuthStateChanged((user) => {
         updateAuthUI(user);
       });
