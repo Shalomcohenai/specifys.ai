@@ -846,6 +846,37 @@
       margin-top: 20px;
     }
 
+    /* Grid Layout for Tools */
+    .row {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .col {
+      min-width: 0;
+    }
+
+    /* Mobile - 1 column */
+    @media (max-width: 768px) {
+      .row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .text-center {
+      text-align: center;
+    }
+
+    .mb-3 {
+      margin-bottom: 1rem;
+    }
+
+    .g-3 {
+      gap: 1rem;
+    }
+
     .cta-box {
       background: var(--cta-background);
       padding: 20px;
@@ -1618,15 +1649,6 @@
   </script>
 
   <script>
-
-    // Basic header functionality
-    document.addEventListener('DOMContentLoaded', function() {
-      
-      
-      
-      
-    });
-
     // Global functions for user dropdown
     window.toggleUserDropdown = function() {
       const dropdown = document.querySelector('.user-dropdown-content');
@@ -1644,30 +1666,12 @@
       const dropdown = document.querySelector('.user-dropdown-content');
       
       if (userDropdown && dropdown && dropdown.classList.contains('show') && 
-          !userInfo.contains(event.target)) {
+          userInfo && !userInfo.contains(event.target)) {
         dropdown.classList.remove('show');
       }
     });
 
-    // Initialize auth buttons with default state
-    document.addEventListener('DOMContentLoaded', function() {
-      const authButtons = document.getElementById('auth-buttons');
-      if (authButtons && !authButtons.innerHTML.trim()) {
-        authButtons.innerHTML = `
-          <button class="auth-btn login-btn">Login</button>
-        `;
-        
-        const loginBtn = authButtons.querySelector('.login-btn');
-        if (loginBtn) {
-          loginBtn.addEventListener('click', function(event) {
-            event.stopPropagation();
-            window.location.href = '../../pages/auth.html';
-          });
-        }
-      }
-    });
-
-    // Firebase Auth System
+    // Firebase Auth System - Single initialization
     document.addEventListener('DOMContentLoaded', function() {
       // Firebase configuration
       const firebaseConfig = {
@@ -1681,13 +1685,23 @@
       };
 
       // Initialize Firebase
-      firebase.initializeApp(firebaseConfig);
+      try {
+        firebase.initializeApp(firebaseConfig);
+      } catch (error) {
+        console.log('Firebase already initialized');
+      }
+      
       const auth = firebase.auth();
       const db = firebase.firestore();
 
       // Update auth UI function
       function updateAuthUI(user) {
         const authButtons = document.getElementById('auth-buttons');
+        
+        if (!authButtons) {
+          console.error('Auth buttons element not found');
+          return;
+        }
         
         if (user) {
           // User is logged in
