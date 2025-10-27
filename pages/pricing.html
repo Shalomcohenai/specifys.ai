@@ -82,19 +82,16 @@
                     <div class="plan-features">
                         <p class="features-label">FEATURES</p>
                         <ul>
-                            <li><i class="fa fa-check-circle"></i> <span>1 Additional Specification</span></li>
-                            <li><i class="fa fa-check-circle"></i> <span>Access to Tools Map</span></li>
-                            <li><i class="fa fa-check-circle"></i> <span>Tool Finder</span></li>
-                            <li><i class="fa fa-check-circle"></i> <span>Market Research</span></li>
-                            <li><i class="fa fa-times-circle"></i> <span>Edit Specifications</span></li>
+                            <li><i class="fas fa-check-circle"></i> <span>1 Additional Specification</span></li>
+                            <li><i class="fas fa-check-circle"></i> <span>Access to Tools Map</span></li>
+                            <li><i class="fas fa-check-circle"></i> <span>Tool Finder</span></li>
+                            <li><i class="fas fa-check-circle"></i> <span>Market Research</span></li>
+                            <li><i class="fas fa-times-circle"></i> <span>Edit Specifications</span></li>
                         </ul>
                     </div>
                     <div class="plan-cta">
                         <button class="btn btn-primary" onclick="purchaseSpec('single_spec')">
                             Buy Now
-                        </button>
-                        <button class="btn btn-secondary" onclick="trackCTA('Chat to sales', 'single_spec')">
-                            Chat to sales
                         </button>
                     </div>
                 </div>
@@ -114,19 +111,16 @@
                     <div class="plan-features">
                         <p class="features-label">FEATURES</p>
                         <ul>
-                            <li><i class="fa fa-check-circle"></i> <span>3 Additional Specifications</span></li>
-                            <li><i class="fa fa-check-circle"></i> <span>Access to Tools Map</span></li>
-                            <li><i class="fa fa-check-circle"></i> <span>Tool Finder</span></li>
-                            <li><i class="fa fa-check-circle"></i> <span>Market Research</span></li>
-                            <li><i class="fa fa-times-circle"></i> <span>Edit Specifications</span></li>
+                            <li><i class="fas fa-check-circle"></i> <span>3 Additional Specifications</span></li>
+                            <li><i class="fas fa-check-circle"></i> <span>Access to Tools Map</span></li>
+                            <li><i class="fas fa-check-circle"></i> <span>Tool Finder</span></li>
+                            <li><i class="fas fa-check-circle"></i> <span>Market Research</span></li>
+                            <li><i class="fas fa-times-circle"></i> <span>Edit Specifications</span></li>
                         </ul>
                     </div>
                     <div class="plan-cta">
                         <button class="btn btn-primary highlight" onclick="purchaseSpec('three_pack')">
                             Buy Now
-                        </button>
-                        <button class="btn btn-secondary" onclick="trackCTA('Chat to sales', 'three_pack')">
-                            Chat to sales
                         </button>
                     </div>
                 </div>
@@ -173,20 +167,17 @@
                     <div class="plan-features">
                         <p class="features-label">FEATURES</p>
                         <ul>
-                            <li><i class="fa fa-check-circle"></i> <span>Unlimited Specifications</span></li>
-                            <li><i class="fa fa-check-circle"></i> <span>Edit All Specifications</span></li>
-                            <li><i class="fa fa-check-circle"></i> <span>Access to Tools Map</span></li>
-                            <li><i class="fa fa-check-circle"></i> <span>Tool Finder</span></li>
-                            <li><i class="fa fa-check-circle"></i> <span>Market Research</span></li>
-                            <li><i class="fa fa-check-circle"></i> <span>Priority Support</span></li>
+                            <li><i class="fas fa-check-circle"></i> <span>Unlimited Specifications</span></li>
+                            <li><i class="fas fa-check-circle"></i> <span>Edit All Specifications</span></li>
+                            <li><i class="fas fa-check-circle"></i> <span>Access to Tools Map</span></li>
+                            <li><i class="fas fa-check-circle"></i> <span>Tool Finder</span></li>
+                            <li><i class="fas fa-check-circle"></i> <span>Market Research</span></li>
+                            <li><i class="fas fa-check-circle"></i> <span>Priority Support</span></li>
                         </ul>
                     </div>
                     <div class="plan-cta">
                         <button class="btn btn-primary" id="proBuyButton" onclick="purchaseSpec('pro_yearly')">
                             Get started
-                        </button>
-                        <button class="btn btn-secondary" onclick="trackCTA('Chat to sales', 'pro_plan')">
-                            Chat to sales
                         </button>
                     </div>
                 </div>
@@ -317,7 +308,7 @@
     position: absolute;
     top: 16px;
     right: 16px;
-    background: #28a745;
+    background: #FF6B35;
     color: white;
     padding: 4px 12px;
     border-radius: 4px;
@@ -327,7 +318,7 @@
 }
 
 .plan-badge.best-value {
-    background: #28a745;
+    background: #FF6B35;
 }
 
 .plan-header {
@@ -447,7 +438,8 @@
     color: #28a745;
 }
 
-.plan-features li i.fa-times-circle {
+.plan-features li i.fa-times-circle,
+.plan-features li i.fas.fa-times-circle {
     color: #dee2e6;
 }
 
@@ -482,23 +474,27 @@
 }
 
 .btn-primary.highlight {
-    background: #28a745;
-    border-color: #28a745;
+    background: #FF6B35;
+    border-color: #FF6B35;
+    color: white;
 }
 
 .btn-primary.highlight:hover {
-    background: #218838;
-    border-color: #218838;
+    background: #FF8551;
+    border-color: #FF8551;
+    color: white;
 }
 
 .pricing-card.pack .btn-primary.highlight {
-    background: #28a745;
-    border-color: #28a745;
+    background: #FF6B35;
+    border-color: #FF6B35;
+    color: white;
 }
 
 .pricing-card.pack .btn-primary.highlight:hover {
-    background: #218838;
-    border-color: #218838;
+    background: #FF8551;
+    border-color: #FF8551;
+    color: white;
 }
 
 .btn-secondary {
@@ -792,10 +788,10 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
         <span class="footer-divider">|</span>
         <div class="footer-social">
-            <a href="https://www.linkedin.com/company/specifys-ai/" target="_blank" aria-label="Follow us on LinkedIn"><i class="fa fa-linkedin"></i></a>
-            <a href="https://www.facebook.com/profile.php?id=61576402600129&locale=he_IL" target="_blank" aria-label="Follow us on Facebook"><i class="fa fa-facebook"></i></a>
-            <a href="mailto:specifysai@gmail.com" aria-label="Send us an email"><i class="fa fa-envelope"></i></a>
-            <a href="https://www.producthunt.com/products/specifys-ai" target="_blank" aria-label="Check us out on Product Hunt"><i class="fa fa-product-hunt"></i></a>
+            <a href="https://www.linkedin.com/company/specifys-ai/" target="_blank" aria-label="Follow us on LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+            <a href="https://www.facebook.com/profile.php?id=61576402600129&locale=he_IL" target="_blank" aria-label="Follow us on Facebook"><i class="fab fa-facebook-f"></i></a>
+            <a href="mailto:specifysai@gmail.com" aria-label="Send us an email"><i class="fas fa-envelope"></i></a>
+            <a href="https://www.producthunt.com/products/specifys-ai" target="_blank" aria-label="Check us out on Product Hunt"><i class="fab fa-product-hunt"></i></a>
         </div>
     </div>
     <div class="footer-copyright">
@@ -805,7 +801,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <!-- Scroll to top button -->
 <button class="icon-btn scroll-to-top" id="scrollToTop" aria-label="Scroll">
-    <i class="fa fa-arrow-up"></i>
+    <i class="fas fa-arrow-up"></i>
 </button>
 
 <script>

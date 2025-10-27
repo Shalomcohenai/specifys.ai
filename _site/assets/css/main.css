@@ -52,7 +52,9 @@
   margin-right: 0;
 }
 
-.footer-social .fa {
+.footer-social .fa,
+.footer-social .fab,
+.footer-social .fas {
   font-size: 1.2em;
   margin-right: 0;
   margin-left: 10px;

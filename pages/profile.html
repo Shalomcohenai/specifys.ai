@@ -526,6 +526,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     <span id="avatar-initial">👤</span>
                 </div>
                 <div class="profile-actions-buttons">
+                    <button class="personal-info-btn" onclick="openPersonalInfoPanel()" title="Personal Information">
+                        <i class="fas fa-user-circle"></i> Personal Info
+                    </button>
                     <button class="admin-dashboard-btn" id="admin-dashboard-btn" style="display: none;" onclick="window.location.href='/pages/admin-dashboard.html'" title="Admin Dashboard">
                         <i class="fas fa-user-shield"></i> Admin Dashboard
                     </button>
@@ -620,6 +623,108 @@ document.addEventListener('DOMContentLoaded', function() {
 
     </main>
 
+    <!-- Personal Information Side Panel -->
+    <div id="personalInfoPanel" class="personal-info-panel">
+        <div class="panel-overlay" onclick="closePersonalInfoPanel()"></div>
+        <div class="panel-content">
+            <div class="panel-header">
+                <h2><i class="fas fa-user-circle"></i> Account & Subscription</h2>
+                <button class="panel-close" onclick="closePersonalInfoPanel()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="panel-body" id="personalInfoContent">
+                <div class="info-section">
+                    <h3>Personal Information</h3>
+                    <div class="info-card">
+                        <div class="info-row">
+                            <label>Display Name</label>
+                            <div class="info-value">
+                                <span id="info-display-name">Loading...</span>
+                                <button class="edit-btn" onclick="editDisplayName()"><i class="fas fa-edit"></i></button>
+                            </div>
+                        </div>
+                        <div class="info-row">
+                            <label>Email</label>
+                            <div class="info-value" id="info-email">Loading...</div>
+                        </div>
+                        <div class="info-row">
+                            <label>Account Created</label>
+                            <div class="info-value" id="info-created">Loading...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <h3>Subscription Details</h3>
+                    <div class="info-card">
+                        <div class="info-row">
+                            <label>Plan Type</label>
+                            <div class="info-value">
+                                <span id="info-plan" class="plan-badge">Loading...</span>
+                            </div>
+                        </div>
+                        <div class="info-row" id="renewal-row" style="display: none;">
+                            <label>Renewal Date</label>
+                            <div class="info-value" id="info-renewal-date">-</div>
+                        </div>
+                        <div class="info-row" id="cost-row" style="display: none;">
+                            <label>Renewal Cost</label>
+                            <div class="info-value" id="info-renewal-cost">-</div>
+                        </div>
+                        <div class="info-row">
+                            <label>Status</label>
+                            <div class="info-value"><span id="info-status" class="status-badge">Loading...</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <h3>Usage & Credits</h3>
+                    <div class="info-card">
+                        <div class="info-row">
+                            <label>Specs Remaining</label>
+                            <div class="info-value" id="info-specs">Loading...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <h3>Manage Subscription</h3>
+                    <div class="info-card">
+                        <button class="panel-action-btn" id="manageSubBtn" onclick="manageSubscription()">
+                            <i class="fas fa-external-link-alt"></i> Manage in LemonSqueezy
+                        </button>
+                        <button class="panel-action-btn cancel-btn" id="cancelSubBtn" onclick="cancelSubscription()" style="display: none;">
+                            <i class="fas fa-times-circle"></i> Cancel Subscription
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Display Name Modal -->
+    <div id="editNameModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Display Name</h3>
+                <button class="modal-close" onclick="closeEditNameModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="editDisplayNameInput">Display Name</label>
+                    <input type="text" id="editDisplayNameInput" placeholder="Enter your display name" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeEditNameModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveDisplayName()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Admin Dashboard Button - Only visible for admins -->
     <div class="admin-section" style="margin: 40px auto; text-align: center; padding: 20px; max-width: 1200px; display: none;">
         <a href="admin-dashboard.html" class="btn btn-primary">
@@ -653,7 +758,8 @@ document.addEventListener('DOMContentLoaded', function() {
             onAuthStateChanged,
             GoogleAuthProvider,
             signInWithPopup,
-            getAuth
+            getAuth,
+            updateProfile
         } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
         import { doc as firestoreDoc, setDoc as firestoreSetDoc, serverTimestamp as firestoreServerTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -2492,6 +2598,217 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             }, 100);
         }
+
+        // Personal Info Panel Functions
+        window.openPersonalInfoPanel = function() {
+            const panel = document.getElementById('personalInfoPanel');
+            if (panel) {
+                panel.classList.add('active');
+                loadPersonalInfo();
+            }
+        };
+
+        window.closePersonalInfoPanel = function() {
+            const panel = document.getElementById('personalInfoPanel');
+            if (panel) {
+                panel.classList.remove('active');
+            }
+        };
+
+        async function loadPersonalInfo() {
+            if (!currentUser) return;
+
+            try {
+                // Load user data
+                const userRef = doc(db, 'users', currentUser.uid);
+                const userDoc = await getDoc(userRef);
+                
+                // Load subscription data
+                const subRef = doc(db, 'subscriptions', currentUser.uid);
+                const subDoc = await getDoc(subRef);
+
+                // Load entitlements
+                const entitlementsRef = doc(db, 'entitlements', currentUser.uid);
+                const entitlementsDoc = await getDoc(entitlementsRef);
+
+                // Update display name
+                const displayName = currentUser.displayName || currentUser.email.split('@')[0];
+                document.getElementById('info-display-name').textContent = displayName;
+
+                // Update email
+                document.getElementById('info-email').textContent = currentUser.email;
+
+                // Update account created
+                const createdAt = currentUser.metadata?.creationTime || new Date();
+                document.getElementById('info-created').textContent = new Date(createdAt).toLocaleDateString('en-US', { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                });
+
+                // Update subscription info
+                if (subDoc.exists()) {
+                    const subData = subDoc.data();
+                    const status = subData.status || 'free';
+                    const planName = getPlanName(status);
+                    
+                    document.getElementById('info-plan').textContent = planName;
+                    document.getElementById('info-status').textContent = status.charAt(0).toUpperCase() + status.slice(1);
+                    document.getElementById('info-status').className = 'status-badge ' + status;
+
+                    // Show renewal info for active subscriptions
+                    if (status === 'active' && subData.current_period_end) {
+                        const renewalDate = subData.current_period_end.toDate();
+                        const cost = getPlanCost(subData.variant_id);
+                        
+                        document.getElementById('renewal-row').style.display = 'flex';
+                        document.getElementById('cost-row').style.display = 'flex';
+                        document.getElementById('info-renewal-date').textContent = renewalDate.toLocaleDateString('en-US', { 
+                            year: 'numeric', 
+                            month: 'long', 
+                            day: 'numeric' 
+                        });
+                        document.getElementById('info-renewal-cost').textContent = cost;
+                        document.getElementById('cancelSubBtn').style.display = 'block';
+                    } else {
+                        document.getElementById('renewal-row').style.display = 'none';
+                        document.getElementById('cost-row').style.display = 'none';
+                        document.getElementById('cancelSubBtn').style.display = 'none';
+                    }
+                } else {
+                    document.getElementById('info-plan').textContent = 'Free';
+                    document.getElementById('info-status').textContent = 'Free';
+                    document.getElementById('info-status').className = 'status-badge active';
+                    document.getElementById('renewal-row').style.display = 'none';
+                    document.getElementById('cost-row').style.display = 'none';
+                    document.getElementById('cancelSubBtn').style.display = 'none';
+                    document.getElementById('manageSubBtn').textContent = 'Upgrade to Pro';
+                    document.getElementById('manageSubBtn').onclick = () => {
+                        window.location.href = '/pages/pricing.html';
+                    };
+                }
+
+                // Update specs remaining
+                if (entitlementsDoc.exists()) {
+                    const entitlements = entitlementsDoc.data();
+                    const unlimited = entitlements.unlimited || false;
+                    const specCredits = entitlements.spec_credits || 0;
+                    
+                    if (unlimited) {
+                        document.getElementById('info-specs').innerHTML = '<span style="font-size: 1.5rem;">∞</span> <span style="color: #28a745;">Unlimited</span>';
+                    } else {
+                        document.getElementById('info-specs').textContent = specCredits + ' specs';
+                    }
+                } else {
+                    // Check from user doc
+                    if (userDoc.exists()) {
+                        const userData = userDoc.data();
+                        const freeSpecs = userData.free_specs_remaining || 0;
+                        document.getElementById('info-specs').textContent = freeSpecs + ' free specs remaining';
+                    } else {
+                        document.getElementById('info-specs').textContent = '1 free spec remaining';
+                    }
+                }
+
+            } catch (error) {
+                console.error('Error loading personal info:', error);
+            }
+        }
+
+        function getPlanName(status) {
+            switch(status) {
+                case 'active':
+                    return 'PRO';
+                case 'cancelled':
+                    return 'PRO (Cancelled)';
+                case 'expired':
+                    return 'Free';
+                case 'payment_failed':
+                    return 'PRO (Payment Failed)';
+                default:
+                    return 'Free';
+            }
+        }
+
+        function getPlanCost(variantId) {
+            // This should match your Lemon Squeezy products
+            if (variantId === 'cae56dc9-f0b9-45fa-a4af-5405e08ab8c9') {
+                return '$29.90/month';
+            } else if (variantId === '02828cb1-3985-437f-acb0-fe49508935c6') {
+                return '$299.90/year';
+            }
+            return 'N/A';
+        }
+
+        window.editDisplayName = function() {
+            const modal = document.getElementById('editNameModal');
+            const input = document.getElementById('editDisplayNameInput');
+            const displayName = document.getElementById('info-display-name').textContent;
+            
+            input.value = displayName;
+            modal.style.display = 'flex';
+            setTimeout(() => input.focus(), 100);
+        };
+
+        window.closeEditNameModal = function() {
+            document.getElementById('editNameModal').style.display = 'none';
+        };
+
+        window.saveDisplayName = async function() {
+            const newName = document.getElementById('editDisplayNameInput').value.trim();
+            if (!newName) {
+                alert('Please enter a display name');
+                return;
+            }
+
+            try {
+                // Update in Firestore
+                const userRef = doc(db, 'users', currentUser.uid);
+                await setDoc(userRef, {
+                    displayName: newName
+                }, { merge: true });
+
+                // Update in Firebase Auth
+                const auth = getAuth();
+                await updateProfile(auth.currentUser, { displayName: newName });
+
+                // Update UI
+                document.getElementById('info-display-name').textContent = newName;
+                document.getElementById('user-name').textContent = newName;
+                closeEditNameModal();
+                showSuccess('Display name updated successfully!');
+
+            } catch (error) {
+                console.error('Error updating display name:', error);
+                alert('Failed to update display name');
+            }
+        };
+
+        window.manageSubscription = function() {
+            const panel = document.getElementById('personalInfoPanel');
+            const status = document.getElementById('info-status').textContent.toLowerCase();
+            
+            if (status.includes('free')) {
+                // Upgrade
+                window.location.href = '/pages/pricing.html';
+            } else {
+                // Manage subscription in LemonSqueezy
+                window.open('https://specifysai.lemonsqueezy.com/customer', '_blank');
+            }
+        };
+
+        window.cancelSubscription = function() {
+            const status = document.getElementById('info-status').textContent.toLowerCase();
+            
+            if (!confirm('Are you sure you want to cancel your subscription? You will keep Pro access until the end of your current billing period.')) {
+                return;
+            }
+
+            // Open LemonSqueezy customer portal for cancellation
+            window.open('https://specifysai.lemonsqueezy.com/customer', '_blank');
+            alert('Please use the LemonSqueezy customer portal to cancel your subscription. You will maintain Pro access until your current billing period ends.');
+        };
+
     </script>
 
     </main>

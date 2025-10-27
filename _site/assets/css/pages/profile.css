@@ -1133,6 +1133,289 @@
     }
 }
 
+/* Personal Info Button */
+.personal-info-btn {
+    background: #28a745 !important;
+    border: none !important;
+    color: white !important;
+    border-radius: 20px;
+    padding: 8px 24px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    white-space: nowrap;
+    font-weight: var(--font-weight-medium);
+    min-width: 140px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.personal-info-btn:hover {
+    background: #218838 !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+}
+
+.personal-info-btn i {
+    font-size: 0.9rem;
+}
+
+/* Personal Info Side Panel */
+.personal-info-panel {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10000;
+    display: none;
+}
+
+.personal-info-panel.active {
+    display: block;
+}
+
+.panel-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+}
+
+.panel-content {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 100%;
+    max-width: 420px;
+    height: 100%;
+    background: white;
+    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.2);
+    animation: slideInRight 0.3s ease;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 24px 0 24px;
+    border-bottom: 1px solid #e5e7eb;
+    margin-bottom: 24px;
+}
+
+.panel-header h2 {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: var(--font-weight-semibold);
+    color: #1f2937;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.panel-header i {
+    font-size: 1.5rem;
+}
+
+.panel-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #6b7280;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.panel-close:hover {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.panel-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 24px 24px 24px;
+}
+
+.info-section {
+    margin-bottom: 32px;
+}
+
+.info-section h3 {
+    font-size: 1rem;
+    font-weight: var(--font-weight-semibold);
+    color: #374151;
+    margin-bottom: 16px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 0.9rem;
+}
+
+.info-card {
+    background: #f9fafb;
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid #e5e7eb;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.info-row:last-child {
+    border-bottom: none;
+}
+
+.info-row label {
+    font-weight: var(--font-weight-medium);
+    color: #6b7280;
+    font-size: 0.9rem;
+}
+
+.info-value {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.95rem;
+    color: #1f2937;
+    font-weight: var(--font-weight-medium);
+}
+
+.edit-btn {
+    background: none;
+    border: none;
+    color: #FF6B35;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.edit-btn:hover {
+    background: rgba(255, 107, 53, 0.1);
+}
+
+.plan-badge {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: var(--font-weight-semibold);
+}
+
+.status-badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: var(--font-weight-semibold);
+}
+
+.status-badge.active {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.status-badge.expired {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.status-badge.cancelled {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.panel-action-btn {
+    width: 100%;
+    background: #FF6B35;
+    border: none;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: var(--font-weight-semibold);
+    font-size: 0.9rem;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.panel-action-btn:hover {
+    background: #FF8551;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+}
+
+.panel-action-btn.cancel-btn {
+    background: #dc3545;
+}
+
+.panel-action-btn.cancel-btn:hover {
+    background: #c82333;
+}
+
+.panel-action-btn i {
+    font-size: 1rem;
+}
+
+.info-value .plan-badge {
+    display: inline-block;
+}
+
+/* Responsive adjustments for panel */
+@media (max-width: 768px) {
+    .panel-content {
+        max-width: 100%;
+    }
+    
+    .personal-info-btn {
+        min-width: 120px;
+        padding: 7px 20px;
+        font-size: 0.8rem;
+    }
+    
+    .panel-header {
+        padding: 20px 20px 0 20px;
+    }
+    
+    .panel-body {
+        padding: 0 20px 20px 20px;
+    }
+}
+
 /* Responsive Design - Small Mobile */
 @media (max-width: 480px) {
     .profile-container {
