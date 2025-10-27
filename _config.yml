@@ -58,6 +58,7 @@ exclude:
 # Include files
 include:
   - _redirects
+  - tools/
 
 # Sass settings
 sass:

@@ -348,14 +348,15 @@ const paywallStyles = `
 
 .paywall-content {
     position: relative;
-    background: white;
+    background: linear-gradient(135deg, #fff9f5 0%, #ffffff 100%);
     border-radius: 16px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 20px 60px rgba(255, 107, 53, 0.15);
     max-width: 600px;
     width: 90%;
     max-height: 90vh;
     overflow-y: auto;
     animation: paywallSlideIn 0.3s ease-out;
+    border: 2px solid #FFE8DC;
 }
 
 @keyframes paywallSlideIn {
@@ -374,7 +375,7 @@ const paywallStyles = `
     justify-content: space-between;
     align-items: center;
     padding: 24px 24px 0;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid #FFE8DC;
     margin-bottom: 24px;
 }
 
@@ -382,14 +383,14 @@ const paywallStyles = `
     margin: 0;
     font-size: 1.5rem;
     font-weight: 600;
-    color: #1f2937;
+    color: #FF6B35;
 }
 
 .paywall-close {
     background: none;
     border: none;
     font-size: 1.25rem;
-    color: #6b7280;
+    color: #FF6B35;
     cursor: pointer;
     padding: 8px;
     border-radius: 8px;
@@ -397,8 +398,8 @@ const paywallStyles = `
 }
 
 .paywall-close:hover {
-    background: #f3f4f6;
-    color: #374151;
+    background: #FFE8DC;
+    color: #FF8551;
 }
 
 .paywall-body {
@@ -407,9 +408,10 @@ const paywallStyles = `
 
 .paywall-message {
     text-align: center;
-    color: #6b7280;
+    color: #FF6B35;
     margin-bottom: 32px;
     font-size: 1.1rem;
+    font-weight: 500;
 }
 
 .paywall-options {
@@ -420,17 +422,18 @@ const paywallStyles = `
 }
 
 .paywall-option {
-    border: 2px solid #e5e7eb;
+    border: 2px solid #FFE8DC;
     border-radius: 12px;
     padding: 20px;
     transition: all 0.2s ease;
     cursor: pointer;
+    background: white;
 }
 
 .paywall-option:hover {
-    border-color: #3b82f6;
+    border-color: #FF6B35;
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.15);
+    box-shadow: 0 8px 25px rgba(255, 107, 53, 0.15);
 }
 
 .option-header {
@@ -444,7 +447,7 @@ const paywallStyles = `
     margin: 0;
     font-size: 1.1rem;
     font-weight: 600;
-    color: #1f2937;
+    color: #FF6B35;
 }
 
 .option-price {
@@ -461,7 +464,7 @@ const paywallStyles = `
 .option-price .amount {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #1f2937;
+    color: #FF6B35;
 }
 
 .option-description {
@@ -473,7 +476,7 @@ const paywallStyles = `
 
 .option-button {
     width: 100%;
-    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    background: linear-gradient(135deg, #FF6B35 0%, #FF8551 100%);
     color: white;
     border: none;
     padding: 12px 16px;
@@ -484,8 +487,9 @@ const paywallStyles = `
 }
 
 .option-button:hover {
-    background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+    background: linear-gradient(135deg, #FF8551 0%, #FF6B35 100%);
     transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
 }
 
 .paywall-processing {
@@ -496,8 +500,8 @@ const paywallStyles = `
 .processing-spinner {
     width: 40px;
     height: 40px;
-    border: 4px solid #e5e7eb;
-    border-top: 4px solid #3b82f6;
+    border: 4px solid #FFE8DC;
+    border-top: 4px solid #FF6B35;
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin: 0 auto 20px;

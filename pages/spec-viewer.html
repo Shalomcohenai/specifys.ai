@@ -999,40 +999,75 @@ document.addEventListener('DOMContentLoaded', function() {
 .raw-sections {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 16px;
 }
 
 .raw-section {
-    background: #f8f9fa;
-    border-radius: 8px;
-    padding: 15px;
-    border: 1px solid #e0e0e0;
+    background: linear-gradient(135deg, #fff9f5 0%, #ffffff 100%);
+    border-radius: 12px;
+    padding: 20px;
+    border: 2px solid #FFE8DC;
+    box-shadow: 0 2px 8px rgba(255, 107, 53, 0.08);
+    transition: all 0.3s ease;
+}
+
+.raw-section:hover {
+    border-color: #FF6B35;
+    box-shadow: 0 4px 12px rgba(255, 107, 53, 0.15);
+    transform: translateY(-2px);
 }
 
 .raw-section h3 {
-    margin: 0 0 10px 0;
-    color: #333;
-    font-size: 16px;
+    margin: 0 0 12px 0;
+    color: #FF6B35;
+    font-size: 15px;
     font-weight: 600;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #FFE8DC;
+}
+
+.raw-section h3 i {
+    font-size: 16px;
+    color: #FF8551;
 }
 
 .raw-display {
-    background: #2d3748;
-    color: #e2e8f0;
-    padding: 15px;
-    border-radius: 6px;
+    background: #2a2a2a;
+    color: #f5f5f5;
+    padding: 16px;
+    border-radius: 8px;
     font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
     font-size: 12px;
-    line-height: 1.4;
+    line-height: 1.5;
     overflow-x: auto;
     white-space: pre-wrap;
     word-wrap: break-word;
-    max-height: 300px;
+    max-height: 250px;
     overflow-y: auto;
-    border: 1px solid #4a5568;
+    border: 1px solid #FF6B35;
+}
+
+/* Styled scrollbar for raw displays */
+.raw-display::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.raw-display::-webkit-scrollbar-track {
+    background: #1a1a1a;
+    border-radius: 4px;
+}
+
+.raw-display::-webkit-scrollbar-thumb {
+    background: #FF6B35;
+    border-radius: 4px;
+}
+
+.raw-display::-webkit-scrollbar-thumb:hover {
+    background: #FF8551;
 }
 
 /* Minimal Design Palette Styles */
@@ -1072,26 +1107,26 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .viz-btn {
-    background: #f8f9fa;
-    border: 1px solid #dee2e6;
+    background: linear-gradient(135deg, #fff9f5 0%, #ffffff 100%);
+    border: 1px solid #FFE8DC;
     border-radius: 8px;
     padding: 10px 16px;
     cursor: pointer;
     font-size: 14px;
-    color: #495057;
-    transition: all 0.2s;
+    color: #FF6B35;
+    transition: all 0.3s ease;
     display: flex;
     align-items: center;
-    gap: 6px;
-    font-weight: 500;
+    gap: 8px;
+    font-weight: 600;
 }
 
 .viz-btn:hover {
-    background: #e9ecef;
-    border-color: #adb5bd;
-    color: #212529;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    background: linear-gradient(135deg, #FF6B35 0%, #FF8551 100%);
+    border-color: #FF6B35;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
 }
 
 .viz-btn i {
@@ -1580,30 +1615,40 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .btn-primary {
-    background: #007bff;
+    background: linear-gradient(135deg, #FF6B35 0%, #FF8551 100%);
     color: white;
+    border: none;
 }
 
 .btn-primary:hover:not(:disabled) {
-    background: #0056b3;
+    background: linear-gradient(135deg, #FF8551 0%, #FF6B35 100%);
+    box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+    transform: translateY(-1px);
 }
 
 .btn-secondary {
-    background: #6c757d;
-    color: white;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    color: #FF6B35;
+    border: 1px solid #FFE8DC;
 }
 
 .btn-secondary:hover:not(:disabled) {
-    background: #545b62;
+    background: linear-gradient(135deg, #FFE8DC 0%, #fff9f5 100%);
+    border-color: #FF8551;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(255, 107, 53, 0.15);
 }
 
 .btn-success {
-    background: #28a745;
+    background: linear-gradient(135deg, #FF6B35 0%, #FF8551 100%);
     color: white;
+    border: none;
 }
 
 .btn-success:hover:not(:disabled) {
-    background: #1e7e34;
+    background: linear-gradient(135deg, #FF8551 0%, #FF6B35 100%);
+    box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+    transform: translateY(-1px);
 }
 
 .approve-btn {
@@ -1666,38 +1711,74 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .content-section {
-    margin-bottom: 30px;
+    margin-bottom: 32px;
+    padding: 20px;
+    background: linear-gradient(135deg, #fff9f5 0%, #ffffff 100%);
+    border-radius: 12px;
+    border: 1px solid #FFE8DC;
+    box-shadow: 0 2px 8px rgba(255, 107, 53, 0.05);
+    transition: all 0.3s ease;
+}
+
+.content-section:hover {
+    border-color: #FF6B35;
+    box-shadow: 0 4px 12px rgba(255, 107, 53, 0.12);
 }
 
 .content-section h3 {
-    color: #333;
-    margin-bottom: 15px;
-    padding-bottom: 5px;
-    border-bottom: 1px solid #e0e0e0;
+    color: #FF6B35;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #FFE8DC;
+    font-size: 18px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.content-section h3 i {
+    font-size: 18px;
+    color: #FF8551;
 }
 
 .content-section p {
-    line-height: 1.6;
-    color: #555;
+    line-height: 1.7;
+    color: #444;
 }
 
 .locked-tab-message {
     text-align: center;
-    padding: 40px;
-    color: #666;
-    background: #f8f9fa;
-    border-radius: 8px;
-    border: 2px dashed #dee2e6;
+    padding: 48px 32px;
+    background: linear-gradient(135deg, #fff9f5 0%, #ffffff 100%);
+    border-radius: 16px;
+    border: 2px dashed #FFE8DC;
+    box-shadow: 0 4px 12px rgba(255, 107, 53, 0.08);
 }
 
 .locked-tab-message h3 {
-    color: #495057;
-    margin-bottom: 10px;
+    color: #FF6B35;
+    margin-bottom: 16px;
+    font-size: 20px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.locked-tab-message h3 i {
+    font-size: 22px;
+    color: #FF8551;
 }
 
 .locked-tab-message p {
     margin: 0;
-    font-size: 14px;
+    font-size: 15px;
+    color: #666;
+    line-height: 1.6;
+    max-width: 500px;
+    margin: 0 auto;
 }
 
 @media (max-width: 768px) {

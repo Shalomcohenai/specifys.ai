@@ -1,5 +1,3 @@
-    const TOOLS_JSON_URL = '/tools/map/tools.json';
-    
     // Wait for all libraries to load before running React code
     function waitForLibraries() {
       return new Promise((resolve, reject) => {

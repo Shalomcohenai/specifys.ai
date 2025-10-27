@@ -547,6 +547,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="stat-label">Specs</div>
                 </div>
                 <div class="stat-item">
+                    <div class="stat-number" id="specs-remaining-count">∞</div>
+                    <div class="stat-label">Remaining Specs</div>
+                </div>
+                <div class="stat-item">
                     <div class="stat-number" id="saved-tools-count">0</div>
                     <div class="stat-label">Tools</div>
                 </div>
@@ -839,6 +843,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 updateProfileInfo(user);
                 loadWorkspace();
                 loadUserSavedTools();
+                loadSpecsRemaining();
                 updateAuthUI(user);
             } else {
                 // Redirect to login if not authenticated
@@ -1399,6 +1404,51 @@ document.addEventListener('DOMContentLoaded', function() {
             } catch (error) {
                 console.error('Error loading saved tools:', error);
                 document.getElementById('tools-container').innerHTML = '<div class="error">Error loading saved tools</div>';
+            }
+        }
+
+        // Load specs remaining
+        async function loadSpecsRemaining() {
+            if (!currentUser) return;
+            
+            try {
+                // Load entitlements
+                const entitlementsRef = doc(db, 'entitlements', currentUser.uid);
+                const entitlementsDoc = await getDoc(entitlementsRef);
+                
+                // Load user doc as fallback
+                const userRef = doc(db, 'users', currentUser.uid);
+                const userDoc = await getDoc(userRef);
+                
+                const specsRemainingEl = document.getElementById('specs-remaining-count');
+                
+                if (entitlementsDoc.exists()) {
+                    const entitlements = entitlementsDoc.data();
+                    const unlimited = entitlements.unlimited || false;
+                    const specCredits = entitlements.spec_credits || 0;
+                    
+                    if (unlimited) {
+                        specsRemainingEl.innerHTML = '∞';
+                    } else if (specCredits > 0) {
+                        specsRemainingEl.textContent = specCredits;
+                    } else if (userDoc.exists()) {
+                        // If no purchased credits, check free specs
+                        const userData = userDoc.data();
+                        const freeSpecs = userData.free_specs_remaining || 1;
+                        specsRemainingEl.textContent = freeSpecs;
+                    } else {
+                        specsRemainingEl.textContent = '1';
+                    }
+                } else if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    const freeSpecs = userData.free_specs_remaining || 1;
+                    specsRemainingEl.textContent = freeSpecs;
+                } else {
+                    specsRemainingEl.textContent = '1';
+                }
+            } catch (error) {
+                console.error('Error loading specs remaining:', error);
+                document.getElementById('specs-remaining-count').textContent = '-';
             }
         }
 
@@ -2701,7 +2751,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     };
                 }
 
-                // Update specs remaining
+                // Update specs remaining in panel
                 if (entitlementsDoc.exists()) {
                     const entitlements = entitlementsDoc.data();
                     const unlimited = entitlements.unlimited || false;
@@ -2712,16 +2762,17 @@ document.addEventListener('DOMContentLoaded', function() {
                     } else {
                         document.getElementById('info-specs').textContent = specCredits + ' specs';
                     }
-                } else {
+                } else if (userDoc.exists()) {
                     // Check from user doc
-                    if (userDoc.exists()) {
-                        const userData = userDoc.data();
-                        const freeSpecs = userData.free_specs_remaining || 0;
-                        document.getElementById('info-specs').textContent = freeSpecs + ' free specs remaining';
-                    } else {
-                        document.getElementById('info-specs').textContent = '1 free spec remaining';
-                    }
+                    const userData = userDoc.data();
+                    const freeSpecs = userData.free_specs_remaining || 1;
+                    document.getElementById('info-specs').textContent = freeSpecs + ' free specs remaining';
+                } else {
+                    document.getElementById('info-specs').textContent = '1 free spec remaining';
                 }
+
+                // Update specs remaining in header
+                await loadSpecsRemaining();
 
             } catch (error) {
                 console.error('Error loading personal info:', error);

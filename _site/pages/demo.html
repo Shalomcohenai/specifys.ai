@@ -790,18 +790,14 @@ document.addEventListener('DOMContentLoaded', function() {
             if (user) {
                 // User is logged in
                 const userEmail = user.email;
+                const displayName = user.displayName || userEmail.split('@')[0];
                 const firstLetter = userEmail ? userEmail.charAt(0).toUpperCase() : 'U';
                 
                 authButtons.innerHTML = `
-                    <div class="user-dropdown">
-                        <a href="profile.html" class="user-avatar-link" title="Go to Profile">
-                            <div class="user-avatar">${firstLetter}</div>
-                        </a>
-                        <div class="user-dropdown-content">
-                            <a href="profile.html">Profile</a>
-                            <button onclick="logout()">Sign Out</button>
-                        </div>
-                    </div>
+                    <a href="profile.html" class="user-info" style="text-decoration: none;">
+                        <div class="user-avatar">${firstLetter}</div>
+                        <span>${displayName}</span>
+                    </a>
                 `;
             } else {
                 // User is not logged in

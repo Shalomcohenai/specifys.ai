@@ -886,10 +886,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 const firstLetter = displayName.charAt(0).toUpperCase();
                 
                 authButtons.innerHTML = `
-                    <div class="user-info" onclick="window.location.href='profile.html'">
+                    <a href="profile.html" class="user-info" style="text-decoration: none;">
                         <div class="user-avatar">${firstLetter}</div>
                         <span>${displayName}</span>
-                    </div>
+                    </a>
                 `;
             } else {
                 // User is not logged in
@@ -1013,28 +1013,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.addEventListener('DOMContentLoaded', function() {
             
             
-        });
-
-        // Global functions for user dropdown
-        window.toggleUserDropdown = function() {
-            const dropdown = document.querySelector('.user-dropdown-content');
-            if (dropdown && dropdown.classList.contains('show')) {
-                dropdown.classList.remove('show');
-            } else if (dropdown) {
-                dropdown.classList.add('show');
-            }
-        };
-
-        // Close user dropdown when clicking outside
-        document.addEventListener('click', function(event) {
-            const userDropdown = document.querySelector('.user-dropdown');
-            const userInfo = document.querySelector('.user-info');
-            const dropdown = document.querySelector('.user-dropdown-content');
-            
-            if (userDropdown && dropdown && dropdown.classList.contains('show') && 
-                !userInfo.contains(event.target)) {
-                dropdown.classList.remove('show');
-            }
         });
 
         // Initialize auth buttons with default state

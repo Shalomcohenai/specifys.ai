@@ -11,7 +11,10 @@ service cloud.firestore {
 
     // General rule for documents with userId field
     match /{document=**} {
-      allow read, write: if request.auth != null && request.auth.uid == resource.data.userId || isAdmin();
+      allow read, write: if request.auth != null && (
+        !exists(/databases/$(database)/documents/$(document)) ||
+        request.auth.uid == resource.data.userId
+      ) || isAdmin();
     }
 
     // Users collection
@@ -28,25 +31,39 @@ service cloud.firestore {
 
     // Entitlements collection
     match /entitlements/{document} {
-      allow read, write: if request.auth != null && request.auth.uid == resource.data.userId || isAdmin();
+      allow read: if request.auth != null && (
+        !exists(/databases/$(database)/documents/entitlements/$(document)) ||
+        request.auth.uid == resource.data.userId
+      ) || isAdmin();
+      allow write: if request.auth != null && request.auth.uid == resource.data.userId || isAdmin();
       allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
     }
 
     // Purchases collection
     match /purchases/{document} {
-      allow read, write: if request.auth != null && request.auth.uid == resource.data.userId || isAdmin();
+      allow read: if request.auth != null && (
+        !exists(/databases/$(database)/documents/purchases/$(document)) ||
+        request.auth.uid == resource.data.userId
+      ) || isAdmin();
+      allow write: if request.auth != null && request.auth.uid == resource.data.userId || isAdmin();
       allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
     }
 
     // Subscriptions collection
     match /subscriptions/{document} {
-      allow read, write: if request.auth != null && request.auth.uid == resource.data.userId || isAdmin();
+      allow read: if request.auth != null && (
+        !exists(/databases/$(database)/documents/subscriptions/$(document)) ||
+        request.auth.uid == resource.data.userId
+      ) || isAdmin();
+      allow write: if request.auth != null && request.auth.uid == resource.data.userId || isAdmin();
       allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
     }
 
     // Pending entitlements collection
     match /pending_entitlements/{document} {
-      allow read: if request.auth != null && (resource.data.email == request.auth.token.email || isAdmin());
+      allow read: if request.auth != null && (
+        resource.data.email == request.auth.token.email || isAdmin()
+      );
       allow write, create: if isAdmin();
     }
 

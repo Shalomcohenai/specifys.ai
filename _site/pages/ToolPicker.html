@@ -510,6 +510,30 @@ document.addEventListener('DOMContentLoaded', function() {
   <div class="alert alert-danger error-message hidden"></div>
 </div>
 
+<!-- Stats Section -->
+<div class="section" style="margin: 4rem 0;">
+  <h2 style="text-align: center; margin-bottom: 0.5rem;">Our Impact</h2>
+  <p style="text-align: center; color: var(--text-secondary); margin-bottom: 2rem;">Join thousands who've planned apps with Specifys.ai!</p>
+  <div class="stats-list">
+    <div class="stat-item">
+      <div class="stat-number" data-target="0" data-stats-type="tools">0+</div>
+      <h3>Vibe Coding Tools</h3>
+      <p>Curated tools in our Vibe Coding Tools Map.</p>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number" data-target="0" data-stats-type="specs">0+</div>
+      <h3>Specs Created</h3>
+      <p>AI-powered specifications created by our community.</p>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number" data-target="0" data-stats-type="tool-finder">0+</div>
+      <h3>Tool Finder Users</h3>
+      <p>Creators finding perfect tools with our AI-powered Tool Finder.</p>
+    </div>
+  </div>
+</div>
+
+<script src="/assets/js/index.js"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.querySelector('.search-input');
@@ -675,6 +699,20 @@ document.addEventListener('DOMContentLoaded', function() {
       originalUpdateUI(tools);
       setTimeout(addColumnHoverEffect, 100);
     };
+    
+    // Load dynamic stats on page load
+    if (typeof loadDynamicStats === 'function') {
+      loadDynamicStats().then(() => {
+        // Trigger counter animation for all stat numbers
+        const statNumbers = document.querySelectorAll('.stat-number');
+        statNumbers.forEach(element => {
+          const target = parseInt(element.dataset.target);
+          if (target && !isNaN(target) && typeof animateCounter === 'function') {
+            animateCounter(element, target);
+          }
+        });
+      });
+    }
   });
 </script>
 

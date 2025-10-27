@@ -179,21 +179,6 @@ extra_css:
         height: 20px;
         font-size: 0.7rem;
       }
-      
-      
-      .user-dropdown-content {
-        top: 70px;
-        left: 15px;
-        right: auto;
-        min-width: 120px;
-      }
-      
-      .user-dropdown-content a,
-      .user-dropdown-content button {
-        padding: 10px 12px;
-        font-size: 0.8rem;
-      }
-      
     }
     
     /* Preserve category colors in both modes */
@@ -1041,7 +1026,7 @@ extra_css:
   const TOOLS_JSON_URL = '{{ '/tools/map/tools.json' | relative_url }}';
 </script>
 
-<script type="text/babel" src="tools-map-react.js"></script>
+<script type="text/babel" src="{{ '/tools/map/tools-map-react.js' | relative_url }}"></script>
 
 <script>
 
@@ -1051,28 +1036,6 @@ extra_css:
       
       
       
-    });
-
-    // Global functions for user dropdown
-    window.toggleUserDropdown = function() {
-      const dropdown = document.querySelector('.user-dropdown-content');
-      if (dropdown && dropdown.classList.contains('show')) {
-        dropdown.classList.remove('show');
-      } else if (dropdown) {
-        dropdown.classList.add('show');
-      }
-    };
-
-    // Close user dropdown when clicking outside
-    document.addEventListener('click', function(event) {
-      const userDropdown = document.querySelector('.user-dropdown');
-      const userInfo = document.querySelector('.user-info');
-      const dropdown = document.querySelector('.user-dropdown-content');
-      
-      if (userDropdown && dropdown && dropdown.classList.contains('show') && 
-          !userInfo.contains(event.target)) {
-        dropdown.classList.remove('show');
-      }
     });
 
     // Initialize auth buttons with default state

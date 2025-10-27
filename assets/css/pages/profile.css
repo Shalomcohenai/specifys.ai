@@ -780,7 +780,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 10000;
+    z-index: 100000;
     animation: fadeIn 0.3s ease;
 }
 
@@ -1324,7 +1324,7 @@
 }
 
 .plan-badge {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #FF6B35;
     color: white;
     padding: 4px 12px;
     border-radius: 20px;
@@ -1340,8 +1340,8 @@
 }
 
 .status-badge.active {
-    background: #d1fae5;
-    color: #065f46;
+    background: #4a90e2;
+    color: white;
 }
 
 .status-badge.expired {

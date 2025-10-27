@@ -208,23 +208,21 @@
                     <div class="plan-header">
                         <h3>Single Spec</h3>
                         <p class="plan-description">One additional specification</p>
+                    </div>
+                    <div class="plan-features">
+                        <ul>
+                            <li><i class="fas fa-check-circle"></i> <span>1 Specification</span></li>
+                            <li><i class="fas fa-check-circle"></i> <span>Full Spec Details</span></li>
+                            <li><i class="fas fa-check-circle"></i> <span>Tools Map Access</span></li>
+                            <li><i class="fas fa-check-circle"></i> <span>Forever Access</span></li>
+                        </ul>
+                    </div>
+                    <div class="plan-cta">
                         <div class="price">
                             <span class="currency">$</span>
                             <span class="amount">4.90</span>
                             <span class="period">one-time</span>
                         </div>
-                    </div>
-                    <div class="plan-features">
-                        <p class="features-label">FEATURES</p>
-                        <ul>
-                            <li><i class="fas fa-check-circle"></i> <span>1 Additional Specification</span></li>
-                            <li><i class="fas fa-check-circle"></i> <span>Access to Tools Map</span></li>
-                            <li><i class="fas fa-check-circle"></i> <span>Tool Finder</span></li>
-                            <li><i class="fas fa-check-circle"></i> <span>Market Research</span></li>
-                            <li><i class="fas fa-times-circle"></i> <span>Edit Specifications</span></li>
-                        </ul>
-                    </div>
-                    <div class="plan-cta">
                         <button class="btn btn-primary" onclick="purchaseSpec('single_spec')">
                             Buy Now
                         </button>
@@ -237,85 +235,27 @@
                     <div class="plan-header">
                         <h3>3-Pack</h3>
                         <p class="plan-description">Three specifications at a discount</p>
+                    </div>
+                    <div class="plan-features">
+                        <ul>
+                            <li><i class="fas fa-check-circle"></i> <span>3 Specifications</span></li>
+                            <li><i class="fas fa-check-circle"></i> <span>Full Spec Details</span></li>
+                            <li><i class="fas fa-check-circle"></i> <span>Tools Map Access</span></li>
+                            <li><i class="fas fa-check-circle"></i> <span>Forever Access</span></li>
+                        </ul>
+                    </div>
+                    <div class="plan-cta">
                         <div class="price">
                             <span class="currency">$</span>
                             <span class="amount">9.90</span>
                             <span class="period">one-time</span>
                         </div>
-                    </div>
-                    <div class="plan-features">
-                        <p class="features-label">FEATURES</p>
-                        <ul>
-                            <li><i class="fas fa-check-circle"></i> <span>3 Additional Specifications</span></li>
-                            <li><i class="fas fa-check-circle"></i> <span>Access to Tools Map</span></li>
-                            <li><i class="fas fa-check-circle"></i> <span>Tool Finder</span></li>
-                            <li><i class="fas fa-check-circle"></i> <span>Market Research</span></li>
-                            <li><i class="fas fa-times-circle"></i> <span>Edit Specifications</span></li>
-                        </ul>
-                    </div>
-                    <div class="plan-cta">
                         <button class="btn btn-primary highlight" onclick="purchaseSpec('three_pack')">
                             Buy Now
                         </button>
                     </div>
                 </div>
 
-                <!-- Pro with Toggle -->
-                <div class="pricing-card pro">
-                    <div class="plan-badge">Popular</div>
-                    <div class="plan-header">
-                        <h3>Pro</h3>
-                        <p class="plan-description">Unlimited specifications + editing</p>
-                        
-                        <!-- Billing Toggle -->
-                        <div class="billing-toggle">
-                            <button class="toggle-btn" id="toggleMonthly" onclick="switchBilling('monthly')">
-                                Monthly billing
-                            </button>
-                            <button class="toggle-btn active" id="toggleYearly" onclick="switchBilling('yearly')">
-                                Annual billing
-                            </button>
-                        </div>
-                        <div class="savings-info" id="savingsInfo" style="display: none; font-size: 0.85rem; color: #28a745; margin-top: 8px;">
-                            Save 20% compared to monthly
-                        </div>
-                        
-                        <!-- Monthly Price -->
-                        <div class="price monthly-price" id="monthlyPrice" style="display: none;">
-                            <span class="currency">$</span>
-                            <span class="amount">29.90</span>
-                            <span class="period">per month</span>
-                        </div>
-                        
-                        <!-- Yearly Price -->
-                        <div class="price yearly-price" id="yearlyPrice">
-                            <span class="currency">$</span>
-                            <span class="amount">299.90</span>
-                            <span class="period">per year</span>
-                        </div>
-                        
-                        <!-- Savings Badge -->
-                        <div class="savings-badge" id="savingsBadge" style="display: none;">
-                            <span>Save 20%</span>
-                        </div>
-                    </div>
-                    <div class="plan-features">
-                        <p class="features-label">FEATURES</p>
-                        <ul>
-                            <li><i class="fas fa-check-circle"></i> <span>Unlimited Specifications</span></li>
-                            <li><i class="fas fa-check-circle"></i> <span>Edit All Specifications</span></li>
-                            <li><i class="fas fa-check-circle"></i> <span>Access to Tools Map</span></li>
-                            <li><i class="fas fa-check-circle"></i> <span>Tool Finder</span></li>
-                            <li><i class="fas fa-check-circle"></i> <span>Market Research</span></li>
-                            <li><i class="fas fa-check-circle"></i> <span>Priority Support</span></li>
-                        </ul>
-                    </div>
-                    <div class="plan-cta">
-                        <button class="btn btn-primary" id="proBuyButton" onclick="purchaseSpec('pro_yearly')">
-                            Get started
-                        </button>
-                    </div>
-                </div>
 
             </div>
         </div>
@@ -376,9 +316,10 @@
 
 .pricing-hero {
     background: #ffffff;
-    padding: 60px 0 40px;
+    padding: 100px 0 40px;
     text-align: center;
     border-bottom: 1px solid #e9ecef;
+    margin-top: 60px;
 }
 
 .pricing-hero .container {
@@ -414,29 +355,33 @@
 
 .pricing-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 24px;
-    max-width: 1200px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 32px;
+    max-width: 800px;
     margin: 0 auto;
 }
 
 .pricing-card {
     background: white;
-    border: 1px solid #e9ecef;
-    border-radius: 12px;
-    padding: 32px;
+    border: 2px solid #FFE8DC;
+    border-radius: 16px;
+    padding: 40px;
     transition: all 0.3s ease;
     position: relative;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 2px 12px rgba(255, 107, 53, 0.05);
 }
 
 .pricing-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    transform: translateY(-6px);
+    box-shadow: 0 12px 32px rgba(255, 107, 53, 0.15);
+    border-color: #FF6B35;
 }
 
-.pricing-card.pro {
+.pricing-card.pack {
     border-color: #FF6B35;
-    box-shadow: 0 0 0 1px #FF6B35;
+    box-shadow: 0 4px 16px rgba(255, 107, 53, 0.2);
 }
 
 .plan-badge {
@@ -457,20 +402,25 @@
 }
 
 .plan-header {
+    margin-bottom: 24px;
+}
+
+.plan-features {
     margin-bottom: 32px;
+    flex-grow: 1;
 }
 
 .plan-header h3 {
-    font-size: 1.5rem;
+    font-size: 1.75rem;
     margin-bottom: 8px;
-    color: #333;
-    font-weight: 600;
+    color: #FF6B35;
+    font-weight: 700;
 }
 
 .plan-description {
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     color: #666;
-    margin-bottom: 16px;
+    margin-bottom: 24px;
 }
 
 .price {
@@ -485,9 +435,9 @@
 }
 
 .amount {
-    font-size: 2.5rem;
+    font-size: 3rem;
     font-weight: 700;
-    color: #333;
+    color: #FF6B35;
     margin: 0 4px;
 }
 
@@ -507,37 +457,10 @@
     margin-top: 8px;
 }
 
-/* Billing Toggle */
-.billing-toggle {
-    display: flex;
-    gap: 8px;
-    margin: 16px 0;
-    background: #f5f5f5;
-    border-radius: 6px;
-    padding: 4px;
-}
-
-.toggle-btn {
-    flex: 1;
-    padding: 8px 16px;
-    border: none;
-    border-radius: 4px;
-    background: transparent;
-    color: #666;
-    font-size: 0.85rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.toggle-btn.active {
-    background: white;
-    color: #333;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
 
 .plan-features {
     margin-bottom: 32px;
+    flex-grow: 1;
 }
 
 .features-label {
@@ -547,6 +470,7 @@
     text-transform: uppercase;
     letter-spacing: 0.5px;
     margin-bottom: 16px;
+    display: none; /* Hide the label for cleaner look */
 }
 
 .plan-features ul {
@@ -558,19 +482,19 @@
 .plan-features li {
     display: flex;
     align-items: center;
-    padding: 8px 0;
-    font-size: 0.9rem;
+    padding: 10px 0;
+    font-size: 0.95rem;
     color: #333;
 }
 
 .plan-features li i {
-    font-size: 16px;
+    font-size: 18px;
     margin-right: 12px;
-    width: 20px;
+    width: 24px;
 }
 
 .plan-features li i.fa-check-circle {
-    color: #28a745;
+    color: #FF6B35;
 }
 
 .plan-features li i.fa-times-circle,
@@ -582,6 +506,11 @@
     display: flex;
     flex-direction: column;
     gap: 12px;
+    margin-top: auto;
+}
+
+.plan-cta .price {
+    margin-bottom: 8px;
 }
 
 .btn {
@@ -621,15 +550,15 @@
 }
 
 .pricing-card.pack .btn-primary.highlight {
-    background: #FF6B35;
-    border-color: #FF6B35;
+    background: linear-gradient(135deg, #FF6B35 0%, #FF8551 100%);
+    border-color: transparent;
     color: white;
 }
 
 .pricing-card.pack .btn-primary.highlight:hover {
-    background: #FF8551;
-    border-color: #FF8551;
-    color: white;
+    background: linear-gradient(135deg, #FF8551 0%, #FF6B35 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 107, 53, 0.3);
 }
 
 .btn-secondary {
@@ -747,9 +676,15 @@
 }
 
 /* Mobile Responsive */
-@media (max-width: 1024px) {
+@media (max-width: 768px) {
     .pricing-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: 1fr;
+        gap: 24px;
+        max-width: 100%;
+    }
+    
+    .pricing-card {
+        padding: 32px 24px;
     }
 }
 
@@ -762,17 +697,16 @@
         font-size: 1rem;
     }
     
-    .pricing-grid {
-        grid-template-columns: 1fr;
-        gap: 24px;
-    }
-    
     .pricing-card {
-        padding: 24px;
+        padding: 28px 20px;
     }
     
     .amount {
-        font-size: 2rem;
+        font-size: 2.5rem;
+    }
+    
+    .plan-header h3 {
+        font-size: 1.5rem;
     }
     
     .faq-grid {
@@ -859,36 +793,6 @@ function trackCTA(ctaName, location) {
     }
 }
 
-// Billing Toggle Function
-function switchBilling(type) {
-    const toggleMonthly = document.getElementById('toggleMonthly');
-    const toggleYearly = document.getElementById('toggleYearly');
-    const monthlyPrice = document.getElementById('monthlyPrice');
-    const yearlyPrice = document.getElementById('yearlyPrice');
-    const savingsBadge = document.getElementById('savingsBadge');
-    const savingsInfo = document.getElementById('savingsInfo');
-    const proBuyButton = document.getElementById('proBuyButton');
-    
-    if (type === 'monthly') {
-        // Monthly active
-        toggleMonthly.classList.add('active');
-        toggleYearly.classList.remove('active');
-        monthlyPrice.style.display = 'flex';
-        yearlyPrice.style.display = 'none';
-        savingsBadge.style.display = 'none';
-        savingsInfo.style.display = 'none';
-        proBuyButton.onclick = function() { purchaseSpec('pro_monthly'); };
-    } else {
-        // Yearly active
-        toggleMonthly.classList.remove('active');
-        toggleYearly.classList.add('active');
-        monthlyPrice.style.display = 'none';
-        yearlyPrice.style.display = 'flex';
-        savingsBadge.style.display = 'inline-block';
-        savingsInfo.style.display = 'block';
-        proBuyButton.onclick = function() { purchaseSpec('pro_yearly'); };
-    }
-}
 
 // Initialize Firebase if not already done
 document.addEventListener('DOMContentLoaded', function() {
