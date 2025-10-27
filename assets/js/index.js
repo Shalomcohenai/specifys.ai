@@ -539,12 +539,15 @@ function setupModernInput() {
     updateButtonState();
   });
   
-  // Demo button functionality
-  const demoBtn = document.getElementById('demoBtn');
-  if (demoBtn) {
-    demoBtn.addEventListener('click', function() {
-      fillDemoAnswers();
-    });
+  // Demo buttons functionality
+  for (let i = 1; i <= 5; i++) {
+    const demoBtn = document.getElementById(`demoBtn${i}`);
+    if (demoBtn) {
+      const demoType = demoBtn.getAttribute('data-demo');
+      demoBtn.addEventListener('click', function() {
+        fillDemoAnswers(demoType);
+      });
+    }
   }
 
   textarea.addEventListener('keydown', function(e) {
@@ -753,19 +756,47 @@ function updateMicrophoneButton() {
 }
 
 // ===== DEMO FUNCTIONALITY =====
-function fillDemoAnswers() {
-  console.log('🚀 Filling demo answers...');
+function fillDemoAnswers(demoType = 'recipe') {
+  console.log(`🚀 Filling demo answers for: ${demoType}...`);
   
-  // Demo answers for a recipe sharing and meal planning app
-  const demoAnswers = [
-    "RecipeShare is a social cooking and meal planning mobile application that helps users discover new recipes, plan their weekly meals, create shopping lists, and share their culinary creations with a community of food lovers. The app includes features like personalized recipe recommendations, step-by-step cooking instructions with video tutorials, nutritional information, dietary filters, and the ability to save and organize favorite recipes.",
-    
-    "Users start by browsing recipes or searching for specific dishes based on ingredients, cuisine type, dietary preferences, or cooking time. They can save recipes to their collection and add them to a weekly meal planner. The app automatically generates a shopping list based on selected recipes. Users can follow cooking video tutorials, rate and review recipes, and share their own recipe creations with photos. The app sends meal reminders and grocery shopping notifications.",
-    
-    "The target audience includes home cooks aged 25-55 who enjoy cooking and meal planning. This includes busy professionals who want to meal prep efficiently, families looking for healthy dinner ideas, students learning to cook, and food enthusiasts who want to try new cuisines. The app caters to people with various dietary needs including vegetarian, vegan, gluten-free, keto, and allergy-friendly options.",
-    
-    "The app includes social features where users can follow other home chefs, create recipe collections, participate in cooking challenges, and get inspiration from community-created content. It integrates with popular grocery delivery services, includes nutrition tracking, meal prep tips, and a premium subscription tier with exclusive chef-created recipes, advanced meal planning tools, and ad-free browsing experience."
-  ];
+  let demoAnswers = [];
+  
+  // Different demo scenarios
+  const demos = {
+    recipe: [
+      "RecipeShare is a social cooking and meal planning mobile application that helps users discover new recipes, plan their weekly meals, create shopping lists, and share their culinary creations with a community of food lovers. The app includes features like personalized recipe recommendations, step-by-step cooking instructions with video tutorials, nutritional information, dietary filters, and the ability to save and organize favorite recipes.",
+      "Users start by browsing recipes or searching for specific dishes based on ingredients, cuisine type, dietary preferences, or cooking time. They can save recipes to their collection and add them to a weekly meal planner. The app automatically generates a shopping list based on selected recipes. Users can follow cooking video tutorials, rate and review recipes, and share their own recipe creations with photos. The app sends meal reminders and grocery shopping notifications.",
+      "The target audience includes home cooks aged 25-55 who enjoy cooking and meal planning. This includes busy professionals who want to meal prep efficiently, families looking for healthy dinner ideas, students learning to cook, and food enthusiasts who want to try new cuisines. The app caters to people with various dietary needs including vegetarian, vegan, gluten-free, keto, and allergy-friendly options.",
+      "The app includes social features where users can follow other home chefs, create recipe collections, participate in cooking challenges, and get inspiration from community-created content. It integrates with popular grocery delivery services, includes nutrition tracking, meal prep tips, and a premium subscription tier with exclusive chef-created recipes, advanced meal planning tools, and ad-free browsing experience."
+    ],
+    fitness: [
+      "FitTracker Pro is a comprehensive fitness and health tracking mobile application designed to help users achieve their fitness goals. The app offers workout planning with video demonstrations, progress tracking with photos and measurements, nutrition logging with calorie counting, step and activity tracking with wearable device integration, social features to share achievements, and personalized workout recommendations based on fitness level.",
+      "Users begin by setting fitness goals and completing a fitness assessment. They then receive personalized workout plans or can browse pre-made routines by body part or fitness type. During workouts, users follow video demonstrations, log sets and reps, and track rest periods. The app automatically syncs with fitness wearables to record steps and calories burned. Users log meals through photo recognition or manual entry, view macro and micronutrient breakdowns, and receive meal suggestions. Progress photos and body measurements are recorded at regular intervals, and achievements are shared with friends for motivation.",
+      "The target audience includes fitness enthusiasts aged 18-45, gym-goers looking for structured programs, people starting their fitness journey who need guidance, professionals who want efficient workout plans, and anyone tracking weight loss or muscle gain goals. The app serves both beginners needing step-by-step instructions and advanced users wanting complex training programs.",
+      "The app integrates with popular fitness wearables, offers live workout classes with trainers, provides access to a database of thousands of exercises, includes AI-powered form correction using camera technology, offers nutritionist consultations in-app, features community challenges and competitions, provides premium content from celebrity trainers, and includes a marketplace for fitness equipment and supplements."
+    ],
+    tasks: [
+      "TaskFlow is an intelligent task management and productivity web application that helps individuals and teams organize, prioritize, and complete work efficiently. The app features smart task creation with natural language processing, AI-powered task prioritization, project organization with boards and lists, team collaboration with comments and file attachments, deadline tracking with calendar integration, automation for recurring tasks, and time tracking for productivity insights.",
+      "Users start by creating tasks using natural language like 'meet with John tomorrow at 3pm about the project' and the app automatically parses details. Tasks are organized into projects and can be viewed as lists, boards, or calendar. The AI assistant suggests priorities based on deadlines, importance, and user patterns. Team members are invited to projects where they can add comments, attach files, assign tasks, and track progress. The app sends smart reminders before deadlines, identifies scheduling conflicts, suggests optimal meeting times, and automates recurring tasks like weekly reviews. Time tracking runs automatically when users work on specific tasks, and weekly reports show productivity trends.",
+      "The target audience includes professionals managing multiple projects, remote teams needing coordination tools, freelancers tracking billable hours, students organizing coursework, entrepreneurs managing startups, and anyone overwhelmed with to-dos who needs intelligent automation. The app serves both individuals and teams of up to 100 members.",
+      "The app integrates with email clients to create tasks from emails, connects with calendar apps for scheduling, offers browser extensions for quick task capture, provides templates for common project types, includes reporting and analytics for time management, features Zapier integrations for automation with other tools, offers white-label solutions for agencies, provides custom AI models trained on company workflows, and includes enterprise features like SSO, advanced permissions, and data export capabilities."
+    ],
+    social: [
+      "ConnectSphere is a location-based social networking mobile application that helps people discover events, activities, and like-minded individuals in their area. The app features interest-based communities, local event discovery and RSVP, real-time chat and messaging, activity feed with photos and videos, friend connections and social graphs, location-based recommendations, privacy controls, and group planning features for activities and outings.",
+      "Users create profiles highlighting their interests, hobbies, and what they're looking for. They can join interest-based communities like photography, hiking, board games, or entrepreneurship. The app shows nearby events based on interests and location, and users can RSVP to events visible to their friends or community members. Users discover people with similar interests nearby, send connection requests, and chat in groups or one-on-one. Posts in the activity feed show what friends and community members are doing, and users can react, comment, or share. When planning activities, users create polls, schedule meetups, split expenses, and coordinate logistics within the app.",
+      "The target audience includes young professionals aged 22-35 looking to expand their social circle, people new to a city seeking connections, hobbyists wanting to find interest groups, professionals networking in their field, students looking for study groups or social activities, and anyone wanting to discover local happenings and meet people with shared passions. The app serves both introverts wanting low-pressure interactions and extroverts seeking constant social opportunities.",
+      "The app includes advanced privacy controls allowing users to control profile visibility and location sharing, offers verification badges for businesses and professionals, includes monetization features for event organizers to sell tickets, integrates with calendar apps for event reminders, provides safety features like reporting and blocking mechanisms, features live streaming for events and meetups, offers premium memberships with enhanced features like unlimited communities and advanced filters, and includes analytics for event organizers to track engagement and attendance."
+    ],
+    learning: [
+      "SkillVault is an interactive e-learning platform for web and mobile that helps users acquire new skills through video courses, interactive exercises, and peer learning. The app offers curated courses from expert instructors, hands-on coding challenges and projects, skill assessments and certifications, interactive Q&A with instructors, peer code review and collaboration, progress tracking with streaks and achievements, offline download for mobile learning, and career path guidance with personalized recommendations.",
+      "Learners start by choosing a skill path like web development, data science, or digital marketing. They enroll in structured courses with video lessons, reading materials, and interactive exercises. As they progress, they complete hands-on projects that are reviewed by peers and instructors. The app tracks learning streaks and awards badges for consistency and achievements. Learners can ask questions anytime and get responses from instructors or the community. The AI learning assistant suggests the next course based on goals and completed content. Learners can download course materials for offline study, sync progress across devices, and share achievements on social media. Career coaching features help learners identify skills needed for target jobs and recommend specific courses.",
+      "The target audience includes career changers looking to acquire new skills, recent graduates seeking practical experience, working professionals wanting to upskill, students supplementing formal education, hobbyists learning for personal interest, entrepreneurs needing business skills, and unemployed individuals preparing for new careers. The platform serves both beginners starting from scratch and experienced professionals wanting advanced specializations.",
+      "The app offers accredited certifications recognized by employers, provides live workshops and office hours with instructors, includes career services like resume review and interview prep, partners with companies to offer job placement assistance, features a marketplace where learners can monetize their own courses, provides API access for enterprise training programs, includes white-label solutions for organizations, offers analytics dashboards for learners to track skill growth, integrates with LinkedIn to showcase certifications and skills, and provides scholarships for low-income learners."
+    ]
+  };
+  
+  // Get the demo answers for the selected type
+  demoAnswers = demos[demoType] || demos.recipe;
   
   // Initialize answers array if it doesn't exist
   if (!answers) {
@@ -781,7 +812,7 @@ function fillDemoAnswers() {
   // Show a loading message
   const textarea = document.getElementById('mainInput');
   if (textarea) {
-    textarea.value = "🚀 Demo answers loaded! Sending to API...";
+    textarea.value = `🚀 ${demoType.charAt(0).toUpperCase() + demoType.slice(1)} demo loaded! Sending to API...`;
     textarea.style.color = '#ff6b35';
   }
   

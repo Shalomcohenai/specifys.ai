@@ -29,7 +29,7 @@ footer {
 
 .footer-links a {
   color: var(--text-color);
-  text-decoration: none;
+  text-decoration: none !important;
   font-size: 0.85rem;
   font-weight: var(--font-weight-medium);
   transition: color var(--transition-normal);
@@ -38,6 +38,7 @@ footer {
 
 .footer-links a:hover {
   color: var(--primary-color);
+  text-decoration: none !important;
 }
 
 .footer-divider {
@@ -55,13 +56,23 @@ footer {
 
 .footer-social a {
   color: var(--text-color);
+  text-decoration: none !important;
   font-size: 1.2rem;
-  transition: transform var(--transition-normal), color var(--transition-normal);
+  transition: color var(--transition-normal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
 }
 
 .footer-social a:hover {
   color: var(--primary-color);
-  transform: scale(1.2);
+  text-decoration: none !important;
+}
+
+.footer-social a i {
+  margin: 0;
 }
 
 .footer-copyright {

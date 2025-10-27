@@ -200,7 +200,7 @@
 }
 
 .logo-text {
-  font-size: 1.2rem;
+  font-size: 1.5rem;
   font-weight: var(--font-weight-bold);
 }
 
@@ -212,11 +212,11 @@
   }
   
   .logo a {
-    font-size: 1.1rem;
+    font-size: 1.10rem;
   }
   
   .logo-text {
-    font-size: 1rem;
+    font-size: 1.10rem;
   }
   
   .header-right {
@@ -267,11 +267,11 @@
   }
   
   .logo a {
-    font-size: 1rem;
+    font-size: 1.00rem;
   }
   
   .logo-text {
-    font-size: 0.95rem;
+    font-size: 1.00rem;
   }
   
   .auth-btn {
