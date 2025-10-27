@@ -1935,11 +1935,11 @@ description: "Manage your apps, specifications, and market research on Specifys.
     <footer>
 <div class="footer-content">
         <div class="footer-links">
-          <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
-          <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
-          <a href="../blog/" aria-label="Visit our blog">Blog</a>
-          <a href="../tools/map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
-          <a href="ToolPicker.html" aria-label="Use our Tool Finder">Tool Finder</a>
+          <a href="{{ '/pages/how.html' | relative_url }}" aria-label="Learn how specifys.ai works">How It Works</a>
+          <a href="{{ '/pages/about.html' | relative_url }}" aria-label="Learn more about specifys.ai">About Us</a>
+          <a href="{{ '/blog/' | relative_url }}" aria-label="Visit our blog">Blog</a>
+          <a href="{{ '/tools/map/vibe-coding-tools-map.html' | relative_url }}" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
+          <a href="{{ '/pages/ToolPicker.html' | relative_url }}" aria-label="Use our Tool Finder">Tool Finder</a>
           <!-- <button class="feedback-link" onclick="openFeedbackModal()" aria-label="Send feedback">Feedback</button> -->
         </div>
 <span class="footer-divider">|</span>
@@ -2258,7 +2258,7 @@ description: "Manage your apps, specifications, and market research on Specifys.
                         <div class="no-specs-icon"><i class="fas fa-wrench"></i></div>
                         <h4>No saved tools yet</h4>
                         <p>Add tools from the Tools Map to see them here!</p>
-                        <a href="../tools/map/vibe-coding-tools-map.html" class="btn">Explore Tools Map</a>
+                        <a href="{{ '/tools/map/vibe-coding-tools-map.html' | relative_url }}" class="btn">Explore Tools Map</a>
                     </div>
                 `;
                 return;
