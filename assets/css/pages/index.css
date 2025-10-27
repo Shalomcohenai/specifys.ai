@@ -8,7 +8,7 @@
 }
 
 .logo-dot {
-    color: #0078d4 !important;
+    color: #FF6B35 !important;
 }
 
 .logo a:hover {
@@ -16,7 +16,7 @@
 }
 
 .logo a:hover .logo-dot {
-    color: #005ea2 !important;
+    color: #FF8551 !important;
 }
 
 /* Mobile logo adjustments */
@@ -52,7 +52,7 @@
 }
 
 .menu-toggle:hover {
-  background: #0078d4;
+  background: #FF6B35;
 }
 
 /* Clip-path menu */
@@ -106,7 +106,7 @@
 .clip-path-menu.active a:nth-child(6) { transition-delay: 0.5s; }
 
 .clip-path-menu a:hover { 
-  background: #0078d4; 
+  background: #FF6B35; 
   color: white;
 }
 
@@ -395,10 +395,10 @@
 }
 
 .control-btn.selected {
-  background: #0078d4;
+  background: #FF6B35;
   color: white;
   transform: scale(1.1);
-  box-shadow: 0 2px 8px rgba(0, 120, 212, 0.3);
+  box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3);
 }
 
 .control-btn.selected svg {
@@ -1008,8 +1008,8 @@
 }
 
 .pricing-card-home.pro {
-  border-color: #0078d4;
-  background: #f0f8ff;
+  border-color: #FF6B35;
+  background: #FFF4F0;
 }
 
 .badge {
@@ -1026,7 +1026,7 @@
 }
 
 .pricing-card-home.pro .badge {
-  background: #0078d4;
+  background: #FF6B35;
 }
 
 .pricing-card-header h3 {
@@ -1108,9 +1108,9 @@
 }
 
 .pricing-btn:hover {
-  background: #0078d4;
+  background: #FF6B35;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 120, 212, 0.3);
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
 }
 
 .pricing-btn.highlight-btn {
@@ -1260,7 +1260,7 @@
 }
 
 .faq-question:hover {
-  color: #0078d4;
+  color: #FF6B35;
 }
 
 .faq-question i {
@@ -1333,7 +1333,7 @@
 /* ===== CTA BUTTONS ===== */
 .cta-button {
   display: inline-block;
-  background: #0078d4;
+  background: #FF6B35;
   color: #fff;
   border: none;
   border-radius: 30px;
@@ -1346,7 +1346,7 @@
 }
 
 .cta-button:hover {
-  background: #005ea2;
+  background: #FF8551;
   color: #fff;
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -1379,7 +1379,7 @@
 }
 
 .welcome-header {
-  background: linear-gradient(135deg, #0078d4, #4A90E2);
+  background: linear-gradient(135deg, #FF6B35, #FFA382);
   color: #fff;
   padding: 2rem 2rem 1rem;
   text-align: center;
@@ -1441,7 +1441,7 @@
 
 .feature-highlight i {
   font-size: 1.5rem;
-  color: #0078d4;
+  color: #FF6B35;
 }
 
 .feature-highlight span {
@@ -1475,7 +1475,7 @@
 }
 
 .btn-register {
-  background: #0078d4;
+  background: #FF6B35;
   color: #fff;
   text-decoration: none;
   border-radius: 25px;
@@ -1487,8 +1487,8 @@
 }
 
 .btn-register:hover {
-  background: #005ea2;
-  box-shadow: 0 6px 20px rgba(0, 120, 212, 0.4);
+  background: #FF8551;
+  box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
 }
 
 /* ===== ANIMATIONS ===== */

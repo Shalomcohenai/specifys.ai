@@ -27,7 +27,7 @@ export async function createSpec(specData) {
     const { title, content, userId } = specData;
     
     if (!title || !content || !userId) {
-      throw new Error('כל השדות נדרשים');
+      throw new Error('All fields are required');
     }
     
     const specDoc = {
@@ -42,7 +42,7 @@ export async function createSpec(specData) {
     return docRef.id;
   } catch (error) {
     console.error('Error creating spec:', error);
-    throw new Error('שגיאה ביצירת המפרט: ' + error.message);
+    throw new Error('Error creating spec: ' + error.message);
   }
 }
 
@@ -54,7 +54,7 @@ export async function createSpec(specData) {
 export async function fetchUserSpecs(userId) {
   try {
     if (!userId) {
-      throw new Error('מזהה משתמש נדרש');
+      throw new Error('User ID is required');
     }
     
     const q = query(
@@ -76,7 +76,7 @@ export async function fetchUserSpecs(userId) {
     return specs;
   } catch (error) {
     console.error('Error fetching user specs:', error);
-    throw new Error('שגיאה בטעינת המפרטים: ' + error.message);
+    throw new Error('Error loading specs: ' + error.message);
   }
 }
 
@@ -88,13 +88,13 @@ export async function fetchUserSpecs(userId) {
 export async function deleteSpec(specId) {
   try {
     if (!specId) {
-      throw new Error('מזהה מפרט נדרש');
+      throw new Error('Spec ID is required');
     }
     
     await deleteDoc(doc(db, SPECS_COLLECTION, specId));
   } catch (error) {
     console.error('Error deleting spec:', error);
-    throw new Error('שגיאה במחיקת המפרט: ' + error.message);
+    throw new Error('Error deleting spec: ' + error.message);
   }
 }
 
@@ -107,7 +107,7 @@ export async function deleteSpec(specId) {
 export async function updateSpec(specId, updateData) {
   try {
     if (!specId) {
-      throw new Error('מזהה מפרט נדרש');
+      throw new Error('Spec ID is required');
     }
     
     const updatePayload = {
@@ -125,7 +125,7 @@ export async function updateSpec(specId, updateData) {
     await updateDoc(doc(db, SPECS_COLLECTION, specId), updatePayload);
   } catch (error) {
     console.error('Error updating spec:', error);
-    throw new Error('שגיאה בעדכון המפרט: ' + error.message);
+    throw new Error('Error updating spec: ' + error.message);
   }
 }
 
@@ -137,7 +137,7 @@ export async function updateSpec(specId, updateData) {
 export async function getSpec(specId) {
   try {
     if (!specId) {
-      throw new Error('מזהה מפרט נדרש');
+      throw new Error('Spec ID is required');
     }
     
     const specDoc = await getDoc(doc(db, SPECS_COLLECTION, specId));
@@ -152,7 +152,7 @@ export async function getSpec(specId) {
     }
   } catch (error) {
     console.error('Error getting spec:', error);
-    throw new Error('שגיאה בטעינת המפרט: ' + error.message);
+    throw new Error('Error loading spec: ' + error.message);
   }
 }
 
@@ -165,7 +165,7 @@ export async function getSpec(specId) {
 export async function searchSpecs(userId, searchTerm) {
   try {
     if (!userId || !searchTerm) {
-      throw new Error('מזהה משתמש ומונח חיפוש נדרשים');
+      throw new Error('User ID and search term are required');
     }
     
     const userSpecs = await fetchUserSpecs(userId);
@@ -177,6 +177,6 @@ export async function searchSpecs(userId, searchTerm) {
     );
   } catch (error) {
     console.error('Error searching specs:', error);
-    throw new Error('שגיאה בחיפוש מפרטים: ' + error.message);
+    throw new Error('Error searching specs: ' + error.message);
   }
 }

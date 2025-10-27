@@ -1,11 +1,11 @@
 /* CSS Variables - Specifys.ai Design System */
-/* מבוסס על הדף about.html */
+/* Based on about.html page */
 
 :root {
-  /* ===== צבעים ראשיים ===== */
-  --primary-color: #0078d4;
-  --primary-hover: #005ea2;
-  --primary-light: #e3f2fd;
+  /* ===== Primary Colors ===== */
+  --primary-color: #FF6B35;
+  --primary-hover: #FF8551;
+  --primary-light: #FFF4F0;
   
   --secondary-color: #6c757d;
   --secondary-hover: #5a6268;
@@ -15,23 +15,23 @@
   --danger-color: #dc3545;
   --info-color: #17a2b8;
   
-  /* ===== צבעי רקע ===== */
+  /* ===== Background Colors ===== */
   --bg-color: #f5f5f5;
   --bg-primary: #ffffff;
   --bg-secondary: #f5f5f5;
   --light-gray: #e9ecef;
   
-  /* ===== צבעי טקסט ===== */
+  /* ===== Text Colors ===== */
   --text-color: #333;
   --text-secondary: #666;
   --text-muted: #999;
   --text-white: #ffffff;
   
-  /* ===== צבעי גבול ===== */
+  /* ===== Border Colors ===== */
   --border-color: #dee2e6;
   --border-light: #e9ecef;
   
-  /* ===== מרחקים ===== */
+  /* ===== Spacing ===== */
   --spacing-xs: 0.25rem;    /* 4px */
   --spacing-sm: 0.5rem;     /* 8px */
   --spacing-md: 1rem;       /* 16px */
@@ -39,7 +39,7 @@
   --spacing-xl: 2rem;       /* 32px */
   --spacing-2xl: 3rem;      /* 48px */
   
-  /* ===== פונטים ===== */
+  /* ===== Fonts ===== */
   /* Font families are now defined in fonts.css */
   --font-family-primary: var(--font-primary);
   
@@ -63,20 +63,20 @@
   --line-height-normal: var(--line-height-normal);
   --line-height-tight: var(--line-height-tight);
   
-  /* ===== רדיוסים ===== */
+  /* ===== Border Radius ===== */
   --border-radius-sm: 0.25rem;   /* 4px */
   --border-radius-md: 0.5rem;     /* 8px */
   --border-radius-lg: 1rem;       /* 16px */
   --border-radius-xl: 1.5rem;     /* 24px */
   --border-radius-full: 50%;
   
-  /* ===== צללים ===== */
+  /* ===== Shadows ===== */
   --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
   --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.2);
   --shadow-lg: 0 6px 16px rgba(0, 0, 0, 0.15);
   --shadow-xl: 0 8px 32px rgba(0, 0, 0, 0.3);
   
-  /* ===== מעברים ===== */
+  /* ===== Transitions ===== */
   --transition-fast: 0.15s ease;
   --transition-normal: 0.3s ease;
   --transition-slow: 0.5s ease;
@@ -86,25 +86,25 @@
   --z-dropdown: 1000;
   --z-modal: 10000;
   
-  /* ===== גדלים ===== */
+  /* ===== Sizes ===== */
   --header-height: 80px;
   --footer-height: 60px;
   
-  /* ===== משתנים ספציפיים לדפים ===== */
+  /* ===== Page-Specific Variables ===== */
   --chat-bg: #fff;
   --system-msg-bg: #f8f9fa;
-  --user-msg-bg: #0078d4;
+  --user-msg-bg: #FF6B35;
   --user-msg-text: #fff;
   --input-bg: #fff;
   --input-border: #dee2e6;
-  --button-hover: #005ea2;
+  --button-hover: #FF8551;
   --progress-bg: #e9ecef;
-  --progress-fill: #0078d4;
-  --chat-header-bg: #0078d4;
+  --progress-fill: #FF6B35;
+  --chat-header-bg: #FF6B35;
   --chat-header-text: #fff;
 }
 
-/* תמה כהה (לעתיד) */
+/* Dark Theme (for future) */
 :root[data-theme="dark"] {
   --bg-color: #1a1a1a;
   --bg-primary: #2d2d2d;

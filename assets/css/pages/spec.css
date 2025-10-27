@@ -16,7 +16,7 @@
   }
   
   .spec-header {
-    background: var(--primary-color, #0078d4);
+    background: var(--primary-color, #FF6B35);
     color: white;
     padding: 2rem;
     border-radius: 15px;
@@ -118,32 +118,32 @@
   }
   
   .chat-message.result h1 {
-    color: var(--primary-color, #0078d4);
+    color: var(--primary-color, #FF6B35);
     margin-bottom: 1rem;
     font-size: 1.8rem;
     font-weight: 700;
   }
   
   .chat-message.result h2 {
-    color: var(--primary-color, #0078d4);
+    color: var(--primary-color, #FF6B35);
     margin: 1.5rem 0 1rem;
     font-size: 1.5rem;
     font-weight: 600;
   }
   
   .chat-message.result h3 {
-    color: var(--primary-color, #0078d4);
+    color: var(--primary-color, #FF6B35);
     margin: 1rem 0 0.5rem;
     font-size: 1.2rem;
     font-weight: 600;
   }
   
   .chat-message.result code {
-    background: rgba(0, 120, 212, 0.1);
+    background: rgba(255, 107, 53, 0.1);
     padding: 0.25rem 0.5rem;
     border-radius: 4px;
     font-family: 'Courier New', monospace;
-    color: var(--primary-color, #0078d4);
+    color: var(--primary-color, #FF6B35);
   }
   
   .chat-message.result pre {
@@ -199,7 +199,7 @@
   }
   
   .platform-box {
-    background: var(--primary-color, #0078d4);
+    background: var(--primary-color, #FF6B35);
     color: white;
     padding: 1rem 1.5rem;
     border-radius: 10px;
@@ -215,7 +215,7 @@
   }
   
   .platform-box:hover {
-    background: var(--button-hover, #005ea2);
+    background: var(--button-hover, #FF8551);
     transform: translateY(-2px);
     color: white;
     text-decoration: none;

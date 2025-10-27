@@ -59,14 +59,14 @@ function updateVisualIndicators(isLoggedIn) {
   }
   
   if (hero) {
-    if (isLoggedIn) {
+      if (isLoggedIn) {
       hero.classList.add('logged-in');
-      if (heroTitle) heroTitle.textContent = 'ברוך הבא למערכת!';
-      if (heroSubtitle) heroSubtitle.textContent = 'אתה מחובר בהצלחה';
+      if (heroTitle) heroTitle.textContent = 'Welcome to Specifys.ai!';
+      if (heroSubtitle) heroSubtitle.textContent = 'You are successfully logged in';
     } else {
       hero.classList.remove('logged-in');
-      if (heroTitle) heroTitle.textContent = 'ברוכים הבאים ל-Specifys.ai';
-      if (heroSubtitle) heroSubtitle.textContent = 'מערכת ניהול מפרטים חכמה עם אימות משתמשים';
+      if (heroTitle) heroTitle.textContent = 'Welcome to Specifys.ai';
+      if (heroSubtitle) heroSubtitle.textContent = 'Smart specification management system with user authentication';
     }
   }
   
@@ -90,21 +90,21 @@ function renderLoggedInState(user) {
   
   if (navLinks) {
     navLinks.innerHTML = `
-      <a href="/pages/app-dashboard.html" class="nav-link">לוח בקרה</a>
-      <a href="/pages/profile.html" class="nav-link">פרופיל</a>
+      <a href="/pages/app-dashboard.html" class="nav-link">Dashboard</a>
+      <a href="/pages/profile.html" class="nav-link">Profile</a>
       <span class="nav-user">
         <span class="user-avatar">${user.displayName ? user.displayName.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase()}</span>
-        שלום, ${user.displayName || user.email.split('@')[0]}
+        Hello, ${user.displayName || user.email.split('@')[0]}
       </span>
-      <button id="logout-btn" class="btn btn-outline">יציאה</button>
+      <button id="logout-btn" class="btn btn-outline">Logout</button>
     `;
   }
   
   if (authButtons) {
     authButtons.innerHTML = `
-      <a href="/pages/app-dashboard.html" class="btn btn-primary">לוח בקרה</a>
-      <a href="/pages/profile.html" class="btn btn-outline">פרופיל</a>
-      <button id="logout-btn-main" class="btn btn-outline">יציאה</button>
+      <a href="/pages/app-dashboard.html" class="btn btn-primary">Dashboard</a>
+      <a href="/pages/profile.html" class="btn btn-outline">Profile</a>
+      <button id="logout-btn-main" class="btn btn-outline">Logout</button>
     `;
   }
   
@@ -130,15 +130,15 @@ function renderLoggedOutState() {
   
   if (navLinks) {
     navLinks.innerHTML = `
-      <a href="/pages/auth.html" class="nav-link">התחברות</a>
-      <a href="/pages/auth.html" class="nav-link">הרשמה</a>
+      <a href="/pages/auth.html" class="nav-link">Login</a>
+      <a href="/pages/auth.html" class="nav-link">Sign Up</a>
     `;
   }
   
   if (authButtons) {
     authButtons.innerHTML = `
-      <a href="/pages/auth.html" class="btn btn-primary">התחברות</a>
-      <a href="/pages/auth.html" class="btn btn-outline">הרשמה</a>
+      <a href="/pages/auth.html" class="btn btn-primary">Login</a>
+      <a href="/pages/auth.html" class="btn btn-outline">Sign Up</a>
     `;
   }
 }
@@ -153,7 +153,7 @@ async function handleLogout() {
     window.location.href = '/index.html';
   } catch (error) {
     console.error('Logout error:', error);
-    alert('שגיאה ביציאה מהחשבון: ' + error.message);
+    alert('Error logging out: ' + error.message);
   }
 }
 

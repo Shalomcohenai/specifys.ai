@@ -13,7 +13,7 @@
   padding: 0 var(--spacing-md);
 }
 
-/* Content Box - מבוסס על about.html */
+/* Content Box - based on about.html */
 .content-box {
   max-width: 900px;
   margin: 80px auto 40px;

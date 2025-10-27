@@ -50,7 +50,7 @@ body .main-content {
 .track-card h2 {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #0078d4;
+  color: #FF6B35;
   margin-bottom: 15px;
 }
 
@@ -80,7 +80,7 @@ body .main-content {
   content: "\f058";
   font-family: "Font Awesome 6 Free";
   font-weight: 900;
-  color: #0078d4;
+  color: #FF6B35;
   position: absolute;
   left: 0;
   top: 2px;
@@ -131,7 +131,7 @@ body .main-content {
 }
 
 .tool-card.tools-map {
-  border-left: 5px solid #0078d4;
+  border-left: 5px solid #FF6B35;
 }
 
 .tool-card.tool-finder {
@@ -152,7 +152,7 @@ body .main-content {
 }
 
 .tool-icon.tools-map-icon {
-  color: #0078d4;
+  color: #FF6B35;
 }
 
 .tool-icon.tool-finder-icon {
@@ -199,7 +199,7 @@ body .main-content {
 }
 
 .tool-card.tools-map li i.fa-check {
-  color: #0078d4;
+  color: #FF6B35;
 }
 
 .tool-card.tool-finder li i.fa-check {

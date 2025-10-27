@@ -910,7 +910,7 @@ document.addEventListener('DOMContentLoaded', function() {
   to { transform: rotate(360deg); }
 }
 
-/* אנימציית טעינה לכרטיסיות */
+/* Tab loading animation */
 .tab-loader {
   width: 16px;
   height: 16px;
@@ -2772,7 +2772,7 @@ function openVisualizer(type) {
     const mobileTemplate = document.getElementById('mobile-template');
     const webTemplate = document.getElementById('web-template');
     
-    // הסתר את כל הטמפלייטים
+    // Hide all templates
     mobileTemplate.style.display = 'none';
     webTemplate.style.display = 'none';
     
@@ -2798,14 +2798,14 @@ function applyColorsToTemplate(type) {
         document.getElementById('mobile-template') : 
         document.getElementById('web-template');
     
-    // החלף את כל הצבעים
+    // Replace all colors
     template.style.setProperty('--primary-color', colors.Primary || '#4CAF50');
     template.style.setProperty('--secondary-color', colors.Secondary || '#FF9800');
     template.style.setProperty('--accent-color', colors.Accent || '#2196F3');
     template.style.setProperty('--background-color', colors.Background || '#FFFFFF');
     template.style.setProperty('--text-color', colors.Text || '#212121');
     
-    // החלף את כל הפונטים
+    // Replace all fonts
     template.style.setProperty('--heading-font', typography.Headings || 'Roboto, Bold, 24px');
     template.style.setProperty('--body-font', typography.Body || 'Roboto, Regular, 16px');
     template.style.setProperty('--caption-font', typography.Captions || 'Roboto, Italic, 12px');
@@ -2815,7 +2815,7 @@ function closeVisualizer() {
     document.getElementById('color-visualizer-modal').style.display = 'none';
 }
 
-// סגור את המודאל כשלוחצים מחוץ לו
+// Close the modal when clicking outside
 document.addEventListener('click', function(e) {
     const modal = document.getElementById('color-visualizer-modal');
     if (e.target === modal) {
@@ -2823,7 +2823,7 @@ document.addEventListener('click', function(e) {
     }
 });
 
-// סגור את המודאל עם Escape
+// Close the modal with Escape key
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
         closeVisualizer();
@@ -4591,23 +4591,23 @@ function updateTabLoadingState(type, isLoading) {
     if (!tabButton) return;
     
     if (isLoading) {
-        // הוספת מצב טעינה
+        // Add loading state
         tabButton.classList.add('loading');
         
-        // שמירת הטקסט המקורי
+        // Save the original text
         const originalText = tabButton.innerHTML;
         tabButton.setAttribute('data-original-text', originalText);
         
-        // עדכון הטקסט עם אנימציית טעינה
+        // Update text with loading animation
         const icon = tabButton.querySelector('i').className;
         const text = tabButton.textContent.trim();
         tabButton.innerHTML = `<div class="tab-loader"></div><i class="${icon}"></i> ${text}`;
         
     } else {
-        // הסרת מצב הטעינה
+        // Remove loading state
         tabButton.classList.remove('loading');
         
-        // החזרת הטקסט המקורי
+        // Restore the original text
         const originalText = tabButton.getAttribute('data-original-text');
         if (originalText) {
             tabButton.innerHTML = originalText;
@@ -6335,13 +6335,13 @@ console.log('Spec Viewer - Ready!');
                 <div id="mobile-template" class="template-container">
                     <div class="mobile-mockup">
                         <div class="mobile-screen">
-                            <!-- Header עם Primary Color -->
+                            <!-- Header with Primary Color -->
                             <div class="mobile-header" style="background: var(--primary-color);">
                                 <div class="mobile-logo" style="color: white;">App</div>
                                 <div class="mobile-menu" style="color: white;">☰</div>
                             </div>
                             
-                            <!-- Hero Section עם Secondary Color -->
+                            <!-- Hero Section with Secondary Color -->
                             <div class="mobile-hero" style="background: var(--secondary-color);">
                                 <h2 style="color: var(--text-color); font-family: var(--heading-font);">
                                     Welcome to Our App
@@ -6369,7 +6369,7 @@ console.log('Spec Viewer - Ready!');
                                 </div>
                             </div>
                             
-                            <!-- Cards Section עם Background Color -->
+                            <!-- Cards Section with Background Color -->
                             <div class="mobile-cards" style="background: var(--background-color);">
                                 <div class="mobile-card" style="border: 2px solid var(--primary-color);">
                                     <h3 style="color: var(--primary-color); font-family: var(--heading-font);">Feature 1</h3>
@@ -6398,7 +6398,7 @@ console.log('Spec Viewer - Ready!');
                                 </div>
                             </div>
                             
-                            <!-- Footer עם Primary Color -->
+                            <!-- Footer with Primary Color -->
                             <div class="mobile-footer" style="background: var(--primary-color);">
                                 <p style="color: white; font-family: var(--caption-font);">© 2024 App Name</p>
                             </div>
@@ -6409,7 +6409,7 @@ console.log('Spec Viewer - Ready!');
                 <div id="web-template" class="template-container">
                     <div class="web-mockup">
                         <div class="web-screen">
-                            <!-- Navigation עם Primary Color -->
+                            <!-- Navigation with Primary Color -->
                             <nav class="web-nav" style="background: var(--primary-color);">
                                 <div class="web-logo" style="color: white; font-family: var(--heading-font);">Website</div>
                                 <div class="web-menu">
@@ -6419,7 +6419,7 @@ console.log('Spec Viewer - Ready!');
                                 </div>
                             </nav>
                             
-                            <!-- Hero Section עם Secondary Color -->
+                            <!-- Hero Section with Secondary Color -->
                             <section class="web-hero" style="background: var(--secondary-color);">
                                 <div class="web-hero-content">
                                     <h1 style="color: var(--text-color); font-family: var(--heading-font);">
@@ -6457,7 +6457,7 @@ console.log('Spec Viewer - Ready!');
                             </div>
                         </section>
                         
-                        <!-- Features Grid עם Background Color -->
+                        <!-- Features Grid with Background Color -->
                         <section class="web-features" style="background: var(--background-color);">
                             <div class="web-feature" style="border: 1px solid var(--primary-color);">
                                 <h3 style="color: var(--primary-color); font-family: var(--heading-font);">Service 1</h3>
@@ -6510,7 +6510,7 @@ console.log('Spec Viewer - Ready!');
                             </div>
                         </section>
                             
-                            <!-- Footer עם Primary Color -->
+                            <!-- Footer with Primary Color -->
                             <footer class="web-footer" style="background: var(--primary-color);">
                                 <p style="color: white; font-family: var(--caption-font);">© 2024 Website Name</p>
                             </footer>

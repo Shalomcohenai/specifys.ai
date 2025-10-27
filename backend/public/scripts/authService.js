@@ -100,7 +100,7 @@ export async function logout() {
     await signOut(auth);
   } catch (error) {
     console.error('Logout error:', error);
-    throw new Error('שגיאה ביציאה מהחשבון');
+    throw new Error('Error logging out of account');
   }
 }
 
@@ -130,30 +130,30 @@ export function isAuthenticated() {
 }
 
 /**
- * Convert Firebase auth error codes to Hebrew messages
+ * Convert Firebase auth error codes to English messages
  * @param {string} errorCode - Firebase error code
- * @returns {string} - Hebrew error message
+ * @returns {string} - English error message
  */
 function getAuthErrorMessage(errorCode) {
   const errorMessages = {
-    'auth/user-not-found': 'משתמש לא נמצא',
-    'auth/wrong-password': 'סיסמה שגויה',
-    'auth/email-already-in-use': 'כתובת אימייל כבר בשימוש',
-    'auth/weak-password': 'הסיסמה חלשה מדי',
-    'auth/invalid-email': 'כתובת אימייל לא תקינה',
-    'auth/user-disabled': 'החשבון הושבת',
-    'auth/too-many-requests': 'יותר מדי ניסיונות, נסה שוב מאוחר יותר',
-    'auth/operation-not-allowed': 'פעולה לא מורשית',
-    'auth/requires-recent-login': 'נדרש להתחבר מחדש',
-    'auth/popup-closed-by-user': 'חלון ההתחברות נסגר',
-    'auth/cancelled-popup-request': 'בקשה בוטלה',
-    'auth/popup-blocked': 'חלון ההתחברות נחסם',
-    'auth/account-exists-with-different-credential': 'חשבון קיים עם פרטי התחברות שונים',
-    'auth/credential-already-in-use': 'פרטי התחברות כבר בשימוש',
-    'auth/invalid-credential': 'פרטי התחברות לא תקינים',
-    'auth/timeout': 'פג הזמן, נסה שוב',
-    'auth/network-request-failed': 'שגיאת רשת, בדוק את החיבור לאינטרנט'
+    'auth/user-not-found': 'User not found',
+    'auth/wrong-password': 'Wrong password',
+    'auth/email-already-in-use': 'Email address already in use',
+    'auth/weak-password': 'Password is too weak',
+    'auth/invalid-email': 'Invalid email address',
+    'auth/user-disabled': 'Account has been disabled',
+    'auth/too-many-requests': 'Too many attempts, please try again later',
+    'auth/operation-not-allowed': 'Operation not allowed',
+    'auth/requires-recent-login': 'Requires recent login',
+    'auth/popup-closed-by-user': 'Login window was closed',
+    'auth/cancelled-popup-request': 'Request was cancelled',
+    'auth/popup-blocked': 'Login window was blocked',
+    'auth/account-exists-with-different-credential': 'Account exists with different credentials',
+    'auth/credential-already-in-use': 'Credentials already in use',
+    'auth/invalid-credential': 'Invalid credentials',
+    'auth/timeout': 'Connection timed out, please try again',
+    'auth/network-request-failed': 'Network error, please check your internet connection'
   };
   
-  return errorMessages[errorCode] || 'שגיאה לא ידועה';
+  return errorMessages[errorCode] || 'Unknown error';
 }

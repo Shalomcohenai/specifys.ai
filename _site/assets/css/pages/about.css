@@ -21,7 +21,7 @@
 .content-box h2 {
   font-size: 1.8rem;
   font-weight: 700;
-  color: #0078d4;
+  color: #FF6B35;
   margin: 30px 0 15px;
 }
 
@@ -43,7 +43,7 @@
 .content-box .btn {
   display: inline-block;
   padding: 10px 20px;
-  background: #0078d4;
+  background: #FF6B35;
   color: #fff;
   text-decoration: none;
   border-radius: 5px;
@@ -53,7 +53,7 @@
 }
 
 .content-box .btn:hover {
-  background: #005ea2;
+  background: #FF8551;
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
