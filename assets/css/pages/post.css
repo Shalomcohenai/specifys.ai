@@ -301,7 +301,7 @@
 }
 
 .post-body p:hover {
-  background-color: rgba(0, 120, 212, 0.03);
+  background-color: rgba(255, 107, 53, 0.03);
   border-radius: var(--border-radius-sm);
   padding: var(--spacing-xs);
   margin-left: calc(var(--spacing-xs) * -1);

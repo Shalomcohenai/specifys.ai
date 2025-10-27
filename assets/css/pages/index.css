@@ -169,12 +169,12 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(0, 120, 212, 0.3);
+  box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
 }
 
 .hero-cta-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 120, 212, 0.4);
+  box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
   background: var(--primary-hover);
 }
 
@@ -763,7 +763,7 @@
 
 .tool-link {
   display: inline-block;
-  background: #666;
+  background: #FF6B35;
   color: #fff !important;
   text-decoration: none;
   padding: 0.5rem 1rem;
@@ -774,11 +774,11 @@
 }
 
 .tool-link:hover {
-  background: #555;
+  background: #FF8551;
   color: #fff !important;
   text-decoration: none !important;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.4);
 }
 
 /* ===== STATS SECTION ===== */
@@ -1003,8 +1003,12 @@
 }
 
 .pricing-card-home.highlight {
-  border-color: #28a745;
-  background: #f8fff9;
+  border-color: #FF6B35;
+  background: #FFF4F0;
+}
+
+.pricing-card-home.highlight .badge {
+  background: #FF6B35;
 }
 
 .pricing-card-home.pro {
@@ -1109,16 +1113,19 @@
 
 .pricing-btn:hover {
   background: #FF6B35;
+  color: white;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
 }
 
 .pricing-btn.highlight-btn {
-  background: #28a745;
+  background: #FF6B35;
+  color: white;
 }
 
 .pricing-btn.highlight-btn:hover {
-  background: #218838;
+  background: #FF8551;
+  color: white;
 }
 
 .pricing-footer {
@@ -1483,7 +1490,7 @@
   font-size: 0.95rem;
   font-weight: 600;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(0, 120, 212, 0.3);
+  box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
 }
 
 .btn-register:hover {

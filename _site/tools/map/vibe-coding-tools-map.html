@@ -52,6 +52,9 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
+    <!-- API Configuration -->
+    <script src="/assets/js/config.js"></script>
+    
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -428,9 +431,9 @@ document.addEventListener('DOMContentLoaded', function() {
     font-size: 1.66rem !important;
 }
 
-/* Only the dot in cyan */
+/* Only the dot in orange */
 .logo-dot {
-    color: #0078d4 !important;
+    color: #FF6B35 !important;
 }
 
 .logo a:hover {
@@ -438,7 +441,7 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .logo a:hover .logo-dot {
-    color: #005ea2 !important;
+    color: #FF8551 !important;
 }
 
 /* Mobile adjustments */
@@ -563,15 +566,15 @@ document.addEventListener('DOMContentLoaded', function() {
       --footer-background: #fff;
       --footer-text: #333;
       --footer-link: #333;
-      --footer-link-hover: #0078d4;
+      --footer-link-hover: #FF6B35;
       --footer-divider: #333;
       --footer-social: #333;
-      --footer-social-hover: #0078d4;
+      --footer-social-hover: #FF6B35;
       --footer-copyright: #666;
       --content-background: rgba(255, 255, 255, 0.95);
       --content-text: #333;
-      --content-link: #0078d4;
-      --content-link-hover: #005ea2;
+      --content-link: #FF6B35;
+      --content-link-hover: #FF8551;
       --category-filter-background: rgba(255, 255, 255, 0.95);
       --category-filter-button: #f5f5f5;
       --category-filter-button-border: #ddd;
@@ -668,7 +671,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
     .logo a:hover {
-      color: var(--primary-color, #0078d4);
+      color: var(--primary-color, #FF6B35);
     }
 
 
@@ -695,17 +698,17 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     .auth-btn:hover {
-      color: var(--primary-color, #0078d4);
+      color: var(--primary-color, #FF6B35);
       transform: translateY(-2px);
     }
 
     .auth-btn.primary {
-      background: var(--primary-color, #0078d4);
+      background: var(--primary-color, #FF6B35);
       color: white;
     }
 
     .auth-btn.primary:hover {
-      background: var(--button-hover, #005ea2);
+      background: var(--button-hover, #FF8551);
     }
 
         margin-right: 0;
@@ -1116,7 +1119,7 @@ document.addEventListener('DOMContentLoaded', function() {
       bottom: 8px;
       left: 50%;
       transform: translateX(-50%);
-      background: #0078d4;
+      background: #FF6B35;
       color: white;
       border: none;
       border-radius: 15px;
@@ -1411,7 +1414,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     .newsletter-container button {
       padding: 0.3rem 0.8rem;
-      background: #0078d4;
+      background: #FF6B35;
       color: white;
       border-radius: 5px;
       border: none;
@@ -1422,7 +1425,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     .newsletter-container button:hover {
-      background: #005ea2;
+      background: #FF8551;
     }
 
     .newsletter-container button.loading::after {

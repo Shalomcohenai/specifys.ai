@@ -141,7 +141,7 @@
     }
     
     .chat-message.result code {
-      background: rgba(0, 120, 212, 0.1);
+      background: rgba(255, 107, 53, 0.1);
       padding: var(--spacing-xs) var(--spacing-sm);
       border-radius: var(--border-radius-sm);
     font-family: var(--font-family-primary);

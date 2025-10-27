@@ -14,7 +14,7 @@
     
     <!-- Canonical URL -->
     
-    <link rel="canonical" href="http://localhost:3000/pages/spec-viewer.html">
+    <link rel="canonical" href="https://specifys-ai.com/pages/spec-viewer.html">
     
     
     <!-- Open Graph -->
@@ -22,8 +22,8 @@
     <meta property="og:title" content="Specification Viewer">
     <meta property="og:description" content="Interactive specification viewer with approval workflow">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="http://localhost:3000/pages/spec-viewer.html">
-    <meta property="og:image" content="http://localhost:3000/assets/images/og-image.png">
+    <meta property="og:url" content="https://specifys-ai.com/pages/spec-viewer.html">
+    <meta property="og:image" content="https://specifys-ai.com/assets/images/og-image.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:locale" content="en_US">
@@ -35,7 +35,7 @@
     <meta name="twitter:creator" content="@specifysai">
     <meta name="twitter:title" content="Specification Viewer">
     <meta name="twitter:description" content="Interactive specification viewer with approval workflow">
-    <meta name="twitter:image" content="http://localhost:3000/assets/images/og-image.png">
+    <meta name="twitter:image" content="https://specifys-ai.com/assets/images/og-image.png">
     
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
@@ -45,8 +45,8 @@
     
     
     
-    <!-- Font Awesome Classic Regular -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <!-- Custom Icon Styles -->
     <style>
@@ -446,9 +446,9 @@ document.addEventListener('DOMContentLoaded', function() {
     font-size: 1.66rem !important;
 }
 
-/* Only the dot in cyan */
+/* Only the dot in orange */
 .logo-dot {
-    color: #0078d4 !important;
+    color: #FF6B35 !important;
 }
 
 .logo a:hover {
@@ -456,7 +456,7 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .logo a:hover .logo-dot {
-    color: #005ea2 !important;
+    color: #FF8551 !important;
 }
 
 /* Mobile adjustments */
@@ -1787,13 +1787,13 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .auth-buttons .btn-primary {
-    background: linear-gradient(135deg, var(--primary-color), #005ea2);
+    background: linear-gradient(135deg, var(--primary-color), #FF8551);
     color: white;
     border: none;
 }
 
 .auth-buttons .btn-primary:hover {
-    background: linear-gradient(135deg, #005ea2, var(--primary-color));
+    background: linear-gradient(135deg, #FF8551, var(--primary-color));
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
@@ -1857,7 +1857,7 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .btn-icon {
-    background: #0078d4;
+    background: #FF6B35;
     color: white;
     border: none;
     border-radius: 4px;
@@ -2135,9 +2135,9 @@ function loadMermaidFallback() {
             mermaid.initialize({
                 theme: 'base',
                 themeVariables: {
-                    primaryColor: '#0078d4',
+                    primaryColor: '#FF6B35',
                     primaryTextColor: '#333333',
-                    primaryBorderColor: '#0078d4',
+                    primaryBorderColor: '#FF6B35',
                     lineColor: '#333333',
                     secondaryColor: '#f5f5f5',
                     tertiaryColor: '#ffffff',

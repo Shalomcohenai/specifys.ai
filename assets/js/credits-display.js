@@ -67,7 +67,7 @@ class CreditsDisplayManager {
 
         try {
             const token = await this.currentUser.getIdToken();
-            const response = await fetch('http://localhost:3001/api/specs/entitlements', {
+            const response = await fetch(`${window.API_BASE_URL || 'http://localhost:3001'}/api/specs/entitlements`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }

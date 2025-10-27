@@ -10,9 +10,9 @@ class MermaidManager {
         this.config = {
             theme: 'base',
             themeVariables: {
-                primaryColor: '#0078d4',
+                primaryColor: '#FF6B35',
                 primaryTextColor: '#333333',
-                primaryBorderColor: '#0078d4',
+                primaryBorderColor: '#FF6B35',
                 lineColor: '#333333',
                 secondaryColor: '#f5f5f5',
                 tertiaryColor: '#ffffff',
@@ -110,9 +110,9 @@ class MermaidManager {
         if (isDark) {
             this.config.theme = 'dark';
             this.config.themeVariables = {
-                primaryColor: '#0078d4',
+                primaryColor: '#FF6B35',
                 primaryTextColor: '#ffffff',
-                primaryBorderColor: '#0078d4',
+                primaryBorderColor: '#FF6B35',
                 lineColor: '#ffffff',
                 secondaryColor: '#2d2d2d',
                 tertiaryColor: '#333333',
@@ -124,9 +124,9 @@ class MermaidManager {
         } else {
             this.config.theme = 'base';
             this.config.themeVariables = {
-                primaryColor: '#0078d4',
+                primaryColor: '#FF6B35',
                 primaryTextColor: '#333333',
-                primaryBorderColor: '#0078d4',
+                primaryBorderColor: '#FF6B35',
                 lineColor: '#333333',
                 secondaryColor: '#f5f5f5',
                 tertiaryColor: '#ffffff',

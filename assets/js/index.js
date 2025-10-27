@@ -847,7 +847,7 @@ async function generateSpecification() {
     const token = await user.getIdToken();
     
     // Call the new API endpoint with authorization
-    const response = await fetch('http://localhost:3001/api/specs/create', {
+    const response = await fetch(`${window.API_BASE_URL || 'http://localhost:3001'}/api/specs/create`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

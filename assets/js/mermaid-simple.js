@@ -22,9 +22,9 @@ const SimpleMermaidManager = {
                 startOnLoad: false,
                 theme: 'base',
                 themeVariables: {
-                    primaryColor: '#0078d4',
+                    primaryColor: '#FF6B35',
                     primaryTextColor: '#333333',
-                    primaryBorderColor: '#0078d4',
+                    primaryBorderColor: '#FF6B35',
                     lineColor: '#333333',
                     secondaryColor: '#f5f5f5',
                     tertiaryColor: '#ffffff',
