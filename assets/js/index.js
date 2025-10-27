@@ -976,6 +976,13 @@ async function generateSpecification() {
     const firebaseId = await saveSpecToFirebase(overviewContent, answers);
     console.log('✅ Saved to Firebase successfully with ID:', firebaseId);
     
+    // Trigger OpenAI upload (non-blocking)
+    if (window.ENABLE_OPENAI_STORAGE !== false) {
+      triggerOpenAIUpload(firebaseId).catch(err => {
+        console.warn('Background OpenAI upload failed:', err);
+      });
+    }
+    
     // Store in localStorage for backup
     localStorage.setItem('generatedOverviewContent', overviewContent);
     localStorage.setItem('initialAnswers', JSON.stringify(answers));
@@ -1103,6 +1110,36 @@ async function saveSpecToFirebase(overviewContent, answers) {
   } catch (error) {
     console.error('Error saving to Firebase:', error);
     throw error;
+  }
+}
+
+// ===== OPENAI UPLOAD TRIGGER =====
+async function triggerOpenAIUpload(specId) {
+  try {
+    const user = firebase.auth().currentUser;
+    if (!user) {
+      console.warn('No user found, skipping OpenAI upload');
+      return;
+    }
+    
+    const token = await user.getIdToken();
+    const response = await fetch(`${window.API_BASE_URL || 'http://localhost:3001'}/api/specs/${specId}/upload-to-openai`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Upload failed');
+    }
+    
+    const data = await response.json();
+    console.log('✅ OpenAI upload triggered successfully:', data);
+  } catch (error) {
+    console.warn('⚠️ OpenAI upload trigger failed (this is non-critical):', error);
   }
 }
 

@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const { auth } = require('./firebase-admin');
+const { auth, db, admin } = require('./firebase-admin');
 const { checkUserCanCreateSpec, consumeSpecCredit, refundSpecCredit, getUserEntitlements, checkCanEditSpec } = require('./entitlement-service');
 const fetch = require('node-fetch');
 const Joi = require('joi');
+const OpenAIStorageService = require('./openai-storage-service');
 
 // Input validation schemas
 const createSpecSchema = Joi.object({
@@ -274,6 +275,150 @@ router.get('/status', verifyFirebaseToken, async (req, res) => {
             details: error.message 
         });
     }
+});
+
+// Initialize OpenAI Storage Service
+const openaiStorage = process.env.OPENAI_API_KEY 
+  ? new OpenAIStorageService(process.env.OPENAI_API_KEY)
+  : null;
+
+/**
+ * Background upload function (non-blocking)
+ * This uploads a spec to OpenAI Storage after Firebase save
+ */
+async function uploadToOpenAIBackground(specId, specData) {
+  // Only if feature is enabled
+  if (!process.env.ENABLE_OPENAI_STORAGE || process.env.ENABLE_OPENAI_STORAGE !== 'true') {
+    return;
+  }
+  
+  if (!openaiStorage) {
+    console.warn('[OpenAI Storage] Service not configured');
+    return;
+  }
+  
+  try {
+    console.log(`[Background] Uploading spec ${specId} to OpenAI...`);
+    
+    const fileId = await openaiStorage.uploadSpec(specId, specData);
+    
+    await db.collection('specs').doc(specId).update({
+      openaiFileId: fileId,
+      uploadedToOpenAI: true,
+      openaiUploadTimestamp: admin.firestore.FieldValue.serverTimestamp()
+    });
+    
+    console.log(`[Background] ✓ Successfully uploaded spec ${specId} to OpenAI (file ID: ${fileId})`);
+  } catch (error) {
+    console.error(`[Background] Failed to upload spec ${specId}:`, error.message);
+    
+    // Store error for debugging
+    try {
+      await db.collection('specs').doc(specId).update({
+        openaiUploadError: error.message,
+        uploadedToOpenAI: false
+      });
+    } catch (updateError) {
+      console.error('Failed to store upload error:', updateError);
+    }
+  }
+}
+
+/**
+ * Route to manually upload spec to OpenAI (for testing)
+ * POST /api/specs/:specId/upload-to-openai
+ */
+router.post('/:specId/upload-to-openai', verifyFirebaseToken, async (req, res) => {
+  try {
+    if (!openaiStorage) {
+      return res.status(503).json({ error: 'OpenAI storage not configured' });
+    }
+
+    const { specId } = req.params;
+    const userId = req.user.uid;
+    
+    // Verify ownership
+    const specRef = db.collection('specs').doc(specId);
+    const specDoc = await specRef.get();
+    
+    if (!specDoc.exists) {
+      return res.status(404).json({ error: 'Spec not found' });
+    }
+    
+    if (specDoc.data().userId !== userId) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+    
+    const specData = specDoc.data();
+    
+    // Upload to OpenAI
+    console.log(`[Manual Upload] Uploading spec ${specId} to OpenAI...`);
+    const fileId = await openaiStorage.uploadSpec(specId, specData);
+    
+    // Update Firebase
+    await specRef.update({
+      openaiFileId: fileId,
+      uploadedToOpenAI: true,
+      openaiUploadTimestamp: admin.firestore.FieldValue.serverTimestamp()
+    });
+    
+    console.log(`[Manual Upload] ✓ Successfully uploaded spec ${specId} (file ID: ${fileId})`);
+    
+    res.json({
+      success: true,
+      fileId: fileId,
+      message: 'Spec uploaded to OpenAI successfully'
+    });
+    
+  } catch (error) {
+    console.error('Error uploading to OpenAI:', error);
+    res.status(500).json({ 
+      error: 'Failed to upload to OpenAI',
+      details: error.message 
+    });
+  }
+});
+
+/**
+ * Route to get OpenAI storage status (admin only)
+ * GET /api/specs/openai-status
+ */
+router.get('/openai-status', verifyFirebaseToken, async (req, res) => {
+  try {
+    const userId = req.user.uid;
+    
+    // Get statistics
+    const totalSpecsSnapshot = await db.collection('specs').count().get();
+    const uploadedSpecsSnapshot = await db.collection('specs')
+      .where('uploadedToOpenAI', '==', true)
+      .count()
+      .get();
+    const failedSpecsSnapshot = await db.collection('specs')
+      .where('openaiUploadError', '!=', null)
+      .count()
+      .get();
+    
+    const total = totalSpecsSnapshot.data().count;
+    const uploaded = uploadedSpecsSnapshot.data().count;
+    const failed = failedSpecsSnapshot.data().count;
+    
+    res.json({
+      success: true,
+      total: total,
+      uploaded: uploaded,
+      failed: failed,
+      notUploaded: total - uploaded,
+      percentage: total > 0 ? ((uploaded / total) * 100).toFixed(2) : 0,
+      enabled: process.env.ENABLE_OPENAI_STORAGE === 'true'
+    });
+    
+  } catch (error) {
+    console.error('Error getting OpenAI status:', error);
+    res.status(500).json({ 
+      error: 'Failed to get status',
+      details: error.message 
+    });
+  }
 });
 
 module.exports = router;

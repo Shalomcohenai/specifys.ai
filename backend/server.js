@@ -4,6 +4,7 @@ const dotenv = require('dotenv');
 const { syncAllUsers } = require('./server/user-management');
 const blogRoutes = require('./server/blog-routes');
 const specRoutes = require('./server/spec-routes');
+const chatRoutes = require('./server/chat-routes');
 const { handleLemonWebhook } = require('./server/lemon-webhook');
 const { securityHeaders, rateLimiters } = require('./server/security');
 
@@ -66,6 +67,9 @@ app.use('/2025', express.static('../_site/2025'));
 
 // Spec routes with authorization
 app.use('/api/specs', specRoutes);
+
+// Chat routes for AI chat functionality
+app.use('/api/chat', chatRoutes);
 
 // Basic route for server status
 app.get('/api/status', (req, res) => {
@@ -157,6 +161,8 @@ app.listen(port, () => {
   console.log('  GET  /api/specs/entitlements - Get user entitlements');
   console.log('  GET  /api/specs/status - Get spec creation status');
   console.log('  POST /api/specs/check-edit - Check edit permissions');
+  console.log('  POST /api/chat/init - Initialize chat for a spec');
+  console.log('  POST /api/chat/message - Send message to chat');
 }).on('error', (err) => {
   console.error('Failed to start server:', err.message);
 });
