@@ -413,7 +413,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="header-right">
         <div class="credits-display" id="credits-display" style="display: none;">
             <div class="credits-container">
-                <i class="fas fa-file-alt"></i>
+                <i class="fas fa-coins"></i>
                 <span id="credits-text">0</span>
             </div>
         </div>
@@ -471,53 +471,62 @@ document.addEventListener('DOMContentLoaded', function() {
     align-items: center;
     gap: 6px;
     padding: 6px 12px;
-    background: rgba(102, 102, 102, 0.1);
+    background: transparent;
     border-radius: 8px;
     font-size: 0.9rem;
     cursor: pointer;
     transition: all 0.2s ease;
-    border: 1px solid transparent;
+    border: none;
 }
 
 .credits-container:hover {
-    background: rgba(102, 102, 102, 0.15);
     transform: translateY(-1px);
 }
 
 .credits-container i {
     font-size: 14px;
-    color: #666;
+    color: #FF6B35;
+    transition: transform 0.2s ease;
+}
+
+.credits-container:hover i {
+    transform: scale(1.1);
 }
 
 .credits-container span {
     font-weight: 600;
-    color: #333;
+    color: #FF6B35;
     min-width: 20px;
     text-align: center;
+    transition: transform 0.2s ease;
 }
 
-/* State variations */
-.credits-container.unlimited {
-    border-color: #10b981;
+.credits-container:hover span {
+    transform: scale(1.1);
 }
 
+/* State variations - no border colors */
 .credits-container.unlimited i {
     color: #10b981;
 }
 
-.credits-container.pro {
-    border-color: #f59e0b;
+.credits-container.unlimited span {
+    color: #10b981;
 }
 
 .credits-container.pro i {
     color: #f59e0b;
 }
 
-.credits-container.low {
-    border-color: #ef4444;
+.credits-container.pro span {
+    color: #f59e0b;
 }
 
 .credits-container.low i {
+    color: #ef4444;
+}
+
+.credits-container.low span {
     color: #ef4444;
 }
 

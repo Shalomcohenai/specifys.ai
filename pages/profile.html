@@ -1434,17 +1434,17 @@ document.addEventListener('DOMContentLoaded', function() {
                     } else if (userDoc.exists()) {
                         // If no purchased credits, check free specs
                         const userData = userDoc.data();
-                        const freeSpecs = userData.free_specs_remaining || 1;
+                        const freeSpecs = typeof userData.free_specs_remaining === 'number' ? userData.free_specs_remaining : 1;
                         specsRemainingEl.textContent = freeSpecs;
                     } else {
-                        specsRemainingEl.textContent = '1';
+                        specsRemainingEl.textContent = '0';
                     }
                 } else if (userDoc.exists()) {
                     const userData = userDoc.data();
-                    const freeSpecs = userData.free_specs_remaining || 1;
+                    const freeSpecs = typeof userData.free_specs_remaining === 'number' ? userData.free_specs_remaining : 1;
                     specsRemainingEl.textContent = freeSpecs;
                 } else {
-                    specsRemainingEl.textContent = '1';
+                    specsRemainingEl.textContent = '0';
                 }
             } catch (error) {
                 console.error('Error loading specs remaining:', error);
@@ -2759,13 +2759,20 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     if (unlimited) {
                         document.getElementById('info-specs').innerHTML = '<span style="font-size: 1.5rem;">∞</span> <span style="color: #28a745;">Unlimited</span>';
-                    } else {
+                    } else if (specCredits > 0) {
                         document.getElementById('info-specs').textContent = specCredits + ' specs';
+                    } else if (userDoc.exists()) {
+                        // Check from user doc
+                        const userData = userDoc.data();
+                        const freeSpecs = typeof userData.free_specs_remaining === 'number' ? userData.free_specs_remaining : 1;
+                        document.getElementById('info-specs').textContent = freeSpecs + ' free specs remaining';
+                    } else {
+                        document.getElementById('info-specs').textContent = '1 free spec remaining';
                     }
                 } else if (userDoc.exists()) {
                     // Check from user doc
                     const userData = userDoc.data();
-                    const freeSpecs = userData.free_specs_remaining || 1;
+                    const freeSpecs = typeof userData.free_specs_remaining === 'number' ? userData.free_specs_remaining : 1;
                     document.getElementById('info-specs').textContent = freeSpecs + ' free specs remaining';
                 } else {
                     document.getElementById('info-specs').textContent = '1 free spec remaining';
