@@ -125,6 +125,46 @@ async function consumeSpecCredit(userId) {
 }
 
 /**
+ * Refund a spec credit (when generation fails after consuming credit)
+ * @param {string} userId - User ID
+ * @returns {Promise<boolean>} - Success status
+ */
+async function refundSpecCredit(userId) {
+    try {
+        const batch = db.batch();
+
+        // Get user document
+        const userDocRef = db.collection('users').doc(userId);
+        const userDoc = await userDocRef.get();
+        
+        if (!userDoc.exists) {
+            return false;
+        }
+
+        // Get entitlements document
+        const entitlementsDocRef = db.collection('entitlements').doc(userId);
+        const entitlementsDoc = await entitlementsDocRef.get();
+        
+        if (!entitlementsDoc.exists) {
+            return false;
+        }
+
+        // Refund credit
+        batch.update(entitlementsDocRef, {
+            spec_credits: admin.firestore.FieldValue.increment(1),
+            updated_at: admin.firestore.FieldValue.serverTimestamp()
+        });
+
+        await batch.commit();
+        return true;
+
+    } catch (error) {
+        console.error('Error refunding spec credit:', error);
+        return false;
+    }
+}
+
+/**
  * Grant credits to user
  * @param {string} userId - User ID
  * @param {number} creditsToAdd - Number of credits to add
@@ -505,7 +545,7 @@ function getProductIdByVariantId(variantId) {
 function getPriceByVariantId(variantId) {
     for (const [key, product] of Object.entries(config.products)) {
         if (product.variant_id === variantId) {
-            return product.price_nis;
+            return product.price_usd || 0;
         }
     }
     return 0;
@@ -514,6 +554,7 @@ function getPriceByVariantId(variantId) {
 module.exports = {
     checkUserCanCreateSpec,
     consumeSpecCredit,
+    refundSpecCredit,
     grantCredits,
     enableProSubscription,
     revokeProSubscription,

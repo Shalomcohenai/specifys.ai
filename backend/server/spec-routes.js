@@ -1,13 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const { auth } = require('./firebase-admin');
-const { checkUserCanCreateSpec, consumeSpecCredit, getUserEntitlements, checkCanEditSpec } = require('./entitlement-service');
+const { checkUserCanCreateSpec, consumeSpecCredit, refundSpecCredit, getUserEntitlements, checkCanEditSpec } = require('./entitlement-service');
 const fetch = require('node-fetch');
 const Joi = require('joi');
 
 // Input validation schemas
 const createSpecSchema = Joi.object({
-    userInput: Joi.string().required().min(10).max(10000).pattern(/^[a-zA-Z0-9\s\.,!?\-_()]+$/)
+    userInput: Joi.string().required().min(10).max(50000)
 });
 
 const checkEditSchema = Joi.object({
@@ -102,37 +102,80 @@ router.post('/create', verifyFirebaseToken, validateInput(createSpecSchema), asy
             });
         }
 
-        // Generate specification using existing API
-        const requestBody = {
-            stage: 'overview',
-            locale: 'en-US',
-            temperature: 0,
-            prompt: {
-                system: 'You are a professional product manager and UX architect. Generate a comprehensive application overview based on user input.',
-                developer: 'Create a detailed overview that includes application summary, core features, user journey, target audience, problem statement, and unique value proposition.',
-                user: userInput
-            }
-        };
-
-        const apiResponse = await fetch('https://spspec.shalom-cohen-111.workers.dev/generate', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(requestBody),
-        });
-
-        if (!apiResponse.ok) {
-            throw new Error(`API error: ${apiResponse.status}`);
-        }
-
-        const specification = await apiResponse.text();
-
-        // Consume credit after successful generation
+        // Consume credit BEFORE generation to prevent bypass
         const creditConsumed = await consumeSpecCredit(userId);
         if (!creditConsumed) {
-            console.error('Failed to consume credit for user:', userId);
-            // Don't fail the request since spec was already generated
+            return res.status(402).json({
+                error: 'Failed to consume credit - insufficient credits',
+                paywall: {
+                    message: 'You need to purchase credits to create more specifications',
+                    options: [
+                        {
+                            id: 'single_spec',
+                            name: 'Single Spec',
+                            price: 4.90,
+                            currency: 'USD',
+                            description: '1 additional specification'
+                        },
+                        {
+                            id: 'three_pack',
+                            name: '3-Pack',
+                            price: 9.90,
+                            currency: 'USD',
+                            description: '3 additional specifications (Save $5)'
+                        },
+                        {
+                            id: 'pro_monthly',
+                            name: 'Pro Monthly',
+                            price: 29.90,
+                            currency: 'USD',
+                            description: 'Unlimited specifications + editing'
+                        },
+                        {
+                            id: 'pro_yearly',
+                            name: 'Pro Yearly',
+                            price: 299.90,
+                            currency: 'USD',
+                            description: 'Unlimited specifications + editing (Save $58.90)'
+                        }
+                    ]
+                }
+            });
+        }
+
+        // Generate specification using existing API
+        let specification;
+        try {
+            const requestBody = {
+                stage: 'overview',
+                locale: 'en-US',
+                temperature: 0,
+                prompt: {
+                    system: 'You are a professional product manager and UX architect. Generate a comprehensive application overview based on user input.',
+                    developer: 'Create a detailed overview that includes application summary, core features, user journey, target audience, problem statement, and unique value proposition.',
+                    user: userInput
+                }
+            };
+
+            const apiResponse = await fetch('https://spspec.shalom-cohen-111.workers.dev/generate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestBody),
+            });
+
+            if (!apiResponse.ok) {
+                // Credit was already consumed, refund it
+                await refundSpecCredit(userId);
+                throw new Error(`API error: ${apiResponse.status}`);
+            }
+
+            specification = await apiResponse.text();
+        } catch (error) {
+            // Credit was already consumed, refund it
+            await refundSpecCredit(userId);
+            throw error;
         }
 
         // Return the specification

@@ -825,6 +825,67 @@ async function generateSpecification() {
     // Show loading overlay
     showLoadingOverlay();
     
+    // Check credits BEFORE generating spec
+    try {
+      const token = await user.getIdToken();
+      const statusResponse = await fetch(`${window.API_BASE_URL || 'http://localhost:3001'}/api/specs/status`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (statusResponse.ok) {
+        const statusData = await statusResponse.json();
+        console.log('🎯 Credits status:', statusData);
+        
+        if (!statusData.canCreate) {
+          hideLoadingOverlay();
+          console.warn('⚠️ No credits available:', statusData.reason);
+          
+          // Show paywall
+          const paywallData = {
+            message: 'You need to purchase credits to create more specifications',
+            options: [
+              {
+                id: 'single_spec',
+                name: 'Single Spec',
+                price: 4.90,
+                currency: 'USD',
+                description: '1 additional specification'
+              },
+              {
+                id: 'three_pack',
+                name: '3-Pack',
+                price: 9.90,
+                currency: 'USD',
+                description: '3 additional specifications (Save $5)'
+              },
+              {
+                id: 'pro_monthly',
+                name: 'Pro Monthly',
+                price: 29.90,
+                currency: 'USD',
+                description: 'Unlimited specifications + editing'
+              },
+              {
+                id: 'pro_yearly',
+                name: 'Pro Yearly',
+                price: 299.90,
+                currency: 'USD',
+                description: 'Unlimited specifications + editing (Save $58.90)'
+              }
+            ]
+          };
+          
+          showPaywall(paywallData);
+          return;
+        }
+      }
+    } catch (error) {
+      console.error('Error checking credits:', error);
+      // Continue anyway - let the server decide
+    }
+    
     // Prepare the prompt for overview generation
     const prompt = PROMPTS.overview(answers);
     

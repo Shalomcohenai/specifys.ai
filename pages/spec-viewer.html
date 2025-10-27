@@ -2847,28 +2847,64 @@ function displayRaw(data) {
 function displayDiagramsFromData(data) {
     const container = document.getElementById('diagrams-data');
     
-    if (!data.diagrams?.generated || !data.diagrams?.diagrams) {
-        // Show locked message or generate button
-        if (data.overviewApproved && data.technical && data.market) {
-            container.innerHTML = `
-                <div class="locked-tab-message">
-                    <h3><i class="fa fa-bar-chart"></i> Diagrams</h3>
-                    <p>Click "Generate Diagrams" to create visual representations of your specification.</p>
-                </div>
-            `;
-        } else {
-            container.innerHTML = `
-                <div class="locked-tab-message">
-                    <h3><i class="fa fa-lock"></i> Diagrams</h3>
-                    <p>Please approve the Overview and generate Technical & Market specifications first to create visual diagrams.</p>
-                </div>
-            `;
-        }
+    // FIRST CHECK: Overview must be approved
+    if (!data.overviewApproved) {
+        container.innerHTML = `
+            <div class="locked-tab-message">
+                <h3><i class="fa fa-lock"></i> Diagrams</h3>
+                <p>Please approve the Overview and generate Technical & Market specifications first to create visual diagrams.</p>
+            </div>
+        `;
         return;
     }
     
+    // SECOND CHECK: Technical and Market must be ready
+    if (!data.technical || !data.market || 
+        data.status?.technical !== 'ready' || 
+        data.status?.market !== 'ready') {
+        container.innerHTML = `
+            <div class="locked-tab-message">
+                <h3><i class="fa fa-lock"></i> Diagrams</h3>
+                <p>Please generate Technical & Market specifications first to create visual diagrams.</p>
+            </div>
+        `;
+        return;
+    }
+    
+    // THIRD CHECK: Diagrams must be generated and valid
+    if (!data.diagrams?.generated || 
+        !data.diagrams?.diagrams || 
+        !Array.isArray(data.diagrams.diagrams) || 
+        data.diagrams.diagrams.length === 0) {
+        container.innerHTML = `
+            <div class="locked-tab-message">
+                <h3><i class="fa fa-bar-chart"></i> Diagrams</h3>
+                <p>Click "Generate Diagrams" to create visual representations of your specification.</p>
+            </div>
+        `;
+        return;
+    }
+    
+    // FOURTH CHECK: Validate that diagrams have valid mermaidCode
+    const validDiagrams = data.diagrams.diagrams.filter(d => 
+        d && d.mermaidCode && 
+        typeof d.mermaidCode === 'string' && 
+        d.mermaidCode.trim().length > 0
+    );
+    
+    if (validDiagrams.length === 0) {
+        container.innerHTML = `
+            <div class="locked-tab-message">
+                <h3><i class="fa fa-bar-chart"></i> Diagrams</h3>
+                <p>No valid diagrams found. Click "Generate Diagrams" to create visual representations.</p>
+            </div>
+        `;
+        return;
+    }
+    
+    // ALL CHECKS PASSED - Display diagrams
     // Store diagrams data globally
-    diagramsData = data.diagrams.diagrams;
+    diagramsData = validDiagrams;
     
     // Display diagrams
     displayDiagrams(diagramsData);
@@ -5552,7 +5588,7 @@ async function generateDiagrams() {
                     }
                 }
                 
-                // Display diagrams
+                // Display diagrams (this will filter out invalid ones)
                 displayDiagrams(diagramsData);
                 
                 // Update status
@@ -5561,8 +5597,22 @@ async function generateDiagrams() {
                 // Hide generate button
                 generateBtn.style.display = 'none';
                 
-                // Start auto-refresh system
-                startAutoRefresh();
+                // Start auto-refresh system ONLY if we have valid diagrams
+                if (diagramsData && diagramsData.length > 0) {
+                    // Filter to only valid diagrams
+                    const validDiagrams = diagramsData.filter(d => 
+                        d && d.id && d.title && 
+                        d.mermaidCode && 
+                        typeof d.mermaidCode === 'string' && 
+                        d.mermaidCode.trim().length > 0
+                    );
+                    
+                    if (validDiagrams.length > 0) {
+                        startAutoRefresh();
+                    } else {
+                        console.warn('No valid diagrams to auto-refresh');
+                    }
+                }
                 
             } else {
                 throw new Error('Invalid response format: missing diagrams array');
@@ -5604,11 +5654,24 @@ function displayDiagrams(diagramsArray) {
         return;
     }
     
+    // Validate diagrams - filter out any without valid mermaidCode
+    const validDiagrams = diagramsArray.filter(d => 
+        d && d.id && d.title && 
+        d.mermaidCode && 
+        typeof d.mermaidCode === 'string' && 
+        d.mermaidCode.trim().length > 0
+    );
+    
+    if (validDiagrams.length === 0) {
+        container.innerHTML = '<div class="diagram-error"><h3><i class="fa fa-times-circle"></i> No Valid Diagrams</h3><p>No diagrams with valid content found. Please regenerate.</p></div>';
+        return;
+    }
+    
     // Clear container
     container.innerHTML = '';
     
-    // Create diagram containers for each diagram
-    diagramsArray.forEach((diagram, index) => {
+    // Create diagram containers for each VALID diagram
+    validDiagrams.forEach((diagram, index) => {
         const diagramContainer = document.createElement('div');
         diagramContainer.className = 'diagram-container';
         diagramContainer.id = `diagram-${diagram.id}`;

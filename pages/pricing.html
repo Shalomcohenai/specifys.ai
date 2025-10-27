@@ -695,7 +695,7 @@ async function purchaseSpec(productKey) {
         trackCTA('Purchase ' + productKey, 'pricing_page');
 
         // Get Lemon Squeezy checkout URL
-        const config = await fetch('/config/lemon-products.json').then(r => r.json());
+        const config = await fetch('/assets/data/lemon-products.json').then(r => r.json());
         const product = config.products[productKey];
         
         if (!product) {
