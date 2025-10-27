@@ -408,6 +408,12 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
     </div>
     <div class="header-right">
+        <div class="credits-display" id="credits-display" style="display: none;">
+            <div class="credits-container">
+                <i class="fas fa-dollar-sign"></i>
+                <span id="credits-text">0</span>
+            </div>
+        </div>
         <div class="auth-buttons" id="auth-buttons">
             <!-- Will be populated by auth system -->
         </div>
@@ -435,7 +441,83 @@ document.addEventListener('DOMContentLoaded', function() {
     color: #FF8551 !important;
 }
 
+/* Credits Display - Like user-info style */
+.credits-display {
+    display: flex;
+    align-items: center;
+    margin-right: 12px;
+}
+
+.credits-container {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0.3rem 0.8rem;
+    background: rgba(102, 102, 102, 0.1);
+    border-radius: var(--border-radius-md);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+}
+
+.credits-container:hover {
+    background: rgba(102, 102, 102, 0.2);
+    transform: translateY(-2px);
+}
+
+.credits-container i {
+    font-size: 14px;
+    color: #FF6B35;
+}
+
+.credits-container span {
+    font-weight: var(--font-weight-medium);
+    color: #FF6B35;
+    min-width: 20px;
+    text-align: center;
+}
+
+/* State variations - all use orange for pro, red for low */
+.credits-container.pro i,
+.credits-container.pro span {
+    color: #FF6B35;
+}
+
+.credits-container.low i,
+.credits-container.unlimited i,
+.credits-container.low span,
+.credits-container.unlimited span {
+    color: #ef4444;
+}
+
 /* Mobile adjustments */
+@media (max-width: 768px) {
+    .credits-display {
+        margin-right: 8px;
+    }
+    
+    .credits-container {
+        padding: 5px 10px;
+        font-size: 0.85rem;
+    }
+    
+    .credits-container i {
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .credits-display {
+        margin-right: 6px;
+    }
+    
+    .credits-container {
+        padding: 4px 8px;
+        gap: 4px;
+    }
+}
+
+/* Logo Mobile adjustments */
 @media (max-width: 768px) {
     .logo a,
     .logo-text {
@@ -1591,7 +1673,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             <!-- App Statistics - Simplified -->
                             <div class="app-stats-minimal">
                                 <div class="app-stat-minimal">
-                                    <i class="fas fa-file-alt"></i>
+                                    <i class="fas fa-dollar-sign"></i>
                                     <span>${specsCount} Specs</span>
                                 </div>
                                 <div class="app-stat-minimal">
@@ -1615,7 +1697,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (userSpecs.length === 0) {
                 specsContainer.innerHTML = `
                     <div class="no-specs">
-                        <div class="no-specs-icon"><i class="fas fa-file-alt"></i></div>
+                        <div class="no-specs-icon"><i class="fas fa-dollar-sign"></i></div>
                         <h4>No specifications yet</h4>
                         <p>Create your first specification to get started!</p>
                         <button class="btn" onclick="window.location.href='../index.html'">
@@ -1647,7 +1729,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="app-card-content">
                         <div class="app-stats-minimal">
                             <div class="app-stat-minimal">
-                                <i class="fas fa-file-alt"></i>
+                                <i class="fas fa-dollar-sign"></i>
                                 <span>Specification</span>
                             </div>
                         </div>
@@ -1758,7 +1840,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             <!-- App Statistics - Simplified -->
                             <div class="app-stats-minimal">
                                 <div class="app-stat-minimal">
-                                    <i class="fas fa-file-alt"></i>
+                                    <i class="fas fa-dollar-sign"></i>
                                     <span>${specsCount} Specs</span>
                                 </div>
                                 <div class="app-stat-minimal">
@@ -2710,9 +2792,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
 
                 // Update subscription info
+                // Check entitlements first to determine if user has pro access
+                const hasProAccess = entitlementsDoc.exists() && entitlementsDoc.data().unlimited === true;
+                
                 if (subDoc.exists()) {
                     const subData = subDoc.data();
-                    const status = subData.status || 'free';
+                    // Use entitlements to override status if user has pro access
+                    const status = hasProAccess && !subData.status ? 'active' : (subData.status || 'free');
                     const planName = getPlanName(status);
                     
                     document.getElementById('info-plan').textContent = planName;
@@ -2738,6 +2824,14 @@ document.addEventListener('DOMContentLoaded', function() {
                         document.getElementById('cost-row').style.display = 'none';
                         document.getElementById('cancelSubBtn').style.display = 'none';
                     }
+                } else if (hasProAccess) {
+                    // No subscription document but user has pro access through entitlements
+                    document.getElementById('info-plan').textContent = 'PRO';
+                    document.getElementById('info-status').textContent = 'Active';
+                    document.getElementById('info-status').className = 'status-badge active';
+                    document.getElementById('renewal-row').style.display = 'none';
+                    document.getElementById('cost-row').style.display = 'none';
+                    document.getElementById('cancelSubBtn').style.display = 'none';
                 } else {
                     document.getElementById('info-plan').textContent = 'Free';
                     document.getElementById('info-status').textContent = 'Free';

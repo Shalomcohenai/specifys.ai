@@ -428,7 +428,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="header-right">
         <div class="credits-display" id="credits-display" style="display: none;">
             <div class="credits-container">
-                <i class="fas fa-file-alt"></i>
+                <i class="fas fa-dollar-sign"></i>
                 <span id="credits-text">0</span>
             </div>
         </div>
@@ -486,53 +486,56 @@ document.addEventListener('DOMContentLoaded', function() {
     align-items: center;
     gap: 6px;
     padding: 6px 12px;
-    background: rgba(102, 102, 102, 0.1);
+    background: transparent;
     border-radius: 8px;
     font-size: 0.9rem;
     cursor: pointer;
     transition: all 0.2s ease;
-    border: 1px solid transparent;
+    border: none;
 }
 
 .credits-container:hover {
-    background: rgba(102, 102, 102, 0.15);
     transform: translateY(-1px);
 }
 
 .credits-container i {
     font-size: 14px;
-    color: #666;
+    color: #FF6B35;
+    transition: transform 0.2s ease;
+}
+
+.credits-container:hover i {
+    transform: scale(1.1);
 }
 
 .credits-container span {
     font-weight: 600;
-    color: #333;
+    color: #FF6B35;
     min-width: 20px;
     text-align: center;
+    transition: transform 0.2s ease;
 }
 
-/* State variations */
-.credits-container.unlimited {
-    border-color: #10b981;
+.credits-container:hover span {
+    transform: scale(1.1);
 }
 
-.credits-container.unlimited i {
-    color: #10b981;
-}
-
-.credits-container.pro {
-    border-color: #f59e0b;
-}
-
+/* State variations - all use orange for pro, red for low */
 .credits-container.pro i {
-    color: #f59e0b;
+    color: #FF6B35;
 }
 
-.credits-container.low {
-    border-color: #ef4444;
+.credits-container.pro span {
+    color: #FF6B35;
 }
 
-.credits-container.low i {
+.credits-container.low i,
+.credits-container.unlimited i {
+    color: #ef4444;
+}
+
+.credits-container.low span,
+.credits-container.unlimited span {
     color: #ef4444;
 }
 
@@ -890,62 +893,7 @@ document.addEventListener('DOMContentLoaded', function() {
     cursor: not-allowed;
 }
 
-@keyframes tabActivate {
-    0% {
-        transform: translateY(0);
-        box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-    }
-    100% {
-        transform: translateY(-1px);
-        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-    }
-}
-
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-/* Disabled spinner animation - removed for better UX */
-
-/* Tab loading animation */
-.tab-loader {
-  width: 16px;
-  height: 16px;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background: 
-    radial-gradient(farthest-side,#666 94%,#0000) top/2px 2px no-repeat,
-    conic-gradient(#0000 30%,#666);
-  mask: radial-gradient(farthest-side,#0000 calc(100% - 2px),#000 0);
-  -webkit-mask: radial-gradient(farthest-side,#0000 calc(100% - 2px),#000 0);
-  animation: tabLoaderSpin 1s infinite linear;
-  display: inline-block;
-  margin-right: 8px;
-}
-
-@keyframes tabLoaderSpin { 
-  100%{transform: rotate(1turn)}
-}
-
-.tab-button.loading {
-  opacity: 0.8;
-  pointer-events: none;
-  transform: none !important;
-  box-shadow: none !important;
-}
-
-.tab-button.loading::after {
-  content: '';
-  position: absolute;
-  right: 12px;
-  width: 16px;
-  height: 16px;
-  border: 2px solid #e0e0e0;
-  border-top-color: #666;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
+/* Tab animations removed - using notification system for feedback */
 
 .tab-button.success .fa {
     color: #28a745;
@@ -1626,6 +1574,10 @@ document.addEventListener('DOMContentLoaded', function() {
     transform: translateY(-1px);
 }
 
+.btn-primary i {
+    color: white;
+}
+
 .btn-secondary {
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
     color: #FF6B35;
@@ -1639,10 +1591,18 @@ document.addEventListener('DOMContentLoaded', function() {
     box-shadow: 0 2px 8px rgba(255, 107, 53, 0.15);
 }
 
+.btn-secondary i {
+    color: inherit;
+}
+
 .btn-success {
     background: linear-gradient(135deg, #FF6B35 0%, #FF8551 100%);
     color: white;
     border: none;
+}
+
+.btn-success i {
+    color: white;
 }
 
 .btn-success:hover:not(:disabled) {
@@ -1726,7 +1686,7 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .content-section h3 {
-    color: #FF6B35;
+    color: #000;
     margin-bottom: 12px;
     padding-bottom: 8px;
     border-bottom: 2px solid #FFE8DC;
@@ -1739,12 +1699,60 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .content-section h3 i {
     font-size: 18px;
-    color: #FF8551;
+    color: #000;
 }
 
 .content-section p {
     line-height: 1.7;
     color: #444;
+}
+
+/* Edit mode styles */
+#overview-data.edit-mode-active .content-section {
+    border: 2px solid #4CAF50;
+    background: linear-gradient(135deg, #f0fff4 0%, #ffffff 100%);
+    transition: all 0.2s ease;
+}
+
+#overview-data.edit-mode-active .content-section:hover {
+    border-color: #45a049;
+    box-shadow: 0 4px 16px rgba(76, 175, 80, 0.15);
+}
+
+#overview-data.edit-mode-active .content-section p[contenteditable="true"] {
+    outline: none;
+    cursor: text;
+}
+
+#overview-data.edit-mode-active .content-section h3[contenteditable="true"] {
+    outline: 2px dashed #4CAF50;
+    outline-offset: 4px;
+    padding: 4px;
+    border-radius: 4px;
+    cursor: text;
+}
+
+#overview-data.edit-mode-active .icon-locked {
+    pointer-events: none;
+    user-select: none;
+    opacity: 0.9;
+}
+
+#overview-data.edit-mode-active .content-section.editing {
+    position: relative;
+}
+
+#overview-data.edit-mode-active .content-section.editing::before {
+    content: "✏️ Editable";
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    font-size: 11px;
+    color: #4CAF50;
+    font-weight: 600;
+    background: rgba(76, 175, 80, 0.1);
+    padding: 4px 8px;
+    border-radius: 4px;
 }
 
 .locked-tab-message {
@@ -4723,32 +4731,15 @@ function updateStatus(type, status) {
 }
 
 function updateTabLoadingState(type, isLoading) {
+    // Tab loading animations removed - using notification system instead
     const tabButton = document.getElementById(`${type}Tab`);
     if (!tabButton) return;
     
+    // Minimal visual feedback - just enable/disable the tab
     if (isLoading) {
-        // Add loading state
-        tabButton.classList.add('loading');
-        
-        // Save the original text
-        const originalText = tabButton.innerHTML;
-        tabButton.setAttribute('data-original-text', originalText);
-        
-        // Update text with loading animation
-        const icon = tabButton.querySelector('i').className;
-        const text = tabButton.textContent.trim();
-        tabButton.innerHTML = `<div class="tab-loader"></div><i class="${icon}"></i> ${text}`;
-        
+        tabButton.disabled = true;
     } else {
-        // Remove loading state
-        tabButton.classList.remove('loading');
-        
-        // Restore the original text
-        const originalText = tabButton.getAttribute('data-original-text');
-        if (originalText) {
-            tabButton.innerHTML = originalText;
-            tabButton.removeAttribute('data-original-text');
-        }
+        tabButton.disabled = false;
     }
 }
 
@@ -4831,6 +4822,7 @@ function setTabStatus(tabId, status) {
 
 // Edit mode variables and functions
 let isEditMode = false;
+let originalHTML = '';
 
 function toggleEditMode() {
     const editBtn = document.getElementById('editBtn');
@@ -4840,20 +4832,79 @@ function toggleEditMode() {
         // Enter edit mode
         isEditMode = true;
         editBtn.innerHTML = '<i class="fa fa-save"></i> Save';
+        editBtn.classList.remove('btn-secondary');
+        editBtn.classList.add('btn-success');
         editBtn.onclick = saveOverviewEdit;
         
-        // Convert to editable textarea
-        const currentContent = window.originalOverview || currentSpecData.overview;
-        container.innerHTML = `<textarea id="overview-editor" class="overview-editor">${currentContent}</textarea>`;
+        // Save current HTML structure
+        originalHTML = container.innerHTML;
+        window.editModeHTML = originalHTML;
+        
+        // Make all content sections editable but preserve icons
+        const contentSections = container.querySelectorAll('.content-section');
+        contentSections.forEach(section => {
+            section.classList.add('editing');
+            
+            // Lock icons - make them non-editable
+            const icons = section.querySelectorAll('i');
+            icons.forEach(icon => {
+                icon.setAttribute('contenteditable', 'false');
+                icon.classList.add('icon-locked');
+            });
+            
+            // Make paragraphs editable
+            const paragraphs = section.querySelectorAll('p');
+            paragraphs.forEach(p => {
+                p.setAttribute('contenteditable', 'true');
+            });
+            
+            // Make headings editable - wrap text nodes in spans for finer control
+            const headings = section.querySelectorAll('h3');
+            headings.forEach(heading => {
+                heading.setAttribute('contenteditable', 'true');
+            });
+        });
+        
+        container.classList.add('edit-mode-active');
     }
 }
 
 async function saveOverviewEdit() {
     const editBtn = document.getElementById('editBtn');
-    const editor = document.getElementById('overview-editor');
-    const editedContent = editor.value;
+    const container = document.getElementById('overview-data');
     
     try {
+        // Exit edit mode first
+        const contentSections = container.querySelectorAll('.content-section');
+        contentSections.forEach(section => {
+            section.setAttribute('contenteditable', 'false');
+            section.classList.remove('editing');
+        });
+        
+        container.classList.remove('edit-mode-active');
+        
+        // Extract text content from HTML structure
+        const sections = [];
+        contentSections.forEach(section => {
+            const heading = section.querySelector('h3');
+            const content = Array.from(section.querySelectorAll('p')).map(p => p.textContent.trim()).filter(t => t).join('\n\n');
+            
+            if (heading && content) {
+                // Extract text from heading, ignoring icons
+                const headingText = Array.from(heading.childNodes)
+                    .filter(node => node.nodeType === 3 || (node.nodeType === 1 && node.tagName !== 'I'))
+                    .map(node => node.nodeType === 3 ? node.textContent : node.childNodes ? Array.from(node.childNodes).filter(n => n.nodeType === 3).map(n => n.textContent).join('') : node.textContent)
+                    .join('')
+                    .trim();
+                
+                if (headingText && content) {
+                    sections.push(headingText + '\n' + content);
+                }
+            }
+        });
+        
+        const editedContent = sections.join('\n\n---\n\n');
+        
         // Update local data
         currentSpecData.overview = editedContent;
         window.originalOverview = editedContent;
@@ -4871,6 +4922,8 @@ async function saveOverviewEdit() {
         // Exit edit mode
         isEditMode = false;
         editBtn.innerHTML = '<i class="fa fa-pencil"></i> Edit';
+        editBtn.classList.remove('btn-success');
+        editBtn.classList.add('btn-secondary');
         editBtn.onclick = toggleEditMode;
         
         // Display updated content
@@ -4967,6 +5020,8 @@ async function approveOverview() {
         document.getElementById('approveBtn').disabled = true;
         document.getElementById('approveBtn').textContent = 'Generating...';
         
+        showNotification('Starting specification generation...', 'info');
+        
         console.log('Approving overview and generating additional specs...');
         
         // Check if user is authenticated
@@ -4993,6 +5048,7 @@ async function approveOverview() {
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 console.log('Firebase updated with approval status');
+                showNotification('Overview approved successfully', 'success');
             } catch (error) {
                 console.warn('Failed to update Firebase:', error);
                 showNotification('Failed to update database. Continuing locally...', 'error');
@@ -5031,6 +5087,10 @@ async function approveOverview() {
         updateTabLoadingState('technical', false);
         displayTechnical(technicalContent);
         
+        if (technicalContent !== 'error') {
+            showNotification('Technical specification created successfully', 'success');
+        }
+        
         if (user && currentSpecData && currentSpecData.id) {
             try {
                 await firebase.firestore().collection('specs').doc(currentSpecData.id).update({
@@ -5061,6 +5121,10 @@ async function approveOverview() {
         updateTabLoadingState('market', false);
         displayMarket(marketContent);
         
+        if (marketContent !== 'error') {
+            showNotification('Market research completed successfully', 'success');
+        }
+        
         if (user && currentSpecData && currentSpecData.id) {
             try {
                 await firebase.firestore().collection('specs').doc(currentSpecData.id).update({
@@ -5090,6 +5154,10 @@ async function approveOverview() {
         updateStatus('design', currentSpecData.status.design);
         updateTabLoadingState('design', false);
         displayDesign(designContent);
+        
+        if (designContent !== 'error') {
+            showNotification('Design specification created successfully', 'success');
+        }
         
         if (user && currentSpecData && currentSpecData.id) {
             try {

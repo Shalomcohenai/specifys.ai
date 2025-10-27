@@ -262,8 +262,8 @@
 
         .compact-form-group input:focus {
             outline: none;
-            border-color: #666;
-            box-shadow: 0 0 0 3px rgba(102, 102, 102, 0.1);
+            border-color: #FF6B35;
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
         }
 
         /* Compact Button Styles */
@@ -281,14 +281,14 @@
         }
 
         .compact-btn-primary {
-            background: #23a6d5;
+            background: #FF6B35;
             color: white;
         }
 
         .compact-btn-primary:hover {
-            background: #1e8fb8;
+            background: #FF8551;
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(35, 166, 213, 0.3);
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
         }
 
         .compact-btn-primary:disabled {
@@ -308,9 +308,9 @@
         }
 
         .compact-btn-google:hover {
-            border-color: #666;
+            border-color: #FF6B35;
             transform: translateY(-2px);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(255, 107, 53, 0.2);
         }
 
         .compact-btn-google span {
@@ -396,13 +396,13 @@
         }
 
         .auth-tab.active {
-            background: #23a6d5;
+            background: #FF6B35;
             color: white;
         }
 
         .auth-tab:hover:not(.active) {
-            background: rgba(35, 166, 213, 0.1);
-            color: #23a6d5;
+            background: rgba(255, 107, 53, 0.1);
+            color: #FF6B35;
         }
 
         .auth-form {
@@ -437,15 +437,15 @@
 
         .form-input:focus {
             outline: none;
-            border-color: #666;
-            box-shadow: 0 0 0 3px rgba(102, 102, 102, 0.1);
+            border-color: #FF6B35;
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
             transform: translateY(-2px);
         }
 
         .auth-button {
             width: 100%;
             padding: 0.8rem 2rem;
-            background: #666;
+            background: #FF6B35;
             color: white;
             border: none;
             border-radius: 10px;
@@ -458,9 +458,9 @@
         }
 
         .auth-button:hover {
-            background: #555;
+            background: #FF8551;
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 102, 102, 0.3);
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
         }
 
         .auth-button:disabled {
@@ -510,7 +510,7 @@
         }
 
         .google-button:hover {
-            border-color: #666;
+            border-color: #FF6B35;
             transform: translateY(-2px);
         }
 
@@ -587,8 +587,8 @@
         }
 
         .checkbox-label input[type="checkbox"]:checked + .checkmark {
-            background: #666;
-            border-color: #666;
+            background: #FF6B35;
+            border-color: #FF6B35;
         }
 
         .checkbox-label input[type="checkbox"]:checked + .checkmark::after {
@@ -604,7 +604,7 @@
         }
 
         .checkbox-label:hover .checkmark {
-            border-color: #666;
+            border-color: #FF6B35;
         }
 
         .privacy-link {
@@ -616,7 +616,7 @@
         }
 
         .privacy-link:hover {
-            color: #333;
+            color: #FF6B35;
         }
 
         /* Privacy Policy Modal */
@@ -749,7 +749,7 @@
 
         .auth-left-panel {
             flex: 1;
-            background: #23a6d5; /* Dark cyan like in the image */
+            background: #FF6B35; /* Orange */
             display: flex;
             align-items: center;
             justify-content: center;

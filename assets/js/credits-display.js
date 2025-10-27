@@ -99,25 +99,27 @@ class CreditsDisplayManager {
         const { entitlements: userEntitlements, user } = entitlements;
         
         // Remove existing classes
-        creditsContainer.classList.remove('pro', 'unlimited', 'low');
+        creditsContainer.classList.remove('pro', 'unlimited', 'low', 'normal');
         
         let displayText = '';
         let cssClass = '';
 
         if (userEntitlements.unlimited) {
             // Pro subscription - unlimited
-            displayText = '∞';
-            cssClass = 'unlimited';
+            displayText = 'pro';
+            cssClass = 'pro';
         } else if (userEntitlements.spec_credits > 0) {
             // Has purchased credits
             displayText = userEntitlements.spec_credits.toString();
-            cssClass = 'pro';
+            cssClass = 'normal';
         } else if (user.free_specs_remaining > 0) {
             // Free specs remaining
             displayText = user.free_specs_remaining.toString();
             // Add 'low' class if only 1-2 remaining
             if (user.free_specs_remaining <= 2) {
                 cssClass = 'low';
+            } else {
+                cssClass = 'normal';
             }
         } else {
             // No credits

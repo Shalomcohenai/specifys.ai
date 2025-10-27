@@ -96,8 +96,10 @@ Create a comprehensive technical specification with TEXTUAL descriptions only (n
         "path": "/api/endpoint",
         "method": "GET/POST/PUT/DELETE",
         "description": "What this endpoint does",
-        "requestExample": "Example request body",
-        "responseExample": "Example response"
+        "parameters": "List of URL parameters if any (e.g., ?userId=123)",
+        "requestBody": "Textual description of request structure and example data as JSON-formatted string",
+        "responseBody": "Textual description of response structure and example data as JSON-formatted string",
+        "statusCodes": "Common HTTP status codes and their meanings for this endpoint"
       }
     ],
     "securityAuthentication": {
@@ -164,6 +166,13 @@ Create a comprehensive technical specification with TEXTUAL descriptions only (n
 }
 
 IMPORTANT: All descriptions must be textual only. Diagrams will be generated separately.
+
+IMPORTANT FOR API ENDPOINTS:
+- requestBody and responseBody must be detailed textual descriptions OR valid JSON strings (never [object Object])
+- Include actual field names, types, and example values specific to the application
+- Format as plain text descriptions or JSON strings, not JSON objects
+- Example of good requestBody: "JSON string with fields: { \\"name\\": \\"John Doe\\", \\"email\\": \\"john@example.com\\", \\"age\\": 30 }"
+- Example of good responseBody: "Returns JSON with fields: { \\"userId\\": 123, \\"status\\": \\"success\\" }"
 
 Application Overview:
 ${overviewContent}
@@ -457,10 +466,29 @@ Create comprehensive design guidelines and branding elements. Return JSON with d
 }
 
 CRITICAL COLOR REQUIREMENTS:
+- Colors MUST be contextual to the app type and target audience:
+  - Professional/B2B apps: Trust-building blues, professional grays
+  - Health/Medical apps: Calming greens, tranquil blues
+  - Finance apps: Secure blues, reliability-focused tones
+  - Creative/Design apps: Vibrant colors, artistic palettes
+  - Education apps: Warm, approachable tones
+  - Fitness/Wellness apps: Energetic colors with motivation-focused tones
+  - Social apps: Friendly, inviting colors
+  - Gaming/Entertainment apps: Bold, exciting colors
+- Color scheme structure: Use 4-5 related colors in one tone/theme + ONE contrasting accent color for CTAs and important elements
+- The color palette should reflect the app's purpose, brand personality, and user emotions
 - Colors must be harmonious and coherent (use either monochromatic scheme with variations of the same tone, or analogous/complementary scheme with maximum 2 tones)
-- Avoid random color combinations with 3 different tones
-- The color palette should create visual harmony and brand consistency
-- Include detailed explanation of the color harmony approach in colorHarmony field
+
+CRITICAL TYPOGRAPHY REQUIREMENTS:
+- Fonts MUST be selected based on app context:
+  - Professional apps: Clean, readable sans-serif (Inter, Roboto, Helvetica)
+  - Creative apps: Distinctive display fonts for brand identity
+  - Editorial/Content apps: Serif fonts for readability (Merriweather, Georgia)
+  - Technical apps: Monospace options for code/data
+  - Luxury brands: Elegant, refined typefaces
+  - Youth-oriented apps: Playful, modern fonts
+- Include specific font recommendations with reasoning for each app type
+- Typography should match the app's personality and enhance readability
 
 Make sure all descriptions are clear and actionable for designers and developers.
 

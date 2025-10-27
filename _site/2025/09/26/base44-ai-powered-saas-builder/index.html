@@ -440,7 +440,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="header-right">
         <div class="credits-display" id="credits-display" style="display: none;">
             <div class="credits-container">
-                <i class="fas fa-coins"></i>
+                <i class="fas fa-dollar-sign"></i>
                 <span id="credits-text">0</span>
             </div>
         </div>
@@ -486,7 +486,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 }
 
-/* Credits Display - Minimalist Style */
+/* Credits Display - Like user-info style */
 .credits-display {
     display: flex;
     align-items: center;
@@ -497,63 +497,41 @@ document.addEventListener('DOMContentLoaded', function() {
     display: flex;
     align-items: center;
     gap: 6px;
-    padding: 6px 12px;
-    background: transparent;
-    border-radius: 8px;
+    padding: 0.3rem 0.8rem;
+    background: rgba(102, 102, 102, 0.1);
+    border-radius: var(--border-radius-md);
     font-size: 0.9rem;
     cursor: pointer;
-    transition: all 0.2s ease;
-    border: none;
+    transition: all var(--transition-normal);
 }
 
 .credits-container:hover {
-    transform: translateY(-1px);
+    background: rgba(102, 102, 102, 0.2);
+    transform: translateY(-2px);
 }
 
 .credits-container i {
     font-size: 14px;
     color: #FF6B35;
-    transition: transform 0.2s ease;
-}
-
-.credits-container:hover i {
-    transform: scale(1.1);
 }
 
 .credits-container span {
-    font-weight: 600;
+    font-weight: var(--font-weight-medium);
     color: #FF6B35;
     min-width: 20px;
     text-align: center;
-    transition: transform 0.2s ease;
 }
 
-.credits-container:hover span {
-    transform: scale(1.1);
-}
-
-/* State variations - no border colors */
-.credits-container.unlimited i {
-    color: #10b981;
-}
-
-.credits-container.unlimited span {
-    color: #10b981;
-}
-
-.credits-container.pro i {
-    color: #f59e0b;
-}
-
+/* State variations - all use orange for pro, red for low */
+.credits-container.pro i,
 .credits-container.pro span {
-    color: #f59e0b;
+    color: #FF6B35;
 }
 
-.credits-container.low i {
-    color: #ef4444;
-}
-
-.credits-container.low span {
+.credits-container.low i,
+.credits-container.unlimited i,
+.credits-container.low span,
+.credits-container.unlimited span {
     color: #ef4444;
 }
 
