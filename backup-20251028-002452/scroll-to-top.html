@@ -1,0 +1,36 @@
+<!-- Scroll to top button -->
+<button class="icon-btn scroll-to-top" id="scrollToTop" aria-label="Scroll">
+  <i class="fas fa-arrow-up"></i>
+</button>
+
+<script>
+  // Scroll button functionality
+  document.addEventListener('DOMContentLoaded', function() {
+    const scrollBtn = document.getElementById('scrollToTop');
+    
+    if (scrollBtn) {
+      // Handle click - scroll to top or bottom based on current state
+      scrollBtn.addEventListener("click", () => {
+        if (window.scrollY > 300) {
+          // If scrolled down, go to top
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        } else {
+          // If at top, scroll to bottom
+          window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+        }
+      });
+      
+      // Rotate button based on scroll position
+      window.addEventListener("scroll", () => {
+        if (window.scrollY > 300) {
+          scrollBtn.classList.add("scrolled-down");
+          scrollBtn.setAttribute("aria-label", "Scroll to top");
+        } else {
+          scrollBtn.classList.remove("scrolled-down");
+          scrollBtn.setAttribute("aria-label", "Scroll to bottom");
+        }
+      });
+    }
+  });
+</script>
+
