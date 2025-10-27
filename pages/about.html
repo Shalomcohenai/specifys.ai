@@ -1,984 +1,157 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="About Specifys.ai">
-  <meta name="description" content="Learn about Specifys.ai, our mission, and the story behind our AI-driven app specification platform.">
-  <meta name="keywords" content="specifys.ai, about us, app development, vibe coding">
-  <meta name="author" content="specifys.ai Team">
-  <meta name="robots" content="index, follow">
-  <meta name="googlebot" content="index, follow">
-  <meta name="bingbot" content="index, follow">
-  <meta name="revisit-after" content="7 days">
-  <meta name="language" content="English">
-  <meta name="copyright" content="© 2025 specifys.ai">
-  <meta name="publisher" content="specifys.ai">
-  <meta name="distribution" content="global">
-  <meta name="rating" content="general">
-  <meta name="theme-color" content="#0078d4">
-  <link rel="canonical" href="https://specifys-ai.com/pages/about.html">
-  <meta property="og:title" content="About Us - Specifys.ai">
-  <meta property="og:description" content="Learn about Specifys.ai, our mission, and the story behind our AI-driven app specification platform.">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://specifys-ai.com/pages/about.html">
-  <meta property="og:image" content="https://specifys-ai.com/assets/og-image.jpg">
-  <meta property="og:image:alt" content="About Us with Specifys.ai">
-  <meta property="og:site_name" content="Specifys.ai">
-  <meta property="og:locale" content="en_US">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="About Us - Specifys.ai">
-  <meta name="twitter:description" content="Learn about Specifys.ai, our mission, and the story behind our AI-driven app specification platform.">
-  <meta name="twitter:image" content="https://specifys-ai.com/assets/og-image.jpg">
-  <meta name="twitter:site" content="@specifys_ai">
-  <meta name="twitter:creator" content="@specifys_ai">
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "WebPage",
-    "headline": "About Us - Specifys.ai",
-    "description": "Learn about Specifys.ai, our mission, and the story behind our AI-driven app specification platform.",
-            "image": "assets/og-image.jpg",
-    "author": {
-      "@type": "Organization",
-      "name": "specifys.ai Team"
-    },
-    "publisher": {
-      "@type": "Organization",
-      "name": "Specifys.ai",
-      "logo": {
-        "@type": "ImageObject",
-        "url": "assets/logo.png"
-      }
-    },
-            "url": "about.html",
-    "mainEntityOfPage": {
-      "@type": "WebPage",
-              "@id": "about.html"
-    },
-    "keywords": "specifys.ai, about us, app development, vibe coding"
+---
+layout: default
+title: "About Us - Specifys.ai"
+description: "Learn about the story behind Specifys.ai and our mission to help creators build better apps with AI-powered specifications."
+---
+
+<style>
+  .content-box {
+    max-width: 900px;
+    margin: 100px auto 60px;
+    padding: 40px;
+    background: var(--bg-primary);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-md);
   }
-  </script>
-  <title>About Us - Specifys.ai</title>
-  <link rel="icon" type="image/x-icon" href="../favicon.ico">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
-  <style>
-    @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap");
+  .content-box h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    text-align: center;
+    margin-bottom: 15px;
+  }
 
-    :root {
-      --bg-color: #f5f5f5;
-      --text-color: #333;
-      --primary-color: #0078d4;
-      --secondary-color: #6c757d;
-      --light-gray: #e9ecef;
-      --border-color: #dee2e6;
-      --chat-bg: #fff;
-      --system-msg-bg: #f8f9fa;
-      --user-msg-bg: #0078d4;
-      --user-msg-text: #fff;
-      --input-bg: #fff;
-      --input-border: #dee2e6;
-      --button-hover: #005ea2;
-      --progress-bg: #e9ecef;
-      --progress-fill: #0078d4;
-      --chat-header-bg: #0078d4;
-      --chat-header-text: #fff;
+  .content-box h2 {
+    font-size: 1.3rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  .content-box p {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+  }
+
+  .button-container {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 40px;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    padding: 15px 30px;
+    background: #0078d4;
+    color: white;
+    text-decoration: none;
+    border-radius: var(--border-radius-md);
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: inline-block;
+  }
+
+  .btn:hover {
+    background: #005ea2;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .scroll-to-top {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 50px;
+    height: 50px;
+    background: #0078d4;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+    z-index: 1000;
+  }
+
+  .scroll-to-top:hover {
+    background: #005ea2;
+    transform: translateY(-3px);
+  }
+
+  .scroll-to-top.show {
+    display: flex;
+  }
+
+  @media (max-width: 768px) {
+    .content-box {
+      margin: 80px 15px 40px;
+      padding: 30px 20px;
     }
 
-
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    /* Header Layout Styles */
-    .thematic-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 15px 20px;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      background: var(--bg-color, #f5f5f5);
-      border-bottom: 1px solid var(--border-color, #ddd);
-      z-index: 100;
-      transition: background 0.3s ease, border-color 0.3s ease;
+    .content-box h1 {
+      font-size: 2rem;
     }
 
-
-    .header-left {
-      display: flex;
-      align-items: center;
+    .content-box h2 {
+      font-size: 1.1rem;
     }
 
-    .header-center {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      position: absolute;
-      left: 0;
-      right: 0;
-      top: 0;
-      bottom: 0;
-      pointer-events: none;
+    .content-box p {
+      font-size: 1rem;
     }
 
-    .header-center .logo {
-      pointer-events: auto;
+    .button-container {
+      flex-direction: column;
+      align-items: stretch;
     }
+  }
+</style>
 
-    .header-right {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      justify-content: flex-end;
-    }
-
-    /* Logo Styles */
-    .logo a {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--text-color, #333);
-      text-decoration: none;
-      transition: color 0.3s ease;
-    }
-
-
-    .logo a:hover {
-      color: var(--primary-color, #0078d4);
-    }
-
-    /* Auth System Styles */
-    .auth-buttons {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      position: relative;
-      z-index: 10000;
-    }
-
-    .auth-btn {
-      padding: 0.5rem 1rem;
-      border: none;
-      border-radius: 8px;
-      text-decoration: none;
-      font-size: 0.9rem;
-      font-weight: 700;
-      transition: all 0.3s ease;
-      cursor: pointer;
-      background: transparent;
-      color: #666;
-    }
-
-    .auth-btn:hover {
-      color: var(--primary-color, #0078d4);
-      transform: translateY(-2px);
-    }
-
-    .auth-btn.primary {
-      background: var(--primary-color, #0078d4);
-      color: white;
-    }
-
-    .auth-btn.primary:hover {
-      background: var(--button-hover, #005ea2);
-    }
-
-    /* User Info & Dropdown */
-    .user-info {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.5rem 1rem;
-      background: rgba(102, 102, 102, 0.1);
-      border-radius: 20px;
-      border: 1px solid rgba(102, 102, 102, 0.2);
-      color: #666;
-      font-size: 0.9rem;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .user-info:hover {
-      background: rgba(102, 102, 102, 0.2);
-      transform: translateY(-2px);
-    }
-
-    .user-avatar {
-      width: 24px;
-      height: 24px;
-      background: #666;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.8rem;
-      font-weight: bold;
-      color: white;
-    }
-
-    .user-dropdown {
-      position: relative;
-      z-index: 10000;
-    }
-
-    .user-dropdown-content {
-      position: fixed;
-      top: 80px;
-      right: 20px;
-      background: var(--chat-bg, #fff);
-      border-radius: 12px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-      min-width: 150px;
-      transform: translateY(-20px);
-      opacity: 0;
-      visibility: hidden;
-      transition: all 0.3s ease;
-      z-index: 999999;
-    }
-
-    .user-dropdown-content.show {
-      transform: translateY(0);
-      opacity: 1;
-      visibility: visible;
-    }
-
-    .user-dropdown-content a,
-    .user-dropdown-content button {
-      display: block;
-      width: 100%;
-      padding: 12px 16px;
-      color: var(--text-color, #333);
-      text-decoration: none;
-      font-size: 0.9rem;
-      font-weight: 500;
-      border: none;
-      background: none;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      text-align: left;
-    }
-
-    .user-dropdown-content a:hover,
-    .user-dropdown-content button:hover {
-      background: var(--light-gray, #f5f5f5);
-    }
-
-
-    /* Mobile Responsive */
-    @media (max-width: 768px) {
-      .thematic-header {
-        padding: 10px 15px;
-      }
-      
-      .header-left {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-      }
-      
-      .header-right {
-        gap: 0.5rem;
-      }
-      
-      .auth-buttons {
-        gap: 0.5rem;
-        margin-right: 0;
-      }
-      
-      .auth-btn {
-        padding: 0.4rem 0.8rem;
-        font-size: 0.8rem;
-      }
-      
-      .user-info {
-        padding: 0.4rem 0.8rem;
-        font-size: 0.8rem;
-      }
-      
-      .user-avatar {
-        width: 20px;
-        height: 20px;
-        font-size: 0.7rem;
-      }
-      
-      
-      .user-dropdown-content {
-        top: 70px;
-        left: 15px;
-        right: auto;
-        min-width: 120px;
-      }
-      
-      .user-dropdown-content a,
-      .user-dropdown-content button {
-        padding: 10px 12px;
-        font-size: 0.8rem;
-      }
-    }
-    html { height: 100%; }
-    body { font-family: "Montserrat", sans-serif; position: relative; overflow-x: hidden; display: flex; flex-direction: column; min-height: 100%; background: #f5f5f5; transition: background 0.3s ease, color 0.3s ease; }
-    
-    .content-box { max-width: 900px; margin: 80px auto 40px; padding: 30px; background: rgba(255, 255, 255, 0.95); border-radius: 15px; box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15); flex-grow: 1; }
-    .content-box h1 { font-size: clamp(1.8rem, 4vw, 2.5rem); font-weight: 700; color: #333; margin-bottom: 20px; text-align: center; }
-    .content-box h2 { font-size: 1.8rem; font-weight: 700; color: #0078d4; margin: 30px 0 15px; }
-    .content-box p { font-size: 1rem; color: #666; line-height: 1.6; margin-bottom: 15px; }
-    .button-container { display: flex; justify-content: center; gap: 10px; margin-top: 30px; flex-wrap: wrap; }
-    .content-box .btn { display: inline-block; padding: 10px 20px; background: #0078d4; color: #fff; text-decoration: none; border-radius: 5px; font-size: 1rem; font-weight: 700; transition: background-color 0.3s ease, transform 0.3s ease; }
-    .content-box .btn:hover { background: #005ea2; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); }
-    
-
-    @media (max-width: 768px) {
-      .content-box { margin: 40px 15px; padding: 20px; }
-      .content-box h1 { font-size: clamp(1.4rem, 3vw, 2rem); }
-      .content-box h2 { font-size: 1.5rem; }
-      .content-box p { font-size: 0.9rem; }
-      .content-box .btn { padding: 8px 16px; font-size: 0.9rem; }
-    }
-    @media (max-width: 480px) {
-      .content-box { margin: 40px 10px; padding: 15px; }
-      .content-box h1 { font-size: clamp(1.2rem, 3vw, 1.8rem); }
-      .content-box h2 { font-size: 1.3rem; }
-      .content-box p { font-size: 0.85rem; }
-      .content-box .btn { padding: 6px 12px; font-size: 0.8rem; }
-    }
-
-    /* Header Layout Styles */
-    .thematic-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 15px 20px;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      background: var(--bg-color, #f5f5f5);
-      border-bottom: 1px solid var(--border-color, #ddd);
-      z-index: 100;
-      transition: background 0.3s ease, border-color 0.3s ease;
-    }
-
-
-    .header-left {
-      display: flex;
-      align-items: center;
-    }
-
-    .header-center {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      position: absolute;
-      left: 0;
-      right: 0;
-      top: 0;
-      bottom: 0;
-      pointer-events: none;
-    }
-
-    .header-center .logo {
-      pointer-events: auto;
-    }
-
-    .header-right {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    /* Logo Styles */
-    .logo a {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--text-color, #333);
-      text-decoration: none;
-      transition: color 0.3s ease;
-    }
-
-
-    .logo a:hover {
-      color: var(--primary-color, #0078d4);
-    }
-
-
-    /* Auth System Styles */
-    .auth-buttons {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      position: relative;
-      z-index: 10000;
-    }
-
-    .auth-btn {
-      padding: 0.5rem 1rem;
-      border: none;
-      border-radius: 8px;
-      text-decoration: none;
-      font-size: 0.9rem;
-      font-weight: 700;
-      transition: all 0.3s ease;
-      cursor: pointer;
-      background: transparent;
-      color: #666;
-    }
-
-    .auth-btn:hover {
-      color: var(--primary-color, #0078d4);
-      transform: translateY(-2px);
-    }
-
-    .auth-btn.primary {
-      background: var(--primary-color, #0078d4);
-      color: white;
-    }
-
-    .auth-btn.primary:hover {
-      background: var(--button-hover, #005ea2);
-    }
-
-    /* User Info & Dropdown */
-    .user-info {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.5rem 1rem;
-      background: rgba(102, 102, 102, 0.1);
-      border-radius: 20px;
-      border: 1px solid rgba(102, 102, 102, 0.2);
-      color: #666;
-      font-size: 0.9rem;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .user-info:hover {
-      background: rgba(102, 102, 102, 0.2);
-      transform: translateY(-2px);
-    }
-
-    .user-avatar {
-      width: 24px;
-      height: 24px;
-      background: #666;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.8rem;
-      font-weight: bold;
-      color: white;
-    }
-
-    .user-dropdown {
-      position: relative;
-      z-index: 10000;
-    }
-
-    .user-dropdown-content {
-      position: fixed;
-      top: 80px;
-      right: 20px;
-      background: var(--chat-bg, #fff);
-      border-radius: 12px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-      min-width: 150px;
-      transform: translateY(-20px);
-      opacity: 0;
-      visibility: hidden;
-      transition: all 0.3s ease;
-      z-index: 999999;
-    }
-
-    .user-dropdown-content.show {
-      transform: translateY(0);
-      opacity: 1;
-      visibility: visible;
-    }
-
-    .user-dropdown-content a,
-    .user-dropdown-content button {
-      display: block;
-      width: 100%;
-      padding: 12px 16px;
-      color: var(--text-color, #333);
-      text-decoration: none;
-      font-size: 0.9rem;
-      font-weight: 500;
-      border: none;
-      background: none;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      text-align: left;
-    }
-
-    .user-dropdown-content a:hover,
-    .user-dropdown-content button:hover {
-      background: var(--light-gray, #f5f5f5);
-    }
-
-
-    /* Mobile Responsive */
-    @media (max-width: 768px) {
-      .thematic-header {
-        padding: 10px 15px;
-      }
-      
-      .header-left {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-      }
-      
-      .header-right {
-        gap: 0.5rem;
-      }
-      
-      
-      .auth-buttons {
-        gap: 0.5rem;
-        margin-right: 0;
-      }
-      
-      .auth-btn {
-        padding: 0.4rem 0.8rem;
-        font-size: 0.8rem;
-      }
-      
-      .user-info {
-        padding: 0.4rem 0.8rem;
-        font-size: 0.8rem;
-      }
-      
-      .user-avatar {
-        width: 20px;
-        height: 20px;
-        font-size: 0.7rem;
-      }
-      
-      
-      .user-dropdown-content {
-        top: 70px;
-        left: 15px;
-        right: auto;
-        min-width: 120px;
-      }
-      
-      .user-dropdown-content a,
-      .user-dropdown-content button {
-        padding: 10px 12px;
-        font-size: 0.8rem;
-      }
-      
-    }
-
-    /* Footer Styles */
-    footer {
-      padding: 20px 10px;
-      text-align: center;
-      width: 100%;
-      color: #333;
-      flex-shrink: 0;
-      background: #fff;
-      box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
-    }
-
-
-    .footer-content {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: center;
-      gap: 20px;
-      flex-wrap: wrap;
-    }
-
-    .footer-links {
-      display: flex;
-      justify-content: center;
-      gap: 15px;
-      flex-wrap: wrap;
-    }
-
-    .footer-links a {
-      color: #333;
-      text-decoration: none;
-      font-size: 0.85rem;
-      font-weight: 500;
-      transition: color 0.3s ease;
-    }
-
-
-    .footer-links a:hover {
-      color: #0078d4;
-    }
-
-    .footer-divider {
-      color: #333;
-      font-size: 1.2rem;
-      font-weight: 300;
-    }
-
-
-    .footer-social {
-      display: flex;
-      justify-content: center;
-      gap: 15px;
-      flex-wrap: wrap;
-    }
-
-    .footer-social a {
-      color: #333;
-      font-size: 1.2rem;
-      transition: transform 0.3s ease, color 0.3s ease;
-    }
-
-
-    .footer-social a:hover {
-      color: #0078d4;
-      transform: scale(1.2);
-    }
-
-    .footer-copyright {
-      font-size: 0.8rem;
-      color: #666;
-      margin-top: 1rem;
-    }
-
-
-    /* Scroll to Top Button */
-    .scroll-to-top {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: #0078d4;
-      color: #fff;
-      border: none;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      font-size: 1.2rem;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-      z-index: 1000;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .scroll-to-top:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-    }
-
-  </style>
-</head>
-<body>
-  <header class="thematic-header" role="banner">
-    <div class="header-left">
-    </div>
-    <div class="header-center">
-      <div class="logo">
-        <a href="../index.html" aria-label="Specifys.ai homepage">Specifys.ai</a>
-      </div>
-    </div>
-    <div class="header-right">
-      <div class="auth-buttons" id="auth-buttons">
-        <!-- Will be populated by auth system -->
-      </div>
-    </div>
-  </header>
-  <div class="content-box">
-    <h1>About Us</h1>
-    <h2>The Story Behind Specifys.ai</h2>
-    <p>I built Specifys.ai out of personal frustration.</p>
-    <p>As someone who loves building and experimenting with AI tools, I tried to create an app idea using ChatGPT. But I quickly noticed a recurring problem: the AI would jump straight into coding — before it really understood the full scope of the idea.</p>
-    <p>It felt like building a house by immediately laying bricks without a blueprint.</p>
-    <p>Whenever I wanted to add new features later — like user authentication or admin roles — it felt like patchwork on top of an unstable base. The result was always messy, hard to maintain, and far from my original vision.</p>
-    <p>That’s when I realized what was missing: a specification phase. A way to describe the vibe of the app, the user flow, the features, and the logic — before writing any code.</p>
-    <p>So I built Specifys.ai — a lightweight tool that asks the right questions and generates a clear, structured spec document using AI. The goal is simple: To help creators and developers start smarter, not faster.</p>
-    <p>Specifys is based on the principles of Vibe Coding — a mindset that prioritizes clarity, flow, and intention before code.</p>
-    <p>I built this tool entirely on my own using AI — no backend, no user data stored. It’s designed to be fast, simple, and focused on one thing: helping you turn your idea into a clean plan you can actually build on.</p>
-    <div class="button-container">
-      <a href="../index.html" class="btn" aria-label="Start building your app specification now">Start Building Your App Now</a>
-      <a href="https://www.linkedin.com/in/shalom-cohen-884491227/" class="btn" aria-label="Contact Shalom Cohen on LinkedIn">Contact Me</a>
-    </div>
+<div class="content-box">
+  <h1>About Us</h1>
+  <h2>The Story Behind Specifys.ai</h2>
+  <p>I built Specifys.ai out of personal frustration.</p>
+  <p>As someone who loves building and experimenting with AI tools, I tried to create an app idea using ChatGPT. But I quickly noticed a recurring problem: the AI would jump straight into coding — before it really understood the full scope of the idea.</p>
+  <p>It felt like building a house by immediately laying bricks without a blueprint.</p>
+  <p>Whenever I wanted to add new features later — like user authentication or admin roles — it felt like patchwork on top of an unstable base. The result was always messy, hard to maintain, and far from my original vision.</p>
+  <p>That's when I realized what was missing: a specification phase. A way to describe the vibe of the app, the user flow, the features, and the logic — before writing any code.</p>
+  <p>So I built Specifys.ai — a lightweight tool that asks the right questions and generates a clear, structured spec document using AI. The goal is simple: To help creators and developers start smarter, not faster.</p>
+  <p>Specifys is based on the principles of Vibe Coding — a mindset that prioritizes clarity, flow, and intention before code.</p>
+  <p>I built this tool entirely on my own using AI — no backend, no user data stored. It's designed to be fast, simple, and focused on one thing: helping you turn your idea into a clean plan you can actually build on.</p>
+  <div class="button-container">
+    <a href="{{ '/' | relative_url }}" class="btn" aria-label="Start building your app specification now">Start Building Your App Now</a>
+    <a href="https://www.linkedin.com/in/shalom-cohen-884491227/" class="btn" aria-label="Contact Shalom Cohen on LinkedIn">Contact Me</a>
   </div>
-  <button class="scroll-to-top" id="scrollToTop" aria-label="Scroll to top"><i class="fas fa-arrow-up"></i></button>
-  <footer>
-    <div class="footer-content">
-      <div class="footer-links">
-        <a href="how.html" aria-label="Learn how specifys.ai works">How It Works</a>
-        <a href="about.html" aria-label="Learn more about specifys.ai">About Us</a>
-        <a href="../blog/" aria-label="Visit our blog">Blog</a>
-        <a href="../tools/map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
-        <a href="ToolPicker.html" aria-label="Use our Tool Finder">Tool Finder</a>
-      </div>
-      <span class="footer-divider">|</span>
-      <div class="footer-social">
-        <a href="https://www.linkedin.com/company/specifys-ai/" aria-label="Follow us on LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-        <a href="https://www.facebook.com/profile.php?id=61576402600129&locale=he_IL" target="_blank" aria-label="Follow us on Facebook"><i class="fab fa-facebook-f"></i></a>
-        <a href="https://www.instagram.com/YOUR_PROFILE" aria-label="Follow us on Instagram"><i class="fab fa-instagram"></i></a>
-        <a href="mailto:specifysai@gmail.com" aria-label="Send us an email"><i class="fas fa-envelope"></i></a>
-        <a href="https://www.producthunt.com/products/specifys-ai" target="_blank" aria-label="Check us out on Product Hunt"><i class="fab fa-product-hunt"></i></a>
-      </div>
-    </div>
-    <div class="footer-copyright">© 2025 specifys.ai. All rights reserved.</div>
-  </footer>
+</div>
 
-  <script type="module">
-    // Import Firebase SDK
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { 
-      createUserWithEmailAndPassword, 
-      signInWithEmailAndPassword, 
-      signOut, 
-      onAuthStateChanged,
-      GoogleAuthProvider,
-      signInWithPopup,
-      getAuth
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+<button class="scroll-to-top" id="scrollToTop" aria-label="Scroll to top">
+  <i class="fas fa-arrow-up"></i>
+</button>
 
-    import { 
-      collection, 
-      addDoc,
-      serverTimestamp,
-      getFirestore
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-    // Firebase configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyB9hr0IWM4EREzkKDxBxYoYinV6LJXWXV4",
-      authDomain: "specify-ai.firebaseapp.com",
-      projectId: "specify-ai",
-      storageBucket: "specify-ai.firebasestorage.app",
-      messagingSenderId: "734278787482",
-      appId: "1:734278787482:web:0e312fb6f197e849695a23",
-      measurementId: "G-4YR9LK63MR"
-    };
-
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    const googleProvider = new GoogleAuthProvider();
-
-
-    // User dropdown functionality
-    function toggleUserDropdown() {
-      const dropdown = document.querySelector('.user-dropdown-content');
-      if (dropdown.classList.contains('show')) {
-        dropdown.classList.remove('show');
-      } else {
-        dropdown.classList.add('show');
-      }
+<script>
+  // Scroll to top functionality
+  const scrollToTopBtn = document.getElementById('scrollToTop');
+  
+  window.addEventListener('scroll', function() {
+    if (window.pageYOffset > 300) {
+      scrollToTopBtn.classList.add('show');
+    } else {
+      scrollToTopBtn.classList.remove('show');
     }
-
-    // Basic header functionality
-    document.addEventListener('DOMContentLoaded', function() {
-      
-      
-      
+  });
+  
+  scrollToTopBtn.addEventListener('click', function() {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
     });
-
-    // Global functions for user dropdown
-    window.toggleUserDropdown = function() {
-      const dropdown = document.querySelector('.user-dropdown-content');
-      if (dropdown && dropdown.classList.contains('show')) {
-        dropdown.classList.remove('show');
-      } else if (dropdown) {
-        dropdown.classList.add('show');
-      }
-    };
-
-    // Close user dropdown when clicking outside
-    document.addEventListener('click', function(event) {
-      const userDropdown = document.querySelector('.user-dropdown');
-      const userInfo = document.querySelector('.user-info');
-      const dropdown = document.querySelector('.user-dropdown-content');
-      
-      if (userDropdown && dropdown && dropdown.classList.contains('show') && 
-          !userInfo.contains(event.target)) {
-        dropdown.classList.remove('show');
-      }
-    });
-
-    // Initialize auth buttons with default state
-    document.addEventListener('DOMContentLoaded', function() {
-      const authButtons = document.getElementById('auth-buttons');
-      if (authButtons && !authButtons.innerHTML.trim()) {
-        authButtons.innerHTML = `
-          <button class="auth-btn login-btn">Login</button>
-        `;
-        
-        const loginBtn = authButtons.querySelector('.login-btn');
-        if (loginBtn) {
-          loginBtn.addEventListener('click', function(event) {
-            event.stopPropagation();
-            window.location.href = 'auth.html';
-          });
-        }
-      }
-    });
-
-    // Firebase Auth System
-    document.addEventListener('DOMContentLoaded', function() {
-      // Firebase configuration
-      const firebaseConfig = {
-        apiKey: "AIzaSyB9hr0IWM4EREzkKDxBxYoYinV6LJXWXV4",
-        authDomain: "specify-ai.firebaseapp.com",
-        projectId: "specify-ai",
-        storageBucket: "specify-ai.firebasestorage.app",
-        messagingSenderId: "734278787482",
-        appId: "1:734278787482:web:0e312fb6f197e849695a23",
-        measurementId: "G-4YR9LK63MR"
-      };
-
-      // Initialize Firebase
-      firebase.initializeApp(firebaseConfig);
-      const auth = firebase.auth();
-      const db = firebase.firestore();
-
-      // Update auth UI function
-      function updateAuthUI(user) {
-        const authButtons = document.getElementById('auth-buttons');
-        
-        if (user) {
-          // User is logged in
-          const displayName = user.displayName || user.email.split('@')[0];
-          const firstLetter = displayName.charAt(0).toUpperCase();
-          
-          authButtons.innerHTML = `
-            <div class="user-dropdown">
-              <div class="user-info" onclick="toggleUserDropdown()">
-                <div class="user-avatar">${firstLetter}</div>
-                <span>${displayName}</span>
-              </div>
-              <div class="user-dropdown-content">
-                <a href="profile.html">Profile</a>
-                <button onclick="logout()">Sign Out</button>
-              </div>
-            </div>
-          `;
-        } else {
-          // User is not logged in
-          authButtons.innerHTML = `
-            <button class="auth-btn" onclick="showLoginModal()">Login</button>
-            <button class="auth-btn primary" onclick="showRegisterModal()">Register</button>
-          `;
-        }
-      }
-
-      // Global functions
-      window.showLoginModal = function() {
-        window.location.href = 'auth.html';
-      };
-
-      window.showRegisterModal = function() {
-        window.location.href = 'auth.html';
-      };
-
-      window.logout = function() {
-        auth.signOut()
-          .then(() => {
-            console.log('Logged out successfully');
-          })
-          .catch(error => {
-            console.error('Error logging out:', error);
-          });
-      };
-
-      // Listen to auth state changes
-      auth.onAuthStateChanged((user) => {
-        updateAuthUI(user);
-      });
-    });
-
-    // Update updateAuthUI function
-    function updateAuthUI(user) {
-      const authButtons = document.getElementById('auth-buttons');
-      
-      if (user) {
-        // User is logged in
-        authButtons.innerHTML = `
-          <div class="user-dropdown">
-            <div class="user-info">
-              <div class="user-avatar">${user.displayName ? user.displayName.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase()}</div>
-              <span>${user.displayName || user.email.split('@')[0]}</span>
-            </div>
-            <div class="user-dropdown-content">
-              <a href="profile.html">Profile</a>
-              <button class="logout-btn">Sign Out</button>
-            </div>
-          </div>
-        `;
-        
-        // Add event listeners after creating the HTML
-        const userInfo = authButtons.querySelector('.user-info');
-        const logoutBtn = authButtons.querySelector('.logout-btn');
-        
-        if (userInfo) {
-          userInfo.addEventListener('click', function(event) {
-            event.stopPropagation();
-            toggleUserDropdown();
-          });
-        }
-        
-        if (logoutBtn) {
-          logoutBtn.addEventListener('click', function(event) {
-            event.stopPropagation();
-            logout();
-          });
-        }
-      } else {
-        // User is not logged in
-        authButtons.innerHTML = `
-          <button class="auth-btn login-btn">Login</button>
-        `;
-        
-        // Add event listener for login button
-        const loginBtn = authButtons.querySelector('.login-btn');
-        if (loginBtn) {
-          loginBtn.addEventListener('click', function(event) {
-            event.stopPropagation();
-            showLoginModal();
-          });
-        }
-      }
-    }
-
-    // Global functions
-    window.showLoginModal = function() {
-      window.location.href = 'auth.html';
-    };
-
-    window.logout = function() {
-      signOut(auth)
-        .then(() => {
-          alert('יצאת בהצלחה');
-        })
-        .catch(error => {
-          alert('שגיאה ביציאה: ' + error.message);
-        });
-    };
-
-    // Listen to auth state changes
-    onAuthStateChanged(auth, (user) => {
-      updateAuthUI(user);
-    });
-  </script>
-  <noscript>
-    <div style="text-align: center; padding: 20px; background: #fff; color: #333;">
-      <p>This website requires JavaScript to function properly. Please enable JavaScript in your browser settings.</p>
-    </div>
-  </noscript>
-</body>
-</html>
+  });
+</script>
