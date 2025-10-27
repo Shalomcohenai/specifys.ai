@@ -1,0 +1,160 @@
+/* Auth System Styles - Specifys.ai */
+/* Used across all pages for authentication */
+
+.auth-buttons {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  position: relative;
+  z-index: 10000;
+}
+
+.auth-btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 700;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  background: transparent;
+  color: #666;
+}
+
+.auth-btn:hover {
+  color: var(--primary-color, #0078d4);
+  transform: translateY(-2px);
+}
+
+.auth-btn.primary {
+  background: var(--primary-color, #0078d4);
+  color: white;
+}
+
+.auth-btn.primary:hover {
+  background: var(--button-hover, #005ea2);
+}
+
+/* User Info & Dropdown */
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: rgba(102, 102, 102, 0.1);
+  border-radius: 20px;
+  border: 1px solid rgba(102, 102, 102, 0.2);
+  color: #666;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.user-info:hover {
+  background: rgba(102, 102, 102, 0.2);
+  transform: translateY(-2px);
+}
+
+.user-avatar {
+  width: 24px;
+  height: 24px;
+  background: #666;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: bold;
+  color: white;
+}
+
+.user-name {
+  color: #666;
+  font-weight: 500;
+}
+
+/* User Dropdown */
+.user-dropdown {
+  position: relative;
+  z-index: 10000;
+}
+
+.user-dropdown-content {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  background: var(--chat-bg, #fff);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  min-width: 150px;
+  transform: translateY(-20px);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  z-index: 999999;
+}
+
+.user-dropdown-content.show {
+  transform: translateY(0);
+  opacity: 1;
+  visibility: visible;
+}
+
+.user-dropdown-content a,
+.user-dropdown-content button {
+  display: block;
+  width: 100%;
+  padding: 12px 16px;
+  color: var(--text-color, #333);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: left;
+}
+
+.user-dropdown-content a:hover,
+.user-dropdown-content button:hover {
+  background: var(--light-gray, #e9ecef);
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .auth-buttons {
+    gap: 0.5rem;
+    margin-right: 0;
+  }
+  
+  .auth-btn {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+  }
+  
+  .user-info {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+  }
+  
+  .user-avatar {
+    width: 20px;
+    height: 20px;
+    font-size: 0.7rem;
+  }
+  
+  .user-dropdown-content {
+    top: 70px;
+    left: 15px;
+    right: auto;
+    min-width: 120px;
+  }
+  
+  .user-dropdown-content a,
+  .user-dropdown-content button {
+    padding: 10px 12px;
+    font-size: 0.8rem;
+  }
+}

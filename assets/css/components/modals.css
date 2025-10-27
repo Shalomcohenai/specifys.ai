@@ -1,0 +1,341 @@
+/* Modal Styles - Specifys.ai */
+/* Reusable modal components */
+
+/* Generic Modal Base */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 10000;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(5px);
+}
+
+.modal-overlay.show {
+  display: flex;
+  animation: modalFadeIn 0.3s ease-out;
+}
+
+.modal-content {
+  background: var(--chat-bg, #fff);
+  border-radius: 20px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  animation: modalSlideUp 0.3s ease-out;
+  border: 2px solid var(--border-color, #dee2e6);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid var(--border-color, #dee2e6);
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-color, #333);
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  color: var(--secondary-color, #6c757d);
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.modal-close:hover {
+  background: var(--light-gray, #e9ecef);
+  color: var(--text-color, #333);
+  transform: rotate(90deg);
+}
+
+.modal-body {
+  padding: 2rem;
+}
+
+.modal-footer {
+  display: flex;
+  gap: 1rem;
+  padding: 1.5rem 2rem;
+  justify-content: flex-end;
+  border-top: 1px solid var(--border-color, #dee2e6);
+}
+
+/* Modal Animations */
+@keyframes modalFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modalSlideUp {
+  from { 
+    opacity: 0; 
+    transform: translateY(50px) scale(0.9); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0) scale(1); 
+  }
+}
+
+/* Registration/Welcome Modal Specific */
+.registration-modal-overlay,
+.welcome-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  backdrop-filter: blur(5px);
+}
+
+.registration-modal-overlay.show,
+.welcome-modal.show {
+  display: flex;
+  animation: modalFadeIn 0.3s ease-out;
+}
+
+.welcome-content,
+.registration-modal {
+  background: var(--chat-bg, #fff);
+  width: 90%;
+  max-width: 500px;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  animation: modalSlideUp 0.4s ease-out;
+  position: relative;
+}
+
+.welcome-header {
+  background: linear-gradient(135deg, #0078d4, #4A90E2);
+  color: #fff;
+  padding: 2rem 2rem 1rem;
+  text-align: center;
+  position: relative;
+}
+
+.welcome-header h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.welcome-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: #fff;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.welcome-close:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+.welcome-body {
+  padding: 2rem;
+  text-align: center;
+}
+
+.welcome-body p {
+  font-size: 1.1rem;
+  color: var(--text-color, #333);
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+
+.welcome-actions {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem 2rem 2rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn-continue,
+.btn-register {
+  padding: 0.8rem 1.5rem;
+  border: none;
+  border-radius: 25px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn-continue {
+  background: #f0f0f0;
+  color: #666;
+}
+
+.btn-continue:hover {
+  background: #e0e0e0;
+  transform: translateY(-2px);
+}
+
+.btn-register {
+  background: var(--primary-color, #0078d4);
+  color: #fff;
+  box-shadow: 0 4px 15px rgba(0, 120, 212, 0.3);
+}
+
+.btn-register:hover {
+  background: var(--button-hover, #005ea2);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 120, 212, 0.4);
+}
+
+/* Loading Overlay */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+}
+
+.loading-content {
+  background: var(--chat-bg, #fff);
+  padding: 40px;
+  border-radius: 20px;
+  text-align: center;
+  border: 2px solid var(--border-color, #dee2e6);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.loading-spinner {
+  width: 60px;
+  height: 60px;
+  border: 4px solid var(--border-color, #dee2e6);
+  border-top: 4px solid var(--primary-color, #0078d4);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 20px;
+}
+
+.loading-text {
+  color: var(--text-color, #333);
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.loading-subtext {
+  color: var(--secondary-color, #6c757d);
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Mobile Responsive for Modals */
+@media (max-width: 768px) {
+  .modal-content,
+  .welcome-content,
+  .registration-modal {
+    width: 95%;
+    margin: 1rem;
+    border-radius: 15px;
+  }
+  
+  .welcome-header {
+    padding: 1.5rem 1.5rem 1rem;
+  }
+  
+  .welcome-header h3 {
+    font-size: 1.3rem;
+  }
+  
+  .welcome-body {
+    padding: 1.5rem;
+  }
+  
+  .welcome-body p {
+    font-size: 1rem;
+  }
+  
+  .welcome-actions {
+    padding: 1rem 1.5rem 1.5rem;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .btn-continue,
+  .btn-register {
+    width: 100%;
+    max-width: 200px;
+  }
+  
+  .modal-header {
+    padding: 1rem 1.5rem;
+  }
+  
+  .modal-body {
+    padding: 1.5rem;
+  }
+  
+  .modal-footer {
+    padding: 1rem 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-content,
+  .welcome-content,
+  .registration-modal {
+    width: 98%;
+    margin: 10px;
+    border-radius: 12px;
+  }
+}
