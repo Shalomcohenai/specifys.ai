@@ -180,6 +180,38 @@ Output will be in `_site/` directory.
 
 ---
 
+## 🖥️ Backend Server
+
+The site requires a backend server for API endpoints (user entitlements, spec creation, chat features).
+
+### Start the Backend Server
+
+```bash
+cd backend
+./start-server.sh
+```
+
+Or manually:
+```bash
+cd backend
+node server.js
+```
+
+The backend runs on: http://localhost:3001
+
+### Backend API Endpoints
+
+- `GET /api/status` - Server status
+- `GET /api/specs/entitlements` - Get user entitlements (credits)
+- `POST /api/specs/create` - Create new specification
+- `POST /api/specs/check-edit` - Check edit permissions
+- `POST /api/chat/init` - Initialize chat for a spec
+- `POST /api/chat/message` - Send chat message
+
+**Important:** Make sure the backend server is running when testing user features like viewing credits or creating specs!
+
+---
+
 ## 🔐 Firebase
 
 Firebase Authentication is integrated and working:

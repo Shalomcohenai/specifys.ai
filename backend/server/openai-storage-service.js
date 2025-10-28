@@ -225,6 +225,27 @@ If something is not in the spec, say so clearly.`,
   }
 
   /**
+   * Delete an assistant from OpenAI
+   * @param {string} assistantId - Assistant ID
+   * @returns {Promise<boolean>} Success status
+   */
+  async deleteAssistant(assistantId) {
+    try {
+      const response = await fetch(`${this.baseURL}/assistants/${assistantId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${this.apiKey}`,
+          'OpenAI-Beta': 'assistants=v2'
+        }
+      });
+      return response.ok;
+    } catch (error) {
+      console.error('Error deleting assistant:', error);
+      return false;
+    }
+  }
+
+  /**
    * Generate diagrams for a specification
    * @param {string} specData - Full spec data object
    * @returns {Promise<Array>} Array of diagram objects

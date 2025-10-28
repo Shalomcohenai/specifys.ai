@@ -71,6 +71,49 @@ router.post('/init', verifyFirebaseToken, async (req, res) => {
           uploadError: uploadError.message
         });
       }
+    } else {
+      // Check if spec has been updated since last upload
+      const uploadTimestamp = specData.openaiUploadTimestamp?.toMillis ? specData.openaiUploadTimestamp.toMillis() : 0;
+      const specUpdatedTimestamp = specData.updatedAt?.toMillis ? specData.updatedAt.toMillis() : 0;
+      
+      // If spec was updated after upload, re-upload it
+      if (specUpdatedTimestamp > uploadTimestamp) {
+        console.log(`Spec ${specId} was updated after OpenAI upload. Re-uploading...`);
+        
+        try {
+          // Delete old file from OpenAI
+          await openaiStorage.deleteFile(specData.openaiFileId);
+          console.log(`Deleted old OpenAI file ${specData.openaiFileId}`);
+          
+          // Upload updated spec
+          const newFileId = await openaiStorage.uploadSpec(specId, specData);
+          
+          // Update Firebase
+          await db.collection('specs').doc(specId).update({
+            openaiFileId: newFileId,
+            openaiUploadTimestamp: admin.firestore.FieldValue.serverTimestamp()
+          });
+          
+          // Delete old assistant if exists (we'll create a new one)
+          if (specData.openaiAssistantId) {
+            console.log(`Deleting old assistant ${specData.openaiAssistantId}`);
+            await openaiStorage.deleteAssistant(specData.openaiAssistantId);
+            // Reset assistant ID so it will be recreated below
+            specData.openaiAssistantId = null;
+          }
+          
+          specData.openaiFileId = newFileId;
+          console.log(`Successfully re-uploaded spec ${specId} to OpenAI`);
+          
+        } catch (uploadError) {
+          console.error(`Failed to re-upload spec ${specId}:`, uploadError.message);
+          return res.status(400).json({ 
+            error: 'Failed to update OpenAI file',
+            needsUpload: true,
+            uploadError: uploadError.message
+          });
+        }
+      }
     }
     
     // Create assistant if not exists

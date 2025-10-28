@@ -66,11 +66,15 @@ Target Audience: ${targetAudience}`;
   },
 
   // Technical specification prompt - generates detailed technical specs
-  technical: (overviewContent, answers) => {
+  technical: (specId, answers) => {
     const appDescription = answers[0] || 'Not provided';
     const workflow = answers[1] || 'Not provided';
     const additionalDetails = answers[2] || 'Not provided';
     const targetAudience = answers[3] || 'Not provided';
+
+    // Determine if using reference or full content
+    const isReference = typeof specId === 'string' && specId.length < 100;
+    const overviewContent = isReference ? null : specId;
 
     return `Return ONLY valid JSON (no text/markdown). Top-level key MUST be technical. If a value is unknown, return an empty array/object—never omit required keys.
 
@@ -175,7 +179,10 @@ IMPORTANT FOR API ENDPOINTS:
 - Example of good responseBody: "Returns JSON with fields: { \\"userId\\": 123, \\"status\\": \\"success\\" }"
 
 Application Overview:
-${overviewContent}
+${isReference ? `[SPEC_REFERENCE]
+Spec ID: ${specId}
+Overview Location: Firebase > specs collection > ${specId} > overview field
+Note: The system will retrieve the full overview content automatically. Use this reference to access the complete application overview details.` : overviewContent}
 
 User Input:
 App Description: ${appDescription}
@@ -185,11 +192,15 @@ Target Audience: ${targetAudience}`;
   },
 
   // Market research prompt - generates market analysis
-  market: (overviewContent, answers) => {
+  market: (specId, answers) => {
     const appDescription = answers[0] || 'Not provided';
     const workflow = answers[1] || 'Not provided';
     const additionalDetails = answers[2] || 'Not provided';
     const targetAudience = answers[3] || 'Not provided';
+
+    // Determine if using reference or full content
+    const isReference = typeof specId === 'string' && specId.length < 100;
+    const overviewContent = isReference ? null : specId;
 
     return `Return ONLY valid JSON (no text/markdown). Top-level key MUST be market. If a value is unknown, return an empty array/object—never omit required keys.
 
@@ -405,7 +416,10 @@ Create detailed market analysis. Return JSON with market key containing:
 IMPORTANT: The searchTrends.historicalData should include at least 3 months of data with consistent formatting to enable easy chart/graph visualization.
 
 Application Overview:
-${overviewContent}
+${isReference ? `[SPEC_REFERENCE]
+Spec ID: ${specId}
+Overview Location: Firebase > specs collection > ${specId} > overview field
+Note: The system will retrieve the full overview content automatically. Use this reference to access the complete application overview details.` : overviewContent}
 
 User Input:
 App Description: ${appDescription}
@@ -415,11 +429,15 @@ Target Audience: ${targetAudience}`;
   },
 
   // Design & Branding prompt - generates design guidelines and branding
-  design: (overviewContent, answers) => {
+  design: (specId, answers) => {
     const appDescription = answers[0] || 'Not provided';
     const workflow = answers[1] || 'Not provided';
     const additionalDetails = answers[2] || 'Not provided';
     const targetAudience = answers[3] || 'Not provided';
+
+    // Determine if using reference or full content
+    const isReference = typeof specId === 'string' && specId.length < 100;
+    const overviewContent = isReference ? null : specId;
 
     return `Return ONLY valid JSON (no text/markdown). Top-level key MUST be design. If a value is unknown, return an empty array/object—never omit required keys.
 
@@ -502,7 +520,10 @@ CRITICAL TYPOGRAPHY REQUIREMENTS:
 Make sure all descriptions are clear and actionable for designers and developers.
 
 Application Overview:
-${overviewContent}
+${isReference ? `[SPEC_REFERENCE]
+Spec ID: ${specId}
+Overview Location: Firebase > specs collection > ${specId} > overview field
+Note: The system will retrieve the full overview content automatically. Use this reference to access the complete application overview details.` : overviewContent}
 
 User Input:
 App Description: ${appDescription}

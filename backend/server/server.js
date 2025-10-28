@@ -182,11 +182,80 @@ app.post('/api/generate-spec', async (req, res) => {
   }
 });
 
+// Repair diagram endpoint
+app.post('/api/diagrams/repair', async (req, res) => {
+  console.log('Received diagram repair request:', req.body);
+  
+  const { overview, technical, market, diagramTitle, brokenDiagramCode } = req.body;
+  
+  if (!brokenDiagramCode) {
+    return res.status(400).json({ error: 'Broken diagram code is required' });
+  }
+  
+  try {
+    const OpenAI = require('openai');
+    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    
+    // Build context from spec
+    const specContext = `
+## Specification Context:
+${overview ? `**Overview:**\n${overview}\n\n` : ''}
+${technical ? `**Technical Specs:**\n${technical}\n\n` : ''}
+${market ? `**Market Research:**\n${market}\n\n` : ''}
+`;
+    
+    // Create a prompt to repair the diagram
+    const systemPrompt = `You are a Mermaid diagram expert. Your task is to fix broken Mermaid diagrams.
+
+When given a broken Mermaid diagram code, analyze it and create a corrected version that:
+1. Follows proper Mermaid syntax
+2. Accurately represents the information from the specification context provided
+3. Is complete and renderable
+
+Return ONLY valid Mermaid code, nothing else.`;
+    
+    const userPrompt = `The following Mermaid diagram is broken:\n\n\`\`\`mermaid\n${brokenDiagramCode}\n\`\`\`\n\nContext:\n${specContext}\n\nTitle: ${diagramTitle}\n\nPlease provide a corrected version of this diagram.`;
+    
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt }
+      ],
+      temperature: 0.3,
+      max_tokens: 2000
+    });
+    
+    const repairedCode = completion.choices[0].message.content.trim();
+    
+    // Clean up the response (remove any markdown code blocks)
+    let cleanedCode = repairedCode;
+    if (repairedCode.startsWith('```mermaid')) {
+      cleanedCode = repairedCode.replace(/```mermaid\n?/, '').replace(/```\n?$/, '').trim();
+    } else if (repairedCode.startsWith('```')) {
+      cleanedCode = repairedCode.replace(/```\n?/, '').replace(/```\n?$/, '').trim();
+    }
+    
+    console.log('✅ Diagram repaired successfully');
+    res.json({ 
+      success: true,
+      repairedDiagram: {
+        mermaidCode: cleanedCode
+      }
+    });
+    
+  } catch (error) {
+    console.error('Error repairing diagram:', error.message);
+    res.status(500).json({ error: 'Failed to repair diagram' });
+  }
+});
+
 console.log('Attempting to start server on port', port);
 app.listen(port, () => {
   console.log(`🚀 Server running on port ${port}`);
   console.log(`📝 Feedback endpoint available at: http://localhost:${port}/api/feedback`);
   console.log(`🔧 Generate spec endpoint available at: http://localhost:${port}/api/generate-spec`);
+  console.log(`🔧 Diagram repair endpoint available at: http://localhost:${port}/api/diagrams/repair`);
   
   // Check configuration
   if (!process.env.EMAIL_USER || !process.env.EMAIL_APP_PASSWORD) {

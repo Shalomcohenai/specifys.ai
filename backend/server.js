@@ -31,6 +31,7 @@ app.use((req, res, next) => {
     'http://localhost:3000',
     'http://localhost:4000',
     'http://localhost:8080',
+    'http://localhost:10000',
     'http://127.0.0.1:3000',
     'http://127.0.0.1:4000',
     'https://specifys-ai.com'
@@ -39,13 +40,15 @@ app.use((req, res, next) => {
   if (allowedOrigins.includes(origin)) {
     res.header('Access-Control-Allow-Origin', origin);
   }
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Bearer');
+  res.header('Access-Control-Expose-Headers', 'Authorization');
   res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Max-Age', '86400'); // 24 hours
   
   // Handle preflight requests
   if (req.method === 'OPTIONS') {
-    return res.sendStatus(200);
+    return res.status(200).end();
   }
   next();
 });
