@@ -19,12 +19,14 @@
   <title>specifys.ai - NoCode Creators Result</title>
   <link rel="icon" type="image/x-icon" href="../favicon.ico">
   <link rel="stylesheet" href="../assets/css/main.css">
+  <link rel="stylesheet" href="../assets/css/diagrams.css">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
   <script defer src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/marked@9.1.6/marked.min.js"></script>
+  <script defer src="../assets/js/diagram-manager.js"></script>
   
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -1444,7 +1446,7 @@
       }
 
       // Function to display the actual content
-      function displayContent() {
+      async function displayContent() {
         console.log("Displaying content:", fullContent);
 
         const resultDiv = document.createElement("div");
@@ -1453,83 +1455,33 @@
         resultDiv.innerHTML = marked.parse(fullContent);
         hljs.highlightAll();
         
-        // Initialize Mermaid diagrams after markdown parsing
-        if (typeof mermaid !== 'undefined') {
-          console.log('Mermaid available, initializing diagrams...');
+        // Use new Diagram Manager for rendering diagrams
+        if (window.diagramManager) {
+          console.log('📊 Using Diagram Manager to render diagrams...');
           try {
-            mermaid.initialize({ 
-              startOnLoad: false,
-              theme: 'default',
-              flowchart: { useMaxWidth: true },
-              sequence: { useMaxWidth: true },
-              gantt: { useMaxWidth: true }
-            });
+            const results = await window.diagramManager.renderAllDiagrams(resultDiv);
+            console.log(`📊 Diagrams rendered: ${results.successful} successful, ${results.failed} failed out of ${results.total} total`);
             
-            // Find all mermaid code blocks and render them
-            const mermaidBlocks = resultDiv.querySelectorAll('pre code.language-mermaid, pre code[class*="mermaid"]');
-            console.log(`Found ${mermaidBlocks.length} mermaid blocks`);
-            
-            // Also look for text content that contains mermaid diagrams
-            const allPreBlocks = resultDiv.querySelectorAll('pre code');
-            let mermaidTextBlocks = [];
-            
-            allPreBlocks.forEach(block => {
-              const text = block.textContent.trim();
-              if (text.includes('erDiagram') || text.includes('flowchart') || text.includes('sequenceDiagram') || text.includes('gantt') || text.includes('pie') || text.includes('gitgraph')) {
-                mermaidTextBlocks.push(block);
-              }
-            });
-            
-            // Also look for mermaid diagrams in regular text content
-            const allTextContent = resultDiv.textContent;
-            const mermaidMatches = allTextContent.match(/```mermaid\s*([\s\S]*?)```/g);
-            if (mermaidMatches) {
-              mermaidMatches.forEach((match, index) => {
-                const mermaidCode = match.replace(/```mermaid\s*/, '').replace(/```$/, '').trim();
-                if (mermaidCode) {
-                  // Create a fake block element for processing
-                  const fakeBlock = {
-                    textContent: mermaidCode,
-                    parentElement: resultDiv
-                  };
-                  mermaidTextBlocks.push(fakeBlock);
-                }
-              });
+            // Show statistics if there were failures
+            if (results.failed > 0) {
+              const statsDiv = document.createElement('div');
+              statsDiv.className = 'diagram-stats';
+              statsDiv.innerHTML = `
+                <span>Diagrams: </span>
+                <span class="diagram-stats-success">${results.successful} ✓</span>
+                <span class="diagram-stats-failed">${results.failed} ✗</span>
+                <span class="diagram-stats-total">of ${results.total} total</span>
+              `;
+              resultDiv.insertBefore(statsDiv, resultDiv.firstChild);
             }
-            
-            console.log(`Found ${mermaidTextBlocks.length} additional mermaid text blocks`);
-            
-            // Process both types of blocks
-            const allMermaidBlocks = [...mermaidBlocks, ...mermaidTextBlocks];
-            
-            allMermaidBlocks.forEach((block, index) => {
-              console.log(`Rendering mermaid block ${index + 1}`);
-              try {
-                const mermaidDiv = document.createElement('div');
-                mermaidDiv.className = 'mermaid';
-                mermaidDiv.textContent = block.textContent;
-                block.parentElement.replaceWith(mermaidDiv);
-                
-                mermaid.render(`mermaid-${Date.now()}-${index}`, block.textContent).then(({ svg }) => {
-                  mermaidDiv.innerHTML = svg;
-                  console.log(`Mermaid block ${index + 1} rendered successfully`);
-                }).catch((mermaidError) => {
-                  console.error(`Error rendering mermaid block ${index + 1}:`, mermaidError);
-                  mermaidDiv.innerHTML = `<div class="mermaid-error">Error rendering diagram: ${mermaidError.message}</div>`;
-                });
-              } catch (blockError) {
-                console.error(`Error processing mermaid block ${index + 1}:`, blockError);
-              }
-            });
-            
-          } catch (mermaidError) {
-            console.error('Mermaid initialization failed:', mermaidError);
+          } catch (error) {
+            console.error('❌ Diagram Manager error:', error);
           }
-          } else {
-          console.log('Mermaid not available, skipping diagram rendering');
+        } else {
+          console.warn('⚠️ Diagram Manager not available, skipping diagram rendering');
         }
         
-          platformContainer.style.display = "block";
+        platformContainer.style.display = "block";
         chatContainer.scrollTop = chatContainer.scrollHeight;
       }
 

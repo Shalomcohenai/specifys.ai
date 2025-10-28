@@ -1,0 +1,258 @@
+/**
+ * Diagram Styles - Specifys.ai
+ * Clean and professional styling for Mermaid diagrams
+ */
+
+/* Diagram Container */
+.mermaid-diagram-container {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    background: var(--bg-primary, #ffffff);
+    border-radius: var(--border-radius-lg, 12px);
+    border: 2px solid var(--border-color, #e0e0e0);
+    overflow-x: auto;
+    overflow-y: hidden;
+    transition: all 0.3s ease;
+}
+
+.mermaid-diagram-container:hover {
+    border-color: var(--primary-color, #0078d4);
+    box-shadow: 0 4px 12px rgba(0, 120, 212, 0.1);
+}
+
+/* Diagram SVG */
+.mermaid-diagram-container svg {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}
+
+/* Diagram Loading State */
+.diagram-loading {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: var(--text-secondary, #666);
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+/* Diagram Error Container */
+.diagram-error {
+    text-align: center;
+    padding: 2rem;
+    background: linear-gradient(135deg, #fff5f5 0%, #ffe5e5 100%);
+    border-radius: var(--border-radius-md, 8px);
+    border: 2px solid #ffcccc;
+}
+
+.diagram-error-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    75% { transform: translateX(10px); }
+}
+
+.diagram-error-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #d32f2f;
+    margin-bottom: 0.75rem;
+}
+
+.diagram-error-message {
+    font-size: 0.95rem;
+    color: #666;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+.diagram-error-help {
+    font-size: 0.875rem;
+    color: #999;
+    font-style: italic;
+    margin-top: 1rem;
+}
+
+/* Retry Button */
+.diagram-retry-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: var(--primary-color, #0078d4);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius-md, 8px);
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 120, 212, 0.2);
+}
+
+.diagram-retry-btn:hover {
+    background: var(--primary-hover, #005ea2);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 120, 212, 0.3);
+}
+
+.diagram-retry-btn:active {
+    transform: translateY(0);
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .mermaid-diagram-container {
+        background: #2a2a2a;
+        border-color: #444;
+    }
+
+    .mermaid-diagram-container:hover {
+        border-color: #0078d4;
+        box-shadow: 0 4px 12px rgba(0, 120, 212, 0.3);
+    }
+
+    .diagram-loading {
+        color: #aaa;
+    }
+
+    .diagram-error {
+        background: linear-gradient(135deg, #3a1f1f 0%, #4a2020 100%);
+        border-color: #5a3030;
+    }
+
+    .diagram-error-title {
+        color: #ff6b6b;
+    }
+
+    .diagram-error-message {
+        color: #ccc;
+    }
+
+    .diagram-error-help {
+        color: #888;
+    }
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .mermaid-diagram-container {
+        margin: 1.5rem 0;
+        padding: 1rem;
+    }
+
+    .diagram-error {
+        padding: 1.5rem 1rem;
+    }
+
+    .diagram-error-icon {
+        font-size: 2.5rem;
+    }
+
+    .diagram-error-title {
+        font-size: 1.1rem;
+    }
+
+    .diagram-error-message {
+        font-size: 0.875rem;
+    }
+
+    .diagram-retry-btn {
+        padding: 0.625rem 1.25rem;
+        font-size: 0.875rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .mermaid-diagram-container {
+        margin: 1rem 0;
+        padding: 0.75rem;
+        border-radius: 8px;
+    }
+
+    .diagram-error {
+        padding: 1rem 0.75rem;
+    }
+
+    .diagram-error-icon {
+        font-size: 2rem;
+    }
+
+    .diagram-error-title {
+        font-size: 1rem;
+    }
+
+    .diagram-error-message {
+        font-size: 0.8125rem;
+    }
+
+    .diagram-retry-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Animation for diagram appearance */
+.mermaid-diagram-container {
+    animation: fadeInScale 0.5s ease-out;
+}
+
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Mermaid specific overrides */
+.mermaid-diagram-container .mermaid {
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    text-align: center;
+}
+
+.mermaid-diagram-container pre {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+/* Diagram Statistics Badge (for debugging) */
+.diagram-stats {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: var(--bg-secondary, #f5f5f5);
+    border-radius: var(--border-radius-sm, 6px);
+    font-size: 0.875rem;
+    color: var(--text-secondary, #666);
+    margin: 1rem 0;
+}
+
+.diagram-stats-success {
+    color: #28a745;
+    font-weight: 600;
+}
+
+.diagram-stats-failed {
+    color: #dc3545;
+    font-weight: 600;
+}
+
+.diagram-stats-total {
+    color: var(--text-primary, #333);
+    font-weight: 600;
+}
