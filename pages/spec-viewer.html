@@ -51,22 +51,9 @@
     
     <!-- Custom Icon Styles -->
     <style>
-      .fa {
-        color: #333333 !important;
-        margin-right: 8px;
-      }
-      
       /* Orange icons for generated tabs */
       .tab-button.generated .fa {
         color: #FF6B35 !important;
-      }
-      
-      /* Ensure header alignment */
-      .header-right {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        justify-content: flex-end;
       }
     </style>
     
@@ -810,13 +797,27 @@ function displaySpec(data) {
     
     // Handle approval state
     if (data.overviewApproved) {
-        enableAllTabs();
-        hideApproveButton();
+        // Enable AI Chat immediately when overview is approved
+        enableChatTabOnly();
         
-        // Show generate diagrams button if technical spec is ready
+        // Only enable other tabs if their specs are ready
         if (data.status?.technical === 'ready') {
+            document.getElementById('technicalTab').disabled = false;
+        }
+        if (data.status?.market === 'ready') {
+            document.getElementById('marketTab').disabled = false;
+        }
+        if (data.status?.design === 'ready') {
+            document.getElementById('designTab').disabled = false;
+        }
+        
+        // Enable diagrams only if both technical and market are ready
+        if (data.status?.technical === 'ready' && data.status?.market === 'ready') {
+            document.getElementById('diagramsTab').disabled = false;
             document.getElementById('generateDiagramsBtn').style.display = 'inline-block';
         }
+        
+        hideApproveButton();
     } else {
         showApproveButton();
         disableTechnicalTabs();
@@ -3433,11 +3434,18 @@ function enableAllTabs() {
     enableChatTab();
 }
 
+function enableChatTabOnly() {
+    // Enable AI Chat tab immediately after overview approval
+    // without waiting for other specs to be generated
+    enableChatTab();
+}
+
 function disableTechnicalTabs() {
     document.getElementById('technicalTab').disabled = true;
     document.getElementById('marketTab').disabled = true;
     document.getElementById('designTab').disabled = true;
     document.getElementById('diagramsTab').disabled = true;
+    // Note: AI Chat tab is NOT disabled here - it stays enabled after overview approval
 }
 
 function showApproveButton() {
@@ -3575,6 +3583,9 @@ async function approveOverview() {
         currentSpecData.status.market = "generating";
         currentSpecData.status.design = "generating";
         
+        // Enable AI Chat immediately after overview approval
+        enableChatTabOnly();
+        
         // Update UI
         updateTabLoadingState('technical', true);
         updateTabLoadingState('market', true);
@@ -3599,6 +3610,18 @@ async function approveOverview() {
         currentSpecData.status.technical = technicalContent === 'error' ? "error" : "ready";
         updateStatus('technical', currentSpecData.status.technical);
         updateTabLoadingState('technical', false);
+        
+        // Enable Technical tab when ready
+        if (technicalContent !== 'error') {
+            document.getElementById('technicalTab').disabled = false;
+            
+            // If Market is also ready, enable Diagrams tab
+            if (currentSpecData.status.market === 'ready') {
+                document.getElementById('diagramsTab').disabled = false;
+                document.getElementById('generateDiagramsBtn').style.display = 'inline-block';
+            }
+        }
+        
         displayTechnical(technicalContent);
         
         if (technicalContent !== 'error') {
@@ -3651,6 +3674,18 @@ async function approveOverview() {
         currentSpecData.status.market = marketContent === 'error' ? "error" : "ready";
         updateStatus('market', currentSpecData.status.market);
         updateTabLoadingState('market', false);
+        
+        // Enable Market tab when ready
+        if (marketContent !== 'error') {
+            document.getElementById('marketTab').disabled = false;
+            
+            // If Technical is also ready, enable Diagrams tab
+            if (currentSpecData.status.technical === 'ready') {
+                document.getElementById('diagramsTab').disabled = false;
+                document.getElementById('generateDiagramsBtn').style.display = 'inline-block';
+            }
+        }
+        
         displayMarket(marketContent);
         
         if (marketContent !== 'error') {
@@ -3703,6 +3738,12 @@ async function approveOverview() {
         currentSpecData.status.design = designContent === 'error' ? "error" : "ready";
         updateStatus('design', currentSpecData.status.design);
         updateTabLoadingState('design', false);
+        
+        // Enable Design tab when ready
+        if (designContent !== 'error') {
+            document.getElementById('designTab').disabled = false;
+        }
+        
         displayDesign(designContent);
         
         if (designContent !== 'error') {
@@ -3748,11 +3789,11 @@ async function approveOverview() {
             localStorage.setItem(`specBackup_${currentSpecData.id}`, JSON.stringify(currentSpecData));
         }
         
-        enableAllTabs();
         hideApproveButton();
         
-        // Show generate diagrams button if technical spec is ready
-        if (currentSpecData.status.technical === 'ready') {
+        // Enable Diagrams tab only if both technical and market are ready
+        if (currentSpecData.status.technical === 'ready' && currentSpecData.status.market === 'ready') {
+            document.getElementById('diagramsTab').disabled = false;
             document.getElementById('generateDiagramsBtn').style.display = 'inline-block';
         }
         
@@ -3787,7 +3828,6 @@ async function approveOverview() {
         displayMarket('error');
         displayDesign('error');
         
-        enableAllTabs();
         hideApproveButton();
         
     } finally {
