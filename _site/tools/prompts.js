@@ -466,6 +466,7 @@ Create comprehensive design guidelines and branding elements. Return JSON with d
 }
 
 CRITICAL COLOR REQUIREMENTS:
+- ABSOLUTELY CRITICAL: All 4-5 colors MUST be from the SAME tone/shade/family - NO mixing of clashing colors (e.g., NO green+blue+yellow together, NO red+green+blue together)
 - Colors MUST be contextual to the app type and target audience:
   - Professional/B2B apps: Trust-building blues, professional grays
   - Health/Medical apps: Calming greens, tranquil blues
@@ -480,15 +481,23 @@ CRITICAL COLOR REQUIREMENTS:
 - Colors must be harmonious and coherent (use either monochromatic scheme with variations of the same tone, or analogous/complementary scheme with maximum 2 tones)
 
 CRITICAL TYPOGRAPHY REQUIREMENTS:
-- Fonts MUST be selected based on app context:
-  - Professional apps: Clean, readable sans-serif (Inter, Roboto, Helvetica)
-  - Creative apps: Distinctive display fonts for brand identity
-  - Editorial/Content apps: Serif fonts for readability (Merriweather, Georgia)
-  - Technical apps: Monospace options for code/data
-  - Luxury brands: Elegant, refined typefaces
-  - Youth-oriented apps: Playful, modern fonts
-- Include specific font recommendations with reasoning for each app type
-- Typography should match the app's personality and enhance readability
+- ABSOLUTELY CRITICAL: Typography MUST complement and enhance the color palette - DO NOT default to Roboto or generic fonts without considering color harmony
+- Font choice MUST create visual harmony with the chosen colors:
+  - Warm colors (browns, oranges, yellows) → warm fonts like Playfair Display, Merriweather
+  - Cool colors (blues, teals, grays) → sleek fonts like Inter, Poppins, Work Sans
+  - Vibrant colors → bold fonts like Montserrat, Oswald
+  - Soft colors → friendly fonts like Nunito, Lato
+  - Deep/rich colors → sophisticated fonts like Cormorant, Lora
+  - Neutral colors → clean fonts like Space Grotesk, Atlas Grotesk
+- Fonts MUST be selected based on app context AND color mood:
+  - Professional apps: Clean, readable sans-serif (Inter, Work Sans, Roboto ONLY if it matches the color mood)
+  - Creative apps: Distinctive display fonts that enhance the color personality
+  - Editorial/Content apps: Serif fonts for readability (Merriweather, Georgia, Lora) matching color warmth
+  - Technical apps: Monospace options for code/data, still chosen to complement colors
+  - Luxury brands: Elegant, refined typefaces that enhance color sophistication
+  - Youth-oriented apps: Playful, modern fonts matching color energy
+- Include specific font recommendations with reasoning for each app type AND how they work with the color palette
+- Typography should match the app's personality AND create visual harmony with the chosen colors
 
 Make sure all descriptions are clear and actionable for designers and developers.
 

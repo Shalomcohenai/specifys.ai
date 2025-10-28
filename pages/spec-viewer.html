@@ -5735,7 +5735,7 @@ async function generateDiagrams() {
         generateBtn.disabled = true;
         generateBtn.textContent = 'Generating Diagrams...';
         
-        console.log('Starting diagram generation using memory-based API...');
+        // Starting diagram generation...
         
         // Check if technical spec exists
         if (!currentSpecData.technical || currentSpecData.technical === 'error') {
@@ -5896,8 +5896,10 @@ async function renderSingleDiagram(diagramData, containerId, isRefresh = false) 
         return;
     }
     
-    const statusIndicator = container.parentElement.querySelector('.status-indicator');
-    const statusText = container.parentElement.querySelector('.status-text');
+    // Get parent element BEFORE clearing container
+    const parentElement = container.parentElement;
+    const statusIndicator = parentElement?.querySelector('.status-indicator');
+    const statusText = parentElement?.querySelector('.status-text');
 
     try {
         // Validate Mermaid code before rendering
@@ -5918,26 +5920,29 @@ async function renderSingleDiagram(diagramData, containerId, isRefresh = false) 
         // Initialize Mermaid
         if (typeof mermaid !== 'undefined') {
             await mermaid.init(undefined, mermaidElement);
-            statusIndicator.className = 'status-indicator ready';
-            statusText.textContent = 'Ready';
+            if (statusIndicator) statusIndicator.className = 'status-indicator ready';
+            if (statusText) statusText.textContent = 'Ready';
             console.log(`✅ Diagram ${diagramData.id} rendered successfully`);
         } else {
             // Fallback: show raw code if Mermaid not available
             container.innerHTML = `<pre style="background: #f8f9fa; padding: 20px; border-radius: 4px; overflow-x: auto;">${diagramData.mermaidCode}</pre>`;
-            statusIndicator.className = 'status-indicator ready';
-            statusText.textContent = 'Ready (Raw)';
+            if (statusIndicator) statusIndicator.className = 'status-indicator ready';
+            if (statusText) statusText.textContent = 'Ready (Raw)';
             console.log(`✅ Diagram ${diagramData.id} displayed as raw code`);
         }
 
     } catch (error) {
         console.error(`Error rendering diagram ${diagramData.id}:`, error);
-        statusIndicator.className = 'status-indicator error';
-        statusText.textContent = 'Error';
+        if (statusIndicator) statusIndicator.className = 'status-indicator error';
+        if (statusText) statusText.textContent = 'Error';
         container.innerHTML = `
             <div class="diagram-error">
                 <h4><i class="fa fa-exclamation-triangle"></i> Rendering Error</h4>
                 <p>Failed to render diagram: ${error.message}</p>
-                <pre style="background: #f8f9fa; padding: 10px; margin-top: 10px; border-radius: 4px; max-height: 200px; overflow-y: auto;">${diagramData.mermaidCode}</pre>
+                <details style="margin-top: 10px;">
+                    <summary style="cursor: pointer; color: #666;">Show Mermaid code</summary>
+                    <pre style="background: #f8f9fa; padding: 10px; margin-top: 10px; border-radius: 4px; max-height: 200px; overflow-y: auto; font-size: 12px;">${diagramData.mermaidCode}</pre>
+                </details>
             </div>
         `;
     }
