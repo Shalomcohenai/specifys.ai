@@ -225,6 +225,146 @@ If something is not in the spec, say so clearly.`,
   }
 
   /**
+   * Generate diagrams for a specification
+   * @param {string} specData - Full spec data object
+   * @returns {Promise<Array>} Array of diagram objects
+   */
+  async generateDiagrams(specData) {
+    try {
+      // Extract technical and overview data
+      const technical = specData.technical || '';
+      const overview = specData.overview || '';
+      
+      // Create the diagrams prompt
+      const prompt = `Return ONLY valid JSON (no text/markdown). Top-level key MUST be diagrams. If a value is unknown, return an empty array/object—never omit required keys.
+
+Generate 6 Mermaid diagrams based on the technical specification. Return JSON with diagrams key containing an array of 6 diagram objects, each with:
+
+{
+  "diagrams": [
+    {
+      "id": "user_flow",
+      "type": "flowchart",
+      "title": "User Flow Diagram",
+      "description": "User journey through application screens and actions",
+      "mermaidCode": "Valid Mermaid flowchart syntax",
+      "status": "success"
+    },
+    {
+      "id": "system_architecture",
+      "type": "graph",
+      "title": "System Architecture Diagram",
+      "description": "Overall system structure, layers, servers, APIs, and communication",
+      "mermaidCode": "Valid Mermaid graph syntax",
+      "status": "success"
+    },
+    {
+      "id": "information_architecture",
+      "type": "graph",
+      "title": "Information System Architecture Diagram",
+      "description": "Information system including IO processes, integrations, and interfaces",
+      "mermaidCode": "Valid Mermaid graph syntax",
+      "status": "success"
+    },
+    {
+      "id": "data_schema",
+      "type": "erDiagram",
+      "title": "Data Schema Diagram (ERD)",
+      "description": "Entity structure, relationships, primary/foreign keys",
+      "mermaidCode": "Valid Mermaid erDiagram syntax",
+      "status": "success"
+    },
+    {
+      "id": "sequence",
+      "type": "sequenceDiagram",
+      "title": "Sequence Diagram",
+      "description": "Sequence of actions for specific events (login, purchase, etc.)",
+      "mermaidCode": "Valid Mermaid sequenceDiagram syntax",
+      "status": "success"
+    },
+    {
+      "id": "frontend_components",
+      "type": "graph",
+      "title": "Component Diagram (Frontend)",
+      "description": "Structure of main UI components, modules, and their relationships",
+      "mermaidCode": "Valid Mermaid graph syntax",
+      "status": "success"
+    }
+  ]
+}
+
+CRITICAL REQUIREMENTS:
+- All mermaidCode must be valid Mermaid syntax
+- Use proper node IDs and labels
+- Include appropriate styling and formatting
+- Ensure diagrams are comprehensive and detailed
+- Each diagram should be self-contained and meaningful
+
+Technical Specification:
+${technical}
+
+Application Overview:
+${overview}`;
+
+      // Call OpenAI API to generate diagrams
+      const response = await fetch(`${this.baseURL}/chat/completions`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${this.apiKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
+          messages: [
+            {
+              role: 'system',
+              content: 'You are a highly experienced software architect and technical diagram specialist. Generate detailed Mermaid diagrams.'
+            },
+            {
+              role: 'user',
+              content: prompt
+            }
+          ],
+          temperature: 0
+        })
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`OpenAI API error: ${errorText}`);
+      }
+
+      const data = await response.json();
+      const content = data.choices[0].message.content;
+
+      // Parse JSON response
+      let diagrams;
+      try {
+        // Try to parse as JSON
+        diagrams = JSON.parse(content);
+      } catch {
+        // If that fails, try to extract JSON from markdown code blocks
+        const jsonMatch = content.match(/```json\s*([\s\S]*?)\s*```/) || content.match(/```\s*([\s\S]*?)\s*```/);
+        if (jsonMatch) {
+          diagrams = JSON.parse(jsonMatch[1]);
+        } else {
+          throw new Error('Failed to parse diagrams JSON');
+        }
+      }
+
+      // Validate structure and return diagrams array
+      if (diagrams.diagrams && Array.isArray(diagrams.diagrams)) {
+        return diagrams.diagrams;
+      } else {
+        throw new Error('Invalid diagrams structure returned from API');
+      }
+    } catch (error) {
+      console.error('Error generating diagrams:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Send message and get response
    * @param {string} threadId - Thread ID
    * @param {string} assistantId - Assistant ID

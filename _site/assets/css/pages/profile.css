@@ -557,39 +557,43 @@
 }
 
 .progress-item.ready {
-    color: #28a745;
-    background: rgba(40, 167, 69, 0.1);
+    color: var(--text-color);
+    background: rgba(255, 107, 53, 0.1);
 }
 
-.progress-item.ready i {
-    color: #28a745;
+.progress-item.ready i,
+.progress-item.ready i.fa {
+    color: #FF6B35 !important;
 }
 
 .progress-item.in-progress {
-    color: #ffc107;
+    color: var(--text-color);
     background: rgba(255, 193, 7, 0.1);
 }
 
-.progress-item.in-progress i {
-    color: #ffc107;
+.progress-item.in-progress i,
+.progress-item.in-progress i.fa {
+    color: #ffc107 !important;
 }
 
 .progress-item.pending {
-    color: #6c757d;
+    color: var(--text-color);
     background: rgba(108, 117, 125, 0.1);
 }
 
-.progress-item.pending i {
-    color: #6c757d;
+.progress-item.pending i,
+.progress-item.pending i.fa {
+    color: #6c757d !important;
 }
 
 .progress-item.not-started {
-    color: #dc3545;
+    color: var(--text-color);
     background: rgba(220, 53, 69, 0.1);
 }
 
-.progress-item.not-started i {
-    color: #dc3545;
+.progress-item.not-started i,
+.progress-item.not-started i.fa {
+    color: #dc3545 !important;
 }
 
 .workspace-item-footer {
@@ -663,6 +667,12 @@
 .btn-icon.linked:hover {
     background: rgba(0, 123, 255, 0.2);
     color: #0056b3 !important;
+}
+
+/* Edit button icon styling */
+.btn-icon i.fa-edit,
+.btn-icon i.fa.fa-edit {
+    color: #FF6B35 !important;
 }
 
 /* Tabbed Section */

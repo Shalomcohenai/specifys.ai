@@ -1018,6 +1018,8 @@ document.addEventListener('DOMContentLoaded', function() {
                             title: data.title,
                             description: data.overview ? data.overview.substring(0, 100) + '...' : 'Complete specification with technical details',
                             overview: data.overview,
+                            technical: data.technical,
+                            market: data.market,
                             createdAt: data.createdAt,
                             updatedAt: data.updatedAt,
                             status: data.status,
@@ -1237,8 +1239,30 @@ document.addEventListener('DOMContentLoaded', function() {
                         { name: 'Launch', status: 'not-started' }
                     ];
                 } else if (item.type === 'new-spec') {
-                    // For spec-viewer specs, check actual status
+                    // For spec-viewer specs, check actual content exists
                     const status = item.status || {};
+                    
+                    // Check if overview exists and is not empty
+                    const hasOverview = item.overview !== undefined && 
+                                       item.overview !== null && 
+                                       item.overview !== '' &&
+                                       (typeof item.overview === 'string' ? item.overview.trim() !== '' : true);
+                    const overviewStatus = hasOverview ? 'ready' : 'pending';
+                    
+                    // Check if technical exists and is not empty
+                    const hasTechnical = item.technical !== undefined && 
+                                        item.technical !== null && 
+                                        item.technical !== '' &&
+                                        (typeof item.technical === 'string' ? item.technical.trim() !== '' : true);
+                    const technicalStatus = hasTechnical ? 'ready' : 'pending';
+                    
+                    // Check if market exists and is not empty
+                    const hasMarket = item.market !== undefined && 
+                                     item.market !== null && 
+                                     item.market !== '' &&
+                                     (typeof item.market === 'string' ? item.market.trim() !== '' : true);
+                    const marketStatus = hasMarket ? 'ready' : 'pending';
+                    
                     // Check if design exists in the spec data
                     const hasDesign = item.design !== undefined && item.design !== null;
                     const designStatus = hasDesign ? 'ready' : (status.design || 'pending');
@@ -1253,9 +1277,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     const diagramsStatus = hasDiagrams ? 'ready' : (status.diagrams || 'pending');
                     
                     progressItems = [
-                        { name: 'Overview', status: status.overview || 'ready' },
-                        { name: 'Technical', status: status.technical || 'pending' },
-                        { name: 'Market', status: status.market || 'pending' },
+                        { name: 'Overview', status: overviewStatus },
+                        { name: 'Technical', status: technicalStatus },
+                        { name: 'Market', status: marketStatus },
                         { name: 'Design', status: designStatus },
                         { name: 'Diagrams', status: diagramsStatus }
                     ];

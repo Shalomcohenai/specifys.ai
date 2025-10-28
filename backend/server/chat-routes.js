@@ -142,5 +142,52 @@ router.post('/message', verifyFirebaseToken, async (req, res) => {
   }
 });
 
+/**
+ * Generate diagrams for a specification
+ * POST /api/chat/diagrams/generate
+ */
+router.post('/diagrams/generate', verifyFirebaseToken, async (req, res) => {
+  try {
+    if (!openaiStorage) {
+      return res.status(503).json({ error: 'OpenAI not configured' });
+    }
+    
+    const { specId } = req.body;
+    const userId = req.user.uid;
+    
+    if (!specId) {
+      return res.status(400).json({ error: 'specId is required' });
+    }
+    
+    // Verify spec ownership
+    const specDoc = await db.collection('specs').doc(specId).get();
+    if (!specDoc.exists || specDoc.data().userId !== userId) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+    
+    const specData = specDoc.data();
+    
+    console.log(`Generating diagrams for spec ${specId} using OpenAI memory`);
+    
+    // Generate diagrams using OpenAI storage service
+    // This will extract technical and overview data and generate diagrams
+    const diagrams = await openaiStorage.generateDiagrams(specData);
+    
+    console.log(`Successfully generated ${diagrams.length} diagrams for spec ${specId}`);
+    
+    res.json({
+      success: true,
+      diagrams: diagrams
+    });
+    
+  } catch (error) {
+    console.error('Error generating diagrams:', error);
+    res.status(500).json({ 
+      error: 'Failed to generate diagrams',
+      details: error.message 
+    });
+  }
+});
+
 module.exports = router;
 
