@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     <meta name="theme-color" content="#000000">
-    <title>Specification Viewer - Specifys.ai</title>
+    <title>Specification Viewer - Specifys.ai (v2.0 - Optimized)</title>
     <meta name="description" content="Interactive specification viewer with approval workflow">
     <meta name="keywords" content="AI development tools, app specification generator, no-code platform, AI-powered planning, vibe coding, AI app builder, specification generator, market research tool, app planning tool, development tools, AI tools">
     <meta name="author" content="Specifys.ai">
@@ -42,6 +42,7 @@
     
     <!-- CSS -->
     <link rel="stylesheet" href="/assets/css/main.css">
+    <link rel="stylesheet" href="/assets/css/pages/spec-viewer.css">
     
     
     
@@ -53,6 +54,19 @@
       .fa {
         color: #333333 !important;
         margin-right: 8px;
+      }
+      
+      /* Orange icons for generated tabs */
+      .tab-button.generated .fa {
+        color: #FF6B35 !important;
+      }
+      
+      /* Ensure header alignment */
+      .header-right {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        justify-content: flex-end;
       }
     </style>
     
@@ -76,9 +90,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     
-    <!-- jsPDF for PDF export (used in research pages) -->
-    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    
     <!-- Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-RWBT69JCM7"></script>
 <script>
@@ -88,268 +99,9 @@
   gtag('config', 'G-RWBT69JCM7');
 </script>
 
+<!-- Analytics functions are available via includes/analytics-events.html -->
 
-    <script>
-// ========================================
-// SPEC-VIEWER PAGE - FONT AWESOME CLASSIC REGULAR
-// ========================================
-
-// Central Analytics Event Tracking System for Specifys.ai
-// This file contains reusable tracking functions for consistent analytics across the site
-
-// Check if gtag is available
-function isGtagAvailable() {
-  return typeof gtag !== 'undefined';
-}
-
-// Track button clicks with detailed categorization
-function trackButtonClick(buttonName, category, source, additionalData = {}) {
-  if (isGtagAvailable()) {
-    gtag('event', 'click', {
-      'event_category': category || 'Button Click',
-      'event_label': buttonName,
-      'event_source': source || 'unknown',
-      ...additionalData
-    });
-  }
-}
-
-// Track CTA (Call-to-Action) clicks
-function trackCTA(ctaName, location) {
-  if (isGtagAvailable()) {
-    gtag('event', 'cta_click', {
-      'event_category': 'CTA',
-      'event_label': ctaName,
-      'cta_location': location
-    });
-  }
-}
-
-// Track navigation events
-function trackNavigation(destination, source) {
-  if (isGtagAvailable()) {
-    gtag('event', 'navigation', {
-      'event_category': 'Navigation',
-      'event_label': destination,
-      'navigation_source': source
-    });
-  }
-}
-
-// Track tool usage
-function trackToolUsage(toolName, action) {
-  if (isGtagAvailable()) {
-    gtag('event', 'tool_usage', {
-      'event_category': 'Tools',
-      'event_label': toolName,
-      'tool_action': action
-    });
-  }
-}
-
-// Track form submissions
-function trackFormSubmit(formName, formType) {
-  if (isGtagAvailable()) {
-    gtag('event', 'form_submit', {
-      'event_category': 'Form',
-      'event_label': formName,
-      'form_type': formType
-    });
-  }
-}
-
-// Track user authentication events
-function trackAuthEvent(action, method) {
-  if (isGtagAvailable()) {
-    gtag('event', action, {
-      'event_category': 'Authentication',
-      'event_label': action,
-      'auth_method': method || 'email'
-    });
-  }
-}
-
-// Track downloads
-function trackDownload(fileName, fileType) {
-  if (isGtagAvailable()) {
-    gtag('event', 'download', {
-      'event_category': 'Downloads',
-      'event_label': fileName,
-      'file_type': fileType
-    });
-  }
-}
-
-// Track spec/result generations
-function trackGeneration(type, mode) {
-  if (isGtagAvailable()) {
-    gtag('event', 'generation_start', {
-      'event_category': 'Generation',
-      'event_label': type,
-      'generation_mode': mode
-    });
-  }
-}
-
-// Track generation completion
-function trackGenerationComplete(type, mode, success) {
-  if (isGtagAvailable()) {
-    gtag('event', 'generation_complete', {
-      'event_category': 'Generation',
-      'event_label': type,
-      'generation_mode': mode,
-      'success': success
-    });
-  }
-}
-
-// Track external link clicks
-function trackExternalLink(linkUrl, linkText) {
-  if (isGtagAvailable()) {
-    gtag('event', 'click', {
-      'event_category': 'External Link',
-      'event_label': linkText || linkUrl,
-      'link_url': linkUrl
-    });
-  }
-}
-
-// Track modal interactions
-function trackModal(modalName, action) {
-  if (isGtagAvailable()) {
-    gtag('event', 'modal_' + action, {
-      'event_category': 'Modal',
-      'event_label': modalName,
-      'modal_action': action
-    });
-  }
-}
-
-// Track FAQ interactions
-function trackFAQ(question, action) {
-  if (isGtagAvailable()) {
-    gtag('event', 'faq_' + action, {
-      'event_category': 'FAQ',
-      'event_label': question,
-      'faq_action': action
-    });
-  }
-}
-
-// Track search actions
-function trackSearch(searchTerm, searchType) {
-  if (isGtagAvailable()) {
-    gtag('event', 'search', {
-      'event_category': 'Search',
-      'search_term': searchTerm,
-      'search_type': searchType
-    });
-  }
-}
-
-// Track video/demo views
-function trackDemoView(demoName, viewDuration) {
-  if (isGtagAvailable()) {
-    gtag('event', 'demo_view', {
-      'event_category': 'Demo',
-      'event_label': demoName,
-      'view_duration': viewDuration
-    });
-  }
-}
-
-// Track user engagement time
-function trackEngagement(pageName, timeSpent) {
-  if (isGtagAvailable()) {
-    gtag('event', 'user_engagement', {
-      'event_category': 'Engagement',
-      'event_label': pageName,
-      'engagement_time_msec': timeSpent
-    });
-  }
-}
-
-// Track errors
-function trackError(errorType, errorMessage, errorLocation) {
-  if (isGtagAvailable()) {
-    gtag('event', 'error', {
-      'event_category': 'Error',
-      'event_label': errorType,
-      'error_message': errorMessage,
-      'error_location': errorLocation
-    });
-  }
-}
-
-// Track user preferences
-function trackPreference(preferenceName, preferenceValue) {
-  if (isGtagAvailable()) {
-    gtag('event', 'preference_change', {
-      'event_category': 'Preferences',
-      'event_label': preferenceName,
-      'preference_value': preferenceValue
-    });
-  }
-}
-
-// Track scroll depth
-let scrollDepthTracked = {25: false, 50: false, 75: false, 100: false};
-function initScrollTracking(pageName) {
-  window.addEventListener('scroll', function() {
-    const scrollPercent = Math.round((window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100);
-    
-    if (scrollPercent >= 25 && !scrollDepthTracked[25]) {
-      scrollDepthTracked[25] = true;
-      if (isGtagAvailable()) {
-        gtag('event', 'scroll', {
-          'event_category': 'Scroll Depth',
-          'event_label': pageName,
-          'scroll_depth': '25%'
-        });
-      }
-    }
-    if (scrollPercent >= 50 && !scrollDepthTracked[50]) {
-      scrollDepthTracked[50] = true;
-      if (isGtagAvailable()) {
-        gtag('event', 'scroll', {
-          'event_category': 'Scroll Depth',
-          'event_label': pageName,
-          'scroll_depth': '50%'
-        });
-      }
-    }
-    if (scrollPercent >= 75 && !scrollDepthTracked[75]) {
-      scrollDepthTracked[75] = true;
-      if (isGtagAvailable()) {
-        gtag('event', 'scroll', {
-          'event_category': 'Scroll Depth',
-          'event_label': pageName,
-          'scroll_depth': '75%'
-        });
-      }
-    }
-    if (scrollPercent >= 100 && !scrollDepthTracked[100]) {
-      scrollDepthTracked[100] = true;
-      if (isGtagAvailable()) {
-        gtag('event', 'scroll', {
-          'event_category': 'Scroll Depth',
-          'event_label': pageName,
-          'scroll_depth': '100%'
-        });
-      }
-    }
-  });
-}
-
-// Auto-initialize scroll tracking when DOM is ready
-document.addEventListener('DOMContentLoaded', function() {
-  const pageName = document.title || window.location.pathname;
-  initScrollTracking(pageName);
-});
-</script>
-
-
-    <!-- Structured Data (JSON-LD) for SEO -->
+<!-- Structured Data (JSON-LD) for SEO -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -432,139 +184,6 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
 </header>
 
-<style>
-/* Credits Display - Like user-info style */
-.credits-display {
-    display: flex;
-    align-items: center;
-    margin-right: 12px;
-}
-
-.credits-container {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 0.3rem 0.8rem;
-    background: rgba(102, 102, 102, 0.1);
-    border-radius: var(--border-radius-md);
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: all var(--transition-normal);
-}
-
-.credits-container:hover {
-    background: rgba(102, 102, 102, 0.2);
-    transform: translateY(-2px);
-}
-
-.credits-container i {
-    font-size: 14px;
-    color: #FF6B35;
-}
-
-.credits-container span {
-    font-weight: var(--font-weight-medium);
-    color: #FF6B35;
-    min-width: 20px;
-    text-align: center;
-}
-
-/* State variations - all use orange for pro, red for low */
-.credits-container.pro i,
-.credits-container.pro span {
-    color: #FF6B35;
-}
-
-.credits-container.low i,
-.credits-container.unlimited i,
-.credits-container.low span,
-.credits-container.unlimited span {
-    color: #ef4444;
-}
-
-/* Mobile adjustments */
-@media (max-width: 768px) {
-    .credits-display {
-        margin-right: 8px;
-    }
-    
-    .credits-container {
-        padding: 5px 10px;
-        font-size: 0.85rem;
-    }
-    
-    .credits-container i {
-        font-size: 12px;
-    }
-}
-
-@media (max-width: 480px) {
-    .credits-display {
-        margin-right: 6px;
-    }
-    
-    .credits-container {
-        padding: 4px 8px;
-        gap: 4px;
-    }
-}
-
-/* Page Intro Section */
-.page-intro-section {
-    max-width: 1400px;
-    margin: 100px auto 0;
-    padding: 40px 20px 30px;
-    text-align: center;
-}
-
-.page-title {
-    font-size: 2.5rem;
-    font-weight: 600;
-    color: #333;
-    margin-bottom: 16px;
-}
-
-.page-description {
-    font-size: 1.1rem;
-    color: #666;
-    line-height: 1.6;
-    max-width: 800px;
-    margin: 0 auto;
-}
-
-/* Responsive adjustments for intro section */
-@media (max-width: 768px) {
-    .page-intro-section {
-        margin-top: 80px;
-        padding: 30px 20px 20px;
-    }
-    
-    .page-title {
-        font-size: 2rem;
-    }
-    
-    .page-description {
-        font-size: 1rem;
-    }
-}
-
-@media (max-width: 480px) {
-    .page-intro-section {
-        margin-top: 70px;
-        padding: 25px 15px 15px;
-    }
-    
-    .page-title {
-        font-size: 1.75rem;
-        margin-bottom: 12px;
-    }
-    
-    .page-description {
-        font-size: 0.95rem;
-        line-height: 1.5;
-    }
-}
-</style>
 
 
     
@@ -814,1393 +433,8 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
 </div>
 
-<style>
-.container {
-    max-width: 1400px;
-    margin: 0 auto;
-    margin-top: 0px;
-    padding: 20px;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
+<script src="/tools/prompts.js"></script>
 
-.status-bar {
-    display: flex;
-    justify-content: center;
-    gap: 30px;
-    margin-bottom: 20px;
-    padding: 15px;
-    background: #f8f9fa;
-    border-radius: 8px;
-}
-
-.status-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 5px;
-}
-
-.status-label {
-    font-weight: 600;
-    color: #666;
-    font-size: 12px;
-    text-transform: uppercase;
-}
-
-.status-value {
-    padding: 4px 12px;
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: 600;
-    text-transform: uppercase;
-}
-
-.status-value.pending {
-    background: #fff3cd;
-    color: #856404;
-}
-
-.status-value.ready {
-    background: #d4edda;
-    color: #155724;
-}
-
-.status-value.error {
-    background: #f8d7da;
-    color: #721c24;
-}
-
-.status-value.firebase {
-    background: #28a745;
-    color: white;
-}
-
-.status-value.local {
-    background: #ffc107;
-    color: #212529;
-}
-
-.status-value.guest {
-    background: #6c757d;
-    color: white;
-}
-
-.tabs {
-    display: flex;
-    background: #f5f5f5;
-    border-radius: 12px;
-    padding: 6px;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-.tab-button {
-    background: transparent;
-    border: none;
-    padding: 12px 20px;
-    cursor: pointer;
-    font-family: var(--font-primary);
-    font-weight: 500;
-    font-size: 15px;
-    color: #666;
-    border-radius: 8px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex: 1;
-    position: relative;
-}
-
-.tab-button:hover:not(:disabled) {
-    background: rgba(255,255,255,0.7);
-    color: #333;
-    transform: translateY(-1px);
-}
-
-.tab-button.active {
-    background: white;
-    color: #333;
-    font-weight: 600;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-    transform: translateY(-1px);
-    animation: tabActivate 0.3s ease-out;
-}
-
-.tab-button:not(.active) {
-    color: #888;
-}
-
-.tab-button:not(.active) .fa {
-    color: #aaa;
-}
-
-.tab-button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-/* Tab animations removed - using notification system for feedback */
-
-.tab-button.success .fa {
-    color: #28a745;
-}
-
-.tab-button.error .fa {
-    color: #dc3545;
-}
-
-.tab-button.pending .fa {
-    color: #ffc107;
-}
-
-.approval-container {
-    background: #f8f9fa;
-    border-radius: 8px;
-    padding: 15px 20px;
-    margin-bottom: 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border: 1px solid #e0e0e0;
-}
-
-.approval-message {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    color: #666;
-    font-size: 14px;
-    flex: 1;
-}
-
-.approval-actions {
-    display: flex;
-    gap: 10px;
-}
-
-.overview-editor {
-    background: white;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 15px;
-    min-height: 400px;
-    font-family: var(--font-secondary);
-    font-size: 14px;
-    line-height: 1.6;
-    resize: vertical;
-}
-
-.raw-sections {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
-.raw-section {
-    background: linear-gradient(135deg, #fff9f5 0%, #ffffff 100%);
-    border-radius: 12px;
-    padding: 20px;
-    border: 2px solid #FFE8DC;
-    box-shadow: 0 2px 8px rgba(255, 107, 53, 0.08);
-    transition: all 0.3s ease;
-}
-
-.raw-section:hover {
-    border-color: #FF6B35;
-    box-shadow: 0 4px 12px rgba(255, 107, 53, 0.15);
-    transform: translateY(-2px);
-}
-
-.raw-section h3 {
-    margin: 0 0 12px 0;
-    color: #FF6B35;
-    font-size: 15px;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding-bottom: 8px;
-    border-bottom: 2px solid #FFE8DC;
-}
-
-.raw-section h3 i {
-    font-size: 16px;
-    color: #FF8551;
-}
-
-.raw-display {
-    background: #2a2a2a;
-    color: #f5f5f5;
-    padding: 16px;
-    border-radius: 8px;
-    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-    font-size: 12px;
-    line-height: 1.5;
-    overflow-x: auto;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    max-height: 250px;
-    overflow-y: auto;
-    border: 1px solid #FF6B35;
-}
-
-/* Styled scrollbar for raw displays */
-.raw-display::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-}
-
-.raw-display::-webkit-scrollbar-track {
-    background: #1a1a1a;
-    border-radius: 4px;
-}
-
-.raw-display::-webkit-scrollbar-thumb {
-    background: #FF6B35;
-    border-radius: 4px;
-}
-
-.raw-display::-webkit-scrollbar-thumb:hover {
-    background: #FF8551;
-}
-
-/* Minimal Design Palette Styles */
-.minimal-design-palette {
-    background: #f8f9fa;
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 20px;
-    border: 1px solid #e9ecef;
-}
-
-.palette-section {
-    margin-bottom: 20px;
-}
-
-.palette-section:last-child {
-    margin-bottom: 0;
-}
-
-.palette-title {
-    font-size: 14px;
-    font-weight: 600;
-    color: #495057;
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    justify-content: center;
-    flex-direction: column;
-}
-
-.visualization-buttons {
-    display: flex;
-    gap: 12px;
-    justify-content: center;
-    margin-top: 10px;
-}
-
-.viz-btn {
-    background: linear-gradient(135deg, #fff9f5 0%, #ffffff 100%);
-    border: 1px solid #FFE8DC;
-    border-radius: 8px;
-    padding: 10px 16px;
-    cursor: pointer;
-    font-size: 14px;
-    color: #FF6B35;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-weight: 600;
-}
-
-.viz-btn:hover {
-    background: linear-gradient(135deg, #FF6B35 0%, #FF8551 100%);
-    border-color: #FF6B35;
-    color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
-}
-
-.viz-btn i {
-    font-size: 16px;
-}
-
-.color-strip-palette {
-    display: flex;
-    height: 60px;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    margin-bottom: 10px;
-}
-
-.color-strip-item {
-    flex: 1;
-    position: relative;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
-    font-size: 12px;
-    font-weight: 600;
-}
-
-.color-strip-item:hover {
-    transform: scaleY(1.05);
-    z-index: 10;
-}
-
-.color-strip-item:first-child {
-    border-top-left-radius: 8px;
-    border-bottom-left-radius: 8px;
-}
-
-.color-strip-item:last-child {
-    border-top-right-radius: 8px;
-    border-bottom-right-radius: 8px;
-}
-
-.color-strip-name {
-    position: absolute;
-    top: 8px;
-    left: 8px;
-    font-size: 10px;
-    font-weight: 600;
-    background: rgba(0,0,0,0.3);
-    padding: 2px 6px;
-    border-radius: 3px;
-}
-
-.color-strip-code {
-    position: absolute;
-    bottom: 8px;
-    right: 8px;
-    font-size: 9px;
-    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-    background: rgba(0,0,0,0.4);
-    padding: 2px 4px;
-    border-radius: 2px;
-}
-
-.typography-mini-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.font-mini-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px;
-    background: white;
-    border-radius: 4px;
-    border: 1px solid #e9ecef;
-}
-
-.font-mini-label {
-    font-size: 11px;
-    color: #6c757d;
-    font-weight: 500;
-    min-width: 60px;
-}
-
-.font-mini-sample {
-    flex: 1;
-    font-size: 12px;
-    color: #495057;
-}
-
-.font-mini-details {
-    font-size: 9px;
-    color: #868e96;
-    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-    background: #f8f9fa;
-    padding: 2px 4px;
-    border-radius: 2px;
-}
-
-@media (max-width: 768px) {
-    .color-strip-palette {
-        height: 50px;
-    }
-    
-    .color-strip-name {
-        font-size: 9px;
-        top: 6px;
-        left: 6px;
-    }
-    
-    .color-strip-code {
-        font-size: 8px;
-        bottom: 6px;
-        right: 6px;
-    }
-    
-    .font-mini-item {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 4px;
-    }
-    
-    .font-mini-label {
-        min-width: auto;
-    }
-    
-    .visualization-buttons {
-        flex-direction: column;
-        gap: 4px;
-    }
-    
-    .viz-btn {
-        font-size: 11px;
-        padding: 4px 8px;
-    }
-}
-
-/* Visualization Modal Styles */
-.viz-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.8);
-    display: none;
-    z-index: 2000;
-    align-items: center;
-    justify-content: center;
-}
-
-.viz-modal-content {
-    background: white;
-    border-radius: 12px;
-    max-width: 90vw;
-    max-height: 90vh;
-    width: 100%;
-    overflow: hidden;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-}
-
-.viz-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px;
-    border-bottom: 1px solid #e9ecef;
-    background: #f8f9fa;
-}
-
-.viz-header h3 {
-    margin: 0;
-    color: #495057;
-    font-size: 18px;
-    font-weight: 600;
-}
-
-.viz-close {
-    background: none;
-    border: none;
-    font-size: 20px;
-    cursor: pointer;
-    color: #6c757d;
-    padding: 5px;
-    border-radius: 4px;
-    transition: all 0.2s;
-}
-
-.viz-close:hover {
-    background: #e9ecef;
-    color: #495057;
-}
-
-.viz-body {
-    padding: 20px;
-    overflow-y: auto;
-    max-height: calc(90vh - 80px);
-}
-
-.template-container {
-    display: none;
-}
-
-.template-container.active {
-    display: block;
-}
-
-/* Mobile Template Styles */
-.mobile-mockup {
-    width: 300px;
-    margin: 0 auto;
-    border: 8px solid #333;
-    border-radius: 25px;
-    background: #000;
-    padding: 10px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-}
-
-.mobile-screen {
-    background: white;
-    border-radius: 15px;
-    overflow: hidden;
-    height: 600px;
-    position: relative;
-}
-
-.mobile-header {
-    padding: 15px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    color: white;
-}
-
-.mobile-logo {
-    font-size: 18px;
-    font-weight: bold;
-}
-
-.mobile-menu {
-    font-size: 20px;
-    cursor: pointer;
-}
-
-.mobile-hero {
-    padding: 40px 20px;
-    text-align: center;
-}
-
-.mobile-hero h2 {
-    font-size: 24px;
-    margin-bottom: 15px;
-    font-weight: bold;
-}
-
-.mobile-hero p {
-    font-size: 16px;
-    margin-bottom: 25px;
-    opacity: 0.9;
-}
-
-.mobile-cta {
-    padding: 12px 24px;
-    border: none;
-    border-radius: 6px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.mobile-cta:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-}
-
-.mobile-cards {
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.mobile-card {
-    padding: 20px;
-    border-radius: 8px;
-    background: white;
-}
-
-.mobile-card h3 {
-    font-size: 18px;
-    margin-bottom: 10px;
-    font-weight: bold;
-}
-
-.mobile-card p {
-    font-size: 14px;
-    margin-bottom: 10px;
-    opacity: 0.8;
-}
-
-.mobile-card span {
-    font-size: 12px;
-    font-style: italic;
-    cursor: pointer;
-}
-
-.mobile-footer {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    padding: 15px 20px;
-    text-align: center;
-}
-
-.mobile-footer p {
-    margin: 0;
-    font-size: 12px;
-}
-
-/* Web Template Styles */
-.web-mockup {
-    width: 100%;
-    max-width: 800px;
-    margin: 0 auto;
-    border: 2px solid #ddd;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-}
-
-.web-screen {
-    background: white;
-}
-
-.web-nav {
-    padding: 15px 30px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    color: white;
-}
-
-.web-logo {
-    font-size: 20px;
-    font-weight: bold;
-}
-
-.web-menu {
-    display: flex;
-    gap: 25px;
-}
-
-.web-menu a {
-    text-decoration: none;
-    font-size: 16px;
-    transition: opacity 0.2s;
-}
-
-.web-menu a:hover {
-    opacity: 0.8;
-}
-
-.web-hero {
-    padding: 60px 30px;
-    text-align: center;
-}
-
-.web-hero-content h1 {
-    font-size: 36px;
-    margin-bottom: 20px;
-    font-weight: bold;
-}
-
-.web-hero-content p {
-    font-size: 18px;
-    margin-bottom: 30px;
-    opacity: 0.9;
-}
-
-.web-cta {
-    padding: 15px 30px;
-    border: none;
-    border-radius: 6px;
-    font-size: 18px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.web-cta:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-}
-
-.web-features {
-    padding: 40px 30px;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
-}
-
-.web-feature {
-    padding: 25px;
-    border-radius: 8px;
-    background: white;
-    text-align: center;
-}
-
-.web-feature h3 {
-    font-size: 20px;
-    margin-bottom: 15px;
-    font-weight: bold;
-}
-
-.web-feature p {
-    font-size: 16px;
-    margin-bottom: 15px;
-    opacity: 0.8;
-}
-
-.web-feature span {
-    font-size: 14px;
-    font-style: italic;
-    cursor: pointer;
-}
-
-.web-footer {
-    padding: 20px 30px;
-    text-align: center;
-}
-
-.web-footer p {
-    margin: 0;
-    font-size: 14px;
-}
-
-
-
-.tab-content {
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    min-height: 400px;
-}
-
-.content-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px 20px 0 20px;
-    border-bottom: 1px solid #e0e0e0;
-}
-
-.content-header h2 {
-    margin: 0;
-    color: #333;
-    padding-bottom: 10px;
-}
-
-.content-body {
-    padding: 20px;
-}
-
-.btn {
-    padding: 8px 16px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 500;
-    transition: all 0.2s;
-    text-decoration: none;
-    display: inline-block;
-}
-
-.btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
-.btn-primary {
-    background: linear-gradient(135deg, #FF6B35 0%, #FF8551 100%);
-    color: white;
-    border: none;
-}
-
-.btn-primary:hover:not(:disabled) {
-    background: linear-gradient(135deg, #FF8551 0%, #FF6B35 100%);
-    box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
-    transform: translateY(-1px);
-}
-
-.btn-primary i {
-    color: white;
-}
-
-.btn-secondary {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    color: #FF6B35;
-    border: 1px solid #FFE8DC;
-}
-
-.btn-secondary:hover:not(:disabled) {
-    background: linear-gradient(135deg, #FFE8DC 0%, #fff9f5 100%);
-    border-color: #FF8551;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(255, 107, 53, 0.15);
-}
-
-.btn-secondary i {
-    color: inherit;
-}
-
-.btn-success {
-    background: linear-gradient(135deg, #FF6B35 0%, #FF8551 100%);
-    color: white;
-    border: none;
-}
-
-.btn-success i {
-    color: white;
-}
-
-.btn-success:hover:not(:disabled) {
-    background: linear-gradient(135deg, #FF8551 0%, #FF6B35 100%);
-    box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
-    transform: translateY(-1px);
-}
-
-.approve-btn {
-    font-size: 16px;
-    padding: 12px 24px;
-    font-weight: 600;
-}
-
-.retry-btn {
-    font-size: 14px;
-    padding: 8px 16px;
-}
-
-.loading {
-    text-align: center;
-    padding: 60px;
-}
-
-.spinner {
-    width: 50px;
-    height: 50px;
-    border: 5px solid #f3f3f3;
-    border-top: 5px solid #007bff;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin: 0 auto 20px;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-.error {
-    text-align: center;
-    padding: 40px;
-    background-color: #f8d7da;
-    border: 1px solid #f5c6cb;
-    border-radius: 8px;
-    color: #721c24;
-}
-
-.error h3 {
-    margin-top: 0;
-}
-
-#raw-data {
-    background: #f8f9fa;
-    border: 1px solid #e9ecef;
-    border-radius: 8px;
-    padding: 20px;
-    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-    font-size: 14px;
-    line-height: 1.5;
-    overflow-x: auto;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    max-height: 70vh;
-    overflow-y: auto;
-}
-
-.content-section {
-    margin-bottom: 32px;
-    padding: 20px;
-    background: linear-gradient(135deg, #fff9f5 0%, #ffffff 100%);
-    border-radius: 12px;
-    border: 1px solid #FFE8DC;
-    box-shadow: 0 2px 8px rgba(255, 107, 53, 0.05);
-    transition: all 0.3s ease;
-}
-
-.content-section:hover {
-    border-color: #FF6B35;
-    box-shadow: 0 4px 12px rgba(255, 107, 53, 0.12);
-}
-
-.content-section h3 {
-    color: #000;
-    margin-bottom: 12px;
-    padding-bottom: 8px;
-    border-bottom: 2px solid #FFE8DC;
-    font-size: 18px;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.content-section h3 i {
-    font-size: 18px;
-    color: #000;
-}
-
-.content-section p {
-    line-height: 1.7;
-    color: #444;
-}
-
-/* Edit mode styles */
-#overview-data.edit-mode-active .content-section {
-    border: 2px solid #4CAF50;
-    background: linear-gradient(135deg, #f0fff4 0%, #ffffff 100%);
-    transition: all 0.2s ease;
-}
-
-#overview-data.edit-mode-active .content-section:hover {
-    border-color: #45a049;
-    box-shadow: 0 4px 16px rgba(76, 175, 80, 0.15);
-}
-
-#overview-data.edit-mode-active .content-section p[contenteditable="true"] {
-    outline: none;
-    cursor: text;
-}
-
-#overview-data.edit-mode-active .content-section h3[contenteditable="true"] {
-    outline: 2px dashed #4CAF50;
-    outline-offset: 4px;
-    padding: 4px;
-    border-radius: 4px;
-    cursor: text;
-}
-
-#overview-data.edit-mode-active .icon-locked {
-    pointer-events: none;
-    user-select: none;
-    opacity: 0.9;
-}
-
-#overview-data.edit-mode-active .content-section.editing {
-    position: relative;
-}
-
-#overview-data.edit-mode-active .content-section.editing::before {
-    content: "✏️ Editable";
-    position: absolute;
-    top: 8px;
-    right: 12px;
-    font-size: 11px;
-    color: #4CAF50;
-    font-weight: 600;
-    background: rgba(76, 175, 80, 0.1);
-    padding: 4px 8px;
-    border-radius: 4px;
-}
-
-.locked-tab-message {
-    text-align: center;
-    padding: 48px 32px;
-    background: linear-gradient(135deg, #fff9f5 0%, #ffffff 100%);
-    border-radius: 16px;
-    border: 2px dashed #FFE8DC;
-    box-shadow: 0 4px 12px rgba(255, 107, 53, 0.08);
-}
-
-.locked-tab-message h3 {
-    color: #FF6B35;
-    margin-bottom: 16px;
-    font-size: 20px;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-}
-
-.locked-tab-message h3 i {
-    font-size: 22px;
-    color: #FF8551;
-}
-
-.locked-tab-message p {
-    margin: 0;
-    font-size: 15px;
-    color: #666;
-    line-height: 1.6;
-    max-width: 500px;
-    margin: 0 auto;
-}
-
-@media (max-width: 768px) {
-    .status-bar {
-        flex-direction: column;
-        gap: 15px;
-    }
-    
-    .tabs {
-        flex-wrap: wrap;
-    }
-    
-    .content-header {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 15px;
-    }
-    
-    .approve-btn {
-        width: 100%;
-    }
-}
-
-/* Registration Modal Styles */
-.modal {
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-        justify-content: center;
-    }
-    
-.modal-content {
-    background: var(--bg-primary);
-    border-radius: var(--border-radius-lg);
-    padding: 0;
-    max-width: 500px;
-    width: 90%;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    border: 1px solid var(--border-color);
-}
-
-.modal-header {
-    padding: var(--spacing-lg);
-    border-bottom: 1px solid var(--border-color);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.modal-header h3 {
-    margin: 0;
-    color: var(--text-primary);
-    font-size: var(--font-size-lg);
-}
-
-.close {
-    color: var(--text-secondary);
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: color 0.3s ease;
-}
-
-.close:hover {
-    color: var(--text-primary);
-}
-
-.modal-body {
-    padding: var(--spacing-lg);
-}
-
-.auth-buttons {
-    display: flex;
-    gap: var(--spacing-md);
-    margin: var(--spacing-lg) 0;
-}
-
-.auth-buttons .btn {
-    flex: 1;
-    display: flex;
-    align-items: center;
-        justify-content: center;
-    gap: var(--spacing-sm);
-    padding: var(--spacing-md);
-    text-decoration: none;
-    border-radius: var(--border-radius-md);
-    font-weight: var(--font-weight-medium);
-    transition: all 0.3s ease;
-}
-
-.auth-buttons .btn-primary {
-    background: linear-gradient(135deg, var(--primary-color), #FF8551);
-    color: white;
-    border: none;
-}
-
-.auth-buttons .btn-primary:hover {
-    background: linear-gradient(135deg, #FF8551, var(--primary-color));
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
-.auth-buttons .btn-secondary {
-    background: var(--bg-secondary);
-    color: var(--text-primary);
-    border: 1px solid var(--border-color);
-}
-
-.auth-buttons .btn-secondary:hover {
-    background: var(--bg-tertiary);
-    border-color: var(--primary-color);
-}
-
-.guest-note {
-    color: var(--text-secondary);
-    font-size: var(--font-size-sm);
-    margin: var(--spacing-md) 0 0 0;
-    text-align: center;
-}
-
-@media (max-width: 768px) {
-    .auth-buttons {
-        flex-direction: column;
-    }
-    
-    .modal-content {
-        width: 95%;
-        margin: 10px;
-    }
-}
-
-/* Diagrams Styling */
-.diagram-container {
-    margin-bottom: 30px;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    overflow: hidden;
-    background: white;
-}
-
-.diagram-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 20px;
-    background: #f8f9fa;
-    border-bottom: 1px solid #e0e0e0;
-}
-
-.diagram-header h3 {
-    margin: 0;
-    font-size: 18px;
-    color: #333;
-}
-
-.diagram-controls {
-    display: flex;
-    gap: 10px;
-}
-
-.btn-icon {
-    background: #FF6B35;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    padding: 8px 12px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 36px;
-    height: 36px;
-}
-
-.btn-icon:hover {
-    background: #106ebe;
-}
-
-.diagram-content {
-    padding: 20px;
-    min-height: 200px;
-    position: relative;
-}
-
-.diagram-status {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 12px;
-    color: #666;
-}
-
-.status-indicator {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #ccc;
-}
-
-.status-indicator.ready {
-    background: #28a745;
-}
-
-.status-indicator.error {
-    background: #dc3545;
-}
-
-.status-indicator.refreshing {
-    background: #ffc107;
-    animation: pulse 1s infinite;
-}
-
-.status-indicator.repairing {
-    background: #ff9800;
-    animation: pulse 1s infinite;
-}
-
-.status-indicator.fixing {
-    background: #fd7e14;
-    animation: pulse 1s infinite;
-}
-
-.status-indicator.generating {
-    background: #17a2b8;
-    animation: pulse 1s infinite;
-}
-
-@keyframes pulse {
-    0% { opacity: 1; }
-    50% { opacity: 0.5; }
-    100% { opacity: 1; }
-}
-
-.status-text {
-    font-weight: 500;
-}
-
-.fullscreen-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.9);
-    z-index: 100000;
-    display: flex;
-    flex-direction: column;
-    color: white;
-}
-
-.fullscreen-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px;
-    background: rgba(0, 0, 0, 0.8);
-    border-bottom: 1px solid #333;
-}
-
-.fullscreen-header h3 {
-    margin: 0;
-    font-size: 24px;
-}
-
-.fullscreen-controls {
-    display: flex;
-    gap: 15px;
-}
-
-.fullscreen-controls .btn-icon {
-    background: rgba(255, 255, 255, 0.2);
-    color: white;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-.fullscreen-controls .btn-icon:hover {
-    background: rgba(255, 255, 255, 0.3);
-}
-
-.fullscreen-content {
-    flex: 1;
-    padding: 20px;
-    overflow: auto;
-    cursor: grab;
-    transform-origin: center;
-    transition: transform 0.2s ease;
-}
-
-.fullscreen-content:active {
-    cursor: grabbing;
-}
-
-.fullscreen-content .mermaid {
-    background: white;
-    border-radius: 8px;
-    padding: 20px;
-}
-
-.diagram-loading {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 40px;
-    color: #666;
-}
-
-.diagram-error {
-    padding: 20px;
-    background: #f8d7da;
-    border: 1px solid #f5c6cb;
-    border-radius: 4px;
-    color: #721c24;
-}
-
-.diagram-error .btn {
-    margin-top: 10px;
-}
-
-.diagram-fixing {
-    padding: 20px;
-    background: #fff3cd;
-    border: 1px solid #ffeaa7;
-    border-radius: 4px;
-    color: #856404;
-    text-align: center;
-}
-
-.diagram-fixing h4 {
-    margin: 0 0 10px 0;
-}
-
-.diagram-fixing p {
-    margin: 0;
-}
-
-@media (max-width: 768px) {
-    .diagram-header {
-        flex-direction: column;
-        gap: 15px;
-        align-items: stretch;
-    }
-    
-    .diagram-controls {
-        justify-content: center;
-    }
-    
-    .fullscreen-header {
-        flex-direction: column;
-        gap: 15px;
-    }
-    
-    .fullscreen-controls {
-        justify-content: center;
-    }
-}
-</style>
 
 <script src="/tools/prompts.js"></script>
 <script src="/assets/js/mermaid.js"></script>
@@ -2254,23 +488,28 @@ const urlSpecId = urlParams.get('id');
 console.log('Spec Viewer - Starting...');
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize MermaidManager
+    // Initialize Mermaid with custom theme
     try {
-        if (typeof mermaidManager !== 'undefined' && mermaidManager) {
-            mermaidManager.initialize().then(() => {
-                console.log('MermaidManager initialized');
-            }).catch(error => {
-                console.error('Failed to initialize MermaidManager:', error);
-                // Try to load mermaid directly as fallback
-                loadMermaidFallback();
+        if (typeof mermaid !== 'undefined') {
+            mermaid.initialize({
+                theme: 'base',
+                themeVariables: {
+                    primaryColor: '#FF6B35',
+                    primaryTextColor: '#333333',
+                    primaryBorderColor: '#FF6B35',
+                    lineColor: '#333333',
+                    secondaryColor: '#f5f5f5',
+                    tertiaryColor: '#ffffff',
+                    background: '#ffffff',
+                    mainBkg: '#ffffff',
+                    secondBkg: '#f5f5f5',
+                    tertiaryBkg: '#ffffff'
+                }
             });
-        } else {
-            console.log('MermaidManager not available, loading fallback');
-            loadMermaidFallback();
+            console.log('Mermaid initialized');
         }
     } catch (error) {
-        console.error('Failed to access MermaidManager:', error);
-        loadMermaidFallback();
+        console.error('Failed to initialize Mermaid:', error);
     }
     
     // Initialize Firebase auth state listener
@@ -2299,37 +538,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     console.log('Spec Viewer - Ready!');
 });
-
-// Fallback function to load mermaid directly
-function loadMermaidFallback() {
-    console.log('Loading Mermaid as fallback...');
-    const script = document.createElement('script');
-    script.src = 'https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js';
-    script.onload = () => {
-        console.log('Mermaid loaded as fallback');
-        if (typeof mermaid !== 'undefined') {
-            mermaid.initialize({
-                theme: 'base',
-                themeVariables: {
-                    primaryColor: '#FF6B35',
-                    primaryTextColor: '#333333',
-                    primaryBorderColor: '#FF6B35',
-                    lineColor: '#333333',
-                    secondaryColor: '#f5f5f5',
-                    tertiaryColor: '#ffffff',
-                    background: '#ffffff',
-                    mainBkg: '#ffffff',
-                    secondBkg: '#f5f5f5',
-                    tertiaryBkg: '#ffffff'
-                }
-            });
-        }
-    };
-    script.onerror = (error) => {
-        console.error('Failed to load Mermaid fallback:', error);
-    };
-    document.head.appendChild(script);
-}
 
 // Check authentication status and show modal if needed
 function checkAuthenticationStatus(user) {
@@ -2641,10 +849,16 @@ function displayOverview(overview) {
     
     // Format and display
     const formattedContent = formatTextContent(overview);
-    container.innerHTML = `<div id="overview-display">${formattedContent}</div>`;
+    container.innerHTML = formattedContent;
     
     // Update raw data
     document.getElementById('raw-overview').textContent = JSON.stringify(overview, null, 2);
+    
+    // Mark tab as generated with orange icon
+    const overviewTab = document.getElementById('overviewTab');
+    if (overviewTab) {
+        overviewTab.classList.add('generated');
+    }
 }
 
 function displayTechnical(technical) {
@@ -2668,6 +882,12 @@ function displayTechnical(technical) {
     
     // Update raw data
     document.getElementById('raw-technical').textContent = JSON.stringify(technical, null, 2);
+    
+    // Mark tab as generated with orange icon
+    const technicalTab = document.getElementById('technicalTab');
+    if (technicalTab) {
+        technicalTab.classList.add('generated');
+    }
 }
 
 function displayMarket(market) {
@@ -2690,6 +910,12 @@ function displayMarket(market) {
     
     // Update raw data
     document.getElementById('raw-market').textContent = JSON.stringify(market, null, 2);
+    
+    // Mark tab as generated with orange icon
+    const marketTab = document.getElementById('marketTab');
+    if (marketTab) {
+        marketTab.classList.add('generated');
+    }
 }
 
 function displayDesign(design) {
@@ -2783,6 +1009,12 @@ function displayDesign(design) {
     
     // Update raw data
     document.getElementById('raw-design').textContent = JSON.stringify(design, null, 2);
+    
+    // Mark tab as generated with orange icon
+    const designTab = document.getElementById('designTab');
+    if (designTab) {
+        designTab.classList.add('generated');
+    }
 }
 
 function parseDesignData(designContent) {
@@ -4796,34 +3028,182 @@ function formatJSONContent(jsonData) {
 }
 
 function formatPlainTextContent(content) {
+    if (!content || typeof content !== 'string') {
+        return '<p>No content available</p>';
+    }
     
-    // Split by common section headers and format
-    const sections = content.split(/\n(?=[A-Z][a-z\s]+:)/);
+    // Helper function to get icon based on section title
+    function getIconForSection(title) {
+        const lowerTitle = title.toLowerCase();
+        if (lowerTitle.match(/summary|overview|introduction/i)) return 'fa-book';
+        if (lowerTitle.match(/features|functionality|capabilities/i)) return 'fa-star';
+        if (lowerTitle.match(/audience|users|target|demographics/i)) return 'fa-users';
+        if (lowerTitle.match(/problem|issue|challenge/i)) return 'fa-exclamation-triangle';
+        if (lowerTitle.match(/solution|value|proposition/i)) return 'fa-lightbulb-o';
+        if (lowerTitle.match(/technology|tech|stack|architecture/i)) return 'fa-cog';
+        if (lowerTitle.match(/design|ui|ux|interface|branding/i)) return 'fa-paint-brush';
+        if (lowerTitle.match(/market|competition|competitor|analysis/i)) return 'fa-bar-chart';
+        if (lowerTitle.match(/monetization|pricing|revenue|business|model/i)) return 'fa-dollar-sign';
+        if (lowerTitle.match(/timeline|schedule|roadmap/i)) return 'fa-calendar';
+        if (lowerTitle.match(/security|privacy|authentication/i)) return 'fa-shield';
+        if (lowerTitle.match(/integration|api|third.party/i)) return 'fa-link';
+        if (lowerTitle.match(/database|storage|data/i)) return 'fa-database';
+        if (lowerTitle.match(/scalability|performance|optimization/i)) return 'fa-line-chart';
+        if (lowerTitle.match(/sector|industry|vertical/i)) return 'fa-building';
+        if (lowerTitle.match(/journey|flow|process/i)) return 'fa-road';
+        if (lowerTitle.match(/screen|interface|ui|components/i)) return 'fa-desktop';
+        return 'fa-check-circle';
+    }
+    
+    // Helper function to format section content (handles bullets and paragraphs)
+    function formatSectionContent(text) {
+        if (!text) return '';
+        
+        const lines = text.split('\n').filter(line => line.trim());
+        let html = '';
+        let inList = false;
+        let currentParagraph = '';
+        
+        lines.forEach(line => {
+            const trimmed = line.trim();
+            if (!trimmed) return;
+            
+            // Detect bullet points
+            if (trimmed.match(/^[-•*]\s/) || trimmed.match(/^\d+[\.\)]\s/)) {
+                // Close paragraph if open
+                if (currentParagraph) {
+                    html += `<p>${currentParagraph}</p>`;
+                    currentParagraph = '';
+                }
+                
+                // Start list if not already in list
+                if (!inList) {
+                    html += '<ul>';
+                    inList = true;
+                }
+                
+                const listItem = trimmed.replace(/^[-•*]\s/, '').replace(/^\d+[\.\)]\s/, '');
+                html += `<li>${listItem}</li>`;
+            } 
+            // Detect lines with colons (sub-headers)
+            else if (trimmed.includes(':') && trimmed.length < 200 && !trimmed.startsWith('---')) {
+                // Close paragraph/list if open
+                if (currentParagraph) {
+                    html += `<p>${currentParagraph}</p>`;
+                    currentParagraph = '';
+                }
+                if (inList) {
+                    html += '</ul>';
+                    inList = false;
+                }
+                
+                const parts = trimmed.split(':');
+                const subHeader = parts[0].trim();
+                const subContent = parts.slice(1).join(':').trim();
+                
+                html += `<h4>${subHeader}:</h4>`;
+                if (subContent) {
+                    html += `<p>${subContent}</p>`;
+                }
+            }
+            else {
+                // Regular text - build paragraph
+                if (inList) {
+                    html += '</ul>';
+                    inList = false;
+                }
+                currentParagraph += (currentParagraph ? ' ' : '') + trimmed;
+            }
+        });
+        
+        // Add remaining paragraph
+        if (currentParagraph) {
+            html += `<p>${currentParagraph}</p>`;
+        }
+        
+        // Close list if still open
+        if (inList) {
+            html += '</ul>';
+        }
+        
+        return html;
+    }
+    
+    // Split by the "---" separators that mark different sections
+    let sections;
+    if (content.includes('---')) {
+        sections = content.split(/---+/).filter(s => s.trim().length > 0);
+    } else {
+        // Fallback: split by newlines if no separators found
+        sections = content.split('\n').filter(s => s.trim().length > 0);
+    }
     
     let html = '';
     
     sections.forEach((section, index) => {
-        const lines = section.trim().split('\n');
-        if (lines.length === 0) return;
+        const trimmedSection = section.trim();
+        if (!trimmedSection) return;
         
-        const firstLine = lines[0];
-        const restOfContent = lines.slice(1).join('\n').trim();
+        // Find the section title (usually the first line or key phrase)
+        const lines = trimmedSection.split('\n');
+        let sectionTitle = '';
+        let sectionContent = '';
         
-        if (firstLine.includes(':') && restOfContent) {
-            // This is a section header
-            html += `<div class="content-section">
-                <h3>${firstLine}</h3>
-                <p>${restOfContent.replace(/\n/g, '<br>')}</p>
-            </div>`;
+        // Try to find a title in the first line
+        const firstLine = lines[0].trim();
+        
+        // Check if first line is a title (contains colon, is short, or matches known patterns)
+        if (firstLine.includes(':') && firstLine.length < 150 && !firstLine.startsWith('- ') && !firstLine.startsWith('* ')) {
+            const parts = firstLine.split(':');
+            sectionTitle = parts[0].trim();
+            sectionContent = (parts.slice(1).join(':').trim() + '\n' + lines.slice(1).join('\n')).trim();
         } else {
-            // Regular content
-            html += `<div class="content-section">
-                <p>${section.replace(/\n/g, '<br>')}</p>
-            </div>`;
+            // Look for key phrases that indicate section titles
+            const titlePatterns = [
+                /^(Value Proposition|Problem Statement|User Journey|Screen Descriptions|Detailed User Flow|Sector|Target Audience|Technology Stack|Security|Integration)/i
+            ];
+            
+            let foundTitle = false;
+            for (const pattern of titlePatterns) {
+                const match = trimmedSection.match(pattern);
+                if (match) {
+                    sectionTitle = match[1];
+                    sectionContent = trimmedSection.replace(pattern, '').trim();
+                    foundTitle = true;
+                    break;
+                }
+            }
+            
+            // If no title pattern found, use first few words as title
+            if (!foundTitle) {
+                const words = trimmedSection.split(' ').slice(0, 4).join(' ');
+                sectionTitle = words;
+                sectionContent = trimmedSection.replace(words, '').trim();
+            }
         }
+        
+        // If we couldn't extract a title, use index
+        if (!sectionTitle || sectionTitle.length === 0) {
+            sectionTitle = `Section ${index + 1}`;
+            sectionContent = trimmedSection;
+        }
+        
+        // Get appropriate icon
+        const icon = getIconForSection(sectionTitle);
+        
+        // Build HTML for this section
+        html += '<div class="content-section">';
+        html += `<h3><i class="fa ${icon}"></i> ${sectionTitle}</h3>`;
+        html += formatSectionContent(sectionContent);
+        html += '</div>';
     });
     
-    return html || `<div class="content-section"><p>${content.replace(/\n/g, '<br>')}</p></div>`;
+    // Fallback if no sections were created
+    if (!html) {
+        html = `<div class="content-section"><p>${content.replace(/\n/g, '<br>')}</p></div>`;
+    }
+    
+    return html;
 }
 
 function updateStatus(type, status) {
