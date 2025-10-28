@@ -2809,15 +2809,28 @@ function parseDesignData(designContent) {
                 }
                 // Extract colors from JSON
                 if (jsonData.design.visualStyleGuide.colors) {
-                    result.colors = jsonData.design.visualStyleGuide.colors;
+                    const colorsObj = jsonData.design.visualStyleGuide.colors;
+                    // Normalize color names to capitalized format
+                    Object.entries(colorsObj).forEach(([key, value]) => {
+                        // Capitalize first letter for consistent display
+                        const capitalizedKey = key.charAt(0).toUpperCase() + key.slice(1);
+                        result.colors[capitalizedKey] = value;
+                    });
                 }
                 // Extract typography from JSON
                 if (jsonData.design.visualStyleGuide.typography) {
-                    result.typography = jsonData.design.visualStyleGuide.typography;
+                    const typographyObj = jsonData.design.visualStyleGuide.typography;
+                    // Normalize typography names to capitalized format
+                    Object.entries(typographyObj).forEach(([key, value]) => {
+                        const capitalizedKey = key.charAt(0).toUpperCase() + key.slice(1);
+                        result.typography[capitalizedKey] = value;
+                    });
                 }
+                console.log('Extracted from JSON - Colors:', result.colors, 'Typography:', result.typography);
                 return result;
             }
         } catch (e) {
+            console.log('JSON parsing failed, trying text parsing:', e);
             // Not JSON, continue with text parsing
         }
         
@@ -2899,6 +2912,7 @@ function parseDesignData(designContent) {
         
         // Fallback defaults if no colors/typography found
         if (Object.keys(result.colors).length === 0) {
+            console.log('No colors extracted, using fallback defaults');
             result.colors = {
                 'Primary': '#4CAF50',
                 'Secondary': '#FF9800',
@@ -2906,6 +2920,8 @@ function parseDesignData(designContent) {
                 'Background': '#FFFFFF',
                 'Text': '#212121'
             };
+        } else {
+            console.log('Colors extracted successfully:', result.colors);
         }
         
         if (Object.keys(result.typography).length === 0) {
@@ -2994,16 +3010,30 @@ function applyColorsToTemplate(type) {
     const colors = designData.colors;
     const typography = designData.typography;
     
+    console.log('Applying colors to template:', colors);
+    
     const template = type === 'mobile' ? 
         document.getElementById('mobile-template') : 
         document.getElementById('web-template');
     
+    // Helper function to get color value case-insensitive
+    const getColor = (name) => {
+        // Try with capitalized first
+        return colors[name] || colors[name.charAt(0).toUpperCase() + name.slice(1)] || 
+               colors[name.toLowerCase()] || colors[name.toUpperCase()] ||
+               // Fallback based on name
+               (name === 'Primary' ? '#4CAF50' : 
+                name === 'Secondary' ? '#FF9800' : 
+                name === 'Accent' ? '#2196F3' : 
+                name === 'Background' ? '#FFFFFF' : '#212121');
+    };
+    
     // Replace all colors
-    template.style.setProperty('--primary-color', colors.Primary || '#4CAF50');
-    template.style.setProperty('--secondary-color', colors.Secondary || '#FF9800');
-    template.style.setProperty('--accent-color', colors.Accent || '#2196F3');
-    template.style.setProperty('--background-color', colors.Background || '#FFFFFF');
-    template.style.setProperty('--text-color', colors.Text || '#212121');
+    template.style.setProperty('--primary-color', getColor('Primary'));
+    template.style.setProperty('--secondary-color', getColor('Secondary'));
+    template.style.setProperty('--accent-color', getColor('Accent'));
+    template.style.setProperty('--background-color', getColor('Background'));
+    template.style.setProperty('--text-color', getColor('Text'));
     
     // Replace all fonts
     template.style.setProperty('--heading-font', typography.Headings || 'Roboto, Bold, 24px');
