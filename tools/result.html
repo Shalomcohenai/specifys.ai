@@ -1223,6 +1223,72 @@
         }, 6000);
       }
 
+      // Process and render all Mermaid diagrams in a container
+      async function processMermaidDiagrams(container) {
+        if (!window.mermaid) {
+          console.warn('Mermaid library not loaded');
+          return;
+        }
+        
+        try {
+          // Initialize Mermaid with updated configuration
+          mermaid.initialize({ 
+            startOnLoad: false,
+            theme: document.body.getAttribute('data-theme') === 'dark' ? 'dark' : 'default',
+            securityLevel: 'loose',
+            fontFamily: 'inherit'
+          });
+          
+          // Find all code blocks that might contain Mermaid diagrams
+          const codeBlocks = container.querySelectorAll('pre code');
+          const mermaidKeywords = [
+            'flowchart', 'graph', 'sequenceDiagram', 'classDiagram', 
+            'stateDiagram', 'erDiagram', 'journey', 'gantt', 
+            'pie', 'gitGraph', 'gitgraph', 'mindmap', 'timeline',
+            'quadrantChart', 'requirementDiagram', 'C4Context'
+          ];
+          
+          codeBlocks.forEach((block) => {
+            const text = block.textContent.trim();
+            const isMermaidDiagram = mermaidKeywords.some(keyword => 
+              text.startsWith(keyword) || text.toLowerCase().startsWith(keyword.toLowerCase())
+            );
+            
+            if (isMermaidDiagram) {
+              // Create a new div for the mermaid diagram
+              const mermaidDiv = document.createElement('div');
+              mermaidDiv.className = 'mermaid';
+              mermaidDiv.textContent = text;
+              mermaidDiv.style.display = 'block';
+              mermaidDiv.style.margin = '20px 0';
+              
+              // Replace the code block with the mermaid div
+              if (block.parentNode && block.parentNode.tagName === 'PRE') {
+                block.parentNode.replaceWith(mermaidDiv);
+              } else {
+                block.replaceWith(mermaidDiv);
+              }
+            }
+          });
+          
+          // Also process any existing elements with .mermaid class
+          const allMermaidElements = container.querySelectorAll('.mermaid');
+          
+          if (allMermaidElements.length > 0) {
+            // Use mermaid.run() for rendering (newer API)
+            await mermaid.run({
+              nodes: allMermaidElements,
+              suppressErrors: false
+            });
+            
+            console.log(`✅ Rendered ${allMermaidElements.length} Mermaid diagrams`);
+          }
+        } catch (error) {
+          console.error('Error processing Mermaid diagrams:', error);
+          // Don't throw - let the page continue to work even if diagrams fail
+        }
+      }
+
       function displayResult(content) {
         clearInterval(statusInterval);
         const statusMessage = document.getElementById("statusMessage");
@@ -1234,81 +1300,8 @@
         chatContainer.appendChild(resultDiv);
         hljs.highlightAll();
         
-        // Initialize Mermaid diagrams after markdown parsing
-        if (typeof mermaid !== 'undefined') {
-          console.log('Mermaid available, initializing diagrams...');
-          try {
-            mermaid.initialize({ 
-              startOnLoad: false,
-              theme: 'default',
-              flowchart: { useMaxWidth: true },
-              sequence: { useMaxWidth: true },
-              gantt: { useMaxWidth: true }
-            });
-            
-            // Find all mermaid code blocks and render them
-            const mermaidBlocks = resultDiv.querySelectorAll('pre code.language-mermaid, pre code[class*="mermaid"]');
-            console.log(`Found ${mermaidBlocks.length} mermaid blocks`);
-            
-            // Also look for text content that contains mermaid diagrams
-            const allPreBlocks = resultDiv.querySelectorAll('pre code');
-            let mermaidTextBlocks = [];
-            
-            allPreBlocks.forEach(block => {
-              const text = block.textContent.trim();
-              if (text.includes('erDiagram') || text.includes('flowchart') || text.includes('sequenceDiagram') || text.includes('gantt') || text.includes('pie') || text.includes('gitgraph')) {
-                mermaidTextBlocks.push(block);
-              }
-            });
-            
-            // Also look for mermaid diagrams in regular text content
-            const allTextContent = resultDiv.textContent;
-            const mermaidMatches = allTextContent.match(/```mermaid\s*([\s\S]*?)```/g);
-            if (mermaidMatches) {
-              mermaidMatches.forEach((match, index) => {
-                const mermaidCode = match.replace(/```mermaid\s*/, '').replace(/```$/, '').trim();
-                if (mermaidCode) {
-                  // Create a fake block element for processing
-                  const fakeBlock = {
-                    textContent: mermaidCode,
-                    parentElement: resultDiv
-                  };
-                  mermaidTextBlocks.push(fakeBlock);
-                }
-              });
-            }
-            
-            console.log(`Found ${mermaidTextBlocks.length} additional mermaid text blocks`);
-            
-            // Process both types of blocks
-            const allMermaidBlocks = [...mermaidBlocks, ...mermaidTextBlocks];
-            
-            allMermaidBlocks.forEach((block, index) => {
-              console.log(`Rendering mermaid block ${index + 1}`);
-              try {
-                const mermaidDiv = document.createElement('div');
-                mermaidDiv.className = 'mermaid';
-                mermaidDiv.textContent = block.textContent;
-                block.parentElement.replaceWith(mermaidDiv);
-                
-                mermaid.render(`mermaid-${Date.now()}-${index}`, block.textContent).then(({ svg }) => {
-                  mermaidDiv.innerHTML = svg;
-                  console.log(`Mermaid block ${index + 1} rendered successfully`);
-                }).catch((mermaidError) => {
-                  console.error(`Error rendering mermaid block ${index + 1}:`, mermaidError);
-                  mermaidDiv.innerHTML = `<div class="mermaid-error">Error rendering diagram: ${mermaidError.message}</div>`;
-                });
-              } catch (blockError) {
-                console.error(`Error processing mermaid block ${index + 1}:`, blockError);
-              }
-            });
-            
-          } catch (mermaidError) {
-            console.error('Mermaid initialization failed:', mermaidError);
-          }
-        } else {
-          console.log('Mermaid not available, skipping diagram rendering');
-        }
+        // Process and render Mermaid diagrams
+        processMermaidDiagrams(resultDiv);
         
         chatContainer.scrollTop = chatContainer.scrollHeight;
         platformContainer.style.display = "block";

@@ -504,11 +504,71 @@
         let specificationContent = '';
         let researchContent = '';
         
-        // Initialize Mermaid
-        mermaid.initialize({ 
-            startOnLoad: false,
-            theme: document.body.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
-        });
+        // Process and render all Mermaid diagrams in a container
+        async function processMermaidDiagrams(container) {
+            if (!window.mermaid) {
+                console.warn('Mermaid library not loaded');
+                return;
+            }
+            
+            try {
+                // Initialize Mermaid with updated configuration
+                mermaid.initialize({ 
+                    startOnLoad: false,
+                    theme: document.body.getAttribute('data-theme') === 'dark' ? 'dark' : 'default',
+                    securityLevel: 'loose',
+                    fontFamily: 'inherit'
+                });
+                
+                // Find all code blocks that might contain Mermaid diagrams
+                const codeBlocks = container.querySelectorAll('pre code');
+                const mermaidKeywords = [
+                    'flowchart', 'graph', 'sequenceDiagram', 'classDiagram', 
+                    'stateDiagram', 'erDiagram', 'journey', 'gantt', 
+                    'pie', 'gitGraph', 'gitgraph', 'mindmap', 'timeline',
+                    'quadrantChart', 'requirementDiagram', 'C4Context'
+                ];
+                
+                codeBlocks.forEach((block) => {
+                    const text = block.textContent.trim();
+                    const isMermaidDiagram = mermaidKeywords.some(keyword => 
+                        text.startsWith(keyword) || text.toLowerCase().startsWith(keyword.toLowerCase())
+                    );
+                    
+                    if (isMermaidDiagram) {
+                        // Create a new div for the mermaid diagram
+                        const mermaidDiv = document.createElement('div');
+                        mermaidDiv.className = 'mermaid';
+                        mermaidDiv.textContent = text;
+                        mermaidDiv.style.display = 'block';
+                        mermaidDiv.style.margin = 'var(--spacing-md) 0';
+                        
+                        // Replace the code block with the mermaid div
+                        if (block.parentNode && block.parentNode.tagName === 'PRE') {
+                            block.parentNode.replaceWith(mermaidDiv);
+                        } else {
+                            block.replaceWith(mermaidDiv);
+                        }
+                    }
+                });
+                
+                // Also process any existing elements with .mermaid class
+                const allMermaidElements = container.querySelectorAll('.mermaid');
+                
+                if (allMermaidElements.length > 0) {
+                    // Use mermaid.run() for rendering (newer API)
+                    await mermaid.run({
+                        nodes: allMermaidElements,
+                        suppressErrors: false
+                    });
+                    
+                    console.log(`✅ Rendered ${allMermaidElements.length} Mermaid diagrams`);
+                }
+            } catch (error) {
+                console.error('Error processing Mermaid diagrams:', error);
+                // Don't throw - let the page continue to work even if diagrams fail
+            }
+        }
         
         // Load content from demotext.text
         async function loadDemoContent() {
@@ -557,29 +617,8 @@
             container.innerHTML = '';
             container.appendChild(contentDiv);
             
-            // Initialize Mermaid for any diagrams
-            const mermaidElements = contentDiv.querySelectorAll('.mermaid, pre code');
-            mermaidElements.forEach((element) => {
-                const text = element.textContent.trim();
-                if (text.startsWith('flowchart') || text.startsWith('graph') || text.startsWith('sequenceDiagram') || 
-                    text.startsWith('classDiagram') || text.startsWith('stateDiagram') || text.startsWith('erDiagram') ||
-                    text.startsWith('journey') || text.startsWith('gantt') || text.startsWith('pie') || text.startsWith('gitgraph')) {
-                    
-                    // Convert to mermaid diagram
-                    const mermaidDiv = document.createElement('div');
-                    mermaidDiv.className = 'mermaid';
-                    mermaidDiv.textContent = text;
-                    
-                    if (element.tagName === 'CODE' && element.parentNode.tagName === 'PRE') {
-                        element.parentNode.replaceWith(mermaidDiv);
-                    } else {
-                        element.replaceWith(mermaidDiv);
-                    }
-                }
-            });
-            
-            // Re-initialize Mermaid for new diagrams
-            mermaid.init(undefined, contentDiv.querySelectorAll('.mermaid'));
+            // Process and render Mermaid diagrams
+            processMermaidDiagrams(contentDiv);
         }
         
         // Show error message
