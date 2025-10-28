@@ -594,6 +594,38 @@ document.addEventListener('DOMContentLoaded', function() {
     border-color: #FF6B35;
     box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
 }
+
+/* Workspace Delete Button */
+.workspace-item {
+    position: relative;
+}
+
+.workspace-delete-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    z-index: 10;
+}
+
+.workspace-delete-btn:hover {
+    background: rgba(239, 68, 68, 0.2);
+    transform: scale(1.1);
+}
+
+.workspace-delete-btn i {
+    font-size: 12px;
+}
 </style>
 
 
@@ -1025,6 +1057,8 @@ document.addEventListener('DOMContentLoaded', function() {
                             status: data.status,
                             design: data.design,
                             diagrams: data.diagrams,
+                            overviewApproved: data.overviewApproved,
+                            chatInitialized: data.chatInitialized,
                             viewUrl: `spec-viewer.html?id=${doc.id}`
                         });
                     } else {
@@ -1243,45 +1277,95 @@ document.addEventListener('DOMContentLoaded', function() {
                     const status = item.status || {};
                     
                     // Check if overview exists and is not empty
-                    const hasOverview = item.overview !== undefined && 
-                                       item.overview !== null && 
-                                       item.overview !== '' &&
-                                       (typeof item.overview === 'string' ? item.overview.trim() !== '' : true);
+                    let hasOverview = false;
+                    if (item.overview !== undefined && item.overview !== null && item.overview !== '') {
+                        if (Array.isArray(item.overview)) {
+                            hasOverview = item.overview.length > 0;
+                        } else if (typeof item.overview === 'object') {
+                            hasOverview = Object.keys(item.overview).length > 0;
+                        } else if (typeof item.overview === 'string') {
+                            hasOverview = item.overview.trim() !== '';
+                        } else {
+                            hasOverview = true;
+                        }
+                    }
                     const overviewStatus = hasOverview ? 'ready' : 'pending';
                     
                     // Check if technical exists and is not empty
-                    const hasTechnical = item.technical !== undefined && 
-                                        item.technical !== null && 
-                                        item.technical !== '' &&
-                                        (typeof item.technical === 'string' ? item.technical.trim() !== '' : true);
+                    let hasTechnical = false;
+                    if (item.technical !== undefined && item.technical !== null && item.technical !== '') {
+                        if (Array.isArray(item.technical)) {
+                            hasTechnical = item.technical.length > 0;
+                        } else if (typeof item.technical === 'object') {
+                            hasTechnical = Object.keys(item.technical).length > 0;
+                        } else if (typeof item.technical === 'string') {
+                            hasTechnical = item.technical.trim() !== '';
+                        } else {
+                            hasTechnical = true;
+                        }
+                    }
                     const technicalStatus = hasTechnical ? 'ready' : 'pending';
                     
                     // Check if market exists and is not empty
-                    const hasMarket = item.market !== undefined && 
-                                     item.market !== null && 
-                                     item.market !== '' &&
-                                     (typeof item.market === 'string' ? item.market.trim() !== '' : true);
+                    let hasMarket = false;
+                    if (item.market !== undefined && item.market !== null && item.market !== '') {
+                        if (Array.isArray(item.market)) {
+                            hasMarket = item.market.length > 0;
+                        } else if (typeof item.market === 'object') {
+                            hasMarket = Object.keys(item.market).length > 0;
+                        } else if (typeof item.market === 'string') {
+                            hasMarket = item.market.trim() !== '';
+                        } else {
+                            hasMarket = true;
+                        }
+                    }
                     const marketStatus = hasMarket ? 'ready' : 'pending';
                     
-                    // Check if design exists in the spec data
-                    const hasDesign = item.design !== undefined && item.design !== null;
+                    // Check if design exists and is not empty
+                    let hasDesign = false;
+                    if (item.design !== undefined && item.design !== null && item.design !== '') {
+                        if (Array.isArray(item.design)) {
+                            hasDesign = item.design.length > 0;
+                        } else if (typeof item.design === 'object') {
+                            hasDesign = Object.keys(item.design).length > 0;
+                        } else if (typeof item.design === 'string') {
+                            hasDesign = item.design.trim() !== '';
+                        } else {
+                            hasDesign = true;
+                        }
+                    }
                     const designStatus = hasDesign ? 'ready' : (status.design || 'pending');
                     
                     // Check if diagrams exist and are valid
-                    const hasDiagrams = item.diagrams !== undefined && 
-                                       item.diagrams !== null && 
-                                       item.diagrams.generated === true &&
-                                       item.diagrams.diagrams && 
-                                       Array.isArray(item.diagrams.diagrams) && 
-                                       item.diagrams.diagrams.length > 0;
+                    let hasDiagrams = false;
+                    if (item.diagrams !== undefined && item.diagrams !== null) {
+                        if (item.diagrams.generated === true) {
+                            if (item.diagrams.diagrams) {
+                                if (Array.isArray(item.diagrams.diagrams)) {
+                                    hasDiagrams = item.diagrams.diagrams.length > 0;
+                                } else if (typeof item.diagrams.diagrams === 'object') {
+                                    hasDiagrams = Object.keys(item.diagrams.diagrams).length > 0;
+                                } else if (typeof item.diagrams.diagrams === 'string') {
+                                    hasDiagrams = item.diagrams.diagrams.trim() !== '';
+                                } else {
+                                    hasDiagrams = true;
+                                }
+                            }
+                        }
+                    }
                     const diagramsStatus = hasDiagrams ? 'ready' : (status.diagrams || 'pending');
+                    
+                    // Check if AI Chat is available (enabled when overview is approved)
+                    const chatAvailable = item.overviewApproved === true || item.chatInitialized === true;
+                    const chatStatus = chatAvailable ? 'ready' : 'pending';
                     
                     progressItems = [
                         { name: 'Overview', status: overviewStatus },
                         { name: 'Technical', status: technicalStatus },
                         { name: 'Market', status: marketStatus },
                         { name: 'Design', status: designStatus },
-                        { name: 'Diagrams', status: diagramsStatus }
+                        { name: 'Diagrams', status: diagramsStatus },
+                        { name: 'AI Chat', status: chatStatus }
                     ];
                 } else {
                     // For old specs and research
@@ -1302,6 +1386,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 return `
                     <div class="workspace-item ${item.type}" data-item-id="${item.id}" data-item-type="${item.type}" data-tooltip="${getItemTooltip(item)}">
+                        <button class="workspace-delete-btn" onclick="deleteWorkspaceItem('${item.id}', '${item.type}')" title="Delete this item">
+                            <i class="fas fa-times"></i>
+                        </button>
                         <div class="workspace-item-header">
                             <h4 class="workspace-item-title">${item.title}</h4>
                             <p class="workspace-item-description">${getItemDescription(item)}</p>
@@ -2174,6 +2261,42 @@ document.addEventListener('DOMContentLoaded', function() {
             } catch (error) {
                 console.error('Error removing spec from UI:', error);
                 alert('Error removing specification from interface');
+            }
+        };
+
+        // Delete workspace item (spec/app/research) from database
+        window.deleteWorkspaceItem = async function(itemId, itemType) {
+            if (!confirm('Are you sure you want to delete this item? This action cannot be undone.')) {
+                return;
+            }
+            
+            try {
+                // Determine collection and reference based on item type
+                let docRef;
+                
+                if (itemType === 'app') {
+                    docRef = doc(db, 'apps', itemId);
+                } else if (itemType === 'new-spec' || itemType === 'old-spec') {
+                    docRef = doc(db, 'specs', itemId);
+                } else if (itemType === 'research') {
+                    docRef = doc(db, 'marketResearch', itemId);
+                } else {
+                    alert('Unknown item type');
+                    return;
+                }
+                
+                // Delete from Firestore
+                await deleteDoc(docRef);
+                
+                // Reload workspace to reflect changes
+                loadWorkspace();
+                
+                // Show success message
+                showSuccess('Item deleted successfully!');
+                
+            } catch (error) {
+                console.error('Error deleting workspace item:', error);
+                showError('Failed to delete item. Please try again.');
             }
         };
 

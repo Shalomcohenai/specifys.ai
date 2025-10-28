@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta name="theme-color" content="#000000">
+    <title>Pricing - Specifys.ai</title>
+    <meta name="description" content="Build Smart with Specifys.ai - Free tier available, Pro plans with unlimited specifications and advanced features.">
+    <meta name="keywords" content="AI development tools, app specification generator, no-code platform, AI-powered planning, vibe coding">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="/assets/css/main.css">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet"></noscript>
+    
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-RWBT69JCM7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-RWBT69JCM7');
+    </script>
+</head>
+<body>
+<!-- Header -->
+<header class="thematic-header" role="banner">
+    <div class="header-center">
+        <div class="logo">
+            <a href="/" aria-label="Specifys.ai homepage">
+                <span class="logo-text">Specifys<span class="logo-dot">.</span>AI</span>
+            </a>
+        </div>
+    </div>
+    <div class="header-right">
+        <div class="credits-display" id="credits-display" style="display: none;">
+            <div class="credits-container">
+                <i class="fas fa-dollar-sign"></i>
+                <span id="credits-text">0</span>
+            </div>
+        </div>
+        <div class="auth-buttons" id="auth-buttons">
+            <!-- Will be populated by auth system -->
+        </div>
+    </div>
+</header>
+
+<style>
+/* Logo dark grey color - adjusted size */
+.logo a,
+.logo-text {
+    color: #333 !important;
+    font-size: 1.66rem !important;
+}
+
+/* Only the dot in orange */
+.logo-dot {
+    color: #FF6B35 !important;
+}
+
+.logo a:hover {
+    color: #444 !important;
+}
+
+.logo a:hover .logo-dot {
+    color: #FF8551 !important;
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+    .logo a,
+    .logo-text {
+        font-size: 1.22rem !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .logo a,
+    .logo-text {
+        font-size: 1.11rem !important;
+    }
+}
+
+/* Credits Display - Like user-info style */
+.credits-display {
+    display: flex;
+    align-items: center;
+    margin-right: 12px;
+}
+
+.credits-container {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0.3rem 0.8rem;
+    background: rgba(102, 102, 102, 0.1);
+    border-radius: var(--border-radius-md);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+}
+
+.credits-container:hover {
+    background: rgba(102, 102, 102, 0.2);
+    transform: translateY(-2px);
+}
+
+.credits-container i {
+    font-size: 14px;
+    color: #FF6B35;
+}
+
+.credits-container span {
+    font-weight: var(--font-weight-medium);
+    color: #FF6B35;
+    min-width: 20px;
+    text-align: center;
+}
+
+/* State variations - all use orange for pro, red for low */
+.credits-container.pro i,
+.credits-container.pro span {
+    color: #FF6B35;
+}
+
+.credits-container.low i,
+.credits-container.unlimited i,
+.credits-container.low span,
+.credits-container.unlimited span {
+    color: #ef4444;
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+    .credits-display {
+        margin-right: 8px;
+    }
+    
+    .credits-container {
+        padding: 5px 10px;
+        font-size: 0.85rem;
+    }
+    
+    .credits-container i {
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .credits-display {
+        margin-right: 6px;
+    }
+    
+    .credits-container {
+        padding: 4px 8px;
+        gap: 4px;
+    }
+}
+</style>
+
+<!-- Credits Display Script -->
+<script src="/assets/js/credits-display.js"></script>
+
+<!-- Main Content -->
+<main id="main-content" class="main-content">
+
+<div class="pricing-page">
+    <!-- Hero Section -->
+    <div class="pricing-hero">
+        <div class="container">
+            <h1>Build Smart with Specifys.ai</h1>
+            <p>Choose the perfect plan for your app development needs</p>
+        </div>
+    </div>
+
+    <!-- Pricing Cards -->
+    <div class="pricing-container">
+        <div class="container">
+            <div class="pricing-grid">
+                
+                <!-- Single Spec -->
+                <div class="pricing-card single">
+                    <div class="plan-header">
+                        <h3>Single Spec</h3>
+                        <p class="plan-description">One additional specification</p>
+                    </div>
+                    <div class="plan-features">
+                        <ul>
+                            <li><i class="fas fa-check-circle"></i> <span>1 Specification</span></li>
+                            <li><i class="fas fa-check-circle"></i> <span>Full Spec Details</span></li>
+                            <li><i class="fas fa-check-circle"></i> <span>Tools Map Access</span></li>
+                            <li><i class="fas fa-check-circle"></i> <span>Forever Access</span></li>
+                        </ul>
+                    </div>
+                    <div class="plan-cta">
+                        <div class="price">
+                            <span class="currency">$</span>
+                            <span class="amount">4.90</span>
+                            <span class="period">one-time</span>
+                        </div>
+                        <button class="btn btn-primary" onclick="purchaseSpec('single_spec')">
+                            Buy Now
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 3-Pack -->
+                <div class="pricing-card pack">
+                    <div class="plan-badge">Best Value</div>
+                    <div class="plan-header">
+                        <h3>3-Pack</h3>
+                        <p class="plan-description">Three specifications at a discount</p>
+                    </div>
+                    <div class="plan-features">
+                        <ul>
+                            <li><i class="fas fa-check-circle"></i> <span>3 Specifications</span></li>
+                            <li><i class="fas fa-check-circle"></i> <span>Full Spec Details</span></li>
+                            <li><i class="fas fa-check-circle"></i> <span>Tools Map Access</span></li>
+                            <li><i class="fas fa-check-circle"></i> <span>Forever Access</span></li>
+                        </ul>
+                    </div>
+                    <div class="plan-cta">
+                        <div class="price">
+                            <span class="currency">$</span>
+                            <span class="amount">9.90</span>
+                            <span class="period">one-time</span>
+                        </div>
+                        <button class="btn btn-primary highlight" onclick="purchaseSpec('three_pack')">
+                            Buy Now
+                        </button>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+
+    <!-- FAQ Section -->
+    <div class="pricing-faq">
+        <div class="container">
+            <h2>Frequently Asked Questions</h2>
+            <div class="faq-grid">
+                <div class="faq-item">
+                    <h4>What's included in the free plan?</h4>
+                    <p>You get 1 free specification to try our AI-powered app planning. You also have access to our Tools Map and Tool Finder.</p>
+                </div>
+                <div class="faq-item">
+                    <h4>Can I edit my specifications?</h4>
+                    <p>Only Pro subscribers can edit specifications. Free users and credit purchasers can view and save their specifications.</p>
+                </div>
+                <div class="faq-item">
+                    <h4>How does the Pro subscription work?</h4>
+                    <p>Pro subscriptions give you unlimited specifications and the ability to edit them. You can choose between monthly or yearly billing.</p>
+                </div>
+                <div class="faq-item">
+                    <h4>Can I cancel my Pro subscription?</h4>
+                    <p>Yes, you can cancel anytime. You'll keep Pro features until the end of your billing period.</p>
+                </div>
+                <div class="faq-item">
+                    <h4>What payment methods do you accept?</h4>
+                    <p>We accept all major credit cards, PayPal, and other payment methods through Lemon Squeezy.</p>
+                </div>
+                <div class="faq-item">
+                    <h4>Is there a money-back guarantee?</h4>
+                    <p>Yes, we offer a 30-day money-back guarantee for all Pro subscriptions.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA Section -->
+    <div class="pricing-cta">
+        <div class="container">
+            <h2>Ready to Build Your App?</h2>
+            <p>Start with our free plan or jump straight to Pro for unlimited specifications</p>
+            <div class="cta-buttons">
+                <a href="/" class="btn btn-primary">Try Free</a>
+                <a href="#pricing" class="btn btn-outline">View Plans</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Pricing Page Styles - Specifys.ai Design System */
+.pricing-page {
+    min-height: 100vh;
+    background: #ffffff;
+}
+
+.pricing-hero {
+    background: #ffffff;
+    padding: 100px 0 40px;
+    text-align: center;
+    border-bottom: 1px solid #e9ecef;
+    margin-top: 60px;
+}
+
+.pricing-hero .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.pricing-hero h1 {
+    font-size: 2.5rem;
+    margin-bottom: 16px;
+    font-weight: 700;
+    color: #333;
+}
+
+.pricing-hero p {
+    font-size: 1.1rem;
+    color: #666;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.pricing-container {
+    padding: 60px 0;
+    background: #ffffff;
+}
+
+.pricing-container .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 32px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.pricing-card {
+    background: white;
+    border: 2px solid #FFE8DC;
+    border-radius: 16px;
+    padding: 40px;
+    transition: all 0.3s ease;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 2px 12px rgba(255, 107, 53, 0.05);
+}
+
+.pricing-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 32px rgba(255, 107, 53, 0.15);
+    border-color: #FF6B35;
+}
+
+.pricing-card.pack {
+    border-color: #FF6B35;
+    box-shadow: 0 4px 16px rgba(255, 107, 53, 0.2);
+}
+
+.plan-badge {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: #FF6B35;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.plan-badge.best-value {
+    background: #FF6B35;
+}
+
+.plan-header {
+    margin-bottom: 24px;
+}
+
+.plan-features {
+    margin-bottom: 32px;
+    flex-grow: 1;
+}
+
+.plan-header h3 {
+    font-size: 1.75rem;
+    margin-bottom: 8px;
+    color: #FF6B35;
+    font-weight: 700;
+}
+
+.plan-description {
+    font-size: 0.95rem;
+    color: #666;
+    margin-bottom: 24px;
+}
+
+.price {
+    display: flex;
+    align-items: baseline;
+    margin-bottom: 16px;
+}
+
+.currency {
+    font-size: 1rem;
+    color: #666;
+}
+
+.amount {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #FF6B35;
+    margin: 0 4px;
+}
+
+.period {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.savings-badge {
+    background: #28a745;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    display: inline-block;
+    margin-top: 8px;
+}
+
+
+.plan-features {
+    margin-bottom: 32px;
+    flex-grow: 1;
+}
+
+.features-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 16px;
+    display: none; /* Hide the label for cleaner look */
+}
+
+.plan-features ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.plan-features li {
+    display: flex;
+    align-items: center;
+    padding: 10px 0;
+    font-size: 0.95rem;
+    color: #333;
+}
+
+.plan-features li i {
+    font-size: 18px;
+    margin-right: 12px;
+    width: 24px;
+}
+
+.plan-features li i.fa-check-circle {
+    color: #FF6B35;
+}
+
+.plan-features li i.fa-times-circle,
+.plan-features li i.fas.fa-times-circle {
+    color: #dee2e6;
+}
+
+.plan-cta {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: auto;
+}
+
+.plan-cta .price {
+    margin-bottom: 8px;
+}
+
+.btn {
+    display: inline-block;
+    padding: 12px 24px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+    border: 1px solid;
+    cursor: pointer;
+    text-align: center;
+}
+
+.btn-primary {
+    background: #FF6B35;
+    color: white;
+    border-color: #FF6B35;
+}
+
+.btn-primary:hover {
+    background: #FF8551;
+    border-color: #FF8551;
+}
+
+.btn-primary.highlight {
+    background: #FF6B35;
+    border-color: #FF6B35;
+    color: white;
+}
+
+.btn-primary.highlight:hover {
+    background: #FF8551;
+    border-color: #FF8551;
+    color: white;
+}
+
+.pricing-card.pack .btn-primary.highlight {
+    background: linear-gradient(135deg, #FF6B35 0%, #FF8551 100%);
+    border-color: transparent;
+    color: white;
+}
+
+.pricing-card.pack .btn-primary.highlight:hover {
+    background: linear-gradient(135deg, #FF8551 0%, #FF6B35 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 107, 53, 0.3);
+}
+
+.btn-secondary {
+    background: transparent;
+    color: #333;
+    border-color: #e9ecef;
+}
+
+.btn-secondary:hover {
+    background: #f5f5f5;
+}
+
+.pricing-faq {
+    background: #f5f5f5;
+    padding: 60px 0;
+}
+
+.pricing-faq .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.pricing-faq h2 {
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 40px;
+    color: #333;
+    font-weight: 700;
+}
+
+.faq-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.faq-item {
+    background: white;
+    padding: 24px;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.faq-item h4 {
+    font-size: 1rem;
+    margin-bottom: 12px;
+    color: #333;
+    font-weight: 600;
+}
+
+.faq-item p {
+    color: #666;
+    line-height: 1.6;
+    font-size: 0.9rem;
+}
+
+.pricing-cta {
+    background: #333;
+    color: white;
+    padding: 60px 0;
+    text-align: center;
+}
+
+.pricing-cta .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.pricing-cta h2 {
+    font-size: 2rem;
+    margin-bottom: 16px;
+    color: white;
+    font-weight: 700;
+}
+
+.pricing-cta p {
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 32px;
+}
+
+.cta-buttons {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.cta-buttons .btn {
+    padding: 12px 32px;
+    font-size: 1rem;
+}
+
+.cta-buttons .btn-primary {
+    background: #FF6B35;
+    border-color: #FF6B35;
+}
+
+.cta-buttons .btn-primary:hover {
+    background: #FF8551;
+}
+
+.cta-buttons .btn-outline {
+    background: transparent;
+    color: white;
+    border-color: white;
+}
+
+.cta-buttons .btn-outline:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .pricing-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+        max-width: 100%;
+    }
+    
+    .pricing-card {
+        padding: 32px 24px;
+    }
+}
+
+@media (max-width: 768px) {
+    .pricing-hero h1 {
+        font-size: 2rem;
+    }
+    
+    .pricing-hero p {
+        font-size: 1rem;
+    }
+    
+    .pricing-card {
+        padding: 28px 20px;
+    }
+    
+    .amount {
+        font-size: 2.5rem;
+    }
+    
+    .plan-header h3 {
+        font-size: 1.5rem;
+    }
+    
+    .faq-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    
+    .cta-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .cta-buttons .btn {
+        width: 100%;
+        max-width: 300px;
+    }
+}
+
+@media (max-width: 480px) {
+    .pricing-hero {
+        padding: 40px 0 30px;
+    }
+    
+    .pricing-hero h1 {
+        font-size: 1.75rem;
+    }
+    
+    .pricing-container {
+        padding: 40px 0;
+    }
+    
+    .pricing-card {
+        padding: 20px;
+    }
+    
+    .amount {
+        font-size: 1.75rem;
+    }
+}
+</style>
+
+<script>
+// Purchase function
+async function purchaseSpec(productKey) {
+    try {
+        // Check if user is authenticated
+        const user = firebase.auth().currentUser;
+        if (!user) {
+            // Redirect to auth page
+            window.location.href = '/pages/auth.html';
+            return;
+        }
+
+        // Track the purchase attempt
+        trackCTA('Purchase ' + productKey, 'pricing_page');
+
+        // Get Lemon Squeezy checkout URL
+        const config = await fetch('/assets/data/lemon-products.json').then(r => r.json());
+        const product = config.products[productKey];
+        
+        if (!product) {
+            alert('Product not found. Please try again.');
+            return;
+        }
+
+        // Redirect to Lemon Squeezy checkout
+        const checkoutUrl = `https://${config.lemon_store_id}.lemonsqueezy.com/checkout/buy/${product.variant_id}`;
+        window.open(checkoutUrl, '_blank');
+
+    } catch (error) {
+        console.error('Error initiating purchase:', error);
+        alert('Error initiating purchase. Please try again.');
+    }
+}
+
+// Track CTA function (if not already defined)
+function trackCTA(ctaName, location) {
+    if (typeof gtag !== 'undefined') {
+        gtag('event', 'cta_click', {
+            'event_category': 'CTA',
+            'event_label': ctaName,
+            'cta_location': location
+        });
+    }
+}
+
+
+// Initialize Firebase if not already done
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if Firebase is already initialized
+    if (typeof firebase === 'undefined') {
+        console.log('Firebase not loaded, skipping auth check');
+        return;
+    }
+
+    // Listen to auth state changes
+    firebase.auth().onAuthStateChanged((user) => {
+        if (user) {
+            console.log('User authenticated:', user.email);
+        } else {
+            console.log('User not authenticated');
+        }
+    });
+});
+</script>
+
+</main>
+
+<!-- Footer -->
+<footer>
+    <div class="footer-content">
+        <div class="footer-links">
+            <a href="/pages/how.html" aria-label="Learn how specifys.ai works">How It Works</a>
+            <a href="/pages/about.html" aria-label="Learn more about specifys.ai">About Us</a>
+            <a href="/blog/" aria-label="Visit our blog">Blog</a>
+            <a href="/tools/map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Tools Map</a>
+            <a href="/pages/ToolPicker.html" aria-label="Use our Tool Finder">Tool Finder</a>
+        </div>
+        <span class="footer-divider">|</span>
+        <div class="footer-social">
+            <a href="https://www.linkedin.com/company/specifys-ai/" target="_blank" aria-label="Follow us on LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+            <a href="https://www.facebook.com/profile.php?id=61576402600129&locale=he_IL" target="_blank" aria-label="Follow us on Facebook"><i class="fab fa-facebook-f"></i></a>
+            <a href="mailto:specifysai@gmail.com" aria-label="Send us an email"><i class="fas fa-envelope"></i></a>
+            <a href="https://www.producthunt.com/products/specifys-ai" target="_blank" aria-label="Check us out on Product Hunt"><i class="fab fa-product-hunt"></i></a>
+        </div>
+    </div>
+    <div class="footer-copyright">
+        © 2025 specifys.ai. All rights reserved. <span class="footer-version">v1.2.4</span>
+    </div>
+</footer>
+
+<!-- Scroll to top button -->
+<button class="icon-btn scroll-to-top" id="scrollToTop" aria-label="Scroll">
+    <i class="fas fa-arrow-up"></i>
+</button>
+
+<script>
+    // Scroll button functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const scrollBtn = document.getElementById('scrollToTop');
+        
+        if (scrollBtn) {
+            // Handle click - scroll to top or bottom based on current state
+            scrollBtn.addEventListener("click", () => {
+                if (window.scrollY > 300) {
+                    // If scrolled down, go to top
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                } else {
+                    // If at top, scroll to bottom
+                    window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+                }
+            });
+            
+            // Rotate button based on scroll position
+            window.addEventListener("scroll", () => {
+                if (window.scrollY > 300) {
+                    scrollBtn.classList.add("scrolled-down");
+                    scrollBtn.setAttribute("aria-label", "Scroll to top");
+                } else {
+                    scrollBtn.classList.remove("scrolled-down");
+                    scrollBtn.setAttribute("aria-label", "Scroll to bottom");
+                }
+            });
+        }
+    });
+</script>
+
+<!-- Firebase SDK & Auth -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<script>
+    // Firebase Configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyB9hr0IWM4EREzkKDxBxYoYinV6LJXWXV4",
+        authDomain: "specify-ai.firebaseapp.com",
+        projectId: "specify-ai",
+        storageBucket: "specify-ai.firebasestorage.app",
+        messagingSenderId: "734278787482",
+        appId: "1:734278787482:web:0e312fb6f197e849695a23",
+        measurementId: "G-4YR9LK63MR"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    // Auth UI functions
+    function updateAuthUI(user) {
+        const authButtons = document.getElementById('auth-buttons');
+        if (!authButtons) return;
+        
+        if (user) {
+            // User is logged in
+            const displayName = user.displayName || user.email.split('@')[0];
+            const firstLetter = displayName.charAt(0).toUpperCase();
+            
+            authButtons.innerHTML = `
+                <a href="/pages/profile.html" class="user-info" style="text-decoration: none;">
+                    <div class="user-avatar">${firstLetter}</div>
+                    <span>${displayName}</span>
+                </a>
+            `;
+        } else {
+            // User is not logged in
+            authButtons.innerHTML = `
+                <button class="auth-btn" onclick="window.location.href='/pages/auth.html'">Login</button>
+            `;
+        }
+    }
+
+    // Listen to auth state changes
+    auth.onAuthStateChanged((user) => {
+        updateAuthUI(user);
+    });
+
+    // Initialize auth buttons with default state
+    document.addEventListener('DOMContentLoaded', function() {
+        const authButtons = document.getElementById('auth-buttons');
+        if (authButtons && !authButtons.innerHTML.trim()) {
+            authButtons.innerHTML = `
+                <button class="auth-btn login-btn">Login</button>
+            `;
+            
+            const loginBtn = authButtons.querySelector('.login-btn');
+            if (loginBtn) {
+                loginBtn.addEventListener('click', function(event) {
+                    event.stopPropagation();
+                    window.location.href = '/pages/auth.html';
+                });
+            }
+        }
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta name="theme-color" content="#000000">
+    <title>Demo - Specifys.ai</title>
+    <meta name="description" content="See Specifys.ai in action">
+    <meta name="keywords" content="AI development tools, app specification generator, no-code platform, AI-powered planning, vibe coding, AI app builder, specification generator, market research tool, app planning tool, development tools, AI tools">
+    <meta name="author" content="Specifys.ai">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    
+    <!-- Content Security Policy - Removed to fix Google Analytics/Ads issues -->
+    
+    <!-- Canonical URL -->
+    
+    <link rel="canonical" href="https://specifys-ai.com/pages/demo.html">
+    
+    
+    <!-- Open Graph -->
+    <meta property="og:site_name" content="Specifys.ai">
+    <meta property="og:title" content="Demo">
+    <meta property="og:description" content="See Specifys.ai in action">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://specifys-ai.com/pages/demo.html">
+    <meta property="og:image" content="https://specifys-ai.com/assets/images/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:locale" content="en_US">
+    
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@specifysai">
+    <meta name="twitter:creator" content="@specifysai">
+    <meta name="twitter:title" content="Demo">
+    <meta name="twitter:description" content="See Specifys.ai in action">
+    <meta name="twitter:image" content="https://specifys-ai.com/assets/images/og-image.png">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="/assets/css/main.css">
+    
+      
+        <link rel="stylesheet" href="/assets/css/pages/demo.css">
+      
+    
+    
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Mermaid for diagrams (used in demo, spec, research pages) -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+    
+    <!-- Marked for markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked@4.3.0/marked.min.js"></script>
+    
+    <!-- Highlight.js for syntax highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    
+    <!-- jsPDF for PDF export (used in research pages) -->
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
+    <!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-RWBT69JCM7"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-RWBT69JCM7');
+</script>
+
+
+    <script>
+// Central Analytics Event Tracking System for Specifys.ai
+// This file contains reusable tracking functions for consistent analytics across the site
+
+// Check if gtag is available
+function isGtagAvailable() {
+  return typeof gtag !== 'undefined';
+}
+
+// Track button clicks with detailed categorization
+function trackButtonClick(buttonName, category, source, additionalData = {}) {
+  if (isGtagAvailable()) {
+    gtag('event', 'click', {
+      'event_category': category || 'Button Click',
+      'event_label': buttonName,
+      'event_source': source || 'unknown',
+      ...additionalData
+    });
+  }
+}
+
+// Track CTA (Call-to-Action) clicks
+function trackCTA(ctaName, location) {
+  if (isGtagAvailable()) {
+    gtag('event', 'cta_click', {
+      'event_category': 'CTA',
+      'event_label': ctaName,
+      'cta_location': location
+    });
+  }
+}
+
+// Track navigation events
+function trackNavigation(destination, source) {
+  if (isGtagAvailable()) {
+    gtag('event', 'navigation', {
+      'event_category': 'Navigation',
+      'event_label': destination,
+      'navigation_source': source
+    });
+  }
+}
+
+// Track tool usage
+function trackToolUsage(toolName, action) {
+  if (isGtagAvailable()) {
+    gtag('event', 'tool_usage', {
+      'event_category': 'Tools',
+      'event_label': toolName,
+      'tool_action': action
+    });
+  }
+}
+
+// Track form submissions
+function trackFormSubmit(formName, formType) {
+  if (isGtagAvailable()) {
+    gtag('event', 'form_submit', {
+      'event_category': 'Form',
+      'event_label': formName,
+      'form_type': formType
+    });
+  }
+}
+
+// Track user authentication events
+function trackAuthEvent(action, method) {
+  if (isGtagAvailable()) {
+    gtag('event', action, {
+      'event_category': 'Authentication',
+      'event_label': action,
+      'auth_method': method || 'email'
+    });
+  }
+}
+
+// Track downloads
+function trackDownload(fileName, fileType) {
+  if (isGtagAvailable()) {
+    gtag('event', 'download', {
+      'event_category': 'Downloads',
+      'event_label': fileName,
+      'file_type': fileType
+    });
+  }
+}
+
+// Track spec/result generations
+function trackGeneration(type, mode) {
+  if (isGtagAvailable()) {
+    gtag('event', 'generation_start', {
+      'event_category': 'Generation',
+      'event_label': type,
+      'generation_mode': mode
+    });
+  }
+}
+
+// Track generation completion
+function trackGenerationComplete(type, mode, success) {
+  if (isGtagAvailable()) {
+    gtag('event', 'generation_complete', {
+      'event_category': 'Generation',
+      'event_label': type,
+      'generation_mode': mode,
+      'success': success
+    });
+  }
+}
+
+// Track external link clicks
+function trackExternalLink(linkUrl, linkText) {
+  if (isGtagAvailable()) {
+    gtag('event', 'click', {
+      'event_category': 'External Link',
+      'event_label': linkText || linkUrl,
+      'link_url': linkUrl
+    });
+  }
+}
+
+// Track modal interactions
+function trackModal(modalName, action) {
+  if (isGtagAvailable()) {
+    gtag('event', 'modal_' + action, {
+      'event_category': 'Modal',
+      'event_label': modalName,
+      'modal_action': action
+    });
+  }
+}
+
+// Track FAQ interactions
+function trackFAQ(question, action) {
+  if (isGtagAvailable()) {
+    gtag('event', 'faq_' + action, {
+      'event_category': 'FAQ',
+      'event_label': question,
+      'faq_action': action
+    });
+  }
+}
+
+// Track search actions
+function trackSearch(searchTerm, searchType) {
+  if (isGtagAvailable()) {
+    gtag('event', 'search', {
+      'event_category': 'Search',
+      'search_term': searchTerm,
+      'search_type': searchType
+    });
+  }
+}
+
+// Track video/demo views
+function trackDemoView(demoName, viewDuration) {
+  if (isGtagAvailable()) {
+    gtag('event', 'demo_view', {
+      'event_category': 'Demo',
+      'event_label': demoName,
+      'view_duration': viewDuration
+    });
+  }
+}
+
+// Track user engagement time
+function trackEngagement(pageName, timeSpent) {
+  if (isGtagAvailable()) {
+    gtag('event', 'user_engagement', {
+      'event_category': 'Engagement',
+      'event_label': pageName,
+      'engagement_time_msec': timeSpent
+    });
+  }
+}
+
+// Track errors
+function trackError(errorType, errorMessage, errorLocation) {
+  if (isGtagAvailable()) {
+    gtag('event', 'error', {
+      'event_category': 'Error',
+      'event_label': errorType,
+      'error_message': errorMessage,
+      'error_location': errorLocation
+    });
+  }
+}
+
+// Track user preferences
+function trackPreference(preferenceName, preferenceValue) {
+  if (isGtagAvailable()) {
+    gtag('event', 'preference_change', {
+      'event_category': 'Preferences',
+      'event_label': preferenceName,
+      'preference_value': preferenceValue
+    });
+  }
+}
+
+// Track scroll depth
+let scrollDepthTracked = {25: false, 50: false, 75: false, 100: false};
+function initScrollTracking(pageName) {
+  window.addEventListener('scroll', function() {
+    const scrollPercent = Math.round((window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100);
+    
+    if (scrollPercent >= 25 && !scrollDepthTracked[25]) {
+      scrollDepthTracked[25] = true;
+      if (isGtagAvailable()) {
+        gtag('event', 'scroll', {
+          'event_category': 'Scroll Depth',
+          'event_label': pageName,
+          'scroll_depth': '25%'
+        });
+      }
+    }
+    if (scrollPercent >= 50 && !scrollDepthTracked[50]) {
+      scrollDepthTracked[50] = true;
+      if (isGtagAvailable()) {
+        gtag('event', 'scroll', {
+          'event_category': 'Scroll Depth',
+          'event_label': pageName,
+          'scroll_depth': '50%'
+        });
+      }
+    }
+    if (scrollPercent >= 75 && !scrollDepthTracked[75]) {
+      scrollDepthTracked[75] = true;
+      if (isGtagAvailable()) {
+        gtag('event', 'scroll', {
+          'event_category': 'Scroll Depth',
+          'event_label': pageName,
+          'scroll_depth': '75%'
+        });
+      }
+    }
+    if (scrollPercent >= 100 && !scrollDepthTracked[100]) {
+      scrollDepthTracked[100] = true;
+      if (isGtagAvailable()) {
+        gtag('event', 'scroll', {
+          'event_category': 'Scroll Depth',
+          'event_label': pageName,
+          'scroll_depth': '100%'
+        });
+      }
+    }
+  });
+}
+
+// Auto-initialize scroll tracking when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+  const pageName = document.title || window.location.pathname;
+  initScrollTracking(pageName);
+});
+</script>
+
+
+    <!-- Structured Data (JSON-LD) for SEO -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "name": "Specifys.ai",
+      "url": "https://specifys-ai.com",
+      "logo": "https://specifys-ai.com/favicon.ico",
+      "description": "AI-powered app planning and specification generation platform",
+      "sameAs": [
+        "https://www.linkedin.com/company/specifys-ai/"
+      ],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "email": "specifysai@gmail.com",
+        "contactType": "Customer Service"
+      }
+    },
+    {
+      "@type": "WebSite",
+      "name": "Specifys.ai",
+      "url": "https://specifys-ai.com",
+      "description": "Plan your app smarter with AI-driven insights and tools",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://specifys-ai.com/pages/ToolPicker.html?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "Specifys.ai",
+      "applicationCategory": "DevelopmentApplication",
+      "operatingSystem": "Web",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "ratingCount": "250"
+      },
+      "description": "AI-powered app planning platform with specification generator, market research tools, and vibe coding tools map"
+    }
+  ]
+}
+</script>
+
+
+</head>
+
+
+<body>
+    <!-- Header -->
+    <!-- Skip to main content link for accessibility -->
+<a href="#main-content" class="skip-link">Skip to main content</a>
+
+<!-- Header -->
+<header class="thematic-header" role="banner">
+    <div class="header-center">
+        <div class="logo">
+            <a href="/" aria-label="Specifys.ai homepage">
+                <span class="logo-text">Specifys<span class="logo-dot">.</span>AI</span>
+            </a>
+        </div>
+    </div>
+    <div class="header-right">
+        <div class="credits-display" id="credits-display" style="display: none;">
+            <div class="credits-container">
+                <i class="fas fa-dollar-sign"></i>
+                <span id="credits-text">0</span>
+            </div>
+        </div>
+        <div class="auth-buttons" id="auth-buttons">
+            <!-- Will be populated by auth system -->
+        </div>
+    </div>
+</header>
+
+<style>
+/* Logo dark grey color - adjusted size */
+.logo a,
+.logo-text {
+    color: #333 !important;
+    font-size: 1.66rem !important;
+}
+
+/* Only the dot in orange */
+.logo-dot {
+    color: #FF6B35 !important;
+}
+
+.logo a:hover {
+    color: #444 !important;
+}
+
+.logo a:hover .logo-dot {
+    color: #FF8551 !important;
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+    .logo a,
+    .logo-text {
+        font-size: 1.22rem !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .logo a,
+    .logo-text {
+        font-size: 1.11rem !important;
+    }
+}
+
+/* Credits Display - Like user-info style */
+.credits-display {
+    display: flex;
+    align-items: center;
+    margin-right: 12px;
+}
+
+.credits-container {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0.3rem 0.8rem;
+    background: rgba(102, 102, 102, 0.1);
+    border-radius: var(--border-radius-md);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+}
+
+.credits-container:hover {
+    background: rgba(102, 102, 102, 0.2);
+    transform: translateY(-2px);
+}
+
+.credits-container i {
+    font-size: 14px;
+    color: #FF6B35;
+}
+
+.credits-container span {
+    font-weight: var(--font-weight-medium);
+    color: #FF6B35;
+    min-width: 20px;
+    text-align: center;
+}
+
+/* State variations - all use orange for pro, red for low */
+.credits-container.pro i,
+.credits-container.pro span {
+    color: #FF6B35;
+}
+
+.credits-container.low i,
+.credits-container.unlimited i,
+.credits-container.low span,
+.credits-container.unlimited span {
+    color: #ef4444;
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+    .credits-display {
+        margin-right: 8px;
+    }
+    
+    .credits-container {
+        padding: 5px 10px;
+        font-size: 0.85rem;
+    }
+    
+    .credits-container i {
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .credits-display {
+        margin-right: 6px;
+    }
+    
+    .credits-container {
+        padding: 4px 8px;
+        gap: 4px;
+    }
+}
+</style>
+
+
+    
+    <!-- Main Content -->
+    <main id="main-content" class="main-content">
+        <!-- Main Content -->
+    <div class="demo-container">
+        <div class="demo-header">
+            <h1>Demo</h1>
+            <p>See what you get from each of our modes - Specification Mode and Market Research Mode. Choose which mode to explore below.</p>
+        </div>
+        
+        <!-- Mode Selector -->
+        <div class="mode-selector">
+            <button class="mode-toggle spec active" onclick="showMode('specification')">
+                <i class="fas fa-dollar-sign"></i>
+                Specification Mode
+            </button>
+            <button class="mode-toggle research" onclick="showMode('research')">
+                <i class="fas fa-chart-line"></i>
+                Market Research Mode
+            </button>
+        </div>
+        
+        <div class="demo-modes">
+            <!-- Specification Mode -->
+            <div class="mode-section spec active" id="specificationSection">
+                <div class="mode-header">
+                    <div class="mode-icon spec">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                    <div>
+                        <h2 class="mode-title">Specification Mode</h2>
+                        <p class="mode-description">Detailed technical specifications for your app</p>
+                    </div>
+                </div>
+                <div class="mode-content" id="specificationContent">
+                    <div class="loading-content">
+                        <i class="fas fa-spinner fa-spin loading-spinner"></i>
+                        Loading specification content...
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Market Research Mode -->
+            <div class="mode-section research" id="researchSection">
+                <div class="mode-header">
+                    <div class="mode-icon research">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div>
+                        <h2 class="mode-title">Market Research Mode</h2>
+                        <p class="mode-description">Comprehensive market analysis and insights</p>
+                    </div>
+                </div>
+                <div class="mode-content" id="researchContent">
+                    <div class="loading-content">
+                        <i class="fas fa-spinner fa-spin loading-spinner"></i>
+                        Loading market research content...
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Comparison Section -->
+        <div class="comparison-section">
+            <h2 class="comparison-title">Ready to Create Your Own?</h2>
+            <p class="comparison-description">
+                Both modes provide comprehensive outputs tailored to your needs. Ready to create your own specification or market research analysis?
+            </p>
+            <div class="comparison-actions">
+                <a href="../" class="action-btn primary">
+                    <i class="fas fa-rocket"></i>
+                    Start Now
+                </a>
+            </div>
+        </div>
+    </div>
+
+<script>
+        // Global variables for content
+        let specificationContent = '';
+        let researchContent = '';
+        let mermaidInitialized = false;
+        
+        // Wait for required libraries to load
+        function waitForLibraries() {
+            return new Promise((resolve) => {
+                const checkLibraries = () => {
+                    if (typeof mermaid !== 'undefined' && typeof marked !== 'undefined') {
+                        if (!mermaidInitialized) {
+                            mermaid.initialize({ 
+                                startOnLoad: false,
+                                theme: document.body.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+                            });
+                            mermaidInitialized = true;
+                        }
+                        resolve();
+                    } else {
+                        setTimeout(checkLibraries, 100);
+                    }
+                };
+                checkLibraries();
+            });
+        }
+        
+        // Load content from demotext.text
+        async function loadDemoContent() {
+            try {
+                // Wait for libraries to load first
+                await waitForLibraries();
+                
+                const response = await fetch('demotext.text');
+                const text = await response.text();
+                
+                // Split content at the market research marker
+                const parts = text.split('=== MARKET RESEARCH SPECIFICATION ===');
+                
+                if (parts.length === 2) {
+                    specificationContent = parts[0].trim();
+                    researchContent = parts[1].trim();
+                    
+                    // Display content
+                    displayContent('specificationContent', specificationContent);
+                    displayContent('researchContent', researchContent);
+                } else {
+                    throw new Error('Could not parse demo content');
+                }
+            } catch (error) {
+                console.error('Error loading demo content:', error);
+                showError('specificationContent', 'Failed to load specification content');
+                showError('researchContent', 'Failed to load research content');
+            }
+        }
+        
+        // Display content in the specified container
+        function displayContent(containerId, content) {
+            const container = document.getElementById(containerId);
+            
+            if (!content) {
+                showError(containerId, 'No content available');
+                return;
+            }
+            
+            // Convert markdown to HTML
+            const htmlContent = marked.parse(content);
+            
+            // Create wrapper div with demo-content class for styling
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'demo-content';
+            contentDiv.innerHTML = htmlContent;
+            
+            // Replace loading content
+            container.innerHTML = '';
+            container.appendChild(contentDiv);
+            
+            // Initialize Mermaid for any diagrams
+            const mermaidElements = contentDiv.querySelectorAll('.mermaid, pre code');
+            mermaidElements.forEach((element) => {
+                const text = element.textContent.trim();
+                if (text.startsWith('flowchart') || text.startsWith('graph') || text.startsWith('sequenceDiagram') || 
+                    text.startsWith('classDiagram') || text.startsWith('stateDiagram') || text.startsWith('erDiagram') ||
+                    text.startsWith('journey') || text.startsWith('gantt') || text.startsWith('pie') || text.startsWith('gitgraph')) {
+                    
+                    // Convert to mermaid diagram
+                    const mermaidDiv = document.createElement('div');
+                    mermaidDiv.className = 'mermaid';
+                    mermaidDiv.textContent = text;
+                    
+                    if (element.tagName === 'CODE' && element.parentNode.tagName === 'PRE') {
+                        element.parentNode.replaceWith(mermaidDiv);
+                    } else {
+                        element.replaceWith(mermaidDiv);
+                    }
+                }
+            });
+            
+            // Re-initialize Mermaid for new diagrams
+            if (typeof mermaid !== 'undefined' && mermaidInitialized) {
+                mermaid.init(undefined, contentDiv.querySelectorAll('.mermaid'));
+            }
+        }
+        
+        // Show error message
+        function showError(containerId, message) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = `
+                <div class="loading-content">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    ${message}
+                </div>
+            `;
+        }
+        
+        
+        // Show specific mode
+        function showMode(mode) {
+            // Hide all sections
+            document.getElementById('specificationSection').classList.remove('active');
+            document.getElementById('researchSection').classList.remove('active');
+            
+            // Remove active class from all toggles
+            document.querySelectorAll('.mode-toggle').forEach(toggle => {
+                toggle.classList.remove('active');
+            });
+            
+            // Show selected section and activate toggle
+            if (mode === 'specification') {
+                document.getElementById('specificationSection').classList.add('active');
+                document.querySelector('.mode-toggle.spec').classList.add('active');
+            } else if (mode === 'research') {
+                document.getElementById('researchSection').classList.add('active');
+                document.querySelector('.mode-toggle.research').classList.add('active');
+            }
+        }
+        
+        // Logout function
+        function logout() {
+            alert('Logged out successfully!');
+        }
+        
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDemoContent();
+            initializeAuth();
+        });
+
+        // Auth system functions
+        function initializeAuth() {
+            const authButtons = document.getElementById('auth-buttons');
+            if (authButtons && !authButtons.innerHTML.trim()) {
+                // Default state - show login button for non-authenticated users
+                authButtons.innerHTML = `
+                    <button class="auth-btn" onclick="showLoginModal()">Login</button>
+                `;
+            }
+        }
+
+        // UI functions
+        function updateAuthUI(user) {
+            const authButtons = document.getElementById('auth-buttons');
+            
+            if (user) {
+                // User is logged in
+                const userEmail = user.email;
+                const displayName = user.displayName || userEmail.split('@')[0];
+                const firstLetter = userEmail ? userEmail.charAt(0).toUpperCase() : 'U';
+                
+                authButtons.innerHTML = `
+                    <a href="profile.html" class="user-info" style="text-decoration: none;">
+                        <div class="user-avatar">${firstLetter}</div>
+                        <span>${displayName}</span>
+                    </a>
+                `;
+            } else {
+                // User is not logged in
+                authButtons.innerHTML = `
+                    <button class="auth-btn" onclick="showLoginModal()">Login</button>
+                `;
+            }
+        }
+
+        // Global functions
+        window.showLoginModal = function() {
+            window.location.href = 'auth.html';
+        };
+
+        window.logout = function() {
+            alert('Logged out successfully!');
+            // Reset to login state
+            updateAuthUI(null);
+        };
+    </script>
+
+    </main>
+    
+    <!-- Footer -->
+    <!-- Footer -->
+<footer>
+  <div class="footer-content">
+    <div class="footer-links">
+      <a href="/pages/how.html" aria-label="Learn how specifys.ai works">How It Works</a>
+      <a href="/pages/about.html" aria-label="Learn more about specifys.ai">About Us</a>
+      <a href="/blog/" aria-label="Visit our blog">Blog</a>
+      <a href="/tools/map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
+      <a href="/pages/ToolPicker.html" aria-label="Use our Tool Finder">Tool Finder</a>
+    </div>
+    <span class="footer-divider">|</span>
+    <div class="footer-social">
+      <a href="https://www.linkedin.com/company/specifys-ai/" target="_blank" aria-label="Follow us on LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+      <a href="https://www.facebook.com/profile.php?id=61576402600129&locale=he_IL" target="_blank" aria-label="Follow us on Facebook"><i class="fab fa-facebook-f"></i></a>
+      <a href="mailto:specifysai@gmail.com" aria-label="Send us an email"><i class="fas fa-envelope"></i></a>
+      <a href="https://www.producthunt.com/products/specifys-ai" target="_blank" aria-label="Check us out on Product Hunt"><i class="fab fa-product-hunt"></i></a>
+    </div>
+  </div>
+  <div class="footer-copyright">
+    © 2025 specifys.ai. All rights reserved. <span class="footer-version">v1.2.4</span>
+  </div>
+</footer>
+
+    
+    <!-- Scroll to top button -->
+<button class="icon-btn scroll-to-top" id="scrollToTop" aria-label="Scroll">
+  <i class="fas fa-arrow-up"></i>
+</button>
+
+<script>
+  // Scroll button functionality
+  document.addEventListener('DOMContentLoaded', function() {
+    const scrollBtn = document.getElementById('scrollToTop');
+    
+    if (scrollBtn) {
+      // Handle click - scroll to top or bottom based on current state
+      scrollBtn.addEventListener("click", () => {
+        if (window.scrollY > 300) {
+          // If scrolled down, go to top
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        } else {
+          // If at top, scroll to bottom
+          window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+        }
+      });
+      
+      // Rotate button based on scroll position
+      window.addEventListener("scroll", () => {
+        if (window.scrollY > 300) {
+          scrollBtn.classList.add("scrolled-down");
+          scrollBtn.setAttribute("aria-label", "Scroll to top");
+        } else {
+          scrollBtn.classList.remove("scrolled-down");
+          scrollBtn.setAttribute("aria-label", "Scroll to bottom");
+        }
+      });
+    }
+  });
+</script>
+
+
+    
+    <!-- Firebase SDK & Auth -->
+    
+    <!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<script>
+  // Firebase Configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyB9hr0IWM4EREzkKDxBxYoYinV6LJXWXV4",
+    authDomain: "specify-ai.firebaseapp.com",
+    projectId: "specify-ai",
+    storageBucket: "specify-ai.firebasestorage.app",
+    messagingSenderId: "734278787482",
+    appId: "1:734278787482:web:0e312fb6f197e849695a23",
+    measurementId: "G-4YR9LK63MR"
+  };
+
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+</script>
+
+
+    <script>
+  // Auth UI functions
+  function updateAuthUI(user) {
+    const authButtons = document.getElementById('auth-buttons');
+    if (!authButtons) return;
+    
+    if (user) {
+      // User is logged in
+      const displayName = user.displayName || user.email.split('@')[0];
+      const firstLetter = displayName.charAt(0).toUpperCase();
+      
+      authButtons.innerHTML = `
+        <a href="/pages/profile.html" class="user-info" style="text-decoration: none;">
+          <div class="user-avatar">${firstLetter}</div>
+          <span>${displayName}</span>
+        </a>
+      `;
+    } else {
+      // User is not logged in
+      authButtons.innerHTML = `
+        <button class="auth-btn" onclick="showLoginModal()">Login</button>
+      `;
+    }
+  }
+
+  // Global auth functions
+  window.showLoginModal = function() {
+    if (typeof trackButtonClick !== 'undefined') {
+      trackButtonClick('Show Login', 'Authentication', 'header');
+    }
+    window.location.href = '/pages/auth.html';
+  };
+
+  window.showRegisterModal = function() {
+    if (typeof trackButtonClick !== 'undefined') {
+      trackButtonClick('Show Register', 'Authentication', 'header');
+    }
+    window.location.href = '/pages/auth.html';
+  };
+
+  window.logout = function() {
+    if (typeof trackAuthEvent !== 'undefined') {
+      trackAuthEvent('logout', 'email');
+    }
+    auth.signOut()
+      .then(() => {
+        console.log('Logged out successfully');
+      })
+      .catch(error => {
+        console.error('Error logging out:', error);
+      });
+  };
+
+  // Listen to auth state changes
+  auth.onAuthStateChanged((user) => {
+    updateAuthUI(user);
+  });
+
+  // Initialize auth buttons with default state
+  document.addEventListener('DOMContentLoaded', function() {
+    const authButtons = document.getElementById('auth-buttons');
+    if (authButtons && !authButtons.innerHTML.trim()) {
+      authButtons.innerHTML = `
+        <button class="auth-btn login-btn">Login</button>
+      `;
+      
+      const loginBtn = authButtons.querySelector('.login-btn');
+      if (loginBtn) {
+        loginBtn.addEventListener('click', function(event) {
+          event.stopPropagation();
+          window.location.href = '/pages/auth.html';
+        });
+      }
+    }
+  });
+</script>
+
+<!-- Credits Display Script -->
+<script src="/assets/js/credits-display.js"></script>
+
+    
+    
+    <!-- Extra JavaScript -->
+    
+    
+</body>
+</html>

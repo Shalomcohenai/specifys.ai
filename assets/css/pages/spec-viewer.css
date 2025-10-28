@@ -1,5 +1,59 @@
 /* Spec Viewer Page Styles */
 
+/* Content Sections - Each section displayed separately with styling */
+.content-section {
+    background: white;           /* רקע לבן */
+    padding: 25px;               /* 25px רווח מכל הצדדים */
+    margin-bottom: 30px;         /* 30px רווח למטה - מפריד בין המקטעים */
+    border-radius: 8px;          /* פינות מעוגלות */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);  /* צל עדין */
+}
+
+.content-section h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #333;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 10px;
+}
+
+.content-section h3 i {
+    color: #FF6B35;
+    margin-right: 8px;
+}
+
+.content-section p {
+    margin-bottom: 12px;
+    line-height: 1.6;
+    color: #555;
+}
+
+.content-section p:last-child {
+    margin-bottom: 0;
+}
+
+.content-section ul,
+.content-section ol {
+    padding-left: 25px;
+    margin-bottom: 15px;
+}
+
+.content-section li {
+    margin-bottom: 8px;
+    line-height: 1.6;
+    color: #555;
+}
+
+.content-section h4 {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #444;
+}
+
 /* Credits Display - Like user-info style */
 .credits-display {
     display: flex;
@@ -286,11 +340,12 @@
 .approval-container {
     background: #f8f9fa;
     border-radius: 8px;
-    padding: 15px 20px;
+    padding: 20px;
     margin-bottom: 20px;
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
     align-items: center;
+    gap: 15px;
     border: 1px solid #e0e0e0;
 }
 
@@ -300,12 +355,14 @@
     gap: 10px;
     color: #666;
     font-size: 14px;
-    flex: 1;
+    text-align: center;
 }
 
 .approval-actions {
     display: flex;
     gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
 }
 
 .overview-editor {
@@ -889,9 +946,13 @@
     background: white;
     border-radius: 12px;
     padding: 20px;
-    margin-bottom: 20px;
+    margin: 0 auto 20px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     border: 1px solid #e0e0e0;
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .diagram-header {
@@ -901,6 +962,7 @@
     margin-bottom: 20px;
     padding-bottom: 15px;
     border-bottom: 2px solid #ff6b35;
+    width: 100%;
 }
 
 .diagram-header h3 {
@@ -920,25 +982,42 @@
     color: white;
     border: none;
     border-radius: 4px;
-    padding: 8px 12px;
+    padding: 0;
     cursor: pointer;
     font-size: 14px;
-    transition: background-color 0.2s;
+    transition: all 0.2s;
     display: flex;
     align-items: center;
     justify-content: center;
-    min-width: 36px;
+    width: 36px;
     height: 36px;
 }
 
+.btn-icon i {
+    color: white !important;
+    font-size: 14px;
+}
+
 .btn-icon:hover {
-    background: #106ebe;
+    background: #FF8551;
+    transform: translateY(-1px);
+}
+
+.btn-icon:active {
+    transform: translateY(0);
+}
+
+.btn-icon:focus {
+    outline: none;
 }
 
 .diagram-content {
     padding: 20px;
     min-height: 200px;
     position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .diagram-status {
@@ -1017,26 +1096,40 @@
     padding: 20px;
     background: rgba(0, 0, 0, 0.8);
     border-bottom: 1px solid #333;
+    z-index: 100001;
+    position: relative;
 }
 
 .fullscreen-header h3 {
     margin: 0;
     font-size: 24px;
+    color: white;
 }
 
 .fullscreen-controls {
     display: flex;
     gap: 15px;
+    z-index: 100002;
+    position: relative;
 }
 
 .fullscreen-controls .btn-icon {
-    background: rgba(255, 255, 255, 0.2);
+    background: #FF6B35;
     color: white;
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    border: none;
+}
+
+.fullscreen-controls .btn-icon i {
+    color: white;
 }
 
 .fullscreen-controls .btn-icon:hover {
-    background: rgba(255, 255, 255, 0.3);
+    background: #FF8551;
+    transform: translateY(-1px);
+}
+
+.fullscreen-controls .btn-icon:active {
+    transform: translateY(0);
 }
 
 .fullscreen-content {
@@ -1044,18 +1137,49 @@
     padding: 20px;
     overflow: auto;
     cursor: grab;
-    transform-origin: center;
+    transform-origin: center center;
     transition: transform 0.2s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .fullscreen-content:active {
     cursor: grabbing;
 }
 
+/* Mermaid diagrams - centered by default */
+.mermaid,
+.mermaid-rendered {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.mermaid svg,
+.mermaid-rendered svg {
+    display: block;
+    margin: 0 auto;
+}
+
 .fullscreen-content .mermaid {
     background: white;
     border-radius: 8px;
     padding: 20px;
+}
+
+.mermaid-fullscreen {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+
+.mermaid-fullscreen svg {
+    max-width: 100%;
+    max-height: 100%;
 }
 
 .diagram-loading {
@@ -1192,6 +1316,40 @@
     .approve-btn {
         width: 100%;
     }
+    
+    /* Content section responsive design for mobile */
+    .content-section {
+        padding: 20px;
+        margin-bottom: 20px;
+        border-radius: 6px;
+    }
+    
+    .content-section h3 {
+        font-size: 1.15rem;
+        margin-bottom: 12px;
+        padding-bottom: 8px;
+    }
+    
+    .content-section h3 i {
+        margin-right: 6px;
+    }
+    
+    .content-section h4 {
+        margin-top: 15px;
+        margin-bottom: 8px;
+        font-size: 1rem;
+    }
+    
+    /* Diagram content responsive */
+    .diagram-content {
+        padding: 15px;
+    }
+    
+    .mermaid svg,
+    .mermaid-rendered svg {
+        max-width: 100%;
+        height: auto;
+    }
 }
 
 /* Registration Modal Styles */
@@ -1288,4 +1446,64 @@
     text-align: center;
     font-size: 12px;
     color: #999;
+}
+
+/* Approval buttons - orange theme */
+.approval-actions .btn {
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.approval-actions .btn-secondary {
+    background: #FF6B35;
+    color: white;
+}
+
+.approval-actions .btn-secondary:hover {
+    background: #FF8551;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 107, 53, 0.4);
+}
+
+.approval-actions .btn-success {
+    background: linear-gradient(135deg, #FF6B35 0%, #FF8551 100%);
+    color: white;
+}
+
+.approval-actions .btn-success:hover {
+    background: linear-gradient(135deg, #FF8551 0%, #FF6B35 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 107, 53, 0.4);
+}
+
+.approval-actions .btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Loading spinner animation */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading-spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    vertical-align: middle;
+    margin-right: 8px;
 }

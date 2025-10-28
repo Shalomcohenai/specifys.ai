@@ -76,5 +76,13 @@ service cloud.firestore {
     match /processed_webhook_events/{document} {
       allow read, write, create: if isAdmin();
     }
+
+    // Public demo spec - allow anyone to read
+    match /specs/{specId} {
+      // Allow public read access to specific demo spec
+      allow read: if specId == 'iAzaUwtSW3qvcW87lICL';
+      // Regular specs require auth
+      allow read, write: if request.auth != null && request.auth.uid == resource.data.userId || isAdmin();
+    }
   }
 }

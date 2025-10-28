@@ -15,7 +15,17 @@ class OpenAIStorageService {
    */
   async uploadSpec(specId, specData) {
     try {
-      const content = JSON.stringify(specData, null, 2);
+      // Extract ONLY the relevant spec content (filter out metadata)
+      const cleanedData = {
+        specId: specId,
+        title: specData.title || 'Untitled Spec',
+        overview: specData.overview || null,
+        technical: specData.technical || null,
+        market: specData.market || null,
+        design: specData.design || null
+      };
+      
+      const content = JSON.stringify(cleanedData, null, 2);
       const formData = new FormData();
       
       formData.append('file', Buffer.from(content), {
@@ -39,6 +49,7 @@ class OpenAIStorageService {
       }
       
       const result = await response.json();
+      console.log(`[OpenAI Upload] Spec ${specId} uploaded as file ${result.id}`);
       return result.id;
     } catch (error) {
       console.error('Error uploading to OpenAI:', error);
@@ -131,10 +142,21 @@ class OpenAIStorageService {
         },
         body: JSON.stringify({
           name: `Spec Assistant - ${specId}`,
-          instructions: `You are a helpful assistant that answers questions about an app specification. 
-Use the provided specification file to give accurate, detailed answers. 
-Always reference specific parts of the spec when relevant.
-If something is not in the spec, say so clearly.`,
+          instructions: `You are a helpful assistant for a specific application specification.
+CRITICAL: Only answer based on the specification file provided to you. 
+The file contains: specId, title, overview, technical details, market analysis, and design specifications.
+
+IMPORTANT RULES:
+1. Always check the "specId" field to confirm you're discussing the correct specification
+2. When asked about the application name or title, refer to the "title" field in the specification
+3. Use the "overview" field for general information about the application
+4. Use the "technical" field for technical implementation details
+5. Use the "market" field for market analysis and target audience
+6. Use the "design" field for design and UI/UX information
+7. If information is not in the provided specification, clearly state that it's not available
+8. Never make up information or refer to other specifications
+
+Always reference specific parts of the spec when relevant.`,
           model: 'gpt-4o-mini',
           tools: [{ type: 'file_search' }],
           tool_resources: {
@@ -173,6 +195,13 @@ If something is not in the spec, say so clearly.`,
       
       const vectorStore = await fileSearchResponse.json();
       
+      // Wait for vector store to be ready
+      console.log(`[Vector Store] Created ${vectorStore.id} for spec ${specId}`);
+      const isReady = await this.waitForVectorStoreReady(vectorStore.id);
+      if (!isReady) {
+        console.warn(`[Vector Store] ${vectorStore.id} not ready after timeout, proceeding anyway`);
+      }
+      
       // Update assistant with vector store
       await fetch(`${this.baseURL}/assistants/${assistant.id}`, {
         method: 'POST',
@@ -195,6 +224,53 @@ If something is not in the spec, say so clearly.`,
       console.error('Error creating assistant:', error);
       throw error;
     }
+  }
+
+  /**
+   * Wait for vector store to be ready
+   * @param {string} vectorStoreId - Vector Store ID
+   * @param {number} maxAttempts - Maximum attempts to check
+   * @returns {Promise<boolean>} True if ready, false if timeout
+   */
+  async waitForVectorStoreReady(vectorStoreId, maxAttempts = 30) {
+    console.log(`[Vector Store] Waiting for ${vectorStoreId} to be ready...`);
+    
+    for (let i = 0; i < maxAttempts; i++) {
+      try {
+        const response = await fetch(`${this.baseURL}/vector_stores/${vectorStoreId}`, {
+          headers: {
+            'Authorization': `Bearer ${this.apiKey}`,
+            'OpenAI-Beta': 'assistants=v2'
+          }
+        });
+        
+        if (!response.ok) {
+          console.warn(`[Vector Store] Failed to check status: ${response.status}`);
+          return false;
+        }
+        
+        const vectorStore = await response.json();
+        
+        if (vectorStore.status === 'completed') {
+          console.log(`[Vector Store] ${vectorStoreId} is ready`);
+          return true;
+        }
+        
+        if (vectorStore.status === 'failed') {
+          console.error(`[Vector Store] ${vectorStoreId} failed`);
+          return false;
+        }
+        
+        // Wait before next check
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      } catch (error) {
+        console.error(`[Vector Store] Error checking status:`, error);
+        return false;
+      }
+    }
+    
+    console.warn(`[Vector Store] Timeout waiting for ${vectorStoreId} to be ready`);
+    return false;
   }
 
   /**

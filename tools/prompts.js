@@ -34,9 +34,9 @@ Create a comprehensive and detailed overview based on the user input. Analyze th
       "feedbackLoops": "How the system provides feedback to users"
     },
     "screenDescriptions": {
-      "screens": ["Screen 1: Name, purpose, key elements, user interactions", "Screen 2: Name, purpose, key elements, user interactions"],
-      "uiComponents": "Key UI components and their purposes",
-      "navigationStructure": "How users move between screens"
+      "screens": ["Screen 1: Name, purpose, key elements, user interactions", "Screen 2: Name, purpose, key elements, user interactions", "Screen 3: Name, purpose, key elements, user interactions", "Screen 4: Name, purpose, key elements, user interactions", "Screen 5: Name, purpose, key elements, user interactions"],
+      "uiComponents": ["Component 1: Purpose, placement, behavior", "Component 2: Purpose, placement, behavior", "Component 3: Purpose, placement, behavior"],
+      "navigationStructure": "Detailed navigation flow including: main navigation paths, side navigation, bottom navigation, modal flows, deep linking structure, and key transition points between screens"
     }
   }
 }
@@ -54,7 +54,9 @@ IMPORTANT DETAILED REQUIREMENTS:
 - detailedUserFlow.steps should include specific user actions and system responses
 - detailedUserFlow.decisionPoints should describe key decision moments
 - detailedUserFlow.errorHandling should explain error scenarios
-- screenDescriptions.screens should describe each screen's name, purpose, key elements, and interactions
+- screenDescriptions.screens MUST include 5-7 detailed screen descriptions (not just 2)
+- screenDescriptions.uiComponents MUST include at least 3 detailed UI component descriptions
+- screenDescriptions.navigationStructure MUST be comprehensive with detailed navigation paths
 - All content should be detailed, comprehensive, and provide substantial value
 - All values must be strings or arrays, never null or undefined
 
@@ -92,7 +94,14 @@ Create a comprehensive technical specification with TEXTUAL descriptions only (n
     "architectureOverview": "Textual description of system structure (client-server, API routes, data flow)",
     "databaseSchema": {
       "description": "Textual description of tables, relationships, and general data logic",
-      "tables": ["Table 1 description", "Table 2 description"],
+      "tables": [
+        {
+          "name": "Table name (e.g., Users)",
+          "purpose": "What this table stores and why",
+          "fields": ["id (Primary Key, Auto-increment)", "name (String, Required)", "email (String, Unique, Required)", "createdAt (Timestamp)"],
+          "relationships": "How this table relates to other tables"
+        }
+      ],
       "relationships": "Description of how tables relate to each other"
     },
     "apiEndpoints": [
@@ -145,17 +154,21 @@ Create a comprehensive technical specification with TEXTUAL descriptions only (n
           "fields": [
             {
               "name": "field_name",
-              "type": "field type (String, Integer, Boolean, etc.)",
+              "type": "field type (String, Integer, Boolean, Timestamp, etc.)",
               "required": true,
-              "constraints": "Any constraints (unique, max length, etc.)",
-              "description": "What this field stores"
+              "constraints": "Any constraints (unique, max length, default value, etc.)",
+              "description": "What this field stores and how it's used"
             }
           ],
           "relationships": "Relationships with other models",
-          "validationRules": "Validation rules for this model"
+          "validationRules": "Validation rules for this model",
+          "indexes": "Database indexes for optimization",
+          "sampleData": "Example of what data looks like in this model"
         }
       ],
-      "overallStructure": "How all models relate to each other and the overall data architecture"
+      "overallStructure": "How all models relate to each other and the overall data architecture",
+      "totalModelsCount": "Total number of data models in the system",
+      "crudOperations": "Main CRUD operations for each model"
     },
     "dataFlowDetailed": {
       "authenticationFlow": "Step-by-step authentication process from user login to system access",
@@ -170,6 +183,20 @@ Create a comprehensive technical specification with TEXTUAL descriptions only (n
 }
 
 IMPORTANT: All descriptions must be textual only. Diagrams will be generated separately.
+
+CRITICAL FOR DATABASE SCHEMA:
+- databaseSchema.tables MUST be an array of objects, not just string descriptions
+- Each table object MUST include: name, purpose, fields (array of field definitions), and relationships
+- fields array MUST list ALL fields for each table with their types and constraints
+- Provide COMPLETE database schema with ALL tables that will be used in the application
+- Example of correct format: { "name": "Users", "purpose": "Stores user accounts", "fields": ["id (PK, auto-increment)", "email (string, unique, required)", "password (string, hashed, required)"], "relationships": "Users has many Orders" }
+
+CRITICAL FOR DETAILED DATA MODELS:
+- detailedDataModels.models MUST include ALL models/tables from databaseSchema
+- Every model MUST include ALL fields with complete information: name, type, required status, constraints, and description
+- Never omit models - if there are 10 tables, include all 10 models
+- Each model must have comprehensive field definitions
+- Must match and expand upon the databaseSchema.tables information
 
 IMPORTANT FOR API ENDPOINTS:
 - requestBody and responseBody must be detailed textual descriptions OR valid JSON strings (never [object Object])
@@ -536,7 +563,7 @@ Target Audience: ${targetAudience}`;
   diagrams: (technicalContent, overviewContent) => {
     return `Return ONLY valid JSON (no text/markdown). Top-level key MUST be diagrams. If a value is unknown, return an empty array/object—never omit required keys.
 
-Generate 6 Mermaid diagrams based on the technical specification. Return JSON with diagrams key containing an array of 6 diagram objects, each with:
+Generate 7 Mermaid diagrams based on the technical specification. Return JSON with diagrams key containing an array of 7 diagram objects, each with:
 
 {
   "diagrams": [
@@ -568,8 +595,16 @@ Generate 6 Mermaid diagrams based on the technical specification. Return JSON wi
       "id": "data_schema",
       "type": "erDiagram",
       "title": "Data Schema Diagram (ERD)",
-      "description": "Entity structure, relationships, primary/foreign keys",
+      "description": "Entity structure, relationships, primary/foreign keys based on technical specification database schema",
       "mermaidCode": "Valid Mermaid erDiagram syntax",
+      "status": "success"
+    },
+    {
+      "id": "database_schema",
+      "type": "erDiagram",
+      "title": "Database Schema Diagram",
+      "description": "Complete database schema with all tables, fields, data types, and relationships based on the technical specification",
+      "mermaidCode": "Valid Mermaid erDiagram syntax with all entities and their attributes",
       "status": "success"
     },
     {
@@ -591,12 +626,44 @@ Generate 6 Mermaid diagrams based on the technical specification. Return JSON wi
   ]
 }
 
-CRITICAL REQUIREMENTS:
+CRITICAL REQUIREMENTS FOR ERD DIAGRAMS (data_schema AND database_schema):
+- ABSOLUTELY CRITICAL: ERD syntax MUST be exactly correct
+- CORRECT format for erDiagram:
+  erDiagram
+      ENTITY1 {
+          int id PK
+          string name
+          string email
+      }
+      ENTITY2 {
+          int id PK
+          string title
+          int entity1Id FK
+          date createdAt
+      }
+      ENTITY1 ||--o{ ENTITY2 : "has"
+- NEVER write: USERS {id} ||--o{ TASKS {projectId} : belongs_to
+- CORRECT: First define entity attributes, THEN relationships
+- Relationships must ONLY show entity names separated by relationship symbols
+- NEVER put field names like {id} or {projectId} inside relationship lines
+- Define ALL entity attributes inside curly braces BEFORE writing any relationships
+- Relationship format: ENTITY1 ||--o{ ENTITY2 : "label"
+
+CRITICAL REQUIREMENTS FOR database_schema DIAGRAM:
+- database_schema MUST include ALL entities from the technical specification
+- MUST show all fields with their data types for each entity
+- MUST accurately represent the databaseSchema.tables from technical specification
+- MUST include all relationships between entities
+- This diagram should be based on the databaseSchema.tables provided in the technical specification
+- Use the detailed table information to create a complete ERD
+
+CRITICAL REQUIREMENTS FOR ALL DIAGRAMS:
 - All mermaidCode must be valid Mermaid syntax
 - Use proper node IDs and labels
 - Include appropriate styling and formatting
 - Ensure diagrams are comprehensive and detailed
 - Each diagram should be self-contained and meaningful
+- database_schema diagram must match the actual databaseSchema from technical specification
 
 Technical Specification:
 ${technicalContent}

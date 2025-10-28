@@ -182,6 +182,7 @@
         <div class="container">
             <h1>Build Smart with Specifys.ai</h1>
             <p>Choose the perfect plan for your app development needs</p>
+            <p class="hero-subtitle">Single specs, packs, or unlimited Pro subscriptions - choose what works for you</p>
         </div>
     </div>
 
@@ -194,20 +195,20 @@
                 <div class="pricing-card single">
                     <div class="plan-header">
                         <h3>Single Spec</h3>
-                        <p class="plan-description">One additional specification</p>
+                        <p class="plan-description">One specification credit</p>
                     </div>
                     <div class="plan-features">
                         <ul>
-                            <li><i class="fas fa-check-circle"></i> <span>1 Specification</span></li>
-                            <li><i class="fas fa-check-circle"></i> <span>Full Spec Details</span></li>
-                            <li><i class="fas fa-check-circle"></i> <span>Tools Map Access</span></li>
-                            <li><i class="fas fa-check-circle"></i> <span>Forever Access</span></li>
+                            <li><i class="fas fa-check-circle"></i> <span>1 Spec Credit</span></li>
+                            <li><i class="fas fa-check-circle"></i> <span>Download Specs (PDF/CSV/MD)</span></li>
+                            <li><i class="fas fa-times-circle" style="color: #dee2e6;"></i> <span style="opacity: 0.6;">Edit Specifications</span></li>
+                            <li><i class="fas fa-times-circle" style="color: #dee2e6;"></i> <span style="opacity: 0.6;">Unlimited Creation</span></li>
                         </ul>
                     </div>
                     <div class="plan-cta">
                         <div class="price">
-                            <span class="currency">$</span>
-                            <span class="amount">4.90</span>
+                            <span class="currency">₪</span>
+                            <span class="amount">19</span>
                             <span class="period">one-time</span>
                         </div>
                         <button class="btn btn-primary" onclick="purchaseSpec('single_spec')">
@@ -221,20 +222,20 @@
                     <div class="plan-badge">Best Value</div>
                     <div class="plan-header">
                         <h3>3-Pack</h3>
-                        <p class="plan-description">Three specifications at a discount</p>
+                        <p class="plan-description">Three specification credits</p>
                     </div>
                     <div class="plan-features">
                         <ul>
-                            <li><i class="fas fa-check-circle"></i> <span>3 Specifications</span></li>
-                            <li><i class="fas fa-check-circle"></i> <span>Full Spec Details</span></li>
-                            <li><i class="fas fa-check-circle"></i> <span>Tools Map Access</span></li>
-                            <li><i class="fas fa-check-circle"></i> <span>Forever Access</span></li>
+                            <li><i class="fas fa-check-circle"></i> <span>3 Spec Credits</span></li>
+                            <li><i class="fas fa-check-circle"></i> <span>Download Specs (PDF/CSV/MD)</span></li>
+                            <li><i class="fas fa-times-circle" style="color: #dee2e6;"></i> <span style="opacity: 0.6;">Edit Specifications</span></li>
+                            <li><i class="fas fa-times-circle" style="color: #dee2e6;"></i> <span style="opacity: 0.6;">Unlimited Creation</span></li>
                         </ul>
                     </div>
                     <div class="plan-cta">
                         <div class="price">
-                            <span class="currency">$</span>
-                            <span class="amount">9.90</span>
+                            <span class="currency">₪</span>
+                            <span class="amount">38</span>
                             <span class="period">one-time</span>
                         </div>
                         <button class="btn btn-primary highlight" onclick="purchaseSpec('three_pack')">
@@ -243,6 +244,66 @@
                     </div>
                 </div>
 
+                <!-- Pro Subscription -->
+                <div class="pricing-card pro">
+                    <div class="plan-badge">Pro</div>
+                    <div class="plan-header">
+                        <h3>Pro</h3>
+                        <p class="plan-description">Unlimited specifications with editing</p>
+                    </div>
+                    
+                    <!-- Billing Toggle -->
+                    <div class="billing-toggle">
+                        <button class="toggle-btn monthly active" onclick="switchBilling('monthly')">Monthly</button>
+                        <button class="toggle-btn yearly" onclick="switchBilling('yearly')">Yearly</button>
+                    </div>
+                    
+                    <!-- Monthly Plan -->
+                    <div id="pro-monthly" class="plan-details active">
+                        <div class="plan-features">
+                            <ul>
+                                <li><i class="fas fa-check-circle"></i> <span>Unlimited Specifications</span></li>
+                                <li><i class="fas fa-check-circle"></i> <span>Edit & Customize Specs</span></li>
+                                <li><i class="fas fa-check-circle"></i> <span>Download Specs (PDF/CSV/MD)</span></li>
+                                <li><i class="fas fa-check-circle"></i> <span>All Advanced Features</span></li>
+                            </ul>
+                        </div>
+                        <div class="plan-cta">
+                            <div class="price">
+                                <span class="currency">₪</span>
+                                <span class="amount">115</span>
+                                <span class="period">per month</span>
+                            </div>
+                            <button class="btn btn-primary" onclick="purchaseSpec('pro_monthly')">
+                                Subscribe Now
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Yearly Plan -->
+                    <div id="pro-yearly" class="plan-details">
+                        <div class="plan-features">
+                            <ul>
+                                <li><i class="fas fa-check-circle"></i> <span>Unlimited Specifications</span></li>
+                                <li><i class="fas fa-check-circle"></i> <span>Edit & Customize Specs</span></li>
+                                <li><i class="fas fa-check-circle"></i> <span>Download Specs (PDF/CSV/MD)</span></li>
+                                <li><i class="fas fa-check-circle"></i> <span>All Advanced Features</span></li>
+                                <li><i class="fas fa-check-circle"></i> <span>Annual Savings</span></li>
+                            </ul>
+                        </div>
+                        <div class="plan-cta">
+                            <div class="price">
+                                <span class="currency">₪</span>
+                                <span class="amount">1,150</span>
+                                <span class="period">per year</span>
+                            </div>
+                            <div class="savings-badge">Save ₪230/year</div>
+                            <button class="btn btn-primary" onclick="purchaseSpec('pro_yearly')">
+                                Subscribe Now
+                            </button>
+                        </div>
+                    </div>
+                </div>
 
             </div>
         </div>
@@ -329,6 +390,13 @@
     margin: 0 auto;
 }
 
+.pricing-hero p.hero-subtitle {
+    margin-top: 12px;
+    font-size: 0.95rem;
+    color: #999;
+    font-weight: 400;
+}
+
 .pricing-container {
     padding: 60px 0;
     background: #ffffff;
@@ -342,9 +410,9 @@
 
 .pricing-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 32px;
-    max-width: 800px;
+    max-width: 1200px;
     margin: 0 auto;
 }
 
@@ -366,9 +434,16 @@
     border-color: #FF6B35;
 }
 
-.pricing-card.pack {
+.pricing-card.pack,
+.pricing-card.pro {
     border-color: #FF6B35;
     box-shadow: 0 4px 16px rgba(255, 107, 53, 0.2);
+}
+
+.pricing-card.pro:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 8px 24px rgba(255, 107, 53, 0.25);
+    border-color: #FF6B35;
 }
 
 .plan-badge {
@@ -386,6 +461,52 @@
 
 .plan-badge.best-value {
     background: #FF6B35;
+}
+
+/* Billing Toggle */
+.billing-toggle {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+    background: #f5f5f5;
+    padding: 4px;
+    border-radius: 8px;
+}
+
+.toggle-btn {
+    flex: 1;
+    padding: 8px 16px;
+    border: none;
+    background: transparent;
+    color: #666;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.toggle-btn.active {
+    background: #FF6B35;
+    color: white;
+}
+
+.toggle-btn:hover {
+    color: #FF6B35;
+}
+
+.toggle-btn.active:hover {
+    color: white;
+    background: #FF8551;
+}
+
+/* Plan Details - Show/Hide */
+.plan-details {
+    display: none;
+}
+
+.plan-details.active {
+    display: block;
 }
 
 .plan-header {
@@ -434,14 +555,16 @@
 }
 
 .savings-badge {
-    background: #28a745;
+    background: #FF6B35;
     color: white;
-    padding: 4px 8px;
+    padding: 4px 10px;
     border-radius: 4px;
     font-size: 11px;
     font-weight: 600;
     display: inline-block;
-    margin-top: 8px;
+    margin: 8px 0;
+    text-align: center;
+    width: 100%;
 }
 
 
@@ -662,6 +785,14 @@
     background: rgba(255, 255, 255, 0.1);
 }
 
+/* Responsive - 2 columns on medium screens */
+@media (max-width: 1200px) and (min-width: 769px) {
+    .pricing-grid {
+        grid-template-columns: repeat(2, 1fr);
+        max-width: 800px;
+    }
+}
+
 /* Mobile Responsive */
 @media (max-width: 768px) {
     .pricing-grid {
@@ -760,7 +891,7 @@ async function purchaseSpec(productKey) {
         }
 
         // Redirect to Lemon Squeezy checkout
-        const checkoutUrl = `https://${config.lemon_store_id}.lemonsqueezy.com/checkout/buy/${product.variant_id}`;
+        const checkoutUrl = `https://specifysai.lemonsqueezy.com/checkout/buy/${product.variant_id}`;
         window.open(checkoutUrl, '_blank');
 
     } catch (error) {
@@ -777,6 +908,27 @@ function trackCTA(ctaName, location) {
             'event_label': ctaName,
             'cta_location': location
         });
+    }
+}
+
+// Switch billing period for Pro plan
+function switchBilling(period) {
+    // Update toggle buttons
+    const monthlyBtn = document.querySelector('.toggle-btn.monthly');
+    const yearlyBtn = document.querySelector('.toggle-btn.yearly');
+    const monthlyPlan = document.getElementById('pro-monthly');
+    const yearlyPlan = document.getElementById('pro-yearly');
+    
+    if (period === 'monthly') {
+        monthlyBtn.classList.add('active');
+        yearlyBtn.classList.remove('active');
+        monthlyPlan.classList.add('active');
+        yearlyPlan.classList.remove('active');
+    } else {
+        yearlyBtn.classList.add('active');
+        monthlyBtn.classList.remove('active');
+        yearlyPlan.classList.add('active');
+        monthlyPlan.classList.remove('active');
     }
 }
 

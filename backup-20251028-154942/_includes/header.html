@@ -1,0 +1,141 @@
+<!-- Skip to main content link for accessibility -->
+<a href="#main-content" class="skip-link">Skip to main content</a>
+
+<!-- Header -->
+<header class="thematic-header" role="banner">
+    <div class="header-center">
+        <div class="logo">
+            <a href="{{ '/' | relative_url }}" aria-label="Specifys.ai homepage">
+                <span class="logo-text">Specifys<span class="logo-dot">.</span>AI</span>
+            </a>
+        </div>
+    </div>
+    <div class="header-right">
+        <div class="credits-display" id="credits-display" style="display: none;">
+            <div class="credits-container">
+                <i class="fas fa-dollar-sign"></i>
+                <span id="credits-text">0</span>
+            </div>
+        </div>
+        <div class="auth-buttons" id="auth-buttons">
+            <!-- Will be populated by auth system -->
+        </div>
+    </div>
+</header>
+
+<style>
+/* Logo dark grey color - adjusted size */
+.logo a,
+.logo-text {
+    color: #333 !important;
+    font-size: 1.5rem !important;
+}
+
+/* Only the dot in orange */
+.logo-dot {
+    color: #FF6B35 !important;
+}
+
+.logo a:hover {
+    color: #444 !important;
+}
+
+.logo a:hover .logo-dot {
+    color: #FF8551 !important;
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+    .logo a,
+    .logo-text {
+        font-size: 1.10rem !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .logo a,
+    .logo-text {
+        font-size: 1.00rem !important;
+    }
+}
+
+/* Credits Display - Like user-info style */
+.credits-display {
+    display: flex;
+    align-items: center;
+    margin-right: 12px;
+}
+
+.credits-container {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0.3rem 0.8rem;
+    background: rgba(102, 102, 102, 0.1);
+    border-radius: var(--border-radius-md);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+}
+
+.credits-container:hover {
+    background: rgba(102, 102, 102, 0.2);
+    transform: translateY(-2px);
+}
+
+.credits-container i {
+    font-size: 14px;
+    color: #FF6B35;
+}
+
+.credits-container span {
+    font-weight: var(--font-weight-medium);
+    color: #FF6B35;
+    min-width: 20px;
+    text-align: center;
+}
+
+/* State variations - all use orange for pro, red for low */
+.credits-container.pro i,
+.credits-container.pro span {
+    color: #FF6B35;
+}
+
+.credits-container.low i,
+.credits-container.unlimited i,
+.credits-container.low span,
+.credits-container.unlimited span {
+    color: #ef4444;
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+    .credits-display {
+        margin-right: 8px;
+    }
+    
+    .credits-container {
+        padding: 5px 10px;
+        font-size: 0.85rem;
+    }
+    
+    .credits-container i {
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .credits-display {
+        margin-right: 6px;
+    }
+    
+    .credits-container {
+        padding: 4px 8px;
+        gap: 4px;
+    }
+}
+</style>
+
+<!-- Credits Display Script -->
+<script src="/assets/js/credits-display.js"></script>
+

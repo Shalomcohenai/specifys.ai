@@ -1079,22 +1079,8 @@ extra_css:
         const authButtons = document.getElementById('auth-buttons');
         
         if (user) {
-          // User is logged in
-          const displayName = user.displayName || user.email.split('@')[0];
-          const firstLetter = displayName.charAt(0).toUpperCase();
-          
-          authButtons.innerHTML = `
-            <div class="user-dropdown">
-              <div class="user-info" onclick="toggleUserDropdown()">
-                <div class="user-avatar">${firstLetter}</div>
-                <span>${displayName}</span>
-              </div>
-              <div class="user-dropdown-content">
-                <a href="../../pages/profile.html">Profile</a>
-                <button onclick="logout()">Sign Out</button>
-              </div>
-            </div>
-          `;
+          // User is logged in - removed Profile and Sign Out buttons
+          authButtons.innerHTML = ``;
         } else {
           // User is not logged in
           authButtons.innerHTML = `

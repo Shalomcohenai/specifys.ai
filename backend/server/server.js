@@ -7,6 +7,7 @@ dotenv.config();
 
 const app = express();
 const port = config.port;
+
 // Middleware to parse JSON bodies
 app.use(express.json());
 
@@ -249,6 +250,10 @@ Return ONLY valid Mermaid code, nothing else.`;
     res.status(500).json({ error: 'Failed to repair diagram' });
   }
 });
+
+// Import and mount chat routes
+const chatRoutes = require('./chat-routes');
+app.use('/api/chat', chatRoutes);
 
 console.log('Attempting to start server on port', port);
 app.listen(port, () => {

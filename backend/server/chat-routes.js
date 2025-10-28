@@ -1,11 +1,27 @@
 const express = require('express');
 const router = express.Router();
+const rateLimit = require('express-rate-limit');
 const { auth, db, admin } = require('./firebase-admin');
 const OpenAIStorageService = require('./openai-storage-service');
 
 const openaiStorage = process.env.OPENAI_API_KEY 
   ? new OpenAIStorageService(process.env.OPENAI_API_KEY)
   : null;
+
+// Demo spec ID - hardcoded for public demo
+const DEMO_SPEC_ID = 'iAzaUwtSW3qvcW87lICL';
+
+// Rate limiting for demo chat (10 messages per hour per IP)
+const demoChatLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 10, // limit each IP to 10 messages per hour
+  message: {
+    error: 'Too many demo chat requests. Please try again later.',
+    retryAfter: '1 hour'
+  },
+  standardHeaders: true,
+  legacyHeaders: false
+});
 
 /**
  * Middleware to verify Firebase token
@@ -96,14 +112,20 @@ router.post('/init', verifyFirebaseToken, async (req, res) => {
           
           // Delete old assistant if exists (we'll create a new one)
           if (specData.openaiAssistantId) {
-            console.log(`Deleting old assistant ${specData.openaiAssistantId}`);
+            console.log(`[Cleanup] Deleting old assistant ${specData.openaiAssistantId} for spec ${specId}`);
             await openaiStorage.deleteAssistant(specData.openaiAssistantId);
+            
+            // Clear assistant ID from Firebase
+            await db.collection('specs').doc(specId).update({
+              openaiAssistantId: admin.firestore.FieldValue.delete()
+            });
+            
             // Reset assistant ID so it will be recreated below
             specData.openaiAssistantId = null;
           }
           
           specData.openaiFileId = newFileId;
-          console.log(`Successfully re-uploaded spec ${specId} to OpenAI`);
+          console.log(`[Cleanup] Successfully re-uploaded spec ${specId} to OpenAI with new file ${newFileId}`);
           
         } catch (uploadError) {
           console.error(`Failed to re-upload spec ${specId}:`, uploadError.message);
@@ -119,7 +141,7 @@ router.post('/init', verifyFirebaseToken, async (req, res) => {
     // Create assistant if not exists
     let assistantId = specData.openaiAssistantId;
     if (!assistantId) {
-      console.log(`Creating assistant for spec ${specId}`);
+      console.log(`[Chat Init] Creating new assistant for spec ${specId}`);
       const assistant = await openaiStorage.createAssistant(specId, specData.openaiFileId);
       assistantId = assistant.id;
       
@@ -127,10 +149,14 @@ router.post('/init', verifyFirebaseToken, async (req, res) => {
       await db.collection('specs').doc(specId).update({
         openaiAssistantId: assistantId
       });
+      console.log(`[Chat Init] Created assistant ${assistantId} for spec ${specId}`);
+    } else {
+      console.log(`[Chat Init] Reusing existing assistant ${assistantId} for spec ${specId}`);
     }
     
     // Create thread
     const thread = await openaiStorage.createThread();
+    console.log(`[Chat Init] Created thread ${thread.id} for spec ${specId}`);
     
     res.json({
       success: true,
@@ -167,9 +193,10 @@ router.post('/message', verifyFirebaseToken, async (req, res) => {
     }
     
     // Send message and get response
-    console.log(`Sending message for spec ${specId} with thread ${threadId}`);
+    console.log(`[Chat Message] Spec: ${specId}, Thread: ${threadId}, Assistant: ${assistantId}`);
+    console.log(`[Chat Message] Message: "${message.substring(0, 100)}${message.length > 100 ? '...' : ''}"`);
     const response = await openaiStorage.sendMessage(threadId, assistantId, message);
-    console.log(`Received response for spec ${specId}`);
+    console.log(`[Chat Message] Received response for spec ${specId}`);
     
     res.json({
       success: true,
@@ -227,6 +254,96 @@ router.post('/diagrams/generate', verifyFirebaseToken, async (req, res) => {
     console.error('Error generating diagrams:', error);
     res.status(500).json({ 
       error: 'Failed to generate diagrams',
+      details: error.message 
+    });
+  }
+});
+
+/**
+ * Public demo chat endpoint (no authentication required)
+ * POST /api/chat/demo
+ */
+router.post('/demo', demoChatLimiter, async (req, res) => {
+  try {
+    if (!openaiStorage) {
+      return res.status(503).json({ error: 'OpenAI not configured' });
+    }
+    
+    const { threadId, assistantId, message } = req.body;
+    
+    // Validate input
+    if (!message || !message.trim()) {
+      return res.status(400).json({ error: 'Message is required' });
+    }
+    
+    // Load demo spec data
+    const specDoc = await db.collection('specs').doc(DEMO_SPEC_ID).get();
+    if (!specDoc.exists) {
+      return res.status(404).json({ error: 'Demo specification not found' });
+    }
+    
+    const specData = specDoc.data();
+    
+    // Use provided thread/assistant or create new ones
+    let currentThreadId = threadId;
+    let currentAssistantId = assistantId;
+    
+    // If no thread provided, create one
+    if (!currentThreadId) {
+      const thread = await openaiStorage.createThread();
+      currentThreadId = thread.id;
+      console.log(`[Demo Chat] Created new thread ${currentThreadId} for demo`);
+    }
+    
+    // If no assistant provided, check if spec has one or create
+    if (!currentAssistantId) {
+      currentAssistantId = specData.openaiAssistantId;
+      
+      if (!currentAssistantId) {
+        // Upload spec to OpenAI if not already done
+        if (!specData.openaiFileId) {
+          console.log(`[Demo Chat] Uploading spec ${DEMO_SPEC_ID} to OpenAI...`);
+          const fileId = await openaiStorage.uploadSpec(DEMO_SPEC_ID, specData);
+          await db.collection('specs').doc(DEMO_SPEC_ID).update({
+            openaiFileId: fileId,
+            uploadedToOpenAI: true,
+            openaiUploadTimestamp: admin.firestore.FieldValue.serverTimestamp()
+          });
+          specData.openaiFileId = fileId;
+        }
+        
+        // Create assistant
+        const assistant = await openaiStorage.createAssistant(DEMO_SPEC_ID, specData.openaiFileId);
+        currentAssistantId = assistant.id;
+        
+        // Save to database
+        await db.collection('specs').doc(DEMO_SPEC_ID).update({
+          openaiAssistantId: currentAssistantId
+        });
+        
+        console.log(`[Demo Chat] Created new assistant ${currentAssistantId} for demo`);
+      } else {
+        console.log(`[Demo Chat] Using existing assistant ${currentAssistantId} for demo`);
+      }
+    }
+    
+    // Send message and get response
+    console.log(`[Demo Chat] Sending message on thread ${currentThreadId}`);
+    const response = await openaiStorage.sendMessage(currentThreadId, currentAssistantId, message);
+    
+    console.log(`[Demo Chat] Received response for demo chat`);
+    
+    res.json({
+      success: true,
+      response: response,
+      threadId: currentThreadId,
+      assistantId: currentAssistantId
+    });
+    
+  } catch (error) {
+    console.error('Error in demo chat:', error);
+    res.status(500).json({ 
+      error: 'Failed to send message',
       details: error.message 
     });
   }

@@ -51,22 +51,9 @@
     
     <!-- Custom Icon Styles -->
     <style>
-      .fa {
-        color: #333333 !important;
-        margin-right: 8px;
-      }
-      
       /* Orange icons for generated tabs */
       .tab-button.generated .fa {
         color: #FF6B35 !important;
-      }
-      
-      /* Ensure header alignment */
-      .header-right {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        justify-content: flex-end;
       }
     </style>
     
@@ -393,16 +380,16 @@
         <h3 id="fullscreenTitle"></h3>
         <div class="fullscreen-controls">
             <button onclick="zoomIn()" class="btn-icon" title="Zoom In">
-                +
+                <i class="fa fa-plus"></i>
             </button>
             <button onclick="zoomOut()" class="btn-icon" title="Zoom Out">
-                -
+                <i class="fa fa-minus"></i>
             </button>
             <button onclick="resetZoom()" class="btn-icon" title="Reset Zoom">
-                ⌂
+                <i class="fa fa-home"></i>
             </button>
             <button onclick="closeFullscreen()" class="btn-icon" title="Close">
-                ×
+                <i class="fa fa-times"></i>
             </button>
         </div>
     </div>
@@ -432,9 +419,6 @@
         </div>
     </div>
 </div>
-
-<script src="/tools/prompts.js"></script>
-
 
 <script src="/tools/prompts.js"></script>
 <script src="/assets/js/mermaid.js"></script>
@@ -810,13 +794,27 @@ function displaySpec(data) {
     
     // Handle approval state
     if (data.overviewApproved) {
-        enableAllTabs();
-        hideApproveButton();
+        // Enable AI Chat immediately when overview is approved
+        enableChatTabOnly();
         
-        // Show generate diagrams button if technical spec is ready
+        // Only enable other tabs if their specs are ready
         if (data.status?.technical === 'ready') {
+            document.getElementById('technicalTab').disabled = false;
+        }
+        if (data.status?.market === 'ready') {
+            document.getElementById('marketTab').disabled = false;
+        }
+        if (data.status?.design === 'ready') {
+            document.getElementById('designTab').disabled = false;
+        }
+        
+        // Enable diagrams only if both technical and market are ready
+        if (data.status?.technical === 'ready' && data.status?.market === 'ready') {
+            document.getElementById('diagramsTab').disabled = false;
             document.getElementById('generateDiagramsBtn').style.display = 'inline-block';
         }
+        
+        hideApproveButton();
     } else {
         showApproveButton();
         disableTechnicalTabs();
@@ -1025,6 +1023,8 @@ function parseDesignData(designContent) {
         colorReasoning: ''
     };
     
+    console.log('parseDesignData called with:', typeof designContent, designContent?.substring(0, 200));
+    
     try {
         let content = designContent;
         
@@ -1032,7 +1032,37 @@ function parseDesignData(designContent) {
         let jsonData;
         try {
             jsonData = JSON.parse(designContent);
-            if (jsonData.design && jsonData.design.visualStyleGuide) {
+            console.log('Parsed JSON successfully:', jsonData);
+            
+            // FIRST TRY: jsonData is already the design object (from generateDesignSpec)
+            if (jsonData.visualStyleGuide) {
+                if (jsonData.visualStyleGuide.colorHarmony) {
+                    result.colorHarmony = jsonData.visualStyleGuide.colorHarmony;
+                }
+                if (jsonData.visualStyleGuide.colorReasoning) {
+                    result.colorReasoning = jsonData.visualStyleGuide.colorReasoning;
+                }
+                // Extract colors from JSON
+                if (jsonData.visualStyleGuide.colors) {
+                    const colorsObj = jsonData.visualStyleGuide.colors;
+                    Object.entries(colorsObj).forEach(([key, value]) => {
+                        const capitalizedKey = key.charAt(0).toUpperCase() + key.slice(1);
+                        result.colors[capitalizedKey] = value;
+                    });
+                }
+                // Extract typography from JSON
+                if (jsonData.visualStyleGuide.typography) {
+                    const typographyObj = jsonData.visualStyleGuide.typography;
+                    Object.entries(typographyObj).forEach(([key, value]) => {
+                        const capitalizedKey = key.charAt(0).toUpperCase() + key.slice(1);
+                        result.typography[capitalizedKey] = value;
+                    });
+                }
+                console.log('Extracted from JSON (direct) - Colors:', result.colors, 'Typography:', result.typography);
+                return result;
+            }
+            // FALLBACK: jsonData has nested structure jsonData.design.visualStyleGuide
+            else if (jsonData.design && jsonData.design.visualStyleGuide) {
                 if (jsonData.design.visualStyleGuide.colorHarmony) {
                     result.colorHarmony = jsonData.design.visualStyleGuide.colorHarmony;
                 }
@@ -1042,9 +1072,7 @@ function parseDesignData(designContent) {
                 // Extract colors from JSON
                 if (jsonData.design.visualStyleGuide.colors) {
                     const colorsObj = jsonData.design.visualStyleGuide.colors;
-                    // Normalize color names to capitalized format
                     Object.entries(colorsObj).forEach(([key, value]) => {
-                        // Capitalize first letter for consistent display
                         const capitalizedKey = key.charAt(0).toUpperCase() + key.slice(1);
                         result.colors[capitalizedKey] = value;
                     });
@@ -1052,13 +1080,12 @@ function parseDesignData(designContent) {
                 // Extract typography from JSON
                 if (jsonData.design.visualStyleGuide.typography) {
                     const typographyObj = jsonData.design.visualStyleGuide.typography;
-                    // Normalize typography names to capitalized format
                     Object.entries(typographyObj).forEach(([key, value]) => {
                         const capitalizedKey = key.charAt(0).toUpperCase() + key.slice(1);
                         result.typography[capitalizedKey] = value;
                     });
                 }
-                console.log('Extracted from JSON - Colors:', result.colors, 'Typography:', result.typography);
+                console.log('Extracted from JSON (nested) - Colors:', result.colors, 'Typography:', result.typography);
                 return result;
             }
         } catch (e) {
@@ -1539,19 +1566,38 @@ function formatJSONContent(jsonData) {
         html += '<h3><i class="fa fa-desktop"></i> Screen Descriptions</h3>';
         
         if (jsonData.screenDescriptions.screens && Array.isArray(jsonData.screenDescriptions.screens)) {
-            html += '<h4>Screens:</h4>';
-            jsonData.screenDescriptions.screens.forEach(screen => {
+            html += '<h4>Screens (' + jsonData.screenDescriptions.screens.length + ' total):</h4>';
+            jsonData.screenDescriptions.screens.forEach((screen, index) => {
                 if (typeof screen === 'string') {
-                    html += `<p><strong>${screen}</strong></p>`;
+                    html += `<div style="margin-bottom: 15px; padding: 15px; background: #f8f9fa; border-radius: 6px; border-left: 4px solid var(--primary-color);">`;
+                    html += `<p style="margin: 0;"><strong>Screen ${index + 1}:</strong> ${screen}</p>`;
+                    html += '</div>';
                 } else {
-                    html += `<p><strong>${screen.name || 'Unnamed Screen'}:</strong> ${screen.purpose || 'No purpose specified'}</p>`;
+                    html += `<div style="margin-bottom: 15px; padding: 15px; background: #f8f9fa; border-radius: 6px; border-left: 4px solid var(--primary-color);">`;
+                    html += `<p style="margin: 0;"><strong>Screen ${index + 1} - ${screen.name || 'Unnamed Screen'}:</strong> ${screen.purpose || 'No purpose specified'}</p>`;
+                    if (screen.elements) {
+                        html += `<p style="margin-top: 8px; margin-bottom: 0; font-size: 0.9em; color: #666;"><strong>Key Elements:</strong> ${screen.elements}</p>`;
+                    }
+                    if (screen.interactions) {
+                        html += `<p style="margin-top: 8px; margin-bottom: 0; font-size: 0.9em; color: #666;"><strong>Interactions:</strong> ${screen.interactions}</p>`;
+                    }
+                    html += '</div>';
                 }
             });
         }
         
         if (jsonData.screenDescriptions.uiComponents) {
             html += '<h4>UI Components:</h4>';
-            html += `<p>${jsonData.screenDescriptions.uiComponents}</p>`;
+            // Check if uiComponents is an array or string
+            if (Array.isArray(jsonData.screenDescriptions.uiComponents)) {
+                html += '<ul style="margin-left: 20px;">';
+                jsonData.screenDescriptions.uiComponents.forEach(component => {
+                    html += `<li style="margin-bottom: 8px;">${component}</li>`;
+                });
+                html += '</ul>';
+            } else {
+                html += `<p>${jsonData.screenDescriptions.uiComponents}</p>`;
+            }
         }
         
         if (jsonData.screenDescriptions.navigationStructure) {
@@ -1654,20 +1700,48 @@ function formatJSONContent(jsonData) {
             jsonData.databaseSchema.tables.forEach(table => {
                 // Check if table is a string or an object
                 if (typeof table === 'string') {
-                    // Handle string format (from new prompt)
+                    // Handle string format (legacy)
                     html += `<h5>${table}</h5>`;
-                    html += '<p>This table stores the following information:</p>';
                 } else if (typeof table === 'object' && table.name) {
-                    // Handle object format (from old prompt)
-                    html += `<h5>${table.name} Table</h5>`;
-                    html += '<p>This table stores the following information:</p>';
-                    html += '<ul>';
-                    if (table.columns && Array.isArray(table.columns)) {
-                        table.columns.forEach(column => {
-                            html += `<li><strong>${column.name || 'Unnamed'}</strong> (${column.type || 'Unknown'})${column.constraints ? ` - ${column.constraints.join(', ')}` : ''}</li>`;
-                        });
+                    // Handle object format with full details
+                    html += `<h5 style="color: var(--primary-color); margin-top: 20px;">${table.name}</h5>`;
+                    
+                    if (table.purpose) {
+                        html += `<p><strong>Purpose:</strong> ${table.purpose}</p>`;
                     }
-                    html += '</ul>';
+                    
+                    if (table.fields && Array.isArray(table.fields)) {
+                        html += '<h6 style="margin-top: 10px; font-weight: bold;">Fields:</h6>';
+                        // Check if fields are objects or strings
+                        if (table.fields.length > 0 && typeof table.fields[0] === 'object') {
+                            // Object format - create a table
+                            html += '<table style="width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9em;">';
+                            html += '<thead><tr style="background-color: #f5f5f5;"><th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Field</th>';
+                            html += '<th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Type</th>';
+                            html += '<th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Constraints</th>';
+                            html += '<th style="padding: 8px; border: 1px solid #ddd; text-align: left;">Description</th></tr></thead><tbody>';
+                            
+                            table.fields.forEach(field => {
+                                html += `<tr><td style="padding: 8px; border: 1px solid #ddd;"><code>${field.name || 'N/A'}</code></td>`;
+                                html += `<td style="padding: 8px; border: 1px solid #ddd;">${field.type || 'N/A'}</td>`;
+                                html += `<td style="padding: 8px; border: 1px solid #ddd;">${field.constraints || 'N/A'}</td>`;
+                                html += `<td style="padding: 8px; border: 1px solid #ddd;">${field.description || 'N/A'}</td></tr>`;
+                            });
+                            
+                            html += '</tbody></table>';
+                        } else {
+                            // String format - simple list
+                            html += '<ul style="margin-left: 20px;">';
+                            table.fields.forEach(field => {
+                                html += `<li style="margin-bottom: 5px;"><code>${field}</code></li>`;
+                            });
+                            html += '</ul>';
+                        }
+                    }
+                    
+                    if (table.relationships) {
+                        html += `<p style="margin-top: 10px;"><strong>Relationships:</strong> ${table.relationships}</p>`;
+                    }
                 }
             });
         }
@@ -1851,12 +1925,14 @@ function formatJSONContent(jsonData) {
                     html += '<thead><tr style="background-color: #f5f5f5;"><th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Name</th>';
                     html += '<th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Type</th>';
                     html += '<th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Required</th>';
+                    html += '<th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Constraints</th>';
                     html += '<th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Description</th></tr></thead><tbody>';
                     
                     model.fields.forEach(field => {
-                        html += `<tr><td style="padding: 10px; border: 1px solid #ddd;">${field.name || 'N/A'}</td>`;
+                        html += `<tr><td style="padding: 10px; border: 1px solid #ddd;"><code>${field.name || 'N/A'}</code></td>`;
                         html += `<td style="padding: 10px; border: 1px solid #ddd;">${field.type || 'N/A'}</td>`;
                         html += `<td style="padding: 10px; border: 1px solid #ddd;">${field.required ? 'Yes' : 'No'}</td>`;
+                        html += `<td style="padding: 10px; border: 1px solid #ddd;">${field.constraints || '-'}</td>`;
                         html += `<td style="padding: 10px; border: 1px solid #ddd;">${field.description || 'N/A'}</td></tr>`;
                     });
                     
@@ -1872,12 +1948,32 @@ function formatJSONContent(jsonData) {
                     html += '<h5>Validation Rules:</h5>';
                     html += `<p>${model.validationRules}</p>`;
                 }
+                
+                if (model.indexes) {
+                    html += '<h5>Database Indexes:</h5>';
+                    html += `<p>${model.indexes}</p>`;
+                }
+                
+                if (model.sampleData) {
+                    html += '<h5>Sample Data:</h5>';
+                    html += `<p>${model.sampleData}</p>`;
+                }
             });
         }
         
         if (jsonData.detailedDataModels.overallStructure) {
             html += '<h4>Overall Structure:</h4>';
             html += `<p>${jsonData.detailedDataModels.overallStructure}</p>`;
+        }
+        
+        if (jsonData.detailedDataModels.totalModelsCount) {
+            html += '<h4>Total Models Count:</h4>';
+            html += `<p>${jsonData.detailedDataModels.totalModelsCount}</p>`;
+        }
+        
+        if (jsonData.detailedDataModels.crudOperations) {
+            html += '<h4>CRUD Operations:</h4>';
+            html += `<p>${jsonData.detailedDataModels.crudOperations}</p>`;
         }
         
         html += '</div>';
@@ -3017,10 +3113,54 @@ function formatJSONContent(jsonData) {
         html += '</div>';
     }
     
+    // Handle pricingStrategy (check if it's an object or string)
     if (jsonData.pricingStrategy) {
         html += '<div class="content-section">';
         html += '<h3><i class="fa fa-money"></i> Pricing Strategy</h3>';
-        html += `<p>${jsonData.pricingStrategy}</p>`;
+        
+        if (typeof jsonData.pricingStrategy === 'object') {
+            // If it's an object, display its properties
+            if (jsonData.pricingStrategy.recommendations) {
+                html += `<p><strong>Recommendations:</strong> ${jsonData.pricingStrategy.recommendations}</p>`;
+            }
+            if (jsonData.pricingStrategy.pricingComparison && Array.isArray(jsonData.pricingStrategy.pricingComparison)) {
+                html += '<h4>Pricing Comparison:</h4>';
+                html += '<table style="width: 100%; border-collapse: collapse; margin-top: 15px;">';
+                html += '<thead><tr style="background-color: #f5f5f5;"><th style="padding: 10px; border: 1px solid #ddd;">Competitor</th>';
+                html += '<th style="padding: 10px; border: 1px solid #ddd;">Pricing</th>';
+                html += '<th style="padding: 10px; border: 1px solid #ddd;">Features</th>';
+                html += '<th style="padding: 10px; border: 1px solid #ddd;">Value Prop</th></tr></thead><tbody>';
+                
+                jsonData.pricingStrategy.pricingComparison.forEach(comp => {
+                    html += `<tr><td style="padding: 10px; border: 1px solid #ddd;"><strong>${comp.competitor || 'N/A'}</strong></td>`;
+                    html += `<td style="padding: 10px; border: 1px solid #ddd;">${comp.pricing || 'N/A'}</td>`;
+                    html += `<td style="padding: 10px; border: 1px solid #ddd;">${comp.features || 'N/A'}</td>`;
+                    html += `<td style="padding: 10px; border: 1px solid #ddd;">${comp.valueProposition || 'N/A'}</td></tr>`;
+                });
+                
+                html += '</tbody></table>';
+            }
+            if (jsonData.pricingStrategy.justification) {
+                html += '<h4>Justification:</h4>';
+                html += `<p>${jsonData.pricingStrategy.justification}</p>`;
+            }
+            if (jsonData.pricingStrategy.suggestedPricing) {
+                html += '<h4>Suggested Pricing:</h4>';
+                html += `<p>${jsonData.pricingStrategy.suggestedPricing}</p>`;
+            }
+            if (jsonData.pricingStrategy.proposedModels && Array.isArray(jsonData.pricingStrategy.proposedModels)) {
+                html += '<h4>Proposed Models:</h4>';
+                html += '<ul>';
+                jsonData.pricingStrategy.proposedModels.forEach(model => {
+                    html += `<li>${model}</li>`;
+                });
+                html += '</ul>';
+            }
+        } else if (typeof jsonData.pricingStrategy === 'string') {
+            // If it's a string, display it directly
+            html += `<p>${jsonData.pricingStrategy}</p>`;
+        }
+        
         html += '</div>';
     }
     
@@ -3433,11 +3573,18 @@ function enableAllTabs() {
     enableChatTab();
 }
 
+function enableChatTabOnly() {
+    // Enable AI Chat tab immediately after overview approval
+    // without waiting for other specs to be generated
+    enableChatTab();
+}
+
 function disableTechnicalTabs() {
     document.getElementById('technicalTab').disabled = true;
     document.getElementById('marketTab').disabled = true;
     document.getElementById('designTab').disabled = true;
     document.getElementById('diagramsTab').disabled = true;
+    // Note: AI Chat tab is NOT disabled here - it stays enabled after overview approval
 }
 
 function showApproveButton() {
@@ -3527,8 +3674,9 @@ async function approveOverview() {
     
     try {
         isLoading = true;
-        document.getElementById('approveBtn').disabled = true;
-        document.getElementById('approveBtn').textContent = 'Generating...';
+        const approveBtn = document.getElementById('approveBtn');
+        approveBtn.disabled = true;
+        approveBtn.innerHTML = '<span class="loading-spinner"></span> Generating specifications...';
         
         showNotification('Starting specification generation...', 'info');
         
@@ -3575,6 +3723,9 @@ async function approveOverview() {
         currentSpecData.status.market = "generating";
         currentSpecData.status.design = "generating";
         
+        // Enable AI Chat immediately after overview approval
+        enableChatTabOnly();
+        
         // Update UI
         updateTabLoadingState('technical', true);
         updateTabLoadingState('market', true);
@@ -3599,6 +3750,18 @@ async function approveOverview() {
         currentSpecData.status.technical = technicalContent === 'error' ? "error" : "ready";
         updateStatus('technical', currentSpecData.status.technical);
         updateTabLoadingState('technical', false);
+        
+        // Enable Technical tab when ready
+        if (technicalContent !== 'error') {
+            document.getElementById('technicalTab').disabled = false;
+            
+            // If Market is also ready, enable Diagrams tab
+            if (currentSpecData.status.market === 'ready') {
+                document.getElementById('diagramsTab').disabled = false;
+                document.getElementById('generateDiagramsBtn').style.display = 'inline-block';
+            }
+        }
+        
         displayTechnical(technicalContent);
         
         if (technicalContent !== 'error') {
@@ -3651,6 +3814,18 @@ async function approveOverview() {
         currentSpecData.status.market = marketContent === 'error' ? "error" : "ready";
         updateStatus('market', currentSpecData.status.market);
         updateTabLoadingState('market', false);
+        
+        // Enable Market tab when ready
+        if (marketContent !== 'error') {
+            document.getElementById('marketTab').disabled = false;
+            
+            // If Technical is also ready, enable Diagrams tab
+            if (currentSpecData.status.technical === 'ready') {
+                document.getElementById('diagramsTab').disabled = false;
+                document.getElementById('generateDiagramsBtn').style.display = 'inline-block';
+            }
+        }
+        
         displayMarket(marketContent);
         
         if (marketContent !== 'error') {
@@ -3703,6 +3878,12 @@ async function approveOverview() {
         currentSpecData.status.design = designContent === 'error' ? "error" : "ready";
         updateStatus('design', currentSpecData.status.design);
         updateTabLoadingState('design', false);
+        
+        // Enable Design tab when ready
+        if (designContent !== 'error') {
+            document.getElementById('designTab').disabled = false;
+        }
+        
         displayDesign(designContent);
         
         if (designContent !== 'error') {
@@ -3748,11 +3929,11 @@ async function approveOverview() {
             localStorage.setItem(`specBackup_${currentSpecData.id}`, JSON.stringify(currentSpecData));
         }
         
-        enableAllTabs();
         hideApproveButton();
         
-        // Show generate diagrams button if technical spec is ready
-        if (currentSpecData.status.technical === 'ready') {
+        // Enable Diagrams tab only if both technical and market are ready
+        if (currentSpecData.status.technical === 'ready' && currentSpecData.status.market === 'ready') {
+            document.getElementById('diagramsTab').disabled = false;
             document.getElementById('generateDiagramsBtn').style.display = 'inline-block';
         }
         
@@ -3787,13 +3968,13 @@ async function approveOverview() {
         displayMarket('error');
         displayDesign('error');
         
-        enableAllTabs();
         hideApproveButton();
         
     } finally {
         isLoading = false;
-        document.getElementById('approveBtn').disabled = false;
-        document.getElementById('approveBtn').textContent = 'Approve Overview';
+        const approveBtn = document.getElementById('approveBtn');
+        approveBtn.disabled = false;
+        approveBtn.innerHTML = '<i class="fa fa-check"></i> Approve Overview';
     }
 }
 
@@ -4311,7 +4492,7 @@ async function generateDiagrams() {
         const token = await user.getIdToken();
         
         // Call new memory-based API endpoint - only send specId
-        const response = await fetch(`${window.API_BASE_URL || 'http://localhost:10000'}/api/chat/diagrams/generate`, {
+        const response = await fetch(`${window.API_BASE_URL || 'http://localhost:3001'}/api/chat/diagrams/generate`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -4435,13 +4616,13 @@ function displayDiagrams(diagramsArray) {
             <h3>${diagram.title}</h3>
             <div class="diagram-controls">
                 <button onclick="openFullscreen('${diagram.id}')" class="btn-icon" title="Fullscreen">
-                    ⛶
+                    <i class="fa fa-expand"></i>
                 </button>
-                <button onclick="refreshDiagram('${diagram.id}')" class="btn-icon" title="Refresh">
-                    ↻
+                <button onclick="refreshDiagram('${diagram.id}')" class="btn-icon" title="Refresh" style="display: none;">
+                    <i class="fa fa-refresh"></i>
                 </button>
-                <button onclick="repairDiagram('${diagram.id}')" class="btn-icon" title="Repair Diagram" style="color: #ff9800;">
-                    🔧
+                <button onclick="repairDiagram('${diagram.id}')" class="btn-icon" title="Repair Diagram" style="display: none;">
+                    <i class="fa fa-tools"></i>
                 </button>
             </div>
         `;
@@ -4533,6 +4714,9 @@ async function renderSingleDiagram(diagramData, containerId, isRefresh = false) 
                 if (statusText) statusText.textContent = 'Ready';
                 console.log(`✅ Diagram ${diagramData.id} rendered successfully`);
                 
+                // Hide repair and refresh buttons when diagram is working
+                hideDiagramControls(diagramData.id);
+                
                 // Mark diagram as valid in memory
                 diagramData._isValid = true;
                 diagramData._lastRenderAttempt = Date.now();
@@ -4562,6 +4746,9 @@ async function renderSingleDiagram(diagramData, containerId, isRefresh = false) 
         if (statusIndicator) statusIndicator.className = 'status-indicator error';
         if (statusText) statusText.textContent = 'Error';
         
+        // Show repair and refresh buttons when there's an error
+        showDiagramControls(diagramData.id, error);
+        
         // Determine if this is a syntax error (needs AI repair) or rendering error (just needs retry)
         const needsAIRepair = isSyntaxError(error);
         
@@ -4571,7 +4758,7 @@ async function renderSingleDiagram(diagramData, containerId, isRefresh = false) 
                 <p>${needsAIRepair ? 'Diagram has syntax errors and needs repair' : 'Failed to render diagram: ' + error.message}</p>
                 ${needsAIRepair ? `
                     <button onclick="repairDiagram('${diagramData.id}')" class="btn btn-primary" style="margin-top: 15px; padding: 8px 16px; background: #ff9800; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                        <i class="fa fa-wrench"></i> Repair with AI
+                        <i class="fa fa-tools"></i> Repair with AI
                     </button>
                 ` : `
                     <button onclick="refreshDiagram('${diagramData.id}')" class="btn btn-secondary" style="margin-top: 15px; padding: 8px 16px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">
@@ -4599,9 +4786,8 @@ function openFullscreen(diagramId) {
     
     title.textContent = diagramData.title;
     
-    // Clone the diagram content
-    const originalContent = document.getElementById(`diagram-${diagramId}-content`);
-    content.innerHTML = originalContent.innerHTML;
+    // Clear content initially
+    content.innerHTML = '<div class="diagram-loading">Loading...</div>';
     
     // Re-render Mermaid in fullscreen
     if (typeof mermaid !== 'undefined') {
@@ -4611,6 +4797,8 @@ function openFullscreen(diagramId) {
             .then(({ svg }) => {
                 // Replace content with rendered SVG
                 content.innerHTML = `<div class="mermaid-fullscreen">${svg}</div>`;
+                // Apply transform after rendering
+                updateTransform();
             })
             .catch(error => {
                 console.error('Fullscreen mermaid error:', error);
@@ -4642,26 +4830,51 @@ function openFullscreen(diagramId) {
     // Show modal
     modal.style.display = 'flex';
     
+    // Remove any existing listeners first to avoid duplicates
+    document.removeEventListener('keydown', handleEscKey);
+    document.removeEventListener('mousemove', handleMouseMove);
+    document.removeEventListener('mouseup', handleMouseUp);
+    
     // Add ESC key listener
     document.addEventListener('keydown', handleEscKey);
     
-    // Add mouse event listeners for panning
+    // Add mouse event listeners for panning on the whole content area
     content.addEventListener('mousedown', handleMouseDown);
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', handleMouseUp);
+    
+    // Set initial transform
+    content.style.transformOrigin = 'center center';
+    content.style.transform = `translate(${currentPanX}px, ${currentPanY}px) scale(${currentZoom})`;
+    
+    console.log('Fullscreen modal opened');
 }
 
 function closeFullscreen() {
+    console.log('Closing fullscreen modal');
     const modal = document.getElementById('fullscreenModal');
-    modal.style.display = 'none';
+    if (modal) {
+        modal.style.display = 'none';
+    }
     
     // Remove event listeners
     document.removeEventListener('keydown', handleEscKey);
     document.removeEventListener('mousemove', handleMouseMove);
     document.removeEventListener('mouseup', handleMouseUp);
     
+    // Reset zoom and pan
+    currentZoom = 1;
+    currentPanX = 0;
+    currentPanY = 0;
+    
     // Reset dragging state
     isDragging = false;
+    
+    // Clean up content
+    const content = document.getElementById('fullscreenContent');
+    if (content) {
+        content.innerHTML = '';
+    }
 }
 
 function handleEscKey(event) {
@@ -4671,7 +4884,9 @@ function handleEscKey(event) {
 }
 
 function handleMouseDown(event) {
-    if (event.target.closest('.mermaid')) {
+    // Allow dragging on the fullscreen content area or mermaid diagrams
+    const content = document.getElementById('fullscreenContent');
+    if (content && (event.target.closest('.mermaid') || event.target.closest('.mermaid-rendered') || event.target.closest('.mermaid-fullscreen') || content.contains(event.target))) {
         isDragging = true;
         dragStartX = event.clientX - currentPanX;
         dragStartY = event.clientY - currentPanY;
@@ -4712,6 +4927,44 @@ function updateTransform() {
     const content = document.getElementById('fullscreenContent');
     if (content) {
         content.style.transform = `translate(${currentPanX}px, ${currentPanY}px) scale(${currentZoom})`;
+        content.style.transformOrigin = 'center center';
+    }
+}
+
+/**
+ * Hide repair and refresh buttons when diagram is working
+ */
+function hideDiagramControls(diagramId) {
+    const controls = document.querySelector(`#diagram-${diagramId} .diagram-controls`);
+    if (controls) {
+        const refreshBtn = controls.querySelector('button[onclick*="refreshDiagram"]');
+        const repairBtn = controls.querySelector('button[onclick*="repairDiagram"]');
+        
+        if (refreshBtn) refreshBtn.style.display = 'none';
+        if (repairBtn) repairBtn.style.display = 'none';
+    }
+}
+
+/**
+ * Show repair and refresh buttons when there's an error
+ */
+function showDiagramControls(diagramId, error) {
+    const controls = document.querySelector(`#diagram-${diagramId} .diagram-controls`);
+    if (controls) {
+        const refreshBtn = controls.querySelector('button[onclick*="refreshDiagram"]');
+        const repairBtn = controls.querySelector('button[onclick*="repairDiagram"]');
+        
+        const needsAIRepair = isSyntaxError(error);
+        
+        // Always show refresh button for errors
+        if (refreshBtn) {
+            refreshBtn.style.display = 'flex';
+        }
+        
+        // Show repair button only for syntax errors
+        if (repairBtn) {
+            repairBtn.style.display = needsAIRepair ? 'flex' : 'none';
+        }
     }
 }
 
@@ -4765,7 +5018,7 @@ async function repairDiagram(diagramId) {
         };
         
         // Call AI repair endpoint
-        const response = await fetch(`${window.API_BASE_URL || 'http://localhost:10000'}/api/diagrams/repair`, {
+        const response = await fetch(`${window.API_BASE_URL || 'http://localhost:3001'}/api/diagrams/repair`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -5036,72 +5289,115 @@ console.log('Spec Viewer - Ready!');
                 <div id="mobile-template" class="template-container">
                     <div class="mobile-mockup">
                         <div class="mobile-screen">
-                            <!-- Header with Primary Color -->
-                            <div class="mobile-header" style="background: var(--primary-color);">
-                                <div class="mobile-logo" style="color: white;">App</div>
-                                <div class="mobile-menu" style="color: white;">☰</div>
-                            </div>
-                            
-                            <!-- Hero Section with Secondary Color -->
-                            <div class="mobile-hero" style="background: var(--secondary-color);">
-                                <h2 style="color: var(--text-color); font-family: var(--heading-font);">
-                                    Welcome to Our App
-                                </h2>
-                                <p style="color: var(--text-color); font-family: var(--body-font);">
-                                    Experience amazing features
-                                </p>
-                                <button class="mobile-cta" style="background: var(--accent-color); color: white; font-family: var(--body-font);">
-                                    Get Started
-                                </button>
-                            </div>
-                            
-                            <!-- Stats Section -->
-                            <div class="mobile-stats" style="background: var(--background-color); padding: 20px;">
-                                <h3 style="color: var(--primary-color); font-family: var(--heading-font); text-align: center; margin-bottom: 15px;">Statistics</h3>
-                                <div class="stats-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                                    <div class="stat-item" style="text-align: center; padding: 10px; background: white; border-radius: 6px; border: 1px solid var(--primary-color);">
-                                        <div style="font-size: 20px; font-weight: bold; color: var(--primary-color); font-family: var(--heading-font);">1.2K</div>
-                                        <div style="font-size: 12px; color: var(--text-color); font-family: var(--caption-font);">Users</div>
+                            <!-- Header with search, notifications, profile -->
+                            <div class="mobile-header" style="background: var(--primary-color); display: flex; align-items: center; justify-content: space-between; padding: 12px 16px;">
+                                <div style="color: white; font-weight: bold; font-family: var(--heading-font);">AppHub</div>
+                                <div style="display: flex; gap: 12px; align-items: center;">
+                                    <div style="color: white; font-size: 18px;">🔍</div>
+                                    <div style="position: relative; width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center;">
+                                        <span style="position: absolute; top: -4px; right: -4px; background: var(--accent-color); color: white; border-radius: 50%; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-family: var(--body-font);">3</span>
                                     </div>
-                                    <div class="stat-item" style="text-align: center; padding: 10px; background: white; border-radius: 6px; border: 1px solid var(--accent-color);">
-                                        <div style="font-size: 20px; font-weight: bold; color: var(--accent-color); font-family: var(--heading-font);">98%</div>
-                                        <div style="font-size: 12px; color: var(--text-color); font-family: var(--caption-font);">Satisfaction</div>
+                                    <div style="background: var(--background-color); border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; color: var(--primary-color); font-weight: bold; font-family: var(--heading-font);">JD</div>
+                                </div>
+                            </div>
+                            
+                            <!-- Hero Section -->
+                            <div style="background: var(--secondary-color); padding: 32px 20px; text-align: center;">
+                                <h2 style="color: var(--text-color); font-family: var(--heading-font); font-size: 24px; margin-bottom: 8px;">Dashboard Overview</h2>
+                                <p style="color: var(--text-color); font-family: var(--body-font); font-size: 14px; margin-bottom: 20px; opacity: 0.8;">Manage your projects efficiently</p>
+                                <button style="background: var(--accent-color); color: white; border: none; padding: 10px 24px; border-radius: 6px; font-weight: 600; font-family: var(--body-font); font-size: 14px;">New Project</button>
+                            </div>
+                            
+                            <!-- Quick Stats -->
+                            <div style="background: var(--background-color); padding: 20px;">
+                                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
+                                    <div style="background: white; border-radius: 8px; padding: 12px 8px; text-align: center; border: 1px solid var(--primary-color);">
+                                        <div style="font-size: 18px; font-weight: bold; color: var(--primary-color); font-family: var(--heading-font);">1.2K</div>
+                                        <div style="font-size: 10px; color: var(--text-color); font-family: var(--caption-font); margin-top: 4px;">Users</div>
+                                    </div>
+                                    <div style="background: white; border-radius: 8px; padding: 12px 8px; text-align: center; border: 1px solid var(--accent-color);">
+                                        <div style="font-size: 18px; font-weight: bold; color: var(--accent-color); font-family: var(--heading-font);">98%</div>
+                                        <div style="font-size: 10px; color: var(--text-color); font-family: var(--caption-font); margin-top: 4px;">Uptime</div>
+                                    </div>
+                                    <div style="background: white; border-radius: 8px; padding: 12px 8px; text-align: center; border: 1px solid var(--secondary-color);">
+                                        <div style="font-size: 18px; font-weight: bold; color: var(--secondary-color); font-family: var(--heading-font);">+15%</div>
+                                        <div style="font-size: 10px; color: var(--text-color); font-family: var(--caption-font); margin-top: 4px;">Growth</div>
                                     </div>
                                 </div>
                             </div>
                             
-                            <!-- Cards Section with Background Color -->
-                            <div class="mobile-cards" style="background: var(--background-color);">
-                                <div class="mobile-card" style="border: 2px solid var(--primary-color);">
-                                    <h3 style="color: var(--primary-color); font-family: var(--heading-font);">Feature 1</h3>
-                                    <p style="color: var(--text-color); font-family: var(--body-font);">Description text</p>
-                                    <span style="color: var(--secondary-color); font-family: var(--caption-font);">Learn more</span>
-                                </div>
-                                <div class="mobile-card" style="border: 2px solid var(--accent-color);">
-                                    <h3 style="color: var(--accent-color); font-family: var(--heading-font);">Feature 2</h3>
-                                    <p style="color: var(--text-color); font-family: var(--body-font);">Description text</p>
-                                    <span style="color: var(--secondary-color); font-family: var(--caption-font);">Learn more</span>
-                                </div>
-                            </div>
-                            
-                            <!-- Chart Section -->
-                            <div class="mobile-chart" style="background: var(--background-color); padding: 20px;">
-                                <h3 style="color: var(--primary-color); font-family: var(--heading-font); text-align: center; margin-bottom: 15px;">Analytics</h3>
-                                <div class="chart-container" style="background: white; border-radius: 8px; padding: 15px; border: 1px solid var(--secondary-color);">
-                                    <div class="chart-bars" style="display: flex; align-items: end; gap: 8px; height: 80px;">
-                                        <div style="background: var(--primary-color); height: 60%; width: 20px; border-radius: 2px;"></div>
-                                        <div style="background: var(--secondary-color); height: 80%; width: 20px; border-radius: 2px;"></div>
-                                        <div style="background: var(--accent-color); height: 45%; width: 20px; border-radius: 2px;"></div>
-                                        <div style="background: var(--primary-color); height: 70%; width: 20px; border-radius: 2px;"></div>
-                                        <div style="background: var(--secondary-color); height: 55%; width: 20px; border-radius: 2px;"></div>
+                            <!-- Features List -->
+                            <div style="background: var(--background-color); padding: 0 20px 16px;">
+                                <div style="display: grid; gap: 12px;">
+                                    <div style="background: white; border-radius: 8px; padding: 16px; border-left: 3px solid var(--primary-color);">
+                                        <div style="display: flex; align-items: center; gap: 12px;">
+                                            <div style="width: 40px; height: 40px; border-radius: 8px; background: var(--primary-color); opacity: 0.2; display: flex; align-items: center; justify-content: center; font-size: 20px;">📊</div>
+                                            <div style="flex: 1;">
+                                                <div style="font-weight: 600; color: var(--primary-color); font-family: var(--heading-font); font-size: 14px;">Analytics</div>
+                                                <div style="font-size: 12px; color: var(--text-color); font-family: var(--body-font); opacity: 0.7;">Track performance metrics</div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div style="text-align: center; margin-top: 10px; font-size: 12px; color: var(--text-color); font-family: var(--caption-font);">Monthly Growth</div>
+                                    <div style="background: white; border-radius: 8px; padding: 16px; border-left: 3px solid var(--accent-color);">
+                                        <div style="display: flex; align-items: center; gap: 12px;">
+                                            <div style="width: 40px; height: 40px; border-radius: 8px; background: var(--accent-color); opacity: 0.2; display: flex; align-items: center; justify-content: center; font-size: 20px;">🔒</div>
+                                            <div style="flex: 1;">
+                                                <div style="font-weight: 600; color: var(--accent-color); font-family: var(--heading-font); font-size: 14px;">Security</div>
+                                                <div style="font-size: 12px; color: var(--text-color); font-family: var(--body-font); opacity: 0.7;">Enterprise-grade protection</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div style="background: white; border-radius: 8px; padding: 16px; border-left: 3px solid var(--secondary-color);">
+                                        <div style="display: flex; align-items: center; gap: 12px;">
+                                            <div style="width: 40px; height: 40px; border-radius: 8px; background: var(--secondary-color); opacity: 0.2; display: flex; align-items: center; justify-content: center; font-size: 20px;">⚡</div>
+                                            <div style="flex: 1;">
+                                                <div style="font-weight: 600; color: var(--secondary-color); font-family: var(--heading-font); font-size: 14px;">Fast Sync</div>
+                                                <div style="font-size: 12px; color: var(--text-color); font-family: var(--body-font); opacity: 0.7;">Real-time updates</div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             
-                            <!-- Footer with Primary Color -->
-                            <div class="mobile-footer" style="background: var(--primary-color);">
-                                <p style="color: white; font-family: var(--caption-font);">© 2024 App Name</p>
+                            <!-- Data Table -->
+                            <div style="background: var(--background-color); padding: 0 20px 16px;">
+                                <div style="background: white; border-radius: 8px; overflow: hidden; border: 1px solid #e0e0e0;">
+                                    <div style="background: var(--primary-color); color: white; padding: 12px 16px; font-weight: 600; font-family: var(--heading-font); font-size: 13px;">Recent Activity</div>
+                                    <div style="padding: 8px 0;">
+                                        <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 8px; padding: 8px 16px; border-bottom: 1px solid #f0f0f0; font-size: 11px;">
+                                            <div style="color: var(--text-color); font-family: var(--body-font);">Project A</div>
+                                            <div style="color: var(--text-color); font-family: var(--body-font);">Active</div>
+                                            <div style="color: var(--primary-color); font-family: var(--caption-font);">$1.2K</div>
+                                        </div>
+                                        <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 8px; padding: 8px 16px; border-bottom: 1px solid #f0f0f0; font-size: 11px;">
+                                            <div style="color: var(--text-color); font-family: var(--body-font);">Project B</div>
+                                            <div style="color: var(--text-color); font-family: var(--body-font);">Pending</div>
+                                            <div style="color: var(--accent-color); font-family: var(--caption-font);">$800</div>
+                                        </div>
+                                        <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 8px; padding: 8px 16px; font-size: 11px;">
+                                            <div style="color: var(--text-color); font-family: var(--body-font);">Project C</div>
+                                            <div style="color: var(--text-color); font-family: var(--body-font);">Active</div>
+                                            <div style="color: var(--secondary-color); font-family: var(--caption-font);">$2.1K</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Analytics Chart -->
+                            <div style="background: var(--background-color); padding: 0 20px 20px;">
+                                <div style="background: white; border-radius: 8px; padding: 16px; border: 1px solid #e0e0e0;">
+                                    <div style="color: var(--primary-color); font-family: var(--heading-font); font-size: 14px; font-weight: 600; margin-bottom: 12px;">Monthly Growth</div>
+                                    <div style="display: flex; align-items: end; gap: 6px; height: 80px; justify-content: center;">
+                                        <div style="background: var(--primary-color); height: 65%; width: 22px; border-radius: 4px 4px 0 0;"></div>
+                                        <div style="background: var(--secondary-color); height: 80%; width: 22px; border-radius: 4px 4px 0 0;"></div>
+                                        <div style="background: var(--accent-color); height: 50%; width: 22px; border-radius: 4px 4px 0 0;"></div>
+                                        <div style="background: var(--primary-color); height: 75%; width: 22px; border-radius: 4px 4px 0 0;"></div>
+                                        <div style="background: var(--secondary-color); height: 60%; width: 22px; border-radius: 4px 4px 0 0;"></div>
+                                        <div style="background: var(--accent-color); height: 90%; width: 22px; border-radius: 4px 4px 0 0;"></div>
+                                        <div style="background: var(--primary-color); height: 55%; width: 22px; border-radius: 4px 4px 0 0;"></div>
+                                        <div style="background: var(--secondary-color); height: 70%; width: 22px; border-radius: 4px 4px 0 0;"></div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -5110,111 +5406,155 @@ console.log('Spec Viewer - Ready!');
                 <div id="web-template" class="template-container">
                     <div class="web-mockup">
                         <div class="web-screen">
-                            <!-- Navigation with Primary Color -->
-                            <nav class="web-nav" style="background: var(--primary-color);">
-                                <div class="web-logo" style="color: white; font-family: var(--heading-font);">Website</div>
-                                <div class="web-menu">
-                                    <a href="#" style="color: white; font-family: var(--body-font);">Home</a>
-                                    <a href="#" style="color: white; font-family: var(--body-font);">About</a>
-                                    <a href="#" style="color: white; font-family: var(--body-font);">Contact</a>
+                            <!-- Navigation Bar -->
+                            <nav style="background: var(--primary-color); padding: 14px 30px; display: flex; align-items: center; justify-content: space-between;">
+                                <div style="color: white; font-size: 20px; font-weight: bold; font-family: var(--heading-font);">AppHub</div>
+                                <div style="display: flex; align-items: center; gap: 24px;">
+                                    <div style="color: white; font-size: 14px; font-family: var(--body-font); cursor: pointer;">Home</div>
+                                    <div style="color: white; font-size: 14px; font-family: var(--body-font); cursor: pointer;">Dashboard</div>
+                                    <div style="color: white; font-size: 14px; font-family: var(--body-font); cursor: pointer;">Reports</div>
+                                    <div style="position: relative; padding: 8px 16px; background: rgba(255,255,255,0.2); border-radius: 6px; display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                        <span style="color: white; font-size: 14px; font-family: var(--body-font); opacity: 0.8;">🔍 Search</span>
+                                    </div>
+                                    <div style="position: relative; width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                                        <span style="position: absolute; top: -6px; right: -6px; background: var(--accent-color); color: white; border-radius: 50%; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; font-family: var(--body-font);">5</span>
+                                    </div>
+                                    <div style="background: var(--background-color); border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; color: var(--primary-color); font-weight: bold; cursor: pointer; font-family: var(--heading-font);">JD</div>
                                 </div>
                             </nav>
                             
-                            <!-- Hero Section with Secondary Color -->
-                            <section class="web-hero" style="background: var(--secondary-color);">
-                                <div class="web-hero-content">
-                                    <h1 style="color: var(--text-color); font-family: var(--heading-font);">
-                                        Welcome to Our Website
-                                    </h1>
-                                    <p style="color: var(--text-color); font-family: var(--body-font);">
-                                        We create amazing digital experiences
-                                    </p>
-                                    <button class="web-cta" style="background: var(--accent-color); color: white; font-family: var(--body-font);">
-                                        Learn More
-                                    </button>
+                            <!-- Hero Section -->
+                            <section style="background: var(--secondary-color); padding: 60px 40px; text-align: center;">
+                                <h1 style="color: var(--text-color); font-family: var(--heading-font); font-size: 36px; font-weight: bold; margin-bottom: 16px;">Welcome to Dashboard</h1>
+                                <p style="color: var(--text-color); font-family: var(--body-font); font-size: 16px; margin-bottom: 28px; opacity: 0.85;">Manage your business operations from one place</p>
+                                <div style="display: flex; gap: 12px; justify-content: center;">
+                                    <button style="background: var(--accent-color); color: white; border: none; padding: 12px 28px; border-radius: 6px; font-weight: 600; font-family: var(--body-font); font-size: 14px; cursor: pointer;">Get Started</button>
+                                    <button style="background: white; color: var(--primary-color); border: 2px solid var(--primary-color); padding: 12px 28px; border-radius: 6px; font-weight: 600; font-family: var(--body-font); font-size: 14px; cursor: pointer;">Learn More</button>
                                 </div>
                             </section>
                             
-                        <!-- Stats Section -->
-                        <section class="web-stats" style="background: var(--background-color); padding: 40px 30px;">
-                            <h2 style="color: var(--primary-color); font-family: var(--heading-font); text-align: center; margin-bottom: 30px;">Our Impact</h2>
-                            <div class="stats-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;">
-                                <div class="stat-item" style="text-align: center; padding: 20px; background: white; border-radius: 8px; border: 2px solid var(--primary-color);">
-                                    <div style="font-size: 36px; font-weight: bold; color: var(--primary-color); font-family: var(--heading-font);">10K+</div>
-                                    <div style="font-size: 16px; color: var(--text-color); font-family: var(--body-font);">Active Users</div>
+                            <!-- Stats Row -->
+                            <section style="background: var(--background-color); padding: 30px 40px;">
+                                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;">
+                                    <div style="background: white; padding: 20px; border-radius: 8px; border: 2px solid var(--primary-color); text-align: center;">
+                                        <div style="font-size: 32px; font-weight: bold; color: var(--primary-color); font-family: var(--heading-font); margin-bottom: 8px;">10K+</div>
+                                        <div style="font-size: 13px; color: var(--text-color); font-family: var(--body-font);">Active Users</div>
+                                    </div>
+                                    <div style="background: white; padding: 20px; border-radius: 8px; border: 2px solid var(--accent-color); text-align: center;">
+                                        <div style="font-size: 32px; font-weight: bold; color: var(--accent-color); font-family: var(--heading-font); margin-bottom: 8px;">$24K</div>
+                                        <div style="font-size: 13px; color: var(--text-color); font-family: var(--body-font);">Revenue</div>
+                                    </div>
+                                    <div style="background: white; padding: 20px; border-radius: 8px; border: 2px solid var(--secondary-color); text-align: center;">
+                                        <div style="font-size: 32px; font-weight: bold; color: var(--secondary-color); font-family: var(--heading-font); margin-bottom: 8px;">156</div>
+                                        <div style="font-size: 13px; color: var(--text-color); font-family: var(--body-font);">Projects</div>
+                                    </div>
+                                    <div style="background: white; padding: 20px; border-radius: 8px; border: 2px solid var(--primary-color); text-align: center;">
+                                        <div style="font-size: 32px; font-weight: bold; color: var(--primary-color); font-family: var(--heading-font); margin-bottom: 8px;">98%</div>
+                                        <div style="font-size: 13px; color: var(--text-color); font-family: var(--body-font);">Uptime</div>
+                                    </div>
                                 </div>
-                                <div class="stat-item" style="text-align: center; padding: 20px; background: white; border-radius: 8px; border: 2px solid var(--secondary-color);">
-                                    <div style="font-size: 36px; font-weight: bold; color: var(--secondary-color); font-family: var(--heading-font);">99%</div>
-                                    <div style="font-size: 16px; color: var(--text-color); font-family: var(--body-font);">Uptime</div>
-                                </div>
-                                <div class="stat-item" style="text-align: center; padding: 20px; background: white; border-radius: 8px; border: 2px solid var(--accent-color);">
-                                    <div style="font-size: 36px; font-weight: bold; color: var(--accent-color); font-family: var(--heading-font);">24/7</div>
-                                    <div style="font-size: 16px; color: var(--text-color); font-family: var(--body-font);">Support</div>
-                                </div>
-                                <div class="stat-item" style="text-align: center; padding: 20px; background: white; border-radius: 8px; border: 2px solid var(--primary-color);">
-                                    <div style="font-size: 36px; font-weight: bold; color: var(--primary-color); font-family: var(--heading-font);">5★</div>
-                                    <div style="font-size: 16px; color: var(--text-color); font-family: var(--body-font);">Rating</div>
-                                </div>
-                            </div>
-                        </section>
-                        
-                        <!-- Features Grid with Background Color -->
-                        <section class="web-features" style="background: var(--background-color);">
-                            <div class="web-feature" style="border: 1px solid var(--primary-color);">
-                                <h3 style="color: var(--primary-color); font-family: var(--heading-font);">Service 1</h3>
-                                <p style="color: var(--text-color); font-family: var(--body-font);">Description</p>
-                                <span style="color: var(--secondary-color); font-family: var(--caption-font);">Details</span>
-                            </div>
-                            <div class="web-feature" style="border: 1px solid var(--accent-color);">
-                                <h3 style="color: var(--accent-color); font-family: var(--heading-font);">Service 2</h3>
-                                <p style="color: var(--text-color); font-family: var(--body-font);">Description</p>
-                                <span style="color: var(--secondary-color); font-family: var(--caption-font);">Details</span>
-                            </div>
-                            <div class="web-feature" style="border: 1px solid var(--secondary-color);">
-                                <h3 style="color: var(--secondary-color); font-family: var(--heading-font);">Service 3</h3>
-                                <p style="color: var(--text-color); font-family: var(--body-font);">Description</p>
-                                <span style="color: var(--primary-color); font-family: var(--caption-font);">Details</span>
-                            </div>
-                        </section>
-                        
-                        <!-- Chart Section -->
-                        <section class="web-chart" style="background: var(--background-color); padding: 40px 30px;">
-                            <h2 style="color: var(--primary-color); font-family: var(--heading-font); text-align: center; margin-bottom: 30px;">Performance Analytics</h2>
-                            <div class="chart-container" style="background: white; border-radius: 12px; padding: 30px; border: 2px solid var(--secondary-color); max-width: 600px; margin: 0 auto;">
-                                <div class="chart-bars" style="display: flex; align-items: end; gap: 15px; height: 120px; justify-content: center;">
-                                    <div style="background: var(--primary-color); height: 60%; width: 30px; border-radius: 4px;"></div>
-                                    <div style="background: var(--secondary-color); height: 80%; width: 30px; border-radius: 4px;"></div>
-                                    <div style="background: var(--accent-color); height: 45%; width: 30px; border-radius: 4px;"></div>
-                                    <div style="background: var(--primary-color); height: 70%; width: 30px; border-radius: 4px;"></div>
-                                    <div style="background: var(--secondary-color); height: 55%; width: 30px; border-radius: 4px;"></div>
-                                    <div style="background: var(--accent-color); height: 90%; width: 30px; border-radius: 4px;"></div>
-                                </div>
-                                <div style="text-align: center; margin-top: 20px; font-size: 16px; color: var(--text-color); font-family: var(--body-font);">Monthly Growth Trends</div>
-                                <div style="text-align: center; margin-top: 10px; font-size: 14px; color: var(--secondary-color); font-family: var(--caption-font);">Q1 2024 Performance</div>
-                            </div>
-                        </section>
-                        
-                        <!-- Testimonials Section -->
-                        <section class="web-testimonials" style="background: var(--secondary-color); padding: 40px 30px;">
-                            <h2 style="color: var(--text-color); font-family: var(--heading-font); text-align: center; margin-bottom: 30px;">What Our Clients Say</h2>
-                            <div class="testimonials-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
-                                <div class="testimonial" style="background: white; padding: 25px; border-radius: 8px; border: 1px solid var(--primary-color);">
-                                    <p style="color: var(--text-color); font-family: var(--body-font); font-style: italic; margin-bottom: 15px;">"Amazing service and great results!"</p>
-                                    <div style="color: var(--primary-color); font-family: var(--heading-font); font-weight: bold;">John Doe</div>
-                                    <div style="color: var(--secondary-color); font-family: var(--caption-font);">CEO, Company A</div>
-                                </div>
-                                <div class="testimonial" style="background: white; padding: 25px; border-radius: 8px; border: 1px solid var(--accent-color);">
-                                    <p style="color: var(--text-color); font-family: var(--body-font); font-style: italic; margin-bottom: 15px;">"Exceeded all our expectations."</p>
-                                    <div style="color: var(--accent-color); font-family: var(--heading-font); font-weight: bold;">Jane Smith</div>
-                                    <div style="color: var(--secondary-color); font-family: var(--caption-font);">CTO, Company B</div>
-                                </div>
-                            </div>
-                        </section>
+                            </section>
                             
-                            <!-- Footer with Primary Color -->
-                            <footer class="web-footer" style="background: var(--primary-color);">
-                                <p style="color: white; font-family: var(--caption-font);">© 2024 Website Name</p>
-                            </footer>
+                            <!-- Content & Table Section -->
+                            <section style="background: var(--background-color); padding: 0 40px 30px;">
+                                <div style="display: grid; grid-template-columns: 2fr 3fr; gap: 24px;">
+                                    <!-- Left: Feature Card -->
+                                    <div style="background: white; border-radius: 8px; padding: 24px; border: 1px solid #e0e0e0;">
+                                        <div style="width: 50px; height: 50px; border-radius: 10px; background: var(--primary-color); opacity: 0.15; display: flex; align-items: center; justify-content: center; font-size: 28px; margin-bottom: 16px;">📈</div>
+                                        <h3 style="color: var(--primary-color); font-family: var(--heading-font); font-size: 18px; margin-bottom: 8px;">Advanced Analytics</h3>
+                                        <p style="color: var(--text-color); font-family: var(--body-font); font-size: 14px; line-height: 1.6; opacity: 0.8;">Track your performance metrics in real-time with comprehensive dashboards and detailed reports.</p>
+                                        <button style="margin-top: 16px; background: var(--accent-color); color: white; border: none; padding: 8px 16px; border-radius: 4px; font-size: 13px; font-weight: 500; font-family: var(--body-font); cursor: pointer;">View Details</button>
+                                    </div>
+                                    
+                                    <!-- Right: Data Table -->
+                                    <div style="background: white; border-radius: 8px; overflow: hidden; border: 1px solid #e0e0e0;">
+                                        <div style="background: var(--primary-color); color: white; padding: 16px 20px; font-weight: 600; font-family: var(--heading-font); font-size: 15px;">Recent Activity</div>
+                                        <div style="padding: 16px 0;">
+                                            <table style="width: 100%; border-collapse: collapse;">
+                                                <thead>
+                                                    <tr style="border-bottom: 1px solid #f0f0f0;">
+                                                        <th style="padding: 10px 20px; text-align: left; font-size: 12px; font-weight: 600; color: var(--text-color); font-family: var(--body-font);">Project</th>
+                                                        <th style="padding: 10px 20px; text-align: left; font-size: 12px; font-weight: 600; color: var(--text-color); font-family: var(--body-font);">Status</th>
+                                                        <th style="padding: 10px 20px; text-align: right; font-size: 12px; font-weight: 600; color: var(--text-color); font-family: var(--body-font);">Amount</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr style="border-bottom: 1px solid #f5f5f5;">
+                                                        <td style="padding: 12px 20px; font-size: 13px; color: var(--text-color); font-family: var(--body-font);">Website Redesign</td>
+                                                        <td style="padding: 12px 20px;"><span style="background: var(--primary-color); color: white; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-family: var(--caption-font);">Active</span></td>
+                                                        <td style="padding: 12px 20px; text-align: right; font-weight: 600; color: var(--primary-color); font-family: var(--caption-font);">$12.5K</td>
+                                                    </tr>
+                                                    <tr style="border-bottom: 1px solid #f5f5f5;">
+                                                        <td style="padding: 12px 20px; font-size: 13px; color: var(--text-color); font-family: var(--body-font);">Mobile App</td>
+                                                        <td style="padding: 12px 20px;"><span style="background: var(--accent-color); color: white; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-family: var(--caption-font);">Pending</span></td>
+                                                        <td style="padding: 12px 20px; text-align: right; font-weight: 600; color: var(--accent-color); font-family: var(--caption-font);">$8.2K</td>
+                                                    </tr>
+                                                    <tr style="border-bottom: 1px solid #f5f5f5;">
+                                                        <td style="padding: 12px 20px; font-size: 13px; color: var(--text-color); font-family: var(--body-font);">Dashboard</td>
+                                                        <td style="padding: 12px 20px;"><span style="background: var(--primary-color); color: white; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-family: var(--caption-font);">Active</span></td>
+                                                        <td style="padding: 12px 20px; text-align: right; font-weight: 600; color: var(--primary-color); font-family: var(--caption-font);">$3.8K</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="padding: 12px 20px; font-size: 13px; color: var(--text-color); font-family: var(--body-font);">API Integration</td>
+                                                        <td style="padding: 12px 20px;"><span style="background: var(--secondary-color); color: white; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-family: var(--caption-font);">Complete</span></td>
+                                                        <td style="padding: 12px 20px; text-align: right; font-weight: 600; color: var(--secondary-color); font-family: var(--caption-font);">$5.4K</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                            
+                            <!-- Analytics Chart -->
+                            <section style="background: var(--background-color); padding: 0 40px 40px;">
+                                <div style="background: white; border-radius: 8px; padding: 30px; border: 1px solid #e0e0e0;">
+                                    <h3 style="color: var(--primary-color); font-family: var(--heading-font); font-size: 18px; margin-bottom: 20px;">Revenue Analytics</h3>
+                                    <div style="display: flex; align-items: end; gap: 12px; height: 140px; margin-bottom: 16px; padding: 0 20px;">
+                                        <div style="flex: 1; display: flex; flex-direction: column; align-items: center;">
+                                            <div style="width: 100%; max-width: 50px; background: var(--primary-color); height: 65%; border-radius: 4px 4px 0 0;"></div>
+                                            <div style="margin-top: 8px; font-size: 11px; color: var(--text-color); font-family: var(--caption-font);">Jan</div>
+                                        </div>
+                                        <div style="flex: 1; display: flex; flex-direction: column; align-items: center;">
+                                            <div style="width: 100%; max-width: 50px; background: var(--secondary-color); height: 80%; border-radius: 4px 4px 0 0;"></div>
+                                            <div style="margin-top: 8px; font-size: 11px; color: var(--text-color); font-family: var(--caption-font);">Feb</div>
+                                        </div>
+                                        <div style="flex: 1; display: flex; flex-direction: column; align-items: center;">
+                                            <div style="width: 100%; max-width: 50px; background: var(--accent-color); height: 50%; border-radius: 4px 4px 0 0;"></div>
+                                            <div style="margin-top: 8px; font-size: 11px; color: var(--text-color); font-family: var(--caption-font);">Mar</div>
+                                        </div>
+                                        <div style="flex: 1; display: flex; flex-direction: column; align-items: center;">
+                                            <div style="width: 100%; max-width: 50px; background: var(--primary-color); height: 75%; border-radius: 4px 4px 0 0;"></div>
+                                            <div style="margin-top: 8px; font-size: 11px; color: var(--text-color); font-family: var(--caption-font);">Apr</div>
+                                        </div>
+                                        <div style="flex: 1; display: flex; flex-direction: column; align-items: center;">
+                                            <div style="width: 100%; max-width: 50px; background: var(--secondary-color); height: 60%; border-radius: 4px 4px 0 0;"></div>
+                                            <div style="margin-top: 8px; font-size: 11px; color: var(--text-color); font-family: var(--caption-font);">May</div>
+                                        </div>
+                                        <div style="flex: 1; display: flex; flex-direction: column; align-items: center;">
+                                            <div style="width: 100%; max-width: 50px; background: var(--accent-color); height: 95%; border-radius: 4px 4px 0 0;"></div>
+                                            <div style="margin-top: 8px; font-size: 11px; color: var(--text-color); font-family: var(--caption-font);">Jun</div>
+                                        </div>
+                                    </div>
+                                    <div style="display: flex; justify-content: center; gap: 24px; padding-top: 16px; border-top: 1px solid #f0f0f0;">
+                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                            <div style="width: 12px; height: 12px; background: var(--primary-color); border-radius: 50%;"></div>
+                                            <span style="font-size: 12px; color: var(--text-color); font-family: var(--caption-font);">Q1</span>
+                                        </div>
+                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                            <div style="width: 12px; height: 12px; background: var(--secondary-color); border-radius: 50%;"></div>
+                                            <span style="font-size: 12px; color: var(--text-color); font-family: var(--caption-font);">Q2</span>
+                                        </div>
+                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                            <div style="width: 12px; height: 12px; background: var(--accent-color); border-radius: 50%;"></div>
+                                            <span style="font-size: 12px; color: var(--text-color); font-family: var(--caption-font);">Revenue</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                            
+                            <!-- Footer -->
+                            <footer style="background: var(--primary-color); padding: 20px 40px; color: white; font-size: 13px; font-family: var(--caption-font); text-align: center;">© 2024 AppHub Dashboard. All rights reserved.</footer>
                         </div>
                     </div>
                 </div>
@@ -5250,8 +5590,7 @@ async function initializeChat() {
     }
     
     try {
-        showChatLoading('Initializing AI assistant...');
-        
+        // Don't show loading for init - it's too fast
         const user = firebase.auth().currentUser;
         if (!user) {
             throw new Error('Please log in to use chat');
@@ -5286,12 +5625,9 @@ async function initializeChat() {
         // Load history from localStorage
         loadChatHistory();
         
-        hideChatLoading();
-        
     } catch (error) {
         console.error('Error initializing chat:', error);
         showNotification('Failed to initialize chat: ' + error.message, 'error');
-        hideChatLoading();
     }
 }
 
@@ -5471,6 +5807,16 @@ function addChatMessage(role, content) {
  * Show loading indicator
  */
 function showChatLoading(text = 'Loading...') {
+    // Check if loading already exists, if so just update it
+    const existingLoading = document.getElementById('chat-loading');
+    if (existingLoading) {
+        const textSpan = existingLoading.querySelector('span');
+        if (textSpan) {
+            textSpan.textContent = text;
+        }
+        return;
+    }
+    
     const messagesContainer = document.getElementById('chat-messages');
     if (!messagesContainer) return;
     

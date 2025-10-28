@@ -54,6 +54,7 @@ exclude:
   - create-post.sh
   - create-post.bat
   - config/
+  - backup-*
 
 # Include files
 include:

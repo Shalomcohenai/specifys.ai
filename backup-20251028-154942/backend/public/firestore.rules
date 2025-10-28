@@ -1,0 +1,80 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAdmin() {
+      return request.auth != null && (
+        request.auth.token.email == 'specifysai@gmail.com' ||
+        request.auth.token.email == 'admin@specifys.ai' ||
+        request.auth.token.email == 'shalom@specifys.ai'
+      );
+    }
+
+    // General rule for documents with userId field
+    match /{document=**} {
+      allow read, write: if request.auth != null && (
+        !exists(/databases/$(database)/documents/$(document)) ||
+        request.auth.uid == resource.data.userId
+      ) || isAdmin();
+    }
+
+    // Users collection
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId || isAdmin();
+      allow create: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // UserTools subcollections
+    match /userTools/{userId}/{document=**} {
+      allow read, write: if request.auth != null && userId == request.auth.uid || isAdmin();
+      allow create: if request.auth != null && userId == request.auth.uid;
+    }
+
+    // Entitlements collection
+    match /entitlements/{document} {
+      allow read: if request.auth != null && (
+        !exists(/databases/$(database)/documents/entitlements/$(document)) ||
+        request.auth.uid == resource.data.userId
+      ) || isAdmin();
+      allow write: if request.auth != null && request.auth.uid == resource.data.userId || isAdmin();
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+    }
+
+    // Purchases collection
+    match /purchases/{document} {
+      allow read: if request.auth != null && (
+        !exists(/databases/$(database)/documents/purchases/$(document)) ||
+        request.auth.uid == resource.data.userId
+      ) || isAdmin();
+      allow write: if request.auth != null && request.auth.uid == resource.data.userId || isAdmin();
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+    }
+
+    // Subscriptions collection
+    match /subscriptions/{document} {
+      allow read: if request.auth != null && (
+        !exists(/databases/$(database)/documents/subscriptions/$(document)) ||
+        request.auth.uid == resource.data.userId
+      ) || isAdmin();
+      allow write: if request.auth != null && request.auth.uid == resource.data.userId || isAdmin();
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+    }
+
+    // Pending entitlements collection
+    match /pending_entitlements/{document} {
+      allow read: if request.auth != null && (
+        resource.data.email == request.auth.token.email || isAdmin()
+      );
+      allow write, create: if isAdmin();
+    }
+
+    // Audit logs collection (admin only)
+    match /audit_logs/{document} {
+      allow read, write, create: if isAdmin();
+    }
+
+    // Processed webhook events collection (admin only)
+    match /processed_webhook_events/{document} {
+      allow read, write, create: if isAdmin();
+    }
+  }
+}
