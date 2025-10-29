@@ -84,8 +84,8 @@ async function loadDynamicStats() {
     // Get specs count from public stats
     let specsCount = 0;
     try {
-      // Check if Firebase is available
-      if (typeof firebase !== 'undefined' && firebase.firestore) {
+      // Check if Firebase is available and initialized
+      if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length > 0 && firebase.firestore) {
         const db = firebase.firestore();
         const statsDoc = await db.collection('public_stats').doc('counts').get();
         if (statsDoc.exists) {

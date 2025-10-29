@@ -1,0 +1,1450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta name="theme-color" content="#000000">
+    <title>Admin Dashboard - Specifys.ai</title>
+    <meta name="description" content="Specifys.ai Admin Dashboard - Analytics & Management">
+    <meta name="keywords" content="AI development tools, app specification generator, no-code platform, AI-powered planning, vibe coding, AI app builder, specification generator, market research tool, app planning tool, development tools, AI tools">
+    <meta name="author" content="Specifys.ai">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    
+    <!-- Content Security Policy - Removed to fix Google Analytics/Ads issues -->
+    
+    <!-- Canonical URL -->
+    
+    <link rel="canonical" href="https://specifys-ai.com/pages/admin-dashboard.html">
+    
+    
+    <!-- Open Graph -->
+    <meta property="og:site_name" content="Specifys.ai">
+    <meta property="og:title" content="Admin Dashboard">
+    <meta property="og:description" content="Specifys.ai Admin Dashboard - Analytics & Management">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://specifys-ai.com/pages/admin-dashboard.html">
+    <meta property="og:image" content="https://specifys-ai.com/assets/images/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:locale" content="en_US">
+    
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@specifysai">
+    <meta name="twitter:creator" content="@specifysai">
+    <meta name="twitter:title" content="Admin Dashboard">
+    <meta name="twitter:description" content="Specifys.ai Admin Dashboard - Analytics & Management">
+    <meta name="twitter:image" content="https://specifys-ai.com/assets/images/og-image.png">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="/assets/css/main.css">
+    
+      
+        <link rel="stylesheet" href="/assets/css/pages/admin-dashboard.css">
+      
+    
+    
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Mermaid for diagrams (used in demo, spec, research pages) -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+    
+    <!-- Marked for markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked@4.3.0/marked.min.js"></script>
+    
+    <!-- Highlight.js for syntax highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    
+    <!-- jsPDF for PDF export (used in research pages) -->
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
+    <!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-RWBT69JCM7"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-RWBT69JCM7');
+</script>
+
+
+    <script>
+// Central Analytics Event Tracking System for Specifys.ai
+// This file contains reusable tracking functions for consistent analytics across the site
+
+// Check if gtag is available
+function isGtagAvailable() {
+  return typeof gtag !== 'undefined';
+}
+
+// Track button clicks with detailed categorization
+function trackButtonClick(buttonName, category, source, additionalData = {}) {
+  if (isGtagAvailable()) {
+    gtag('event', 'click', {
+      'event_category': category || 'Button Click',
+      'event_label': buttonName,
+      'event_source': source || 'unknown',
+      ...additionalData
+    });
+  }
+}
+
+// Track CTA (Call-to-Action) clicks
+function trackCTA(ctaName, location) {
+  if (isGtagAvailable()) {
+    gtag('event', 'cta_click', {
+      'event_category': 'CTA',
+      'event_label': ctaName,
+      'cta_location': location
+    });
+  }
+}
+
+// Track navigation events
+function trackNavigation(destination, source) {
+  if (isGtagAvailable()) {
+    gtag('event', 'navigation', {
+      'event_category': 'Navigation',
+      'event_label': destination,
+      'navigation_source': source
+    });
+  }
+}
+
+// Track tool usage
+function trackToolUsage(toolName, action) {
+  if (isGtagAvailable()) {
+    gtag('event', 'tool_usage', {
+      'event_category': 'Tools',
+      'event_label': toolName,
+      'tool_action': action
+    });
+  }
+}
+
+// Track form submissions
+function trackFormSubmit(formName, formType) {
+  if (isGtagAvailable()) {
+    gtag('event', 'form_submit', {
+      'event_category': 'Form',
+      'event_label': formName,
+      'form_type': formType
+    });
+  }
+}
+
+// Track user authentication events
+function trackAuthEvent(action, method) {
+  if (isGtagAvailable()) {
+    gtag('event', action, {
+      'event_category': 'Authentication',
+      'event_label': action,
+      'auth_method': method || 'email'
+    });
+  }
+}
+
+// Track downloads
+function trackDownload(fileName, fileType) {
+  if (isGtagAvailable()) {
+    gtag('event', 'download', {
+      'event_category': 'Downloads',
+      'event_label': fileName,
+      'file_type': fileType
+    });
+  }
+}
+
+// Track spec/result generations
+function trackGeneration(type, mode) {
+  if (isGtagAvailable()) {
+    gtag('event', 'generation_start', {
+      'event_category': 'Generation',
+      'event_label': type,
+      'generation_mode': mode
+    });
+  }
+}
+
+// Track generation completion
+function trackGenerationComplete(type, mode, success) {
+  if (isGtagAvailable()) {
+    gtag('event', 'generation_complete', {
+      'event_category': 'Generation',
+      'event_label': type,
+      'generation_mode': mode,
+      'success': success
+    });
+  }
+}
+
+// Track external link clicks
+function trackExternalLink(linkUrl, linkText) {
+  if (isGtagAvailable()) {
+    gtag('event', 'click', {
+      'event_category': 'External Link',
+      'event_label': linkText || linkUrl,
+      'link_url': linkUrl
+    });
+  }
+}
+
+// Track modal interactions
+function trackModal(modalName, action) {
+  if (isGtagAvailable()) {
+    gtag('event', 'modal_' + action, {
+      'event_category': 'Modal',
+      'event_label': modalName,
+      'modal_action': action
+    });
+  }
+}
+
+// Track FAQ interactions
+function trackFAQ(question, action) {
+  if (isGtagAvailable()) {
+    gtag('event', 'faq_' + action, {
+      'event_category': 'FAQ',
+      'event_label': question,
+      'faq_action': action
+    });
+  }
+}
+
+// Track search actions
+function trackSearch(searchTerm, searchType) {
+  if (isGtagAvailable()) {
+    gtag('event', 'search', {
+      'event_category': 'Search',
+      'search_term': searchTerm,
+      'search_type': searchType
+    });
+  }
+}
+
+// Track video/demo views
+function trackDemoView(demoName, viewDuration) {
+  if (isGtagAvailable()) {
+    gtag('event', 'demo_view', {
+      'event_category': 'Demo',
+      'event_label': demoName,
+      'view_duration': viewDuration
+    });
+  }
+}
+
+// Track user engagement time
+function trackEngagement(pageName, timeSpent) {
+  if (isGtagAvailable()) {
+    gtag('event', 'user_engagement', {
+      'event_category': 'Engagement',
+      'event_label': pageName,
+      'engagement_time_msec': timeSpent
+    });
+  }
+}
+
+// Track errors
+function trackError(errorType, errorMessage, errorLocation) {
+  if (isGtagAvailable()) {
+    gtag('event', 'error', {
+      'event_category': 'Error',
+      'event_label': errorType,
+      'error_message': errorMessage,
+      'error_location': errorLocation
+    });
+  }
+}
+
+// Track user preferences
+function trackPreference(preferenceName, preferenceValue) {
+  if (isGtagAvailable()) {
+    gtag('event', 'preference_change', {
+      'event_category': 'Preferences',
+      'event_label': preferenceName,
+      'preference_value': preferenceValue
+    });
+  }
+}
+
+// Track scroll depth
+let scrollDepthTracked = {25: false, 50: false, 75: false, 100: false};
+function initScrollTracking(pageName) {
+  window.addEventListener('scroll', function() {
+    const scrollPercent = Math.round((window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100);
+    
+    if (scrollPercent >= 25 && !scrollDepthTracked[25]) {
+      scrollDepthTracked[25] = true;
+      if (isGtagAvailable()) {
+        gtag('event', 'scroll', {
+          'event_category': 'Scroll Depth',
+          'event_label': pageName,
+          'scroll_depth': '25%'
+        });
+      }
+    }
+    if (scrollPercent >= 50 && !scrollDepthTracked[50]) {
+      scrollDepthTracked[50] = true;
+      if (isGtagAvailable()) {
+        gtag('event', 'scroll', {
+          'event_category': 'Scroll Depth',
+          'event_label': pageName,
+          'scroll_depth': '50%'
+        });
+      }
+    }
+    if (scrollPercent >= 75 && !scrollDepthTracked[75]) {
+      scrollDepthTracked[75] = true;
+      if (isGtagAvailable()) {
+        gtag('event', 'scroll', {
+          'event_category': 'Scroll Depth',
+          'event_label': pageName,
+          'scroll_depth': '75%'
+        });
+      }
+    }
+    if (scrollPercent >= 100 && !scrollDepthTracked[100]) {
+      scrollDepthTracked[100] = true;
+      if (isGtagAvailable()) {
+        gtag('event', 'scroll', {
+          'event_category': 'Scroll Depth',
+          'event_label': pageName,
+          'scroll_depth': '100%'
+        });
+      }
+    }
+  });
+}
+
+// Auto-initialize scroll tracking when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+  const pageName = document.title || window.location.pathname;
+  initScrollTracking(pageName);
+});
+</script>
+
+
+    <!-- Structured Data (JSON-LD) for SEO -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "name": "Specifys.ai",
+      "url": "https://specifys-ai.com",
+      "logo": "https://specifys-ai.com/favicon.ico",
+      "description": "AI-powered app planning and specification generation platform",
+      "sameAs": [
+        "https://www.linkedin.com/company/specifys-ai/"
+      ],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "email": "specifysai@gmail.com",
+        "contactType": "Customer Service"
+      }
+    },
+    {
+      "@type": "WebSite",
+      "name": "Specifys.ai",
+      "url": "https://specifys-ai.com",
+      "description": "Plan your app smarter with AI-driven insights and tools",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://specifys-ai.com/pages/ToolPicker.html?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "Specifys.ai",
+      "applicationCategory": "DevelopmentApplication",
+      "operatingSystem": "Web",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "ratingCount": "250"
+      },
+      "description": "AI-powered app planning platform with specification generator, market research tools, and vibe coding tools map"
+    }
+  ]
+}
+</script>
+
+
+</head>
+
+
+<body>
+    <!-- Header -->
+    <!-- Skip to main content link for accessibility -->
+<a href="#main-content" class="skip-link">Skip to main content</a>
+
+<!-- Header -->
+<header class="thematic-header" role="banner">
+    <div class="header-center">
+        <div class="logo">
+            <a href="/" aria-label="Specifys.ai homepage">
+                <span class="logo-text">Specifys<span class="logo-dot">.</span>AI</span>
+            </a>
+        </div>
+    </div>
+    <div class="header-right">
+        <div class="auth-buttons" id="auth-buttons">
+            <!-- Will be populated by auth system -->
+        </div>
+    </div>
+</header>
+
+    <!-- Main Content -->
+    <main id="main-content" class="main-content">
+        <div class="admin-container">
+    <!-- Dashboard Header -->
+    <div class="dashboard-header">
+        <div class="header-left">
+        <h1>Admin Dashboard</h1>
+        <p>Monitor and manage Specifys.ai platform</p>
+        </div>
+        <div class="header-right">
+            <div class="firebase-status">
+                <div class="status-indicator" id="firebase-status">
+                    <span class="status-dot"></span>
+                    <span class="status-text">Connecting...</span>
+                </div>
+                <button class="btn-refresh-data" id="refresh-all-data" onclick="adminDashboard.refreshAllData()">
+                    <i class="fas fa-sync-alt"></i> Refresh Data
+                </button>
+                <button class="btn-sync-users" id="sync-users-btn" onclick="adminDashboard.syncUsersFromAuth()">
+                    <i class="fas fa-user-sync"></i> Sync Users
+                </button>
+            </div>
+            <div class="last-refresh">
+                <small id="last-refresh-time">Never refreshed</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Overview Cards -->
+    <div class="stats-grid">
+        <div class="stat-card">
+                <div class="stat-card-icon">
+                    <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-card-value" id="total-users">0</div>
+            <div class="stat-card-label">Total Users</div>
+        </div>
+
+        <div class="stat-card">
+                <div class="stat-card-icon">
+                <i class="fas fa-user-plus"></i>
+            </div>
+            <div class="stat-card-value" id="new-users-week">0</div>
+            <div class="stat-card-label">New Users This Week</div>
+        </div>
+
+        <div class="stat-card">
+                <div class="stat-card-icon">
+                <i class="fas fa-th-large"></i>
+            </div>
+            <div class="stat-card-value" id="total-dashboards">0</div>
+            <div class="stat-card-label">Total App Dashboards</div>
+        </div>
+
+        <div class="stat-card">
+                <div class="stat-card-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+            <div class="stat-card-value" id="new-dashboards-week">0</div>
+            <div class="stat-card-label">New Dashboards This Week</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-card-icon">
+                <i class="fas fa-dollar-sign"></i>
+            </div>
+            <div class="stat-card-value" id="total-specs">0</div>
+            <div class="stat-card-label">Total Specs</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-card-icon">
+                <i class="fas fa-chart-bar"></i>
+            </div>
+            <div class="stat-card-value" id="total-market-research">0</div>
+            <div class="stat-card-label">Total Market Research</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-card-icon">
+                <i class="fas fa-bookmark"></i>
+            </div>
+            <div class="stat-card-value" id="total-saved-tools">0</div>
+            <div class="stat-card-label">Saved Tools</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-card-icon">
+                <i class="fas fa-heart"></i>
+            </div>
+            <div class="stat-card-value" id="total-likes">0</div>
+            <div class="stat-card-label">Total Likes</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-card-icon">
+                <i class="fas fa-sticky-note"></i>
+            </div>
+            <div class="stat-card-value" id="total-notes">0</div>
+            <div class="stat-card-label">App Notes</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-card-icon">
+                <i class="fas fa-dollar-sign"></i>
+            </div>
+            <div class="stat-card-value" id="total-expenses">0</div>
+            <div class="stat-card-label">Tracked Expenses</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-card-icon">
+                <i class="fas fa-dollar-sign"></i>
+            </div>
+            <div class="stat-card-value" id="total-revenue">$0</div>
+            <div class="stat-card-label">Total Revenue</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-card-icon">
+                <i class="fas fa-shopping-cart"></i>
+            </div>
+            <div class="stat-card-value" id="total-purchases">0</div>
+            <div class="stat-card-label">Total Purchases</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-card-icon">
+                <i class="fas fa-sync-alt"></i>
+            </div>
+            <div class="stat-card-value" id="active-subscriptions">0</div>
+            <div class="stat-card-label">Active Subscriptions</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-card-icon">
+                <i class="fas fa-crown"></i>
+            </div>
+            <div class="stat-card-value" id="pro-users">0</div>
+            <div class="stat-card-label">Pro Users</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-card-icon">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="stat-card-value" id="monthly-revenue">$0</div>
+            <div class="stat-card-label">Monthly Revenue</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-card-icon">
+                <i class="fas fa-percentage"></i>
+            </div>
+            <div class="stat-card-value" id="conversion-rate">0%</div>
+            <div class="stat-card-label">Conversion Rate</div>
+        </div>
+    </div>
+
+    <!-- Main Tabs Navigation -->
+    <div class="tabs-container">
+        <div class="tabs-nav">
+            <button class="tab-btn active" data-tab="overview">
+                <i class="fas fa-tachometer-alt"></i> Overview
+            </button>
+            <button class="tab-btn" data-tab="users">
+                <i class="fas fa-users"></i> Users
+            </button>
+            <button class="tab-btn" data-tab="permissions">
+                <i class="fas fa-key"></i> Permissions
+            </button>
+            <button class="tab-btn" data-tab="payments">
+                <i class="fas fa-shekel-sign"></i> Payments
+            </button>
+            <button class="tab-btn" data-tab="content">
+                <i class="fas fa-dollar-sign"></i> Content
+            </button>
+            <button class="tab-btn" data-tab="analytics">
+                <i class="fas fa-chart-line"></i> Analytics
+            </button>
+            <button class="tab-btn" data-tab="errors">
+                <i class="fas fa-exclamation-triangle"></i> Errors
+            </button>
+        </div>
+
+        <!-- Tab 1: Overview -->
+        <div class="tab-content active" id="overview-tab">
+            <div class="overview-container">
+                <div class="overview-grid">
+                    <!-- Quick Stats -->
+                    <div class="overview-section">
+                        <h2><i class="fas fa-chart-bar"></i> Quick Stats</h2>
+                        <div class="quick-stats-grid">
+                            <div class="quick-stat">
+                                <div class="stat-icon"><i class="fas fa-users"></i></div>
+                                <div class="stat-info">
+                                    <div class="stat-value" id="overview-total-users">0</div>
+                                    <div class="stat-label">Total Users</div>
+                                </div>
+                            </div>
+                            <div class="quick-stat">
+                                <div class="stat-icon"><i class="fas fa-dollar-sign"></i></div>
+                                <div class="stat-info">
+                                    <div class="stat-value" id="overview-total-revenue">$0</div>
+                                    <div class="stat-label">Total Revenue</div>
+                                </div>
+                            </div>
+                            <div class="quick-stat">
+                                <div class="stat-icon"><i class="fas fa-dollar-sign"></i></div>
+                                <div class="stat-info">
+                                    <div class="stat-value" id="overview-total-specs">0</div>
+                                    <div class="stat-label">Total Specs</div>
+                                </div>
+                            </div>
+                            <div class="quick-stat">
+                                <div class="stat-icon"><i class="fas fa-sync-alt"></i></div>
+                                <div class="stat-info">
+                                    <div class="stat-value" id="overview-active-subscriptions">0</div>
+                                    <div class="stat-label">Active Subscriptions</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity -->
+                    <div class="overview-section">
+                        <h2><i class="fas fa-clock"></i> Recent Activity</h2>
+                        <div class="activity-list" id="recent-activity-list">
+                            <div class="activity-item">
+                                <div class="activity-icon"><i class="fas fa-spinner fa-spin"></i></div>
+                                <div class="activity-text">Loading recent activity...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="overview-section">
+                        <h2><i class="fas fa-bolt"></i> Quick Actions</h2>
+                        <div class="quick-actions-grid">
+                            <button class="quick-action-btn" onclick="adminDashboard.loadUsersData()">
+                                <i class="fas fa-sync-alt"></i>
+                                <span>Refresh Users</span>
+                            </button>
+                            <button class="quick-action-btn" onclick="adminDashboard.loadPaymentData()">
+                                <i class="fas fa-shekel-sign"></i>
+                                <span>Refresh Payments</span>
+                            </button>
+                            <button class="quick-action-btn" onclick="adminDashboard.refreshAllData()">
+                                <i class="fas fa-refresh"></i>
+                                <span>Refresh All</span>
+                            </button>
+                            <button class="quick-action-btn" onclick="window.open('/pages/ToolPicker.html', '_blank')">
+                                <i class="fas fa-external-link-alt"></i>
+                                <span>View Site</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 2: Users Management -->
+        <div class="tab-content" id="users-tab">
+        <div class="table-section">
+                <div class="section-header">
+                    <h2>Users Management</h2>
+                    <button class="btn-refresh" onclick="adminDashboard.loadUsersData()">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+
+                <div class="filters-row">
+                    <input type="text" id="users-search" class="search-input" placeholder="Search by email...">
+                    <select id="users-newsletter-filter" class="filter-select">
+                        <option value="all">All Users</option>
+                        <option value="subscribed">Newsletter Subscribed</option>
+                        <option value="unsubscribed">Newsletter Unsubscribed</option>
+                    </select>
+                </div>
+
+                <div class="table-wrapper">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                                <th>Email</th>
+                                <th>Registration Date</th>
+                                <th>Newsletter Status</th>
+                                <th>Last Active</th>
+                                <th>Actions</th>
+                    </tr>
+                </thead>
+                        <tbody id="users-table-body">
+                            <tr>
+                                <td colspan="5" class="loading-cell">Loading users data...</td>
+                            </tr>
+                </tbody>
+            </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 3: User Permissions -->
+        <div class="tab-content" id="permissions-tab">
+            <div class="permissions-container">
+                <div class="permissions-header">
+                    <h2><i class="fas fa-key"></i> User Permissions Management</h2>
+                    <p>Manage user entitlements, Pro subscriptions, and spec credits</p>
+                </div>
+
+                <!-- User Search and Filter -->
+                <div class="permissions-filters">
+                    <div class="filter-group">
+                        <input type="text" id="permissions-search" class="search-input" placeholder="Search by email...">
+                        <select id="permissions-plan-filter" class="filter-select">
+                            <option value="all">All Plans</option>
+                            <option value="free">Free Users</option>
+                            <option value="pro">Pro Users</option>
+                        </select>
+                        <button class="btn-refresh" onclick="adminDashboard.loadPermissionsData()">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Permissions Table -->
+                <div class="table-wrapper">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>User Email</th>
+                                <th>Plan</th>
+                                <th>Spec Credits</th>
+                                <th>Unlimited Access</th>
+                                <th>Can Edit</th>
+                                <th>Last Updated</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="permissions-table-body">
+                            <tr>
+                                <td colspan="7" class="loading-cell">Loading permissions data...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="permissions-actions">
+                    <h3><i class="fas fa-tools"></i> Quick Actions</h3>
+                    <div class="quick-actions-grid">
+                        <button class="quick-action-btn" onclick="adminDashboard.grantProAccess()">
+                            <i class="fas fa-crown"></i>
+                            <span>Grant Pro Access</span>
+                        </button>
+                        <button class="quick-action-btn" onclick="adminDashboard.addSpecCredits()">
+                            <i class="fas fa-plus-circle"></i>
+                            <span>Add Spec Credits</span>
+                        </button>
+                        <button class="quick-action-btn" onclick="adminDashboard.resetUserPermissions()">
+                            <i class="fas fa-undo"></i>
+                            <span>Reset Permissions</span>
+                        </button>
+                        <button class="quick-action-btn" onclick="adminDashboard.exportPermissions()">
+                            <i class="fas fa-download"></i>
+                            <span>Export Data</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 4: Content Management -->
+        <div class="tab-content" id="content-tab">
+            <div class="content-container">
+                <div class="content-grid">
+                    <!-- Specs Management -->
+                    <div class="content-section">
+                        <h2><i class="fas fa-dollar-sign"></i> Specifications</h2>
+                        <div class="content-stats">
+                            <div class="content-stat">
+                                <span class="stat-value" id="content-total-specs">0</span>
+                                <span class="stat-label">Total Specs</span>
+                            </div>
+                            <div class="content-stat">
+                                <span class="stat-value" id="content-specs-week">0</span>
+                                <span class="stat-label">This Week</span>
+                            </div>
+                        </div>
+                        <button class="btn-primary" onclick="adminDashboard.loadSpecsData()">
+                            <i class="fas fa-sync-alt"></i> Refresh Specs
+                        </button>
+                    </div>
+
+                    <!-- Market Research -->
+                    <div class="content-section">
+                        <h2><i class="fas fa-chart-line"></i> Market Research</h2>
+                        <div class="content-stats">
+                            <div class="content-stat">
+                                <span class="stat-value" id="content-total-market">0</span>
+                                <span class="stat-label">Total Research</span>
+                            </div>
+                            <div class="content-stat">
+                                <span class="stat-value" id="content-market-week">0</span>
+                                <span class="stat-label">This Week</span>
+                            </div>
+                        </div>
+                        <button class="btn-primary" onclick="adminDashboard.loadMarketResearchData()">
+                            <i class="fas fa-sync-alt"></i> Refresh Research
+                        </button>
+                    </div>
+
+                    <!-- App Dashboards -->
+                    <div class="content-section">
+                        <h2><i class="fas fa-th-large"></i> App Dashboards</h2>
+                        <div class="content-stats">
+                            <div class="content-stat">
+                                <span class="stat-value" id="content-total-dashboards">0</span>
+                                <span class="stat-label">Total Dashboards</span>
+                            </div>
+                            <div class="content-stat">
+                                <span class="stat-value" id="content-dashboards-week">0</span>
+                                <span class="stat-label">This Week</span>
+                            </div>
+                        </div>
+                        <button class="btn-primary" onclick="adminDashboard.loadDashboardsData()">
+                            <i class="fas fa-sync-alt"></i> Refresh Dashboards
+                        </button>
+                    </div>
+
+                    <!-- Blog Management -->
+                    <div class="content-section">
+                        <h2><i class="fas fa-newspaper"></i> Blog Management</h2>
+                        <div class="content-info">
+                            <p>Blog posts are managed through the <code>_posts</code> directory.</p>
+                            <p>Use Jekyll's built-in blog system for post creation and management.</p>
+                        </div>
+                        <button class="btn-secondary" onclick="window.open('/blog/', '_blank')">
+                            <i class="fas fa-external-link-alt"></i> View Blog
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 5: Payment Analytics -->
+        <div class="tab-content" id="payments-tab">
+            <div class="payments-analytics-container">
+                
+                <!-- Revenue Overview -->
+                <div class="analytics-section">
+                    <h2><i class="fas fa-chart-bar"></i> Revenue Overview</h2>
+                    <div class="revenue-grid">
+                        <div class="revenue-card">
+                            <h3>Today's Revenue</h3>
+                            <div class="revenue-value" id="revenue-today">$0</div>
+                            <div class="revenue-change" id="revenue-today-change">+0%</div>
+                        </div>
+                        <div class="revenue-card">
+                            <h3>This Week</h3>
+                            <div class="revenue-value" id="revenue-week">$0</div>
+                            <div class="revenue-change" id="revenue-week-change">+0%</div>
+                        </div>
+                        <div class="revenue-card">
+                            <h3>This Month</h3>
+                            <div class="revenue-value" id="revenue-month">$0</div>
+                            <div class="revenue-change" id="revenue-month-change">+0%</div>
+                        </div>
+                        <div class="revenue-card">
+                            <h3>This Year</h3>
+                            <div class="revenue-value" id="revenue-year">$0</div>
+                            <div class="revenue-change" id="revenue-year-change">+0%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Conversion Funnel Analytics -->
+                <div class="analytics-section">
+                    <h2><i class="fas fa-funnel-dollar"></i> Conversion Funnel Analytics</h2>
+                    <div class="conversion-grid">
+                        <div class="conversion-card">
+                            <h3>Buy Button Clicks</h3>
+                            <div class="conversion-value" id="total-buy-clicks">0</div>
+                            <div class="conversion-label">Total clicks on buy buttons</div>
+                        </div>
+                        <div class="conversion-card">
+                            <h3>Completed Purchases</h3>
+                            <div class="conversion-value" id="total-purchases">0</div>
+                            <div class="conversion-label">Successful transactions</div>
+                        </div>
+                        <div class="conversion-card">
+                            <h3>Abandoned Carts</h3>
+                            <div class="conversion-value" id="abandoned-purchases">0</div>
+                            <div class="conversion-label">Clicked but didn't buy</div>
+                        </div>
+                        <div class="conversion-card">
+                            <h3>Conversion Rate</h3>
+                            <div class="conversion-value" id="conversion-rate">0%</div>
+                            <div class="conversion-label">Clicks to purchases</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Conversion Funnel Breakdown -->
+                    <div class="funnel-breakdown">
+                        <h3><i class="fas fa-chart-line"></i> Product Conversion Breakdown</h3>
+                        <div class="table-wrapper">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>Product</th>
+                                        <th>Buy Clicks</th>
+                                        <th>Purchases</th>
+                                        <th>Abandoned</th>
+                                        <th>Conversion Rate</th>
+                                        <th>Revenue</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="conversion-funnel-table-body">
+                                    <tr>
+                                        <td colspan="6" class="loading-cell">Loading conversion data...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product Performance -->
+                <div class="analytics-section">
+                    <h2><i class="fas fa-box"></i> Product Performance</h2>
+                    <div class="table-wrapper">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Price</th>
+                                    <th>Sales Count</th>
+                                    <th>Revenue</th>
+                                    <th>Conversion Rate</th>
+                                    <th>Popularity</th>
+                                </tr>
+                            </thead>
+                            <tbody id="product-performance-table">
+                                <tr>
+                                    <td colspan="6" class="loading-cell">Loading product data...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Subscription Analytics -->
+                <div class="analytics-section">
+                    <h2><i class="fas fa-sync-alt"></i> Subscription Analytics</h2>
+                    <div class="subscription-stats-grid">
+                        <div class="subscription-stat-card">
+                            <div class="stat-icon"><i class="fas fa-users"></i></div>
+                            <div class="stat-value" id="total-subscribers">0</div>
+                            <div class="stat-label">Total Subscribers</div>
+                        </div>
+                        <div class="subscription-stat-card">
+                            <div class="stat-icon"><i class="fas fa-plus-circle"></i></div>
+                            <div class="stat-value" id="new-subscribers-month">0</div>
+                            <div class="stat-label">New This Month</div>
+                        </div>
+                        <div class="subscription-stat-card">
+                            <div class="stat-icon"><i class="fas fa-minus-circle"></i></div>
+                            <div class="stat-value" id="cancelled-subscriptions-month">0</div>
+                            <div class="stat-label">Cancelled This Month</div>
+                        </div>
+                        <div class="subscription-stat-card">
+                            <div class="stat-icon"><i class="fas fa-percentage"></i></div>
+                            <div class="stat-value" id="churn-rate">0%</div>
+                            <div class="stat-label">Churn Rate</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Transactions -->
+                <div class="analytics-section">
+                    <h2><i class="fas fa-receipt"></i> Recent Transactions</h2>
+                    <div class="filters-row">
+                        <select id="transaction-type-filter" class="filter-select">
+                            <option value="all">All Transactions</option>
+                            <option value="purchase">One-time Purchases</option>
+                            <option value="subscription">Subscriptions</option>
+                            <option value="refund">Refunds</option>
+                        </select>
+                        <input type="date" id="transaction-date-from" class="filter-input" placeholder="From date">
+                        <input type="date" id="transaction-date-to" class="filter-input" placeholder="To date">
+                    </div>
+                    <div class="table-wrapper">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>User Email</th>
+                                    <th>Product</th>
+                                    <th>Amount</th>
+                                    <th>Type</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="transactions-table-body">
+                                <tr>
+                                    <td colspan="7" class="loading-cell">Loading transactions...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- User Payment Analytics -->
+                <div class="analytics-section">
+                    <h2><i class="fas fa-user-dollar"></i> User Payment Analytics</h2>
+                    <div class="table-wrapper">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>User Email</th>
+                                    <th>Plan</th>
+                                    <th>Total Spent</th>
+                                    <th>Purchases</th>
+                                    <th>Subscriptions</th>
+                                    <th>Last Payment</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="user-payments-table-body">
+                                <tr>
+                                    <td colspan="7" class="loading-cell">Loading user payment data...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Tab 6: Analytics -->
+        <div class="tab-content" id="analytics-tab">
+            <div class="analytics-container">
+                <div class="analytics-grid">
+                    <!-- User Analytics -->
+                    <div class="analytics-card">
+                        <h3><i class="fas fa-users"></i> User Registration Analytics</h3>
+                        <div class="analytics-stats">
+                            <div class="analytics-stat">
+                                <span class="stat-label">Users registered today:</span>
+                                <span class="stat-value" id="analytics-users-today">0</span>
+                            </div>
+                            <div class="analytics-stat">
+                                <span class="stat-label">Users registered this week:</span>
+                                <span class="stat-value" id="analytics-users-week">0</span>
+                            </div>
+                            <div class="analytics-stat">
+                                <span class="stat-label">Users registered this month:</span>
+                                <span class="stat-value" id="analytics-users-month">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dashboard Analytics -->
+                    <div class="analytics-card">
+                        <h3><i class="fas fa-th-large"></i> App Dashboard Analytics</h3>
+                        <div class="analytics-stats">
+                            <div class="analytics-stat">
+                                <span class="stat-label">Dashboards created today:</span>
+                                <span class="stat-value" id="analytics-dashboards-today">0</span>
+                            </div>
+                            <div class="analytics-stat">
+                                <span class="stat-label">Dashboards created this week:</span>
+                                <span class="stat-value" id="analytics-dashboards-week">0</span>
+                            </div>
+                            <div class="analytics-stat">
+                                <span class="stat-label">Dashboards created this month:</span>
+                                <span class="stat-value" id="analytics-dashboards-month">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Specs Analytics -->
+                    <div class="analytics-card">
+                        <h3><i class="fas fa-dollar-sign"></i> Specs Analytics</h3>
+                        <div class="analytics-stats">
+                            <div class="analytics-stat">
+                                <span class="stat-label">Specs created today:</span>
+                                <span class="stat-value" id="analytics-specs-today">0</span>
+                            </div>
+                            <div class="analytics-stat">
+                                <span class="stat-label">Specs created this week:</span>
+                                <span class="stat-value" id="analytics-specs-week">0</span>
+                            </div>
+                            <div class="analytics-stat">
+                                <span class="stat-label">Specs created this month:</span>
+                                <span class="stat-value" id="analytics-specs-month">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 7: Error Logs -->
+        <div class="tab-content" id="errors-tab">
+            <div class="table-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-exclamation-triangle"></i> Error Logs</h2>
+                    <button class="btn-refresh" onclick="adminDashboard.loadErrorLogs()">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+
+                <div class="filters-row">
+                    <select id="errors-type-filter" class="filter-select">
+                        <option value="all">All Error Types</option>
+                        <option value="validation">Validation Errors</option>
+                        <option value="firebase">Firebase Errors</option>
+                        <option value="api">API Errors</option>
+                    </select>
+                </div>
+
+                <div class="table-wrapper">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Error Type</th>
+                                <th>Error Message</th>
+                                <th>Frequency</th>
+                                <th>Error Code</th>
+                                <th>First Occurrence</th>
+                                <th>Last Occurrence</th>
+                            </tr>
+                        </thead>
+                        <tbody id="errors-table-body">
+                            <tr>
+                                <td colspan="6" class="loading-cell">Loading errors...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    </main>
+
+    <!-- Preview Modal -->
+    <div id="preview-modal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2><i class="fas fa-eye"></i> Post Preview</h2>
+                <span class="modal-close" onclick="blogManager.closePreviewModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <article class="post-preview-content" id="preview-content">
+                    <!-- Preview will be rendered here -->
+                </article>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for viewing spec content -->
+    <div id="spec-modal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2 id="modal-title">Specification</h2>
+                <div class="modal-header-actions">
+                    <button class="btn-toggle-view" id="toggle-view-btn" onclick="adminDashboard.toggleView()">
+                        <i class="fas fa-code"></i> Show Raw
+                    </button>
+                    <span class="modal-close" onclick="adminDashboard.closeModal()">&times;</span>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div id="modal-spec-content" class="spec-content rendered-view"></div>
+                <pre id="modal-spec-raw" class="spec-content-raw" style="display: none;"></pre>
+            </div>
+        </div>
+    </div>
+            
+    <!-- Confirmation Modal for Delete -->
+    <div id="confirm-modal" class="modal">
+        <div class="modal-content modal-confirm">
+            <div class="modal-header">
+                <h2>Confirm Action</h2>
+                <span class="modal-close" onclick="adminDashboard.closeConfirmModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p id="confirm-message">Are you sure?</p>
+                <div class="modal-actions">
+                    <button class="btn btn-secondary" onclick="adminDashboard.closeConfirmModal()">Cancel</button>
+                    <button class="btn btn-danger" id="confirm-delete-btn">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!-- Mermaid.js for diagram rendering -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+
+<!-- Marked.js for Markdown rendering -->
+<script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
+
+<script>
+    // Initialize Mermaid
+    mermaid.initialize({ 
+        startOnLoad: false,
+        theme: 'default',
+        securityLevel: 'loose',
+        fontFamily: 'Montserrat, sans-serif'
+    });
+</script>
+
+<!-- Load admin JS files with cache busting -->
+<script src="/assets/js/blog-manager.js?v=1.2.4"></script>
+<script src="/assets/js/admin-dashboard.js?v=1.2.4"></script>
+
+<script>
+    // Check admin access
+        function checkAdminAccess(user) {
+            const adminEmails = [
+                'specifysai@gmail.com',
+                'admin@specifys.ai',
+                'shalom@specifys.ai'
+            ];
+            return adminEmails.includes(user.email.toLowerCase());
+        }
+
+    // Wait for Firebase to be ready (loaded from layout)
+    document.addEventListener('DOMContentLoaded', function() {
+        // Check if firebase is loaded
+        if (typeof firebase === 'undefined') {
+            console.error('Firebase not loaded');
+            return;
+        }
+
+        const auth = firebase.auth();
+        
+        // Auth State Listener
+        auth.onAuthStateChanged((user) => {
+            if (!user) {
+                alert('Please log in to access the admin dashboard.');
+                window.location.href = '../index.html';
+                return;
+            }
+            
+            if (!checkAdminAccess(user)) {
+                alert('Access denied. You do not have permission to access the admin dashboard.');
+                window.location.href = '../index.html';
+                return;
+            }
+            
+            // User is admin - initialize dashboard
+            if (typeof AdminDashboard !== 'undefined') {
+                window.adminDashboard = new AdminDashboard();
+            }
+            
+            // Initialize Blog Manager
+            if (typeof BlogManager !== 'undefined') {
+                window.blogManager = new BlogManager();
+            }
+        });
+    });
+</script>
+
+    
+    <!-- Footer -->
+    <!-- Footer -->
+<footer>
+  <div class="footer-content">
+    <div class="footer-links">
+      <a href="/pages/how.html" aria-label="Learn how specifys.ai works">How It Works</a>
+      <a href="/pages/about.html" aria-label="Learn more about specifys.ai">About Us</a>
+      <a href="/blog/" aria-label="Visit our blog">Blog</a>
+      <a href="/tools/map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
+      <a href="/pages/ToolPicker.html" aria-label="Use our Tool Finder">Tool Finder</a>
+    </div>
+    <span class="footer-divider">|</span>
+    <div class="footer-social">
+      <a href="https://www.linkedin.com/company/specifys-ai/" target="_blank" aria-label="Follow us on LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+      <a href="https://www.facebook.com/profile.php?id=61576402600129&locale=he_IL" target="_blank" aria-label="Follow us on Facebook"><i class="fab fa-facebook-f"></i></a>
+      <a href="mailto:specifysai@gmail.com" aria-label="Send us an email"><i class="fas fa-envelope"></i></a>
+      <a href="https://www.producthunt.com/products/specifys-ai" target="_blank" aria-label="Check us out on Product Hunt"><i class="fab fa-product-hunt"></i></a>
+    </div>
+  </div>
+  <div class="footer-copyright">
+    © 2025 specifys.ai. All rights reserved. <span class="footer-version">v1.2.4</span>
+  </div>
+</footer>
+
+    
+    <!-- Scroll to top button -->
+<button class="icon-btn scroll-to-top" id="scrollToTop" aria-label="Scroll">
+  <i class="fas fa-arrow-up"></i>
+</button>
+
+<script>
+  // Scroll button functionality
+  document.addEventListener('DOMContentLoaded', function() {
+    const scrollBtn = document.getElementById('scrollToTop');
+    
+    if (scrollBtn) {
+      // Handle click - scroll to top or bottom based on current state
+      scrollBtn.addEventListener("click", () => {
+        if (window.scrollY > 300) {
+          // If scrolled down, go to top
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        } else {
+          // If at top, scroll to bottom
+          window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+        }
+      });
+      
+      // Rotate button based on scroll position
+      window.addEventListener("scroll", () => {
+        if (window.scrollY > 300) {
+          scrollBtn.classList.add("scrolled-down");
+          scrollBtn.setAttribute("aria-label", "Scroll to top");
+        } else {
+          scrollBtn.classList.remove("scrolled-down");
+          scrollBtn.setAttribute("aria-label", "Scroll to bottom");
+        }
+      });
+    }
+  });
+</script>
+
+
+    
+    <!-- Firebase SDK & Auth -->
+    
+    <!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<script>
+  // Firebase Configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyB9hr0IWM4EREzkKDxBxYoYinV6LJXWXV4",
+    authDomain: "specify-ai.firebaseapp.com",
+    projectId: "specify-ai",
+    storageBucket: "specify-ai.firebasestorage.app",
+    messagingSenderId: "734278787482",
+    appId: "1:734278787482:web:0e312fb6f197e849695a23",
+    measurementId: "G-4YR9LK63MR"
+  };
+
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+
+  // Listen to auth state changes
+  auth.onAuthStateChanged((user) => {
+    updateAuthUI(user);
+  });
+
+  // Initialize auth buttons with default state
+  document.addEventListener('DOMContentLoaded', function() {
+    const authButtons = document.getElementById('auth-buttons');
+    if (authButtons && !authButtons.innerHTML.trim()) {
+      authButtons.innerHTML = `
+        <button class="auth-btn login-btn">Login</button>
+      `;
+    }
+  });
+</script>
+
+
+    <script>
+  // Auth UI functions
+  function updateAuthUI(user) {
+    const authButtons = document.getElementById('auth-buttons');
+    if (!authButtons) return;
+    
+    if (user) {
+      // User is logged in
+      const displayName = user.displayName || user.email.split('@')[0];
+      const firstLetter = displayName.charAt(0).toUpperCase();
+      
+      authButtons.innerHTML = `
+        <a href="/pages/profile.html" class="user-info" style="text-decoration: none;">
+          <div class="user-avatar">${firstLetter}</div>
+          <span>${displayName}</span>
+        </a>
+      `;
+    } else {
+      // User is not logged in
+      authButtons.innerHTML = `
+        <button class="auth-btn" onclick="showLoginModal()">Login</button>
+      `;
+    }
+  }
+
+  // Global auth functions
+  window.showLoginModal = function() {
+    if (typeof trackButtonClick !== 'undefined') {
+      trackButtonClick('Show Login', 'Authentication', 'header');
+    }
+    window.location.href = '/pages/auth.html';
+  };
+
+  window.showRegisterModal = function() {
+    if (typeof trackButtonClick !== 'undefined') {
+      trackButtonClick('Show Register', 'Authentication', 'header');
+    }
+    window.location.href = '/pages/auth.html';
+  };
+
+  window.logout = function() {
+    if (typeof trackAuthEvent !== 'undefined') {
+      trackAuthEvent('logout', 'email');
+    }
+    auth.signOut()
+      .then(() => {
+        console.log('Logged out successfully');
+      })
+      .catch(error => {
+        console.error('Error logging out:', error);
+      });
+  };
+
+</script>
+
+
+    
+    
+    <!-- Extra JavaScript -->
+    
+</body>
+</html>

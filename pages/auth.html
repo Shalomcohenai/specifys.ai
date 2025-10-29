@@ -585,11 +585,149 @@ document.addEventListener('DOMContentLoaded', function() {
         const auth = getAuth(app);
         const db = getFirestore(app);
         const googleProvider = new GoogleAuthProvider();
+        
+        // Track if we're processing a redirect
+        let isProcessingRedirect = false;
+        
+        // Listen for auth state changes (this catches redirect results)
+        onAuthStateChanged(auth, async (user) => {
+            console.log('👤 Auth state changed:', {
+                hasUser: !!user,
+                userId: user?.uid,
+                email: user?.email,
+                isProcessing: isProcessingRedirect
+            });
+            
+            if (user && !isProcessingRedirect) {
+                // User is signed in - check if this is from a redirect
+                const urlParams = new URLSearchParams(window.location.search);
+                const fromAuth = sessionStorage.getItem('attemptingGoogleSignIn');
+                
+                console.log('✅ User signed in!', {
+                    fromAuth: fromAuth,
+                    uid: user.uid,
+                    email: user.email,
+                    displayName: user.displayName
+                });
+                
+                // If we were attempting sign in, process it
+                if (fromAuth === 'true') {
+                    isProcessingRedirect = true;
+                    sessionStorage.removeItem('attemptingGoogleSignIn');
+                    
+                    console.log('🔵 Processing sign-in completion...');
+                    
+                    try {
+                        await createUserDocument(user);
+                        console.log('✅ User document created!');
+                        
+                        showSuccess('Login successful! Redirecting to homepage...');
+                        setTimeout(() => {
+                            window.location.href = '../index.html';
+                        }, 1500);
+                    } catch (error) {
+                        console.error('❌ Error processing sign-in:', error);
+                        showError('Error completing sign-in: ' + error.message);
+                    }
+                }
+            }
+        });
+        
+        // Handle redirect result when user comes back from Google Sign-In
+        (async function checkRedirectResult() {
+            console.log('🚀 checkRedirectResult: Function started');
+            console.log('🚀 Current URL:', window.location.href);
+            console.log('🚀 URL params:', window.location.search);
+            
+            try {
+                const { getRedirectResult } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
+                console.log('🔍 Checking for redirect result...');
+                console.log('🔍 Auth instance:', auth ? 'exists' : 'null');
+                
+                // Show loading state while checking
+                const authContainer = document.querySelector('.auth-container');
+                if (authContainer) {
+                    const loadingDiv = document.createElement('div');
+                    loadingDiv.id = 'redirect-loading';
+                    loadingDiv.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); z-index: 10000; text-align: center;';
+                    loadingDiv.innerHTML = '<div style="font-size: 16px; color: #333;">Completing sign in...</div>';
+                    document.body.appendChild(loadingDiv);
+                    
+                    console.log('🔍 Calling getRedirectResult...');
+                    const result = await getRedirectResult(auth);
+                    console.log('🔍 getRedirectResult returned:', result);
+                    console.log('🔍 Result details:', {
+                        hasResult: !!result,
+                        hasUser: result?.user ? true : false,
+                        userId: result?.user?.uid,
+                        userEmail: result?.user?.email
+                    });
+                    
+                    // Remove loading
+                    loadingDiv.remove();
+                    
+                    if (result && result.user) {
+                        console.log('✅ Redirect Sign-In successful!', {
+                            uid: result.user.uid,
+                            email: result.user.email,
+                            displayName: result.user.displayName
+                        });
+                        
+                        console.log('🔵 Creating user document...');
+                        await createUserDocument(result.user);
+                        console.log('✅ User document created!');
+                        
+                        showSuccess('Login successful! Redirecting to homepage...');
+                        setTimeout(() => {
+                            window.location.href = '../index.html';
+                        }, 1500);
+                    } else {
+                        console.log('ℹ️ No redirect result found (normal for first page load)');
+                    }
+                } else {
+                    const result = await getRedirectResult(auth);
+                    
+                    if (result && result.user) {
+                        console.log('✅ Redirect Sign-In successful!', {
+                            uid: result.user.uid,
+                            email: result.user.email,
+                            displayName: result.user.displayName
+                        });
+                        
+                        await createUserDocument(result.user);
+                        showSuccess('Login successful! Redirecting to homepage...');
+                        setTimeout(() => {
+                            window.location.href = '../index.html';
+                        }, 1500);
+                    } else {
+                        console.log('ℹ️ No redirect result found (normal for first page load)');
+                    }
+                }
+            } catch (error) {
+                console.error('❌ Error handling redirect result:', {
+                    error: error,
+                    code: error.code,
+                    message: error.message,
+                    stack: error.stack
+                });
+                showError('Authentication error: ' + error.message);
+            }
+            
+            console.log('🏁 checkRedirectResult: Function completed');
+        })();
 
         // Create user document in Firestore
         async function createUserDocument(user) {
+            console.log('🟡 createUserDocument: Starting...', {
+                uid: user.uid,
+                email: user.email,
+                displayName: user.displayName
+            });
             try {
+                console.log('🟡 createUserDocument: Creating Firestore reference...');
                 const userRef = doc(db, 'users', user.uid);
+                
+                console.log('🟡 createUserDocument: Saving user document to Firestore...');
                 await setDoc(userRef, {
                     email: user.email,
                     displayName: user.displayName || user.email.split('@')[0],
@@ -598,8 +736,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     lastActive: serverTimestamp(),
                     newsletterSubscription: false
                 }, { merge: true });
+                
+                console.log('✅ createUserDocument: User document saved successfully to Firestore!');
             } catch (error) {
-                console.error('❌ Error creating user document:', error);
+                console.error('❌ createUserDocument: Error creating user document:', error);
+                throw error; // Re-throw to be caught by calling function
             }
         }
 
@@ -724,12 +865,60 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
 
-        async function loginWithGoogle() {
+        async function loginWithGoogle(useRedirect = false) {
+            console.log('🔵 loginWithGoogle: Starting Google Sign-In process...', { useRedirect });
             try {
-                const result = await signInWithPopup(auth, googleProvider);
+                if (useRedirect) {
+                    console.log('🔵 loginWithGoogle: Using redirect method...');
+                    const { signInWithRedirect } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
+                    await signInWithRedirect(auth, googleProvider);
+                    // This will redirect away, so no code after this will run
+                    return;
+                }
+                
+                console.log('🔵 loginWithGoogle: Opening Google popup...');
+                console.log('🔵 Auth state before popup:', {
+                    currentUser: auth.currentUser,
+                    authDomain: auth.config.authDomain,
+                    apiKey: auth.config.apiKey ? 'Set' : 'Not set'
+                });
+                
+                // Add a small delay to ensure popup is not blocked
+                await new Promise(resolve => setTimeout(resolve, 100));
+                
+                console.log('🔵 Opening popup window now...');
+                
+                // Monitor the popup
+                const popupPromise = signInWithPopup(auth, googleProvider);
+                
+                // Check if popup opened
+                console.log('🔵 Popup promise created, waiting for user interaction...');
+                
+                const result = await popupPromise;
+                console.log('🔵 Popup returned result successfully');
+                console.log('✅ loginWithGoogle: Google Sign-In successful!', {
+                    uid: result.user.uid,
+                    email: result.user.email,
+                    displayName: result.user.displayName
+                });
+                
+                console.log('🔵 loginWithGoogle: Creating user document in Firestore...');
                 await createUserDocument(result.user);
+                console.log('✅ loginWithGoogle: User document created successfully!');
+                
                 return result.user;
             } catch (error) {
+                console.error('❌ loginWithGoogle: Error occurred:', {
+                    code: error.code,
+                    message: error.message,
+                    fullError: error
+                });
+                
+                // If popup was closed, suggest redirect method
+                if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/popup-blocked') {
+                    console.warn('⚠️ Popup was closed or blocked. Consider using redirect method.');
+                }
+                
                 throw new Error(getAuthErrorMessage(error.code));
             }
         }
@@ -840,17 +1029,62 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        // Google login
-        window.loginWithGoogle = async function() {
-            try {
-                await loginWithGoogle();
-                showSuccess('Login successful! Redirecting to homepage...');
-                setTimeout(() => {
-                    window.location.href = '../index.html';
-                }, 1500);
-            } catch (error) {
-                showError(error.message);
-            }
+        // Check browser compatibility
+        function checkBrowserCompatibility() {
+            console.log('🔍 Checking browser compatibility...');
+            console.log('🔍 Third-party cookies enabled:', document.cookie !== undefined);
+            console.log('🔍 Local storage available:', typeof(Storage) !== "undefined");
+            // Removed popup test - was opening extra window
+        }
+        
+        // Google login - SYNCHRONOUS to avoid popup blocker
+        window.loginWithGoogle = function() {
+            console.log('🟢 window.loginWithGoogle: Button clicked, starting authentication...');
+            
+            // Check compatibility first
+            checkBrowserCompatibility();
+            
+            // Call signInWithPopup IMMEDIATELY (synchronously) from user click
+            // This prevents popup blockers
+            console.log('🟢 Opening Google Sign-In popup...');
+            console.log('🟢 Current origin:', window.location.origin);
+            console.log('🟢 Auth domain:', auth.config.authDomain);
+            
+            console.log('🟢 Calling signInWithPopup...');
+            const popupPromise = signInWithPopup(auth, googleProvider);
+            console.log('🟢 signInWithPopup called, waiting for result...');
+            
+            popupPromise
+                .then(async (result) => {
+                    console.log('✅ Google Sign-In successful!', {
+                        uid: result.user.uid,
+                        email: result.user.email,
+                        displayName: result.user.displayName
+                    });
+                    
+                    console.log('🔵 Creating user document...');
+                    await createUserDocument(result.user);
+                    console.log('✅ User document created!');
+                    
+                    showSuccess('Login successful! Redirecting to homepage...');
+                    setTimeout(() => {
+                        window.location.href = '../index.html';
+                    }, 1500);
+                })
+                .catch((error) => {
+                    console.error('❌ Google Sign-In error:', {
+                        code: error.code,
+                        message: error.message
+                    });
+                    
+                    if (error.code === 'auth/popup-blocked') {
+                        showError('Popup was blocked. Please allow popups for this site and try again.');
+                    } else if (error.code === 'auth/popup-closed-by-user') {
+                        showError('Sign-in cancelled.');
+                    } else {
+                        showError(getAuthErrorMessage(error.code) || 'Authentication failed. Please try again.');
+                    }
+                });
         };
 
         // Privacy Modal Functions

@@ -17,26 +17,32 @@ class CreditsDisplayManager {
     async init() {
         if (this.isInitialized) return;
         
-        // Wait for Firebase to be available
-        if (typeof firebase === 'undefined') {
-            setTimeout(() => this.init(), 1000);
+        // Wait for Firebase to be available and initialized
+        if (typeof firebase === 'undefined' || !firebase.apps || firebase.apps.length === 0) {
+            setTimeout(() => this.init(), 500);
             return;
         }
 
-        // Listen to auth state changes
-        firebase.auth().onAuthStateChanged((user) => {
-            this.currentUser = user;
-            if (user) {
-                this.showCreditsDisplay();
-                this.updateCredits();
-                this.startPolling();
-            } else {
-                this.hideCreditsDisplay();
-                this.stopPolling();
-            }
-        });
+        try {
+            // Listen to auth state changes
+            firebase.auth().onAuthStateChanged((user) => {
+                this.currentUser = user;
+                if (user) {
+                    this.showCreditsDisplay();
+                    this.updateCredits();
+                    this.startPolling();
+                } else {
+                    this.hideCreditsDisplay();
+                    this.stopPolling();
+                }
+            });
 
-        this.isInitialized = true;
+            this.isInitialized = true;
+        } catch (error) {
+            console.error('Error initializing credits display:', error);
+            // Retry if Firebase is not ready yet
+            setTimeout(() => this.init(), 500);
+        }
     }
 
     /**

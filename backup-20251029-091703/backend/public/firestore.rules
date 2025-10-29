@@ -1,0 +1,151 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAdmin() {
+      return request.auth != null && (
+        request.auth.token.email == 'specifysai@gmail.com' ||
+        request.auth.token.email == 'admin@specifys.ai' ||
+        request.auth.token.email == 'shalom@specifys.ai'
+      );
+    }
+
+    // Users collection
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId || isAdmin();
+      allow create: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // UserTools subcollections
+    match /userTools/{userId}/{document=**} {
+      allow read, write: if request.auth != null && userId == request.auth.uid || isAdmin();
+      allow create: if request.auth != null && userId == request.auth.uid;
+    }
+
+    // Entitlements collection
+    match /entitlements/{document} {
+      allow read: if request.auth != null && (
+        !exists(/databases/$(database)/documents/entitlements/$(document)) ||
+        request.auth.uid == resource.data.userId
+      ) || isAdmin();
+      allow write: if request.auth != null && request.auth.uid == resource.data.userId || isAdmin();
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+    }
+
+    // Purchases collection
+    match /purchases/{document} {
+      allow read: if request.auth != null && (
+        !exists(/databases/$(database)/documents/purchases/$(document)) ||
+        request.auth.uid == resource.data.userId
+      ) || isAdmin();
+      allow write: if request.auth != null && request.auth.uid == resource.data.userId || isAdmin();
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+    }
+
+    // Subscriptions collection
+    match /subscriptions/{document} {
+      allow read: if request.auth != null && (
+        !exists(/databases/$(database)/documents/subscriptions/$(document)) ||
+        request.auth.uid == resource.data.userId
+      ) || isAdmin();
+      allow write: if request.auth != null && request.auth.uid == resource.data.userId || isAdmin();
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+    }
+
+    // Pending entitlements collection
+    match /pending_entitlements/{document} {
+      allow read: if request.auth != null && (
+        resource.data.email == request.auth.token.email || isAdmin()
+      );
+      allow write, create: if isAdmin();
+    }
+
+    // Audit logs collection (admin only)
+    match /audit_logs/{document} {
+      allow read, write, create: if isAdmin();
+    }
+
+    // Processed webhook events collection (admin only)
+    match /processed_webhook_events/{document} {
+      allow read, write, create: if isAdmin();
+    }
+
+    // Public stats collection - anyone can read
+    match /public_stats/{document} {
+      allow read: if true;
+      allow write, create, update, delete: if isAdmin();
+    }
+
+    // Specs collection - improved security with isPublic flag
+    match /specs/{specId} {
+      // Allow read if public OR user owns it OR admin
+      allow read: if resource.data.isPublic == true || 
+                       (request.auth != null && request.auth.uid == resource.data.userId) || 
+                       isAdmin();
+      // Allow creation if the user is setting their own userId
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId || isAdmin();
+      // Allow update if user owns the document or is admin
+      allow update: if request.auth != null && (
+        request.auth.uid == resource.data.userId ||
+        (isAdmin() && request.resource.data.userId == resource.data.userId)
+      );
+      // Allow delete if user owns the document
+      allow delete: if request.auth != null && request.auth.uid == resource.data.userId || isAdmin();
+    }
+
+    // Market research collection
+    match /marketResearch/{document} {
+      allow read: if request.auth != null && request.auth.uid == resource.data.userId || isAdmin();
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId || isAdmin();
+      allow update: if request.auth != null && request.auth.uid == resource.data.userId || isAdmin();
+      allow delete: if request.auth != null && request.auth.uid == resource.data.userId || isAdmin();
+    }
+
+    // Apps collection
+    match /apps/{appId} {
+      allow read: if request.auth != null && request.auth.uid == resource.data.userId || isAdmin();
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId || isAdmin();
+      allow update: if request.auth != null && request.auth.uid == resource.data.userId || isAdmin();
+      allow delete: if request.auth != null && request.auth.uid == resource.data.userId || isAdmin();
+    }
+
+    // App notes collection
+    match /appNotes/{noteId} {
+      allow read: if request.auth != null && request.auth.uid == resource.data.userId || isAdmin();
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId || isAdmin();
+      allow update: if request.auth != null && request.auth.uid == resource.data.userId || isAdmin();
+      allow delete: if request.auth != null && request.auth.uid == resource.data.userId || isAdmin();
+    }
+
+    // App tasks collection
+    match /appTasks/{taskId} {
+      allow read: if request.auth != null && request.auth.uid == resource.data.userId || isAdmin();
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId || isAdmin();
+      allow update: if request.auth != null && request.auth.uid == resource.data.userId || isAdmin();
+      allow delete: if request.auth != null && request.auth.uid == resource.data.userId || isAdmin();
+    }
+
+    // App milestones collection
+    match /appMilestones/{milestoneId} {
+      allow read: if request.auth != null && request.auth.uid == resource.data.userId || isAdmin();
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId || isAdmin();
+      allow update: if request.auth != null && request.auth.uid == resource.data.userId || isAdmin();
+      allow delete: if request.auth != null && request.auth.uid == resource.data.userId || isAdmin();
+    }
+
+    // App expenses collection
+    match /appExpenses/{expenseId} {
+      allow read: if request.auth != null && request.auth.uid == resource.data.userId || isAdmin();
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId || isAdmin();
+      allow update: if request.auth != null && request.auth.uid == resource.data.userId || isAdmin();
+      allow delete: if request.auth != null && request.auth.uid == resource.data.userId || isAdmin();
+    }
+
+    // User likes collection
+    match /userLikes/{likeId} {
+      allow read: if request.auth != null && request.auth.uid == resource.data.userId || isAdmin();
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId || isAdmin();
+      allow update: if request.auth != null && request.auth.uid == resource.data.userId || isAdmin();
+      allow delete: if request.auth != null && request.auth.uid == resource.data.userId || isAdmin();
+    }
+  }
+}

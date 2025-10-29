@@ -14,7 +14,7 @@ console.log('Loading environment variables...');
 dotenv.config();
 
 const app = express();
-const port = 3001; // Changed to 3001 to avoid potential port conflicts
+const port = process.env.PORT || 3002; // Changed to 3002 to avoid port conflicts
 
 // Apply security headers
 app.use(securityHeaders);

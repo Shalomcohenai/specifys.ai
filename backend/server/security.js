@@ -18,42 +18,75 @@ const securityHeaders = helmet({
       defaultSrc: ["'self'"],
       scriptSrc: [
         "'self'",
+        "'unsafe-inline'",  // Allow inline scripts (Firebase init, Analytics)
         "https://www.gstatic.com",
-        "https://cdn.jsdelivr.net",
-        "https://cdnjs.cloudflare.com"
-      ],
-      styleSrc: [
-        "'self'",
+        "https://www.googletagmanager.com",  // Google Tag Manager
+        "https://www.google-analytics.com",  // Google Analytics
+        "https://ssl.google-analytics.com",  // Google Analytics SSL
+        "https://googleads.g.doubleclick.net",  // Google Ads
+        "https://www.googleadservices.com",  // Google Ad Services
         "https://cdn.jsdelivr.net",
         "https://cdnjs.cloudflare.com",
-        "https://fonts.googleapis.com"
+        "https://accounts.google.com",  // Google Sign-In
+        "https://apis.google.com"  // Google APIs (for Sign-In)
+      ],
+      scriptSrcAttr: ["'unsafe-inline'"],  // Allow inline event handlers (onclick, etc.)
+      styleSrc: [
+        "'self'",
+        "'unsafe-inline'",  // Allow inline styles
+        "https://cdn.jsdelivr.net",
+        "https://cdnjs.cloudflare.com",
+        "https://fonts.googleapis.com",
+        "https://accounts.google.com"  // Google Sign-In styles
       ],
       imgSrc: [
         "'self'",
         "data:",
-        "https:",
-        "blob:"
+        "https:",  // Allow all HTTPS images (needed for user avatars, etc.)
+        "blob:",
+        "https://www.google-analytics.com",
+        "https://www.googletagmanager.com",
+        "https://googleads.g.doubleclick.net"
       ],
       connectSrc: [
         "'self'",
         "https://*.firebaseio.com",
         "https://*.googleapis.com",
         "https://identitytoolkit.googleapis.com",
-        "https://securetoken.googleapis.com"
+        "https://securetoken.googleapis.com",
+        "https://www.gstatic.com",  // For source maps
+        "https://cdnjs.cloudflare.com",  // For source maps
+        "https://accounts.google.com",  // Google Sign-In API
+        "https://apis.google.com",  // Google APIs
+        "https://www.google-analytics.com",  // Google Analytics
+        "https://analytics.google.com",  // Google Analytics v4
+        "https://www.google.com",  // Google services
+        "https://stats.g.doubleclick.net",  // Google Ads tracking
+        "https://googleads.g.doubleclick.net"  // Google Ads
       ],
       fontSrc: [
         "'self'",
+        "data:",  // Allow data: URIs for fonts
         "https://fonts.gstatic.com",
-        "https://cdn.jsdelivr.net"
+        "https://cdn.jsdelivr.net",
+        "https://cdnjs.cloudflare.com"
       ],
       objectSrc: ["'none'"],
       mediaSrc: ["'self'"],
-      frameSrc: ["'none'"]
+      frameSrc: [
+        "'self'",
+        "https://accounts.google.com",  // Google Sign-In iframe
+        "https://apis.google.com",  // Google APIs iframe
+        "https://www.googletagmanager.com",  // Google Tag Manager
+        "https://td.doubleclick.net",  // Google Ads iframes
+        "https://specify-ai.firebaseapp.com",  // Firebase Auth popup
+        "https://*.firebaseapp.com"  // All Firebase Auth domains
+      ]
     }
   },
   
-  // X-Frame-Options
-  frameguard: { action: 'deny' },
+  // X-Frame-Options - allow same origin
+  frameguard: { action: 'sameorigin' },
   
   // X-Content-Type-Options
   noSniff: true,

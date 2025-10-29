@@ -39,6 +39,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     
+    <!-- API Configuration -->
+    <script src="/assets/js/config.js"></script>
+    
     <!-- Spec Formatter -->
     <script src="/assets/js/spec-formatter.js"></script>
     
@@ -2086,7 +2089,7 @@
             showChatLoading('AI is thinking...');
             
             try {
-                const response = await fetch('http://localhost:3001/api/chat/demo', {
+                const response = await fetch(`${window.API_BASE_URL || 'http://localhost:3002'}/api/chat/demo`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

@@ -1,0 +1,16 @@
+כיצד לבדוק את AI Chat:
+
+1. פתח את הדף בדיור:
+   http://localhost:3001/pages/spec-viewer.html?id=iAzaUwtSW3qvcW87lICL
+
+2. לחץ על הכרטיסייה "AI Chat" (אמורה להיות זמינה כי overview מאושר)
+
+3. המערכת תנסה להעלות את המפרט ל-OpenAI אוטומטית
+
+4. אם יש מפתח API תקין:
+   - תראה הודעת "Initializing AI assistant..."
+   - לאחר מכן תוכל לשאול שאלות
+
+5. אם אין מפתח API תקין:
+   - תראה הודעת שגיאה
+   - תצטרך להוסיף מפתח API ב-.env

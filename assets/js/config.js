@@ -3,7 +3,7 @@
 
 const API_CONFIG = {
   // Development backend URL
-  development: 'http://localhost:3001',
+  development: 'http://localhost:3002',
   
   // Production backend URL
   // TODO: Replace with your actual production API URL
