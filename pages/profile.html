@@ -885,6 +885,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!currentUser) return;
             
             try {
+                console.log('🔍 [LOADING WORKSPACE] Current user ID:', currentUser.uid);
                 workspaceItems = [];
                 
                 // Load Apps
@@ -915,8 +916,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     orderBy('createdAt', 'desc')
                 );
                 const specsSnapshot = await getDocs(specsQuery);
+                console.log(`📊 [WORKSPACE] Loading specs for user: ${currentUser.uid}`);
                 specsSnapshot.forEach((doc) => {
                     const data = doc.data();
+                    console.log('   → Found spec:', doc.id, '- userId:', data.userId, '- title:', data.title);
                     
                     // Determine if it's a new spec (from spec-viewer) or old spec
                     const isNewSpec = data.technical !== undefined || data.market !== undefined;
@@ -1005,8 +1008,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 setupSearch();
                 
             } catch (error) {
-                console.error('Error loading workspace:', error);
-                document.getElementById('workspace-container').innerHTML = '<div class="error">Error loading workspace</div>';
+                console.error('❌ [WORKSPACE] Error loading workspace:', error);
+                console.error('   → Error message:', error.message);
+                console.error('   → Error code:', error.code);
+                console.error('   → Current user ID:', currentUser ? currentUser.uid : 'No user');
+                
+                document.getElementById('workspace-container').innerHTML = 
+                    '<div class="error">Error loading workspace: ' + error.message + '</div>';
             }
         }
 
@@ -1436,6 +1444,8 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!currentUser) return;
             
             try {
+                console.log('🔍 [LOADING SPECS] Current user ID:', currentUser.uid);
+                
                 const q = query(
                     collection(db, 'specs'),
                     where('userId', '==', currentUser.uid),
@@ -1446,18 +1456,33 @@ document.addEventListener('DOMContentLoaded', function() {
                 userSpecs = [];
                 
                 querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    console.log('📄 Loaded spec:', doc.id, '- userId:', data.userId, '- title:', data.title);
                     userSpecs.push({
                         id: doc.id,
                         ...doc.data()
                     });
                 });
                 
+                console.log(`✅ Loaded ${userSpecs.length} specs for user ${currentUser.uid}`);
+                
                 document.getElementById('specs-count').textContent = userSpecs.length;
                 renderSpecs();
                 setTimeout(updateLinkButtonAppearance, 100);
             } catch (error) {
-                console.error('Error loading specs:', error);
-                document.getElementById('specs-container').innerHTML = '<div class="error">Error loading specifications</div>';
+                console.error('❌ Error loading specs:', error);
+                console.error('   → Error details:', error.message);
+                console.error('   → Error code:', error.code);
+                console.error('   → Current user ID:', currentUser.uid);
+                
+                // If the error is about missing index, provide helpful message
+                let errorMessage = error.message;
+                if (error.code === 'failed-precondition' || error.message.includes('index')) {
+                    errorMessage = 'Missing database index. Please contact support.';
+                    console.error('   → This is likely a missing composite index issue. The admin needs to deploy Firestore indexes.');
+                }
+                
+                document.getElementById('specs-container').innerHTML = '<div class="error">Error loading specifications: ' + errorMessage + '</div>';
             }
         }
 

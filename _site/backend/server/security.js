@@ -6,6 +6,7 @@
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const Joi = require('joi');
+const { isAdminEmail } = require('./admin-config');
 
 /**
  * Configure security headers using Helmet
@@ -124,6 +125,18 @@ const rateLimiters = {
     },
     standardHeaders: true,
     legacyHeaders: false
+  }),
+
+  // Rate limiting for generation endpoints
+  generation: rateLimit({
+    windowMs: 60 * 60 * 1000, // 1 hour
+    max: 5, // limit each IP to 5 generation requests per hour
+    message: {
+      error: 'Too many generation requests from this IP, please try again later.',
+      retryAfter: '1 hour'
+    },
+    standardHeaders: true,
+    legacyHeaders: false
   })
 };
 
@@ -139,7 +152,7 @@ const validationSchemas = {
   }),
 
   generateSpec: Joi.object({
-    userInput: Joi.string().min(1).max(10000).required()
+    userInput: Joi.string().min(1).max(50000).required()
   }),
 
   userId: Joi.string().min(1).max(255).required()
@@ -267,14 +280,8 @@ async function requireAdmin(req, res, next) {
     const { auth } = require('./firebase-admin');
     const decodedToken = await auth.verifyIdToken(idToken);
     
-    // Check if user is admin
-    const adminEmails = [
-      'specifysai@gmail.com',
-      'admin@specifys.ai', 
-      'shalom@specifys.ai'
-    ];
-    
-    if (!adminEmails.includes(decodedToken.email)) {
+    // Check if user is admin using centralized config
+    if (!isAdminEmail(decodedToken.email)) {
       console.warn('🚨 Non-admin user attempted admin access:', decodedToken.email, 'from IP:', req.ip);
       return res.status(403).json({ 
         error: 'Forbidden',

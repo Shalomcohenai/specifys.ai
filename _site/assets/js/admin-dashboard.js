@@ -315,6 +315,11 @@ class AdminDashboard {
         document.getElementById('dashboards-user-filter')?.addEventListener('input', () => this.filterDashboards());
         document.getElementById('dashboards-date-from')?.addEventListener('change', () => this.filterDashboards());
         document.getElementById('dashboards-date-to')?.addEventListener('change', () => this.filterDashboards());
+
+        // Errors type filter
+        document.getElementById('errors-type-filter')?.addEventListener('change', () => {
+            this.loadErrorLogs();
+        });
     }
 
     // Setup permissions filters
@@ -348,6 +353,7 @@ class AdminDashboard {
             await this.loadPaymentData();
             await this.loadPermissionsData();
             await this.loadBuyClicksData();
+            await this.loadErrorLogs();
             
             this.updateStatsCards();
             this.updateAnalytics();
@@ -2422,6 +2428,114 @@ class AdminDashboard {
                 }
             }, 300);
         }, 3000);
+    }
+
+    // Load error logs from API
+    async loadErrorLogs() {
+        try {
+            console.log('🔍 Loading error logs...');
+            
+            const errorTypeFilter = document.getElementById('errors-type-filter')?.value || 'all';
+            const response = await fetch(
+                `${window.location.origin}/api/admin/error-logs?limit=100${errorTypeFilter !== 'all' ? '&errorType=' + errorTypeFilter : ''}`
+            );
+            
+            if (!response.ok) {
+                throw new Error('Failed to fetch error logs');
+            }
+            
+            const data = await response.json();
+            
+            if (data.success && data.logs) {
+                this.renderErrorsTable(data.logs);
+                console.log(`✅ Loaded ${data.logs.length} error logs`);
+            } else {
+                throw new Error('Invalid response from server');
+            }
+            
+        } catch (error) {
+            console.error('❌ Error loading error logs:', error);
+            const tbody = document.getElementById('errors-table-body');
+            if (tbody) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; color: var(--danger-color); padding: 20px;">
+                            Error loading error logs: ${error.message}
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+    }
+
+    // Render error logs table
+    renderErrorsTable(errors) {
+        const tbody = document.getElementById('errors-table-body');
+        if (!tbody) return;
+        
+        if (!errors || errors.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="6" class="loading-cell">No errors found</td>
+                </tr>
+            `;
+            return;
+        }
+
+        tbody.innerHTML = errors.map(error => {
+            const errorTypeBadge = error.errorType || 'unknown';
+            const frequency = error.frequency || 1;
+            
+            // Determine badge color based on frequency
+            let badgeClass = 'status-badge';
+            if (frequency > 10) {
+                badgeClass += ' status-error';
+            } else if (frequency > 5) {
+                badgeClass += ' status-warning';
+            } else {
+                badgeClass += ' status-success';
+            }
+            
+            return `
+                <tr>
+                    <td>
+                        <span class="status-badge ${this.getErrorTypeClass(errorTypeBadge)}">
+                            ${escapeHTML(errorTypeBadge)}
+                        </span>
+                    </td>
+                    <td>
+                        <span title="${escapeHTML(error.errorMessage || 'No message')}">
+                            ${this.truncateText(error.errorMessage || 'No message', 50)}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="${badgeClass}">${frequency}</span>
+                    </td>
+                    <td><code>${escapeHTML(error.errorCode || 'N/A')}</code></td>
+                    <td>${error.firstOccurrence ? this.formatDate(error.firstOccurrence) : 'N/A'}</td>
+                    <td>${error.lastOccurrence ? this.formatDate(error.lastOccurrence) : 'N/A'}</td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    // Get error type badge class
+    getErrorTypeClass(errorType) {
+        const typeMap = {
+            'validation': 'status-warning',
+            'firebase': 'status-error',
+            'api': 'status-error',
+            'unknown': 'status-cancelled'
+        };
+        return typeMap[errorType.toLowerCase()] || 'status-cancelled';
+    }
+
+    // Truncate text with ellipsis
+    truncateText(text, maxLength) {
+        if (!text || text.length <= maxLength) {
+            return escapeHTML(text);
+        }
+        return escapeHTML(text.substring(0, maxLength)) + '...';
     }
 }
 

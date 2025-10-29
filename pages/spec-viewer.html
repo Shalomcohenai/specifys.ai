@@ -697,6 +697,8 @@ async function loadSpec(specId) {
     try {
         showLoading();
         
+        console.log('🔍 [LOAD] loadSpec() called with ID:', specId);
+        console.log('   → Timestamp:', new Date().toISOString());
         
         if (!specId) {
             throw new Error('No specification ID provided');
@@ -717,13 +719,36 @@ async function loadSpec(specId) {
         const specData = doc.data();
         
         // Check if user has permission to view this spec
-        if (specData.userId !== user.uid) {
+        // Allow if: spec is public OR user owns it OR user is admin
+        const adminEmails = ['specifysai@gmail.com', 'admin@specifys.ai', 'shalom@specifys.ai'];
+        const isPublic = specData.isPublic === true;
+        const isOwner = specData.userId === user.uid;
+        const isAdmin = adminEmails.includes(user.email);
+        
+        if (!isPublic && !isOwner && !isAdmin) {
             console.warn('User does not have permission to view this spec');
             showError('You do not have permission to view this specification.');
             return;
         }
         
         currentSpecData = { id: doc.id, ...specData };
+        
+        const technicalPreview = specData.technical ? specData.technical.substring(0, 200) + (specData.technical.length > 200 ? '...' : '') : 'null';
+        const marketPreview = specData.market ? specData.market.substring(0, 200) + (specData.market.length > 200 ? '...' : '') : 'null';
+        const designPreview = specData.design ? specData.design.substring(0, 200) + (specData.design.length > 200 ? '...' : '') : 'null';
+        
+        console.log('🔍 [LOADED FROM FIREBASE]');
+        console.log('   → ID:', currentSpecData.id);
+        console.log('   → Title:', currentSpecData.title);
+        console.log('   → OverviewApproved:', specData.overviewApproved);
+        console.log('   → Has Technical:', !!specData.technical, '(length:', specData.technical?.length || 0, ')');
+        if (specData.technical) console.log('   → Technical preview:', technicalPreview);
+        console.log('   → Has Market:', !!specData.market, '(length:', specData.market?.length || 0, ')');
+        if (specData.market) console.log('   → Market preview:', marketPreview);
+        console.log('   → Has Design:', !!specData.design, '(length:', specData.design?.length || 0, ')');
+        if (specData.design) console.log('   → Design preview:', designPreview);
+        console.log('   → Status:', specData.status);
+        
         console.log('Spec loaded from Firebase:', { id: currentSpecData.id, title: currentSpecData.title });
         displaySpec(currentSpecData);
         
@@ -735,6 +760,17 @@ async function loadSpec(specId) {
 }
 
 function displaySpec(data) {
+    console.log('🔍 [DISPLAY] displaySpec() called');
+    console.log('   → OverviewApproved:', data.overviewApproved);
+    console.log('   → Will call displayTechnical/Market/Design with existing content');
+    
+    const technicalPreview = data.technical ? data.technical.substring(0, 200) + (data.technical.length > 200 ? '...' : '') : 'null';
+    const marketPreview = data.market ? data.market.substring(0, 200) + (data.market.length > 200 ? '...' : '') : 'null';
+    const designPreview = data.design ? data.design.substring(0, 200) + (data.design.length > 200 ? '...' : '') : 'null';
+    
+    console.log('   → Technical exists:', !!data.technical, 'preview:', technicalPreview);
+    console.log('   → Market exists:', !!data.market, 'preview:', marketPreview);
+    console.log('   → Design exists:', !!data.design, 'preview:', designPreview);
     
     // Reset chat state when switching to a different spec
     chatThreadId = null;
@@ -785,6 +821,7 @@ function displaySpec(data) {
     updateStorageStatus(); // Add storage status update
     
     // Display content for each tab
+    console.log('🔍 [DISPLAY] Calling displayOverview/Technical/Market/Design');
     displayOverview(data.overview);
     displayTechnical(data.technical);
     displayMarket(data.market);
@@ -3673,6 +3710,11 @@ async function approveOverview() {
     if (isLoading) return;
     
     try {
+        console.log('🔍 [TRIGGER] approveOverview() called');
+        console.log('   → Call Stack:', new Error().stack.split('\n').slice(0, 5).join('\n   → '));
+        console.log('   → Current Spec ID:', currentSpecData?.id);
+        console.log('   → Current OverviewApproved:', currentSpecData?.overviewApproved);
+        
         isLoading = true;
         const approveBtn = document.getElementById('approveBtn');
         approveBtn.disabled = true;
@@ -3695,6 +3737,10 @@ async function approveOverview() {
         // Update Firebase if user is authenticated and spec has ID
         if (user && currentSpecData && currentSpecData.id) {
             try {
+                console.log('🔍 [FIREBASE UPDATE] Setting overviewApproved to true');
+                console.log('   → Spec ID:', currentSpecData.id);
+                console.log('   → Setting status to: {technical: generating, market: generating, design: generating}');
+                
                 await firebase.firestore().collection('specs').doc(currentSpecData.id).update({
                     overviewApproved: true,
                     status: {
@@ -3709,7 +3755,7 @@ async function approveOverview() {
                 // Reset chat history since spec status changed
                 autoResetChatOnSpecUpdate();
                 
-                console.log('Firebase updated with approval status');
+                console.log('✅ Firebase updated with approval status');
                 showNotification('Overview approved successfully', 'success');
             } catch (error) {
                 console.warn('Failed to update Firebase:', error);
@@ -3777,11 +3823,21 @@ async function approveOverview() {
                     console.warn(`Technical content too large: ${sizeCheck.sizeInMB}MB (${sizeCheck.percentage}% of 1MB limit)`);
                     showNotification(`Technical spec too large (${sizeCheck.sizeInMB}MB). Saved locally only.`, 'warning');
                 } else {
+                    const contentPreview = technicalContent.substring(0, 200) + (technicalContent.length > 200 ? '...' : '');
+                    console.log('🔍 [FIREBASE SAVE] Saving Technical content to Firebase');
+                    console.log('   → Spec ID:', currentSpecData.id);
+                    console.log('   → Content length:', technicalContent.length, 'chars');
+                    console.log('   → Status:', currentSpecData.status.technical);
+                    console.log('   → Content preview:', contentPreview);
+                    console.log('   → Call Stack:', new Error().stack.split('\n').slice(1, 4).join('\n   → '));
+                    
                     await firebase.firestore().collection('specs').doc(currentSpecData.id).update({
                         technical: technicalContent,
                         'status.technical': currentSpecData.status.technical,
                         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
+                    
+                    console.log('✅ Technical content saved successfully');
                     
                     // Reset chat since new content added to spec
                     autoResetChatOnSpecUpdate();
@@ -3841,11 +3897,21 @@ async function approveOverview() {
                     console.warn(`Market content too large: ${sizeCheck.sizeInMB}MB (${sizeCheck.percentage}% of 1MB limit)`);
                     showNotification(`Market research too large (${sizeCheck.sizeInMB}MB). Saved locally only.`, 'warning');
                 } else {
+                    const contentPreview = marketContent.substring(0, 200) + (marketContent.length > 200 ? '...' : '');
+                    console.log('🔍 [FIREBASE SAVE] Saving Market content to Firebase');
+                    console.log('   → Spec ID:', currentSpecData.id);
+                    console.log('   → Content length:', marketContent.length, 'chars');
+                    console.log('   → Status:', currentSpecData.status.market);
+                    console.log('   → Content preview:', contentPreview);
+                    console.log('   → Call Stack:', new Error().stack.split('\n').slice(1, 4).join('\n   → '));
+                    
                     await firebase.firestore().collection('specs').doc(currentSpecData.id).update({
                         market: marketContent,
                         'status.market': currentSpecData.status.market,
                         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
+                    
+                    console.log('✅ Market content saved successfully');
                     
                     // Reset chat since new content added to spec
                     autoResetChatOnSpecUpdate();
@@ -3899,11 +3965,21 @@ async function approveOverview() {
                     console.warn(`Design content too large: ${sizeCheck.sizeInMB}MB (${sizeCheck.percentage}% of 1MB limit)`);
                     showNotification(`Design spec too large (${sizeCheck.sizeInMB}MB). Saved locally only.`, 'warning');
                 } else {
+                    const contentPreview = designContent.substring(0, 200) + (designContent.length > 200 ? '...' : '');
+                    console.log('🔍 [FIREBASE SAVE] Saving Design content to Firebase');
+                    console.log('   → Spec ID:', currentSpecData.id);
+                    console.log('   → Content length:', designContent.length, 'chars');
+                    console.log('   → Status:', currentSpecData.status.design);
+                    console.log('   → Content preview:', contentPreview);
+                    console.log('   → Call Stack:', new Error().stack.split('\n').slice(1, 4).join('\n   → '));
+                    
                     await firebase.firestore().collection('specs').doc(currentSpecData.id).update({
                         design: designContent,
                         'status.design': currentSpecData.status.design,
                         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
+                    
+                    console.log('✅ Design content saved successfully');
                     
                     // Reset chat since new content added to spec
                     autoResetChatOnSpecUpdate();

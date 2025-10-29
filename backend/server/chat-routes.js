@@ -8,8 +8,36 @@ const openaiStorage = process.env.OPENAI_API_KEY
   ? new OpenAIStorageService(process.env.OPENAI_API_KEY)
   : null;
 
-// Demo spec ID - hardcoded for public demo
-const DEMO_SPEC_ID = 'iAzaUwtSW3qvcW87lICL';
+// Cache for demo spec ID to avoid repeated queries
+let cachedDemoSpecId = null;
+
+/**
+ * Get the public demo spec ID
+ */
+async function getDemoSpecId() {
+  if (cachedDemoSpecId) {
+    return cachedDemoSpecId;
+  }
+  
+  try {
+    const snapshot = await db.collection('specs')
+      .where('isPublic', '==', true)
+      .limit(1)
+      .get();
+    
+    if (!snapshot.empty) {
+      cachedDemoSpecId = snapshot.docs[0].id;
+      return cachedDemoSpecId;
+    }
+    
+    // Fallback to old hardcoded ID for backward compatibility
+    console.warn('⚠️ No public spec found, using fallback ID');
+    return 'iAzaUwtSW3qvcW87lICL';
+  } catch (error) {
+    console.error('Error getting demo spec ID:', error);
+    return 'iAzaUwtSW3qvcW87lICL';
+  }
+}
 
 // Rate limiting for demo chat (10 messages per hour per IP)
 const demoChatLimiter = rateLimit({
@@ -276,8 +304,11 @@ router.post('/demo', demoChatLimiter, async (req, res) => {
       return res.status(400).json({ error: 'Message is required' });
     }
     
+    // Get demo spec ID
+    const demoSpecId = await getDemoSpecId();
+    
     // Load demo spec data
-    const specDoc = await db.collection('specs').doc(DEMO_SPEC_ID).get();
+    const specDoc = await db.collection('specs').doc(demoSpecId).get();
     if (!specDoc.exists) {
       return res.status(404).json({ error: 'Demo specification not found' });
     }
@@ -302,9 +333,9 @@ router.post('/demo', demoChatLimiter, async (req, res) => {
       if (!currentAssistantId) {
         // Upload spec to OpenAI if not already done
         if (!specData.openaiFileId) {
-          console.log(`[Demo Chat] Uploading spec ${DEMO_SPEC_ID} to OpenAI...`);
-          const fileId = await openaiStorage.uploadSpec(DEMO_SPEC_ID, specData);
-          await db.collection('specs').doc(DEMO_SPEC_ID).update({
+          console.log(`[Demo Chat] Uploading spec ${demoSpecId} to OpenAI...`);
+          const fileId = await openaiStorage.uploadSpec(demoSpecId, specData);
+          await db.collection('specs').doc(demoSpecId).update({
             openaiFileId: fileId,
             uploadedToOpenAI: true,
             openaiUploadTimestamp: admin.firestore.FieldValue.serverTimestamp()
@@ -313,11 +344,11 @@ router.post('/demo', demoChatLimiter, async (req, res) => {
         }
         
         // Create assistant
-        const assistant = await openaiStorage.createAssistant(DEMO_SPEC_ID, specData.openaiFileId);
+        const assistant = await openaiStorage.createAssistant(demoSpecId, specData.openaiFileId);
         currentAssistantId = assistant.id;
         
         // Save to database
-        await db.collection('specs').doc(DEMO_SPEC_ID).update({
+        await db.collection('specs').doc(demoSpecId).update({
           openaiAssistantId: currentAssistantId
         });
         

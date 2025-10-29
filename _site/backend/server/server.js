@@ -259,6 +259,43 @@ app.use('/api/chat', chatRoutes);
 const statsRoutes = require('./stats-routes');
 app.use('/api/stats', statsRoutes);
 
+// Import error logger
+const { logError, getErrorLogs, getErrorSummary } = require('./error-logger');
+
+// Admin error logs endpoint
+app.get('/api/admin/error-logs', async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 100;
+    const errorType = req.query.errorType || null;
+    
+    const logs = await getErrorLogs(limit, errorType);
+    
+    res.json({ 
+      success: true, 
+      logs: logs,
+      total: logs.length
+    });
+  } catch (error) {
+    console.error('Error getting error logs:', error);
+    res.status(500).json({ error: 'Failed to get error logs' });
+  }
+});
+
+// Error summary endpoint
+app.get('/api/admin/error-summary', async (req, res) => {
+  try {
+    const summary = await getErrorSummary();
+    
+    res.json({ 
+      success: true, 
+      summary: summary 
+    });
+  } catch (error) {
+    console.error('Error getting error summary:', error);
+    res.status(500).json({ error: 'Failed to get error summary' });
+  }
+});
+
 console.log('Attempting to start server on port', port);
 app.listen(port, () => {
   console.log(`🚀 Server running on port ${port}`);

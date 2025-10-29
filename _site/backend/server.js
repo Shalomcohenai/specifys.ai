@@ -5,8 +5,9 @@ const { syncAllUsers } = require('./server/user-management');
 const blogRoutes = require('./server/blog-routes');
 const specRoutes = require('./server/spec-routes');
 const chatRoutes = require('./server/chat-routes');
+const adminRoutes = require('./server/admin-routes');
 const { handleLemonWebhook } = require('./server/lemon-webhook');
-const { securityHeaders, rateLimiters } = require('./server/security');
+const { securityHeaders, rateLimiters, requireAdmin } = require('./server/security');
 
 // Load environment variables from .env file
 console.log('Loading environment variables...');
@@ -74,13 +75,16 @@ app.use('/api/specs', specRoutes);
 // Chat routes for AI chat functionality
 app.use('/api/chat', chatRoutes);
 
+// Admin routes (with admin verification)
+app.use('/api/admin', adminRoutes);
+
 // Basic route for server status
 app.get('/api/status', (req, res) => {
   res.status(200).json({ message: 'Server is running' });
 });
 
-// Endpoint to sync users from Firebase Auth to Firestore
-app.post('/api/sync-users', async (req, res) => {
+// Endpoint to sync users from Firebase Auth to Firestore (admin only)
+app.post('/api/sync-users', requireAdmin, async (req, res) => {
   console.log('🔄 Sync users request received');
   
   try {
@@ -106,7 +110,7 @@ app.get('/api/blog/list-posts', blogRoutes.listPosts);
 app.post('/api/blog/delete-post', blogRoutes.deletePost);
 
 // Legacy endpoint to handle API requests to Grok (deprecated - use /api/specs/create instead)
-app.post('/api/generate-spec', async (req, res) => {
+app.post('/api/generate-spec', rateLimiters.generation, async (req, res) => {
   console.log('Received request:', req.body);
   const { userInput } = req.body;
 

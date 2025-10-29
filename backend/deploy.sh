@@ -35,8 +35,8 @@ echo "✅ Prerequisites check passed"
 
 echo "🔥 Deploying Firestore rules..."
 
-# Deploy Firestore rules
-firebase deploy --only firestore:rules
+# Deploy Firestore rules and indexes
+firebase deploy --only firestore
 
 if [ $? -eq 0 ]; then
     echo "✅ Firestore rules deployed successfully!"

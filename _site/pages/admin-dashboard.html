@@ -414,17 +414,9 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
 </header>
 
-<style>
-/* Logo dark grey color - adjusted size */
-/* Only the dot in orange */
-/* Mobile adjustments */
-@media (max-width: 768px) {
-
-
-    
     <!-- Main Content -->
     <main id="main-content" class="main-content">
-        <main class="admin-container">
+        <div class="admin-container">
     <!-- Dashboard Header -->
     <div class="dashboard-header">
         <div class="header-left">
@@ -601,6 +593,9 @@ document.addEventListener('DOMContentLoaded', function() {
             </button>
             <button class="tab-btn" data-tab="analytics">
                 <i class="fas fa-chart-line"></i> Analytics
+            </button>
+            <button class="tab-btn" data-tab="errors">
+                <i class="fas fa-exclamation-triangle"></i> Errors
             </button>
         </div>
 
@@ -1123,7 +1118,49 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         </div>
 
+        <!-- Tab 7: Error Logs -->
+        <div class="tab-content" id="errors-tab">
+            <div class="table-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-exclamation-triangle"></i> Error Logs</h2>
+                    <button class="btn-refresh" onclick="adminDashboard.loadErrorLogs()">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+
+                <div class="filters-row">
+                    <select id="errors-type-filter" class="filter-select">
+                        <option value="all">All Error Types</option>
+                        <option value="validation">Validation Errors</option>
+                        <option value="firebase">Firebase Errors</option>
+                        <option value="api">API Errors</option>
+                    </select>
+                </div>
+
+                <div class="table-wrapper">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Error Type</th>
+                                <th>Error Message</th>
+                                <th>Frequency</th>
+                                <th>Error Code</th>
+                                <th>First Occurrence</th>
+                                <th>Last Occurrence</th>
+                            </tr>
+                        </thead>
+                        <tbody id="errors-table-body">
+                            <tr>
+                                <td colspan="6" class="loading-cell">Loading errors...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
     </div>
+    </main>
 
     <!-- Preview Modal -->
     <div id="preview-modal" class="modal">
@@ -1156,8 +1193,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div id="modal-spec-content" class="spec-content rendered-view"></div>
                 <pre id="modal-spec-raw" class="spec-content-raw" style="display: none;"></pre>
             </div>
-                </div>
-            </div>
+        </div>
+    </div>
             
     <!-- Confirmation Modal for Delete -->
     <div id="confirm-modal" class="modal">
@@ -1165,17 +1202,16 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="modal-header">
                 <h2>Confirm Action</h2>
                 <span class="modal-close" onclick="adminDashboard.closeConfirmModal()">&times;</span>
-                </div>
+            </div>
             <div class="modal-body">
                 <p id="confirm-message">Are you sure?</p>
                 <div class="modal-actions">
                     <button class="btn btn-secondary" onclick="adminDashboard.closeConfirmModal()">Cancel</button>
                     <button class="btn btn-danger" id="confirm-delete-btn">Delete</button>
                 </div>
-                </div>
             </div>
         </div>
-    </main>
+    </div>
 
 <!-- Mermaid.js for diagram rendering -->
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
@@ -1245,8 +1281,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 </script>
 
-
-    </main>
     
     <!-- Footer -->
     <!-- Footer -->

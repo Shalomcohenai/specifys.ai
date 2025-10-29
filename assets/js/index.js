@@ -832,6 +832,12 @@ function fillDemoAnswers(demoType = 'ecommerce') {
 // ===== API INTEGRATION =====
 async function generateSpecification() {
   try {
+    // Clear any previous spec data to force creating a NEW spec
+    localStorage.removeItem('currentSpecId');
+    localStorage.removeItem('generatedOverviewContent');
+    localStorage.removeItem('initialAnswers');
+    console.log('🧹 Cleared previous spec data from localStorage');
+    
     console.log('🚀 Starting generateSpecification...');
     
     // Check if answers exist and are valid
@@ -1059,6 +1065,20 @@ async function saveSpecToFirebase(overviewContent, answers) {
       updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     };
     
+    const overviewPreview = specDoc.overview.substring(0, 200) + (specDoc.overview.length > 200 ? '...' : '');
+    console.log('🔍 [CREATING NEW SPEC] Saving spec document to Firebase');
+    console.log('   → Timestamp:', new Date().toISOString());
+    console.log('   → User ID:', specDoc.userId);
+    console.log('   → User Name:', specDoc.userName);
+    console.log('   → Title:', specDoc.title);
+    console.log('   → OverviewApproved:', specDoc.overviewApproved);
+    console.log('   → Technical:', specDoc.technical);
+    console.log('   → Market:', specDoc.market);
+    console.log('   → Overview length:', specDoc.overview ? specDoc.overview.length : 0, 'chars');
+    if (specDoc.overview) console.log('   → Overview preview:', overviewPreview);
+    console.log('   → Status:', specDoc.status);
+    console.log('   → Call Stack:', new Error().stack.split('\n').slice(1, 4).join('\n   → '));
+    
     console.log('📝 Saving spec document to Firebase:', {
       title: specDoc.title,
       hasOverview: !!specDoc.overview,
@@ -1069,40 +1089,45 @@ async function saveSpecToFirebase(overviewContent, answers) {
       status: specDoc.status
     });
     
-    // Check if we have an existing spec ID in localStorage or URL
-    let existingSpecId = localStorage.getItem('currentSpecId');
-    if (!existingSpecId) {
-      // Check URL parameters for existing spec ID
-      const urlParams = new URLSearchParams(window.location.search);
-      existingSpecId = urlParams.get('id');
-    }
+    console.log('📝 [SPEC CREATION] Starting spec save process');
+    console.log('   → localStorage cleared: true');
+    console.log('   → Current userId:', user.uid);
+    
+    // Check if we're in EDIT mode (explicit edit, not normal creation)
+    const urlParams = new URLSearchParams(window.location.search);
+    const isEditMode = urlParams.get('edit') === 'true';
+    const existingSpecId = urlParams.get('id');
     
     let docRef;
-    if (existingSpecId) {
+    
+    if (isEditMode && existingSpecId) {
+      // UPDATE existing spec (only in explicit edit mode)
       try {
-        // Update existing document
+        console.log('📝 [EDIT MODE] Updating existing spec:', existingSpecId);
         docRef = firebase.firestore().collection('specs').doc(existingSpecId);
-        // Don't update createdAt or userId when updating
         const { createdAt, userId, ...updateData } = specDoc;
         await docRef.update({
           ...updateData,
           updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
-        console.log('Spec updated in Firebase with ID:', existingSpecId);
+        console.log('✅ Spec updated in Firebase with ID:', existingSpecId);
         return existingSpecId;
       } catch (updateError) {
-        // If update fails (document doesn't exist or permissions issue), create a new document
-        console.warn('Update failed, creating new document:', updateError);
-        localStorage.removeItem('currentSpecId');
+        console.error('❌ Update failed, creating new document:', updateError);
         // Fall through to create new document
       }
     }
     
-    // Create new document (either first time or as fallback from failed update)
+    // CREATE new document (normal creation flow or fallback from failed update)
     docRef = await firebase.firestore().collection('specs').add(specDoc);
+    console.log('✅ [CREATED] NEW spec in Firebase');
+    console.log('   → ID:', docRef.id);
+    console.log('   → OverviewApproved:', specDoc.overviewApproved);
+    console.log('   → Technical:', specDoc.technical, '(will be generated after approval)');
+    console.log('   → Market:', specDoc.market, '(will be generated after approval)');
+    console.log('   → Design:', specDoc.design, '(will be generated after approval)');
     console.log('Spec saved to Firebase with ID:', docRef.id);
-    // Store the new ID for future updates
-    localStorage.setItem('currentSpecId', docRef.id);
+    // Don't store in localStorage - we always want to create new specs
     
     return docRef.id;
   } catch (error) {
@@ -1179,6 +1204,11 @@ function checkAutoStart() {
 
 // ===== EVENT LISTENERS =====
 document.addEventListener('DOMContentLoaded', function() {
+  // Clear any stale spec data when user arrives at fresh form
+  localStorage.removeItem('currentSpecId');
+  localStorage.removeItem('generatedOverviewContent');
+  console.log('🧹 Cleared stale spec data on page load');
+  
   checkFirstVisit();
   setupModernInput();
   checkAutoStart();

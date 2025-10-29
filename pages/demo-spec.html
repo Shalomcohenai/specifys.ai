@@ -428,8 +428,14 @@
             </div>
         </div>
         <div class="header-right">
+            <div class="credits-display" id="credits-display" style="display: none;">
+                <div class="credits-container">
+                    <i class="fas fa-dollar-sign"></i>
+                    <span id="credits-text">0</span>
+                </div>
+            </div>
             <div class="auth-buttons" id="auth-buttons">
-                <button class="auth-btn" onclick="window.location.href='/pages/auth.html'">Login</button>
+                <!-- Will be populated by auth system -->
             </div>
         </div>
     </header>
@@ -521,9 +527,25 @@
 
     <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
     <script>
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyB9hr0IWM4EREzkKDxBxYoYinV6LJXWXV4",
+            authDomain: "specify-ai.firebaseapp.com",
+            projectId: "specify-ai",
+            storageBucket: "specify-ai.firebasestorage.app",
+            messagingSenderId: "734278787482",
+            appId: "1:734278787482:web:0e312fb6f197e849695a23",
+            measurementId: "G-4YR9LK63MR"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
         // Initialize Mermaid
         mermaid.initialize({ 
             startOnLoad: false,
@@ -2178,7 +2200,64 @@
 
         // Initialize
         document.addEventListener('DOMContentLoaded', loadSpec);
+
+        // Auth UI functions
+        function updateAuthUI(user) {
+            const authButtons = document.getElementById('auth-buttons');
+            if (!authButtons) return;
+            
+            if (user) {
+                // User is logged in
+                const displayName = user.displayName || user.email.split('@')[0];
+                const firstLetter = displayName.charAt(0).toUpperCase();
+                
+                authButtons.innerHTML = `
+                    <a href="/pages/profile.html" class="user-info" style="text-decoration: none;">
+                        <div class="user-avatar">${firstLetter}</div>
+                        <span>${displayName}</span>
+                    </a>
+                `;
+            } else {
+                // User is not logged in
+                authButtons.innerHTML = `
+                    <button class="auth-btn" onclick="window.location.href='/pages/auth.html'">Login</button>
+                `;
+            }
+        }
+
+        // Global auth functions
+        window.showLoginModal = function() {
+            window.location.href = '/pages/auth.html';
+        };
+
+        window.logout = function() {
+            auth.signOut()
+                .then(() => {
+                    console.log('Logged out successfully');
+                })
+                .catch(error => {
+                    console.error('Error logging out:', error);
+                });
+        };
+
+        // Listen to auth state changes
+        auth.onAuthStateChanged((user) => {
+            updateAuthUI(user);
+        });
+
+        // Initialize auth buttons with default state
+        document.addEventListener('DOMContentLoaded', function() {
+            const authButtons = document.getElementById('auth-buttons');
+            if (authButtons && !authButtons.innerHTML.trim()) {
+                authButtons.innerHTML = `
+                    <button class="auth-btn" onclick="window.location.href='/pages/auth.html'">Login</button>
+                `;
+            }
+        });
     </script>
+    
+    <!-- Credits Display Script -->
+    <script src="/assets/js/credits-display.js"></script>
 </body>
 </html>
 
