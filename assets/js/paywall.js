@@ -37,13 +37,14 @@ class PaywallManager {
                 <div class="paywall-overlay"></div>
                 <div class="paywall-content">
                     <div class="paywall-header">
-                        <h2>Upgrade to Continue</h2>
+                        <h2>Oops... Looks like you've run out of credits.</h2>
+                        <p class="paywall-subtitle">Want more?</p>
+                        <p class="paywall-tagline">For a million dollar idea, you can invest $5</p>
                         <button class="paywall-close" onclick="window.paywallManager.hidePaywall()">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
                     <div class="paywall-body">
-                        <p class="paywall-message">You need to purchase credits to create more specifications</p>
                         <div class="paywall-options" id="paywall-options">
                             <!-- Options will be populated dynamically -->
                         </div>
@@ -70,13 +71,7 @@ class PaywallManager {
         this.init();
         this.currentCallback = successCallback;
 
-        // Update message
-        const messageEl = this.modal.querySelector('.paywall-message');
-        if (messageEl && paywallData.message) {
-            messageEl.textContent = paywallData.message;
-        }
-
-        // Populate options
+        // Populate options (header is already set in HTML)
         this.populateOptions(paywallData.options || []);
 
         // Show modal
@@ -137,7 +132,7 @@ class PaywallManager {
                         ${option.description}
                     </div>
                     <button class="option-button" onclick="window.paywallManager.selectOption('${option.id}')">
-                        ${option.id.includes('pro') ? 'Subscribe' : 'Buy Now'}
+                        Buy Now
                     </button>
                 </div>
             `;
@@ -348,15 +343,15 @@ const paywallStyles = `
 
 .paywall-content {
     position: relative;
-    background: linear-gradient(135deg, #fff9f5 0%, #ffffff 100%);
+    background: white;
     border-radius: 16px;
-    box-shadow: 0 20px 60px rgba(255, 107, 53, 0.15);
-    max-width: 600px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    max-width: 800px;
     width: 90%;
     max-height: 90vh;
     overflow-y: auto;
     animation: paywallSlideIn 0.3s ease-out;
-    border: 2px solid #FFE8DC;
+    border: 2px solid #e9ecef;
 }
 
 @keyframes paywallSlideIn {
@@ -371,26 +366,43 @@ const paywallStyles = `
 }
 
 .paywall-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 24px 24px 0;
+    position: relative;
+    padding: 40px 40px 24px;
+    text-align: center;
     border-bottom: 1px solid #FFE8DC;
-    margin-bottom: 24px;
+    margin-bottom: 32px;
 }
 
 .paywall-header h2 {
-    margin: 0;
-    font-size: 1.5rem;
-    font-weight: 600;
+    margin: 0 0 12px 0;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #333;
+    line-height: 1.3;
+}
+
+.paywall-subtitle {
+    margin: 0 0 24px 0;
+    font-size: 1.25rem;
+    font-weight: 500;
     color: #FF6B35;
 }
 
+.paywall-tagline {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #666;
+    font-style: italic;
+}
+
 .paywall-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
     background: none;
     border: none;
     font-size: 1.25rem;
-    color: #FF6B35;
+    color: #999;
     cursor: pointer;
     padding: 8px;
     border-radius: 8px;
@@ -398,98 +410,105 @@ const paywallStyles = `
 }
 
 .paywall-close:hover {
-    background: #FFE8DC;
-    color: #FF8551;
+    background: #f5f5f5;
+    color: #FF6B35;
 }
 
 .paywall-body {
-    padding: 0 24px 24px;
-}
-
-.paywall-message {
-    text-align: center;
-    color: #FF6B35;
-    margin-bottom: 32px;
-    font-size: 1.1rem;
-    font-weight: 500;
+    padding: 0 40px 40px;
 }
 
 .paywall-options {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
-    margin-bottom: 24px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+    margin-bottom: 0;
 }
 
 .paywall-option {
-    border: 2px solid #FFE8DC;
+    border: 2px solid #e9ecef;
     border-radius: 12px;
-    padding: 20px;
-    transition: all 0.2s ease;
+    padding: 32px 24px;
+    transition: all 0.3s ease;
     cursor: pointer;
     background: white;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
 }
 
 .paywall-option:hover {
     border-color: #FF6B35;
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(255, 107, 53, 0.15);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(255, 107, 53, 0.15);
+}
+
+.paywall-option:nth-child(2) {
+    border-color: #FF6B35;
+    background: #FFF4F0;
+}
+
+.paywall-option:nth-child(2):hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(255, 107, 53, 0.25);
 }
 
 .option-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 12px;
+    margin-bottom: 20px;
 }
 
 .option-header h3 {
-    margin: 0;
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #FF6B35;
+    margin: 0 0 12px 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #333;
 }
 
 .option-price {
     display: flex;
     align-items: baseline;
+    justify-content: center;
+    gap: 2px;
+    margin-bottom: 8px;
 }
 
 .option-price .currency {
-    font-size: 0.9rem;
-    color: #6b7280;
-    margin-right: 2px;
+    font-size: 1rem;
+    color: #666;
 }
 
 .option-price .amount {
-    font-size: 1.5rem;
+    font-size: 2.5rem;
     font-weight: 700;
     color: #FF6B35;
 }
 
 .option-description {
-    color: #6b7280;
+    color: #666;
     font-size: 0.9rem;
-    margin-bottom: 16px;
-    line-height: 1.4;
+    margin-bottom: 24px;
+    line-height: 1.5;
+    min-height: 40px;
 }
 
 .option-button {
     width: 100%;
-    background: linear-gradient(135deg, #FF6B35 0%, #FF8551 100%);
+    background: #FF6B35;
     color: white;
     border: none;
-    padding: 12px 16px;
+    padding: 14px 24px;
     border-radius: 8px;
     font-weight: 600;
+    font-size: 0.95rem;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
+    margin-top: auto;
 }
 
 .option-button:hover {
-    background: linear-gradient(135deg, #FF8551 0%, #FF6B35 100%);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+    background: #FF8551;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 107, 53, 0.3);
 }
 
 .paywall-processing {
@@ -525,17 +544,55 @@ const paywallStyles = `
         margin: 20px;
     }
     
-    .paywall-options {
-        grid-template-columns: 1fr;
-        gap: 16px;
+    .paywall-header {
+        padding: 32px 24px 20px;
     }
     
-    .paywall-header {
-        padding: 20px 20px 0;
+    .paywall-header h2 {
+        font-size: 1.5rem;
+    }
+    
+    .paywall-subtitle {
+        font-size: 1.1rem;
     }
     
     .paywall-body {
-        padding: 0 20px 20px;
+        padding: 0 24px 32px;
+    }
+    
+    .paywall-options {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .paywall-option {
+        padding: 24px 20px;
+    }
+    
+    .option-price .amount {
+        font-size: 2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .paywall-header h2 {
+        font-size: 1.25rem;
+    }
+    
+    .paywall-header {
+        padding: 28px 20px 16px;
+    }
+    
+    .paywall-body {
+        padding: 0 20px 28px;
+    }
+    
+    .option-header h3 {
+        font-size: 1.25rem;
+    }
+    
+    .option-price .amount {
+        font-size: 1.75rem;
     }
 }
 </style>

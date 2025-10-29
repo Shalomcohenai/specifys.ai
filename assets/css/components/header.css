@@ -25,7 +25,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 20px;
+  padding: 10px 20px !important;
   position: fixed;
   top: 0;
   left: 0;
@@ -68,7 +68,7 @@
 /* Logo styles - Specifys.AI */
 .logo a,
 .logo-text {
-  font-size: 1.5rem;
+  font-size: 1.2rem !important;
   font-weight: var(--font-weight-bold);
   color: var(--text-color);
   text-decoration: none;
@@ -162,7 +162,7 @@
 }
 
 .logo-text {
-  font-size: 1.5rem;
+  font-size: 1.2rem !important;
   font-weight: var(--font-weight-bold);
 }
 
@@ -218,16 +218,16 @@
 /* Mobile Responsive */
 @media (max-width: 768px) {
   .thematic-header {
-    padding: 8px 12px;
+    padding: 8px 12px !important;
     height: 56px;
   }
   
   .logo a {
-    font-size: 1.10rem;
+    font-size: 1.1rem !important;
   }
   
   .logo-text {
-    font-size: 1.10rem;
+    font-size: 1.1rem !important;
   }
   
   .header-right {
@@ -273,16 +273,16 @@
 
 @media (max-width: 480px) {
   .thematic-header {
-    padding: 8px 8px;
+    padding: 8px 8px !important;
     height: 56px;
   }
   
   .logo a {
-    font-size: 1.00rem;
+    font-size: 1rem !important;
   }
   
   .logo-text {
-    font-size: 1.00rem;
+    font-size: 1rem !important;
   }
   
   .auth-btn {

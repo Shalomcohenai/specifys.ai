@@ -255,6 +255,10 @@ Return ONLY valid Mermaid code, nothing else.`;
 const chatRoutes = require('./chat-routes');
 app.use('/api/chat', chatRoutes);
 
+// Import and mount stats routes
+const statsRoutes = require('./stats-routes');
+app.use('/api/stats', statsRoutes);
+
 console.log('Attempting to start server on port', port);
 app.listen(port, () => {
   console.log(`🚀 Server running on port ${port}`);

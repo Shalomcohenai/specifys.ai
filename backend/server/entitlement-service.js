@@ -42,12 +42,17 @@ async function checkUserCanCreateSpec(userId) {
             };
         }
 
-        // Check free specs remaining
-        if (userData.free_specs_remaining > 0) {
+        // Check free specs remaining - use default of 1 if not set
+        // IMPORTANT: Only use default if field doesn't exist (undefined/null), not if it's negative
+        const freeSpecsRemaining = typeof userData.free_specs_remaining === 'number'
+            ? userData.free_specs_remaining  // Keep actual value even if negative
+            : 1;  // Default to 1 only if field doesn't exist
+
+        if (freeSpecsRemaining > 0) {
             return { 
                 canCreate: true, 
                 reason: 'Has free specs remaining',
-                creditsRemaining: userData.free_specs_remaining
+                creditsRemaining: freeSpecsRemaining
             };
         }
 
@@ -70,6 +75,7 @@ async function checkUserCanCreateSpec(userId) {
  */
 async function consumeSpecCredit(userId) {
     try {
+        console.log('🔵 [consumeSpecCredit] Starting credit consumption for user:', userId);
         const batch = db.batch();
 
         // Get user document
@@ -81,6 +87,10 @@ async function consumeSpecCredit(userId) {
         }
 
         const userData = userDoc.data();
+        console.log('🔵 [consumeSpecCredit] User data:', {
+            free_specs_remaining: userData.free_specs_remaining,
+            type: typeof userData.free_specs_remaining
+        });
 
         // Get entitlements document
         const entitlementsDocRef = db.collection('entitlements').doc(userId);
@@ -91,35 +101,61 @@ async function consumeSpecCredit(userId) {
             unlimited: false,
             can_edit: false
         };
+        console.log('🔵 [consumeSpecCredit] Entitlements:', {
+            unlimited: entitlements.unlimited,
+            spec_credits: entitlements.spec_credits
+        });
 
         // If unlimited, no need to consume credits
         if (entitlements.unlimited) {
+            console.log('🔵 [consumeSpecCredit] User has unlimited access - skipping credit consumption');
             return true;
         }
 
-        // Consume free specs first
-        if (userData.free_specs_remaining > 0) {
-            batch.update(userDocRef, {
-                free_specs_remaining: admin.firestore.FieldValue.increment(-1),
-                last_entitlement_sync_at: admin.firestore.FieldValue.serverTimestamp()
-            });
-        }
-        // Then consume purchased credits
-        else if (entitlements.spec_credits > 0) {
+        // Consume free specs first - use default of 1 if not set
+        // IMPORTANT: Only use default if field doesn't exist (undefined/null), not if it's negative
+        const freeSpecsRemaining = typeof userData.free_specs_remaining === 'number'
+            ? userData.free_specs_remaining  // Keep actual value even if negative
+            : 1;  // Default to 1 only if field doesn't exist
+        console.log('🔵 [consumeSpecCredit] Calculated freeSpecsRemaining:', freeSpecsRemaining);
+
+        if (freeSpecsRemaining > 0) {
+            // Check if field exists in database
+            if (typeof userData.free_specs_remaining === 'number') {
+                // Field exists - use increment
+                console.log('🔵 [consumeSpecCredit] Field exists - using increment(-1)');
+                batch.update(userDocRef, {
+                    free_specs_remaining: admin.firestore.FieldValue.increment(-1),
+                    last_entitlement_sync_at: admin.firestore.FieldValue.serverTimestamp()
+                });
+            } else {
+                // Field doesn't exist - set it to 0 explicitly
+                console.log('🔵 [consumeSpecCredit] Field does not exist - setting to 0');
+                batch.update(userDocRef, {
+                    free_specs_remaining: 0,
+                    last_entitlement_sync_at: admin.firestore.FieldValue.serverTimestamp()
+                });
+            }
+        } else if (entitlements.spec_credits > 0) {
+            // No free specs, try purchased credits
+            console.log('🔵 [consumeSpecCredit] Consuming purchased credits');
             batch.update(entitlementsDocRef, {
                 spec_credits: admin.firestore.FieldValue.increment(-1),
                 updated_at: admin.firestore.FieldValue.serverTimestamp()
             });
-        }
-        else {
+        } else {
+            // Zero or negative - don't allow consumption
+            console.log('❌ [consumeSpecCredit] Cannot consume - no credits available');
             throw new Error('No credits available to consume');
         }
 
+        console.log('🔵 [consumeSpecCredit] Committing batch update...');
         await batch.commit();
+        console.log('✅ [consumeSpecCredit] Credit consumption successful');
         return true;
 
     } catch (error) {
-        console.error('Error consuming spec credit:', error);
+        console.error('❌ [consumeSpecCredit] Error consuming spec credit:', error);
         return false;
     }
 }
@@ -397,6 +433,11 @@ async function getUserEntitlements(userId) {
             can_edit: false
         };
 
+        // Ensure free_specs_remaining has a default value of 1 if not set
+        if (userData && typeof userData.free_specs_remaining !== 'number') {
+            userData.free_specs_remaining = 1;
+        }
+
         return {
             user: userData,
             entitlements: entitlements
@@ -405,7 +446,7 @@ async function getUserEntitlements(userId) {
     } catch (error) {
         console.error('Error getting user entitlements:', error);
         return {
-            user: {},
+            user: { free_specs_remaining: 1 },
             entitlements: { spec_credits: 0, unlimited: false, can_edit: false }
         };
     }

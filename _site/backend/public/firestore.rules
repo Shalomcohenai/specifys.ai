@@ -11,10 +11,17 @@ service cloud.firestore {
 
     // General rule for documents with userId field
     match /{document=**} {
-      allow read, write: if request.auth != null && (
+      // For read, allow if the document doesn't exist yet (will be created) OR user owns it
+      allow read: if request.auth != null && (
         !exists(/databases/$(database)/documents/$(document)) ||
         request.auth.uid == resource.data.userId
       ) || isAdmin();
+      // Allow creation if the user is setting their own userId
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId || isAdmin();
+      // Allow update if user owns the existing document
+      allow update: if request.auth != null && request.auth.uid == resource.data.userId || isAdmin();
+      // Allow delete if user owns the document
+      allow delete: if request.auth != null && request.auth.uid == resource.data.userId || isAdmin();
     }
 
     // Users collection
@@ -77,12 +84,24 @@ service cloud.firestore {
       allow read, write, create: if isAdmin();
     }
 
+    // Public stats collection - anyone can read
+    match /public_stats/{document} {
+      allow read: if true;
+      allow write, create, update, delete: if isAdmin();
+    }
+
     // Public demo spec - allow anyone to read
     match /specs/{specId} {
       // Allow public read access to specific demo spec
       allow read: if specId == 'iAzaUwtSW3qvcW87lICL';
       // Regular specs require auth
-      allow read, write: if request.auth != null && request.auth.uid == resource.data.userId || isAdmin();
+      allow read: if request.auth != null && request.auth.uid == resource.data.userId || isAdmin();
+      // Allow creation if the user is setting their own userId
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId || isAdmin();
+      // Allow update if user owns the document
+      allow update: if request.auth != null && request.auth.uid == resource.data.userId || isAdmin();
+      // Allow delete if user owns the document
+      allow delete: if request.auth != null && request.auth.uid == resource.data.userId || isAdmin();
     }
   }
 }

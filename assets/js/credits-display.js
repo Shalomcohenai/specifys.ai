@@ -112,19 +112,26 @@ class CreditsDisplayManager {
             // Has purchased credits
             displayText = userEntitlements.spec_credits.toString();
             cssClass = 'normal';
-        } else if (user.free_specs_remaining > 0) {
-            // Free specs remaining
-            displayText = user.free_specs_remaining.toString();
-            // Add 'low' class if only 1-2 remaining
-            if (user.free_specs_remaining <= 2) {
-                cssClass = 'low';
-            } else {
-                cssClass = 'normal';
-            }
         } else {
-            // No credits
-            displayText = '0';
-            cssClass = 'low';
+            // Free specs remaining - use default of 1 if not set
+            // IMPORTANT: Only use default if field doesn't exist (undefined/null), not if it's negative
+            const freeSpecs = typeof user.free_specs_remaining === 'number'
+                ? user.free_specs_remaining  // Keep actual value even if negative
+                : 1;  // Default to 1 only if field doesn't exist
+            
+            if (freeSpecs > 0) {
+                displayText = freeSpecs.toString();
+                // Add 'low' class if only 1-2 remaining
+                if (freeSpecs <= 2) {
+                    cssClass = 'low';
+                } else {
+                    cssClass = 'normal';
+                }
+            } else {
+                // No credits (including negative values)
+                displayText = '0';
+                cssClass = 'low';
+            }
         }
 
         creditsText.textContent = displayText;
@@ -148,14 +155,19 @@ class CreditsDisplayManager {
         
         let message = '';
         
+        // IMPORTANT: Only use default if field doesn't exist (undefined/null), not if it's negative
+        const freeSpecs = typeof user.free_specs_remaining === 'number'
+            ? user.free_specs_remaining  // Keep actual value even if negative
+            : 1;  // Default to 1 only if field doesn't exist
+        
         if (userEntitlements.unlimited) {
             message = 'You have unlimited specifications with your Pro subscription!';
         } else if (userEntitlements.spec_credits > 0) {
             message = `You have ${userEntitlements.spec_credits} purchased credit${userEntitlements.spec_credits !== 1 ? 's' : ''} remaining.`;
-        } else if (user.free_specs_remaining > 0) {
-            message = `You have ${user.free_specs_remaining} free specification${user.free_specs_remaining !== 1 ? 's' : ''} remaining.`;
+        } else if (freeSpecs > 0) {
+            message = `You have ${freeSpecs} free specification${freeSpecs !== 1 ? 's' : ''} remaining.`;
         } else {
-            message = 'You have no specifications remaining.';
+            message = 'You have 0 specifications remaining. Please purchase credits to create more specifications.';
         }
         
         // Simple alert for now - can be replaced with custom modal

@@ -81,17 +81,19 @@ async function loadDynamicStats() {
     const toolsData = await toolsResponse.json();
     const toolsCount = toolsData.length; // 104 tools
     
-    // Get specs count from Firebase
+    // Get specs count from public stats
     let specsCount = 0;
     try {
       // Check if Firebase is available
       if (typeof firebase !== 'undefined' && firebase.firestore) {
         const db = firebase.firestore();
-        const specsSnapshot = await db.collection('specs').get();
-        specsCount = specsSnapshot.size;
+        const statsDoc = await db.collection('public_stats').doc('counts').get();
+        if (statsDoc.exists) {
+          specsCount = statsDoc.data().specsCount || 0;
+        }
       }
     } catch (error) {
-      console.log('Could not fetch specs from Firebase:', error);
+      console.log('Could not fetch stats from Firebase:', error);
       specsCount = 0;
     }
     
@@ -889,21 +891,7 @@ async function generateSpecification() {
                 name: '3-Pack',
                 price: 9.90,
                 currency: 'USD',
-                description: '3 additional specifications (Save $5)'
-              },
-              {
-                id: 'pro_monthly',
-                name: 'Pro Monthly',
-                price: 29.90,
-                currency: 'USD',
-                description: 'Unlimited specifications + editing'
-              },
-              {
-                id: 'pro_yearly',
-                name: 'Pro Yearly',
-                price: 299.90,
-                currency: 'USD',
-                description: 'Unlimited specifications + editing (Save $58.90)'
+                description: '3 additional specifications'
               }
             ]
           };
@@ -1091,22 +1079,32 @@ async function saveSpecToFirebase(overviewContent, answers) {
     
     let docRef;
     if (existingSpecId) {
-      // Update existing document
-      docRef = firebase.firestore().collection('specs').doc(existingSpecId);
-      await docRef.update({
-        ...specDoc,
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-      });
-      console.log('Spec updated in Firebase with ID:', existingSpecId);
-    } else {
-      // Create new document
-      docRef = await firebase.firestore().collection('specs').add(specDoc);
-      console.log('Spec saved to Firebase with ID:', docRef.id);
-      // Store the new ID for future updates
-      localStorage.setItem('currentSpecId', docRef.id);
+      try {
+        // Update existing document
+        docRef = firebase.firestore().collection('specs').doc(existingSpecId);
+        // Don't update createdAt or userId when updating
+        const { createdAt, userId, ...updateData } = specDoc;
+        await docRef.update({
+          ...updateData,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        console.log('Spec updated in Firebase with ID:', existingSpecId);
+        return existingSpecId;
+      } catch (updateError) {
+        // If update fails (document doesn't exist or permissions issue), create a new document
+        console.warn('Update failed, creating new document:', updateError);
+        localStorage.removeItem('currentSpecId');
+        // Fall through to create new document
+      }
     }
     
-    return docRef.id || existingSpecId;
+    // Create new document (either first time or as fallback from failed update)
+    docRef = await firebase.firestore().collection('specs').add(specDoc);
+    console.log('Spec saved to Firebase with ID:', docRef.id);
+    // Store the new ID for future updates
+    localStorage.setItem('currentSpecId', docRef.id);
+    
+    return docRef.id;
   } catch (error) {
     console.error('Error saving to Firebase:', error);
     throw error;

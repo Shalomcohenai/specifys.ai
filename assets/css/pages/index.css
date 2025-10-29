@@ -4,7 +4,7 @@
 .logo a,
 .logo-text {
     color: #333 !important;
-    font-size: 1.66rem !important;
+    font-size: 1.2rem !important;
 }
 
 .logo-dot {
@@ -23,14 +23,14 @@
 @media (max-width: 768px) {
     .logo a,
     .logo-text {
-        font-size: 1.22rem !important;
+        font-size: 1.1rem !important;
     }
 }
 
 @media (max-width: 480px) {
     .logo a,
     .logo-text {
-        font-size: 1.11rem !important;
+        font-size: 1rem !important;
     }
 }
 

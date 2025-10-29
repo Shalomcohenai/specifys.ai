@@ -421,117 +421,6 @@ document.addEventListener('DOMContentLoaded', function() {
 </header>
 
 <style>
-/* Logo dark grey color - adjusted size */
-.logo a,
-.logo-text {
-    color: #333 !important;
-    font-size: 1.66rem !important;
-}
-
-/* Only the dot in orange */
-.logo-dot {
-    color: #FF6B35 !important;
-}
-
-.logo a:hover {
-    color: #444 !important;
-}
-
-.logo a:hover .logo-dot {
-    color: #FF8551 !important;
-}
-
-/* Credits Display - Like user-info style */
-.credits-display {
-    display: flex;
-    align-items: center;
-    margin-right: 12px;
-}
-
-.credits-container {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 0.3rem 0.8rem;
-    background: rgba(102, 102, 102, 0.1);
-    border-radius: var(--border-radius-md);
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: all var(--transition-normal);
-}
-
-.credits-container:hover {
-    background: rgba(102, 102, 102, 0.2);
-    transform: translateY(-2px);
-}
-
-.credits-container i {
-    font-size: 14px;
-    color: #FF6B35;
-}
-
-.credits-container span {
-    font-weight: var(--font-weight-medium);
-    color: #FF6B35;
-    min-width: 20px;
-    text-align: center;
-}
-
-/* State variations - all use orange for pro, red for low */
-.credits-container.pro i,
-.credits-container.pro span {
-    color: #FF6B35;
-}
-
-.credits-container.low i,
-.credits-container.unlimited i,
-.credits-container.low span,
-.credits-container.unlimited span {
-    color: #ef4444;
-}
-
-/* Mobile adjustments */
-@media (max-width: 768px) {
-    .credits-display {
-        margin-right: 8px;
-    }
-    
-    .credits-container {
-        padding: 5px 10px;
-        font-size: 0.85rem;
-    }
-    
-    .credits-container i {
-        font-size: 12px;
-    }
-}
-
-@media (max-width: 480px) {
-    .credits-display {
-        margin-right: 6px;
-    }
-    
-    .credits-container {
-        padding: 4px 8px;
-        gap: 4px;
-    }
-}
-
-/* Logo Mobile adjustments */
-@media (max-width: 768px) {
-    .logo a,
-    .logo-text {
-        font-size: 1.22rem !important;
-    }
-}
-
-@media (max-width: 480px) {
-    .logo a,
-    .logo-text {
-        font-size: 1.11rem !important;
-    }
-}
-
 /* Pagination Styles */
 .pagination-container {
     display: flex;
@@ -1600,44 +1489,41 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
 
-        // Load specs remaining
+        // Load specs remaining - using same API as header for consistency
         async function loadSpecsRemaining() {
             if (!currentUser) return;
             
             try {
-                // Load entitlements
-                const entitlementsRef = doc(db, 'entitlements', currentUser.uid);
-                const entitlementsDoc = await getDoc(entitlementsRef);
-                
-                // Load user doc as fallback
-                const userRef = doc(db, 'users', currentUser.uid);
-                const userDoc = await getDoc(userRef);
-                
+                const token = await currentUser.getIdToken();
+                const response = await fetch(`${window.API_BASE_URL || 'http://localhost:3001'}/api/specs/entitlements`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    console.error('Failed to fetch entitlements');
+                    document.getElementById('specs-remaining-count').textContent = '-';
+                    return;
+                }
+
+                const data = await response.json();
+                const { entitlements, user } = data;
                 const specsRemainingEl = document.getElementById('specs-remaining-count');
                 
-                if (entitlementsDoc.exists()) {
-                    const entitlements = entitlementsDoc.data();
-                    const unlimited = entitlements.unlimited || false;
-                    const specCredits = entitlements.spec_credits || 0;
-                    
-                    if (unlimited) {
-                        specsRemainingEl.innerHTML = '∞';
-                    } else if (specCredits > 0) {
-                        specsRemainingEl.textContent = specCredits;
-                    } else if (userDoc.exists()) {
-                        // If no purchased credits, check free specs
-                        const userData = userDoc.data();
-                        const freeSpecs = typeof userData.free_specs_remaining === 'number' ? userData.free_specs_remaining : 1;
-                        specsRemainingEl.textContent = freeSpecs;
-                    } else {
-                        specsRemainingEl.textContent = '0';
-                    }
-                } else if (userDoc.exists()) {
-                    const userData = userDoc.data();
-                    const freeSpecs = typeof userData.free_specs_remaining === 'number' ? userData.free_specs_remaining : 1;
-                    specsRemainingEl.textContent = freeSpecs;
+                // Use same logic as header credits display
+                if (entitlements.unlimited) {
+                    specsRemainingEl.innerHTML = '∞';
+                } else if (entitlements.spec_credits > 0) {
+                    specsRemainingEl.textContent = entitlements.spec_credits;
                 } else {
-                    specsRemainingEl.textContent = '0';
+                    // Free specs - keep actual value even if negative
+                    const freeSpecs = typeof user.free_specs_remaining === 'number'
+                        ? user.free_specs_remaining
+                        : 1;
+                    
+                    // Show 0 if negative, otherwise show the actual number
+                    specsRemainingEl.textContent = freeSpecs > 0 ? freeSpecs : 0;
                 }
             } catch (error) {
                 console.error('Error loading specs remaining:', error);
@@ -2992,31 +2878,36 @@ document.addEventListener('DOMContentLoaded', function() {
                     };
                 }
 
-                // Update specs remaining in panel
-                if (entitlementsDoc.exists()) {
-                    const entitlements = entitlementsDoc.data();
-                    const unlimited = entitlements.unlimited || false;
-                    const specCredits = entitlements.spec_credits || 0;
-                    
-                    if (unlimited) {
-                        document.getElementById('info-specs').innerHTML = '<span style="font-size: 1.5rem;">∞</span> <span style="color: #28a745;">Unlimited</span>';
-                    } else if (specCredits > 0) {
-                        document.getElementById('info-specs').textContent = specCredits + ' specs';
-                    } else if (userDoc.exists()) {
-                        // Check from user doc
-                        const userData = userDoc.data();
-                        const freeSpecs = typeof userData.free_specs_remaining === 'number' ? userData.free_specs_remaining : 1;
-                        document.getElementById('info-specs').textContent = freeSpecs + ' free specs remaining';
-                    } else {
-                        document.getElementById('info-specs').textContent = '1 free spec remaining';
+                // Update specs remaining in panel - using same API for consistency
+                try {
+                    const token = await currentUser.getIdToken();
+                    const response = await fetch(`${window.API_BASE_URL || 'http://localhost:3001'}/api/specs/entitlements`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        const { entitlements, user } = data;
+                        
+                        if (entitlements.unlimited) {
+                            document.getElementById('info-specs').innerHTML = '<span style="font-size: 1.5rem;">∞</span> <span style="color: #28a745;">Unlimited</span>';
+                        } else if (entitlements.spec_credits > 0) {
+                            document.getElementById('info-specs').textContent = entitlements.spec_credits + ' specs';
+                        } else {
+                            // Free specs - keep actual value even if negative
+                            const freeSpecs = typeof user.free_specs_remaining === 'number'
+                                ? user.free_specs_remaining
+                                : 1;
+                            
+                            // Show 0 if negative
+                            const displayValue = freeSpecs > 0 ? freeSpecs : 0;
+                            document.getElementById('info-specs').textContent = displayValue + ' free spec' + (displayValue !== 1 ? 's' : '') + ' remaining';
+                        }
                     }
-                } else if (userDoc.exists()) {
-                    // Check from user doc
-                    const userData = userDoc.data();
-                    const freeSpecs = typeof userData.free_specs_remaining === 'number' ? userData.free_specs_remaining : 1;
-                    document.getElementById('info-specs').textContent = freeSpecs + ' free specs remaining';
-                } else {
-                    document.getElementById('info-specs').textContent = '1 free spec remaining';
+                } catch (error) {
+                    console.error('Error loading entitlements for personal info:', error);
                 }
 
                 // Update specs remaining in header

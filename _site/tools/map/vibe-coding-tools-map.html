@@ -14,7 +14,7 @@
     
     <!-- Canonical URL -->
     
-    <link rel="canonical" href="http://localhost:4000/tools/map/vibe-coding-tools-map.html">
+    <link rel="canonical" href="http://0.0.0.0:4000/tools/map/vibe-coding-tools-map.html">
     
     
     <!-- Open Graph -->
@@ -22,8 +22,8 @@
     <meta property="og:title" content="Vibe Coding Tools Map - Specifys.ai">
     <meta property="og:description" content="AI-powered app planning platform - Generate specifications, discover development tools, and plan your app smarter with AI-driven insights">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="http://localhost:4000/tools/map/vibe-coding-tools-map.html">
-    <meta property="og:image" content="http://localhost:4000/assets/images/og-image.png">
+    <meta property="og:url" content="http://0.0.0.0:4000/tools/map/vibe-coding-tools-map.html">
+    <meta property="og:image" content="http://0.0.0.0:4000/assets/images/og-image.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:locale" content="en_US">
@@ -35,7 +35,7 @@
     <meta name="twitter:creator" content="@specifysai">
     <meta name="twitter:title" content="Vibe Coding Tools Map - Specifys.ai">
     <meta name="twitter:description" content="AI-powered app planning platform - Generate specifications, discover development tools, and plan your app smarter with AI-driven insights">
-    <meta name="twitter:image" content="http://localhost:4000/assets/images/og-image.png">
+    <meta name="twitter:image" content="http://0.0.0.0:4000/assets/images/og-image.png">
     
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
@@ -423,119 +423,6 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
 </header>
 
-<style>
-/* Logo dark grey color - adjusted size */
-.logo a,
-.logo-text {
-    color: #333 !important;
-    font-size: 1.5rem !important;
-}
-
-/* Only the dot in orange */
-.logo-dot {
-    color: #FF6B35 !important;
-}
-
-.logo a:hover {
-    color: #444 !important;
-}
-
-.logo a:hover .logo-dot {
-    color: #FF8551 !important;
-}
-
-/* Mobile adjustments */
-@media (max-width: 768px) {
-    .logo a,
-    .logo-text {
-        font-size: 1.10rem !important;
-    }
-}
-
-@media (max-width: 480px) {
-    .logo a,
-    .logo-text {
-        font-size: 1.00rem !important;
-    }
-}
-
-/* Credits Display - Like user-info style */
-.credits-display {
-    display: flex;
-    align-items: center;
-    margin-right: 12px;
-}
-
-.credits-container {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 0.3rem 0.8rem;
-    background: rgba(102, 102, 102, 0.1);
-    border-radius: var(--border-radius-md);
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: all var(--transition-normal);
-}
-
-.credits-container:hover {
-    background: rgba(102, 102, 102, 0.2);
-    transform: translateY(-2px);
-}
-
-.credits-container i {
-    font-size: 14px;
-    color: #FF6B35;
-}
-
-.credits-container span {
-    font-weight: var(--font-weight-medium);
-    color: #FF6B35;
-    min-width: 20px;
-    text-align: center;
-}
-
-/* State variations - all use orange for pro, red for low */
-.credits-container.pro i,
-.credits-container.pro span {
-    color: #FF6B35;
-}
-
-.credits-container.low i,
-.credits-container.unlimited i,
-.credits-container.low span,
-.credits-container.unlimited span {
-    color: #ef4444;
-}
-
-/* Mobile adjustments */
-@media (max-width: 768px) {
-    .credits-display {
-        margin-right: 8px;
-    }
-    
-    .credits-container {
-        padding: 5px 10px;
-        font-size: 0.85rem;
-    }
-    
-    .credits-container i {
-        font-size: 12px;
-    }
-}
-
-@media (max-width: 480px) {
-    .credits-display {
-        margin-right: 6px;
-    }
-    
-    .credits-container {
-        padding: 4px 8px;
-        gap: 4px;
-    }
-}
-</style>
-
 <!-- Credits Display Script -->
 <script src="/assets/js/credits-display.js"></script>
 
@@ -698,6 +585,46 @@ document.addEventListener('DOMContentLoaded', function() {
       background: var(--button-hover, #FF8551);
     }
 
+    /* User Info & Dropdown */
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.3rem 0.8rem;
+      background: rgba(102, 102, 102, 0.1);
+      border-radius: 8px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+    }
+
+    .user-info:hover {
+      background: rgba(102, 102, 102, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .user-info span {
+      font-weight: 500;
+      color: var(--text-color, #333);
+    }
+
+    .user-avatar {
+      width: 24px;
+      height: 24px;
+      background: #666;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: bold;
+      color: white;
+    }
+
+    @media (max-width: 768px) {
+      .auth-buttons {
+        gap: 0.5rem;
         margin-right: 0;
       }
       
@@ -1616,8 +1543,16 @@ document.addEventListener('DOMContentLoaded', function() {
         const authButtons = document.getElementById('auth-buttons');
         
         if (user) {
-          // User is logged in - removed Profile and Sign Out buttons
-          authButtons.innerHTML = ``;
+          // User is logged in
+          const displayName = user.displayName || user.email.split('@')[0];
+          const firstLetter = displayName.charAt(0).toUpperCase();
+          
+          authButtons.innerHTML = `
+            <a href="../../pages/profile.html" class="user-info" style="text-decoration: none;">
+              <div class="user-avatar">${firstLetter}</div>
+              <span>${displayName}</span>
+            </a>
+          `;
         } else {
           // User is not logged in
           authButtons.innerHTML = `

@@ -161,6 +161,46 @@ extra_css:
       background: var(--button-hover, #FF8551);
     }
 
+    /* User Info & Dropdown */
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.3rem 0.8rem;
+      background: rgba(102, 102, 102, 0.1);
+      border-radius: 8px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+    }
+
+    .user-info:hover {
+      background: rgba(102, 102, 102, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .user-info span {
+      font-weight: 500;
+      color: var(--text-color, #333);
+    }
+
+    .user-avatar {
+      width: 24px;
+      height: 24px;
+      background: #666;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: bold;
+      color: white;
+    }
+
+    @media (max-width: 768px) {
+      .auth-buttons {
+        gap: 0.5rem;
         margin-right: 0;
       }
       
@@ -1079,8 +1119,16 @@ extra_css:
         const authButtons = document.getElementById('auth-buttons');
         
         if (user) {
-          // User is logged in - removed Profile and Sign Out buttons
-          authButtons.innerHTML = ``;
+          // User is logged in
+          const displayName = user.displayName || user.email.split('@')[0];
+          const firstLetter = displayName.charAt(0).toUpperCase();
+          
+          authButtons.innerHTML = `
+            <a href="../../pages/profile.html" class="user-info" style="text-decoration: none;">
+              <div class="user-avatar">${firstLetter}</div>
+              <span>${displayName}</span>
+            </a>
+          `;
         } else {
           // User is not logged in
           authButtons.innerHTML = `

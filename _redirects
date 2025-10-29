@@ -52,3 +52,6 @@
 # Legacy specification viewer redirects
 /pages/spec.html* /pages/legacy-viewer.html 301
 /pages/research.html* /pages/legacy-viewer.html 301
+
+# App dashboard redirect to 404
+/pages/app-dashboard.html* /pages/404.html 301
