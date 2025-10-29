@@ -756,6 +756,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     <!-- API Configuration - Must load before all API calls -->
     <script src="/assets/js/config.js"></script>
+    
+    <!-- Entitlements Cache -->
+    <script src="/assets/js/entitlements-cache.js"></script>
 
     <!-- Auth System Script -->
     <script type="module">
@@ -2920,7 +2923,14 @@ document.addEventListener('DOMContentLoaded', function() {
                         const { entitlements, user } = data;
                         
                         if (entitlements.unlimited) {
-                            document.getElementById('info-specs').innerHTML = '<span style="font-size: 1.5rem;">∞</span> <span style="color: #28a745;">Unlimited</span>';
+                            let displayText = '<span style="font-size: 1.5rem;">∞</span> <span style="color: #28a745;">Unlimited</span>';
+                            
+                            // Show preserved credits if any
+                            if (entitlements.preserved_credits > 0) {
+                                displayText += `<br><small style="color: #6c757d;">(${entitlements.preserved_credits} credits preserved)</small>`;
+                            }
+                            
+                            document.getElementById('info-specs').innerHTML = displayText;
                         } else if (entitlements.spec_credits > 0) {
                             document.getElementById('info-specs').textContent = entitlements.spec_credits + ' specs';
                         } else {

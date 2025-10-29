@@ -8,7 +8,7 @@ class CreditsDisplayManager {
         this.isInitialized = false;
         this.currentUser = null;
         this.pollingInterval = null;
-        this.pollingIntervalMs = 30000; // 30 seconds
+        this.pollingIntervalMs = 15000; // 15 seconds (reduced from 30)
     }
 
     /**
@@ -25,11 +25,11 @@ class CreditsDisplayManager {
 
         try {
             // Listen to auth state changes
-            firebase.auth().onAuthStateChanged((user) => {
+            firebase.auth().onAuthStateChanged(async (user) => {
                 this.currentUser = user;
                 if (user) {
                     this.showCreditsDisplay();
-                    this.updateCredits();
+                    await this.updateCredits(); // Immediate refresh on login
                     this.startPolling();
                 } else {
                     this.hideCreditsDisplay();
@@ -52,6 +52,12 @@ class CreditsDisplayManager {
         const creditsDisplay = document.getElementById('credits-display');
         if (creditsDisplay) {
             creditsDisplay.style.display = 'flex';
+            
+            // Show loading state until first API call completes
+            const creditsText = document.getElementById('credits-text');
+            if (creditsText && (creditsText.textContent === '0' || creditsText.textContent === '')) {
+                creditsText.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            }
         }
     }
 
@@ -72,20 +78,30 @@ class CreditsDisplayManager {
         if (!this.currentUser) return;
 
         try {
-            const token = await this.currentUser.getIdToken();
-            const response = await fetch(`${window.API_BASE_URL || 'http://localhost:3001'}/api/specs/entitlements`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
+            // Use entitlements cache if available, otherwise fetch directly
+            let data;
+            if (window.entitlementsCache) {
+                data = await window.entitlementsCache.get();
+            } else {
+                // Fallback to direct API call if cache not available
+                const token = await this.currentUser.getIdToken();
+                const response = await fetch(`${window.API_BASE_URL || 'http://localhost:3002'}/api/specs/entitlements`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
 
-            if (!response.ok) {
-                console.error('Failed to fetch entitlements');
-                return;
+                if (!response.ok) {
+                    console.error('Failed to fetch entitlements');
+                    return;
+                }
+
+                data = await response.json();
             }
 
-            const data = await response.json();
-            this.renderCredits(data);
+            if (data) {
+                this.renderCredits(data);
+            }
 
         } catch (error) {
             console.error('Error updating credits:', error);

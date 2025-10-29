@@ -104,8 +104,8 @@ router.post('/create', verifyFirebaseToken, validateInput(createSpecSchema), asy
         }
 
         // Consume credit BEFORE generation to prevent bypass
-        const creditConsumed = await consumeSpecCredit(userId);
-        if (!creditConsumed) {
+        const creditResult = await consumeSpecCredit(userId);
+        if (!creditResult.success) {
             return res.status(402).json({
                 error: 'Failed to consume credit - insufficient credits',
                 paywall: {
@@ -144,6 +144,9 @@ router.post('/create', verifyFirebaseToken, validateInput(createSpecSchema), asy
             });
         }
 
+        // Track which credit type was consumed for proper refund if needed
+        const consumedCreditType = creditResult.creditType;
+
         // Generate specification using existing API
         let specification;
         try {
@@ -167,15 +170,15 @@ router.post('/create', verifyFirebaseToken, validateInput(createSpecSchema), asy
             });
 
             if (!apiResponse.ok) {
-                // Credit was already consumed, refund it
-                await refundSpecCredit(userId);
+                // Credit was already consumed, refund it to the correct source
+                await refundSpecCredit(userId, consumedCreditType);
                 throw new Error(`API error: ${apiResponse.status}`);
             }
 
             specification = await apiResponse.text();
         } catch (error) {
-            // Credit was already consumed, refund it
-            await refundSpecCredit(userId);
+            // Credit was already consumed, refund it to the correct source
+            await refundSpecCredit(userId, consumedCreditType);
             throw error;
         }
 
