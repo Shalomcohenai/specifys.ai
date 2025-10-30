@@ -1,0 +1,1277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta name="theme-color" content="#000000">
+    <title>Sign In / Register - Specifys.ai</title>
+    <meta name="description" content="Create account">
+    <meta name="keywords" content="AI development tools, app specification generator, no-code platform, AI-powered planning, vibe coding, AI app builder, specification generator, market research tool, app planning tool, development tools, AI tools">
+    <meta name="author" content="Specifys.ai">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    
+    <!-- Content Security Policy - Removed to fix Google Analytics/Ads issues -->
+    
+    <!-- Canonical URL -->
+    
+    <link rel="canonical" href="https://specifys-ai.com/pages/auth.html">
+    
+    
+    <!-- Open Graph -->
+    <meta property="og:site_name" content="Specifys.ai">
+    <meta property="og:title" content="Sign In / Register">
+    <meta property="og:description" content="Create account">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://specifys-ai.com/pages/auth.html">
+    <meta property="og:image" content="https://specifys-ai.com/assets/images/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:locale" content="en_US">
+    
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@specifysai">
+    <meta name="twitter:creator" content="@specifysai">
+    <meta name="twitter:title" content="Sign In / Register">
+    <meta name="twitter:description" content="Create account">
+    <meta name="twitter:image" content="https://specifys-ai.com/assets/images/og-image.png">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="/assets/css/main.css">
+    
+      
+        <link rel="stylesheet" href="/assets/css/pages/auth.css">
+      
+    
+    
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Mermaid for diagrams (used in demo, spec, research pages) -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+    
+    <!-- Marked for markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked@4.3.0/marked.min.js"></script>
+    
+    <!-- Highlight.js for syntax highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    
+    <!-- jsPDF for PDF export (used in research pages) -->
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
+    <!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-RWBT69JCM7"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-RWBT69JCM7');
+</script>
+
+
+    <script>
+// Central Analytics Event Tracking System for Specifys.ai
+// This file contains reusable tracking functions for consistent analytics across the site
+
+// Check if gtag is available
+function isGtagAvailable() {
+  return typeof gtag !== 'undefined';
+}
+
+// Track button clicks with detailed categorization
+function trackButtonClick(buttonName, category, source, additionalData = {}) {
+  if (isGtagAvailable()) {
+    gtag('event', 'click', {
+      'event_category': category || 'Button Click',
+      'event_label': buttonName,
+      'event_source': source || 'unknown',
+      ...additionalData
+    });
+  }
+}
+
+// Track CTA (Call-to-Action) clicks
+function trackCTA(ctaName, location) {
+  if (isGtagAvailable()) {
+    gtag('event', 'cta_click', {
+      'event_category': 'CTA',
+      'event_label': ctaName,
+      'cta_location': location
+    });
+  }
+}
+
+// Track navigation events
+function trackNavigation(destination, source) {
+  if (isGtagAvailable()) {
+    gtag('event', 'navigation', {
+      'event_category': 'Navigation',
+      'event_label': destination,
+      'navigation_source': source
+    });
+  }
+}
+
+// Track tool usage
+function trackToolUsage(toolName, action) {
+  if (isGtagAvailable()) {
+    gtag('event', 'tool_usage', {
+      'event_category': 'Tools',
+      'event_label': toolName,
+      'tool_action': action
+    });
+  }
+}
+
+// Track form submissions
+function trackFormSubmit(formName, formType) {
+  if (isGtagAvailable()) {
+    gtag('event', 'form_submit', {
+      'event_category': 'Form',
+      'event_label': formName,
+      'form_type': formType
+    });
+  }
+}
+
+// Track user authentication events
+function trackAuthEvent(action, method) {
+  if (isGtagAvailable()) {
+    gtag('event', action, {
+      'event_category': 'Authentication',
+      'event_label': action,
+      'auth_method': method || 'email'
+    });
+  }
+}
+
+// Track downloads
+function trackDownload(fileName, fileType) {
+  if (isGtagAvailable()) {
+    gtag('event', 'download', {
+      'event_category': 'Downloads',
+      'event_label': fileName,
+      'file_type': fileType
+    });
+  }
+}
+
+// Track spec/result generations
+function trackGeneration(type, mode) {
+  if (isGtagAvailable()) {
+    gtag('event', 'generation_start', {
+      'event_category': 'Generation',
+      'event_label': type,
+      'generation_mode': mode
+    });
+  }
+}
+
+// Track generation completion
+function trackGenerationComplete(type, mode, success) {
+  if (isGtagAvailable()) {
+    gtag('event', 'generation_complete', {
+      'event_category': 'Generation',
+      'event_label': type,
+      'generation_mode': mode,
+      'success': success
+    });
+  }
+}
+
+// Track external link clicks
+function trackExternalLink(linkUrl, linkText) {
+  if (isGtagAvailable()) {
+    gtag('event', 'click', {
+      'event_category': 'External Link',
+      'event_label': linkText || linkUrl,
+      'link_url': linkUrl
+    });
+  }
+}
+
+// Track modal interactions
+function trackModal(modalName, action) {
+  if (isGtagAvailable()) {
+    gtag('event', 'modal_' + action, {
+      'event_category': 'Modal',
+      'event_label': modalName,
+      'modal_action': action
+    });
+  }
+}
+
+// Track FAQ interactions
+function trackFAQ(question, action) {
+  if (isGtagAvailable()) {
+    gtag('event', 'faq_' + action, {
+      'event_category': 'FAQ',
+      'event_label': question,
+      'faq_action': action
+    });
+  }
+}
+
+// Track search actions
+function trackSearch(searchTerm, searchType) {
+  if (isGtagAvailable()) {
+    gtag('event', 'search', {
+      'event_category': 'Search',
+      'search_term': searchTerm,
+      'search_type': searchType
+    });
+  }
+}
+
+// Track video/demo views
+function trackDemoView(demoName, viewDuration) {
+  if (isGtagAvailable()) {
+    gtag('event', 'demo_view', {
+      'event_category': 'Demo',
+      'event_label': demoName,
+      'view_duration': viewDuration
+    });
+  }
+}
+
+// Track user engagement time
+function trackEngagement(pageName, timeSpent) {
+  if (isGtagAvailable()) {
+    gtag('event', 'user_engagement', {
+      'event_category': 'Engagement',
+      'event_label': pageName,
+      'engagement_time_msec': timeSpent
+    });
+  }
+}
+
+// Track errors
+function trackError(errorType, errorMessage, errorLocation) {
+  if (isGtagAvailable()) {
+    gtag('event', 'error', {
+      'event_category': 'Error',
+      'event_label': errorType,
+      'error_message': errorMessage,
+      'error_location': errorLocation
+    });
+  }
+}
+
+// Track user preferences
+function trackPreference(preferenceName, preferenceValue) {
+  if (isGtagAvailable()) {
+    gtag('event', 'preference_change', {
+      'event_category': 'Preferences',
+      'event_label': preferenceName,
+      'preference_value': preferenceValue
+    });
+  }
+}
+
+// Track scroll depth
+let scrollDepthTracked = {25: false, 50: false, 75: false, 100: false};
+function initScrollTracking(pageName) {
+  window.addEventListener('scroll', function() {
+    const scrollPercent = Math.round((window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100);
+    
+    if (scrollPercent >= 25 && !scrollDepthTracked[25]) {
+      scrollDepthTracked[25] = true;
+      if (isGtagAvailable()) {
+        gtag('event', 'scroll', {
+          'event_category': 'Scroll Depth',
+          'event_label': pageName,
+          'scroll_depth': '25%'
+        });
+      }
+    }
+    if (scrollPercent >= 50 && !scrollDepthTracked[50]) {
+      scrollDepthTracked[50] = true;
+      if (isGtagAvailable()) {
+        gtag('event', 'scroll', {
+          'event_category': 'Scroll Depth',
+          'event_label': pageName,
+          'scroll_depth': '50%'
+        });
+      }
+    }
+    if (scrollPercent >= 75 && !scrollDepthTracked[75]) {
+      scrollDepthTracked[75] = true;
+      if (isGtagAvailable()) {
+        gtag('event', 'scroll', {
+          'event_category': 'Scroll Depth',
+          'event_label': pageName,
+          'scroll_depth': '75%'
+        });
+      }
+    }
+    if (scrollPercent >= 100 && !scrollDepthTracked[100]) {
+      scrollDepthTracked[100] = true;
+      if (isGtagAvailable()) {
+        gtag('event', 'scroll', {
+          'event_category': 'Scroll Depth',
+          'event_label': pageName,
+          'scroll_depth': '100%'
+        });
+      }
+    }
+  });
+}
+
+// Auto-initialize scroll tracking when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+  const pageName = document.title || window.location.pathname;
+  initScrollTracking(pageName);
+});
+</script>
+
+
+    <!-- Structured Data (JSON-LD) for SEO -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "name": "Specifys.ai",
+      "url": "https://specifys-ai.com",
+      "logo": "https://specifys-ai.com/favicon.ico",
+      "description": "AI-powered app planning and specification generation platform",
+      "sameAs": [
+        "https://www.linkedin.com/company/specifys-ai/"
+      ],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "email": "specifysai@gmail.com",
+        "contactType": "Customer Service"
+      }
+    },
+    {
+      "@type": "WebSite",
+      "name": "Specifys.ai",
+      "url": "https://specifys-ai.com",
+      "description": "Plan your app smarter with AI-driven insights and tools",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://specifys-ai.com/pages/ToolPicker.html?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "Specifys.ai",
+      "applicationCategory": "DevelopmentApplication",
+      "operatingSystem": "Web",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "ratingCount": "250"
+      },
+      "description": "AI-powered app planning platform with specification generator, market research tools, and vibe coding tools map"
+    }
+  ]
+}
+</script>
+
+
+</head>
+
+
+<body class="page-default">
+        <main class="auth-page-layout">
+        <!-- Logo -->
+        <div class="auth-logo">
+            <a href="../index.html">Specifys.ai</a>
+        </div>
+        
+        <!-- Left Panel - Steps Animation -->
+        <div class="auth-left-panel">
+            <div class="steps-container">
+                <h2 id="dynamic-title">App Specification</h2>
+                <p id="dynamic-description">Define your app requirements, features, and functionality with our intelligent specification tool. Create detailed technical specifications and user stories.</p>
+                <div class="steps-indicators">
+                    <span class="step-dot active"></span>
+                    <span class="step-dot"></span>
+                    <span class="step-dot"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel - Compact Login -->
+        <div class="auth-right-panel">
+            <div class="compact-login-container">
+                <div class="compact-login-header">
+                    <h1>Welcome Back</h1>
+                    <p>Sign in to continue your app development journey</p>
+                </div>
+
+                <div class="auth-tabs">
+                    <button class="auth-tab active" onclick="switchTab('login')">Login</button>
+                    <button class="auth-tab" onclick="switchTab('register')">Register</button>
+                </div>
+
+                <div id="error-message" class="error-message" style="display: none;"></div>
+                <div id="success-message" class="success-message" style="display: none;"></div>
+
+                <!-- Login Form -->
+                <form id="login-form" class="auth-form active">
+                    <div class="compact-form-group">
+                        <label for="login-email">Email</label>
+                        <input type="email" id="login-email" required>
+                    </div>
+                    <div class="compact-form-group">
+                        <label for="login-password">Password</label>
+                        <input type="password" id="login-password" required>
+                    </div>
+                    <button type="submit" class="compact-btn compact-btn-primary" id="login-btn">
+                        <span id="login-btn-text">Sign In</span>
+                    </button>
+                </form>
+
+                <!-- Register Form -->
+                <form id="register-form" class="auth-form">
+                    <div class="compact-form-group">
+                        <label for="register-email">Email</label>
+                        <input type="email" id="register-email" required>
+                    </div>
+                    <div class="compact-form-group">
+                        <label for="register-password">Password</label>
+                        <input type="password" id="register-password" required minlength="6">
+                    </div>
+                    <div class="compact-form-group">
+                        <label for="register-confirm">Confirm Password</label>
+                        <input type="password" id="register-confirm" required minlength="6">
+                    </div>
+                    
+                    <!-- Newsletter Subscription Checkbox -->
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="newsletter-subscription" checked>
+                            <span class="checkmark"></span>
+                            Send me updates about new AI tools
+                        </label>
+                    </div>
+                    
+                    <!-- Privacy Policy Checkbox -->
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="privacy-policy-agreement" required>
+                            <span class="checkmark"></span>
+                            I have read and agree to the <a href="#" class="privacy-link" onclick="openPrivacyModal(); return false;"> privacy policy</a>
+                        </label>
+                    </div>
+                    
+                    <button type="submit" class="compact-btn compact-btn-primary" id="register-btn">
+                        <span id="register-btn-text">Sign Up</span>
+                    </button>
+                </form>
+
+                <div class="compact-divider">
+                    <span>or</span>
+                </div>
+
+                <button class="compact-btn compact-btn-google" onclick="loginWithGoogle()">
+                    <span>G</span> Continue with Google
+                </button>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Privacy Policy Modal -->
+    <div id="privacyModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Privacy Policy</h2>
+                <span class="close" onclick="closePrivacyModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p><strong>Last updated:</strong> January 2025</p>
+                
+                <h3>Information Collection and Use</h3>
+                <p>We collect information you provide directly to us, such as when you create an account, use our services, or contact us for support. This may include your name, email address, and any other information you choose to provide.</p>
+                
+                <h3>Data Storage and Security</h3>
+                <p>Your personal information is stored securely on our servers and is protected by industry-standard security measures. We implement appropriate technical and organizational measures to protect your data against unauthorized access, alteration, disclosure, or destruction.</p>
+                
+                <h3>Use of Information</h3>
+                <p>We use the information we collect to:</p>
+                <ul>
+                    <li>Provide, maintain, and improve our services</li>
+                    <li>Process transactions and send related information</li>
+                    <li>Send technical notices, updates, and support messages</li>
+                    <li>Respond to your comments and questions</li>
+                    <li>Monitor and analyze trends and usage</li>
+                </ul>
+                
+                <h3>Newsletter and Communications</h3>
+                <p>If you opt-in to receive our newsletter, we will send you updates about new AI tools and features. You can unsubscribe at any time by clicking the unsubscribe link in our emails or by contacting us directly.</p>
+                
+                <h3>Data Sharing</h3>
+                <p>We do not sell, trade, or otherwise transfer your personal information to third parties without your explicit consent, except as described in this policy or as required by law.</p>
+                
+                <h3>Cookies and Tracking</h3>
+                <p>We use cookies and similar tracking technologies to enhance your experience on our website and to analyze how our services are used.</p>
+                
+                <h3>Your Rights</h3>
+                <p>You have the right to:</p>
+                <ul>
+                    <li>Access your personal information</li>
+                    <li>Correct inaccurate data</li>
+                    <li>Request deletion of your data</li>
+                    <li>Opt-out of communications</li>
+                    <li>Withdraw consent at any time</li>
+                </ul>
+                
+                <h3>Data Retention</h3>
+                <p>We retain your personal information for as long as necessary to provide our services and as required by applicable laws.</p>
+                
+                <h3>Changes to This Policy</h3>
+                <p>We may update this privacy policy from time to time. We will notify you of any changes by posting the new policy on this page.</p>
+                
+                <h3>Contact Us</h3>
+                <p>If you have any questions about this privacy policy, please contact us at privacy@specifys.ai.</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/js/script.js"></script>
+    <script src="../assets/js/mobile-optimizations.js"></script>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Import Firebase SDK
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { 
+            createUserWithEmailAndPassword, 
+            signInWithEmailAndPassword, 
+            signOut, 
+            onAuthStateChanged,
+            GoogleAuthProvider,
+            signInWithPopup,
+            getAuth
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyB9hr0IWM4EREzkKDxBxYoYinV6LJXWXV4",
+    authDomain: "specify-ai.firebaseapp.com",
+    projectId: "specify-ai",
+    storageBucket: "specify-ai.firebasestorage.app",
+            messagingSenderId: "734278787482",
+            appId: "1:734278787482:web:0e312fb6f197e849695a23",
+            measurementId: "G-4YR9LK63MR"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const googleProvider = new GoogleAuthProvider();
+        
+        // Track if we're processing a redirect
+        let isProcessingRedirect = false;
+        
+        // Listen for auth state changes (this catches redirect results)
+        onAuthStateChanged(auth, async (user) => {
+            console.log('👤 Auth state changed:', {
+                hasUser: !!user,
+                userId: user?.uid,
+                email: user?.email,
+                isProcessing: isProcessingRedirect
+            });
+            
+            if (user && !isProcessingRedirect) {
+                // User is signed in - check if this is from a redirect
+                const urlParams = new URLSearchParams(window.location.search);
+                const fromAuth = sessionStorage.getItem('attemptingGoogleSignIn');
+                
+                console.log('✅ User signed in!', {
+                    fromAuth: fromAuth,
+                    uid: user.uid,
+                    email: user.email,
+                    displayName: user.displayName
+                });
+                
+                // If we were attempting sign in, process it
+                if (fromAuth === 'true') {
+                    isProcessingRedirect = true;
+                    sessionStorage.removeItem('attemptingGoogleSignIn');
+                    
+                    console.log('🔵 Processing sign-in completion...');
+                    
+                    try {
+                        await createUserDocument(user);
+                        console.log('✅ User document created!');
+                        
+                        showSuccess('Login successful! Redirecting to homepage...');
+                        setTimeout(() => {
+                            window.location.href = '../index.html';
+                        }, 1500);
+                    } catch (error) {
+                        console.error('❌ Error processing sign-in:', error);
+                        showError('Error completing sign-in: ' + error.message);
+                    }
+                }
+            }
+        });
+        
+        // Handle redirect result when user comes back from Google Sign-In
+        (async function checkRedirectResult() {
+            console.log('🚀 checkRedirectResult: Function started');
+            console.log('🚀 Current URL:', window.location.href);
+            console.log('🚀 URL params:', window.location.search);
+            
+            try {
+                const { getRedirectResult } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
+                console.log('🔍 Checking for redirect result...');
+                console.log('🔍 Auth instance:', auth ? 'exists' : 'null');
+                
+                // Show loading state while checking
+                const authContainer = document.querySelector('.auth-container');
+                if (authContainer) {
+                    const loadingDiv = document.createElement('div');
+                    loadingDiv.id = 'redirect-loading';
+                    loadingDiv.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); z-index: 10000; text-align: center;';
+                    loadingDiv.innerHTML = '<div style="font-size: 16px; color: #333;">Completing sign in...</div>';
+                    document.body.appendChild(loadingDiv);
+                    
+                    console.log('🔍 Calling getRedirectResult...');
+                    const result = await getRedirectResult(auth);
+                    console.log('🔍 getRedirectResult returned:', result);
+                    console.log('🔍 Result details:', {
+                        hasResult: !!result,
+                        hasUser: result?.user ? true : false,
+                        userId: result?.user?.uid,
+                        userEmail: result?.user?.email
+                    });
+                    
+                    // Remove loading
+                    loadingDiv.remove();
+                    
+                    if (result && result.user) {
+                        console.log('✅ Redirect Sign-In successful!', {
+                            uid: result.user.uid,
+                            email: result.user.email,
+                            displayName: result.user.displayName
+                        });
+                        
+                        console.log('🔵 Creating user document...');
+                        await createUserDocument(result.user);
+                        console.log('✅ User document created!');
+                        
+                        showSuccess('Login successful! Redirecting to homepage...');
+                        setTimeout(() => {
+                            window.location.href = '../index.html';
+                        }, 1500);
+                    } else {
+                        console.log('ℹ️ No redirect result found (normal for first page load)');
+                    }
+                } else {
+                    const result = await getRedirectResult(auth);
+                    
+                    if (result && result.user) {
+                        console.log('✅ Redirect Sign-In successful!', {
+                            uid: result.user.uid,
+                            email: result.user.email,
+                            displayName: result.user.displayName
+                        });
+                        
+                        await createUserDocument(result.user);
+                        showSuccess('Login successful! Redirecting to homepage...');
+                        setTimeout(() => {
+                            window.location.href = '../index.html';
+                        }, 1500);
+                    } else {
+                        console.log('ℹ️ No redirect result found (normal for first page load)');
+                    }
+                }
+            } catch (error) {
+                console.error('❌ Error handling redirect result:', {
+                    error: error,
+                    code: error.code,
+                    message: error.message,
+                    stack: error.stack
+                });
+                showError('Authentication error: ' + error.message);
+            }
+            
+            console.log('🏁 checkRedirectResult: Function completed');
+        })();
+
+        // Create user document in Firestore
+        async function createUserDocument(user) {
+            console.log('🟡 createUserDocument: Starting...', {
+                uid: user.uid,
+                email: user.email,
+                displayName: user.displayName
+            });
+            try {
+                console.log('🟡 createUserDocument: Creating Firestore reference...');
+                const userRef = doc(db, 'users', user.uid);
+                
+                console.log('🟡 createUserDocument: Saving user document to Firestore...');
+                await setDoc(userRef, {
+                    email: user.email,
+                    displayName: user.displayName || user.email.split('@')[0],
+                    emailVerified: user.emailVerified,
+                    createdAt: serverTimestamp(),
+                    lastActive: serverTimestamp(),
+                    newsletterSubscription: false
+                }, { merge: true });
+                
+                console.log('✅ createUserDocument: User document saved successfully to Firestore!');
+            } catch (error) {
+                console.error('❌ createUserDocument: Error creating user document:', error);
+                throw error; // Re-throw to be caught by calling function
+            }
+        }
+
+        // Tab switching
+        function switchTab(tab) {
+            // Update tab buttons
+            document.querySelectorAll('.auth-tab').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`[onclick="switchTab('${tab}')"]`).classList.add('active');
+            
+            // Update forms
+            document.querySelectorAll('.auth-form').forEach(form => form.classList.remove('active'));
+            document.getElementById(`${tab}-form`).classList.add('active');
+            
+            // Clear messages
+            hideMessages();
+        }
+
+        // Show/hide messages
+        function showError(message) {
+            // Create a temporary error notification
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: #dc3545;
+                color: white;
+                padding: 12px 20px;
+                border-radius: 6px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                z-index: 10000;
+                font-size: 14px;
+                font-weight: 500;
+                animation: slideUp 0.3s ease-out;
+            `;
+            notification.textContent = message;
+            
+            // Add animation styles
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideUp {
+                    from { transform: translateX(-50%) translateY(100%); opacity: 0; }
+                    to { transform: translateX(-50%) translateY(0); opacity: 1; }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            document.body.appendChild(notification);
+            
+            // Remove after 5 seconds
+            setTimeout(() => {
+                notification.remove();
+                style.remove();
+            }, 5000);
+        }
+
+        function showSuccess(message) {
+            // Create a temporary success notification
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: #28a745;
+                color: white;
+                padding: 12px 20px;
+                border-radius: 6px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                z-index: 10000;
+                font-size: 14px;
+                font-weight: 500;
+                animation: slideUp 0.3s ease-out;
+            `;
+            notification.textContent = message;
+            
+            // Add animation styles
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideUp {
+                    from { transform: translateX(-50%) translateY(100%); opacity: 0; }
+                    to { transform: translateX(-50%) translateY(0); opacity: 1; }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            document.body.appendChild(notification);
+            
+            // Remove after 3 seconds
+            setTimeout(() => {
+                notification.remove();
+                style.remove();
+            }, 3000);
+        }
+
+        function hideMessages() {
+            const errorMsg = document.getElementById('error-message');
+            const successMsg = document.getElementById('success-message');
+            if (errorMsg) errorMsg.style.display = 'none';
+            if (successMsg) successMsg.style.display = 'none';
+        }
+
+        // Auth functions
+        async function registerWithEmail(email, password) {
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                await createUserDocument(userCredential.user);
+                return userCredential.user;
+            } catch (error) {
+                throw new Error(getAuthErrorMessage(error.code));
+            }
+        }
+
+        async function loginWithEmail(email, password) {
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                await createUserDocument(userCredential.user);
+                return userCredential.user;
+            } catch (error) {
+                throw new Error(getAuthErrorMessage(error.code));
+            }
+        }
+
+        async function loginWithGoogle(useRedirect = false) {
+            console.log('🔵 loginWithGoogle: Starting Google Sign-In process...', { useRedirect });
+            try {
+                if (useRedirect) {
+                    console.log('🔵 loginWithGoogle: Using redirect method...');
+                    const { signInWithRedirect } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
+                    await signInWithRedirect(auth, googleProvider);
+                    // This will redirect away, so no code after this will run
+                    return;
+                }
+                
+                console.log('🔵 loginWithGoogle: Opening Google popup...');
+                console.log('🔵 Auth state before popup:', {
+                    currentUser: auth.currentUser,
+                    authDomain: auth.config.authDomain,
+                    apiKey: auth.config.apiKey ? 'Set' : 'Not set'
+                });
+                
+                // Add a small delay to ensure popup is not blocked
+                await new Promise(resolve => setTimeout(resolve, 100));
+                
+                console.log('🔵 Opening popup window now...');
+                
+                // Monitor the popup
+                const popupPromise = signInWithPopup(auth, googleProvider);
+                
+                // Check if popup opened
+                console.log('🔵 Popup promise created, waiting for user interaction...');
+                
+                const result = await popupPromise;
+                console.log('🔵 Popup returned result successfully');
+                console.log('✅ loginWithGoogle: Google Sign-In successful!', {
+                    uid: result.user.uid,
+                    email: result.user.email,
+                    displayName: result.user.displayName
+                });
+                
+                console.log('🔵 loginWithGoogle: Creating user document in Firestore...');
+                await createUserDocument(result.user);
+                console.log('✅ loginWithGoogle: User document created successfully!');
+                
+                return result.user;
+            } catch (error) {
+                console.error('❌ loginWithGoogle: Error occurred:', {
+                    code: error.code,
+                    message: error.message,
+                    fullError: error
+                });
+                
+                // If popup was closed, suggest redirect method
+                if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/popup-blocked') {
+                    console.warn('⚠️ Popup was closed or blocked. Consider using redirect method.');
+                }
+                
+                throw new Error(getAuthErrorMessage(error.code));
+            }
+        }
+
+        // Error messages
+        function getAuthErrorMessage(errorCode) {
+            const errorMessages = {
+                        'auth/user-not-found': 'User not found',
+        'auth/wrong-password': 'Wrong password',
+        'auth/email-already-in-use': 'Email already in use',
+        'auth/weak-password': 'Password too weak',
+        'auth/invalid-email': 'Invalid email',
+                'auth/user-disabled': 'Account disabled',
+                'auth/too-many-requests': 'Too many attempts, try again later',
+                'auth/operation-not-allowed': 'Operation not allowed',
+                'auth/requires-recent-login': 'Requires recent login',
+                'auth/popup-closed-by-user': 'Login window closed',
+                'auth/cancelled-popup-request': 'Request cancelled',
+                'auth/popup-blocked': 'Login window blocked',
+                'auth/account-exists-with-different-credential': 'Account exists with different credential',
+                'auth/credential-already-in-use': 'Credential already in use',
+                'auth/invalid-credential': 'Invalid credential',
+                'auth/timeout': 'Timeout, try again',
+                'auth/network-request-failed': 'Network error, check internet connection'
+            };
+            
+            return errorMessages[errorCode] || 'Unknown error';
+        }
+
+        // Form handlers
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            const btn = document.getElementById('login-btn');
+            const btnText = document.getElementById('login-btn-text');
+            
+            btn.disabled = true;
+            btnText.textContent = 'Logging in...';
+            
+            try {
+                await loginWithEmail(email, password);
+                showSuccess('Login successful! Redirecting to homepage...');
+                setTimeout(() => {
+                    window.location.href = '../index.html';
+                }, 1500);
+            } catch (error) {
+                showError(error.message);
+            } finally {
+                btn.disabled = false;
+                btnText.textContent = 'Sign In';
+            }
+        });
+
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            const confirmPassword = document.getElementById('register-confirm').value;
+            const newsletterSubscription = document.getElementById('newsletter-subscription').checked;
+            const privacyPolicyAgreed = document.getElementById('privacy-policy-agreement').checked;
+            
+            if (password !== confirmPassword) {
+                showError('Passwords do not match');
+                return;
+            }
+            
+            if (!privacyPolicyAgreed) {
+                showError('You must agree to the privacy policy to register');
+                return;
+            }
+            
+            const btn = document.getElementById('register-btn');
+            const btnText = document.getElementById('register-btn-text');
+            
+            btn.disabled = true;
+            btnText.textContent = 'Registering...';
+            
+            try {
+                const user = await registerWithEmail(email, password);
+                
+                // Save newsletter subscription preference
+                const userData = {
+                    email: email,
+                    newsletterSubscription: newsletterSubscription,
+                    privacyPolicyAgreed: privacyPolicyAgreed,
+                    registrationDate: new Date().toISOString()
+                };
+                
+                // Save to localStorage (in a real app, this would be saved to a database)
+                localStorage.setItem(`user_${user.uid}`, JSON.stringify(userData));
+                
+                // Also save to a general users list for admin dashboard
+                let usersList = JSON.parse(localStorage.getItem('users_list') || '[]');
+                usersList.push(userData);
+                localStorage.setItem('users_list', JSON.stringify(usersList));
+                
+                showSuccess('Registration successful! Redirecting to homepage...');
+                setTimeout(() => {
+                    window.location.href = '../index.html';
+                }, 1500);
+            } catch (error) {
+                showError(error.message);
+            } finally {
+                btn.disabled = false;
+                btnText.textContent = 'Sign Up';
+            }
+        });
+
+        // Check browser compatibility
+        function checkBrowserCompatibility() {
+            console.log('🔍 Checking browser compatibility...');
+            console.log('🔍 Third-party cookies enabled:', document.cookie !== undefined);
+            console.log('🔍 Local storage available:', typeof(Storage) !== "undefined");
+            // Removed popup test - was opening extra window
+        }
+        
+        // Google login - SYNCHRONOUS to avoid popup blocker
+        window.loginWithGoogle = function() {
+            console.log('🟢 window.loginWithGoogle: Button clicked, starting authentication...');
+            
+            // Check compatibility first
+            checkBrowserCompatibility();
+            
+            // Call signInWithPopup IMMEDIATELY (synchronously) from user click
+            // This prevents popup blockers
+            console.log('🟢 Opening Google Sign-In popup...');
+            console.log('🟢 Current origin:', window.location.origin);
+            console.log('🟢 Auth domain:', auth.config.authDomain);
+            
+            console.log('🟢 Calling signInWithPopup...');
+            const popupPromise = signInWithPopup(auth, googleProvider);
+            console.log('🟢 signInWithPopup called, waiting for result...');
+            
+            popupPromise
+                .then(async (result) => {
+                    console.log('✅ Google Sign-In successful!', {
+                        uid: result.user.uid,
+                        email: result.user.email,
+                        displayName: result.user.displayName
+                    });
+                    
+                    console.log('🔵 Creating user document...');
+                    await createUserDocument(result.user);
+                    console.log('✅ User document created!');
+                    
+                    showSuccess('Login successful! Redirecting to homepage...');
+                    setTimeout(() => {
+                        window.location.href = '../index.html';
+                    }, 1500);
+                })
+                .catch((error) => {
+                    console.error('❌ Google Sign-In error:', {
+                        code: error.code,
+                        message: error.message
+                    });
+                    
+                    if (error.code === 'auth/popup-blocked') {
+                        showError('Popup was blocked. Please allow popups for this site and try again.');
+                    } else if (error.code === 'auth/popup-closed-by-user') {
+                        showError('Sign-in cancelled.');
+                    } else {
+                        showError(getAuthErrorMessage(error.code) || 'Authentication failed. Please try again.');
+                    }
+                });
+        };
+
+        // Privacy Modal Functions
+        function openPrivacyModal() {
+            document.getElementById('privacyModal').style.display = 'block';
+        }
+
+        function closePrivacyModal() {
+            document.getElementById('privacyModal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('privacyModal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // Global functions
+        window.switchTab = switchTab;
+        window.openPrivacyModal = openPrivacyModal;
+        window.closePrivacyModal = closePrivacyModal;
+
+        // Auth UI functions
+        function updateAuthUI(user) {
+            const authButtons = document.getElementById('auth-buttons');
+            if (!authButtons) return;
+            
+            if (user) {
+                // User is logged in
+                const displayName = user.displayName || user.email.split('@')[0];
+                const firstLetter = displayName.charAt(0).toUpperCase();
+                
+                authButtons.innerHTML = `
+                    <a href="profile.html" class="user-info" style="text-decoration: none;">
+                        <div class="user-avatar">${firstLetter}</div>
+                        <span>${displayName}</span>
+                    </a>
+                `;
+            } else {
+                // User is not logged in
+                authButtons.innerHTML = `
+                    <button class="auth-btn" onclick="showLoginModal()">Login</button>
+                    <button class="auth-btn primary" onclick="showRegisterModal()">Register</button>
+                `;
+            }
+            
+            // Update mobile auth UI if function exists
+            if (window.updateMobileAuthUI) {
+                window.updateMobileAuthUI(user);
+            }
+        }
+
+        window.showLoginModal = function() {
+            window.location.href = 'auth.html';
+        };
+
+        window.showRegisterModal = function() {
+            window.location.href = 'auth.html';
+        };
+
+        window.logout = function() {
+            signOut(auth)
+                .then(() => {
+                    window.location.href = '../index.html';
+                })
+                .catch(error => {
+                    console.error('Error logging out:', error);
+                    alert('Logout error: ' + error.message);
+                });
+        };
+
+        // Redirect if already logged in
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                window.location.href = '../index.html';
+            }
+        });
+
+        // Animated headers for left panel
+        const stepsData = [
+            {
+                title: "App Specification",
+                description: "Define your app requirements, features, and functionality with our intelligent specification tool. Create detailed technical specifications and user stories."
+            },
+            {
+                title: "Development Management",
+                description: "Manage your app development process efficiently with our project management tools. Track progress, coordinate teams, and ensure timely delivery."
+            },
+            {
+                title: "AI-Powered Planning",
+                description: "Leverage artificial intelligence to create comprehensive app specifications. Get detailed project plans, technical requirements, and market analysis."
+            }
+        ];
+
+        let currentStep = 0;
+        let titleElement, descriptionElement, stepDots;
+
+        function updateStep() {
+            if (!titleElement || !descriptionElement) return;
+            
+            // Fade out
+            titleElement.style.opacity = '0';
+            descriptionElement.style.opacity = '0';
+            
+            setTimeout(() => {
+                // Update content
+                titleElement.textContent = stepsData[currentStep].title;
+                descriptionElement.textContent = stepsData[currentStep].description;
+                
+                // Update step indicators
+                if (stepDots) {
+                    stepDots.forEach((dot, index) => {
+                        dot.classList.toggle('active', index === currentStep);
+                    });
+                }
+                
+                // Fade in
+                titleElement.style.opacity = '1';
+                descriptionElement.style.opacity = '1';
+                
+                // Move to next step
+                currentStep = (currentStep + 1) % stepsData.length;
+            }, 300);
+        }
+
+        // Initialize animation
+        function initAnimation() {
+            // Get elements after DOM is loaded
+            titleElement = document.getElementById('dynamic-title');
+            descriptionElement = document.getElementById('dynamic-description');
+            stepDots = document.querySelectorAll('.step-dot');
+            
+            // Check if elements exist
+            if (!titleElement || !descriptionElement) {
+                // Elements not found - silently skip animation
+                return;
+            }
+            
+            titleElement.style.transition = 'opacity 0.3s ease';
+            descriptionElement.style.transition = 'opacity 0.3s ease';
+            
+            // Start the animation
+            setInterval(updateStep, 2000); // Change every 2 seconds
+        }
+
+        // Initialize when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initAnimation);
+        } else {
+            // DOM already loaded
+            initAnimation();
+        }
+    </script>
+
+
+    <script>
+        // Basic header functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            
+        });
+
+        // Initialize auth buttons with default state
+        document.addEventListener('DOMContentLoaded', function() {
+            const authButtons = document.getElementById('auth-buttons');
+            if (authButtons && !authButtons.innerHTML.trim()) {
+                authButtons.innerHTML = `
+                    <button class="auth-btn login-btn">Login</button>
+                `;
+                
+                const loginBtn = authButtons.querySelector('.login-btn');
+                if (loginBtn) {
+                    loginBtn.addEventListener('click', function(event) {
+                        event.stopPropagation();
+                        window.location.href = 'auth.html';
+                    });
+                }
+            }
+        });
+
+        // Auth functions will be handled by the modern Firebase v9+ script above
+    </script>
+
+    
+    <!-- Auth page uses its own Firebase module scripts -->
+</body>
+</html>
+

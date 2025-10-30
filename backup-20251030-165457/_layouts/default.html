@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+{% include head.html %}
+<body>
+    <!-- Header -->
+    {% include header.html %}
+    
+    <!-- Main Content -->
+    <main id="main-content" class="main-content">
+        {{ content }}
+    </main>
+    
+    <!-- Footer -->
+    {% include footer.html %}
+    
+    <!-- Scroll to top button -->
+    {% include scroll-to-top.html %}
+    
+    <!-- Firebase SDK & Auth -->
+    {% unless page.custom_firebase %}
+    {% include firebase-init.html %}
+    {% include firebase-auth.html %}
+    {% endunless %}
+    
+    <!-- Extra JavaScript -->
+    {% if page.extra_js %}
+      {% for js in page.extra_js %}
+        <script src="{{ js | relative_url }}"></script>
+      {% endfor %}
+    {% endif %}
+    {% if layout.extra_js %}
+      {% for js in layout.extra_js %}
+        <script src="{{ js | relative_url }}"></script>
+      {% endfor %}
+    {% endif %}
+</body>
+</html>
