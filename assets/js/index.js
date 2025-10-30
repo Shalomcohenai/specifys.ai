@@ -867,7 +867,7 @@ async function generateSpecification() {
     // Check credits BEFORE generating spec
     try {
       const token = await user.getIdToken();
-      const statusResponse = await fetch(`${window.API_BASE_URL || 'http://localhost:3001'}/api/specs/status`, {
+      const statusResponse = await fetch(`${window.API_BASE_URL || 'http://localhost:3002'}/api/specs/status`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -933,7 +933,7 @@ async function generateSpecification() {
     const token = await user.getIdToken();
     
     // Call the new API endpoint with authorization
-    const response = await fetch(`${window.API_BASE_URL || 'http://localhost:3001'}/api/specs/create`, {
+    const response = await fetch(`${window.API_BASE_URL || 'http://localhost:3002'}/api/specs/create`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -1146,7 +1146,7 @@ async function triggerOpenAIUpload(specId) {
     }
     
     const token = await user.getIdToken();
-    const response = await fetch(`${window.API_BASE_URL || 'http://localhost:3001'}/api/specs/${specId}/upload-to-openai`, {
+    const response = await fetch(`${window.API_BASE_URL || 'http://localhost:3002'}/api/specs/${specId}/upload-to-openai`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Specifys Icon Preview</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 40px;
+            background: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .icon-container {
+            background: #FF6B35;
+            width: 800px;
+            height: 800px;
+            border-radius: 200px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+        }
+        
+        .icon-container:hover {
+            transform: scale(1.05);
+        }
+        
+        .letter-s {
+            font-size: 480px;
+            font-weight: 900;
+            color: white;
+            font-family: 'Montserrat', 'Segoe UI', sans-serif;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            line-height: 1;
+        }
+        
+        .info {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            max-width: 300px;
+        }
+        
+        .info h2 {
+            margin: 0 0 10px 0;
+            color: #333;
+            font-size: 18px;
+        }
+        
+        .info p {
+            margin: 5px 0;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .color-box {
+            display: inline-block;
+            width: 40px;
+            height: 20px;
+            background: #FF6B35;
+            border-radius: 4px;
+            vertical-align: middle;
+            margin-left: 10px;
+        }
+        
+        .controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 20px 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .size-btn {
+            padding: 8px 16px;
+            border: 2px solid #FF6B35;
+            background: white;
+            color: #FF6B35;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .size-btn:hover {
+            background: #FF6B35;
+            color: white;
+        }
+        
+        .size-btn.active {
+            background: #FF6B35;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="info">
+        <h2>Specifys Icon Preview</h2>
+        <p>צבע רקע: <span class="color-box"></span> #FF6B35</p>
+        <p>גודל נוכחי: <span id="currentSize">800px × 800px</span></p>
+        <p style="margin-top: 15px; color: #999; font-size: 12px;">
+            💡 צלם מסך מהדף הזה לשמירת האייקון
+        </p>
+    </div>
+    
+    <div class="icon-container" id="iconContainer">
+        <div class="letter-s">S</div>
+    </div>
+    
+    <div class="controls">
+        <button class="size-btn active" onclick="changeSize(800)">16×16 (800px)</button>
+        <button class="size-btn" onclick="changeSize(512)">32×32 (512px)</button>
+        <button class="size-btn" onclick="changeSize(256)">64×64 (256px)</button>
+        <button class="size-btn" onclick="changeSize(128)">128×128 (128px)</button>
+        <button class="size-btn" onclick="changeSize(64)">256×256 (64px)</button>
+    </div>
+    
+    <script>
+        function changeSize(size) {
+            const container = document.getElementById('iconContainer');
+            const fontSize = Math.round(size * 0.6); // 60% of container size
+            const borderRadius = size * 0.25; // 25% of container size (4 corners)
+            
+            container.style.width = size + 'px';
+            container.style.height = size + 'px';
+            container.style.borderRadius = borderRadius + 'px';
+            
+            document.querySelector('.letter-s').style.fontSize = fontSize + 'px';
+            
+            // Update display
+            document.getElementById('currentSize').textContent = size + 'px × ' + size + 'px';
+            
+            // Update active button
+            document.querySelectorAll('.size-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>
+

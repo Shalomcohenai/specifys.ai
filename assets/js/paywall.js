@@ -223,7 +223,7 @@ class PaywallManager {
                 }
 
                 const token = await user.getIdToken();
-                const response = await fetch(`${window.API_BASE_URL || 'http://localhost:3001'}/api/specs/entitlements`, {
+                const response = await fetch(`${window.API_BASE_URL || 'http://localhost:3002'}/api/specs/entitlements`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }

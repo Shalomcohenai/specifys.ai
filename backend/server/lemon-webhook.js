@@ -115,6 +115,12 @@ async function handleOrderCreated(payload) {
         }
 
         if (userId) {
+            // Persist Lemon customer ID on user for future lookups
+            await db.collection('users').doc(userId).set({
+                lemon_customer_id: order.customer_id || null,
+                last_entitlement_sync_at: admin.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
+
             // User exists - grant credits immediately
             await grantCredits(userId, product.grants.spec_credits, order.id, order.variant_id);
             
@@ -207,6 +213,12 @@ async function handleSubscriptionCreated(payload) {
         );
 
         if (userId) {
+            // Persist Lemon customer ID on user for future lookups
+            await db.collection('users').doc(userId).set({
+                lemon_customer_id: subscription.customer_id || null,
+                last_entitlement_sync_at: admin.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
+
             // User exists - enable Pro immediately
             const currentPeriodEnd = new Date(subscription.current_period_end);
             await enableProSubscription(userId, subscription.id, currentPeriodEnd);
@@ -260,6 +272,12 @@ async function handleSubscriptionPaymentSuccess(payload) {
         );
 
         if (userId) {
+            // Persist Lemon customer ID on user for future lookups
+            await db.collection('users').doc(userId).set({
+                lemon_customer_id: subscription.customer_id || null,
+                last_entitlement_sync_at: admin.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
+
             // Update subscription period
             const currentPeriodEnd = new Date(subscription.current_period_end);
             await enableProSubscription(userId, subscription.id, currentPeriodEnd);
