@@ -76,29 +76,13 @@ function roundToNearest5(num) {
 // ===== LOAD DYNAMIC STATS =====
 async function loadDynamicStats() {
   try {
-    // Get tools count from tools.json
+    // Get tools count from tools.json only (no Firestore on homepage)
     const toolsResponse = await fetch('/tools/map/tools.json');
     const toolsData = await toolsResponse.json();
-    const toolsCount = toolsData.length; // 104 tools
+    const toolsCount = Array.isArray(toolsData) ? toolsData.length : 0;
     
-    // Get specs count from public stats
-    let specsCount = 0;
-    try {
-      // Check if Firebase is available and initialized
-      if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length > 0 && firebase.firestore) {
-        const db = firebase.firestore();
-        const statsDoc = await db.collection('public_stats').doc('counts').get();
-        if (statsDoc.exists) {
-          specsCount = statsDoc.data().specsCount || 0;
-        }
-      }
-    } catch (error) {
-      console.log('Could not fetch stats from Firebase:', error);
-      specsCount = 0;
-    }
-    
-    // Add base number to specs (4590 as requested)
-    const specsWithBase = specsCount + 4590;
+    // Use static base values for counters (no Firestore)
+    const specsWithBase = 4590;
     
     // Calculate Tool Finder users (specs + base multiplier)
     const toolFinderUsers = specsCount + 850; // Adding 850 to specs count
@@ -133,7 +117,6 @@ async function loadDynamicStats() {
     
   } catch (error) {
     console.error('Error loading dynamic stats:', error);
-    
     // Fallback to default values (rounded to nearest 5)
     const toolsCounter = document.querySelector('[data-stats-type="tools"]');
     const specsCounter = document.querySelector('[data-stats-type="specs"]');
@@ -326,18 +309,7 @@ function updateProgressDots() {
 }
 
 function updateLightbulbTooltip() {
-  const tooltipContent = document.querySelector('.tooltip-content');
-  if (tooltipContent) {
-    const tooltips = [
-      "💡 Be specific about your app's main purpose and core features\n💡 Mention the platform (web, mobile, desktop) you're targeting\n💡 Include key functionalities that make your app unique\n💡 Describe the problem your app solves for users",
-      "💡 Walk through a typical user journey step by step\n💡 Explain how users interact with different features\n💡 Describe the main user actions and workflows\n💡 Include any important user flows or processes", 
-      "💡 Define your primary user demographics (age, profession, etc.)\n💡 Explain what goals users want to achieve with your app\n💡 Describe your target market and user needs\n💡 Mention any specific user personas or segments",
-      "💡 Add any technical requirements or constraints\n💡 Mention integrations with other services or platforms\n💡 Include future features or expansion plans\n💡 Add any special considerations or unique aspects"
-    ];
-    
-    const currentTooltip = tooltips[currentQuestionIndex] || "💡 Provide detailed and specific information for better results";
-    tooltipContent.textContent = currentTooltip;
-  }
+// Removed duplicated tooltip init block (handled by updateLightbulbTooltip)
 }
 
 function jumpToQuestion(questionIndex) {
@@ -508,7 +480,8 @@ function setupModernInput() {
   // Function to update button state based on text length
   function updateButtonState() {
     const textLength = textarea.value.trim().length;
-    const minLength = 20;
+    const isLastQuestion = currentQuestionIndex === questions.length - 1;
+    const minLength = isLastQuestion ? 0 : 20;
     
     if (textLength >= minLength) {
       // Orange (active) button
@@ -536,21 +509,15 @@ function setupModernInput() {
   sendBtn.addEventListener('click', function() {
     // Prevent action if button is disabled
     if (sendBtn.disabled) return;
+    // הוספת בדיקה לפלטפורמה
+    if (!selectedPlatforms.mobile && !selectedPlatforms.web) {
+      triggerPlatformHint();
+      return;
+    }
     nextQuestion();
     autoResize();
     updateButtonState();
   });
-  
-  // Demo buttons functionality
-  for (let i = 1; i <= 5; i++) {
-    const demoBtn = document.getElementById(`demoBtn${i}`);
-    if (demoBtn) {
-      const demoType = demoBtn.getAttribute('data-demo');
-      demoBtn.addEventListener('click', function() {
-        fillDemoAnswers(demoType);
-      });
-    }
-  }
 
   textarea.addEventListener('keydown', function(e) {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -638,6 +605,14 @@ function setupModernInput() {
   const progressDots = document.querySelectorAll('.progress-dot');
   progressDots.forEach((dot, index) => {
     dot.addEventListener('click', function() {
+      // אפשר לעבור אחורה רק אם ענו לשאלה הזאת
+      const textarea = document.getElementById('mainInput');
+      const text = (answers[currentQuestionIndex] || (textarea && textarea.value) || '').trim();
+      const isLastQuestion = currentQuestionIndex === questions.length - 1;
+      const minLength = isLastQuestion ? 0 : 20;
+      if (!text || text.length < minLength) {
+        return;
+      }
       jumpToQuestion(index);
     });
   });
@@ -758,76 +733,7 @@ function updateMicrophoneButton() {
 }
 
 // ===== DEMO FUNCTIONALITY =====
-function fillDemoAnswers(demoType = 'ecommerce') {
-  console.log(`🚀 Filling demo answers for: ${demoType}...`);
-  
-  let demoAnswers = [];
-  
-  // Different demo scenarios
-  const demos = {
-    ecommerce: [
-      "ShopVibe is a modern e-commerce platform for mobile and web that enables businesses to create beautiful online stores without technical expertise. The platform offers drag-and-drop store builder, product catalog management, secure payment processing, inventory management, order tracking, customer accounts, product reviews and ratings, shipping calculator, and mobile-responsive storefronts optimized for conversions.",
-      "Merchants start by selecting a template and customizing their store design with the drag-and-drop builder. They add products with photos, descriptions, variants, and pricing. The system automatically handles inventory updates when orders are placed. Customers browse products, add items to cart, and checkout with multiple payment options. Order notifications are sent to merchants who can track and fulfill orders from a unified dashboard. Customer accounts allow saved addresses, order history, and wishlists. Product reviews build social proof and SEO value. Shipping costs are calculated automatically based on product weight and location.",
-      "The target audience includes small businesses launching their first online presence, entrepreneurs selling products without technical skills, established retailers expanding online, artisans and makers selling handmade goods, dropshippers managing inventory, fashion brands, electronics retailers, home decor sellers, and subscription box businesses. The platform serves both solo entrepreneurs and growing teams needing scalable e-commerce solutions.",
-      "The platform integrates with major payment gateways including Stripe, PayPal, and Square. It offers multi-channel sales through social media integration and marketplace connectors. Advanced features include abandoned cart recovery, email marketing automation, loyalty programs, discount codes, gift cards, wholesale pricing tiers, subscription products, and analytics dashboards. Enterprise plans include API access, custom checkout flows, headless commerce options, and dedicated account management."
-    ],
-    healthcare: [
-      "MediConnect is a telehealth and patient management web and mobile application that connects patients with healthcare providers for virtual consultations and comprehensive health record management. The platform features secure video consultations, digital health records storage, appointment scheduling, prescription management, medication reminders, lab results integration, health vitals tracking, insurance verification, and HIPAA-compliant secure messaging between patients and providers.",
-      "Patients sign up and complete their medical history profile. They search for available healthcare providers by specialty, book appointment slots, and complete virtual visits through secure video calls. During consultations, doctors access patient records, take notes, prescribe medications, and order lab tests. Prescriptions are sent directly to pharmacies. Patients receive medication reminders via notifications. The system stores all medical records securely including lab results, imaging, and visit summaries. Patients can request prescription refills, view test results, and schedule follow-ups through the app. Healthcare providers manage their appointment schedules, review patient charts, conduct virtual visits, and bill through the integrated system.",
-      "The target audience includes individuals needing convenient healthcare access without office visits, patients managing chronic conditions requiring regular monitoring, rural residents with limited local healthcare options, busy professionals unable to take time off for appointments, elderly patients preferring home-based care, parents managing children's healthcare, and people seeking second opinions. The platform serves both fee-for-service patients and insurance-covered members.",
-      "The platform integrates with electronic health record systems, pharmacy networks, lab providers, insurance payers, wearable health devices, and emergency services. Features include AI-powered symptom assessment, automated insurance pre-authorizations, multi-language support, interpreter services for consultations, automated appointment reminders, secure file sharing for medical documents, telehealth visit recordings with patient consent, and analytics dashboards for population health management."
-    ],
-    finance: [
-      "FinanceFlow is a comprehensive personal finance management web and mobile application that helps users track spending, save money, invest intelligently, and achieve financial goals. The platform features automatic transaction categorization, budgeting tools with spending alerts, investment portfolio tracking, bill reminders and payments, credit score monitoring, savings goals with progress tracking, debt payoff calculators, financial goal planning, subscription management, and detailed spending analytics and reports.",
-      "Users link bank accounts, credit cards, and investment accounts securely. Transactions are automatically imported and categorized. The app learns spending patterns and creates personalized budgets. Users set savings goals like emergency funds, vacations, or large purchases, and track progress weekly. Bill reminders prevent late fees, and users can pay directly through the app. Investment portfolios sync automatically showing performance and asset allocation. Credit score updates keep users informed. Spending insights reveal where money goes with visual charts and trends. Automated savings transfers move money to goal accounts. Debt payoff plans show optimal payment strategies, and users celebrate milestones like completing emergency funds.",
-      "The target audience includes millennials and Gen Z seeking financial literacy and control, young professionals managing student loans and early careers, families creating budgets and saving for milestones, retirees managing fixed incomes efficiently, high earners tracking expenses and investments, debt-payers working to become debt-free, couples managing joint finances transparently, and anyone wanting to optimize financial health through data-driven decisions.",
-      "The platform integrates with over 10,000 financial institutions via secure APIs, connects with investment brokerages for real-time portfolio data, offers tax document collection and organization, includes identity theft protection services, provides educational content on financial topics, features AI-powered savings recommendations based on spending patterns, supports cryptocurrency tracking, offers business expense tracking for freelancers, includes calendar integration for bill planning, and provides detailed reporting for tax preparation."
-    ],
-    education: [
-      "EduPath is a comprehensive online learning management system for educational institutions and corporate training programs. The platform offers course creation tools, video hosting and streaming, interactive assignments and quizzes, live virtual classrooms, student progress tracking, gradebooks, discussion forums, peer collaboration tools, mobile learning apps, and comprehensive analytics for instructors and administrators.",
-      "Instructors create courses with multimedia content, upload videos, add readings and resources, design interactive quizzes with automatic grading, and schedule live synchronous sessions. Students enroll in courses, watch video lessons at their own pace, complete assignments, participate in discussion forums, collaborate on group projects, join live lectures, and track their progress with real-time grades and feedback. The system automatically calculates grades based on completed work. Administrators monitor student engagement and course effectiveness through analytics dashboards. Parents or supervisors receive progress reports. Course completion certificates are automatically generated upon finishing requirements.",
-      "The target audience includes K-12 schools implementing blended learning, universities offering online and hybrid courses, corporate training departments onboarding employees, professional development organizations delivering certification programs, tutoring companies providing supplementary education, bootcamp programs teaching technical skills, continuing education providers serving adult learners, homeschooling families seeking structured curricula, and lifelong learners pursuing personal enrichment.",
-      "The platform integrates with popular video conferencing tools, student information systems, plagiarism detection software, publisher content libraries, external assessment platforms, and communication tools. Features include AI-powered plagiarism detection, adaptive learning paths that adjust to student performance, peer review systems, automated grading for objective questions, live polling and engagement tools, breakout rooms for collaborative work, virtual office hours scheduling, mobile offline access for downloaded content, gamification with badges and leaderboards, and integrated proctoring services for secure testing."
-    ],
-    travel: [
-      "TravelVenture is an all-in-one travel planning and booking platform for web and mobile that simplifies the entire trip planning experience from inspiration to return. The app offers AI-powered trip recommendations, hotel and flight search with price alerts, itinerary planning with drag-and-drop activities, booking management for flights, hotels, and activities, travel budget tracking, real-time flight status updates, local restaurant and attraction recommendations, collaborative trip planning for groups, travel document storage, and destination guides with offline maps.",
-      "Users start by entering destination and dates, then receive personalized recommendations for hotels, flights, and activities. AI suggests itineraries based on interests, budget, and travel style. Users can customize suggested itineraries or create their own by adding attractions, restaurants, and activities with time slots. Budget tracking shows spending across categories in real-time. Price alerts notify users when flights or hotels drop in price. Group trips allow collaborative planning where multiple travelers add suggestions and vote on activities. Before departure, the app sends packing lists, weather forecasts, and travel alerts. During the trip, users access offline maps, restaurant reservations, attraction tickets, and real-time flight updates. Expense tracking helps stay within budget while traveling.",
-      "The target audience includes vacation planners organizing family trips, business travelers needing efficient bookings, solo travelers seeking adventure recommendations, couples planning romantic getaways, groups coordinating multi-person trips, budget-conscious travelers finding deals, luxury travelers curating premium experiences, frequent flyers managing complex itineraries, backpackers planning long-term trips, and anyone overwhelmed by the travel planning process wanting an all-in-one solution.",
-      "The platform integrates with major airlines, hotel chains, and booking sites, connects with ride-sharing services for ground transportation, offers currency conversion and expense categorization, includes travel insurance recommendations and purchases, features real-time airport terminal and gate information, provides integration with loyalty programs for points and miles tracking, offers seat selection and meal preference management, includes virtual reality destination previews, features AI chatbot assistance for travel questions, and provides social features to share itineraries and travel experiences with friends."
-    ]
-  };
-  
-  // Get the demo answers for the selected type
-  demoAnswers = demos[demoType] || demos.ecommerce;
-  
-  // Initialize answers array if it doesn't exist
-  if (!answers) {
-    answers = [];
-  }
-  
-  // Fill all answers at once
-  answers = [...demoAnswers];
-  
-  // Set current question index to last question to trigger generation
-  currentQuestionIndex = questions.length;
-  
-  // Show a loading message
-  const textarea = document.getElementById('mainInput');
-  if (textarea) {
-    textarea.value = `🚀 ${demoType.charAt(0).toUpperCase() + demoType.slice(1)} demo loaded! Sending to API...`;
-    textarea.style.color = '#ff6b35';
-  }
-  
-  // Update progress dots
-  updateProgressDots();
-  
-  // Wait a moment then call the API
-  setTimeout(() => {
-    console.log('🚀 Demo answers:', answers);
-    console.log('🚀 Answers length:', answers.length);
-    generateSpecification();
-  }, 1000);
-}
+// (פונקציית הדמו וכל הדאטה הוסרו לצמיתות)
 
 // ===== API INTEGRATION =====
 async function generateSpecification() {
@@ -1227,6 +1133,21 @@ document.addEventListener('DOMContentLoaded', function() {
   faqItems.forEach((item, index) => {
     item.addEventListener('click', () => toggleFAQ(index));
   });
+
+  // Testimonials animation on-viewport only
+  const testimonialsGallery = document.querySelector('.testimonials-gallery');
+  if (testimonialsGallery) {
+    const testimonialsObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          testimonialsGallery.classList.add('animate');
+        } else {
+          testimonialsGallery.classList.remove('animate');
+        }
+      });
+    }, { threshold: 0.1 });
+    testimonialsObserver.observe(testimonialsGallery);
+  }
   
   // Load dynamic stats from Firebase
   // Wait a bit for Firebase to initialize
@@ -1272,3 +1193,16 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 });
+
+function triggerPlatformHint() {
+  const phoneBtn = document.getElementById('phoneBtn');
+  const computerBtn = document.getElementById('computerBtn');
+  [phoneBtn, computerBtn].forEach(btn => {
+    if(btn) {
+      btn.classList.add('jump-anim', 'orange-glow');
+      setTimeout(()=>{
+        btn.classList.remove('jump-anim','orange-glow');
+      }, 800);
+    }
+  });
+}

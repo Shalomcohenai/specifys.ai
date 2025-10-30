@@ -316,14 +316,16 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  margin: 0 16px;
+  margin: 8px auto 0 auto;
+  justify-content: center;
+  width: 100%;
 }
 
 .progress-dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #666;
+  background: #FF6B35;
   cursor: pointer;
   transition: all 0.3s ease;
   position: relative;
@@ -331,7 +333,7 @@
 
 .progress-dot:hover {
   transform: scale(1.2);
-  background: #999;
+  background: #FF8551;
 }
 
 .progress-dot.completed {
@@ -389,6 +391,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
 }
 
 .control-btn:hover {
@@ -1304,6 +1307,9 @@
 
 .testimonials-gallery {
   display: flex;
+}
+
+.testimonials-gallery.animate {
   animation: scrollTestimonials 60s linear infinite;
 }
 

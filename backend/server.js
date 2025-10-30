@@ -1,6 +1,48 @@
+const path = require('path');
+const dotenv = require('dotenv');
+// Load environment variables BEFORE importing route modules
+console.log('Loading environment variables...');
+// Try backend/.env first (preferred), then project root .env; also support accidental ".en"
+const backendEnvPath = path.join(__dirname, '.env');
+const rootEnvPath = path.join(__dirname, '..', '.env');
+const backendServerEnvPath = path.join(__dirname, 'server', '.env');
+const backendEnPath = path.join(__dirname, '.en');
+const rootEnPath = path.join(__dirname, '..', '.en');
+const backendServerEnPath = path.join(__dirname, 'server', '.en');
+let loadedEnvPath = null;
+
+if (dotenv.config({ path: backendEnvPath }).parsed) {
+  loadedEnvPath = backendEnvPath;
+} else if (dotenv.config({ path: rootEnvPath }).parsed) {
+  loadedEnvPath = rootEnvPath;
+} else if (dotenv.config({ path: backendServerEnvPath }).parsed) {
+  loadedEnvPath = backendServerEnvPath;
+} else if (dotenv.config({ path: backendEnPath }).parsed) {
+  loadedEnvPath = backendEnPath;
+} else if (dotenv.config({ path: rootEnPath }).parsed) {
+  loadedEnvPath = rootEnPath;
+} else if (dotenv.config({ path: backendServerEnPath }).parsed) {
+  loadedEnvPath = backendServerEnPath;
+} else {
+  // Final fallback to default lookup (CWD)
+  dotenv.config();
+}
+
+// Minimal diagnostics (do not print the key value)
+if (process.env.OPENAI_API_KEY) {
+  console.log(`OPENAI_API_KEY detected${loadedEnvPath ? ` (from ${loadedEnvPath})` : ''}`);
+} else {
+  // Fallback: some setups use API_KEY; map it if present
+  if (!process.env.OPENAI_API_KEY && process.env.API_KEY) {
+    process.env.OPENAI_API_KEY = process.env.API_KEY;
+    console.log('OPENAI_API_KEY not set, using API_KEY fallback');
+  }
+  console.warn('⚠️  OPENAI_API_KEY not found in environment');
+}
+
+// Import modules that may read env at require-time AFTER loading env
 const express = require('express');
 const fetch = require('node-fetch');
-const dotenv = require('dotenv');
 const { syncAllUsers } = require('./server/user-management');
 const blogRoutes = require('./server/blog-routes');
 const specRoutes = require('./server/spec-routes');
@@ -8,10 +50,6 @@ const chatRoutes = require('./server/chat-routes');
 const adminRoutes = require('./server/admin-routes');
 const { handleLemonWebhook } = require('./server/lemon-webhook');
 const { securityHeaders, rateLimiters, requireAdmin } = require('./server/security');
-
-// Load environment variables from .env file
-console.log('Loading environment variables...');
-dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3002; // Changed to 3002 to avoid port conflicts

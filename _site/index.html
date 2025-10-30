@@ -59,21 +59,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="dns-prefetch" href="https://fonts.googleapis.com">
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet"></noscript>
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Montserrat:wght@600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Montserrat:wght@600&display=swap" rel="stylesheet"></noscript>
     
-    <!-- Mermaid for diagrams (used in demo, spec, research pages) -->
-    <script defer src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
-    
-    <!-- Marked for markdown parsing -->
-    <script defer src="https://cdn.jsdelivr.net/npm/marked@4.3.0/marked.min.js"></script>
-    
-    <!-- Highlight.js for syntax highlighting -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
-    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-    
-    <!-- jsPDF for PDF export (used in research pages) -->
-    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- Removed heavy libraries on homepage: Mermaid, Marked, Highlight.js, jsPDF -->
     
     <!-- Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-RWBT69JCM7"></script>
@@ -520,13 +509,18 @@ document.addEventListener('DOMContentLoaded', function() {
                     <textarea 
                         class="main-input" 
                         id="mainInput"
-                        placeholder="Type your message here..."
+                        placeholder="Write your answer here..."
                         rows="1"
                     ></textarea>
                 </div>
                 
                 <div class="input-controls">
                     <div class="left-controls">
+                        <button class="control-btn" title="Lightbulb" id="lightbulbBtn">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z"/>
+                            </svg>
+                        </button>
                         <button class="control-btn" title="Microphone" id="microphoneBtn">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
@@ -555,11 +549,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         
                         <div class="separator"></div>
                         
-                        <button class="control-btn" title="Lightbulb" id="lightbulbBtn">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z"/>
-                            </svg>
-                        </button>
+                        
                     </div>
                     
                     <div class="progress-dots">
@@ -567,45 +557,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div class="progress-dot" data-question="1" title="Question 2"></div>
                         <div class="progress-dot" data-question="2" title="Question 3"></div>
                         <div class="progress-dot" data-question="3" title="Question 4"></div>
-                    </div>
-                    
-                    <div class="demo-section">
-                        <button class="demo-btn" id="demoBtn1" data-demo="social" title="Social Media App Demo">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M18 2h-3a4 4 0 0 0-4 4v3H7v4h3.28l-.282 12H16v-12h3V9h-3V6a1 1 0 0 1 1-1h3z"/>
-                            </svg>
-                            Social Media
-                        </button>
-                        <button class="demo-btn" id="demoBtn2" data-demo="productivity" title="Productivity App Demo">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <rect x="3" y="3" width="7" height="7" rx="1"/>
-                                <rect x="14" y="3" width="7" height="7" rx="1"/>
-                                <rect x="3" y="14" width="7" height="7" rx="1"/>
-                                <rect x="14" y="14" width="7" height="7" rx="1"/>
-                            </svg>
-                            Productivity
-                        </button>
-                        <button class="demo-btn" id="demoBtn3" data-demo="fitness" title="Health & Fitness App Demo">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                                <polyline points="22 4 12 14.01 9 11.01"/>
-                            </svg>
-                            Health & Fitness
-                        </button>
-                        <button class="demo-btn" id="demoBtn4" data-demo="entertainment" title="Entertainment App Demo">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-                            </svg>
-                            Entertainment
-                        </button>
-                        <button class="demo-btn" id="demoBtn5" data-demo="business" title="Business App Demo">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-                                <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
-                                <line x1="12" y1="22.08" x2="12" y2="12"/>
-                            </svg>
-                            Business
-                        </button>
                     </div>
                     
                     <button class="send-btn" id="sendBtn">
@@ -1178,118 +1129,35 @@ document.addEventListener('DOMContentLoaded', function() {
     <!-- Index Page JavaScript -->
     <script defer src="/assets/js/index.js"></script>
     
-    <!-- Particles Animation -->
+    <!-- Particles Animation (conditional, throttled) -->
     <script>
-      particlesJS("particles-js", {
-        "particles": {
-          "number": {
-            "value": 80,
-            "density": {
-              "enable": true,
-              "value_area": 800
-            }
-          },
-          "color": {
-            "value": "#ffffff"
-          },
-          "shape": {
-            "type": "circle",
-            "stroke": {
-              "width": 0,
-              "color": "#000000"
+      function startParticles() {
+        try {
+          particlesJS("particles-js", {
+            particles: {
+              number: { value: 40, density: { enable: true, value_area: 800 } },
+              color: { value: "#ffffff" },
+              shape: { type: "circle", stroke: { width: 0, color: "#000000" }, polygon: { nb_sides: 5 } },
+              opacity: { value: 0.4 },
+              size: { value: 2, random: true },
+              line_linked: { enable: false },
+              move: { enable: true, speed: 2, direction: "none", random: false, straight: false, out_mode: "out", bounce: false }
             },
-            "polygon": {
-              "nb_sides": 5
-            },
-            "image": {
-              "src": "img/github.svg",
-              "width": 100,
-              "height": 100
-            }
-          },
-          "opacity": {
-            "value": 0.5,
-            "random": false,
-            "anim": {
-              "enable": false,
-              "speed": 1,
-              "opacity_min": 0.1,
-              "sync": false
-            }
-          },
-          "size": {
-            "value": 3,
-            "random": true,
-            "anim": {
-              "enable": false,
-              "speed": 40,
-              "size_min": 0.1,
-              "sync": false
-            }
-          },
-          "line_linked": {
-            "enable": true,
-            "distance": 150,
-            "color": "#ffffff",
-            "opacity": 0.4,
-            "width": 1
-          },
-          "move": {
-            "enable": true,
-            "speed": 6,
-            "direction": "none",
-            "random": false,
-            "straight": false,
-            "out_mode": "out",
-            "bounce": false,
-            "attract": {
-              "enable": false,
-              "rotateX": 600,
-              "rotateY": 1200
-            }
-          }
-        },
-        "interactivity": {
-          "detect_on": "canvas",
-          "events": {
-            "onhover": {
-              "enable": false,
-              "mode": "repulse"
-            },
-            "onclick": {
-              "enable": true,
-              "mode": "push"
-            },
-            "resize": true
-          },
-          "modes": {
-            "grab": {
-              "distance": 400,
-              "line_linked": {
-                "opacity": 1
-              }
-            },
-            "bubble": {
-              "distance": 400,
-              "size": 40,
-              "duration": 2,
-              "opacity": 8,
-              "speed": 3
-            },
-            "repulse": {
-              "distance": 200,
-              "duration": 0.4
-            },
-            "push": {
-              "particles_nb": 4
-            },
-            "remove": {
-              "particles_nb": 2
-            }
-          }
-        },
-        "retina_detect": true
-      });
+            interactivity: { detect_on: "canvas", events: { onhover: { enable: false }, onclick: { enable: false }, resize: true } },
+            retina_detect: true
+          });
+        } catch (e) { }
+      }
+      (function(){
+        var isMobile = /Mobi|Android/i.test(navigator.userAgent);
+        var prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (isMobile || prefersReduced) return;
+        if ('requestIdleCallback' in window) {
+          requestIdleCallback(startParticles, { timeout: 2000 });
+        } else {
+          setTimeout(startParticles, 1500);
+        }
+      })();
     </script>
     
 </body>
