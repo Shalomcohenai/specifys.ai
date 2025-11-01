@@ -1,5 +1,7 @@
 const admin = require('firebase-admin');
 require('dotenv').config();
+const fs = require('fs');
+const path = require('path');
 
 // Initialize Firebase Admin SDK
 let app;
@@ -21,6 +23,14 @@ try {
                 credential: admin.credential.cert(serviceAccount),
                 projectId: process.env.FIREBASE_PROJECT_ID || 'specify-ai',
                 storageBucket: process.env.FIREBASE_STORAGE_BUCKET || 'specify-ai.appspot.com'
+            });
+        } else if (fs.existsSync(path.join(__dirname, '../firebase-service-account.json'))) {
+            // Auto-detect local service account file for development
+            const serviceAccount = require('../firebase-service-account.json');
+            app = admin.initializeApp({
+                credential: admin.credential.cert(serviceAccount),
+                projectId: process.env.FIREBASE_PROJECT_ID || serviceAccount.project_id || 'specify-ai',
+                storageBucket: process.env.FIREBASE_STORAGE_BUCKET || `${serviceAccount.project_id}.appspot.com`
             });
         } else {
             // For development - initialize with default credentials

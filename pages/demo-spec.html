@@ -20,6 +20,9 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
+    <!-- CSS Monitoring Script -->
+    <script src="/assets/js/css-monitor.js"></script>
+    
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -61,31 +64,66 @@
         /* Spec Display Styles */
         .spec-tabs {
             display: flex;
-            gap: 10px;
-            margin: 20px 0;
-            border-bottom: 2px solid #e0e0e0;
+            gap: 8px;
+            margin: 30px 0;
+            padding: 8px;
+            background: linear-gradient(to right, #f8f9fa 0%, #f5f5f5 100%);
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
             flex-wrap: wrap;
+            justify-content: center;
         }
         
         .spec-tab {
-            padding: 12px 24px;
-            background: none;
-            border: none;
+            padding: 14px 28px;
+            background: transparent;
+            border: 2px solid transparent;
             cursor: pointer;
-            font-size: 16px;
-            color: #666;
-            border-bottom: 3px solid transparent;
-            transition: all 0.3s;
+            font-size: 15px;
+            color: #555;
+            font-weight: 500;
+            border-radius: 8px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             font-family: var(--body-font);
+            position: relative;
+            min-width: 120px;
+            text-align: center;
+            white-space: nowrap;
+        }
+        
+        .spec-tab::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #FF6B35 0%, #FF8551 100%);
+            border-radius: 8px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: -1;
+        }
+        
+        .spec-tab:hover::before {
+            opacity: 0.1;
         }
         
         .spec-tab:hover {
             color: #FF6B35;
+            transform: translateY(-2px);
         }
         
         .spec-tab.active {
-            color: #FF6B35;
-            border-bottom-color: #FF6B35;
+            color: white;
+            background: linear-gradient(135deg, #FF6B35 0%, #FF8551 100%);
+            border-color: #FF6B35;
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .spec-tab.active::before {
+            opacity: 0;
         }
         
         .spec-content {
@@ -94,6 +132,51 @@
         
         .spec-content.active {
             display: block;
+        }
+        
+        /* Demo Header Enhancement */
+        .demo-header {
+            background: linear-gradient(135deg, #fff9f5 0%, #ffffff 100%);
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            border: 1px solid #FFE8DC;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .demo-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #FF6B35 0%, #FF8551 100%);
+        }
+        
+        .demo-header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0 0 16px 0;
+            background: linear-gradient(135deg, #FF6B35 0%, #FF8551 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-align: center;
+            line-height: 1.2;
+        }
+        
+        .demo-header p {
+            font-size: 1.1rem;
+            color: #666;
+            text-align: center;
+            margin: 0;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.7;
         }
         
         .loading-content {
@@ -331,18 +414,43 @@
         }
         
         /* Diagram item */
+        #diagrams {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        #diagrams.active {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
         .diagram-item {
             margin-bottom: 50px;
             background: white;
             padding: 30px;
             border-radius: 12px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            width: 100%;
+            max-width: 1200px;
         }
         
         .diagram-item h3 {
             font-size: 22px;
             margin-bottom: 15px;
             color: #333;
+            text-align: center;
+        }
+        
+        .diagram-item p {
+            text-align: center;
+        }
+        
+        .diagram-item .mermaid {
+            display: flex;
+            justify-content: center;
+            overflow-x: auto;
         }
         
         /* Stat cards */
@@ -417,6 +525,61 @@
         .comparison-table {
             overflow-x: auto;
         }
+        
+        /* Responsive Styles for Demo Header and Tabs */
+        @media (max-width: 768px) {
+            .demo-header {
+                padding: 30px 20px;
+                border-radius: 12px;
+            }
+            
+            .demo-header h1 {
+                font-size: 2rem;
+                margin-bottom: 12px;
+            }
+            
+            .demo-header p {
+                font-size: 1rem;
+            }
+            
+            .spec-tabs {
+                gap: 6px;
+                padding: 6px;
+                margin: 20px 0;
+                border-radius: 10px;
+            }
+            
+            .spec-tab {
+                padding: 12px 16px;
+                font-size: 14px;
+                min-width: 100px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .demo-header {
+                padding: 25px 15px;
+            }
+            
+            .demo-header h1 {
+                font-size: 1.75rem;
+            }
+            
+            .demo-header p {
+                font-size: 0.95rem;
+            }
+            
+            .spec-tabs {
+                gap: 4px;
+                padding: 4px;
+            }
+            
+            .spec-tab {
+                padding: 10px 12px;
+                font-size: 13px;
+                min-width: 85px;
+            }
+        }
     </style>
 </head>
 
@@ -472,8 +635,8 @@
             <div id="technical" class="spec-content"></div>
             <div id="market" class="spec-content"></div>
             <div id="design" class="spec-content"></div>
-            <div id="diagrams" class="spec-content"></div>
             <div id="chat" class="spec-content"></div>
+            <div id="diagrams" class="spec-content"></div>
         </div>
     </main>
 
@@ -506,9 +669,12 @@
     </button>
 
     <script>
+        // Unified DOMContentLoaded handler to prevent duplicate loading
         document.addEventListener('DOMContentLoaded', function() {
-            const scrollBtn = document.getElementById('scrollToTop');
+            console.log('[DemoSpec] DOMContentLoaded event fired - unified handler');
             
+            // Scroll to top button handler
+            const scrollBtn = document.getElementById('scrollToTop');
             if (scrollBtn) {
                 scrollBtn.addEventListener("click", () => {
                     if (window.scrollY > 300) {
@@ -528,6 +694,164 @@
                     }
                 });
             }
+            
+            // Check for required elements
+            console.log('[DemoSpec] Checking for required elements:');
+            console.log('[DemoSpec] - overview:', !!document.getElementById('overview'));
+            console.log('[DemoSpec] - technical:', !!document.getElementById('technical'));
+            console.log('[DemoSpec] - market:', !!document.getElementById('market'));
+            console.log('[DemoSpec] - design:', !!document.getElementById('design'));
+            console.log('[DemoSpec] - diagrams:', !!document.getElementById('diagrams'));
+            console.log('[DemoSpec] - chat:', !!document.getElementById('chat'));
+            
+            // Load spec content
+            loadSpec();
+            
+            // Initialize auth buttons with default state
+            const authButtons = document.getElementById('auth-buttons');
+            if (authButtons && !authButtons.innerHTML.trim()) {
+                authButtons.innerHTML = `
+                    <button class="auth-btn" onclick="window.location.href='/pages/auth.html'">Login</button>
+                `;
+            }
+            
+            // Initialize tab handlers
+            console.log('[Tabs] Initializing tab handlers');
+            const tabs = document.querySelectorAll('.spec-tab');
+            const contents = document.querySelectorAll('.spec-content');
+            console.log('[Tabs] Found tabs:', tabs.length, 'Found contents:', contents.length);
+            
+            // Log all tabs
+            tabs.forEach((tab, idx) => {
+                const tabName = tab.getAttribute('data-tab');
+                console.log(`[Tabs] Tab ${idx}:`, tabName, tab);
+            });
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const target = this.getAttribute('data-tab');
+                    console.log('[Tabs] Tab clicked:', target, this);
+                    
+                    // toggle active tab
+                    tabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    console.log('[Tabs] Active tab set to:', target);
+                    
+                    // toggle content
+                    contents.forEach(c => c.classList.remove('active'));
+                    const targetEl = document.getElementById(target);
+                    console.log('[Tabs] Target element:', targetEl);
+                    
+                    if (targetEl) {
+                        targetEl.classList.add('active');
+                        console.log('[Tabs] Content activated:', target);
+                        
+                        // Log content visibility
+                        const isVisible = window.getComputedStyle(targetEl).display !== 'none';
+                        console.log('[Tabs] Content visible:', isVisible, 'Display:', window.getComputedStyle(targetEl).display);
+                    } else {
+                        console.error('[Tabs] ERROR: Target element not found for:', target);
+                    }
+                    
+                    if (target === 'diagrams') {
+                        console.log('[Tabs] Diagrams tab clicked, checking content');
+                        // Initialize diagrams when tab is clicked
+                        setTimeout(() => {
+                            console.log('[Tabs] Diagrams tab timeout triggered');
+                            try {
+                                if (!targetEl) {
+                                    console.error('[Tabs] ERROR: targetEl is null');
+                                    return;
+                                }
+                                
+                                // Remove data-processed attribute if it exists (from previous attempts)
+                                const allMermaidElements = targetEl.querySelectorAll('.mermaid');
+                                console.log('[Tabs] Found all mermaid elements:', allMermaidElements.length);
+                                
+                                // Filter out elements that already have SVG (already rendered)
+                                const mermaidElements = Array.from(allMermaidElements).filter(el => {
+                                    const hasSVG = el.querySelector('svg');
+                                    const hasDataProcessed = el.hasAttribute('data-processed');
+                                    console.log(`[Tabs] Element check - hasSVG: ${!!hasSVG}, hasDataProcessed: ${hasDataProcessed}`);
+                                    return !hasSVG;
+                                });
+                                
+                                console.log('[Tabs] Mermaid elements needing init:', mermaidElements.length);
+                                
+                                if (mermaidElements.length > 0) {
+                                    console.log('[Tabs] Initializing Mermaid for diagrams');
+                                    
+                                    // Remove data-processed attributes to allow re-init
+                                    mermaidElements.forEach(el => {
+                                        el.removeAttribute('data-processed');
+                                    });
+                                    
+                                    // Initialize Mermaid once with proper config
+                                    mermaid.initialize({ 
+                                        startOnLoad: false, 
+                                        theme: 'default',
+                                        securityLevel: 'loose',
+                                        themeVariables: { primaryColor: '#6366F1' },
+                                        flowchart: {
+                                            useMaxWidth: true,
+                                            htmlLabels: true
+                                        }
+                                    });
+                                    
+                                    // Process each diagram individually with better error handling
+                                    // Initialize diagrams one by one with delay to prevent conflicts
+                                    mermaidElements.forEach((element, idx) => {
+                                        setTimeout(() => {
+                                            console.log(`[Tabs] Initializing diagram ${idx} (delayed)`);
+                                            try {
+                                                // Get original mermaid code
+                                                const originalCode = element.textContent.trim();
+                                                if (!originalCode) {
+                                                    console.warn(`[Tabs] Diagram ${idx} has no code`);
+                                                    return;
+                                                }
+                                                
+                                                // Double check it hasn't been rendered already
+                                                if (element.querySelector('svg')) {
+                                                    console.log(`[Tabs] Diagram ${idx} already rendered, skipping`);
+                                                    return;
+                                                }
+                                                
+                                                mermaid.run({
+                                                    nodes: [element],
+                                                    suppressErrors: true
+                                                }).catch(err => {
+                                                    console.error(`[Tabs] Error rendering diagram ${idx}:`, err);
+                                                    element.innerHTML = '<div style="color: red; padding: 20px; text-align: center;">Error rendering diagram. Please refresh the page.</div>';
+                                                });
+                                                
+                                            } catch (err) {
+                                                console.error(`[Tabs] Exception in diagram ${idx}:`, err);
+                                                element.innerHTML = '<div style="color: red; padding: 20px; text-align: center;">Error rendering diagram.</div>';
+                                            }
+                                        }, idx * 200);
+                                    });
+                                    
+                                    console.log('[Tabs] All diagrams initialization started');
+                                } else {
+                                    console.log('[Tabs] All diagrams already initialized, skipping');
+                                }
+                                
+                                // Check if there are any elements without SVGs after initialization
+                                setTimeout(() => {
+                                    const remaining = Array.from(targetEl.querySelectorAll('.mermaid')).filter(el => !el.querySelector('svg'));
+                                    if (remaining.length > 0) {
+                                        console.warn(`[Tabs] ${remaining.length} diagrams still not rendered after initialization`);
+                                    }
+                                }, 2000);
+                                
+                            } catch (e) {
+                                console.error('[Tabs] Error handling diagrams tab:', e);
+                            }
+                        }, 200);
+                    }
+                }, { capture: true });
+            });
         });
     </script>
 
@@ -908,6 +1232,63 @@
             diagrams: {
                 diagrams: [
                     {
+                        name: "Database Schema - Core Entities",
+                        description: "Complete database schema showing relationships between users, tasks, projects, and teams",
+                        mermaidCode: `erDiagram
+    USERS ||--o{ TASKS : creates
+    USERS ||--o{ PROJECTS : owns
+    USERS ||--o{ TEAMS : member_of
+    USERS ||--o{ INTEGRATIONS : uses
+    
+    PROJECTS ||--o{ TASKS : contains
+    PROJECTS }o--|| TEAMS : belongs_to
+    
+    TASKS }o--o{ TAGS : tagged_with
+    TASKS ||--o{ COMMENTS : has
+    TASKS ||--o{ TIME_ENTRIES : tracks
+    
+    TEAMS ||--o{ TEAM_MEMBERS : contains
+    TEAM_MEMBERS }o--|| USERS : "is user"
+    
+    USERS {
+        uuid id PK
+        string email UK
+        string name
+        jsonb preferences
+        enum subscription_tier
+        timestamp created_at
+    }
+    
+    TASKS {
+        uuid id PK
+        uuid user_id FK
+        uuid project_id FK
+        string title
+        text description
+        enum status
+        int priority
+        timestamp due_date
+        int estimated_time
+        int actual_time
+    }
+    
+    PROJECTS {
+        uuid id PK
+        uuid owner_id FK
+        string name
+        text description
+        enum visibility
+        boolean archived
+    }
+    
+    TEAMS {
+        uuid id PK
+        uuid owner_id FK
+        string name
+        jsonb settings
+    }`
+                    },
+                    {
                         name: "System Architecture - Microservices Overview",
                         description: "Complete high-level system architecture showing all microservices, databases, and external integrations",
                         mermaidCode: `graph TB
@@ -1004,63 +1385,6 @@
     Q --> R
     R --> S
     S --> T`
-                    },
-                    {
-                        name: "Database Schema - Core Entities",
-                        description: "Complete database schema showing relationships between users, tasks, projects, and teams",
-                        mermaidCode: `erDiagram
-    USERS ||--o{ TASKS : creates
-    USERS ||--o{ PROJECTS : owns
-    USERS ||--o{ TEAMS : member_of
-    USERS ||--o{ INTEGRATIONS : uses
-    
-    PROJECTS ||--o{ TASKS : contains
-    PROJECTS }o--|| TEAMS : belongs_to
-    
-    TASKS }o--o{ TAGS : tagged_with
-    TASKS ||--o{ COMMENTS : has
-    TASKS ||--o{ TIME_ENTRIES : tracks
-    
-    TEAMS ||--o{ TEAM_MEMBERS : contains
-    TEAM_MEMBERS }o--|| USERS : "is user"
-    
-    USERS {
-        uuid id PK
-        string email UK
-        string name
-        jsonb preferences
-        enum subscription_tier
-        timestamp created_at
-    }
-    
-    TASKS {
-        uuid id PK
-        uuid user_id FK
-        uuid project_id FK
-        string title
-        text description
-        enum status
-        int priority
-        timestamp due_date
-        int estimated_time
-        int actual_time
-    }
-    
-    PROJECTS {
-        uuid id PK
-        uuid owner_id FK
-        string name
-        text description
-        enum visibility
-        boolean archived
-    }
-    
-    TEAMS {
-        uuid id PK
-        uuid owner_id FK
-        string name
-        jsonb settings
-    }`
                     },
                     {
                         name: "AI Task Prioritization Algorithm",
@@ -1207,17 +1531,29 @@
 
         // Load Spec - using hardcoded demo data
         async function loadSpec() {
+            console.log('[DemoSpec] Starting loadSpec()');
             try {
                 const data = demoSpecData;
+                console.log('[DemoSpec] demoSpecData loaded:', {
+                    hasOverview: !!data.overview,
+                    hasTechnical: !!data.technical,
+                    hasMarket: !!data.market,
+                    hasDesign: !!data.design,
+                    hasDiagrams: !!(data.diagrams && data.diagrams.diagrams),
+                    diagramsCount: data.diagrams?.diagrams?.length || 0
+                });
                 
                 // Display Overview
                 document.getElementById('overview').innerHTML = formatOverview(data.overview);
+                console.log('[DemoSpec] Overview loaded');
                 
                 // Display Technical
                 document.getElementById('technical').innerHTML = formatTechnical(data.technical);
+                console.log('[DemoSpec] Technical loaded');
                 
                 // Display Market Research
                 document.getElementById('market').innerHTML = formatMarket(data.market);
+                console.log('[DemoSpec] Market loaded');
                 
                 // Initialize charts after a short delay
                 setTimeout(() => {
@@ -1226,11 +1562,18 @@
                 
                 // Display Design
                 document.getElementById('design').innerHTML = formatDesign(data.design);
+                console.log('[DemoSpec] Design loaded');
                 
                 // Display Diagrams
+                console.log('[DemoSpec] Checking diagrams:', {
+                    hasDiagrams: !!(data.diagrams && data.diagrams.diagrams),
+                    diagramsData: data.diagrams
+                });
                 if (data.diagrams && data.diagrams.diagrams) {
+                    console.log('[DemoSpec] Processing diagrams, count:', data.diagrams.diagrams.length);
                     let diagramsHtml = '';
                     data.diagrams.diagrams.forEach((diagram, index) => {
+                        console.log(`[DemoSpec] Processing diagram ${index}:`, diagram.name);
                         diagramsHtml += `<div class="diagram-item" style="margin-bottom: 40px;">`;
                         diagramsHtml += `<h3><i class="fa fa-project-diagram"></i> ${diagram.name}</h3>`;
                         if (diagram.description) {
@@ -1240,43 +1583,53 @@
                         diagramsHtml += `<div class="mermaid" id="diagram-${index}">${diagram.mermaidCode}</div>`;
                         diagramsHtml += `</div></div>`;
                     });
-                    document.getElementById('diagrams').innerHTML = diagramsHtml;
-                    
-                    // Initialize Mermaid for diagrams with proper configuration
-                    setTimeout(() => {
-                        try {
-                            mermaid.initialize({ 
-                                startOnLoad: false,
-                                theme: 'default',
-                                securityLevel: 'loose',
-                                themeVariables: { primaryColor: '#6366F1' }
-                            });
-                            mermaid.init(undefined, document.querySelectorAll('#diagrams .mermaid'));
-                        } catch (error) {
-                            console.error('Mermaid initialization error:', error);
+                    const diagramsElement = document.getElementById('diagrams');
+                    if (diagramsElement) {
+                        console.log('[DemoSpec] Setting diagrams HTML, length:', diagramsHtml.length);
+                        diagramsElement.innerHTML = diagramsHtml;
+                        console.log('[DemoSpec] Diagrams HTML set, element:', diagramsElement);
+                        
+                        // Check if diagrams tab is already active
+                        const diagramsTab = document.querySelector('.spec-tab[data-tab="diagrams"]');
+                        const isDiagramsActive = diagramsElement.classList.contains('active');
+                        console.log('[DemoSpec] Diagrams tab active:', isDiagramsActive);
+                        
+                        if (isDiagramsActive) {
+                            console.log('[DemoSpec] Diagrams tab is active, initializing immediately');
+                            // Trigger initialization after a short delay
+                            setTimeout(() => {
+                                const event = new Event('click');
+                                if (diagramsTab) {
+                                    diagramsTab.dispatchEvent(event);
+                                }
+                            }, 300);
+                        } else {
+                            console.log('[DemoSpec] Diagrams HTML ready, will initialize when tab is clicked');
                         }
-                    }, 300);
+                    } else {
+                        console.error('[DemoSpec] ERROR: diagrams element not found!');
+                    }
+                } else {
+                    console.warn('[DemoSpec] WARNING: No diagrams data found', {
+                        hasDiagrams: !!data.diagrams,
+                        hasDiagramsDiagrams: !!(data.diagrams && data.diagrams.diagrams)
+                    });
                 }
                 
                 // Initialize chat UI
                 initializeChatUI();
-                
-                // Re-initialize Mermaid when switching back to diagrams tab
-                document.querySelectorAll('.spec-tab').forEach(tab => {
-                    tab.addEventListener('click', function() {
-                        const targetTab = this.getAttribute('data-tab');
-                        if (targetTab === 'diagrams') {
-                            setTimeout(() => {
-                                mermaid.init(undefined, document.querySelectorAll('#diagrams .mermaid'));
-                            }, 100);
-                        }
-                    });
-                });
+                console.log('[DemoSpec] loadSpec() completed successfully');
                 
             } catch (error) {
-                console.error('Error loading spec:', error);
-                document.querySelector('.spec-content.active').innerHTML = 
-                    '<div class="loading-content"><i class="fas fa-exclamation-triangle"></i> Error: ' + error.message + '</div>';
+                console.error('[DemoSpec] Error loading spec:', error);
+                console.error('[DemoSpec] Error stack:', error.stack);
+                const activeContent = document.querySelector('.spec-content.active');
+                if (activeContent) {
+                    activeContent.innerHTML = 
+                        '<div class="loading-content"><i class="fas fa-exclamation-triangle"></i> Error: ' + error.message + '</div>';
+                } else {
+                    console.error('[DemoSpec] ERROR: No active content element found');
+                }
             }
         }
 
@@ -2049,163 +2402,18 @@
                             <i class="fas fa-comments"></i>
                             <h3>Welcome to AI Chat</h3>
                             <p>Ask me anything about this specification. I can help explain, clarify, or provide more details about any section.</p>
-                            <p style="font-size: 14px; color: #999; margin-top: 10px;">Demo Mode - Chat is available to everyone without login</p>
+                            <p style="font-size: 14px; color: #999; margin-top: 10px;">After creating a specification, you will be able to have a conversation with the AI about it.<br> <span style='color: #e29200'>In this demo, chat is disabled.</span></p>
                         </div>
                     </div>
                     <div class="chat-input-container">
-                        <input type="text" class="chat-input" id="chat-input" placeholder="Ask a question about the specification..." />
-                        <button class="chat-send-btn" onclick="sendChatMessage()">
+                        <input type="text" class="chat-input" id="chat-input" placeholder="Chat is disabled in this demo" disabled />
+                        <button class="chat-send-btn" disabled>
                             <i class="fas fa-paper-plane"></i> Send
                         </button>
                     </div>
                 </div>
             `;
-            
-            // Allow Enter key to send
-            const input = document.getElementById('chat-input');
-            if (input) {
-                input.addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter') {
-                        sendChatMessage();
-                    }
-                });
-            }
         }
-
-        // Send chat message
-        async function sendChatMessage() {
-            const input = document.getElementById('chat-input');
-            const message = input.value.trim();
-            
-            if (!message) return;
-            
-            if (!chatInitialized) {
-                // No need to initialize - we can send directly
-                chatInitialized = true;
-            }
-            
-            // Add user message to UI
-            addChatMessage('user', message);
-            input.value = '';
-            
-            // Show loading
-            showChatLoading('AI is thinking...');
-            
-            try {
-                const response = await fetch(`${window.API_BASE_URL || 'http://localhost:3002'}/api/chat/demo`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        threadId: chatThreadId,
-                        assistantId: chatAssistantId,
-                        message: message
-                    })
-                });
-                
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || 'Failed to get response');
-                }
-                
-                const data = await response.json();
-                
-                // Store thread and assistant IDs
-                if (data.threadId) {
-                    chatThreadId = data.threadId;
-                }
-                if (data.assistantId) {
-                    chatAssistantId = data.assistantId;
-                }
-                
-                // Add assistant response to UI
-                addChatMessage('assistant', data.response);
-                
-            } catch (error) {
-                console.error('Error sending message:', error);
-                addChatMessage('assistant', 'Sorry, I encountered an error: ' + error.message);
-            } finally {
-                hideChatLoading();
-            }
-        }
-
-        // Add chat message to UI
-        function addChatMessage(role, content) {
-            const messagesContainer = document.getElementById('chat-messages');
-            if (!messagesContainer) return;
-            
-            // Remove welcome message
-            const welcome = messagesContainer.querySelector('.chat-welcome');
-            if (welcome) {
-                welcome.remove();
-            }
-            
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `chat-message ${role}`;
-            
-            const bubble = document.createElement('div');
-            bubble.className = 'chat-message-bubble';
-            
-            // Parse markdown if available
-            if (typeof marked !== 'undefined') {
-                bubble.innerHTML = marked.parse(content);
-            } else {
-                bubble.textContent = content;
-            }
-            
-            messageDiv.appendChild(bubble);
-            messagesContainer.appendChild(messageDiv);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        }
-
-        // Show chat loading
-        function showChatLoading(message) {
-            const container = document.getElementById('chat-messages');
-            const loadingDiv = document.createElement('div');
-            loadingDiv.className = 'chat-message assistant';
-            loadingDiv.id = 'chat-loading';
-            loadingDiv.innerHTML = `
-                <div class="chat-message-bubble">
-                    <i class="fas fa-spinner fa-spin"></i> ${message}
-                </div>
-            `;
-            container.appendChild(loadingDiv);
-            container.scrollTop = container.scrollHeight;
-        }
-
-        // Hide chat loading
-        function hideChatLoading() {
-            const loading = document.getElementById('chat-loading');
-            if (loading) {
-                loading.remove();
-            }
-        }
-
-        // Tab switching
-        document.querySelectorAll('.spec-tab').forEach(tab => {
-            tab.addEventListener('click', function() {
-                const targetTab = this.getAttribute('data-tab');
-                
-                // Update tabs
-                document.querySelectorAll('.spec-tab').forEach(t => t.classList.remove('active'));
-                this.classList.add('active');
-                
-                // Update content
-                document.querySelectorAll('.spec-content').forEach(c => c.classList.remove('active'));
-                document.getElementById(targetTab).classList.add('active');
-                
-                // Initialize mermaid if viewing diagrams
-                if (targetTab === 'diagrams') {
-                    setTimeout(() => {
-                        mermaid.init(undefined, document.querySelectorAll('#diagrams .mermaid'));
-                    }, 100);
-                }
-            });
-        });
-
-        // Initialize
-        document.addEventListener('DOMContentLoaded', loadSpec);
 
         // Auth UI functions
         function updateAuthUI(user) {
@@ -2249,16 +2457,6 @@
         // Listen to auth state changes
         auth.onAuthStateChanged((user) => {
             updateAuthUI(user);
-        });
-
-        // Initialize auth buttons with default state
-        document.addEventListener('DOMContentLoaded', function() {
-            const authButtons = document.getElementById('auth-buttons');
-            if (authButtons && !authButtons.innerHTML.trim()) {
-                authButtons.innerHTML = `
-                    <button class="auth-btn" onclick="window.location.href='/pages/auth.html'">Login</button>
-                `;
-            }
         });
     </script>
     

@@ -68,7 +68,7 @@ class EntitlementsCache {
             }
             
             const token = await user.getIdToken();
-            const apiUrl = window.API_BASE_URL || 'http://localhost:3002';
+            const apiUrl = window.API_BASE_URL || 'http://localhost:10000';
             
             const response = await fetch(`${apiUrl}/api/specs/entitlements`, {
                 headers: { 

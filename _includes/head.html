@@ -63,6 +63,9 @@
     <!-- API Configuration -->
     <script src="{{ '/assets/js/config.js' | relative_url }}"></script>
     
+    <!-- CSS Monitoring Script -->
+    <script src="{{ '/assets/js/css-monitor.js' | relative_url }}"></script>
+    
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -85,5 +88,68 @@
     {% include analytics.html %}
     {% include analytics-events.html %}
     {% include structured-data.html %}
+    
+    <!-- Remove livereload script to prevent infinite reload loops -->
+    <script>
+        (function() {
+            // Remove livereload script immediately after page load
+            function removeLiveReload() {
+                // Find all livereload scripts
+                const livereloadScripts = document.querySelectorAll('script[src*="livereload"], script[src*="35729"]');
+                livereloadScripts.forEach(function(script) {
+                    console.log('[LiveReload Remover] Removing livereload script:', script.src);
+                    script.remove();
+                });
+                
+                // Also remove any livereload iframes
+                const livereloadIframes = document.querySelectorAll('iframe[src*="livereload"], iframe[src*="35729"]');
+                livereloadIframes.forEach(function(iframe) {
+                    console.log('[LiveReload Remover] Removing livereload iframe');
+                    iframe.remove();
+                });
+            }
+            
+            // Remove immediately
+            removeLiveReload();
+            
+            // Remove on DOM ready
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', removeLiveReload);
+            }
+            
+            // Remove after a short delay (in case livereload adds itself)
+            setTimeout(removeLiveReload, 100);
+            setTimeout(removeLiveReload, 500);
+            setTimeout(removeLiveReload, 1000);
+            
+            // Watch for new livereload scripts being added
+            const observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    mutation.addedNodes.forEach(function(node) {
+                        if (node.nodeType === 1) { // Element node
+                            if (node.tagName === 'SCRIPT' && (node.src && (node.src.includes('livereload') || node.src.includes('35729')))) {
+                                console.log('[LiveReload Remover] Blocking new livereload script');
+                                node.remove();
+                            }
+                        }
+                    });
+                });
+            });
+            
+            // Observe document head for new scripts
+            observer.observe(document.head, {
+                childList: true,
+                subtree: true
+            });
+            
+            // Also observe document body
+            if (document.body) {
+                observer.observe(document.body, {
+                    childList: true,
+                    subtree: true
+                });
+            }
+        })();
+    </script>
 </head>
 

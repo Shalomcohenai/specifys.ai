@@ -52,8 +52,30 @@
   };
 
   // Listen to auth state changes
-  auth.onAuthStateChanged((user) => {
+  auth.onAuthStateChanged(async (user) => {
     updateAuthUI(user);
+
+    // Ensure user document exists in Firestore when user signs in
+    if (user) {
+      try {
+        const token = await user.getIdToken();
+        const response = await fetch(`${window.API_BASE_URL || 'http://localhost:10000'}/api/users/ensure`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (response.ok) {
+          console.log('✅ User document ensured in Firestore');
+        } else {
+          console.warn('⚠️ Failed to ensure user document:', await response.text());
+        }
+      } catch (error) {
+        console.warn('⚠️ Error ensuring user document:', error);
+      }
+    }
   });
 
   // Initialize auth buttons with default state

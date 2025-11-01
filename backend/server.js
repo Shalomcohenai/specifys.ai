@@ -40,19 +40,24 @@ if (process.env.OPENAI_API_KEY) {
   console.warn('⚠️  OPENAI_API_KEY not found in environment');
 }
 
+// Clear require cache for development
+delete require.cache[require.resolve('./server/chat-routes')];
+delete require.cache[require.resolve('./server/openai-storage-service')];
+
 // Import modules that may read env at require-time AFTER loading env
 const express = require('express');
 const fetch = require('node-fetch');
 const { syncAllUsers } = require('./server/user-management');
 const blogRoutes = require('./server/blog-routes');
 const specRoutes = require('./server/spec-routes');
+const userRoutes = require('./server/user-routes');
 const chatRoutes = require('./server/chat-routes');
 const adminRoutes = require('./server/admin-routes');
 const { handleLemonWebhook } = require('./server/lemon-webhook');
 const { securityHeaders, rateLimiters, requireAdmin } = require('./server/security');
 
 const app = express();
-const port = process.env.PORT || 3002; // Changed to 3002 to avoid port conflicts
+const port = process.env.PORT || 10000; // Changed to 10000 to match frontend config
 
 // Apply security headers
 app.use(securityHeaders);
@@ -98,6 +103,14 @@ app.post('/api/webhook/lemon', express.raw({type: 'application/json'}), handleLe
 // Middleware to parse JSON bodies
 app.use(express.json());
 
+// Debug logging middleware
+app.use((req, res, next) => {
+  if (req.path.startsWith('/api/chat')) {
+    console.log(`🔍 [REQUEST] ${req.method} ${req.path} - TIMESTAMP: ${Date.now()}`);
+  }
+  next();
+});
+
 // Serve static files from the parent directory (main site)
 app.use(express.static('..'));
 
@@ -109,6 +122,9 @@ app.use('/2025', express.static('../_site/2025'));
 
 // Spec routes with authorization
 app.use('/api/specs', specRoutes);
+
+// User routes for user management
+app.use('/api/users', userRoutes);
 
 // Chat routes for AI chat functionality
 app.use('/api/chat', chatRoutes);
@@ -280,20 +296,36 @@ Return ONLY valid Mermaid code, nothing else.`;
   }
 });
 
+// Add version logging
+const VERSION = '1.2.5-assistant-fix-2025-10-31-' + Date.now();
+console.log('='.repeat(50));
+console.log(`🚀 Specifys.ai Backend Server v${VERSION}`);
+console.log('='.repeat(50));
+console.log('OpenAI Assistant Auto-Recovery: ENABLED');
+console.log('Vector Store Corruption Detection: ENABLED');
+console.log('Assistant Recreation on Corruption: ENABLED');
+console.log('='.repeat(50));
+
 // Start the server
 console.log('Attempting to start server on port', port);
 app.listen(port, () => {
-  console.log(`Server running on http://localhost:${port}`);
+  console.log(`✅ Server running on http://localhost:${port}`);
   console.log('Available endpoints:');
   console.log('  POST /api/webhook/lemon - Lemon Squeezy webhook');
   console.log('  POST /api/specs/create - Create spec with authorization');
   console.log('  GET  /api/specs/entitlements - Get user entitlements');
   console.log('  GET  /api/specs/status - Get spec creation status');
   console.log('  POST /api/specs/check-edit - Check edit permissions');
+  console.log('  POST /api/users/ensure - Ensure user document exists');
   console.log('  POST /api/chat/init - Initialize chat for a spec');
   console.log('  POST /api/chat/message - Send message to chat');
   console.log('  POST /api/chat/diagrams/generate - Generate diagrams for spec');
   console.log('  POST /api/diagrams/repair - Repair broken diagram');
+  console.log('');
+  console.log(`🎯 Version: ${VERSION}`);
+  console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`🔑 OpenAI API: ${process.env.OPENAI_API_KEY ? 'configured' : 'MISSING'}`);
+  console.log('='.repeat(50));
 }).on('error', (err) => {
-  console.error('Failed to start server:', err.message);
+  console.error('❌ Failed to start server:', err.message);
 });

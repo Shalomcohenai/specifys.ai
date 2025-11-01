@@ -1,5 +1,69 @@
-const { db, admin } = require('./firebase-admin');
+const { db, admin, auth } = require('./firebase-admin');
 const config = require('../../config/lemon-products.json');
+
+/**
+ * Create or update user document in Firestore (inline to avoid circular dependency)
+ * @param {string} uid - User ID
+ * @returns {Promise<Object>} - User document data
+ */
+async function createOrUpdateUserDocumentInline(uid) {
+    try {
+        const userDocRef = db.collection('users').doc(uid);
+        
+        // Get current user data from Auth
+        let authUser;
+        try {
+            const userRecord = await auth.getUser(uid);
+            authUser = {
+                uid: userRecord.uid,
+                email: userRecord.email,
+                displayName: userRecord.displayName,
+                emailVerified: userRecord.emailVerified,
+                disabled: userRecord.disabled,
+                creationTime: userRecord.metadata.creationTime,
+                lastSignInTime: userRecord.metadata.lastSignInTime
+            };
+        } catch (error) {
+            console.error(`Error getting user ${uid} from Auth:`, error);
+            throw error;
+        }
+        
+        const userDoc = {
+            email: authUser.email,
+            displayName: authUser.displayName || authUser.email.split('@')[0],
+            emailVerified: authUser.emailVerified,
+            disabled: authUser.disabled,
+            createdAt: authUser.creationTime,
+            lastActive: authUser.lastSignInTime || new Date().toISOString(),
+            // Initialize payment-related fields
+            plan: 'free',
+            free_specs_remaining: 1,
+            lemon_customer_id: null,
+            last_entitlement_sync_at: admin.firestore.FieldValue.serverTimestamp()
+        };
+        
+        await userDocRef.set(userDoc, { merge: true });
+        
+        // Create entitlements document if it doesn't exist
+        const entitlementsDocRef = db.collection('entitlements').doc(uid);
+        const entitlementsDoc = await entitlementsDocRef.get();
+        
+        if (!entitlementsDoc.exists) {
+            await entitlementsDocRef.set({
+                userId: uid,
+                spec_credits: 0,
+                unlimited: false,
+                can_edit: false,
+                updated_at: admin.firestore.FieldValue.serverTimestamp()
+            });
+        }
+        
+        return userDoc;
+    } catch (error) {
+        console.error(`Error creating/updating user document for ${uid}:`, error);
+        throw error;
+    }
+}
 
 /**
  * Check if user can create a specification
@@ -8,10 +72,27 @@ const config = require('../../config/lemon-products.json');
  */
 async function checkUserCanCreateSpec(userId) {
     try {
+        console.log('🔵 [checkUserCanCreateSpec] Checking user:', userId);
         // Get user document
-        const userDoc = await db.collection('users').doc(userId).get();
+        let userDoc = await db.collection('users').doc(userId).get();
+        
+        // If user document doesn't exist, try to create it
         if (!userDoc.exists) {
-            return { canCreate: false, reason: 'User not found' };
+            console.log(`⚠️ [checkUserCanCreateSpec] User ${userId} not found in Firestore, attempting to create...`);
+            try {
+                await createOrUpdateUserDocumentInline(userId);
+                console.log(`✅ [checkUserCanCreateSpec] User ${userId} document created successfully`);
+                // Re-fetch the user document
+                userDoc = await db.collection('users').doc(userId).get();
+            } catch (createError) {
+                console.error(`❌ [checkUserCanCreateSpec] Failed to create user document:`, createError);
+                // If creation fails, still check with default values
+                return {
+                    canCreate: false,
+                    reason: 'User not found and could not be created',
+                    creditsRemaining: 0
+                };
+            }
         }
 
         const userData = userDoc.data();
@@ -23,6 +104,15 @@ async function checkUserCanCreateSpec(userId) {
             unlimited: false,
             can_edit: false
         };
+
+        // Graceful fallback: treat plan==='pro' as unlimited even if entitlements not synced yet
+        if (userData && userData.plan === 'pro') {
+            return {
+                canCreate: true,
+                reason: 'Pro subscription (by plan) - unlimited access',
+                creditsRemaining: 'unlimited'
+            };
+        }
 
         // Check unlimited access (Pro subscription)
         if (entitlements.unlimited) {
@@ -48,7 +138,10 @@ async function checkUserCanCreateSpec(userId) {
             ? userData.free_specs_remaining  // Keep actual value even if negative
             : 1;  // Default to 1 only if field doesn't exist
 
+        console.log('🔵 [checkUserCanCreateSpec] freeSpecsRemaining:', freeSpecsRemaining);
+
         if (freeSpecsRemaining > 0) {
+            console.log('🔵 [checkUserCanCreateSpec] User has free specs remaining');
             return { 
                 canCreate: true, 
                 reason: 'Has free specs remaining',
@@ -56,6 +149,7 @@ async function checkUserCanCreateSpec(userId) {
             };
         }
 
+        console.log('🔵 [checkUserCanCreateSpec] No credits remaining');
         return { 
             canCreate: false, 
             reason: 'No credits remaining',
@@ -76,21 +170,38 @@ async function checkUserCanCreateSpec(userId) {
 async function consumeSpecCredit(userId) {
     try {
         console.log('🔵 [consumeSpecCredit] Starting credit consumption for user:', userId);
-        const batch = db.batch();
-
-        // Get user document
-        const userDocRef = db.collection('users').doc(userId);
-        const userDoc = await userDocRef.get();
         
+        // Get user document
+        let userDocRef = db.collection('users').doc(userId);
+        let userDoc = await userDocRef.get();
+        
+        // If user document doesn't exist, try to create it
         if (!userDoc.exists) {
-            throw new Error('User not found');
+            console.log(`⚠️ [consumeSpecCredit] User ${userId} not found in Firestore, attempting to create...`);
+            try {
+                await createOrUpdateUserDocumentInline(userId);
+                console.log(`✅ [consumeSpecCredit] User ${userId} document created successfully`);
+                // Re-fetch the user document
+                userDoc = await userDocRef.get();
+            } catch (createError) {
+                console.error(`❌ [consumeSpecCredit] Failed to create user document:`, createError);
+                throw new Error('User not found and could not be created');
+            }
         }
+        
+        const batch = db.batch();
 
         const userData = userDoc.data();
         console.log('🔵 [consumeSpecCredit] User data:', {
             free_specs_remaining: userData.free_specs_remaining,
             type: typeof userData.free_specs_remaining
         });
+
+        // Pro users (by plan) should not consume credits
+        if (userData && userData.plan === 'pro') {
+            console.log('🔵 [consumeSpecCredit] User plan is pro - skipping credit consumption');
+            return { success: true, creditType: 'unlimited' };
+        }
 
         // Get entitlements document
         const entitlementsDocRef = db.collection('entitlements').doc(userId);
@@ -482,11 +593,26 @@ async function checkCanEditSpec(userId, specId) {
  */
 async function getUserEntitlements(userId) {
     try {
-        const userDoc = await db.collection('users').doc(userId).get();
+        let userDoc = await db.collection('users').doc(userId).get();
+        
+        // If user document doesn't exist, try to create it
+        if (!userDoc.exists) {
+            console.log(`⚠️ [getUserEntitlements] User ${userId} not found in Firestore, attempting to create...`);
+            try {
+                await createOrUpdateUserDocumentInline(userId);
+                console.log(`✅ [getUserEntitlements] User ${userId} document created successfully`);
+                // Re-fetch the user document
+                userDoc = await db.collection('users').doc(userId).get();
+            } catch (createError) {
+                console.error(`❌ [getUserEntitlements] Failed to create user document:`, createError);
+                // Continue with default values if creation fails
+            }
+        }
+        
         const entitlementsDoc = await db.collection('entitlements').doc(userId).get();
 
         const userData = userDoc.exists ? userDoc.data() : {};
-        const entitlements = entitlementsDoc.exists ? entitlementsDoc.data() : {
+        let entitlements = entitlementsDoc.exists ? entitlementsDoc.data() : {
             spec_credits: 0,
             unlimited: false,
             can_edit: false
@@ -495,6 +621,15 @@ async function getUserEntitlements(userId) {
         // Ensure free_specs_remaining has a default value of 1 if not set
         if (userData && typeof userData.free_specs_remaining !== 'number') {
             userData.free_specs_remaining = 1;
+        }
+
+        // Graceful fallback: if plan==='pro', reflect unlimited in API response
+        if (userData && userData.plan === 'pro' && !entitlements.unlimited) {
+            entitlements = {
+                ...entitlements,
+                unlimited: true,
+                can_edit: true
+            };
         }
 
         return {

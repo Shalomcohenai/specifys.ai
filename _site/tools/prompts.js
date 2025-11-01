@@ -11,6 +11,8 @@ const PROMPTS = {
 
     return `Return ONLY valid JSON (no text/markdown). Top-level key MUST be overview. If a value is unknown, return an empty array/object—never omit required keys.
 
+IMPORTANT: All output must be in English regardless of the input language.
+
 Create a comprehensive and detailed overview based on the user input. Analyze the provided information thoroughly and generate extensive content:
 
 {
@@ -225,20 +227,45 @@ Target Audience: ${targetAudience}`;
     const additionalDetails = answers[2] || 'Not provided';
     const targetAudience = answers[3] || 'Not provided';
 
+    // Calculate current date and last 3 months for historical data
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth() + 1; // getMonth() returns 0-11, so we add 1
+    const currentDateStr = `${currentYear}-${String(currentMonth).padStart(2, '0')}`;
+    
+    // Calculate last 3 months (including current month)
+    const months = [];
+    for (let i = 2; i >= 0; i--) {
+      // Go back i months from current month
+      const date = new Date(currentYear, currentMonth - 1 - i, 1);
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      months.push(`${year}-${month}`);
+    }
+    const last3Months = months.join(', ');
+
     // Determine if using reference or full content
     const isReference = typeof specId === 'string' && specId.length < 100;
     const overviewContent = isReference ? null : specId;
 
     return `Return ONLY valid JSON (no text/markdown). Top-level key MUST be market. If a value is unknown, return an empty array/object—never omit required keys.
 
+🚨 CRITICAL: ALL DATA MUST BE CURRENT AND UP-TO-DATE 🚨
+- Current date is ${currentDateStr}
+- You MUST use the most recent and current information available
+- NEVER use outdated statistics, trends, or market data from previous years
+- All market data, statistics, trends, and competitor information MUST reflect the current state of the market as of ${currentDateStr}
+- If information is from a specific year, it must be from 2024 or 2025 (most recent available)
+- Industry trends, market statistics, and competitive analysis MUST be based on the most recent data possible
+
 Create detailed market analysis. Return JSON with market key containing:
 
 {
   "market": {
     "industryOverview": {
-      "trends": "Current industry trends and developments",
-      "marketData": "Relevant market statistics and forecasts",
-      "growthProjections": "Future market growth expectations"
+      "trends": "CURRENT industry trends and developments as of ${currentDateStr} - MUST reflect the most recent trends, not historical ones",
+      "marketData": "Relevant and RECENT market statistics and forecasts - use data from 2024-2025 only, never outdated data",
+      "growthProjections": "Future market growth expectations based on CURRENT market conditions"
     },
     "searchTrends": {
       "keywords": ["Key search term 1", "Key search term 2", "Key search term 3"],
@@ -274,23 +301,23 @@ Create detailed market analysis. Return JSON with market key containing:
     },
     "competitiveLandscape": [
       {
-        "competitor": "Competitor name",
-        "advantages": "Their strengths",
-        "disadvantages": "Their weaknesses",
-        "marketPosition": "Their position in the market",
-        "features": ["Feature list of competitor"],
-        "uxStrengths": "What they do well in UX",
-        "uxWeaknesses": "Where they fall short in UX",
-        "monetization": "How they make money",
-        "gaps": ["What they're missing", "Their weaknesses"],
-        "marketShare": "Estimated market share"
+        "competitor": "Competitor name (current/existing as of ${currentDateStr})",
+        "advantages": "Their CURRENT strengths based on recent analysis",
+        "disadvantages": "Their CURRENT weaknesses based on recent analysis",
+        "marketPosition": "Their CURRENT position in the market as of ${currentDateStr}",
+        "features": ["CURRENT feature list of competitor - recent features and capabilities"],
+        "uxStrengths": "What they CURRENTLY do well in UX",
+        "uxWeaknesses": "Where they CURRENTLY fall short in UX",
+        "monetization": "How they CURRENTLY make money - recent pricing and revenue models",
+        "gaps": ["CURRENT gaps - what they're missing NOW", "Their CURRENT weaknesses"],
+        "marketShare": "CURRENT estimated market share (use recent data from 2024-2025)"
       }
     ],
     "swotAnalysis": {
-      "strengths": ["Strength 1", "Strength 2"],
-      "weaknesses": ["Weakness 1", "Weakness 2"],
-      "opportunities": ["Opportunity 1", "Opportunity 2"],
-      "threats": ["Threat 1", "Threat 2"]
+      "strengths": ["CURRENT Strength 1", "CURRENT Strength 2"],
+      "weaknesses": ["CURRENT Weakness 1", "CURRENT Weakness 2"],
+      "opportunities": ["CURRENT Opportunity 1 based on recent market conditions", "CURRENT Opportunity 2 based on recent market conditions"],
+      "threats": ["CURRENT Threat 1", "CURRENT Threat 2"]
     },
     "painPoints": [
       {
@@ -314,12 +341,12 @@ Create detailed market analysis. Return JSON with market key containing:
       }
     ],
     "qualityAssessment": {
-      "marketFitRating": "Rating 1-10 with detailed reasoning",
-      "technicalFeasibility": "Feasibility rating and specific technical challenges",
-      "executionRiskFactors": ["Risk factor 1", "Risk factor 2"],
-      "marketReadiness": "Is the market ready? Why or why not",
-      "keySuccessFactors": ["Factor 1", "Factor 2"],
-      "goToMarketReadiness": "Ready/Not ready and specific reasons"
+      "marketFitRating": "Rating 1-10 with detailed reasoning based on CURRENT market conditions as of ${currentDateStr}",
+      "technicalFeasibility": "Feasibility rating and CURRENT specific technical challenges",
+      "executionRiskFactors": ["CURRENT Risk factor 1", "CURRENT Risk factor 2"],
+      "marketReadiness": "Is the market CURRENTLY ready? Why or why not - based on ${currentDateStr} market state",
+      "keySuccessFactors": ["CURRENT Factor 1", "CURRENT Factor 2"],
+      "goToMarketReadiness": "Ready/Not ready and specific reasons based on CURRENT market analysis"
     },
     "uniqueSellingProposition": {
       "coreValue": "The unique value offered that competitors don't provide",
@@ -335,17 +362,17 @@ Create detailed market analysis. Return JSON with market key containing:
     },
     "pricingStrategy": {
       "proposedModels": ["Model 1", "Model 2"],
-      "recommendations": "Recommended pricing approach with justification",
+      "recommendations": "Recommended pricing approach with justification based on CURRENT market conditions",
       "pricingComparison": [
         {
           "competitor": "Competitor name",
-          "pricing": "$X/month or free",
-          "features": "What they offer at this price",
-          "valueProposition": "Why people pay for their service"
+          "pricing": "CURRENT pricing as of ${currentDateStr} ($X/month or free)",
+          "features": "CURRENT features they offer at this price",
+          "valueProposition": "Why people CURRENTLY pay for their service"
         }
       ],
-      "justification": "Why this pricing structure makes sense",
-      "suggestedPricing": "Recommended pricing structure with tiers"
+      "justification": "Why this pricing structure makes sense based on CURRENT market analysis",
+      "suggestedPricing": "Recommended pricing structure with tiers based on CURRENT market conditions"
     },
     "expectedROI": {
       "scenarios": [
@@ -376,33 +403,33 @@ Create detailed market analysis. Return JSON with market key containing:
     },
     "nicheInformation": {
       "nicheDefinition": "What specific niche this app serves",
-      "trends": ["Trend 1 with context", "Trend 2 with context"],
-      "opportunities": ["Opportunity 1", "Opportunity 2"],
-      "challenges": ["Challenge 1", "Challenge 2"],
-      "growthFactors": ["Factor 1 driving growth", "Factor 2 driving growth"],
-      "marketMaturity": "Early stage/Growing/Mature/Declining"
+      "trends": ["CURRENT Trend 1 with context as of ${currentDateStr}", "CURRENT Trend 2 with context as of ${currentDateStr}"],
+      "opportunities": ["CURRENT Opportunity 1 based on recent market developments", "CURRENT Opportunity 2 based on recent market developments"],
+      "challenges": ["CURRENT Challenge 1", "CURRENT Challenge 2"],
+      "growthFactors": ["CURRENT Factor 1 driving growth", "CURRENT Factor 2 driving growth"],
+      "marketMaturity": "CURRENT market maturity status (Early stage/Growing/Mature/Declining) as of ${currentDateStr}"
     },
     "marketStatistics": {
       "globalStatistics": [
-        "Stat 1 with context and source",
-        "Stat 2 with context and source"
+        "RECENT Stat 1 with context and source - MUST be from 2024-2025 data sources",
+        "RECENT Stat 2 with context and source - MUST be from 2024-2025 data sources"
       ],
-      "targetMarketSize": "Estimated TAM (Total Addressable Market) / SAM (Serviceable Addressable Market) / SOM (Serviceable Obtainable Market)",
-      "growthRate": "Expected CAGR or growth rate",
-      "keyNumbers": "Important numbers that support market viability"
+      "targetMarketSize": "CURRENT estimated TAM/SAM/SOM based on most recent market research (2024-2025 data only)",
+      "growthRate": "CURRENT expected CAGR or growth rate based on recent market analysis",
+      "keyNumbers": "CURRENT important numbers that support market viability - use 2024-2025 statistics only"
     },
     "threatsOverview": {
       "externalThreats": [
         {
-          "threat": "Specific threat description",
-          "probability": "High/Medium/Low with reasoning",
-          "impact": "High/Medium/Low and why",
-          "mitigation": "How to mitigate or address this threat"
+          "threat": "CURRENT specific threat description",
+          "probability": "High/Medium/Low with reasoning based on CURRENT market conditions",
+          "impact": "High/Medium/Low and why - considering ${currentDateStr} market state",
+          "mitigation": "How to mitigate or address this CURRENT threat"
         }
       ],
-      "competitiveThreats": ["Competitive threat 1", "Competitive threat 2"],
-      "regulatoryThreats": ["Regulatory risk 1", "Regulatory risk 2"],
-      "marketThreats": ["Market risk 1", "Market risk 2"]
+      "competitiveThreats": ["CURRENT Competitive threat 1", "CURRENT Competitive threat 2"],
+      "regulatoryThreats": ["CURRENT Regulatory risk 1", "CURRENT Regulatory risk 2"],
+      "marketThreats": ["CURRENT Market risk 1", "CURRENT Market risk 2"]
     },
     "complexityRating": {
       "overallRating": "Rating 1-10 (10 = very complex)",
@@ -415,32 +442,49 @@ Create detailed market analysis. Return JSON with market key containing:
     "actionableInsights": {
       "development": {
         "priorities": ["Must-have feature 1", "Must-have feature 2"],
-        "recommendations": "What to focus on in development",
-        "phases": "Suggested phased rollout approach (MVP, v1, v2)",
-        "mvpFeatures": "Core features for Minimum Viable Product"
+        "recommendations": "What to focus on in development based on CURRENT market needs",
+        "phases": "Suggested phased rollout approach (MVP, v1, v2) based on CURRENT market timing",
+        "mvpFeatures": "Core features for Minimum Viable Product based on CURRENT market demand"
       },
       "marketFit": {
-        "strategies": ["Go-to-market strategy 1", "Strategy 2"],
-        "partnerships": "Recommended strategic partnerships",
-        "timing": "Best time to launch (when, why)",
-        "targetMarkets": "Which geographic or demographic markets to enter first"
+        "strategies": ["CURRENT Go-to-market strategy 1", "CURRENT Strategy 2"],
+        "partnerships": "Recommended strategic partnerships based on CURRENT market landscape",
+        "timing": "CURRENT best time to launch (when, why) - consider ${currentDateStr} market conditions",
+        "targetMarkets": "CURRENT best geographic or demographic markets to enter first"
       },
       "productPositioning": {
-        "branding": "Branding recommendations and positioning",
-        "messaging": "Key messages to use in marketing",
-        "differentiation": "How to differentiate from competitors in messaging",
-        "marketPosition": "Where to position in the market (premium, affordable, niche, etc.)"
+        "branding": "Branding recommendations and positioning for CURRENT market (${currentDateStr})",
+        "messaging": "Key messages to use in marketing based on CURRENT market sentiment",
+        "differentiation": "How to differentiate from competitors in messaging based on CURRENT competitive landscape",
+        "marketPosition": "Where to position in the CURRENT market (premium, affordable, niche, etc.)"
       }
     },
     "marketingStrategy": {
-      "channels": "Marketing channels to use",
-      "community": "Community building strategies",
-      "partnerships": "Potential partnerships and collaborations"
+      "channels": "CURRENT effective marketing channels (as of ${currentDateStr})",
+      "community": "CURRENT community building strategies",
+      "partnerships": "CURRENT potential partnerships and collaborations"
     }
   }
 }
 
-IMPORTANT: The searchTrends.historicalData should include at least 3 months of data with consistent formatting to enable easy chart/graph visualization.
+CRITICAL FOR searchTrends.historicalData:
+- The "month" field MUST use CURRENT and RECENT dates only - NEVER use old dates from previous years
+- Current date is ${currentDateStr}
+- You MUST use the last 3 months up to the current date: ${last3Months}
+- Date format MUST be YYYY-MM (e.g., "2025-01", "2025-02", "2025-03")
+- NEVER use dates from past years (like 2023 or 2024 if we're in 2025)
+- The historical data MUST reflect the most recent 3 months leading up to ${currentDateStr}
+- If the current date is ${currentDateStr}, include data for the last 3 months including ${currentDateStr}
+
+IMPORTANT: The searchTrends.historicalData MUST include at least 3 months of data with consistent formatting to enable easy chart/graph visualization.
+
+🚨 REMINDER: ALL MARKET DATA MUST BE CURRENT 🚨
+- Current date: ${currentDateStr}
+- Use ONLY recent data from 2024-2025
+- All statistics, trends, and market insights MUST reflect the CURRENT state of the market
+- NEVER use outdated information from previous years (2023 or earlier)
+- Competitive analysis MUST reflect CURRENT competitor status, features, and pricing
+- Market statistics MUST use the most recent available data sources
 
 Application Overview:
 ${isReference ? `[SPEC_REFERENCE]
@@ -494,7 +538,12 @@ Create comprehensive design guidelines and branding elements. Return JSON with d
     "logoIconography": {
       "logoConcepts": "Logo design concepts and variations",
       "colorVersions": "Different color versions of the logo",
-      "iconSet": "Icon set specifications and style"
+      "iconSet": "Icon set specifications and style",
+      "appIcon": {
+        "letters": "Two letters for the app icon (e.g., 'TP' for Taskify Pro, 'SM' for Smart Manager)",
+        "bgColor": "Background color or gradient for the icon (e.g., 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)' or single color '#6366F1')",
+        "description": "Brief description of the app icon design concept"
+      }
     },
     "uiLayout": {
       "landingPage": "Landing page layout structure",
@@ -511,7 +560,8 @@ Create comprehensive design guidelines and branding elements. Return JSON with d
 }
 
 CRITICAL COLOR REQUIREMENTS:
-- ABSOLUTELY CRITICAL: All 4-5 colors MUST be from the SAME tone/shade/family - NO mixing of clashing colors (e.g., NO green+blue+yellow together, NO red+green+blue together)
+- ABSOLUTELY CRITICAL: Use EXACTLY 5 colors maximum (no more, no less) - primary, secondary, accent, background, text
+- ABSOLUTELY CRITICAL: All 5 colors MUST be from the SAME tone/shade/family - NO mixing of clashing colors (e.g., NO green+blue+yellow together, NO red+green+blue together)
 - Colors MUST be contextual to the app type and target audience:
   - Professional/B2B apps: Trust-building blues, professional grays
   - Health/Medical apps: Calming greens, tranquil blues
@@ -543,6 +593,12 @@ CRITICAL TYPOGRAPHY REQUIREMENTS:
   - Youth-oriented apps: Playful, modern fonts matching color energy
 - Include specific font recommendations with reasoning for each app type AND how they work with the color palette
 - Typography should match the app's personality AND create visual harmony with the chosen colors
+
+CRITICAL APP ICON REQUIREMENTS:
+- The appIcon MUST include exactly 2 letters that represent the app (e.g., "TP" for Taskify Pro, "SM" for Smart Manager, "FD" for Food Delivery)
+- The bgColor MUST be either a single color (e.g., "#6366F1") or a gradient (e.g., "linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)")
+- The letters should be white and bold, displayed in a simple, clean design
+- The description should explain the design concept briefly
 
 Make sure all descriptions are clear and actionable for designers and developers.
 

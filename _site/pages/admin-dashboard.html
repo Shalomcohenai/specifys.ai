@@ -52,6 +52,9 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
+    <!-- CSS Monitoring Script -->
+    <script src="/assets/js/css-monitor.js"></script>
+    
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -596,6 +599,9 @@ document.addEventListener('DOMContentLoaded', function() {
             </button>
             <button class="tab-btn" data-tab="errors">
                 <i class="fas fa-exclamation-triangle"></i> Errors
+            </button>
+            <button class="tab-btn" data-tab="css-crashes">
+                <i class="fas fa-file-code"></i> CSS Crashes
             </button>
         </div>
 
@@ -1152,6 +1158,59 @@ document.addEventListener('DOMContentLoaded', function() {
                         <tbody id="errors-table-body">
                             <tr>
                                 <td colspan="6" class="loading-cell">Loading errors...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 8: CSS Crash Logs -->
+        <div class="tab-content" id="css-crashes-tab">
+            <div class="table-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-file-code"></i> CSS Crash Logs</h2>
+                    <button class="btn-refresh" onclick="adminDashboard.loadCSCCrashLogs()">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+
+                <!-- CSS Crash Summary -->
+                <div class="css-crash-summary" id="css-crash-summary" style="margin-bottom: 20px; padding: 20px; background: #f8f9fa; border-radius: 8px;">
+                    <h3 style="margin-top: 0;">Summary</h3>
+                    <div id="css-crash-summary-content" class="loading-cell">Loading summary...</div>
+                </div>
+
+                <div class="filters-row">
+                    <select id="css-crash-type-filter" class="filter-select">
+                        <option value="all">All Crash Types</option>
+                        <option value="css_crash_detected">CSS Crash Detected</option>
+                        <option value="css_crash_after_idle">CSS Crash After Idle</option>
+                        <option value="css_load_error">CSS Load Error</option>
+                        <option value="stylesheet_not_loaded">Stylesheet Not Loaded</option>
+                        <option value="stylesheet_disabled">Stylesheet Disabled</option>
+                        <option value="main_css_missing">Main CSS Missing</option>
+                        <option value="css_removed_or_modified">CSS Removed/Modified</option>
+                    </select>
+                    <input type="text" id="css-crash-url-filter" class="search-input" placeholder="Filter by URL...">
+                </div>
+
+                <div class="table-wrapper">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Crash Type</th>
+                                <th>URL</th>
+                                <th>Time Since Load</th>
+                                <th>Idle Time</th>
+                                <th>Issues</th>
+                                <th>Timestamp</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="css-crashes-table-body">
+                            <tr>
+                                <td colspan="7" class="loading-cell">Loading CSS crash logs...</td>
                             </tr>
                         </tbody>
                     </table>

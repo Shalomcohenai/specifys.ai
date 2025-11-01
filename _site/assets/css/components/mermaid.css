@@ -324,3 +324,17 @@
     display: none;
   }
 }
+
+/* Hide Mermaid error logo/footer */
+.mermaid svg g:last-child,
+svg .errorInfo,
+svg g:has(text:contains("Syntax Error")),
+svg g:has(text:contains("mermaid")) {
+  display: none !important;
+}
+
+svg g[class*="errorInfo"],
+svg text[fill="#FFFFFF"] + g,
+svg g[transform*="translate"]:last-child {
+  display: none !important;
+}

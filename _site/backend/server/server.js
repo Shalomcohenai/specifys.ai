@@ -22,7 +22,7 @@ app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*'); // Fallback for development
   }
   
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   
   // Handle preflight requests
@@ -183,9 +183,9 @@ app.post('/api/generate-spec', async (req, res) => {
   }
 });
 
-// Repair diagram endpoint
+// Repair diagram endpoint (legacy - kept for backward compatibility)
 app.post('/api/diagrams/repair', async (req, res) => {
-  console.log('Received diagram repair request:', req.body);
+  console.log('⚠️  [Legacy] Received diagram repair request via old endpoint');
   
   const { overview, technical, market, diagramTitle, brokenDiagramCode } = req.body;
   
@@ -255,12 +255,19 @@ Return ONLY valid Mermaid code, nothing else.`;
 const chatRoutes = require('./chat-routes');
 app.use('/api/chat', chatRoutes);
 
+// Import and mount user routes
+const userRoutes = require('./user-routes');
+app.use('/api/users', userRoutes);
+
 // Import and mount stats routes
 const statsRoutes = require('./stats-routes');
 app.use('/api/stats', statsRoutes);
 
 // Import error logger
 const { logError, getErrorLogs, getErrorSummary } = require('./error-logger');
+
+// Import CSS crash logger
+const { logCSCCrash, getCSCCrashLogs, getCSCCrashSummary } = require('./css-crash-logger');
 
 // Admin error logs endpoint
 app.get('/api/admin/error-logs', async (req, res) => {
@@ -278,6 +285,62 @@ app.get('/api/admin/error-logs', async (req, res) => {
   } catch (error) {
     console.error('Error getting error logs:', error);
     res.status(500).json({ error: 'Failed to get error logs' });
+  }
+});
+
+// CSS crash logs endpoint - POST to receive logs
+app.post('/api/admin/css-crash-logs', async (req, res) => {
+  try {
+    const { log, pageInfo } = req.body;
+    
+    if (!log || !log.crashType) {
+      return res.status(400).json({ error: 'Invalid crash log data' });
+    }
+    
+    await logCSCCrash(log);
+    
+    res.json({ 
+      success: true, 
+      message: 'CSS crash log saved' 
+    });
+  } catch (error) {
+    console.error('Error saving CSS crash log:', error);
+    res.status(500).json({ error: 'Failed to save CSS crash log' });
+  }
+});
+
+// CSS crash logs endpoint - GET to retrieve logs
+app.get('/api/admin/css-crash-logs', async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 100;
+    const crashType = req.query.crashType || null;
+    const url = req.query.url || null;
+    
+    const logs = await getCSCCrashLogs(limit, crashType, url);
+    
+    res.json({ 
+      success: true, 
+      logs: logs,
+      total: logs.length
+    });
+  } catch (error) {
+    console.error('Error getting CSS crash logs:', error);
+    res.status(500).json({ error: 'Failed to get CSS crash logs' });
+  }
+});
+
+// CSS crash summary endpoint
+app.get('/api/admin/css-crash-summary', async (req, res) => {
+  try {
+    const summary = await getCSCCrashSummary();
+    
+    res.json({ 
+      success: true, 
+      summary: summary
+    });
+  } catch (error) {
+    console.error('Error getting CSS crash summary:', error);
+    res.status(500).json({ error: 'Failed to get CSS crash summary' });
   }
 });
 

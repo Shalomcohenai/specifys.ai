@@ -7,8 +7,6 @@ class CreditsDisplayManager {
     constructor() {
         this.isInitialized = false;
         this.currentUser = null;
-        this.pollingInterval = null;
-        this.pollingIntervalMs = 15000; // 15 seconds (reduced from 30)
     }
 
     /**
@@ -30,10 +28,8 @@ class CreditsDisplayManager {
                 if (user) {
                     this.showCreditsDisplay();
                     await this.updateCredits(); // Immediate refresh on login
-                    this.startPolling();
                 } else {
                     this.hideCreditsDisplay();
-                    this.stopPolling();
                 }
             });
 
@@ -85,7 +81,7 @@ class CreditsDisplayManager {
             } else {
                 // Fallback to direct API call if cache not available
                 const token = await this.currentUser.getIdToken();
-                const response = await fetch(`${window.API_BASE_URL || 'http://localhost:3002'}/api/specs/entitlements`, {
+                const response = await fetch(`${window.API_BASE_URL || 'http://localhost:10000'}/api/specs/entitlements`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -126,7 +122,10 @@ class CreditsDisplayManager {
         let displayText = '';
         let cssClass = '';
 
-        if (userEntitlements.unlimited) {
+        // Treat plan==='pro' as Pro (fallback) even if entitlements.unlimited not yet synced
+        const isProByPlan = user && user.plan === 'pro';
+
+        if (userEntitlements.unlimited || isProByPlan) {
             // Pro subscription - unlimited
             displayText = 'pro';
             cssClass = 'pro';
@@ -198,27 +197,6 @@ class CreditsDisplayManager {
         // Optionally redirect based on action
         if (!userEntitlements.unlimited && userEntitlements.spec_credits === 0) {
             window.location.href = '/pages/pricing.html';
-        }
-    }
-
-    /**
-     * Start polling for credits updates
-     */
-    startPolling() {
-        this.stopPolling(); // Clear any existing interval
-        
-        this.pollingInterval = setInterval(() => {
-            this.updateCredits();
-        }, this.pollingIntervalMs);
-    }
-
-    /**
-     * Stop polling
-     */
-    stopPolling() {
-        if (this.pollingInterval) {
-            clearInterval(this.pollingInterval);
-            this.pollingInterval = null;
         }
     }
 

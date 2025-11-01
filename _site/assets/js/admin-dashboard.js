@@ -320,6 +320,14 @@ class AdminDashboard {
         document.getElementById('errors-type-filter')?.addEventListener('change', () => {
             this.loadErrorLogs();
         });
+
+        // CSS crash filters
+        document.getElementById('css-crash-type-filter')?.addEventListener('change', () => {
+            this.loadCSCCrashLogs();
+        });
+        document.getElementById('css-crash-url-filter')?.addEventListener('input', () => {
+            this.loadCSCCrashLogs();
+        });
     }
 
     // Setup permissions filters
@@ -354,6 +362,7 @@ class AdminDashboard {
             await this.loadPermissionsData();
             await this.loadBuyClicksData();
             await this.loadErrorLogs();
+            await this.loadCSCCrashLogs();
             
             this.updateStatsCards();
             this.updateAnalytics();
@@ -2536,6 +2545,210 @@ class AdminDashboard {
             return escapeHTML(text);
         }
         return escapeHTML(text.substring(0, maxLength)) + '...';
+    }
+
+    // Load CSS crash logs
+    async loadCSCCrashLogs() {
+        try {
+            console.log('🔍 Loading CSS crash logs...');
+            
+            const crashTypeFilter = document.getElementById('css-crash-type-filter')?.value || 'all';
+            const urlFilter = document.getElementById('css-crash-url-filter')?.value || '';
+            
+            let url = `${window.location.origin}/api/admin/css-crash-logs?limit=100`;
+            if (crashTypeFilter !== 'all') {
+                url += `&crashType=${encodeURIComponent(crashTypeFilter)}`;
+            }
+            if (urlFilter) {
+                url += `&url=${encodeURIComponent(urlFilter)}`;
+            }
+            
+            const response = await fetch(url);
+            
+            if (!response.ok) {
+                throw new Error('Failed to fetch CSS crash logs');
+            }
+            
+            const data = await response.json();
+            
+            if (data.success && data.logs) {
+                this.renderCSCCrashLogs(data.logs);
+                
+                // Load summary
+                await this.loadCSCCrashSummary();
+                
+                console.log(`✅ Loaded ${data.logs.length} CSS crash logs`);
+            } else {
+                throw new Error('Invalid response from server');
+            }
+            
+        } catch (error) {
+            console.error('❌ Error loading CSS crash logs:', error);
+            const tbody = document.getElementById('css-crashes-table-body');
+            if (tbody) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; color: var(--danger-color); padding: 20px;">
+                            Error loading CSS crash logs: ${error.message}
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+    }
+
+    // Load CSS crash summary
+    async loadCSCCrashSummary() {
+        try {
+            const response = await fetch(`${window.location.origin}/api/admin/css-crash-summary`);
+            
+            if (!response.ok) {
+                throw new Error('Failed to fetch CSS crash summary');
+            }
+            
+            const data = await response.json();
+            
+            if (data.success && data.summary) {
+                this.renderCSCCrashSummary(data.summary);
+            }
+        } catch (error) {
+            console.error('❌ Error loading CSS crash summary:', error);
+            const summaryDiv = document.getElementById('css-crash-summary-content');
+            if (summaryDiv) {
+                summaryDiv.innerHTML = `<p style="color: var(--danger-color);">Error loading summary: ${error.message}</p>`;
+            }
+        }
+    }
+
+    // Render CSS crash summary
+    renderCSCCrashSummary(summary) {
+        const summaryDiv = document.getElementById('css-crash-summary-content');
+        if (!summaryDiv) return;
+        
+        const { total, byType, byUrl, recent } = summary;
+        
+        let html = `
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                <div>
+                    <strong>Total Crashes:</strong> <span style="font-size: 1.5em; color: var(--primary-color);">${total}</span>
+                </div>
+                <div>
+                    <strong>Recent (24h):</strong> <span style="font-size: 1.5em; color: var(--warning-color);">${recent.length}</span>
+                </div>
+            </div>
+        `;
+        
+        if (Object.keys(byType).length > 0) {
+            html += `<h4 style="margin-top: 20px; margin-bottom: 10px;">Crashes by Type:</h4>`;
+            html += `<div style="display: flex; flex-wrap: wrap; gap: 10px;">`;
+            for (const [type, count] of Object.entries(byType)) {
+                html += `<span class="status-badge status-warning">${escapeHTML(type)}: ${count}</span>`;
+            }
+            html += `</div>`;
+        }
+        
+        if (Object.keys(byUrl).length > 0) {
+            html += `<h4 style="margin-top: 20px; margin-bottom: 10px;">Top URLs:</h4>`;
+            html += `<ul style="margin: 0; padding-left: 20px;">`;
+            const sortedUrls = Object.entries(byUrl)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5);
+            for (const [url, count] of sortedUrls) {
+                html += `<li>${escapeHTML(url)}: <strong>${count}</strong></li>`;
+            }
+            html += `</ul>`;
+        }
+        
+        summaryDiv.innerHTML = html;
+    }
+
+    // Render CSS crash logs table
+    renderCSCCrashLogs(logs) {
+        const tbody = document.getElementById('css-crashes-table-body');
+        if (!tbody) return;
+        
+        if (!logs || logs.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="7" class="loading-cell">No CSS crash logs found</td>
+                </tr>
+            `;
+            return;
+        }
+
+        tbody.innerHTML = logs.map(log => {
+            const crashType = log.crashType || 'unknown';
+            const url = log.url || 'unknown';
+            const timeSinceLoad = log.timeSinceLoad ? this.formatDuration(log.timeSinceLoad) : 'N/A';
+            const idleTime = log.timeSinceLastActivity ? this.formatDuration(log.timeSinceLastActivity) : 'N/A';
+            const timestamp = log.timestamp ? this.formatDate(log.timestamp) : 'N/A';
+            
+            const issues = log.details?.issues || log.details?.criticalIssues || [];
+            const issuesText = issues.length > 0 
+                ? `${issues.length} issue(s)` 
+                : 'No details';
+            
+            const crashTypeBadge = `<span class="status-badge ${this.getCSCCrashTypeClass(crashType)}">${escapeHTML(crashType)}</span>`;
+            
+            return `
+                <tr>
+                    <td>${crashTypeBadge}</td>
+                    <td>
+                        <span title="${escapeHTML(url)}">
+                            ${this.truncateText(url, 40)}
+                        </span>
+                    </td>
+                    <td>${timeSinceLoad}</td>
+                    <td>${idleTime}</td>
+                    <td>${issuesText}</td>
+                    <td>${timestamp}</td>
+                    <td>
+                        <button class="btn-view" onclick="adminDashboard.viewCSCCrashDetails('${log.id}')" title="View Details">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    // Get CSS crash type badge class
+    getCSCCrashTypeClass(crashType) {
+        const typeMap = {
+            'css_crash_detected': 'status-error',
+            'css_crash_after_idle': 'status-error',
+            'css_load_error': 'status-error',
+            'stylesheet_not_loaded': 'status-warning',
+            'stylesheet_disabled': 'status-warning',
+            'main_css_missing': 'status-error',
+            'css_removed_or_modified': 'status-warning',
+            'css_load_error': 'status-error'
+        };
+        return typeMap[crashType] || 'status-cancelled';
+    }
+
+    // Format duration in milliseconds to human readable
+    formatDuration(ms) {
+        if (!ms) return 'N/A';
+        const seconds = Math.floor(ms / 1000);
+        const minutes = Math.floor(seconds / 60);
+        const hours = Math.floor(minutes / 60);
+        
+        if (hours > 0) {
+            return `${hours}h ${minutes % 60}m`;
+        } else if (minutes > 0) {
+            return `${minutes}m ${seconds % 60}s`;
+        } else {
+            return `${seconds}s`;
+        }
+    }
+
+    // View CSS crash details
+    async viewCSCCrashDetails(logId) {
+        // This would fetch the full log details and show in a modal
+        // For now, we'll just show an alert with the log ID
+        this.showNotification('CSS crash details viewer - Coming soon', 'info');
+        console.log('View CSS crash details for:', logId);
     }
 }
 

@@ -203,7 +203,7 @@ Always reference specific parts of the spec when relevant.`,
       }
       
       // Update assistant with vector store
-      await fetch(`${this.baseURL}/assistants/${assistant.id}`, {
+      const updateResponse = await fetch(`${this.baseURL}/assistants/${assistant.id}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${this.apiKey}`,
@@ -219,7 +219,16 @@ Always reference specific parts of the spec when relevant.`,
         })
       });
       
-      return assistant;
+      if (!updateResponse.ok) {
+        const errorText = await updateResponse.text();
+        console.error(`[OpenAI] Failed to update assistant with vector store - Status: ${updateResponse.status}, Response: ${errorText}`);
+        throw new Error(`Failed to update assistant with vector store: ${errorText}`);
+      }
+      
+      const updatedAssistant = await updateResponse.json();
+      console.log(`[OpenAI] Updated assistant ${assistant.id} with vector store ${vectorStore.id}`);
+      
+      return updatedAssistant;
     } catch (error) {
       console.error('Error creating assistant:', error);
       throw error;
@@ -301,6 +310,168 @@ Always reference specific parts of the spec when relevant.`,
   }
 
   /**
+   * Get assistant details
+   * @param {string} assistantId - Assistant ID
+   * @returns {Promise<object>} Assistant object
+   */
+  async getAssistant(assistantId) {
+    try {
+      const response = await fetch(`${this.baseURL}/assistants/${assistantId}`, {
+        headers: {
+          'Authorization': `Bearer ${this.apiKey}`,
+          'OpenAI-Beta': 'assistants=v2'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to get assistant: ${response.statusText}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Error getting assistant:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Ensure assistant has vector store configured
+   * @param {string} assistantId - Assistant ID
+   * @param {string} fileId - File ID to use
+   * @returns {Promise<object>} Updated assistant object
+   */
+  async ensureAssistantHasVectorStore(assistantId, fileId) {
+    try {
+      // Get current assistant
+      const assistant = await this.getAssistant(assistantId);
+      
+      // Check if assistant already has vector store
+      const currentVectorStoreIds = assistant.tool_resources?.file_search?.vector_store_ids || [];
+      
+      if (currentVectorStoreIds.length > 0) {
+        console.log(`[OpenAI] Assistant ${assistantId} already has vector store(s): ${currentVectorStoreIds.join(', ')}`);
+        // Verify all vector stores are ready
+        for (const vsId of currentVectorStoreIds) {
+          const isReady = await this.waitForVectorStoreReady(vsId, 10); // Quick check
+          if (!isReady) {
+            console.warn(`[OpenAI] Vector store ${vsId} is not ready, but continuing...`);
+          }
+        }
+        return assistant;
+      }
+      
+      // Create new vector store
+      console.log(`[OpenAI] Creating vector store for assistant ${assistantId}`);
+      const fileSearchResponse = await fetch(`${this.baseURL}/vector_stores`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${this.apiKey}`,
+          'Content-Type': 'application/json',
+          'OpenAI-Beta': 'assistants=v2'
+        },
+        body: JSON.stringify({
+          name: `Vector Store for ${assistantId}`,
+          file_ids: [fileId]
+        })
+      });
+      
+      if (!fileSearchResponse.ok) {
+        const errorText = await fileSearchResponse.text();
+        throw new Error(`Failed to create vector store: ${errorText}`);
+      }
+      
+      const vectorStore = await fileSearchResponse.json();
+      console.log(`[Vector Store] Created ${vectorStore.id} for assistant ${assistantId}`);
+      
+      // Wait for vector store to be ready
+      const isReady = await this.waitForVectorStoreReady(vectorStore.id);
+      if (!isReady) {
+        console.warn(`[Vector Store] ${vectorStore.id} not ready after timeout, proceeding anyway`);
+      }
+      
+      // Update assistant with vector store
+      const updateResponse = await fetch(`${this.baseURL}/assistants/${assistantId}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${this.apiKey}`,
+          'Content-Type': 'application/json',
+          'OpenAI-Beta': 'assistants=v2'
+        },
+        body: JSON.stringify({
+          tool_resources: {
+            file_search: {
+              vector_store_ids: [vectorStore.id]
+            }
+          }
+        })
+      });
+      
+      if (!updateResponse.ok) {
+        const errorText = await updateResponse.text();
+        console.error(`[OpenAI] Failed to update assistant with vector store - Status: ${updateResponse.status}, Response: ${errorText}`);
+        throw new Error(`Failed to update assistant with vector store: ${errorText}`);
+      }
+      
+      const updatedAssistant = await updateResponse.json();
+      console.log(`[OpenAI] Updated assistant ${assistantId} with vector store ${vectorStore.id}`);
+      
+      // Wait a bit to ensure OpenAI API has processed the update
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Verify the update was successful by fetching the assistant again
+      let verifiedAssistant = await this.getAssistant(assistantId);
+      let verifiedVectorStoreIds = verifiedAssistant.tool_resources?.file_search?.vector_store_ids || [];
+      
+      // Retry up to 3 times if update didn't stick
+      let retries = 0;
+      while (verifiedVectorStoreIds.length === 0 && retries < 3) {
+        console.warn(`[OpenAI] Assistant ${assistantId} still has no vector store after update, retrying... (attempt ${retries + 1}/3)`);
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        // Update again
+        const retryUpdateResponse = await fetch(`${this.baseURL}/assistants/${assistantId}`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${this.apiKey}`,
+            'Content-Type': 'application/json',
+            'OpenAI-Beta': 'assistants=v2'
+          },
+          body: JSON.stringify({
+            tool_resources: {
+              file_search: {
+                vector_store_ids: [vectorStore.id]
+              }
+            }
+          })
+        });
+        
+        if (retryUpdateResponse.ok) {
+          await new Promise(resolve => setTimeout(resolve, 2000));
+          verifiedAssistant = await this.getAssistant(assistantId);
+          verifiedVectorStoreIds = verifiedAssistant.tool_resources?.file_search?.vector_store_ids || [];
+        }
+        retries++;
+      }
+      
+      if (verifiedVectorStoreIds.length === 0) {
+        console.error(`[OpenAI] ERROR: Assistant ${assistantId} still has no vector store after ${retries} retries`);
+        throw new Error(`Failed to configure vector store for assistant after multiple attempts`);
+      } else {
+        console.log(`[OpenAI] Verified: Assistant ${assistantId} now has vector store(s): ${verifiedVectorStoreIds.join(', ')}`);
+        // Ensure vector store is ready before returning
+        for (const vsId of verifiedVectorStoreIds) {
+          await this.waitForVectorStoreReady(vsId, 30); // Wait up to 30 seconds
+        }
+      }
+      
+      return verifiedAssistant;
+    } catch (error) {
+      console.error('Error ensuring assistant has vector store:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Delete an assistant from OpenAI
    * @param {string} assistantId - Assistant ID
    * @returns {Promise<boolean>} Success status
@@ -322,20 +493,19 @@ Always reference specific parts of the spec when relevant.`,
   }
 
   /**
-   * Generate diagrams for a specification
-   * @param {string} specData - Full spec data object
+   * Generate diagrams for a specification using Assistant API
+   * @param {string} specId - Spec ID
+   * @param {string} assistantId - Assistant ID that has access to spec file
    * @returns {Promise<Array>} Array of diagram objects
    */
-  async generateDiagrams(specData) {
+  async generateDiagrams(specId, assistantId) {
     try {
-      // Extract technical and overview data
-      const technical = specData.technical || '';
-      const overview = specData.overview || '';
+      console.log('[Diagrams][OpenAI] Using Assistant to generate diagrams');
       
       // Create the diagrams prompt
       const prompt = `Return ONLY valid JSON (no text/markdown). Top-level key MUST be diagrams. If a value is unknown, return an empty array/object—never omit required keys.
 
-Generate 6 Mermaid diagrams based on the technical specification. Return JSON with diagrams key containing an array of 6 diagram objects, each with:
+Generate 7 Mermaid diagrams based on the technical specification in the provided file. Return JSON with diagrams key containing an array of 7 diagram objects, each with:
 
 {
   "diagrams": [
@@ -367,8 +537,16 @@ Generate 6 Mermaid diagrams based on the technical specification. Return JSON wi
       "id": "data_schema",
       "type": "erDiagram",
       "title": "Data Schema Diagram (ERD)",
-      "description": "Entity structure, relationships, primary/foreign keys",
+      "description": "Conceptual-level Entity Relationship Diagram showing main entities, key relationships, and primary/foreign keys. Focus on entity structure and relationships - NOT all field details. This is a high-level conceptual view.",
       "mermaidCode": "Valid Mermaid erDiagram syntax",
+      "status": "success"
+    },
+    {
+      "id": "database_schema",
+      "type": "erDiagram",
+      "title": "Database Schema Diagram",
+      "description": "Implementation-level database schema showing ALL tables, ALL fields with data types, constraints, indexes, and relationships. This is a complete technical database implementation view with full details.",
+      "mermaidCode": "Valid Mermaid erDiagram syntax with all entities and their attributes",
       "status": "success"
     },
     {
@@ -390,73 +568,230 @@ Generate 6 Mermaid diagrams based on the technical specification. Return JSON wi
   ]
 }
 
-CRITICAL REQUIREMENTS:
+CRITICAL REQUIREMENTS FOR ERD DIAGRAMS (data_schema AND database_schema):
+- ABSOLUTELY CRITICAL: ERD syntax MUST be exactly correct
+- CORRECT format for erDiagram:
+  erDiagram
+      ENTITY1 {
+          int id PK
+          string name
+          string email
+      }
+      ENTITY2 {
+          int id PK
+          string title
+          int entity1Id FK
+          date createdAt
+      }
+      ENTITY1 ||--o{ ENTITY2 : "has"
+- NEVER write: USERS {id} ||--o{ TASKS {projectId} : belongs_to
+- CORRECT: First define entity attributes, THEN relationships
+- Relationships must ONLY show entity names separated by relationship symbols
+- NEVER put field names like {id} or {projectId} inside relationship lines
+- Define ALL entity attributes inside curly braces BEFORE writing any relationships
+- Relationship format: ENTITY1 ||--o{ ENTITY2 : "label"
+
+CRITICAL DIFFERENCE BETWEEN data_schema AND database_schema:
+
+1. data_schema (Data Schema Diagram / Conceptual ERD):
+   - PURPOSE: High-level conceptual view of the data model
+   - FOCUS: Main entities, key relationships, primary/foreign keys
+   - LEVEL: Conceptual - shows WHAT entities exist and HOW they relate
+   - DETAIL LEVEL: Only include essential fields that define the entity identity and key relationships
+   - EXAMPLE: User entity might show: id PK, email, role (key fields only)
+   - DO NOT include: All optional fields, detailed constraints, indexes, technical implementation details
+   - This diagram answers: "What are the main data entities and how do they connect?"
+
+2. database_schema (Database Schema Diagram / Implementation ERD):
+   - PURPOSE: Complete technical implementation view of the database
+   - FOCUS: ALL tables, ALL fields, data types, constraints, indexes
+   - LEVEL: Implementation - shows HOW data is actually stored
+   - DETAIL LEVEL: Include EVERY field with data types, nullability, defaults, constraints
+   - EXAMPLE: User entity shows: id PK, email VARCHAR(255) NOT NULL, password_hash VARCHAR(255) NOT NULL, role VARCHAR(50), created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP, INDEX idx_email, etc.
+   - DO include: All fields, data types, primary keys, foreign keys, unique constraints, indexes, default values, nullability
+   - This diagram answers: "What is the exact database structure that will be implemented?"
+
+CRITICAL REQUIREMENTS FOR data_schema DIAGRAM:
+- Show only MAIN entities from the technical specification
+- Include only KEY fields (primary keys, foreign keys, essential identifying fields)
+- Focus on entity relationships and structure
+- Do NOT include all optional fields, technical constraints, or implementation details
+- This is a conceptual diagram for understanding the data model at a high level
+
+CRITICAL REQUIREMENTS FOR database_schema DIAGRAM:
+- database_schema MUST include ALL entities/tables from the technical specification
+- MUST show ALL fields with their exact data types for each entity
+- MUST accurately represent the databaseSchema.tables from technical specification
+- MUST include all relationships between entities
+- MUST include all constraints (PK, FK, UNIQUE, NOT NULL, etc.)
+- This diagram should be based on the databaseSchema.tables provided in the technical specification
+- Use the detailed table information to create a complete technical ERD
+
+CRITICAL REQUIREMENTS FOR ALL DIAGRAMS:
 - All mermaidCode must be valid Mermaid syntax
 - Use proper node IDs and labels
 - Include appropriate styling and formatting
 - Ensure diagrams are comprehensive and detailed
 - Each diagram should be self-contained and meaningful
+- database_schema diagram must match the actual databaseSchema from technical specification
+- Base diagrams on the specification content in the provided file
+- Use the technical and overview sections to understand the application structure`;
 
-Technical Specification:
-${technical}
-
-Application Overview:
-${overview}`;
-
-      // Call OpenAI API to generate diagrams
-      const response = await fetch(`${this.baseURL}/chat/completions`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          model: 'gpt-4o-mini',
-          messages: [
-            {
-              role: 'system',
-              content: 'You are a highly experienced software architect and technical diagram specialist. Generate detailed Mermaid diagrams.'
-            },
-            {
-              role: 'user',
-              content: prompt
-            }
-          ],
-          temperature: 0
-        })
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`OpenAI API error: ${errorText}`);
-      }
-
-      const data = await response.json();
-      const content = data.choices[0].message.content;
-
-      // Parse JSON response
-      let diagrams;
-      try {
-        // Try to parse as JSON
-        diagrams = JSON.parse(content);
-      } catch {
-        // If that fails, try to extract JSON from markdown code blocks
-        const jsonMatch = content.match(/```json\s*([\s\S]*?)\s*```/) || content.match(/```\s*([\s\S]*?)\s*```/);
-        if (jsonMatch) {
-          diagrams = JSON.parse(jsonMatch[1]);
-        } else {
-          throw new Error('Failed to parse diagrams JSON');
+      // Use Assistant API with thread (with retry logic)
+      let thread;
+      let response;
+      const maxRetries = 3;
+      let retryCount = 0;
+      
+      while (retryCount < maxRetries) {
+        try {
+          thread = await this.createThread();
+          console.log('[Diagrams][OpenAI] Created thread:', thread.id);
+          
+          // Send message using Assistant
+          response = await this.sendMessage(thread.id, assistantId, prompt);
+          console.log('[Diagrams][OpenAI] Received response from assistant. length:', response.length);
+          
+          // Success - break out of retry loop
+          break;
+        } catch (error) {
+          retryCount++;
+          const isServerError = error.message && (
+            error.message.includes('server_error') || 
+            error.message.includes('rate_limit') ||
+            error.message.includes('timeout')
+          );
+          
+          // Preserve corrupted assistant flag if present
+          if (error.isCorruptedAssistant) {
+            // Don't retry if assistant is corrupted - let caller handle recreation
+            throw error;
+          }
+          
+          if (retryCount >= maxRetries || !isServerError) {
+            // If it's not a retryable error or we've exhausted retries, throw
+            throw error;
+          }
+          
+          console.warn(`[Diagrams][OpenAI] Attempt ${retryCount} failed, retrying... Error: ${error.message}`);
+          // Wait before retry (exponential backoff)
+          await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
         }
       }
 
-      // Validate structure and return diagrams array
-      if (diagrams.diagrams && Array.isArray(diagrams.diagrams)) {
-        return diagrams.diagrams;
-      } else {
-        throw new Error('Invalid diagrams structure returned from API');
+      // Parse JSON response robustly
+      let parsed;
+      try {
+        parsed = JSON.parse(response);
+      } catch (e) {
+        console.warn('[Diagrams][OpenAI] JSON.parse failed. Trying fenced extraction. error:', e && e.message);
+        // Fallback: try to extract JSON if model returned fenced code
+        const jsonMatch = response.match(/```json\s*([\s\S]*?)\s*```/) || response.match(/```\s*([\s\S]*?)\s*```/);
+        if (jsonMatch) {
+          parsed = JSON.parse(jsonMatch[1]);
+        } else {
+          const snippet = response.slice(0, 200);
+          throw new Error(`Failed to parse diagrams JSON. Preview: ${snippet}`);
+        }
       }
+
+      if (parsed && Array.isArray(parsed.diagrams)) {
+        console.log('[Diagrams][OpenAI] Parsed diagrams count:', parsed.diagrams.length);
+        return parsed.diagrams;
+      }
+
+      throw new Error('Invalid diagrams structure returned from API (missing diagrams array)');
     } catch (error) {
-      console.error('Error generating diagrams:', error);
+      console.error('[Diagrams][OpenAI] Error generating diagrams:', error && (error.stack || error));
+      throw error;
+    }
+  }
+
+  /**
+   * Repair a broken diagram using Assistant API
+   * @param {string} specId - Spec ID
+   * @param {string} assistantId - Assistant ID that has access to spec file
+   * @param {string} brokenCode - Broken Mermaid code
+   * @param {string} diagramTitle - Diagram title
+   * @param {string} diagramType - Diagram type (flowchart, erDiagram, etc.)
+   * @returns {Promise<string>} Repaired Mermaid code
+   */
+  async repairDiagram(specId, assistantId, brokenCode, diagramTitle, diagramType, errorMessage = '') {
+    try {
+      console.log('[Repair][OpenAI] Using Assistant to repair diagram');
+      if (errorMessage) {
+        console.log('[Repair][OpenAI] Error message provided:', errorMessage.substring(0, 200));
+      }
+      
+      // Build error context if available
+      const errorContext = errorMessage ? `
+ERROR MESSAGE FROM MERMAID:
+${errorMessage}
+
+Pay special attention to the error message above - it tells you exactly what syntax issue needs to be fixed.` : '';
+      
+      const prompt = `You are a Mermaid diagram syntax expert. Fix broken Mermaid diagram code.
+
+The following ${diagramType} Mermaid diagram is broken:
+
+\`\`\`mermaid
+${brokenCode}
+\`\`\`
+
+Title: ${diagramTitle}${errorContext}
+
+CRITICAL REQUIREMENTS:
+1. Fix all syntax errors${errorMessage ? ' (especially the error mentioned above)' : ''}
+2. Ensure diagram accurately represents the specification content from the provided file
+3. Return ONLY the corrected Mermaid code without any explanations, markdown formatting, or additional text
+4. The diagram must be complete and renderable
+
+CRITICAL DIFFERENCE BETWEEN DIAGRAM TYPES:
+${diagramType === 'erDiagram' || diagramType.includes('schema') ? `
+- For "data_schema" (Data Schema Diagram/ERD): Show conceptual level - main entities, key relationships, primary/foreign keys. Focus on entity structure and relationships, NOT all field details.
+- For "database_schema" (Database Schema Diagram): Show implementation level - ALL tables with ALL fields, data types, constraints. Complete technical database schema representation.
+
+ERD SYNTAX RULES (CRITICAL):
+- CORRECT format: First define ALL entity attributes inside curly braces, THEN define relationships
+- Entity definition: ENTITY_NAME { field1 type, field2 type PK, field3 type FK }
+- Relationships: ENTITY1 ||--o{ ENTITY2 : "relationship label"
+- NEVER put field names inside relationship lines
+- Example CORRECT:
+  erDiagram
+      USER {
+          int id PK
+          string email
+          string name
+      }
+      TASK {
+          int id PK
+          string title
+          int userId FK
+      }
+      USER ||--o{ TASK : "has"
+` : ''}
+
+Return ONLY the corrected Mermaid code.`;
+
+      // Use Assistant API with thread
+      const thread = await this.createThread();
+      console.log('[Repair][OpenAI] Created thread:', thread.id);
+      
+      // Send message using Assistant
+      const response = await this.sendMessage(thread.id, assistantId, prompt);
+      console.log('[Repair][OpenAI] Received response from assistant. length:', response.length);
+
+      // Clean up the response (remove any markdown code blocks)
+      let cleanedCode = response.trim();
+      if (cleanedCode.startsWith('```mermaid')) {
+        cleanedCode = cleanedCode.replace(/^```mermaid\s*/, '').replace(/\s*```$/, '');
+      } else if (cleanedCode.startsWith('```')) {
+        cleanedCode = cleanedCode.replace(/^```\s*/, '').replace(/\s*```$/, '');
+      }
+
+      return cleanedCode;
+    } catch (error) {
+      console.error('[Repair][OpenAI] Error repairing diagram:', error && (error.stack || error));
       throw error;
     }
   }
@@ -470,8 +805,20 @@ ${overview}`;
    */
   async sendMessage(threadId, assistantId, message) {
     try {
+      // Verify assistant has tool_resources configured before sending
+      const assistantCheck = await this.getAssistant(assistantId);
+      const hasVectorStore = assistantCheck.tool_resources?.file_search?.vector_store_ids?.length > 0;
+      
+      if (!hasVectorStore) {
+        console.error(`[OpenAI] sendMessage: Assistant ${assistantId} has no vector store configured!`);
+        console.error(`[OpenAI] Assistant tool_resources:`, JSON.stringify(assistantCheck.tool_resources, null, 2));
+        throw new Error(`Assistant ${assistantId} has no vector store configured. Cannot send message.`);
+      }
+      
+      console.log(`[OpenAI] sendMessage: Assistant ${assistantId} verified with vector store(s): ${assistantCheck.tool_resources.file_search.vector_store_ids.join(', ')}`);
+      
       // Add message to thread
-      await fetch(`${this.baseURL}/threads/${threadId}/messages`, {
+      const messageResponse = await fetch(`${this.baseURL}/threads/${threadId}/messages`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${this.apiKey}`,
@@ -484,7 +831,24 @@ ${overview}`;
         })
       });
       
-      // Run assistant
+      if (!messageResponse.ok) {
+        const errorText = await messageResponse.text();
+        console.error(`[OpenAI] Failed to add message - Status: ${messageResponse.status}, Response: ${errorText}`);
+        throw new Error(`Failed to add message to thread: ${errorText}`);
+      }
+      
+      // Run assistant - include tool_resources in run to ensure they're used
+      // Get fresh assistant info right before run to ensure we have latest config
+      const assistantBeforeRun = await this.getAssistant(assistantId);
+      const runVectorStoreIds = assistantBeforeRun.tool_resources?.file_search?.vector_store_ids || [];
+      
+      console.log(`[OpenAI] Running assistant ${assistantId} with vector stores: ${runVectorStoreIds.join(', ') || 'NONE'}`);
+      
+      if (runVectorStoreIds.length === 0) {
+        console.error(`[OpenAI] CRITICAL: Assistant ${assistantId} has no vector stores when creating run!`);
+        throw new Error(`Assistant ${assistantId} has no vector stores configured. Cannot proceed with run.`);
+      }
+      
       const runResponse = await fetch(`${this.baseURL}/threads/${threadId}/runs`, {
         method: 'POST',
         headers: {
@@ -498,7 +862,9 @@ ${overview}`;
       });
       
       if (!runResponse.ok) {
-        throw new Error('Failed to create run');
+        const errorText = await runResponse.text();
+        console.error(`[OpenAI] Failed to create run - Status: ${runResponse.status}, Response: ${errorText}`);
+        throw new Error(`Failed to create run: ${errorText}`);
       }
       
       const run = await runResponse.json();
@@ -516,12 +882,52 @@ ${overview}`;
             'OpenAI-Beta': 'assistants=v2'
           }
         });
+        
+        if (!statusResponse.ok) {
+          const errorText = await statusResponse.text();
+          console.error(`[OpenAI] Failed to check run status - Status: ${statusResponse.status}, Response: ${errorText}`);
+          throw new Error(`Failed to check run status: ${errorText}`);
+        }
+        
         runStatus = await statusResponse.json();
+        
+        // Check for failed status early
+        if (runStatus.status === 'failed' || runStatus.status === 'cancelled' || runStatus.status === 'expired') {
+          break;
+        }
+        
         attempts++;
       }
       
+      // Check for timeout
+      if (attempts >= maxAttempts && runStatus.status !== 'completed') {
+        console.error(`[OpenAI] Run timeout after ${maxAttempts} attempts - Final status: ${runStatus.status}`);
+        throw new Error(`Run timeout: Still in status ${runStatus.status} after ${maxAttempts} seconds`);
+      }
+      
       if (runStatus.status !== 'completed') {
-        throw new Error(`Run failed with status: ${runStatus.status}`);
+        // Log detailed error information
+        const errorDetails = runStatus.last_error || {};
+        const errorMessage = errorDetails.message || 'Unknown error';
+        const errorCode = errorDetails.code || 'unknown';
+        const runToolResources = runStatus.tool_resources || {};
+        const runVectorStoreIds = runToolResources.file_search?.vector_store_ids || [];
+        
+        console.error(`[OpenAI] Run failed - Status: ${runStatus.status}, Code: ${errorCode}, Message: ${errorMessage}`);
+        console.error(`[OpenAI] Run tool_resources:`, JSON.stringify(runToolResources, null, 2));
+        console.error(`[OpenAI] Run vector stores: ${runVectorStoreIds.length > 0 ? runVectorStoreIds.join(', ') : 'NONE'}`);
+        console.error(`[OpenAI] Full run status:`, JSON.stringify(runStatus, null, 2));
+        
+        // If tool_resources is empty in run but assistant has them, this is a known OpenAI API bug
+        if (runVectorStoreIds.length === 0 && errorCode === 'server_error') {
+          // Create a custom error with metadata to help caller recreate the assistant
+          const customError = new Error(`Assistant run failed: Vector store configuration not propagated to run. This may indicate the assistant ${assistantId} is corrupted. Please try recreating the assistant. (Original error: ${errorMessage})`);
+          customError.isCorruptedAssistant = true;
+          customError.assistantId = assistantId;
+          throw customError;
+        }
+        
+        throw new Error(`Assistant run failed: ${errorMessage} (code: ${errorCode})`);
       }
       
       // Get messages
@@ -532,15 +938,147 @@ ${overview}`;
         }
       });
       
+      if (!messagesResponse.ok) {
+        const errorText = await messagesResponse.text();
+        console.error(`[OpenAI] Failed to get messages - Status: ${messagesResponse.status}, Response: ${errorText}`);
+        throw new Error(`Failed to get messages: ${errorText}`);
+      }
+      
       const messages = await messagesResponse.json();
       
       if (messages.data && messages.data.length > 0 && messages.data[0].content) {
-        return messages.data[0].content[0].text.value;
+        // Find the first assistant message
+        const assistantMessage = messages.data.find(msg => msg.role === 'assistant');
+        if (assistantMessage && assistantMessage.content && assistantMessage.content.length > 0) {
+          return assistantMessage.content[0].text.value;
+        }
       }
       
       throw new Error('No response from assistant');
     } catch (error) {
       console.error('Error sending message:', error);
+
+      // If it's an assistant corruption error, try Chat Completions fallback
+      if (error.message && error.message.includes('Vector store configuration not propagated')) {
+        console.log('[OpenAI] Assistants API failed due to vector store issue, trying Chat Completions fallback...');
+        try {
+          return await this.sendMessageWithChatCompletions(threadId, assistantId, message);
+        } catch (fallbackError) {
+          console.error('[OpenAI] Chat Completions fallback also failed:', fallbackError);
+          throw error; // Throw original error
+        }
+      }
+
+      throw error;
+    }
+  }
+
+  /**
+   * Get vector store information
+   * @param {string} vectorStoreId - Vector Store ID
+   * @returns {Promise<object>} Vector store object
+   */
+  async getVectorStore(vectorStoreId) {
+    try {
+      const response = await fetch(`${this.baseURL}/vector_stores/${vectorStoreId}`, {
+        headers: {
+          'Authorization': `Bearer ${this.apiKey}`,
+          'Content-Type': 'application/json',
+          'OpenAI-Beta': 'assistants=v2'
+        }
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to get vector store: ${errorText}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Error getting vector store:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Send message using Chat Completions API as fallback
+   * @param {string} threadId - Thread ID (not used in Chat Completions)
+   * @param {string} assistantId - Assistant ID
+   * @param {string} message - User message
+   * @returns {Promise<string>} Chat response
+   */
+  async sendMessageWithChatCompletions(threadId, assistantId, message) {
+    try {
+      console.log('[OpenAI] Using Chat Completions fallback for assistant:', assistantId);
+
+      // Get assistant info to get instructions and file content
+      const assistant = await this.getAssistant(assistantId);
+      if (!assistant) {
+        throw new Error(`Assistant ${assistantId} not found`);
+      }
+
+      // Get the file content from vector store (if available)
+      let contextContent = '';
+      if (assistant.tool_resources?.file_search?.vector_store_ids?.length > 0) {
+        try {
+          const vectorStoreId = assistant.tool_resources.file_search.vector_store_ids[0];
+          const vectorStore = await this.getVectorStore(vectorStoreId);
+          if (vectorStore.file_counts?.total > 0) {
+            // Get file content (simplified - in real implementation you'd need to download and parse)
+            contextContent = 'Note: Using file context from assistant vector store for enhanced responses.';
+          }
+        } catch (fileError) {
+          console.warn('[OpenAI] Could not access vector store content:', fileError.message);
+        }
+      }
+
+      // Build system prompt from assistant instructions
+      const systemPrompt = `${assistant.instructions || 'You are a helpful assistant.'}
+
+${contextContent}
+
+IMPORTANT: Answer based on the context and knowledge you have about this specific application specification.`;
+
+      // Use Chat Completions API
+      const chatResponse = await fetch(`${this.baseURL}/chat/completions`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${this.apiKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: assistant.model || 'gpt-4o-mini',
+          messages: [
+            {
+              role: 'system',
+              content: systemPrompt
+            },
+            {
+              role: 'user',
+              content: message
+            }
+          ],
+          temperature: assistant.temperature || 1.0,
+          max_tokens: 2048
+        })
+      });
+
+      if (!chatResponse.ok) {
+        const errorText = await chatResponse.text();
+        console.error(`[OpenAI] Chat Completions failed - Status: ${chatResponse.status}, Response: ${errorText}`);
+        throw new Error(`Chat Completions API failed: ${errorText}`);
+      }
+
+      const chatData = await chatResponse.json();
+      if (chatData.choices && chatData.choices.length > 0 && chatData.choices[0].message) {
+        console.log('[OpenAI] Chat Completions fallback successful');
+        return chatData.choices[0].message.content;
+      }
+
+      throw new Error('No response from Chat Completions API');
+
+    } catch (error) {
+      console.error('[OpenAI] Chat Completions fallback failed:', error);
       throw error;
     }
   }

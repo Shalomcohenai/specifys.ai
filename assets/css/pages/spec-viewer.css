@@ -20,11 +20,11 @@
 
 /* Content Sections - Each section displayed separately with styling */
 .content-section {
-    background: white;           /* רקע לבן */
-    padding: 25px;               /* 25px רווח מכל הצדדים */
-    margin-bottom: 30px;         /* 30px רווח למטה - מפריד בין המקטעים */
-    border-radius: 8px;          /* פינות מעוגלות */
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);  /* צל עדין */
+    background: white;           /* White background */
+    padding: 25px;               /* 25px padding on all sides */
+    margin-bottom: 30px;         /* 30px bottom margin - spacing between sections */
+    border-radius: 8px;          /* Rounded corners */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);  /* Subtle shadow */
 }
 
 .content-section h3 {
@@ -272,6 +272,35 @@
 }
 
 /* Tab animations removed - using notification system for feedback */
+
+/* Notification Styles - Orange theme */
+.notification {
+    background: #FF6B35 !important;
+    color: #ffffff !important;
+}
+
+.notification * {
+    color: #ffffff !important;
+}
+
+.notification .notification-icon {
+    color: #ffffff !important;
+}
+
+.notification .notification-message {
+    color: #ffffff !important;
+}
+
+.notification .notification-close {
+    color: #ffffff !important;
+    background: none !important;
+    border: none !important;
+}
+
+.notification .notification-close:hover {
+    background: rgba(255, 255, 255, 0.2) !important;
+    color: #ffffff !important;
+}
 
 .tab-button.success .fa {
     color: #28a745;
@@ -933,7 +962,7 @@
     background: #FF6B35;
     color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: 0;
     padding: 0;
     cursor: pointer;
     font-size: 14px;
@@ -1034,11 +1063,11 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.9);
+    background: white;
     z-index: 100000;
     display: flex;
     flex-direction: column;
-    color: white;
+    color: #333;
 }
 
 .fullscreen-header {
@@ -1046,8 +1075,8 @@
     justify-content: space-between;
     align-items: center;
     padding: 20px;
-    background: rgba(0, 0, 0, 0.8);
-    border-bottom: 1px solid #333;
+    background: white;
+    border-bottom: 1px solid #ddd;
     z-index: 100001;
     position: relative;
 }
@@ -1055,7 +1084,7 @@
 .fullscreen-header h3 {
     margin: 0;
     font-size: 24px;
-    color: white;
+    color: #333;
 }
 
 .fullscreen-controls {
@@ -1113,6 +1142,10 @@
 .mermaid-rendered svg {
     display: block;
     margin: 0 auto;
+}
+
+.fullscreen-content {
+    background: white;
 }
 
 .fullscreen-content .mermaid {
@@ -1425,9 +1458,19 @@
     box-shadow: 0 4px 12px rgba(255, 107, 53, 0.4);
 }
 
+.approval-actions .btn-secondary .fa,
+.approval-actions .btn-secondary i {
+    color: white !important;
+}
+
 .approval-actions .btn-success {
     background: linear-gradient(135deg, #FF6B35 0%, #FF8551 100%);
     color: white;
+}
+
+.approval-actions .btn-success .fa,
+.approval-actions .btn-success i {
+    color: white !important;
 }
 
 .approval-actions .btn-success:hover {
@@ -1437,7 +1480,7 @@
 }
 
 .approval-actions .btn:disabled {
-    opacity: 0.6;
+    opacity: 1;
     cursor: not-allowed;
     transform: none;
 }

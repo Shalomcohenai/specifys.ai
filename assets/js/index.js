@@ -85,7 +85,7 @@ async function loadDynamicStats() {
     const specsWithBase = 4590;
     
     // Calculate Tool Finder users (specs + base multiplier)
-    const toolFinderUsers = specsCount + 850; // Adding 850 to specs count
+    const toolFinderUsers = specsWithBase + 850; // Adding 850 to specs count
     
     // Round all numbers to nearest 5
     const toolsRounded = roundToNearest5(toolsCount);
@@ -293,7 +293,7 @@ function showCurrentQuestion() {
 function updateProgressDots() {
   const dots = document.querySelectorAll('.progress-dot');
   dots.forEach((dot, index) => {
-    dot.classList.remove('current', 'completed');
+    dot.classList.remove('current', 'completed', 'error');
     
     // If we've reached the last question or beyond, mark all as completed
     if (currentQuestionIndex >= questions.length) {
@@ -308,18 +308,64 @@ function updateProgressDots() {
   });
 }
 
+function markUnansweredQuestionsAsError() {
+  const dots = document.querySelectorAll('.progress-dot');
+  dots.forEach((dot, index) => {
+    // Mark first 3 questions as error if not answered (excluding last question)
+    if (index < 3 && (!answers[index] || answers[index].trim() === '')) {
+      dot.classList.add('error');
+    }
+  });
+}
+
 function updateLightbulbTooltip() {
 // Removed duplicated tooltip init block (handled by updateLightbulbTooltip)
 }
 
 function jumpToQuestion(questionIndex) {
   if (questionIndex >= 0 && questionIndex < questions.length) {
+    // Save current answer before jumping
+    const textarea = document.getElementById('mainInput');
+    if (textarea && textarea.value.trim()) {
+      answers[currentQuestionIndex] = textarea.value.trim();
+    }
+    
     currentQuestionIndex = questionIndex;
     
     // Restore answer if exists
-    const textarea = document.getElementById('mainInput');
     if (textarea) {
       textarea.value = answers[currentQuestionIndex] || '';
+    }
+    
+    // Update button state after restoring answer
+    const sendBtn = document.getElementById('sendBtn');
+    if (sendBtn) {
+      const textLength = textarea.value.trim().length;
+      const isLastQuestion = currentQuestionIndex === questions.length - 1;
+      const minLength = isLastQuestion ? 0 : 20;
+      
+      // Always keep button enabled for navigation, but change visual style
+      sendBtn.disabled = false;
+      
+      if (textLength >= minLength) {
+        sendBtn.style.background = '#FF6B35';
+        sendBtn.style.cursor = 'pointer';
+        sendBtn.style.opacity = '1';
+      } else {
+        sendBtn.style.background = '#cccccc';
+        sendBtn.style.cursor = 'pointer';
+        sendBtn.style.opacity = '0.6';
+      }
+      
+      // Update button text
+      if (sendBtn.querySelector('.send-text')) {
+        const sendText = sendBtn.querySelector('.send-text');
+        if (currentQuestionIndex >= questions.length - 1) {
+          sendText.textContent = 'Generate';
+        } else {
+          sendText.textContent = 'Next';
+        }
+      }
     }
     
     // Show the question with animation
@@ -365,20 +411,15 @@ function nextQuestion() {
   const textarea = document.getElementById('mainInput');
   const answer = textarea.value.trim();
   
-  if (!answer) return;
+  // Allow empty answer only on the last question
+  const isLastQuestion = currentQuestionIndex === questions.length - 1;
+  if (!isLastQuestion && !answer) return;
   
-  // Save the answer
+  // Save the answer (can be empty on last question)
   answers[currentQuestionIndex] = answer;
   
   // Clear the textarea
   textarea.value = '';
-  
-  // Reset button state
-  const sendBtn = document.getElementById('sendBtn');
-  if (sendBtn) {
-    sendBtn.style.background = '#cccccc';
-    sendBtn.disabled = true;
-  }
   
   // Move to next question
   currentQuestionIndex++;
@@ -419,6 +460,24 @@ function nextQuestion() {
             sendText.textContent = 'Generate';
           } else {
             sendText.textContent = 'Next';
+          }
+        }
+        
+        // Update button state to reflect new question
+        const textarea = document.getElementById('mainInput');
+        if (textarea && sendBtn) {
+          const textLength = textarea.value.trim().length;
+          const isLast = currentQuestionIndex >= questions.length - 1;
+          const minLength = isLast ? 0 : 20;
+          
+          if (textLength >= minLength) {
+            sendBtn.style.background = '#FF6B35';
+            sendBtn.style.cursor = 'pointer';
+            sendBtn.style.opacity = '1';
+          } else {
+            sendBtn.style.background = '#cccccc';
+            sendBtn.style.cursor = 'pointer';
+            sendBtn.style.opacity = '0.6';
           }
         }
       }, 600); // Match the CSS transition duration
@@ -483,16 +542,19 @@ function setupModernInput() {
     const isLastQuestion = currentQuestionIndex === questions.length - 1;
     const minLength = isLastQuestion ? 0 : 20;
     
+    // Always keep button enabled for navigation, but change visual style
+    sendBtn.disabled = false;
+    
     if (textLength >= minLength) {
       // Orange (active) button
       sendBtn.style.background = '#FF6B35';
       sendBtn.style.cursor = 'pointer';
-      sendBtn.disabled = false;
+      sendBtn.style.opacity = '1';
     } else {
-      // Gray (disabled) button
+      // Gray (less visible) button but still clickable
       sendBtn.style.background = '#cccccc';
-      sendBtn.style.cursor = 'not-allowed';
-      sendBtn.disabled = true;
+      sendBtn.style.cursor = 'pointer';
+      sendBtn.style.opacity = '0.6';
     }
   }
   
@@ -507,13 +569,42 @@ function setupModernInput() {
   updateButtonState();
   
   sendBtn.addEventListener('click', function() {
-    // Prevent action if button is disabled
-    if (sendBtn.disabled) return;
-    // הוספת בדיקה לפלטפורמה
+    // Platform validation check
     if (!selectedPlatforms.mobile && !selectedPlatforms.web) {
       triggerPlatformHint();
       return;
     }
+    
+    // If on last question and trying to generate, check first 3 answers
+    const isLastQuestion = currentQuestionIndex === questions.length - 1;
+    if (isLastQuestion) {
+      // Save current answer if exists
+      const currentAnswer = textarea.value.trim();
+      if (currentAnswer) {
+        answers[currentQuestionIndex] = currentAnswer;
+      }
+      
+      // Check if first 3 questions are answered
+      let allAnswered = true;
+      for (let i = 0; i < 3; i++) {
+        if (!answers[i] || answers[i].trim() === '') {
+          allAnswered = false;
+          break;
+        }
+      }
+      
+      if (!allAnswered) {
+        // Mark unanswered questions as error
+        markUnansweredQuestionsAsError();
+        // Temporarily shake the button or show error
+        sendBtn.style.animation = 'shake 0.5s';
+        setTimeout(() => {
+          sendBtn.style.animation = '';
+        }, 500);
+        return;
+      }
+    }
+    
     nextQuestion();
     autoResize();
     updateButtonState();
@@ -522,10 +613,7 @@ function setupModernInput() {
   textarea.addEventListener('keydown', function(e) {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      // Only allow sending if button is not disabled (20+ characters)
-      if (!sendBtn.disabled) {
-        sendBtn.click();
-      }
+      sendBtn.click();
     }
     
     if (e.key === 'Backspace' && textarea.value === '') {
@@ -605,14 +693,16 @@ function setupModernInput() {
   const progressDots = document.querySelectorAll('.progress-dot');
   progressDots.forEach((dot, index) => {
     dot.addEventListener('click', function() {
-      // אפשר לעבור אחורה רק אם ענו לשאלה הזאת
+      // Allow jumping to any dot
+      if (index === currentQuestionIndex) return; // Already on this question
+      
+      // Save current answer before jumping
       const textarea = document.getElementById('mainInput');
-      const text = (answers[currentQuestionIndex] || (textarea && textarea.value) || '').trim();
-      const isLastQuestion = currentQuestionIndex === questions.length - 1;
-      const minLength = isLastQuestion ? 0 : 20;
-      if (!text || text.length < minLength) {
-        return;
+      const currentAnswer = textarea ? textarea.value.trim() : '';
+      if (currentAnswer) {
+        answers[currentQuestionIndex] = currentAnswer;
       }
+      
       jumpToQuestion(index);
     });
   });
@@ -733,7 +823,7 @@ function updateMicrophoneButton() {
 }
 
 // ===== DEMO FUNCTIONALITY =====
-// (פונקציית הדמו וכל הדאטה הוסרו לצמיתות)
+// (Demo function and all data permanently removed)
 
 // ===== API INTEGRATION =====
 async function generateSpecification() {
@@ -771,9 +861,11 @@ async function generateSpecification() {
     showLoadingOverlay();
     
     // Check credits BEFORE generating spec
+    console.log('🔵 [generateSpecification] Checking credits status with API_BASE_URL:', window.API_BASE_URL);
     try {
       const token = await user.getIdToken();
-      const statusResponse = await fetch(`${window.API_BASE_URL || 'http://localhost:3002'}/api/specs/status`, {
+      console.log('🔵 [generateSpecification] Got auth token, calling /api/specs/status');
+      const statusResponse = await fetch(`${window.API_BASE_URL || 'http://localhost:10000'}/api/specs/status`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -782,6 +874,7 @@ async function generateSpecification() {
       if (statusResponse.ok) {
         const statusData = await statusResponse.json();
         console.log('🎯 Credits status:', statusData);
+        console.log('🔵 [generateSpecification] Can create:', statusData.canCreate);
         
         if (!statusData.canCreate) {
           hideLoadingOverlay();
@@ -838,8 +931,10 @@ async function generateSpecification() {
     // Get Firebase auth token
     const token = await user.getIdToken();
     
+    // NOTE: Users can provide answers in any language, but the API will always return the specification in English
     // Call the new API endpoint with authorization
-    const response = await fetch(`${window.API_BASE_URL || 'http://localhost:3002'}/api/specs/create`, {
+    console.log('🔵 [generateSpecification] Calling /api/specs/create with API_BASE_URL:', window.API_BASE_URL);
+    const response = await fetch(`${window.API_BASE_URL || 'http://localhost:10000'}/api/specs/create`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -851,6 +946,7 @@ async function generateSpecification() {
     });
 
     console.log('✅ API Response status:', response.status);
+    console.log('🔵 [generateSpecification] Create API call completed with status:', response.status);
 
     if (response.status === 402) {
       // Payment required - show paywall
@@ -1052,7 +1148,7 @@ async function triggerOpenAIUpload(specId) {
     }
     
     const token = await user.getIdToken();
-    const response = await fetch(`${window.API_BASE_URL || 'http://localhost:3002'}/api/specs/${specId}/upload-to-openai`, {
+    const response = await fetch(`${window.API_BASE_URL || 'http://localhost:10000'}/api/specs/${specId}/upload-to-openai`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

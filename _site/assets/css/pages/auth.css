@@ -1,5 +1,4 @@
-        /* Import Montserrat font */
-        @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap");
+        /* Fonts are loaded via HTML head instead of @import for better performance */
 
         :root {
             --bg-color: #f5f5f5;

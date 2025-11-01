@@ -52,6 +52,9 @@
     <!-- API Configuration -->
     <script src="/assets/js/config.js"></script>
     
+    <!-- CSS Monitoring Script -->
+    <script src="/assets/js/css-monitor.js"></script>
+    
     <!-- Entitlements Cache -->
     <script src="/assets/js/entitlements-cache.js"></script>
     
@@ -59,10 +62,41 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="dns-prefetch" href="https://fonts.googleapis.com">
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Montserrat:wght@600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Montserrat:wght@600&display=swap" rel="stylesheet"></noscript>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     
     <!-- Removed heavy libraries on homepage: Mermaid, Marked, Highlight.js, jsPDF -->
+    
+    <!-- Remove livereload script to prevent infinite reload loops -->
+    <script>
+        (function() {
+            function removeLiveReload() {
+                const livereloadScripts = document.querySelectorAll('script[src*="livereload"], script[src*="35729"]');
+                livereloadScripts.forEach(function(script) {
+                    console.log('[LiveReload Remover] Removing livereload script:', script.src);
+                    script.remove();
+                });
+            }
+            removeLiveReload();
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', removeLiveReload);
+            }
+            setTimeout(removeLiveReload, 100);
+            setTimeout(removeLiveReload, 500);
+            
+            const observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    mutation.addedNodes.forEach(function(node) {
+                        if (node.nodeType === 1 && node.tagName === 'SCRIPT' && node.src && (node.src.includes('livereload') || node.src.includes('35729'))) {
+                            console.log('[LiveReload Remover] Blocking new livereload script');
+                            node.remove();
+                        }
+                    });
+                });
+            });
+            observer.observe(document.head, { childList: true, subtree: true });
+            if (document.body) observer.observe(document.body, { childList: true, subtree: true });
+        })();
+    </script>
     
     <!-- Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-RWBT69JCM7"></script>
@@ -516,17 +550,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 <div class="input-controls">
                     <div class="left-controls">
-                        <button class="control-btn" title="Lightbulb" id="lightbulbBtn">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z"/>
-                            </svg>
-                        </button>
                         <button class="control-btn" title="Microphone" id="microphoneBtn">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
                                 <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
                                 <line x1="12" y1="19" x2="12" y2="23"></line>
                                 <line x1="8" y1="23" x2="16" y2="23"></line>
+                            </svg>
+                        </button>
+                        <button class="control-btn" title="Lightbulb" id="lightbulbBtn">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z"/>
                             </svg>
                         </button>
                         

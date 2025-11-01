@@ -3,12 +3,12 @@
 
 const API_CONFIG = {
   // Development backend URL
-  development: 'http://localhost:3002',
-  
+  development: 'http://localhost:10000',
+
   // Production backend URL
   // TODO: Replace with your actual production API URL
   production: 'https://api.specifys-ai.com',
-  
+
   // Auto-detect environment
   get baseUrl() {
     // If running on localhost, use development API
@@ -23,4 +23,9 @@ const API_CONFIG = {
 // Export for use in other scripts
 window.API_CONFIG = API_CONFIG;
 window.API_BASE_URL = API_CONFIG.baseUrl;
+
+// Version logging for frontend
+const FRONTEND_VERSION = '1.2.5-assistant-fix-2025-10-31';
+console.log('🎨 Specifys.ai Frontend v' + FRONTEND_VERSION + ' loaded');
+console.log('🔗 API Base URL:', window.API_BASE_URL);
 

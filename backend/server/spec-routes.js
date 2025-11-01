@@ -57,11 +57,15 @@ async function verifyFirebaseToken(req, res, next) {
  */
 router.post('/create', verifyFirebaseToken, validateInput(createSpecSchema), async (req, res) => {
     try {
+        console.log('🔵 [POST /api/specs/create] Request received');
         const userId = req.user.uid;
         const { userInput } = req.body;
+        console.log('🔵 [POST /api/specs/create] User ID:', userId);
+        console.log('🔵 [POST /api/specs/create] Input length:', userInput?.length || 0);
 
         // Check if user can create a spec
         const canCreateResult = await checkUserCanCreateSpec(userId);
+        console.log('🔵 [POST /api/specs/create] Can create result:', canCreateResult);
         
         if (!canCreateResult.canCreate) {
             // Return paywall data for frontend
@@ -104,8 +108,11 @@ router.post('/create', verifyFirebaseToken, validateInput(createSpecSchema), asy
         }
 
         // Consume credit BEFORE generation to prevent bypass
+        console.log('🔵 [POST /api/specs/create] Calling consumeSpecCredit...');
         const creditResult = await consumeSpecCredit(userId);
+        console.log('🔵 [POST /api/specs/create] Credit result:', creditResult);
         if (!creditResult.success) {
+            console.log('🔵 [POST /api/specs/create] Credit consumption failed - returning 402');
             return res.status(402).json({
                 error: 'Failed to consume credit - insufficient credits',
                 paywall: {
@@ -146,17 +153,20 @@ router.post('/create', verifyFirebaseToken, validateInput(createSpecSchema), asy
 
         // Track which credit type was consumed for proper refund if needed
         const consumedCreditType = creditResult.creditType;
+        console.log('🔵 [POST /api/specs/create] Credit consumed successfully, type:', consumedCreditType);
 
         // Generate specification using existing API
+        // NOTE: Users can provide answers in any language, but the API will always return the specification in English
+        console.log('🔵 [POST /api/specs/create] Generating specification...');
         let specification;
         try {
             const requestBody = {
                 stage: 'overview',
-                locale: 'en-US',
+                locale: 'en-US',  // Force English output regardless of input language
                 temperature: 0,
                 prompt: {
-                    system: 'You are a professional product manager and UX architect. Generate a comprehensive application overview based on user input.',
-                    developer: 'Create a detailed overview that includes application summary, core features, user journey, target audience, problem statement, and unique value proposition.',
+                    system: 'You are a professional product manager and UX architect. Generate a comprehensive application overview based on user input. IMPORTANT: Always respond in English, regardless of the language used in the user input.',
+                    developer: 'Create a detailed overview that includes application summary, core features, user journey, target audience, problem statement, and unique value proposition. Ensure all output is in English.',
                     user: userInput
                 }
             };
@@ -183,14 +193,16 @@ router.post('/create', verifyFirebaseToken, validateInput(createSpecSchema), asy
         }
 
         // Return the specification
+        console.log('🔵 [POST /api/specs/create] Specification generated successfully, returning response');
         res.json({
             success: true,
             specification: specification,
             creditsRemaining: canCreateResult.creditsRemaining === 'unlimited' ? 'unlimited' : canCreateResult.creditsRemaining - 1
         });
+        console.log('🔵 [POST /api/specs/create] Request completed successfully');
 
     } catch (error) {
-        console.error('Error creating specification:', error);
+        console.error('❌ [POST /api/specs/create] Error creating specification:', error);
         res.status(500).json({ 
             error: 'Failed to create specification',
             details: error.message 

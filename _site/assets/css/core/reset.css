@@ -1,12 +1,10 @@
 /* CSS Reset - Specifys.ai */
-
-/* Import Fonts */
-@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap");
-/* Reset CSS - Specifys.ai */
 /* Based on normalize.css with custom modifications */
 
 /* Remove Font Awesome import - using custom SVG icons instead */
 /* @import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"); */
+
+/* Fonts are now loaded via HTML head instead of @import for better performance */
 
 /* Reset */
 *,
