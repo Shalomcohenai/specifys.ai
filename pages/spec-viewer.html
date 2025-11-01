@@ -82,6 +82,16 @@
         margin-right: 4px;
       }
       
+      /* Preview buttons styling */
+      button[onclick*="openVisualizer"]:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3) !important;
+      }
+      
+      button[onclick*="openVisualizer"]:active {
+        transform: translateY(0);
+      }
+      
       /* Hide Mermaid error logo/footer - target specific error elements only */
       svg .mermaid-error,
       svg[aria-describedby*="error"],
@@ -195,7 +205,7 @@
     <div class="header-right">
         <div class="credits-display" id="credits-display" style="display: none;">
             <div class="credits-container">
-                <i class="fas fa-dollar-sign"></i>
+                <i class="fa-solid fa-file-lines"></i>
                 <span id="credits-text">0</span>
             </div>
         </div>
@@ -1014,80 +1024,37 @@ function displayDesign(design) {
         return;
     }
     
-    // Parse design data for colors and typography
+    // Parse design data for colors and typography (for preview buttons)
     const designData = parseDesignData(design);
-    
-    // Build minimal palette HTML
-    let paletteHTML = '<div class="minimal-design-palette">';
-    
-    // Colors section
-    if (Object.keys(designData.colors).length > 0) {
-        paletteHTML += '<div class="palette-section">';
-        paletteHTML += '<div class="palette-title">';
-        paletteHTML += '<i class="fa fa-palette"></i> Color Palette';
-        paletteHTML += '<div class="visualization-buttons">';
-        paletteHTML += '<button class="viz-btn mobile-btn" onclick="openVisualizer(\'mobile\')">';
-        paletteHTML += '<i class="fa fa-mobile"></i> Mobile Preview';
-        paletteHTML += '</button>';
-        paletteHTML += '<button class="viz-btn web-btn" onclick="openVisualizer(\'web\')">';
-        paletteHTML += '<i class="fa fa-desktop"></i> Web Preview';
-        paletteHTML += '</button>';
-        paletteHTML += '</div>';
-        paletteHTML += '</div>';
-        paletteHTML += '<div class="color-strip-palette">';
-        
-        Object.entries(designData.colors).forEach(([name, code]) => {
-            paletteHTML += `
-                <div class="color-strip-item" style="background-color: ${code};" onclick="copyToClipboard('${code}')">
-                    <div class="color-strip-name">${name}</div>
-                    <div class="color-strip-code">${code}</div>
-                </div>
-            `;
-        });
-        
-        paletteHTML += '</div></div>';
-        
-        // Add color harmony and reasoning if available
-        if (designData.colorHarmony || designData.colorReasoning) {
-            paletteHTML += '<div style="margin-top: 20px; padding: 15px; background-color: #f0f8ff; border-left: 4px solid #2196F3; border-radius: 4px;">';
-            if (designData.colorHarmony) {
-                paletteHTML += '<h4><i class="fa fa-palette"></i> Color Harmony</h4>';
-                paletteHTML += `<p style="color: #333;">${designData.colorHarmony}</p>`;
-            }
-            if (designData.colorReasoning) {
-                paletteHTML += '<h4 style="margin-top: 10px;"><i class="fa fa-lightbulb-o"></i> Color Reasoning</h4>';
-                paletteHTML += `<p style="color: #333;">${designData.colorReasoning}</p>`;
-            }
-            paletteHTML += '</div>';
-        }
-    }
-    
-    // Typography section
-    if (Object.keys(designData.typography).length > 0) {
-        paletteHTML += '<div class="palette-section">';
-        paletteHTML += '<div class="palette-title"><i class="fa fa-font"></i> Typography</div>';
-        paletteHTML += '<div class="typography-mini-list">';
-        
-        Object.entries(designData.typography).forEach(([name, value]) => {
-            paletteHTML += `
-                <div class="font-mini-item">
-                    <div class="font-mini-label">${name}</div>
-                    <div class="font-mini-sample" style="${getTypographyStyle(value)}">Sample Text</div>
-                    <div class="font-mini-details">${value}</div>
-                </div>
-            `;
-        });
-        
-        paletteHTML += '</div></div>';
-    }
-    
-    paletteHTML += '</div>';
-    
-    // Format the remaining design content
+
+    // Format the remaining design content (which includes Visual Style Guide with Color Palette)
     const formattedContent = formatTextContent(design);
-    
-    // Combine palette with formatted content
-    container.innerHTML = paletteHTML + '<div style="margin-top: 20px;">' + formattedContent + '</div>';
+
+    // Build Preview buttons HTML to insert within Visual Style Guide
+    let previewButtonsHTML = '';
+    if (Object.keys(designData.colors).length > 0) {
+        previewButtonsHTML = '<div style="text-align: center; margin: 20px 0;">';
+        previewButtonsHTML += '<div style="display: inline-flex; gap: 15px; flex-wrap: wrap; justify-content: center;">';
+        previewButtonsHTML += '<button class="btn btn-primary" onclick="openVisualizer(\'mobile\')" style="padding: 12px 24px; background: #FF6B35; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(255, 107, 53, 0.2);">';
+        previewButtonsHTML += '<i class="fa fa-mobile" style="font-size: 18px; color: white;"></i>';
+        previewButtonsHTML += '<span>Mobile Preview</span>';
+        previewButtonsHTML += '</button>';
+        previewButtonsHTML += '<button class="btn btn-primary" onclick="openVisualizer(\'web\')" style="padding: 12px 24px; background: #FF6B35; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(255, 107, 53, 0.2);">';
+        previewButtonsHTML += '<i class="fa fa-desktop" style="font-size: 18px; color: white;"></i>';
+        previewButtonsHTML += '<span>Web Preview</span>';
+        previewButtonsHTML += '</button>';
+        previewButtonsHTML += '</div>';
+        previewButtonsHTML += '</div>';
+    }
+
+    // Add preview buttons after Visual Style Guide section
+    let finalContent = formattedContent;
+    if (previewButtonsHTML) {
+        finalContent += previewButtonsHTML;
+    }
+
+    // Set the final content
+    container.innerHTML = finalContent;
     
     // Update raw data
     document.getElementById('raw-design').textContent = JSON.stringify(design, null, 2);

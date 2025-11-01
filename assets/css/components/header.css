@@ -192,27 +192,27 @@
 
 .credits-container i {
   font-size: 14px;
-  color: #FF6B35;
+  color: var(--text-secondary);
 }
 
 .credits-container span {
   font-weight: var(--font-weight-medium);
-  color: #FF6B35;
+  color: var(--text-color);
   min-width: 20px;
   text-align: center;
 }
 
-/* State variations - all use orange for pro, red for low */
+/* State variations - all use grey for consistency */
 .credits-container.pro i,
 .credits-container.pro span {
-  color: #FF6B35;
+  color: var(--text-secondary);
 }
 
 .credits-container.low i,
 .credits-container.unlimited i,
 .credits-container.low span,
 .credits-container.unlimited span {
-  color: #ef4444;
+  color: var(--text-secondary);
 }
 
 /* Mobile Responsive */

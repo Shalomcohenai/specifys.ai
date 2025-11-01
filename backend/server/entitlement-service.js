@@ -333,41 +333,66 @@ async function refundSpecCredit(userId, creditType = 'purchased') {
  * @returns {Promise<boolean>} - Success status
  */
 async function grantCredits(userId, creditsToAdd, orderId, variantId) {
+    const startTime = Date.now();
+    
     try {
-        console.log(`[grantCredits] User ${userId}: Adding ${creditsToAdd} credits`);
+        console.log(`💳 [grantCredits] Starting credit grant process`);
+        console.log(`💳 [grantCredits] Details:`, {
+            userId,
+            creditsToAdd,
+            orderId,
+            variantId
+        });
+        
         const batch = db.batch();
 
         // Update entitlements - FIXED: Changed from batch.update to batch.set
         const entitlementsDocRef = db.collection('entitlements').doc(userId);
+        
+        console.log(`💳 [grantCredits] Preparing entitlements update for user: ${userId}`);
         batch.set(entitlementsDocRef, {
             spec_credits: admin.firestore.FieldValue.increment(creditsToAdd),
             updated_at: admin.firestore.FieldValue.serverTimestamp()
         }, { merge: true });
 
         // Create purchase record
+        const productId = getProductIdByVariantId(variantId);
+        const price = getPriceByVariantId(variantId);
+        
+        console.log(`💳 [grantCredits] Creating purchase record:`, {
+            productId,
+            price,
+            currency: config.currency
+        });
+        
         const purchaseDocRef = db.collection('purchases').doc();
         batch.set(purchaseDocRef, {
             userId: userId,
             lemon_order_id: orderId,
-            product_id: getProductIdByVariantId(variantId),
+            product_id: productId,
             variant_id: variantId,
             credits_granted: creditsToAdd,
             credits_used: 0,
-            total_amount_cents: getPriceByVariantId(variantId) * 100,
+            total_amount_cents: price * 100,
             currency: config.currency,
             status: 'completed',
             purchased_at: admin.firestore.FieldValue.serverTimestamp()
         });
 
+        console.log(`💳 [grantCredits] Committing batch operations...`);
         await batch.commit();
-        console.log(`[grantCredits] ✅ Credits granted to user ${userId}`);
+        
+        const duration = Date.now() - startTime;
+        console.log(`✅ [grantCredits] Credits granted successfully in ${duration}ms - User: ${userId}, Credits: ${creditsToAdd}`);
         return true;
 
     } catch (error) {
-        console.error('[CRITICAL] grantCredits failed:', {
+        const duration = Date.now() - startTime;
+        console.error('❌ [CRITICAL] grantCredits failed after', duration, 'ms:', {
             userId,
             creditsToAdd,
             orderId,
+            variantId,
             error: error.message,
             stack: error.stack
         });
@@ -677,30 +702,51 @@ async function addAuditLog(userId, source, action, eventId, payload = {}) {
  */
 async function findUserByLemonCustomerIdOrEmail(customerId, email) {
     try {
+        console.log('🔍 [findUserByLemonCustomerIdOrEmail] Searching for user:', {
+            customerId,
+            email
+        });
+        
         // First try by Lemon customer ID
         if (customerId) {
+            console.log('🔍 [findUserByLemonCustomerIdOrEmail] Attempting search by customer_id:', customerId);
             const userQuery = db.collection('users').where('lemon_customer_id', '==', customerId);
             const userSnapshot = await userQuery.get();
             
             if (!userSnapshot.empty) {
-                return userSnapshot.docs[0].id;
+                const userId = userSnapshot.docs[0].id;
+                console.log('✅ [findUserByLemonCustomerIdOrEmail] Found user by customer_id:', userId);
+                return userId;
+            } else {
+                console.log('🔍 [findUserByLemonCustomerIdOrEmail] No user found by customer_id');
             }
         }
 
         // Then try by email
         if (email) {
+            console.log('🔍 [findUserByLemonCustomerIdOrEmail] Attempting search by email:', email);
             const userQuery = db.collection('users').where('email', '==', email);
             const userSnapshot = await userQuery.get();
             
             if (!userSnapshot.empty) {
-                return userSnapshot.docs[0].id;
+                const userId = userSnapshot.docs[0].id;
+                console.log('✅ [findUserByLemonCustomerIdOrEmail] Found user by email:', userId);
+                return userId;
+            } else {
+                console.log('🔍 [findUserByLemonCustomerIdOrEmail] No user found by email');
             }
         }
 
+        console.log('❌ [findUserByLemonCustomerIdOrEmail] User not found with given criteria');
         return null;
 
     } catch (error) {
-        console.error('Error finding user:', error);
+        console.error('❌ [findUserByLemonCustomerIdOrEmail] Error finding user:', {
+            error: error.message,
+            stack: error.stack,
+            customerId,
+            email
+        });
         return null;
     }
 }

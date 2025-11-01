@@ -146,6 +146,8 @@ class PaywallManager {
      */
     async selectOption(optionId) {
         try {
+            console.log('🛒 [PAYWALL] User selected option:', optionId);
+            
             // Show processing state
             this.showProcessing();
 
@@ -163,18 +165,23 @@ class PaywallManager {
             // Open Lemon Squeezy checkout
             const checkoutUrl = `https://specifysai.lemonsqueezy.com/checkout/buy/${product.variant_id}`;
             
+            console.log('🛒 [PAYWALL] Opening checkout window:', checkoutUrl);
+            
             // Open in new window
             const checkoutWindow = window.open(checkoutUrl, '_blank', 'width=600,height=700,scrollbars=yes,resizable=yes');
             
             if (!checkoutWindow) {
+                console.error('❌ [PAYWALL] Popup blocked!');
                 throw new Error('Popup blocked. Please allow popups for this site.');
             }
+
+            console.log('✅ [PAYWALL] Checkout window opened, starting polling (5 minutes timeout)');
 
             // Start polling for purchase completion
             this.startPolling();
 
         } catch (error) {
-            console.error('Error initiating purchase:', error);
+            console.error('❌ [PAYWALL] Error initiating purchase:', error);
             this.hideProcessing();
             alert('Error initiating purchase. Please try again.');
         }
@@ -209,15 +216,25 @@ class PaywallManager {
         this.stopPolling(); // Clear any existing polling
 
         let pollCount = 0;
-        const maxPolls = 30; // 30 polls * 2 seconds = 60 seconds max
+        const maxPolls = 150; // 150 polls * 2 seconds = 5 minutes max (allows time for user to complete payment)
         const pollInterval = 2000; // 2 seconds
+
+        console.log('🔄 [POLLING] Starting purchase detection polling');
+        console.log('🔄 [POLLING] Configuration:', {
+            maxPolls,
+            pollInterval,
+            totalDuration: maxPolls * pollInterval / 1000 + ' seconds'
+        });
 
         this.pollingInterval = setInterval(async () => {
             pollCount++;
             
             try {
+                console.log(`🔄 [POLLING] Poll attempt ${pollCount}/${maxPolls}`);
+                
                 const user = firebase.auth().currentUser;
                 if (!user) {
+                    console.warn('🔄 [POLLING] No authenticated user, stopping polling');
                     this.stopPolling();
                     return;
                 }
@@ -233,38 +250,54 @@ class PaywallManager {
                     const data = await response.json();
                     const { entitlements, user: userData } = data;
 
+                    console.log('🔄 [POLLING] Current entitlements:', {
+                        spec_credits: entitlements.spec_credits,
+                        unlimited: entitlements.unlimited,
+                        free_specs_remaining: userData.free_specs_remaining
+                    });
+
                     // Check if user got new credits or Pro access
                     const hasNewCredits = entitlements.spec_credits > 0 || entitlements.unlimited || userData.free_specs_remaining > 0;
                     
                     if (hasNewCredits) {
-                        console.log('Purchase detected! Credits updated:', data);
+                        console.log('✅ [POLLING] Purchase detected! Credits updated:', data);
+                        console.log('✅ [POLLING] Stopping polling and triggering callback');
                         this.stopPolling();
                         this.hidePaywall();
                         
                         // Call success callback
                         if (this.currentCallback) {
+                            console.log('✅ [POLLING] Executing success callback');
                             this.currentCallback(data);
+                        } else {
+                            console.warn('⚠️ [POLLING] No callback registered');
                         }
                         return;
+                    } else {
+                        console.log('🔄 [POLLING] No credits detected yet, continuing...');
                     }
+                } else {
+                    console.error('❌ [POLLING] Failed to fetch entitlements:', response.status);
                 }
 
                 // Check if we've exceeded max polls
                 if (pollCount >= maxPolls) {
-                    console.log('Polling timeout reached');
+                    console.error('⏱️ [POLLING] Timeout reached after', pollCount, 'polls (5 minutes)');
                     this.stopPolling();
                     this.hideProcessing();
-                    alert('Purchase processing is taking longer than expected. Please refresh the page to check your credits.');
+                    alert('The purchase window has been open for a while. If you completed the purchase, please refresh the page to check your credits. Otherwise, you can try purchasing again.');
                 }
 
             } catch (error) {
-                console.error('Error polling for purchase:', error);
+                console.error('❌ [POLLING] Error polling for purchase:', error);
+                console.log('🔄 [POLLING] Continuing polling despite error...');
                 // Continue polling on error
             }
         }, pollInterval);
 
         // Set timeout to stop polling
         this.pollingTimeout = setTimeout(() => {
+            console.log('⏱️ [POLLING] Final timeout reached');
             this.stopPolling();
         }, maxPolls * pollInterval);
     }

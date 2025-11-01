@@ -861,10 +861,10 @@ async function generateSpecification() {
     showLoadingOverlay();
     
     // Check credits BEFORE generating spec
-    console.log('🔵 [generateSpecification] Checking credits status with API_BASE_URL:', window.API_BASE_URL);
+    console.log('💳 [generateSpecification] Checking credits status with API_BASE_URL:', window.API_BASE_URL);
     try {
       const token = await user.getIdToken();
-      console.log('🔵 [generateSpecification] Got auth token, calling /api/specs/status');
+      console.log('💳 [generateSpecification] Got auth token, calling /api/specs/status');
       const statusResponse = await fetch(`${window.API_BASE_URL || 'http://localhost:10000'}/api/specs/status`, {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -873,12 +873,13 @@ async function generateSpecification() {
       
       if (statusResponse.ok) {
         const statusData = await statusResponse.json();
-        console.log('🎯 Credits status:', statusData);
-        console.log('🔵 [generateSpecification] Can create:', statusData.canCreate);
+        console.log('💳 [generateSpecification] Credits status:', statusData);
+        console.log('💳 [generateSpecification] Can create:', statusData.canCreate);
         
         if (!statusData.canCreate) {
           hideLoadingOverlay();
-          console.warn('⚠️ No credits available:', statusData.reason);
+          console.warn('❌ [generateSpecification] No credits available:', statusData.reason);
+          console.warn('❌ [generateSpecification] Showing paywall to user');
           
           // Show paywall
           const paywallData = {
@@ -903,10 +904,14 @@ async function generateSpecification() {
           
           showPaywall(paywallData);
           return;
+        } else {
+          console.log('✅ [generateSpecification] User has credits, proceeding with spec generation');
         }
+      } else {
+        console.error('❌ [generateSpecification] Failed to check credits status:', statusResponse.status);
       }
     } catch (error) {
-      console.error('Error checking credits:', error);
+      console.error('❌ [generateSpecification] Error checking credits:', error);
       // Continue anyway - let the server decide
     }
     
@@ -950,7 +955,9 @@ async function generateSpecification() {
 
     if (response.status === 402) {
       // Payment required - show paywall
+      console.warn('❌ [generateSpecification] Server returned 402 - Payment required');
       const paywallData = await response.json();
+      console.log('🚧 [generateSpecification] Received paywall data from server');
       hideLoadingOverlay();
       showPaywall(paywallData.paywall);
       return;
@@ -1170,14 +1177,20 @@ async function triggerOpenAIUpload(specId) {
 
 // ===== PAYWALL FUNCTIONS =====
 function showPaywall(paywallData) {
+  console.log('🚧 [PAYWALL] showPaywall called:', paywallData);
+  
   if (window.paywallManager) {
+    console.log('✅ [PAYWALL] Paywall manager loaded, showing paywall');
     window.paywallManager.showPaywall(paywallData, (entitlements) => {
       // Success callback - retry specification generation
-      console.log('Purchase successful, retry specification generation');
+      console.log('✅ [PAYWALL] Purchase successful callback triggered');
+      console.log('✅ [PAYWALL] Entitlements received:', entitlements);
+      console.log('🔄 [PAYWALL] Retrying specification generation...');
       generateSpecification();
     });
   } else {
     // Fallback if paywall manager not loaded
+    console.error('❌ [PAYWALL] Paywall manager not loaded!');
     alert('Payment required to create more specifications. Please refresh the page and try again.');
   }
 }

@@ -482,7 +482,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="header-right">
         <div class="credits-display" id="credits-display" style="display: none;">
             <div class="credits-container">
-                <i class="fas fa-dollar-sign"></i>
+                <i class="fa-solid fa-file-lines"></i>
                 <span id="credits-text">0</span>
             </div>
         </div>
@@ -496,7 +496,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <main id="main-content" class="main-content">
         <!-- Hero Section -->
         <section class="hero-section">
-            <div id="particles-js"></div>
+            <div id="vanta-net"></div>
             
             <!-- Hero Content -->
             <div class="hero-content" id="heroContent">
@@ -1151,8 +1151,9 @@ document.addEventListener('DOMContentLoaded', function() {
 <script src="/assets/js/credits-display.js"></script>
 
     
-    <!-- Particles.js -->
-    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <!-- Vanta.NET -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.net.min.js"></script>
     
     <!-- Prompts Data (for API calls) - must load before index.js -->
     <script src="/tools/prompts.js"></script>
@@ -1163,22 +1164,24 @@ document.addEventListener('DOMContentLoaded', function() {
     <!-- Index Page JavaScript -->
     <script defer src="/assets/js/index.js"></script>
     
-    <!-- Particles Animation (conditional, throttled) -->
+    <!-- Vanta.NET Animation (conditional, throttled) -->
     <script>
-      function startParticles() {
+      function startVantaNet() {
         try {
-          particlesJS("particles-js", {
-            particles: {
-              number: { value: 40, density: { enable: true, value_area: 800 } },
-              color: { value: "#FF6B35" },
-              shape: { type: "circle", stroke: { width: 0, color: "#000000" }, polygon: { nb_sides: 5 } },
-              opacity: { value: 0.4 },
-              size: { value: 2, random: true },
-              line_linked: { enable: false },
-              move: { enable: true, speed: 2, direction: "none", random: false, straight: false, out_mode: "out", bounce: false }
-            },
-            interactivity: { detect_on: "canvas", events: { onhover: { enable: false }, onclick: { enable: false }, resize: true } },
-            retina_detect: true
+          VANTA.NET({
+            el: "#vanta-net",
+            mouseControls: true,
+            touchControls: true,
+            gyroControls: false,
+            minHeight: 200.00,
+            minWidth: 200.00,
+            scale: 1.00,
+            scaleMobile: 1.00,
+            color: 0xf5f5f5,
+            backgroundColor: 0x333333,
+            points: 6.00,
+            maxDistance: 31.00,
+            spacing: 18.00
           });
         } catch (e) { }
       }
@@ -1187,9 +1190,9 @@ document.addEventListener('DOMContentLoaded', function() {
         var prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         if (isMobile || prefersReduced) return;
         if ('requestIdleCallback' in window) {
-          requestIdleCallback(startParticles, { timeout: 2000 });
+          requestIdleCallback(startVantaNet, { timeout: 2000 });
         } else {
-          setTimeout(startParticles, 1500);
+          setTimeout(startVantaNet, 1500);
         }
       })();
     </script>
