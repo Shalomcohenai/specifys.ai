@@ -72,31 +72,21 @@
       }
       
       .pro-badge {
-        font-size: 0.75em;
+        font-size: 1em;
         color: white;
         font-weight: 600;
-        margin-left: 4px;
+        margin-left: 2px;
       }
       
       .btn.locked .fa-lock {
         margin-right: 4px;
       }
       
-      /* Hide Mermaid error logo/footer */
-      .mermaid svg g:last-child {
-        display: none !important;
-      }
-      
-      svg .errorInfo,
-      svg g:has(text:contains("Syntax Error")),
-      svg g:has(text:contains("mermaid")) {
-        display: none !important;
-      }
-      
-      /* Hide Mermaid version logo */
-      svg g[class*="errorInfo"],
-      svg text[fill="#FFFFFF"] + g,
-      svg g[transform*="translate"]:last-child {
+      /* Hide Mermaid error logo/footer - target specific error elements only */
+      svg .mermaid-error,
+      svg[aria-describedby*="error"],
+      svg + div[class*="error"],
+      .mermaid-error-message {
         display: none !important;
       }
     </style>
