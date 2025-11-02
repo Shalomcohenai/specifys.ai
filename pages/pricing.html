@@ -777,23 +777,36 @@ async function purchaseSpec(productKey) {
         // Track the purchase attempt
         trackCTA('Purchase ' + productKey, 'pricing_page');
 
-        // Get Lemon Squeezy checkout URL
-        const config = await fetch('/assets/data/lemon-products.json').then(r => r.json());
-        const product = config.products[productKey];
+        // Get auth token and create checkout via API
+        const token = await user.getIdToken();
+        const apiBaseUrl = window.API_BASE_URL || 'http://localhost:10000';
         
-        if (!product) {
-            alert('Product not found. Please try again.');
+        const response = await fetch(`${apiBaseUrl}/api/checkout`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ productId: productKey })
+        });
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error('❌ [PRICING] Checkout API error:', errorData);
+            alert(errorData.message || 'Failed to create checkout. Please try again.');
             return;
         }
+        
+        const { checkout_url } = await response.json();
+        console.log('✅ [PRICING] Checkout URL received from API:', checkout_url);
 
         // Open Lemon Squeezy checkout in popup window (centered, 600x700px)
-        const checkoutUrl = `https://specifysai.lemonsqueezy.com/checkout/buy/${product.variant_id}`;
         const width = 600;
         const height = 700;
         const left = (window.innerWidth - width) / 2;
         const top = (window.innerHeight - height) / 2;
         const popup = window.open(
-            checkoutUrl,
+            checkout_url,
             'LemonSqueezyCheckout',
             `width=${width},height=${height},left=${left},top=${top},menubar=no,toolbar=no,location=no,resizable=yes,scrollbars=yes,status=no`
         );
