@@ -324,7 +324,7 @@ async function simulatePurchaseFlow(productId, userId, userEmail) {
             .where('userId', '==', foundUserId)
             .where('lemon_order_id', '==', webhookPayload.data.id)
             .get();
-        const eventDoc = await db.collection('processed_webhook_events').doc(eventId).get();
+        const eventDocVerify = await db.collection('processed_webhook_events').doc(eventId).get();
         const auditQuery = await db.collection('audit_logs')
             .where('event_id', '==', eventId)
             .get();
@@ -332,7 +332,7 @@ async function simulatePurchaseFlow(productId, userId, userEmail) {
         log('green', '📊', 'Database verification results', {
             entitlements: entitlementsDoc.data(),
             purchase: purchaseQuery.docs[0]?.data(),
-            eventProcessed: eventDoc.exists,
+            eventProcessed: eventDocVerify.exists,
             auditLogs: auditQuery.docs.length
         });
         console.log('');
