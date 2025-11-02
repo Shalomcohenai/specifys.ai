@@ -197,9 +197,20 @@ class PaywallManager {
             }
 
             console.log('🛒 [PAYWALL] Using Lemon Squeezy overlay for checkout');
+            console.log('🛒 [PAYWALL] Product config:', {
+                name: product.name,
+                variant_id: product.variant_id,
+                variant_type: typeof product.variant_id,
+                price: product.price_usd,
+                credits: product.grants.spec_credits,
+                config_version: '2025-11-02-v2'
+            });
 
             // Open Lemon Squeezy checkout using lemon.js overlay
-            window.LemonSqueezy.Url.Open(`https://specifysai.lemonsqueezy.com/checkout/buy/${product.variant_id}`);
+            const checkoutUrl = `https://specifysai.lemonsqueezy.com/checkout/buy/${product.variant_id}`;
+            console.log('🛒 [PAYWALL] Opening checkout URL:', checkoutUrl);
+            
+            window.LemonSqueezy.Url.Open(checkoutUrl);
             
             console.log('✅ [PAYWALL] Checkout overlay opened, starting polling (5 minutes timeout)');
 
@@ -364,10 +375,18 @@ class PaywallManager {
      */
     async getLemonConfig() {
         try {
-            const response = await fetch('/assets/data/lemon-products.json');
-            return await response.json();
+            const configUrl = '/assets/data/lemon-products.json';
+            console.log('📥 [PAYWALL] Loading Lemon config from:', configUrl);
+            const response = await fetch(configUrl);
+            const config = await response.json();
+            console.log('📥 [PAYWALL] Config loaded successfully:', {
+                store_id: config.lemon_store_id,
+                products_count: Object.keys(config.products).length,
+                config_version: '2025-11-02-v2'
+            });
+            return config;
         } catch (error) {
-            console.error('Error loading Lemon config:', error);
+            console.error('❌ [PAYWALL] Error loading Lemon config:', error);
             throw error;
         }
     }
