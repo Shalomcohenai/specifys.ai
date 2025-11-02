@@ -345,9 +345,10 @@ async function handleSubscriptionCreated(payload) {
             console.log(`Pro subscription enabled for user ${userId}`);
         } else {
             // User doesn't exist - create pending entitlement
-            const product = Object.values(config.products).find(p => 
-                p.variant_id === subscription.variant_id
-            );
+            const product = Object.values(config.products).find(p => {
+                // Handle both numeric and string variant_ids
+                return String(p.variant_id) === String(subscription.variant_id);
+            });
 
             if (product) {
                 await createPendingEntitlement(
@@ -355,7 +356,8 @@ async function handleSubscriptionCreated(payload) {
                     subscription.customer_id,
                     payload,
                     product.grants,
-                    'subscription_created_before_signup'
+                    'subscription_created_before_signup',
+                    subscription.variant_id
                 );
 
                 console.log(`Pending Pro subscription created for email: ${subscription.user_email}`);
