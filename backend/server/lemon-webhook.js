@@ -301,7 +301,7 @@ async function handleSubscriptionCreated(payload) {
 
             // User exists - enable Pro immediately
             const currentPeriodEnd = new Date(subscription.current_period_end);
-            await enableProSubscription(userId, subscription.id, currentPeriodEnd);
+            await enableProSubscription(userId, subscription.id, subscription.variant_id, currentPeriodEnd);
             
             await addAuditLog(userId, 'lemon_webhook', 'subscription_created', payload.meta.event_id, {
                 subscription_id: subscription.id,
@@ -360,7 +360,7 @@ async function handleSubscriptionPaymentSuccess(payload) {
 
             // Update subscription period
             const currentPeriodEnd = new Date(subscription.current_period_end);
-            await enableProSubscription(userId, subscription.id, currentPeriodEnd);
+            await enableProSubscription(userId, subscription.id, subscription.variant_id, currentPeriodEnd);
             
             await addAuditLog(userId, 'lemon_webhook', 'subscription_payment_success', payload.meta.event_id, {
                 subscription_id: subscription.id,

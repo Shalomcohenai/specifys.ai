@@ -404,10 +404,11 @@ async function grantCredits(userId, creditsToAdd, orderId, variantId) {
  * Enable Pro subscription
  * @param {string} userId - User ID
  * @param {string} subscriptionId - Lemon Squeezy subscription ID
+ * @param {string} variantId - Product variant ID
  * @param {Date} currentPeriodEnd - Subscription end date
  * @returns {Promise<boolean>} - Success status
  */
-async function enableProSubscription(userId, subscriptionId, currentPeriodEnd) {
+async function enableProSubscription(userId, subscriptionId, variantId, currentPeriodEnd) {
     try {
         console.log(`[enableProSubscription] User ${userId}: Setting unlimited=true`);
         
@@ -443,8 +444,8 @@ async function enableProSubscription(userId, subscriptionId, currentPeriodEnd) {
         batch.set(subscriptionDocRef, {
             userId: userId,
             lemon_subscription_id: subscriptionId,
-            product_id: getProductIdByVariantId(subscriptionId),
-            variant_id: subscriptionId,
+            product_id: getProductIdByVariantId(variantId),
+            variant_id: variantId,
             status: 'active',
             current_period_end: admin.firestore.Timestamp.fromDate(currentPeriodEnd),
             cancel_at_period_end: false,
@@ -459,6 +460,7 @@ async function enableProSubscription(userId, subscriptionId, currentPeriodEnd) {
         console.error('[CRITICAL] enableProSubscription failed:', {
             userId,
             subscriptionId,
+            variantId,
             error: error.message,
             stack: error.stack
         });
