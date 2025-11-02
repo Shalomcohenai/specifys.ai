@@ -11,12 +11,22 @@ const API_CONFIG = {
 
   // Auto-detect environment
   get baseUrl() {
+    let url;
     // If running on localhost, use development API
     if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-      return this.development;
+      url = this.development;
+    } else {
+      // Otherwise use production
+      url = this.production;
     }
-    // Otherwise use production
-    return this.production;
+    
+    // Ensure URL has protocol (safety check)
+    if (url && !url.startsWith('http://') && !url.startsWith('https://')) {
+      console.warn('[API_CONFIG] URL missing protocol, adding https://');
+      url = 'https://' + url;
+    }
+    
+    return url;
   }
 };
 

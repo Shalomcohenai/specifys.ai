@@ -68,7 +68,18 @@ class EntitlementsCache {
             }
             
             const token = await user.getIdToken();
-            const apiUrl = window.API_BASE_URL || 'http://localhost:10000';
+            let apiUrl = window.API_BASE_URL || 'http://localhost:10000';
+            
+            // Ensure URL has protocol
+            if (!apiUrl.startsWith('http://') && !apiUrl.startsWith('https://')) {
+                console.warn('[EntitlementsCache] API URL missing protocol, adding https://');
+                apiUrl = 'https://' + apiUrl;
+            }
+            
+            // Remove trailing slash if present
+            apiUrl = apiUrl.replace(/\/$/, '');
+            
+            console.log('[EntitlementsCache] Fetching from:', `${apiUrl}/api/specs/entitlements`);
             
             const response = await fetch(`${apiUrl}/api/specs/entitlements`, {
                 headers: { 
@@ -96,6 +107,19 @@ class EntitlementsCache {
             
         } catch (error) {
             console.error('[EntitlementsCache] Error fetching entitlements:', error);
+            console.error('[EntitlementsCache] Error details:', {
+                name: error.name,
+                message: error.message,
+                stack: error.stack
+            });
+            
+            // Log additional info for debugging
+            console.error('[EntitlementsCache] Debug info:', {
+                apiBaseUrl: window.API_BASE_URL,
+                userLoggedIn: !!firebase.auth().currentUser,
+                currentUrl: window.location.href
+            });
+            
             return null;
         }
     }
