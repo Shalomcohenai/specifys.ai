@@ -143,10 +143,12 @@ async function handleOrderCreated(payload) {
 
         console.log('🔍 [ORDER_CREATED] User search result:', userId || 'Not found');
 
-        // Get product info
-        const product = Object.values(config.products).find(p => 
-            p.variant_id === variantId
-        );
+        // Get product info - handle both numeric and string variant_ids
+        const product = Object.values(config.products).find(p => {
+            const configVariantId = p.variant_id;
+            // Normalize both to strings for comparison
+            return String(configVariantId) === String(variantId);
+        });
 
         if (!product) {
             console.error('❌ [ORDER_CREATED] Product not found for variant:', variantId);

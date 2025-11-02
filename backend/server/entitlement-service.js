@@ -833,7 +833,8 @@ async function refundCredits(userId, creditsToRefund, orderId) {
 // Helper functions
 function getProductIdByVariantId(variantId) {
     for (const [key, product] of Object.entries(config.products)) {
-        if (product.variant_id === variantId) {
+        // Handle both numeric and string variant_ids
+        if (String(product.variant_id) === String(variantId)) {
             return product.product_id;
         }
     }
@@ -842,7 +843,8 @@ function getProductIdByVariantId(variantId) {
 
 function getPriceByVariantId(variantId) {
     for (const [key, product] of Object.entries(config.products)) {
-        if (product.variant_id === variantId) {
+        // Handle both numeric and string variant_ids
+        if (String(product.variant_id) === String(variantId)) {
             return product.price_usd || 0;
         }
     }
