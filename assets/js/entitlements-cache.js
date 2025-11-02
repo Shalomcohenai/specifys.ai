@@ -120,6 +120,14 @@ class EntitlementsCache {
                 currentUrl: window.location.href
             });
             
+            // Check for DNS resolution errors
+            if (error.message && error.message.includes('Failed to fetch')) {
+                console.error('⚠️ [EntitlementsCache] DNS/Network Error Detected!');
+                console.error('⚠️ The domain may not be resolved or the server may be down.');
+                console.error('⚠️ Check DNS configuration for:', window.API_BASE_URL);
+                console.error('⚠️ Make sure the API server is running and accessible.');
+            }
+            
             return null;
         }
     }

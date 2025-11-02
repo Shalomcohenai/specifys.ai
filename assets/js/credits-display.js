@@ -101,6 +101,25 @@ class CreditsDisplayManager {
 
         } catch (error) {
             console.error('Error updating credits:', error);
+            
+            // Check if it's a network/DNS error
+            const errorMessage = error.message || '';
+            const isNetworkError = errorMessage.includes('Failed to fetch') || 
+                                  errorMessage.includes('ERR_NAME_NOT_RESOLVED') ||
+                                  errorMessage.includes('NetworkError') ||
+                                  error.name === 'TypeError';
+            
+            if (isNetworkError) {
+                console.warn('[CreditsDisplay] API unavailable - this may be a DNS/network issue');
+                console.warn('[CreditsDisplay] API URL:', window.API_BASE_URL);
+                
+                // Remove spinner and show error indicator or hide display
+                const creditsText = document.getElementById('credits-text');
+                if (creditsText) {
+                    creditsText.textContent = '?';
+                    creditsText.title = 'Unable to connect to API. Please check your connection or contact support.';
+                }
+            }
         }
     }
 
