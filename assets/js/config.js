@@ -6,11 +6,7 @@ const API_CONFIG = {
   development: 'http://localhost:10000',
 
   // Production backend URL
-  // IMPORTANT: Update this with your actual production API URL
-  // Options:
-  // - https://api.specifys-ai.com (if subdomain exists)
-  // - https://specifys-ai.com/api (if using same domain)
-  // - Your Railway/Heroku/Render URL
+  // Render.com deployment URL
   production: 'https://specifys-ai.onrender.com',
 
   // Auto-detect environment
