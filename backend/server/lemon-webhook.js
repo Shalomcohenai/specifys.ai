@@ -98,7 +98,7 @@ async function markEventProcessed(eventId) {
 async function handleOrderCreated(payload) {
     const startTime = Date.now();
     let userId = null;
-    let creditsGranted = 0;
+    let credits_granted = 0;
     
     try {
         const { data } = payload;
@@ -168,7 +168,7 @@ async function handleOrderCreated(payload) {
 
             // User exists - grant credits immediately
             const grantResult = await grantCredits(userId, product.grants.spec_credits, order.id, variantId);
-            creditsGranted = product.grants.spec_credits;
+            credits_granted = product.grants.spec_credits;
             
             if (!grantResult) {
                 console.error('❌ [ORDER_CREATED] Credit grant failed for user:', userId);
@@ -191,7 +191,7 @@ async function handleOrderCreated(payload) {
             });
 
             const duration = Date.now() - startTime;
-            console.log(`✅ [ORDER_CREATED] Completed successfully in ${duration}ms - User: ${userId}, Credits: ${creditsGranted}`);
+            console.log(`✅ [ORDER_CREATED] Completed successfully in ${duration}ms - User: ${userId}, Credits: ${credits_granted}`);
         } else {
             console.log('⏳ [ORDER_CREATED] User not found, creating pending entitlement');
             
