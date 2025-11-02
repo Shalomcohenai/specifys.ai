@@ -124,16 +124,22 @@ async function handleOrderCreated(payload) {
             currency: order.currency
         });
 
-        // Find user by customer ID or email
-        console.log('🔍 [ORDER_CREATED] Searching for user with:', {
-            customer_id: order.customer_id,
-            email: order.user_email
-        });
-        
-        userId = await findUserByLemonCustomerIdOrEmail(
-            order.customer_id,
-            order.user_email
-        );
+        // Check for custom user_id in checkout_data (from API checkout)
+        if (order.custom && order.custom.user_id) {
+            console.log('🔍 [ORDER_CREATED] Found custom user_id in checkout_data:', order.custom.user_id);
+            userId = order.custom.user_id;
+        } else {
+            // Fallback: Find user by customer ID or email
+            console.log('🔍 [ORDER_CREATED] Searching for user with:', {
+                customer_id: order.customer_id,
+                email: order.user_email
+            });
+            
+            userId = await findUserByLemonCustomerIdOrEmail(
+                order.customer_id,
+                order.user_email
+            );
+        }
 
         console.log('🔍 [ORDER_CREATED] User search result:', userId || 'Not found');
 
