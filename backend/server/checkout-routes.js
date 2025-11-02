@@ -1,5 +1,11 @@
 const express = require('express');
-const fetch = require('node-fetch');
+// Handle fetch for different Node versions - use dynamic import for node-fetch v3
+let fetch;
+if (typeof globalThis.fetch === 'function') {
+    fetch = globalThis.fetch;
+} else {
+    fetch = require('node-fetch');
+}
 const config = require('../../config/lemon-products.json');
 const { verifyFirebaseToken } = require('./spec-routes');
 

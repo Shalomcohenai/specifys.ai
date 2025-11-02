@@ -121,7 +121,8 @@ const rateLimiters = {
       retryAfter: '15 minutes'
     },
     standardHeaders: true,
-    legacyHeaders: false
+    legacyHeaders: false,
+    validate: { trustProxy: true } // Allow behind proxy (Render)
   }),
 
   // Strict rate limiting for admin endpoints
@@ -133,7 +134,8 @@ const rateLimiters = {
       retryAfter: '15 minutes'
     },
     standardHeaders: true,
-    legacyHeaders: false
+    legacyHeaders: false,
+    validate: { trustProxy: true } // Allow behind proxy (Render)
   }),
 
   // Very strict rate limiting for authentication endpoints
@@ -145,7 +147,8 @@ const rateLimiters = {
       retryAfter: '15 minutes'
     },
     standardHeaders: true,
-    legacyHeaders: false
+    legacyHeaders: false,
+    validate: { trustProxy: true } // Allow behind proxy (Render)
   }),
 
   // Feedback rate limiting
@@ -157,7 +160,8 @@ const rateLimiters = {
       retryAfter: '1 hour'
     },
     standardHeaders: true,
-    legacyHeaders: false
+    legacyHeaders: false,
+    validate: { trustProxy: true } // Allow behind proxy (Render)
   }),
 
   // Rate limiting for generation endpoints
@@ -169,7 +173,8 @@ const rateLimiters = {
       retryAfter: '1 hour'
     },
     standardHeaders: true,
-    legacyHeaders: false
+    legacyHeaders: false,
+    validate: { trustProxy: true } // Allow behind proxy (Render)
   })
 };
 
