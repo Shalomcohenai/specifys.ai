@@ -60,6 +60,7 @@ router.post('/', verifyFirebaseToken, async (req, res) => {
             data: {
                 type: 'checkouts',
                 attributes: {
+                    store_id: config.lemon_store_id,
                     custom_price: null,
                     product_options: {
                         enabled_variants: [product.variant_id],
