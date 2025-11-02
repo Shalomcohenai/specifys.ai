@@ -17,7 +17,7 @@
     },
     "three_pack": {
       "product_id": "671444",
-      "variant_id": "b6e9892c-b115-4fea-a032-3683a74bdd1b",
+      "variant_id": 1055337,
       "name": "3-Pack AI Specifications",
       "price_usd": 9.90,
       "type": "one_time",
@@ -29,7 +29,7 @@
     },
     "pro_monthly": {
       "product_id": "671446",
-      "variant_id": "cae56dc9-f0b9-45fa-a4af-5405e08ab8c9",
+      "variant_id": 1055346,
       "name": "Pro Monthly Subscription",
       "price_usd": 29.90,
       "type": "subscription",
@@ -41,7 +41,7 @@
     },
     "pro_yearly": {
       "product_id": "671450",
-      "variant_id": "02828cb1-3985-437f-acb0-fe49508935c6",
+      "variant_id": 1055354,
       "name": "Pro Yearly Subscription",
       "price_usd": 299.90,
       "type": "subscription",
