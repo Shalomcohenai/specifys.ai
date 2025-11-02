@@ -19,7 +19,35 @@ class PaywallManager {
         if (this.isInitialized) return;
         
         this.createModal();
+        this.setupLemonSqueezyListeners();
         this.isInitialized = true;
+    }
+    
+    /**
+     * Setup Lemon Squeezy event listeners
+     */
+    setupLemonSqueezyListeners() {
+        // Listen for Checkout.Success event
+        if (window.LemonSqueezy) {
+            window.LemonSqueezy.Setup({
+                eventHandler: (event) => {
+                    console.log('🍋 [LEMON_EVENT] Received event:', event.type);
+                    if (event.type === 'Checkout.Success') {
+                        console.log('✅ [LEMON_EVENT] Checkout successful, closing overlay and hiding processing state');
+                        // Close the overlay
+                        if (window.LemonSqueezy && window.LemonSqueezy.Url) {
+                            window.LemonSqueezy.Url.Close();
+                        }
+                        // Hide processing state
+                        this.hideProcessing();
+                        // Polling should detect the credits update automatically
+                    }
+                }
+            });
+            console.log('✅ [PAYWALL] Lemon Squeezy event listeners setup complete');
+        } else {
+            console.warn('⚠️ [PAYWALL] LemonSqueezy not available yet, will setup listeners when SDK loads');
+        }
     }
 
     /**
@@ -162,20 +190,18 @@ class PaywallManager {
             // Track the purchase attempt
             this.trackPurchaseAttempt(optionId);
 
-            // Open Lemon Squeezy checkout
-            const checkoutUrl = `https://specifysai.lemonsqueezy.com/checkout/buy/${product.variant_id}`;
-            
-            console.log('🛒 [PAYWALL] Opening checkout window:', checkoutUrl);
-            
-            // Open in new window
-            const checkoutWindow = window.open(checkoutUrl, '_blank', 'width=600,height=700,scrollbars=yes,resizable=yes');
-            
-            if (!checkoutWindow) {
-                console.error('❌ [PAYWALL] Popup blocked!');
-                throw new Error('Popup blocked. Please allow popups for this site.');
+            // Check if lemon.js is loaded
+            if (!window.LemonSqueezy) {
+                console.error('❌ [PAYWALL] Lemon Squeezy SDK not loaded!');
+                throw new Error('Payment system not available. Please refresh the page.');
             }
 
-            console.log('✅ [PAYWALL] Checkout window opened, starting polling (5 minutes timeout)');
+            console.log('🛒 [PAYWALL] Using Lemon Squeezy overlay for checkout');
+
+            // Open Lemon Squeezy checkout using lemon.js overlay
+            window.LemonSqueezy.Url.Open(`https://specifysai.lemonsqueezy.com/checkout/buy/${product.variant_id}`);
+            
+            console.log('✅ [PAYWALL] Checkout overlay opened, starting polling (5 minutes timeout)');
 
             // Start polling for purchase completion
             this.startPolling();
@@ -363,6 +389,14 @@ class PaywallManager {
 
 // Global instance
 window.paywallManager = new PaywallManager();
+
+// Setup listeners when LemonSqueezy SDK loads
+document.addEventListener('DOMContentLoaded', () => {
+    // Retry setup if SDK loads after paywallManager init
+    if (window.LemonSqueezy && window.paywallManager) {
+        window.paywallManager.setupLemonSqueezyListeners();
+    }
+});
 
 // CSS Styles
 const paywallStyles = `
