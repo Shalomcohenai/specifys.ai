@@ -766,7 +766,7 @@ async function findUserByLemonCustomerIdOrEmail(customerId, email) {
  * @param {Object} grants - Grants to apply
  * @param {string} reason - Reason for pending
  */
-async function createPendingEntitlement(email, customerId, payload, grants, reason) {
+async function createPendingEntitlement(email, customerId, payload, grants, reason, variantId) {
     try {
         await db.collection('pending_entitlements').add({
             email: email,
@@ -774,6 +774,7 @@ async function createPendingEntitlement(email, customerId, payload, grants, reas
             payload_json: JSON.stringify(payload),
             grants_json: JSON.stringify(grants),
             reason: reason,
+            variant_id: variantId,
             claimed: false,
             created_at: admin.firestore.FieldValue.serverTimestamp()
         });

@@ -104,12 +104,15 @@ async function handleOrderCreated(payload) {
         const { data } = payload;
         const order = data.attributes;
         
+        // Extract variant_id from first_order_item (Lemon Squeezy v1 format)
+        const variantId = order.first_order_item?.variant_id || order.variant_id;
+        
         console.log('🟢 [ORDER_CREATED] Starting processing for order:', order.id);
         console.log('🟢 [ORDER_CREATED] Order details:', {
             order_id: order.id,
             customer_id: order.customer_id,
             user_email: order.user_email,
-            variant_id: order.variant_id,
+            variant_id: variantId,
             total: order.total,
             currency: order.currency
         });
@@ -129,14 +132,14 @@ async function handleOrderCreated(payload) {
 
         // Get product info
         const product = Object.values(config.products).find(p => 
-            p.variant_id === order.variant_id
+            p.variant_id === variantId
         );
 
         if (!product) {
-            console.error('❌ [ORDER_CREATED] Product not found for variant:', order.variant_id);
+            console.error('❌ [ORDER_CREATED] Product not found for variant:', variantId);
             await addAuditLog(null, 'lemon_webhook', 'order_created_product_not_found', payload.meta.event_id, {
                 order_id: order.id,
-                variant_id: order.variant_id,
+                variant_id: variantId,
                 available_products: Object.keys(config.products)
             });
             return;
@@ -164,14 +167,14 @@ async function handleOrderCreated(payload) {
             });
 
             // User exists - grant credits immediately
-            const grantResult = await grantCredits(userId, product.grants.spec_credits, order.id, order.variant_id);
+            const grantResult = await grantCredits(userId, product.grants.spec_credits, order.id, variantId);
             creditsGranted = product.grants.spec_credits;
             
             if (!grantResult) {
                 console.error('❌ [ORDER_CREATED] Credit grant failed for user:', userId);
                 await addAuditLog(userId, 'lemon_webhook', 'order_created_grant_failed', payload.meta.event_id, {
                     order_id: order.id,
-                    variant_id: order.variant_id,
+                    variant_id: variantId,
                     credits_attempted: product.grants.spec_credits
                 });
                 // CRITICAL: Throw error to trigger retry - this prevents lost purchases
@@ -182,7 +185,7 @@ async function handleOrderCreated(payload) {
             
             await addAuditLog(userId, 'lemon_webhook', 'order_created', payload.meta.event_id, {
                 order_id: order.id,
-                variant_id: order.variant_id,
+                variant_id: variantId,
                 credits_granted: product.grants.spec_credits,
                 grant_successful: grantResult
             });
@@ -198,7 +201,8 @@ async function handleOrderCreated(payload) {
                 order.customer_id,
                 payload,
                 product.grants,
-                'order_created_before_signup'
+                'order_created_before_signup',
+                variantId
             );
 
             const duration = Date.now() - startTime;
@@ -206,7 +210,7 @@ async function handleOrderCreated(payload) {
             
             await addAuditLog(null, 'lemon_webhook', 'order_created_pending', payload.meta.event_id, {
                 order_id: order.id,
-                variant_id: order.variant_id,
+                variant_id: variantId,
                 user_email: order.user_email,
                 credits_will_grant: product.grants.spec_credits
             });
