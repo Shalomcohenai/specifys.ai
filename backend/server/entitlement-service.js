@@ -552,14 +552,19 @@ async function claimPendingEntitlements(userId, email) {
         for (const doc of pendingSnapshot.docs) {
             const pendingData = doc.data();
             const grants = JSON.parse(pendingData.grants_json);
+            const payload = JSON.parse(pendingData.payload_json);
 
             // Apply grants
             if (grants.spec_credits > 0) {
-                await grantCredits(userId, grants.spec_credits, pendingData.lemon_order_id, pendingData.variant_id);
+                const order = payload.data.attributes;
+                const variantId = order.first_order_item?.variant_id || order.variant_id;
+                await grantCredits(userId, grants.spec_credits, payload.data.id, variantId);
             }
 
             if (grants.unlimited) {
-                await enableProSubscription(userId, pendingData.lemon_subscription_id, new Date(pendingData.current_period_end));
+                const subscription = payload.data.attributes;
+                const currentPeriodEnd = new Date(subscription.current_period_end);
+                await enableProSubscription(userId, subscription.id, subscription.variant_id, currentPeriodEnd);
             }
 
             // Mark as claimed
