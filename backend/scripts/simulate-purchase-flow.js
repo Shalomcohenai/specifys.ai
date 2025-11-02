@@ -14,17 +14,8 @@ const crypto = require('crypto');
 require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 
 // Initialize Firebase Admin
-const { initializeApp, cert } = require('firebase-admin/app');
-const { getFirestore } = require('firebase-admin/firestore');
-
-const serviceAccount = require('../firebase-service-account.json');
-
-// Initialize Firebase
-initializeApp({
-    credential: cert(serviceAccount)
-});
-
-const db = getFirestore();
+// Use the same Firebase initialization as the server
+const { db, admin } = require('../server/firebase-admin');
 
 // Load configuration
 const config = require('../../config/lemon-products.json');
@@ -252,7 +243,7 @@ async function simulatePurchaseFlow(productId, userId, userEmail) {
                 grants_json: JSON.stringify(product.grants),
                 reason: 'order_created_before_signup',
                 claimed: false,
-                created_at: new Date()
+                created_at: admin.firestore.FieldValue.serverTimestamp()
             });
             
             log('green', '✅', 'Pending entitlement created successfully');
@@ -276,8 +267,8 @@ async function simulatePurchaseFlow(productId, userId, userEmail) {
         // Update entitlements
         const entitlementsRef = db.collection('entitlements').doc(foundUserId);
         batch.set(entitlementsRef, {
-            spec_credits: db.FieldValue.increment(product.grants.spec_credits),
-            updated_at: new Date()
+            spec_credits: admin.firestore.FieldValue.increment(product.grants.spec_credits),
+            updated_at: admin.firestore.FieldValue.serverTimestamp()
         }, { merge: true });
         
         // Create purchase record
@@ -292,13 +283,13 @@ async function simulatePurchaseFlow(productId, userId, userEmail) {
             total_amount_cents: product.price_usd * 100,
             currency: config.currency,
             status: 'completed',
-            purchased_at: new Date()
+            purchased_at: admin.firestore.FieldValue.serverTimestamp()
         });
         
         // Mark webhook event as processed
         const eventRef = db.collection('processed_webhook_events').doc(eventId);
         batch.set(eventRef, {
-            created_at: new Date()
+            created_at: admin.firestore.FieldValue.serverTimestamp()
         });
         
         // Create audit log
@@ -309,7 +300,7 @@ async function simulatePurchaseFlow(productId, userId, userEmail) {
             action: 'order_created',
             event_id: eventId,
             payload_json: JSON.stringify(webhookPayload),
-            created_at: new Date()
+            created_at: admin.firestore.FieldValue.serverTimestamp()
         });
         
         await batch.commit();

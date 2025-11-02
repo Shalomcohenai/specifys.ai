@@ -57,7 +57,10 @@ const { handleLemonWebhook } = require('./server/lemon-webhook');
 const { securityHeaders, rateLimiters, requireAdmin } = require('./server/security');
 
 const app = express();
-const port = process.env.PORT || 10000; // Changed to 10000 to match frontend config
+
+// Get port from environment or use default
+const port = process.env.PORT || 10000;
+console.log(`🌐 Starting server on port ${port}`);
 
 // Apply security headers
 app.use(securityHeaders);
@@ -78,8 +81,10 @@ app.use((req, res, next) => {
     'http://localhost:10000',
     'http://127.0.0.1:3000',
     'http://127.0.0.1:4000',
-    'https://specifys-ai.com'
-  ];
+    'https://specifys-ai.com',
+    'https://www.specifys-ai.com',
+    process.env.RENDER_URL ? `https://${process.env.RENDER_URL}` : null
+  ].filter(Boolean);
   const origin = req.headers.origin;
   if (allowedOrigins.includes(origin)) {
     res.header('Access-Control-Allow-Origin', origin);
