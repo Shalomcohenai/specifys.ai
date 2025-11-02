@@ -171,9 +171,34 @@ class PaywallManager {
                 config_version: '2025-11-02-v2'
             });
 
-            // Open Lemon Squeezy checkout in popup window
-            const checkoutUrl = `https://specifysai.lemonsqueezy.com/checkout/buy/${product.variant_id}`;
-            console.log('🛒 [PAYWALL] Opening checkout URL:', checkoutUrl);
+            // Get current user auth token
+            const user = firebase.auth().currentUser;
+            if (!user) {
+                throw new Error('User not authenticated');
+            }
+            
+            const token = await user.getIdToken();
+            console.log('🔐 [PAYWALL] Got auth token, calling checkout API');
+            
+            // Create checkout via API to pass custom userId data
+            const apiBaseUrl = window.API_BASE_URL || 'http://localhost:10000';
+            const response = await fetch(`${apiBaseUrl}/api/checkout`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ productId: optionId })
+            });
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error('❌ [PAYWALL] Checkout API error:', errorData);
+                throw new Error(errorData.message || 'Failed to create checkout');
+            }
+            
+            const { checkout_url } = await response.json();
+            console.log('✅ [PAYWALL] Checkout URL received from API:', checkout_url);
             
             // Open in popup window (centered, 600x700px)
             const width = 600;
@@ -181,7 +206,7 @@ class PaywallManager {
             const left = (window.innerWidth - width) / 2;
             const top = (window.innerHeight - height) / 2;
             const popup = window.open(
-                checkoutUrl,
+                checkout_url,
                 'LemonSqueezyCheckout',
                 `width=${width},height=${height},left=${left},top=${top},menubar=no,toolbar=no,location=no,resizable=yes,scrollbars=yes,status=no`
             );

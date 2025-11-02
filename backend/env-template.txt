@@ -9,6 +9,7 @@ FIREBASE_API_KEY=AIzaSyB9hr0IWM4EREzkKDxBxYoYinV6LJXWXV4
 
 # Lemon Squeezy Configuration
 LEMON_WEBHOOK_SECRET=specifys_ai_secret_2025
+LEMON_SQUEEZY_API_KEY=your_lemon_squeezy_api_key_here
 
 # API Keys (if needed)
 API_KEY=your_openai_api_key_here

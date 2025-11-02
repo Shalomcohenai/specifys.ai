@@ -53,6 +53,7 @@ const specRoutes = require('./server/spec-routes');
 const userRoutes = require('./server/user-routes');
 const chatRoutes = require('./server/chat-routes');
 const adminRoutes = require('./server/admin-routes');
+const checkoutRoutes = require('./server/checkout-routes');
 const { handleLemonWebhook } = require('./server/lemon-webhook');
 const { securityHeaders, rateLimiters, requireAdmin } = require('./server/security');
 
@@ -133,6 +134,9 @@ app.use('/api/users', userRoutes);
 
 // Chat routes for AI chat functionality
 app.use('/api/chat', chatRoutes);
+
+// Checkout routes for Lemon Squeezy API integration
+app.use('/api/checkout', checkoutRoutes);
 
 // Admin routes (with admin verification)
 app.use('/api/admin', adminRoutes);
