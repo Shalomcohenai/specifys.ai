@@ -437,3 +437,4 @@ router.get('/openai-status', verifyFirebaseToken, async (req, res) => {
 });
 
 module.exports = router;
+module.exports.verifyFirebaseToken = verifyFirebaseToken;

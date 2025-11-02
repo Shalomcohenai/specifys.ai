@@ -69,6 +69,12 @@ async function verifySignature(req) {
  */
 async function isEventProcessed(eventId) {
     try {
+        // Skip idempotency check if no event ID provided
+        if (!eventId || eventId === 'undefined') {
+            console.log('⚠️ [IDEMPOTENCY] No event ID provided, skipping check');
+            return false;
+        }
+        
         const eventDoc = await db.collection('processed_webhook_events').doc(eventId).get();
         return eventDoc.exists;
     } catch (error) {
@@ -83,6 +89,12 @@ async function isEventProcessed(eventId) {
  */
 async function markEventProcessed(eventId) {
     try {
+        // Skip marking if no event ID provided
+        if (!eventId || eventId === 'undefined') {
+            console.log('⚠️ [IDEMPOTENCY] No event ID provided, skipping mark');
+            return;
+        }
+        
         await db.collection('processed_webhook_events').doc(eventId).set({
             created_at: admin.firestore.FieldValue.serverTimestamp()
         });
