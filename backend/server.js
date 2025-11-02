@@ -78,8 +78,10 @@ app.use((req, res, next) => {
     'http://localhost:10000',
     'http://127.0.0.1:3000',
     'http://127.0.0.1:4000',
-    'https://specifys-ai.com'
-  ];
+    'https://specifys-ai.com',
+    'https://www.specifys-ai.com',
+    process.env.RENDER_URL ? `https://${process.env.RENDER_URL}` : null
+  ].filter(Boolean);
   const origin = req.headers.origin;
   if (allowedOrigins.includes(origin)) {
     res.header('Access-Control-Allow-Origin', origin);
