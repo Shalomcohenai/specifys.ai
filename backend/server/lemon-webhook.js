@@ -174,6 +174,8 @@ async function handleOrderCreated(payload) {
                     variant_id: order.variant_id,
                     credits_attempted: product.grants.spec_credits
                 });
+                // CRITICAL: Throw error to trigger retry - this prevents lost purchases
+                throw new Error(`Failed to grant credits for user ${userId} on order ${order.id}`);
             } else {
                 console.log('✅ [ORDER_CREATED] Credits granted successfully');
             }
