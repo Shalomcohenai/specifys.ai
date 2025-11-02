@@ -11,7 +11,7 @@ const API_CONFIG = {
   // - https://api.specifys-ai.com (if subdomain exists)
   // - https://specifys-ai.com/api (if using same domain)
   // - Your Railway/Heroku/Render URL
-  production: 'https://api.specifys-ai.com',
+  production: 'https://specifys-ai.onrender.com',
 
   // Auto-detect environment
   get baseUrl() {
