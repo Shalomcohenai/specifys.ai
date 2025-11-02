@@ -191,6 +191,11 @@ class PaywallManager {
             this.trackPurchaseAttempt(optionId);
 
             // Check if lemon.js is loaded
+            console.log('🔍 [PAYWALL] Checking LemonSqueezy SDK availability...');
+            console.log('🔍 [PAYWALL] window.LemonSqueezy:', typeof window.LemonSqueezy);
+            console.log('🔍 [PAYWALL] window.LemonSqueezy.Url:', typeof window.LemonSqueezy?.Url);
+            console.log('🔍 [PAYWALL] window.LemonSqueezy.Url.Open:', typeof window.LemonSqueezy?.Url?.Open);
+            
             if (!window.LemonSqueezy) {
                 console.error('❌ [PAYWALL] Lemon Squeezy SDK not loaded!');
                 throw new Error('Payment system not available. Please refresh the page.');
@@ -210,9 +215,21 @@ class PaywallManager {
             const checkoutUrl = `https://specifysai.lemonsqueezy.com/checkout/buy/${product.variant_id}`;
             console.log('🛒 [PAYWALL] Opening checkout URL:', checkoutUrl);
             
-            window.LemonSqueezy.Url.Open(checkoutUrl);
+            try {
+                console.log('🛒 [PAYWALL] Calling LemonSqueezy.Url.Open...');
+                window.LemonSqueezy.Url.Open(checkoutUrl);
+                console.log('✅ [PAYWALL] Checkout overlay opened successfully');
+            } catch (error) {
+                console.error('❌ [PAYWALL] Error opening overlay:', error);
+                console.error('❌ [PAYWALL] Error details:', {
+                    message: error.message,
+                    stack: error.stack,
+                    url: checkoutUrl
+                });
+                throw error;
+            }
             
-            console.log('✅ [PAYWALL] Checkout overlay opened, starting polling (5 minutes timeout)');
+            console.log('✅ [PAYWALL] Starting polling (5 minutes timeout)');
 
             // Start polling for purchase completion
             this.startPolling();
