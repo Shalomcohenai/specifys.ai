@@ -1315,3 +1315,77 @@ function triggerPlatformHint() {
     }
   });
 }
+
+// ===== MAINTENANCE MODE CHECK =====
+const MAINTENANCE_CODE = '1997';
+const MAINTENANCE_STORAGE_KEY = 'specifys_maintenance_access';
+
+function checkMaintenanceAccess() {
+  // Check if user has already entered the correct code
+  const hasAccess = localStorage.getItem(MAINTENANCE_STORAGE_KEY);
+  
+  if (hasAccess === 'true') {
+    // User has access, hide overlay
+    const overlay = document.getElementById('maintenanceOverlay');
+    if (overlay) {
+      overlay.classList.add('hidden');
+    }
+    return;
+  }
+  
+  // Show overlay and set up code checking
+  setupMaintenanceCodeCheck();
+}
+
+function setupMaintenanceCodeCheck() {
+  const overlay = document.getElementById('maintenanceOverlay');
+  const codeInput = document.getElementById('maintenanceCodeInput');
+  const submitBtn = document.getElementById('maintenanceCodeSubmit');
+  const errorMsg = document.getElementById('maintenanceError');
+  
+  if (!overlay || !codeInput || !submitBtn) return;
+  
+  // Focus on input
+  codeInput.focus();
+  
+  // Handle Enter key
+  codeInput.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+      checkMaintenanceCode();
+    }
+  });
+  
+  // Handle submit button click
+  submitBtn.addEventListener('click', checkMaintenanceCode);
+  
+  function checkMaintenanceCode() {
+    const enteredCode = codeInput.value.trim();
+    
+    if (enteredCode === MAINTENANCE_CODE) {
+      // Correct code - grant access
+      localStorage.setItem(MAINTENANCE_STORAGE_KEY, 'true');
+      overlay.classList.add('hidden');
+      errorMsg.style.display = 'none';
+      codeInput.value = '';
+    } else {
+      // Wrong code - show error
+      errorMsg.style.display = 'block';
+      codeInput.value = '';
+      codeInput.focus();
+      
+      // Shake animation
+      const content = overlay.querySelector('.maintenance-content');
+      if (content) {
+        content.style.animation = 'shake 0.5s ease-in-out';
+        setTimeout(() => {
+          content.style.animation = '';
+        }, 500);
+      }
+    }
+  }
+}
+
+// Initialize maintenance check on page load
+document.addEventListener('DOMContentLoaded', function() {
+  checkMaintenanceAccess();
+});

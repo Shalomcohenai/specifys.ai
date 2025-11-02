@@ -466,6 +466,32 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 <body>
+    <!-- Maintenance Overlay -->
+<div id="maintenanceOverlay" class="maintenance-overlay">
+  <div class="maintenance-content">
+    <div class="maintenance-icon">🔧</div>
+    <h1 class="maintenance-title">Site Under Maintenance</h1>
+    <p class="maintenance-message">
+      The site is currently under maintenance - please come back later.
+    </p>
+    <div class="maintenance-code-container">
+      <input 
+        type="text" 
+        id="maintenanceCodeInput" 
+        class="maintenance-code-input" 
+        placeholder="Enter access code"
+        autocomplete="off"
+      />
+      <button id="maintenanceCodeSubmit" class="maintenance-code-submit">
+        Access
+      </button>
+    </div>
+    <div id="maintenanceError" class="maintenance-error" style="display: none;">
+      Incorrect code. Please try again.
+    </div>
+  </div>
+</div>
+
     <!-- Header -->
     <!-- Skip to main content link for accessibility -->
 <a href="#main-content" class="skip-link">Skip to main content</a>
