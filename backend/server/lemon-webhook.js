@@ -110,12 +110,16 @@ async function handleOrderCreated(payload) {
         // Extract variant_id from first_order_item (Lemon Squeezy v1 format)
         const variantId = order.first_order_item?.variant_id || order.variant_id;
         
+        // Extract quantity from first_order_item (default to 1 if not specified)
+        const quantity = order.first_order_item?.quantity || 1;
+        
         console.log('🟢 [ORDER_CREATED] Starting processing for order:', orderId);
         console.log('🟢 [ORDER_CREATED] Order details:', {
             order_id: orderId,
             customer_id: order.customer_id,
             user_email: order.user_email,
             variant_id: variantId,
+            quantity: quantity,
             total: order.total,
             currency: order.currency
         });
@@ -148,9 +152,14 @@ async function handleOrderCreated(payload) {
             return;
         }
 
+        // Calculate total credits based on quantity
+        const totalCredits = product.grants.spec_credits * quantity;
+        
         console.log('✅ [ORDER_CREATED] Product found:', {
             name: product.name,
-            credits: product.grants.spec_credits,
+            credits_per_unit: product.grants.spec_credits,
+            quantity: quantity,
+            total_credits: totalCredits,
             unlimited: product.grants.unlimited
         });
 
@@ -165,20 +174,24 @@ async function handleOrderCreated(payload) {
 
             console.log('💳 [ORDER_CREATED] Granting credits:', {
                 userId,
-                credits: product.grants.spec_credits,
+                credits_per_unit: product.grants.spec_credits,
+                quantity: quantity,
+                total_credits: totalCredits,
                 order_id: orderId
             });
 
-            // User exists - grant credits immediately
-            const grantResult = await grantCredits(userId, product.grants.spec_credits, orderId, variantId);
-            credits_granted = product.grants.spec_credits;
+            // User exists - grant credits immediately (multiplied by quantity)
+            const grantResult = await grantCredits(userId, totalCredits, orderId, variantId);
+            credits_granted = totalCredits;
             
             if (!grantResult) {
                 console.error('❌ [ORDER_CREATED] Credit grant failed for user:', userId);
                 await addAuditLog(userId, 'lemon_webhook', 'order_created_grant_failed', payload.meta.event_id, {
                     order_id: orderId,
                     variant_id: variantId,
-                    credits_attempted: product.grants.spec_credits
+                    quantity: quantity,
+                    credits_per_unit: product.grants.spec_credits,
+                    credits_attempted: totalCredits
                 });
                 // CRITICAL: Throw error to trigger retry - this prevents lost purchases
                 throw new Error(`Failed to grant credits for user ${userId} on order ${orderId}`);
@@ -189,7 +202,9 @@ async function handleOrderCreated(payload) {
             await addAuditLog(userId, 'lemon_webhook', 'order_created', payload.meta.event_id, {
                 order_id: orderId,
                 variant_id: variantId,
-                credits_granted: product.grants.spec_credits,
+                quantity: quantity,
+                credits_per_unit: product.grants.spec_credits,
+                credits_granted: totalCredits,
                 grant_successful: grantResult
             });
 
@@ -214,8 +229,10 @@ async function handleOrderCreated(payload) {
             await addAuditLog(null, 'lemon_webhook', 'order_created_pending', payload.meta.event_id, {
                 order_id: orderId,
                 variant_id: variantId,
+                quantity: quantity,
                 user_email: order.user_email,
-                credits_will_grant: product.grants.spec_credits
+                credits_per_unit: product.grants.spec_credits,
+                credits_will_grant: totalCredits
             });
         }
 
@@ -569,8 +586,16 @@ async function handleLemonWebhook(req, res) {
         console.log('📦 [WEBHOOK] Payload parsed successfully');
         console.log('📦 [WEBHOOK] Event details:', {
             event_id: payload.meta.event_id,
-            event_name: payload.meta.event_name
+            event_name: payload.meta.event_name,
+            test_mode: payload.meta.test_mode
         });
+        
+        // Log test mode status
+        if (payload.meta.test_mode) {
+            console.log('🧪 [WEBHOOK] TEST MODE - Using test webhook secret');
+        } else {
+            console.log('🚀 [WEBHOOK] LIVE MODE - Using production webhook secret');
+        }
         
         // Log full payload for debugging (first 500 chars)
         const payloadPreview = JSON.stringify(payload, null, 2).substring(0, 500);

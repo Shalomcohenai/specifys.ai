@@ -558,7 +558,9 @@ async function claimPendingEntitlements(userId, email) {
             if (grants.spec_credits > 0) {
                 const order = payload.data.attributes;
                 const variantId = order.first_order_item?.variant_id || order.variant_id;
-                await grantCredits(userId, grants.spec_credits, payload.data.id, variantId);
+                const quantity = order.first_order_item?.quantity || 1;
+                const totalCredits = grants.spec_credits * quantity;
+                await grantCredits(userId, totalCredits, payload.data.id, variantId);
             }
 
             if (grants.unlimited) {
