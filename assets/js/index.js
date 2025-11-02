@@ -912,7 +912,19 @@ async function generateSpecification() {
       }
     } catch (error) {
       console.error('❌ [generateSpecification] Error checking credits:', error);
-      // Continue anyway - let the server decide
+      
+      // Check if it's a DNS/network error
+      const errorMessage = error.message || '';
+      if (errorMessage.includes('Failed to fetch') || errorMessage.includes('ERR_NAME_NOT_RESOLVED')) {
+        console.error('❌ [generateSpecification] API domain not available - cannot check credits');
+        console.error('❌ Please ensure API server is running and domain is configured correctly');
+        hideLoadingOverlay();
+        alert('⚠️ API server is not available. Please check your connection or contact support.');
+        return;
+      }
+      
+      // Continue anyway for other errors - let the server decide
+      console.warn('⚠️ [generateSpecification] Continuing despite credit check error');
     }
     
     // Prepare the prompt for overview generation
@@ -939,19 +951,36 @@ async function generateSpecification() {
     // NOTE: Users can provide answers in any language, but the API will always return the specification in English
     // Call the new API endpoint with authorization
     console.log('🔵 [generateSpecification] Calling /api/specs/create with API_BASE_URL:', window.API_BASE_URL);
-    const response = await fetch(`${window.API_BASE_URL || 'http://localhost:10000'}/api/specs/create`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify({
-        userInput: enhancedPrompt
-      })
-    });
+    
+    let response;
+    try {
+      response = await fetch(`${window.API_BASE_URL || 'http://localhost:10000'}/api/specs/create`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          userInput: enhancedPrompt
+        })
+      });
 
-    console.log('✅ API Response status:', response.status);
-    console.log('🔵 [generateSpecification] Create API call completed with status:', response.status);
+      console.log('✅ API Response status:', response.status);
+      console.log('🔵 [generateSpecification] Create API call completed with status:', response.status);
+    } catch (fetchError) {
+      console.error('❌ [generateSpecification] Fetch error:', fetchError);
+      const errorMessage = fetchError.message || '';
+      
+      if (errorMessage.includes('Failed to fetch') || errorMessage.includes('ERR_NAME_NOT_RESOLVED')) {
+        console.error('❌ [generateSpecification] API domain not accessible');
+        hideLoadingOverlay();
+        alert('⚠️ Cannot connect to API server. The API domain may not be configured correctly. Please contact support.');
+        return;
+      }
+      
+      // Re-throw if it's a different error
+      throw fetchError;
+    }
 
     if (response.status === 402) {
       // Payment required - show paywall
@@ -964,8 +993,23 @@ async function generateSpecification() {
     }
 
     if (!response.ok) {
-      const errorData = await response.json();
+      // Try to get error data, but handle JSON parse errors
+      let errorData;
+      try {
+        errorData = await response.json();
+      } catch (e) {
+        errorData = { error: `HTTP ${response.status}: ${response.statusText}` };
+      }
       console.error('API Error:', errorData);
+      
+      // Check for network/DNS errors
+      if (response.status === 0 || response.type === 'error') {
+        console.error('❌ [generateSpecification] Network error - API domain may not be accessible');
+        hideLoadingOverlay();
+        alert('⚠️ Cannot connect to API server. Please check your connection or contact support.');
+        return;
+      }
+      
       throw new Error(errorData.error || 'Failed to generate specification');
     }
 
@@ -1155,16 +1199,33 @@ async function triggerOpenAIUpload(specId) {
     }
     
     const token = await user.getIdToken();
-    const response = await fetch(`${window.API_BASE_URL || 'http://localhost:10000'}/api/specs/${specId}/upload-to-openai`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+    
+    let response;
+    try {
+      response = await fetch(`${window.API_BASE_URL || 'http://localhost:10000'}/api/specs/${specId}/upload-to-openai`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+    } catch (fetchError) {
+      const errorMessage = fetchError.message || '';
+      if (errorMessage.includes('Failed to fetch') || errorMessage.includes('ERR_NAME_NOT_RESOLVED')) {
+        console.warn('⚠️ OpenAI upload failed - API domain not accessible (non-critical)');
+      } else {
+        console.warn('⚠️ OpenAI upload trigger failed (this is non-critical):', fetchError);
       }
-    });
+      return;
+    }
     
     if (!response.ok) {
-      const error = await response.json();
+      let error;
+      try {
+        error = await response.json();
+      } catch (e) {
+        error = { error: `HTTP ${response.status}` };
+      }
       throw new Error(error.error || 'Upload failed');
     }
     

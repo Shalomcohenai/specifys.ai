@@ -6,7 +6,11 @@ const API_CONFIG = {
   development: 'http://localhost:10000',
 
   // Production backend URL
-  // TODO: Replace with your actual production API URL
+  // IMPORTANT: Update this with your actual production API URL
+  // Options:
+  // - https://api.specifys-ai.com (if subdomain exists)
+  // - https://specifys-ai.com/api (if using same domain)
+  // - Your Railway/Heroku/Render URL
   production: 'https://api.specifys-ai.com',
 
   // Auto-detect environment
@@ -27,6 +31,28 @@ const API_CONFIG = {
     }
     
     return url;
+  },
+  
+  // Check if API domain is likely valid
+  async validateDomain() {
+    try {
+      const testUrl = `${this.baseUrl}/health`;
+      const response = await fetch(testUrl, {
+        method: 'HEAD',
+        signal: AbortSignal.timeout(3000)
+      });
+      return true;
+    } catch (error) {
+      if (error.message && error.message.includes('ERR_NAME_NOT_RESOLVED')) {
+        console.error('❌ [API_CONFIG] Domain does not resolve:', this.baseUrl);
+        console.error('❌ Please check:');
+        console.error('   1. DNS configuration for API domain');
+        console.error('   2. API server is running');
+        console.error('   3. Correct domain in config.js (line 10)');
+        return false;
+      }
+      return true; // Other errors might be temporary
+    }
   }
 };
 

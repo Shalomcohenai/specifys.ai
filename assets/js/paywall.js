@@ -240,11 +240,27 @@ class PaywallManager {
                 }
 
                 const token = await user.getIdToken();
-                const response = await fetch(`${window.API_BASE_URL || 'http://localhost:10000'}/api/specs/entitlements`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
+                
+                let response;
+                try {
+                    response = await fetch(`${window.API_BASE_URL || 'http://localhost:10000'}/api/specs/entitlements`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                } catch (fetchError) {
+                    console.error('🔄 [POLLING] Fetch error:', fetchError);
+                    const errorMessage = fetchError.message || '';
+                    
+                    if (errorMessage.includes('Failed to fetch') || errorMessage.includes('ERR_NAME_NOT_RESOLVED')) {
+                        console.error('🔄 [POLLING] API domain not accessible - stopping polling');
+                        this.stopPolling();
+                        return; // Don't retry if DNS doesn't resolve
                     }
-                });
+                    
+                    // For other errors, continue polling (might be temporary)
+                    return;
+                }
 
                 if (response.ok) {
                     const data = await response.json();
