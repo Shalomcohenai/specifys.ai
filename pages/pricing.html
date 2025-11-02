@@ -786,9 +786,24 @@ async function purchaseSpec(productKey) {
             return;
         }
 
-        // Redirect to Lemon Squeezy checkout
+        // Open Lemon Squeezy checkout in popup window (centered, 600x700px)
         const checkoutUrl = `https://specifysai.lemonsqueezy.com/checkout/buy/${product.variant_id}`;
-        window.open(checkoutUrl, '_blank');
+        const width = 600;
+        const height = 700;
+        const left = (window.innerWidth - width) / 2;
+        const top = (window.innerHeight - height) / 2;
+        const popup = window.open(
+            checkoutUrl,
+            'LemonSqueezyCheckout',
+            `width=${width},height=${height},left=${left},top=${top},menubar=no,toolbar=no,location=no,resizable=yes,scrollbars=yes,status=no`
+        );
+        
+        if (!popup) {
+            alert('Popup window was blocked. Please allow popups for this site.');
+            return;
+        }
+        
+        console.log('✅ [PRICING] Popup window opened successfully');
 
     } catch (error) {
         console.error('Error initiating purchase:', error);
