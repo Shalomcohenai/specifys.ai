@@ -57,7 +57,13 @@ const { handleLemonWebhook } = require('./server/lemon-webhook');
 const { securityHeaders, rateLimiters, requireAdmin } = require('./server/security');
 
 const app = express();
+
+// Log PORT for debugging
+console.log('🔍 [DEBUG] process.env.PORT:', process.env.PORT);
+console.log('🔍 [DEBUG] All env vars with PORT:', Object.keys(process.env).filter(k => k.includes('PORT')));
+
 const port = process.env.PORT || 10000; // Changed to 10000 to match frontend config
+console.log('🔍 [DEBUG] Selected port:', port);
 
 // Apply security headers
 app.use(securityHeaders);
