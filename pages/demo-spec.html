@@ -61,6 +61,22 @@
     </script>
 
     <style>
+        /* Fix header display */
+        .thematic-header {
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            z-index: 1000 !important;
+        }
+        
+        .main-content {
+            padding-top: 70px !important;
+        }
+        
         /* Spec Display Styles */
         .spec-tabs {
             display: flex;
@@ -1596,11 +1612,6 @@
                     } else {
 
                     }
-                } else {
-
-                        hasDiagrams: !!data.diagrams,
-                        hasDiagramsDiagrams: !!(data.diagrams && data.diagrams.diagrams)
-                    });
                 }
                 
                 // Initialize chat UI
