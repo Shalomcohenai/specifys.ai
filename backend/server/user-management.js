@@ -27,7 +27,6 @@ async function getAllUsers() {
             providerData: user.providerData
         }));
     } catch (error) {
-        console.error('Error getting users:', error);
         throw error;
     }
 }
@@ -49,7 +48,6 @@ async function getUserByUid(uid) {
             providerData: userRecord.providerData
         };
     } catch (error) {
-        console.error(`Error getting user ${uid}:`, error);
         throw error;
     }
 }
@@ -71,8 +69,8 @@ async function createOrUpdateUserDocument(uid, userData = {}) {
             disabled: authUser.disabled,
             createdAt: authUser.creationTime,
             lastActive: authUser.lastSignInTime || new Date().toISOString(),
-            // Initialize payment-related fields
-            plan: 'free',
+            // Initialize payment-related fields - ALL USERS GET PRO BY DEFAULT
+            plan: 'pro',
             free_specs_remaining: 1,
             lemon_customer_id: null,
             last_entitlement_sync_at: admin.firestore.FieldValue.serverTimestamp(),
@@ -81,7 +79,7 @@ async function createOrUpdateUserDocument(uid, userData = {}) {
         
         await userDocRef.set(userDoc, { merge: true });
         
-        // Create entitlements document if it doesn't exist
+        // Create entitlements document if it doesn't exist - ALL USERS GET UNLIMITED PRO
         const entitlementsDocRef = db.collection('entitlements').doc(uid);
         const entitlementsDoc = await entitlementsDocRef.get();
         
@@ -89,8 +87,8 @@ async function createOrUpdateUserDocument(uid, userData = {}) {
             await entitlementsDocRef.set({
                 userId: uid,
                 spec_credits: 0,
-                unlimited: false,
-                can_edit: false,
+                unlimited: true,
+                can_edit: true,
                 updated_at: admin.firestore.FieldValue.serverTimestamp()
             });
         }
@@ -100,7 +98,6 @@ async function createOrUpdateUserDocument(uid, userData = {}) {
         
         return userDoc;
     } catch (error) {
-        console.error(`Error creating/updating user document for ${uid}:`, error);
         throw error;
     }
 }
@@ -131,7 +128,6 @@ async function syncAllUsers() {
                     alreadyExists++;
                 }
             } catch (error) {
-                console.error(`❌ Failed to sync user ${user.email}:`, error.message);
                 errors++;
             }
         }
@@ -144,7 +140,6 @@ async function syncAllUsers() {
             errors
         };
     } catch (error) {
-        console.error('Error during user sync:', error);
         throw error;
     }
 }
@@ -211,7 +206,6 @@ async function getUserStats() {
             }
         };
     } catch (error) {
-        console.error('Error getting user stats:', error);
         throw error;
     }
 }
@@ -266,7 +260,76 @@ async function cleanupOrphanedData() {
             total: cleanedSpecs + cleanedApps + cleanedMarket
         };
     } catch (error) {
-        console.error('Error during cleanup:', error);
+        throw error;
+    }
+}
+
+/**
+ * Upgrade all existing users to Pro plan
+ */
+async function upgradeAllUsersToPro() {
+    try {
+        // Get all users from Firestore
+        const usersSnapshot = await db.collection('users').get();
+        const entitlementsSnapshot = await db.collection('entitlements').get();
+        
+        let usersUpdated = 0;
+        let entitlementsUpdated = 0;
+        let errors = 0;
+        
+        // Firestore batch limit is 500 operations, so we need to chunk
+        const BATCH_SIZE = 500;
+        const allUsers = usersSnapshot.docs;
+        const allEntitlements = entitlementsSnapshot.docs;
+        
+        // Process users in batches
+        for (let i = 0; i < allUsers.length; i += BATCH_SIZE) {
+            const batch = db.batch();
+            const chunk = allUsers.slice(i, i + BATCH_SIZE);
+            
+            chunk.forEach(doc => {
+                try {
+                    batch.update(doc.ref, {
+                        plan: 'pro',
+                        last_entitlement_sync_at: admin.firestore.FieldValue.serverTimestamp()
+                    });
+                    usersUpdated++;
+                } catch (error) {
+                    errors++;
+                }
+            });
+            
+            await batch.commit();
+        }
+        
+        // Process entitlements in batches
+        for (let i = 0; i < allEntitlements.length; i += BATCH_SIZE) {
+            const entitlementsBatch = db.batch();
+            const chunk = allEntitlements.slice(i, i + BATCH_SIZE);
+            
+            chunk.forEach(doc => {
+                try {
+                    entitlementsBatch.update(doc.ref, {
+                        unlimited: true,
+                        can_edit: true,
+                        updated_at: admin.firestore.FieldValue.serverTimestamp()
+                    });
+                    entitlementsUpdated++;
+                } catch (error) {
+                    errors++;
+                }
+            });
+            
+            await entitlementsBatch.commit();
+        }
+        
+        return {
+            usersUpdated,
+            entitlementsUpdated,
+            errors
+        };
+        
+    } catch (error) {
         throw error;
     }
 }
@@ -308,7 +371,6 @@ async function deleteUser(uid) {
         
         return true;
     } catch (error) {
-        console.error(`Error deleting user ${uid}:`, error);
         throw error;
     }
 }
@@ -320,5 +382,6 @@ module.exports = {
     syncAllUsers,
     getUserStats,
     cleanupOrphanedData,
+    upgradeAllUsersToPro,
     deleteUser
 };

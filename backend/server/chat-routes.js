@@ -31,10 +31,10 @@ async function getDemoSpecId() {
     }
     
     // Fallback to old hardcoded ID for backward compatibility
-    console.warn('⚠️ No public spec found, using fallback ID');
+
     return 'iAzaUwtSW3qvcW87lICL';
   } catch (error) {
-    console.error('Error getting demo spec ID:', error);
+
     return 'iAzaUwtSW3qvcW87lICL';
   }
 }
@@ -65,7 +65,7 @@ async function verifyFirebaseToken(req, res, next) {
     req.user = decodedToken;
     next();
   } catch (error) {
-    console.error('Error verifying token:', error);
+
     res.status(401).json({ error: 'Invalid token' });
   }
 }
@@ -95,7 +95,7 @@ router.post('/init', verifyFirebaseToken, async (req, res) => {
     if (!specData.openaiFileId) {
       // Try to upload the spec now
       try {
-        console.log(`Attempting to upload spec ${specId} to OpenAI...`);
+
         const fileId = await openaiStorage.uploadSpec(specId, specData);
         
         // Update Firebase with file ID
@@ -106,9 +106,9 @@ router.post('/init', verifyFirebaseToken, async (req, res) => {
         });
         
         specData.openaiFileId = fileId;
-        console.log(`Successfully uploaded spec ${specId} to OpenAI`);
+
       } catch (uploadError) {
-        console.error(`Failed to upload spec ${specId}:`, uploadError.message);
+
         return res.status(400).json({ 
           error: 'Spec not uploaded to OpenAI yet',
           needsUpload: true,
@@ -122,12 +122,12 @@ router.post('/init', verifyFirebaseToken, async (req, res) => {
       
       // If spec was updated after upload, re-upload it
       if (specUpdatedTimestamp > uploadTimestamp) {
-        console.log(`Spec ${specId} was updated after OpenAI upload. Re-uploading...`);
+
         
         try {
           // Delete old file from OpenAI
           await openaiStorage.deleteFile(specData.openaiFileId);
-          console.log(`Deleted old OpenAI file ${specData.openaiFileId}`);
+
           
           // Upload updated spec
           const newFileId = await openaiStorage.uploadSpec(specId, specData);
@@ -140,7 +140,7 @@ router.post('/init', verifyFirebaseToken, async (req, res) => {
           
           // Delete old assistant if exists (we'll create a new one)
           if (specData.openaiAssistantId) {
-            console.log(`[Cleanup] Deleting old assistant ${specData.openaiAssistantId} for spec ${specId}`);
+
             await openaiStorage.deleteAssistant(specData.openaiAssistantId);
             
             // Clear assistant ID from Firebase
@@ -153,10 +153,10 @@ router.post('/init', verifyFirebaseToken, async (req, res) => {
           }
           
           specData.openaiFileId = newFileId;
-          console.log(`[Cleanup] Successfully re-uploaded spec ${specId} to OpenAI with new file ${newFileId}`);
+
           
         } catch (uploadError) {
-          console.error(`Failed to re-upload spec ${specId}:`, uploadError.message);
+
           return res.status(400).json({ 
             error: 'Failed to update OpenAI file',
             needsUpload: true,
@@ -169,7 +169,7 @@ router.post('/init', verifyFirebaseToken, async (req, res) => {
     // Create assistant if not exists
     let assistantId = specData.openaiAssistantId;
     if (!assistantId) {
-      console.log(`[Chat Init] Creating new assistant for spec ${specId}`);
+
       const assistant = await openaiStorage.createAssistant(specId, specData.openaiFileId);
       assistantId = assistant.id;
       
@@ -177,15 +177,15 @@ router.post('/init', verifyFirebaseToken, async (req, res) => {
       await db.collection('specs').doc(specId).update({
         openaiAssistantId: assistantId
       });
-      console.log(`[Chat Init] Created assistant ${assistantId} for spec ${specId}`);
+
     } else {
-      console.log(`[Chat Init] Reusing existing assistant ${assistantId} for spec ${specId}`);
+
       // Ensure the assistant has vector store configured
       try {
         const verifiedAssistant = await openaiStorage.ensureAssistantHasVectorStore(assistantId, specData.openaiFileId);
         // Double-check: verify the assistant actually has tool_resources in the response
         if (!verifiedAssistant.tool_resources?.file_search?.vector_store_ids?.length) {
-          console.error(`[Chat Init] CRITICAL: Assistant ${assistantId} returned without vector store! Recreating assistant...`);
+
           // Delete old assistant and create new one
           await openaiStorage.deleteAssistant(assistantId);
           const newAssistant = await openaiStorage.createAssistant(specId, specData.openaiFileId);
@@ -193,12 +193,12 @@ router.post('/init', verifyFirebaseToken, async (req, res) => {
           await db.collection('specs').doc(specId).update({
             openaiAssistantId: assistantId
           });
-          console.log(`[Chat Init] Recreated assistant ${assistantId} for spec ${specId}`);
+
         }
       } catch (error) {
-        console.error(`[Chat Init] Failed to ensure vector store for assistant ${assistantId}:`, error.message);
+
         // If we can't fix it, try recreating the assistant
-        console.log(`[Chat Init] Attempting to recreate assistant ${assistantId}...`);
+
         try {
           await openaiStorage.deleteAssistant(assistantId);
           const newAssistant = await openaiStorage.createAssistant(specId, specData.openaiFileId);
@@ -206,9 +206,9 @@ router.post('/init', verifyFirebaseToken, async (req, res) => {
           await db.collection('specs').doc(specId).update({
             openaiAssistantId: assistantId
           });
-          console.log(`[Chat Init] Recreated assistant ${assistantId} for spec ${specId}`);
+
         } catch (recreateError) {
-          console.error(`[Chat Init] Failed to recreate assistant:`, recreateError.message);
+
           throw new Error(`Failed to configure assistant: ${error.message}`);
         }
       }
@@ -216,7 +216,7 @@ router.post('/init', verifyFirebaseToken, async (req, res) => {
     
     // Create thread
     const thread = await openaiStorage.createThread();
-    console.log(`[Chat Init] Created thread ${thread.id} for spec ${specId}`);
+
     
     res.json({
       success: true,
@@ -225,7 +225,7 @@ router.post('/init', verifyFirebaseToken, async (req, res) => {
     });
     
   } catch (error) {
-    console.error('Error initializing chat:', error);
+
     res.status(500).json({ 
       error: 'Failed to initialize chat',
       details: error.message 
@@ -238,7 +238,7 @@ router.post('/init', verifyFirebaseToken, async (req, res) => {
  * POST /api/chat/message
  */
 router.post('/message', verifyFirebaseToken, async (req, res) => {
-  console.log('🔴 [CHAT MESSAGE] Endpoint called - VERSION 1.2.5-assistant-fix-2025-10-31 - TIMESTAMP:', Date.now());
+
   try {
     if (!openaiStorage) {
       return res.status(503).json({ error: 'OpenAI not configured' });
@@ -262,7 +262,7 @@ router.post('/message', verifyFirebaseToken, async (req, res) => {
         // Verify tool_resources is actually set
         const vectorStoreIds = updatedAssistant.tool_resources?.file_search?.vector_store_ids || [];
         if (vectorStoreIds.length === 0) {
-          console.error(`[Chat Message] CRITICAL: Assistant ${assistantId} has no vector store after ensure call! Recreating assistant...`);
+
           // Delete and recreate assistant
           await openaiStorage.deleteAssistant(assistantId);
           const newAssistant = await openaiStorage.createAssistant(specId, specData.openaiFileId);
@@ -270,14 +270,14 @@ router.post('/message', verifyFirebaseToken, async (req, res) => {
           await db.collection('specs').doc(specId).update({
             openaiAssistantId: assistantId
           });
-          console.log(`[Chat Message] Recreated assistant ${assistantId} for spec ${specId}`);
+
         } else {
-          console.log(`[Chat Message] Verified assistant ${assistantId} has vector store: ${vectorStoreIds.join(', ')}`);
+
         }
       } catch (ensureError) {
-        console.error(`[Chat Message] Failed to ensure vector store for assistant ${assistantId}:`, ensureError.message);
+
         // Try to recreate assistant if ensure failed
-        console.log(`[Chat Message] Attempting to recreate assistant ${assistantId}...`);
+
         try {
           await openaiStorage.deleteAssistant(assistantId);
           const newAssistant = await openaiStorage.createAssistant(specId, specData.openaiFileId);
@@ -285,21 +285,21 @@ router.post('/message', verifyFirebaseToken, async (req, res) => {
           await db.collection('specs').doc(specId).update({
             openaiAssistantId: assistantId
           });
-          console.log(`[Chat Message] Successfully recreated assistant ${assistantId} for spec ${specId}`);
+
         } catch (recreateError) {
-          console.error(`[Chat Message] Failed to recreate assistant:`, recreateError.message);
+
           throw new Error(`Failed to configure assistant: ${ensureError.message}`);
         }
       }
     }
     
     // Send message and get response
-    console.log(`[Chat Message] Spec: ${specId}, Thread: ${threadId}, Assistant: ${assistantId}`);
-    console.log(`[Chat Message] Message: "${message.substring(0, 100)}${message.length > 100 ? '...' : ''}"`);
+
+
     
     try {
       const response = await openaiStorage.sendMessage(threadId, assistantId, message);
-      console.log(`[Chat Message] Received response for spec ${specId}`);
+
       
       res.json({
         success: true,
@@ -313,7 +313,7 @@ router.post('/message', verifyFirebaseToken, async (req, res) => {
           (error.message.includes('server_error') && error.message.includes('Vector store configuration'));
       
       if (isCorrupted) {
-        console.log(`[Chat Message] Detected corrupted assistant ${assistantId}, recreating...`);
+
         try {
           if (specData.openaiFileId) {
             // Delete old assistant and wait a bit
@@ -334,12 +334,12 @@ router.post('/message', verifyFirebaseToken, async (req, res) => {
             await db.collection('specs').doc(specId).update({
               openaiAssistantId: newAssistantId
             });
-            console.log(`[Chat Message] Recreated assistant ${newAssistantId}, retrying with new assistant...`);
+
             
             // Retry with new assistant - need new thread too
             const newThread = await openaiStorage.createThread();
             const response = await openaiStorage.sendMessage(newThread.id, newAssistantId, message);
-            console.log(`[Chat Message] Received response after recreation for spec ${specId}`);
+
             
             res.json({
               success: true,
@@ -350,20 +350,20 @@ router.post('/message', verifyFirebaseToken, async (req, res) => {
             return;
           }
         } catch (recreateError) {
-          console.error(`[Chat Message] Failed to recreate assistant:`, recreateError);
+
           // Continue to throw original error
         }
       }
       // If error is server_error, try to fix and retry once
       if (error.message.includes('server_error') || error.message.includes('tool_resources')) {
-        console.log(`[Chat Message] Detected server_error, attempting to fix assistant configuration...`);
+
         try {
           if (specData.openaiFileId) {
             await openaiStorage.ensureAssistantHasVectorStore(assistantId, specData.openaiFileId);
-            console.log(`[Chat Message] Fixed assistant configuration, retrying...`);
+
             // Retry once
             const response = await openaiStorage.sendMessage(threadId, assistantId, message);
-            console.log(`[Chat Message] Received response after fix for spec ${specId}`);
+
             
             res.json({
               success: true,
@@ -372,7 +372,7 @@ router.post('/message', verifyFirebaseToken, async (req, res) => {
             return;
           }
         } catch (fixError) {
-          console.error(`[Chat Message] Failed to fix assistant:`, fixError);
+
         }
       }
       // Re-throw original error if fix didn't work
@@ -380,7 +380,7 @@ router.post('/message', verifyFirebaseToken, async (req, res) => {
     }
     
   } catch (error) {
-    console.error('Error sending message:', error);
+
     res.status(500).json({ 
       error: 'Failed to send message',
       details: error.message 
@@ -393,11 +393,11 @@ router.post('/message', verifyFirebaseToken, async (req, res) => {
  * POST /api/chat/diagrams/generate
  */
 router.post('/diagrams/generate', verifyFirebaseToken, async (req, res) => {
-  console.log('[DEBUG] Diagrams generate endpoint called - VERSION 1.2.5-assistant-fix-2025-10-31');
+
   try {
-    console.log('[Diagrams] /api/chat/diagrams/generate called');
-    console.log('[Diagrams] OpenAI configured:', Boolean(openaiStorage));
-    console.log('[Diagrams] Body:', { specId: req.body?.specId });
+
+
+
     if (!openaiStorage) {
       return res.status(503).json({ error: 'OpenAI not configured' });
     }
@@ -416,9 +416,9 @@ router.post('/diagrams/generate', verifyFirebaseToken, async (req, res) => {
     }
     
     const specData = specDoc.data();
-    console.log('[Diagrams] Authorized user:', userId);
-    console.log('[Diagrams] Spec fields present:', Object.keys(specData || {}));
-    console.log(`[Diagrams] Generating diagrams for spec ${specId} using Assistant API`);
+
+
+
     
     // Ensure spec has been uploaded to OpenAI
     // Use let so we can update assistantId during recreation
@@ -427,7 +427,7 @@ router.post('/diagrams/generate', verifyFirebaseToken, async (req, res) => {
     if (!assistantId) {
       // Upload spec if not already done
       if (!specData.openaiFileId) {
-        console.log(`[Diagrams] Uploading spec ${specId} to OpenAI...`);
+
         const fileId = await openaiStorage.uploadSpec(specId, specData);
         await db.collection('specs').doc(specId).update({
           openaiFileId: fileId,
@@ -446,9 +446,9 @@ router.post('/diagrams/generate', verifyFirebaseToken, async (req, res) => {
         openaiAssistantId: assistantId
       });
       
-      console.log(`[Diagrams] Created new assistant ${assistantId} for spec ${specId}`);
+
     } else {
-      console.log(`[Diagrams] Using existing assistant ${assistantId} for spec ${specId}`);
+
       // Ensure assistant has vector store configured (similar to chat message endpoint)
       if (specData.openaiFileId) {
         try {
@@ -456,7 +456,7 @@ router.post('/diagrams/generate', verifyFirebaseToken, async (req, res) => {
           // Verify tool_resources is actually set
           const vectorStoreIds = updatedAssistant.tool_resources?.file_search?.vector_store_ids || [];
           if (vectorStoreIds.length === 0) {
-            console.error(`[Diagrams] CRITICAL: Assistant ${assistantId} has no vector store after ensure call! Recreating assistant...`);
+
             // Delete and recreate assistant
             await openaiStorage.deleteAssistant(assistantId);
             const newAssistant = await openaiStorage.createAssistant(specId, specData.openaiFileId);
@@ -464,14 +464,14 @@ router.post('/diagrams/generate', verifyFirebaseToken, async (req, res) => {
             await db.collection('specs').doc(specId).update({
               openaiAssistantId: assistantId
             });
-            console.log(`[Diagrams] Recreated assistant ${assistantId} for spec ${specId}`);
+
           } else {
-            console.log(`[Diagrams] Verified assistant ${assistantId} has vector store: ${vectorStoreIds.join(', ')}`);
+
           }
         } catch (ensureError) {
-          console.error(`[Diagrams] Failed to ensure vector store for assistant ${assistantId}:`, ensureError.message);
+
           // Try to recreate assistant if ensure failed
-          console.log(`[Diagrams] Attempting to recreate assistant ${assistantId}...`);
+
           try {
             await openaiStorage.deleteAssistant(assistantId);
             const newAssistant = await openaiStorage.createAssistant(specId, specData.openaiFileId);
@@ -479,9 +479,9 @@ router.post('/diagrams/generate', verifyFirebaseToken, async (req, res) => {
             await db.collection('specs').doc(specId).update({
               openaiAssistantId: assistantId
             });
-            console.log(`[Diagrams] Successfully recreated assistant ${assistantId} for spec ${specId}`);
+
           } catch (recreateError) {
-            console.error(`[Diagrams] Failed to recreate assistant:`, recreateError.message);
+
             throw new Error(`Failed to configure assistant: ${ensureError.message}`);
           }
         }
@@ -492,7 +492,7 @@ router.post('/diagrams/generate', verifyFirebaseToken, async (req, res) => {
     let diagrams;
     try {
       diagrams = await openaiStorage.generateDiagrams(specId, assistantId);
-      console.log(`[Diagrams] Successfully generated ${diagrams.length} diagrams for spec ${specId}`);
+
     } catch (error) {
       // If error indicates assistant is corrupted (vector store not propagated), recreate it
       const isCorrupted = error.isCorruptedAssistant || 
@@ -500,7 +500,7 @@ router.post('/diagrams/generate', verifyFirebaseToken, async (req, res) => {
           error.message.includes('Vector store configuration not propagated');
       
       if (isCorrupted) {
-        console.log(`[Diagrams] Detected corrupted assistant ${assistantId}, recreating...`);
+
         try {
           if (specData.openaiFileId) {
             // Delete old assistant and wait
@@ -521,34 +521,34 @@ router.post('/diagrams/generate', verifyFirebaseToken, async (req, res) => {
             await db.collection('specs').doc(specId).update({
               openaiAssistantId: newAssistantId
             });
-            console.log(`[Diagrams] Recreated assistant ${newAssistantId}, retrying diagram generation...`);
+
             
             // Retry with new assistant
             diagrams = await openaiStorage.generateDiagrams(specId, newAssistantId);
-            console.log(`[Diagrams] Successfully generated ${diagrams.length} diagrams after recreation for spec ${specId}`);
+
           } else {
             throw error; // Re-throw if no file ID
           }
         } catch (recreateError) {
-          console.error(`[Diagrams] Failed to recreate assistant:`, recreateError);
+
           throw error; // Re-throw original error
         }
       } else {
         // If it's a server_error related to tool_resources, try to fix and retry once
         if (error.message.includes('server_error') || error.message.includes('tool_resources')) {
-          console.log(`[Diagrams] Detected server_error, attempting to fix assistant configuration...`);
+
           try {
             if (specData.openaiFileId) {
               await openaiStorage.ensureAssistantHasVectorStore(assistantId, specData.openaiFileId);
-              console.log(`[Diagrams] Fixed assistant configuration, retrying...`);
+
               // Retry once
               diagrams = await openaiStorage.generateDiagrams(specId, assistantId);
-              console.log(`[Diagrams] Successfully generated ${diagrams.length} diagrams after fix for spec ${specId}`);
+
             } else {
               throw error; // Re-throw if no file ID
             }
           } catch (fixError) {
-            console.error(`[Diagrams] Failed to fix assistant:`, fixError);
+
             throw error; // Re-throw original error
           }
         } else {
@@ -564,7 +564,7 @@ router.post('/diagrams/generate', verifyFirebaseToken, async (req, res) => {
     });
     
   } catch (error) {
-    console.error('[Diagrams] Error generating diagrams:', error && (error.stack || error));
+
     
     // Provide more helpful error messages
     let errorMessage = 'Failed to generate diagrams';
@@ -593,7 +593,7 @@ router.post('/diagrams/generate', verifyFirebaseToken, async (req, res) => {
  */
 router.post('/diagrams/repair', verifyFirebaseToken, async (req, res) => {
   try {
-    console.log('[Repair] /api/chat/diagrams/repair called');
+
     if (!openaiStorage) {
       return res.status(503).json({ error: 'OpenAI not configured' });
     }
@@ -612,8 +612,8 @@ router.post('/diagrams/repair', verifyFirebaseToken, async (req, res) => {
     }
     
     const specData = specDoc.data();
-    console.log('[Repair] Authorized user:', userId);
-    console.log(`[Repair] Repairing diagram ${diagramId} for spec ${specId} using Assistant API`);
+
+
     
     // Ensure spec has been uploaded to OpenAI
     let assistantId = specData.openaiAssistantId;
@@ -621,7 +621,7 @@ router.post('/diagrams/repair', verifyFirebaseToken, async (req, res) => {
     if (!assistantId) {
       // Upload spec if not already done
       if (!specData.openaiFileId) {
-        console.log(`[Repair] Uploading spec ${specId} to OpenAI...`);
+
         const fileId = await openaiStorage.uploadSpec(specId, specData);
         await db.collection('specs').doc(specId).update({
           openaiFileId: fileId,
@@ -640,9 +640,9 @@ router.post('/diagrams/repair', verifyFirebaseToken, async (req, res) => {
         openaiAssistantId: assistantId
       });
       
-      console.log(`[Repair] Created new assistant ${assistantId} for spec ${specId}`);
+
     } else {
-      console.log(`[Repair] Using existing assistant ${assistantId} for spec ${specId}`);
+
     }
     
     // Get diagram data to find title
@@ -653,7 +653,7 @@ router.post('/diagrams/repair', verifyFirebaseToken, async (req, res) => {
     // Repair diagram using Assistant API
     const repairedCode = await openaiStorage.repairDiagram(specId, assistantId, brokenCode, diagramTitle, diagramType, errorMessage);
     
-    console.log(`[Repair] Successfully repaired diagram ${diagramId} for spec ${specId}`);
+
     
     res.json({
       success: true,
@@ -663,7 +663,7 @@ router.post('/diagrams/repair', verifyFirebaseToken, async (req, res) => {
     });
     
   } catch (error) {
-    console.error('[Repair] Error repairing diagram:', error && (error.stack || error));
+
     res.status(500).json({ 
       error: 'Failed to repair diagram',
       details: error && error.message 
@@ -707,7 +707,7 @@ router.post('/demo', demoChatLimiter, async (req, res) => {
     if (!currentThreadId) {
       const thread = await openaiStorage.createThread();
       currentThreadId = thread.id;
-      console.log(`[Demo Chat] Created new thread ${currentThreadId} for demo`);
+
     }
     
     // If no assistant provided, check if spec has one or create
@@ -717,7 +717,7 @@ router.post('/demo', demoChatLimiter, async (req, res) => {
       if (!currentAssistantId) {
         // Upload spec to OpenAI if not already done
         if (!specData.openaiFileId) {
-          console.log(`[Demo Chat] Uploading spec ${demoSpecId} to OpenAI...`);
+
           const fileId = await openaiStorage.uploadSpec(demoSpecId, specData);
           await db.collection('specs').doc(demoSpecId).update({
             openaiFileId: fileId,
@@ -736,17 +736,17 @@ router.post('/demo', demoChatLimiter, async (req, res) => {
           openaiAssistantId: currentAssistantId
         });
         
-        console.log(`[Demo Chat] Created new assistant ${currentAssistantId} for demo`);
+
       } else {
-        console.log(`[Demo Chat] Using existing assistant ${currentAssistantId} for demo`);
+
       }
     }
     
     // Send message and get response
-    console.log(`[Demo Chat] Sending message on thread ${currentThreadId}`);
+
     const response = await openaiStorage.sendMessage(currentThreadId, currentAssistantId, message);
     
-    console.log(`[Demo Chat] Received response for demo chat`);
+
     
     res.json({
       success: true,
@@ -756,7 +756,7 @@ router.post('/demo', demoChatLimiter, async (req, res) => {
     });
     
   } catch (error) {
-    console.error('Error in demo chat:', error);
+
     res.status(500).json({ 
       error: 'Failed to send message',
       details: error.message 

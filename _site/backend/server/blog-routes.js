@@ -183,7 +183,7 @@ async function createPost(req, res) {
         });
 
     } catch (error) {
-        console.error('Error creating blog post:', error);
+
         res.status(500).json({
             success: false,
             error: error.message || 'Failed to create blog post'
@@ -244,7 +244,7 @@ async function listPosts(req, res) {
                         };
                     }
                 } catch (error) {
-                    console.error(`Error fetching metadata for ${post.filename}:`, error);
+
                 }
                 return post;
             })
@@ -257,7 +257,7 @@ async function listPosts(req, res) {
         });
 
     } catch (error) {
-        console.error('Error listing blog posts:', error);
+
         res.status(500).json({
             success: false,
             error: error.message || 'Failed to list blog posts'
@@ -291,7 +291,7 @@ async function deletePost(req, res) {
         });
 
     } catch (error) {
-        console.error('Error deleting blog post:', error);
+
         res.status(500).json({
             success: false,
             error: error.message || 'Failed to delete blog post'
@@ -305,7 +305,7 @@ async function updateSitemap(date, slug, title) {
         // Get current sitemap
         const sitemapFile = await getFileFromGitHub('sitemap.xml');
         if (!sitemapFile) {
-            console.error('Sitemap file not found');
+
             return;
         }
 
@@ -335,7 +335,7 @@ async function updateSitemap(date, slug, title) {
         );
 
     } catch (error) {
-        console.error('Error updating sitemap:', error);
+
         // Don't fail the post creation if sitemap update fails
     }
 }
@@ -349,7 +349,7 @@ async function removeFromSitemap(filename) {
         // Get current sitemap
         const sitemapFile = await getFileFromGitHub('sitemap.xml');
         if (!sitemapFile) {
-            console.error('Sitemap file not found');
+
             return;
         }
 
@@ -372,7 +372,7 @@ async function removeFromSitemap(filename) {
         );
 
     } catch (error) {
-        console.error('Error removing from sitemap:', error);
+
     }
 }
 

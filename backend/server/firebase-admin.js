@@ -44,7 +44,7 @@ try {
     }
     
 } catch (error) {
-    console.error('❌ Firebase Admin SDK initialization failed:', error.message);
+
 }
 
 const db = admin.firestore();

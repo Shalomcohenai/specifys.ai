@@ -29,7 +29,7 @@ function formatJSONContent(jsonData) {
         try {
             jsonData = JSON.parse(jsonData);
         } catch (e) {
-            console.error('Failed to parse JSON:', e);
+
             return '<div class="error">Failed to parse JSON data</div>';
         }
     }

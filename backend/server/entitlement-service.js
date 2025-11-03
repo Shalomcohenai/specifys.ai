@@ -24,7 +24,7 @@ async function createOrUpdateUserDocumentInline(uid) {
                 lastSignInTime: userRecord.metadata.lastSignInTime
             };
         } catch (error) {
-            console.error(`Error getting user ${uid} from Auth:`, error);
+
             throw error;
         }
         
@@ -60,7 +60,7 @@ async function createOrUpdateUserDocumentInline(uid) {
         
         return userDoc;
     } catch (error) {
-        console.error(`Error creating/updating user document for ${uid}:`, error);
+
         throw error;
     }
 }
@@ -72,20 +72,20 @@ async function createOrUpdateUserDocumentInline(uid) {
  */
 async function checkUserCanCreateSpec(userId) {
     try {
-        console.log('🔵 [checkUserCanCreateSpec] Checking user:', userId);
+
         // Get user document
         let userDoc = await db.collection('users').doc(userId).get();
         
         // If user document doesn't exist, try to create it
         if (!userDoc.exists) {
-            console.log(`⚠️ [checkUserCanCreateSpec] User ${userId} not found in Firestore, attempting to create...`);
+
             try {
                 await createOrUpdateUserDocumentInline(userId);
-                console.log(`✅ [checkUserCanCreateSpec] User ${userId} document created successfully`);
+
                 // Re-fetch the user document
                 userDoc = await db.collection('users').doc(userId).get();
             } catch (createError) {
-                console.error(`❌ [checkUserCanCreateSpec] Failed to create user document:`, createError);
+
                 // If creation fails, still check with default values
                 return {
                     canCreate: false,
@@ -138,10 +138,10 @@ async function checkUserCanCreateSpec(userId) {
             ? userData.free_specs_remaining  // Keep actual value even if negative
             : 1;  // Default to 1 only if field doesn't exist
 
-        console.log('🔵 [checkUserCanCreateSpec] freeSpecsRemaining:', freeSpecsRemaining);
+
 
         if (freeSpecsRemaining > 0) {
-            console.log('🔵 [checkUserCanCreateSpec] User has free specs remaining');
+
             return { 
                 canCreate: true, 
                 reason: 'Has free specs remaining',
@@ -149,7 +149,7 @@ async function checkUserCanCreateSpec(userId) {
             };
         }
 
-        console.log('🔵 [checkUserCanCreateSpec] No credits remaining');
+
         return { 
             canCreate: false, 
             reason: 'No credits remaining',
@@ -157,7 +157,7 @@ async function checkUserCanCreateSpec(userId) {
         };
 
     } catch (error) {
-        console.error('Error checking user can create spec:', error);
+
         return { canCreate: false, reason: 'Error checking entitlements' };
     }
 }
@@ -169,7 +169,7 @@ async function checkUserCanCreateSpec(userId) {
  */
 async function consumeSpecCredit(userId) {
     try {
-        console.log('🔵 [consumeSpecCredit] Starting credit consumption for user:', userId);
+
         
         // Get user document
         let userDocRef = db.collection('users').doc(userId);
@@ -177,14 +177,14 @@ async function consumeSpecCredit(userId) {
         
         // If user document doesn't exist, try to create it
         if (!userDoc.exists) {
-            console.log(`⚠️ [consumeSpecCredit] User ${userId} not found in Firestore, attempting to create...`);
+
             try {
                 await createOrUpdateUserDocumentInline(userId);
-                console.log(`✅ [consumeSpecCredit] User ${userId} document created successfully`);
+
                 // Re-fetch the user document
                 userDoc = await userDocRef.get();
             } catch (createError) {
-                console.error(`❌ [consumeSpecCredit] Failed to create user document:`, createError);
+
                 throw new Error('User not found and could not be created');
             }
         }
@@ -192,14 +192,14 @@ async function consumeSpecCredit(userId) {
         const batch = db.batch();
 
         const userData = userDoc.data();
-        console.log('🔵 [consumeSpecCredit] User data:', {
+
             free_specs_remaining: userData.free_specs_remaining,
             type: typeof userData.free_specs_remaining
         });
 
         // Pro users (by plan) should not consume credits
         if (userData && userData.plan === 'pro') {
-            console.log('🔵 [consumeSpecCredit] User plan is pro - skipping credit consumption');
+
             return { success: true, creditType: 'unlimited' };
         }
 
@@ -212,14 +212,14 @@ async function consumeSpecCredit(userId) {
             unlimited: false,
             can_edit: false
         };
-        console.log('🔵 [consumeSpecCredit] Entitlements:', {
+
             unlimited: entitlements.unlimited,
             spec_credits: entitlements.spec_credits
         });
 
         // If unlimited, no need to consume credits
         if (entitlements.unlimited) {
-            console.log('🔵 [consumeSpecCredit] User has unlimited access - skipping credit consumption');
+
             return { success: true, creditType: 'unlimited' };
         }
 
@@ -228,7 +228,7 @@ async function consumeSpecCredit(userId) {
         const freeSpecsRemaining = typeof userData.free_specs_remaining === 'number'
             ? userData.free_specs_remaining  // Keep actual value even if negative
             : 1;  // Default to 1 only if field doesn't exist
-        console.log('🔵 [consumeSpecCredit] Calculated freeSpecsRemaining:', freeSpecsRemaining);
+
 
         let creditType;
 
@@ -237,14 +237,14 @@ async function consumeSpecCredit(userId) {
             // Check if field exists in database
             if (typeof userData.free_specs_remaining === 'number') {
                 // Field exists - use increment
-                console.log('🔵 [consumeSpecCredit] Field exists - using increment(-1)');
+
                 batch.update(userDocRef, {
                     free_specs_remaining: admin.firestore.FieldValue.increment(-1),
                     last_entitlement_sync_at: admin.firestore.FieldValue.serverTimestamp()
                 });
             } else {
                 // Field doesn't exist - use set with merge to ensure it's created
-                console.log('🔵 [consumeSpecCredit] Field does not exist - creating with set');
+
                 batch.set(userDocRef, {
                     free_specs_remaining: 0,
                     last_entitlement_sync_at: admin.firestore.FieldValue.serverTimestamp()
@@ -253,7 +253,7 @@ async function consumeSpecCredit(userId) {
         } else if (entitlements.spec_credits > 0) {
             creditType = 'purchased';
             // No free specs, try purchased credits
-            console.log('🔵 [consumeSpecCredit] Consuming purchased credits');
+
             // Use set with merge to ensure document exists
             batch.set(entitlementsDocRef, {
                 spec_credits: admin.firestore.FieldValue.increment(-1),
@@ -261,17 +261,17 @@ async function consumeSpecCredit(userId) {
             }, { merge: true });
         } else {
             // Zero or negative - don't allow consumption
-            console.log('❌ [consumeSpecCredit] Cannot consume - no credits available');
+
             throw new Error('No credits available to consume');
         }
 
-        console.log('🔵 [consumeSpecCredit] Committing batch update...');
+
         await batch.commit();
-        console.log(`✅ [consumeSpecCredit] Credit consumption successful - type: ${creditType}`);
+
         return { success: true, creditType };
 
     } catch (error) {
-        console.error('❌ [consumeSpecCredit] Error consuming spec credit:', error);
+
         return { success: false };
     }
 }
@@ -288,11 +288,11 @@ async function refundSpecCredit(userId, creditType = 'purchased') {
 
         // If unlimited, no need to refund
         if (creditType === 'unlimited') {
-            console.log('[refundSpecCredit] User has unlimited access - no refund needed');
+
             return true;
         }
 
-        console.log(`[refundSpecCredit] Refunding 1 ${creditType} credit to user:`, userId);
+
 
         if (creditType === 'free') {
             // Refund to free_specs_remaining
@@ -311,11 +311,11 @@ async function refundSpecCredit(userId, creditType = 'purchased') {
         }
 
         await batch.commit();
-        console.log(`✅ [refundSpecCredit] ${creditType} credit refunded successfully`);
+
         return true;
 
     } catch (error) {
-        console.error('[CRITICAL] refundSpecCredit failed:', {
+
             userId,
             creditType,
             error: error.message
@@ -336,8 +336,8 @@ async function grantCredits(userId, creditsToAdd, orderId, variantId) {
     const startTime = Date.now();
     
     try {
-        console.log(`💳 [grantCredits] Starting credit grant process`);
-        console.log(`💳 [grantCredits] Details:`, {
+
+
             userId,
             creditsToAdd,
             orderId,
@@ -349,7 +349,7 @@ async function grantCredits(userId, creditsToAdd, orderId, variantId) {
         // Update entitlements - FIXED: Changed from batch.update to batch.set
         const entitlementsDocRef = db.collection('entitlements').doc(userId);
         
-        console.log(`💳 [grantCredits] Preparing entitlements update for user: ${userId}`);
+
         batch.set(entitlementsDocRef, {
             spec_credits: admin.firestore.FieldValue.increment(creditsToAdd),
             updated_at: admin.firestore.FieldValue.serverTimestamp()
@@ -359,7 +359,7 @@ async function grantCredits(userId, creditsToAdd, orderId, variantId) {
         const productId = getProductIdByVariantId(variantId);
         const price = getPriceByVariantId(variantId);
         
-        console.log(`💳 [grantCredits] Creating purchase record:`, {
+
             productId,
             price,
             currency: config.currency
@@ -379,16 +379,16 @@ async function grantCredits(userId, creditsToAdd, orderId, variantId) {
             purchased_at: admin.firestore.FieldValue.serverTimestamp()
         });
 
-        console.log(`💳 [grantCredits] Committing batch operations...`);
+
         await batch.commit();
         
         const duration = Date.now() - startTime;
-        console.log(`✅ [grantCredits] Credits granted successfully in ${duration}ms - User: ${userId}, Credits: ${creditsToAdd}`);
+
         return true;
 
     } catch (error) {
         const duration = Date.now() - startTime;
-        console.error('❌ [CRITICAL] grantCredits failed after', duration, 'ms:', {
+
             userId,
             creditsToAdd,
             orderId,
@@ -410,14 +410,14 @@ async function grantCredits(userId, creditsToAdd, orderId, variantId) {
  */
 async function enableProSubscription(userId, subscriptionId, variantId, currentPeriodEnd) {
     try {
-        console.log(`[enableProSubscription] User ${userId}: Setting unlimited=true`);
+
         
         // Get current entitlements to preserve purchased credits
         const entitlementsDoc = await db.collection('entitlements').doc(userId).get();
         let preservedCredits = 0;
         if (entitlementsDoc.exists()) {
             preservedCredits = entitlementsDoc.data().spec_credits || 0;
-            console.log(`[enableProSubscription] Preserving ${preservedCredits} credits for user ${userId}`);
+
         }
         
         const batch = db.batch();
@@ -453,11 +453,11 @@ async function enableProSubscription(userId, subscriptionId, variantId, currentP
         }, { merge: true });
 
         await batch.commit();
-        console.log(`[enableProSubscription] ✅ Pro subscription enabled for user ${userId}`);
+
         return true;
 
     } catch (error) {
-        console.error('[CRITICAL] enableProSubscription failed:', {
+
             userId,
             subscriptionId,
             variantId,
@@ -475,7 +475,7 @@ async function enableProSubscription(userId, subscriptionId, variantId, currentP
  */
 async function revokeProSubscription(userId) {
     try {
-        console.log(`[revokeProSubscription] Revoking Pro for user ${userId}`);
+
         
         // Get preserved credits
         const entitlementsDoc = await db.collection('entitlements').doc(userId).get();
@@ -483,7 +483,7 @@ async function revokeProSubscription(userId) {
             ? (entitlementsDoc.data().preserved_credits || 0) 
             : 0;
         
-        console.log(`[revokeProSubscription] Restoring ${preservedCredits} credits to user ${userId}`);
+
         
         const batch = db.batch();
 
@@ -515,11 +515,11 @@ async function revokeProSubscription(userId) {
         }
 
         await batch.commit();
-        console.log(`[revokeProSubscription] ✅ Pro subscription revoked for user ${userId}`);
+
         return true;
 
     } catch (error) {
-        console.error('[CRITICAL] revokeProSubscription failed:', {
+
             userId,
             error: error.message,
             stack: error.stack
@@ -579,7 +579,7 @@ async function claimPendingEntitlements(userId, email) {
         return true;
 
     } catch (error) {
-        console.error('Error claiming pending entitlements:', error);
+
         return false;
     }
 }
@@ -613,7 +613,7 @@ async function checkCanEditSpec(userId, specId) {
         return false;
 
     } catch (error) {
-        console.error('Error checking can edit spec:', error);
+
         return false;
     }
 }
@@ -629,14 +629,14 @@ async function getUserEntitlements(userId) {
         
         // If user document doesn't exist, try to create it
         if (!userDoc.exists) {
-            console.log(`⚠️ [getUserEntitlements] User ${userId} not found in Firestore, attempting to create...`);
+
             try {
                 await createOrUpdateUserDocumentInline(userId);
-                console.log(`✅ [getUserEntitlements] User ${userId} document created successfully`);
+
                 // Re-fetch the user document
                 userDoc = await db.collection('users').doc(userId).get();
             } catch (createError) {
-                console.error(`❌ [getUserEntitlements] Failed to create user document:`, createError);
+
                 // Continue with default values if creation fails
             }
         }
@@ -670,7 +670,7 @@ async function getUserEntitlements(userId) {
         };
 
     } catch (error) {
-        console.error('Error getting user entitlements:', error);
+
         return {
             user: { free_specs_remaining: 1 },
             entitlements: { spec_credits: 0, unlimited: false, can_edit: false }
@@ -697,7 +697,7 @@ async function addAuditLog(userId, source, action, eventId, payload = {}) {
             created_at: admin.firestore.FieldValue.serverTimestamp()
         });
     } catch (error) {
-        console.error('Error adding audit log:', error);
+
     }
 }
 
@@ -709,46 +709,46 @@ async function addAuditLog(userId, source, action, eventId, payload = {}) {
  */
 async function findUserByLemonCustomerIdOrEmail(customerId, email) {
     try {
-        console.log('🔍 [findUserByLemonCustomerIdOrEmail] Searching for user:', {
+
             customerId,
             email
         });
         
         // First try by Lemon customer ID
         if (customerId) {
-            console.log('🔍 [findUserByLemonCustomerIdOrEmail] Attempting search by customer_id:', customerId);
+
             const userQuery = db.collection('users').where('lemon_customer_id', '==', customerId);
             const userSnapshot = await userQuery.get();
             
             if (!userSnapshot.empty) {
                 const userId = userSnapshot.docs[0].id;
-                console.log('✅ [findUserByLemonCustomerIdOrEmail] Found user by customer_id:', userId);
+
                 return userId;
             } else {
-                console.log('🔍 [findUserByLemonCustomerIdOrEmail] No user found by customer_id');
+
             }
         }
 
         // Then try by email
         if (email) {
-            console.log('🔍 [findUserByLemonCustomerIdOrEmail] Attempting search by email:', email);
+
             const userQuery = db.collection('users').where('email', '==', email);
             const userSnapshot = await userQuery.get();
             
             if (!userSnapshot.empty) {
                 const userId = userSnapshot.docs[0].id;
-                console.log('✅ [findUserByLemonCustomerIdOrEmail] Found user by email:', userId);
+
                 return userId;
             } else {
-                console.log('🔍 [findUserByLemonCustomerIdOrEmail] No user found by email');
+
             }
         }
 
-        console.log('❌ [findUserByLemonCustomerIdOrEmail] User not found with given criteria');
+
         return null;
 
     } catch (error) {
-        console.error('❌ [findUserByLemonCustomerIdOrEmail] Error finding user:', {
+
             error: error.message,
             stack: error.stack,
             customerId,
@@ -778,7 +778,7 @@ async function createPendingEntitlement(email, customerId, payload, grants, reas
             created_at: admin.firestore.FieldValue.serverTimestamp()
         });
     } catch (error) {
-        console.error('Error creating pending entitlement:', error);
+
     }
 }
 
@@ -790,7 +790,7 @@ async function createPendingEntitlement(email, customerId, payload, grants, reas
  */
 async function refundCredits(userId, creditsToRefund, orderId) {
     try {
-        console.log(`[refundCredits] Refunding ${creditsToRefund} credits for user ${userId}, order: ${orderId}`);
+
         const batch = db.batch();
 
         // Update entitlements - use set with merge to ensure document exists
@@ -815,10 +815,10 @@ async function refundCredits(userId, creditsToRefund, orderId) {
         }
 
         await batch.commit();
-        console.log(`✅ [refundCredits] Credits refunded successfully`);
+
 
     } catch (error) {
-        console.error('[CRITICAL] refundCredits failed:', {
+
             userId,
             creditsToRefund,
             orderId,

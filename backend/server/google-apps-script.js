@@ -99,8 +99,8 @@ function doPost(e) {
     
   } catch (error) {
     // Log the error
-    console.error('❌ Error processing feedback:', error.toString());
-    console.error('❌ Error stack:', error.stack);
+
+
     
     // Return error response
     const errorResponse = {

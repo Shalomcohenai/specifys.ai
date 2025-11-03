@@ -66,7 +66,7 @@ export async function syncExistingUsers() {
         
         await createUserDocument(mockUser);
       } catch (error) {
-        console.error(`Failed to create user document for ${userId}:`, error);
+
       }
     }
     
@@ -77,7 +77,7 @@ export async function syncExistingUsers() {
     };
     
   } catch (error) {
-    console.error('Error during user sync:', error);
+
     throw error;
   }
 }
@@ -122,7 +122,7 @@ export async function getUserStats() {
       usersWithoutDataIds: usersWithoutData
     };
   } catch (error) {
-    console.error('Error getting user stats:', error);
+
     throw error;
   }
 }

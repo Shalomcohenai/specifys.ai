@@ -35,7 +35,7 @@ async function logError(errorType, errorMessage, errorCode, userId = null, userA
         userAgent: userAgent || 'unknown',
         ...additionalData
       });
-      console.log(`📝 New error logged: ${errorCode}`);
+
     } else {
       // Update existing error - increment frequency
       const errorDoc = existingErrors.docs[0];
@@ -44,10 +44,10 @@ async function logError(errorType, errorMessage, errorCode, userId = null, userA
         lastOccurrence: new Date(),
         errorMessage: errorMessage // Update with latest message
       });
-      console.log(`📊 Error frequency updated: ${errorCode} (count: ${(errorDoc.data().frequency || 1) + 1})`);
+
     }
   } catch (error) {
-    console.error('Failed to log error:', error);
+
   }
 }
 
@@ -74,7 +74,7 @@ async function getErrorLogs(limit = 100, errorType = null) {
       ...doc.data()
     }));
   } catch (error) {
-    console.error('Failed to get error logs:', error);
+
     throw error;
   }
 }
@@ -96,7 +96,7 @@ async function getErrorSummary() {
     
     return summary;
   } catch (error) {
-    console.error('Failed to get error summary:', error);
+
     return {};
   }
 }

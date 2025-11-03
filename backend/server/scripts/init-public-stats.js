@@ -7,7 +7,7 @@ const { db, admin } = require('../firebase-admin');
 
 async function initPublicStats() {
   try {
-    console.log('Initializing public stats document...');
+
     
     // Get current count
     const specsSnapshot = await db.collection('specs').get();
@@ -19,10 +19,10 @@ async function initPublicStats() {
       updatedAt: admin.firestore.FieldValue.serverTimestamp()
     });
     
-    console.log(`✅ Public stats initialized with specsCount: ${specsCount}`);
+
     
   } catch (error) {
-    console.error('❌ Error initializing public stats:', error);
+
     process.exit(1);
   }
 }
@@ -30,11 +30,11 @@ async function initPublicStats() {
 // Run the initialization
 initPublicStats()
   .then(() => {
-    console.log('✅ Initialization complete');
+
     process.exit(0);
   })
   .catch((error) => {
-    console.error('❌ Initialization failed:', error);
+
     process.exit(1);
   });
 

@@ -41,7 +41,7 @@ export async function createSpec(specData) {
     const docRef = await addDoc(collection(db, SPECS_COLLECTION), specDoc);
     return docRef.id;
   } catch (error) {
-    console.error('Error creating spec:', error);
+
     throw new Error('Error creating spec: ' + error.message);
   }
 }
@@ -75,7 +75,7 @@ export async function fetchUserSpecs(userId) {
     
     return specs;
   } catch (error) {
-    console.error('Error fetching user specs:', error);
+
     throw new Error('Error loading specs: ' + error.message);
   }
 }
@@ -93,7 +93,7 @@ export async function deleteSpec(specId) {
     
     await deleteDoc(doc(db, SPECS_COLLECTION, specId));
   } catch (error) {
-    console.error('Error deleting spec:', error);
+
     throw new Error('Error deleting spec: ' + error.message);
   }
 }
@@ -124,7 +124,7 @@ export async function updateSpec(specId, updateData) {
     
     await updateDoc(doc(db, SPECS_COLLECTION, specId), updatePayload);
   } catch (error) {
-    console.error('Error updating spec:', error);
+
     throw new Error('Error updating spec: ' + error.message);
   }
 }
@@ -151,7 +151,7 @@ export async function getSpec(specId) {
       return null;
     }
   } catch (error) {
-    console.error('Error getting spec:', error);
+
     throw new Error('Error loading spec: ' + error.message);
   }
 }
@@ -176,7 +176,7 @@ export async function searchSpecs(userId, searchTerm) {
       spec.content.toLowerCase().includes(searchLower)
     );
   } catch (error) {
-    console.error('Error searching specs:', error);
+
     throw new Error('Error searching specs: ' + error.message);
   }
 }

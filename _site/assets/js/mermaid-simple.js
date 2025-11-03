@@ -37,7 +37,7 @@ const SimpleMermaidManager = {
             
             this.initialized = true;
         } catch (error) {
-            console.error('Failed to initialize Mermaid:', error);
+
         }
     },
     
@@ -48,7 +48,7 @@ const SimpleMermaidManager = {
             
             const container = document.getElementById(containerId);
             if (!container) {
-                console.error(`Container ${containerId} not found`);
+
                 return;
             }
             
@@ -69,7 +69,7 @@ const SimpleMermaidManager = {
             chartDiv.innerHTML = svg;
             
         } catch (error) {
-            console.error(`Failed to render chart:`, error);
+
             this.showError(containerId, error.message);
         }
     },

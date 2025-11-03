@@ -50,7 +50,7 @@ app.post('/api/feedback', async (req, res) => {
     
     res.json({ success: true, message: 'Feedback submitted successfully' });
   } catch (error) {
-    console.error('Error processing feedback:', error.message);
+
     res.status(500).json({ error: 'Failed to process feedback' });
   }
 });
@@ -104,7 +104,7 @@ async function sendFeedbackEmail(email, feedback) {
     }
     
   } catch (error) {
-    console.error('❌ Error sending email:', error.message);
+
     // Don't fail the entire request if email fails
   }
 }
@@ -133,13 +133,13 @@ async function saveToGoogleSheets(email, feedback, type, source) {
     }
     
     const result = await response.json();
-    console.log('✅ Feedback saved to Google Sheets via Apps Script:', result);
+
     
   } catch (error) {
-    console.error('Error saving to Google Sheets via Apps Script:', error.message);
+
     // Don't fail the entire request if Sheets fails
-    console.log('📊 Falling back to console logging');
-    console.log('📋 Feedback Data:', {
+
+
       email: email || 'Not provided',
       feedback: feedback,
       type: type || 'general',
@@ -151,11 +151,11 @@ async function saveToGoogleSheets(email, feedback, type, source) {
 
 // Clean API endpoint for generating specifications
 app.post('/api/generate-spec', async (req, res) => {
-  console.log('Received specification request:', req.body);
+
   const { userInput } = req.body;
 
   if (!userInput) {
-    console.log('Error: User input is required');
+
     return res.status(400).json({ error: 'User input is required' });
   }
 
@@ -171,21 +171,21 @@ app.post('/api/generate-spec', async (req, res) => {
 
     const data = await response.json();
     if (!response.ok) {
-      console.log('Error from API:', data.error?.message);
+
       throw new Error(data.error?.message || 'Failed to fetch specification');
     }
 
-    console.log('Successfully received specification from API');
+
     res.json({ specification: data.specification || 'No specification generated' });
   } catch (error) {
-    console.error('Error fetching specification:', error.message);
+
     res.status(500).json({ error: 'Failed to generate specification' });
   }
 });
 
 // Repair diagram endpoint (legacy - kept for backward compatibility)
 app.post('/api/diagrams/repair', async (req, res) => {
-  console.log('⚠️  [Legacy] Received diagram repair request via old endpoint');
+
   
   const { overview, technical, market, diagramTitle, brokenDiagramCode } = req.body;
   
@@ -237,7 +237,7 @@ Return ONLY valid Mermaid code, nothing else.`;
       cleanedCode = repairedCode.replace(/```\n?/, '').replace(/```\n?$/, '').trim();
     }
     
-    console.log('✅ Diagram repaired successfully');
+
     res.json({ 
       success: true,
       repairedDiagram: {
@@ -246,7 +246,7 @@ Return ONLY valid Mermaid code, nothing else.`;
     });
     
   } catch (error) {
-    console.error('Error repairing diagram:', error.message);
+
     res.status(500).json({ error: 'Failed to repair diagram' });
   }
 });
@@ -283,7 +283,7 @@ app.get('/api/admin/error-logs', async (req, res) => {
       total: logs.length
     });
   } catch (error) {
-    console.error('Error getting error logs:', error);
+
     res.status(500).json({ error: 'Failed to get error logs' });
   }
 });
@@ -304,7 +304,7 @@ app.post('/api/admin/css-crash-logs', async (req, res) => {
       message: 'CSS crash log saved' 
     });
   } catch (error) {
-    console.error('Error saving CSS crash log:', error);
+
     res.status(500).json({ error: 'Failed to save CSS crash log' });
   }
 });
@@ -324,7 +324,7 @@ app.get('/api/admin/css-crash-logs', async (req, res) => {
       total: logs.length
     });
   } catch (error) {
-    console.error('Error getting CSS crash logs:', error);
+
     res.status(500).json({ error: 'Failed to get CSS crash logs' });
   }
 });
@@ -339,7 +339,7 @@ app.get('/api/admin/css-crash-summary', async (req, res) => {
       summary: summary
     });
   } catch (error) {
-    console.error('Error getting CSS crash summary:', error);
+
     res.status(500).json({ error: 'Failed to get CSS crash summary' });
   }
 });
@@ -354,24 +354,24 @@ app.get('/api/admin/error-summary', async (req, res) => {
       summary: summary 
     });
   } catch (error) {
-    console.error('Error getting error summary:', error);
+
     res.status(500).json({ error: 'Failed to get error summary' });
   }
 });
 
-console.log('Attempting to start server on port', port);
+
 app.listen(port, () => {
-  console.log(`🚀 Server running on port ${port}`);
-  console.log(`📝 Feedback endpoint available at: http://localhost:${port}/api/feedback`);
-  console.log(`🔧 Generate spec endpoint available at: http://localhost:${port}/api/generate-spec`);
-  console.log(`🔧 Diagram repair endpoint available at: http://localhost:${port}/api/diagrams/repair`);
+
+
+
+
   
   // Check configuration
   if (!process.env.EMAIL_USER || !process.env.EMAIL_APP_PASSWORD) {
-    console.log('⚠️  Email configuration not found. Set EMAIL_USER and EMAIL_APP_PASSWORD for email functionality.');
+
   }
   
   if (!process.env.GOOGLE_SHEETS_WEBHOOK_URL) {
-    console.log('⚠️  Google Sheets configuration not found. Set GOOGLE_SHEETS_WEBHOOK_URL for Sheets functionality.');
+
   }
 });

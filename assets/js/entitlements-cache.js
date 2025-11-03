@@ -30,7 +30,7 @@ class EntitlementsCache {
         if (!forceRefresh && this.cache && 
             this.lastFetch && 
             Date.now() - this.lastFetch < this.cacheDuration) {
-            console.log('[EntitlementsCache] Returning cached data');
+
             return this.cache;
         }
         
@@ -53,17 +53,17 @@ class EntitlementsCache {
      */
     async _fetchFromAPI() {
         try {
-            console.log('[EntitlementsCache] Fetching from API...');
+
             
             // Check if Firebase is available
             if (typeof firebase === 'undefined' || !firebase.auth) {
-                console.error('[EntitlementsCache] Firebase not available');
+
                 return null;
             }
             
             const user = firebase.auth().currentUser;
             if (!user) {
-                console.log('[EntitlementsCache] No user logged in');
+
                 return null;
             }
             
@@ -77,7 +77,7 @@ class EntitlementsCache {
             });
             
             if (!response.ok) {
-                console.error('[EntitlementsCache] API error:', response.status);
+
                 return null;
             }
             
@@ -87,7 +87,7 @@ class EntitlementsCache {
             this.cache = data;
             this.lastFetch = Date.now();
             
-            console.log('[EntitlementsCache] Data cached successfully');
+
             
             // Notify listeners
             this.notifyListeners();
@@ -95,7 +95,7 @@ class EntitlementsCache {
             return data;
             
         } catch (error) {
-            console.error('[EntitlementsCache] Error fetching entitlements:', error);
+
             return null;
         }
     }
@@ -107,7 +107,7 @@ class EntitlementsCache {
     subscribe(callback) {
         if (typeof callback === 'function') {
             this.listeners.push(callback);
-            console.log(`[EntitlementsCache] Listener added (total: ${this.listeners.length})`);
+
         }
     }
     
@@ -119,7 +119,7 @@ class EntitlementsCache {
         const index = this.listeners.indexOf(callback);
         if (index > -1) {
             this.listeners.splice(index, 1);
-            console.log(`[EntitlementsCache] Listener removed (remaining: ${this.listeners.length})`);
+
         }
     }
     
@@ -128,12 +128,12 @@ class EntitlementsCache {
      * @private
      */
     notifyListeners() {
-        console.log(`[EntitlementsCache] Notifying ${this.listeners.length} listeners`);
+
         this.listeners.forEach(callback => {
             try {
                 callback(this.cache);
             } catch (error) {
-                console.error('[EntitlementsCache] Error in listener callback:', error);
+
             }
         });
     }
@@ -142,7 +142,7 @@ class EntitlementsCache {
      * Invalidate the cache
      */
     invalidate() {
-        console.log('[EntitlementsCache] Cache invalidated');
+
         this.cache = null;
         this.lastFetch = null;
     }
@@ -152,7 +152,7 @@ class EntitlementsCache {
      * @returns {Promise<Object|null>}
      */
     async refresh() {
-        console.log('[EntitlementsCache] Force refresh requested');
+
         return await this.get(true);
     }
     
@@ -183,5 +183,5 @@ if (typeof module !== 'undefined' && module.exports) {
     module.exports = EntitlementsCache;
 }
 
-console.log('[EntitlementsCache] Initialized');
+
 

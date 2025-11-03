@@ -25,10 +25,22 @@ async function createUserDocument(user) {
       emailVerified: user.emailVerified,
       createdAt: serverTimestamp(),
       lastActive: serverTimestamp(),
-      newsletterSubscription: false
+      newsletterSubscription: false,
+      // ALL USERS GET PRO BY DEFAULT
+      plan: 'pro',
+      free_specs_remaining: 1
     }, { merge: true }); // merge: true will update existing or create new
+    
+    // Also create entitlements document if doesn't exist
+    const entitlementsRef = doc(db, 'entitlements', user.uid);
+    await setDoc(entitlementsRef, {
+      userId: user.uid,
+      spec_credits: 0,
+      unlimited: true,
+      can_edit: true,
+      updated_at: serverTimestamp()
+    }, { merge: true });
   } catch (error) {
-    console.error('❌ Error creating user document:', error);
     // Don't throw - this shouldn't prevent login/registration
   }
 }
@@ -48,7 +60,6 @@ export async function registerWithEmail(email, password) {
     
     return userCredential.user;
   } catch (error) {
-    console.error('Registration error:', error);
     throw new Error(getAuthErrorMessage(error.code));
   }
 }
@@ -68,7 +79,6 @@ export async function loginWithEmail(email, password) {
     
     return userCredential.user;
   } catch (error) {
-    console.error('Login error:', error);
     throw new Error(getAuthErrorMessage(error.code));
   }
 }
@@ -86,7 +96,6 @@ export async function loginWithGoogle() {
     
     return result.user;
   } catch (error) {
-    console.error('Google login error:', error);
     throw new Error(getAuthErrorMessage(error.code));
   }
 }
@@ -99,7 +108,6 @@ export async function logout() {
   try {
     await signOut(auth);
   } catch (error) {
-    console.error('Logout error:', error);
     throw new Error('Error logging out of account');
   }
 }

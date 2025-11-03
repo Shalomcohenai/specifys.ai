@@ -57,7 +57,7 @@ class MermaidManager {
             mermaid.initialize(this.config);
             this.isInitialized = true;
         } catch (error) {
-            console.error('Failed to initialize Mermaid:', error);
+
         }
     }
 
@@ -94,7 +94,7 @@ class MermaidManager {
                 resolve();
             };
             script.onerror = (error) => {
-                console.error('Failed to load Mermaid:', error);
+
                 reject(error);
             };
             document.head.appendChild(script);
@@ -195,11 +195,11 @@ class MermaidManager {
 
                 return chartId;
             } catch (parseError) {
-                console.error('Parse error:', parseError);
+
                 throw new Error(`Chart parsing failed: ${parseError.message}`);
             }
         } catch (error) {
-            console.error(`Failed to render chart in ${containerId}:`, error);
+
             this.showError(containerId, error.message);
         }
     }
@@ -212,7 +212,7 @@ class MermaidManager {
             try {
                 await this.renderChart(containerId, chartInfo.definition, chartInfo.options);
             } catch (error) {
-                console.error(`Failed to re-render chart ${containerId}:`, error);
+
             }
         }
     }

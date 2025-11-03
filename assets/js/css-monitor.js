@@ -136,7 +136,7 @@
                 styleSheets.push(sheetInfo);
             }
         } catch (e) {
-            console.error('[CSS Monitor] Error reading styleSheets:', e);
+
         }
         
         return {
@@ -330,7 +330,7 @@
                 
                 // If we get too many mutations too quickly, disable observer temporarily
                 if (state.mutationCount > 20) {
-                    console.warn('[CSS Monitor] Too many mutations detected - temporarily disabling observer to prevent loop');
+
                     observer.disconnect();
                     
                     // Re-enable after 5 seconds
@@ -342,7 +342,7 @@
                             attributeOldValue: true,
                             subtree: true
                         });
-                        console.log('[CSS Monitor] Observer re-enabled after cooldown');
+
                     }, 5000);
                     return;
                 }
@@ -506,7 +506,7 @@
             // Crash within 5 seconds of previous - might be a loop
             state.crashCount++;
             if (state.crashCount > 5) {
-                console.warn('[CSS Monitor] Too many crashes detected, likely in a reload loop. Skipping logging.');
+
                 return;
             }
         } else {
@@ -537,7 +537,7 @@
         }
         
         if (!isDevelopment) {
-            console.warn('[CSS Monitor] Crash detected:', crashType, crashLog);
+
         }
     }
 
@@ -546,7 +546,7 @@
      */
     async function sendLog(logData) {
         try {
-            console.log('[CSS Monitor] 📤 Sending crash log to backend:', logData.crashType);
+
             const response = await fetch(CONFIG.backendEndpoint, {
                 method: 'POST',
                 headers: {
@@ -563,12 +563,12 @@
             });
             
             if (!response.ok) {
-                console.error('[CSS Monitor] ❌ Failed to send log:', response.status, response.statusText);
+
             } else {
-                console.log('[CSS Monitor] ✅ Crash log sent successfully');
+
             }
         } catch (error) {
-            console.error('[CSS Monitor] ❌ Error sending log:', error);
+
         }
     }
 
@@ -592,7 +592,7 @@
             
             // Log periodic check (only every 5th check to avoid spam)
             if (checkCount % 5 === 0) {
-                console.log('[CSS Monitor] 🔄 Periodic check - CSS healthy:', health.healthy, 'Issues:', health.issues.length);
+
             }
             
             // Detect crash (only if not in dev mode with livereload)
@@ -607,7 +607,7 @@
                 );
                 
                 if (criticalIssues.length > 0) {
-                    console.warn('[CSS Monitor] ⚠️ CSS crash detected!', criticalIssues);
+
                     logCrash('css_crash_detected', {
                         issues: health.issues,
                         criticalIssues: criticalIssues
@@ -619,10 +619,6 @@
             if (!isDevelopment) {
                 const idleTime = Date.now() - state.lastActivityTime;
                 if (idleTime > 120000 && !health.healthy) { // 2 minutes idle + CSS broken
-                    console.error('[CSS Monitor] 🚨 CSS crash after idle period!', {
-                        idleTime: idleTime,
-                        issues: health.issues
-                    });
                     logCrash('css_crash_after_idle', {
                         idleTime: idleTime,
                         issues: health.issues
@@ -656,7 +652,7 @@
     function init() {
         if (!CONFIG.enabled) return;
         
-        console.log('[CSS Monitor] 🔍 Initializing CSS monitoring system...');
+
         
         // Setup monitoring
         setupDOMMonitoring();
@@ -666,7 +662,7 @@
         // Initial check
         const initialHealth = checkCSSHealth();
         if (!initialHealth.healthy) {
-            console.warn('[CSS Monitor] Initial CSS health check found issues:', initialHealth.issues);
+
         }
         
         // Start periodic checks
@@ -676,8 +672,8 @@
         // Create initial snapshot
         createSnapshot();
         
-        console.log('[CSS Monitor] ✅ Initialized successfully - CSS monitoring is active!');
-        console.log('[CSS Monitor] Monitoring every', CONFIG.checkInterval / 1000, 'seconds');
+
+
     }
 
     // Initialize when DOM is ready (with delay to avoid interfering with livereload)
@@ -691,7 +687,7 @@
         
         // More aggressive: Disable monitoring completely if livereload detected in first 5 seconds
         if (hasLivereload) {
-            console.log('[CSS Monitor] 🛡️ LiveReload detected - using safe mode');
+
             
             // Wait longer and check again if page is stable
             setTimeout(() => {
@@ -702,14 +698,14 @@
                 
                 // If reload happened less than 2 seconds ago, it might be a loop
                 if (now - parseInt(lastReloadTime) < 2000 && parseInt(reloadCount) > 2) {
-                    console.warn('[CSS Monitor] Rapid reloads detected - might be in a loop, skipping initialization');
+
                     // Increment counter
                     sessionStorage.setItem('css_monitor_reload_count', parseInt(reloadCount) + 1);
                     sessionStorage.setItem('css_monitor_last_reload_time', now);
                     
                     // If too many rapid reloads, disable monitor
                     if (parseInt(reloadCount) > 5) {
-                        console.warn('[CSS Monitor] Too many rapid reloads - disabling monitor to prevent loop');
+
                         CONFIG.enabled = false;
                         return;
                     }
@@ -754,13 +750,13 @@
             
             // Only skip if there were rapid reloads (less than 2 seconds apart)
             if (parseInt(reloadCount) > 3 && (now - parseInt(lastReloadTime) < 2000)) {
-                console.warn('[CSS Monitor] Skipping initialization - possible reload loop detected');
+
                 return;
             }
         }
         
         if (!state.cssSnapshots.length) {
-            console.log('[CSS Monitor] Window loaded, ensuring initialization...');
+
             setTimeout(init, 2000);
         }
     });

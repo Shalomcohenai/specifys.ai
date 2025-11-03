@@ -46,7 +46,7 @@ async function verifyFirebaseToken(req, res, next) {
         req.user = decodedToken;
         next();
     } catch (error) {
-        console.error('Error verifying Firebase token:', error);
+
         res.status(401).json({ error: 'Invalid token' });
     }
 }
@@ -57,15 +57,15 @@ async function verifyFirebaseToken(req, res, next) {
  */
 router.post('/create', verifyFirebaseToken, validateInput(createSpecSchema), async (req, res) => {
     try {
-        console.log('🔵 [POST /api/specs/create] Request received');
+
         const userId = req.user.uid;
         const { userInput } = req.body;
-        console.log('🔵 [POST /api/specs/create] User ID:', userId);
-        console.log('🔵 [POST /api/specs/create] Input length:', userInput?.length || 0);
+
+
 
         // Check if user can create a spec
         const canCreateResult = await checkUserCanCreateSpec(userId);
-        console.log('🔵 [POST /api/specs/create] Can create result:', canCreateResult);
+
         
         if (!canCreateResult.canCreate) {
             // Return paywall data for frontend
@@ -108,11 +108,11 @@ router.post('/create', verifyFirebaseToken, validateInput(createSpecSchema), asy
         }
 
         // Consume credit BEFORE generation to prevent bypass
-        console.log('🔵 [POST /api/specs/create] Calling consumeSpecCredit...');
+
         const creditResult = await consumeSpecCredit(userId);
-        console.log('🔵 [POST /api/specs/create] Credit result:', creditResult);
+
         if (!creditResult.success) {
-            console.log('🔵 [POST /api/specs/create] Credit consumption failed - returning 402');
+
             return res.status(402).json({
                 error: 'Failed to consume credit - insufficient credits',
                 paywall: {
@@ -153,11 +153,11 @@ router.post('/create', verifyFirebaseToken, validateInput(createSpecSchema), asy
 
         // Track which credit type was consumed for proper refund if needed
         const consumedCreditType = creditResult.creditType;
-        console.log('🔵 [POST /api/specs/create] Credit consumed successfully, type:', consumedCreditType);
+
 
         // Generate specification using existing API
         // NOTE: Users can provide answers in any language, but the API will always return the specification in English
-        console.log('🔵 [POST /api/specs/create] Generating specification...');
+
         let specification;
         try {
             const requestBody = {
@@ -193,16 +193,16 @@ router.post('/create', verifyFirebaseToken, validateInput(createSpecSchema), asy
         }
 
         // Return the specification
-        console.log('🔵 [POST /api/specs/create] Specification generated successfully, returning response');
+
         res.json({
             success: true,
             specification: specification,
             creditsRemaining: canCreateResult.creditsRemaining === 'unlimited' ? 'unlimited' : canCreateResult.creditsRemaining - 1
         });
-        console.log('🔵 [POST /api/specs/create] Request completed successfully');
+
 
     } catch (error) {
-        console.error('❌ [POST /api/specs/create] Error creating specification:', error);
+
         res.status(500).json({ 
             error: 'Failed to create specification',
             details: error.message 
@@ -225,7 +225,7 @@ router.get('/entitlements', verifyFirebaseToken, async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error getting entitlements:', error);
+
         res.status(500).json({ 
             error: 'Failed to get entitlements',
             details: error.message 
@@ -259,7 +259,7 @@ router.post('/check-edit', verifyFirebaseToken, async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error checking edit permission:', error);
+
         res.status(500).json({ 
             error: 'Failed to check edit permission',
             details: error.message 
@@ -284,7 +284,7 @@ router.get('/status', verifyFirebaseToken, async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error getting spec status:', error);
+
         res.status(500).json({ 
             error: 'Failed to get spec status',
             details: error.message 
@@ -308,12 +308,12 @@ async function uploadToOpenAIBackground(specId, specData) {
   }
   
   if (!openaiStorage) {
-    console.warn('[OpenAI Storage] Service not configured');
+
     return;
   }
   
   try {
-    console.log(`[Background] Uploading spec ${specId} to OpenAI...`);
+
     
     const fileId = await openaiStorage.uploadSpec(specId, specData);
     
@@ -323,9 +323,9 @@ async function uploadToOpenAIBackground(specId, specData) {
       openaiUploadTimestamp: admin.firestore.FieldValue.serverTimestamp()
     });
     
-    console.log(`[Background] ✓ Successfully uploaded spec ${specId} to OpenAI (file ID: ${fileId})`);
+
   } catch (error) {
-    console.error(`[Background] Failed to upload spec ${specId}:`, error.message);
+
     
     // Store error for debugging
     try {
@@ -334,7 +334,7 @@ async function uploadToOpenAIBackground(specId, specData) {
         uploadedToOpenAI: false
       });
     } catch (updateError) {
-      console.error('Failed to store upload error:', updateError);
+
     }
   }
 }
@@ -367,7 +367,7 @@ router.post('/:specId/upload-to-openai', verifyFirebaseToken, async (req, res) =
     const specData = specDoc.data();
     
     // Upload to OpenAI
-    console.log(`[Manual Upload] Uploading spec ${specId} to OpenAI...`);
+
     const fileId = await openaiStorage.uploadSpec(specId, specData);
     
     // Update Firebase
@@ -377,7 +377,7 @@ router.post('/:specId/upload-to-openai', verifyFirebaseToken, async (req, res) =
       openaiUploadTimestamp: admin.firestore.FieldValue.serverTimestamp()
     });
     
-    console.log(`[Manual Upload] ✓ Successfully uploaded spec ${specId} (file ID: ${fileId})`);
+
     
     res.json({
       success: true,
@@ -386,7 +386,7 @@ router.post('/:specId/upload-to-openai', verifyFirebaseToken, async (req, res) =
     });
     
   } catch (error) {
-    console.error('Error uploading to OpenAI:', error);
+
     res.status(500).json({ 
       error: 'Failed to upload to OpenAI',
       details: error.message 
@@ -428,7 +428,7 @@ router.get('/openai-status', verifyFirebaseToken, async (req, res) => {
     });
     
   } catch (error) {
-    console.error('Error getting OpenAI status:', error);
+
     res.status(500).json({ 
       error: 'Failed to get status',
       details: error.message 

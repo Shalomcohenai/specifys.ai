@@ -30,10 +30,10 @@ async function logCSCCrash(crashData) {
       createdAt: new Date()
     });
 
-    console.log(`📝 CSS crash logged: ${crashType} on ${url}`);
+
     return true;
   } catch (error) {
-    console.error('Failed to log CSS crash:', error);
+
     return false;
   }
 }
@@ -66,7 +66,7 @@ async function getCSCCrashLogs(limit = 100, crashType = null, url = null) {
       timestamp: doc.data().timestamp?.toDate ? doc.data().timestamp.toDate() : doc.data().timestamp
     }));
   } catch (error) {
-    console.error('Failed to get CSS crash logs:', error);
+
     throw error;
   }
 }
@@ -116,7 +116,7 @@ async function getCSCCrashSummary() {
 
     return summary;
   } catch (error) {
-    console.error('Failed to get CSS crash summary:', error);
+
     return {
       total: 0,
       byType: {},

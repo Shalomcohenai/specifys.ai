@@ -26,6 +26,6 @@ window.API_BASE_URL = API_CONFIG.baseUrl;
 
 // Version logging for frontend
 const FRONTEND_VERSION = '1.2.5-assistant-fix-2025-10-31';
-console.log('🎨 Specifys.ai Frontend v' + FRONTEND_VERSION + ' loaded');
-console.log('🔗 API Base URL:', window.API_BASE_URL);
+
+
 

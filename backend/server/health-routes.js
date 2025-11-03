@@ -81,7 +81,7 @@ router.get('/credits', async (req, res) => {
         });
         
     } catch (error) {
-        console.error('[Health Check] Error checking credits system:', error);
+
         res.status(500).json({ 
             status: 'unhealthy', 
             error: error.message,
@@ -107,7 +107,7 @@ router.get('/database', async (req, res) => {
         });
         
     } catch (error) {
-        console.error('[Health Check] Database error:', error);
+
         res.status(500).json({
             status: 'unhealthy',
             database: 'Firestore',

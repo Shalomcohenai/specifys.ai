@@ -15,7 +15,7 @@ class AdminDashboard {
     constructor() {
         // Check if Firebase is available
         if (typeof firebase === 'undefined') {
-            console.error('Firebase is not loaded');
+
             this.updateFirebaseStatus('error', 'Firebase not loaded');
             return;
         }
@@ -134,7 +134,7 @@ class AdminDashboard {
             this.updateUserPaymentsTable();
 
         } catch (error) {
-            console.error('Error loading payment data:', error);
+
             this.showNotification('❌ Error loading payment data: ' + error.message, 'error');
         }
     }
@@ -155,7 +155,7 @@ class AdminDashboard {
             this.updateLastRefreshTime();
             this.showNotification('Data refreshed successfully', 'success');
         } catch (error) {
-            console.error('Error refreshing data:', error);
+
             this.showNotification('Error refreshing data: ' + error.message, 'error');
         } finally {
             if (refreshBtn) {
@@ -211,7 +211,7 @@ class AdminDashboard {
             this.updateAnalytics();
             
         } catch (error) {
-            console.error('❌ Error syncing users:', error);
+
             this.showNotification('❌ Error: ' + error.message, 'error');
         } finally {
             if (syncBtn) {
@@ -373,7 +373,7 @@ class AdminDashboard {
             this.lastRefreshTime = new Date();
             this.updateLastRefreshTime();
         } catch (error) {
-            console.error('=== Error loading data ===', error);
+
             this.showNotification('Error loading data: ' + error.message, 'error');
         }
     }
@@ -394,10 +394,10 @@ class AdminDashboard {
             
             this.renderUsersTable(this.allUsers);
         } catch (error) {
-            console.error('❌ Error loading users:', error);
-            console.error('Error code:', error.code);
-            console.error('Error message:', error.message);
-            console.error('Full error:', error);
+
+
+
+
             
             // Show error in table
             const tbody = document.getElementById('users-table-body');
@@ -441,7 +441,7 @@ class AdminDashboard {
             
             this.renderSpecsTable(this.allSpecs);
         } catch (error) {
-            console.error('Error loading specs:', error);
+
             const tbody = document.getElementById('specs-table-body');
             if (tbody) {
             tbody.innerHTML = `
@@ -469,7 +469,7 @@ class AdminDashboard {
             
             this.renderMarketResearchTable(this.allMarketResearch);
         } catch (error) {
-            console.error('Error loading market research:', error);
+
             const tbody = document.getElementById('market-table-body');
             if (tbody) {
             tbody.innerHTML = `
@@ -509,7 +509,7 @@ class AdminDashboard {
             
             this.renderDashboardsTable(this.allDashboards);
         } catch (error) {
-            console.error('Error loading dashboards:', error);
+
             const tbody = document.getElementById('dashboards-table-body');
             if (tbody) {
             tbody.innerHTML = `
@@ -554,7 +554,7 @@ class AdminDashboard {
         
         // Check if the element exists (it might not exist in simplified interface)
         if (!tbody) {
-            console.log('Specs table not found - using simplified interface');
+
             return;
         }
         
@@ -584,7 +584,7 @@ class AdminDashboard {
         
         // Check if the element exists (it might not exist in simplified interface)
         if (!tbody) {
-            console.log('Market research table not found - using simplified interface');
+
             return;
         }
         
@@ -610,7 +610,7 @@ class AdminDashboard {
 
     // Load activity data (saved tools, likes, notes, expenses)
     async loadActivityData() {
-        console.log('📊 Loading activity data...');
+
         
         // Load saved tools with individual error handling
         try {
@@ -619,12 +619,12 @@ class AdminDashboard {
                 id: doc.id,
                 ...doc.data()
             }));
-            console.log(`✅ Loaded ${this.allSavedTools.length} saved tools`);
+
         } catch (error) {
-            console.warn('⚠️ Could not load saved tools:', error.code, error.message);
+
             this.allSavedTools = [];
             if (error.code === 'permission-denied') {
-                console.warn('💡 Deploy updated Firestore Rules to enable saved tools data');
+
             }
         }
 
@@ -635,12 +635,12 @@ class AdminDashboard {
                 id: doc.id,
                 ...doc.data()
             }));
-            console.log(`✅ Loaded ${this.allLikes.length} likes`);
+
         } catch (error) {
-            console.warn('⚠️ Could not load likes:', error.code, error.message);
+
             this.allLikes = [];
             if (error.code === 'permission-denied') {
-                console.warn('💡 Deploy updated Firestore Rules to enable likes data');
+
             }
         }
 
@@ -651,9 +651,9 @@ class AdminDashboard {
                 id: doc.id,
                 ...doc.data()
             }));
-            console.log(`✅ Loaded ${this.allNotes.length} notes`);
+
         } catch (error) {
-            console.warn('⚠️ Could not load notes:', error.code, error.message);
+
             this.allNotes = [];
         }
 
@@ -664,9 +664,9 @@ class AdminDashboard {
                 id: doc.id,
                 ...doc.data()
             }));
-            console.log(`✅ Loaded ${this.allExpenses.length} expenses`);
+
         } catch (error) {
-            console.warn('⚠️ Could not load expenses:', error.code, error.message);
+
             this.allExpenses = [];
         }
 
@@ -675,7 +675,7 @@ class AdminDashboard {
         this.renderActiveUsersTable();
         this.updateEngagementStats();
         
-        console.log('📊 Activity data loading completed');
+
     }
 
     // Render saved tools table
@@ -843,7 +843,7 @@ class AdminDashboard {
         
         // Check if the element exists (it might not exist in simplified interface)
         if (!tbody) {
-            console.log('Dashboards table not found - using simplified interface');
+
             return;
         }
         
@@ -1422,19 +1422,19 @@ class AdminDashboard {
     // Load permissions data
     async loadPermissionsData() {
         try {
-            console.log('🔑 Loading permissions data...');
+
             
             // Load entitlements data
             const entitlementsSnapshot = await this.db.collection('entitlements').get();
             this.allEntitlements = entitlementsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             
-            console.log(`✅ Loaded ${this.allEntitlements.length} entitlements`);
+
             
             // Update permissions table
             this.updatePermissionsTable();
             
         } catch (error) {
-            console.error('❌ Error loading permissions data:', error);
+
             this.showNotification('Error loading permissions data: ' + error.message, 'error');
         }
     }
@@ -1612,7 +1612,7 @@ class AdminDashboard {
             this.showNotification('Permissions updated successfully', 'success');
 
         } catch (error) {
-            console.error('Error saving permissions:', error);
+
             this.showNotification('Error saving permissions: ' + error.message, 'error');
         }
     }
@@ -1655,7 +1655,7 @@ class AdminDashboard {
             this.showNotification(`Added ${creditsToAdd} credits to ${user.email}`, 'success');
 
         } catch (error) {
-            console.error('Error adding credits:', error);
+
             this.showNotification('Error adding credits: ' + error.message, 'error');
         }
     }
@@ -1704,7 +1704,7 @@ class AdminDashboard {
             this.showNotification(`Pro access granted to ${user.email}`, 'success');
 
         } catch (error) {
-            console.error('Error granting Pro access:', error);
+
             this.showNotification('Error granting Pro access: ' + error.message, 'error');
         }
     }
@@ -1745,7 +1745,7 @@ class AdminDashboard {
             this.showNotification(`Added ${credits} credits to all users`, 'success');
 
         } catch (error) {
-            console.error('Error adding credits to all users:', error);
+
             this.showNotification('Error adding credits: ' + error.message, 'error');
         }
     }
@@ -1797,7 +1797,7 @@ class AdminDashboard {
             this.showNotification(`Permissions reset for ${user.email}`, 'success');
 
         } catch (error) {
-            console.error('Error resetting permissions:', error);
+
             this.showNotification('Error resetting permissions: ' + error.message, 'error');
         }
     }
@@ -1824,19 +1824,19 @@ class AdminDashboard {
     // Load buy clicks data for conversion funnel analysis
     async loadBuyClicksData() {
         try {
-            console.log('🛒 Loading buy clicks data...');
+
             
             // For now, we'll simulate buy clicks data since we don't have a collection yet
             // In a real implementation, you would track buy button clicks in Firestore
             this.allBuyClicks = this.simulateBuyClicksData();
             
-            console.log(`✅ Loaded ${this.allBuyClicks.length} buy clicks`);
+
             
             // Update conversion funnel analytics
             this.updateConversionFunnelAnalytics();
             
         } catch (error) {
-            console.error('❌ Error loading buy clicks data:', error);
+
             this.showNotification('Error loading buy clicks data: ' + error.message, 'error');
         }
     }
@@ -2146,7 +2146,7 @@ class AdminDashboard {
                 toggleBtn.innerHTML = '<i class="fas fa-code"></i> Show Raw';
             }
         } catch (error) {
-            console.error('Error viewing spec:', error);
+
             this.showNotification('Error loading spec: ' + error.message, 'error');
         }
     }
@@ -2174,7 +2174,7 @@ class AdminDashboard {
             // Render all Mermaid diagrams
             const mermaidDivs = container.querySelectorAll('.mermaid');
             if (mermaidDivs.length > 0) {
-                console.log(`🎨 Rendering ${mermaidDivs.length} Mermaid diagrams...`);
+
                 
                 for (let i = 0; i < mermaidDivs.length; i++) {
                     const div = mermaidDivs[i];
@@ -2184,15 +2184,15 @@ class AdminDashboard {
                     try {
                         const { svg } = await mermaid.render(id, code);
                         div.innerHTML = svg;
-                        console.log(`✅ Rendered diagram ${i + 1}`);
+
                     } catch (error) {
-                        console.error(`Error rendering Mermaid diagram ${i + 1}:`, error);
+
                         div.innerHTML = `<pre style="color: var(--danger-color);">Error rendering diagram:\n${code}</pre>`;
                     }
                 }
             }
         } catch (error) {
-            console.error('Error rendering content:', error);
+
             // Fallback to plain text
             container.textContent = content;
         }
@@ -2295,7 +2295,7 @@ class AdminDashboard {
                 toggleBtn.innerHTML = '<i class="fas fa-code"></i> Show Raw';
             }
         } catch (error) {
-            console.error('Error viewing dashboard:', error);
+
             this.showNotification('Error loading dashboard: ' + error.message, 'error');
         }
     }
@@ -2358,7 +2358,7 @@ class AdminDashboard {
             this.showNotification('User deleted successfully', 'success');
             await this.loadAllData();
         } catch (error) {
-            console.error('Error deleting user:', error);
+
             this.showNotification('Error deleting user: ' + error.message, 'error');
         }
     }
@@ -2442,7 +2442,7 @@ class AdminDashboard {
     // Load error logs from API
     async loadErrorLogs() {
         try {
-            console.log('🔍 Loading error logs...');
+
             
             const errorTypeFilter = document.getElementById('errors-type-filter')?.value || 'all';
             const response = await fetch(
@@ -2457,13 +2457,13 @@ class AdminDashboard {
             
             if (data.success && data.logs) {
                 this.renderErrorsTable(data.logs);
-                console.log(`✅ Loaded ${data.logs.length} error logs`);
+
             } else {
                 throw new Error('Invalid response from server');
             }
             
         } catch (error) {
-            console.error('❌ Error loading error logs:', error);
+
             const tbody = document.getElementById('errors-table-body');
             if (tbody) {
                 tbody.innerHTML = `
@@ -2550,7 +2550,7 @@ class AdminDashboard {
     // Load CSS crash logs
     async loadCSCCrashLogs() {
         try {
-            console.log('🔍 Loading CSS crash logs...');
+
             
             const crashTypeFilter = document.getElementById('css-crash-type-filter')?.value || 'all';
             const urlFilter = document.getElementById('css-crash-url-filter')?.value || '';
@@ -2577,13 +2577,13 @@ class AdminDashboard {
                 // Load summary
                 await this.loadCSCCrashSummary();
                 
-                console.log(`✅ Loaded ${data.logs.length} CSS crash logs`);
+
             } else {
                 throw new Error('Invalid response from server');
             }
             
         } catch (error) {
-            console.error('❌ Error loading CSS crash logs:', error);
+
             const tbody = document.getElementById('css-crashes-table-body');
             if (tbody) {
                 tbody.innerHTML = `
@@ -2612,7 +2612,7 @@ class AdminDashboard {
                 this.renderCSCCrashSummary(data.summary);
             }
         } catch (error) {
-            console.error('❌ Error loading CSS crash summary:', error);
+
             const summaryDiv = document.getElementById('css-crash-summary-content');
             if (summaryDiv) {
                 summaryDiv.innerHTML = `<p style="color: var(--danger-color);">Error loading summary: ${error.message}</p>`;
@@ -2748,7 +2748,7 @@ class AdminDashboard {
         // This would fetch the full log details and show in a modal
         // For now, we'll just show an alert with the log ID
         this.showNotification('CSS crash details viewer - Coming soon', 'info');
-        console.log('View CSS crash details for:', logId);
+
     }
 }
 

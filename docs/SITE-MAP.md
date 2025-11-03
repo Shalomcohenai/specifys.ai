@@ -14,7 +14,6 @@ This document maps all pages, key files, backend services, core functions, and m
 - `pages/legacy-viewer.html`
 - `pages/spec.html` (spec creation UI)
 - `pages/spec-viewer.html` (spec viewer)
-- `pages/app-dashboard.html`
 - `pages/admin-dashboard.html`
 - `pages/profile.html`
 - `pages/pricing.html`

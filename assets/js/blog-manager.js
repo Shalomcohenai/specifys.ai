@@ -183,7 +183,7 @@ class BlogManager {
                 throw new Error(result.error || 'Failed to publish post');
             }
         } catch (error) {
-            console.error('Error publishing post:', error);
+
             this.showMessage(`Error: ${error.message}`, 'error');
         } finally {
             submitBtn.innerHTML = originalText;
@@ -226,7 +226,7 @@ class BlogManager {
             this.posts = [];
             
         } catch (error) {
-            console.error('Error loading posts:', error);
+
             tbody.innerHTML = `<tr><td colspan="5" class="loading-cell" style="color: #ff6b6b;">Blog management disabled</td></tr>`;
         }
     }
@@ -310,7 +310,7 @@ class BlogManager {
                 throw new Error(result.error || 'Failed to delete post');
             }
         } catch (error) {
-            console.error('Error deleting post:', error);
+
             this.showMessage(`Error: ${error.message}`, 'error');
         }
     }

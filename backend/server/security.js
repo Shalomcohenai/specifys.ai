@@ -279,9 +279,9 @@ function securityLogger(action) {
 
     // Log suspicious activity
     if (action.includes('admin') || action.includes('delete')) {
-      console.warn('🔒 Security Event:', securityLog);
+
     } else {
-      console.log('📝 API Access:', securityLog);
+
     }
 
     next();
@@ -300,7 +300,7 @@ async function requireAdmin(req, res, next) {
     const authHeader = req.headers.authorization;
     
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      console.warn('🚨 Unauthorized admin access attempt from IP:', req.ip);
+
       return res.status(401).json({ 
         error: 'Authentication required',
         message: 'Admin access requires valid authentication token'
@@ -315,7 +315,7 @@ async function requireAdmin(req, res, next) {
     
     // Check if user is admin using centralized config
     if (!isAdminEmail(decodedToken.email)) {
-      console.warn('🚨 Non-admin user attempted admin access:', decodedToken.email, 'from IP:', req.ip);
+
       return res.status(403).json({ 
         error: 'Forbidden',
         message: 'Admin access required'
@@ -323,11 +323,11 @@ async function requireAdmin(req, res, next) {
     }
     
     req.adminUser = decodedToken;
-    console.log('✅ Admin access granted to:', decodedToken.email);
+
     next();
     
   } catch (error) {
-    console.error('🚨 Admin authentication error:', error.message);
+
     return res.status(401).json({ 
       error: 'Invalid token',
       message: 'Authentication failed'

@@ -184,31 +184,34 @@
         </div>
     </footer>
     
-    <!-- Firebase Auth -->
-    <script src="https://www.gstatic.com/firebasejs/11.3.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/11.3.1/firebase-auth-compat.js"></script>
+    <!-- Firebase SDK & Auth -->
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
     <script>
-        // Firebase configuration
+        // Firebase Configuration
         const firebaseConfig = {
-            apiKey: "AIzaSyDVPm4-KYc7dLj0tEHA4Y08xW6k19i-3Gk",
-            authDomain: "specifys-ai.firebaseapp.com",
-            projectId: "specifys-ai",
-            storageBucket: "specifys-ai.appspot.com",
-            messagingSenderId: "1053889463441",
-            appId: "1:1053889463441:web:e68008331f31c88b0f953e",
-            measurementId: "G-RWBT69JCM7"
+            apiKey: "AIzaSyB9hr0IWM4EREzkKDxBxYoYinV6LJXWXV4",
+            authDomain: "specify-ai.firebaseapp.com",
+            projectId: "specify-ai",
+            storageBucket: "specify-ai.firebasestorage.app",
+            messagingSenderId: "734278787482",
+            appId: "1:734278787482:web:0e312fb6f197e849695a23",
+            measurementId: "G-4YR9LK63MR"
         };
-        
+
         // Initialize Firebase
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
-        
+        firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
-        const authButtons = document.getElementById('auth-buttons');
-        
+        const db = firebase.firestore();
+    </script>
+
+    <script>
         // Auth UI functions
         function updateAuthUI(user) {
+            const authButtons = document.getElementById('auth-buttons');
             if (!authButtons) return;
             
             if (user) {
@@ -229,33 +232,34 @@
                 `;
             }
         }
-        
+
         // Global auth functions
         window.showLoginModal = function() {
             window.location.href = '/pages/auth.html';
         };
-        
+
         window.showRegisterModal = function() {
             window.location.href = '/pages/auth.html';
         };
-        
+
         window.logout = function() {
             auth.signOut()
                 .then(() => {
-                    console.log('Logged out successfully');
+
                 })
                 .catch(error => {
-                    console.error('Error logging out:', error);
+
                 });
         };
-        
+
         // Listen to auth state changes
         auth.onAuthStateChanged((user) => {
             updateAuthUI(user);
         });
-        
+
         // Initialize auth buttons with default state
         document.addEventListener('DOMContentLoaded', function() {
+            const authButtons = document.getElementById('auth-buttons');
             if (authButtons && !authButtons.innerHTML.trim()) {
                 authButtons.innerHTML = `
                     <button class="auth-btn login-btn">Login</button>

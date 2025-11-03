@@ -14,7 +14,7 @@ app.get('*', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 Specifys.ai User System running on http://localhost:${PORT}`);
-  console.log(`📁 Serving files from: ${__dirname}`);
-  console.log(`🔗 Open your browser and navigate to: http://localhost:${PORT}`);
+
+
+
 });

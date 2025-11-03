@@ -15,7 +15,7 @@ router.get('/verify', requireAdmin, async (req, res) => {
       uid: req.adminUser.uid 
     });
   } catch (error) {
-    console.error('Admin verification error:', error);
+
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -33,7 +33,7 @@ router.get('/users', requireAdmin, async (req, res) => {
     }));
     res.json({ success: true, users });
   } catch (error) {
-    console.error('Error fetching users:', error);
+
     res.status(500).json({ error: 'Failed to fetch users' });
   }
 });
@@ -51,7 +51,7 @@ router.get('/specs', requireAdmin, async (req, res) => {
     }));
     res.json({ success: true, specs });
   } catch (error) {
-    console.error('Error fetching specs:', error);
+
     res.status(500).json({ error: 'Failed to fetch specs' });
   }
 });
@@ -69,7 +69,7 @@ router.get('/market-research', requireAdmin, async (req, res) => {
     }));
     res.json({ success: true, research });
   } catch (error) {
-    console.error('Error fetching market research:', error);
+
     res.status(500).json({ error: 'Failed to fetch market research' });
   }
 });

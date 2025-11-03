@@ -19,7 +19,7 @@ async function verifyFirebaseToken(req, res, next) {
         req.user = decodedToken;
         next();
     } catch (error) {
-        console.error('Error verifying Firebase token:', error);
+
         res.status(401).json({ error: 'Invalid token' });
     }
 }
@@ -42,7 +42,7 @@ router.post('/ensure', verifyFirebaseToken, async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error ensuring user document:', error);
+
         res.status(500).json({
             error: 'Failed to ensure user document',
             details: error.message

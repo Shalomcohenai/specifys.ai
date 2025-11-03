@@ -10,7 +10,6 @@ export function initNavbar() {
   const hero = document.querySelector('.hero');
   
   if (!navLinks && !authButtons) {
-    console.warn('Navbar elements not found');
     return;
   }
 
@@ -90,7 +89,6 @@ function renderLoggedInState(user) {
   
   if (navLinks) {
     navLinks.innerHTML = `
-      <a href="/pages/app-dashboard.html" class="nav-link">Dashboard</a>
       <a href="/pages/profile.html" class="nav-link">Profile</a>
       <span class="nav-user">
         <span class="user-avatar">${user.displayName ? user.displayName.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase()}</span>
@@ -102,8 +100,7 @@ function renderLoggedInState(user) {
   
   if (authButtons) {
     authButtons.innerHTML = `
-      <a href="/pages/app-dashboard.html" class="btn btn-primary">Dashboard</a>
-      <a href="/pages/profile.html" class="btn btn-outline">Profile</a>
+      <a href="/pages/profile.html" class="btn btn-primary">Profile</a>
       <button id="logout-btn-main" class="btn btn-outline">Logout</button>
     `;
   }
@@ -152,7 +149,6 @@ async function handleLogout() {
     // Redirect to home page after logout
     window.location.href = '/index.html';
   } catch (error) {
-    console.error('Logout error:', error);
     alert('Error logging out: ' + error.message);
   }
 }

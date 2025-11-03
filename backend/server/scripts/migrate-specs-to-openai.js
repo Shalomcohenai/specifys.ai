@@ -8,16 +8,16 @@ require('dotenv').config();
  */
 async function migrateAllSpecs() {
   if (!process.env.OPENAI_API_KEY) {
-    console.error('❌ OPENAI_API_KEY is not set in environment variables');
-    console.log('Please set OPENAI_API_KEY in your .env file');
+
+
     process.exit(1);
   }
 
   const openaiStorage = new OpenAIStorageService(process.env.OPENAI_API_KEY);
   
   try {
-    console.log('🚀 Starting migration of specs to OpenAI...');
-    console.log('⏳ This may take a while depending on the number of specs...\n');
+
+
     
     // Get all specs that haven't been uploaded yet
     const specsSnapshot = await db.collection('specs')
@@ -28,7 +28,7 @@ async function migrateAllSpecs() {
     if (specsSnapshot.empty) {
       const allSpecsSnapshot = await db.collection('specs').count().get();
       if (allSpecsSnapshot.data().count === 0) {
-        console.log('ℹ️  No specs found in database');
+
         process.exit(0);
       }
       
@@ -37,11 +37,11 @@ async function migrateAllSpecs() {
         .count()
         .get();
       
-      console.log(`✅ All ${alreadyUploaded.data().count} specs are already uploaded to OpenAI`);
+
       process.exit(0);
     }
     
-    console.log(`📊 Found ${specsSnapshot.size} specs to migrate\n`);
+
     
     let successCount = 0;
     let errorCount = 0;
@@ -53,7 +53,7 @@ async function migrateAllSpecs() {
       
       try {
         const currentNum = successCount + errorCount + 1;
-        console.log(`[${currentNum}/${specsSnapshot.size}] Migrating spec ${specId}...`);
+
         
         // Upload to OpenAI
         const fileId = await openaiStorage.uploadSpec(specId, specData);
@@ -66,7 +66,7 @@ async function migrateAllSpecs() {
         });
         
         successCount++;
-        console.log(`  ✓ Success (file ID: ${fileId})\n`);
+
         
         // Rate limiting - wait 1 second between uploads to avoid hitting API limits
         if (currentNum < specsSnapshot.size) {
@@ -76,7 +76,7 @@ async function migrateAllSpecs() {
       } catch (error) {
         errorCount++;
         const errorMsg = `  ✗ Failed: ${error.message}`;
-        console.error(errorMsg);
+
         errorDetails.push({ specId, error: error.message });
         
         // Store error in Firebase
@@ -85,34 +85,34 @@ async function migrateAllSpecs() {
             openaiUploadError: error.message
           });
         } catch (updateError) {
-          console.error('  ⚠ Failed to store error in database:', updateError.message);
+
         }
         
-        console.log(''); // Empty line for readability
+
       }
     }
     
-    console.log('\n' + '='.repeat(50));
-    console.log('📊 Migration Summary');
-    console.log('='.repeat(50));
-    console.log(`Total specs processed: ${specsSnapshot.size}`);
-    console.log(`✅ Successful: ${successCount}`);
-    console.log(`❌ Failed: ${errorCount}`);
-    console.log(`Success rate: ${((successCount / specsSnapshot.size) * 100).toFixed(2)}%`);
+
+
+
+
+
+
+
     
     if (errorCount > 0) {
-      console.log('\n' + '❌ Error Details:');
+
       errorDetails.forEach(({ specId, error }) => {
-        console.log(`  - Spec ID: ${specId}`);
-        console.log(`    Error: ${error}`);
+
+
       });
     }
     
-    console.log('\n✅ Migration completed');
+
     
   } catch (error) {
-    console.error('\n❌ Migration failed with error:', error.message);
-    console.error(error.stack);
+
+
     process.exit(1);
   }
 }
@@ -123,7 +123,7 @@ migrateAllSpecs()
     process.exit(0);
   })
   .catch(error => {
-    console.error('Migration error:', error);
+
     process.exit(1);
   });
 

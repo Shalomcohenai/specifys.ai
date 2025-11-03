@@ -650,7 +650,7 @@
                 updateChangeIndicator('stat-success-rate-change', successRate, null);
 
             } catch (error) {
-                console.error('Error loading statistics:', error);
+
             }
         }
 
@@ -700,7 +700,7 @@
                 renderRecentEvents(events);
 
             } catch (error) {
-                console.error('Error loading recent events:', error);
+
                 showError('recent-events-container', 'Failed to load webhook events');
             }
         }
@@ -774,7 +774,7 @@
                 renderFailedTransactions(failedEvents);
 
             } catch (error) {
-                console.error('Error loading failed transactions:', error);
+
                 showError('failed-transactions-container', 'Failed to load failed transactions');
             }
         }
@@ -845,7 +845,7 @@
                 renderPendingEntitlements(pending);
 
             } catch (error) {
-                console.error('Error loading pending entitlements:', error);
+
                 showError('pending-entitlements-container', 'Failed to load pending entitlements');
             }
         }

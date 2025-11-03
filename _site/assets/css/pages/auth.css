@@ -905,11 +905,14 @@
             
             .header-right {
                 gap: 0.5rem;
+                justify-content: flex-end;
+                margin-left: auto;
             }
             
             .auth-buttons {
                 gap: 0.5rem;
                 margin-right: 0;
+                margin-left: auto;
             }
             
             .auth-btn {
@@ -920,6 +923,11 @@
             .user-info {
                 padding: 0.4rem 0.8rem;
                 font-size: 0.8rem;
+                margin-left: auto;
+            }
+            
+            .user-info span {
+                display: none;
             }
             
             .user-avatar {

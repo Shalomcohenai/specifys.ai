@@ -72,7 +72,6 @@
             function removeLiveReload() {
                 const livereloadScripts = document.querySelectorAll('script[src*="livereload"], script[src*="35729"]');
                 livereloadScripts.forEach(function(script) {
-                    console.log('[LiveReload Remover] Removing livereload script:', script.src);
                     script.remove();
                 });
             }
@@ -87,7 +86,6 @@
                 mutations.forEach(function(mutation) {
                     mutation.addedNodes.forEach(function(node) {
                         if (node.nodeType === 1 && node.tagName === 'SCRIPT' && node.src && (node.src.includes('livereload') || node.src.includes('35729'))) {
-                            console.log('[LiveReload Remover] Blocking new livereload script');
                             node.remove();
                         }
                     });
@@ -466,32 +464,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 <body>
-    <!-- Maintenance Overlay -->
-<div id="maintenanceOverlay" class="maintenance-overlay">
-  <div class="maintenance-content">
-    <div class="maintenance-icon">🔧</div>
-    <h1 class="maintenance-title">Site Under Maintenance</h1>
-    <p class="maintenance-message">
-      The site is currently under maintenance - please come back later.
-    </p>
-    <div class="maintenance-code-container">
-      <input 
-        type="text" 
-        id="maintenanceCodeInput" 
-        class="maintenance-code-input" 
-        placeholder="Enter access code"
-        autocomplete="off"
-      />
-      <button id="maintenanceCodeSubmit" class="maintenance-code-submit">
-        Access
-      </button>
-    </div>
-    <div id="maintenanceError" class="maintenance-error" style="display: none;">
-      Incorrect code. Please try again.
-    </div>
-  </div>
-</div>
-
     <!-- Header -->
     <!-- Skip to main content link for accessibility -->
 <a href="#main-content" class="skip-link">Skip to main content</a>
@@ -1142,10 +1114,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     auth.signOut()
       .then(() => {
-        console.log('Logged out successfully');
+        // Logged out successfully
       })
       .catch(error => {
-        console.error('Error logging out:', error);
+        // Error logging out
       });
   };
 

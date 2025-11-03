@@ -49,10 +49,10 @@ class OpenAIStorageService {
       }
       
       const result = await response.json();
-      console.log(`[OpenAI Upload] Spec ${specId} uploaded as file ${result.id}`);
+
       return result.id;
     } catch (error) {
-      console.error('Error uploading to OpenAI:', error);
+
       throw error;
     }
   }
@@ -72,7 +72,7 @@ class OpenAIStorageService {
       });
       return response.ok;
     } catch (error) {
-      console.error('Error deleting file from OpenAI:', error);
+
       return false;
     }
   }
@@ -96,7 +96,7 @@ class OpenAIStorageService {
       
       return await response.json();
     } catch (error) {
-      console.error('Error getting file info from OpenAI:', error);
+
       throw error;
     }
   }
@@ -120,7 +120,7 @@ class OpenAIStorageService {
       const data = await response.json();
       return data.data || [];
     } catch (error) {
-      console.error('Error listing files from OpenAI:', error);
+
       throw error;
     }
   }
@@ -189,17 +189,17 @@ Always reference specific parts of the spec when relevant.`,
       });
       
       if (!fileSearchResponse.ok) {
-        console.warn('Failed to create vector store for assistant');
+
         return assistant;
       }
       
       const vectorStore = await fileSearchResponse.json();
       
       // Wait for vector store to be ready
-      console.log(`[Vector Store] Created ${vectorStore.id} for spec ${specId}`);
+
       const isReady = await this.waitForVectorStoreReady(vectorStore.id);
       if (!isReady) {
-        console.warn(`[Vector Store] ${vectorStore.id} not ready after timeout, proceeding anyway`);
+
       }
       
       // Update assistant with vector store
@@ -221,16 +221,16 @@ Always reference specific parts of the spec when relevant.`,
       
       if (!updateResponse.ok) {
         const errorText = await updateResponse.text();
-        console.error(`[OpenAI] Failed to update assistant with vector store - Status: ${updateResponse.status}, Response: ${errorText}`);
+
         throw new Error(`Failed to update assistant with vector store: ${errorText}`);
       }
       
       const updatedAssistant = await updateResponse.json();
-      console.log(`[OpenAI] Updated assistant ${assistant.id} with vector store ${vectorStore.id}`);
+
       
       return updatedAssistant;
     } catch (error) {
-      console.error('Error creating assistant:', error);
+
       throw error;
     }
   }
@@ -242,7 +242,7 @@ Always reference specific parts of the spec when relevant.`,
    * @returns {Promise<boolean>} True if ready, false if timeout
    */
   async waitForVectorStoreReady(vectorStoreId, maxAttempts = 30) {
-    console.log(`[Vector Store] Waiting for ${vectorStoreId} to be ready...`);
+
     
     for (let i = 0; i < maxAttempts; i++) {
       try {
@@ -254,31 +254,31 @@ Always reference specific parts of the spec when relevant.`,
         });
         
         if (!response.ok) {
-          console.warn(`[Vector Store] Failed to check status: ${response.status}`);
+
           return false;
         }
         
         const vectorStore = await response.json();
         
         if (vectorStore.status === 'completed') {
-          console.log(`[Vector Store] ${vectorStoreId} is ready`);
+
           return true;
         }
         
         if (vectorStore.status === 'failed') {
-          console.error(`[Vector Store] ${vectorStoreId} failed`);
+
           return false;
         }
         
         // Wait before next check
         await new Promise(resolve => setTimeout(resolve, 1000));
       } catch (error) {
-        console.error(`[Vector Store] Error checking status:`, error);
+
         return false;
       }
     }
     
-    console.warn(`[Vector Store] Timeout waiting for ${vectorStoreId} to be ready`);
+
     return false;
   }
 
@@ -304,7 +304,7 @@ Always reference specific parts of the spec when relevant.`,
       
       return await response.json();
     } catch (error) {
-      console.error('Error creating thread:', error);
+
       throw error;
     }
   }
@@ -329,7 +329,7 @@ Always reference specific parts of the spec when relevant.`,
       
       return await response.json();
     } catch (error) {
-      console.error('Error getting assistant:', error);
+
       throw error;
     }
   }
@@ -349,19 +349,19 @@ Always reference specific parts of the spec when relevant.`,
       const currentVectorStoreIds = assistant.tool_resources?.file_search?.vector_store_ids || [];
       
       if (currentVectorStoreIds.length > 0) {
-        console.log(`[OpenAI] Assistant ${assistantId} already has vector store(s): ${currentVectorStoreIds.join(', ')}`);
+
         // Verify all vector stores are ready
         for (const vsId of currentVectorStoreIds) {
           const isReady = await this.waitForVectorStoreReady(vsId, 10); // Quick check
           if (!isReady) {
-            console.warn(`[OpenAI] Vector store ${vsId} is not ready, but continuing...`);
+
           }
         }
         return assistant;
       }
       
       // Create new vector store
-      console.log(`[OpenAI] Creating vector store for assistant ${assistantId}`);
+
       const fileSearchResponse = await fetch(`${this.baseURL}/vector_stores`, {
         method: 'POST',
         headers: {
@@ -381,12 +381,12 @@ Always reference specific parts of the spec when relevant.`,
       }
       
       const vectorStore = await fileSearchResponse.json();
-      console.log(`[Vector Store] Created ${vectorStore.id} for assistant ${assistantId}`);
+
       
       // Wait for vector store to be ready
       const isReady = await this.waitForVectorStoreReady(vectorStore.id);
       if (!isReady) {
-        console.warn(`[Vector Store] ${vectorStore.id} not ready after timeout, proceeding anyway`);
+
       }
       
       // Update assistant with vector store
@@ -408,12 +408,12 @@ Always reference specific parts of the spec when relevant.`,
       
       if (!updateResponse.ok) {
         const errorText = await updateResponse.text();
-        console.error(`[OpenAI] Failed to update assistant with vector store - Status: ${updateResponse.status}, Response: ${errorText}`);
+
         throw new Error(`Failed to update assistant with vector store: ${errorText}`);
       }
       
       const updatedAssistant = await updateResponse.json();
-      console.log(`[OpenAI] Updated assistant ${assistantId} with vector store ${vectorStore.id}`);
+
       
       // Wait a bit to ensure OpenAI API has processed the update
       await new Promise(resolve => setTimeout(resolve, 2000));
@@ -425,7 +425,7 @@ Always reference specific parts of the spec when relevant.`,
       // Retry up to 3 times if update didn't stick
       let retries = 0;
       while (verifiedVectorStoreIds.length === 0 && retries < 3) {
-        console.warn(`[OpenAI] Assistant ${assistantId} still has no vector store after update, retrying... (attempt ${retries + 1}/3)`);
+
         await new Promise(resolve => setTimeout(resolve, 2000));
         
         // Update again
@@ -454,10 +454,10 @@ Always reference specific parts of the spec when relevant.`,
       }
       
       if (verifiedVectorStoreIds.length === 0) {
-        console.error(`[OpenAI] ERROR: Assistant ${assistantId} still has no vector store after ${retries} retries`);
+
         throw new Error(`Failed to configure vector store for assistant after multiple attempts`);
       } else {
-        console.log(`[OpenAI] Verified: Assistant ${assistantId} now has vector store(s): ${verifiedVectorStoreIds.join(', ')}`);
+
         // Ensure vector store is ready before returning
         for (const vsId of verifiedVectorStoreIds) {
           await this.waitForVectorStoreReady(vsId, 30); // Wait up to 30 seconds
@@ -466,7 +466,7 @@ Always reference specific parts of the spec when relevant.`,
       
       return verifiedAssistant;
     } catch (error) {
-      console.error('Error ensuring assistant has vector store:', error);
+
       throw error;
     }
   }
@@ -487,7 +487,7 @@ Always reference specific parts of the spec when relevant.`,
       });
       return response.ok;
     } catch (error) {
-      console.error('Error deleting assistant:', error);
+
       return false;
     }
   }
@@ -500,7 +500,7 @@ Always reference specific parts of the spec when relevant.`,
    */
   async generateDiagrams(specId, assistantId) {
     try {
-      console.log('[Diagrams][OpenAI] Using Assistant to generate diagrams');
+
       
       // Create the diagrams prompt
       const prompt = `Return ONLY valid JSON (no text/markdown). Top-level key MUST be diagrams. If a value is unknown, return an empty array/object—never omit required keys.
@@ -646,11 +646,11 @@ CRITICAL REQUIREMENTS FOR ALL DIAGRAMS:
       while (retryCount < maxRetries) {
         try {
           thread = await this.createThread();
-          console.log('[Diagrams][OpenAI] Created thread:', thread.id);
+
           
           // Send message using Assistant
           response = await this.sendMessage(thread.id, assistantId, prompt);
-          console.log('[Diagrams][OpenAI] Received response from assistant. length:', response.length);
+
           
           // Success - break out of retry loop
           break;
@@ -673,7 +673,7 @@ CRITICAL REQUIREMENTS FOR ALL DIAGRAMS:
             throw error;
           }
           
-          console.warn(`[Diagrams][OpenAI] Attempt ${retryCount} failed, retrying... Error: ${error.message}`);
+
           // Wait before retry (exponential backoff)
           await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
         }
@@ -684,7 +684,7 @@ CRITICAL REQUIREMENTS FOR ALL DIAGRAMS:
       try {
         parsed = JSON.parse(response);
       } catch (e) {
-        console.warn('[Diagrams][OpenAI] JSON.parse failed. Trying fenced extraction. error:', e && e.message);
+
         // Fallback: try to extract JSON if model returned fenced code
         const jsonMatch = response.match(/```json\s*([\s\S]*?)\s*```/) || response.match(/```\s*([\s\S]*?)\s*```/);
         if (jsonMatch) {
@@ -696,13 +696,13 @@ CRITICAL REQUIREMENTS FOR ALL DIAGRAMS:
       }
 
       if (parsed && Array.isArray(parsed.diagrams)) {
-        console.log('[Diagrams][OpenAI] Parsed diagrams count:', parsed.diagrams.length);
+
         return parsed.diagrams;
       }
 
       throw new Error('Invalid diagrams structure returned from API (missing diagrams array)');
     } catch (error) {
-      console.error('[Diagrams][OpenAI] Error generating diagrams:', error && (error.stack || error));
+
       throw error;
     }
   }
@@ -718,9 +718,9 @@ CRITICAL REQUIREMENTS FOR ALL DIAGRAMS:
    */
   async repairDiagram(specId, assistantId, brokenCode, diagramTitle, diagramType, errorMessage = '') {
     try {
-      console.log('[Repair][OpenAI] Using Assistant to repair diagram');
+
       if (errorMessage) {
-        console.log('[Repair][OpenAI] Error message provided:', errorMessage.substring(0, 200));
+
       }
       
       // Build error context if available
@@ -775,11 +775,11 @@ Return ONLY the corrected Mermaid code.`;
 
       // Use Assistant API with thread
       const thread = await this.createThread();
-      console.log('[Repair][OpenAI] Created thread:', thread.id);
+
       
       // Send message using Assistant
       const response = await this.sendMessage(thread.id, assistantId, prompt);
-      console.log('[Repair][OpenAI] Received response from assistant. length:', response.length);
+
 
       // Clean up the response (remove any markdown code blocks)
       let cleanedCode = response.trim();
@@ -791,7 +791,7 @@ Return ONLY the corrected Mermaid code.`;
 
       return cleanedCode;
     } catch (error) {
-      console.error('[Repair][OpenAI] Error repairing diagram:', error && (error.stack || error));
+
       throw error;
     }
   }
@@ -810,12 +810,12 @@ Return ONLY the corrected Mermaid code.`;
       const hasVectorStore = assistantCheck.tool_resources?.file_search?.vector_store_ids?.length > 0;
       
       if (!hasVectorStore) {
-        console.error(`[OpenAI] sendMessage: Assistant ${assistantId} has no vector store configured!`);
-        console.error(`[OpenAI] Assistant tool_resources:`, JSON.stringify(assistantCheck.tool_resources, null, 2));
+
+
         throw new Error(`Assistant ${assistantId} has no vector store configured. Cannot send message.`);
       }
       
-      console.log(`[OpenAI] sendMessage: Assistant ${assistantId} verified with vector store(s): ${assistantCheck.tool_resources.file_search.vector_store_ids.join(', ')}`);
+
       
       // Add message to thread
       const messageResponse = await fetch(`${this.baseURL}/threads/${threadId}/messages`, {
@@ -833,7 +833,7 @@ Return ONLY the corrected Mermaid code.`;
       
       if (!messageResponse.ok) {
         const errorText = await messageResponse.text();
-        console.error(`[OpenAI] Failed to add message - Status: ${messageResponse.status}, Response: ${errorText}`);
+
         throw new Error(`Failed to add message to thread: ${errorText}`);
       }
       
@@ -842,10 +842,10 @@ Return ONLY the corrected Mermaid code.`;
       const assistantBeforeRun = await this.getAssistant(assistantId);
       const runVectorStoreIds = assistantBeforeRun.tool_resources?.file_search?.vector_store_ids || [];
       
-      console.log(`[OpenAI] Running assistant ${assistantId} with vector stores: ${runVectorStoreIds.join(', ') || 'NONE'}`);
+
       
       if (runVectorStoreIds.length === 0) {
-        console.error(`[OpenAI] CRITICAL: Assistant ${assistantId} has no vector stores when creating run!`);
+
         throw new Error(`Assistant ${assistantId} has no vector stores configured. Cannot proceed with run.`);
       }
       
@@ -863,7 +863,7 @@ Return ONLY the corrected Mermaid code.`;
       
       if (!runResponse.ok) {
         const errorText = await runResponse.text();
-        console.error(`[OpenAI] Failed to create run - Status: ${runResponse.status}, Response: ${errorText}`);
+
         throw new Error(`Failed to create run: ${errorText}`);
       }
       
@@ -885,7 +885,7 @@ Return ONLY the corrected Mermaid code.`;
         
         if (!statusResponse.ok) {
           const errorText = await statusResponse.text();
-          console.error(`[OpenAI] Failed to check run status - Status: ${statusResponse.status}, Response: ${errorText}`);
+
           throw new Error(`Failed to check run status: ${errorText}`);
         }
         
@@ -901,7 +901,7 @@ Return ONLY the corrected Mermaid code.`;
       
       // Check for timeout
       if (attempts >= maxAttempts && runStatus.status !== 'completed') {
-        console.error(`[OpenAI] Run timeout after ${maxAttempts} attempts - Final status: ${runStatus.status}`);
+
         throw new Error(`Run timeout: Still in status ${runStatus.status} after ${maxAttempts} seconds`);
       }
       
@@ -913,10 +913,10 @@ Return ONLY the corrected Mermaid code.`;
         const runToolResources = runStatus.tool_resources || {};
         const runVectorStoreIds = runToolResources.file_search?.vector_store_ids || [];
         
-        console.error(`[OpenAI] Run failed - Status: ${runStatus.status}, Code: ${errorCode}, Message: ${errorMessage}`);
-        console.error(`[OpenAI] Run tool_resources:`, JSON.stringify(runToolResources, null, 2));
-        console.error(`[OpenAI] Run vector stores: ${runVectorStoreIds.length > 0 ? runVectorStoreIds.join(', ') : 'NONE'}`);
-        console.error(`[OpenAI] Full run status:`, JSON.stringify(runStatus, null, 2));
+
+
+
+
         
         // If tool_resources is empty in run but assistant has them, this is a known OpenAI API bug
         if (runVectorStoreIds.length === 0 && errorCode === 'server_error') {
@@ -940,7 +940,7 @@ Return ONLY the corrected Mermaid code.`;
       
       if (!messagesResponse.ok) {
         const errorText = await messagesResponse.text();
-        console.error(`[OpenAI] Failed to get messages - Status: ${messagesResponse.status}, Response: ${errorText}`);
+
         throw new Error(`Failed to get messages: ${errorText}`);
       }
       
@@ -956,15 +956,15 @@ Return ONLY the corrected Mermaid code.`;
       
       throw new Error('No response from assistant');
     } catch (error) {
-      console.error('Error sending message:', error);
+
 
       // If it's an assistant corruption error, try Chat Completions fallback
       if (error.message && error.message.includes('Vector store configuration not propagated')) {
-        console.log('[OpenAI] Assistants API failed due to vector store issue, trying Chat Completions fallback...');
+
         try {
           return await this.sendMessageWithChatCompletions(threadId, assistantId, message);
         } catch (fallbackError) {
-          console.error('[OpenAI] Chat Completions fallback also failed:', fallbackError);
+
           throw error; // Throw original error
         }
       }
@@ -995,7 +995,7 @@ Return ONLY the corrected Mermaid code.`;
 
       return await response.json();
     } catch (error) {
-      console.error('Error getting vector store:', error);
+
       throw error;
     }
   }
@@ -1009,7 +1009,7 @@ Return ONLY the corrected Mermaid code.`;
    */
   async sendMessageWithChatCompletions(threadId, assistantId, message) {
     try {
-      console.log('[OpenAI] Using Chat Completions fallback for assistant:', assistantId);
+
 
       // Get assistant info to get instructions and file content
       const assistant = await this.getAssistant(assistantId);
@@ -1028,7 +1028,7 @@ Return ONLY the corrected Mermaid code.`;
             contextContent = 'Note: Using file context from assistant vector store for enhanced responses.';
           }
         } catch (fileError) {
-          console.warn('[OpenAI] Could not access vector store content:', fileError.message);
+
         }
       }
 
@@ -1065,20 +1065,20 @@ IMPORTANT: Answer based on the context and knowledge you have about this specifi
 
       if (!chatResponse.ok) {
         const errorText = await chatResponse.text();
-        console.error(`[OpenAI] Chat Completions failed - Status: ${chatResponse.status}, Response: ${errorText}`);
+
         throw new Error(`Chat Completions API failed: ${errorText}`);
       }
 
       const chatData = await chatResponse.json();
       if (chatData.choices && chatData.choices.length > 0 && chatData.choices[0].message) {
-        console.log('[OpenAI] Chat Completions fallback successful');
+
         return chatData.choices[0].message.content;
       }
 
       throw new Error('No response from Chat Completions API');
 
     } catch (error) {
-      console.error('[OpenAI] Chat Completions fallback failed:', error);
+
       throw error;
     }
   }

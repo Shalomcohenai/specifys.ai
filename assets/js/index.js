@@ -109,14 +109,7 @@ async function loadDynamicStats() {
       toolFinderCounter.setAttribute('data-target', toolFinderRounded.toString());
     }
     
-    console.log('Dynamic stats loaded:', {
-      tools: toolsRounded,
-      specs: specsRounded,
-      toolFinder: toolFinderRounded
-    });
-    
   } catch (error) {
-    console.error('Error loading dynamic stats:', error);
     // Fallback to default values (rounded to nearest 5)
     const toolsCounter = document.querySelector('[data-stats-type="tools"]');
     const specsCounter = document.querySelector('[data-stats-type="specs"]');
@@ -484,7 +477,6 @@ function nextQuestion() {
     }
   } else {
     // All questions completed - call API
-    console.log('All questions completed:', answers);
     generateSpecification();
   }
 }
@@ -640,8 +632,6 @@ function setupModernInput() {
       } else if (id === 'lightbulbBtn') {
         // Handle lightbulb click - show tips or suggestions
         showLightbulbTips();
-      } else {
-        console.log(id + ' clicked');
       }
     });
   });
@@ -769,7 +759,6 @@ function initSpeechRecognition() {
     recognition.onstart = function() {
       isRecording = true;
       updateMicrophoneButton();
-      console.log('Speech recognition started');
     };
     
     recognition.onresult = function(event) {
@@ -784,7 +773,6 @@ function initSpeechRecognition() {
     };
     
     recognition.onerror = function(event) {
-      console.error('Speech recognition error:', event.error);
       isRecording = false;
       updateMicrophoneButton();
     };
@@ -792,10 +780,7 @@ function initSpeechRecognition() {
     recognition.onend = function() {
       isRecording = false;
       updateMicrophoneButton();
-      console.log('Speech recognition ended');
     };
-  } else {
-    console.log('Speech recognition not supported');
   }
 }
 
@@ -832,22 +817,13 @@ async function generateSpecification() {
     localStorage.removeItem('currentSpecId');
     localStorage.removeItem('generatedOverviewContent');
     localStorage.removeItem('initialAnswers');
-    console.log('🧹 Cleared previous spec data from localStorage');
-    
-    console.log('🚀 Starting generateSpecification...');
     
     // Check if answers exist and are valid
     if (!answers || answers.length !== 4) {
-      console.error('Invalid answers:', answers);
       hideLoadingOverlay();
       alert('Error: Invalid answers provided. Please provide answers to all 4 questions.');
       return;
     }
-    
-    console.log('✅ Answers validated:', {
-      length: answers.length,
-      answers: answers.map((a, i) => `Answer ${i + 1}: ${a.substring(0, 50)}...`)
-    });
     
     // Check if user is authenticated
     const user = firebase.auth().currentUser;
@@ -861,10 +837,8 @@ async function generateSpecification() {
     showLoadingOverlay();
     
     // Check credits BEFORE generating spec
-    console.log('💳 [generateSpecification] Checking credits status with API_BASE_URL:', window.API_BASE_URL);
     try {
       const token = await user.getIdToken();
-      console.log('💳 [generateSpecification] Got auth token, calling /api/specs/status');
       const statusResponse = await fetch(`${window.API_BASE_URL || 'http://localhost:10000'}/api/specs/status`, {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -873,13 +847,9 @@ async function generateSpecification() {
       
       if (statusResponse.ok) {
         const statusData = await statusResponse.json();
-        console.log('💳 [generateSpecification] Credits status:', statusData);
-        console.log('💳 [generateSpecification] Can create:', statusData.canCreate);
         
         if (!statusData.canCreate) {
           hideLoadingOverlay();
-          console.warn('❌ [generateSpecification] No credits available:', statusData.reason);
-          console.warn('❌ [generateSpecification] Showing paywall to user');
           
           // Show paywall
           const paywallData = {
@@ -904,21 +874,14 @@ async function generateSpecification() {
           
           showPaywall(paywallData);
           return;
-        } else {
-          console.log('✅ [generateSpecification] User has credits, proceeding with spec generation');
         }
-      } else {
-        console.error('❌ [generateSpecification] Failed to check credits status:', statusResponse.status);
       }
     } catch (error) {
-      console.error('❌ [generateSpecification] Error checking credits:', error);
       // Continue anyway - let the server decide
     }
     
     // Prepare the prompt for overview generation
     const prompt = PROMPTS.overview(answers);
-    
-    console.log('✅ Generated prompt:', prompt.substring(0, 200) + '...');
     
     // Add platform information to the prompt
     const platformInfo = [];
@@ -931,14 +894,11 @@ async function generateSpecification() {
     
     const enhancedPrompt = `${prompt}\n\n${platformText}`;
     
-    console.log('✅ Enhanced prompt length:', enhancedPrompt.length);
-    
     // Get Firebase auth token
     const token = await user.getIdToken();
     
     // NOTE: Users can provide answers in any language, but the API will always return the specification in English
     // Call the new API endpoint with authorization
-    console.log('🔵 [generateSpecification] Calling /api/specs/create with API_BASE_URL:', window.API_BASE_URL);
     const response = await fetch(`${window.API_BASE_URL || 'http://localhost:10000'}/api/specs/create`, {
       method: 'POST',
       headers: {
@@ -950,14 +910,9 @@ async function generateSpecification() {
       })
     });
 
-    console.log('✅ API Response status:', response.status);
-    console.log('🔵 [generateSpecification] Create API call completed with status:', response.status);
-
     if (response.status === 402) {
       // Payment required - show paywall
-      console.warn('❌ [generateSpecification] Server returned 402 - Payment required');
       const paywallData = await response.json();
-      console.log('🚧 [generateSpecification] Received paywall data from server');
       hideLoadingOverlay();
       showPaywall(paywallData.paywall);
       return;
@@ -965,31 +920,27 @@ async function generateSpecification() {
 
     if (!response.ok) {
       const errorData = await response.json();
-      console.error('API Error:', errorData);
       throw new Error(errorData.error || 'Failed to generate specification');
     }
 
     const data = await response.json();
-    console.log('✅ Successfully received specification:', data);
     
     // Extract overview content from the response
     const overviewContent = data.specification || 'No overview generated';
     
     // Save to Firebase and redirect
     const firebaseId = await saveSpecToFirebase(overviewContent, answers);
-    console.log('✅ Saved to Firebase successfully with ID:', firebaseId);
     
     // Trigger OpenAI upload (non-blocking)
     if (window.ENABLE_OPENAI_STORAGE !== false) {
       triggerOpenAIUpload(firebaseId).catch(err => {
-        console.warn('Background OpenAI upload failed:', err);
+        // Background OpenAI upload failed
       });
     }
     
     // Store in localStorage for backup
     localStorage.setItem('generatedOverviewContent', overviewContent);
     localStorage.setItem('initialAnswers', JSON.stringify(answers));
-    console.log('✅ Stored in localStorage successfully');
     
     // Redirect to spec viewer with Firebase ID
     setTimeout(() => {
@@ -997,8 +948,6 @@ async function generateSpecification() {
     }, 1000);
     
   } catch (error) {
-    console.error('Error generating specification:', error);
-    
     // Hide loading overlay
     hideLoadingOverlay();
     
@@ -1048,11 +997,8 @@ async function saveSpecToFirebase(overviewContent, answers) {
     let overviewData = {};
     try {
       overviewData = JSON.parse(overviewContent);
-      console.log('✅ Overview data parsed successfully:', overviewData);
     } catch (e) {
-      console.error('Failed to parse overview content:', e);
       overviewData = { ideaSummary: overviewContent };
-      console.log('⚠️ Using fallback overview data:', overviewData);
     }
     
     const specDoc = {
@@ -1074,34 +1020,6 @@ async function saveSpecToFirebase(overviewContent, answers) {
       updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     };
     
-    const overviewPreview = specDoc.overview.substring(0, 200) + (specDoc.overview.length > 200 ? '...' : '');
-    console.log('🔍 [CREATING NEW SPEC] Saving spec document to Firebase');
-    console.log('   → Timestamp:', new Date().toISOString());
-    console.log('   → User ID:', specDoc.userId);
-    console.log('   → User Name:', specDoc.userName);
-    console.log('   → Title:', specDoc.title);
-    console.log('   → OverviewApproved:', specDoc.overviewApproved);
-    console.log('   → Technical:', specDoc.technical);
-    console.log('   → Market:', specDoc.market);
-    console.log('   → Overview length:', specDoc.overview ? specDoc.overview.length : 0, 'chars');
-    if (specDoc.overview) console.log('   → Overview preview:', overviewPreview);
-    console.log('   → Status:', specDoc.status);
-    console.log('   → Call Stack:', new Error().stack.split('\n').slice(1, 4).join('\n   → '));
-    
-    console.log('📝 Saving spec document to Firebase:', {
-      title: specDoc.title,
-      hasOverview: !!specDoc.overview,
-      overviewType: typeof specDoc.overview,
-      overviewLength: specDoc.overview ? specDoc.overview.length : 0,
-      answersCount: specDoc.answers.length,
-      mode: specDoc.mode,
-      status: specDoc.status
-    });
-    
-    console.log('📝 [SPEC CREATION] Starting spec save process');
-    console.log('   → localStorage cleared: true');
-    console.log('   → Current userId:', user.uid);
-    
     // Check if we're in EDIT mode (explicit edit, not normal creation)
     const urlParams = new URLSearchParams(window.location.search);
     const isEditMode = urlParams.get('edit') === 'true';
@@ -1112,35 +1030,24 @@ async function saveSpecToFirebase(overviewContent, answers) {
     if (isEditMode && existingSpecId) {
       // UPDATE existing spec (only in explicit edit mode)
       try {
-        console.log('📝 [EDIT MODE] Updating existing spec:', existingSpecId);
         docRef = firebase.firestore().collection('specs').doc(existingSpecId);
         const { createdAt, userId, ...updateData } = specDoc;
         await docRef.update({
           ...updateData,
           updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
-        console.log('✅ Spec updated in Firebase with ID:', existingSpecId);
         return existingSpecId;
       } catch (updateError) {
-        console.error('❌ Update failed, creating new document:', updateError);
         // Fall through to create new document
       }
     }
     
     // CREATE new document (normal creation flow or fallback from failed update)
     docRef = await firebase.firestore().collection('specs').add(specDoc);
-    console.log('✅ [CREATED] NEW spec in Firebase');
-    console.log('   → ID:', docRef.id);
-    console.log('   → OverviewApproved:', specDoc.overviewApproved);
-    console.log('   → Technical:', specDoc.technical, '(will be generated after approval)');
-    console.log('   → Market:', specDoc.market, '(will be generated after approval)');
-    console.log('   → Design:', specDoc.design, '(will be generated after approval)');
-    console.log('Spec saved to Firebase with ID:', docRef.id);
     // Don't store in localStorage - we always want to create new specs
     
     return docRef.id;
   } catch (error) {
-    console.error('Error saving to Firebase:', error);
     throw error;
   }
 }
@@ -1150,7 +1057,6 @@ async function triggerOpenAIUpload(specId) {
   try {
     const user = firebase.auth().currentUser;
     if (!user) {
-      console.warn('No user found, skipping OpenAI upload');
       return;
     }
     
@@ -1169,28 +1075,20 @@ async function triggerOpenAIUpload(specId) {
     }
     
     const data = await response.json();
-    console.log('✅ OpenAI upload triggered successfully:', data);
   } catch (error) {
-    console.warn('⚠️ OpenAI upload trigger failed (this is non-critical):', error);
+    // OpenAI upload trigger failed (non-critical)
   }
 }
 
 // ===== PAYWALL FUNCTIONS =====
 function showPaywall(paywallData) {
-  console.log('🚧 [PAYWALL] showPaywall called:', paywallData);
-  
   if (window.paywallManager) {
-    console.log('✅ [PAYWALL] Paywall manager loaded, showing paywall');
     window.paywallManager.showPaywall(paywallData, (entitlements) => {
       // Success callback - retry specification generation
-      console.log('✅ [PAYWALL] Purchase successful callback triggered');
-      console.log('✅ [PAYWALL] Entitlements received:', entitlements);
-      console.log('🔄 [PAYWALL] Retrying specification generation...');
       generateSpecification();
     });
   } else {
     // Fallback if paywall manager not loaded
-    console.error('❌ [PAYWALL] Paywall manager not loaded!');
     alert('Payment required to create more specifications. Please refresh the page and try again.');
   }
 }
@@ -1222,7 +1120,6 @@ document.addEventListener('DOMContentLoaded', function() {
   // Clear any stale spec data when user arrives at fresh form
   localStorage.removeItem('currentSpecId');
   localStorage.removeItem('generatedOverviewContent');
-  console.log('🧹 Cleared stale spec data on page load');
   
   checkFirstVisit();
   setupModernInput();
@@ -1315,77 +1212,3 @@ function triggerPlatformHint() {
     }
   });
 }
-
-// ===== MAINTENANCE MODE CHECK =====
-const MAINTENANCE_CODE = '1997';
-const MAINTENANCE_STORAGE_KEY = 'specifys_maintenance_access';
-
-function checkMaintenanceAccess() {
-  // Check if user has already entered the correct code
-  const hasAccess = localStorage.getItem(MAINTENANCE_STORAGE_KEY);
-  
-  if (hasAccess === 'true') {
-    // User has access, hide overlay
-    const overlay = document.getElementById('maintenanceOverlay');
-    if (overlay) {
-      overlay.classList.add('hidden');
-    }
-    return;
-  }
-  
-  // Show overlay and set up code checking
-  setupMaintenanceCodeCheck();
-}
-
-function setupMaintenanceCodeCheck() {
-  const overlay = document.getElementById('maintenanceOverlay');
-  const codeInput = document.getElementById('maintenanceCodeInput');
-  const submitBtn = document.getElementById('maintenanceCodeSubmit');
-  const errorMsg = document.getElementById('maintenanceError');
-  
-  if (!overlay || !codeInput || !submitBtn) return;
-  
-  // Focus on input
-  codeInput.focus();
-  
-  // Handle Enter key
-  codeInput.addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-      checkMaintenanceCode();
-    }
-  });
-  
-  // Handle submit button click
-  submitBtn.addEventListener('click', checkMaintenanceCode);
-  
-  function checkMaintenanceCode() {
-    const enteredCode = codeInput.value.trim();
-    
-    if (enteredCode === MAINTENANCE_CODE) {
-      // Correct code - grant access
-      localStorage.setItem(MAINTENANCE_STORAGE_KEY, 'true');
-      overlay.classList.add('hidden');
-      errorMsg.style.display = 'none';
-      codeInput.value = '';
-    } else {
-      // Wrong code - show error
-      errorMsg.style.display = 'block';
-      codeInput.value = '';
-      codeInput.focus();
-      
-      // Shake animation
-      const content = overlay.querySelector('.maintenance-content');
-      if (content) {
-        content.style.animation = 'shake 0.5s ease-in-out';
-        setTimeout(() => {
-          content.style.animation = '';
-        }, 500);
-      }
-    }
-  }
-}
-
-// Initialize maintenance check on page load
-document.addEventListener('DOMContentLoaded', function() {
-  checkMaintenanceAccess();
-});

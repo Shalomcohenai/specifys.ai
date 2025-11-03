@@ -56,7 +56,7 @@ async function handleRequest(request) {
     })
     
   } catch (error) {
-    console.error('Error processing request:', error)
+
     
     return new Response(JSON.stringify({
       success: false,
@@ -100,7 +100,7 @@ async function processFeedback(data) {
     }
     
   } catch (error) {
-    console.error('Error processing feedback:', error)
+
     throw error
   }
 }
@@ -166,7 +166,7 @@ async function forwardToGoogleSheets(userEmail, feedback, type, timestamp) {
     
     
   } catch (error) {
-    console.error('❌ Error forwarding to Google Sheets:', error.message)
+
     // Don't fail the entire request if Sheets fails
   }
 }

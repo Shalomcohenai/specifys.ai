@@ -23,11 +23,11 @@ async function verifySignature(req) {
     try {
         const signature = req.headers['x-signature'];
         if (!signature) {
-            console.error('❌ [SIGNATURE] No signature header found in request');
+
             return false;
         }
 
-        console.log('🔒 [SIGNATURE] Verifying webhook signature...');
+
         
         // req.body should be a Buffer when using express.raw()
         const rawBody = req.body.toString();
@@ -45,19 +45,19 @@ async function verifySignature(req) {
         );
 
         if (!isValid) {
-            console.error('❌ [SIGNATURE] Signature verification failed:', {
+
                 expected_prefix: expectedSignature.substring(0, 20) + '...',
                 provided_prefix: providedSignature.substring(0, 20) + '...',
                 rawBody_length: rawBody.length
             });
         } else {
-            console.log('✅ [SIGNATURE] Signature verified successfully');
+
         }
 
         return isValid;
 
     } catch (error) {
-        console.error('❌ [SIGNATURE] Error verifying signature:', error);
+
         return false;
     }
 }
@@ -72,7 +72,7 @@ async function isEventProcessed(eventId) {
         const eventDoc = await db.collection('processed_webhook_events').doc(eventId).get();
         return eventDoc.exists;
     } catch (error) {
-        console.error('Error checking event processed:', error);
+
         return false;
     }
 }
@@ -87,7 +87,7 @@ async function markEventProcessed(eventId) {
             created_at: admin.firestore.FieldValue.serverTimestamp()
         });
     } catch (error) {
-        console.error('Error marking event processed:', error);
+
     }
 }
 
@@ -104,8 +104,8 @@ async function handleOrderCreated(payload) {
         const { data } = payload;
         const order = data.attributes;
         
-        console.log('🟢 [ORDER_CREATED] Starting processing for order:', order.id);
-        console.log('🟢 [ORDER_CREATED] Order details:', {
+
+
             order_id: order.id,
             customer_id: order.customer_id,
             user_email: order.user_email,
@@ -115,7 +115,7 @@ async function handleOrderCreated(payload) {
         });
 
         // Find user by customer ID or email
-        console.log('🔍 [ORDER_CREATED] Searching for user with:', {
+
             customer_id: order.customer_id,
             email: order.user_email
         });
@@ -125,7 +125,7 @@ async function handleOrderCreated(payload) {
             order.user_email
         );
 
-        console.log('🔍 [ORDER_CREATED] User search result:', userId || 'Not found');
+
 
         // Get product info
         const product = Object.values(config.products).find(p => 
@@ -133,7 +133,7 @@ async function handleOrderCreated(payload) {
         );
 
         if (!product) {
-            console.error('❌ [ORDER_CREATED] Product not found for variant:', order.variant_id);
+
             await addAuditLog(null, 'lemon_webhook', 'order_created_product_not_found', payload.meta.event_id, {
                 order_id: order.id,
                 variant_id: order.variant_id,
@@ -142,14 +142,14 @@ async function handleOrderCreated(payload) {
             return;
         }
 
-        console.log('✅ [ORDER_CREATED] Product found:', {
+
             name: product.name,
             credits: product.grants.spec_credits,
             unlimited: product.grants.unlimited
         });
 
         if (userId) {
-            console.log('👤 [ORDER_CREATED] User found, proceeding with credit grant');
+
             
             // Persist Lemon customer ID on user for future lookups
             await db.collection('users').doc(userId).set({
@@ -157,7 +157,7 @@ async function handleOrderCreated(payload) {
                 last_entitlement_sync_at: admin.firestore.FieldValue.serverTimestamp()
             }, { merge: true });
 
-            console.log('💳 [ORDER_CREATED] Granting credits:', {
+
                 userId,
                 credits: product.grants.spec_credits,
                 order_id: order.id
@@ -168,7 +168,7 @@ async function handleOrderCreated(payload) {
             creditsGranted = product.grants.spec_credits;
             
             if (!grantResult) {
-                console.error('❌ [ORDER_CREATED] Credit grant failed for user:', userId);
+
                 await addAuditLog(userId, 'lemon_webhook', 'order_created_grant_failed', payload.meta.event_id, {
                     order_id: order.id,
                     variant_id: order.variant_id,
@@ -177,7 +177,7 @@ async function handleOrderCreated(payload) {
                 // CRITICAL: Throw error to trigger retry - this prevents lost purchases
                 throw new Error(`Failed to grant credits for user ${userId} on order ${order.id}`);
             } else {
-                console.log('✅ [ORDER_CREATED] Credits granted successfully');
+
             }
             
             await addAuditLog(userId, 'lemon_webhook', 'order_created', payload.meta.event_id, {
@@ -188,9 +188,9 @@ async function handleOrderCreated(payload) {
             });
 
             const duration = Date.now() - startTime;
-            console.log(`✅ [ORDER_CREATED] Completed successfully in ${duration}ms - User: ${userId}, Credits: ${creditsGranted}`);
+
         } else {
-            console.log('⏳ [ORDER_CREATED] User not found, creating pending entitlement');
+
             
             // User doesn't exist - create pending entitlement
             await createPendingEntitlement(
@@ -202,7 +202,7 @@ async function handleOrderCreated(payload) {
             );
 
             const duration = Date.now() - startTime;
-            console.log(`⏳ [ORDER_CREATED] Pending entitlement created for email: ${order.user_email} in ${duration}ms`);
+
             
             await addAuditLog(null, 'lemon_webhook', 'order_created_pending', payload.meta.event_id, {
                 order_id: order.id,
@@ -214,7 +214,7 @@ async function handleOrderCreated(payload) {
 
     } catch (error) {
         const duration = Date.now() - startTime;
-        console.error('❌ [ORDER_CREATED] Error handling order:', {
+
             error: error.message,
             stack: error.stack,
             duration_ms: duration,
@@ -241,7 +241,7 @@ async function handleOrderRefunded(payload) {
         const { data } = payload;
         const order = data.attributes;
         
-        console.log('Processing order_refunded:', order.id);
+
 
         // Find user
         const userId = await findUserByLemonCustomerIdOrEmail(
@@ -250,7 +250,7 @@ async function handleOrderRefunded(payload) {
         );
 
         if (!userId) {
-            console.log('User not found for refund:', order.user_email);
+
             return;
         }
 
@@ -268,11 +268,11 @@ async function handleOrderRefunded(payload) {
                 credits_refunded: product.grants.spec_credits
             });
 
-            console.log(`Credits refunded for user ${userId}: ${product.grants.spec_credits}`);
+
         }
 
     } catch (error) {
-        console.error('Error handling order_refunded:', error);
+
         throw error;
     }
 }
@@ -286,7 +286,7 @@ async function handleSubscriptionCreated(payload) {
         const { data } = payload;
         const subscription = data.attributes;
         
-        console.log('Processing subscription_created:', subscription.id);
+
 
         // Find user
         const userId = await findUserByLemonCustomerIdOrEmail(
@@ -310,7 +310,7 @@ async function handleSubscriptionCreated(payload) {
                 variant_id: subscription.variant_id
             });
 
-            console.log(`Pro subscription enabled for user ${userId}`);
+
         } else {
             // User doesn't exist - create pending entitlement
             const product = Object.values(config.products).find(p => 
@@ -326,12 +326,12 @@ async function handleSubscriptionCreated(payload) {
                     'subscription_created_before_signup'
                 );
 
-                console.log(`Pending Pro subscription created for email: ${subscription.user_email}`);
+
             }
         }
 
     } catch (error) {
-        console.error('Error handling subscription_created:', error);
+
         throw error;
     }
 }
@@ -345,7 +345,7 @@ async function handleSubscriptionPaymentSuccess(payload) {
         const { data } = payload;
         const subscription = data.attributes;
         
-        console.log('Processing subscription_payment_success:', subscription.id);
+
 
         // Find user
         const userId = await findUserByLemonCustomerIdOrEmail(
@@ -369,11 +369,11 @@ async function handleSubscriptionPaymentSuccess(payload) {
                 variant_id: subscription.variant_id
             });
 
-            console.log(`Pro subscription renewed for user ${userId}`);
+
         }
 
     } catch (error) {
-        console.error('Error handling subscription_payment_success:', error);
+
         throw error;
     }
 }
@@ -387,7 +387,7 @@ async function handleSubscriptionUpdated(payload) {
         const { data } = payload;
         const subscription = data.attributes;
         
-        console.log('Processing subscription_updated:', subscription.id);
+
 
         // Find user
         const userId = await findUserByLemonCustomerIdOrEmail(
@@ -410,11 +410,11 @@ async function handleSubscriptionUpdated(payload) {
                 status: subscription.status
             });
 
-            console.log(`Subscription updated for user ${userId}: ${subscription.status}`);
+
         }
 
     } catch (error) {
-        console.error('Error handling subscription_updated:', error);
+
         throw error;
     }
 }
@@ -428,7 +428,7 @@ async function handleSubscriptionCancelled(payload) {
         const { data } = payload;
         const subscription = data.attributes;
         
-        console.log('Processing subscription_cancelled:', subscription.id);
+
 
         // Find user
         const userId = await findUserByLemonCustomerIdOrEmail(
@@ -449,11 +449,11 @@ async function handleSubscriptionCancelled(payload) {
                 subscription_id: subscription.id
             });
 
-            console.log(`Subscription cancelled for user ${userId} - Pro access until period end`);
+
         }
 
     } catch (error) {
-        console.error('Error handling subscription_cancelled:', error);
+
         throw error;
     }
 }
@@ -467,7 +467,7 @@ async function handleSubscriptionExpired(payload) {
         const { data } = payload;
         const subscription = data.attributes;
         
-        console.log('Processing subscription_expired:', subscription.id);
+
 
         // Find user
         const userId = await findUserByLemonCustomerIdOrEmail(
@@ -483,11 +483,11 @@ async function handleSubscriptionExpired(payload) {
                 subscription_id: subscription.id
             });
 
-            console.log(`Pro access revoked for user ${userId}`);
+
         }
 
     } catch (error) {
-        console.error('Error handling subscription_expired:', error);
+
         throw error;
     }
 }
@@ -501,7 +501,7 @@ async function handleSubscriptionPaymentFailed(payload) {
         const { data } = payload;
         const subscription = data.attributes;
         
-        console.log('Processing subscription_payment_failed:', subscription.id);
+
 
         // Find user
         const userId = await findUserByLemonCustomerIdOrEmail(
@@ -521,11 +521,11 @@ async function handleSubscriptionPaymentFailed(payload) {
                 subscription_id: subscription.id
             });
 
-            console.log(`Payment failed for user ${userId} subscription`);
+
         }
 
     } catch (error) {
-        console.error('Error handling subscription_payment_failed:', error);
+
         throw error;
     }
 }
@@ -540,54 +540,54 @@ async function handleLemonWebhook(req, res) {
     let payload = null;
     
     try {
-        console.log('═══════════════════════════════════════════════');
-        console.log('🌐 [WEBHOOK] Received Lemon Squeezy webhook request');
-        console.log('🌐 [WEBHOOK] Request headers:', {
+
+
+
             signature: req.headers['x-signature'] ? req.headers['x-signature'].substring(0, 20) + '...' : 'none',
             'user-agent': req.headers['user-agent']
         });
 
         // Verify signature
-        console.log('🔒 [WEBHOOK] Verifying signature...');
+
         const isValidSignature = await verifySignature(req);
         if (!isValidSignature) {
-            console.error('❌ [WEBHOOK] Invalid webhook signature - rejecting request');
-            console.log('═══════════════════════════════════════════════');
+
+
             return res.status(401).json({ error: 'Invalid signature' });
         }
-        console.log('✅ [WEBHOOK] Signature verified successfully');
+
 
         // Parse payload
         payload = JSON.parse(req.body.toString());
-        console.log('📦 [WEBHOOK] Payload parsed successfully');
-        console.log('📦 [WEBHOOK] Event details:', {
+
+
             event_id: payload.meta.event_id,
             event_name: payload.meta.event_name
         });
         
         // Log full payload for debugging (first 500 chars)
         const payloadPreview = JSON.stringify(payload, null, 2).substring(0, 500);
-        console.log('📦 [WEBHOOK] Payload preview:', payloadPreview + '...');
+
 
         // Check idempotency
         const eventId = payload.meta.event_id;
-        console.log('🔍 [WEBHOOK] Checking if event already processed:', eventId);
+
         
         if (await isEventProcessed(eventId)) {
-            console.log('⚠️ [WEBHOOK] Event already processed:', eventId);
-            console.log('═══════════════════════════════════════════════');
+
+
             return res.status(200).json({ message: 'Event already processed' });
         }
-        console.log('✅ [WEBHOOK] Event not processed yet');
+
 
         // Mark as processed immediately to prevent duplicates
-        console.log('🔄 [WEBHOOK] Marking event as processed...');
+
         await markEventProcessed(eventId);
-        console.log('✅ [WEBHOOK] Event marked as processed');
+
 
         // Handle event based on type
         const eventType = payload.meta.event_name;
-        console.log('🔄 [WEBHOOK] Processing event type:', eventType);
+
 
         switch (eventType) {
             case 'order_created':
@@ -615,7 +615,7 @@ async function handleLemonWebhook(req, res) {
                 await handleSubscriptionPaymentFailed(payload);
                 break;
             default:
-                console.log('⚠️ [WEBHOOK] Unhandled event type:', eventType);
+
                 await addAuditLog(null, 'lemon_webhook', 'unhandled_event', eventId, {
                     event_type: eventType,
                     payload: payload
@@ -623,13 +623,13 @@ async function handleLemonWebhook(req, res) {
         }
 
         const duration = Date.now() - startTime;
-        console.log('✅ [WEBHOOK] Webhook processed successfully in', duration, 'ms');
-        console.log('═══════════════════════════════════════════════');
+
+
         res.status(200).json({ message: 'Webhook processed successfully' });
 
     } catch (error) {
         const duration = Date.now() - startTime;
-        console.error('❌ [WEBHOOK] Error processing webhook after', duration, 'ms:', {
+
             error: error.message,
             stack: error.stack
         });
@@ -641,12 +641,12 @@ async function handleLemonWebhook(req, res) {
                 stack: error.stack,
                 duration_ms: duration
             });
-            console.log('✅ [WEBHOOK] Error logged to audit_logs');
+
         } catch (logError) {
-            console.error('❌ [WEBHOOK] Error logging audit:', logError);
+
         }
 
-        console.log('═══════════════════════════════════════════════');
+
         res.status(500).json({ error: 'Internal server error' });
     }
 }

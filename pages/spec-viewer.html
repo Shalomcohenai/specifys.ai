@@ -476,7 +476,7 @@ async function triggerOpenAIUploadForSpec(specId) {
     try {
         const user = firebase.auth().currentUser;
         if (!user) {
-            console.warn('No user found, skipping OpenAI upload');
+
             return;
         }
         
@@ -494,9 +494,9 @@ async function triggerOpenAIUploadForSpec(specId) {
             throw new Error(error.error || 'Upload failed');
         }
         
-        console.log('✅ OpenAI upload triggered for spec update');
+
     } catch (error) {
-        console.warn('⚠️ OpenAI upload trigger failed (non-critical):', error);
+
     }
 }
 
@@ -513,7 +513,7 @@ let dragStartY = 0;
 const urlParams = new URLSearchParams(window.location.search);
 const urlSpecId = urlParams.get('id');
 
-console.log('Spec Viewer - Starting...');
+
 
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize Mermaid with custom theme
@@ -534,10 +534,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     tertiaryBkg: '#ffffff'
                 }
             });
-            console.log('Mermaid initialized');
+
         }
     } catch (error) {
-        console.error('Failed to initialize Mermaid:', error);
+
     }
     
     // Initialize Firebase auth state listener
@@ -567,7 +567,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Load spec will be triggered after user authentication
     
-    console.log('Spec Viewer - Ready!');
+
 });
 
 // Check authentication status and show modal if needed
@@ -585,7 +585,7 @@ function showRegistrationModal() {
     const modal = document.getElementById('registrationModal');
     if (modal) {
         modal.style.display = 'flex';
-        console.log('Registration modal shown');
+
     }
 }
 
@@ -594,7 +594,7 @@ function closeRegistrationModal() {
     const modal = document.getElementById('registrationModal');
     if (modal) {
         modal.style.display = 'none';
-        console.log('Registration modal closed');
+
     }
 }
 
@@ -749,8 +749,8 @@ async function loadSpec(specId) {
     try {
         showLoading();
         
-        console.log('🔍 [LOAD] loadSpec() called with ID:', specId);
-        console.log('   → Timestamp:', new Date().toISOString());
+
+
         
         if (!specId) {
             throw new Error('No specification ID provided');
@@ -778,7 +778,7 @@ async function loadSpec(specId) {
         const isAdmin = adminEmails.includes(user.email);
         
         if (!isPublic && !isOwner && !isAdmin) {
-            console.warn('User does not have permission to view this spec');
+
             showError('You do not have permission to view this specification.');
             return;
         }
@@ -789,40 +789,40 @@ async function loadSpec(specId) {
         const marketPreview = specData.market ? specData.market.substring(0, 200) + (specData.market.length > 200 ? '...' : '') : 'null';
         const designPreview = specData.design ? specData.design.substring(0, 200) + (specData.design.length > 200 ? '...' : '') : 'null';
         
-        console.log('🔍 [LOADED FROM FIREBASE]');
-        console.log('   → ID:', currentSpecData.id);
-        console.log('   → Title:', currentSpecData.title);
-        console.log('   → OverviewApproved:', specData.overviewApproved);
-        console.log('   → Has Technical:', !!specData.technical, '(length:', specData.technical?.length || 0, ')');
-        if (specData.technical) console.log('   → Technical preview:', technicalPreview);
-        console.log('   → Has Market:', !!specData.market, '(length:', specData.market?.length || 0, ')');
-        if (specData.market) console.log('   → Market preview:', marketPreview);
-        console.log('   → Has Design:', !!specData.design, '(length:', specData.design?.length || 0, ')');
-        if (specData.design) console.log('   → Design preview:', designPreview);
-        console.log('   → Status:', specData.status);
+
+
+
+
+
+
+
+
+
+
+
         
-        console.log('Spec loaded from Firebase:', { id: currentSpecData.id, title: currentSpecData.title });
+
         displaySpec(currentSpecData);
         
     } catch (error) {
-        console.error('Error loading spec:', error);
+
         showError(`Error loading spec: ${error.message}`);
         showNotification('Failed to load specification. Please try again.', 'error');
     }
 }
 
 function displaySpec(data) {
-    console.log('🔍 [DISPLAY] displaySpec() called');
-    console.log('   → OverviewApproved:', data.overviewApproved);
-    console.log('   → Will call displayTechnical/Market/Design with existing content');
+
+
+
     
     const technicalPreview = data.technical ? data.technical.substring(0, 200) + (data.technical.length > 200 ? '...' : '') : 'null';
     const marketPreview = data.market ? data.market.substring(0, 200) + (data.market.length > 200 ? '...' : '') : 'null';
     const designPreview = data.design ? data.design.substring(0, 200) + (data.design.length > 200 ? '...' : '') : 'null';
     
-    console.log('   → Technical exists:', !!data.technical, 'preview:', technicalPreview);
-    console.log('   → Market exists:', !!data.market, 'preview:', marketPreview);
-    console.log('   → Design exists:', !!data.design, 'preview:', designPreview);
+
+
+
     
     // Reset chat state when switching to a different spec
     chatThreadId = null;
@@ -873,7 +873,7 @@ function displaySpec(data) {
     updateStorageStatus(); // Add storage status update
     
     // Display content for each tab
-    console.log('🔍 [DISPLAY] Calling displayOverview/Technical/Market/Design');
+
     displayOverview(data.overview);
     displayTechnical(data.technical);
     displayMarket(data.market);
@@ -926,7 +926,7 @@ function displayOverview(overview) {
     const container = document.getElementById('overview-data');
     
     // Debug logging
-    console.log('DEBUG: displayOverview called - type:', typeof overview);
+
     
     if (!overview) {
         container.innerHTML = '<p class="text-muted">Overview not available...</p>';
@@ -1074,7 +1074,7 @@ function parseDesignData(designContent) {
         colorReasoning: ''
     };
     
-    console.log('parseDesignData called with:', typeof designContent, designContent?.substring(0, 200));
+
     
     try {
         let content = designContent;
@@ -1083,7 +1083,7 @@ function parseDesignData(designContent) {
         let jsonData;
         try {
             jsonData = JSON.parse(designContent);
-            console.log('Parsed JSON successfully:', jsonData);
+
             
             // FIRST TRY: jsonData is already the design object (from generateDesignSpec)
             if (jsonData.visualStyleGuide) {
@@ -1109,7 +1109,7 @@ function parseDesignData(designContent) {
                         result.typography[capitalizedKey] = value;
                     });
                 }
-                console.log('Extracted from JSON (direct) - Colors:', result.colors, 'Typography:', result.typography);
+
                 return result;
             }
             // FALLBACK: jsonData has nested structure jsonData.design.visualStyleGuide
@@ -1136,11 +1136,11 @@ function parseDesignData(designContent) {
                         result.typography[capitalizedKey] = value;
                     });
                 }
-                console.log('Extracted from JSON (nested) - Colors:', result.colors, 'Typography:', result.typography);
+
                 return result;
             }
         } catch (e) {
-            console.log('JSON parsing failed, trying text parsing:', e);
+
             // Not JSON, continue with text parsing
         }
         
@@ -1222,7 +1222,7 @@ function parseDesignData(designContent) {
         
         // Fallback defaults if no colors/typography found
         if (Object.keys(result.colors).length === 0) {
-            console.log('No colors extracted, using fallback defaults');
+
             result.colors = {
                 'Primary': '#4CAF50',
                 'Secondary': '#FF9800',
@@ -1231,7 +1231,7 @@ function parseDesignData(designContent) {
                 'Text': '#212121'
             };
         } else {
-            console.log('Colors extracted successfully:', result.colors);
+
         }
         
         if (Object.keys(result.typography).length === 0) {
@@ -1243,7 +1243,7 @@ function parseDesignData(designContent) {
         }
         
     } catch (error) {
-        console.error('Error parsing design data:', error);
+
         // Use fallback defaults
         result.colors = {
             'Primary': '#4CAF50',
@@ -1287,7 +1287,7 @@ function copyToClipboard(text) {
     navigator.clipboard.writeText(text).then(() => {
         showNotification(`Copied ${text} to clipboard!`, 'success');
     }).catch(err => {
-        console.error('Failed to copy:', err);
+
         showNotification('Failed to copy to clipboard', 'error');
     });
 }
@@ -1320,7 +1320,7 @@ function applyColorsToTemplate(type) {
     const colors = designData.colors;
     const typography = designData.typography;
     
-    console.log('Applying colors to template:', colors);
+
     
     const template = type === 'mobile' ? 
         document.getElementById('mobile-template') : 
@@ -1471,16 +1471,16 @@ function formatTextContent(content) {
     }
     
     // Debug logging
-    console.log('DEBUG: formatTextContent called - type:', typeof content);
+
     
     // Check if content is JSON
     let parsedContent;
     try {
         parsedContent = JSON.parse(content);
-        console.log('DEBUG: Successfully parsed JSON content');
+
         return formatJSONContent(parsedContent);
     } catch (error) {
-        console.log('DEBUG: Content is not JSON, treating as plain text');
+
         return formatPlainTextContent(content);
     }
 }
@@ -1493,17 +1493,17 @@ function formatJSONContent(jsonData) {
         try {
             jsonData = JSON.parse(jsonData);
         } catch (e) {
-            console.error('Failed to parse JSON:', e);
+
             return '<div class="error">Failed to parse JSON data</div>';
         }
     }
     
     // Debug logging to understand data structure
-    console.log('DEBUG: formatJSONContent received data - type:', typeof jsonData, '- keys:', Object.keys(jsonData || {}));
+
     
     // Handle nested overview structure (overview.overview)
     if (jsonData.overview && typeof jsonData.overview === 'object') {
-        console.log('DEBUG: Found nested overview structure');
+
         jsonData = jsonData.overview;
     }
     
@@ -3403,7 +3403,7 @@ function updateStatus(type, status) {
     if (element) {
         element.textContent = status;
         element.className = `status-value ${status}`;
-        console.log(`${type} status updated to:`, status);
+
     }
 }
 
@@ -3444,7 +3444,7 @@ function updateStorageStatus() {
     if (element) {
         element.textContent = status;
         element.className = `status-value ${statusClass}`;
-        console.log(`Storage status updated to: ${status}`);
+
     }
 }
 
@@ -3530,7 +3530,7 @@ async function checkProAccess() {
         
         return false;
     } catch (error) {
-        console.error('Error checking PRO access:', error);
+
         return false;
     }
 }
@@ -3714,7 +3714,7 @@ async function saveOverviewEdit() {
         displayOverview(finalContent);
         
     } catch (error) {
-        console.error('Error saving overview:', error);
+
         showNotification('Failed to save overview: ' + error.message, 'error');
     }
 }
@@ -3758,7 +3758,7 @@ function hideApproveButton() {
 // Function to save spec to Firebase
 async function saveSpecToFirebase(user, specData) {
     try {
-        console.log('Saving spec to Firebase...');
+
         
         if (!user) {
             throw new Error('User must be authenticated to save to Firebase');
@@ -3782,10 +3782,10 @@ async function saveSpecToFirebase(user, specData) {
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         };
         
-        console.log('Spec document to save:', specDoc);
+
         
         const docRef = await firebase.firestore().collection('specs').add(specDoc);
-        console.log('Spec saved successfully with ID:', docRef.id);
+
         
         // Show success notification
         showNotification('Specification saved successfully!', 'success');
@@ -3796,7 +3796,7 @@ async function saveSpecToFirebase(user, specData) {
         return docRef.id;
         
     } catch (error) {
-        console.error('Error saving spec to Firebase:', error);
+
         
         // Show error notification
         showNotification(`Failed to save specification: ${error.message}`, 'error');
@@ -3814,7 +3814,7 @@ function checkContentSize(content, contentType) {
     const maxSize = 1000000; // 1MB Firestore limit
     const sizeInMB = (sizeInBytes / 1024 / 1024).toFixed(2);
     
-    console.log(`${contentType} content size: ${sizeInBytes} bytes (${sizeInMB} MB)`);
+
     
     return {
         tooLarge: sizeInBytes > maxSize,
@@ -3828,10 +3828,10 @@ async function approveOverview() {
     if (isLoading) return;
     
     try {
-        console.log('🔍 [TRIGGER] approveOverview() called');
-        console.log('   → Call Stack:', new Error().stack.split('\n').slice(0, 5).join('\n   → '));
-        console.log('   → Current Spec ID:', currentSpecData?.id);
-        console.log('   → Current OverviewApproved:', currentSpecData?.overviewApproved);
+
+
+
+
         
         isLoading = true;
         const approveBtn = document.getElementById('approveBtn');
@@ -3840,7 +3840,7 @@ async function approveOverview() {
         
         showNotification('Starting specification generation...', 'info');
         
-        console.log('Approving overview and generating additional specs...');
+
         
         // Check if user is authenticated
         const user = firebase.auth().currentUser;
@@ -3855,9 +3855,9 @@ async function approveOverview() {
         // Update Firebase if user is authenticated and spec has ID
         if (user && currentSpecData && currentSpecData.id) {
             try {
-                console.log('🔍 [FIREBASE UPDATE] Setting overviewApproved to true');
-                console.log('   → Spec ID:', currentSpecData.id);
-                console.log('   → Setting status to: {technical: generating, market: generating, design: generating}');
+
+
+
                 
                 await firebase.firestore().collection('specs').doc(currentSpecData.id).update({
                     overviewApproved: true,
@@ -3873,10 +3873,10 @@ async function approveOverview() {
                 // Reset chat history since spec status changed
                 autoResetChatOnSpecUpdate();
                 
-                console.log('✅ Firebase updated with approval status');
+
                 showNotification('Overview approved successfully', 'success');
             } catch (error) {
-                console.warn('Failed to update Firebase:', error);
+
                 showNotification('Failed to update database. Continuing locally...', 'error');
             }
         }
@@ -3896,16 +3896,16 @@ async function approveOverview() {
         updateTabLoadingState('design', true);
         
         // Generate technical, market, and design specs sequentially
-        console.log('Starting sequential generation of technical, market, and design specs...');
+
         
         // Generate Technical Spec first
-        console.log('Generating Technical Specification...');
+
         let technicalContent;
         try {
             technicalContent = await generateTechnicalSpec();
-            console.log('Technical specification generated successfully');
+
         } catch (error) {
-            console.error('Technical specification failed:', error);
+
             technicalContent = 'error';
         }
         
@@ -3939,16 +3939,16 @@ async function approveOverview() {
                 const sizeCheck = checkContentSize(technicalContent, 'Technical');
                 
                 if (sizeCheck.tooLarge) {
-                    console.warn(`Technical content too large: ${sizeCheck.sizeInMB}MB (${sizeCheck.percentage}% of 1MB limit)`);
+
                     showNotification(`Technical spec too large (${sizeCheck.sizeInMB}MB). Saved locally only.`, 'warning');
                 } else {
                     const contentPreview = technicalContent.substring(0, 200) + (technicalContent.length > 200 ? '...' : '');
-                    console.log('🔍 [FIREBASE SAVE] Saving Technical content to Firebase');
-                    console.log('   → Spec ID:', currentSpecData.id);
-                    console.log('   → Content length:', technicalContent.length, 'chars');
-                    console.log('   → Status:', currentSpecData.status.technical);
-                    console.log('   → Content preview:', contentPreview);
-                    console.log('   → Call Stack:', new Error().stack.split('\n').slice(1, 4).join('\n   → '));
+
+
+
+
+
+
                     
                     await firebase.firestore().collection('specs').doc(currentSpecData.id).update({
                         technical: technicalContent,
@@ -3956,31 +3956,31 @@ async function approveOverview() {
                         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
                     
-                    console.log('✅ Technical content saved successfully');
+
                     
                     // Reset chat since new content added to spec
                     autoResetChatOnSpecUpdate();
                     
                     // Trigger OpenAI upload (non-blocking)
                     triggerOpenAIUploadForSpec(currentSpecData.id).catch(err => {
-                        console.warn('OpenAI upload failed:', err);
+
                     });
                 }
             } catch (error) {
-                console.error('Failed to update Firebase with technical content:', error);
-                console.error('Error details:', { code: error.code, message: error.message });
+
+
                 showNotification('Failed to save technical spec to database. Saved locally.', 'error');
             }
         }
         
         // Generate Market Spec second
-        console.log('Generating Market Specification...');
+
         let marketContent;
         try {
             marketContent = await generateMarketSpec();
-            console.log('Market specification generated successfully');
+
         } catch (error) {
-            console.error('Market specification failed:', error);
+
             marketContent = 'error';
         }
         
@@ -4014,16 +4014,16 @@ async function approveOverview() {
                 const sizeCheck = checkContentSize(marketContent, 'Market');
                 
                 if (sizeCheck.tooLarge) {
-                    console.warn(`Market content too large: ${sizeCheck.sizeInMB}MB (${sizeCheck.percentage}% of 1MB limit)`);
+
                     showNotification(`Market research too large (${sizeCheck.sizeInMB}MB). Saved locally only.`, 'warning');
                 } else {
                     const contentPreview = marketContent.substring(0, 200) + (marketContent.length > 200 ? '...' : '');
-                    console.log('🔍 [FIREBASE SAVE] Saving Market content to Firebase');
-                    console.log('   → Spec ID:', currentSpecData.id);
-                    console.log('   → Content length:', marketContent.length, 'chars');
-                    console.log('   → Status:', currentSpecData.status.market);
-                    console.log('   → Content preview:', contentPreview);
-                    console.log('   → Call Stack:', new Error().stack.split('\n').slice(1, 4).join('\n   → '));
+
+
+
+
+
+
                     
                     await firebase.firestore().collection('specs').doc(currentSpecData.id).update({
                         market: marketContent,
@@ -4031,31 +4031,31 @@ async function approveOverview() {
                         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
                     
-                    console.log('✅ Market content saved successfully');
+
                     
                     // Reset chat since new content added to spec
                     autoResetChatOnSpecUpdate();
                     
                     // Trigger OpenAI upload (non-blocking)
                     triggerOpenAIUploadForSpec(currentSpecData.id).catch(err => {
-                        console.warn('OpenAI upload failed:', err);
+
                     });
                 }
             } catch (error) {
-                console.error('Failed to update Firebase with market content:', error);
-                console.error('Error details:', { code: error.code, message: error.message });
+
+
                 showNotification('Failed to save market research to database. Saved locally.', 'error');
             }
         }
         
         // Generate Design Spec third
-        console.log('Generating Design Specification...');
+
         let designContent;
         try {
             designContent = await generateDesignSpec();
-            console.log('Design specification generated successfully');
+
         } catch (error) {
-            console.error('Design specification failed:', error);
+
             designContent = 'error';
         }
         
@@ -4082,16 +4082,16 @@ async function approveOverview() {
                 const sizeCheck = checkContentSize(designContent, 'Design');
                 
                 if (sizeCheck.tooLarge) {
-                    console.warn(`Design content too large: ${sizeCheck.sizeInMB}MB (${sizeCheck.percentage}% of 1MB limit)`);
+
                     showNotification(`Design spec too large (${sizeCheck.sizeInMB}MB). Saved locally only.`, 'warning');
                 } else {
                     const contentPreview = designContent.substring(0, 200) + (designContent.length > 200 ? '...' : '');
-                    console.log('🔍 [FIREBASE SAVE] Saving Design content to Firebase');
-                    console.log('   → Spec ID:', currentSpecData.id);
-                    console.log('   → Content length:', designContent.length, 'chars');
-                    console.log('   → Status:', currentSpecData.status.design);
-                    console.log('   → Content preview:', contentPreview);
-                    console.log('   → Call Stack:', new Error().stack.split('\n').slice(1, 4).join('\n   → '));
+
+
+
+
+
+
                     
                     await firebase.firestore().collection('specs').doc(currentSpecData.id).update({
                         design: designContent,
@@ -4099,19 +4099,19 @@ async function approveOverview() {
                         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
                     
-                    console.log('✅ Design content saved successfully');
+
                     
                     // Reset chat since new content added to spec
                     autoResetChatOnSpecUpdate();
                     
                     // Trigger OpenAI upload (non-blocking)
                     triggerOpenAIUploadForSpec(currentSpecData.id).catch(err => {
-                        console.warn('OpenAI upload failed:', err);
+
                     });
                 }
             } catch (error) {
-                console.error('Failed to update Firebase with design content:', error);
-                console.error('Error details:', { code: error.code, message: error.message });
+
+
                 showNotification('Failed to save design spec to database. Saved locally.', 'error');
             }
         }
@@ -4141,12 +4141,12 @@ async function approveOverview() {
             showNotification('Some specifications failed to generate. You can retry using the retry buttons.', 'error');
         }
         
-        console.log('Additional specs generated successfully');
+
         
     } catch (error) {
-        console.error('Error generating additional specs:', error);
-        console.error('Error details:', error.message);
-        console.error('Error stack:', error.stack);
+
+
+
         
         // Show error notification
         showNotification(`Error generating specifications: ${error.message}`, 'error');
@@ -4176,7 +4176,7 @@ async function approveOverview() {
 }
 
 async function generateTechnicalSpec(retryCount = 0, maxRetries = 2) {
-    console.log(`Starting generateTechnicalSpec... (attempt ${retryCount + 1}/${maxRetries + 1})`);
+
     
     // Use reference if spec has ID, otherwise fallback to full content
     const firstParam = currentSpecData.id ? currentSpecData.id : currentSpecData.overview;
@@ -4188,7 +4188,7 @@ async function generateTechnicalSpec(retryCount = 0, maxRetries = 2) {
         if (prompt.includes('[SPEC_REFERENCE]')) {
             // Replace reference with actual overview content
             prompt = prompt.replace(referencePattern, `Application Overview:\n${currentSpecData.overview}`);
-            console.log('✓ Resolved reference to actual overview content');
+
         }
     }
     
@@ -4221,20 +4221,20 @@ async function generateTechnicalSpec(retryCount = 0, maxRetries = 2) {
         
         clearTimeout(timeoutId);
         
-        console.log('  - Status:', response.status);
-        console.log('  - Status Text:', response.statusText);
-        console.log('  - OK:', response.ok);
+
+
+
         
         if (!response.ok) {
             const errorText = await response.text();
-            console.error('Technical API Error Response:', errorText);
+
             throw new Error(`API Error: ${response.status} - ${errorText}`);
         }
         
         const responseText = await response.text();
         
         const data = JSON.parse(responseText);
-        console.log('Successfully parsed technical JSON response');
+
         
         const result = data.technical ? JSON.stringify(data.technical, null, 2) : 'No technical specification generated';
         
@@ -4244,11 +4244,11 @@ async function generateTechnicalSpec(retryCount = 0, maxRetries = 2) {
         clearTimeout(timeoutId);
         
         if (error.name === 'AbortError') {
-            console.error(`Technical API call timed out after 120 seconds (attempt ${retryCount + 1})`);
+
             
             // Auto-retry on timeout if we haven't exceeded max retries
             if (retryCount < maxRetries) {
-                console.log(`Auto-retrying technical spec generation... (${retryCount + 1}/${maxRetries})`);
+
                 showNotification(`Technical API timeout, retrying... (${retryCount + 1}/${maxRetries})`, 'info');
                 await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds before retry
                 return await generateTechnicalSpec(retryCount + 1, maxRetries);
@@ -4257,14 +4257,14 @@ async function generateTechnicalSpec(retryCount = 0, maxRetries = 2) {
                 throw new Error('API call timed out after 120 seconds. Please try again.');
             }
         } else {
-            console.error('Technical API call failed:', error);
+
             throw error;
         }
     }
 }
 
 async function generateMarketSpec(retryCount = 0, maxRetries = 2) {
-    console.log(`Starting generateMarketSpec... (attempt ${retryCount + 1}/${maxRetries + 1})`);
+
     
     // Use reference if spec has ID, otherwise fallback to full content
     const firstParam = currentSpecData.id ? currentSpecData.id : currentSpecData.overview;
@@ -4276,7 +4276,7 @@ async function generateMarketSpec(retryCount = 0, maxRetries = 2) {
         if (prompt.includes('[SPEC_REFERENCE]')) {
             // Replace reference with actual overview content
             prompt = prompt.replace(referencePattern, `Application Overview:\n${currentSpecData.overview}`);
-            console.log('✓ Resolved reference to actual overview content');
+
         }
     }
     
@@ -4309,20 +4309,20 @@ async function generateMarketSpec(retryCount = 0, maxRetries = 2) {
         
         clearTimeout(timeoutId);
         
-        console.log('  - Status:', response.status);
-        console.log('  - Status Text:', response.statusText);
-        console.log('  - OK:', response.ok);
+
+
+
         
         if (!response.ok) {
             const errorText = await response.text();
-            console.error('Market API Error Response:', errorText);
+
             throw new Error(`API Error: ${response.status} - ${errorText}`);
         }
         
         const responseText = await response.text();
         
         const data = JSON.parse(responseText);
-        console.log('Successfully parsed market JSON response');
+
         
         const result = data.market ? JSON.stringify(data.market, null, 2) : 'No market research generated';
         
@@ -4332,11 +4332,11 @@ async function generateMarketSpec(retryCount = 0, maxRetries = 2) {
         clearTimeout(timeoutId);
         
         if (error.name === 'AbortError') {
-            console.error(`Market API call timed out after 120 seconds (attempt ${retryCount + 1})`);
+
             
             // Auto-retry on timeout if we haven't exceeded max retries
             if (retryCount < maxRetries) {
-                console.log(`Auto-retrying market spec generation... (${retryCount + 1}/${maxRetries})`);
+
                 showNotification(`Market API timeout, retrying... (${retryCount + 1}/${maxRetries})`, 'info');
                 await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds before retry
                 return await generateMarketSpec(retryCount + 1, maxRetries);
@@ -4345,7 +4345,7 @@ async function generateMarketSpec(retryCount = 0, maxRetries = 2) {
                 throw new Error('API call timed out after 120 seconds. Please try again.');
             }
         } else {
-            console.error('Market API call failed:', error);
+
             showNotification(`Market API error: ${error.message}`, 'error');
             throw error;
         }
@@ -4353,7 +4353,7 @@ async function generateMarketSpec(retryCount = 0, maxRetries = 2) {
 }
 
 async function generateDesignSpec(retryCount = 0, maxRetries = 2) {
-    console.log(`Starting generateDesignSpec... (attempt ${retryCount + 1}/${maxRetries + 1})`);
+
     
     // Use reference if spec has ID, otherwise fallback to full content
     const firstParam = currentSpecData.id ? currentSpecData.id : currentSpecData.overview;
@@ -4365,7 +4365,7 @@ async function generateDesignSpec(retryCount = 0, maxRetries = 2) {
         if (prompt.includes('[SPEC_REFERENCE]')) {
             // Replace reference with actual overview content
             prompt = prompt.replace(referencePattern, `Application Overview:\n${currentSpecData.overview}`);
-            console.log('✓ Resolved reference to actual overview content');
+
         }
     }
     
@@ -4398,20 +4398,20 @@ async function generateDesignSpec(retryCount = 0, maxRetries = 2) {
         
         clearTimeout(timeoutId);
         
-        console.log('  - Status:', response.status);
-        console.log('  - Status Text:', response.statusText);
-        console.log('  - OK:', response.ok);
+
+
+
         
         if (!response.ok) {
             const errorText = await response.text();
-            console.error('Design API Error Response:', errorText);
+
             throw new Error(`API Error: ${response.status} - ${errorText}`);
         }
         
         const responseText = await response.text();
         
         const data = JSON.parse(responseText);
-        console.log('Successfully parsed design JSON response');
+
         
         const result = data.design ? JSON.stringify(data.design, null, 2) : 'No design specification generated';
         
@@ -4421,11 +4421,11 @@ async function generateDesignSpec(retryCount = 0, maxRetries = 2) {
         clearTimeout(timeoutId);
         
         if (error.name === 'AbortError') {
-            console.error(`Design API call timed out after 120 seconds (attempt ${retryCount + 1})`);
+
             
             // Auto-retry on timeout if we haven't exceeded max retries
             if (retryCount < maxRetries) {
-                console.log(`Auto-retrying design spec generation... (${retryCount + 1}/${maxRetries})`);
+
                 showNotification(`Design API timeout, retrying... (${retryCount + 1}/${maxRetries})`, 'info');
                 await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds before retry
                 return await generateDesignSpec(retryCount + 1, maxRetries);
@@ -4434,7 +4434,7 @@ async function generateDesignSpec(retryCount = 0, maxRetries = 2) {
                 throw new Error('API call timed out after 120 seconds. Please try again.');
             }
         } else {
-            console.error('Design API call failed:', error);
+
             showNotification(`Design API error: ${error.message}`, 'error');
             throw error;
         }
@@ -4482,12 +4482,12 @@ async function retryTechnical() {
             document.getElementById('retryTechnicalBtn').style.display = 'none';
             
             showNotification('Technical specification generated successfully!', 'success');
-            console.log('Technical retry successful');
+
             return;
             
         } catch (error) {
             retryCount++;
-            console.error(`Technical retry attempt ${retryCount} failed:`, error);
+
             
             if (retryCount >= maxRetries) {
                 // Final failure
@@ -4497,7 +4497,7 @@ async function retryTechnical() {
                 
                 showNotification(`Failed to generate technical specification after ${maxRetries} attempts. ${error.message}`, 'error');
                 updateStatus('technical', 'error');
-                console.error('All technical retry attempts failed');
+
                 return;
             } else {
                 // Wait before next retry
@@ -4548,12 +4548,12 @@ async function retryMarket() {
             document.getElementById('retryMarketBtn').style.display = 'none';
             
             showNotification('Market research generated successfully!', 'success');
-            console.log('Market retry successful');
+
             return;
             
         } catch (error) {
             retryCount++;
-            console.error(`Market retry attempt ${retryCount} failed:`, error);
+
             
             if (retryCount >= maxRetries) {
                 // Final failure
@@ -4563,7 +4563,7 @@ async function retryMarket() {
                 
                 showNotification(`Failed to generate market research after ${maxRetries} attempts. ${error.message}`, 'error');
                 updateStatus('market', 'error');
-                console.error('All market retry attempts failed');
+
                 return;
             } else {
                 // Wait before next retry
@@ -4611,12 +4611,12 @@ async function retryDesign() {
             document.getElementById('retryDesignBtn').style.display = 'none';
             
             showNotification('Design specification generated successfully!', 'success');
-            console.log('Design retry successful');
+
             return;
             
         } catch (error) {
             retryCount++;
-            console.error(`Design retry attempt ${retryCount} failed:`, error);
+
             
             if (retryCount >= maxRetries) {
                 // Final failure
@@ -4626,7 +4626,7 @@ async function retryDesign() {
                 
                 showNotification(`Failed to generate design specification after ${maxRetries} attempts. ${error.message}`, 'error');
                 updateStatus('design', 'error');
-                console.error('All design retry attempts failed');
+
                 return;
             } else {
                 // Wait before next retry
@@ -4671,7 +4671,7 @@ function retryLoad() {
  */
 async function autoRepairBrokenDiagrams() {
     if (!currentSpecData || !currentSpecData.id) {
-        console.warn('Cannot auto-repair: no spec data');
+
         return;
     }
     
@@ -4688,7 +4688,7 @@ async function autoRepairBrokenDiagrams() {
         return; // No broken diagrams to repair
     }
     
-    console.log(`🔧 Auto-repairing ${brokenDiagrams.length} broken diagram(s)...`);
+
     
     // Send each broken diagram for repair in parallel (fire and forget)
     // We don't wait for completion to avoid blocking
@@ -4707,7 +4707,7 @@ async function autoRepairBrokenDiagrams() {
             try {
                 const user = firebase.auth().currentUser;
                 if (!user) {
-                    console.warn(`Cannot auto-repair ${diagram.id}: user not authenticated`);
+
                     return;
                 }
                 
@@ -4750,7 +4750,7 @@ async function autoRepairBrokenDiagrams() {
                             'diagrams.diagrams': diagramsData,
                             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                         });
-                        console.log(`✅ Auto-repaired diagram ${diagram.id} saved to Firebase`);
+
                         
                         // Update local data
                         if (currentSpecData.diagrams) {
@@ -4763,8 +4763,8 @@ async function autoRepairBrokenDiagrams() {
                         // Retry once more with error details if first attempt didn't work
                         if (!diagram._retryAttempted && diagram._lastError) {
                             diagram._retryAttempted = true;
-                            console.log(`🔄 Retrying repair for ${diagram.id} with detailed error message...`);
-                            console.log(`   Last error: ${diagram._lastError}`);
+
+
                             
                             // Update UI to show retry status
                             const statusIndicator = document.querySelector(`#diagram-${diagram.id} .status-indicator`);
@@ -4801,7 +4801,7 @@ async function autoRepairBrokenDiagrams() {
                                                 'diagrams.diagrams': diagramsData,
                                                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                                             });
-                                            console.log(`✅ Auto-repaired diagram ${diagram.id} after retry saved to Firebase`);
+
                                             if (currentSpecData.diagrams) {
                                                 currentSpecData.diagrams.diagrams = diagramsData;
                                             }
@@ -4811,15 +4811,15 @@ async function autoRepairBrokenDiagrams() {
                                     }
                                 }
                             } catch (retryError) {
-                                console.error(`Error on retry repair for ${diagram.id}:`, retryError);
+
                             }
                         }
                         
                         // If we get here, both attempts failed
-                        console.warn(`⚠️ Auto-repaired diagram ${diagram.id} still has issues after retry`);
-                        console.log(`   Last error: ${diagram._lastError || 'Unknown'}`);
-                        console.log(`   Diagram type: ${diagram.type}`);
-                        console.log(`   Code preview: ${diagram.mermaidCode.substring(0, 200)}...`);
+
+
+
+
                         const statusIndicator = document.querySelector(`#diagram-${diagram.id} .status-indicator`);
                         const statusText = document.querySelector(`#diagram-${diagram.id} .status-text`);
                         if (statusIndicator) statusIndicator.className = 'status-indicator error';
@@ -4828,7 +4828,7 @@ async function autoRepairBrokenDiagrams() {
                 }
                 
             } catch (error) {
-                console.error(`Error auto-repairing diagram ${diagram.id}:`, error);
+
                 
                 // Reset status
                 const statusIndicator = document.querySelector(`#diagram-${diagram.id} .status-indicator`);
@@ -4847,7 +4847,7 @@ async function autoRepairBrokenDiagrams() {
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
             } catch (error) {
-                console.warn('Failed to save auto-repair flags to Firebase:', error);
+
             }
         })();
     });
@@ -4904,7 +4904,7 @@ async function generateDiagrams() {
         }
         
         const result = await response.json();
-        console.log('Diagrams received from API:', result);
+
         
         if (result.diagrams && Array.isArray(result.diagrams)) {
             // Store ALL diagrams data globally (including broken ones)
@@ -4926,7 +4926,7 @@ async function generateDiagrams() {
             // Count valid diagrams
             const validDiagramsCount = diagramsData.filter(d => d._isValid === true).length;
             
-            console.log(`Validated diagrams: ${validDiagramsCount}/${result.diagrams.length} are working`);
+
             
             // Save ALL diagrams to Firebase (including broken ones)
             if (currentSpecData && currentSpecData.id) {
@@ -4939,11 +4939,11 @@ async function generateDiagrams() {
                         },
                         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
-                    console.log(`✅ All ${diagramsData.length} diagrams saved to Firebase (including ${result.diagrams.length - validDiagramsCount} that need repair)`);
+
                     // Update local spec data immediately so UI reflects without refresh
                     currentSpecData.diagrams = { generated: true, diagrams: diagramsData };
                 } catch (error) {
-                    console.warn('Failed to save diagrams to Firebase:', error);
+
                 }
             }
             
@@ -4972,7 +4972,7 @@ async function generateDiagrams() {
         }
         
     } catch (error) {
-        console.error('Error generating diagrams:', error);
+
         showNotification(`Failed to generate diagrams: ${error.message}`, 'error');
         
         // Reset button
@@ -5082,7 +5082,7 @@ function isSyntaxError(error) {
 async function renderSingleDiagram(diagramData, containerId, isRefresh = false) {
     const container = document.getElementById(containerId);
     if (!container) {
-        console.error(`Container ${containerId} not found`);
+
         return;
     }
     
@@ -5120,7 +5120,7 @@ async function renderSingleDiagram(diagramData, containerId, isRefresh = false) 
                 
                 if (statusIndicator) statusIndicator.className = 'status-indicator ready';
                 if (statusText) statusText.textContent = 'Ready';
-                console.log(`✅ Diagram ${diagramData.id} rendered successfully`);
+
                 
                 // Hide repair and refresh buttons when diagram is working
                 hideDiagramControls(diagramData.id);
@@ -5130,7 +5130,7 @@ async function renderSingleDiagram(diagramData, containerId, isRefresh = false) 
                 diagramData._lastRenderAttempt = Date.now();
                 
             } catch (initError) {
-                console.error('Mermaid render error:', initError);
+
                 
                 // Store error info for debugging
                 diagramData._lastError = initError.message;
@@ -5143,14 +5143,14 @@ async function renderSingleDiagram(diagramData, containerId, isRefresh = false) 
             container.innerHTML = `<pre style="background: #f8f9fa; padding: 20px; border-radius: 4px; overflow-x: auto;">${diagramData.mermaidCode}</pre>`;
             if (statusIndicator) statusIndicator.className = 'status-indicator ready';
             if (statusText) statusText.textContent = 'Ready (Raw)';
-            console.log(`✅ Diagram ${diagramData.id} displayed as raw code`);
+
             
             // Mark as valid (displayed as text)
             diagramData._isValid = true;
         }
 
     } catch (error) {
-        console.error(`Error rendering diagram ${diagramData.id}:`, error);
+
         if (statusIndicator) statusIndicator.className = 'status-indicator error';
         if (statusText) statusText.textContent = 'Error';
         
@@ -5200,11 +5200,11 @@ function openFullscreen(diagramId) {
                 updateTransform();
             })
             .catch(error => {
-                console.error('Fullscreen mermaid error:', error);
+
                 // Try MermaidManager as fallback
                 if (mermaidManager && mermaidManager.isInitialized) {
                     mermaidManager.renderChart(`${uniqueId}-fallback`, diagramData.mermaidCode).catch(managerError => {
-                        console.error('Fullscreen MermaidManager error:', managerError);
+
                         content.innerHTML = `<pre style="color: white; padding: 20px;">${diagramData.mermaidCode}</pre>`;
                     });
                 } else {
@@ -5215,7 +5215,7 @@ function openFullscreen(diagramId) {
         // Try MermaidManager if mermaid not available
         const uniqueId = `mermaid-fullscreen-${diagramId}-${Date.now()}`;
         mermaidManager.renderChart(uniqueId, diagramData.mermaidCode).catch(error => {
-            console.error('Fullscreen MermaidManager error:', error);
+
             content.innerHTML = `<pre style="color: white; padding: 20px;">${diagramData.mermaidCode}</pre>`;
         });
     }
@@ -5246,11 +5246,11 @@ function openFullscreen(diagramId) {
     content.style.transformOrigin = 'center center';
     content.style.transform = `translate(${currentPanX}px, ${currentPanY}px) scale(${currentZoom})`;
     
-    console.log('Fullscreen modal opened');
+
 }
 
 function closeFullscreen() {
-    console.log('Closing fullscreen modal');
+
     const modal = document.getElementById('fullscreenModal');
     if (modal) {
         modal.style.display = 'none';
@@ -5383,9 +5383,9 @@ async function refreshDiagram(diagramId) {
     
     try {
         await renderSingleDiagram(diagramData, `diagram-${diagramId}-content`, true);
-        console.log(`Diagram ${diagramId} refreshed successfully`);
+
     } catch (error) {
-        console.error(`Failed to refresh diagram ${diagramId}:`, error);
+
     }
 }
 
@@ -5454,7 +5454,7 @@ async function repairDiagram(diagramId) {
                             'diagrams.diagrams': diagramsData,
                             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                         });
-                        console.log(`✅ Repaired diagram ${diagramId} saved to Firebase`);
+
                         
                         // Update local spec data immediately
                         if (currentSpecData.diagrams) {
@@ -5468,7 +5468,7 @@ async function repairDiagram(diagramId) {
                     showNotification('Diagram repaired and saved successfully!', 'success');
                 } else {
                     // Diagram still has errors even after repair
-                    console.warn(`⚠️ Repaired diagram ${diagramId} still has issues`);
+
                     
                     if (statusIndicator) statusIndicator.className = 'status-indicator error';
                     if (statusText) statusText.textContent = 'Still has errors';
@@ -5477,7 +5477,7 @@ async function repairDiagram(diagramId) {
                 }
                 
             } catch (renderError) {
-                console.error(`Failed to render repaired diagram:`, renderError);
+
                 
                 if (statusIndicator) statusIndicator.className = 'status-indicator error';
                 if (statusText) statusText.textContent = 'Repair failed';
@@ -5489,7 +5489,7 @@ async function repairDiagram(diagramId) {
         }
         
     } catch (error) {
-        console.error(`Error repairing diagram ${diagramId}:`, error);
+
         
         if (statusIndicator) statusIndicator.className = 'status-indicator error';
         if (statusText) statusText.textContent = 'Repair failed';
@@ -5506,7 +5506,7 @@ function updateDiagramsStatus(status) {
     }
 }
 
-console.log('Spec Viewer - Ready!');
+
 </script>
     </main>
     
@@ -5659,10 +5659,10 @@ console.log('Spec Viewer - Ready!');
     }
     auth.signOut()
       .then(() => {
-        console.log('Logged out successfully');
+
       })
       .catch(error => {
-        console.error('Error logging out:', error);
+
       });
   };
 
@@ -6047,7 +6047,7 @@ async function initializeChat() {
         loadChatHistory();
         
     } catch (error) {
-        console.error('Error initializing chat:', error);
+
         showNotification('Failed to initialize chat: ' + error.message, 'error');
     }
 }
@@ -6120,7 +6120,7 @@ async function sendChatMessage() {
         hideChatLoading();
         
     } catch (error) {
-        console.error('Error sending message:', error);
+
         showNotification('Failed to send message: ' + error.message, 'error');
         hideChatLoading();
     }
@@ -6412,7 +6412,7 @@ function autoResetChatOnSpecUpdate() {
     chatInitialized = false;
     chatAssistantId = null;
     
-    console.log('Chat auto-reset due to spec update');
+
 }
 
 // Event listeners for chat

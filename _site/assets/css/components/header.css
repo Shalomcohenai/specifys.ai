@@ -232,10 +232,18 @@
   
   .header-right {
     gap: 0.5rem;
+    justify-content: flex-end;
+    margin-left: auto;
+    order: 2;
+  }
+  
+  .header-center {
+    order: 1;
   }
   
   .auth-buttons {
     gap: 0.5rem;
+    order: 3;
   }
   
   .auth-btn {
@@ -248,6 +256,11 @@
     padding: 6px 10px;
     font-size: 14px;
     min-height: 36px;
+    margin-left: auto;
+  }
+  
+  .user-info span {
+    display: none;
   }
   
   .user-avatar {
@@ -258,6 +271,7 @@
   
   .credits-display {
     margin-right: 8px;
+    order: 2;
   }
   
   .credits-container {
@@ -283,6 +297,19 @@
   
   .logo-text {
     font-size: 1rem !important;
+  }
+  
+  .header-right {
+    justify-content: flex-end;
+    margin-left: auto;
+  }
+  
+  .auth-buttons {
+    margin-left: auto;
+  }
+  
+  .user-info {
+    margin-left: auto;
   }
   
   .auth-btn {

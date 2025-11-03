@@ -687,6 +687,11 @@ document.addEventListener('DOMContentLoaded', function() {
                             <label>Status</label>
                             <div class="info-value"><span id="info-status" class="status-badge">Loading...</span></div>
                         </div>
+                        <div class="info-row" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
+                            <div class="info-value" style="font-size: 0.9rem; color: #888; line-height: 1.5;">
+                                Your plan currently includes unlimited specifications for the current period. This will transition to new pricing in a future billing cycle.
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -703,10 +708,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="info-section">
                     <h3>Manage Subscription</h3>
                     <div class="info-card">
-                        <button class="panel-action-btn" id="manageSubBtn" onclick="manageSubscription()">
+                        <button class="panel-action-btn" id="manageSubBtn" onclick="manageSubscription()" disabled style="opacity: 0.5; cursor: not-allowed;">
                             <i class="fas fa-external-link-alt"></i> Manage in LemonSqueezy
                         </button>
-                        <button class="panel-action-btn cancel-btn" id="cancelSubBtn" onclick="cancelSubscription()" style="display: none;">
+                        <button class="panel-action-btn cancel-btn" id="cancelSubBtn" onclick="cancelSubscription()" style="display: none;" disabled style="opacity: 0.5; cursor: not-allowed;">
                             <i class="fas fa-times-circle"></i> Cancel Subscription
                         </button>
                     </div>
@@ -821,10 +826,23 @@ document.addEventListener('DOMContentLoaded', function() {
                     emailVerified: user.emailVerified,
                     createdAt: firestoreServerTimestamp(),
                     lastActive: firestoreServerTimestamp(),
-                    newsletterSubscription: false
+                    newsletterSubscription: false,
+                    // ALL USERS GET PRO BY DEFAULT
+                    plan: 'pro',
+                    free_specs_remaining: 1
+                }, { merge: true });
+                
+                // Also create entitlements document if doesn't exist
+                const entitlementsRef = firestoreDoc(db, 'entitlements', user.uid);
+                await firestoreSetDoc(entitlementsRef, {
+                    userId: user.uid,
+                    spec_credits: 0,
+                    unlimited: true,
+                    can_edit: true,
+                    updated_at: firestoreServerTimestamp()
                 }, { merge: true });
             } catch (error) {
-                console.error('❌ Error creating user document:', error);
+
             }
         }
 
@@ -894,7 +912,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!currentUser) return;
             
             try {
-                console.log('🔍 [LOADING WORKSPACE] Current user ID:', currentUser.uid);
+
                 workspaceItems = [];
                 
                 // Load Apps
@@ -914,7 +932,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         createdAt: data.createdAt,
                         updatedAt: data.updatedAt,
                         status: data.status,
-                        viewUrl: `app-dashboard.html?id=${doc.id}`
+                        viewUrl: `404.html`
                     });
                 });
                 
@@ -925,10 +943,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     orderBy('createdAt', 'desc')
                 );
                 const specsSnapshot = await getDocs(specsQuery);
-                console.log(`📊 [WORKSPACE] Loading specs for user: ${currentUser.uid}`);
+
                 specsSnapshot.forEach((doc) => {
                     const data = doc.data();
-                    console.log('   → Found spec:', doc.id, '- userId:', data.userId, '- title:', data.title);
+
                     
                     // Determine if it's a new spec (from spec-viewer) or old spec
                     const isNewSpec = data.technical !== undefined || data.market !== undefined;
@@ -1017,10 +1035,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 setupSearch();
                 
             } catch (error) {
-                console.error('❌ [WORKSPACE] Error loading workspace:', error);
-                console.error('   → Error message:', error.message);
-                console.error('   → Error code:', error.code);
-                console.error('   → Current user ID:', currentUser ? currentUser.uid : 'No user');
+
+
+
+
                 
                 document.getElementById('workspace-container').innerHTML = 
                     '<div class="error">Error loading workspace: ' + error.message + '</div>';
@@ -1443,7 +1461,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Update button appearance after loading apps
                 setTimeout(updateLinkButtonAppearance, 200);
             } catch (error) {
-                console.error('Error loading apps:', error);
+
                 document.getElementById('apps-container').innerHTML = '<div class="error">Error loading apps</div>';
             }
         }
@@ -1453,7 +1471,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!currentUser) return;
             
             try {
-                console.log('🔍 [LOADING SPECS] Current user ID:', currentUser.uid);
+
                 
                 const q = query(
                     collection(db, 'specs'),
@@ -1466,29 +1484,29 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 querySnapshot.forEach((doc) => {
                     const data = doc.data();
-                    console.log('📄 Loaded spec:', doc.id, '- userId:', data.userId, '- title:', data.title);
+
                     userSpecs.push({
                         id: doc.id,
                         ...doc.data()
                     });
                 });
                 
-                console.log(`✅ Loaded ${userSpecs.length} specs for user ${currentUser.uid}`);
+
                 
                 document.getElementById('specs-count').textContent = userSpecs.length;
                 renderSpecs();
                 setTimeout(updateLinkButtonAppearance, 100);
             } catch (error) {
-                console.error('❌ Error loading specs:', error);
-                console.error('   → Error details:', error.message);
-                console.error('   → Error code:', error.code);
-                console.error('   → Current user ID:', currentUser.uid);
+
+
+
+
                 
                 // If the error is about missing index, provide helpful message
                 let errorMessage = error.message;
                 if (error.code === 'failed-precondition' || error.message.includes('index')) {
                     errorMessage = 'Missing database index. Please contact support.';
-                    console.error('   → This is likely a missing composite index issue. The admin needs to deploy Firestore indexes.');
+
                 }
                 
                 document.getElementById('specs-container').innerHTML = '<div class="error">Error loading specifications: ' + errorMessage + '</div>';
@@ -1518,7 +1536,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('saved-tools-count').textContent = userSavedTools.length;
                 renderSavedTools(userSavedTools);
             } catch (error) {
-                console.error('Error loading saved tools:', error);
+
                 document.getElementById('tools-container').innerHTML = '<div class="error">Error loading saved tools</div>';
             }
         }
@@ -1536,7 +1554,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
 
                 if (!response.ok) {
-                    console.error('Failed to fetch entitlements');
+
                     document.getElementById('specs-remaining-count').textContent = '-';
                     return;
                 }
@@ -1560,7 +1578,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     specsRemainingEl.textContent = freeSpecs > 0 ? freeSpecs : 0;
                 }
             } catch (error) {
-                console.error('Error loading specs remaining:', error);
+
                 document.getElementById('specs-remaining-count').textContent = '-';
             }
         }
@@ -1613,7 +1631,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 renderMarketResearch();
                 setTimeout(updateLinkButtonAppearance, 100);
             } catch (error) {
-                console.error('Error loading market research:', error);
+
                 document.getElementById('research-count').textContent = '0';
             }
         }
@@ -1688,7 +1706,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="app-card" data-app-id="${app.id}">
                         <div class="app-card-header">
                             <h4 class="app-card-title">
-                                <a href="app-dashboard.html?id=${app.id}" class="spec-link">${app.name}</a>
+                                <span class="spec-link" style="cursor: default; text-decoration: none;">${app.name}</span>
                             </h4>
                             <div class="app-card-actions">
                                 <button class="btn-icon" onclick="editAppCard('${app.id}')" title="Edit">
@@ -1855,7 +1873,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="app-card" data-app-id="${app.id}">
                         <div class="app-card-header">
                             <h4 class="app-card-title">
-                                <a href="app-dashboard.html?id=${app.id}" class="spec-link">${app.name}</a>
+                                <span class="spec-link" style="cursor: default; text-decoration: none;">${app.name}</span>
                             </h4>
                             <div class="app-card-actions">
                                 <button class="btn-icon" onclick="editAppCard('${app.id}')" title="Edit">
@@ -2088,7 +2106,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Refresh the display
                 renderApps();
             } catch (error) {
-                console.error("Error updating app:", error);
+
                 alert("Failed to update app. Please try again.");
             }
         };
@@ -2109,13 +2127,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Refresh the display
                 renderApps();
             } catch (error) {
-                console.error("Error deleting app:", error);
+
                 alert("Failed to delete app. Please try again.");
             }
         };
 
         window.openAppDashboard = function(appId) {
-            window.location.href = `app-dashboard.html?id=${appId}`;
+            window.location.href = `404.html`;
         };
 
         // Global functions for spec actions
@@ -2152,7 +2170,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 showSuccess('Specification title updated successfully!');
                 
             } catch (error) {
-                console.error('Error updating spec title:', error);
+
                 showError('Failed to update specification title');
             }
         };
@@ -2179,7 +2197,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 alert('Specification removed successfully from interface');
                 
             } catch (error) {
-                console.error('Error removing spec from UI:', error);
+
                 alert('Error removing specification from interface');
             }
         };
@@ -2215,7 +2233,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 showSuccess('Item deleted successfully!');
                 
             } catch (error) {
-                console.error('Error deleting workspace item:', error);
+
                 showError('Failed to delete item. Please try again.');
             }
         };
@@ -2251,11 +2269,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Update link button appearance after re-render
                 setTimeout(updateLinkButtonAppearance, 100);
                 
-                console.log('✅ Market research title updated successfully');
+
                 showSuccess('Market research title updated successfully!');
                 
             } catch (error) {
-                console.error('Error updating market research title:', error);
+
                 showError('Failed to update market research title');
             }
         };
@@ -2291,7 +2309,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 loadUserApps(); // Reload the apps list
                 showSuccess('App created successfully!');
             } catch (error) {
-                console.error('Error creating app:', error);
+
                 showError('Failed to create app');
             }
         }
@@ -2307,7 +2325,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 loadUserSavedTools(); // Reload the list
                 showSuccess('Tool removed from saved list');
             } catch (error) {
-                console.error('Error removing tool:', error);
+
                 showError('Failed to remove tool from saved list');
             }
         };
@@ -2500,12 +2518,12 @@ document.addEventListener('DOMContentLoaded', function() {
         window.logout = function() {
             signOut(auth)
                 .then(() => {
-                    console.log('Logged out successfully');
+
                     // Redirect to home page after successful logout
                     window.location.href = '../index.html';
                 })
                 .catch(error => {
-                    console.error('Logout error:', error);
+
                     alert('Logout error: ' + error.message);
                 });
         };
@@ -2513,8 +2531,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Global function for linking spec to app
         window.linkSpecToApp = function(specId) {
-            console.log('🔗 Linking spec to app:', specId);
-            console.log('📱 User apps available:', userApps?.length || 0);
+
+
             
             if (!userApps || userApps.length === 0) {
                 alert('No apps available to link to. Please create an app first.');
@@ -2526,8 +2544,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Global function for linking research to app
         window.linkResearchToApp = function(researchId) {
-            console.log('🔗 Linking research to app:', researchId);
-            console.log('📱 User apps available:', userApps?.length || 0);
+
+
             
             if (!userApps || userApps.length === 0) {
                 alert('No apps available to link to. Please create an app first.');
@@ -2553,7 +2571,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     currentItem = userMarketResearch.find(research => research.id === itemId);
                 }
             } catch (error) {
-                console.error('Error finding current item:', error);
+
             }
 
             const currentTitle = currentItem ? currentItem.title : '';
@@ -2681,14 +2699,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }
             } catch (error) {
-                console.error('Error linking item to app:', error);
+
                 showError('Failed to link item to app');
             }
         };
 
         // Profile Tab Management Function
         window.switchProfileTab = function(tabName) {
-            console.log('Switching to tab:', tabName);
+
             
             // Update tab buttons
             document.querySelectorAll('.tab-button').forEach(btn => {
@@ -2702,7 +2720,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             document.getElementById(`${tabName}-tab`).classList.add('active');
             
-            console.log('Tab switched to:', tabName);
+
         };
 
         // Event listeners for link buttons (using event delegation)
@@ -2716,14 +2734,14 @@ document.addEventListener('DOMContentLoaded', function() {
         function setupLinkEventListeners() {
             if (eventListenersSetup) return;
             
-            console.log('🎯 Setting up link event listeners');
+
             document.addEventListener('click', function(event) {
                 // Handle spec link buttons
                 const specButton = event.target.closest('.link-spec-btn');
                 if (specButton) {
                     const specId = specButton.getAttribute('data-spec-id');
                     if (specId) {
-                        console.log('🔗 Linking spec:', specId);
+
                         window.linkSpecToApp(specId);
                     }
                     return;
@@ -2734,7 +2752,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (researchButton) {
                     const researchId = researchButton.getAttribute('data-research-id');
                     if (researchId) {
-                        console.log('🔗 Linking research:', researchId);
+
                         window.linkResearchToApp(researchId);
                     }
                     return;
@@ -2747,18 +2765,18 @@ document.addEventListener('DOMContentLoaded', function() {
         // Function to check if item is linked to any app
         function isItemLinkedToApp(itemId, type) {
             if (!userApps || userApps.length === 0) {
-                console.log(`🚫 No apps available for ${type} ${itemId}`);
+
                 return false;
             }
             
             const isLinked = userApps.some(app => {
                 const linkedItems = type === 'spec' ? app.linkedSpecs : app.linkedResearch;
                 const hasItem = linkedItems && linkedItems.includes(itemId);
-                console.log(`🔗 App "${app.name}" has ${type} ${itemId}:`, hasItem, 'linkedItems:', linkedItems);
+
                 return hasItem;
             });
             
-            console.log(`🎯 Final result for ${type} ${itemId}:`, isLinked);
+
             return isLinked;
         }
 
@@ -2766,46 +2784,46 @@ document.addEventListener('DOMContentLoaded', function() {
         function updateLinkButtonAppearance() {
             clearTimeout(updateTimeout);
             updateTimeout = setTimeout(() => {
-                console.log('🎨 Updating link button appearance...');
-                console.log('📱 Available apps:', userApps?.length || 0);
+
+
                 
                 // Update spec link buttons
                 const specButtons = document.querySelectorAll('.link-spec-btn');
-                console.log('🔍 Found spec buttons:', specButtons.length);
+
                 
                 specButtons.forEach(button => {
                     const specId = button.getAttribute('data-spec-id');
                     const isLinked = isItemLinkedToApp(specId, 'spec');
-                    console.log(`📝 Spec ${specId} linked: ${isLinked}`);
+
                     
                     if (isLinked) {
                         button.classList.add('linked');
                         button.title = 'Already linked to app';
-                        console.log(`✅ Added 'linked' class to spec ${specId}`);
+
                     } else {
                         button.classList.remove('linked');
                         button.title = 'Link to App';
-                        console.log(`❌ Removed 'linked' class from spec ${specId}`);
+
                     }
                 });
 
                 // Update research link buttons
                 const researchButtons = document.querySelectorAll('.link-research-btn');
-                console.log('🔍 Found research buttons:', researchButtons.length);
+
                 
                 researchButtons.forEach(button => {
                     const researchId = button.getAttribute('data-research-id');
                     const isLinked = isItemLinkedToApp(researchId, 'research');
-                    console.log(`📝 Research ${researchId} linked: ${isLinked}`);
+
                     
                     if (isLinked) {
                         button.classList.add('linked');
                         button.title = 'Already linked to app';
-                        console.log(`✅ Added 'linked' class to research ${researchId}`);
+
                     } else {
                         button.classList.remove('linked');
                         button.title = 'Link to App';
-                        console.log(`❌ Removed 'linked' class from research ${researchId}`);
+
                     }
                 });
             }, 100);
@@ -2862,6 +2880,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Check entitlements first to determine if user has pro access
                 const hasProAccess = entitlementsDoc.exists() && entitlementsDoc.data().unlimited === true;
                 
+                // Check user document for plan field
+                const userData = userDoc.exists() ? userDoc.data() : {};
+                const userPlan = userData.plan || 'free';
+                
                 if (subDoc.exists()) {
                     const subData = subDoc.data();
                     // Use entitlements to override status if user has pro access
@@ -2891,8 +2913,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         document.getElementById('cost-row').style.display = 'none';
                         document.getElementById('cancelSubBtn').style.display = 'none';
                     }
-                } else if (hasProAccess) {
-                    // No subscription document but user has pro access through entitlements
+                } else if (hasProAccess || userPlan === 'pro') {
+                    // No subscription document but user has pro access through entitlements or user plan
                     document.getElementById('info-plan').textContent = 'PRO';
                     document.getElementById('info-status').textContent = 'Active';
                     document.getElementById('info-status').className = 'status-badge active';
@@ -2948,14 +2970,14 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     }
                 } catch (error) {
-                    console.error('Error loading entitlements for personal info:', error);
+
                 }
 
                 // Update specs remaining in header
                 await loadSpecsRemaining();
 
             } catch (error) {
-                console.error('Error loading personal info:', error);
+
             }
         }
 
@@ -3023,7 +3045,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 showSuccess('Display name updated successfully!');
 
             } catch (error) {
-                console.error('Error updating display name:', error);
+
                 alert('Failed to update display name');
             }
         };

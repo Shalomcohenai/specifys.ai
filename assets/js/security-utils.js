@@ -151,7 +151,7 @@ export function logSecurityEvent(event, details = {}) {
   
   // Log to console in development
   if (process?.env?.NODE_ENV === 'development') {
-    console.warn('Security Event:', securityLog);
+
   }
   
   // Send to server for monitoring (if endpoint exists)
@@ -163,7 +163,7 @@ export function logSecurityEvent(event, details = {}) {
       },
       body: JSON.stringify(securityLog)
     }).catch(err => {
-      console.error('Failed to log security event:', err);
+
     });
   }
 }

@@ -1307,7 +1307,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.addEventListener('DOMContentLoaded', function() {
         // Check if firebase is loaded
         if (typeof firebase === 'undefined') {
-            console.error('Firebase not loaded');
+
             return;
         }
 
@@ -1491,10 +1491,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     auth.signOut()
       .then(() => {
-        console.log('Logged out successfully');
+
       })
       .catch(error => {
-        console.error('Error logging out:', error);
+
       });
   };
 

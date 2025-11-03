@@ -1,7 +1,6 @@
 const path = require('path');
 const dotenv = require('dotenv');
 // Load environment variables BEFORE importing route modules
-console.log('Loading environment variables...');
 // Try backend/.env first (preferred), then project root .env; also support accidental ".en"
 const backendEnvPath = path.join(__dirname, '.env');
 const rootEnvPath = path.join(__dirname, '..', '.env');
@@ -30,14 +29,12 @@ if (dotenv.config({ path: backendEnvPath }).parsed) {
 
 // Minimal diagnostics (do not print the key value)
 if (process.env.OPENAI_API_KEY) {
-  console.log(`OPENAI_API_KEY detected${loadedEnvPath ? ` (from ${loadedEnvPath})` : ''}`);
+  // OPENAI_API_KEY detected
 } else {
   // Fallback: some setups use API_KEY; map it if present
   if (!process.env.OPENAI_API_KEY && process.env.API_KEY) {
     process.env.OPENAI_API_KEY = process.env.API_KEY;
-    console.log('OPENAI_API_KEY not set, using API_KEY fallback');
   }
-  console.warn('⚠️  OPENAI_API_KEY not found in environment');
 }
 
 // Clear require cache for development
@@ -47,7 +44,7 @@ delete require.cache[require.resolve('./server/openai-storage-service')];
 // Import modules that may read env at require-time AFTER loading env
 const express = require('express');
 const fetch = require('node-fetch');
-const { syncAllUsers } = require('./server/user-management');
+const { syncAllUsers, upgradeAllUsersToPro } = require('./server/user-management');
 const blogRoutes = require('./server/blog-routes');
 const specRoutes = require('./server/spec-routes');
 const userRoutes = require('./server/user-routes');
@@ -60,7 +57,6 @@ const app = express();
 
 // Get port from environment or use default
 const port = process.env.PORT || 10000;
-console.log(`🌐 Starting server on port ${port}`);
 
 // Apply security headers
 app.use(securityHeaders);
@@ -73,7 +69,6 @@ app.use('/api/feedback', rateLimiters.feedback);
 
 // CORS middleware to allow requests from your frontend
 app.use((req, res, next) => {
-  // console.log('Applying CORS middleware...');
   const allowedOrigins = [
     'http://localhost:3000',
     'http://localhost:4000',
@@ -110,9 +105,6 @@ app.use(express.json());
 
 // Debug logging middleware
 app.use((req, res, next) => {
-  if (req.path.startsWith('/api/chat')) {
-    console.log(`🔍 [REQUEST] ${req.method} ${req.path} - TIMESTAMP: ${Date.now()}`);
-  }
   next();
 });
 
@@ -144,18 +136,31 @@ app.get('/api/status', (req, res) => {
 
 // Endpoint to sync users from Firebase Auth to Firestore (admin only)
 app.post('/api/sync-users', requireAdmin, async (req, res) => {
-  console.log('🔄 Sync users request received');
-  
   try {
     const result = await syncAllUsers();
-    console.log('✅ User sync completed successfully');
     res.json({
       success: true,
       message: 'Users synced successfully',
       result: result
     });
   } catch (error) {
-    console.error('❌ Error syncing users:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+// Endpoint to upgrade all users to Pro (admin only)
+app.post('/api/upgrade-all-users-to-pro', requireAdmin, async (req, res) => {
+  try {
+    const result = await upgradeAllUsersToPro();
+    res.json({
+      success: true,
+      message: 'All users upgraded to Pro successfully',
+      result: result
+    });
+  } catch (error) {
     res.status(500).json({
       success: false,
       error: error.message
@@ -170,22 +175,18 @@ app.post('/api/blog/delete-post', blogRoutes.deletePost);
 
 // Legacy endpoint to handle API requests to Grok (deprecated - use /api/specs/create instead)
 app.post('/api/generate-spec', rateLimiters.generation, async (req, res) => {
-  console.log('Received request:', req.body);
   const { userInput } = req.body;
 
   if (!userInput) {
-    console.log('Error: User input is required');
     return res.status(400).json({ error: 'User input is required' });
   }
 
   const apiKey = process.env.API_KEY;
   if (!apiKey) {
-    console.log('Error: API key is not configured');
     return res.status(500).json({ error: 'API key is not configured' });
   }
 
   try {
-    console.log('Sending request to Grok API...');
     const response = await fetch('https://api.x.ai/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -205,22 +206,17 @@ app.post('/api/generate-spec', rateLimiters.generation, async (req, res) => {
 
     const data = await response.json();
     if (!response.ok) {
-      console.log('Error from Grok API:', data.error?.message);
       throw new Error(data.error?.message || 'Failed to fetch specification');
     }
 
-    console.log('Successfully received specification from Grok API');
     res.json({ specification: data.choices[0].message.content });
   } catch (error) {
-    console.error('Error fetching specification:', error.message);
     res.status(500).json({ error: 'Failed to generate specification' });
   }
 });
 
 // Repair diagram endpoint
 app.post('/api/diagrams/repair', async (req, res) => {
-  console.log('Received diagram repair request:', req.body);
-  
   const { overview, technical, market, diagramTitle, brokenDiagramCode } = req.body;
   
   if (!brokenDiagramCode) {
@@ -287,7 +283,6 @@ Return ONLY valid Mermaid code, nothing else.`;
       cleanedCode = repairedCode.replace(/```\n?/, '').replace(/```\n?$/, '').trim();
     }
     
-    console.log('✅ Diagram repaired successfully');
     res.json({ 
       success: true,
       repairedDiagram: {
@@ -296,41 +291,16 @@ Return ONLY valid Mermaid code, nothing else.`;
     });
     
   } catch (error) {
-    console.error('Error repairing diagram:', error.message);
     res.status(500).json({ error: 'Failed to repair diagram' });
   }
 });
 
 // Add version logging
 const VERSION = '1.2.5-assistant-fix-2025-10-31-' + Date.now();
-console.log('='.repeat(50));
-console.log(`🚀 Specifys.ai Backend Server v${VERSION}`);
-console.log('='.repeat(50));
-console.log('OpenAI Assistant Auto-Recovery: ENABLED');
-console.log('Vector Store Corruption Detection: ENABLED');
-console.log('Assistant Recreation on Corruption: ENABLED');
-console.log('='.repeat(50));
 
 // Start the server
-console.log('Attempting to start server on port', port);
 app.listen(port, () => {
-  console.log(`✅ Server running on http://localhost:${port}`);
-  console.log('Available endpoints:');
-  console.log('  POST /api/webhook/lemon - Lemon Squeezy webhook');
-  console.log('  POST /api/specs/create - Create spec with authorization');
-  console.log('  GET  /api/specs/entitlements - Get user entitlements');
-  console.log('  GET  /api/specs/status - Get spec creation status');
-  console.log('  POST /api/specs/check-edit - Check edit permissions');
-  console.log('  POST /api/users/ensure - Ensure user document exists');
-  console.log('  POST /api/chat/init - Initialize chat for a spec');
-  console.log('  POST /api/chat/message - Send message to chat');
-  console.log('  POST /api/chat/diagrams/generate - Generate diagrams for spec');
-  console.log('  POST /api/diagrams/repair - Repair broken diagram');
-  console.log('');
-  console.log(`🎯 Version: ${VERSION}`);
-  console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🔑 OpenAI API: ${process.env.OPENAI_API_KEY ? 'configured' : 'MISSING'}`);
-  console.log('='.repeat(50));
+  // Server started successfully
 }).on('error', (err) => {
-  console.error('❌ Failed to start server:', err.message);
+  // Failed to start server
 });

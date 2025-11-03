@@ -23,7 +23,7 @@ async function verifyAdminToken(req, res, next) {
     req.user = decodedToken;
     next();
   } catch (error) {
-    console.error('Error verifying admin token:', error);
+
     res.status(401).json({ error: 'Invalid token' });
   }
 }
@@ -52,7 +52,7 @@ router.post('/update', verifyAdminToken, async (req, res) => {
     });
     
   } catch (error) {
-    console.error('Error updating stats:', error);
+
     res.status(500).json({ 
       error: 'Failed to update stats',
       details: error.message 
@@ -77,7 +77,7 @@ router.get('/', async (req, res) => {
     res.json(statsDoc.data());
     
   } catch (error) {
-    console.error('Error getting stats:', error);
+
     res.status(500).json({ 
       error: 'Failed to get stats',
       details: error.message 

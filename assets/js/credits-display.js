@@ -35,7 +35,7 @@ class CreditsDisplayManager {
 
             this.isInitialized = true;
         } catch (error) {
-            console.error('Error initializing credits display:', error);
+
             // Retry if Firebase is not ready yet
             setTimeout(() => this.init(), 500);
         }
@@ -88,7 +88,7 @@ class CreditsDisplayManager {
                 });
 
                 if (!response.ok) {
-                    console.error('Failed to fetch entitlements');
+
                     return;
                 }
 
@@ -100,7 +100,7 @@ class CreditsDisplayManager {
             }
 
         } catch (error) {
-            console.error('Error updating credits:', error);
+
         }
     }
 
