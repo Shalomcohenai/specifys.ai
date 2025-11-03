@@ -704,8 +704,7 @@
 
 
             
-            // Load spec content
-            loadSpec();
+            // Load spec content will be called after loadSpec function is defined
             
             // Initialize auth buttons with default state
             const authButtons = document.getElementById('auth-buttons');
@@ -1534,14 +1533,6 @@
 
             try {
                 const data = demoSpecData;
-
-                    hasOverview: !!data.overview,
-                    hasTechnical: !!data.technical,
-                    hasMarket: !!data.market,
-                    hasDesign: !!data.design,
-                    hasDiagrams: !!(data.diagrams && data.diagrams.diagrams),
-                    diagramsCount: data.diagrams?.diagrams?.length || 0
-                });
                 
                 // Display Overview
                 document.getElementById('overview').innerHTML = formatOverview(data.overview);
@@ -1565,10 +1556,6 @@
 
                 
                 // Display Diagrams
-
-                    hasDiagrams: !!(data.diagrams && data.diagrams.diagrams),
-                    diagramsData: data.diagrams
-                });
                 if (data.diagrams && data.diagrams.diagrams) {
 
                     let diagramsHtml = '';
@@ -2458,6 +2445,14 @@
         auth.onAuthStateChanged((user) => {
             updateAuthUI(user);
         });
+
+        // Load spec content after page is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', loadSpec);
+        } else {
+            // DOM is already loaded
+            loadSpec();
+        }
     </script>
     
     <!-- Credits Display Script -->
