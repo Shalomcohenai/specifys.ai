@@ -105,10 +105,7 @@ router.post('/checkout', verifyFirebaseToken, async (req, res) => {
             logo: false // Disable logo
             // Note: redirect_url should NOT be in checkout_options - only in checkout_data
           },
-          product_options: {
-            // enabled_variants removed - not needed when specifying variant in relationships
-            redirect_url: redirectUrl // This is valid in product_options
-          }
+          // product_options removed - not needed when variant is specified in relationships
           // Note: redirect_url and success_url at top level are NOT supported by API
         },
         relationships: {
