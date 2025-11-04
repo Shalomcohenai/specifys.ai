@@ -566,15 +566,34 @@
                 updateCounter();
                 startPolling();
                 
-                // Close overlay if it's open (though redirect_url should handle this)
-                try {
-                  if (window.LemonSqueezy && window.LemonSqueezy.Url && typeof window.LemonSqueezy.Url.Close === 'function') {
-                    // Don't close immediately - let redirect_url handle it
-                    // window.LemonSqueezy.Url.Close();
+                // Try to close overlay and redirect after a short delay
+                setTimeout(() => {
+                  try {
+                    // Close overlay if it's open
+                    if (window.LemonSqueezy && window.LemonSqueezy.Url) {
+                      if (typeof window.LemonSqueezy.Url.Close === 'function') {
+                        window.LemonSqueezy.Url.Close();
+                        addDebugLog('Checkout overlay closed', 'info');
+                      }
+                    }
+                    
+                    // Ensure we're on the test-system page (in case redirect didn't work)
+                    const currentUrl = window.location.href;
+                    const testSystemUrl = window.location.origin + '/pages/test-system.html';
+                    
+                    if (!currentUrl.includes('test-system.html')) {
+                      addDebugLog('Redirecting to test-system page...', 'info');
+                      window.location.href = testSystemUrl;
+                    }
+                  } catch (e) {
+                    addDebugLog(`Error handling checkout success: ${e.message}`, 'warning');
+                    // Fallback: just redirect
+                    const testSystemUrl = window.location.origin + '/pages/test-system.html';
+                    if (!window.location.href.includes('test-system.html')) {
+                      window.location.href = testSystemUrl;
+                    }
                   }
-                } catch (e) {
-                  // Ignore errors
-                }
+                }, 500); // Wait 500ms for Lemon Squeezy to process redirect
               } else if (eventType === 'Checkout.Closed' || event?.event === 'Checkout.Closed') {
                 addDebugLog('Checkout closed by user', 'info');
               } else if (eventType === 'mounted' || event?.event === 'mounted') {
