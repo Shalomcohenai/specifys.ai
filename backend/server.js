@@ -54,6 +54,9 @@ const { securityHeaders, rateLimiters, requireAdmin } = require('./server/securi
 
 const app = express();
 
+// Trust proxy for rate limiting behind reverse proxy (Render, etc.)
+app.set('trust proxy', true);
+
 // Get port from environment or use default
 const port = process.env.PORT || 10000;
 
