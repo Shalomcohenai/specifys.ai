@@ -648,6 +648,23 @@
   }
 
   /**
+   * Check for checkout success parameter in URL
+   */
+  function checkCheckoutSuccess() {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('checkout') === 'success') {
+      addDebugLog('Checkout success detected from URL parameter', 'success');
+      showAlert('Purchase successful! Counter will update shortly.', 'success');
+      updateCounter();
+      startPolling();
+      
+      // Clean URL (remove query parameter)
+      const cleanUrl = window.location.pathname;
+      window.history.replaceState({}, document.title, cleanUrl);
+    }
+  }
+
+  /**
    * Initialize page
    */
   async function init() {
