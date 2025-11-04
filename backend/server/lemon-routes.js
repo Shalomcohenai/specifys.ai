@@ -1,6 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const fetch = require('node-fetch');
+// Use built-in fetch for Node.js 18+ or fallback to node-fetch
+let fetch;
+if (typeof globalThis.fetch === 'function') {
+  // Node.js 18+ has built-in fetch
+  fetch = globalThis.fetch;
+} else {
+  // Fallback for older Node versions
+  fetch = require('node-fetch');
+}
 const { auth } = require('./firebase-admin');
 const { verifyWebhookSignature, parseWebhookPayload } = require('./lemon-webhook-utils');
 const { recordTestPurchase, getTestPurchaseCount } = require('./lemon-credits-service');
