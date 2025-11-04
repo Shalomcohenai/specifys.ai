@@ -63,6 +63,11 @@ router.post('/checkout', verifyFirebaseToken, async (req, res) => {
     // Create checkout via Lemon Squeezy API
     const checkoutUrl = `https://api.lemonsqueezy.com/v1/checkouts`;
     
+    // Determine redirect URL (should return to test-system page)
+    const redirectUrl = req.headers.referer || 
+                       req.headers.origin + '/pages/test-system.html' ||
+                       'https://specifys-ai.com/pages/test-system.html';
+
     const checkoutData = {
       data: {
         type: 'checkouts',
@@ -71,11 +76,17 @@ router.post('/checkout', verifyFirebaseToken, async (req, res) => {
             email: userEmail,
             custom: {
               user_id: userId
-            }
+            },
+            redirect_url: redirectUrl // Return to our page after purchase
           },
           test_mode: true,
           checkout_options: {
-            embed: true // Enable overlay mode
+            embed: true, // Enable overlay mode
+            media: false, // Disable media preview
+            logo: false // Disable logo
+          },
+          product_options: {
+            redirect_url: redirectUrl // Also set in product options
           }
         },
         relationships: {
