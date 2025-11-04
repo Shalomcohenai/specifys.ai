@@ -63,7 +63,7 @@ const port = process.env.PORT || 10000;
 // Apply security headers
 app.use(securityHeaders);
 
-// Apply rate limiting
+// Apply rate limiting (lemon routes registered earlier, before rate limiting)
 app.use('/api/', rateLimiters.general);
 app.use('/api/admin/', rateLimiters.admin);
 app.use('/api/auth/', rateLimiters.auth);
@@ -80,6 +80,7 @@ app.use((req, res, next) => {
     'http://127.0.0.1:4000',
     'https://specifys-ai.com',
     'https://www.specifys-ai.com',
+    'https://specifys-ai.onrender.com',
     process.env.RENDER_URL ? `https://${process.env.RENDER_URL}` : null
   ].filter(Boolean);
   const origin = req.headers.origin;
