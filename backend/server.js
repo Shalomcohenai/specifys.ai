@@ -63,13 +63,8 @@ const port = process.env.PORT || 10000;
 // Apply security headers
 app.use(securityHeaders);
 
-// Apply rate limiting (lemon routes registered earlier, before rate limiting)
-app.use('/api/', rateLimiters.general);
-app.use('/api/admin/', rateLimiters.admin);
-app.use('/api/auth/', rateLimiters.auth);
-app.use('/api/feedback', rateLimiters.feedback);
-
 // CORS middleware to allow requests from your frontend
+// Must be before routes and rate limiting
 app.use((req, res, next) => {
   const allowedOrigins = [
     'http://localhost:3000',
