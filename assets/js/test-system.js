@@ -46,6 +46,36 @@
   }
 
   /**
+   * Filter out noisy errors from third-party scripts (like Lemon Squeezy's Sentry)
+   */
+  function setupConsoleErrorFilter() {
+    const originalError = console.error;
+    console.error = function(...args) {
+      const message = args.join(' ');
+      // Filter out Sentry 403 errors from Lemon Squeezy
+      if (message.includes('sentry.io') && message.includes('403')) {
+        return; // Silently ignore
+      }
+      // Call original console.error for other errors
+      originalError.apply(console, args);
+    };
+
+    const originalWarn = console.warn;
+    console.warn = function(...args) {
+      const message = args.join(' ');
+      // Filter out Sentry warnings from Lemon Squeezy
+      if (message.includes('sentry.io')) {
+        return; // Silently ignore
+      }
+      // Call original console.warn for other warnings
+      originalWarn.apply(console, args);
+    };
+  }
+
+  // Setup error filter on page load
+  setupConsoleErrorFilter();
+
+  /**
    * Toggle debug section visibility
    */
   window.toggleDebug = function() {
