@@ -187,6 +187,17 @@
     if (buyButton) {
       buyButton.disabled = false;
       buyButton.textContent = 'Buy Test Credit';
+      addDebugLog('Buy button enabled', 'success');
+      
+      // Debug: Verify button state
+      console.log('Buy button enabled:', {
+        disabled: buyButton.disabled,
+        text: buyButton.textContent,
+        id: buyButton.id
+      });
+    } else {
+      addDebugLog('ERROR: Buy button element not found!', 'error');
+      console.error('Buy button element not found');
     }
   }
 
@@ -298,9 +309,21 @@
    * Handle buy button click
    */
   async function handleBuyClick() {
+    addDebugLog('=== handleBuyClick() called ===', 'info');
+    
     if (!currentUser) {
       addDebugLog('Buy button clicked but no user signed in', 'warning');
       showAlert('Please sign in to purchase', 'error');
+      return;
+    }
+    
+    if (!buyButton) {
+      addDebugLog('ERROR: Buy button element not found in handleBuyClick!', 'error');
+      return;
+    }
+    
+    if (buyButton.disabled) {
+      addDebugLog('WARNING: Buy button is disabled!', 'warning');
       return;
     }
 
@@ -414,8 +437,27 @@
 
       // Attach event listeners
       if (buyButton) {
-        buyButton.addEventListener('click', handleBuyClick);
+        // Remove any existing listeners first
+        const newBuyButton = buyButton.cloneNode(true);
+        buyButton.parentNode.replaceChild(newBuyButton, buyButton);
+        const updatedBuyButton = document.getElementById('buy-button');
+        
+        updatedBuyButton.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          addDebugLog('Buy button clicked - event fired!', 'info');
+          handleBuyClick();
+        });
+        
         addDebugLog('Buy button event listener attached', 'info');
+        
+        // Debug: Verify click handler
+        console.log('Buy button click handler attached:', {
+          disabled: updatedBuyButton.disabled,
+          hasClickListener: true
+        });
+      } else {
+        addDebugLog('ERROR: Buy button not found when attaching listener!', 'error');
       }
 
       // Cleanup on page unload
