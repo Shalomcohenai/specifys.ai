@@ -37,9 +37,14 @@
             </button>
 
             <div class="debug-section" id="debug-section" style="display: none;">
-                <h3 style="margin-top: 30px; margin-bottom: 15px; font-size: 18px; color: #666;">Debug Logs</h3>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h3 style="margin: 0; font-size: 18px; color: #666;">Debug Logs</h3>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="debug-btn copy-logs-btn" id="copy-logs-btn" onclick="copyLogs()">Copy Logs</button>
+                        <button class="debug-toggle" id="debug-toggle" onclick="toggleDebug()">Hide Logs</button>
+                    </div>
+                </div>
                 <div class="debug-logs" id="debug-logs"></div>
-                <button class="debug-toggle" id="debug-toggle" onclick="toggleDebug()">Hide Logs</button>
             </div>
 
             <div class="alert" id="alert">

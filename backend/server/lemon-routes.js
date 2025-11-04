@@ -43,7 +43,12 @@ router.post('/checkout', verifyFirebaseToken, async (req, res) => {
     if (!apiKey || !storeId || !variantId) {
       return res.status(500).json({ 
         error: 'Lemon Squeezy configuration missing',
-        details: 'Please configure LEMON_SQUEEZY_API_KEY, STORE_ID, and VARIANT_ID'
+        details: 'Please configure LEMON_SQUEEZY_API_KEY, LEMON_SQUEEZY_STORE_ID, and LEMON_SQUEEZY_VARIANT_ID in Render environment variables',
+        missing: {
+          apiKey: !apiKey,
+          storeId: !storeId,
+          variantId: !variantId
+        }
       });
     }
 

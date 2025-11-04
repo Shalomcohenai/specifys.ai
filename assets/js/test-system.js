@@ -59,6 +59,41 @@
   };
 
   /**
+   * Copy all debug logs to clipboard
+   */
+  window.copyLogs = function() {
+    if (!debugLogs) return;
+    
+    const logEntries = debugLogs.querySelectorAll('.debug-log-entry');
+    let logsText = '=== Debug Logs ===\n';
+    logsText += `Page: ${window.location.href}\n`;
+    logsText += `Time: ${new Date().toLocaleString()}\n`;
+    logsText += `API URL: ${API_BASE_URL}\n\n`;
+    
+    logEntries.forEach(entry => {
+      const time = entry.querySelector('.debug-log-time')?.textContent || '';
+      const message = entry.querySelector('.debug-log-message')?.textContent || '';
+      logsText += `${time} ${message}\n`;
+    });
+    
+    navigator.clipboard.writeText(logsText).then(() => {
+      addDebugLog('Logs copied to clipboard!', 'success');
+      const copyBtn = document.getElementById('copy-logs-btn');
+      if (copyBtn) {
+        const originalText = copyBtn.textContent;
+        copyBtn.textContent = 'Copied!';
+        copyBtn.style.background = '#28a745';
+        setTimeout(() => {
+          copyBtn.textContent = originalText;
+          copyBtn.style.background = '';
+        }, 2000);
+      }
+    }).catch(err => {
+      addDebugLog('Failed to copy logs: ' + err.message, 'error');
+    });
+  };
+
+  /**
    * Wait for Firebase to be available
    */
   function waitForFirebase() {

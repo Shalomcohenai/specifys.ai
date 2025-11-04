@@ -273,8 +273,8 @@
   color: #333;
 }
 
-.debug-toggle {
-  margin-top: 10px;
+.debug-toggle,
+.debug-btn {
   padding: 8px 16px;
   background: #666;
   color: white;
@@ -282,8 +282,18 @@
   border-radius: 4px;
   cursor: pointer;
   font-size: 14px;
+  transition: background 0.2s;
 }
 
-.debug-toggle:hover {
+.debug-toggle:hover,
+.debug-btn:hover {
   background: #555;
+}
+
+.copy-logs-btn {
+  background: #17a2b8;
+}
+
+.copy-logs-btn:hover {
+  background: #138496;
 }
