@@ -6,8 +6,11 @@ const API_CONFIG = {
   development: 'http://localhost:10000',
 
   // Production backend URL
-  // TODO: Replace with your actual production API URL
-  production: 'https://api.specifys-ai.com',
+  // Options:
+  // 1. Empty string/null = use relative URLs (API on same domain)
+  // 2. Full URL = use absolute URL (API on different domain/subdomain)
+  // 3. If api.specifys-ai.com doesn't exist, leave as null to use same origin
+  production: null, // null means use same origin as frontend (relative URLs)
 
   // Auto-detect environment
   get baseUrl() {
@@ -15,8 +18,10 @@ const API_CONFIG = {
     if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
       return this.development;
     }
-    // Otherwise use production
-    return this.production;
+    // For production, use same origin (relative URLs will work)
+    // This means API endpoints should be accessible via /api/* on the same domain
+    // If API is on different domain/subdomain, set this.production to the full URL
+    return this.production || '';
   }
 };
 
