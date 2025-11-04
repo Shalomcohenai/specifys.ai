@@ -441,6 +441,20 @@
       await loadLemonSqueezySDK();
       addDebugLog('Lemon Squeezy SDK loaded', 'success');
 
+      // Verify SDK is available
+      if (!window.LemonSqueezy) {
+        addDebugLog('ERROR: window.LemonSqueezy is undefined after loading!', 'error');
+        console.error('Available window properties:', Object.keys(window).filter(k => k.toLowerCase().includes('lemon')));
+        throw new Error('Lemon Squeezy SDK not available');
+      }
+
+      if (typeof window.LemonSqueezy.Setup !== 'function') {
+        addDebugLog('ERROR: window.LemonSqueezy.Setup is not a function!', 'error');
+        console.error('LemonSqueezy object:', window.LemonSqueezy);
+        console.error('Available methods:', Object.keys(window.LemonSqueezy));
+        throw new Error('Lemon Squeezy Setup method not available');
+      }
+
       addDebugLog('Setting up Lemon Squeezy event handler...', 'info');
       // Setup event handler
       window.LemonSqueezy.Setup({
