@@ -64,9 +64,22 @@ router.post('/checkout', verifyFirebaseToken, async (req, res) => {
     const checkoutUrl = `https://api.lemonsqueezy.com/v1/checkouts`;
     
     // Determine redirect URL (should return to test-system page)
-    const redirectUrl = req.headers.referer || 
-                       req.headers.origin + '/pages/test-system.html' ||
-                       'https://specifys-ai.com/pages/test-system.html';
+    let redirectUrl = 'https://specifys-ai.com/pages/test-system.html'; // Default fallback
+    
+    if (req.headers.referer) {
+      // Extract base URL from referer and add test-system path
+      try {
+        const refererUrl = new URL(req.headers.referer);
+        redirectUrl = `${refererUrl.origin}${refererUrl.pathname}`;
+      } catch (e) {
+        // If referer is invalid, use origin + path
+        if (req.headers.origin) {
+          redirectUrl = req.headers.origin + '/pages/test-system.html';
+        }
+      }
+    } else if (req.headers.origin) {
+      redirectUrl = req.headers.origin + '/pages/test-system.html';
+    }
 
     const checkoutData = {
       data: {
