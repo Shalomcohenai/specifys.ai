@@ -100,9 +100,22 @@ app.use((req, res, next) => {
   next();
 });
 
-// Lemon Squeezy routes must be registered BEFORE express.json() 
+// Lemon Squeezy routes must be registered BEFORE express.json() and rate limiting
 // to allow webhook endpoint to access raw body for signature verification
+// and to avoid rate limiting issues
 app.use('/api/lemon', lemonRoutes);
+
+// Apply rate limiting (after lemon routes so they're excluded)
+app.use('/api/', (req, res, next) => {
+  // Skip rate limiting for lemon routes (already handled above)
+  if (req.path.startsWith('/lemon')) {
+    return next();
+  }
+  rateLimiters.general(req, res, next);
+});
+app.use('/api/admin/', rateLimiters.admin);
+app.use('/api/auth/', rateLimiters.auth);
+app.use('/api/feedback', rateLimiters.feedback);
 
 // Middleware to parse JSON bodies (registered after lemon routes)
 app.use(express.json());
