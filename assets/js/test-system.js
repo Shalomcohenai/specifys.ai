@@ -184,16 +184,23 @@
    * Enable buy button
    */
   function enableBuyButton() {
-    if (buyButton) {
-      buyButton.disabled = false;
-      buyButton.textContent = 'Buy Test Credit';
+    // Refresh button reference in case it was cloned
+    const btn = document.getElementById('buy-button') || buyButton;
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = 'Buy Test Credit';
       addDebugLog('Buy button enabled', 'success');
+      
+      // Update global reference
+      if (typeof window !== 'undefined') {
+        window.buyButton = btn;
+      }
       
       // Debug: Verify button state
       console.log('Buy button enabled:', {
-        disabled: buyButton.disabled,
-        text: buyButton.textContent,
-        id: buyButton.id
+        disabled: btn.disabled,
+        text: btn.textContent,
+        id: btn.id
       });
     } else {
       addDebugLog('ERROR: Buy button element not found!', 'error');
@@ -311,28 +318,33 @@
   async function handleBuyClick() {
     addDebugLog('=== handleBuyClick() called ===', 'info');
     
+    // Refresh button reference
+    const btn = document.getElementById('buy-button') || buyButton || (typeof window !== 'undefined' ? window.buyButton : null);
+    
     if (!currentUser) {
       addDebugLog('Buy button clicked but no user signed in', 'warning');
       showAlert('Please sign in to purchase', 'error');
       return;
     }
     
-    if (!buyButton) {
+    if (!btn) {
       addDebugLog('ERROR: Buy button element not found in handleBuyClick!', 'error');
       return;
     }
     
-    if (buyButton.disabled) {
+    if (btn.disabled) {
       addDebugLog('WARNING: Buy button is disabled!', 'warning');
+      console.warn('Button state:', { disabled: btn.disabled, text: btn.textContent });
       return;
     }
 
     try {
       addDebugLog('Buy button clicked - starting checkout process...', 'info');
       // Disable button and show loading
-      if (buyButton) {
-        buyButton.disabled = true;
-        buyButton.classList.add('loading');
+      const btn = document.getElementById('buy-button') || buyButton;
+      if (btn) {
+        btn.disabled = true;
+        btn.classList.add('loading');
       }
 
       addDebugLog('Getting Firebase ID token...', 'info');
@@ -407,13 +419,14 @@
       addDebugLog(`Checkout error: ${error.message}`, 'error');
       console.error('Error creating checkout:', error);
       showAlert(error.message || 'Failed to create checkout. Please try again.', 'error');
-    } finally {
-      // Re-enable button
-      if (buyButton) {
-        buyButton.disabled = false;
-        buyButton.classList.remove('loading');
+          } finally {
+        // Re-enable button
+        const btn = document.getElementById('buy-button') || buyButton;
+        if (btn) {
+          btn.disabled = false;
+          btn.classList.remove('loading');
+        }
       }
-    }
   }
 
   /**
@@ -437,25 +450,33 @@
 
       // Attach event listeners
       if (buyButton) {
-        // Remove any existing listeners first
+        // Remove any existing listeners first by cloning
         const newBuyButton = buyButton.cloneNode(true);
         buyButton.parentNode.replaceChild(newBuyButton, buyButton);
+        
+        // Update the global reference to the new button
         const updatedBuyButton = document.getElementById('buy-button');
-        
-        updatedBuyButton.addEventListener('click', (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          addDebugLog('Buy button clicked - event fired!', 'info');
-          handleBuyClick();
-        });
-        
-        addDebugLog('Buy button event listener attached', 'info');
-        
-        // Debug: Verify click handler
-        console.log('Buy button click handler attached:', {
-          disabled: updatedBuyButton.disabled,
-          hasClickListener: true
-        });
+        if (updatedBuyButton) {
+          // Update the global buyButton variable
+          window.buyButton = updatedBuyButton;
+          
+          updatedBuyButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            addDebugLog('Buy button clicked - event fired!', 'info');
+            handleBuyClick();
+          });
+          
+          addDebugLog('Buy button event listener attached', 'info');
+          
+          // Debug: Verify click handler
+          console.log('Buy button click handler attached:', {
+            disabled: updatedBuyButton.disabled,
+            hasClickListener: true
+          });
+        } else {
+          addDebugLog('ERROR: Could not find button after cloning!', 'error');
+        }
       } else {
         addDebugLog('ERROR: Buy button not found when attaching listener!', 'error');
       }
