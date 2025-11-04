@@ -128,21 +128,28 @@
       if (existingScript) {
         // Script is loading, wait for it
         addDebugLog('Lemon Squeezy script already loading, waiting...', 'info');
+        let objectCreated = false;
         const checkInterval = setInterval(() => {
-          // Try to create if createLemonSqueezy exists
-          if (typeof window.createLemonSqueezy === 'function' && !window.LemonSqueezy) {
+          // Try to create if createLemonSqueezy exists (only once)
+          if (typeof window.createLemonSqueezy === 'function' && !window.LemonSqueezy && !objectCreated) {
             try {
               window.LemonSqueezy = window.createLemonSqueezy();
+              objectCreated = true;
               addDebugLog('Lemon Squeezy object created (existing script)', 'success');
             } catch (error) {
               addDebugLog(`Error creating Lemon Squeezy object: ${error.message}`, 'error');
             }
           }
           
-          if (window.LemonSqueezy && typeof window.LemonSqueezy.Setup === 'function') {
-            clearInterval(checkInterval);
-            addDebugLog('Lemon Squeezy SDK loaded after wait', 'success');
-            resolve();
+          // Check if we can use the SDK (new API might not have Setup)
+          if (window.LemonSqueezy) {
+            // Check for new API methods or old API
+            if (typeof window.createLemonSqueezyCheckout === 'function' || typeof window.LemonSqueezy.Setup === 'function') {
+              clearInterval(checkInterval);
+              addDebugLog('Lemon Squeezy SDK loaded after wait', 'success');
+              resolve();
+              return;
+            }
           }
         }, 100);
         
@@ -151,6 +158,13 @@
           clearInterval(checkInterval);
           if (!window.LemonSqueezy) {
             reject(new Error('Lemon Squeezy SDK failed to load'));
+          } else {
+            // Even without Setup, if we have createLemonSqueezyCheckout, we can proceed
+            if (typeof window.createLemonSqueezyCheckout === 'function') {
+              resolve();
+            } else {
+              reject(new Error('Lemon Squeezy SDK loaded but no usable methods found'));
+            }
           }
         }, 10000);
         return;
@@ -176,6 +190,11 @@
               try {
                 window.LemonSqueezy = window.createLemonSqueezy();
                 addDebugLog('Lemon Squeezy object created using createLemonSqueezy()', 'success');
+                
+                // Log available methods for debugging
+                if (window.LemonSqueezy) {
+                  addDebugLog(`Available methods: ${Object.keys(window.LemonSqueezy).join(', ')}`, 'info');
+                }
               } catch (error) {
                 addDebugLog(`Error creating Lemon Squeezy object: ${error.message}`, 'error');
                 reject(new Error(`Failed to create Lemon Squeezy object: ${error.message}`));
@@ -183,12 +202,26 @@
               }
             }
             
-            if (window.LemonSqueezy && typeof window.LemonSqueezy.Setup === 'function') {
-              addDebugLog('Lemon Squeezy SDK ready', 'success');
+            // Check for new API (createLemonSqueezyCheckout) or old API (Setup)
+            if (typeof window.createLemonSqueezyCheckout === 'function') {
+              addDebugLog('Lemon Squeezy SDK ready (new API with createLemonSqueezyCheckout)', 'success');
+              resolve();
+            } else if (window.LemonSqueezy && typeof window.LemonSqueezy.Setup === 'function') {
+              addDebugLog('Lemon Squeezy SDK ready (old API with Setup)', 'success');
               resolve();
             } else {
-              addDebugLog('Lemon Squeezy object created but Setup method not available', 'warning');
-              reject(new Error('Lemon Squeezy Setup method not available'));
+              // Try to open checkout URL directly if we have the object
+              if (window.LemonSqueezy && typeof window.LemonSqueezy.Url !== 'undefined') {
+                addDebugLog('Lemon Squeezy SDK ready (direct URL access)', 'success');
+                resolve();
+              } else {
+                addDebugLog('Lemon Squeezy object created but no usable methods found', 'warning');
+                console.warn('LemonSqueezy object:', window.LemonSqueezy);
+                console.warn('Available methods:', Object.keys(window.LemonSqueezy || {}));
+                // Still resolve - we can try to open the URL directly
+                addDebugLog('Will attempt to open checkout URL directly', 'info');
+                resolve();
+              }
             }
           } else if (window.LemonSqueezy && typeof window.LemonSqueezy.Setup === 'function') {
             // Old API - LemonSqueezy already exists
@@ -476,42 +509,82 @@
       await loadLemonSqueezySDK();
       addDebugLog('Lemon Squeezy SDK loaded', 'success');
 
-      // Verify SDK is available
-      if (!window.LemonSqueezy) {
-        addDebugLog('ERROR: window.LemonSqueezy is undefined after loading!', 'error');
-        console.error('Available window properties:', Object.keys(window).filter(k => k.toLowerCase().includes('lemon')));
-        throw new Error('Lemon Squeezy SDK not available');
-      }
+      // Verify SDK is available and try different methods
+      let checkoutOpened = false;
 
-      if (typeof window.LemonSqueezy.Setup !== 'function') {
-        addDebugLog('ERROR: window.LemonSqueezy.Setup is not a function!', 'error');
-        console.error('LemonSqueezy object:', window.LemonSqueezy);
-        console.error('Available methods:', Object.keys(window.LemonSqueezy));
-        throw new Error('Lemon Squeezy Setup method not available');
-      }
-
-      addDebugLog('Setting up Lemon Squeezy event handler...', 'info');
-      // Setup event handler
-      window.LemonSqueezy.Setup({
-        eventHandler: (event) => {
-          addDebugLog(`Lemon Squeezy event: ${event}`, 'info');
-          console.log('Lemon Squeezy event:', event);
-          
-          if (event === 'Checkout.Success') {
-            addDebugLog('Purchase successful! Waiting for webhook...', 'success');
-            showAlert('Purchase successful! Counter will update shortly.', 'success');
-            // Start polling more frequently after purchase
-            updateCounter();
-            startPolling();
-          } else if (event === 'Checkout.Closed') {
-            addDebugLog('Checkout closed by user', 'info');
-          }
+      // Method 1: New API with createLemonSqueezyCheckout
+      if (typeof window.createLemonSqueezyCheckout === 'function') {
+        addDebugLog('Using new Lemon Squeezy API (createLemonSqueezyCheckout)', 'info');
+        try {
+          window.createLemonSqueezyCheckout({
+            url: data.checkoutUrl,
+            onCheckoutSuccess: () => {
+              addDebugLog('Purchase successful! Waiting for webhook...', 'success');
+              showAlert('Purchase successful! Counter will update shortly.', 'success');
+              updateCounter();
+              startPolling();
+            }
+          });
+          checkoutOpened = true;
+        } catch (error) {
+          addDebugLog(`Error opening checkout with new API: ${error.message}`, 'error');
         }
-      });
+      }
 
-      addDebugLog('Opening Lemon Squeezy checkout overlay...', 'info');
-      // Open checkout overlay
-      window.LemonSqueezy.Url.Open(data.checkoutUrl);
+      // Method 2: Old API with Setup and Url.Open
+      if (!checkoutOpened && window.LemonSqueezy && typeof window.LemonSqueezy.Setup === 'function') {
+        addDebugLog('Using old Lemon Squeezy API (Setup + Url.Open)', 'info');
+        try {
+          window.LemonSqueezy.Setup({
+            eventHandler: (event) => {
+              addDebugLog(`Lemon Squeezy event: ${event}`, 'info');
+              console.log('Lemon Squeezy event:', event);
+              
+              if (event === 'Checkout.Success') {
+                addDebugLog('Purchase successful! Waiting for webhook...', 'success');
+                showAlert('Purchase successful! Counter will update shortly.', 'success');
+                updateCounter();
+                startPolling();
+              } else if (event === 'Checkout.Closed') {
+                addDebugLog('Checkout closed by user', 'info');
+              }
+            }
+          });
+          
+          if (window.LemonSqueezy.Url && typeof window.LemonSqueezy.Url.Open === 'function') {
+            window.LemonSqueezy.Url.Open(data.checkoutUrl);
+            checkoutOpened = true;
+          }
+        } catch (error) {
+          addDebugLog(`Error using old API: ${error.message}`, 'error');
+        }
+      }
+
+      // Method 3: Direct URL access
+      if (!checkoutOpened && window.LemonSqueezy && window.LemonSqueezy.Url) {
+        addDebugLog('Trying direct URL.Open method', 'info');
+        try {
+          if (typeof window.LemonSqueezy.Url.Open === 'function') {
+            window.LemonSqueezy.Url.Open(data.checkoutUrl);
+            checkoutOpened = true;
+          }
+        } catch (error) {
+          addDebugLog(`Error opening URL directly: ${error.message}`, 'error');
+        }
+      }
+
+      // Method 4: Fallback - open in new window
+      if (!checkoutOpened) {
+        addDebugLog('No SDK method available, opening checkout URL in new window', 'warning');
+        window.open(data.checkoutUrl, '_blank');
+        checkoutOpened = true;
+      }
+
+      if (checkoutOpened) {
+        addDebugLog('Checkout opened successfully', 'success');
+      } else {
+        throw new Error('Failed to open checkout - no available methods');
+      }
 
     } catch (error) {
       addDebugLog(`Checkout error: ${error.message}`, 'error');
