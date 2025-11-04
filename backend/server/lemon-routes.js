@@ -186,26 +186,38 @@ router.post('/checkout', verifyFirebaseToken, async (req, res) => {
  */
 router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' }), async (req, res) => {
   try {
+    console.log('=== Webhook Received ===');
+    console.log('Headers:', JSON.stringify(req.headers, null, 2));
+    
     // Get webhook signature
     const signature = req.headers['x-signature'];
     const secret = process.env.LEMON_WEBHOOK_SECRET;
 
     if (!signature || !secret) {
-      console.error('Missing webhook signature or secret');
+      console.error('❌ Missing webhook signature or secret');
+      console.error('Signature:', signature ? 'Present' : 'Missing');
+      console.error('Secret:', secret ? 'Present' : 'Missing');
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
     // Get raw body for signature verification
     const payload = req.body.toString('utf8');
+    console.log('Payload length:', payload.length);
+    console.log('Payload preview:', payload.substring(0, 500));
     
     // Verify signature
     if (!verifyWebhookSignature(payload, signature, secret)) {
-      console.error('Invalid webhook signature');
+      console.error('❌ Invalid webhook signature');
       return res.status(401).json({ error: 'Invalid signature' });
     }
 
+    console.log('✅ Webhook signature verified');
+
     // Parse webhook payload
     const event = JSON.parse(payload);
+    console.log('Event name:', event.meta?.event_name);
+    console.log('Event type:', event.meta?.event_name);
+    
     const parsed = parseWebhookPayload(event);
 
     if (!parsed) {
@@ -217,30 +229,53 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
     if (parsed.eventName === 'order_created') {
       const { orderData } = parsed;
 
+      // Log full order data for debugging
+      console.log('=== Webhook Order Data ===');
+      console.log('Order ID:', orderData.orderId);
+      console.log('User ID:', orderData.userId);
+      console.log('Email:', orderData.email);
+      console.log('Test Mode:', orderData.testMode);
+      console.log('Variant ID:', orderData.variantId);
+      console.log('Full orderData:', JSON.stringify(orderData, null, 2));
+
       // Only process test mode purchases
       if (!orderData.testMode) {
-        console.log('Ignoring non-test mode purchase');
+        console.log('⚠️ Ignoring non-test mode purchase (testMode is false)');
         return res.status(200).json({ received: true, handled: false, reason: 'Not test mode' });
+      }
+
+      // Check if userId exists
+      if (!orderData.userId) {
+        console.log('⚠️ Missing userId in order data, cannot record purchase');
+        return res.status(200).json({ received: true, handled: false, reason: 'Missing userId' });
       }
 
       // Record purchase in Firebase
       if (orderData.orderId) {
-        await recordTestPurchase(
-          orderData.userId,
-          orderData.orderId,
-          orderData.variantId,
-          {
-            email: orderData.email,
-            orderNumber: orderData.orderNumber,
-            amount: orderData.total,
-            currency: orderData.currency,
-            productId: orderData.productId,
-            quantity: orderData.quantity || 1,
-            testMode: true
-          }
-        );
+        try {
+          await recordTestPurchase(
+            orderData.userId,
+            orderData.orderId,
+            orderData.variantId,
+            {
+              email: orderData.email,
+              orderNumber: orderData.orderNumber,
+              amount: orderData.total,
+              currency: orderData.currency,
+              productId: orderData.productId,
+              quantity: orderData.quantity || 1,
+              testMode: true
+            }
+          );
 
-        console.log(`Webhook processed: Order ${orderData.orderId} for user ${orderData.userId}`);
+          console.log(`✅ Webhook processed successfully: Order ${orderData.orderId} for user ${orderData.userId}`);
+        } catch (error) {
+          console.error('❌ Error recording test purchase:', error);
+          throw error;
+        }
+      } else {
+        console.log('⚠️ Missing orderId in order data, cannot record purchase');
+        return res.status(200).json({ received: true, handled: false, reason: 'Missing orderId' });
       }
     }
 
