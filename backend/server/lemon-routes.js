@@ -94,24 +94,27 @@ router.post('/checkout', verifyFirebaseToken, async (req, res) => {
             custom: {
               user_id: userId
             },
+            custom_price: null,
+            name: null,
+            billing_address: null,
+            tax_number: null,
+            discount_code: null,
+            receipt_thank_you_note: null,
             redirect_url: redirectUrl, // Return to our page after purchase
-            success_url: redirectUrl // Also try success_url (alternative name)
+            // Lemon Squeezy API: redirect_url in checkout_data is the correct place
           },
           test_mode: true,
           checkout_options: {
             embed: true, // Enable overlay mode
             media: false, // Disable media preview
-            logo: false, // Disable logo
-            redirect_url: redirectUrl, // Also in checkout_options
-            success_url: redirectUrl // Also try success_url
+            logo: false // Disable logo
+            // Note: redirect_url should NOT be in checkout_options - only in checkout_data
           },
           product_options: {
-            redirect_url: redirectUrl, // Also set in product options
-            success_url: redirectUrl // Also try success_url
-          },
-          // Set redirect URL at top level too
-          redirect_url: redirectUrl,
-          success_url: redirectUrl
+            enabled_variants: null,
+            redirect_url: redirectUrl // This is valid in product_options
+          }
+          // Note: redirect_url and success_url at top level are NOT supported by API
         },
         relationships: {
           store: {
