@@ -20,17 +20,17 @@ checking for RB_WARN_CATEGORY_DEPRECATED in ruby.h... yes
 creating Makefile
 
 current directory: /Users/shalom/Desktop/new/specifys-dark-mode/vendor/bundle/ruby/3.4.0/gems/bigdecimal-3.2.3/ext/bigdecimal
-make DESTDIR\= sitearchdir\=./.gem.20251023-63731-1qwzg3 sitelibdir\=./.gem.20251023-63731-1qwzg3 clean
+make DESTDIR\= sitearchdir\=./.gem.20251104-18928-80lokx sitelibdir\=./.gem.20251104-18928-80lokx clean
 
 current directory: /Users/shalom/Desktop/new/specifys-dark-mode/vendor/bundle/ruby/3.4.0/gems/bigdecimal-3.2.3/ext/bigdecimal
-make DESTDIR\= sitearchdir\=./.gem.20251023-63731-1qwzg3 sitelibdir\=./.gem.20251023-63731-1qwzg3
+make DESTDIR\= sitearchdir\=./.gem.20251104-18928-80lokx sitelibdir\=./.gem.20251104-18928-80lokx
 compiling bigdecimal.c
 compiling missing.c
 linking shared-object bigdecimal.bundle
 
 current directory: /Users/shalom/Desktop/new/specifys-dark-mode/vendor/bundle/ruby/3.4.0/gems/bigdecimal-3.2.3/ext/bigdecimal
-make DESTDIR\= sitearchdir\=./.gem.20251023-63731-1qwzg3 sitelibdir\=./.gem.20251023-63731-1qwzg3 install
-/usr/bin/install -c -m 0755 bigdecimal.bundle ./.gem.20251023-63731-1qwzg3
+make DESTDIR\= sitearchdir\=./.gem.20251104-18928-80lokx sitelibdir\=./.gem.20251104-18928-80lokx install
+/usr/bin/install -c -m 0755 bigdecimal.bundle ./.gem.20251104-18928-80lokx
 
 current directory: /Users/shalom/Desktop/new/specifys-dark-mode/vendor/bundle/ruby/3.4.0/gems/bigdecimal-3.2.3/ext/bigdecimal
-make DESTDIR\= sitearchdir\=./.gem.20251023-63731-1qwzg3 sitelibdir\=./.gem.20251023-63731-1qwzg3 clean
+make DESTDIR\= sitearchdir\=./.gem.20251104-18928-80lokx sitelibdir\=./.gem.20251104-18928-80lokx clean
