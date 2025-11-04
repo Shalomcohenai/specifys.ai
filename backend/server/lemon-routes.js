@@ -80,6 +80,10 @@ router.post('/checkout', verifyFirebaseToken, async (req, res) => {
     } else if (req.headers.origin) {
       redirectUrl = req.headers.origin + '/pages/test-system.html';
     }
+    
+    console.log('Setting redirect URL:', redirectUrl);
+    console.log('Request referer:', req.headers.referer);
+    console.log('Request origin:', req.headers.origin);
 
     const checkoutData = {
       data: {
@@ -90,20 +94,24 @@ router.post('/checkout', verifyFirebaseToken, async (req, res) => {
             custom: {
               user_id: userId
             },
-            redirect_url: redirectUrl // Return to our page after purchase
+            redirect_url: redirectUrl, // Return to our page after purchase
+            success_url: redirectUrl // Also try success_url (alternative name)
           },
           test_mode: true,
           checkout_options: {
             embed: true, // Enable overlay mode
             media: false, // Disable media preview
             logo: false, // Disable logo
-            redirect_url: redirectUrl // Also in checkout_options
+            redirect_url: redirectUrl, // Also in checkout_options
+            success_url: redirectUrl // Also try success_url
           },
           product_options: {
-            redirect_url: redirectUrl // Also set in product options
+            redirect_url: redirectUrl, // Also set in product options
+            success_url: redirectUrl // Also try success_url
           },
           // Set redirect URL at top level too
-          redirect_url: redirectUrl
+          redirect_url: redirectUrl,
+          success_url: redirectUrl
         },
         relationships: {
           store: {
