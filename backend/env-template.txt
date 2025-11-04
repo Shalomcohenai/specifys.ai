@@ -8,6 +8,9 @@ FIREBASE_STORAGE_BUCKET=specify-ai.appspot.com
 FIREBASE_API_KEY=AIzaSyB9hr0IWM4EREzkKDxBxYoYinV6LJXWXV4
 
 # Lemon Squeezy Configuration
+LEMON_SQUEEZY_API_KEY=your_lemon_squeezy_api_key_here
+LEMON_SQUEEZY_STORE_ID=your_store_id_here
+LEMON_SQUEEZY_VARIANT_ID=your_variant_id_here
 LEMON_WEBHOOK_SECRET=specifys_ai_secret_2025
 
 # API Keys (if needed)

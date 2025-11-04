@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta name="theme-color" content="#000000">
+    <title>Test System - Lemon Squeezy Integration - Specifys.ai</title>
+    <meta name="description" content="Test system for Lemon Squeezy payment integration">
+    <meta name="robots" content="noindex, nofollow">
+    
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="/assets/css/main.css">
+    <link rel="stylesheet" href="/assets/css/pages/test-system.css">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="page-default">
+    <div class="test-system-container">
+        <div class="test-system-content">
+            <h1 class="test-system-title">Lemon Squeezy Test System</h1>
+            <p class="test-system-subtitle">
+                Test the complete payment flow: checkout, webhook, and counter update
+            </p>
+
+            <div class="counter-display">
+                <div class="counter-label">Total Test Purchases</div>
+                <div class="counter-value" id="counter-value">0</div>
+            </div>
+
+            <button class="buy-button" id="buy-button" disabled>
+                Sign In Required
+            </button>
+
+            <div class="alert" id="alert">
+                <div id="alert-message"></div>
+            </div>
+
+            <div class="auth-message" id="auth-message" style="display: none;">
+                <p>Please <a href="/pages/auth.html">sign in</a> to test the purchase flow.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+    <script>
+      // Firebase Configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyB9hr0IWM4EREzkKDxBxYoYinV6LJXWXV4",
+        authDomain: "specify-ai.firebaseapp.com",
+        projectId: "specify-ai",
+        storageBucket: "specify-ai.firebasestorage.app",
+        messagingSenderId: "734278787482",
+        appId: "1:734278787482:web:0e312fb6f197e849695a23",
+        measurementId: "G-4YR9LK63MR"
+      };
+
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+      const auth = firebase.auth();
+      const db = firebase.firestore();
+    </script>
+
+    <!-- Test System Script -->
+    <script src="/assets/js/test-system.js"></script>
+</body>
+</html>

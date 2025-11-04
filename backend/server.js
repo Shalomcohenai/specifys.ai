@@ -44,13 +44,12 @@ delete require.cache[require.resolve('./server/openai-storage-service')];
 // Import modules that may read env at require-time AFTER loading env
 const express = require('express');
 const fetch = require('node-fetch');
-const { syncAllUsers, upgradeAllUsersToPro } = require('./server/user-management');
+const { syncAllUsers } = require('./server/user-management');
 const blogRoutes = require('./server/blog-routes');
-const specRoutes = require('./server/spec-routes');
 const userRoutes = require('./server/user-routes');
 const chatRoutes = require('./server/chat-routes');
 const adminRoutes = require('./server/admin-routes');
-const { handleLemonWebhook } = require('./server/lemon-webhook');
+const lemonRoutes = require('./server/lemon-routes');
 const { securityHeaders, rateLimiters, requireAdmin } = require('./server/security');
 
 const app = express();
@@ -97,10 +96,11 @@ app.use((req, res, next) => {
   next();
 });
 
-// Lemon Squeezy webhook endpoint (must be before express.json())
-app.post('/api/webhook/lemon', express.raw({type: 'application/json'}), handleLemonWebhook);
+// Lemon Squeezy routes must be registered BEFORE express.json() 
+// to allow webhook endpoint to access raw body for signature verification
+app.use('/api/lemon', lemonRoutes);
 
-// Middleware to parse JSON bodies
+// Middleware to parse JSON bodies (registered after lemon routes)
 app.use(express.json());
 
 // Debug logging middleware
@@ -116,9 +116,6 @@ app.use('/blog', express.static('../_site/blog'));
 
 // Serve blog posts from _site/2025 directory structure
 app.use('/2025', express.static('../_site/2025'));
-
-// Spec routes with authorization
-app.use('/api/specs', specRoutes);
 
 // User routes for user management
 app.use('/api/users', userRoutes);
@@ -141,23 +138,6 @@ app.post('/api/sync-users', requireAdmin, async (req, res) => {
     res.json({
       success: true,
       message: 'Users synced successfully',
-      result: result
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
-  }
-});
-
-// Endpoint to upgrade all users to Pro (admin only)
-app.post('/api/upgrade-all-users-to-pro', requireAdmin, async (req, res) => {
-  try {
-    const result = await upgradeAllUsersToPro();
-    res.json({
-      success: true,
-      message: 'All users upgraded to Pro successfully',
       result: result
     });
   } catch (error) {
