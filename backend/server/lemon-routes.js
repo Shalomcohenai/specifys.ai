@@ -67,27 +67,27 @@ router.post('/checkout', verifyFirebaseToken, async (req, res) => {
     const frontendUrl = process.env.FRONTEND_URL || 'https://specifys-ai.com';
     const successUrl = `${frontendUrl}/pages/test-system.html?checkout=success`;
 
-    // According to Lemon Squeezy API, checkout_data and checkout_options must be arrays
+    // According to Lemon Squeezy API documentation:
+    // - checkout_data should be an object (not array)
+    // - checkout_options should be an object (not array)
+    // - redirect_url should be in product_options, not checkout_options
     const checkoutData = {
       data: {
         type: 'checkouts',
         attributes: {
-          checkout_data: [
-            {
-              email: userEmail,
-              custom: {
-                user_id: userId
-              }
+          checkout_data: {
+            email: userEmail,
+            custom: {
+              user_id: userId
             }
-          ],
+          },
           test_mode: true,
-          checkout_options: [
-            {
-              embed: true, // Enable overlay mode
-              success_url: successUrl,
-              redirect_url: successUrl
-            }
-          ]
+          product_options: {
+            redirect_url: successUrl
+          },
+          checkout_options: {
+            embed: true // Enable overlay mode
+          }
         },
         relationships: {
           store: {
