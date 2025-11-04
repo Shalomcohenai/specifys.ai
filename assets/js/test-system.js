@@ -116,7 +116,7 @@
    */
   function loadLemonSqueezySDK() {
     return new Promise((resolve, reject) => {
-      // Check if already loaded
+      // Check if already loaded and initialized
       if (window.LemonSqueezy && typeof window.LemonSqueezy.Setup === 'function') {
         addDebugLog('Lemon Squeezy SDK already loaded', 'info');
         resolve();
@@ -129,6 +129,16 @@
         // Script is loading, wait for it
         addDebugLog('Lemon Squeezy script already loading, waiting...', 'info');
         const checkInterval = setInterval(() => {
+          // Try to create if createLemonSqueezy exists
+          if (typeof window.createLemonSqueezy === 'function' && !window.LemonSqueezy) {
+            try {
+              window.LemonSqueezy = window.createLemonSqueezy();
+              addDebugLog('Lemon Squeezy object created (existing script)', 'success');
+            } catch (error) {
+              addDebugLog(`Error creating Lemon Squeezy object: ${error.message}`, 'error');
+            }
+          }
+          
           if (window.LemonSqueezy && typeof window.LemonSqueezy.Setup === 'function') {
             clearInterval(checkInterval);
             addDebugLog('Lemon Squeezy SDK loaded after wait', 'success');
@@ -156,9 +166,34 @@
         const maxAttempts = 50; // 5 seconds max wait
         const checkSDK = setInterval(() => {
           attempts++;
-          if (window.LemonSqueezy && typeof window.LemonSqueezy.Setup === 'function') {
+          
+          // Check if createLemonSqueezy function exists (new SDK API)
+          if (typeof window.createLemonSqueezy === 'function') {
             clearInterval(checkSDK);
-            addDebugLog('Lemon Squeezy SDK ready', 'success');
+            
+            // Create the LemonSqueezy object if it doesn't exist
+            if (!window.LemonSqueezy) {
+              try {
+                window.LemonSqueezy = window.createLemonSqueezy();
+                addDebugLog('Lemon Squeezy object created using createLemonSqueezy()', 'success');
+              } catch (error) {
+                addDebugLog(`Error creating Lemon Squeezy object: ${error.message}`, 'error');
+                reject(new Error(`Failed to create Lemon Squeezy object: ${error.message}`));
+                return;
+              }
+            }
+            
+            if (window.LemonSqueezy && typeof window.LemonSqueezy.Setup === 'function') {
+              addDebugLog('Lemon Squeezy SDK ready', 'success');
+              resolve();
+            } else {
+              addDebugLog('Lemon Squeezy object created but Setup method not available', 'warning');
+              reject(new Error('Lemon Squeezy Setup method not available'));
+            }
+          } else if (window.LemonSqueezy && typeof window.LemonSqueezy.Setup === 'function') {
+            // Old API - LemonSqueezy already exists
+            clearInterval(checkSDK);
+            addDebugLog('Lemon Squeezy SDK ready (old API)', 'success');
             resolve();
           } else if (attempts >= maxAttempts) {
             clearInterval(checkSDK);
