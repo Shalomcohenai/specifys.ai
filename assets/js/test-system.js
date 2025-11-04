@@ -656,6 +656,9 @@
     addDebugLog(`Page URL: ${window.location.href}`, 'info');
     
     try {
+      // Check for checkout success first
+      checkCheckoutSuccess();
+      
       // Initialize auth
       await initAuth();
 
