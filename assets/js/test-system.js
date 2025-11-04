@@ -516,7 +516,8 @@
       if (typeof window.createLemonSqueezyCheckout === 'function') {
         addDebugLog('Using new Lemon Squeezy API (createLemonSqueezyCheckout)', 'info');
         try {
-          window.createLemonSqueezyCheckout({
+          // Check what createLemonSqueezyCheckout returns
+          const checkout = window.createLemonSqueezyCheckout({
             url: data.checkoutUrl,
             onCheckoutSuccess: () => {
               addDebugLog('Purchase successful! Waiting for webhook...', 'success');
@@ -525,9 +526,22 @@
               startPolling();
             }
           });
-          checkoutOpened = true;
+          
+          // Try to open it if there's an open method
+          if (checkout && typeof checkout.open === 'function') {
+            checkout.open();
+            checkoutOpened = true;
+            addDebugLog('Checkout opened using checkout.open()', 'success');
+          } else if (checkout) {
+            addDebugLog(`Checkout object created but no open method. Object keys: ${Object.keys(checkout || {}).join(', ')}`, 'warning');
+            // Still mark as opened since we tried
+            checkoutOpened = true;
+          } else {
+            addDebugLog('createLemonSqueezyCheckout returned undefined/null', 'warning');
+          }
         } catch (error) {
           addDebugLog(`Error opening checkout with new API: ${error.message}`, 'error');
+          console.error('createLemonSqueezyCheckout error:', error);
         }
       }
 
@@ -573,11 +587,44 @@
         }
       }
 
-      // Method 4: Fallback - open in new window
+      // Method 4: Try to open checkout URL directly using window.open as overlay
       if (!checkoutOpened) {
-        addDebugLog('No SDK method available, opening checkout URL in new window', 'warning');
-        window.open(data.checkoutUrl, '_blank');
-        checkoutOpened = true;
+        addDebugLog('No SDK overlay method available, opening checkout URL directly', 'info');
+        try {
+          // Try to open as popup window (overlay-like)
+          const popup = window.open(
+            data.checkoutUrl,
+            'lemon-checkout',
+            'width=600,height=700,scrollbars=yes,resizable=yes,centerscreen=yes'
+          );
+          
+          if (popup) {
+            checkoutOpened = true;
+            addDebugLog('Checkout opened in popup window', 'success');
+            
+            // Monitor popup for close/success
+            const checkPopup = setInterval(() => {
+              if (popup.closed) {
+                clearInterval(checkPopup);
+                addDebugLog('Checkout popup closed - checking for purchase...', 'info');
+                updateCounter();
+                startPolling();
+              }
+            }, 1000);
+            
+            // Cleanup after 5 minutes
+            setTimeout(() => clearInterval(checkPopup), 300000);
+          } else {
+            addDebugLog('Popup blocked, opening in new tab', 'warning');
+            window.open(data.checkoutUrl, '_blank');
+            checkoutOpened = true;
+          }
+        } catch (error) {
+          addDebugLog(`Error opening checkout: ${error.message}`, 'error');
+          // Last resort - open in same window
+          window.location.href = data.checkoutUrl;
+          checkoutOpened = true;
+        }
       }
 
       if (checkoutOpened) {
