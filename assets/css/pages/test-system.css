@@ -214,3 +214,76 @@
     font-size: 2.5rem;
   }
 }
+
+
+/* Debug Logs Section */
+.debug-section {
+  margin-top: 30px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
+
+.debug-logs {
+  max-height: 300px;
+  overflow-y: auto;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  background: #fff;
+  padding: 15px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+}
+
+.debug-log-entry {
+  padding: 8px;
+  margin-bottom: 8px;
+  border-left: 3px solid #ddd;
+  background: #f9f9f9;
+}
+
+.debug-log-entry.success {
+  border-left-color: #28a745;
+  background: #d4edda;
+}
+
+.debug-log-entry.error {
+  border-left-color: #dc3545;
+  background: #f8d7da;
+}
+
+.debug-log-entry.warning {
+  border-left-color: #ffc107;
+  background: #fff3cd;
+}
+
+.debug-log-entry.info {
+  border-left-color: #17a2b8;
+  background: #d1ecf1;
+}
+
+.debug-log-time {
+  color: #666;
+  font-size: 11px;
+  margin-right: 10px;
+}
+
+.debug-log-message {
+  color: #333;
+}
+
+.debug-toggle {
+  margin-top: 10px;
+  padding: 8px 16px;
+  background: #666;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.debug-toggle:hover {
+  background: #555;
+}

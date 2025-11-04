@@ -4,7 +4,7 @@
   // API base URL - adjust based on your backend
   const API_BASE_URL = window.location.hostname === 'localhost' 
     ? 'http://localhost:10000/api'
-    : 'https://specifys-ai.com/api';
+    : 'https://specifys-ai.onrender.com/api';
 
   // State
   let currentUser = null;
@@ -16,6 +16,47 @@
   const alertDiv = document.getElementById('alert');
   const alertMessage = document.getElementById('alert-message');
   const authMessage = document.getElementById('auth-message');
+  
+  // Debug logging system
+  const debugLogs = document.getElementById('debug-logs');
+  const debugSection = document.getElementById('debug-section');
+
+  /**
+   * Add debug log entry
+   */
+  function addDebugLog(message, type = 'info') {
+    if (!debugLogs) return;
+    
+    const time = new Date().toLocaleTimeString();
+    const logEntry = document.createElement('div');
+    logEntry.className = `debug-log-entry ${type}`;
+    logEntry.innerHTML = `<span class="debug-log-time">[${time}]</span><span class="debug-log-message">${message}</span>`;
+    
+    debugLogs.appendChild(logEntry);
+    debugLogs.scrollTop = debugLogs.scrollHeight;
+    
+    // Show debug section if hidden
+    if (debugSection && debugSection.style.display === 'none') {
+      debugSection.style.display = 'block';
+    }
+    
+    // Also log to console
+    const consoleMethod = type === 'error' ? 'error' : type === 'warning' ? 'warn' : 'log';
+    console[consoleMethod](`[${time}] ${message}`);
+  }
+
+  /**
+   * Toggle debug section visibility
+   */
+  window.toggleDebug = function() {
+    if (!debugSection) return;
+    const isVisible = debugSection.style.display !== 'none';
+    debugSection.style.display = isVisible ? 'none' : 'block';
+    const toggleBtn = document.getElementById('debug-toggle');
+    if (toggleBtn) {
+      toggleBtn.textContent = isVisible ? 'Show Logs' : 'Hide Logs';
+    }
+  };
 
   /**
    * Wait for Firebase to be available
@@ -58,14 +99,18 @@
    * Initialize Firebase auth state listener
    */
   async function initAuth() {
+    addDebugLog('Initializing Firebase authentication...', 'info');
     await waitForFirebase();
+    addDebugLog('Firebase loaded successfully', 'success');
     
     firebase.auth().onAuthStateChanged((user) => {
       currentUser = user;
       if (user) {
+        addDebugLog(`User signed in: ${user.email} (UID: ${user.uid})`, 'success');
         hideAuthMessage();
         enableBuyButton();
       } else {
+        addDebugLog('No user signed in', 'warning');
         showAuthMessage();
         disableBuyButton();
       }
@@ -149,27 +194,46 @@
    */
   async function updateCounter() {
     try {
+      addDebugLog(`Fetching counter from ${API_BASE_URL}/lemon/counter`, 'info');
       const response = await fetch(`${API_BASE_URL}/lemon/counter`);
+      
       if (!response.ok) {
+        if (response.status === 404) {
+          addDebugLog(`Counter endpoint not found (404). Backend may not be deployed yet.`, 'warning');
+          return;
+        }
+        addDebugLog(`Failed to fetch counter: HTTP ${response.status}`, 'error');
         throw new Error('Failed to fetch counter');
       }
       
       const data = await response.json();
+      addDebugLog(`Counter response: ${JSON.stringify(data)}`, 'success');
+      
       if (data.success && counterValue !== null) {
         const newCount = data.count || 0;
         const currentCount = parseInt(counterValue.textContent) || 0;
         
         if (newCount !== currentCount) {
+          addDebugLog(`Counter updated: ${currentCount} → ${newCount}`, 'success');
           counterValue.classList.add('updating');
           counterValue.textContent = newCount;
           
           setTimeout(() => {
             counterValue.classList.remove('updating');
           }, 300);
+        } else {
+          addDebugLog(`Counter unchanged: ${newCount}`, 'info');
         }
       }
     } catch (error) {
-      console.error('Error updating counter:', error);
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        addDebugLog(`Network error: Cannot reach backend server. Is it running at ${API_BASE_URL}?`, 'warning');
+        return;
+      }
+      if (error.message !== 'Failed to fetch counter') {
+        addDebugLog(`Counter update error: ${error.message}`, 'error');
+        console.error('Error updating counter:', error);
+      }
     }
   }
 
@@ -200,19 +264,30 @@
    */
   async function handleBuyClick() {
     if (!currentUser) {
+      addDebugLog('Buy button clicked but no user signed in', 'warning');
       showAlert('Please sign in to purchase', 'error');
       return;
     }
 
     try {
+      addDebugLog('Buy button clicked - starting checkout process...', 'info');
       // Disable button and show loading
       if (buyButton) {
         buyButton.disabled = true;
         buyButton.classList.add('loading');
       }
 
+      addDebugLog('Getting Firebase ID token...', 'info');
       // Get Firebase token
       const token = await getIdToken();
+      addDebugLog('ID token obtained successfully', 'success');
+
+      const requestBody = {
+        userId: currentUser.uid,
+        email: currentUser.email
+      };
+      addDebugLog(`Sending checkout request to ${API_BASE_URL}/lemon/checkout`, 'info');
+      addDebugLog(`Request body: ${JSON.stringify(requestBody)}`, 'info');
 
       // Create checkout
       const response = await fetch(`${API_BASE_URL}/lemon/checkout`, {
@@ -220,43 +295,58 @@
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
-        }
+        },
+        body: JSON.stringify(requestBody)
       });
 
+      addDebugLog(`Response status: ${response.status} ${response.statusText}`, response.ok ? 'success' : 'error');
+
       if (!response.ok) {
-        const errorData = await response.json();
+        const errorData = await response.json().catch(() => ({}));
+        addDebugLog(`Checkout error response: ${JSON.stringify(errorData)}`, 'error');
         throw new Error(errorData.error || 'Failed to create checkout');
       }
 
       const data = await response.json();
+      addDebugLog(`Checkout response: ${JSON.stringify(data)}`, 'success');
       
       if (!data.success || !data.checkoutUrl) {
+        addDebugLog('Invalid checkout response - missing checkoutUrl', 'error');
         throw new Error('Invalid checkout response');
       }
 
+      addDebugLog(`Checkout URL received: ${data.checkoutUrl}`, 'success');
+      addDebugLog('Loading Lemon Squeezy SDK...', 'info');
+
       // Wait for Lemon Squeezy SDK to load
       await loadLemonSqueezySDK();
+      addDebugLog('Lemon Squeezy SDK loaded', 'success');
 
+      addDebugLog('Setting up Lemon Squeezy event handler...', 'info');
       // Setup event handler
       window.LemonSqueezy.Setup({
         eventHandler: (event) => {
+          addDebugLog(`Lemon Squeezy event: ${event}`, 'info');
           console.log('Lemon Squeezy event:', event);
           
           if (event === 'Checkout.Success') {
+            addDebugLog('Purchase successful! Waiting for webhook...', 'success');
             showAlert('Purchase successful! Counter will update shortly.', 'success');
             // Start polling more frequently after purchase
             updateCounter();
             startPolling();
           } else if (event === 'Checkout.Closed') {
-            // User closed checkout
+            addDebugLog('Checkout closed by user', 'info');
           }
         }
       });
 
+      addDebugLog('Opening Lemon Squeezy checkout overlay...', 'info');
       // Open checkout overlay
       window.LemonSqueezy.Url.Open(data.checkoutUrl);
 
     } catch (error) {
+      addDebugLog(`Checkout error: ${error.message}`, 'error');
       console.error('Error creating checkout:', error);
       showAlert(error.message || 'Failed to create checkout. Please try again.', 'error');
     } finally {
@@ -272,24 +362,36 @@
    * Initialize page
    */
   async function init() {
-    // Initialize auth
-    await initAuth();
+    addDebugLog('=== Test System Initialization Started ===', 'info');
+    addDebugLog(`API Base URL: ${API_BASE_URL}`, 'info');
+    addDebugLog(`Page URL: ${window.location.href}`, 'info');
+    
+    try {
+      // Initialize auth
+      await initAuth();
 
-    // Load counter initially
-    await updateCounter();
+      // Load counter initially
+      await updateCounter();
 
-    // Start polling for updates
-    startPolling();
+      // Start polling for updates
+      startPolling();
+      addDebugLog('Polling started (every 3 seconds)', 'info');
 
-    // Attach event listeners
-    if (buyButton) {
-      buyButton.addEventListener('click', handleBuyClick);
+      // Attach event listeners
+      if (buyButton) {
+        buyButton.addEventListener('click', handleBuyClick);
+        addDebugLog('Buy button event listener attached', 'info');
+      }
+
+      // Cleanup on page unload
+      window.addEventListener('beforeunload', () => {
+        stopPolling();
+      });
+      
+      addDebugLog('=== Initialization Complete ===', 'success');
+    } catch (error) {
+      addDebugLog(`Initialization failed: ${error.message}`, 'error');
     }
-
-    // Cleanup on page unload
-    window.addEventListener('beforeunload', () => {
-      stopPolling();
-    });
   }
 
   // Initialize when DOM is ready
