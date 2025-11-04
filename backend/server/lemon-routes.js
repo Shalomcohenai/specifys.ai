@@ -106,11 +106,42 @@ router.post('/checkout', verifyFirebaseToken, async (req, res) => {
     });
 
     if (!response.ok) {
-      const errorData = await response.text();
-      console.error('Lemon Squeezy API error:', errorData);
+      let errorData;
+      try {
+        errorData = await response.json();
+      } catch (e) {
+        errorData = await response.text();
+      }
+      
+      console.error('Lemon Squeezy API error:', JSON.stringify(errorData, null, 2));
+      console.error('Used variantId:', variantId);
+      console.error('Used storeId:', storeId);
+      
+      // Parse Lemon Squeezy error details
+      let errorMessage = 'Failed to create checkout';
+      let errorDetails = errorData;
+      
+      if (errorData.errors && Array.isArray(errorData.errors)) {
+        const variantError = errorData.errors.find(err => 
+          err.source?.pointer?.includes('variant') || 
+          err.detail?.includes('variant')
+        );
+        
+        if (variantError) {
+          errorMessage = `Variant ID not found: ${variantId}`;
+          errorDetails = {
+            error: 'Variant does not exist',
+            detail: variantError.detail || 'The variant ID provided does not exist in your Lemon Squeezy store',
+            variantId: variantId,
+            storeId: storeId,
+            hint: 'Please verify that LEMON_SQUEEZY_VARIANT_ID in Render matches a valid variant ID from your Lemon Squeezy dashboard'
+          };
+        }
+      }
+      
       return res.status(response.status).json({ 
-        error: 'Failed to create checkout',
-        details: errorData
+        error: errorMessage,
+        details: errorDetails
       });
     }
 
