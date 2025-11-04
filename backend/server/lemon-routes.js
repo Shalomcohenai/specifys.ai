@@ -63,50 +63,28 @@ router.post('/checkout', verifyFirebaseToken, async (req, res) => {
     // Create checkout via Lemon Squeezy API
     const checkoutUrl = `https://api.lemonsqueezy.com/v1/checkouts`;
     
-    // Determine redirect URL (should return to test-system page)
-    let redirectUrl = 'https://specifys-ai.com/pages/test-system.html'; // Default fallback
-    
-    if (req.headers.referer) {
-      // Extract base URL from referer and add test-system path
-      try {
-        const refererUrl = new URL(req.headers.referer);
-        redirectUrl = `${refererUrl.origin}${refererUrl.pathname}`;
-      } catch (e) {
-        // If referer is invalid, use origin + path
-        if (req.headers.origin) {
-          redirectUrl = req.headers.origin + '/pages/test-system.html';
-        }
-      }
-    } else if (req.headers.origin) {
-      redirectUrl = req.headers.origin + '/pages/test-system.html';
-    }
-    
-    console.log('Setting redirect URL:', redirectUrl);
-    console.log('Request referer:', req.headers.referer);
-    console.log('Request origin:', req.headers.origin);
+    // Build success URL for redirect after purchase
+    const frontendUrl = process.env.FRONTEND_URL || 'https://specifys-ai.com';
+    const successUrl = `${frontendUrl}/pages/test-system.html?checkout=success`;
 
     const checkoutData = {
       data: {
         type: 'checkouts',
         attributes: {
-          checkout_data: {
-            email: userEmail,
-            custom: {
-              user_id: userId
-            },
-            // Optional checkout_data fields removed - let Lemon Squeezy use defaults
-            redirect_url: redirectUrl, // Return to our page after purchase
-            // Lemon Squeezy API: redirect_url in checkout_data is the correct place
-          },
+          checkout_data: [
+            {
+              email: userEmail,
+              custom: {
+                user_id: userId
+              }
+            }
+          ],
           test_mode: true,
           checkout_options: {
             embed: true, // Enable overlay mode
-            media: false, // Disable media preview
-            logo: false // Disable logo
-            // Note: redirect_url should NOT be in checkout_options - only in checkout_data
-          },
-          // product_options removed - not needed when variant is specified in relationships
-          // Note: redirect_url and success_url at top level are NOT supported by API
+            success_url: successUrl,
+            redirect_url: successUrl
+          }
         },
         relationships: {
           store: {
