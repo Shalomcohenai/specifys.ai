@@ -116,16 +116,65 @@
    */
   function loadLemonSqueezySDK() {
     return new Promise((resolve, reject) => {
-      if (window.LemonSqueezy) {
+      // Check if already loaded
+      if (window.LemonSqueezy && typeof window.LemonSqueezy.Setup === 'function') {
+        addDebugLog('Lemon Squeezy SDK already loaded', 'info');
         resolve();
+        return;
+      }
+
+      // Check if script already exists
+      const existingScript = document.querySelector('script[src="https://assets.lemonsqueezy.com/lemon.js"]');
+      if (existingScript) {
+        // Script is loading, wait for it
+        addDebugLog('Lemon Squeezy script already loading, waiting...', 'info');
+        const checkInterval = setInterval(() => {
+          if (window.LemonSqueezy && typeof window.LemonSqueezy.Setup === 'function') {
+            clearInterval(checkInterval);
+            addDebugLog('Lemon Squeezy SDK loaded after wait', 'success');
+            resolve();
+          }
+        }, 100);
+        
+        // Timeout after 10 seconds
+        setTimeout(() => {
+          clearInterval(checkInterval);
+          if (!window.LemonSqueezy) {
+            reject(new Error('Lemon Squeezy SDK failed to load'));
+          }
+        }, 10000);
         return;
       }
 
       const script = document.createElement('script');
       script.src = 'https://assets.lemonsqueezy.com/lemon.js';
-      script.defer = true;
-      script.onload = resolve;
-      script.onerror = reject;
+      script.async = true; // Use async instead of defer for better control
+      
+      script.onload = () => {
+        // Wait for SDK to be available (can take a moment)
+        let attempts = 0;
+        const maxAttempts = 50; // 5 seconds max wait
+        const checkSDK = setInterval(() => {
+          attempts++;
+          if (window.LemonSqueezy && typeof window.LemonSqueezy.Setup === 'function') {
+            clearInterval(checkSDK);
+            addDebugLog('Lemon Squeezy SDK ready', 'success');
+            resolve();
+          } else if (attempts >= maxAttempts) {
+            clearInterval(checkSDK);
+            addDebugLog('Lemon Squeezy SDK loaded but not available after wait', 'warning');
+            console.warn('LemonSqueezy object:', window.LemonSqueezy);
+            console.warn('Available globals:', Object.keys(window).filter(k => k.toLowerCase().includes('lemon')));
+            reject(new Error('Lemon Squeezy SDK loaded but Setup method not available'));
+          }
+        }, 100);
+      };
+      
+      script.onerror = () => {
+        addDebugLog('Failed to load Lemon Squeezy SDK script', 'error');
+        reject(new Error('Failed to load Lemon Squeezy SDK'));
+      };
+      
       document.head.appendChild(script);
     });
   }
