@@ -96,11 +96,14 @@ router.post('/checkout', verifyFirebaseToken, async (req, res) => {
           checkout_options: {
             embed: true, // Enable overlay mode
             media: false, // Disable media preview
-            logo: false // Disable logo
+            logo: false, // Disable logo
+            redirect_url: redirectUrl // Also in checkout_options
           },
           product_options: {
             redirect_url: redirectUrl // Also set in product options
-          }
+          },
+          // Set redirect URL at top level too
+          redirect_url: redirectUrl
         },
         relationships: {
           store: {

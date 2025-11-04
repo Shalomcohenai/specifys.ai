@@ -551,16 +551,34 @@
         try {
           window.LemonSqueezy.Setup({
             eventHandler: (event) => {
-              addDebugLog(`Lemon Squeezy event: ${event}`, 'info');
+              // Handle both string and object event formats
+              const eventType = typeof event === 'string' ? event : (event?.event || event?.type || 'unknown');
+              const eventData = typeof event === 'object' ? event : null;
+              
+              addDebugLog(`Lemon Squeezy event: ${eventType}`, 'info');
               console.log('Lemon Squeezy event:', event);
               
-              if (event === 'Checkout.Success') {
+              if (eventType === 'Checkout.Success' || event?.event === 'Checkout.Success') {
                 addDebugLog('Purchase successful! Waiting for webhook...', 'success');
                 showAlert('Purchase successful! Counter will update shortly.', 'success');
+                
+                // Update counter immediately
                 updateCounter();
                 startPolling();
-              } else if (event === 'Checkout.Closed') {
+                
+                // Close overlay if it's open (though redirect_url should handle this)
+                try {
+                  if (window.LemonSqueezy && window.LemonSqueezy.Url && typeof window.LemonSqueezy.Url.Close === 'function') {
+                    // Don't close immediately - let redirect_url handle it
+                    // window.LemonSqueezy.Url.Close();
+                  }
+                } catch (e) {
+                  // Ignore errors
+                }
+              } else if (eventType === 'Checkout.Closed' || event?.event === 'Checkout.Closed') {
                 addDebugLog('Checkout closed by user', 'info');
+              } else if (eventType === 'mounted' || event?.event === 'mounted') {
+                addDebugLog('Checkout overlay mounted', 'info');
               }
             }
           });
