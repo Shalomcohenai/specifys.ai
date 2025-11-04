@@ -46,36 +46,6 @@
   }
 
   /**
-   * Filter out noisy errors from third-party scripts (like Lemon Squeezy's Sentry)
-   */
-  function setupConsoleErrorFilter() {
-    const originalError = console.error;
-    console.error = function(...args) {
-      const message = args.join(' ');
-      // Filter out Sentry 403 errors from Lemon Squeezy
-      if (message.includes('sentry.io') && message.includes('403')) {
-        return; // Silently ignore
-      }
-      // Call original console.error for other errors
-      originalError.apply(console, args);
-    };
-
-    const originalWarn = console.warn;
-    console.warn = function(...args) {
-      const message = args.join(' ');
-      // Filter out Sentry warnings from Lemon Squeezy
-      if (message.includes('sentry.io')) {
-        return; // Silently ignore
-      }
-      // Call original console.warn for other warnings
-      originalWarn.apply(console, args);
-    };
-  }
-
-  // Setup error filter on page load
-  setupConsoleErrorFilter();
-
-  /**
    * Toggle debug section visibility
    */
   window.toggleDebug = function() {
@@ -581,53 +551,16 @@
         try {
           window.LemonSqueezy.Setup({
             eventHandler: (event) => {
-              // Handle both string and object event formats
-              const eventType = typeof event === 'string' ? event : (event?.event || event?.type || 'unknown');
-              const eventData = typeof event === 'object' ? event : null;
-              
-              addDebugLog(`Lemon Squeezy event: ${eventType}`, 'info');
+              addDebugLog(`Lemon Squeezy event: ${event}`, 'info');
               console.log('Lemon Squeezy event:', event);
               
-              if (eventType === 'Checkout.Success' || event?.event === 'Checkout.Success') {
+              if (event === 'Checkout.Success') {
                 addDebugLog('Purchase successful! Waiting for webhook...', 'success');
                 showAlert('Purchase successful! Counter will update shortly.', 'success');
-                
-                // Update counter immediately
                 updateCounter();
                 startPolling();
-                
-                // Try to close overlay and redirect after a short delay
-                setTimeout(() => {
-                  try {
-                    // Close overlay if it's open
-                    if (window.LemonSqueezy && window.LemonSqueezy.Url) {
-                      if (typeof window.LemonSqueezy.Url.Close === 'function') {
-                        window.LemonSqueezy.Url.Close();
-                        addDebugLog('Checkout overlay closed', 'info');
-                      }
-                    }
-                    
-                    // Ensure we're on the test-system page (in case redirect didn't work)
-                    const currentUrl = window.location.href;
-                    const testSystemUrl = window.location.origin + '/pages/test-system.html';
-                    
-                    if (!currentUrl.includes('test-system.html')) {
-                      addDebugLog('Redirecting to test-system page...', 'info');
-                      window.location.href = testSystemUrl;
-                    }
-                  } catch (e) {
-                    addDebugLog(`Error handling checkout success: ${e.message}`, 'warning');
-                    // Fallback: just redirect
-                    const testSystemUrl = window.location.origin + '/pages/test-system.html';
-                    if (!window.location.href.includes('test-system.html')) {
-                      window.location.href = testSystemUrl;
-                    }
-                  }
-                }, 500); // Wait 500ms for Lemon Squeezy to process redirect
-              } else if (eventType === 'Checkout.Closed' || event?.event === 'Checkout.Closed') {
+              } else if (event === 'Checkout.Closed') {
                 addDebugLog('Checkout closed by user', 'info');
-              } else if (eventType === 'mounted' || event?.event === 'mounted') {
-                addDebugLog('Checkout overlay mounted', 'info');
               }
             }
           });
