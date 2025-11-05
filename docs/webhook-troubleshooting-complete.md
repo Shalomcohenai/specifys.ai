@@ -193,5 +193,228 @@ curl -X POST https://specifys-ai.onrender.com/api/lemon/webhook \
 
 ---
 
-**תאריך:** 5 בנובמבר 2025
-**מסקנה מהמחקר:** הבעיה היא שהמשתמש לא הגדיר webhook ב-Lemon Squeezy Dashboard.
+## בעיות נוספות שזוהו ותוקנו
+
+### בעיה #2: Webhook Signature Format - שני פורמטים
+
+**הבעיה:**
+```
+❌ Invalid webhook signature
+```
+
+**הסיבה:**
+Lemon Squeezy יכול לשלוח את ה-signature בשני פורמטים:
+1. `sha256=hexdigest` (פורמט מתועד)
+2. `hexdigest` בלבד (פורמט בפועל שנשלח - נפוץ יותר)
+
+**הפתרון:**
+עדכנו את `verifyWebhookSignature` ב-`backend/server/lemon-webhook-utils.js` לתמוך בשני הפורמטים:
+
+```javascript
+function verifyWebhookSignature(payload, signature, secret) {
+  let receivedSignature;
+  
+  // תמיכה בשני פורמטים
+  if (signature.includes('=')) {
+    // פורמט: sha256=hexdigest
+    const signatureParts = signature.split('=');
+    if (signatureParts.length !== 2 || signatureParts[0] !== 'sha256') {
+      return false;
+    }
+    receivedSignature = signatureParts[1];
+  } else {
+    // פורמט: hexdigest בלבד (זה מה שנשלח בפועל)
+    receivedSignature = signature;
+  }
+  
+  // חישוב HMAC SHA256
+  const hmac = crypto.createHmac('sha256', secret);
+  hmac.update(payload, 'utf8');
+  const calculatedSignature = hmac.digest('hex');
+  
+  // השוואה עם constant-time comparison
+  return crypto.timingSafeEqual(
+    Buffer.from(receivedSignature, 'hex'),
+    Buffer.from(calculatedSignature, 'hex')
+  );
+}
+```
+
+**למידה:** לעתים הפורמט בפועל שונה מהמתועד - צריך לתמוך בשניהם.
+
+---
+
+### בעיה #3: מיקום custom_data ב-Webhook Payload
+
+**הבעיה:**
+ה-`custom_data` (המכיל את `user_id`) לא נמצא ב-`attributes.custom` אלא ב-`meta.custom_data`.
+
+**הסיבה:**
+Lemon Squeezy מכניס את ה-`custom_data` ב-`meta.custom_data` ולא ב-`attributes.custom`.
+
+**הפתרון:**
+עדכנו את `parseWebhookPayload` ב-`backend/server/lemon-webhook-utils.js` לבדוק את `meta.custom_data` ראשון:
+
+```javascript
+function parseWebhookPayload(event) {
+  // בדוק meta.custom_data ראשון (כך Lemon Squeezy מכניס את זה)
+  let customData = {};
+  
+  if (event.meta?.custom_data) {
+    customData = event.meta.custom_data;
+    console.log('Found custom_data in meta.custom_data:', customData);
+  } else if (attributes.custom) {
+    customData = attributes.custom;
+  }
+  // ... fallbacks נוספים
+  
+  // test_mode גם ב-meta.test_mode
+  const testMode = event.meta?.test_mode !== undefined 
+    ? event.meta.test_mode 
+    : (attributes.test_mode !== undefined ? attributes.test_mode : false);
+  
+  // ...
+}
+```
+
+**למידה:** תמיד לבדוק את המבנה בפועל של ה-payload בלוגים, לא רק בדוקומנטציה.
+
+---
+
+### בעיה #4: LEMON_WEBHOOK_SECRET לא הוגדר ב-Render
+
+**הבעיה:**
+```
+❌ Missing webhook signature or secret
+Secret: Missing
+```
+
+**הסיבה:**
+ה-`LEMON_WEBHOOK_SECRET` לא הוגדר ב-Render Environment Variables.
+
+**הפתרון:**
+1. הוספנו הודעת שגיאה מפורטת ב-`backend/server/lemon-routes.js`:
+```javascript
+if (!signature || !secret) {
+  console.error('❌ Missing webhook signature or secret');
+  console.error('Please ensure LEMON_WEBHOOK_SECRET=testpassword123 is set in Render environment variables');
+  return res.status(401).json({ error: 'Unauthorized' });
+}
+```
+
+2. הוספנו את המשתנה ב-Render:
+   - `LEMON_WEBHOOK_SECRET=testpassword123`
+
+**למידה:** תמיד לבדוק שכל משתני הסביבה מוגדרים ב-Render לפני בדיקת webhooks.
+
+---
+
+## מבנה Webhook Payload (הסופי והנכון)
+
+לאחר כל התיקונים, זה המבנה הנכון של webhook payload:
+
+```json
+{
+  "meta": {
+    "test_mode": true,                    // ✅ כאן! (לא רק ב-attributes)
+    "event_name": "order_created",
+    "custom_data": {                      // ✅ כאן! (לא ב-attributes.custom)
+      "user_id": "7FWFxKOGZAZe9BylPMsg7T1xkRu2"
+    },
+    "webhook_id": "..."
+  },
+  "data": {
+    "type": "orders",
+    "id": "6757553",
+    "attributes": {
+      "store_id": 230339,
+      "customer_id": 7076294,
+      "identifier": "...",
+      "order_number": 2303399,
+      "user_email": "Shalom.cohen.111@gmail.com",
+      "currency": "USD",
+      "total": 999,
+      "test_mode": true,                  // גם כאן (אבל תמיד לבדוק meta.test_mode ראשון)
+      "created_at": "2025-11-05T08:13:17.000000Z",
+      "order_items": [...]
+    }
+  }
+}
+```
+
+### Webhook Signature Header Format:
+
+Lemon Squeezy שולח את ה-signature בשני פורמטים אפשריים:
+1. `x-signature: sha256=9e49876e161c1ac4e63e32479ea776e2...` (פורמט מתועד)
+2. `x-signature: 9e49876e161c1ac4e63e32479ea776e2...` (פורמט בפועל - נפוץ יותר)
+
+**הקוד תומך בשניהם!**
+
+---
+
+## ✅ מסקנות סופיות - המערכת עובדת!
+
+לאחר כל התיקונים, המערכת נבדקה בהצלחה ב-5 בנובמבר 2025:
+
+### רכישה ראשונה - הצלחה מלאה:
+```
+Frontend:
+  10:12:06 - Counter: 0
+  10:12:18 - Counter updated: 0 → 1 ✅
+
+Backend (Render):
+  08:12:16 - ✅ Webhook signature verified
+  08:12:16 - Found custom_data in meta.custom_data: { user_id: '7FWFxKOGZAZe9BylPMsg7T1xkRu2' }
+  08:12:16 - ✅ Webhook processed successfully: Order 6757374
+  08:12:16 - Test purchase recorded: 6757374
+```
+
+### רכישה שנייה - הצלחה מלאה:
+```
+Frontend:
+  10:12:30 - Buy button clicked
+  10:13:19 - Lemon Squeezy event: Checkout.Success
+  10:13:21 - Counter updated: 1 → 2 ✅
+
+Backend (Render):
+  08:13:18 - ✅ Webhook signature verified
+  08:13:18 - Found custom_data in meta.custom_data: { user_id: '7FWFxKOGZAZe9BylPMsg7T1xkRu2' }
+  08:13:18 - ✅ Webhook processed successfully: Order 6757553
+  08:13:18 - Test purchase recorded: 6757553
+```
+
+### מה עובד:
+1. ✅ **Checkout Creation** - יצירת checkout מול Lemon Squeezy API
+2. ✅ **Checkout Overlay** - פתיחת חלון תשלום ב-SDK
+3. ✅ **Payment Processing** - עיבוד תשלום ב-Lemon Squeezy
+4. ✅ **Webhook Reception** - קבלת webhooks מ-Lemon Squeezy
+5. ✅ **Signature Verification** - אימות חתימת webhook (שני פורמטים)
+6. ✅ **Payload Parsing** - חילוץ נתונים מ-webhook (`meta.custom_data`, `meta.test_mode`)
+7. ✅ **Firestore Recording** - שמירת רכישות ב-Firestore
+8. ✅ **Counter Updates** - עדכון המונה בזמן אמת (polling)
+9. ✅ **Redirect Handling** - חזרה לאתר אחרי רכישה מוצלחת
+
+---
+
+## סיכום כל הבעיות והפתרונות
+
+| בעיה | פתרון | סטטוס |
+|------|-------|-------|
+| Webhook לא מוגדר | הגדר ב-Lemon Squeezy Dashboard | ✅ תוקן |
+| Signature format | תמיכה בשני פורמטים (`sha256=hex` ו-`hex` בלבד) | ✅ תוקן |
+| custom_data location | חיפוש ב-`meta.custom_data` (לא ב-`attributes.custom`) | ✅ תוקן |
+| test_mode location | חיפוש ב-`meta.test_mode` (לא רק ב-`attributes.test_mode`) | ✅ תוקן |
+| LEMON_WEBHOOK_SECRET לא הוגדר | הוספת משתנה ב-Render + הודעת שגיאה מפורטת | ✅ תוקן |
+
+---
+
+**תאריך:** 5 בנובמבר 2025  
+**מסקנה מהמחקר:** 
+1. הבעיה הראשונית הייתה שהמשתמש לא הגדיר webhook ב-Lemon Squeezy Dashboard.
+2. לאחר הגדרת ה-webhook, זוהו ותוקנו בעיות נוספות:
+   - Signature format (שני פורמטים)
+   - מיקום custom_data (meta.custom_data)
+   - מיקום test_mode (meta.test_mode)
+   - LEMON_WEBHOOK_SECRET לא הוגדר
+
+**סטטוס סופי:** ✅ המערכת עובדת במלואה!
