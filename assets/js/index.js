@@ -886,6 +886,18 @@ async function generateSpecification() {
     
     // Generate specification using the legacy API endpoint
     const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai.onrender.com';
+    const requestId = `client-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const requestStartTime = Date.now();
+    
+    console.log(`[${requestId}] ===== CLIENT: generateSpecification START =====`);
+    console.log(`[${requestId}] Timestamp: ${new Date().toISOString()}`);
+    console.log(`[${requestId}] API Base URL: ${apiBaseUrl}`);
+    console.log(`[${requestId}] Request Payload:`, {
+      userInputLength: enhancedPrompt.length,
+      userInputPreview: enhancedPrompt.substring(0, 200),
+      platformInfo: platformInfo
+    });
+    
     const response = await fetch(`${apiBaseUrl}/api/generate-spec`, {
       method: 'POST',
       headers: {
@@ -895,50 +907,88 @@ async function generateSpecification() {
         userInput: enhancedPrompt
       })
     });
+    
+    const requestTime = Date.now() - requestStartTime;
+    console.log(`[${requestId}] 📥 Response received (${requestTime}ms):`, {
+      status: response.status,
+      statusText: response.statusText,
+      ok: response.ok,
+      contentType: response.headers.get('content-type')
+    });
 
     if (!response.ok) {
+      console.error(`[${requestId}] ❌ Response not OK: ${response.status} ${response.statusText}`);
       let errorMessage = 'Failed to generate specification';
+      let errorDetails = null;
+      
       try {
         const errorData = await response.json();
+        errorDetails = errorData;
         errorMessage = errorData.error || errorData.details || errorMessage;
-        console.error('API Error Response:', {
+        console.error(`[${requestId}] API Error Response (JSON):`, {
           status: response.status,
           statusText: response.statusText,
           error: errorData,
           errorString: JSON.stringify(errorData, null, 2)
         });
-        console.error('Full error details:', errorData);
+        console.error(`[${requestId}] Full error details:`, errorData);
       } catch (parseError) {
         // If response is not JSON, try to get text
         try {
           const errorText = await response.text();
+          errorDetails = { text: errorText };
           errorMessage = errorText || `HTTP ${response.status}: ${response.statusText}`;
-          console.error('API Error (non-JSON):', {
+          console.error(`[${requestId}] API Error (non-JSON):`, {
             status: response.status,
             statusText: response.statusText,
-            errorText: errorText
+            errorText: errorText,
+            parseError: parseError.message
           });
         } catch (textError) {
           errorMessage = `HTTP ${response.status}: ${response.statusText}`;
-          console.error('API Error (could not parse):', {
+          errorDetails = { parseError: textError.message };
+          console.error(`[${requestId}] API Error (could not parse):`, {
             status: response.status,
-            statusText: response.statusText
+            statusText: response.statusText,
+            textError: textError.message
           });
         }
       }
+      
+      const totalTime = Date.now() - requestStartTime;
+      console.error(`[${requestId}] ===== CLIENT: generateSpecification FAILED (${totalTime}ms) =====`);
       throw new Error(errorMessage);
     }
 
+    const parseStart = Date.now();
     const data = await response.json();
+    const parseTime = Date.now() - parseStart;
+    
+    console.log(`[${requestId}] ✅ Successfully parsed response (${parseTime}ms)`);
+    console.log(`[${requestId}] Response Data Structure:`, {
+      hasSpecification: !!data.specification,
+      specificationType: typeof data.specification,
+      specificationLength: data.specification?.length || 0,
+      keys: Object.keys(data)
+    });
     
     // Extract overview content from the response
     const overviewContent = data.specification || 'No overview generated';
+    console.log(`[${requestId}] Overview Content:`, {
+      length: overviewContent.length,
+      preview: overviewContent.substring(0, 200)
+    });
     
     // Save to Firebase and redirect
+    console.log(`[${requestId}] 💾 Saving to Firebase...`);
+    const firebaseSaveStart = Date.now();
     const firebaseId = await saveSpecToFirebase(overviewContent, answers);
+    const firebaseSaveTime = Date.now() - firebaseSaveStart;
+    console.log(`[${requestId}] ✅ Saved to Firebase (${firebaseSaveTime}ms): ${firebaseId}`);
     
     // Consume credit after successful spec creation
     try {
+      console.log(`[${requestId}] 💳 Consuming credit...`);
       const token = await user.getIdToken();
       const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai.onrender.com';
       const consumeResponse = await fetch(`${apiBaseUrl}/api/specs/consume-credit`, {
@@ -952,9 +1002,10 @@ async function generateSpecification() {
 
       if (!consumeResponse.ok) {
         const errorData = await consumeResponse.json();
-        console.error('Failed to consume credit:', errorData);
+        console.error(`[${requestId}] ❌ Failed to consume credit:`, errorData);
         // Don't fail the spec creation, but log the error
       } else {
+        console.log(`[${requestId}] ✅ Credit consumed successfully`);
         // Refresh credits display and clear cache
         if (typeof window.clearEntitlementsCache !== 'undefined') {
           window.clearEntitlementsCache();
@@ -964,20 +1015,27 @@ async function generateSpecification() {
         }
       }
     } catch (creditError) {
-      console.error('Error consuming credit:', creditError);
+      console.error(`[${requestId}] ❌ Error consuming credit:`, creditError);
       // Don't fail spec creation
     }
     
     // Trigger OpenAI upload (non-blocking)
     if (window.ENABLE_OPENAI_STORAGE !== false) {
+      console.log(`[${requestId}] 📤 Triggering OpenAI upload (background)...`);
       triggerOpenAIUpload(firebaseId).catch(err => {
-        // Background OpenAI upload failed
+        console.error(`[${requestId}] ❌ Background OpenAI upload failed:`, err);
       });
     }
     
     // Store in localStorage for backup
     localStorage.setItem('generatedOverviewContent', overviewContent);
     localStorage.setItem('initialAnswers', JSON.stringify(answers));
+    console.log(`[${requestId}] 💾 Stored in localStorage for backup`);
+    
+    const totalTime = Date.now() - requestStartTime;
+    console.log(`[${requestId}] ✅ Successfully completed specification generation (${totalTime}ms total)`);
+    console.log(`[${requestId}] 🔄 Redirecting to spec viewer...`);
+    console.log(`[${requestId}] ===== CLIENT: generateSpecification SUCCESS =====`);
     
     // Redirect to spec viewer with Firebase ID
     setTimeout(() => {
@@ -988,8 +1046,15 @@ async function generateSpecification() {
     // Hide loading overlay
     hideLoadingOverlay();
     
+    const totalTime = Date.now() - requestStartTime;
     // Show detailed error message
-    console.error('Full error in generateSpecification:', error);
+    console.error(`[${requestId}] ❌ Full error in generateSpecification (${totalTime}ms):`, {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    });
+    console.error(`[${requestId}] ===== CLIENT: generateSpecification ERROR =====`);
+    
     const errorMessage = error.message || 'Error generating specification. Please try again.';
     
     // Show user-friendly error message
