@@ -295,13 +295,17 @@ app.post('/api/generate-spec', async (req, res) => {
     console.error(`[${requestId}] ❌ ERROR in /api/generate-spec (${totalTime}ms):`, {
       message: error.message,
       stack: error.stack,
-      name: error.name
+      name: error.name,
+      cause: error.cause
     });
     console.error(`[${requestId}] ===== /api/generate-spec REQUEST ERROR =====`);
     
+    // Always include error details in response for debugging
     res.status(500).json({ 
       error: 'Failed to generate specification',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      details: error.message,
+      errorType: error.name,
+      requestId: requestId
     });
   }
 });

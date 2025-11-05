@@ -832,7 +832,14 @@ function updateMicrophoneButton() {
 
 // ===== API INTEGRATION =====
 async function generateSpecification() {
+  // Initialize logging variables at the start of the function
+  const requestId = `client-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  const requestStartTime = Date.now();
+  
   try {
+    console.log(`[${requestId}] ===== CLIENT: generateSpecification START =====`);
+    console.log(`[${requestId}] Timestamp: ${new Date().toISOString()}`);
+    
     // Clear any previous spec data to force creating a NEW spec
     localStorage.removeItem('currentSpecId');
     localStorage.removeItem('generatedOverviewContent');
@@ -841,6 +848,7 @@ async function generateSpecification() {
     // Check if answers exist and are valid
     if (!answers || answers.length !== 4) {
       hideLoadingOverlay();
+      console.error(`[${requestId}] ❌ Validation failed: Invalid answers`);
       alert('Error: Invalid answers provided. Please provide answers to all 4 questions.');
       return;
     }
@@ -849,6 +857,7 @@ async function generateSpecification() {
     const user = firebase.auth().currentUser;
     if (!user) {
       hideLoadingOverlay();
+      console.error(`[${requestId}] ❌ Authentication failed: No user`);
       showRegistrationModal();
       return;
     }
@@ -858,6 +867,7 @@ async function generateSpecification() {
       const entitlementCheck = await checkEntitlement();
       if (!entitlementCheck.hasAccess) {
         hideLoadingOverlay();
+        console.error(`[${requestId}] ❌ Access denied: No credits/entitlement`);
         if (typeof showPaywall !== 'undefined') {
           showPaywall(entitlementCheck.paywallData);
         } else {
@@ -886,12 +896,6 @@ async function generateSpecification() {
     
     // Generate specification using the legacy API endpoint
     const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai.onrender.com';
-    const requestId = `client-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    const requestStartTime = Date.now();
-    
-    console.log(`[${requestId}] ===== CLIENT: generateSpecification START =====`);
-    console.log(`[${requestId}] Timestamp: ${new Date().toISOString()}`);
-    console.log(`[${requestId}] API Base URL: ${apiBaseUrl}`);
     console.log(`[${requestId}] Request Payload:`, {
       userInputLength: enhancedPrompt.length,
       userInputPreview: enhancedPrompt.substring(0, 200),
@@ -920,18 +924,30 @@ async function generateSpecification() {
       console.error(`[${requestId}] ❌ Response not OK: ${response.status} ${response.statusText}`);
       let errorMessage = 'Failed to generate specification';
       let errorDetails = null;
+      let serverRequestId = null;
       
       try {
         const errorData = await response.json();
         errorDetails = errorData;
-        errorMessage = errorData.error || errorData.details || errorMessage;
+        serverRequestId = errorData.requestId;
+        // Build comprehensive error message
+        errorMessage = errorData.details || errorData.error || errorMessage;
+        if (errorData.errorType) {
+          errorMessage += ` (${errorData.errorType})`;
+        }
+        if (serverRequestId) {
+          errorMessage += ` [Server Request ID: ${serverRequestId}]`;
+        }
+        
         console.error(`[${requestId}] API Error Response (JSON):`, {
           status: response.status,
           statusText: response.statusText,
           error: errorData,
-          errorString: JSON.stringify(errorData, null, 2)
+          errorString: JSON.stringify(errorData, null, 2),
+          serverRequestId: serverRequestId
         });
         console.error(`[${requestId}] Full error details:`, errorData);
+        console.error(`[${requestId}] Server Request ID: ${serverRequestId || 'N/A'} - Check server logs with this ID`);
       } catch (parseError) {
         // If response is not JSON, try to get text
         try {
@@ -957,6 +973,9 @@ async function generateSpecification() {
       
       const totalTime = Date.now() - requestStartTime;
       console.error(`[${requestId}] ===== CLIENT: generateSpecification FAILED (${totalTime}ms) =====`);
+      if (serverRequestId) {
+        console.error(`[${requestId}] ⚠️  Check server logs for request ID: ${serverRequestId}`);
+      }
       throw new Error(errorMessage);
     }
 
@@ -1046,7 +1065,9 @@ async function generateSpecification() {
     // Hide loading overlay
     hideLoadingOverlay();
     
-    const totalTime = Date.now() - requestStartTime;
+    // Use requestStartTime if available, otherwise calculate from start
+    const totalTime = requestStartTime ? Date.now() - requestStartTime : 0;
+    
     // Show detailed error message
     console.error(`[${requestId}] ❌ Full error in generateSpecification (${totalTime}ms):`, {
       message: error.message,
