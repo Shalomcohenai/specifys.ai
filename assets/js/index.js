@@ -897,8 +897,34 @@ async function generateSpecification() {
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Failed to generate specification');
+      let errorMessage = 'Failed to generate specification';
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.error || errorData.details || errorMessage;
+        console.error('API Error Response:', {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorData
+        });
+      } catch (parseError) {
+        // If response is not JSON, try to get text
+        try {
+          const errorText = await response.text();
+          errorMessage = errorText || `HTTP ${response.status}: ${response.statusText}`;
+          console.error('API Error (non-JSON):', {
+            status: response.status,
+            statusText: response.statusText,
+            errorText: errorText
+          });
+        } catch (textError) {
+          errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+          console.error('API Error (could not parse):', {
+            status: response.status,
+            statusText: response.statusText
+          });
+        }
+      }
+      throw new Error(errorMessage);
     }
 
     const data = await response.json();
