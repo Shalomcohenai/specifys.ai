@@ -29,6 +29,36 @@ const API_CONFIG = {
 window.API_CONFIG = API_CONFIG;
 window.API_BASE_URL = API_CONFIG.baseUrl;
 
+// Global helper function to get API base URL (with fallbacks)
+window.getApiBaseUrl = function() {
+    // First try to get from API_CONFIG (which should be loaded from config.js)
+    if (typeof API_CONFIG !== 'undefined' && API_CONFIG) {
+        try {
+            const baseUrl = API_CONFIG.baseUrl;
+            if (baseUrl) {
+                return baseUrl;
+            }
+        } catch (e) {
+            console.warn('Error accessing API_CONFIG.baseUrl:', e);
+        }
+    }
+    
+    // Fallback to window.API_BASE_URL (set by config.js)
+    if (typeof window.API_BASE_URL !== 'undefined' && window.API_BASE_URL) {
+        return window.API_BASE_URL;
+    }
+    
+    // Last resort: check if we're in production
+    const hostname = window.location.hostname;
+    if (hostname !== 'localhost' && hostname !== '127.0.0.1') {
+        // We're in production, use Render URL
+        return 'https://specifys-ai.onrender.com';
+    }
+    
+    // Development fallback
+    return 'http://localhost:10000';
+};
+
 // Version logging for frontend
 const FRONTEND_VERSION = '1.2.5-assistant-fix-2025-10-31';
 

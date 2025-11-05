@@ -5592,15 +5592,35 @@ function updateDiagramsStatus(status) {
     
     <!-- Helper function to get API base URL -->
     <script>
-        // Ensure API base URL is always available
+        // Use global getApiBaseUrl function from config.js if available
+        // Otherwise define local fallback
         function getApiBaseUrl() {
-            if (typeof API_CONFIG !== 'undefined' && API_CONFIG && API_CONFIG.baseUrl) {
-                return API_CONFIG.baseUrl;
+            if (typeof window.getApiBaseUrl === 'function') {
+                return window.getApiBaseUrl();
             }
-            if (window.API_BASE_URL) {
+            
+            // Fallback if config.js not loaded
+            if (typeof API_CONFIG !== 'undefined' && API_CONFIG) {
+                try {
+                    const baseUrl = API_CONFIG.baseUrl;
+                    if (baseUrl) {
+                        return baseUrl;
+                    }
+                } catch (e) {
+                    console.warn('Error accessing API_CONFIG.baseUrl:', e);
+                }
+            }
+            
+            if (typeof window.API_BASE_URL !== 'undefined' && window.API_BASE_URL) {
                 return window.API_BASE_URL;
             }
-            // Fallback for development
+            
+            // Last resort: check if we're in production
+            const hostname = window.location.hostname;
+            if (hostname !== 'localhost' && hostname !== '127.0.0.1') {
+                return 'https://specifys-ai.onrender.com';
+            }
+            
             return 'http://localhost:10000';
         }
     </script>

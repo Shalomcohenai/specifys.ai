@@ -164,7 +164,8 @@ class BlogManager {
 
         try {
             // Send to backend
-            const response = await fetch(`${window.API_BASE_URL || 'http://localhost:10000'}/api/blog/create-post`, {
+            const apiBaseUrl = (typeof window.getApiBaseUrl === 'function') ? window.getApiBaseUrl() : (window.API_BASE_URL || 'http://localhost:10000');
+            const response = await fetch(`${apiBaseUrl}/api/blog/create-post`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -293,7 +294,8 @@ class BlogManager {
         }
 
         try {
-            const response = await fetch(`${window.API_BASE_URL || 'http://localhost:10000'}/api/blog/delete-post`, {
+            const apiBaseUrl = (typeof window.getApiBaseUrl === 'function') ? window.getApiBaseUrl() : (window.API_BASE_URL || 'http://localhost:10000');
+            const response = await fetch(`${apiBaseUrl}/api/blog/delete-post`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

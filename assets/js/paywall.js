@@ -32,7 +32,8 @@
 
     try {
       const token = await user.getIdToken();
-      const response = await fetch(`${window.API_BASE_URL || window.API_CONFIG?.baseUrl || 'http://localhost:10000'}/api/specs/entitlements`, {
+      const apiBaseUrl = (typeof window.getApiBaseUrl === 'function') ? window.getApiBaseUrl() : (window.API_BASE_URL || window.API_CONFIG?.baseUrl || 'http://localhost:10000');
+      const response = await fetch(`${apiBaseUrl}/api/specs/entitlements`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
