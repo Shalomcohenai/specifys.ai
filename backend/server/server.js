@@ -206,13 +206,26 @@ app.post('/api/generate-spec', async (req, res) => {
     const workerRequestStart = Date.now();
 
     // Forward request to Cloudflare Worker
-    const response = await fetch('https://newnocode.shalom-cohen-111.workers.dev/generate', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(workerPayload),
-    });
+    let response;
+    try {
+      console.log(`[${requestId}] 🔄 Attempting to fetch from Cloudflare Worker...`);
+      response = await fetch('https://newnocode.shalom-cohen-111.workers.dev/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(workerPayload),
+      });
+      console.log(`[${requestId}] ✅ Fetch completed successfully`);
+    } catch (fetchError) {
+      console.error(`[${requestId}] ❌ Fetch failed:`, {
+        message: fetchError.message,
+        name: fetchError.name,
+        stack: fetchError.stack,
+        cause: fetchError.cause
+      });
+      throw new Error(`Failed to connect to Cloudflare Worker: ${fetchError.message}`);
+    }
 
     const workerRequestTime = Date.now() - workerRequestStart;
     console.log(`[${requestId}] ⏱️  Worker request took ${workerRequestTime}ms`);
