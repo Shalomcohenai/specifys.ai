@@ -1618,7 +1618,7 @@
 }
 
 .btn-understand {
-  background: #666;
+  background: #FF6B35;
   color: #fff;
   border: none;
   border-radius: 25px;
@@ -1627,12 +1627,12 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(102, 102, 102, 0.3);
+  box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
 }
 
 .btn-understand:hover {
-  background: #777;
-  box-shadow: 0 6px 20px rgba(102, 102, 102, 0.4);
+  background: #FF8551;
+  box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
 }
 
 /* ===== ANIMATIONS ===== */
