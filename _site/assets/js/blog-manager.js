@@ -164,7 +164,7 @@ class BlogManager {
 
         try {
             // Send to backend
-            const apiBaseUrl = (typeof window.getApiBaseUrl === 'function') ? window.getApiBaseUrl() : (window.API_BASE_URL || 'http://localhost:10000');
+            const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai.onrender.com';
             const response = await fetch(`${apiBaseUrl}/api/blog/create-post`, {
                 method: 'POST',
                 headers: {
@@ -294,7 +294,7 @@ class BlogManager {
         }
 
         try {
-            const apiBaseUrl = (typeof window.getApiBaseUrl === 'function') ? window.getApiBaseUrl() : (window.API_BASE_URL || 'http://localhost:10000');
+            const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai.onrender.com';
             const response = await fetch(`${apiBaseUrl}/api/blog/delete-post`, {
                 method: 'POST',
                 headers: {

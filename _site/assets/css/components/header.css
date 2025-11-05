@@ -1,26 +1,6 @@
 /* Header - Specifys.ai */
 /* Based on about.html page */
 
-/* Skip to main content link - accessibility */
-.skip-link {
-  position: absolute;
-  top: -40px;
-  left: 0;
-  background: var(--primary-color);
-  color: white;
-  padding: 8px 16px;
-  text-decoration: none;
-  border-radius: 0 0 4px 0;
-  z-index: 100000;
-  transition: top 0.3s;
-}
-
-.skip-link:focus {
-  top: 0;
-  outline: 3px solid var(--primary-hover);
-  outline-offset: 2px;
-}
-
 .thematic-header {
   display: flex;
   justify-content: space-between;

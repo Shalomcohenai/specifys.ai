@@ -865,7 +865,7 @@ async function generateSpecification() {
     const enhancedPrompt = `${prompt}\n\n${platformText}`;
     
     // Generate specification using the legacy API endpoint
-    const apiBaseUrl = (typeof window.getApiBaseUrl === 'function') ? window.getApiBaseUrl() : (window.API_BASE_URL || 'http://localhost:10000');
+    const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai.onrender.com';
     const response = await fetch(`${apiBaseUrl}/api/generate-spec`, {
       method: 'POST',
       headers: {
@@ -892,7 +892,7 @@ async function generateSpecification() {
     // Consume credit after successful spec creation
     try {
       const token = await user.getIdToken();
-      const apiBaseUrl = (typeof window.getApiBaseUrl === 'function') ? window.getApiBaseUrl() : (window.API_BASE_URL || 'http://localhost:10000');
+      const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai.onrender.com';
       const consumeResponse = await fetch(`${apiBaseUrl}/api/specs/consume-credit`, {
         method: 'POST',
         headers: {
@@ -1050,7 +1050,7 @@ async function triggerOpenAIUpload(specId) {
     }
     
     const token = await user.getIdToken();
-    const apiBaseUrl = (typeof window.getApiBaseUrl === 'function') ? window.getApiBaseUrl() : (window.API_BASE_URL || 'http://localhost:10000');
+    const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai.onrender.com';
     const response = await fetch(`${apiBaseUrl}/api/specs/${specId}/upload-to-openai`, {
       method: 'POST',
       headers: {

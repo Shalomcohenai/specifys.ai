@@ -194,10 +194,6 @@
 
 <body>
     <!-- Header -->
-    <!-- Skip to main content link for accessibility -->
-<a href="#main-content" class="skip-link">Skip to main content</a>
-
-<!-- Header -->
 <header class="thematic-header" role="banner">
     <div class="header-center">
         <div class="logo">
@@ -5603,7 +5599,7 @@ function updateDiagramsStatus(status) {
             if (typeof API_CONFIG !== 'undefined' && API_CONFIG) {
                 try {
                     const baseUrl = API_CONFIG.baseUrl;
-                    if (baseUrl) {
+                    if (baseUrl && baseUrl.trim()) {
                         return baseUrl;
                     }
                 } catch (e) {
@@ -5611,17 +5607,12 @@ function updateDiagramsStatus(status) {
                 }
             }
             
-            if (typeof window.API_BASE_URL !== 'undefined' && window.API_BASE_URL) {
+            if (window.API_BASE_URL && window.API_BASE_URL.trim()) {
                 return window.API_BASE_URL;
             }
             
-            // Last resort: check if we're in production
-            const hostname = window.location.hostname;
-            if (hostname !== 'localhost' && hostname !== '127.0.0.1') {
-                return 'https://specifys-ai.onrender.com';
-            }
-            
-            return 'http://localhost:10000';
+            // Always return Render URL - no localhost support
+            return 'https://specifys-ai.onrender.com';
         }
     </script>
     
