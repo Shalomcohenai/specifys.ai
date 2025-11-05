@@ -30,6 +30,22 @@ class OpenAIStorageService {
    * @returns {Promise<string>} File ID from OpenAI
    */
   async uploadSpec(specId, specData) {
+    const requestId = `upload-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const startTime = Date.now();
+    
+    console.log(`[${requestId}] ===== uploadSpec START =====`);
+    console.log(`[${requestId}] Timestamp: ${new Date().toISOString()}`);
+    console.log(`[${requestId}] Spec ID: ${specId}`);
+    console.log(`[${requestId}] Spec Data:`, {
+      hasTitle: !!specData.title,
+      hasOverview: !!specData.overview,
+      hasTechnical: !!specData.technical,
+      hasMarket: !!specData.market,
+      hasDesign: !!specData.design,
+      overviewLength: specData.overview?.length || 0,
+      technicalLength: specData.technical?.length || 0
+    });
+    
     try {
       // Extract ONLY the relevant spec content (filter out metadata)
       const cleanedData = {
@@ -42,6 +58,9 @@ class OpenAIStorageService {
       };
       
       const content = JSON.stringify(cleanedData, null, 2);
+      const contentLength = content.length;
+      console.log(`[${requestId}] 📝 Prepared cleaned data, length: ${contentLength} bytes`);
+      
       const formData = new FormData();
       
       formData.append('file', Buffer.from(content), {
@@ -50,6 +69,11 @@ class OpenAIStorageService {
       });
       formData.append('purpose', 'assistants');
       
+      console.log(`[${requestId}] 📤 Preparing FormData upload to OpenAI Files API`);
+      console.log(`[${requestId}] OpenAI URL: ${this.baseURL}/files`);
+      console.log(`[${requestId}] FormData: filename=spec-${specId}.json, purpose=assistants`);
+      
+      const uploadStart = Date.now();
       const response = await this._fetch(`${this.baseURL}/files`, {
         method: 'POST',
         headers: {
@@ -59,16 +83,60 @@ class OpenAIStorageService {
         body: formData
       });
       
+      const uploadTime = Date.now() - uploadStart;
+      console.log(`[${requestId}] ⏱️  OpenAI upload request took ${uploadTime}ms`);
+      console.log(`[${requestId}] 📥 Response Status: ${response.status} ${response.statusText}`);
+      console.log(`[${requestId}] Response Headers:`, {
+        'content-type': response.headers.get('content-type'),
+        'content-length': response.headers.get('content-length')
+      });
+      
       if (!response.ok) {
-        const error = await response.text();
-        throw new Error(`OpenAI upload failed: ${error}`);
+        let errorText;
+        try {
+          errorText = await response.text();
+          console.error(`[${requestId}] ❌ OpenAI upload failed:`, {
+            status: response.status,
+            statusText: response.statusText,
+            error: errorText
+          });
+        } catch (textError) {
+          errorText = `HTTP ${response.status}: ${response.statusText}`;
+          console.error(`[${requestId}] ❌ Failed to read error response:`, textError.message);
+        }
+        
+        const totalTime = Date.now() - startTime;
+        console.error(`[${requestId}] ===== uploadSpec FAILED (${totalTime}ms) =====`);
+        throw new Error(`OpenAI upload failed: ${errorText}`);
       }
       
+      const parseStart = Date.now();
       const result = await response.json();
+      const parseTime = Date.now() - parseStart;
+      
+      console.log(`[${requestId}] ✅ Successfully parsed OpenAI response (${parseTime}ms)`);
+      console.log(`[${requestId}] Response Data:`, {
+        id: result.id,
+        object: result.object,
+        bytes: result.bytes,
+        created_at: result.created_at,
+        filename: result.filename,
+        purpose: result.purpose
+      });
+      
+      const totalTime = Date.now() - startTime;
+      console.log(`[${requestId}] ✅ uploadSpec SUCCESS - File ID: ${result.id} (${totalTime}ms total)`);
+      console.log(`[${requestId}] ===== uploadSpec COMPLETE =====`);
 
       return result.id;
     } catch (error) {
-
+      const totalTime = Date.now() - startTime;
+      console.error(`[${requestId}] ❌ ERROR in uploadSpec (${totalTime}ms):`, {
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      });
+      console.error(`[${requestId}] ===== uploadSpec ERROR =====`);
       throw error;
     }
   }
@@ -157,7 +225,19 @@ class OpenAIStorageService {
    * @returns {Promise<object>} Assistant object
    */
   async createAssistant(specId, fileId) {
+    const requestId = `create-assistant-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const startTime = Date.now();
+    
+    console.log(`[${requestId}] ===== createAssistant START =====`);
+    console.log(`[${requestId}] Timestamp: ${new Date().toISOString()}`);
+    console.log(`[${requestId}] Spec ID: ${specId}`);
+    console.log(`[${requestId}] File ID: ${fileId}`);
+    
     try {
+      console.log(`[${requestId}] 📤 Step 1: Creating assistant with OpenAI API`);
+      console.log(`[${requestId}] OpenAI URL: ${this.baseURL}/assistants`);
+      
+      const createStart = Date.now();
       const response = await this._fetch(`${this.baseURL}/assistants`, {
         method: 'POST',
         headers: {
@@ -192,15 +272,44 @@ Always reference specific parts of the spec when relevant.`,
         })
       });
       
+      const createTime = Date.now() - createStart;
+      console.log(`[${requestId}] ⏱️  Assistant creation request took ${createTime}ms`);
+      console.log(`[${requestId}] 📥 Response Status: ${response.status} ${response.statusText}`);
+      
       if (!response.ok) {
-        const errorText = await response.text();
+        let errorText;
+        try {
+          errorText = await response.text();
+          console.error(`[${requestId}] ❌ Failed to create assistant:`, {
+            status: response.status,
+            statusText: response.statusText,
+            error: errorText
+          });
+        } catch (textError) {
+          errorText = `HTTP ${response.status}: ${response.statusText}`;
+          console.error(`[${requestId}] ❌ Failed to read error response:`, textError.message);
+        }
+        
+        const totalTime = Date.now() - startTime;
+        console.error(`[${requestId}] ===== createAssistant FAILED (${totalTime}ms) =====`);
         throw new Error(`Failed to create assistant: ${errorText}`);
       }
       
       const assistant = await response.json();
+      console.log(`[${requestId}] ✅ Assistant created successfully:`, {
+        id: assistant.id,
+        name: assistant.name,
+        model: assistant.model,
+        created_at: assistant.created_at
+      });
       
       // Now add the file to the assistant
-      const fileSearchResponse = await fetch(`${this.baseURL}/vector_stores`, {
+      console.log(`[${requestId}] 📤 Step 2: Creating vector store for file`);
+      console.log(`[${requestId}] OpenAI URL: ${this.baseURL}/vector_stores`);
+      console.log(`[${requestId}] Vector Store Name: Spec Vector Store - ${specId}`);
+      
+      const vectorStoreStart = Date.now();
+      const fileSearchResponse = await this._fetch(`${this.baseURL}/vector_stores`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${this.apiKey}`,
@@ -213,22 +322,57 @@ Always reference specific parts of the spec when relevant.`,
         })
       });
       
+      const vectorStoreTime = Date.now() - vectorStoreStart;
+      console.log(`[${requestId}] ⏱️  Vector store creation request took ${vectorStoreTime}ms`);
+      console.log(`[${requestId}] 📥 Response Status: ${fileSearchResponse.status} ${fileSearchResponse.statusText}`);
+      
       if (!fileSearchResponse.ok) {
+        let errorText;
+        try {
+          errorText = await fileSearchResponse.text();
+          console.error(`[${requestId}] ⚠️  Failed to create vector store:`, {
+            status: fileSearchResponse.status,
+            statusText: fileSearchResponse.statusText,
+            error: errorText
+          });
+          console.log(`[${requestId}] ⚠️  Returning assistant without vector store`);
+        } catch (textError) {
+          console.error(`[${requestId}] ⚠️  Failed to read error response:`, textError.message);
+        }
 
+        const totalTime = Date.now() - startTime;
+        console.log(`[${requestId}] ⚠️  createAssistant COMPLETE (without vector store) (${totalTime}ms)`);
+        console.log(`[${requestId}] ===== createAssistant COMPLETE =====`);
         return assistant;
       }
       
       const vectorStore = await fileSearchResponse.json();
+      console.log(`[${requestId}] ✅ Vector store created successfully:`, {
+        id: vectorStore.id,
+        name: vectorStore.name,
+        file_counts: vectorStore.file_counts,
+        status: vectorStore.status
+      });
       
       // Wait for vector store to be ready
-
+      console.log(`[${requestId}] ⏳ Step 3: Waiting for vector store to be ready`);
+      const waitStart = Date.now();
       const isReady = await this.waitForVectorStoreReady(vectorStore.id);
+      const waitTime = Date.now() - waitStart;
+      console.log(`[${requestId}] ⏱️  Vector store ready check took ${waitTime}ms`);
+      
       if (!isReady) {
-
+        console.warn(`[${requestId}] ⚠️  Vector store not ready after waiting, but continuing`);
+      } else {
+        console.log(`[${requestId}] ✅ Vector store is ready`);
       }
       
       // Update assistant with vector store
-      const updateResponse = await fetch(`${this.baseURL}/assistants/${assistant.id}`, {
+      console.log(`[${requestId}] 📤 Step 4: Updating assistant with vector store`);
+      console.log(`[${requestId}] OpenAI URL: ${this.baseURL}/assistants/${assistant.id}`);
+      
+      const updateStart = Date.now();
+      const updateResponse = await this._fetch(`${this.baseURL}/assistants/${assistant.id}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${this.apiKey}`,
@@ -244,18 +388,48 @@ Always reference specific parts of the spec when relevant.`,
         })
       });
       
+      const updateTime = Date.now() - updateStart;
+      console.log(`[${requestId}] ⏱️  Assistant update request took ${updateTime}ms`);
+      console.log(`[${requestId}] 📥 Response Status: ${updateResponse.status} ${updateResponse.statusText}`);
+      
       if (!updateResponse.ok) {
-        const errorText = await updateResponse.text();
+        let errorText;
+        try {
+          errorText = await updateResponse.text();
+          console.error(`[${requestId}] ❌ Failed to update assistant with vector store:`, {
+            status: updateResponse.status,
+            statusText: updateResponse.statusText,
+            error: errorText
+          });
+        } catch (textError) {
+          errorText = `HTTP ${updateResponse.status}: ${updateResponse.statusText}`;
+          console.error(`[${requestId}] ❌ Failed to read error response:`, textError.message);
+        }
 
+        const totalTime = Date.now() - startTime;
+        console.error(`[${requestId}] ===== createAssistant FAILED (${totalTime}ms) =====`);
         throw new Error(`Failed to update assistant with vector store: ${errorText}`);
       }
       
       const updatedAssistant = await updateResponse.json();
-
+      console.log(`[${requestId}] ✅ Assistant updated successfully with vector store:`, {
+        id: updatedAssistant.id,
+        vectorStoreIds: updatedAssistant.tool_resources?.file_search?.vector_store_ids || []
+      });
+      
+      const totalTime = Date.now() - startTime;
+      console.log(`[${requestId}] ✅ createAssistant SUCCESS (${totalTime}ms total)`);
+      console.log(`[${requestId}] ===== createAssistant COMPLETE =====`);
       
       return updatedAssistant;
     } catch (error) {
-
+      const totalTime = Date.now() - startTime;
+      console.error(`[${requestId}] ❌ ERROR in createAssistant (${totalTime}ms):`, {
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      });
+      console.error(`[${requestId}] ===== createAssistant ERROR =====`);
       throw error;
     }
   }
@@ -366,28 +540,59 @@ Always reference specific parts of the spec when relevant.`,
    * @returns {Promise<object>} Updated assistant object
    */
   async ensureAssistantHasVectorStore(assistantId, fileId) {
+    const requestId = `ensure-vector-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const startTime = Date.now();
+    
+    console.log(`[${requestId}] ===== ensureAssistantHasVectorStore START =====`);
+    console.log(`[${requestId}] Timestamp: ${new Date().toISOString()}`);
+    console.log(`[${requestId}] Assistant ID: ${assistantId}`);
+    console.log(`[${requestId}] File ID: ${fileId}`);
+    
     try {
       // Get current assistant
+      console.log(`[${requestId}] 📤 Step 1: Getting current assistant`);
+      const getStart = Date.now();
       const assistant = await this.getAssistant(assistantId);
+      const getTime = Date.now() - getStart;
+      console.log(`[${requestId}] ⏱️  Get assistant took ${getTime}ms`);
+      console.log(`[${requestId}] Assistant Data:`, {
+        id: assistant.id,
+        name: assistant.name,
+        model: assistant.model
+      });
       
       // Check if assistant already has vector store
       const currentVectorStoreIds = assistant.tool_resources?.file_search?.vector_store_ids || [];
+      console.log(`[${requestId}] Current Vector Store IDs:`, currentVectorStoreIds);
       
       if (currentVectorStoreIds.length > 0) {
-
+        console.log(`[${requestId}] ✅ Assistant already has vector stores configured`);
+        
         // Verify all vector stores are ready
+        console.log(`[${requestId}] ⏳ Step 2: Verifying vector stores are ready`);
         for (const vsId of currentVectorStoreIds) {
+          console.log(`[${requestId}] Checking vector store: ${vsId}`);
           const isReady = await this.waitForVectorStoreReady(vsId, 10); // Quick check
           if (!isReady) {
-
+            console.warn(`[${requestId}] ⚠️  Vector store ${vsId} is not ready, but continuing`);
+          } else {
+            console.log(`[${requestId}] ✅ Vector store ${vsId} is ready`);
           }
         }
+        
+        const totalTime = Date.now() - startTime;
+        console.log(`[${requestId}] ✅ ensureAssistantHasVectorStore COMPLETE (already configured) (${totalTime}ms)`);
+        console.log(`[${requestId}] ===== ensureAssistantHasVectorStore COMPLETE =====`);
         return assistant;
       }
       
       // Create new vector store
-
-      const fileSearchResponse = await fetch(`${this.baseURL}/vector_stores`, {
+      console.log(`[${requestId}] 📤 Step 2: Creating new vector store`);
+      console.log(`[${requestId}] OpenAI URL: ${this.baseURL}/vector_stores`);
+      console.log(`[${requestId}] Vector Store Name: Vector Store for ${assistantId}`);
+      
+      const vectorStoreStart = Date.now();
+      const fileSearchResponse = await this._fetch(`${this.baseURL}/vector_stores`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${this.apiKey}`,
@@ -400,22 +605,56 @@ Always reference specific parts of the spec when relevant.`,
         })
       });
       
+      const vectorStoreTime = Date.now() - vectorStoreStart;
+      console.log(`[${requestId}] ⏱️  Vector store creation request took ${vectorStoreTime}ms`);
+      console.log(`[${requestId}] 📥 Response Status: ${fileSearchResponse.status} ${fileSearchResponse.statusText}`);
+      
       if (!fileSearchResponse.ok) {
-        const errorText = await fileSearchResponse.text();
+        let errorText;
+        try {
+          errorText = await fileSearchResponse.text();
+          console.error(`[${requestId}] ❌ Failed to create vector store:`, {
+            status: fileSearchResponse.status,
+            statusText: fileSearchResponse.statusText,
+            error: errorText
+          });
+        } catch (textError) {
+          errorText = `HTTP ${fileSearchResponse.status}: ${fileSearchResponse.statusText}`;
+          console.error(`[${requestId}] ❌ Failed to read error response:`, textError.message);
+        }
+        
+        const totalTime = Date.now() - startTime;
+        console.error(`[${requestId}] ===== ensureAssistantHasVectorStore FAILED (${totalTime}ms) =====`);
         throw new Error(`Failed to create vector store: ${errorText}`);
       }
       
       const vectorStore = await fileSearchResponse.json();
-
+      console.log(`[${requestId}] ✅ Vector store created successfully:`, {
+        id: vectorStore.id,
+        name: vectorStore.name,
+        file_counts: vectorStore.file_counts,
+        status: vectorStore.status
+      });
       
       // Wait for vector store to be ready
+      console.log(`[${requestId}] ⏳ Step 3: Waiting for vector store to be ready`);
+      const waitStart = Date.now();
       const isReady = await this.waitForVectorStoreReady(vectorStore.id);
+      const waitTime = Date.now() - waitStart;
+      console.log(`[${requestId}] ⏱️  Vector store ready check took ${waitTime}ms`);
+      
       if (!isReady) {
-
+        console.warn(`[${requestId}] ⚠️  Vector store not ready after waiting, but continuing`);
+      } else {
+        console.log(`[${requestId}] ✅ Vector store is ready`);
       }
       
       // Update assistant with vector store
-      const updateResponse = await fetch(`${this.baseURL}/assistants/${assistantId}`, {
+      console.log(`[${requestId}] 📤 Step 4: Updating assistant with vector store`);
+      console.log(`[${requestId}] OpenAI URL: ${this.baseURL}/assistants/${assistantId}`);
+      
+      const updateStart = Date.now();
+      const updateResponse = await this._fetch(`${this.baseURL}/assistants/${assistantId}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${this.apiKey}`,
@@ -431,30 +670,60 @@ Always reference specific parts of the spec when relevant.`,
         })
       });
       
+      const updateTime = Date.now() - updateStart;
+      console.log(`[${requestId}] ⏱️  Assistant update request took ${updateTime}ms`);
+      console.log(`[${requestId}] 📥 Response Status: ${updateResponse.status} ${updateResponse.statusText}`);
+      
       if (!updateResponse.ok) {
-        const errorText = await updateResponse.text();
+        let errorText;
+        try {
+          errorText = await updateResponse.text();
+          console.error(`[${requestId}] ❌ Failed to update assistant with vector store:`, {
+            status: updateResponse.status,
+            statusText: updateResponse.statusText,
+            error: errorText
+          });
+        } catch (textError) {
+          errorText = `HTTP ${updateResponse.status}: ${updateResponse.statusText}`;
+          console.error(`[${requestId}] ❌ Failed to read error response:`, textError.message);
+        }
 
+        const totalTime = Date.now() - startTime;
+        console.error(`[${requestId}] ===== ensureAssistantHasVectorStore FAILED (${totalTime}ms) =====`);
         throw new Error(`Failed to update assistant with vector store: ${errorText}`);
       }
       
       const updatedAssistant = await updateResponse.json();
-
+      console.log(`[${requestId}] ✅ Assistant updated successfully with vector store:`, {
+        id: updatedAssistant.id,
+        vectorStoreIds: updatedAssistant.tool_resources?.file_search?.vector_store_ids || []
+      });
       
       // Wait a bit to ensure OpenAI API has processed the update
+      console.log(`[${requestId}] ⏳ Step 5: Waiting 2s for OpenAI API to process update`);
       await new Promise(resolve => setTimeout(resolve, 2000));
       
       // Verify the update was successful by fetching the assistant again
+      console.log(`[${requestId}] 🔍 Step 6: Verifying update was successful`);
+      const verifyStart = Date.now();
       let verifiedAssistant = await this.getAssistant(assistantId);
+      const verifyTime = Date.now() - verifyStart;
+      console.log(`[${requestId}] ⏱️  Verification took ${verifyTime}ms`);
+      
       let verifiedVectorStoreIds = verifiedAssistant.tool_resources?.file_search?.vector_store_ids || [];
+      console.log(`[${requestId}] Verified Vector Store IDs:`, verifiedVectorStoreIds);
       
       // Retry up to 3 times if update didn't stick
       let retries = 0;
       while (verifiedVectorStoreIds.length === 0 && retries < 3) {
-
+        console.warn(`[${requestId}] ⚠️  Update didn't stick (attempt ${retries + 1}/3), retrying...`);
+        
         await new Promise(resolve => setTimeout(resolve, 2000));
         
         // Update again
-        const retryUpdateResponse = await fetch(`${this.baseURL}/assistants/${assistantId}`, {
+        console.log(`[${requestId}] 📤 Retry: Updating assistant again`);
+        const retryStart = Date.now();
+        const retryUpdateResponse = await this._fetch(`${this.baseURL}/assistants/${assistantId}`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${this.apiKey}`,
@@ -524,6 +793,14 @@ Always reference specific parts of the spec when relevant.`,
    * @returns {Promise<Array>} Array of diagram objects
    */
   async generateDiagrams(specId, assistantId) {
+    const requestId = `generate-diagrams-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const startTime = Date.now();
+    
+    console.log(`[${requestId}] ===== generateDiagrams START =====`);
+    console.log(`[${requestId}] Timestamp: ${new Date().toISOString()}`);
+    console.log(`[${requestId}] Spec ID: ${specId}`);
+    console.log(`[${requestId}] Assistant ID: ${assistantId}`);
+    
     try {
 
       
@@ -668,19 +945,41 @@ CRITICAL REQUIREMENTS FOR ALL DIAGRAMS:
       const maxRetries = 3;
       let retryCount = 0;
       
+      console.log(`[${requestId}] 📤 Starting diagram generation with retry logic (max ${maxRetries} retries)`);
+      
       while (retryCount < maxRetries) {
         try {
+          console.log(`[${requestId}] 🔄 Attempt ${retryCount + 1}/${maxRetries}`);
+          
+          console.log(`[${requestId}] 📤 Step 1: Creating thread`);
+          const threadStart = Date.now();
           thread = await this.createThread();
+          const threadTime = Date.now() - threadStart;
+          console.log(`[${requestId}] ⏱️  Thread creation took ${threadTime}ms`);
+          console.log(`[${requestId}] ✅ Thread created: ${thread.id}`);
 
           
           // Send message using Assistant
+          console.log(`[${requestId}] 📤 Step 2: Sending message to assistant`);
+          console.log(`[${requestId}] Prompt length: ${prompt.length} characters`);
+          const messageStart = Date.now();
           response = await this.sendMessage(thread.id, assistantId, prompt);
+          const messageTime = Date.now() - messageStart;
+          console.log(`[${requestId}] ⏱️  Message sending took ${messageTime}ms`);
+          console.log(`[${requestId}] ✅ Response received, length: ${response?.length || 0} characters`);
 
           
           // Success - break out of retry loop
+          console.log(`[${requestId}] ✅ Diagram generation successful on attempt ${retryCount + 1}`);
           break;
         } catch (error) {
           retryCount++;
+          console.error(`[${requestId}] ❌ Attempt ${retryCount} failed:`, {
+            message: error.message,
+            name: error.name,
+            isCorruptedAssistant: error.isCorruptedAssistant
+          });
+          
           const isServerError = error.message && (
             error.message.includes('server_error') || 
             error.message.includes('rate_limit') ||
@@ -689,45 +988,74 @@ CRITICAL REQUIREMENTS FOR ALL DIAGRAMS:
           
           // Preserve corrupted assistant flag if present
           if (error.isCorruptedAssistant) {
+            console.error(`[${requestId}] ❌ Assistant is corrupted, not retrying`);
             // Don't retry if assistant is corrupted - let caller handle recreation
             throw error;
           }
           
           if (retryCount >= maxRetries || !isServerError) {
+            console.error(`[${requestId}] ❌ Not retrying (retryCount=${retryCount}, maxRetries=${maxRetries}, isServerError=${isServerError})`);
             // If it's not a retryable error or we've exhausted retries, throw
             throw error;
           }
           
-
+          const backoffTime = 1000 * retryCount;
+          console.log(`[${requestId}] ⏳ Waiting ${backoffTime}ms before retry (exponential backoff)`);
           // Wait before retry (exponential backoff)
-          await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
+          await new Promise(resolve => setTimeout(resolve, backoffTime));
         }
       }
 
       // Parse JSON response robustly
+      console.log(`[${requestId}] 📤 Step 3: Parsing JSON response`);
+      const parseStart = Date.now();
       let parsed;
       try {
         parsed = JSON.parse(response);
+        const parseTime = Date.now() - parseStart;
+        console.log(`[${requestId}] ⏱️  JSON parsing took ${parseTime}ms`);
+        console.log(`[${requestId}] ✅ Successfully parsed JSON`);
       } catch (e) {
+        console.warn(`[${requestId}] ⚠️  Direct JSON parse failed, trying fallback:`, e.message);
 
         // Fallback: try to extract JSON if model returned fenced code
         const jsonMatch = response.match(/```json\s*([\s\S]*?)\s*```/) || response.match(/```\s*([\s\S]*?)\s*```/);
         if (jsonMatch) {
+          console.log(`[${requestId}] ✅ Found JSON in code block, parsing...`);
           parsed = JSON.parse(jsonMatch[1]);
+          const parseTime = Date.now() - parseStart;
+          console.log(`[${requestId}] ⏱️  Fallback JSON parsing took ${parseTime}ms`);
         } else {
           const snippet = response.slice(0, 200);
+          console.error(`[${requestId}] ❌ Failed to parse diagrams JSON. Preview:`, snippet);
           throw new Error(`Failed to parse diagrams JSON. Preview: ${snippet}`);
         }
       }
 
       if (parsed && Array.isArray(parsed.diagrams)) {
+        console.log(`[${requestId}] ✅ Diagrams array found, count: ${parsed.diagrams.length}`);
+        const totalTime = Date.now() - startTime;
+        console.log(`[${requestId}] ✅ generateDiagrams SUCCESS (${totalTime}ms total)`);
+        console.log(`[${requestId}] ===== generateDiagrams COMPLETE =====`);
 
         return parsed.diagrams;
       }
 
+      console.error(`[${requestId}] ❌ Invalid diagrams structure:`, {
+        hasParsed: !!parsed,
+        hasDiagrams: !!(parsed && parsed.diagrams),
+        isArray: !!(parsed && Array.isArray(parsed.diagrams)),
+        parsedKeys: parsed ? Object.keys(parsed) : []
+      });
       throw new Error('Invalid diagrams structure returned from API (missing diagrams array)');
     } catch (error) {
-
+      const totalTime = Date.now() - startTime;
+      console.error(`[${requestId}] ❌ ERROR in generateDiagrams (${totalTime}ms):`, {
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      });
+      console.error(`[${requestId}] ===== generateDiagrams ERROR =====`);
       throw error;
     }
   }
@@ -829,21 +1157,46 @@ Return ONLY the corrected Mermaid code.`;
    * @returns {Promise<string>} Assistant response
    */
   async sendMessage(threadId, assistantId, message) {
+    const requestId = `send-message-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const startTime = Date.now();
+    
+    console.log(`[${requestId}] ===== sendMessage START =====`);
+    console.log(`[${requestId}] Timestamp: ${new Date().toISOString()}`);
+    console.log(`[${requestId}] Thread ID: ${threadId}`);
+    console.log(`[${requestId}] Assistant ID: ${assistantId}`);
+    console.log(`[${requestId}] Message length: ${message.length} characters`);
+    
     try {
       // Verify assistant has tool_resources configured before sending
+      console.log(`[${requestId}] 📤 Step 1: Verifying assistant configuration`);
+      const checkStart = Date.now();
       const assistantCheck = await this.getAssistant(assistantId);
+      const checkTime = Date.now() - checkStart;
+      console.log(`[${requestId}] ⏱️  Assistant check took ${checkTime}ms`);
+      
       const hasVectorStore = assistantCheck.tool_resources?.file_search?.vector_store_ids?.length > 0;
+      const vectorStoreIds = assistantCheck.tool_resources?.file_search?.vector_store_ids || [];
+      console.log(`[${requestId}] Assistant Configuration:`, {
+        hasVectorStore,
+        vectorStoreIds,
+        toolCount: assistantCheck.tools?.length || 0
+      });
       
       if (!hasVectorStore) {
-
+        console.error(`[${requestId}] ❌ Assistant has no vector store configured`);
 
         throw new Error(`Assistant ${assistantId} has no vector store configured. Cannot send message.`);
       }
       
+      console.log(`[${requestId}] ✅ Assistant configuration verified`);
 
       
       // Add message to thread
-      const messageResponse = await fetch(`${this.baseURL}/threads/${threadId}/messages`, {
+      console.log(`[${requestId}] 📤 Step 2: Adding message to thread`);
+      console.log(`[${requestId}] OpenAI URL: ${this.baseURL}/threads/${threadId}/messages`);
+      
+      const messageStart = Date.now();
+      const messageResponse = await this._fetch(`${this.baseURL}/threads/${threadId}/messages`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${this.apiKey}`,
@@ -856,25 +1209,62 @@ Return ONLY the corrected Mermaid code.`;
         })
       });
       
+      const messageTime = Date.now() - messageStart;
+      console.log(`[${requestId}] ⏱️  Add message request took ${messageTime}ms`);
+      console.log(`[${requestId}] 📥 Response Status: ${messageResponse.status} ${messageResponse.statusText}`);
+      
       if (!messageResponse.ok) {
-        const errorText = await messageResponse.text();
+        let errorText;
+        try {
+          errorText = await messageResponse.text();
+          console.error(`[${requestId}] ❌ Failed to add message to thread:`, {
+            status: messageResponse.status,
+            statusText: messageResponse.statusText,
+            error: errorText
+          });
+        } catch (textError) {
+          errorText = `HTTP ${messageResponse.status}: ${messageResponse.statusText}`;
+          console.error(`[${requestId}] ❌ Failed to read error response:`, textError.message);
+        }
 
+        const totalTime = Date.now() - startTime;
+        console.error(`[${requestId}] ===== sendMessage FAILED (${totalTime}ms) =====`);
         throw new Error(`Failed to add message to thread: ${errorText}`);
       }
       
+      const messageResult = await messageResponse.json();
+      console.log(`[${requestId}] ✅ Message added successfully:`, {
+        id: messageResult.id,
+        role: messageResult.role,
+        created_at: messageResult.created_at
+      });
+      
       // Run assistant - include tool_resources in run to ensure they're used
       // Get fresh assistant info right before run to ensure we have latest config
+      console.log(`[${requestId}] 📤 Step 3: Getting fresh assistant info before run`);
+      const assistantCheckStart = Date.now();
       const assistantBeforeRun = await this.getAssistant(assistantId);
+      const assistantCheckTime = Date.now() - assistantCheckStart;
+      console.log(`[${requestId}] ⏱️  Assistant check took ${assistantCheckTime}ms`);
+      
       const runVectorStoreIds = assistantBeforeRun.tool_resources?.file_search?.vector_store_ids || [];
+      console.log(`[${requestId}] Run Vector Store IDs:`, runVectorStoreIds);
       
 
       
       if (runVectorStoreIds.length === 0) {
+        console.error(`[${requestId}] ❌ Assistant has no vector stores configured for run`);
 
+        const totalTime = Date.now() - startTime;
+        console.error(`[${requestId}] ===== sendMessage FAILED (${totalTime}ms) =====`);
         throw new Error(`Assistant ${assistantId} has no vector stores configured. Cannot proceed with run.`);
       }
       
-      const runResponse = await fetch(`${this.baseURL}/threads/${threadId}/runs`, {
+      console.log(`[${requestId}] 📤 Step 4: Creating run`);
+      console.log(`[${requestId}] OpenAI URL: ${this.baseURL}/threads/${threadId}/runs`);
+      
+      const runStart = Date.now();
+      const runResponse = await this._fetch(`${this.baseURL}/threads/${threadId}/runs`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${this.apiKey}`,
@@ -886,22 +1276,51 @@ Return ONLY the corrected Mermaid code.`;
         })
       });
       
+      const runTime = Date.now() - runStart;
+      console.log(`[${requestId}] ⏱️  Create run request took ${runTime}ms`);
+      console.log(`[${requestId}] 📥 Response Status: ${runResponse.status} ${runResponse.statusText}`);
+      
       if (!runResponse.ok) {
-        const errorText = await runResponse.text();
+        let errorText;
+        try {
+          errorText = await runResponse.text();
+          console.error(`[${requestId}] ❌ Failed to create run:`, {
+            status: runResponse.status,
+            statusText: runResponse.statusText,
+            error: errorText
+          });
+        } catch (textError) {
+          errorText = `HTTP ${runResponse.status}: ${runResponse.statusText}`;
+          console.error(`[${requestId}] ❌ Failed to read error response:`, textError.message);
+        }
 
+        const totalTime = Date.now() - startTime;
+        console.error(`[${requestId}] ===== sendMessage FAILED (${totalTime}ms) =====`);
         throw new Error(`Failed to create run: ${errorText}`);
       }
       
       const run = await runResponse.json();
+      console.log(`[${requestId}] ✅ Run created successfully:`, {
+        id: run.id,
+        status: run.status,
+        created_at: run.created_at
+      });
       
       // Wait for completion
+      console.log(`[${requestId}] ⏳ Step 5: Waiting for run completion (max ${60} attempts)`);
       let runStatus = run;
       let attempts = 0;
       const maxAttempts = 60; // 60 seconds timeout
       
       while ((runStatus.status === 'queued' || runStatus.status === 'in_progress') && attempts < maxAttempts) {
+        if (attempts > 0 && attempts % 5 === 0) {
+          console.log(`[${requestId}] ⏳ Still waiting... (attempt ${attempts}/${maxAttempts}, status: ${runStatus.status})`);
+        }
+        
         await new Promise(resolve => setTimeout(resolve, 1000));
-        const statusResponse = await fetch(`${this.baseURL}/threads/${threadId}/runs/${run.id}`, {
+        
+        const statusStart = Date.now();
+        const statusResponse = await this._fetch(`${this.baseURL}/threads/${threadId}/runs/${run.id}`, {
           headers: {
             'Authorization': `Bearer ${this.apiKey}`,
             'OpenAI-Beta': 'assistants=v2'
@@ -956,44 +1375,103 @@ Return ONLY the corrected Mermaid code.`;
       }
       
       // Get messages
-      const messagesResponse = await fetch(`${this.baseURL}/threads/${threadId}/messages`, {
+      console.log(`[${requestId}] 📤 Step 6: Getting messages from thread`);
+      console.log(`[${requestId}] OpenAI URL: ${this.baseURL}/threads/${threadId}/messages`);
+      
+      const messagesStart = Date.now();
+      const messagesResponse = await this._fetch(`${this.baseURL}/threads/${threadId}/messages`, {
         headers: {
           'Authorization': `Bearer ${this.apiKey}`,
           'OpenAI-Beta': 'assistants=v2'
         }
       });
       
+      const messagesTime = Date.now() - messagesStart;
+      console.log(`[${requestId}] ⏱️  Get messages request took ${messagesTime}ms`);
+      console.log(`[${requestId}] 📥 Response Status: ${messagesResponse.status} ${messagesResponse.statusText}`);
+      
       if (!messagesResponse.ok) {
-        const errorText = await messagesResponse.text();
+        let errorText;
+        try {
+          errorText = await messagesResponse.text();
+          console.error(`[${requestId}] ❌ Failed to get messages:`, {
+            status: messagesResponse.status,
+            statusText: messagesResponse.statusText,
+            error: errorText
+          });
+        } catch (textError) {
+          errorText = `HTTP ${messagesResponse.status}: ${messagesResponse.statusText}`;
+          console.error(`[${requestId}] ❌ Failed to read error response:`, textError.message);
+        }
 
+        const totalTime = Date.now() - startTime;
+        console.error(`[${requestId}] ===== sendMessage FAILED (${totalTime}ms) =====`);
         throw new Error(`Failed to get messages: ${errorText}`);
       }
       
       const messages = await messagesResponse.json();
+      console.log(`[${requestId}] ✅ Messages retrieved:`, {
+        messageCount: messages.data?.length || 0,
+        hasData: !!messages.data
+      });
       
       if (messages.data && messages.data.length > 0 && messages.data[0].content) {
         // Find the first assistant message
         const assistantMessage = messages.data.find(msg => msg.role === 'assistant');
         if (assistantMessage && assistantMessage.content && assistantMessage.content.length > 0) {
-          return assistantMessage.content[0].text.value;
+          const responseText = assistantMessage.content[0].text.value;
+          const responseLength = responseText.length;
+          
+          console.log(`[${requestId}] ✅ Assistant response found:`, {
+            messageId: assistantMessage.id,
+            role: assistantMessage.role,
+            responseLength,
+            created_at: assistantMessage.created_at
+          });
+          
+          const totalTime = Date.now() - startTime;
+          console.log(`[${requestId}] ✅ sendMessage SUCCESS (${totalTime}ms total)`);
+          console.log(`[${requestId}] ===== sendMessage COMPLETE =====`);
+          
+          return responseText;
         }
       }
       
+      console.error(`[${requestId}] ❌ No assistant message found in response`);
+      const totalTime = Date.now() - startTime;
+      console.error(`[${requestId}] ===== sendMessage FAILED (${totalTime}ms) =====`);
       throw new Error('No response from assistant');
     } catch (error) {
-
+      const totalTime = Date.now() - startTime;
+      console.error(`[${requestId}] ❌ ERROR in sendMessage (${totalTime}ms):`, {
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      });
 
       // If it's an assistant corruption error, try Chat Completions fallback
       if (error.message && error.message.includes('Vector store configuration not propagated')) {
+        console.log(`[${requestId}] 🔄 Attempting Chat Completions fallback due to assistant corruption`);
 
         try {
-          return await this.sendMessageWithChatCompletions(threadId, assistantId, message);
+          const fallbackResult = await this.sendMessageWithChatCompletions(threadId, assistantId, message);
+          console.log(`[${requestId}] ✅ Chat Completions fallback succeeded`);
+          const totalTime = Date.now() - startTime;
+          console.log(`[${requestId}] ✅ sendMessage SUCCESS (with fallback) (${totalTime}ms total)`);
+          console.log(`[${requestId}] ===== sendMessage COMPLETE =====`);
+          return fallbackResult;
         } catch (fallbackError) {
+          console.error(`[${requestId}] ❌ Chat Completions fallback also failed:`, {
+            message: fallbackError.message,
+            name: fallbackError.name
+          });
 
+          console.error(`[${requestId}] ===== sendMessage ERROR =====`);
           throw error; // Throw original error
         }
       }
 
+      console.error(`[${requestId}] ===== sendMessage ERROR =====`);
       throw error;
     }
   }
@@ -1065,7 +1543,7 @@ ${contextContent}
 IMPORTANT: Answer based on the context and knowledge you have about this specific application specification.`;
 
       // Use Chat Completions API
-      const chatResponse = await fetch(`${this.baseURL}/chat/completions`, {
+      const chatResponse = await this._fetch(`${this.baseURL}/chat/completions`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${this.apiKey}`,

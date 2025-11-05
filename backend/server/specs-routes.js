@@ -184,53 +184,110 @@ router.post('/consume-credit', verifyFirebaseToken, async (req, res) => {
  * POST /api/specs/:id/upload-to-openai
  */
 router.post('/:id/upload-to-openai', verifyFirebaseToken, async (req, res) => {
+    const requestId = req.requestId || `upload-endpoint-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const startTime = Date.now();
+    
+    console.log(`[${requestId}] ===== /api/specs/:id/upload-to-openai START =====`);
+    console.log(`[${requestId}] Timestamp: ${new Date().toISOString()}`);
+    console.log(`[${requestId}] Spec ID: ${req.params.id}`);
+    console.log(`[${requestId}] User ID: ${req.user.uid}`);
+    
     try {
         const specId = req.params.id;
         const userId = req.user.uid;
 
         if (!openaiStorage) {
-            return res.status(503).json({ error: 'OpenAI not configured' });
+            console.error(`[${requestId}] ❌ OpenAI not configured`);
+            const totalTime = Date.now() - startTime;
+            console.error(`[${requestId}] ===== /api/specs/:id/upload-to-openai FAILED (${totalTime}ms) =====`);
+            return res.status(503).json({ error: 'OpenAI not configured', requestId });
         }
 
         // Verify spec ownership
+        console.log(`[${requestId}] 📤 Step 1: Verifying spec ownership`);
+        const specCheckStart = Date.now();
         const specDoc = await db.collection('specs').doc(specId).get();
+        const specCheckTime = Date.now() - specCheckStart;
+        console.log(`[${requestId}] ⏱️  Spec check took ${specCheckTime}ms`);
+        
         if (!specDoc.exists) {
-            return res.status(404).json({ error: 'Specification not found' });
+            console.error(`[${requestId}] ❌ Spec not found: ${specId}`);
+            const totalTime = Date.now() - startTime;
+            console.error(`[${requestId}] ===== /api/specs/:id/upload-to-openai FAILED (${totalTime}ms) =====`);
+            return res.status(404).json({ error: 'Specification not found', requestId });
         }
 
         const specData = specDoc.data();
+        console.log(`[${requestId}] Spec Data:`, {
+            hasTitle: !!specData.title,
+            hasOverview: !!specData.overview,
+            hasTechnical: !!specData.technical,
+            ownerUserId: specData.userId,
+            hasOpenaiFileId: !!specData.openaiFileId
+        });
+        
         if (specData.userId !== userId) {
-            return res.status(403).json({ error: 'Unauthorized' });
+            console.error(`[${requestId}] ❌ Unauthorized: User ${userId} does not own spec ${specId}`);
+            const totalTime = Date.now() - startTime;
+            console.error(`[${requestId}] ===== /api/specs/:id/upload-to-openai FAILED (${totalTime}ms) =====`);
+            return res.status(403).json({ error: 'Unauthorized', requestId });
         }
 
         // Check if already uploaded
         if (specData.openaiFileId) {
+            console.log(`[${requestId}] ✅ Spec already uploaded to OpenAI: ${specData.openaiFileId}`);
+            const totalTime = Date.now() - startTime;
+            console.log(`[${requestId}] ✅ /api/specs/:id/upload-to-openai SUCCESS (already uploaded) (${totalTime}ms)`);
+            console.log(`[${requestId}] ===== /api/specs/:id/upload-to-openai COMPLETE =====`);
             return res.json({ 
                 success: true, 
                 message: 'Spec already uploaded to OpenAI',
-                fileId: specData.openaiFileId
+                fileId: specData.openaiFileId,
+                requestId
             });
         }
 
         // Upload to OpenAI
+        console.log(`[${requestId}] 📤 Step 2: Uploading spec to OpenAI`);
+        const uploadStart = Date.now();
         const fileId = await openaiStorage.uploadSpec(specId, specData);
+        const uploadTime = Date.now() - uploadStart;
+        console.log(`[${requestId}] ⏱️  OpenAI upload took ${uploadTime}ms`);
+        console.log(`[${requestId}] ✅ File ID received: ${fileId}`);
 
         // Update spec with OpenAI file ID
+        console.log(`[${requestId}] 📤 Step 3: Updating Firestore with file ID`);
+        const updateStart = Date.now();
         await db.collection('specs').doc(specId).update({
             openaiFileId: fileId,
             openaiUploadTimestamp: admin.firestore.FieldValue.serverTimestamp()
         });
+        const updateTime = Date.now() - updateStart;
+        console.log(`[${requestId}] ⏱️  Firestore update took ${updateTime}ms`);
+        console.log(`[${requestId}] ✅ Firestore updated successfully`);
 
+        const totalTime = Date.now() - startTime;
+        console.log(`[${requestId}] ✅ /api/specs/:id/upload-to-openai SUCCESS (${totalTime}ms total)`);
+        console.log(`[${requestId}] ===== /api/specs/:id/upload-to-openai COMPLETE =====`);
+        
         res.json({ 
             success: true, 
             message: 'Spec uploaded to OpenAI successfully',
-            fileId: fileId
+            fileId: fileId,
+            requestId
         });
     } catch (error) {
-        console.error('Error uploading spec to OpenAI:', error);
+        const totalTime = Date.now() - startTime;
+        console.error(`[${requestId}] ❌ ERROR in /api/specs/:id/upload-to-openai (${totalTime}ms):`, {
+            message: error.message,
+            stack: error.stack,
+            name: error.name
+        });
+        console.error(`[${requestId}] ===== /api/specs/:id/upload-to-openai ERROR =====`);
         res.status(500).json({ 
             error: 'Failed to upload spec to OpenAI',
-            details: error.message 
+            details: error.message,
+            requestId
         });
     }
 });
