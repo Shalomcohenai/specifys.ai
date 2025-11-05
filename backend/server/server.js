@@ -1,5 +1,5 @@
 const express = require('express');
-const fetch = require('node-fetch');
+// node-fetch v3 is ESM-only, will use dynamic import in functions
 const dotenv = require('dotenv');
 const config = require('./config');
 
@@ -115,6 +115,8 @@ async function saveToGoogleSheets(email, feedback, type, source) {
     // Use the Google Apps Script URL from config
     const googleAppsScriptUrl = config.googleAppsScriptUrl;
     
+    // node-fetch v3 is ESM-only, need dynamic import
+    const fetch = (await import('node-fetch')).default;
     const response = await fetch(googleAppsScriptUrl, {
       method: 'POST',
       headers: {
@@ -161,6 +163,8 @@ app.post('/api/generate-spec', async (req, res) => {
 
   try {
     // Forward request to the existing Cloudflare Worker
+    // node-fetch v3 is ESM-only, need dynamic import
+    const fetch = (await import('node-fetch')).default;
     const response = await fetch('https://newnocode.shalom-cohen-111.workers.dev', {
       method: 'POST',
       headers: {

@@ -1,10 +1,17 @@
-const fetch = require('node-fetch');
+// node-fetch v3 is ESM-only, will use dynamic import in methods
 const FormData = require('form-data');
 
 class OpenAIStorageService {
   constructor(apiKey) {
     this.apiKey = apiKey;
     this.baseURL = 'https://api.openai.com/v1';
+  }
+
+  /**
+   * Get fetch function (dynamic import for node-fetch v3)
+   */
+  async getFetch() {
+    return (await import('node-fetch')).default;
   }
 
   /**
@@ -34,7 +41,7 @@ class OpenAIStorageService {
       });
       formData.append('purpose', 'assistants');
       
-      const response = await fetch(`${this.baseURL}/files`, {
+      const response = await this._fetch(`${this.baseURL}/files`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${this.apiKey}`,
@@ -58,13 +65,22 @@ class OpenAIStorageService {
   }
 
   /**
+   * Helper method to get fetch and use it
+   * @private
+   */
+  async _fetch(url, options) {
+    const fetch = await this.getFetch();
+    return fetch(url, options);
+  }
+
+  /**
    * Delete a file from OpenAI
    * @param {string} fileId - OpenAI File ID
    * @returns {Promise<boolean>} Success status
    */
   async deleteFile(fileId) {
     try {
-      const response = await fetch(`${this.baseURL}/files/${fileId}`, {
+      const response = await this._fetch(`${this.baseURL}/files/${fileId}`, {
         method: 'DELETE',
         headers: { 
           'Authorization': `Bearer ${this.apiKey}` 
@@ -84,7 +100,7 @@ class OpenAIStorageService {
    */
   async getFileInfo(fileId) {
     try {
-      const response = await fetch(`${this.baseURL}/files/${fileId}`, {
+      const response = await this._fetch(`${this.baseURL}/files/${fileId}`, {
         headers: { 
           'Authorization': `Bearer ${this.apiKey}` 
         }
@@ -107,7 +123,7 @@ class OpenAIStorageService {
    */
   async listFiles() {
     try {
-      const response = await fetch(`${this.baseURL}/files?purpose=assistants`, {
+      const response = await this._fetch(`${this.baseURL}/files?purpose=assistants`, {
         headers: { 
           'Authorization': `Bearer ${this.apiKey}` 
         }
@@ -133,7 +149,7 @@ class OpenAIStorageService {
    */
   async createAssistant(specId, fileId) {
     try {
-      const response = await fetch(`${this.baseURL}/assistants`, {
+      const response = await this._fetch(`${this.baseURL}/assistants`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${this.apiKey}`,
@@ -246,7 +262,7 @@ Always reference specific parts of the spec when relevant.`,
     
     for (let i = 0; i < maxAttempts; i++) {
       try {
-        const response = await fetch(`${this.baseURL}/vector_stores/${vectorStoreId}`, {
+        const response = await this._fetch(`${this.baseURL}/vector_stores/${vectorStoreId}`, {
           headers: {
             'Authorization': `Bearer ${this.apiKey}`,
             'OpenAI-Beta': 'assistants=v2'
@@ -288,7 +304,7 @@ Always reference specific parts of the spec when relevant.`,
    */
   async createThread() {
     try {
-      const response = await fetch(`${this.baseURL}/threads`, {
+      const response = await this._fetch(`${this.baseURL}/threads`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${this.apiKey}`,
@@ -316,7 +332,7 @@ Always reference specific parts of the spec when relevant.`,
    */
   async getAssistant(assistantId) {
     try {
-      const response = await fetch(`${this.baseURL}/assistants/${assistantId}`, {
+      const response = await this._fetch(`${this.baseURL}/assistants/${assistantId}`, {
         headers: {
           'Authorization': `Bearer ${this.apiKey}`,
           'OpenAI-Beta': 'assistants=v2'
@@ -478,7 +494,7 @@ Always reference specific parts of the spec when relevant.`,
    */
   async deleteAssistant(assistantId) {
     try {
-      const response = await fetch(`${this.baseURL}/assistants/${assistantId}`, {
+      const response = await this._fetch(`${this.baseURL}/assistants/${assistantId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${this.apiKey}`,
@@ -980,7 +996,7 @@ Return ONLY the corrected Mermaid code.`;
    */
   async getVectorStore(vectorStoreId) {
     try {
-      const response = await fetch(`${this.baseURL}/vector_stores/${vectorStoreId}`, {
+      const response = await this._fetch(`${this.baseURL}/vector_stores/${vectorStoreId}`, {
         headers: {
           'Authorization': `Bearer ${this.apiKey}`,
           'Content-Type': 'application/json',
