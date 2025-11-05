@@ -580,13 +580,8 @@
                     free_specs_remaining: 1
                 }, { merge: true });
                 
-                // Create/update entitlements document
-                const entitlementsRef = doc(db, 'entitlements', user.uid);
-                await setDoc(entitlementsRef, {
-                    unlimited: true,
-                    can_edit: true,
-                    updated_at: serverTimestamp()
-                }, { merge: true });
+                // Note: entitlements document is managed by backend only
+                // Frontend cannot write to entitlements collection per security rules
             } catch (error) {
                 console.error('Error creating user document:', error);
                 // Don't throw - allow the page to continue loading even if document creation fails
