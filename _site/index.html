@@ -716,6 +716,64 @@
     </div>
   </div>
 </div>
+
+<!-- Maintenance Notice Modal -->
+<div id="maintenanceModal" class="maintenance-modal" style="display: none;">
+  <div class="maintenance-content">
+    <div class="maintenance-header">
+      <h3>⚠️ Site Maintenance</h3>
+      <button class="maintenance-close" onclick="closeMaintenanceModal()" aria-label="Close maintenance message">×</button>
+    </div>
+    <div class="maintenance-body">
+      <p><strong>We're currently upgrading the site - please refrain from using it</strong></p>
+    </div>
+    <div class="maintenance-actions">
+      <button type="button" onclick="closeMaintenanceModal()" class="btn-understand">I Understand</button>
+    </div>
+  </div>
+</div>
+
+<!-- Show Maintenance Modal Script -->
+<script>
+  (function() {
+    function showMaintenanceModal() {
+      var modal = document.getElementById('maintenanceModal');
+      if (modal) {
+        console.log('Showing maintenance modal');
+        modal.style.display = 'flex';
+        modal.style.visibility = 'visible';
+        modal.style.opacity = '1';
+        document.body.style.overflow = 'hidden';
+      } else {
+        console.error('Maintenance modal element not found!');
+      }
+    }
+    
+    function closeMaintenanceModal() {
+      var modal = document.getElementById('maintenanceModal');
+      if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+      }
+    }
+    
+    // Make functions globally available
+    window.closeMaintenanceModal = closeMaintenanceModal;
+    window.showMaintenanceModal = showMaintenanceModal;
+    
+    // Show modal when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM loaded, showing maintenance modal');
+        setTimeout(showMaintenanceModal, 300);
+      });
+    } else {
+      // DOM already loaded
+      console.log('DOM already loaded, showing maintenance modal');
+      setTimeout(showMaintenanceModal, 300);
+    }
+  })();
+</script>
     
     <!-- Footer -->
 <footer>
