@@ -904,8 +904,10 @@ async function generateSpecification() {
         console.error('API Error Response:', {
           status: response.status,
           statusText: response.statusText,
-          error: errorData
+          error: errorData,
+          errorString: JSON.stringify(errorData, null, 2)
         });
+        console.error('Full error details:', errorData);
       } catch (parseError) {
         // If response is not JSON, try to get text
         try {
@@ -986,8 +988,12 @@ async function generateSpecification() {
     // Hide loading overlay
     hideLoadingOverlay();
     
-    // Show error message
-    alert('Error generating specification. Please try again.');
+    // Show detailed error message
+    console.error('Full error in generateSpecification:', error);
+    const errorMessage = error.message || 'Error generating specification. Please try again.';
+    
+    // Show user-friendly error message
+    alert(`Error: ${errorMessage}\n\nPlease check the console for more details.`);
   }
 }
 

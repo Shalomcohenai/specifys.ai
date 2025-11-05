@@ -171,16 +171,24 @@ app.post('/api/blog/delete-post', blogRoutes.deletePost);
 
 // Legacy endpoint to handle API requests to Grok (deprecated - use /api/specs/create instead)
 app.post('/api/generate-spec', rateLimiters.generation, async (req, res) => {
+  console.log('[/api/generate-spec] Request received');
   const { userInput } = req.body;
 
   if (!userInput) {
+    console.error('[/api/generate-spec] Missing userInput');
     return res.status(400).json({ error: 'User input is required' });
   }
 
   const apiKey = process.env.API_KEY;
   if (!apiKey) {
-    return res.status(500).json({ error: 'API key is not configured' });
+    console.error('[/api/generate-spec] API_KEY not configured');
+    return res.status(500).json({ 
+      error: 'API key is not configured',
+      details: 'Please configure API_KEY environment variable'
+    });
   }
+  
+  console.log('[/api/generate-spec] API_KEY found, making request to Grok API');
 
   try {
     const response = await fetch('https://api.x.ai/v1/chat/completions', {
@@ -211,7 +219,7 @@ app.post('/api/generate-spec', rateLimiters.generation, async (req, res) => {
         const errorText = await response.text();
         errorMessage = errorText || `HTTP ${response.status}: ${response.statusText}`;
       }
-      console.error('Grok API error:', {
+      console.error('[/api/generate-spec] Grok API error:', {
         status: response.status,
         statusText: response.statusText,
         error: errorMessage
@@ -220,12 +228,17 @@ app.post('/api/generate-spec', rateLimiters.generation, async (req, res) => {
     }
 
     const data = await response.json();
+    console.log('[/api/generate-spec] Successfully received response from Grok API');
     res.json({ specification: data.choices[0].message.content });
   } catch (error) {
-    console.error('Error in /api/generate-spec:', error.message, error.stack);
+    console.error('[/api/generate-spec] Error:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    });
     res.status(500).json({ 
       error: 'Failed to generate specification',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      details: error.message || 'Unknown error occurred'
     });
   }
 });
