@@ -861,7 +861,8 @@ Amazon’s move into autonomous IDEs shows that Vibe Coding isn’t just a passi
     if (user) {
       try {
         const token = await user.getIdToken();
-        const response = await fetch(`${window.API_BASE_URL || 'http://localhost:10000'}/api/users/ensure`, {
+        const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : (window.API_BASE_URL || 'https://specifys-ai.onrender.com');
+        const response = await fetch(`${apiBaseUrl}/api/users/ensure`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,
