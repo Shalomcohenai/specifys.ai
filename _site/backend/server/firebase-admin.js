@@ -1,5 +1,7 @@
 const admin = require('firebase-admin');
 require('dotenv').config();
+const fs = require('fs');
+const path = require('path');
 
 // Initialize Firebase Admin SDK
 let app;
@@ -8,12 +10,27 @@ try {
     // Check if Firebase Admin is already initialized
     if (admin.apps.length === 0) {
         // Initialize with service account key (recommended for production)
-        if (process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
+        if (process.env.FIREBASE_SERVICE_ACCOUNT_KEY_FILE) {
+            const serviceAccount = require(`../${process.env.FIREBASE_SERVICE_ACCOUNT_KEY_FILE}`);
+            app = admin.initializeApp({
+                credential: admin.credential.cert(serviceAccount),
+                projectId: process.env.FIREBASE_PROJECT_ID || 'specify-ai',
+                storageBucket: process.env.FIREBASE_STORAGE_BUCKET || 'specify-ai.appspot.com'
+            });
+        } else if (process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
             const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
             app = admin.initializeApp({
                 credential: admin.credential.cert(serviceAccount),
                 projectId: process.env.FIREBASE_PROJECT_ID || 'specify-ai',
-                storageBucket: process.env.FIREBASE_STORAGE_BUCKET || 'specify-ai.firebasestorage.app'
+                storageBucket: process.env.FIREBASE_STORAGE_BUCKET || 'specify-ai.appspot.com'
+            });
+        } else if (fs.existsSync(path.join(__dirname, '../firebase-service-account.json'))) {
+            // Auto-detect local service account file for development
+            const serviceAccount = require('../firebase-service-account.json');
+            app = admin.initializeApp({
+                credential: admin.credential.cert(serviceAccount),
+                projectId: process.env.FIREBASE_PROJECT_ID || serviceAccount.project_id || 'specify-ai',
+                storageBucket: process.env.FIREBASE_STORAGE_BUCKET || `${serviceAccount.project_id}.appspot.com`
             });
         } else {
             // For development - initialize with default credentials
@@ -26,13 +43,8 @@ try {
         app = admin.app();
     }
     
-    console.log('✅ Firebase Admin SDK initialized successfully');
 } catch (error) {
-    console.error('❌ Firebase Admin SDK initialization failed:', error.message);
-    console.log('Make sure you have:');
-    console.log('1. Set FIREBASE_SERVICE_ACCOUNT_KEY environment variable, OR');
-    console.log('2. Set GOOGLE_APPLICATION_CREDENTIALS to your service account key file, OR');
-    console.log('3. Run "firebase login" and "gcloud auth application-default login"');
+
 }
 
 const db = admin.firestore();

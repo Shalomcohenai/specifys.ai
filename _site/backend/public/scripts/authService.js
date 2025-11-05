@@ -1,4 +1,4 @@
-import { auth } from './firebaseConfig.js';
+import { auth, db } from './firebaseConfig.js';
 import { 
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword, 
@@ -7,9 +7,43 @@ import {
   GoogleAuthProvider,
   signInWithPopup
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 // Google Auth Provider
 const googleProvider = new GoogleAuthProvider();
+
+/**
+ * Create or update user document in Firestore
+ * @param {User} user - Firebase User object
+ */
+async function createUserDocument(user) {
+  try {
+    const userRef = doc(db, 'users', user.uid);
+    await setDoc(userRef, {
+      email: user.email,
+      displayName: user.displayName || user.email.split('@')[0],
+      emailVerified: user.emailVerified,
+      createdAt: serverTimestamp(),
+      lastActive: serverTimestamp(),
+      newsletterSubscription: false,
+      // ALL USERS GET PRO BY DEFAULT
+      plan: 'pro',
+      free_specs_remaining: 1
+    }, { merge: true }); // merge: true will update existing or create new
+    
+    // Also create entitlements document if doesn't exist
+    const entitlementsRef = doc(db, 'entitlements', user.uid);
+    await setDoc(entitlementsRef, {
+      userId: user.uid,
+      spec_credits: 0,
+      unlimited: true,
+      can_edit: true,
+      updated_at: serverTimestamp()
+    }, { merge: true });
+  } catch (error) {
+    // Don't throw - this shouldn't prevent login/registration
+  }
+}
 
 /**
  * Register a new user with email and password
@@ -20,10 +54,12 @@ const googleProvider = new GoogleAuthProvider();
 export async function registerWithEmail(email, password) {
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    console.log('User registered successfully:', userCredential.user.email);
+    
+    // Create user document in Firestore
+    await createUserDocument(userCredential.user);
+    
     return userCredential.user;
   } catch (error) {
-    console.error('Registration error:', error);
     throw new Error(getAuthErrorMessage(error.code));
   }
 }
@@ -37,10 +73,12 @@ export async function registerWithEmail(email, password) {
 export async function loginWithEmail(email, password) {
   try {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    console.log('User logged in successfully:', userCredential.user.email);
+    
+    // Create/update user document in Firestore
+    await createUserDocument(userCredential.user);
+    
     return userCredential.user;
   } catch (error) {
-    console.error('Login error:', error);
     throw new Error(getAuthErrorMessage(error.code));
   }
 }
@@ -52,10 +90,12 @@ export async function loginWithEmail(email, password) {
 export async function loginWithGoogle() {
   try {
     const result = await signInWithPopup(auth, googleProvider);
-    console.log('Google login successful:', result.user.email);
+    
+    // Create/update user document in Firestore
+    await createUserDocument(result.user);
+    
     return result.user;
   } catch (error) {
-    console.error('Google login error:', error);
     throw new Error(getAuthErrorMessage(error.code));
   }
 }
@@ -67,10 +107,8 @@ export async function loginWithGoogle() {
 export async function logout() {
   try {
     await signOut(auth);
-    console.log('User logged out successfully');
   } catch (error) {
-    console.error('Logout error:', error);
-    throw new Error('שגיאה ביציאה מהחשבון');
+    throw new Error('Error logging out of account');
   }
 }
 
@@ -100,30 +138,30 @@ export function isAuthenticated() {
 }
 
 /**
- * Convert Firebase auth error codes to Hebrew messages
+ * Convert Firebase auth error codes to English messages
  * @param {string} errorCode - Firebase error code
- * @returns {string} - Hebrew error message
+ * @returns {string} - English error message
  */
 function getAuthErrorMessage(errorCode) {
   const errorMessages = {
-    'auth/user-not-found': 'משתמש לא נמצא',
-    'auth/wrong-password': 'סיסמה שגויה',
-    'auth/email-already-in-use': 'כתובת אימייל כבר בשימוש',
-    'auth/weak-password': 'הסיסמה חלשה מדי',
-    'auth/invalid-email': 'כתובת אימייל לא תקינה',
-    'auth/user-disabled': 'החשבון הושבת',
-    'auth/too-many-requests': 'יותר מדי ניסיונות, נסה שוב מאוחר יותר',
-    'auth/operation-not-allowed': 'פעולה לא מורשית',
-    'auth/requires-recent-login': 'נדרש להתחבר מחדש',
-    'auth/popup-closed-by-user': 'חלון ההתחברות נסגר',
-    'auth/cancelled-popup-request': 'בקשה בוטלה',
-    'auth/popup-blocked': 'חלון ההתחברות נחסם',
-    'auth/account-exists-with-different-credential': 'חשבון קיים עם פרטי התחברות שונים',
-    'auth/credential-already-in-use': 'פרטי התחברות כבר בשימוש',
-    'auth/invalid-credential': 'פרטי התחברות לא תקינים',
-    'auth/timeout': 'פג הזמן, נסה שוב',
-    'auth/network-request-failed': 'שגיאת רשת, בדוק את החיבור לאינטרנט'
+    'auth/user-not-found': 'User not found',
+    'auth/wrong-password': 'Wrong password',
+    'auth/email-already-in-use': 'Email address already in use',
+    'auth/weak-password': 'Password is too weak',
+    'auth/invalid-email': 'Invalid email address',
+    'auth/user-disabled': 'Account has been disabled',
+    'auth/too-many-requests': 'Too many attempts, please try again later',
+    'auth/operation-not-allowed': 'Operation not allowed',
+    'auth/requires-recent-login': 'Requires recent login',
+    'auth/popup-closed-by-user': 'Login window was closed',
+    'auth/cancelled-popup-request': 'Request was cancelled',
+    'auth/popup-blocked': 'Login window was blocked',
+    'auth/account-exists-with-different-credential': 'Account exists with different credentials',
+    'auth/credential-already-in-use': 'Credentials already in use',
+    'auth/invalid-credential': 'Invalid credentials',
+    'auth/timeout': 'Connection timed out, please try again',
+    'auth/network-request-failed': 'Network error, please check your internet connection'
   };
   
-  return errorMessages[errorCode] || 'שגיאה לא ידועה';
+  return errorMessages[errorCode] || 'Unknown error';
 }

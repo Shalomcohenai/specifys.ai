@@ -6,6 +6,7 @@
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const Joi = require('joi');
+const { isAdminEmail } = require('./admin-config');
 
 /**
  * Configure security headers using Helmet
@@ -17,44 +18,75 @@ const securityHeaders = helmet({
       defaultSrc: ["'self'"],
       scriptSrc: [
         "'self'",
-        "'unsafe-inline'", // Required for inline scripts (can be removed later)
+        "'unsafe-inline'",  // Allow inline scripts (Firebase init, Analytics)
         "https://www.gstatic.com",
-        "https://cdn.jsdelivr.net",
-        "https://cdnjs.cloudflare.com"
-      ],
-      styleSrc: [
-        "'self'",
-        "'unsafe-inline'", // Required for inline styles
+        "https://www.googletagmanager.com",  // Google Tag Manager
+        "https://www.google-analytics.com",  // Google Analytics
+        "https://ssl.google-analytics.com",  // Google Analytics SSL
+        "https://googleads.g.doubleclick.net",  // Google Ads
+        "https://www.googleadservices.com",  // Google Ad Services
         "https://cdn.jsdelivr.net",
         "https://cdnjs.cloudflare.com",
-        "https://fonts.googleapis.com"
+        "https://accounts.google.com",  // Google Sign-In
+        "https://apis.google.com"  // Google APIs (for Sign-In)
+      ],
+      scriptSrcAttr: ["'unsafe-inline'"],  // Allow inline event handlers (onclick, etc.)
+      styleSrc: [
+        "'self'",
+        "'unsafe-inline'",  // Allow inline styles
+        "https://cdn.jsdelivr.net",
+        "https://cdnjs.cloudflare.com",
+        "https://fonts.googleapis.com",
+        "https://accounts.google.com"  // Google Sign-In styles
       ],
       imgSrc: [
         "'self'",
         "data:",
-        "https:",
-        "blob:"
+        "https:",  // Allow all HTTPS images (needed for user avatars, etc.)
+        "blob:",
+        "https://www.google-analytics.com",
+        "https://www.googletagmanager.com",
+        "https://googleads.g.doubleclick.net"
       ],
       connectSrc: [
         "'self'",
         "https://*.firebaseio.com",
         "https://*.googleapis.com",
         "https://identitytoolkit.googleapis.com",
-        "https://securetoken.googleapis.com"
+        "https://securetoken.googleapis.com",
+        "https://www.gstatic.com",  // For source maps
+        "https://cdnjs.cloudflare.com",  // For source maps
+        "https://accounts.google.com",  // Google Sign-In API
+        "https://apis.google.com",  // Google APIs
+        "https://www.google-analytics.com",  // Google Analytics
+        "https://analytics.google.com",  // Google Analytics v4
+        "https://www.google.com",  // Google services
+        "https://stats.g.doubleclick.net",  // Google Ads tracking
+        "https://googleads.g.doubleclick.net"  // Google Ads
       ],
       fontSrc: [
         "'self'",
+        "data:",  // Allow data: URIs for fonts
         "https://fonts.gstatic.com",
-        "https://cdn.jsdelivr.net"
+        "https://cdn.jsdelivr.net",
+        "https://cdnjs.cloudflare.com"
       ],
       objectSrc: ["'none'"],
       mediaSrc: ["'self'"],
-      frameSrc: ["'none'"]
+      frameSrc: [
+        "'self'",
+        "https://accounts.google.com",  // Google Sign-In iframe
+        "https://apis.google.com",  // Google APIs iframe
+        "https://www.googletagmanager.com",  // Google Tag Manager
+        "https://td.doubleclick.net",  // Google Ads iframes
+        "https://specify-ai.firebaseapp.com",  // Firebase Auth popup
+        "https://*.firebaseapp.com"  // All Firebase Auth domains
+      ]
     }
   },
   
-  // X-Frame-Options
-  frameguard: { action: 'deny' },
+  // X-Frame-Options - allow same origin
+  frameguard: { action: 'sameorigin' },
   
   // X-Content-Type-Options
   noSniff: true,
@@ -126,6 +158,18 @@ const rateLimiters = {
     },
     standardHeaders: true,
     legacyHeaders: false
+  }),
+
+  // Rate limiting for generation endpoints
+  generation: rateLimit({
+    windowMs: 60 * 60 * 1000, // 1 hour
+    max: 5, // limit each IP to 5 generation requests per hour
+    message: {
+      error: 'Too many generation requests from this IP, please try again later.',
+      retryAfter: '1 hour'
+    },
+    standardHeaders: true,
+    legacyHeaders: false
   })
 };
 
@@ -141,7 +185,7 @@ const validationSchemas = {
   }),
 
   generateSpec: Joi.object({
-    userInput: Joi.string().min(1).max(10000).required()
+    userInput: Joi.string().min(1).max(50000).required()
   }),
 
   userId: Joi.string().min(1).max(255).required()
@@ -235,9 +279,9 @@ function securityLogger(action) {
 
     // Log suspicious activity
     if (action.includes('admin') || action.includes('delete')) {
-      console.warn('🔒 Security Event:', securityLog);
+
     } else {
-      console.log('📝 API Access:', securityLog);
+
     }
 
     next();
@@ -245,33 +289,50 @@ function securityLogger(action) {
 }
 
 /**
- * Admin authentication middleware (placeholder)
- * In production, this should check actual admin permissions
+ * Admin authentication middleware
+ * Verifies Firebase ID token and checks admin permissions
  * @param {Request} req 
  * @param {Response} res 
  * @param {Function} next 
  */
-function requireAdmin(req, res, next) {
-  // TODO: Implement actual admin authentication
-  // For now, this is a placeholder that logs the attempt
-  
-  const authHeader = req.headers.authorization;
-  
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    console.warn('🚨 Unauthorized admin access attempt from IP:', req.ip);
+async function requireAdmin(req, res, next) {
+  try {
+    const authHeader = req.headers.authorization;
+    
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+
+      return res.status(401).json({ 
+        error: 'Authentication required',
+        message: 'Admin access requires valid authentication token'
+      });
+    }
+
+    const idToken = authHeader.split('Bearer ')[1];
+    
+    // Import Firebase Admin dynamically to avoid circular dependency
+    const { auth } = require('./firebase-admin');
+    const decodedToken = await auth.verifyIdToken(idToken);
+    
+    // Check if user is admin using centralized config
+    if (!isAdminEmail(decodedToken.email)) {
+
+      return res.status(403).json({ 
+        error: 'Forbidden',
+        message: 'Admin access required'
+      });
+    }
+    
+    req.adminUser = decodedToken;
+
+    next();
+    
+  } catch (error) {
+
     return res.status(401).json({ 
-      error: 'Authentication required',
-      message: 'Admin access requires valid authentication token'
+      error: 'Invalid token',
+      message: 'Authentication failed'
     });
   }
-
-  // TODO: Verify the token
-  // const token = authHeader.substring(7);
-  // const isValidAdmin = verifyAdminToken(token);
-  
-  console.warn('⚠️ Admin endpoint accessed - token validation not implemented');
-  
-  next();
 }
 
 module.exports = {

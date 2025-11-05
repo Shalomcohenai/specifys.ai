@@ -1,0 +1,23 @@
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<script>
+  // Firebase Configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyB9hr0IWM4EREzkKDxBxYoYinV6LJXWXV4",
+    authDomain: "specify-ai.firebaseapp.com",
+    projectId: "specify-ai",
+    storageBucket: "specify-ai.firebasestorage.app",
+    messagingSenderId: "734278787482",
+    appId: "1:734278787482:web:0e312fb6f197e849695a23",
+    measurementId: "G-4YR9LK63MR"
+  };
+
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+</script>
+

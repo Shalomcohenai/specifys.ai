@@ -1,0 +1,23 @@
+/* Critical CSS Bundle - Above the fold styles only */
+/* This bundle loads first for faster initial render */
+
+/* Import core variables first */
+@import url('../core/variables.css');
+
+/* Import fonts */
+@import url('../core/fonts.css');
+
+/* Import reset */
+@import url('../core/reset.css');
+
+/* Import base typography */
+@import url('../core/typography.css');
+
+/* Import base styles */
+@import url('../core/base.css');
+
+/* Import header (above the fold) */
+@import url('../components/header.css');
+
+/* Critical component styles */
+@import url('../components/buttons.css');

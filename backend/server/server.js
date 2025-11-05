@@ -1,22 +1,18 @@
-console.log('Starting server setup...');
-
 const express = require('express');
 const fetch = require('node-fetch');
 const dotenv = require('dotenv');
 const config = require('./config');
 
-console.log('Loading environment variables...');
 dotenv.config();
 
 const app = express();
 const port = config.port;
+
 // Middleware to parse JSON bodies
-console.log('Setting up middleware...');
 app.use(express.json());
 
 // CORS middleware to allow requests from your frontend
 app.use((req, res, next) => {
-  console.log('Applying CORS middleware...');
   const origin = req.headers.origin;
   
   // Check if origin is in allowed list
@@ -26,7 +22,7 @@ app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*'); // Fallback for development
   }
   
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   
   // Handle preflight requests
@@ -39,11 +35,9 @@ app.use((req, res, next) => {
 
 // Feedback endpoint
 app.post('/api/feedback', async (req, res) => {
-  console.log('Received feedback request:', req.body);
   const { email, feedback, type, source } = req.body;
 
   if (!feedback) {
-    console.log('Error: Feedback text is required');
     return res.status(400).json({ error: 'Feedback text is required' });
   }
 
@@ -54,12 +48,9 @@ app.post('/api/feedback', async (req, res) => {
     // 2. Save to Google Sheets via Google Apps Script
     await saveToGoogleSheets(email, feedback, type, source);
     
-    // 3. Log to console for debugging
-    console.log('Feedback saved successfully:', { email, feedback, type, source, timestamp: new Date().toISOString() });
-    
     res.json({ success: true, message: 'Feedback submitted successfully' });
   } catch (error) {
-    console.error('Error processing feedback:', error.message);
+
     res.status(500).json({ error: 'Failed to process feedback' });
   }
 });
@@ -107,20 +98,14 @@ async function sendFeedbackEmail(email, feedback) {
       };
       
       const info = await transporter.sendMail(mailOptions);
-      console.log('✅ Email sent successfully:', info.messageId);
       
     } else {
       // Fallback: log to console
-      console.log('📧 Email configuration not available, logging to console instead');
-      console.log('📧 Email would be sent to:', feedbackEmail || 'No feedback email configured');
-      console.log('📝 Feedback content:', feedback);
-      console.log('👤 From user:', email || 'No email provided');
     }
     
   } catch (error) {
-    console.error('❌ Error sending email:', error.message);
+
     // Don't fail the entire request if email fails
-    console.log('📧 Email failed, but continuing with other operations...');
   }
 }
 
@@ -148,13 +133,13 @@ async function saveToGoogleSheets(email, feedback, type, source) {
     }
     
     const result = await response.json();
-    console.log('✅ Feedback saved to Google Sheets via Apps Script:', result);
+
     
   } catch (error) {
-    console.error('Error saving to Google Sheets via Apps Script:', error.message);
+
     // Don't fail the entire request if Sheets fails
-    console.log('📊 Falling back to console logging');
-    console.log('📋 Feedback Data:', {
+
+
       email: email || 'Not provided',
       feedback: feedback,
       type: type || 'general',
@@ -166,11 +151,11 @@ async function saveToGoogleSheets(email, feedback, type, source) {
 
 // Clean API endpoint for generating specifications
 app.post('/api/generate-spec', async (req, res) => {
-  console.log('Received specification request:', req.body);
+
   const { userInput } = req.body;
 
   if (!userInput) {
-    console.log('Error: User input is required');
+
     return res.status(400).json({ error: 'User input is required' });
   }
 
@@ -186,30 +171,211 @@ app.post('/api/generate-spec', async (req, res) => {
 
     const data = await response.json();
     if (!response.ok) {
-      console.log('Error from API:', data.error?.message);
+
       throw new Error(data.error?.message || 'Failed to fetch specification');
     }
 
-    console.log('Successfully received specification from API');
+
     res.json({ specification: data.specification || 'No specification generated' });
   } catch (error) {
-    console.error('Error fetching specification:', error.message);
+
     res.status(500).json({ error: 'Failed to generate specification' });
   }
 });
 
-console.log('Attempting to start server on port', port);
+// Repair diagram endpoint (legacy - kept for backward compatibility)
+app.post('/api/diagrams/repair', async (req, res) => {
+
+  
+  const { overview, technical, market, diagramTitle, brokenDiagramCode } = req.body;
+  
+  if (!brokenDiagramCode) {
+    return res.status(400).json({ error: 'Broken diagram code is required' });
+  }
+  
+  try {
+    const OpenAI = require('openai');
+    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    
+    // Build context from spec
+    const specContext = `
+## Specification Context:
+${overview ? `**Overview:**\n${overview}\n\n` : ''}
+${technical ? `**Technical Specs:**\n${technical}\n\n` : ''}
+${market ? `**Market Research:**\n${market}\n\n` : ''}
+`;
+    
+    // Create a prompt to repair the diagram
+    const systemPrompt = `You are a Mermaid diagram expert. Your task is to fix broken Mermaid diagrams.
+
+When given a broken Mermaid diagram code, analyze it and create a corrected version that:
+1. Follows proper Mermaid syntax
+2. Accurately represents the information from the specification context provided
+3. Is complete and renderable
+
+Return ONLY valid Mermaid code, nothing else.`;
+    
+    const userPrompt = `The following Mermaid diagram is broken:\n\n\`\`\`mermaid\n${brokenDiagramCode}\n\`\`\`\n\nContext:\n${specContext}\n\nTitle: ${diagramTitle}\n\nPlease provide a corrected version of this diagram.`;
+    
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt }
+      ],
+      temperature: 0.3,
+      max_tokens: 2000
+    });
+    
+    const repairedCode = completion.choices[0].message.content.trim();
+    
+    // Clean up the response (remove any markdown code blocks)
+    let cleanedCode = repairedCode;
+    if (repairedCode.startsWith('```mermaid')) {
+      cleanedCode = repairedCode.replace(/```mermaid\n?/, '').replace(/```\n?$/, '').trim();
+    } else if (repairedCode.startsWith('```')) {
+      cleanedCode = repairedCode.replace(/```\n?/, '').replace(/```\n?$/, '').trim();
+    }
+    
+
+    res.json({ 
+      success: true,
+      repairedDiagram: {
+        mermaidCode: cleanedCode
+      }
+    });
+    
+  } catch (error) {
+
+    res.status(500).json({ error: 'Failed to repair diagram' });
+  }
+});
+
+// Import and mount chat routes
+const chatRoutes = require('./chat-routes');
+app.use('/api/chat', chatRoutes);
+
+// Import and mount user routes
+const userRoutes = require('./user-routes');
+app.use('/api/users', userRoutes);
+
+// Import and mount specs routes
+const specsRoutes = require('./specs-routes');
+app.use('/api/specs', specsRoutes);
+
+// Import and mount stats routes
+const statsRoutes = require('./stats-routes');
+app.use('/api/stats', statsRoutes);
+
+// Import error logger
+const { logError, getErrorLogs, getErrorSummary } = require('./error-logger');
+
+// Import CSS crash logger
+const { logCSCCrash, getCSCCrashLogs, getCSCCrashSummary } = require('./css-crash-logger');
+
+// Admin error logs endpoint
+app.get('/api/admin/error-logs', async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 100;
+    const errorType = req.query.errorType || null;
+    
+    const logs = await getErrorLogs(limit, errorType);
+    
+    res.json({ 
+      success: true, 
+      logs: logs,
+      total: logs.length
+    });
+  } catch (error) {
+
+    res.status(500).json({ error: 'Failed to get error logs' });
+  }
+});
+
+// CSS crash logs endpoint - POST to receive logs
+app.post('/api/admin/css-crash-logs', async (req, res) => {
+  try {
+    const { log, pageInfo } = req.body;
+    
+    if (!log || !log.crashType) {
+      return res.status(400).json({ error: 'Invalid crash log data' });
+    }
+    
+    await logCSCCrash(log);
+    
+    res.json({ 
+      success: true, 
+      message: 'CSS crash log saved' 
+    });
+  } catch (error) {
+
+    res.status(500).json({ error: 'Failed to save CSS crash log' });
+  }
+});
+
+// CSS crash logs endpoint - GET to retrieve logs
+app.get('/api/admin/css-crash-logs', async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 100;
+    const crashType = req.query.crashType || null;
+    const url = req.query.url || null;
+    
+    const logs = await getCSCCrashLogs(limit, crashType, url);
+    
+    res.json({ 
+      success: true, 
+      logs: logs,
+      total: logs.length
+    });
+  } catch (error) {
+
+    res.status(500).json({ error: 'Failed to get CSS crash logs' });
+  }
+});
+
+// CSS crash summary endpoint
+app.get('/api/admin/css-crash-summary', async (req, res) => {
+  try {
+    const summary = await getCSCCrashSummary();
+    
+    res.json({ 
+      success: true, 
+      summary: summary
+    });
+  } catch (error) {
+
+    res.status(500).json({ error: 'Failed to get CSS crash summary' });
+  }
+});
+
+// Error summary endpoint
+app.get('/api/admin/error-summary', async (req, res) => {
+  try {
+    const summary = await getErrorSummary();
+    
+    res.json({ 
+      success: true, 
+      summary: summary 
+    });
+  } catch (error) {
+
+    res.status(500).json({ error: 'Failed to get error summary' });
+  }
+});
+
+
 app.listen(port, () => {
-  console.log(`🚀 Server running on port ${port}`);
-  console.log(`📝 Feedback endpoint available at: http://localhost:${port}/api/feedback`);
-  console.log(`🔧 Generate spec endpoint available at: http://localhost:${port}/api/generate-spec`);
+
+
+
+
   
   // Check configuration
   if (!process.env.EMAIL_USER || !process.env.EMAIL_APP_PASSWORD) {
-    console.log('⚠️  Email configuration not found. Set EMAIL_USER and EMAIL_APP_PASSWORD for email functionality.');
+
   }
   
   if (!process.env.GOOGLE_SHEETS_WEBHOOK_URL) {
-    console.log('⚠️  Google Sheets configuration not found. Set GOOGLE_SHEETS_WEBHOOK_URL for Sheets functionality.');
+
   }
 });

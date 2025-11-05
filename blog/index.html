@@ -1,0 +1,31 @@
+---
+layout: default
+title: "Blog - Specifys.ai"
+description: "Explore the latest insights on vibe coding, AI-powered app development, and innovative tools at Specifys.ai Blog."
+permalink: /blog/
+extra_css:
+  - /assets/css/blog.css
+---
+
+<div class="content-box">
+  <h1>Our Blog</h1>
+  
+  <div class="gallery-grid">
+    {% for post in site.posts %}
+    <div class="article-preview">
+      <h2 class="article-title">
+        <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+      </h2>
+      <div class="article-date">
+        {{ post.date | date: "%B %d, %Y" }}
+      </div>
+      {% if post.excerpt %}
+      <div class="article-intro">
+        {{ post.excerpt | strip_html | truncatewords: 30 }}
+      </div>
+      {% endif %}
+      <a href="{{ post.url | relative_url }}" class="read-more-btn" onclick="trackButtonClick('Read Article', 'Blog', 'article_preview', {'article_title': '{{ post.title }}'})">Read More</a>
+    </div>
+    {% endfor %}
+  </div>
+</div>

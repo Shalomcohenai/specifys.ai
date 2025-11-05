@@ -324,3 +324,11 @@
     display: none;
   }
 }
+
+/* Hide Mermaid error logo/footer - target specific error elements only */
+svg .mermaid-error,
+svg[aria-describedby*="error"],
+svg + div[class*="error"],
+.mermaid-error-message {
+  display: none !important;
+}

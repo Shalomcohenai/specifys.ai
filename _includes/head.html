@@ -1,0 +1,157 @@
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta name="theme-color" content="#000000">
+    <title>{% if page.title %}{{ page.title }} - {{ site.title }}{% else %}{{ site.title }}{% endif %}</title>
+    <meta name="description" content="{% if page.description %}{{ page.description }}{% else %}{{ site.description }}{% endif %}">
+    <meta name="keywords" content="AI development tools, app specification generator, no-code platform, AI-powered planning, vibe coding, AI app builder, specification generator, market research tool, app planning tool, development tools, AI tools">
+    <meta name="author" content="Specifys.ai">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    
+    <!-- Content Security Policy - Removed to fix Google Analytics/Ads issues -->
+    
+    <!-- Canonical URL -->
+    {% if page.canonical_url %}
+    <link rel="canonical" href="{{ page.canonical_url }}">
+    {% else %}
+    <link rel="canonical" href="{{ page.url | absolute_url }}">
+    {% endif %}
+    
+    <!-- Open Graph -->
+    <meta property="og:site_name" content="Specifys.ai">
+    <meta property="og:title" content="{% if page.title %}{{ page.title }}{% else %}{{ site.title }}{% endif %}">
+    <meta property="og:description" content="{% if page.description %}{{ page.description }}{% else %}{{ site.description }}{% endif %}">
+    <meta property="og:type" content="{% if page.layout == 'post' %}article{% else %}website{% endif %}">
+    <meta property="og:url" content="{{ page.url | absolute_url }}">
+    <meta property="og:image" content="{{ '/assets/images/og-image.png' | absolute_url }}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:locale" content="en_US">
+    {% if page.layout == 'post' %}
+    <meta property="article:author" content="Specifys.ai">
+    <meta property="article:published_time" content="{{ page.date | date_to_xmlschema }}">
+    <meta property="article:modified_time" content="{{ page.date | date_to_xmlschema }}">
+    {% endif %}
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@specifysai">
+    <meta name="twitter:creator" content="@specifysai">
+    <meta name="twitter:title" content="{% if page.title %}{{ page.title }}{% else %}{{ site.title }}{% endif %}">
+    <meta name="twitter:description" content="{% if page.description %}{{ page.description }}{% else %}{{ site.description }}{% endif %}">
+    <meta name="twitter:image" content="{{ '/assets/images/og-image.png' | absolute_url }}">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{{ '/favicon.ico' | relative_url }}">
+    
+    <!-- CSS - Using Vite bundles if available -->
+    {% vite_bundle critical css %}
+    {% vite_bundle main css %}
+    {% if page.extra_css %}
+      {% for css in page.extra_css %}
+        <link rel="stylesheet" href="{{ css | relative_url }}">
+      {% endfor %}
+    {% endif %}
+    {% if layout.extra_css %}
+      {% for css in layout.extra_css %}
+        <link rel="stylesheet" href="{{ css | relative_url }}">
+      {% endfor %}
+    {% endif %}
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- JavaScript - Using Vite bundles if available -->
+    {% vite_bundle core js %}
+    
+    <!-- Fonts - Optimized: Only Montserrat and Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Library Loader - for conditional loading of external libraries -->
+    <script src="{{ '/assets/js/lib-loader.js' | relative_url }}"></script>
+    
+    <!-- Conditional library loading based on page requirements -->
+    {% if page.requires_libs %}
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const requiredLibs = {{ page.requires_libs | jsonify }};
+        if (window.LibraryLoader && requiredLibs && requiredLibs.length > 0) {
+          window.LibraryLoader.loadLibraries(requiredLibs).catch(function(error) {
+            console.error('Failed to load required libraries:', error);
+          });
+        }
+      });
+    </script>
+    {% endif %}
+    
+    {% include analytics.html %}
+    {% include analytics-events.html %}
+    {% include structured-data.html %}
+    
+    <!-- Remove livereload script to prevent infinite reload loops -->
+    <script>
+        (function() {
+            // Remove livereload script immediately after page load
+            function removeLiveReload() {
+                // Find all livereload scripts
+                const livereloadScripts = document.querySelectorAll('script[src*="livereload"], script[src*="35729"]');
+                livereloadScripts.forEach(function(script) {
+                    console.log('[LiveReload Remover] Removing livereload script:', script.src);
+                    script.remove();
+                });
+                
+                // Also remove any livereload iframes
+                const livereloadIframes = document.querySelectorAll('iframe[src*="livereload"], iframe[src*="35729"]');
+                livereloadIframes.forEach(function(iframe) {
+                    console.log('[LiveReload Remover] Removing livereload iframe');
+                    iframe.remove();
+                });
+            }
+            
+            // Remove immediately
+            removeLiveReload();
+            
+            // Remove on DOM ready
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', removeLiveReload);
+            }
+            
+            // Remove after a short delay (in case livereload adds itself)
+            setTimeout(removeLiveReload, 100);
+            setTimeout(removeLiveReload, 500);
+            setTimeout(removeLiveReload, 1000);
+            
+            // Watch for new livereload scripts being added
+            const observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    mutation.addedNodes.forEach(function(node) {
+                        if (node.nodeType === 1) { // Element node
+                            if (node.tagName === 'SCRIPT' && (node.src && (node.src.includes('livereload') || node.src.includes('35729')))) {
+                                console.log('[LiveReload Remover] Blocking new livereload script');
+                                node.remove();
+                            }
+                        }
+                    });
+                });
+            });
+            
+            // Observe document head for new scripts
+            observer.observe(document.head, {
+                childList: true,
+                subtree: true
+            });
+            
+            // Also observe document body
+            if (document.body) {
+                observer.observe(document.body, {
+                    childList: true,
+                    subtree: true
+                });
+            }
+        })();
+    </script>
+</head>
+

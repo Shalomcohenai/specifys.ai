@@ -1,4 +1,9 @@
 const { db, auth } = require('./firebase-admin');
+const admin = require('firebase-admin');
+
+/**
+ * User Management Functions for Firebase Admin SDK
+ */
 
 /**
  * User Management Functions for Firebase Admin SDK
@@ -21,7 +26,6 @@ async function getAllUsers() {
             providerData: user.providerData
         }));
     } catch (error) {
-        console.error('Error getting users:', error);
         throw error;
     }
 }
@@ -43,7 +47,6 @@ async function getUserByUid(uid) {
             providerData: userRecord.providerData
         };
     } catch (error) {
-        console.error(`Error getting user ${uid}:`, error);
         throw error;
     }
 }
@@ -69,11 +72,9 @@ async function createOrUpdateUserDocument(uid, userData = {}) {
         };
         
         await userDocRef.set(userDoc, { merge: true });
-        console.log(`✅ User document created/updated for ${uid}`);
         
         return userDoc;
     } catch (error) {
-        console.error(`Error creating/updating user document for ${uid}:`, error);
         throw error;
     }
 }
@@ -83,10 +84,8 @@ async function createOrUpdateUserDocument(uid, userData = {}) {
  */
 async function syncAllUsers() {
     try {
-        console.log('🔄 Starting user sync process...');
         
         const authUsers = await getAllUsers();
-        console.log(`Found ${authUsers.length} users in Firebase Auth`);
         
         let synced = 0;
         let alreadyExists = 0;
@@ -100,23 +99,16 @@ async function syncAllUsers() {
                 if (!userDoc.exists) {
                     await createOrUpdateUserDocument(user.uid);
                     synced++;
-                    console.log(`✅ Created user document for ${user.email}`);
                 } else {
                     // Update existing user with latest data
                     await createOrUpdateUserDocument(user.uid);
                     alreadyExists++;
-                    console.log(`🔄 Updated user document for ${user.email}`);
                 }
             } catch (error) {
-                console.error(`❌ Failed to sync user ${user.email}:`, error.message);
                 errors++;
             }
         }
         
-        console.log(`🎉 Sync completed!`);
-        console.log(`- New user documents created: ${synced}`);
-        console.log(`- Existing user documents updated: ${alreadyExists}`);
-        console.log(`- Errors: ${errors}`);
         
         return {
             total: authUsers.length,
@@ -125,7 +117,6 @@ async function syncAllUsers() {
             errors
         };
     } catch (error) {
-        console.error('Error during user sync:', error);
         throw error;
     }
 }
@@ -192,7 +183,6 @@ async function getUserStats() {
             }
         };
     } catch (error) {
-        console.error('Error getting user stats:', error);
         throw error;
     }
 }
@@ -202,7 +192,6 @@ async function getUserStats() {
  */
 async function cleanupOrphanedData() {
     try {
-        console.log('🧹 Starting orphaned data cleanup...');
         
         const authUserIds = new Set((await getAllUsers()).map(u => u.uid));
         
@@ -217,7 +206,6 @@ async function cleanupOrphanedData() {
             if (data.userId && !authUserIds.has(data.userId)) {
                 await db.collection('specs').doc(doc.id).delete();
                 cleanedSpecs++;
-                console.log(`🗑️ Deleted orphaned spec: ${doc.id}`);
             }
         }
         
@@ -228,7 +216,6 @@ async function cleanupOrphanedData() {
             if (data.userId && !authUserIds.has(data.userId)) {
                 await db.collection('apps').doc(doc.id).delete();
                 cleanedApps++;
-                console.log(`🗑️ Deleted orphaned app: ${doc.id}`);
             }
         }
         
@@ -239,14 +226,9 @@ async function cleanupOrphanedData() {
             if (data.userId && !authUserIds.has(data.userId)) {
                 await db.collection('marketResearch').doc(doc.id).delete();
                 cleanedMarket++;
-                console.log(`🗑️ Deleted orphaned market research: ${doc.id}`);
             }
         }
         
-        console.log(`🎉 Cleanup completed!`);
-        console.log(`- Orphaned specs deleted: ${cleanedSpecs}`);
-        console.log(`- Orphaned apps deleted: ${cleanedApps}`);
-        console.log(`- Orphaned market research deleted: ${cleanedMarket}`);
         
         return {
             cleanedSpecs,
@@ -255,7 +237,6 @@ async function cleanupOrphanedData() {
             total: cleanedSpecs + cleanedApps + cleanedMarket
         };
     } catch (error) {
-        console.error('Error during cleanup:', error);
         throw error;
     }
 }
@@ -295,10 +276,8 @@ async function deleteUser(uid) {
         
         await batch.commit();
         
-        console.log(`✅ User ${uid} completely deleted`);
         return true;
     } catch (error) {
-        console.error(`Error deleting user ${uid}:`, error);
         throw error;
     }
 }

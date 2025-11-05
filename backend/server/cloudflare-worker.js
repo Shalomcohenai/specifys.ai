@@ -13,7 +13,7 @@ async function handleRequest(request) {
     return new Response(null, {
       status: 200,
       headers: {
-        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Origin': 'https://specifys-ai.com',
         'Access-Control-Allow-Methods': 'POST, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type',
         'Access-Control-Max-Age': '86400',
@@ -39,7 +39,7 @@ async function handleRequest(request) {
         status: 400,
         headers: {
           'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*'
+          'Access-Control-Allow-Origin': 'https://specifys-ai.com'
         }
       })
     }
@@ -51,12 +51,12 @@ async function handleRequest(request) {
       status: 200,
       headers: {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*'
+        'Access-Control-Allow-Origin': 'https://specifys-ai.com'
       }
     })
     
   } catch (error) {
-    console.error('Error processing request:', error)
+
     
     return new Response(JSON.stringify({
       success: false,
@@ -65,7 +65,7 @@ async function handleRequest(request) {
       status: 500,
       headers: {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*'
+        'Access-Control-Allow-Origin': 'https://specifys-ai.com'
       }
     })
   }
@@ -87,7 +87,6 @@ async function processFeedback(data) {
     }
     
     // 3. Log the feedback
-    console.log('Feedback processed successfully:', {
       email: email || 'Not provided',
       feedback: feedback.substring(0, 100) + '...',
       type: type || 'general',
@@ -101,7 +100,7 @@ async function processFeedback(data) {
     }
     
   } catch (error) {
-    console.error('Error processing feedback:', error)
+
     throw error
   }
 }
@@ -133,7 +132,6 @@ async function sendEmail(userEmail, feedback, type, timestamp) {
     `
   }
   
-  console.log('📧 Email would be sent:', emailData)
   
   // TODO: Implement actual email sending using Cloudflare Email Workers
   // Example:
@@ -166,10 +164,9 @@ async function forwardToGoogleSheets(userEmail, feedback, type, timestamp) {
       throw new Error(`Google Sheets API error: ${response.status}`)
     }
     
-    console.log('✅ Feedback forwarded to Google Sheets')
     
   } catch (error) {
-    console.error('❌ Error forwarding to Google Sheets:', error.message)
+
     // Don't fail the entire request if Sheets fails
   }
 }

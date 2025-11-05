@@ -1,0 +1,148 @@
+/* Result Market Page - Market Research Track Styles */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-family-primary);
+  background: var(--bg-secondary);
+  color: var(--text-color);
+  line-height: 1.6;
+}
+
+.carousel-container {
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 5rem 1rem;
+  position: relative;
+  margin-top: 100px;
+}
+
+.carousel-content {
+  background: var(--bg-primary);
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: var(--shadow-md);
+  width: 100%;
+  max-width: 900px;
+  min-height: 400px;
+}
+
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  min-height: 400px;
+  padding: var(--spacing-lg);
+}
+
+.chat-message {
+  padding: var(--spacing-md);
+  border-radius: 15px;
+  font-size: var(--font-size-base);
+  line-height: 1.5;
+  max-width: 70%;
+}
+
+.chat-message.bot {
+  background: var(--primary-color);
+  color: white;
+  align-self: flex-start;
+}
+
+.chat-message.result {
+  background: var(--bg-primary);
+  color: var(--text-color);
+  border: 1px solid var(--light-gray);
+  align-self: flex-start;
+  width: 100%;
+  max-width: 100%;
+  padding: var(--spacing-xl);
+}
+
+.error-message {
+  background: var(--danger-color);
+  color: white;
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius-md);
+  text-align: center;
+  display: none;
+}
+
+.platform-container {
+  max-width: 900px;
+  margin: var(--spacing-xl) auto;
+  padding: var(--spacing-lg);
+  background: var(--bg-primary);
+  border-radius: 20px;
+  box-shadow: var(--shadow-md);
+  text-align: center;
+}
+
+.platform-boxes {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-lg);
+}
+
+.platform-box {
+  background: var(--primary-color);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 20px;
+  text-decoration: none;
+  font-weight: var(--font-weight-bold);
+  transition: all var(--transition-normal);
+  border: none;
+  cursor: pointer;
+}
+
+.platform-box:hover {
+  background: #005ea2;
+  transform: translateY(-2px);
+}
+
+.platform-box.vibe-coding {
+  background: #ff6f61;
+}
+
+.platform-box.vibe-coding:hover {
+  background: #e65b54;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .carousel-container {
+    padding: 3rem 1rem;
+    margin-top: 80px;
+  }
+  
+  .carousel-content {
+    padding: 1.5rem;
+  }
+  
+  .chat-message {
+    max-width: 90%;
+  }
+}
+
+@media (max-width: 480px) {
+  .carousel-container {
+    padding: 2rem 0.5rem;
+  }
+  
+  .carousel-content {
+    padding: 1rem;
+  }
+  
+  .platform-boxes {
+    flex-direction: column;
+  }
+}

@@ -67,16 +67,16 @@ export function validateInput(input, options = {}) {
   
   // Check if required
   if (required && (!input || input.trim().length === 0)) {
-    errors.push('שדה זה נדרש');
+    errors.push('This field is required');
   }
   
   // Check length
   if (input && input.length > maxLength) {
-    errors.push(`הטקסט ארוך מדי (מקסימום ${maxLength} תווים)`);
+    errors.push(`Text is too long (maximum ${maxLength} characters)`);
   }
   
   if (input && input.length < minLength) {
-    errors.push(`הטקסט קצר מדי (מינימום ${minLength} תווים)`);
+    errors.push(`Text is too short (minimum ${minLength} characters)`);
   }
   
   // Sanitize based on options
@@ -151,7 +151,7 @@ export function logSecurityEvent(event, details = {}) {
   
   // Log to console in development
   if (process?.env?.NODE_ENV === 'development') {
-    console.warn('Security Event:', securityLog);
+
   }
   
   // Send to server for monitoring (if endpoint exists)
@@ -163,7 +163,7 @@ export function logSecurityEvent(event, details = {}) {
       },
       body: JSON.stringify(securityLog)
     }).catch(err => {
-      console.error('Failed to log security event:', err);
+
     });
   }
 }

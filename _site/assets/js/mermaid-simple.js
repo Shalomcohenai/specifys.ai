@@ -22,9 +22,9 @@ const SimpleMermaidManager = {
                 startOnLoad: false,
                 theme: 'base',
                 themeVariables: {
-                    primaryColor: '#0078d4',
+                    primaryColor: '#FF6B35',
                     primaryTextColor: '#333333',
-                    primaryBorderColor: '#0078d4',
+                    primaryBorderColor: '#FF6B35',
                     lineColor: '#333333',
                     secondaryColor: '#f5f5f5',
                     tertiaryColor: '#ffffff',
@@ -36,9 +36,8 @@ const SimpleMermaidManager = {
             });
             
             this.initialized = true;
-            console.log('Simple Mermaid initialized');
         } catch (error) {
-            console.error('Failed to initialize Mermaid:', error);
+
         }
     },
     
@@ -49,7 +48,7 @@ const SimpleMermaidManager = {
             
             const container = document.getElementById(containerId);
             if (!container) {
-                console.error(`Container ${containerId} not found`);
+
                 return;
             }
             
@@ -69,10 +68,8 @@ const SimpleMermaidManager = {
             const { svg } = await mermaid.render(chartId, definition);
             chartDiv.innerHTML = svg;
             
-            console.log(`Chart rendered in ${containerId}`);
-            
         } catch (error) {
-            console.error(`Failed to render chart:`, error);
+
             this.showError(containerId, error.message);
         }
     },
@@ -121,6 +118,5 @@ window.SimpleMermaidManager = SimpleMermaidManager;
 
 // Auto-initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOM ready, initializing Simple Mermaid...');
     SimpleMermaidManager.init();
 });

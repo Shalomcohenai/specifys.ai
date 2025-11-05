@@ -10,9 +10,9 @@ class MermaidManager {
         this.config = {
             theme: 'base',
             themeVariables: {
-                primaryColor: '#0078d4',
+                primaryColor: '#FF6B35',
                 primaryTextColor: '#333333',
-                primaryBorderColor: '#0078d4',
+                primaryBorderColor: '#FF6B35',
                 lineColor: '#333333',
                 secondaryColor: '#f5f5f5',
                 tertiaryColor: '#ffffff',
@@ -50,17 +50,14 @@ class MermaidManager {
         try {
             // Wait for Mermaid to be available
             if (typeof mermaid === 'undefined') {
-                console.log('Waiting for Mermaid to load...');
                 await this.waitForMermaid();
             }
 
             // Initialize Mermaid with configuration
             mermaid.initialize(this.config);
             this.isInitialized = true;
-            
-            console.log('Mermaid initialized successfully');
         } catch (error) {
-            console.error('Failed to initialize Mermaid:', error);
+
         }
     }
 
@@ -94,11 +91,10 @@ class MermaidManager {
             const script = document.createElement('script');
             script.src = 'https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js';
             script.onload = () => {
-                console.log('Mermaid loaded successfully');
                 resolve();
             };
             script.onerror = (error) => {
-                console.error('Failed to load Mermaid:', error);
+
                 reject(error);
             };
             document.head.appendChild(script);
@@ -114,9 +110,9 @@ class MermaidManager {
         if (isDark) {
             this.config.theme = 'dark';
             this.config.themeVariables = {
-                primaryColor: '#0078d4',
+                primaryColor: '#FF6B35',
                 primaryTextColor: '#ffffff',
-                primaryBorderColor: '#0078d4',
+                primaryBorderColor: '#FF6B35',
                 lineColor: '#ffffff',
                 secondaryColor: '#2d2d2d',
                 tertiaryColor: '#333333',
@@ -128,9 +124,9 @@ class MermaidManager {
         } else {
             this.config.theme = 'base';
             this.config.themeVariables = {
-                primaryColor: '#0078d4',
+                primaryColor: '#FF6B35',
                 primaryTextColor: '#333333',
-                primaryBorderColor: '#0078d4',
+                primaryBorderColor: '#FF6B35',
                 lineColor: '#333333',
                 secondaryColor: '#f5f5f5',
                 tertiaryColor: '#ffffff',
@@ -199,11 +195,11 @@ class MermaidManager {
 
                 return chartId;
             } catch (parseError) {
-                console.error('Parse error:', parseError);
+
                 throw new Error(`Chart parsing failed: ${parseError.message}`);
             }
         } catch (error) {
-            console.error(`Failed to render chart in ${containerId}:`, error);
+
             this.showError(containerId, error.message);
         }
     }
@@ -216,7 +212,7 @@ class MermaidManager {
             try {
                 await this.renderChart(containerId, chartInfo.definition, chartInfo.options);
             } catch (error) {
-                console.error(`Failed to re-render chart ${containerId}:`, error);
+
             }
         }
     }

@@ -2015,5 +2015,267 @@
       "monthlyUsage": "N/A",
       "ARR": "N/A"
     }
+  },
+  {
+  "id": 94,
+  "name": "Sourcegraph Cody",
+  "category": "AI-Augmented IDEs & Code Assistants",
+  "description": "Enterprise-focused AI coding assistant that integrates with development workflows to provide contextual code answers, suggestions, and automated refactoring.",
+  "link": "https://about.sourcegraph.com/cody",
+  "rating": 4.7,
+  "pros": [
+    "Team prompt sharing and reuse",
+    "Handles large codebases with RAG",
+    "Works across IDEs (VS Code, IntelliJ)"
+  ],
+  "cons": [
+    "Enterprise pricing",
+    "Less suitable for solo developers"
+  ],
+  "stats": {
+    "users": "N/A",
+    "globalRating": 4.7,
+    "monthlyUsage": "N/A",
+    "ARR": "N/A"
   }
+},
+{
+  "id": 95,
+  "name": "Amazon CodeWhisperer",
+  "category": "AI-Augmented IDEs & Code Assistants",
+  "description": "AI-powered coding companion by AWS that provides real-time code suggestions and security scans, optimized for cloud and enterprise development.",
+  "link": "https://aws.amazon.com/codewhisperer",
+  "rating": 4.1,
+  "pros": [
+    "Free for individual developers",
+    "Built-in vulnerability scanning",
+    "Deep AWS integration"
+  ],
+  "cons": [
+    "Suggests less sophisticated code than GPT-4",
+    "Best for AWS and limited for other stacks"
+  ],
+  "stats": {
+    "users": "N/A",
+    "globalRating": 4.1,
+    "monthlyUsage": "N/A",
+    "ARR": "N/A"
+  }
+},
+{
+  "id": 96,
+  "name": "Lazy AI",
+  "category": "Prompt-to-App Builders",
+  "description": "Natural language app builder that generates full-stack web applications (UI, logic, and database) from a prompt, with one-click deployment and integration options.",
+  "link": "https://getlazy.ai",
+  "rating": 4.5,
+  "pros": [
+    "End-to-end app generation",
+    "Instant hosting & deployment",
+    "Supports API and DB integrations"
+  ],
+  "cons": [
+    "Limited customization for complex apps",
+    "Token-based usage limits"
+  ],
+  "special": "Launched 2023",
+  "stats": {
+    "users": "N/A",
+    "globalRating": 4.5,
+    "monthlyUsage": "N/A",
+    "ARR": "N/A"
+  }
+},
+{
+  "id": 97,
+  "name": "Vercel v0",
+  "category": "UI/UX + Code Tools",
+  "description": "AI-driven generative UI tool that creates React/Next.js interface components and layouts from natural language descriptions, enabling rapid front-end prototyping with editable code blocks.",
+  "link": "https://v0.dev",
+  "rating": 4.6,
+  "pros": [
+    "Speeds up UI development",
+    "Generates production-ready React code",
+    "Interactive editing of generated components"
+  ],
+  "cons": [
+    "Focused on front-end only",
+    "Requires manual integration into projects",
+    "Paid plans for high usage"
+  ],
+  "special": "Beta since 2023",
+  "stats": {
+    "users": "N/A",
+    "globalRating": 4.6,
+    "monthlyUsage": "N/A",
+    "ARR": "N/A"
+  }
+},
+{
+  "id": 98,
+  "name": "Augment Code",
+  "category": "AI-Augmented IDEs & Code Assistants",
+  "description": "Comprehensive AI coding platform with codebase-aware autocompletion and autonomous agent capabilities, integrating into popular IDEs and CLI to perform multi-file edits and code generation.",
+  "link": "https://augmentcode.com",
+  "rating": 4.8,
+  "pros": [
+    "Advanced context engine for large codebases",
+    "Combines agentic tasks with autocomplete",
+    "Integrates with VS Code, JetBrains, Vim, etc."
+  ],
+  "cons": [
+    "Premium pricing model",
+    "Steeper learning curve for setup"
+  ],
+  "special": "Launched 2024",
+  "stats": {
+    "users": "N/A",
+    "globalRating": 4.8,
+    "monthlyUsage": "N/A",
+    "ARR": "N/A"
+  }
+},
+{
+  "id": 99,
+  "name": "Roo Code",
+  "category": "AI Agent & Workflow Tools",
+  "description": "Open-source VS Code extension that brings a team of AI agents into the editor to generate, refactor, document, and debug code autonomously through multiple specialized modes.",
+  "link": "https://marketplace.visualstudio.com/items?itemName=RooVeterinaryInc.roo-cline",
+  "rating": 4.6,
+  "pros": [
+    "Free and open-source",
+    "Multiple modes (Code, Debug, Architect, etc.)",
+    "Active community support (Discord, Reddit)"
+  ],
+  "cons": [
+    "Requires configuring API keys or local models",
+    "Can be complex to fine-tune modes"
+  ],
+  "stats": {
+    "users": "873K VS Code installs",
+    "globalRating": 4.6,
+    "monthlyUsage": "N/A",
+    "ARR": "N/A"
+  }
+},
+{
+  "id": 100,
+  "name": "Cline",
+  "category": "AI Agent & Workflow Tools",
+  "description": "Open-source AI coding agent that runs locally, understanding entire codebases to plan and execute multi-step code changes with full transparency and model flexibility.",
+  "link": "https://cline.bot",
+  "rating": 4.8,
+  "pros": [
+    "Client-side only (code never leaves machine)",
+    "Model-agnostic (use Claude, Gemini, etc.)",
+    "Plans changes with user approval (compliance-friendly)"
+  ],
+  "cons": [
+    "Setup requires providing LLM API or local model",
+    "No built-in model (bring your own AI)"
+  ],
+  "stats": {
+    "users": "3.2M VS Code installs, 48K GitHub stars",
+    "globalRating": 4.8,
+    "monthlyUsage": "N/A",
+    "ARR": "N/A"
+  }
+},
+{
+  "id": 101,
+  "name": "GPT-Engineer",
+  "category": "AI Agent & Workflow Tools",
+  "description": "Open-source CLI tool that generates entire software projects from a prompt by iteratively refining requirements and code through an automated agent loop.",
+  "link": "https://github.com/AntonOsika/gpt-engineer",
+  "rating": 4.3,
+  "pros": [
+    "Autonomous project scaffolding",
+    "Highly extensible open-source project",
+    "Great for quick MVP prototypes"
+  ],
+  "cons": [
+    "Not reliable for complex or large-scale apps",
+    "Requires human review and iteration",
+    "Runs as CLI (no GUI interface)"
+  ],
+  "stats": {
+    "users": "50K+ GitHub stars",
+    "globalRating": 4.3,
+    "monthlyUsage": "N/A",
+    "ARR": "N/A"
+  }
+},
+{
+  "id": 102,
+  "name": "Auto-GPT",
+  "category": "AI Agent & Workflow Tools",
+  "description": "Experimental open-source agent that uses GPT-4 to autonomously pursue goals by generating code, executing it, and adjusting based on feedback without continuous user input.",
+  "link": "https://github.com/Significant-Gravitas/Auto-GPT",
+  "rating": 4.0,
+  "pros": [
+    "Demonstrates autonomous multi-step coding",
+    "Can self-run code and web actions to achieve goals",
+    "Huge open-source community and extensions"
+  ],
+  "cons": [
+    "Frequently goes off-track or gets stuck",
+    "High resource usage (API calls, memory)",
+    "Requires careful setup and prompting"
+  ],
+  "stats": {
+    "users": "150K+ GitHub stars",
+    "globalRating": 4.0,
+    "monthlyUsage": "N/A",
+    "ARR": "N/A"
+  }
+},
+{
+  "id": 103,
+  "name": "OpenAI ChatGPT Code Interpreter",
+  "category": "AI Agent & Workflow Tools",
+  "description": "ChatGPT-based development assistant that can execute Python code within a sandbox, enabling data analysis, prototyping, and code generation entirely through conversational prompts.",
+  "link": "https://openai.com/blog/chatgpt-plugins#code-interpreter",
+  "rating": 4.7,
+  "pros": [
+    "Executes code and returns results within chat",
+    "Excels at data analysis and visualization tasks",
+    "No local setup – runs in OpenAI's environment"
+  ],
+  "cons": [
+    "Limited to ChatGPT Plus users",
+    "Execution environment has resource and access constraints",
+    "Not integrated into IDE (browser-based interface)"
+  ],
+  "stats": {
+    "users": "100M+ ChatGPT user base",
+    "globalRating": 4.7,
+    "monthlyUsage": "N/A",
+    "ARR": "N/A"
+  }
+},
+{
+  "id": 104,
+  "name": "Firebase Studio",
+  "category": "AI-Augmented IDEs & Code Assistants",
+  "description": "Google's cloud-based development workspace (formerly Project IDX) that integrates generative AI (Gemini) for code completion, chat assistance, and an agent to prototype full-stack applications.",
+  "link": "https://studio.firebase.google.com",
+  "rating": 4.4,
+  "pros": [
+    "Cloud IDE accessible from any device",
+    "AI pair-programmer (Codey/Gemini) built-in",
+    "Supports web, mobile and backend frameworks with emulators"
+  ],
+  "cons": [
+    "Still in beta, evolving features",
+    "Tied to Google Cloud/Firebase ecosystem",
+    "Browser IDE can be less responsive for very large projects"
+  ],
+  "special": "Rebranded from Project IDX (2024)",
+  "stats": {
+    "users": "N/A",
+    "globalRating": 4.4,
+    "monthlyUsage": "N/A",
+    "ARR": "N/A"
+  }
+} 
 ]
