@@ -38,7 +38,6 @@ plugins:
 exclude:
   - README.md
   - Gemfile
-  - Gemfile.lock
   - node_modules
   - vendor
   - .sass-cache
