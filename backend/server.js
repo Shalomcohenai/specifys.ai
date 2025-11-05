@@ -200,14 +200,33 @@ app.post('/api/generate-spec', rateLimiters.generation, async (req, res) => {
       }),
     });
 
-    const data = await response.json();
+    // Check if response is OK before parsing JSON
     if (!response.ok) {
-      throw new Error(data.error?.message || 'Failed to fetch specification');
+      let errorMessage = 'Failed to fetch specification';
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.error?.message || errorData.error || errorMessage;
+      } catch (parseError) {
+        // If response is not JSON, get text instead
+        const errorText = await response.text();
+        errorMessage = errorText || `HTTP ${response.status}: ${response.statusText}`;
+      }
+      console.error('Grok API error:', {
+        status: response.status,
+        statusText: response.statusText,
+        error: errorMessage
+      });
+      throw new Error(errorMessage);
     }
 
+    const data = await response.json();
     res.json({ specification: data.choices[0].message.content });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to generate specification' });
+    console.error('Error in /api/generate-spec:', error.message, error.stack);
+    res.status(500).json({ 
+      error: 'Failed to generate specification',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 });
 
