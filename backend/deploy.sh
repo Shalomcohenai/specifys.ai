@@ -51,7 +51,7 @@ echo "🌐 Setting up Lemon Squeezy webhook..."
 WEBHOOK_URL="https://yourdomain.com/api/webhook/lemon"
 echo "⚠️  Please set up the webhook URL in Lemon Squeezy dashboard:"
 echo "   URL: $WEBHOOK_URL"
-echo "   Secret: specifys_ai_secret_2025"
+echo "   Secret: testpassword123"
 
 echo "🧪 Testing webhook endpoint..."
 

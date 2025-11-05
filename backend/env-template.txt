@@ -11,7 +11,7 @@ FIREBASE_API_KEY=AIzaSyB9hr0IWM4EREzkKDxBxYoYinV6LJXWXV4
 LEMON_SQUEEZY_API_KEY=your_lemon_squeezy_api_key_here
 LEMON_SQUEEZY_STORE_ID=your_store_id_here
 LEMON_SQUEEZY_VARIANT_ID=your_variant_id_here
-LEMON_WEBHOOK_SECRET=specifys_ai_secret_2025
+LEMON_WEBHOOK_SECRET=testpassword123
 
 # API Keys (if needed)
 API_KEY=your_openai_api_key_here

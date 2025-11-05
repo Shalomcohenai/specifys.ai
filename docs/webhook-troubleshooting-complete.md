@@ -23,7 +23,7 @@ Lemon Squeezy **לא שולח webhooks** אם הם לא מוגדרים מראש 
 2. לחץ על **"Create Webhook"**
 3. מלא את הפרטים:
    - **URL**: `https://specifys-ai.onrender.com/api/lemon/webhook`
-   - **Secret**: `specifys_ai_secret_2025` (חייב להיות זהה ל-`LEMON_WEBHOOK_SECRET` ב-Render!)
+   - **Secret**: `testpassword123` (חייב להיות זהה ל-`LEMON_WEBHOOK_SECRET` ב-Render!)
    - **Events**: בחר **`order_created`** (חובה!)
    - **Test Mode**: השאר unchecked (או סמן אם זה רק לבדיקות)
 
@@ -40,7 +40,7 @@ curl -X POST "https://api.lemonsqueezy.com/v1/webhooks" \
       "attributes": {
         "url": "https://specifys-ai.onrender.com/api/lemon/webhook",
         "events": ["order_created"],
-        "secret": "specifys_ai_secret_2025"
+        "secret": "testpassword123"
       },
       "relationships": {
         "store": {
@@ -129,7 +129,7 @@ User ID: ...
 
 - [ ] Webhook מוגדר ב-Lemon Squeezy Dashboard
 - [ ] URL נכון: `https://specifys-ai.onrender.com/api/lemon/webhook`
-- [ ] Secret זהה ב-Render וב-Lemon Squeezy: `specifys_ai_secret_2025`
+- [ ] Secret זהה ב-Render וב-Lemon Squeezy: `testpassword123`
 - [ ] Event `order_created` נבחר ב-webhook
 - [ ] Webhook Status = Active
 - [ ] בדקת ב-Webhook History שיש ניסיונות שליחה (אם יש)
@@ -164,7 +164,7 @@ curl -X POST https://specifys-ai.onrender.com/api/lemon/webhook \
 #### בדיקת Environment Variables ב-Render
 1. Render Dashboard → Service → Environment
 2. ודא שיש:
-   - `LEMON_WEBHOOK_SECRET=specifys_ai_secret_2025`
+   - `LEMON_WEBHOOK_SECRET=testpassword123`
    - `LEMON_SQUEEZY_API_KEY=...`
    - `LEMON_SQUEEZY_STORE_ID=230339`
    - `LEMON_SQUEEZY_VARIANT_ID=1073211`
@@ -185,7 +185,7 @@ curl -X POST https://specifys-ai.onrender.com/api/lemon/webhook \
 **הפתרון:**
 1. הגדר webhook ב-Dashboard: https://app.lemonsqueezy.com/settings/webhooks
 2. URL: `https://specifys-ai.onrender.com/api/lemon/webhook`
-3. Secret: `specifys_ai_secret_2025`
+3. Secret: `testpassword123`
 4. Event: `order_created`
 5. בדוק את הלוגים אחרי רכישה נוספת
 

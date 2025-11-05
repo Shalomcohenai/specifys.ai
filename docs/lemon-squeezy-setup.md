@@ -47,7 +47,7 @@
 LEMON_SQUEEZY_API_KEY=your_api_key_here
 LEMON_SQUEEZY_STORE_ID=your_store_id_here
 LEMON_SQUEEZY_VARIANT_ID=your_variant_id_here
-LEMON_WEBHOOK_SECRET=specifys_ai_secret_2025
+LEMON_WEBHOOK_SECRET=testpassword123
 
 # Firebase Configuration
 FIREBASE_PROJECT_ID=your_project_id_here
@@ -84,7 +84,7 @@ FRONTEND_URL=https://specifys-ai.com
 
 \`\`\`
 URL: https://your-service.onrender.com/api/lemon/webhook
-Secret: specifys_ai_secret_2025  (אותו secret מה-Render)
+Secret: testpassword123  (אותו secret מה-Render)
 Events: בחר "Order Created" (או כל האירועים שאתה צריך)
 \`\`\`
 

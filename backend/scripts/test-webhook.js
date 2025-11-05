@@ -28,7 +28,7 @@ const mockPayload = {
     }
 };
 
-const webhookSecret = 'specifys_ai_secret_2025';
+const webhookSecret = 'testpassword123';
 
 // Create signature like Lemon Squeezy does
 function createSignature(payload, secret) {
