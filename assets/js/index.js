@@ -865,7 +865,8 @@ async function generateSpecification() {
     const enhancedPrompt = `${prompt}\n\n${platformText}`;
     
     // Generate specification using the legacy API endpoint
-    const response = await fetch(`${window.API_BASE_URL || 'http://localhost:10000'}/api/generate-spec`, {
+    const apiBaseUrl = (typeof API_CONFIG !== 'undefined' && API_CONFIG && API_CONFIG.baseUrl) ? API_CONFIG.baseUrl : (window.API_BASE_URL || 'http://localhost:10000');
+    const response = await fetch(`${apiBaseUrl}/api/generate-spec`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -891,7 +892,8 @@ async function generateSpecification() {
     // Consume credit after successful spec creation
     try {
       const token = await user.getIdToken();
-      const consumeResponse = await fetch(`${window.API_BASE_URL || 'http://localhost:10000'}/api/specs/consume-credit`, {
+      const apiBaseUrl = (typeof API_CONFIG !== 'undefined' && API_CONFIG && API_CONFIG.baseUrl) ? API_CONFIG.baseUrl : (window.API_BASE_URL || 'http://localhost:10000');
+      const consumeResponse = await fetch(`${apiBaseUrl}/api/specs/consume-credit`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -1048,7 +1050,8 @@ async function triggerOpenAIUpload(specId) {
     }
     
     const token = await user.getIdToken();
-    const response = await fetch(`${window.API_BASE_URL || 'http://localhost:10000'}/api/specs/${specId}/upload-to-openai`, {
+    const apiBaseUrl = (typeof API_CONFIG !== 'undefined' && API_CONFIG && API_CONFIG.baseUrl) ? API_CONFIG.baseUrl : (window.API_BASE_URL || 'http://localhost:10000');
+    const response = await fetch(`${apiBaseUrl}/api/specs/${specId}/upload-to-openai`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

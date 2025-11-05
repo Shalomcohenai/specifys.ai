@@ -485,7 +485,7 @@ async function triggerOpenAIUploadForSpec(specId) {
         }
         
         const token = await user.getIdToken();
-        const response = await fetch(`${window.API_BASE_URL || 'http://localhost:10000'}/api/specs/${specId}/upload-to-openai`, {
+        const response = await fetch(`${getApiBaseUrl()}/api/specs/${specId}/upload-to-openai`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -4718,7 +4718,7 @@ async function autoRepairBrokenDiagrams() {
                 const token = await user.getIdToken();
                 
                 // Call repair endpoint
-                const response = await fetch(`${window.API_BASE_URL || 'http://localhost:10000'}/api/chat/diagrams/repair`, {
+                const response = await fetch(`${getApiBaseUrl()}/api/chat/diagrams/repair`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -4778,7 +4778,7 @@ async function autoRepairBrokenDiagrams() {
                             
                             // Retry repair with error message
                             try {
-                                const retryResponse = await fetch(`${window.API_BASE_URL || 'http://localhost:10000'}/api/chat/diagrams/repair`, {
+                                const retryResponse = await fetch(`${getApiBaseUrl()}/api/chat/diagrams/repair`, {
                                     method: 'POST',
                                     headers: {
                                         'Content-Type': 'application/json',
@@ -4891,7 +4891,7 @@ async function generateDiagrams() {
         const token = await user.getIdToken();
         
         // Call new memory-based API endpoint - only send specId
-        const response = await fetch(`${window.API_BASE_URL || 'http://localhost:10000'}/api/chat/diagrams/generate`, {
+        const response = await fetch(`${getApiBaseUrl()}/api/chat/diagrams/generate`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -5420,7 +5420,7 @@ async function repairDiagram(diagramId) {
         const token = await user.getIdToken();
         
         // Call Assistant API repair endpoint
-        const response = await fetch(`${window.API_BASE_URL || 'http://localhost:10000'}/api/chat/diagrams/repair`, {
+        const response = await fetch(`${getApiBaseUrl()}/api/chat/diagrams/repair`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -5589,6 +5589,21 @@ function updateDiagramsStatus(status) {
     
     <!-- API Configuration - Must load before all API calls -->
     <script src="/assets/js/config.js"></script>
+    
+    <!-- Helper function to get API base URL -->
+    <script>
+        // Ensure API base URL is always available
+        function getApiBaseUrl() {
+            if (typeof API_CONFIG !== 'undefined' && API_CONFIG && API_CONFIG.baseUrl) {
+                return API_CONFIG.baseUrl;
+            }
+            if (window.API_BASE_URL) {
+                return window.API_BASE_URL;
+            }
+            // Fallback for development
+            return 'http://localhost:10000';
+        }
+    </script>
     
     <!-- Entitlements Cache -->
     <script src="/assets/js/entitlements-cache.js"></script>
@@ -6026,7 +6041,7 @@ async function initializeChat() {
         }
         
         const token = await user.getIdToken();
-        const response = await fetch(`${window.API_BASE_URL || 'http://localhost:10000'}/api/chat/init`, {
+        const response = await fetch(`${getApiBaseUrl()}/api/chat/init`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -6084,7 +6099,7 @@ async function sendChatMessage() {
         const user = firebase.auth().currentUser;
         const token = await user.getIdToken();
         
-        const response = await fetch(`${window.API_BASE_URL || 'http://localhost:10000'}/api/chat/message`, {
+        const response = await fetch(`${getApiBaseUrl()}/api/chat/message`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
