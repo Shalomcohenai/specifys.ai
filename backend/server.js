@@ -31,10 +31,8 @@ if (dotenv.config({ path: backendEnvPath }).parsed) {
 if (process.env.OPENAI_API_KEY) {
   // OPENAI_API_KEY detected
 } else {
-  // Fallback: some setups use API_KEY; map it if present
-  if (!process.env.OPENAI_API_KEY && process.env.API_KEY) {
-    process.env.OPENAI_API_KEY = process.env.API_KEY;
-  }
+  // Note: OPENAI_API_KEY is used for OpenAI integrations (chat, storage, etc.)
+  // API_KEY is no longer used - all spec generation goes through Cloudflare Worker
 }
 
 // Clear require cache for development
@@ -177,7 +175,7 @@ app.post('/api/blog/create-post', blogRoutes.createPost);
 app.get('/api/blog/list-posts', blogRoutes.listPosts);
 app.post('/api/blog/delete-post', blogRoutes.deletePost);
 
-// Legacy endpoint to handle API requests to Grok (deprecated - use /api/specs/create instead)
+// Endpoint for generating specifications via Cloudflare Worker
 app.post('/api/generate-spec', rateLimiters.generation, async (req, res) => {
   const { userInput } = req.body;
 
@@ -185,37 +183,68 @@ app.post('/api/generate-spec', rateLimiters.generation, async (req, res) => {
     return res.status(400).json({ error: 'User input is required' });
   }
 
-  const apiKey = process.env.API_KEY;
-  if (!apiKey) {
-    return res.status(500).json({ error: 'API key is not configured' });
-  }
-
   try {
-    const response = await fetch('https://api.x.ai/v1/chat/completions', {
+    // Convert userInput to Cloudflare Worker format
+    // Worker expects: { stage: "overview", prompt: { system, developer, user } }
+    const workerPayload = {
+      stage: 'overview',
+      locale: 'en-US',
+      prompt: {
+        system: 'You are an expert application specification generator. Generate detailed, comprehensive specifications based on user requirements.',
+        developer: 'Return ONLY valid JSON (no text/markdown). Top-level key MUST be overview. Follow the exact structure specified in the user prompt.',
+        user: userInput
+      }
+    };
+
+    // Forward request to Cloudflare Worker
+    const response = await fetch('https://newnocode.shalom-cohen-111.workers.dev/generate', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
       },
-      body: JSON.stringify({
-        model: 'grok',
-        messages: [
-          { role: 'system', content: 'You are a helpful assistant that generates detailed application specifications.' },
-          { role: 'user', content: userInput },
-        ],
-        max_tokens: 2048,
-        temperature: 0.7,
-      }),
+      body: JSON.stringify(workerPayload),
     });
 
-    const data = await response.json();
+    // Check if response is OK before parsing JSON
     if (!response.ok) {
-      throw new Error(data.error?.message || 'Failed to fetch specification');
+      let errorMessage = 'Failed to fetch specification';
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.error?.message || errorData.error?.code || errorMessage;
+        if (errorData.error?.issues) {
+          errorMessage += ': ' + errorData.error.issues.join(', ');
+        }
+      } catch (parseError) {
+        // If response is not JSON, get text instead
+        const errorText = await response.text();
+        errorMessage = errorText || `HTTP ${response.status}: ${response.statusText}`;
+      }
+      throw new Error(errorMessage);
     }
 
-    res.json({ specification: data.choices[0].message.content });
+    const data = await response.json();
+    
+    // Cloudflare Worker returns { overview: {...}, meta: {...} } format
+    // Convert to { specification: ... } format for backward compatibility
+    let specification;
+    if (data.overview) {
+      // Worker returned structured data
+      specification = JSON.stringify(data.overview);
+    } else if (data.specification) {
+      // Already in expected format
+      specification = data.specification;
+    } else {
+      // Fallback - stringify entire response
+      specification = JSON.stringify(data);
+    }
+    
+    res.json({ specification });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to generate specification' });
+    console.error('Error in /api/generate-spec:', error.message);
+    res.status(500).json({ 
+      error: 'Failed to generate specification',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 });
 

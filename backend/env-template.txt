@@ -13,8 +13,8 @@ LEMON_SQUEEZY_STORE_ID=your_store_id_here
 LEMON_SQUEEZY_VARIANT_ID=your_variant_id_here
 LEMON_WEBHOOK_SECRET=testpassword123
 
-# API Keys (if needed)
-API_KEY=your_openai_api_key_here
+# Note: API_KEY is no longer used - all spec generation goes through Cloudflare Worker
+# OpenAI API key is only needed for chat/storage features (OPENAI_API_KEY)
 
 # Email Configuration (for notifications)
 EMAIL_USER=your_gmail@gmail.com
