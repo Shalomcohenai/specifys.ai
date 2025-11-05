@@ -10,16 +10,31 @@ const crypto = require('crypto');
 function verifyWebhookSignature(payload, signature, secret) {
   try {
     if (!payload || !signature || !secret) {
+      console.error('Missing parameters for signature verification:', {
+        hasPayload: !!payload,
+        hasSignature: !!signature,
+        hasSecret: !!secret
+      });
       return false;
     }
 
-    // Lemon Squeezy sends signature in format: sha256=hexdigest
-    const signatureParts = signature.split('=');
-    if (signatureParts.length !== 2 || signatureParts[0] !== 'sha256') {
-      return false;
+    let receivedSignature;
+    
+    // Lemon Squeezy can send signature in two formats:
+    // 1. sha256=hexdigest (documented format)
+    // 2. hexdigest only (actual format being sent based on logs)
+    if (signature.includes('=')) {
+      // Format: sha256=hexdigest
+      const signatureParts = signature.split('=');
+      if (signatureParts.length !== 2 || signatureParts[0] !== 'sha256') {
+        console.error('Invalid signature format (with =):', signature.substring(0, 50));
+        return false;
+      }
+      receivedSignature = signatureParts[1];
+    } else {
+      // Format: hexdigest only (this is what we're actually receiving)
+      receivedSignature = signature;
     }
-
-    const receivedSignature = signatureParts[1];
 
     // Calculate HMAC SHA256
     const hmac = crypto.createHmac('sha256', secret);
@@ -27,10 +42,22 @@ function verifyWebhookSignature(payload, signature, secret) {
     const calculatedSignature = hmac.digest('hex');
 
     // Use constant-time comparison to prevent timing attacks
-    return crypto.timingSafeEqual(
+    const isValid = crypto.timingSafeEqual(
       Buffer.from(receivedSignature, 'hex'),
       Buffer.from(calculatedSignature, 'hex')
     );
+    
+    if (!isValid) {
+      console.error('Signature verification failed:', {
+        receivedLength: receivedSignature.length,
+        calculatedLength: calculatedSignature.length,
+        receivedPrefix: receivedSignature.substring(0, 20),
+        calculatedPrefix: calculatedSignature.substring(0, 20),
+        secretLength: secret.length
+      });
+    }
+    
+    return isValid;
   } catch (error) {
     console.error('Error verifying webhook signature:', error);
     return false;
@@ -62,18 +89,35 @@ function parseWebhookPayload(event) {
       const relationships = eventData.relationships || {};
       
       // Extract custom data (contains userId) - check multiple possible locations
-      // Custom data can be in: attributes.custom, checkout_data.custom, or order_items
+      // Based on logs, custom_data is in meta.custom_data
       let customData = {};
-      if (attributes.custom) {
+      
+      // Check meta.custom_data first (this is where Lemon Squeezy actually puts it based on logs)
+      if (event.meta?.custom_data) {
+        customData = event.meta.custom_data;
+        console.log('Found custom_data in meta.custom_data:', customData);
+      } else if (attributes.custom) {
         customData = attributes.custom;
+        console.log('Found custom_data in attributes.custom:', customData);
       } else if (attributes.checkout_data?.custom) {
         customData = attributes.checkout_data.custom;
+        console.log('Found custom_data in attributes.checkout_data.custom:', customData);
       } else if (attributes.order_items && attributes.order_items.length > 0) {
         // Check first order item for custom data
         customData = attributes.order_items[0]?.product_options?.custom || {};
+        console.log('Found custom_data in order_items:', customData);
+      }
+      
+      if (!customData || Object.keys(customData).length === 0) {
+        console.log('⚠️ No custom_data found in any location');
       }
       
       // Extract order details
+      // Note: test_mode can be in meta.test_mode (based on logs) or attributes.test_mode
+      const testMode = event.meta?.test_mode !== undefined 
+        ? event.meta.test_mode 
+        : (attributes.test_mode !== undefined ? attributes.test_mode : false);
+      
       const orderData = {
         orderId: eventData.id,
         orderNumber: attributes.order_number || attributes.identifier || null,
@@ -81,7 +125,7 @@ function parseWebhookPayload(event) {
         email: attributes.customer_email || attributes.email || attributes.user_email || null,
         total: attributes.total || attributes.total_formatted ? parseFloat(attributes.total_formatted.replace(/[^0-9.]/g, '')) * 100 : 0,
         currency: attributes.currency || 'USD',
-        testMode: attributes.test_mode !== undefined ? attributes.test_mode : false,
+        testMode: testMode,
         createdAt: attributes.created_at || new Date().toISOString(),
         variantId: null,
         productId: null,

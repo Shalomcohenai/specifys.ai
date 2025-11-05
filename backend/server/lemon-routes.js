@@ -197,6 +197,8 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
       console.error('❌ Missing webhook signature or secret');
       console.error('Signature:', signature ? 'Present' : 'Missing');
       console.error('Secret:', secret ? 'Present' : 'Missing');
+      console.error('Environment variable LEMON_WEBHOOK_SECRET is:', secret ? `Set (length: ${secret.length})` : 'NOT SET');
+      console.error('Please ensure LEMON_WEBHOOK_SECRET=testpassword123 is set in Render environment variables');
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
