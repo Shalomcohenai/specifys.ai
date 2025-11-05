@@ -232,35 +232,57 @@ app.post('/api/generate-spec', async (req, res) => {
     console.log(`[${requestId}] 📥 Worker Response Status: ${response.status} ${response.statusText}`);
     console.log(`[${requestId}] Worker Response Headers:`, {
       'content-type': response.headers.get('content-type'),
-      'content-length': response.headers.get('content-length')
+      'content-length': response.headers.get('content-length'),
+      'cf-ray': response.headers.get('cf-ray'),
+      'cf-request-id': response.headers.get('cf-request-id')
     });
 
-    // Check if response is OK before parsing JSON
+    // Read response body first (before checking ok) to see what Worker returned
+    let responseBodyText = null;
+    let responseBodyJson = null;
+    try {
+      responseBodyText = await response.text();
+      console.log(`[${requestId}] 📄 Worker Response Body (raw, first 500 chars):`, responseBodyText.substring(0, 500));
+      try {
+        responseBodyJson = JSON.parse(responseBodyText);
+        console.log(`[${requestId}] 📄 Worker Response Body (parsed):`, JSON.stringify(responseBodyJson, null, 2));
+      } catch (jsonParseError) {
+        console.log(`[${requestId}] ⚠️  Worker response is not valid JSON:`, jsonParseError.message);
+      }
+    } catch (readError) {
+      console.error(`[${requestId}] ❌ Failed to read Worker response body:`, readError.message);
+    }
+
+    // Check if response is OK
     if (!response.ok) {
       console.log(`[${requestId}] ❌ Worker returned error status: ${response.status}`);
       let errorMessage = 'Failed to fetch specification';
       let errorDetails = null;
       
-      try {
-        const errorData = await response.json();
-        errorDetails = errorData;
-        errorMessage = errorData.error?.message || errorData.error?.code || errorMessage;
-        if (errorData.error?.issues) {
-          errorMessage += ': ' + errorData.error.issues.join(', ');
+      if (responseBodyJson) {
+        errorDetails = responseBodyJson;
+        // Worker returns errors in format: { error: { code, message, issues? }, correlationId? }
+        if (responseBodyJson.error) {
+          errorMessage = responseBodyJson.error.message || responseBodyJson.error.code || errorMessage;
+          if (responseBodyJson.error.issues && Array.isArray(responseBodyJson.error.issues)) {
+            errorMessage += ': ' + responseBodyJson.error.issues.join(', ');
+          }
+          if (responseBodyJson.error.code) {
+            errorMessage = `[${responseBodyJson.error.code}] ${errorMessage}`;
+          }
         }
-        console.log(`[${requestId}] Worker Error Data:`, JSON.stringify(errorData, null, 2));
-      } catch (parseError) {
-        // If response is not JSON, get text instead
-        try {
-          const errorText = await response.text();
-          errorMessage = errorText || `HTTP ${response.status}: ${response.statusText}`;
-          errorDetails = { text: errorText };
-          console.log(`[${requestId}] Worker Error Text:`, errorText);
-        } catch (textError) {
-          errorMessage = `HTTP ${response.status}: ${response.statusText}`;
-          errorDetails = { parseError: textError.message };
-          console.log(`[${requestId}] Failed to parse error response:`, textError.message);
+        console.log(`[${requestId}] Worker Error Data (from JSON):`, JSON.stringify(responseBodyJson, null, 2));
+        if (responseBodyJson.correlationId) {
+          console.log(`[${requestId}] Worker Correlation ID: ${responseBodyJson.correlationId}`);
         }
+      } else if (responseBodyText) {
+        errorMessage = responseBodyText.substring(0, 500) || `HTTP ${response.status}: ${response.statusText}`;
+        errorDetails = { text: responseBodyText };
+        console.log(`[${requestId}] Worker Error Text:`, responseBodyText.substring(0, 500));
+      } else {
+        errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+        errorDetails = { status: response.status, statusText: response.statusText };
+        console.log(`[${requestId}] Worker Error (no body):`, errorMessage);
       }
       
       const totalTime = Date.now() - startTime;
@@ -268,11 +290,17 @@ app.post('/api/generate-spec', async (req, res) => {
       throw new Error(errorMessage);
     }
 
-    const parseStart = Date.now();
-    const data = await response.json();
-    const parseTime = Date.now() - parseStart;
+    // Response is OK, use the parsed JSON
+    if (!responseBodyJson) {
+      const totalTime = Date.now() - startTime;
+      console.error(`[${requestId}] ❌ Worker returned OK but response is not valid JSON`);
+      console.log(`[${requestId}] ===== /api/generate-spec REQUEST FAILED (${totalTime}ms) =====`);
+      throw new Error('Worker returned invalid JSON response');
+    }
     
-    console.log(`[${requestId}] ✅ Successfully parsed Worker response (${parseTime}ms)`);
+    const data = responseBodyJson;
+    
+    console.log(`[${requestId}] ✅ Successfully received and parsed Worker response`);
     console.log(`[${requestId}] Response Structure:`, {
       hasOverview: !!data.overview,
       hasSpecification: !!data.specification,
