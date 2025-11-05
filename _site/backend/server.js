@@ -44,16 +44,18 @@ delete require.cache[require.resolve('./server/openai-storage-service')];
 // Import modules that may read env at require-time AFTER loading env
 const express = require('express');
 const fetch = require('node-fetch');
-const { syncAllUsers, upgradeAllUsersToPro } = require('./server/user-management');
+const { syncAllUsers } = require('./server/user-management');
 const blogRoutes = require('./server/blog-routes');
-const specRoutes = require('./server/spec-routes');
 const userRoutes = require('./server/user-routes');
 const chatRoutes = require('./server/chat-routes');
 const adminRoutes = require('./server/admin-routes');
-const { handleLemonWebhook } = require('./server/lemon-webhook');
+const lemonRoutes = require('./server/lemon-routes');
 const { securityHeaders, rateLimiters, requireAdmin } = require('./server/security');
 
 const app = express();
+
+// Trust proxy for rate limiting behind reverse proxy (Render, etc.)
+app.set('trust proxy', true);
 
 // Get port from environment or use default
 const port = process.env.PORT || 10000;
@@ -61,13 +63,8 @@ const port = process.env.PORT || 10000;
 // Apply security headers
 app.use(securityHeaders);
 
-// Apply rate limiting
-app.use('/api/', rateLimiters.general);
-app.use('/api/admin/', rateLimiters.admin);
-app.use('/api/auth/', rateLimiters.auth);
-app.use('/api/feedback', rateLimiters.feedback);
-
 // CORS middleware to allow requests from your frontend
+// Must be before routes and rate limiting
 app.use((req, res, next) => {
   const allowedOrigins = [
     'http://localhost:3000',
@@ -78,6 +75,7 @@ app.use((req, res, next) => {
     'http://127.0.0.1:4000',
     'https://specifys-ai.com',
     'https://www.specifys-ai.com',
+    'https://specifys-ai.onrender.com',
     process.env.RENDER_URL ? `https://${process.env.RENDER_URL}` : null
   ].filter(Boolean);
   const origin = req.headers.origin;
@@ -97,10 +95,24 @@ app.use((req, res, next) => {
   next();
 });
 
-// Lemon Squeezy webhook endpoint (must be before express.json())
-app.post('/api/webhook/lemon', express.raw({type: 'application/json'}), handleLemonWebhook);
+// Lemon Squeezy routes must be registered BEFORE express.json() and rate limiting
+// to allow webhook endpoint to access raw body for signature verification
+// and to avoid rate limiting issues
+app.use('/api/lemon', lemonRoutes);
 
-// Middleware to parse JSON bodies
+// Apply rate limiting (after lemon routes so they're excluded)
+app.use('/api/', (req, res, next) => {
+  // Skip rate limiting for lemon routes (already handled above)
+  if (req.path.startsWith('/lemon')) {
+    return next();
+  }
+  rateLimiters.general(req, res, next);
+});
+app.use('/api/admin/', rateLimiters.admin);
+app.use('/api/auth/', rateLimiters.auth);
+app.use('/api/feedback', rateLimiters.feedback);
+
+// Middleware to parse JSON bodies (registered after lemon routes)
 app.use(express.json());
 
 // Debug logging middleware
@@ -117,11 +129,12 @@ app.use('/blog', express.static('../_site/blog'));
 // Serve blog posts from _site/2025 directory structure
 app.use('/2025', express.static('../_site/2025'));
 
-// Spec routes with authorization
-app.use('/api/specs', specRoutes);
-
 // User routes for user management
 app.use('/api/users', userRoutes);
+
+// Specs routes for spec management
+const specsRoutes = require('./server/specs-routes');
+app.use('/api/specs', specsRoutes);
 
 // Chat routes for AI chat functionality
 app.use('/api/chat', chatRoutes);
@@ -141,23 +154,6 @@ app.post('/api/sync-users', requireAdmin, async (req, res) => {
     res.json({
       success: true,
       message: 'Users synced successfully',
-      result: result
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
-  }
-});
-
-// Endpoint to upgrade all users to Pro (admin only)
-app.post('/api/upgrade-all-users-to-pro', requireAdmin, async (req, res) => {
-  try {
-    const result = await upgradeAllUsersToPro();
-    res.json({
-      success: true,
-      message: 'All users upgraded to Pro successfully',
       result: result
     });
   } catch (error) {

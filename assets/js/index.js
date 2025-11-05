@@ -833,52 +833,22 @@ async function generateSpecification() {
       return;
     }
     
+    // Check credits before generating spec
+    if (typeof checkEntitlement !== 'undefined') {
+      const entitlementCheck = await checkEntitlement();
+      if (!entitlementCheck.hasAccess) {
+        hideLoadingOverlay();
+        if (typeof showPaywall !== 'undefined') {
+          showPaywall(entitlementCheck.paywallData);
+        } else {
+          alert('You do not have enough credits to create a spec. Please purchase credits or upgrade to Pro.');
+        }
+        return;
+      }
+    }
+    
     // Show loading overlay
     showLoadingOverlay();
-    
-    // Check credits BEFORE generating spec
-    try {
-      const token = await user.getIdToken();
-      const statusResponse = await fetch(`${window.API_BASE_URL || 'http://localhost:10000'}/api/specs/status`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      
-      if (statusResponse.ok) {
-        const statusData = await statusResponse.json();
-        
-        if (!statusData.canCreate) {
-          hideLoadingOverlay();
-          
-          // Show paywall
-          const paywallData = {
-            message: 'You need to purchase credits to create more specifications',
-            options: [
-              {
-                id: 'single_spec',
-                name: 'Single Spec',
-                price: 4.90,
-                currency: 'USD',
-                description: '1 additional specification'
-              },
-              {
-                id: 'three_pack',
-                name: '3-Pack',
-                price: 9.90,
-                currency: 'USD',
-                description: '3 additional specifications'
-              }
-            ]
-          };
-          
-          showPaywall(paywallData);
-          return;
-        }
-      }
-    } catch (error) {
-      // Continue anyway - let the server decide
-    }
     
     // Prepare the prompt for overview generation
     const prompt = PROMPTS.overview(answers);
@@ -894,29 +864,16 @@ async function generateSpecification() {
     
     const enhancedPrompt = `${prompt}\n\n${platformText}`;
     
-    // Get Firebase auth token
-    const token = await user.getIdToken();
-    
-    // NOTE: Users can provide answers in any language, but the API will always return the specification in English
-    // Call the new API endpoint with authorization
-    const response = await fetch(`${window.API_BASE_URL || 'http://localhost:10000'}/api/specs/create`, {
+    // Generate specification using the legacy API endpoint
+    const response = await fetch(`${window.API_BASE_URL || 'http://localhost:10000'}/api/generate-spec`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
         userInput: enhancedPrompt
       })
     });
-
-    if (response.status === 402) {
-      // Payment required - show paywall
-      const paywallData = await response.json();
-      hideLoadingOverlay();
-      showPaywall(paywallData.paywall);
-      return;
-    }
 
     if (!response.ok) {
       const errorData = await response.json();
@@ -930,6 +887,36 @@ async function generateSpecification() {
     
     // Save to Firebase and redirect
     const firebaseId = await saveSpecToFirebase(overviewContent, answers);
+    
+    // Consume credit after successful spec creation
+    try {
+      const token = await user.getIdToken();
+      const consumeResponse = await fetch(`${window.API_BASE_URL || 'http://localhost:10000'}/api/specs/consume-credit`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ specId: firebaseId })
+      });
+
+      if (!consumeResponse.ok) {
+        const errorData = await consumeResponse.json();
+        console.error('Failed to consume credit:', errorData);
+        // Don't fail the spec creation, but log the error
+      } else {
+        // Refresh credits display and clear cache
+        if (typeof window.clearEntitlementsCache !== 'undefined') {
+          window.clearEntitlementsCache();
+        }
+        if (typeof window.updateCreditsDisplay !== 'undefined') {
+          window.updateCreditsDisplay();
+        }
+      }
+    } catch (creditError) {
+      console.error('Error consuming credit:', creditError);
+      // Don't fail spec creation
+    }
     
     // Trigger OpenAI upload (non-blocking)
     if (window.ENABLE_OPENAI_STORAGE !== false) {
@@ -1077,19 +1064,6 @@ async function triggerOpenAIUpload(specId) {
     const data = await response.json();
   } catch (error) {
     // OpenAI upload trigger failed (non-critical)
-  }
-}
-
-// ===== PAYWALL FUNCTIONS =====
-function showPaywall(paywallData) {
-  if (window.paywallManager) {
-    window.paywallManager.showPaywall(paywallData, (entitlements) => {
-      // Success callback - retry specification generation
-      generateSpecification();
-    });
-  } else {
-    // Fallback if paywall manager not loaded
-    alert('Payment required to create more specifications. Please refresh the page and try again.');
   }
 }
 

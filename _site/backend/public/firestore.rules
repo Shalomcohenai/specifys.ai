@@ -15,58 +15,40 @@ service cloud.firestore {
       allow create: if request.auth != null && request.auth.uid == userId;
     }
 
+    // Entitlements collection
+    match /entitlements/{userId} {
+      // Allow read if user owns it or is admin
+      allow read: if request.auth != null && (
+        request.auth.uid == userId || isAdmin()
+      );
+      // Only backend (via admin SDK) can write - frontend cannot modify
+      allow write: if false;
+    }
+
+    // Purchases collection
+    match /purchases/{purchaseId} {
+      // Allow read if user owns it or is admin
+      allow read: if request.auth != null && (
+        request.auth.uid == resource.data.userId || isAdmin()
+      );
+      // Only backend can write
+      allow write: if false;
+    }
+
+    // Subscriptions collection
+    match /subscriptions/{userId} {
+      // Allow read if user owns it or is admin
+      allow read: if request.auth != null && (
+        request.auth.uid == userId || isAdmin()
+      );
+      // Only backend can write
+      allow write: if false;
+    }
+
     // UserTools subcollections
     match /userTools/{userId}/{document=**} {
       allow read, write: if request.auth != null && userId == request.auth.uid || isAdmin();
       allow create: if request.auth != null && userId == request.auth.uid;
-    }
-
-    // Entitlements collection
-    match /entitlements/{document} {
-      allow read: if request.auth != null && (
-        !exists(/databases/$(database)/documents/entitlements/$(document)) ||
-        request.auth.uid == resource.data.userId
-      ) || isAdmin();
-      allow write: if request.auth != null && request.auth.uid == resource.data.userId || isAdmin();
-      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
-    }
-
-    // Purchases collection
-    match /purchases/{document} {
-      allow read: if request.auth != null && (
-        !exists(/databases/$(database)/documents/purchases/$(document)) ||
-        request.auth.uid == resource.data.userId
-      ) || isAdmin();
-      allow write: if request.auth != null && request.auth.uid == resource.data.userId || isAdmin();
-      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
-    }
-
-    // Subscriptions collection
-    match /subscriptions/{document} {
-      allow read: if request.auth != null && (
-        !exists(/databases/$(database)/documents/subscriptions/$(document)) ||
-        request.auth.uid == resource.data.userId
-      ) || isAdmin();
-      allow write: if request.auth != null && request.auth.uid == resource.data.userId || isAdmin();
-      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
-    }
-
-    // Pending entitlements collection
-    match /pending_entitlements/{document} {
-      allow read: if request.auth != null && (
-        resource.data.email == request.auth.token.email || isAdmin()
-      );
-      allow write, create: if isAdmin();
-    }
-
-    // Audit logs collection (admin only)
-    match /audit_logs/{document} {
-      allow read, write, create: if isAdmin();
-    }
-
-    // Processed webhook events collection (admin only)
-    match /processed_webhook_events/{document} {
-      allow read, write, create: if isAdmin();
     }
 
     // Public stats collection - anyone can read
@@ -146,6 +128,12 @@ service cloud.firestore {
       allow create: if request.auth != null && request.auth.uid == request.resource.data.userId || isAdmin();
       allow update: if request.auth != null && request.auth.uid == resource.data.userId || isAdmin();
       allow delete: if request.auth != null && request.auth.uid == resource.data.userId || isAdmin();
+    }
+
+    // Test purchases collection - for Lemon Squeezy test system
+    match /test_purchases/{purchaseId} {
+      allow read: if true; // Anyone can read (for counter display)
+      allow create, update, delete: if isAdmin(); // Only backend (via admin SDK) can write
     }
   }
 }

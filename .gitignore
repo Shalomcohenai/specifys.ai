@@ -28,6 +28,7 @@ out/
 .next/
 .nuxt/
 .cache/
+assets/dist/
 
 # Logs
 logs/

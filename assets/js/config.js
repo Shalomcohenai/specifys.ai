@@ -10,7 +10,7 @@ const API_CONFIG = {
   // 1. Empty string/null = use relative URLs (API on same domain)
   // 2. Full URL = use absolute URL (API on different domain/subdomain)
   // 3. If api.specifys-ai.com doesn't exist, leave as null to use same origin
-  production: null, // null means use same origin as frontend (relative URLs)
+  production: 'https://specifys-ai.onrender.com', // Render backend URL
 
   // Auto-detect environment
   get baseUrl() {

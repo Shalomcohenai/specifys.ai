@@ -1,11 +1,15 @@
 {
   "name": "specifys-ai",
   "version": "1.2.4",
+  "type": "module",
   "main": "index.html",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
-    "dev": "cd server && npm run dev"
+    "dev": "cd server && npm run dev",
+    "build:vite": "vite build",
+    "dev:vite": "vite",
+    "build:all": "npm run build:vite && bundle exec jekyll build"
   },
   "keywords": [
     "specifys",
@@ -24,5 +28,15 @@
     "helmet": "^8.1.0",
     "joi": "^18.0.1",
     "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "vite": "^5.4.8",
+    "vite-plugin-static-copy": "^1.0.4",
+    "@vitejs/plugin-legacy": "^5.4.0",
+    "postcss": "^8.4.47",
+    "autoprefixer": "^10.4.20",
+    "cssnano": "^7.0.6",
+    "postcss-import": "^16.1.0",
+    "@fullhuman/postcss-purgecss": "^6.0.0"
   }
 }

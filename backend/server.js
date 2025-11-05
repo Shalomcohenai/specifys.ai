@@ -132,6 +132,10 @@ app.use('/2025', express.static('../_site/2025'));
 // User routes for user management
 app.use('/api/users', userRoutes);
 
+// Specs routes for spec management
+const specsRoutes = require('./server/specs-routes');
+app.use('/api/specs', specsRoutes);
+
 // Chat routes for AI chat functionality
 app.use('/api/chat', chatRoutes);
 

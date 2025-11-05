@@ -55,24 +55,27 @@
     <!-- CSS Monitoring Script -->
     <script src="/assets/js/css-monitor.js"></script>
     
-    <!-- Fonts -->
+    <!-- Fonts - Optimized: Only Montserrat and Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="dns-prefetch" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Mermaid for diagrams (used in demo, spec, research pages) -->
-    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+    <!-- Library Loader - for conditional loading of external libraries -->
+    <script src="/assets/js/lib-loader.js"></script>
     
-    <!-- Marked for markdown parsing -->
-    <script src="https://cdn.jsdelivr.net/npm/marked@4.3.0/marked.min.js"></script>
-    
-    <!-- Highlight.js for syntax highlighting -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
-    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-    
-    <!-- jsPDF for PDF export (used in research pages) -->
-    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- Load required libraries: marked (for markdown display if needed) -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Only load marked if needed - profile page may not need it
+        // Uncomment if markdown parsing is required:
+        // window.LibraryLoader.loadLibraries(['marked']).then(function() {
+        //   console.log('Libraries loaded for profile');
+        // }).catch(function(error) {
+        //   console.error('Failed to load required libraries:', error);
+        // });
+      });
+    </script>
     
     <!-- Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-RWBT69JCM7"></script>
@@ -154,12 +157,7 @@
         </div>
     </div>
     <div class="header-right">
-        <div class="credits-display" id="credits-display" style="display: none;">
-            <div class="credits-container">
-                <i class="fa-solid fa-file-lines"></i>
-                <span id="credits-text">0</span>
-            </div>
-        </div>
+
         <div class="auth-buttons" id="auth-buttons">
             <!-- Will be populated by auth system -->
         </div>
@@ -509,7 +507,7 @@
     <script src="/assets/js/config.js"></script>
     
     <!-- Entitlements Cache -->
-    <script src="/assets/js/entitlements-cache.js"></script>
+
 
     <!-- Auth System Script -->
     <script type="module">
@@ -575,11 +573,9 @@
                     free_specs_remaining: 1
                 }, { merge: true });
                 
-                // Also create entitlements document if doesn't exist
+                // Create/update entitlements document
                 const entitlementsRef = firestoreDoc(db, 'entitlements', user.uid);
                 await firestoreSetDoc(entitlementsRef, {
-                    userId: user.uid,
-                    spec_credits: 0,
                     unlimited: true,
                     can_edit: true,
                     updated_at: firestoreServerTimestamp()
@@ -616,7 +612,7 @@
                 updateProfileInfo(user);
                 loadWorkspace();
                 loadUserSavedTools();
-                loadSpecsRemaining();
+                // loadSpecsRemaining(); // Removed - payment system integration
                 updateAuthUI(user);
             } else {
                 // Redirect to login if not authenticated
@@ -1284,45 +1280,14 @@
             }
         }
 
-        // Load specs remaining - using same API as header for consistency
+        // Load specs remaining - removed payment system integration
         async function loadSpecsRemaining() {
             if (!currentUser) return;
             
-            try {
-                const token = await currentUser.getIdToken();
-                const response = await fetch(`${window.API_BASE_URL || 'http://localhost:10000'}/api/specs/entitlements`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                if (!response.ok) {
-
-                    document.getElementById('specs-remaining-count').textContent = '-';
-                    return;
-                }
-
-                const data = await response.json();
-                const { entitlements, user } = data;
-                const specsRemainingEl = document.getElementById('specs-remaining-count');
-                
-                // Use same logic as header credits display
-                if (entitlements.unlimited) {
-                    specsRemainingEl.innerHTML = '∞';
-                } else if (entitlements.spec_credits > 0) {
-                    specsRemainingEl.textContent = entitlements.spec_credits;
-                } else {
-                    // Free specs - keep actual value even if negative
-                    const freeSpecs = typeof user.free_specs_remaining === 'number'
-                        ? user.free_specs_remaining
-                        : 1;
-                    
-                    // Show 0 if negative, otherwise show the actual number
-                    specsRemainingEl.textContent = freeSpecs > 0 ? freeSpecs : 0;
-                }
-            } catch (error) {
-
-                document.getElementById('specs-remaining-count').textContent = '-';
+            // Payment system removed - always show unlimited
+            const specsRemainingEl = document.getElementById('specs-remaining-count');
+            if (specsRemainingEl) {
+                specsRemainingEl.innerHTML = '∞';
             }
         }
 
@@ -2596,14 +2561,6 @@
                 const userRef = doc(db, 'users', currentUser.uid);
                 const userDoc = await getDoc(userRef);
                 
-                // Load subscription data
-                const subRef = doc(db, 'subscriptions', currentUser.uid);
-                const subDoc = await getDoc(subRef);
-
-                // Load entitlements
-                const entitlementsRef = doc(db, 'entitlements', currentUser.uid);
-                const entitlementsDoc = await getDoc(entitlementsRef);
-
                 // Update display name
                 const displayName = currentUser.displayName || currentUser.email.split('@')[0];
                 document.getElementById('info-display-name').textContent = displayName;
@@ -2619,135 +2576,25 @@
                     day: 'numeric' 
                 });
 
-                // Update subscription info
-                // Check entitlements first to determine if user has pro access
-                const hasProAccess = entitlementsDoc.exists() && entitlementsDoc.data().unlimited === true;
-                
-                // Check user document for plan field
-                const userData = userDoc.exists() ? userDoc.data() : {};
-                const userPlan = userData.plan || 'free';
-                
-                if (subDoc.exists()) {
-                    const subData = subDoc.data();
-                    // Use entitlements to override status if user has pro access
-                    const status = hasProAccess && !subData.status ? 'active' : (subData.status || 'free');
-                    const planName = getPlanName(status);
-                    
-                    document.getElementById('info-plan').textContent = planName;
-                    document.getElementById('info-status').textContent = status.charAt(0).toUpperCase() + status.slice(1);
-                    document.getElementById('info-status').className = 'status-badge ' + status;
+                // Plan info removed - no longer using payment system
+                document.getElementById('info-plan').textContent = 'Free';
+                document.getElementById('info-status').textContent = 'Free';
+                document.getElementById('info-status').className = 'status-badge active';
+                document.getElementById('renewal-row').style.display = 'none';
+                document.getElementById('cost-row').style.display = 'none';
+                document.getElementById('cancelSubBtn').style.display = 'none';
+                document.getElementById('manageSubBtn').style.display = 'none';
+                document.getElementById('info-specs').textContent = 'N/A';
 
-                    // Show renewal info for active subscriptions
-                    if (status === 'active' && subData.current_period_end) {
-                        const renewalDate = subData.current_period_end.toDate();
-                        const cost = getPlanCost(subData.variant_id);
-                        
-                        document.getElementById('renewal-row').style.display = 'flex';
-                        document.getElementById('cost-row').style.display = 'flex';
-                        document.getElementById('info-renewal-date').textContent = renewalDate.toLocaleDateString('en-US', { 
-                            year: 'numeric', 
-                            month: 'long', 
-                            day: 'numeric' 
-                        });
-                        document.getElementById('info-renewal-cost').textContent = cost;
-                        document.getElementById('cancelSubBtn').style.display = 'block';
-                    } else {
-                        document.getElementById('renewal-row').style.display = 'none';
-                        document.getElementById('cost-row').style.display = 'none';
-                        document.getElementById('cancelSubBtn').style.display = 'none';
-                    }
-                } else if (hasProAccess || userPlan === 'pro') {
-                    // No subscription document but user has pro access through entitlements or user plan
-                    document.getElementById('info-plan').textContent = 'PRO';
-                    document.getElementById('info-status').textContent = 'Active';
-                    document.getElementById('info-status').className = 'status-badge active';
-                    document.getElementById('renewal-row').style.display = 'none';
-                    document.getElementById('cost-row').style.display = 'none';
-                    document.getElementById('cancelSubBtn').style.display = 'none';
-                } else {
-                    document.getElementById('info-plan').textContent = 'Free';
-                    document.getElementById('info-status').textContent = 'Free';
-                    document.getElementById('info-status').className = 'status-badge active';
-                    document.getElementById('renewal-row').style.display = 'none';
-                    document.getElementById('cost-row').style.display = 'none';
-                    document.getElementById('cancelSubBtn').style.display = 'none';
-                    document.getElementById('manageSubBtn').textContent = 'Upgrade to Pro';
-                    document.getElementById('manageSubBtn').onclick = () => {
-                        window.location.href = '/pages/pricing.html';
-                    };
-                }
-
-                // Update specs remaining in panel - using same API for consistency
-                try {
-                    const token = await currentUser.getIdToken();
-                    const response = await fetch(`${window.API_BASE_URL || 'http://localhost:10000'}/api/specs/entitlements`, {
-                        headers: {
-                            'Authorization': `Bearer ${token}`
-                        }
-                    });
-
-                    if (response.ok) {
-                        const data = await response.json();
-                        const { entitlements, user } = data;
-                        
-                        if (entitlements.unlimited) {
-                            let displayText = '<span style="font-size: 1.5rem;">∞</span> <span style="color: #28a745;">Unlimited</span>';
-                            
-                            // Show preserved credits if any
-                            if (entitlements.preserved_credits > 0) {
-                                displayText += `<br><small style="color: #6c757d;">(${entitlements.preserved_credits} credits preserved)</small>`;
-                            }
-                            
-                            document.getElementById('info-specs').innerHTML = displayText;
-                        } else if (entitlements.spec_credits > 0) {
-                            document.getElementById('info-specs').textContent = entitlements.spec_credits + ' specs';
-                        } else {
-                            // Free specs - keep actual value even if negative
-                            const freeSpecs = typeof user.free_specs_remaining === 'number'
-                                ? user.free_specs_remaining
-                                : 1;
-                            
-                            // Show 0 if negative
-                            const displayValue = freeSpecs > 0 ? freeSpecs : 0;
-                            document.getElementById('info-specs').textContent = displayValue + ' free spec' + (displayValue !== 1 ? 's' : '') + ' remaining';
-                        }
-                    }
-                } catch (error) {
-
-                }
-
-                // Update specs remaining in header
-                await loadSpecsRemaining();
+                // Update specs remaining in header - payment system removed
+                // await loadSpecsRemaining();
 
             } catch (error) {
 
             }
         }
 
-        function getPlanName(status) {
-            switch(status) {
-                case 'active':
-                    return 'PRO';
-                case 'cancelled':
-                    return 'PRO (Cancelled)';
-                case 'expired':
-                    return 'Free';
-                case 'payment_failed':
-                    return 'PRO (Payment Failed)';
-                default:
-                    return 'Free';
-            }
-        }
 
-        function getPlanCost(variantId) {
-            // This should match your Lemon Squeezy products
-            if (variantId === 'cae56dc9-f0b9-45fa-a4af-5405e08ab8c9') {
-                return '$29.90/month';
-            } else if (variantId === '02828cb1-3985-437f-acb0-fe49508935c6') {
-                return '$299.90/year';
-            }
-            return 'N/A';
-        }
 
         window.editDisplayName = function() {
             const modal = document.getElementById('editNameModal');
@@ -2793,30 +2640,7 @@
             }
         };
 
-        window.manageSubscription = function() {
-            const panel = document.getElementById('personalInfoPanel');
-            const status = document.getElementById('info-status').textContent.toLowerCase();
-            
-            if (status.includes('free')) {
-                // Upgrade
-                window.location.href = '/pages/pricing.html';
-            } else {
-                // Manage subscription in LemonSqueezy
-                window.open('https://specifysai.lemonsqueezy.com/customer', '_blank');
-            }
-        };
 
-        window.cancelSubscription = function() {
-            const status = document.getElementById('info-status').textContent.toLowerCase();
-            
-            if (!confirm('Are you sure you want to cancel your subscription? You will keep Pro access until the end of your current billing period.')) {
-                return;
-            }
-
-            // Open LemonSqueezy customer portal for cancellation
-            window.open('https://specifysai.lemonsqueezy.com/customer', '_blank');
-            alert('Please use the LemonSqueezy customer portal to cancel your subscription. You will maintain Pro access until your current billing period ends.');
-        };
 
     </script>
 

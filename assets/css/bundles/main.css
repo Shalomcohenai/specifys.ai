@@ -1,0 +1,11 @@
+/* Main CSS Bundle - All remaining styles */
+/* This bundle loads after critical CSS */
+
+/* Import all component styles */
+@import url('../components/footer.css');
+@import url('../components/icons.css');
+@import url('../components/mermaid.css');
+@import url('../components/tables.css');
+
+/* Import page-specific styles (if needed) */
+/* Page-specific CSS should be loaded separately for code splitting */

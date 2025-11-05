@@ -1,6 +1,5 @@
 const { db, auth } = require('./firebase-admin');
 const admin = require('firebase-admin');
-const { claimPendingEntitlements } = require('./entitlement-service');
 
 /**
  * User Management Functions for Firebase Admin SDK
@@ -69,32 +68,10 @@ async function createOrUpdateUserDocument(uid, userData = {}) {
             disabled: authUser.disabled,
             createdAt: authUser.creationTime,
             lastActive: authUser.lastSignInTime || new Date().toISOString(),
-            // Initialize payment-related fields - ALL USERS GET PRO BY DEFAULT
-            plan: 'pro',
-            free_specs_remaining: 1,
-            lemon_customer_id: null,
-            last_entitlement_sync_at: admin.firestore.FieldValue.serverTimestamp(),
             ...userData // Allow overriding with custom data
         };
         
         await userDocRef.set(userDoc, { merge: true });
-        
-        // Create entitlements document if it doesn't exist - ALL USERS GET UNLIMITED PRO
-        const entitlementsDocRef = db.collection('entitlements').doc(uid);
-        const entitlementsDoc = await entitlementsDocRef.get();
-        
-        if (!entitlementsDoc.exists) {
-            await entitlementsDocRef.set({
-                userId: uid,
-                spec_credits: 0,
-                unlimited: true,
-                can_edit: true,
-                updated_at: admin.firestore.FieldValue.serverTimestamp()
-            });
-        }
-        
-        // Claim any pending entitlements
-        await claimPendingEntitlements(uid, authUser.email);
         
         return userDoc;
     } catch (error) {
@@ -265,76 +242,6 @@ async function cleanupOrphanedData() {
 }
 
 /**
- * Upgrade all existing users to Pro plan
- */
-async function upgradeAllUsersToPro() {
-    try {
-        // Get all users from Firestore
-        const usersSnapshot = await db.collection('users').get();
-        const entitlementsSnapshot = await db.collection('entitlements').get();
-        
-        let usersUpdated = 0;
-        let entitlementsUpdated = 0;
-        let errors = 0;
-        
-        // Firestore batch limit is 500 operations, so we need to chunk
-        const BATCH_SIZE = 500;
-        const allUsers = usersSnapshot.docs;
-        const allEntitlements = entitlementsSnapshot.docs;
-        
-        // Process users in batches
-        for (let i = 0; i < allUsers.length; i += BATCH_SIZE) {
-            const batch = db.batch();
-            const chunk = allUsers.slice(i, i + BATCH_SIZE);
-            
-            chunk.forEach(doc => {
-                try {
-                    batch.update(doc.ref, {
-                        plan: 'pro',
-                        last_entitlement_sync_at: admin.firestore.FieldValue.serverTimestamp()
-                    });
-                    usersUpdated++;
-                } catch (error) {
-                    errors++;
-                }
-            });
-            
-            await batch.commit();
-        }
-        
-        // Process entitlements in batches
-        for (let i = 0; i < allEntitlements.length; i += BATCH_SIZE) {
-            const entitlementsBatch = db.batch();
-            const chunk = allEntitlements.slice(i, i + BATCH_SIZE);
-            
-            chunk.forEach(doc => {
-                try {
-                    entitlementsBatch.update(doc.ref, {
-                        unlimited: true,
-                        can_edit: true,
-                        updated_at: admin.firestore.FieldValue.serverTimestamp()
-                    });
-                    entitlementsUpdated++;
-                } catch (error) {
-                    errors++;
-                }
-            });
-            
-            await entitlementsBatch.commit();
-        }
-        
-        return {
-            usersUpdated,
-            entitlementsUpdated,
-            errors
-        };
-        
-    } catch (error) {
-        throw error;
-    }
-}
-
-/**
  * Delete user completely (from Auth and Firestore)
  */
 async function deleteUser(uid) {
@@ -382,6 +289,5 @@ module.exports = {
     syncAllUsers,
     getUserStats,
     cleanupOrphanedData,
-    upgradeAllUsersToPro,
     deleteUser
 };

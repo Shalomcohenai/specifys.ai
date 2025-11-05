@@ -259,6 +259,10 @@ app.use('/api/chat', chatRoutes);
 const userRoutes = require('./user-routes');
 app.use('/api/users', userRoutes);
 
+// Import and mount specs routes
+const specsRoutes = require('./specs-routes');
+app.use('/api/specs', specsRoutes);
+
 // Import and mount stats routes
 const statsRoutes = require('./stats-routes');
 app.use('/api/stats', statsRoutes);
