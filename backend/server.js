@@ -43,7 +43,7 @@ delete require.cache[require.resolve('./server/openai-storage-service')];
 
 // Import modules that may read env at require-time AFTER loading env
 const express = require('express');
-const fetch = require('node-fetch');
+// node-fetch v3 is ESM-only, will use dynamic import in functions
 const { syncAllUsers } = require('./server/user-management');
 const blogRoutes = require('./server/blog-routes');
 const userRoutes = require('./server/user-routes');
@@ -181,6 +181,8 @@ app.post('/api/generate-spec', rateLimiters.generation, async (req, res) => {
 
   try {
     // Forward request to Cloudflare Worker (no API_KEY needed)
+    // node-fetch v3 is ESM-only, need dynamic import
+    const fetch = (await import('node-fetch')).default;
     console.log('[/api/generate-spec] Forwarding to Cloudflare Worker');
     const response = await fetch('https://newnocode.shalom-cohen-111.workers.dev', {
       method: 'POST',
