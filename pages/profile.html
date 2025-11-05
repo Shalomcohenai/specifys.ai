@@ -519,8 +519,6 @@
             getAuth,
             updateProfile
         } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { doc as firestoreDoc, setDoc as firestoreSetDoc, serverTimestamp as firestoreServerTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
         import { 
             collection, 
             addDoc, 
@@ -553,16 +551,29 @@
         const db = getFirestore(app);
         const googleProvider = new GoogleAuthProvider();
 
+        // Prevent concurrent user document creation
+        let isCreatingUserDocument = false;
+        let lastCreatedUserUid = null;
+
         // Create user document in Firestore
         async function createUserDocumentInProfile(user) {
+            // Prevent concurrent calls for the same user
+            if (isCreatingUserDocument && lastCreatedUserUid === user.uid) {
+                console.log('User document creation already in progress for user:', user.uid);
+                return;
+            }
+
+            isCreatingUserDocument = true;
+            lastCreatedUserUid = user.uid;
+
             try {
-                const userRef = firestoreDoc(db, 'users', user.uid);
-                await firestoreSetDoc(userRef, {
+                const userRef = doc(db, 'users', user.uid);
+                await setDoc(userRef, {
                     email: user.email,
                     displayName: user.displayName || user.email.split('@')[0],
                     emailVerified: user.emailVerified,
-                    createdAt: firestoreServerTimestamp(),
-                    lastActive: firestoreServerTimestamp(),
+                    createdAt: serverTimestamp(),
+                    lastActive: serverTimestamp(),
                     newsletterSubscription: false,
                     // ALL USERS GET PRO BY DEFAULT
                     plan: 'pro',
@@ -570,14 +581,17 @@
                 }, { merge: true });
                 
                 // Create/update entitlements document
-                const entitlementsRef = firestoreDoc(db, 'entitlements', user.uid);
-                await firestoreSetDoc(entitlementsRef, {
+                const entitlementsRef = doc(db, 'entitlements', user.uid);
+                await setDoc(entitlementsRef, {
                     unlimited: true,
                     can_edit: true,
-                    updated_at: firestoreServerTimestamp()
+                    updated_at: serverTimestamp()
                 }, { merge: true });
             } catch (error) {
-
+                console.error('Error creating user document:', error);
+                // Don't throw - allow the page to continue loading even if document creation fails
+            } finally {
+                isCreatingUserDocument = false;
             }
         }
 
@@ -602,8 +616,10 @@
             if (user) {
                 currentUser = user;
                 
-                // Create/update user document in Firestore
-                await createUserDocumentInProfile(user);
+                // Create/update user document in Firestore (non-blocking)
+                createUserDocumentInProfile(user).catch(error => {
+                    console.error('Failed to create user document:', error);
+                });
                 
                 updateProfileInfo(user);
                 loadWorkspace();
