@@ -17,3 +17,5 @@ gem "rouge", "~> 3.26"
 # Ruby 3.4+ compatibility (required for Jekyll 3.10.0)
 gem "base64"
 gem "logger"
+gem "bigdecimal"
+gem "rexml"
