@@ -169,7 +169,7 @@ app.post('/api/blog/create-post', blogRoutes.createPost);
 app.get('/api/blog/list-posts', blogRoutes.listPosts);
 app.post('/api/blog/delete-post', blogRoutes.deletePost);
 
-// Legacy endpoint to handle API requests to Grok (deprecated - use /api/specs/create instead)
+// Legacy endpoint - forwards to Cloudflare Worker (no API_KEY required)
 app.post('/api/generate-spec', rateLimiters.generation, async (req, res) => {
   console.log('[/api/generate-spec] Request received');
   const { userInput } = req.body;
@@ -179,33 +179,15 @@ app.post('/api/generate-spec', rateLimiters.generation, async (req, res) => {
     return res.status(400).json({ error: 'User input is required' });
   }
 
-  const apiKey = process.env.API_KEY;
-  if (!apiKey) {
-    console.error('[/api/generate-spec] API_KEY not configured');
-    return res.status(500).json({ 
-      error: 'API key is not configured',
-      details: 'Please configure API_KEY environment variable'
-    });
-  }
-  
-  console.log('[/api/generate-spec] API_KEY found, making request to Grok API');
-
   try {
-    const response = await fetch('https://api.x.ai/v1/chat/completions', {
+    // Forward request to Cloudflare Worker (no API_KEY needed)
+    console.log('[/api/generate-spec] Forwarding to Cloudflare Worker');
+    const response = await fetch('https://newnocode.shalom-cohen-111.workers.dev', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
       },
-      body: JSON.stringify({
-        model: 'grok',
-        messages: [
-          { role: 'system', content: 'You are a helpful assistant that generates detailed application specifications.' },
-          { role: 'user', content: userInput },
-        ],
-        max_tokens: 2048,
-        temperature: 0.7,
-      }),
+      body: JSON.stringify({ prompt: userInput }),
     });
 
     // Check if response is OK before parsing JSON
@@ -219,7 +201,7 @@ app.post('/api/generate-spec', rateLimiters.generation, async (req, res) => {
         const errorText = await response.text();
         errorMessage = errorText || `HTTP ${response.status}: ${response.statusText}`;
       }
-      console.error('[/api/generate-spec] Grok API error:', {
+      console.error('[/api/generate-spec] Cloudflare Worker error:', {
         status: response.status,
         statusText: response.statusText,
         error: errorMessage
@@ -228,8 +210,8 @@ app.post('/api/generate-spec', rateLimiters.generation, async (req, res) => {
     }
 
     const data = await response.json();
-    console.log('[/api/generate-spec] Successfully received response from Grok API');
-    res.json({ specification: data.choices[0].message.content });
+    console.log('[/api/generate-spec] Successfully received response from Cloudflare Worker');
+    res.json({ specification: data.specification || 'No specification generated' });
   } catch (error) {
     console.error('[/api/generate-spec] Error:', {
       message: error.message,
