@@ -193,7 +193,7 @@ app.post('/api/generate-spec', async (req, res) => {
     };
 
     console.log(`[${requestId}] 📤 Preparing request to Cloudflare Worker`);
-    console.log(`[${requestId}] Worker URL: https://newnocode.shalom-cohen-111.workers.dev/generate`);
+    console.log(`[${requestId}] Worker URL: https://spspec.shalom-cohen-111.workers.dev/generate`);
     console.log(`[${requestId}] Worker Payload:`, {
       stage: workerPayload.stage,
       locale: workerPayload.locale,
@@ -209,7 +209,7 @@ app.post('/api/generate-spec', async (req, res) => {
     let response;
     try {
       console.log(`[${requestId}] 🔄 Attempting to fetch from Cloudflare Worker...`);
-      response = await fetch('https://newnocode.shalom-cohen-111.workers.dev/generate', {
+      response = await fetch('https://spspec.shalom-cohen-111.workers.dev/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -541,7 +541,7 @@ app.listen(port, () => {
   console.log(`🖥️  Node.js: ${process.version}`);
   console.log(`📁 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🔧 OpenAI API Key: ${process.env.OPENAI_API_KEY ? '✅ Configured' : '❌ Not configured'}`);
-  console.log(`☁️  Cloudflare Worker: https://newnocode.shalom-cohen-111.workers.dev/generate`);
+  console.log(`☁️  Cloudflare Worker: https://spspec.shalom-cohen-111.workers.dev/generate`);
   console.log('='.repeat(60));
   console.log('📝 Logging enabled for all API requests');
   console.log('📊 Detailed logs for /api/generate-spec endpoint');
