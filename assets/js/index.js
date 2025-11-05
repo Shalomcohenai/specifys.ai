@@ -34,6 +34,26 @@ function closeRegistrationModal() {
   }
 }
 
+function showMaintenanceModal() {
+  const modal = document.getElementById('maintenanceModal');
+  if (modal) {
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  }
+}
+
+function closeMaintenanceModal() {
+  const modal = document.getElementById('maintenanceModal');
+  if (modal) {
+    modal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+  }
+}
+
+// Make functions globally available
+window.showMaintenanceModal = showMaintenanceModal;
+window.closeMaintenanceModal = closeMaintenanceModal;
+
 // ===== FIRST VISIT CHECK =====
 function checkFirstVisit() {
   const hasVisited = localStorage.getItem('hasVisited');
@@ -1098,6 +1118,11 @@ document.addEventListener('DOMContentLoaded', function() {
   localStorage.removeItem('currentSpecId');
   localStorage.removeItem('generatedOverviewContent');
   
+  // Show maintenance modal immediately
+  setTimeout(() => {
+    showMaintenanceModal();
+  }, 500);
+  
   checkFirstVisit();
   setupModernInput();
   checkAutoStart();
@@ -1173,6 +1198,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (e.key === 'Escape') {
       closeWelcomeModal();
       closeRegistrationModal();
+      closeMaintenanceModal();
     }
   });
 });
