@@ -1,5 +1,13 @@
 const express = require('express');
-// node-fetch v3 is ESM-only, will use dynamic import in functions
+// Use built-in fetch for Node.js 18+ or fallback to node-fetch
+let fetch;
+if (typeof globalThis.fetch === 'function') {
+  // Node.js 18+ has built-in fetch (used in Render)
+  fetch = globalThis.fetch;
+} else {
+  // Fallback for older Node versions
+  fetch = require('node-fetch');
+}
 const dotenv = require('dotenv');
 const config = require('./config');
 
@@ -115,8 +123,6 @@ async function saveToGoogleSheets(email, feedback, type, source) {
     // Use the Google Apps Script URL from config
     const googleAppsScriptUrl = config.googleAppsScriptUrl;
     
-    // node-fetch v3 is ESM-only, need dynamic import
-    const fetch = (await import('node-fetch')).default;
     const response = await fetch(googleAppsScriptUrl, {
       method: 'POST',
       headers: {
@@ -153,53 +159,43 @@ async function saveToGoogleSheets(email, feedback, type, source) {
 
 // Clean API endpoint for generating specifications
 app.post('/api/generate-spec', async (req, res) => {
-
   const { userInput } = req.body;
 
   if (!userInput) {
-
     return res.status(400).json({ error: 'User input is required' });
   }
 
+  const apiKey = process.env.API_KEY;
+  if (!apiKey) {
+    return res.status(500).json({ error: 'API key is not configured' });
+  }
+
   try {
-    // Forward request to the existing Cloudflare Worker
-    // node-fetch v3 is ESM-only, need dynamic import
-    const fetch = (await import('node-fetch')).default;
-    const response = await fetch('https://newnocode.shalom-cohen-111.workers.dev', {
+    const response = await fetch('https://api.x.ai/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
       },
-      body: JSON.stringify({ prompt: userInput }),
+      body: JSON.stringify({
+        model: 'grok',
+        messages: [
+          { role: 'system', content: 'You are a helpful assistant that generates detailed application specifications.' },
+          { role: 'user', content: userInput },
+        ],
+        max_tokens: 2048,
+        temperature: 0.7,
+      }),
     });
-
-    // Check if response is OK before parsing JSON
-    if (!response.ok) {
-      let errorMessage = 'Failed to fetch specification';
-      try {
-        const errorData = await response.json();
-        errorMessage = errorData.error?.message || errorData.error || errorMessage;
-      } catch (parseError) {
-        // If response is not JSON, get text instead
-        const errorText = await response.text();
-        errorMessage = errorText || `HTTP ${response.status}: ${response.statusText}`;
-      }
-      console.error('Cloudflare Worker error:', {
-        status: response.status,
-        statusText: response.statusText,
-        error: errorMessage
-      });
-      throw new Error(errorMessage);
-    }
 
     const data = await response.json();
-    res.json({ specification: data.specification || 'No specification generated' });
+    if (!response.ok) {
+      throw new Error(data.error?.message || 'Failed to fetch specification');
+    }
+
+    res.json({ specification: data.choices[0].message.content });
   } catch (error) {
-    console.error('Error in /api/generate-spec:', error.message, error.stack);
-    res.status(500).json({ 
-      error: 'Failed to generate specification',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
-    });
+    res.status(500).json({ error: 'Failed to generate specification' });
   }
 });
 

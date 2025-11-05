@@ -43,7 +43,15 @@ delete require.cache[require.resolve('./server/openai-storage-service')];
 
 // Import modules that may read env at require-time AFTER loading env
 const express = require('express');
-// node-fetch v3 is ESM-only, will use dynamic import in functions
+// Use built-in fetch for Node.js 18+ or fallback to node-fetch (like lemon-routes.js)
+let fetch;
+if (typeof globalThis.fetch === 'function') {
+  // Node.js 18+ has built-in fetch (used in Render)
+  fetch = globalThis.fetch;
+} else {
+  // Fallback for older Node versions
+  fetch = require('node-fetch');
+}
 const { syncAllUsers } = require('./server/user-management');
 const blogRoutes = require('./server/blog-routes');
 const userRoutes = require('./server/user-routes');
@@ -169,61 +177,45 @@ app.post('/api/blog/create-post', blogRoutes.createPost);
 app.get('/api/blog/list-posts', blogRoutes.listPosts);
 app.post('/api/blog/delete-post', blogRoutes.deletePost);
 
-// Legacy endpoint - forwards to Cloudflare Worker (no API_KEY required)
+// Legacy endpoint to handle API requests to Grok (deprecated - use /api/specs/create instead)
 app.post('/api/generate-spec', rateLimiters.generation, async (req, res) => {
-  console.log('[/api/generate-spec] Request received');
   const { userInput } = req.body;
 
   if (!userInput) {
-    console.error('[/api/generate-spec] Missing userInput');
     return res.status(400).json({ error: 'User input is required' });
   }
 
+  const apiKey = process.env.API_KEY;
+  if (!apiKey) {
+    return res.status(500).json({ error: 'API key is not configured' });
+  }
+
   try {
-    // Forward request to Cloudflare Worker (no API_KEY needed)
-    // node-fetch v3 is ESM-only, need dynamic import
-    const fetch = (await import('node-fetch')).default;
-    console.log('[/api/generate-spec] Forwarding to Cloudflare Worker');
-    const response = await fetch('https://newnocode.shalom-cohen-111.workers.dev', {
+    const response = await fetch('https://api.x.ai/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
       },
-      body: JSON.stringify({ prompt: userInput }),
+      body: JSON.stringify({
+        model: 'grok',
+        messages: [
+          { role: 'system', content: 'You are a helpful assistant that generates detailed application specifications.' },
+          { role: 'user', content: userInput },
+        ],
+        max_tokens: 2048,
+        temperature: 0.7,
+      }),
     });
-
-    // Check if response is OK before parsing JSON
-    if (!response.ok) {
-      let errorMessage = 'Failed to fetch specification';
-      try {
-        const errorData = await response.json();
-        errorMessage = errorData.error?.message || errorData.error || errorMessage;
-      } catch (parseError) {
-        // If response is not JSON, get text instead
-        const errorText = await response.text();
-        errorMessage = errorText || `HTTP ${response.status}: ${response.statusText}`;
-      }
-      console.error('[/api/generate-spec] Cloudflare Worker error:', {
-        status: response.status,
-        statusText: response.statusText,
-        error: errorMessage
-      });
-      throw new Error(errorMessage);
-    }
 
     const data = await response.json();
-    console.log('[/api/generate-spec] Successfully received response from Cloudflare Worker');
-    res.json({ specification: data.specification || 'No specification generated' });
+    if (!response.ok) {
+      throw new Error(data.error?.message || 'Failed to fetch specification');
+    }
+
+    res.json({ specification: data.choices[0].message.content });
   } catch (error) {
-    console.error('[/api/generate-spec] Error:', {
-      message: error.message,
-      stack: error.stack,
-      name: error.name
-    });
-    res.status(500).json({ 
-      error: 'Failed to generate specification',
-      details: error.message || 'Unknown error occurred'
-    });
+    res.status(500).json({ error: 'Failed to generate specification' });
   }
 });
 

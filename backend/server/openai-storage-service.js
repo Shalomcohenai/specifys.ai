@@ -1,16 +1,25 @@
-// node-fetch v3 is ESM-only, will use dynamic import in methods
 const FormData = require('form-data');
 
 class OpenAIStorageService {
   constructor(apiKey) {
     this.apiKey = apiKey;
     this.baseURL = 'https://api.openai.com/v1';
+    // Use built-in fetch for Node.js 18+ or fallback to node-fetch
+    if (typeof globalThis.fetch === 'function') {
+      this.fetch = globalThis.fetch;
+    } else {
+      // Will use dynamic import when needed for older Node versions
+      this.fetch = null;
+    }
   }
 
   /**
-   * Get fetch function (dynamic import for node-fetch v3)
+   * Get fetch function - use built-in if available, otherwise dynamic import
    */
   async getFetch() {
+    if (this.fetch) {
+      return this.fetch;
+    }
     return (await import('node-fetch')).default;
   }
 
