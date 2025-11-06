@@ -212,8 +212,9 @@
   
   .header-right {
     gap: 0.5rem;
-    justify-content: flex-end;
-    margin-left: auto;
+    justify-content: space-between;
+    width: 100%;
+    margin-left: 0;
     order: 2;
   }
   
@@ -223,7 +224,8 @@
   
   .auth-buttons {
     gap: 0.5rem;
-    order: 3;
+    order: 2;
+    margin-left: auto;
   }
   
   .auth-btn {
@@ -237,21 +239,23 @@
     font-size: 14px;
     min-height: 36px;
     margin-left: auto;
+    order: 2;
   }
   
   .user-info span {
-    display: none;
+    display: inline;
   }
   
   .user-avatar {
-    width: 32px;
-    height: 32px;
-    font-size: 1rem;
+    width: 28px;
+    height: 28px;
+    font-size: 0.9rem;
   }
   
   .credits-display {
-    margin-right: 8px;
-    order: 2;
+    margin-right: 0;
+    order: 1;
+    margin-left: 0;
   }
   
   .credits-container {
@@ -280,16 +284,31 @@
   }
   
   .header-right {
-    justify-content: flex-end;
-    margin-left: auto;
+    justify-content: space-between;
+    width: 100%;
+    margin-left: 0;
   }
   
   .auth-buttons {
     margin-left: auto;
+    order: 2;
   }
   
   .user-info {
     margin-left: auto;
+    order: 2;
+    padding: 5px 8px;
+    font-size: 13px;
+  }
+  
+  .user-info span {
+    display: inline;
+  }
+  
+  .user-avatar {
+    width: 26px;
+    height: 26px;
+    font-size: 0.85rem;
   }
   
   .auth-btn {
@@ -298,11 +317,17 @@
   }
   
   .credits-display {
-    margin-right: 6px;
+    margin-right: 0;
+    order: 1;
   }
   
   .credits-container {
-    padding: 4px 8px;
+    padding: 5px 8px;
     gap: 4px;
+    font-size: 0.8rem;
+  }
+  
+  .credits-container i {
+    font-size: 11px;
   }
 }

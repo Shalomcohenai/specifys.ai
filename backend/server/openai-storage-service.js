@@ -947,6 +947,20 @@ CRITICAL REQUIREMENTS FOR ALL DIAGRAMS:
       
       console.log(`[${requestId}] 📤 Starting diagram generation with retry logic (max ${maxRetries} retries)`);
       
+      // Verify assistant is ready before starting (using verifyAssistantReady function)
+      console.log(`[${requestId}] 📤 Pre-flight check: Verifying assistant is ready`);
+      const preVerifyStart = Date.now();
+      const preVerification = await this.verifyAssistantReady(assistantId, 10);
+      const preVerifyTime = Date.now() - preVerifyStart;
+      console.log(`[${requestId}] ⏱️  Pre-flight verification took ${preVerifyTime}ms`);
+      
+      if (!preVerification.ready) {
+        console.error(`[${requestId}] ❌ Assistant is not ready before diagram generation: ${preVerification.error}`);
+        throw new Error(`Assistant ${assistantId} is not ready: ${preVerification.error}`);
+      }
+      
+      console.log(`[${requestId}] ✅ Assistant verified ready before diagram generation`);
+      
       while (retryCount < maxRetries) {
         try {
           console.log(`[${requestId}] 🔄 Attempt ${retryCount + 1}/${maxRetries}`);
@@ -1167,28 +1181,25 @@ Return ONLY the corrected Mermaid code.`;
     console.log(`[${requestId}] Message length: ${message.length} characters`);
     
     try {
-      // Verify assistant has tool_resources configured before sending
-      console.log(`[${requestId}] 📤 Step 1: Verifying assistant configuration`);
-      const checkStart = Date.now();
-      const assistantCheck = await this.getAssistant(assistantId);
-      const checkTime = Date.now() - checkStart;
-      console.log(`[${requestId}] ⏱️  Assistant check took ${checkTime}ms`);
+      // Verify assistant is ready before sending (using new verifyAssistantReady function)
+      console.log(`[${requestId}] 📤 Step 1: Verifying assistant is ready`);
+      const verifyStart = Date.now();
+      const verification = await this.verifyAssistantReady(assistantId, 10);
+      const verifyTime = Date.now() - verifyStart;
+      console.log(`[${requestId}] ⏱️  Assistant verification took ${verifyTime}ms`);
       
-      const hasVectorStore = assistantCheck.tool_resources?.file_search?.vector_store_ids?.length > 0;
+      if (!verification.ready) {
+        console.error(`[${requestId}] ❌ Assistant is not ready: ${verification.error}`);
+        throw new Error(`Assistant ${assistantId} is not ready: ${verification.error}`);
+      }
+      
+      const assistantCheck = verification.assistant;
       const vectorStoreIds = assistantCheck.tool_resources?.file_search?.vector_store_ids || [];
-      console.log(`[${requestId}] Assistant Configuration:`, {
-        hasVectorStore,
+      console.log(`[${requestId}] ✅ Assistant is ready:`, {
+        hasVectorStore: vectorStoreIds.length > 0,
         vectorStoreIds,
         toolCount: assistantCheck.tools?.length || 0
       });
-      
-      if (!hasVectorStore) {
-        console.error(`[${requestId}] ❌ Assistant has no vector store configured`);
-
-        throw new Error(`Assistant ${assistantId} has no vector store configured. Cannot send message.`);
-      }
-      
-      console.log(`[${requestId}] ✅ Assistant configuration verified`);
 
       
       // Add message to thread
@@ -1363,12 +1374,36 @@ Return ONLY the corrected Mermaid code.`;
 
         
         // If tool_resources is empty in run but assistant has them, this is a known OpenAI API bug
+        // But first, check if it's a retryable server_error
         if (runVectorStoreIds.length === 0 && errorCode === 'server_error') {
-          // Create a custom error with metadata to help caller recreate the assistant
-          const customError = new Error(`Assistant run failed: Vector store configuration not propagated to run. This may indicate the assistant ${assistantId} is corrupted. Please try recreating the assistant. (Original error: ${errorMessage})`);
-          customError.isCorruptedAssistant = true;
-          customError.assistantId = assistantId;
-          throw customError;
+          // Check if this is a retryable error before marking as corrupted
+          const isRetryableError = errorMessage.includes('rate_limit') || 
+                                   errorMessage.includes('timeout') ||
+                                   errorMessage.includes('internal_error');
+          
+          // Only mark as corrupted if it's NOT a retryable error
+          if (!isRetryableError) {
+            console.error(`[${requestId}] ❌ Vector store configuration not propagated to run (non-retryable server_error)`);
+            // Create a custom error with metadata to help caller recreate the assistant
+            const customError = new Error(`Assistant run failed: Vector store configuration not propagated to run. This may indicate the assistant ${assistantId} is corrupted. Please try recreating the assistant. (Original error: ${errorMessage})`);
+            customError.isCorruptedAssistant = true;
+            customError.assistantId = assistantId;
+            throw customError;
+          } else {
+            // It's a retryable error, throw regular error to be handled by retry logic
+            console.warn(`[${requestId}] ⚠️  Server error detected (retryable): ${errorMessage}`);
+            throw new Error(`Assistant run failed: ${errorMessage} (code: ${errorCode})`);
+          }
+        }
+        
+        // For other server errors, check if retryable
+        if (errorCode === 'server_error') {
+          const isRetryableError = errorMessage.includes('rate_limit') || 
+                                   errorMessage.includes('timeout') ||
+                                   errorMessage.includes('internal_error');
+          if (isRetryableError) {
+            console.warn(`[${requestId}] ⚠️  Retryable server error: ${errorMessage}`);
+          }
         }
         
         throw new Error(`Assistant run failed: ${errorMessage} (code: ${errorCode})`);
@@ -1500,6 +1535,100 @@ Return ONLY the corrected Mermaid code.`;
     } catch (error) {
 
       throw error;
+    }
+  }
+
+  /**
+   * Verify that an assistant is ready for use
+   * Checks that assistant exists, has vector store configured, and vector store is ready
+   * @param {string} assistantId - Assistant ID
+   * @param {number} maxWaitAttempts - Maximum attempts to wait for vector store (default: 10)
+   * @returns {Promise<{ready: boolean, error?: string, assistant?: object}>}
+   */
+  async verifyAssistantReady(assistantId, maxWaitAttempts = 10) {
+    const requestId = `verify-ready-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    
+    try {
+      console.log(`[${requestId}] ===== verifyAssistantReady START =====`);
+      console.log(`[${requestId}] Assistant ID: ${assistantId}`);
+      
+      // Step 1: Check if assistant exists
+      console.log(`[${requestId}] 📤 Step 1: Checking if assistant exists`);
+      const assistant = await this.getAssistant(assistantId);
+      
+      if (!assistant) {
+        console.error(`[${requestId}] ❌ Assistant not found`);
+        return { ready: false, error: `Assistant ${assistantId} not found` };
+      }
+      
+      console.log(`[${requestId}] ✅ Assistant exists:`, {
+        id: assistant.id,
+        name: assistant.name,
+        model: assistant.model
+      });
+      
+      // Step 2: Check if assistant has vector store configured
+      const vectorStoreIds = assistant.tool_resources?.file_search?.vector_store_ids || [];
+      console.log(`[${requestId}] 📤 Step 2: Checking vector store configuration`);
+      console.log(`[${requestId}] Vector Store IDs:`, vectorStoreIds);
+      
+      if (vectorStoreIds.length === 0) {
+        console.error(`[${requestId}] ❌ Assistant has no vector stores configured`);
+        return { 
+          ready: false, 
+          error: `Assistant ${assistantId} has no vector stores configured`,
+          assistant 
+        };
+      }
+      
+      console.log(`[${requestId}] ✅ Assistant has ${vectorStoreIds.length} vector store(s) configured`);
+      
+      // Step 3: Verify all vector stores are ready
+      console.log(`[${requestId}] 📤 Step 3: Verifying vector stores are ready`);
+      for (const vsId of vectorStoreIds) {
+        console.log(`[${requestId}] Checking vector store: ${vsId}`);
+        const isReady = await this.waitForVectorStoreReady(vsId, maxWaitAttempts);
+        
+        if (!isReady) {
+          // Try to get status for better error message
+          try {
+            const vectorStore = await this.getVectorStore(vsId);
+            const status = vectorStore.status || 'unknown';
+            console.error(`[${requestId}] ❌ Vector store ${vsId} is not ready, status: ${status}`);
+            return { 
+              ready: false, 
+              error: `Vector store ${vsId} is not ready (status: ${status})`,
+              assistant 
+            };
+          } catch (vsError) {
+            console.error(`[${requestId}] ❌ Failed to get vector store status:`, vsError.message);
+            return { 
+              ready: false, 
+              error: `Vector store ${vsId} is not ready and status check failed: ${vsError.message}`,
+              assistant 
+            };
+          }
+        }
+        
+        console.log(`[${requestId}] ✅ Vector store ${vsId} is ready`);
+      }
+      
+      console.log(`[${requestId}] ✅ All vector stores are ready`);
+      console.log(`[${requestId}] ===== verifyAssistantReady SUCCESS =====`);
+      
+      return { ready: true, assistant };
+    } catch (error) {
+      console.error(`[${requestId}] ❌ ERROR in verifyAssistantReady:`, {
+        assistantId,
+        error: error.message,
+        stack: error.stack
+      });
+      console.error(`[${requestId}] ===== verifyAssistantReady ERROR =====`);
+      
+      return { 
+        ready: false, 
+        error: `Failed to verify assistant: ${error.message}` 
+      };
     }
   }
 

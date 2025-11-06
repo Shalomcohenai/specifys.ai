@@ -197,11 +197,15 @@ function validateRawTextPayload(obj) {
 
 // ---------- OpenAI caller (with upstream error surfacing) ----------
 async function callLLM(env, { system, developer, user }) {
+  // Combine developer instructions into system prompt (developer role is not supported by OpenAI API)
+  const combinedSystem = developer 
+    ? `${system}\n\nDEVELOPER INSTRUCTIONS:\n${developer}`
+    : system;
+  
   const body = {
     model: MODEL,
     messages: [
-      { role: "system", content: system },
-      { role: "developer", content: developer },
+      { role: "system", content: combinedSystem },
       { role: "user", content: user }
     ],
     temperature: 0
@@ -267,8 +271,13 @@ async function retryWithRepair(env, msgs, stage, attachMetaAndValidate) {
   }
 
   // 2) repair
+  // Combine developer instructions into system prompt (developer role is not supported by OpenAI API)
+  const combinedSystemForRepair = msgs.developer 
+    ? `${msgs.system}\n\nDEVELOPER INSTRUCTIONS:\n${msgs.developer}`
+    : msgs.system;
+  
   const repairedMsgs = {
-    system: msgs.system,
+    system: combinedSystemForRepair,
     developer: msgs.developer,
     user: buildRepairPrompt(issues, JSON.stringify(out || {}))
   };

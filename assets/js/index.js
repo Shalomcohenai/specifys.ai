@@ -1181,15 +1181,26 @@ async function saveSpecToFirebase(overviewContent, answers) {
 
 // ===== OPENAI UPLOAD TRIGGER =====
 async function triggerOpenAIUpload(specId) {
+  const requestId = `upload-trigger-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  
   try {
+    console.log(`[${requestId}] ===== triggerOpenAIUpload START =====`);
+    console.log(`[${requestId}] Spec ID: ${specId}`);
+    
     const user = firebase.auth().currentUser;
     if (!user) {
+      console.warn(`[${requestId}] ⚠️  No authenticated user, skipping upload`);
       return;
     }
     
     const token = await user.getIdToken();
     const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai.onrender.com';
-    const response = await fetch(`${apiBaseUrl}/api/specs/${specId}/upload-to-openai`, {
+    const uploadUrl = `${apiBaseUrl}/api/specs/${specId}/upload-to-openai`;
+    
+    console.log(`[${requestId}] 📤 Uploading spec to OpenAI`);
+    console.log(`[${requestId}] API URL: ${uploadUrl}`);
+    
+    const response = await fetch(uploadUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -1198,13 +1209,58 @@ async function triggerOpenAIUpload(specId) {
     });
     
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Upload failed');
+      let errorDetails = null;
+      try {
+        const error = await response.json();
+        errorDetails = {
+          status: response.status,
+          statusText: response.statusText,
+          error: error.error || 'Upload failed',
+          details: error.details || null,
+          requestId: error.requestId || null
+        };
+        console.error(`[${requestId}] ❌ Upload failed:`, errorDetails);
+        throw new Error(error.error || 'Upload failed');
+      } catch (parseError) {
+        // If response is not JSON, try to get text
+        try {
+          const errorText = await response.text();
+          errorDetails = {
+            status: response.status,
+            statusText: response.statusText,
+            errorText: errorText.substring(0, 500)
+          };
+          console.error(`[${requestId}] ❌ Upload failed (non-JSON response):`, errorDetails);
+          throw new Error(`Upload failed: HTTP ${response.status} ${response.statusText}`);
+        } catch (textError) {
+          errorDetails = {
+            status: response.status,
+            statusText: response.statusText,
+            parseError: textError.message
+          };
+          console.error(`[${requestId}] ❌ Upload failed (could not parse response):`, errorDetails);
+          throw new Error(`Upload failed: HTTP ${response.status} ${response.statusText}`);
+        }
+      }
     }
     
     const data = await response.json();
+    console.log(`[${requestId}] ✅ Upload successful:`, {
+      success: data.success,
+      fileId: data.fileId,
+      message: data.message
+    });
+    console.log(`[${requestId}] ===== triggerOpenAIUpload SUCCESS =====`);
   } catch (error) {
-    // OpenAI upload trigger failed (non-critical)
+    // Log detailed error information for debugging
+    console.error(`[${requestId}] ❌ OpenAI upload trigger failed:`, {
+      specId: specId,
+      error: error.message,
+      stack: error.stack,
+      name: error.name
+    });
+    console.error(`[${requestId}] ===== triggerOpenAIUpload FAILED =====`);
+    // Note: This is non-critical, so we don't throw - upload happens in background
   }
 }
 
