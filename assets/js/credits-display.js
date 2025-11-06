@@ -63,20 +63,34 @@
       creditsDisplay.style.display = 'flex';
 
       if (entitlements.unlimited) {
+        // Pro user - show "PRO"
         creditsText.textContent = 'PRO';
         creditsText.title = 'Unlimited specs - Pro Plan';
         creditsDisplay.classList.add('unlimited');
+        creditsDisplay.classList.remove('free');
       } else if (entitlements.spec_credits && entitlements.spec_credits > 0) {
+        // User with purchased credits - show number
         creditsText.textContent = entitlements.spec_credits;
         creditsText.title = `${entitlements.spec_credits} spec credit${entitlements.spec_credits !== 1 ? 's' : ''}`;
-        creditsDisplay.classList.remove('unlimited');
+        creditsDisplay.classList.remove('unlimited', 'free');
       } else {
+        // Check if user has free specs remaining
         const freeSpecs = typeof userData.free_specs_remaining === 'number' 
           ? Math.max(0, userData.free_specs_remaining)
           : 1;
-        creditsText.textContent = freeSpecs;
-        creditsText.title = `${freeSpecs} free spec${freeSpecs !== 1 ? 's' : ''} remaining`;
-        creditsDisplay.classList.remove('unlimited');
+        
+        if (freeSpecs > 0) {
+          // Still has free spec - show number
+          creditsText.textContent = freeSpecs;
+          creditsText.title = `${freeSpecs} free spec${freeSpecs !== 1 ? 's' : ''} remaining`;
+          creditsDisplay.classList.remove('unlimited', 'free');
+        } else {
+          // No free specs left - show "FREE"
+          creditsText.textContent = 'FREE';
+          creditsText.title = 'Free plan - No specs remaining';
+          creditsDisplay.classList.add('free');
+          creditsDisplay.classList.remove('unlimited');
+        }
       }
     } catch (error) {
       console.error('Error updating credits display:', error);

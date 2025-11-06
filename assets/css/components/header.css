@@ -42,7 +42,8 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  justify-content: flex-end;
+  justify-content: space-between;
+  width: 100%;
 }
 
 /* Logo styles - Specifys.AI */
@@ -116,6 +117,8 @@
   font-size: 0.9rem;
   cursor: pointer;
   transition: all var(--transition-normal);
+  order: 2; /* Always on the right */
+  margin-left: auto;
 }
 
 .user-info:hover {
@@ -146,53 +149,48 @@
   font-weight: var(--font-weight-bold);
 }
 
-/* Credits Display - same style as user-info */
+/* Credits Display - Orange badge style like PRO badge */
 .credits-display {
   display: flex;
   align-items: center;
   margin-right: 12px;
+  order: 1; /* Always on the left */
 }
 
 .credits-container {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 0.3rem 0.8rem;
-  background: rgba(102, 102, 102, 0.1);
-  border-radius: var(--border-radius-md);
-  font-size: 0.9rem;
+  justify-content: center;
+  padding: 4px 12px;
+  background: #FF6B35;
+  color: white;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
   cursor: pointer;
   transition: all var(--transition-normal);
+  min-width: 50px;
+  text-align: center;
+  letter-spacing: 0.5px;
 }
 
 .credits-container:hover {
-  background: rgba(102, 102, 102, 0.2);
+  background: #FF8551;
   transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3);
 }
 
 .credits-container i {
-  font-size: 14px;
-  color: var(--text-secondary);
+  display: none; /* Hide icon */
 }
 
 .credits-container span {
-  font-weight: var(--font-weight-medium);
-  color: var(--text-color);
-  min-width: 20px;
-  text-align: center;
-}
-
-/* State variations - all use grey for consistency */
-.credits-container.pro i,
-.credits-container.pro span {
-  color: var(--text-secondary);
-}
-
-.credits-container.low i,
-.credits-container.unlimited i,
-.credits-container.low span,
-.credits-container.unlimited span {
-  color: var(--text-secondary);
+  font-weight: 600;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  min-width: auto;
 }
 
 /* Mobile Responsive */
@@ -215,7 +213,6 @@
     justify-content: space-between;
     width: 100%;
     margin-left: 0;
-    order: 2;
   }
   
   .header-center {
@@ -260,12 +257,8 @@
   
   .credits-container {
     padding: 6px 10px;
-    font-size: 0.85rem;
+    font-size: 11px;
     min-height: 36px;
-  }
-  
-  .credits-container i {
-    font-size: 12px;
   }
 }
 
@@ -323,11 +316,7 @@
   
   .credits-container {
     padding: 5px 8px;
-    gap: 4px;
-    font-size: 0.8rem;
-  }
-  
-  .credits-container i {
-    font-size: 11px;
+    font-size: 10px;
+    min-height: 32px;
   }
 }
