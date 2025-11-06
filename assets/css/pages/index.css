@@ -2033,7 +2033,7 @@
   .questions-display {
     width: 95%;
     margin-top: 0;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
   }
   
   .current-question {
@@ -2042,6 +2042,19 @@
   
   .question-detail {
     font-size: 14px;
+  }
+  
+  .modern-input-container {
+    margin-top: 10px;
+  }
+  
+  .input-instruction {
+    margin-bottom: 6px;
+    font-size: 13px;
+  }
+  
+  .input-area {
+    margin-bottom: 12px;
   }
 }
 
@@ -2074,11 +2087,12 @@
     width: 98%;
     padding: 10px;
     margin-bottom: 15px;
+    margin-top: 8px;
   }
   
   .questions-display {
     width: 98%;
-    margin-bottom: 15px;
+    margin-bottom: 8px;
   }
   
   .current-question {
@@ -2087,6 +2101,15 @@
   
   .question-detail {
     font-size: 13px;
+  }
+  
+  .input-instruction {
+    margin-bottom: 4px;
+    font-size: 12px;
+  }
+  
+  .input-area {
+    margin-bottom: 10px;
   }
   
   .input-controls {
