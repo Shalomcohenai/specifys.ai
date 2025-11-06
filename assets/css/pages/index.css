@@ -326,54 +326,23 @@
 .spec-card-square {
   position: relative;
   aspect-ratio: 1;
-  background: #333;
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  overflow: visible;
+  border: none;
   border-radius: 12px;
-  animation: floatUpDown 4s ease-in-out infinite;
-}
-
-.spec-card-square:nth-child(1) {
-  animation-duration: 3.5s;
-  animation-delay: 0s;
-}
-
-.spec-card-square:nth-child(2) {
-  animation-duration: 4.2s;
-  animation-delay: 0.3s;
-}
-
-.spec-card-square:nth-child(3) {
-  animation-duration: 3.8s;
-  animation-delay: 0.6s;
-}
-
-.spec-card-square:nth-child(4) {
-  animation-duration: 4.5s;
-  animation-delay: 0.2s;
-}
-
-.spec-card-square:nth-child(5) {
-  animation-duration: 3.6s;
-  animation-delay: 0.5s;
-}
-
-.spec-card-square:nth-child(6) {
-  animation-duration: 4s;
-  animation-delay: 0.4s;
 }
 
 @keyframes floatUpDown {
   0%, 100% {
-    transform: translateY(0);
+    transform: translate(-50%, -50%) translateY(0);
   }
   50% {
-    transform: translateY(-8px);
+    transform: translate(-50%, -50%) translateY(-8px);
   }
 }
 
@@ -383,7 +352,8 @@
   transform: translateY(-3px) !important;
   box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2);
   z-index: 10;
-  animation: none !important;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  overflow: hidden;
 }
 
 .spec-card-square .spec-icon {
@@ -400,6 +370,37 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  animation: floatUpDown 4s ease-in-out infinite;
+}
+
+.spec-card-square:nth-child(1) .spec-icon {
+  animation-duration: 3.5s;
+  animation-delay: 0s;
+}
+
+.spec-card-square:nth-child(2) .spec-icon {
+  animation-duration: 4.2s;
+  animation-delay: 0.3s;
+}
+
+.spec-card-square:nth-child(3) .spec-icon {
+  animation-duration: 3.8s;
+  animation-delay: 0.6s;
+}
+
+.spec-card-square:nth-child(4) .spec-icon {
+  animation-duration: 4.5s;
+  animation-delay: 0.2s;
+}
+
+.spec-card-square:nth-child(5) .spec-icon {
+  animation-duration: 3.6s;
+  animation-delay: 0.5s;
+}
+
+.spec-card-square:nth-child(6) .spec-icon {
+  animation-duration: 4s;
+  animation-delay: 0.4s;
 }
 
 .spec-card-square .spec-icon i,
@@ -415,6 +416,7 @@
   visibility: hidden;
   transform: translate(-50%, -50%) scale(0.8);
   z-index: 1;
+  animation: none !important;
 }
 
 .spec-card-square:hover .spec-icon i,
