@@ -253,6 +253,8 @@ const questionDetails = [
 function showModernInput() {
   const inputContainer = document.getElementById('modernInputContainer');
   const questionsDisplay = document.getElementById('questionsDisplay');
+  const heroContent = document.getElementById('heroContent');
+  const specCardsShowcase = document.getElementById('specCardsShowcase');
   
   if (inputContainer) {
     inputContainer.style.display = 'block';
@@ -267,6 +269,15 @@ function showModernInput() {
     setTimeout(() => {
       questionsDisplay.classList.add('fade-in');
     }, 100);
+  }
+  
+  // Hide spec cards showcase and add fade-out to hero content
+  if (specCardsShowcase) {
+    specCardsShowcase.style.display = 'none';
+  }
+  
+  if (heroContent) {
+    heroContent.classList.add('fade-out');
   }
 }
 
