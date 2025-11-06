@@ -73,8 +73,11 @@ class OpenAIStorageService {
       console.log(`[${requestId}] OpenAI URL: ${this.baseURL}/files`);
       console.log(`[${requestId}] FormData: filename=spec-${specId}.json, purpose=assistants`);
       
+      // Use node-fetch for FormData uploads (globalThis.fetch doesn't support form-data package properly)
       const uploadStart = Date.now();
-      const response = await this._fetch(`${this.baseURL}/files`, {
+      const nodeFetch = await import('node-fetch');
+      const fetchFn = nodeFetch.default;
+      const response = await fetchFn(`${this.baseURL}/files`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${this.apiKey}`,
