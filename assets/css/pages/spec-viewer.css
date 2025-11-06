@@ -263,6 +263,11 @@
     animation: tabActivate 0.3s ease-out;
 }
 
+.tab-button.active i,
+.tab-button.active .fa {
+    color: #FF6B35;
+}
+
 .tab-button:not(.active) {
     color: #888;
 }
