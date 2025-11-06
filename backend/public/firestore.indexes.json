@@ -101,13 +101,6 @@
         { "fieldPath": "userId", "order": "ASCENDING" },
         { "fieldPath": "timestamp", "order": "DESCENDING" }
       ]
-    },
-    {
-      "collectionGroup": "credits_transactions",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "transactionId", "order": "ASCENDING" }
-      ]
     }
   ],
   "fieldOverrides": []
