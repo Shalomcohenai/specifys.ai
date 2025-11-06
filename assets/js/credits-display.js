@@ -87,12 +87,20 @@
     }
   }
 
+  let refreshInterval = null;
+
   function init() {
     waitForFirebase().then(() => {
       firebase.auth().onAuthStateChanged((user) => {
+        // Clear existing interval if any
+        if (refreshInterval) {
+          clearInterval(refreshInterval);
+          refreshInterval = null;
+        }
+        
         if (user) {
           updateCreditsDisplay();
-          setInterval(updateCreditsDisplay, 30000);
+          refreshInterval = setInterval(updateCreditsDisplay, 30000);
         } else {
           const creditsDisplay = document.getElementById('credits-display');
           if (creditsDisplay) {
@@ -104,6 +112,14 @@
       const user = firebase.auth().currentUser;
       if (user) {
         updateCreditsDisplay();
+      }
+    });
+    
+    // Clean up interval on page unload
+    window.addEventListener('beforeunload', () => {
+      if (refreshInterval) {
+        clearInterval(refreshInterval);
+        refreshInterval = null;
       }
     });
   }

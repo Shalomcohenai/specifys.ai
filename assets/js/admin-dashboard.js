@@ -1619,6 +1619,78 @@ class AdminDashboard {
 
     // Payment system functions removed - addCreditsToUser and grantProAccess
 
+    // Add credits to a specific user
+    async addCreditsToUser(userId) {
+        const user = this.allUsers.find(u => u.id === userId);
+        if (!user) {
+            this.showNotification('User not found', 'error');
+            return;
+        }
+
+        const creditsToAdd = prompt(`How many credits to add to ${user.email}?`, '1');
+        if (!creditsToAdd || isNaN(creditsToAdd)) return;
+
+        const credits = parseInt(creditsToAdd);
+        if (credits <= 0) {
+            this.showNotification('Credits must be a positive number', 'error');
+            return;
+        }
+
+        const confirmAdd = confirm(`Add ${credits} credits to ${user.email}?`);
+        if (!confirmAdd) return;
+
+        try {
+            const token = await firebase.auth().currentUser.getIdToken();
+            const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai.onrender.com';
+            
+            const response = await fetch(`${apiBaseUrl}/api/credits/grant`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    userId: userId,
+                    amount: credits,
+                    source: 'admin',
+                    metadata: {
+                        adminEmail: firebase.auth().currentUser.email,
+                        timestamp: new Date().toISOString()
+                    }
+                })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.details || errorData.error || 'Failed to add credits');
+            }
+
+            const result = await response.json();
+            
+            // Update local data
+            const existingIndex = this.allEntitlements.findIndex(e => e.userId === userId);
+            if (existingIndex >= 0) {
+                this.allEntitlements[existingIndex].spec_credits = (this.allEntitlements[existingIndex].spec_credits || 0) + credits;
+                this.allEntitlements[existingIndex].lastUpdated = new Date();
+            } else {
+                this.allEntitlements.push({
+                    userId: userId,
+                    unlimited: false,
+                    can_edit: false,
+                    spec_credits: credits,
+                    lastUpdated: new Date()
+                });
+            }
+
+            this.updatePermissionsTable();
+            this.showNotification(`Added ${credits} credits to ${user.email}`, 'success');
+
+        } catch (error) {
+            console.error('Error adding credits:', error);
+            this.showNotification('Error adding credits: ' + error.message, 'error');
+        }
+    }
+
     // Add spec credits to multiple users
     async addSpecCredits() {
         const creditsToAdd = prompt('How many spec credits to add to all users?', '1');

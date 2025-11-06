@@ -18,6 +18,11 @@ const googleProvider = new GoogleAuthProvider();
  */
 async function createUserDocument(user) {
   try {
+    // Check if CREDITS_CONFIG is available, default to Pro if not
+    const defaultPro = typeof window !== 'undefined' && 
+                      window.CREDITS_CONFIG && 
+                      window.CREDITS_CONFIG.DEFAULT_PRO_FOR_NEW_USERS !== false;
+    
     const userRef = doc(db, 'users', user.uid);
     await setDoc(userRef, {
       email: user.email,
@@ -26,9 +31,8 @@ async function createUserDocument(user) {
       createdAt: serverTimestamp(),
       lastActive: serverTimestamp(),
       newsletterSubscription: false,
-      // ALL USERS GET PRO BY DEFAULT
-      plan: 'pro',
-      free_specs_remaining: 1
+      plan: defaultPro ? 'pro' : 'free',
+      free_specs_remaining: defaultPro ? 1 : 1
     }, { merge: true }); // merge: true will update existing or create new
     
     // Also create entitlements document if doesn't exist
@@ -36,8 +40,8 @@ async function createUserDocument(user) {
     await setDoc(entitlementsRef, {
       userId: user.uid,
       spec_credits: 0,
-      unlimited: true,
-      can_edit: true,
+      unlimited: defaultPro,
+      can_edit: defaultPro,
       updated_at: serverTimestamp()
     }, { merge: true });
   } catch (error) {

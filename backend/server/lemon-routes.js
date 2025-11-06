@@ -12,6 +12,26 @@ if (typeof globalThis.fetch === 'function') {
 const { auth } = require('./firebase-admin');
 const { verifyWebhookSignature, parseWebhookPayload } = require('./lemon-webhook-utils');
 const { recordTestPurchase, getTestPurchaseCount } = require('./lemon-credits-service');
+const creditsService = require('./credits-service');
+
+/**
+ * Get credits amount for a variant ID
+ * This maps Lemon Squeezy variant IDs to credit amounts
+ * TODO: Move this to a configuration file or database
+ */
+function getCreditsForVariant(variantId) {
+  // Default mapping - can be moved to config or database
+  // For now, default to 3 credits per purchase
+  // This should match your Lemon Squeezy product configuration
+  const variantCreditMap = {
+    // Add your variant IDs here when you have them
+    // 'variant-id-1': 1,
+    // 'variant-id-2': 3,
+    // 'variant-id-3': 5,
+  };
+  
+  return variantCreditMap[variantId] || 3; // Default to 3 credits
+}
 
 /**
  * Middleware to verify Firebase ID token
@@ -269,6 +289,45 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
               testMode: true
             }
           );
+
+          console.log(`✅ Purchase recorded: Order ${orderData.orderId} for user ${orderData.userId}`);
+          
+          // Grant credits using credits-service (if payment system is enabled)
+          // This is optional - credits system works independently
+          const enablePaymentSystem = process.env.ENABLE_PAYMENT_SYSTEM === 'true';
+          
+          if (enablePaymentSystem && orderData.variantId) {
+            try {
+              const creditsToGrant = getCreditsForVariant(orderData.variantId) * (orderData.quantity || 1);
+              
+              console.log(`💳 Granting ${creditsToGrant} credits to user ${orderData.userId} for order ${orderData.orderId}`);
+              
+              await creditsService.grantCredits(
+                orderData.userId,
+                creditsToGrant,
+                'lemon_squeezy',
+                {
+                  orderId: orderData.orderId,
+                  variantId: orderData.variantId,
+                  productId: orderData.productId,
+                  quantity: orderData.quantity || 1,
+                  email: orderData.email,
+                  orderNumber: orderData.orderNumber,
+                  amount: orderData.total,
+                  currency: orderData.currency
+                }
+              );
+              
+              console.log(`✅ Credits granted successfully: ${creditsToGrant} credits to user ${orderData.userId}`);
+            } catch (creditError) {
+              // Log error but don't fail the webhook - purchase is already recorded
+              console.error('❌ Error granting credits (purchase still recorded):', creditError);
+              // Purchase is still recorded, credits can be granted manually if needed
+            }
+          } else {
+            console.log('ℹ️ Payment system not enabled or variant ID missing - skipping credit grant');
+            console.log(`   ENABLE_PAYMENT_SYSTEM=${enablePaymentSystem}, variantId=${orderData.variantId}`);
+          }
 
           console.log(`✅ Webhook processed successfully: Order ${orderData.orderId} for user ${orderData.userId}`);
         } catch (error) {

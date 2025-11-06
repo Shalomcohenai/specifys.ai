@@ -998,44 +998,98 @@ async function generateSpecification() {
       preview: overviewContent.substring(0, 200)
     });
     
-    // Save to Firebase and redirect
-    console.log(`[${requestId}] 💾 Saving to Firebase...`);
-    const firebaseSaveStart = Date.now();
-    const firebaseId = await saveSpecToFirebase(overviewContent, answers);
-    const firebaseSaveTime = Date.now() - firebaseSaveStart;
-    console.log(`[${requestId}] ✅ Saved to Firebase (${firebaseSaveTime}ms): ${firebaseId}`);
+    // Consume credit BEFORE saving to Firebase
+    // If save fails, we'll refund the credit
+    let creditConsumed = false;
+    let consumeTransactionId = null;
     
-    // Consume credit after successful spec creation
     try {
-      console.log(`[${requestId}] 💳 Consuming credit...`);
+      console.log(`[${requestId}] 💳 Consuming credit before spec creation...`);
       const token = await user.getIdToken();
       const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai.onrender.com';
+      
+      // First, create a temporary spec ID for credit consumption
+      // We'll update it with the real spec ID after saving
+      const tempSpecId = `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      
       const consumeResponse = await fetch(`${apiBaseUrl}/api/specs/consume-credit`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ specId: firebaseId })
+        body: JSON.stringify({ specId: tempSpecId })
       });
 
       if (!consumeResponse.ok) {
         const errorData = await consumeResponse.json();
         console.error(`[${requestId}] ❌ Failed to consume credit:`, errorData);
-        // Don't fail the spec creation, but log the error
-      } else {
-        console.log(`[${requestId}] ✅ Credit consumed successfully`);
-        // Refresh credits display and clear cache
-        if (typeof window.clearEntitlementsCache !== 'undefined') {
-          window.clearEntitlementsCache();
-        }
-        if (typeof window.updateCreditsDisplay !== 'undefined') {
-          window.updateCreditsDisplay();
-        }
+        throw new Error(errorData.message || 'Failed to consume credit');
       }
+      
+      const consumeResult = await consumeResponse.json();
+      creditConsumed = true;
+      consumeTransactionId = consumeResult.transactionId || tempSpecId;
+      console.log(`[${requestId}] ✅ Credit consumed successfully (transactionId: ${consumeTransactionId})`);
+      
     } catch (creditError) {
       console.error(`[${requestId}] ❌ Error consuming credit:`, creditError);
-      // Don't fail spec creation
+      hideLoadingOverlay();
+      throw new Error(`Failed to consume credit: ${creditError.message}`);
+    }
+    
+    // Save to Firebase and redirect
+    let firebaseId = null;
+    try {
+      console.log(`[${requestId}] 💾 Saving to Firebase...`);
+      const firebaseSaveStart = Date.now();
+      firebaseId = await saveSpecToFirebase(overviewContent, answers);
+      const firebaseSaveTime = Date.now() - firebaseSaveStart;
+      console.log(`[${requestId}] ✅ Saved to Firebase (${firebaseSaveTime}ms): ${firebaseId}`);
+    } catch (saveError) {
+      console.error(`[${requestId}] ❌ Failed to save spec to Firebase:`, saveError);
+      
+      // Refund credit if save failed
+      if (creditConsumed) {
+        try {
+          console.log(`[${requestId}] 💰 Refunding credit due to save failure...`);
+          const token = await user.getIdToken();
+          const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai.onrender.com';
+          
+          const refundResponse = await fetch(`${apiBaseUrl}/api/credits/refund`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              amount: 1,
+              reason: 'Spec creation failed - save to Firebase failed',
+              originalTransactionId: consumeTransactionId
+            })
+          });
+          
+          if (refundResponse.ok) {
+            console.log(`[${requestId}] ✅ Credit refunded successfully`);
+          } else {
+            console.error(`[${requestId}] ⚠️ Failed to refund credit:`, await refundResponse.json());
+          }
+        } catch (refundError) {
+          console.error(`[${requestId}] ❌ Error refunding credit:`, refundError);
+          // Log but don't throw - the main error is the save failure
+        }
+      }
+      
+      hideLoadingOverlay();
+      throw new Error(`Failed to save specification: ${saveError.message}`);
+    }
+    
+    // Refresh credits display and clear cache
+    if (typeof window.clearEntitlementsCache !== 'undefined') {
+      window.clearEntitlementsCache();
+    }
+    if (typeof window.updateCreditsDisplay !== 'undefined') {
+      window.updateCreditsDisplay();
     }
     
     // Trigger OpenAI upload (non-blocking)

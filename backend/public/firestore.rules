@@ -141,5 +141,15 @@ service cloud.firestore {
       allow read: if true; // Anyone can read (for counter display)
       allow create, update, delete: if isAdmin(); // Only backend (via admin SDK) can write
     }
+
+    // Credits transactions collection
+    match /credits_transactions/{transactionId} {
+      // Allow read if user owns it or is admin
+      allow read: if request.auth != null && (
+        request.auth.uid == resource.data.userId || isAdmin()
+      );
+      // Only backend (via admin SDK) can write
+      allow write: if false;
+    }
   }
 }

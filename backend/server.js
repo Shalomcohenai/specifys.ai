@@ -56,6 +56,7 @@ const userRoutes = require('./server/user-routes');
 const chatRoutes = require('./server/chat-routes');
 const adminRoutes = require('./server/admin-routes');
 const lemonRoutes = require('./server/lemon-routes');
+const creditsRoutes = require('./server/credits-routes');
 const { securityHeaders, rateLimiters, requireAdmin } = require('./server/security');
 
 const app = express();
@@ -161,6 +162,9 @@ app.use('/api/users', userRoutes);
 // Specs routes for spec management
 const specsRoutes = require('./server/specs-routes');
 app.use('/api/specs', specsRoutes);
+
+// Credits routes for credit management
+app.use('/api/credits', creditsRoutes);
 
 // Chat routes for AI chat functionality
 app.use('/api/chat', chatRoutes);
