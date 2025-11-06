@@ -228,25 +228,24 @@
 .tab-button {
     background: transparent;
     border: none;
-    padding: 12px;
+    padding: 12px 20px;
     cursor: pointer;
     font-family: var(--font-primary);
     font-weight: 500;
-    font-size: 0;
+    font-size: 15px;
     color: #666;
     border-radius: 8px;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0;
+    gap: 10px;
     flex: 1;
     position: relative;
 }
 
 .tab-button i {
     font-size: 18px;
-    margin: 0;
 }
 
 .tab-button:hover:not(:disabled) {
@@ -1302,10 +1301,13 @@
     .tab-button {
         padding: 10px;
         min-width: 44px;
+        font-size: 0;
+        gap: 0;
     }
     
     .tab-button i {
         font-size: 16px;
+        margin: 0;
     }
     
     .content-header {
