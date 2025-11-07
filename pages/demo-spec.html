@@ -362,6 +362,69 @@
             font-weight: 600;
         }
         
+        .tech-stack-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-top: 25px;
+        }
+
+        .tech-stack-card {
+            background: linear-gradient(160deg, #F9FAFB 0%, #ECEFF4 100%);
+            border-radius: 12px;
+            padding: 24px;
+            border: 1px solid #E5E7EB;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            height: 100%;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
+        }
+
+        .tech-stack-card-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(99, 102, 241, 0.12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #4C51BF;
+            font-size: 22px;
+        }
+
+        .tech-stack-card-content {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .tech-stack-card h4 {
+            margin: 0;
+            font-size: 18px;
+            color: #1F2937;
+            font-weight: 600;
+        }
+
+        .tech-stack-card p {
+            margin: 0;
+            color: #4B5563;
+            font-size: 15px;
+            line-height: 1.7;
+        }
+
+        .tech-stack-card ul {
+            margin: 0;
+            padding-left: 20px;
+            color: #374151;
+        }
+
+        .tech-stack-card li {
+            margin-bottom: 8px;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
         .content-section p {
             font-size: 16px;
             line-height: 1.8;
@@ -949,6 +1012,108 @@
                 }
             },
             technical: {
+                technologyStackHighlights: [
+                    {
+                        title: "Frontend Layer",
+                        icon: "fa-laptop",
+                        description: "Taskify Pro delivers a responsive workspace powered by React 18 and Next.js, ensuring that dashboards, boards, and report views feel identical across web and desktop clients.",
+                        points: [
+                            "Tailwind-driven design tokens keep light and dark themes aligned with the brand's neutral gray palette.",
+                            "Service workers and IndexedDB caching allow users to capture tasks and reorder boards while offline, syncing instantly when connectivity returns.",
+                            "WCAG 2.1 AA compliant components provide full keyboard navigation, screen reader labels, and high-contrast focus states for power users."
+                        ]
+                    },
+                    {
+                        title: "Backend Services",
+                        icon: "fa-cogs",
+                        description: "Domain-focused Node.js services orchestrate Taskify Pro's AI insights, collaboration workflows, and notification streams.",
+                        points: [
+                            "Express-based microservices encapsulate task, analytics, notification, and AI orchestration domains for independent deployment.",
+                            "RabbitMQ queues and Redis streams coordinate asynchronous enrichment jobs, reminder fan-out, and conflict resolution events.",
+                            "Shared TypeScript interfaces enforce contract parity between services and clients, preventing schema drift across releases."
+                        ]
+                    },
+                    {
+                        title: "API Gateway & Routing",
+                        icon: "fa-sitemap",
+                        description: "A centralized gateway fronts every client interaction, layering security and traffic controls before routing into the mesh of services.",
+                        points: [
+                            "JWT inspection, request signing, and rate limiting happen at the edge to shield core services from abusive traffic spikes.",
+                            "Version-aware routing supports blue/green rollouts, letting product teams graduate new endpoints without client downtime.",
+                            "Gateway-managed OpenAPI documentation keeps consumers aligned with live contracts and promotes self-serve integration."
+                        ]
+                    },
+                    {
+                        title: "Authentication & Authorization",
+                        icon: "fa-lock",
+                        description: "Identity services protect individual workspaces and enterprise tenants with layered verification and granular policies.",
+                        points: [
+                            "NextAuth-powered OAuth 2.0 supports Google, Microsoft, GitHub, and Apple sign-ins alongside passwordless magic links.",
+                            "Time-based one-time passwords and WebAuthn devices enforce multi-factor authentication for sensitive task actions.",
+                            "Role- and resource-scoped policies ensure per-project permissions, audit logging, and delegated administration controls."
+                        ]
+                    },
+                    {
+                        title: "Data Layer",
+                        icon: "fa-database",
+                        description: "Polyglot persistence balances transactional safety with the flexibility required for AI-driven productivity insights.",
+                        points: [
+                            "PostgreSQL clusters deliver ACID guarantees for core entities like tasks, projects, billing, and permission models.",
+                            "MongoDB stores semi-structured productivity signals, experiment flags, and AI feedback loops for rapid iteration.",
+                            "Elasticsearch and TimescaleDB combine to power global search, timeline analytics, and longitudinal productivity dashboards."
+                        ]
+                    },
+                    {
+                        title: "DevOps & Infrastructure",
+                        icon: "fa-wrench",
+                        description: "Infrastructure-as-code keeps every Taskify Pro environment reproducible, secure, and ready for rapid growth.",
+                        points: [
+                            "Docker images hardened with CIS benchmarks run across AWS EKS-managed Kubernetes clusters in multiple regions.",
+                            "Terraform modules provision networking, secrets, observability, and backup policies with audited pull requests.",
+                            "Cluster autoscalers and Horizontal Pod Autoscalers tune compute footprint to match real-time collaboration demand."
+                        ]
+                    },
+                    {
+                        title: "CI/CD Pipeline",
+                        icon: "fa-code-fork",
+                        description: "Automated delivery pipelines enforce quality from commit through production release.",
+                        points: [
+                            "GitHub Actions orchestrate linting, unit, integration, and contract testing on every pull request gate.",
+                            "Ephemeral preview environments spin up per branch with seeded demo data and AI inference stubs for stakeholder review.",
+                            "Canary deployments paired with automated rollback policies safeguard uptime during feature rollouts."
+                        ]
+                    },
+                    {
+                        title: "Observability & Monitoring",
+                        icon: "fa-eye",
+                        description: "Full-stack observability provides near-real-time insight into user experience and system health.",
+                        points: [
+                            "Datadog agents stream APM traces, infrastructure metrics, and custom productivity KPIs into unified dashboards.",
+                            "Sentry captures frontend and backend exceptions with release tagging, enabling rapid remediation of regressions.",
+                            "OpenTelemetry pipelines normalize structured logs for cross-service correlation during incident response."
+                        ]
+                    },
+                    {
+                        title: "Security Controls",
+                        icon: "fa-shield",
+                        description: "Defense-in-depth practices guard user trust and satisfy enterprise compliance programs.",
+                        points: [
+                            "TLS 1.3 with mandatory forward secrecy protects every client, API, and service-to-service connection.",
+                            "AWS KMS-backed envelope encryption secures secrets, access tokens, and AI prompt data at rest.",
+                            "Automated dependency scanning and quarterly penetration tests sustain SOC 2, GDPR, and HIPAA commitments."
+                        ]
+                    },
+                    {
+                        title: "Scalability & Performance Engineering",
+                        icon: "fa-rocket",
+                        description: "Performance engineering ensures Taskify Pro scales effortlessly from solo creators to global enterprises.",
+                        points: [
+                            "Autoscaling policies and read replicas absorb concurrency spikes from real-time collaborative boards.",
+                            "CloudFront CDN and edge caching reduce latency for static assets, API responses, and AI-generated insights worldwide.",
+                            "Quarterly load testing and chaos drills validate latency SLOs, failover posture, and recovery runbooks."
+                        ]
+                    }
+                ],
                 techStack: {
                     frontend: {
                         framework: "React 18 (Latest stable) - Component-based UI library with hooks, context API, and concurrent rendering features",
@@ -1730,13 +1895,41 @@
                 
                 html += '</div>';
             }
-            
+
             return html;
         }
         
         function formatTechnical(data) {
             let html = '';
             
+            if (data.technologyStackHighlights && Array.isArray(data.technologyStackHighlights)) {
+                html += '<div class="content-section tech-stack-section">';
+                html += '<h3><i class="fa fa-cubes"></i> Technology Stack Highlights</h3>';
+                html += '<div class="tech-stack-grid">';
+                data.technologyStackHighlights.forEach(section => {
+                    html += '<div class="tech-stack-card">';
+                    if (section.icon) {
+                        html += `<div class="tech-stack-card-icon"><i class="fa ${section.icon}"></i></div>`;
+                    }
+                    html += '<div class="tech-stack-card-content">';
+                    html += `<h4>${section.title}</h4>`;
+                    if (section.description) {
+                        html += `<p>${section.description}</p>`;
+                    }
+                    if (Array.isArray(section.points) && section.points.length) {
+                        html += '<ul>';
+                        section.points.forEach(point => {
+                            html += `<li>${point}</li>`;
+                        });
+                        html += '</ul>';
+                    }
+                    html += '</div>';
+                    html += '</div>';
+                });
+                html += '</div>';
+                html += '</div>';
+            }
+
             // Tech Stack
             if (data.techStack) {
                 html += '<div class="content-section">';
