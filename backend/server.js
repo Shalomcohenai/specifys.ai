@@ -148,16 +148,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// Serve static files from the parent directory (main site)
-app.use(express.static('..'));
-
-// Serve blog files from _site/blog directory
-app.use('/blog', express.static('../_site/blog'));
-
-// Serve blog posts from _site/2025 directory structure
-app.use('/2025', express.static('../_site/2025'));
-
-// User routes for user management
+// User routes for user management (must be before static files)
 app.use('/api/users', userRoutes);
 
 // Specs routes for spec management
@@ -169,6 +160,12 @@ app.use('/api/credits', creditsRoutes);
 
 // Chat routes for AI chat functionality
 app.use('/api/chat', chatRoutes);
+
+// Blog routes (must be before static files to avoid conflicts)
+app.post('/api/blog/create-post', requireAdmin, blogRoutes.createPost);
+app.get('/api/blog/list-posts', requireAdmin, blogRoutes.listPosts);
+app.post('/api/blog/delete-post', requireAdmin, blogRoutes.deletePost);
+app.get('/api/blog/queue-status', requireAdmin, blogRoutes.getQueueStatus);
 
 // Import error logger and CSS crash logger
 const { logError, getErrorLogs, getErrorSummary } = require('./server/error-logger');
@@ -289,11 +286,15 @@ app.post('/api/sync-users', requireAdmin, async (req, res) => {
   }
 });
 
-// Blog Management Endpoints
-app.post('/api/blog/create-post', requireAdmin, blogRoutes.createPost);
-app.get('/api/blog/list-posts', requireAdmin, blogRoutes.listPosts);
-app.post('/api/blog/delete-post', requireAdmin, blogRoutes.deletePost);
-app.get('/api/blog/queue-status', requireAdmin, blogRoutes.getQueueStatus);
+// Serve static files from the parent directory (main site)
+// Must be after API routes to avoid conflicts
+app.use(express.static('..'));
+
+// Serve blog files from _site/blog directory
+app.use('/blog', express.static('../_site/blog'));
+
+// Serve blog posts from _site/2025 directory structure
+app.use('/2025', express.static('../_site/2025'));
 
 // Endpoint for generating specifications via Cloudflare Worker
 app.post('/api/generate-spec', rateLimiters.generation, async (req, res) => {
