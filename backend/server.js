@@ -264,6 +264,9 @@ app.get('/api/admin/error-summary', requireAdmin, async (req, res) => {
   }
 });
 
+// Admin routes (with admin verification) - must be after specific routes
+app.use('/api/admin', adminRoutes);
+
 // Basic route for server status
 app.get('/api/status', (req, res) => {
   res.status(200).json({ message: 'Server is running' });
