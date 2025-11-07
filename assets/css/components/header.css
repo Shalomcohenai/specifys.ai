@@ -42,7 +42,7 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  justify-content: flex-start;
+  justify-content: space-between;
   width: 100%;
 }
 
@@ -76,7 +76,8 @@
   gap: 1rem;
   position: relative;
   z-index: var(--z-modal);
-  order: 1; /* User info goes inside auth-buttons, so same order */
+  order: 1; /* User info on the left */
+  margin-right: auto;
 }
 
 .auth-btn {
@@ -118,8 +119,6 @@
   font-size: 0.9rem;
   cursor: pointer;
   transition: all var(--transition-normal);
-  order: 1; /* Always on the left */
-  margin-right: auto;
 }
 
 .user-info:hover {
@@ -154,8 +153,8 @@
 .credits-display {
   display: flex;
   align-items: center;
-  margin-left: 12px;
   order: 2; /* Always on the right */
+  margin-left: auto;
 }
 
 .credits-container {
@@ -211,7 +210,7 @@
   
   .header-right {
     gap: 0.5rem;
-    justify-content: flex-start;
+    justify-content: space-between;
     width: 100%;
     margin-left: 0;
   }
@@ -223,6 +222,7 @@
   .auth-buttons {
     gap: 0.5rem;
     order: 1;
+    margin-right: auto;
   }
   
   .auth-btn {
@@ -235,8 +235,6 @@
     padding: 6px 10px;
     font-size: 14px;
     min-height: 36px;
-    margin-right: auto;
-    order: 1;
   }
   
   .user-info span {
@@ -250,8 +248,8 @@
   }
   
   .credits-display {
-    margin-left: 12px;
     order: 2;
+    margin-left: auto;
     margin-right: 0;
   }
   
@@ -277,18 +275,17 @@
   }
   
   .header-right {
-    justify-content: flex-start;
+    justify-content: space-between;
     width: 100%;
     margin-left: 0;
   }
   
   .auth-buttons {
     order: 1;
+    margin-right: auto;
   }
   
   .user-info {
-    margin-right: auto;
-    order: 1;
     padding: 5px 8px;
     font-size: 13px;
   }
@@ -309,8 +306,8 @@
   }
   
   .credits-display {
-    margin-left: 12px;
     order: 2;
+    margin-left: auto;
     margin-right: 0;
   }
   
