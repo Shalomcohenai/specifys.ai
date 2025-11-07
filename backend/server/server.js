@@ -10,6 +10,11 @@ if (typeof globalThis.fetch === 'function') {
 }
 const dotenv = require('dotenv');
 const config = require('./config');
+const blogRoutes = require('./blog-routes');
+const adminRoutes = require('./admin-routes');
+const { requireAdmin } = require('./security');
+const { logError, getErrorLogs, getErrorSummary } = require('./error-logger');
+const { logCSCCrash, getCSCCrashLogs, getCSCCrashSummary } = require('./css-crash-logger');
 
 dotenv.config();
 
@@ -40,6 +45,105 @@ app.use((req, res, next) => {
     next();
   }
 });
+
+// Admin error logs endpoint
+app.get('/api/admin/error-logs', requireAdmin, async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 100;
+    const errorType = req.query.errorType || null;
+
+    const logs = await getErrorLogs(limit, errorType);
+
+    res.json({
+      success: true,
+      logs,
+      total: logs.length
+    });
+  } catch (error) {
+    console.error('Error fetching error logs:', error);
+    res.status(500).json({ error: 'Failed to get error logs' });
+  }
+});
+
+// CSS crash logs endpoint - POST to receive logs
+app.post('/api/admin/css-crash-logs', async (req, res) => {
+  try {
+    const { log } = req.body;
+
+    if (!log || !log.crashType) {
+      return res.status(400).json({ error: 'Invalid crash log data' });
+    }
+
+    await logCSCCrash(log);
+
+    res.json({
+      success: true,
+      message: 'CSS crash log saved'
+    });
+  } catch (error) {
+    console.error('Error saving CSS crash log:', error);
+    res.status(500).json({ error: 'Failed to save CSS crash log' });
+  }
+});
+
+// CSS crash logs endpoint - GET to retrieve logs
+app.get('/api/admin/css-crash-logs', requireAdmin, async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 100;
+    const crashType = req.query.crashType || null;
+    const url = req.query.url || null;
+
+    const logs = await getCSCCrashLogs(limit, crashType, url);
+
+    res.json({
+      success: true,
+      logs,
+      total: logs.length
+    });
+  } catch (error) {
+    console.error('Error fetching CSS crash logs:', error);
+    res.status(500).json({ error: 'Failed to get CSS crash logs' });
+  }
+});
+
+// CSS crash summary endpoint
+app.get('/api/admin/css-crash-summary', requireAdmin, async (req, res) => {
+  try {
+    const summary = await getCSCCrashSummary();
+
+    res.json({
+      success: true,
+      summary
+    });
+  } catch (error) {
+    console.error('Error fetching CSS crash summary:', error);
+    res.status(500).json({ error: 'Failed to get CSS crash summary' });
+  }
+});
+
+// Error summary endpoint
+app.get('/api/admin/error-summary', requireAdmin, async (req, res) => {
+  try {
+    const summary = await getErrorSummary();
+
+    res.json({
+      success: true,
+      summary
+    });
+  } catch (error) {
+    console.error('Error fetching error summary:', error);
+    res.status(500).json({ error: 'Failed to get error summary' });
+  }
+});
+
+// Blog management endpoints
+app.post('/api/blog/create-post', requireAdmin, blogRoutes.createPost);
+app.get('/api/blog/list-posts', requireAdmin, blogRoutes.listPosts);
+app.post('/api/blog/delete-post', requireAdmin, blogRoutes.deletePost);
+app.get('/api/blog/queue-status', requireAdmin, blogRoutes.getQueueStatus);
+
+// Admin routes (must be after specific admin endpoints)
+app.use('/api/admin', adminRoutes);
 
 // Feedback endpoint
 app.post('/api/feedback', async (req, res) => {
@@ -146,14 +250,7 @@ async function saveToGoogleSheets(email, feedback, type, source) {
   } catch (error) {
 
     // Don't fail the entire request if Sheets fails
-
-
-      email: email || 'Not provided',
-      feedback: feedback,
-      type: type || 'general',
-      source: source || 'specifys-ai-website',
-      timestamp: new Date().toISOString()
-    });
+    console.error('Failed to save feedback to Google Sheets:', error.message);
   }
 }
 
