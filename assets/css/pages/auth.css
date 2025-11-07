@@ -76,7 +76,7 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            justify-content: flex-end;
+            justify-content: flex-start;
         }
 
         /* Logo Styles */
@@ -905,8 +905,7 @@
             
             .header-right {
                 gap: 0.5rem;
-                justify-content: flex-end;
-                margin-left: auto;
+                justify-content: flex-start;
             }
             
             .auth-buttons {
