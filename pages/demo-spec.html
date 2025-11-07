@@ -953,101 +953,101 @@
                     {
                         title: "Frontend Layer",
                         icon: "fa-laptop",
-                        description: "Taskify Pro delivers a responsive workspace powered by React 18 and Next.js, ensuring that dashboards, boards, and report views feel identical across web and desktop clients.",
+                        description: "Taskify Pro delivers a responsive productivity workspace that keeps live boards, AI insights, and analytics dashboards synchronized across every client.",
                         points: [
-                            "Tailwind-driven design tokens keep light and dark themes aligned with the brand's neutral gray palette.",
-                            "Service workers and IndexedDB caching allow users to capture tasks and reorder boards while offline, syncing instantly when connectivity returns.",
-                            "WCAG 2.1 AA compliant components provide full keyboard navigation, screen reader labels, and high-contrast focus states for power users."
+                            "Component-driven UI mirrors the same hierarchy users see in the Overview and Analytics sections, turning product specs into living interfaces.",
+                            "Offline-first caching guarantees that mobile professionals can triage tasks during flights and sync automatically once reconnected.",
+                            "Accessibility patterns keep power features—live collaboration cursors, AI prompts, weekly reports—usable for every persona highlighted in the spec."
                         ]
                     },
                     {
                         title: "Backend Services",
                         icon: "fa-cogs",
-                        description: "Domain-focused Node.js services orchestrate Taskify Pro's AI insights, collaboration workflows, and notification streams.",
+                        description: "Domain-driven services coordinate the AI decision engine, collaboration logic, and notification flows described throughout the specification.",
                         points: [
-                            "Express-based microservices encapsulate task, analytics, notification, and AI orchestration domains for independent deployment.",
-                            "RabbitMQ queues and Redis streams coordinate asynchronous enrichment jobs, reminder fan-out, and conflict resolution events.",
-                            "Shared TypeScript interfaces enforce contract parity between services and clients, preventing schema drift across releases."
+                            "Task, analytics, and coaching services each expose APIs that map directly to the core features and success metrics promised to users.",
+                            "Event queues keep AI prioritization and burnout alerts responsive even when collaboration surges during team sprints.",
+                            "Shared contracts across services ensure every touchpoint—from email ingestion to weekly summaries—uses consistent business language."
                         ]
                     },
                     {
                         title: "API Gateway & Routing",
                         icon: "fa-sitemap",
-                        description: "A centralized gateway fronts every client interaction, layering security and traffic controls before routing into the mesh of services.",
+                        description: "The gateway provides a single entry point for web, mobile, and partner integrations, enforcing policies that uphold the product promises in this spec.",
                         points: [
-                            "JWT inspection, request signing, and rate limiting happen at the edge to shield core services from abusive traffic spikes.",
-                            "Version-aware routing supports blue/green rollouts, letting product teams graduate new endpoints without client downtime.",
-                            "Gateway-managed OpenAPI documentation keeps consumers aligned with live contracts and promotes self-serve integration."
+                            "Context-aware routing prioritizes real-time channels so shared boards and presence indicators stay instantaneous.",
+                            "Version pinning allows gradual rollout of new AI behaviors without disrupting existing enterprise workflows.",
+                            "Centralized documentation matches the detailed API list below, giving customer teams one canonical contract."
                         ]
                     },
                     {
                         title: "Authentication & Authorization",
                         icon: "fa-lock",
-                        description: "Identity services protect individual workspaces and enterprise tenants with layered verification and granular policies.",
+                        description: "Identity controls reflect Taskify Pro's dual audience—individual creators and regulated enterprises—ensuring the right access for every scenario.",
                         points: [
-                            "NextAuth-powered OAuth 2.0 supports Google, Microsoft, GitHub, and Apple sign-ins alongside passwordless magic links.",
-                            "Time-based one-time passwords and WebAuthn devices enforce multi-factor authentication for sensitive task actions.",
-                            "Role- and resource-scoped policies ensure per-project permissions, audit logging, and delegated administration controls."
+                            "Flexible sign-in options support fast onboarding for busy professionals while honoring enterprise SSO requirements.",
+                            "Multi-factor enforcement protects sensitive actions highlighted in collaboration and AI coaching flows.",
+                            "Granular RBAC mirrors the spec's team structures—owners, admins, members, viewers—with auditable history for compliance."
                         ]
                     },
                     {
                         title: "Data Layer",
                         icon: "fa-database",
-                        description: "Polyglot persistence balances transactional safety with the flexibility required for AI-driven productivity insights.",
+                        description: "Purpose-built stores capture the rich telemetry, timelines, and insights that power Taskify Pro's coaching narrative.",
                         points: [
-                            "PostgreSQL clusters deliver ACID guarantees for core entities like tasks, projects, billing, and permission models.",
-                            "MongoDB stores semi-structured productivity signals, experiment flags, and AI feedback loops for rapid iteration.",
-                            "Elasticsearch and TimescaleDB combine to power global search, timeline analytics, and longitudinal productivity dashboards."
+                            "PostgreSQL anchors the mission-critical entities the spec references—tasks, projects, permissions, billing tiers.",
+                            "Document storage preserves evolving productivity signals that feed the personal coaching and energy modeling features.",
+                            "Search and time-series engines fuel the instant lookup, timeline analytics, and trend charts showcased in the overview."
                         ]
                     },
                     {
                         title: "DevOps & Infrastructure",
                         icon: "fa-wrench",
-                        description: "Infrastructure-as-code keeps every Taskify Pro environment reproducible, secure, and ready for rapid growth.",
+                        description: "Infrastructure automation guarantees that every environment—from staging AI experiments to production—matches the reliability promises in this spec.",
                         points: [
-                            "Docker images hardened with CIS benchmarks run across AWS EKS-managed Kubernetes clusters in multiple regions.",
-                            "Terraform modules provision networking, secrets, observability, and backup policies with audited pull requests.",
-                            "Cluster autoscalers and Horizontal Pod Autoscalers tune compute footprint to match real-time collaboration demand."
+                            "Immutable builds keep AI models, coaching jobs, and notification services reproducible across regions.",
+                            "Infrastructure-as-code captures networking, secrets, and monitoring so enterprise customers can review and trust the stack.",
+                            "Autoscaling policies ensure collaboration features stay responsive during product launches and onboarding waves."
                         ]
                     },
                     {
                         title: "CI/CD Pipeline",
                         icon: "fa-code-fork",
-                        description: "Automated delivery pipelines enforce quality from commit through production release.",
+                        description: "Continuous delivery lets the product team ship AI improvements and workflow tweaks at the cadence implied by the roadmap.",
                         points: [
-                            "GitHub Actions orchestrate linting, unit, integration, and contract testing on every pull request gate.",
-                            "Ephemeral preview environments spin up per branch with seeded demo data and AI inference stubs for stakeholder review.",
-                            "Canary deployments paired with automated rollback policies safeguard uptime during feature rollouts."
+                            "Automated quality gates protect critical promises like conflict-free collaboration and accurate insights.",
+                            "Preview environments render the full spec—dashboards, AI suggestions, pricing flows—so stakeholders can validate narratives quickly.",
+                            "Progressive delivery keeps availability high while experimenting with new coaching or analytics models."
                         ]
                     },
                     {
                         title: "Observability & Monitoring",
                         icon: "fa-eye",
-                        description: "Full-stack observability provides near-real-time insight into user experience and system health.",
+                        description: "Observability couples technical telemetry with business KPIs to validate the success metrics outlined earlier in the spec.",
                         points: [
-                            "Datadog agents stream APM traces, infrastructure metrics, and custom productivity KPIs into unified dashboards.",
-                            "Sentry captures frontend and backend exceptions with release tagging, enabling rapid remediation of regressions.",
-                            "OpenTelemetry pipelines normalize structured logs for cross-service correlation during incident response."
+                            "Productivity KPIs—on-time completion, focus sessions, AI adoption—flow into dashboards alongside system health.",
+                            "Error tracking links regressions directly to releases, safeguarding the seamless collaboration experience users expect.",
+                            "Distributed traces tie together AI inference, notification delivery, and UI rendering to diagnose issues end-to-end."
                         ]
                     },
                     {
                         title: "Security Controls",
                         icon: "fa-shield",
-                        description: "Defense-in-depth practices guard user trust and satisfy enterprise compliance programs.",
+                        description: "Layered security upholds the compliance guarantees and data-residency commitments promised to enterprise buyers.",
                         points: [
-                            "TLS 1.3 with mandatory forward secrecy protects every client, API, and service-to-service connection.",
-                            "AWS KMS-backed envelope encryption secures secrets, access tokens, and AI prompt data at rest.",
-                            "Automated dependency scanning and quarterly penetration tests sustain SOC 2, GDPR, and HIPAA commitments."
+                            "Always-on encryption and secure session management protect the sensitive productivity data Taskify Pro aggregates.",
+                            "Managed secrets, key rotation, and tamper-proof logs underpin the audit trails cited in the business model.",
+                            "Continuous compliance checks keep SOC 2, GDPR, and HIPAA assertions current for large customer deals."
                         ]
                     },
                     {
                         title: "Scalability & Performance Engineering",
                         icon: "fa-rocket",
-                        description: "Performance engineering ensures Taskify Pro scales effortlessly from solo creators to global enterprises.",
+                        description: "Performance work guarantees that solo creators and global enterprises both experience the fast, calm workflows described in the overview.",
                         points: [
-                            "Autoscaling policies and read replicas absorb concurrency spikes from real-time collaborative boards.",
-                            "CloudFront CDN and edge caching reduce latency for static assets, API responses, and AI-generated insights worldwide.",
-                            "Quarterly load testing and chaos drills validate latency SLOs, failover posture, and recovery runbooks."
+                            "Horizontal scaling absorbs collaboration spikes during team war rooms without delaying AI recommendations.",
+                            "Global caching keeps weekly insights, dashboards, and templates responsive for remote teams.",
+                            "Resilience drills validate that burn-down charts, reminders, and alerts remain available even during infrastructure incidents."
                         ]
                     }
                 ],
