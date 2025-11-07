@@ -571,7 +571,7 @@ Return ONLY valid Mermaid code, nothing else.`;
 });
 
 // Add version logging
-const VERSION = '1.2.5-assistant-fix-2025-10-31-' + Date.now();
+const VERSION = '1.2.6-admin-routes-2025-11-07-' + Date.now();
 
 // Start the server
 app.listen(port, () => {
