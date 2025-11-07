@@ -627,6 +627,14 @@
 
                             <div id="blog-form-message" class="form-message" style="display: none;"></div>
                         </form>
+
+                        <!-- Queue Status -->
+                        <div id="blog-queue-status" class="blog-queue-status" style="margin-top: 2rem; display: none;">
+                            <h3><i class="fas fa-list"></i> Publishing Queue</h3>
+                            <div id="queue-status-content" class="queue-status-content">
+                                <div class="loading-cell">Loading queue status...</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1136,6 +1144,9 @@
 
             // Initialize Simple Blog Post Creator
             initSimpleBlogForm();
+            
+            // Start polling queue status
+            startQueueStatusPolling();
         });
     });
 
@@ -1208,11 +1219,14 @@
                 const result = await response.json();
 
                 if (result.success) {
-                    showBlogMessage(`✅ Post published successfully! <a href="${result.url}" target="_blank">View post</a>`, 'success');
+                    showBlogMessage(`✅ Post added to queue! Queue ID: ${result.queueId}`, 'success');
                     form.reset();
                     if (descCount) descCount.textContent = '0/160';
+                    
+                    // Refresh queue status
+                    loadQueueStatus();
                 } else {
-                    throw new Error(result.error || 'Failed to publish post');
+                    throw new Error(result.error || 'Failed to add post to queue');
                 }
             } catch (error) {
                 console.error('Error publishing post:', error);
@@ -1253,6 +1267,121 @@
             console.error('Error getting auth token:', error);
         }
         return null;
+    }
+
+    // Load queue status
+    async function loadQueueStatus() {
+        const queueStatusDiv = document.getElementById('blog-queue-status');
+        const queueContent = document.getElementById('queue-status-content');
+        
+        if (!queueStatusDiv || !queueContent) return;
+
+        try {
+            const apiBaseUrl = window.location.origin;
+            const token = await getAuthToken();
+            
+            const response = await fetch(`${apiBaseUrl}/api/blog/queue-status`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to load queue status');
+            }
+
+            const result = await response.json();
+
+            if (result.success) {
+                queueStatusDiv.style.display = 'block';
+                
+                const { status, items } = result;
+                
+                if (status.total === 0 && items.length === 0) {
+                    queueContent.innerHTML = '<div class="queue-empty">No posts in queue</div>';
+                    return;
+                }
+
+                let html = `
+                    <div class="queue-summary">
+                        <div class="queue-stat">
+                            <span class="stat-label">Total:</span>
+                            <span class="stat-value">${status.total}</span>
+                        </div>
+                        <div class="queue-stat">
+                            <span class="stat-label">Pending:</span>
+                            <span class="stat-value">${status.pending}</span>
+                        </div>
+                        <div class="queue-stat">
+                            <span class="stat-label">Processing:</span>
+                            <span class="stat-value">${status.processing ? 'Yes' : 'No'}</span>
+                        </div>
+                    </div>
+                    <div class="queue-items">
+                `;
+
+                if (status.currentItem) {
+                    html += `
+                        <div class="queue-item processing">
+                            <div class="queue-item-header">
+                                <span class="queue-item-title">${escapeHTML(status.currentItem.title)}</span>
+                                <span class="queue-item-status status-processing">Processing...</span>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                items.slice(0, 10).forEach(item => {
+                    const statusClass = item.status === 'completed' ? 'completed' : 
+                                       item.status === 'failed' ? 'failed' : 
+                                       item.status === 'processing' ? 'processing' : 'pending';
+                    const statusText = item.status === 'completed' ? '✅ Completed' :
+                                      item.status === 'failed' ? '❌ Failed' :
+                                      item.status === 'processing' ? '⏳ Processing' : '⏸ Pending';
+                    
+                    html += `
+                        <div class="queue-item ${statusClass}">
+                            <div class="queue-item-header">
+                                <span class="queue-item-title">${escapeHTML(item.postData.title)}</span>
+                                <span class="queue-item-status status-${statusClass}">${statusText}</span>
+                            </div>
+                            ${item.result && item.result.url ? `
+                                <div class="queue-item-result">
+                                    <a href="${item.result.url}" target="_blank">View Post</a>
+                                </div>
+                            ` : ''}
+                            ${item.error ? `
+                                <div class="queue-item-error">Error: ${escapeHTML(item.error)}</div>
+                            ` : ''}
+                        </div>
+                    `;
+                });
+
+                html += '</div>';
+                queueContent.innerHTML = html;
+            }
+        } catch (error) {
+            console.error('Error loading queue status:', error);
+            queueContent.innerHTML = '<div class="queue-error">Failed to load queue status</div>';
+        }
+    }
+
+    // Start polling queue status
+    let queuePollInterval = null;
+    function startQueueStatusPolling() {
+        // Load immediately
+        loadQueueStatus();
+        
+        // Poll every 5 seconds
+        queuePollInterval = setInterval(loadQueueStatus, 5000);
+    }
+
+    // Escape HTML helper
+    function escapeHTML(str) {
+        if (typeof str !== 'string') return '';
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
     }
 </script>
 

@@ -170,14 +170,11 @@ app.use('/api/credits', creditsRoutes);
 // Chat routes for AI chat functionality
 app.use('/api/chat', chatRoutes);
 
-// Admin routes (with admin verification)
-app.use('/api/admin', adminRoutes);
-
 // Import error logger and CSS crash logger
 const { logError, getErrorLogs, getErrorSummary } = require('./server/error-logger');
 const { logCSCCrash, getCSCCrashLogs, getCSCCrashSummary } = require('./server/css-crash-logger');
 
-// Admin error logs endpoint
+// Admin error logs endpoint (must be before app.use('/api/admin') to avoid conflicts)
 app.get('/api/admin/error-logs', requireAdmin, async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 100;
@@ -217,7 +214,7 @@ app.post('/api/admin/css-crash-logs', async (req, res) => {
   }
 });
 
-// CSS crash logs endpoint - GET to retrieve logs
+// CSS crash logs endpoint - GET to retrieve logs (must be before app.use('/api/admin'))
 app.get('/api/admin/css-crash-logs', requireAdmin, async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 100;
@@ -237,7 +234,7 @@ app.get('/api/admin/css-crash-logs', requireAdmin, async (req, res) => {
   }
 });
 
-// CSS crash summary endpoint
+// CSS crash summary endpoint (must be before app.use('/api/admin'))
 app.get('/api/admin/css-crash-summary', requireAdmin, async (req, res) => {
   try {
     const summary = await getCSCCrashSummary();
@@ -252,7 +249,7 @@ app.get('/api/admin/css-crash-summary', requireAdmin, async (req, res) => {
   }
 });
 
-// Error summary endpoint
+// Error summary endpoint (must be before app.use('/api/admin'))
 app.get('/api/admin/error-summary', requireAdmin, async (req, res) => {
   try {
     const summary = await getErrorSummary();
@@ -293,6 +290,7 @@ app.post('/api/sync-users', requireAdmin, async (req, res) => {
 app.post('/api/blog/create-post', requireAdmin, blogRoutes.createPost);
 app.get('/api/blog/list-posts', requireAdmin, blogRoutes.listPosts);
 app.post('/api/blog/delete-post', requireAdmin, blogRoutes.deletePost);
+app.get('/api/blog/queue-status', requireAdmin, blogRoutes.getQueueStatus);
 
 // Endpoint for generating specifications via Cloudflare Worker
 app.post('/api/generate-spec', rateLimiters.generation, async (req, res) => {

@@ -49,6 +49,12 @@ async function githubRequest(endpoint, method = 'GET', data = null) {
 
 // Helper: Get file from GitHub
 async function getFileFromGitHub(filePath) {
+    // Validate GitHub token
+    if (!GITHUB_CONFIG.token) {
+        console.warn('GITHUB_TOKEN is not configured. Cannot check if file exists.');
+        return null;
+    }
+
     try {
         const endpoint = `/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${filePath}?ref=${GITHUB_CONFIG.branch}`;
         return await githubRequest(endpoint);
@@ -62,6 +68,11 @@ async function getFileFromGitHub(filePath) {
 
 // Helper: Create or update file in GitHub
 async function updateFileInGitHub(filePath, content, message, sha = null) {
+    // Validate GitHub token
+    if (!GITHUB_CONFIG.token) {
+        throw new Error('GITHUB_TOKEN is not configured. Please set it in environment variables.');
+    }
+
     const endpoint = `/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${filePath}`;
     
     const data = {
@@ -74,7 +85,12 @@ async function updateFileInGitHub(filePath, content, message, sha = null) {
         data.sha = sha;
     }
 
-    return await githubRequest(endpoint, 'PUT', data);
+    try {
+        return await githubRequest(endpoint, 'PUT', data);
+    } catch (error) {
+        console.error('Error uploading file to GitHub:', error);
+        throw new Error(`Failed to upload file to GitHub: ${error.message}`);
+    }
 }
 
 // Helper: Delete file from GitHub
@@ -97,23 +113,44 @@ async function deleteFileFromGitHub(filePath, message) {
 
 // Helper: Create blog post markdown content
 function createPostMarkdown(data) {
-    const tags = data.tags ? data.tags.split(',').map(t => `"${t.trim()}"`).join(', ') : '';
+    // Parse tags - handle both comma-separated string and array
+    let tagsArray = [];
+    if (data.tags) {
+        if (typeof data.tags === 'string') {
+            tagsArray = data.tags.split(',').map(t => t.trim()).filter(t => t);
+        } else if (Array.isArray(data.tags)) {
+            tagsArray = data.tags;
+        }
+    }
+    const tags = tagsArray.map(t => `"${t}"`).join(', ');
+    
     const slug = slugify(data.title);
     const canonicalUrl = `https://specifys-ai.com/blog/${slug}.html`;
+    const blogUrl = `/blog/${slug}.html`;
+
+    // Escape quotes and special characters in title and description for YAML
+    const escapeYaml = (str) => {
+        if (!str) return '';
+        // Escape backslashes first, then quotes, then newlines
+        return str
+            .replace(/\\/g, '\\\\')
+            .replace(/"/g, '\\"')
+            .replace(/\n/g, ' ')
+            .replace(/\r/g, '');
+    };
 
     return `---
 layout: post
-title: "${data.title}"
-description: "${data.description}"
+title: "${escapeYaml(data.title)}"
+description: "${escapeYaml(data.description)}"
 date: ${data.date}
 tags: [${tags}]
-author: "${data.author}"
+author: "${data.author || 'specifys.ai Team'}"
 canonical_url: "${canonicalUrl}"
+redirect_from: ["${blogUrl}"]
 ---
 
 # ${data.title}
-
-${data.description}
 
 ${data.content}
 
@@ -123,7 +160,59 @@ ${data.content}
 `;
 }
 
-// Route: Create new blog post
+// Import blog queue system
+const { addToQueue, processQueueItem, getQueueStatus, getQueueItems, QUEUE_STATUS } = require('./blog-queue');
+
+// Internal function to actually publish a post
+async function publishPostToGitHub(postData) {
+    const { title, description, date, author, tags, content } = postData;
+
+    // Validate GitHub token
+    if (!GITHUB_CONFIG.token) {
+        throw new Error('GITHUB_TOKEN is not configured. Please set it in environment variables.');
+    }
+
+    // Create filename
+    const slug = slugify(title);
+    const filename = `${date}-${slug}.md`;
+    const filePath = `_posts/${filename}`;
+
+    console.log(`[Blog Post] Publishing: ${filename}`);
+
+    // Check if file already exists
+    const existingFile = await getFileFromGitHub(filePath);
+    if (existingFile) {
+        throw new Error(`A post with this title and date already exists: ${filename}`);
+    }
+
+    // Create markdown content
+    const markdownContent = createPostMarkdown({
+        title,
+        description,
+        date,
+        author: author || 'specifys.ai Team',
+        tags,
+        content
+    });
+
+    console.log(`[Blog Post] Created markdown content (${markdownContent.length} chars)`);
+
+    // Upload to GitHub
+    const commitMessage = `Add blog post: ${title}`;
+    const result = await updateFileInGitHub(filePath, markdownContent, commitMessage);
+
+    console.log(`[Blog Post] Successfully published: ${filename}`);
+    console.log(`[Blog Post] GitHub commit: ${result.commit?.sha || 'N/A'}`);
+
+    return {
+        filename,
+        url: `https://specifys-ai.com/blog/${slug}.html`,
+        slug,
+        commitSha: result.commit?.sha
+    };
+}
+
+// Route: Create new blog post (adds to queue)
 async function createPost(req, res) {
     try {
         const { title, description, date, author, tags, content } = req.body;
@@ -144,22 +233,8 @@ async function createPost(req, res) {
             });
         }
 
-        // Create filename
-        const slug = slugify(title);
-        const filename = `${date}-${slug}.md`;
-        const filePath = `_posts/${filename}`;
-
-        // Check if file already exists
-        const existingFile = await getFileFromGitHub(filePath);
-        if (existingFile) {
-            return res.status(400).json({
-                success: false,
-                error: 'A post with this title and date already exists'
-            });
-        }
-
-        // Create markdown content
-        const markdownContent = createPostMarkdown({
+        // Add to queue
+        const queueItem = await addToQueue({
             title,
             description,
             date,
@@ -168,25 +243,28 @@ async function createPost(req, res) {
             content
         });
 
-        // Upload to GitHub
-        const commitMessage = `Add blog post: ${title}`;
-        await updateFileInGitHub(filePath, markdownContent, commitMessage);
-
-        // Note: Sitemap will be auto-updated by Jekyll build
-        // await updateSitemap(date, slug, title);
+        // Process the queue item asynchronously (only if not already processing)
+        const { getQueueStatus } = require('./blog-queue');
+        const queueStatus = getQueueStatus();
+        
+        if (!queueStatus.processing) {
+            processQueueItem(queueItem, publishPostToGitHub).catch(error => {
+                console.error('Error processing queue item:', error);
+            });
+        }
 
         res.json({
             success: true,
-            message: 'Blog post created successfully',
-            filename,
-            url: `https://specifys-ai.com/blog/${slug}.html`
+            message: 'Blog post added to queue',
+            queueId: queueItem.id,
+            status: queueItem.status
         });
 
     } catch (error) {
-
+        console.error('Error adding post to queue:', error);
         res.status(500).json({
             success: false,
-            error: error.message || 'Failed to create blog post'
+            error: error.message || 'Failed to add blog post to queue'
         });
     }
 }
@@ -376,9 +454,30 @@ async function removeFromSitemap(filename) {
     }
 }
 
+// Route: Get queue status
+async function getQueueStatusRoute(req, res) {
+    try {
+        const status = getQueueStatus();
+        const items = await getQueueItems(20);
+        
+        res.json({
+            success: true,
+            status,
+            items
+        });
+    } catch (error) {
+        console.error('Error getting queue status:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message || 'Failed to get queue status'
+        });
+    }
+}
+
 module.exports = {
     createPost,
     listPosts,
-    deletePost
+    deletePost,
+    getQueueStatus: getQueueStatusRoute
 };
 
