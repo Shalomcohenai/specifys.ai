@@ -57,7 +57,10 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
-    <!-- JavaScript -->
+    <!-- JavaScript - Core utilities loaded before core bundle -->
+    <script src="/assets/js/config.js"></script>
+    <script src="/assets/js/css-monitor.js"></script>
+    <script type="module" src="/assets/js/security-utils.js"></script>
     <script src="/assets/js/bundles/core.js"></script>
     
     <!-- Fonts - Optimized: Only Montserrat and Inter -->
@@ -494,7 +497,6 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="header-right">
         <div class="credits-display" id="credits-display" style="display: none;">
             <div class="credits-container">
-                <i class="fa-solid fa-file-lines"></i>
                 <span id="credits-text">0</span>
             </div>
         </div>
@@ -637,65 +639,65 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <p><strong>Weak Authentication Implementation</strong>:</p>
 <div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// AI-generated vulnerable code example</span>
-<span class="nx">app</span><span class="p">.</span><span class="nf">post</span><span class="p">(</span><span class="dl">'</span><span class="s1">/login</span><span class="dl">'</span><span class="p">,</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span><span class="dl">'</span><span class="s1">/login</span><span class="dl">'</span><span class="p">,</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
   <span class="kd">const</span> <span class="p">{</span> <span class="nx">username</span><span class="p">,</span> <span class="nx">password</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">;</span>
   
   <span class="c1">// Vulnerable: No input validation</span>
-  <span class="kd">const</span> <span class="nx">user</span> <span class="o">=</span> <span class="nx">users</span><span class="p">.</span><span class="nf">find</span><span class="p">(</span><span class="nx">u</span> <span class="o">=&gt;</span> <span class="nx">u</span><span class="p">.</span><span class="nx">username</span> <span class="o">===</span> <span class="nx">username</span><span class="p">);</span>
+  <span class="kd">const</span> <span class="nx">user</span> <span class="o">=</span> <span class="nx">users</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="nx">u</span> <span class="o">=&gt;</span> <span class="nx">u</span><span class="p">.</span><span class="nx">username</span> <span class="o">===</span> <span class="nx">username</span><span class="p">);</span>
   
   <span class="c1">// Vulnerable: Plain text password comparison</span>
-  <span class="k">if </span><span class="p">(</span><span class="nx">user</span> <span class="o">&amp;&amp;</span> <span class="nx">user</span><span class="p">.</span><span class="nx">password</span> <span class="o">===</span> <span class="nx">password</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">user</span> <span class="o">&amp;&amp;</span> <span class="nx">user</span><span class="p">.</span><span class="nx">password</span> <span class="o">===</span> <span class="nx">password</span><span class="p">)</span> <span class="p">{</span>
     <span class="c1">// Vulnerable: Weak session management</span>
     <span class="nx">req</span><span class="p">.</span><span class="nx">session</span><span class="p">.</span><span class="nx">userId</span> <span class="o">=</span> <span class="nx">user</span><span class="p">.</span><span class="nx">id</span><span class="p">;</span>
-    <span class="nx">res</span><span class="p">.</span><span class="nf">json</span><span class="p">({</span> <span class="na">success</span><span class="p">:</span> <span class="kc">true</span> <span class="p">});</span>
+    <span class="nx">res</span><span class="p">.</span><span class="nx">json</span><span class="p">({</span> <span class="na">success</span><span class="p">:</span> <span class="kc">true</span> <span class="p">});</span>
   <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-    <span class="nx">res</span><span class="p">.</span><span class="nf">json</span><span class="p">({</span> <span class="na">success</span><span class="p">:</span> <span class="kc">false</span> <span class="p">});</span>
+    <span class="nx">res</span><span class="p">.</span><span class="nx">json</span><span class="p">({</span> <span class="na">success</span><span class="p">:</span> <span class="kc">false</span> <span class="p">});</span>
   <span class="p">}</span>
 <span class="p">});</span>
 </code></pre></div></div>
 
 <p><strong>Secure Implementation</strong>:</p>
 <div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Secure version with proper validation</span>
-<span class="nx">app</span><span class="p">.</span><span class="nf">post</span><span class="p">(</span><span class="dl">'</span><span class="s1">/login</span><span class="dl">'</span><span class="p">,</span> <span class="k">async </span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span><span class="dl">'</span><span class="s1">/login</span><span class="dl">'</span><span class="p">,</span> <span class="k">async</span> <span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
   <span class="k">try</span> <span class="p">{</span>
     <span class="kd">const</span> <span class="p">{</span> <span class="nx">username</span><span class="p">,</span> <span class="nx">password</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">;</span>
     
     <span class="c1">// Input validation</span>
-    <span class="k">if </span><span class="p">(</span><span class="o">!</span><span class="nx">username</span> <span class="o">||</span> <span class="o">!</span><span class="nx">password</span><span class="p">)</span> <span class="p">{</span>
-      <span class="k">return</span> <span class="nx">res</span><span class="p">.</span><span class="nf">status</span><span class="p">(</span><span class="mi">400</span><span class="p">).</span><span class="nf">json</span><span class="p">({</span> <span class="na">error</span><span class="p">:</span> <span class="dl">'</span><span class="s1">Missing credentials</span><span class="dl">'</span> <span class="p">});</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">username</span> <span class="o">||</span> <span class="o">!</span><span class="nx">password</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="nx">res</span><span class="p">.</span><span class="nx">status</span><span class="p">(</span><span class="mi">400</span><span class="p">).</span><span class="nx">json</span><span class="p">({</span> <span class="na">error</span><span class="p">:</span> <span class="dl">'</span><span class="s1">Missing credentials</span><span class="dl">'</span> <span class="p">});</span>
     <span class="p">}</span>
     
     <span class="c1">// Rate limiting</span>
-    <span class="kd">const</span> <span class="nx">attempts</span> <span class="o">=</span> <span class="k">await</span> <span class="nf">getLoginAttempts</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">ip</span><span class="p">);</span>
-    <span class="k">if </span><span class="p">(</span><span class="nx">attempts</span> <span class="o">&gt;</span> <span class="mi">5</span><span class="p">)</span> <span class="p">{</span>
-      <span class="k">return</span> <span class="nx">res</span><span class="p">.</span><span class="nf">status</span><span class="p">(</span><span class="mi">429</span><span class="p">).</span><span class="nf">json</span><span class="p">({</span> <span class="na">error</span><span class="p">:</span> <span class="dl">'</span><span class="s1">Too many attempts</span><span class="dl">'</span> <span class="p">});</span>
+    <span class="kd">const</span> <span class="nx">attempts</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">getLoginAttempts</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">ip</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">attempts</span> <span class="o">&gt;</span> <span class="mi">5</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="nx">res</span><span class="p">.</span><span class="nx">status</span><span class="p">(</span><span class="mi">429</span><span class="p">).</span><span class="nx">json</span><span class="p">({</span> <span class="na">error</span><span class="p">:</span> <span class="dl">'</span><span class="s1">Too many attempts</span><span class="dl">'</span> <span class="p">});</span>
     <span class="p">}</span>
     
-    <span class="kd">const</span> <span class="nx">user</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">User</span><span class="p">.</span><span class="nf">findOne</span><span class="p">({</span> <span class="nx">username</span> <span class="p">});</span>
-    <span class="k">if </span><span class="p">(</span><span class="o">!</span><span class="nx">user</span><span class="p">)</span> <span class="p">{</span>
-      <span class="k">await</span> <span class="nf">recordLoginAttempt</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">ip</span><span class="p">,</span> <span class="kc">false</span><span class="p">);</span>
-      <span class="k">return</span> <span class="nx">res</span><span class="p">.</span><span class="nf">status</span><span class="p">(</span><span class="mi">401</span><span class="p">).</span><span class="nf">json</span><span class="p">({</span> <span class="na">error</span><span class="p">:</span> <span class="dl">'</span><span class="s1">Invalid credentials</span><span class="dl">'</span> <span class="p">});</span>
+    <span class="kd">const</span> <span class="nx">user</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">User</span><span class="p">.</span><span class="nx">findOne</span><span class="p">({</span> <span class="nx">username</span> <span class="p">});</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">user</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">await</span> <span class="nx">recordLoginAttempt</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">ip</span><span class="p">,</span> <span class="kc">false</span><span class="p">);</span>
+      <span class="k">return</span> <span class="nx">res</span><span class="p">.</span><span class="nx">status</span><span class="p">(</span><span class="mi">401</span><span class="p">).</span><span class="nx">json</span><span class="p">({</span> <span class="na">error</span><span class="p">:</span> <span class="dl">'</span><span class="s1">Invalid credentials</span><span class="dl">'</span> <span class="p">});</span>
     <span class="p">}</span>
     
     <span class="c1">// Secure password verification</span>
-    <span class="kd">const</span> <span class="nx">isValid</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">bcrypt</span><span class="p">.</span><span class="nf">compare</span><span class="p">(</span><span class="nx">password</span><span class="p">,</span> <span class="nx">user</span><span class="p">.</span><span class="nx">passwordHash</span><span class="p">);</span>
-    <span class="k">if </span><span class="p">(</span><span class="o">!</span><span class="nx">isValid</span><span class="p">)</span> <span class="p">{</span>
-      <span class="k">await</span> <span class="nf">recordLoginAttempt</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">ip</span><span class="p">,</span> <span class="kc">false</span><span class="p">);</span>
-      <span class="k">return</span> <span class="nx">res</span><span class="p">.</span><span class="nf">status</span><span class="p">(</span><span class="mi">401</span><span class="p">).</span><span class="nf">json</span><span class="p">({</span> <span class="na">error</span><span class="p">:</span> <span class="dl">'</span><span class="s1">Invalid credentials</span><span class="dl">'</span> <span class="p">});</span>
+    <span class="kd">const</span> <span class="nx">isValid</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">bcrypt</span><span class="p">.</span><span class="nx">compare</span><span class="p">(</span><span class="nx">password</span><span class="p">,</span> <span class="nx">user</span><span class="p">.</span><span class="nx">passwordHash</span><span class="p">);</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">isValid</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">await</span> <span class="nx">recordLoginAttempt</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">ip</span><span class="p">,</span> <span class="kc">false</span><span class="p">);</span>
+      <span class="k">return</span> <span class="nx">res</span><span class="p">.</span><span class="nx">status</span><span class="p">(</span><span class="mi">401</span><span class="p">).</span><span class="nx">json</span><span class="p">({</span> <span class="na">error</span><span class="p">:</span> <span class="dl">'</span><span class="s1">Invalid credentials</span><span class="dl">'</span> <span class="p">});</span>
     <span class="p">}</span>
     
     <span class="c1">// Secure session management</span>
-    <span class="kd">const</span> <span class="nx">sessionId</span> <span class="o">=</span> <span class="k">await</span> <span class="nf">createSecureSession</span><span class="p">(</span><span class="nx">user</span><span class="p">.</span><span class="nx">id</span><span class="p">);</span>
-    <span class="nx">res</span><span class="p">.</span><span class="nf">cookie</span><span class="p">(</span><span class="dl">'</span><span class="s1">sessionId</span><span class="dl">'</span><span class="p">,</span> <span class="nx">sessionId</span><span class="p">,</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="nx">sessionId</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">createSecureSession</span><span class="p">(</span><span class="nx">user</span><span class="p">.</span><span class="nx">id</span><span class="p">);</span>
+    <span class="nx">res</span><span class="p">.</span><span class="nx">cookie</span><span class="p">(</span><span class="dl">'</span><span class="s1">sessionId</span><span class="dl">'</span><span class="p">,</span> <span class="nx">sessionId</span><span class="p">,</span> <span class="p">{</span>
       <span class="na">httpOnly</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
       <span class="na">secure</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
       <span class="na">sameSite</span><span class="p">:</span> <span class="dl">'</span><span class="s1">strict</span><span class="dl">'</span><span class="p">,</span>
       <span class="na">maxAge</span><span class="p">:</span> <span class="mi">3600000</span>
     <span class="p">});</span>
     
-    <span class="nx">res</span><span class="p">.</span><span class="nf">json</span><span class="p">({</span> <span class="na">success</span><span class="p">:</span> <span class="kc">true</span> <span class="p">});</span>
-  <span class="p">}</span> <span class="k">catch </span><span class="p">(</span><span class="nx">error</span><span class="p">)</span> <span class="p">{</span>
-    <span class="nx">res</span><span class="p">.</span><span class="nf">status</span><span class="p">(</span><span class="mi">500</span><span class="p">).</span><span class="nf">json</span><span class="p">({</span> <span class="na">error</span><span class="p">:</span> <span class="dl">'</span><span class="s1">Internal server error</span><span class="dl">'</span> <span class="p">});</span>
+    <span class="nx">res</span><span class="p">.</span><span class="nx">json</span><span class="p">({</span> <span class="na">success</span><span class="p">:</span> <span class="kc">true</span> <span class="p">});</span>
+  <span class="p">}</span> <span class="k">catch</span> <span class="p">(</span><span class="nx">error</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">res</span><span class="p">.</span><span class="nx">status</span><span class="p">(</span><span class="mi">500</span><span class="p">).</span><span class="nx">json</span><span class="p">({</span> <span class="na">error</span><span class="p">:</span> <span class="dl">'</span><span class="s1">Internal server error</span><span class="dl">'</span> <span class="p">});</span>
   <span class="p">}</span>
 <span class="p">});</span>
 </code></pre></div></div>
@@ -705,17 +707,17 @@ document.addEventListener('DOMContentLoaded', function() {
 <p><strong>Vulnerable AI-Generated Code</strong>:</p>
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># AI-generated vulnerable code
 </span><span class="k">def</span> <span class="nf">get_user</span><span class="p">(</span><span class="n">user_id</span><span class="p">):</span>
-    <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="sh">"</span><span class="s">SELECT * FROM users WHERE id = </span><span class="si">{</span><span class="n">user_id</span><span class="si">}</span><span class="sh">"</span>
-    <span class="n">result</span> <span class="o">=</span> <span class="n">database</span><span class="p">.</span><span class="nf">execute</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">result</span><span class="p">.</span><span class="nf">fetchone</span><span class="p">()</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="sa">f</span><span class="s">"SELECT * FROM users WHERE id = </span><span class="si">{</span><span class="n">user_id</span><span class="si">}</span><span class="s">"</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">database</span><span class="p">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span><span class="p">.</span><span class="n">fetchone</span><span class="p">()</span>
 </code></pre></div></div>
 
 <p><strong>Secure Implementation</strong>:</p>
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Secure version with parameterized queries
 </span><span class="k">def</span> <span class="nf">get_user</span><span class="p">(</span><span class="n">user_id</span><span class="p">):</span>
-    <span class="n">query</span> <span class="o">=</span> <span class="sh">"</span><span class="s">SELECT * FROM users WHERE id = ?</span><span class="sh">"</span>
-    <span class="n">result</span> <span class="o">=</span> <span class="n">database</span><span class="p">.</span><span class="nf">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="p">(</span><span class="n">user_id</span><span class="p">,))</span>
-    <span class="k">return</span> <span class="n">result</span><span class="p">.</span><span class="nf">fetchone</span><span class="p">()</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="s">"SELECT * FROM users WHERE id = ?"</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">database</span><span class="p">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="p">(</span><span class="n">user_id</span><span class="p">,))</span>
+    <span class="k">return</span> <span class="n">result</span><span class="p">.</span><span class="n">fetchone</span><span class="p">()</span>
 </code></pre></div></div>
 
 <h3 id="cross-site-scripting-xss-vulnerabilities">Cross-Site Scripting (XSS) Vulnerabilities</h3>
@@ -724,7 +726,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">&lt;!-- AI-generated vulnerable code --&gt;</span>
 <span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">"user-content"</span><span class="nt">&gt;</span>
   <span class="nt">&lt;script&gt;</span>
-    <span class="nb">document</span><span class="p">.</span><span class="nf">getElementById</span><span class="p">(</span><span class="dl">'</span><span class="s1">user-content</span><span class="dl">'</span><span class="p">).</span><span class="nx">innerHTML</span> <span class="o">=</span> 
+    <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="dl">'</span><span class="s1">user-content</span><span class="dl">'</span><span class="p">).</span><span class="nx">innerHTML</span> <span class="o">=</span> 
       <span class="dl">'</span><span class="s1">Welcome, </span><span class="dl">'</span> <span class="o">+</span> <span class="nx">user</span><span class="p">.</span><span class="nx">name</span> <span class="o">+</span> <span class="dl">'</span><span class="s1">!</span><span class="dl">'</span><span class="p">;</span>
   <span class="nt">&lt;/script&gt;</span>
 <span class="nt">&lt;/div&gt;</span>
@@ -734,14 +736,14 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">&lt;!-- Secure version with proper escaping --&gt;</span>
 <span class="nt">&lt;div</span> <span class="na">id=</span><span class="s">"user-content"</span><span class="nt">&gt;</span>
   <span class="nt">&lt;script&gt;</span>
-    <span class="kd">const</span> <span class="nx">userName</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nf">createTextNode</span><span class="p">(</span><span class="nx">user</span><span class="p">.</span><span class="nx">name</span><span class="p">);</span>
-    <span class="kd">const</span> <span class="nx">welcomeText</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nf">createTextNode</span><span class="p">(</span><span class="dl">'</span><span class="s1">Welcome, </span><span class="dl">'</span><span class="p">);</span>
-    <span class="kd">const</span> <span class="nx">exclamation</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nf">createTextNode</span><span class="p">(</span><span class="dl">'</span><span class="s1">!</span><span class="dl">'</span><span class="p">);</span>
+    <span class="kd">const</span> <span class="nx">userName</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">createTextNode</span><span class="p">(</span><span class="nx">user</span><span class="p">.</span><span class="nx">name</span><span class="p">);</span>
+    <span class="kd">const</span> <span class="nx">welcomeText</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">createTextNode</span><span class="p">(</span><span class="dl">'</span><span class="s1">Welcome, </span><span class="dl">'</span><span class="p">);</span>
+    <span class="kd">const</span> <span class="nx">exclamation</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">createTextNode</span><span class="p">(</span><span class="dl">'</span><span class="s1">!</span><span class="dl">'</span><span class="p">);</span>
     
-    <span class="kd">const</span> <span class="nx">container</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nf">getElementById</span><span class="p">(</span><span class="dl">'</span><span class="s1">user-content</span><span class="dl">'</span><span class="p">);</span>
-    <span class="nx">container</span><span class="p">.</span><span class="nf">appendChild</span><span class="p">(</span><span class="nx">welcomeText</span><span class="p">);</span>
-    <span class="nx">container</span><span class="p">.</span><span class="nf">appendChild</span><span class="p">(</span><span class="nx">userName</span><span class="p">);</span>
-    <span class="nx">container</span><span class="p">.</span><span class="nf">appendChild</span><span class="p">(</span><span class="nx">exclamation</span><span class="p">);</span>
+    <span class="kd">const</span> <span class="nx">container</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="dl">'</span><span class="s1">user-content</span><span class="dl">'</span><span class="p">);</span>
+    <span class="nx">container</span><span class="p">.</span><span class="nx">appendChild</span><span class="p">(</span><span class="nx">welcomeText</span><span class="p">);</span>
+    <span class="nx">container</span><span class="p">.</span><span class="nx">appendChild</span><span class="p">(</span><span class="nx">userName</span><span class="p">);</span>
+    <span class="nx">container</span><span class="p">.</span><span class="nx">appendChild</span><span class="p">(</span><span class="nx">exclamation</span><span class="p">);</span>
   <span class="nt">&lt;/script&gt;</span>
 <span class="nt">&lt;/div&gt;</span>
 </code></pre></div></div>

@@ -57,7 +57,10 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
-    <!-- JavaScript -->
+    <!-- JavaScript - Core utilities loaded before core bundle -->
+    <script src="/assets/js/config.js"></script>
+    <script src="/assets/js/css-monitor.js"></script>
+    <script type="module" src="/assets/js/security-utils.js"></script>
     <script src="/assets/js/bundles/core.js"></script>
     
     <!-- Fonts - Optimized: Only Montserrat and Inter -->
@@ -494,7 +497,6 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="header-right">
         <div class="credits-display" id="credits-display" style="display: none;">
             <div class="credits-container">
-                <i class="fa-solid fa-file-lines"></i>
                 <span id="credits-text">0</span>
             </div>
         </div>
@@ -856,25 +858,25 @@ AI-Generated Events:
 <span class="c1"># AI-generated asset pipeline:
 </span><span class="k">def</span> <span class="nf">generate_medieval_village</span><span class="p">():</span>
     <span class="n">village_assets</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="sh">"</span><span class="s">buildings</span><span class="sh">"</span><span class="p">:</span> <span class="nf">generate_medieval_houses</span><span class="p">(</span><span class="n">count</span><span class="o">=</span><span class="mi">15</span><span class="p">),</span>
-        <span class="sh">"</span><span class="s">vegetation</span><span class="sh">"</span><span class="p">:</span> <span class="nf">generate_fantasy_trees</span><span class="p">(</span><span class="n">count</span><span class="o">=</span><span class="mi">25</span><span class="p">),</span>
-        <span class="sh">"</span><span class="s">castle</span><span class="sh">"</span><span class="p">:</span> <span class="nf">generate_medieval_castle</span><span class="p">(),</span>
-        <span class="sh">"</span><span class="s">paths</span><span class="sh">"</span><span class="p">:</span> <span class="nf">generate_village_paths</span><span class="p">(),</span>
-        <span class="sh">"</span><span class="s">decorations</span><span class="sh">"</span><span class="p">:</span> <span class="nf">generate_medieval_decorations</span><span class="p">()</span>
+        <span class="s">"buildings"</span><span class="p">:</span> <span class="n">generate_medieval_houses</span><span class="p">(</span><span class="n">count</span><span class="o">=</span><span class="mi">15</span><span class="p">),</span>
+        <span class="s">"vegetation"</span><span class="p">:</span> <span class="n">generate_fantasy_trees</span><span class="p">(</span><span class="n">count</span><span class="o">=</span><span class="mi">25</span><span class="p">),</span>
+        <span class="s">"castle"</span><span class="p">:</span> <span class="n">generate_medieval_castle</span><span class="p">(),</span>
+        <span class="s">"paths"</span><span class="p">:</span> <span class="n">generate_village_paths</span><span class="p">(),</span>
+        <span class="s">"decorations"</span><span class="p">:</span> <span class="n">generate_medieval_decorations</span><span class="p">()</span>
     <span class="p">}</span>
     
     <span class="k">return</span> <span class="n">village_assets</span>
 
 <span class="k">def</span> <span class="nf">generate_medieval_houses</span><span class="p">(</span><span class="n">count</span><span class="p">):</span>
     <span class="n">houses</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="n">count</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">count</span><span class="p">):</span>
         <span class="n">house</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="sh">"</span><span class="s">model</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">medieval_house_variant_</span><span class="sh">"</span> <span class="o">+</span> <span class="nf">str</span><span class="p">(</span><span class="n">i</span> <span class="o">%</span> <span class="mi">5</span><span class="p">),</span>
-            <span class="sh">"</span><span class="s">texture</span><span class="sh">"</span><span class="p">:</span> <span class="sh">"</span><span class="s">stone_wood_combination</span><span class="sh">"</span><span class="p">,</span>
-            <span class="sh">"</span><span class="s">position</span><span class="sh">"</span><span class="p">:</span> <span class="nf">random_village_position</span><span class="p">(),</span>
-            <span class="sh">"</span><span class="s">scale</span><span class="sh">"</span><span class="p">:</span> <span class="n">random</span><span class="p">.</span><span class="nf">uniform</span><span class="p">(</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">)</span>
+            <span class="s">"model"</span><span class="p">:</span> <span class="s">"medieval_house_variant_"</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span> <span class="o">%</span> <span class="mi">5</span><span class="p">),</span>
+            <span class="s">"texture"</span><span class="p">:</span> <span class="s">"stone_wood_combination"</span><span class="p">,</span>
+            <span class="s">"position"</span><span class="p">:</span> <span class="n">random_village_position</span><span class="p">(),</span>
+            <span class="s">"scale"</span><span class="p">:</span> <span class="n">random</span><span class="p">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">)</span>
         <span class="p">}</span>
-        <span class="n">houses</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="n">house</span><span class="p">)</span>
+        <span class="n">houses</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">house</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">houses</span>
 </code></pre></div></div>
 

@@ -57,7 +57,10 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
-    <!-- JavaScript -->
+    <!-- JavaScript - Core utilities loaded before core bundle -->
+    <script src="/assets/js/config.js"></script>
+    <script src="/assets/js/css-monitor.js"></script>
+    <script type="module" src="/assets/js/security-utils.js"></script>
     <script src="/assets/js/bundles/core.js"></script>
     
     <!-- Fonts - Optimized: Only Montserrat and Inter -->
@@ -494,7 +497,6 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="header-right">
         <div class="credits-display" id="credits-display" style="display: none;">
             <div class="credits-container">
-                <i class="fa-solid fa-file-lines"></i>
                 <span id="credits-text">0</span>
             </div>
         </div>
@@ -632,25 +634,25 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <span class="c1">// GPT-5 generated output:</span>
 <span class="kd">const</span> <span class="nx">UserDashboard</span> <span class="o">=</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
-  <span class="kd">const</span> <span class="p">[</span><span class="nx">darkMode</span><span class="p">,</span> <span class="nx">setDarkMode</span><span class="p">]</span> <span class="o">=</span> <span class="nf">useState</span><span class="p">(</span><span class="kc">false</span><span class="p">);</span>
-  <span class="kd">const</span> <span class="p">[</span><span class="nx">notifications</span><span class="p">,</span> <span class="nx">setNotifications</span><span class="p">]</span> <span class="o">=</span> <span class="nf">useState</span><span class="p">([]);</span>
-  <span class="kd">const</span> <span class="p">[</span><span class="nx">user</span><span class="p">,</span> <span class="nx">setUser</span><span class="p">]</span> <span class="o">=</span> <span class="nf">useState</span><span class="p">(</span><span class="kc">null</span><span class="p">);</span>
+  <span class="kd">const</span> <span class="p">[</span><span class="nx">darkMode</span><span class="p">,</span> <span class="nx">setDarkMode</span><span class="p">]</span> <span class="o">=</span> <span class="nx">useState</span><span class="p">(</span><span class="kc">false</span><span class="p">);</span>
+  <span class="kd">const</span> <span class="p">[</span><span class="nx">notifications</span><span class="p">,</span> <span class="nx">setNotifications</span><span class="p">]</span> <span class="o">=</span> <span class="nx">useState</span><span class="p">([]);</span>
+  <span class="kd">const</span> <span class="p">[</span><span class="nx">user</span><span class="p">,</span> <span class="nx">setUser</span><span class="p">]</span> <span class="o">=</span> <span class="nx">useState</span><span class="p">(</span><span class="kc">null</span><span class="p">);</span>
 
-  <span class="nf">useEffect</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="nx">useEffect</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="p">{</span>
     <span class="c1">// Real-time notification subscription</span>
-    <span class="kd">const</span> <span class="nx">subscription</span> <span class="o">=</span> <span class="nf">subscribeToNotifications</span><span class="p">((</span><span class="nx">notification</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
-      <span class="nf">setNotifications</span><span class="p">(</span><span class="nx">prev</span> <span class="o">=&gt;</span> <span class="p">[...</span><span class="nx">prev</span><span class="p">,</span> <span class="nx">notification</span><span class="p">]);</span>
+    <span class="kd">const</span> <span class="nx">subscription</span> <span class="o">=</span> <span class="nx">subscribeToNotifications</span><span class="p">((</span><span class="nx">notification</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+      <span class="nx">setNotifications</span><span class="p">(</span><span class="nx">prev</span> <span class="o">=&gt;</span> <span class="p">[...</span><span class="nx">prev</span><span class="p">,</span> <span class="nx">notification</span><span class="p">]);</span>
     <span class="p">});</span>
 
-    <span class="k">return </span><span class="p">()</span> <span class="o">=&gt;</span> <span class="nx">subscription</span><span class="p">.</span><span class="nf">unsubscribe</span><span class="p">();</span>
+    <span class="k">return</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="nx">subscription</span><span class="p">.</span><span class="nx">unsubscribe</span><span class="p">();</span>
   <span class="p">},</span> <span class="p">[]);</span>
 
-  <span class="k">return </span><span class="p">(</span>
+  <span class="k">return</span> <span class="p">(</span>
     <span class="o">&lt;</span><span class="nx">div</span> <span class="nx">className</span><span class="o">=</span><span class="p">{</span><span class="s2">`dashboard </span><span class="p">${</span><span class="nx">darkMode</span> <span class="p">?</span> <span class="dl">'</span><span class="s1">dark</span><span class="dl">'</span> <span class="p">:</span> <span class="dl">'</span><span class="s1">light</span><span class="dl">'</span><span class="p">}</span><span class="s2">`</span><span class="p">}</span><span class="o">&gt;</span>
       <span class="o">&lt;</span><span class="nx">header</span> <span class="nx">className</span><span class="o">=</span><span class="dl">"</span><span class="s2">dashboard-header</span><span class="dl">"</span><span class="o">&gt;</span>
         <span class="o">&lt;</span><span class="nx">h1</span><span class="o">&gt;</span><span class="nx">Welcome</span><span class="p">,</span> <span class="p">{</span><span class="nx">user</span><span class="p">?.</span><span class="nx">name</span><span class="p">}</span><span class="o">&lt;</span><span class="sr">/h1</span><span class="err">&gt;
 </span>        <span class="o">&lt;</span><span class="nx">button</span> 
-          <span class="nx">onClick</span><span class="o">=</span><span class="p">{()</span> <span class="o">=&gt;</span> <span class="nf">setDarkMode</span><span class="p">(</span><span class="o">!</span><span class="nx">darkMode</span><span class="p">)}</span>
+          <span class="nx">onClick</span><span class="o">=</span><span class="p">{()</span> <span class="o">=&gt;</span> <span class="nx">setDarkMode</span><span class="p">(</span><span class="o">!</span><span class="nx">darkMode</span><span class="p">)}</span>
           <span class="nx">className</span><span class="o">=</span><span class="dl">"</span><span class="s2">theme-toggle</span><span class="dl">"</span>
         <span class="o">&gt;</span>
           <span class="p">{</span><span class="nx">darkMode</span> <span class="p">?</span> <span class="dl">'</span><span class="s1">☀️</span><span class="dl">'</span> <span class="p">:</span> <span class="dl">'</span><span class="s1">🌙</span><span class="dl">'</span><span class="p">}</span>
@@ -671,36 +673,36 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Natural language input: "Create a RESTful API for user management with authentication, role-based access control, and audit logging"
 </span>
 <span class="c1"># GPT-5 generated output:
-</span><span class="kn">from</span> <span class="n">fastapi</span> <span class="kn">import</span> <span class="n">FastAPI</span><span class="p">,</span> <span class="n">Depends</span><span class="p">,</span> <span class="n">HTTPException</span><span class="p">,</span> <span class="n">status</span>
-<span class="kn">from</span> <span class="n">fastapi.security</span> <span class="kn">import</span> <span class="n">HTTPBearer</span><span class="p">,</span> <span class="n">HTTPAuthorizationCredentials</span>
-<span class="kn">from</span> <span class="n">sqlalchemy.orm</span> <span class="kn">import</span> <span class="n">Session</span>
-<span class="kn">from</span> <span class="n">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
-<span class="kn">import</span> <span class="n">logging</span>
+</span><span class="kn">from</span> <span class="nn">fastapi</span> <span class="kn">import</span> <span class="n">FastAPI</span><span class="p">,</span> <span class="n">Depends</span><span class="p">,</span> <span class="n">HTTPException</span><span class="p">,</span> <span class="n">status</span>
+<span class="kn">from</span> <span class="nn">fastapi.security</span> <span class="kn">import</span> <span class="n">HTTPBearer</span><span class="p">,</span> <span class="n">HTTPAuthorizationCredentials</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.orm</span> <span class="kn">import</span> <span class="n">Session</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">import</span> <span class="nn">logging</span>
 
-<span class="n">app</span> <span class="o">=</span> <span class="nc">FastAPI</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="sh">"</span><span class="s">User Management API</span><span class="sh">"</span><span class="p">)</span>
-<span class="n">security</span> <span class="o">=</span> <span class="nc">HTTPBearer</span><span class="p">()</span>
-<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="p">.</span><span class="nf">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+<span class="n">app</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s">"User Management API"</span><span class="p">)</span>
+<span class="n">security</span> <span class="o">=</span> <span class="n">HTTPBearer</span><span class="p">()</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="p">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
 
-<span class="nd">@app.post</span><span class="p">(</span><span class="sh">"</span><span class="s">/users/</span><span class="sh">"</span><span class="p">,</span> <span class="n">response_model</span><span class="o">=</span><span class="n">UserResponse</span><span class="p">)</span>
+<span class="o">@</span><span class="n">app</span><span class="p">.</span><span class="n">post</span><span class="p">(</span><span class="s">"/users/"</span><span class="p">,</span> <span class="n">response_model</span><span class="o">=</span><span class="n">UserResponse</span><span class="p">)</span>
 <span class="k">async</span> <span class="k">def</span> <span class="nf">create_user</span><span class="p">(</span>
     <span class="n">user_data</span><span class="p">:</span> <span class="n">UserCreate</span><span class="p">,</span>
-    <span class="n">db</span><span class="p">:</span> <span class="n">Session</span> <span class="o">=</span> <span class="nc">Depends</span><span class="p">(</span><span class="n">get_db</span><span class="p">),</span>
-    <span class="n">current_user</span><span class="p">:</span> <span class="n">User</span> <span class="o">=</span> <span class="nc">Depends</span><span class="p">(</span><span class="n">get_current_user</span><span class="p">)</span>
+    <span class="n">db</span><span class="p">:</span> <span class="n">Session</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">get_db</span><span class="p">),</span>
+    <span class="n">current_user</span><span class="p">:</span> <span class="n">User</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">get_current_user</span><span class="p">)</span>
 <span class="p">):</span>
-    <span class="sh">"""</span><span class="s">Create a new user with role-based access control</span><span class="sh">"""</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">current_user</span><span class="p">.</span><span class="nf">has_permission</span><span class="p">(</span><span class="sh">"</span><span class="s">user.create</span><span class="sh">"</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="nc">HTTPException</span><span class="p">(</span>
+    <span class="s">"""Create a new user with role-based access control"""</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">current_user</span><span class="p">.</span><span class="n">has_permission</span><span class="p">(</span><span class="s">"user.create"</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span>
             <span class="n">status_code</span><span class="o">=</span><span class="n">status</span><span class="p">.</span><span class="n">HTTP_403_FORBIDDEN</span><span class="p">,</span>
-            <span class="n">detail</span><span class="o">=</span><span class="sh">"</span><span class="s">Insufficient permissions</span><span class="sh">"</span>
+            <span class="n">detail</span><span class="o">=</span><span class="s">"Insufficient permissions"</span>
         <span class="p">)</span>
     
     <span class="c1"># Audit logging
-</span>    <span class="n">logger</span><span class="p">.</span><span class="nf">info</span><span class="p">(</span><span class="sa">f</span><span class="sh">"</span><span class="s">User </span><span class="si">{</span><span class="n">current_user</span><span class="p">.</span><span class="nb">id</span><span class="si">}</span><span class="s"> creating new user: </span><span class="si">{</span><span class="n">user_data</span><span class="p">.</span><span class="n">email</span><span class="si">}</span><span class="sh">"</span><span class="p">)</span>
+</span>    <span class="n">logger</span><span class="p">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s">"User </span><span class="si">{</span><span class="n">current_user</span><span class="p">.</span><span class="nb">id</span><span class="si">}</span><span class="s"> creating new user: </span><span class="si">{</span><span class="n">user_data</span><span class="p">.</span><span class="n">email</span><span class="si">}</span><span class="s">"</span><span class="p">)</span>
     
     <span class="c1"># Create user logic
-</span>    <span class="n">user</span> <span class="o">=</span> <span class="nf">create_user_in_db</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="n">user_data</span><span class="p">)</span>
+</span>    <span class="n">user</span> <span class="o">=</span> <span class="n">create_user_in_db</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="n">user_data</span><span class="p">)</span>
     
-    <span class="k">return</span> <span class="n">UserResponse</span><span class="p">.</span><span class="nf">from_orm</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">UserResponse</span><span class="p">.</span><span class="n">from_orm</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
 </code></pre></div></div>
 
 <h3 id="intelligent-debugging-and-optimization">Intelligent Debugging and Optimization</h3>

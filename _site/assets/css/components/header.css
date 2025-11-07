@@ -42,7 +42,8 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  justify-content: flex-end;
+  justify-content: space-between;
+  width: 100%;
 }
 
 /* Logo styles - Specifys.AI */
@@ -75,6 +76,8 @@
   gap: 1rem;
   position: relative;
   z-index: var(--z-modal);
+  order: 1; /* User info on the left */
+  margin-right: auto;
 }
 
 .auth-btn {
@@ -146,53 +149,48 @@
   font-weight: var(--font-weight-bold);
 }
 
-/* Credits Display - same style as user-info */
+/* Credits Display - Orange badge style like PRO badge */
 .credits-display {
   display: flex;
   align-items: center;
-  margin-right: 12px;
+  order: 2; /* Always on the right */
+  margin-left: auto;
 }
 
 .credits-container {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 0.3rem 0.8rem;
-  background: rgba(102, 102, 102, 0.1);
-  border-radius: var(--border-radius-md);
-  font-size: 0.9rem;
+  justify-content: center;
+  padding: 4px 12px;
+  background: #FF6B35;
+  color: white;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
   cursor: pointer;
   transition: all var(--transition-normal);
+  min-width: 50px;
+  text-align: center;
+  letter-spacing: 0.5px;
 }
 
 .credits-container:hover {
-  background: rgba(102, 102, 102, 0.2);
+  background: #FF8551;
   transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3);
 }
 
 .credits-container i {
-  font-size: 14px;
-  color: var(--text-secondary);
+  display: none; /* Hide icon */
 }
 
 .credits-container span {
-  font-weight: var(--font-weight-medium);
-  color: var(--text-color);
-  min-width: 20px;
-  text-align: center;
-}
-
-/* State variations - all use grey for consistency */
-.credits-container.pro i,
-.credits-container.pro span {
-  color: var(--text-secondary);
-}
-
-.credits-container.low i,
-.credits-container.unlimited i,
-.credits-container.low span,
-.credits-container.unlimited span {
-  color: var(--text-secondary);
+  font-weight: 600;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  min-width: auto;
 }
 
 /* Mobile Responsive */
@@ -212,9 +210,9 @@
   
   .header-right {
     gap: 0.5rem;
-    justify-content: flex-end;
-    margin-left: auto;
-    order: 2;
+    justify-content: space-between;
+    width: 100%;
+    margin-left: 0;
   }
   
   .header-center {
@@ -223,7 +221,8 @@
   
   .auth-buttons {
     gap: 0.5rem;
-    order: 3;
+    order: 1;
+    margin-right: auto;
   }
   
   .auth-btn {
@@ -236,32 +235,28 @@
     padding: 6px 10px;
     font-size: 14px;
     min-height: 36px;
-    margin-left: auto;
   }
   
   .user-info span {
-    display: none;
+    display: inline;
   }
   
   .user-avatar {
-    width: 32px;
-    height: 32px;
-    font-size: 1rem;
+    width: 28px;
+    height: 28px;
+    font-size: 0.9rem;
   }
   
   .credits-display {
-    margin-right: 8px;
     order: 2;
+    margin-left: auto;
+    margin-right: 0;
   }
   
   .credits-container {
     padding: 6px 10px;
-    font-size: 0.85rem;
+    font-size: 11px;
     min-height: 36px;
-  }
-  
-  .credits-container i {
-    font-size: 12px;
   }
 }
 
@@ -280,16 +275,29 @@
   }
   
   .header-right {
-    justify-content: flex-end;
-    margin-left: auto;
+    justify-content: space-between;
+    width: 100%;
+    margin-left: 0;
   }
   
   .auth-buttons {
-    margin-left: auto;
+    order: 1;
+    margin-right: auto;
   }
   
   .user-info {
-    margin-left: auto;
+    padding: 5px 8px;
+    font-size: 13px;
+  }
+  
+  .user-info span {
+    display: inline;
+  }
+  
+  .user-avatar {
+    width: 26px;
+    height: 26px;
+    font-size: 0.85rem;
   }
   
   .auth-btn {
@@ -298,11 +306,14 @@
   }
   
   .credits-display {
-    margin-right: 6px;
+    order: 2;
+    margin-left: auto;
+    margin-right: 0;
   }
   
   .credits-container {
-    padding: 4px 8px;
-    gap: 4px;
+    padding: 5px 8px;
+    font-size: 10px;
+    min-height: 32px;
   }
 }

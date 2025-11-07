@@ -61,7 +61,10 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
-    <!-- JavaScript -->
+    <!-- JavaScript - Core utilities loaded before core bundle -->
+    <script src="{{ '/assets/js/config.js' | relative_url }}"></script>
+    <script src="{{ '/assets/js/css-monitor.js' | relative_url }}"></script>
+    <script type="module" src="{{ '/assets/js/security-utils.js' | relative_url }}"></script>
     <script src="{{ '/assets/js/bundles/core.js' | relative_url }}"></script>
     
     <!-- Fonts - Optimized: Only Montserrat and Inter -->

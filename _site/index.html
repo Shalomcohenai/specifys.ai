@@ -218,7 +218,6 @@
     <div class="header-right">
         <div class="credits-display" id="credits-display" style="display: none;">
             <div class="credits-container">
-                <i class="fa-solid fa-file-lines"></i>
                 <span id="credits-text">0</span>
             </div>
         </div>
@@ -236,7 +235,11 @@
             
             <!-- Hero Content -->
             <div class="hero-content" id="heroContent">
-                <h1 class="hero-main-title">Build faster with AI-driven insights.</h1>
+                <h1 class="hero-main-title">Build faster with AI-driven insights</h1>
+                
+                    <div class="hero-description">
+                        <p class="hero-description-text">Transform your idea into a complete specification with AI-powered insights.</p>
+                    </div>
                 
                 <div class="hero-button-container">
                     <button class="hero-cta-button-new" id="startButton">
@@ -247,7 +250,63 @@
                     </button>
                 </div>
                 
-                <h2 class="hero-subtitle">Plan your app smarter</h2>
+                <!-- Spec Cards Showcase -->
+                <div class="spec-cards-showcase" id="specCardsShowcase">
+                    <div class="spec-card-square" data-spec="overview">
+                        <div class="spec-icon">
+                            <i class="fa fa-file-alt"></i>
+                        </div>
+                        <div class="spec-content">
+                            <h3>Overview</h3>
+                            <p>Comprehensive app information including idea summary and core features</p>
+                        </div>
+                    </div>
+                    <div class="spec-card-square" data-spec="technical">
+                        <div class="spec-icon">
+                            <i class="fa fa-code"></i>
+                        </div>
+                        <div class="spec-content">
+                            <h3>Technical</h3>
+                            <p>Technical specifications including tech stack and API endpoints</p>
+                        </div>
+                    </div>
+                    <div class="spec-card-square" data-spec="market">
+                        <div class="spec-icon">
+                            <i class="fa fa-chart-line"></i>
+                        </div>
+                        <div class="spec-content">
+                            <h3>Market Research</h3>
+                            <p>Market analysis including competitors and monetization strategies</p>
+                        </div>
+                    </div>
+                    <div class="spec-card-square" data-spec="design">
+                        <div class="spec-icon">
+                            <i class="fa fa-palette"></i>
+                        </div>
+                        <div class="spec-content">
+                            <h3>Design & Branding</h3>
+                            <p>Visual design guidelines including color schemes and typography</p>
+                        </div>
+                    </div>
+                    <div class="spec-card-square" data-spec="diagrams">
+                        <div class="spec-icon">
+                            <i class="fa fa-project-diagram"></i>
+                        </div>
+                        <div class="spec-content">
+                            <h3>Diagrams</h3>
+                            <p>Visual diagrams including architecture and user flow charts</p>
+                        </div>
+                    </div>
+                    <div class="spec-card-square" data-spec="ai-chat">
+                        <div class="spec-icon">
+                            <i class="fa fa-robot"></i>
+                        </div>
+                        <div class="spec-content">
+                            <h3>AI Chat</h3>
+                            <p>Interactive AI assistant to refine your specification</p>
+                        </div>
+                    </div>
+                </div>
             </div>
             
             <!-- Questions Display -->
@@ -716,64 +775,6 @@
     </div>
   </div>
 </div>
-
-<!-- Maintenance Notice Modal -->
-<div id="maintenanceModal" class="maintenance-modal" style="display: none;">
-  <div class="maintenance-content">
-    <div class="maintenance-header">
-      <h3>⚠️ Site Maintenance</h3>
-      <button class="maintenance-close" onclick="closeMaintenanceModal()" aria-label="Close maintenance message">×</button>
-    </div>
-    <div class="maintenance-body">
-      <p><strong>We're currently upgrading the site - please refrain from using it</strong></p>
-    </div>
-    <div class="maintenance-actions">
-      <button type="button" onclick="closeMaintenanceModal()" class="btn-understand">I Understand</button>
-    </div>
-  </div>
-</div>
-
-<!-- Show Maintenance Modal Script -->
-<script>
-  (function() {
-    function showMaintenanceModal() {
-      var modal = document.getElementById('maintenanceModal');
-      if (modal) {
-        console.log('Showing maintenance modal');
-        modal.style.display = 'flex';
-        modal.style.visibility = 'visible';
-        modal.style.opacity = '1';
-        document.body.style.overflow = 'hidden';
-      } else {
-        console.error('Maintenance modal element not found!');
-      }
-    }
-    
-    function closeMaintenanceModal() {
-      var modal = document.getElementById('maintenanceModal');
-      if (modal) {
-        modal.style.display = 'none';
-        document.body.style.overflow = 'auto';
-      }
-    }
-    
-    // Make functions globally available
-    window.closeMaintenanceModal = closeMaintenanceModal;
-    window.showMaintenanceModal = showMaintenanceModal;
-    
-    // Show modal when DOM is ready
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', function() {
-        console.log('DOM loaded, showing maintenance modal');
-        setTimeout(showMaintenanceModal, 300);
-      });
-    } else {
-      // DOM already loaded
-      console.log('DOM already loaded, showing maintenance modal');
-      setTimeout(showMaintenanceModal, 300);
-    }
-  })();
-</script>
     
     <!-- Footer -->
 <footer>

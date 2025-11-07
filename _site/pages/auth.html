@@ -55,6 +55,9 @@
     <!-- CSS Monitoring Script -->
     <script src="/assets/js/css-monitor.js"></script>
     
+    <!-- Credits Configuration - Must load before auth scripts -->
+    <script src="/assets/js/credits-config.js"></script>
+    
     <!-- Fonts - Optimized: Only Montserrat and Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -414,22 +417,36 @@
         // Create user document in Firestore
         async function createUserDocument(user) {
             try {
+                // Check if CREDITS_CONFIG is available, default to Pro if not
+                const defaultPro = typeof window !== 'undefined' && 
+                                  window.CREDITS_CONFIG && 
+                                  window.CREDITS_CONFIG.DEFAULT_PRO_FOR_NEW_USERS !== false;
 
                 const userRef = doc(db, 'users', user.uid);
                 
-
                 await setDoc(userRef, {
                     email: user.email,
                     displayName: user.displayName || user.email.split('@')[0],
                     emailVerified: user.emailVerified,
                     createdAt: serverTimestamp(),
                     lastActive: serverTimestamp(),
-                    newsletterSubscription: false
+                    newsletterSubscription: false,
+                    plan: defaultPro ? 'pro' : 'free',
+                    free_specs_remaining: 1
                 }, { merge: true });
                 
+                // Also create entitlements document if doesn't exist
+                const entitlementsRef = doc(db, 'entitlements', user.uid);
+                await setDoc(entitlementsRef, {
+                    userId: user.uid,
+                    spec_credits: 0,
+                    unlimited: defaultPro,
+                    can_edit: defaultPro,
+                    updated_at: serverTimestamp()
+                }, { merge: true });
 
             } catch (error) {
-
+                console.error('Error creating user document:', error);
                 throw error; // Re-throw to be caught by calling function
             }
         }

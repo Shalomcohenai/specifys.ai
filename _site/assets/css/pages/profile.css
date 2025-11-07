@@ -15,15 +15,17 @@
     padding: var(--spacing-md) var(--spacing-lg);
     border-radius: var(--border-radius-md);
     margin: 0 auto var(--spacing-2xl) auto;
-    max-width: 900px;
+    max-width: 600px;
     width: 100%;
     display: flex;
+    flex-direction: column;
     align-items: center;
     gap: var(--spacing-md);
     border: 2px solid #444 !important;
     box-shadow: none;
     flex-wrap: wrap;
     box-sizing: border-box;
+    text-align: center;
 }
 
 .profile-avatar-section {
@@ -32,6 +34,7 @@
     align-items: center;
     gap: var(--spacing-sm);
     flex-shrink: 0;
+    width: 100%;
 }
 
 .profile-avatar {
@@ -55,6 +58,8 @@
 .profile-info {
     flex: 1;
     min-width: 0;
+    width: 100%;
+    text-align: center;
 }
 
 .profile-info h2 {
@@ -79,6 +84,7 @@
     justify-content: center;
     max-width: 100%;
     overflow: hidden;
+    width: 100%;
 }
 
 .stat-item {
@@ -117,8 +123,11 @@
 .profile-actions-buttons {
     display: flex;
     gap: 10px;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    width: 100%;
 }
 
 /* Admin Dashboard Button */
@@ -176,7 +185,9 @@
 @media (max-width: 768px) {
     .profile-header {
         flex-direction: column;
-        align-items: flex-start;
+        align-items: center;
+        max-width: 100%;
+        padding: var(--spacing-sm) var(--spacing-md);
     }
     
     .profile-stats {
@@ -187,6 +198,12 @@
     .stat-item {
         flex: 1;
         min-width: 80px;
+    }
+    
+    .profile-actions-buttons {
+        flex-direction: row;
+        justify-content: center;
+        flex-wrap: wrap;
     }
 }
 
@@ -980,10 +997,15 @@
         padding: 12px;
         gap: 12px;
         border-radius: 8px;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        max-width: 100%;
     }
     
     .profile-avatar-section {
         gap: 6px;
+        width: 100%;
     }
     
     .avatar-placeholder {
@@ -994,7 +1016,9 @@
     
     .profile-info {
         flex: 1;
-        min-width: 150px;
+        min-width: 0;
+        width: 100%;
+        text-align: center;
     }
     
     .profile-info h2 {
@@ -1435,10 +1459,15 @@
     
     .profile-header {
         padding: var(--spacing-sm);
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        max-width: 100%;
     }
     
     .profile-avatar-section {
         gap: 4px;
+        width: 100%;
     }
     
     .avatar-placeholder {

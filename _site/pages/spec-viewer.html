@@ -205,7 +205,6 @@
     <div class="header-right">
         <div class="credits-display" id="credits-display" style="display: none;">
             <div class="credits-container">
-                <i class="fa-solid fa-file-lines"></i>
                 <span id="credits-text">0</span>
             </div>
         </div>
@@ -5588,31 +5587,30 @@ function updateDiagramsStatus(status) {
     
     <!-- Helper function to get API base URL -->
     <script>
-        // Use global getApiBaseUrl function from config.js if available
-        // Otherwise define local fallback
-        function getApiBaseUrl() {
-            if (typeof window.getApiBaseUrl === 'function') {
-                return window.getApiBaseUrl();
-            }
-            
-            // Fallback if config.js not loaded
-            if (typeof API_CONFIG !== 'undefined' && API_CONFIG) {
-                try {
-                    const baseUrl = API_CONFIG.baseUrl;
-                    if (baseUrl && baseUrl.trim()) {
-                        return baseUrl;
+        // Ensure getApiBaseUrl is available globally
+        // config.js should already define window.getApiBaseUrl, but provide fallback if needed
+        // IMPORTANT: Only define if it doesn't exist to avoid recursion
+        if (typeof window.getApiBaseUrl !== 'function') {
+            window.getApiBaseUrl = function() {
+                // Fallback if config.js not loaded
+                if (typeof API_CONFIG !== 'undefined' && API_CONFIG) {
+                    try {
+                        const baseUrl = API_CONFIG.baseUrl;
+                        if (baseUrl && baseUrl.trim()) {
+                            return baseUrl;
+                        }
+                    } catch (e) {
+                        console.warn('Error accessing API_CONFIG.baseUrl:', e);
                     }
-                } catch (e) {
-                    console.warn('Error accessing API_CONFIG.baseUrl:', e);
                 }
-            }
-            
-            if (window.API_BASE_URL && window.API_BASE_URL.trim()) {
-                return window.API_BASE_URL;
-            }
-            
-            // Always return Render URL - no localhost support
-            return 'https://specifys-ai.onrender.com';
+                
+                if (window.API_BASE_URL && window.API_BASE_URL.trim()) {
+                    return window.API_BASE_URL;
+                }
+                
+                // Always return Render URL - no localhost support
+                return 'https://specifys-ai.onrender.com';
+            };
         }
     </script>
     

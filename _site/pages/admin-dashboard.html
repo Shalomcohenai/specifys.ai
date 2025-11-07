@@ -590,15 +590,51 @@
                     </div>
 
                     <!-- Blog Management -->
-                    <div class="content-section">
-                        <h2><i class="fas fa-newspaper"></i> Blog Management</h2>
-                        <div class="content-info">
-                            <p>Blog posts are managed through the <code>_posts</code> directory.</p>
-                            <p>Use Jekyll's built-in blog system for post creation and management.</p>
+                    <div class="content-section blog-post-creator">
+                        <h2><i class="fas fa-newspaper"></i> Create New Blog Post</h2>
+                        
+                        <form id="simple-blog-form" class="simple-blog-form">
+                            <div class="form-group">
+                                <label for="blog-title">Title <span class="required">*</span></label>
+                                <input type="text" id="blog-title" name="title" required placeholder="Enter post title">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="blog-description">Description <span class="required">*</span> <span class="char-count" id="blog-desc-count">0/160</span></label>
+                                <textarea id="blog-description" name="description" required rows="3" placeholder="Enter post description (max 160 characters)" maxlength="160"></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="blog-content">Content <span class="required">*</span></label>
+                                <textarea id="blog-content" name="content" required rows="10" placeholder="Enter post content (Markdown supported)"></textarea>
+                                <small class="form-hint">You can use Markdown formatting</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="blog-tags">SEO Tags</label>
+                                <input type="text" id="blog-tags" name="tags" placeholder="ai, development, coding (comma-separated)">
+                                <small class="form-hint">Separate tags with commas</small>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit" class="btn-primary" id="publish-blog-btn">
+                                    <i class="fas fa-paper-plane"></i> Publish Post
+                                </button>
+                                <button type="button" class="btn-secondary" onclick="window.open('/blog/', '_blank')">
+                                    <i class="fas fa-external-link-alt"></i> View Blog
+                                </button>
+                            </div>
+
+                            <div id="blog-form-message" class="form-message" style="display: none;"></div>
+                        </form>
+
+                        <!-- Queue Status -->
+                        <div id="blog-queue-status" class="blog-queue-status" style="margin-top: 2rem; display: none;">
+                            <h3><i class="fas fa-list"></i> Publishing Queue</h3>
+                            <div id="queue-status-content" class="queue-status-content">
+                                <div class="loading-cell">Loading queue status...</div>
+                            </div>
                         </div>
-                        <button class="btn-secondary" onclick="window.open('/blog/', '_blank')">
-                            <i class="fas fa-external-link-alt"></i> View Blog
-                        </button>
                     </div>
                 </div>
             </div>
@@ -861,6 +897,35 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Specs Activity Table -->
+                <div class="analytics-section" style="margin-top: 30px;">
+                    <div class="section-header">
+                        <h2><i class="fas fa-list-alt"></i> Specs Activity - Chronological Order</h2>
+                        <button class="btn-refresh" onclick="adminDashboard.renderSpecsActivityTable()">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                    </div>
+                    <div class="table-wrapper">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>User ID</th>
+                                    <th>Email</th>
+                                    <th>Time</th>
+                                    <th>Plan</th>
+                                    <th>Spec ID</th>
+                                    <th>Link</th>
+                                </tr>
+                            </thead>
+                            <tbody id="specs-activity-table-body">
+                                <tr>
+                                    <td colspan="6" class="loading-cell">Loading specs activity...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -1076,8 +1141,248 @@
             if (typeof BlogManager !== 'undefined') {
                 window.blogManager = new BlogManager();
             }
+
+            // Initialize Simple Blog Post Creator
+            initSimpleBlogForm();
+            
+            // Start polling queue status
+            startQueueStatusPolling();
         });
     });
+
+    // Simple Blog Post Creator
+    function initSimpleBlogForm() {
+        const form = document.getElementById('simple-blog-form');
+        const descInput = document.getElementById('blog-description');
+        const descCount = document.getElementById('blog-desc-count');
+        const messageDiv = document.getElementById('blog-form-message');
+        const publishBtn = document.getElementById('publish-blog-btn');
+
+        if (!form) return;
+
+        // Character counter for description
+        if (descInput && descCount) {
+            descInput.addEventListener('input', function() {
+                const count = this.value.length;
+                descCount.textContent = `${count}/160`;
+                descCount.style.color = count > 160 ? '#ff6b6b' : '#667eea';
+            });
+        }
+
+        // Form submission
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const title = document.getElementById('blog-title').value.trim();
+            const description = document.getElementById('blog-description').value.trim();
+            const content = document.getElementById('blog-content').value.trim();
+            const tags = document.getElementById('blog-tags').value.trim();
+            const date = new Date().toISOString().split('T')[0]; // Today's date
+
+            // Validation
+            if (!title || !description || !content) {
+                showBlogMessage('Please fill in all required fields', 'error');
+                return;
+            }
+
+            if (description.length > 160) {
+                showBlogMessage('Description must be 160 characters or less', 'error');
+                return;
+            }
+
+            // Show loading state
+            const originalBtnText = publishBtn.innerHTML;
+            publishBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Publishing...';
+            publishBtn.disabled = true;
+
+            try {
+                // Get API base URL
+                const apiBaseUrl = window.location.origin;
+
+                // Send to backend
+                const response = await fetch(`${apiBaseUrl}/api/blog/create-post`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${await getAuthToken()}`
+                    },
+                    body: JSON.stringify({
+                        title,
+                        description,
+                        content,
+                        date,
+                        tags: tags || '',
+                        author: 'specifys.ai Team'
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showBlogMessage(`✅ Post added to queue! Queue ID: ${result.queueId}`, 'success');
+                    form.reset();
+                    if (descCount) descCount.textContent = '0/160';
+                    
+                    // Refresh queue status
+                    loadQueueStatus();
+                } else {
+                    throw new Error(result.error || 'Failed to add post to queue');
+                }
+            } catch (error) {
+                console.error('Error publishing post:', error);
+                showBlogMessage(`❌ Error: ${error.message}`, 'error');
+            } finally {
+                publishBtn.innerHTML = originalBtnText;
+                publishBtn.disabled = false;
+            }
+        });
+    }
+
+    // Show message in blog form
+    function showBlogMessage(message, type) {
+        const messageDiv = document.getElementById('blog-form-message');
+        if (!messageDiv) return;
+
+        messageDiv.style.display = 'block';
+        messageDiv.className = `form-message ${type}`;
+        messageDiv.innerHTML = message;
+
+        // Auto hide after 5 seconds for success messages
+        if (type === 'success') {
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 5000);
+        }
+    }
+
+    // Get auth token for API requests
+    async function getAuthToken() {
+        try {
+            const auth = firebase.auth();
+            const user = auth.currentUser;
+            if (user) {
+                return await user.getIdToken();
+            }
+        } catch (error) {
+            console.error('Error getting auth token:', error);
+        }
+        return null;
+    }
+
+    // Load queue status
+    async function loadQueueStatus() {
+        const queueStatusDiv = document.getElementById('blog-queue-status');
+        const queueContent = document.getElementById('queue-status-content');
+        
+        if (!queueStatusDiv || !queueContent) return;
+
+        try {
+            const apiBaseUrl = window.location.origin;
+            const token = await getAuthToken();
+            
+            const response = await fetch(`${apiBaseUrl}/api/blog/queue-status`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to load queue status');
+            }
+
+            const result = await response.json();
+
+            if (result.success) {
+                queueStatusDiv.style.display = 'block';
+                
+                const { status, items } = result;
+                
+                if (status.total === 0 && items.length === 0) {
+                    queueContent.innerHTML = '<div class="queue-empty">No posts in queue</div>';
+                    return;
+                }
+
+                let html = `
+                    <div class="queue-summary">
+                        <div class="queue-stat">
+                            <span class="stat-label">Total:</span>
+                            <span class="stat-value">${status.total}</span>
+                        </div>
+                        <div class="queue-stat">
+                            <span class="stat-label">Pending:</span>
+                            <span class="stat-value">${status.pending}</span>
+                        </div>
+                        <div class="queue-stat">
+                            <span class="stat-label">Processing:</span>
+                            <span class="stat-value">${status.processing ? 'Yes' : 'No'}</span>
+                        </div>
+                    </div>
+                    <div class="queue-items">
+                `;
+
+                if (status.currentItem) {
+                    html += `
+                        <div class="queue-item processing">
+                            <div class="queue-item-header">
+                                <span class="queue-item-title">${escapeHTML(status.currentItem.title)}</span>
+                                <span class="queue-item-status status-processing">Processing...</span>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                items.slice(0, 10).forEach(item => {
+                    const statusClass = item.status === 'completed' ? 'completed' : 
+                                       item.status === 'failed' ? 'failed' : 
+                                       item.status === 'processing' ? 'processing' : 'pending';
+                    const statusText = item.status === 'completed' ? '✅ Completed' :
+                                      item.status === 'failed' ? '❌ Failed' :
+                                      item.status === 'processing' ? '⏳ Processing' : '⏸ Pending';
+                    
+                    html += `
+                        <div class="queue-item ${statusClass}">
+                            <div class="queue-item-header">
+                                <span class="queue-item-title">${escapeHTML(item.postData.title)}</span>
+                                <span class="queue-item-status status-${statusClass}">${statusText}</span>
+                            </div>
+                            ${item.result && item.result.url ? `
+                                <div class="queue-item-result">
+                                    <a href="${item.result.url}" target="_blank">View Post</a>
+                                </div>
+                            ` : ''}
+                            ${item.error ? `
+                                <div class="queue-item-error">Error: ${escapeHTML(item.error)}</div>
+                            ` : ''}
+                        </div>
+                    `;
+                });
+
+                html += '</div>';
+                queueContent.innerHTML = html;
+            }
+        } catch (error) {
+            console.error('Error loading queue status:', error);
+            queueContent.innerHTML = '<div class="queue-error">Failed to load queue status</div>';
+        }
+    }
+
+    // Start polling queue status
+    let queuePollInterval = null;
+    function startQueueStatusPolling() {
+        // Load immediately
+        loadQueueStatus();
+        
+        // Poll every 5 seconds
+        queuePollInterval = setInterval(loadQueueStatus, 5000);
+    }
+
+    // Escape HTML helper
+    function escapeHTML(str) {
+        if (typeof str !== 'string') return '';
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
 </script>
 
     

@@ -440,6 +440,10 @@ class AdminDashboard {
             }));
             
             this.renderSpecsTable(this.allSpecs);
+            // Also update specs activity table if it exists
+            if (typeof this.renderSpecsActivityTable === 'function') {
+                this.renderSpecsActivityTable();
+            }
         } catch (error) {
 
             const tbody = document.getElementById('specs-table-body');
@@ -576,6 +580,74 @@ class AdminDashboard {
                 </td>
                 </tr>
             `).join('');
+    }
+
+    // Render specs activity table (chronological order)
+    renderSpecsActivityTable() {
+        const tbody = document.getElementById('specs-activity-table-body');
+        
+        if (!tbody) {
+            return;
+        }
+
+        if (!this.allSpecs || this.allSpecs.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="loading-cell">No specs found</td></tr>';
+            return;
+        }
+
+        // Sort specs by createdAt (chronological order - newest first)
+        const sortedSpecs = [...this.allSpecs].sort((a, b) => {
+            const dateA = this.getDate(a.createdAt);
+            const dateB = this.getDate(b.createdAt);
+            if (!dateA && !dateB) return 0;
+            if (!dateA) return 1;
+            if (!dateB) return -1;
+            return dateB - dateA; // Newest first
+        });
+
+        // Build user lookup map
+        const userMap = {};
+        this.allUsers.forEach(user => {
+            userMap[user.id] = user;
+        });
+
+        // Build entitlements lookup map
+        const entitlementsMap = {};
+        this.allEntitlements.forEach(entitlement => {
+            entitlementsMap[entitlement.userId] = entitlement;
+        });
+
+        if (sortedSpecs.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="loading-cell">No specs found</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = sortedSpecs.map(spec => {
+            const user = userMap[spec.userId];
+            const entitlement = entitlementsMap[spec.userId];
+            const plan = entitlement && entitlement.unlimited ? 'Pro' : 'Free';
+            const userEmail = user ? (user.email || 'N/A') : 'Unknown';
+            const specLink = `/pages/spec-viewer.html?id=${spec.id}`;
+
+            return `
+                <tr>
+                    <td>${escapeHTML(spec.userId || 'N/A')}</td>
+                    <td>${escapeHTML(userEmail)}</td>
+                    <td>${this.formatDate(spec.createdAt)}</td>
+                    <td>
+                        <span class="status-badge ${entitlement && entitlement.unlimited ? 'status-pro' : 'status-free'}">
+                            ${plan}
+                        </span>
+                    </td>
+                    <td>${escapeHTML(spec.id || 'N/A')}</td>
+                    <td>
+                        <a href="${specLink}" target="_blank" class="btn-view" style="text-decoration: none; display: inline-block;">
+                            <i class="fas fa-external-link-alt"></i> View Spec
+                        </a>
+                    </td>
+                </tr>
+            `;
+        }).join('');
     }
 
     // Render market research table
@@ -1003,6 +1075,9 @@ class AdminDashboard {
         this.safeUpdateTextContent('analytics-specs-today', specsToday);
         this.safeUpdateTextContent('analytics-specs-week', specsWeek);
         this.safeUpdateTextContent('analytics-specs-month', specsMonth);
+        
+        // Render specs activity table
+        this.renderSpecsActivityTable();
     }
 
     // Update payment statistics
@@ -1618,6 +1693,78 @@ class AdminDashboard {
     }
 
     // Payment system functions removed - addCreditsToUser and grantProAccess
+
+    // Add credits to a specific user
+    async addCreditsToUser(userId) {
+        const user = this.allUsers.find(u => u.id === userId);
+        if (!user) {
+            this.showNotification('User not found', 'error');
+            return;
+        }
+
+        const creditsToAdd = prompt(`How many credits to add to ${user.email}?`, '1');
+        if (!creditsToAdd || isNaN(creditsToAdd)) return;
+
+        const credits = parseInt(creditsToAdd);
+        if (credits <= 0) {
+            this.showNotification('Credits must be a positive number', 'error');
+            return;
+        }
+
+        const confirmAdd = confirm(`Add ${credits} credits to ${user.email}?`);
+        if (!confirmAdd) return;
+
+        try {
+            const token = await firebase.auth().currentUser.getIdToken();
+            const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai.onrender.com';
+            
+            const response = await fetch(`${apiBaseUrl}/api/credits/grant`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    userId: userId,
+                    amount: credits,
+                    source: 'admin',
+                    metadata: {
+                        adminEmail: firebase.auth().currentUser.email,
+                        timestamp: new Date().toISOString()
+                    }
+                })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.details || errorData.error || 'Failed to add credits');
+            }
+
+            const result = await response.json();
+            
+            // Update local data
+            const existingIndex = this.allEntitlements.findIndex(e => e.userId === userId);
+            if (existingIndex >= 0) {
+                this.allEntitlements[existingIndex].spec_credits = (this.allEntitlements[existingIndex].spec_credits || 0) + credits;
+                this.allEntitlements[existingIndex].lastUpdated = new Date();
+            } else {
+                this.allEntitlements.push({
+                    userId: userId,
+                    unlimited: false,
+                    can_edit: false,
+                    spec_credits: credits,
+                    lastUpdated: new Date()
+                });
+            }
+
+            this.updatePermissionsTable();
+            this.showNotification(`Added ${credits} credits to ${user.email}`, 'success');
+
+        } catch (error) {
+            console.error('Error adding credits:', error);
+            this.showNotification('Error adding credits: ' + error.message, 'error');
+        }
+    }
 
     // Add spec credits to multiple users
     async addSpecCredits() {

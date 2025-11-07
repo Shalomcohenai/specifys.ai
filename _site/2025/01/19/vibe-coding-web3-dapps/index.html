@@ -57,7 +57,10 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
-    <!-- JavaScript -->
+    <!-- JavaScript - Core utilities loaded before core bundle -->
+    <script src="/assets/js/config.js"></script>
+    <script src="/assets/js/css-monitor.js"></script>
+    <script type="module" src="/assets/js/security-utils.js"></script>
     <script src="/assets/js/bundles/core.js"></script>
     
     <!-- Fonts - Optimized: Only Montserrat and Inter -->
@@ -494,7 +497,6 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="header-right">
         <div class="credits-display" id="credits-display" style="display: none;">
             <div class="credits-container">
-                <i class="fa-solid fa-file-lines"></i>
                 <span id="credits-text">0</span>
             </div>
         </div>
@@ -652,34 +654,34 @@ document.addEventListener('DOMContentLoaded', function() {
         <span class="nx">bool</span> <span class="nx">active</span><span class="p">;</span>
     <span class="p">}</span>
     
-    <span class="nf">mapping</span><span class="p">(</span><span class="nx">uint256</span> <span class="o">=&gt;</span> <span class="nx">Auction</span><span class="p">)</span> <span class="kr">public</span> <span class="nx">auctions</span><span class="p">;</span>
-    <span class="nf">mapping</span><span class="p">(</span><span class="nx">uint256</span> <span class="o">=&gt;</span> <span class="nx">uint256</span><span class="p">)</span> <span class="kr">public</span> <span class="nx">royalties</span><span class="p">;</span>
+    <span class="nx">mapping</span><span class="p">(</span><span class="nx">uint256</span> <span class="o">=&gt;</span> <span class="nx">Auction</span><span class="p">)</span> <span class="kr">public</span> <span class="nx">auctions</span><span class="p">;</span>
+    <span class="nx">mapping</span><span class="p">(</span><span class="nx">uint256</span> <span class="o">=&gt;</span> <span class="nx">uint256</span><span class="p">)</span> <span class="kr">public</span> <span class="nx">royalties</span><span class="p">;</span>
     
-    <span class="kd">function</span> <span class="nf">createAuction</span><span class="p">(</span>
+    <span class="kd">function</span> <span class="nx">createAuction</span><span class="p">(</span>
         <span class="nx">uint256</span> <span class="nx">_tokenId</span><span class="p">,</span>
         <span class="nx">uint256</span> <span class="nx">_startingPrice</span><span class="p">,</span>
         <span class="nx">uint256</span> <span class="nx">_duration</span>
     <span class="p">)</span> <span class="nx">external</span> <span class="p">{</span>
         <span class="c1">// AI-generated auction creation logic</span>
-        <span class="nx">auctions</span><span class="p">[</span><span class="nx">_tokenId</span><span class="p">]</span> <span class="o">=</span> <span class="nc">Auction</span><span class="p">({</span>
+        <span class="nx">auctions</span><span class="p">[</span><span class="nx">_tokenId</span><span class="p">]</span> <span class="o">=</span> <span class="nx">Auction</span><span class="p">({</span>
             <span class="na">tokenId</span><span class="p">:</span> <span class="nx">_tokenId</span><span class="p">,</span>
             <span class="na">seller</span><span class="p">:</span> <span class="nx">msg</span><span class="p">.</span><span class="nx">sender</span><span class="p">,</span>
             <span class="na">startingPrice</span><span class="p">:</span> <span class="nx">_startingPrice</span><span class="p">,</span>
             <span class="na">currentBid</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-            <span class="na">currentBidder</span><span class="p">:</span> <span class="nf">address</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+            <span class="na">currentBidder</span><span class="p">:</span> <span class="nx">address</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
             <span class="na">endTime</span><span class="p">:</span> <span class="nx">block</span><span class="p">.</span><span class="nx">timestamp</span> <span class="o">+</span> <span class="nx">_duration</span><span class="p">,</span>
             <span class="na">active</span><span class="p">:</span> <span class="kc">true</span>
         <span class="p">});</span>
     <span class="p">}</span>
     
-    <span class="kd">function</span> <span class="nf">placeBid</span><span class="p">(</span><span class="nx">uint256</span> <span class="nx">_tokenId</span><span class="p">)</span> <span class="nx">external</span> <span class="nx">payable</span> <span class="p">{</span>
+    <span class="kd">function</span> <span class="nx">placeBid</span><span class="p">(</span><span class="nx">uint256</span> <span class="nx">_tokenId</span><span class="p">)</span> <span class="nx">external</span> <span class="nx">payable</span> <span class="p">{</span>
         <span class="c1">// AI-generated bidding logic with escrow</span>
         <span class="nx">Auction</span> <span class="nx">storage</span> <span class="nx">auction</span> <span class="o">=</span> <span class="nx">auctions</span><span class="p">[</span><span class="nx">_tokenId</span><span class="p">];</span>
-        <span class="nf">require</span><span class="p">(</span><span class="nx">auction</span><span class="p">.</span><span class="nx">active</span><span class="p">,</span> <span class="dl">"</span><span class="s2">Auction not active</span><span class="dl">"</span><span class="p">);</span>
-        <span class="nf">require</span><span class="p">(</span><span class="nx">msg</span><span class="p">.</span><span class="nx">value</span> <span class="o">&gt;</span> <span class="nx">auction</span><span class="p">.</span><span class="nx">currentBid</span><span class="p">,</span> <span class="dl">"</span><span class="s2">Bid too low</span><span class="dl">"</span><span class="p">);</span>
+        <span class="nx">require</span><span class="p">(</span><span class="nx">auction</span><span class="p">.</span><span class="nx">active</span><span class="p">,</span> <span class="dl">"</span><span class="s2">Auction not active</span><span class="dl">"</span><span class="p">);</span>
+        <span class="nx">require</span><span class="p">(</span><span class="nx">msg</span><span class="p">.</span><span class="nx">value</span> <span class="o">&gt;</span> <span class="nx">auction</span><span class="p">.</span><span class="nx">currentBid</span><span class="p">,</span> <span class="dl">"</span><span class="s2">Bid too low</span><span class="dl">"</span><span class="p">);</span>
         
-        <span class="k">if </span><span class="p">(</span><span class="nx">auction</span><span class="p">.</span><span class="nx">currentBidder</span> <span class="o">!=</span> <span class="nf">address</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span> <span class="p">{</span>
-            <span class="nf">payable</span><span class="p">(</span><span class="nx">auction</span><span class="p">.</span><span class="nx">currentBidder</span><span class="p">).</span><span class="nf">transfer</span><span class="p">(</span><span class="nx">auction</span><span class="p">.</span><span class="nx">currentBid</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">auction</span><span class="p">.</span><span class="nx">currentBidder</span> <span class="o">!=</span> <span class="nx">address</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span> <span class="p">{</span>
+            <span class="nx">payable</span><span class="p">(</span><span class="nx">auction</span><span class="p">.</span><span class="nx">currentBidder</span><span class="p">).</span><span class="nx">transfer</span><span class="p">(</span><span class="nx">auction</span><span class="p">.</span><span class="nx">currentBid</span><span class="p">);</span>
         <span class="p">}</span>
         
         <span class="nx">auction</span><span class="p">.</span><span class="nx">currentBid</span> <span class="o">=</span> <span class="nx">msg</span><span class="p">.</span><span class="nx">value</span><span class="p">;</span>
@@ -716,25 +718,25 @@ document.addEventListener('DOMContentLoaded', function() {
 <span class="k">import</span> <span class="p">{</span> <span class="nx">useContract</span><span class="p">,</span> <span class="nx">useContractRead</span><span class="p">,</span> <span class="nx">useContractWrite</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">@thirdweb-dev/react</span><span class="dl">"</span><span class="p">;</span>
 
 <span class="kd">const</span> <span class="nx">DAOContract</span> <span class="o">=</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
-  <span class="kd">const</span> <span class="p">{</span> <span class="nx">contract</span> <span class="p">}</span> <span class="o">=</span> <span class="nf">useContract</span><span class="p">(</span><span class="dl">"</span><span class="s2">0x...</span><span class="dl">"</span><span class="p">);</span> <span class="c1">// AI-deployed contract address</span>
+  <span class="kd">const</span> <span class="p">{</span> <span class="nx">contract</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">useContract</span><span class="p">(</span><span class="dl">"</span><span class="s2">0x...</span><span class="dl">"</span><span class="p">);</span> <span class="c1">// AI-deployed contract address</span>
   
-  <span class="kd">const</span> <span class="p">{</span> <span class="na">data</span><span class="p">:</span> <span class="nx">proposals</span> <span class="p">}</span> <span class="o">=</span> <span class="nf">useContractRead</span><span class="p">(</span><span class="nx">contract</span><span class="p">,</span> <span class="dl">"</span><span class="s2">getAllProposals</span><span class="dl">"</span><span class="p">);</span>
-  <span class="kd">const</span> <span class="p">{</span> <span class="na">mutate</span><span class="p">:</span> <span class="nx">createProposal</span> <span class="p">}</span> <span class="o">=</span> <span class="nf">useContractWrite</span><span class="p">(</span><span class="nx">contract</span><span class="p">,</span> <span class="dl">"</span><span class="s2">createProposal</span><span class="dl">"</span><span class="p">);</span>
-  <span class="kd">const</span> <span class="p">{</span> <span class="na">mutate</span><span class="p">:</span> <span class="nx">vote</span> <span class="p">}</span> <span class="o">=</span> <span class="nf">useContractWrite</span><span class="p">(</span><span class="nx">contract</span><span class="p">,</span> <span class="dl">"</span><span class="s2">vote</span><span class="dl">"</span><span class="p">);</span>
+  <span class="kd">const</span> <span class="p">{</span> <span class="na">data</span><span class="p">:</span> <span class="nx">proposals</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">useContractRead</span><span class="p">(</span><span class="nx">contract</span><span class="p">,</span> <span class="dl">"</span><span class="s2">getAllProposals</span><span class="dl">"</span><span class="p">);</span>
+  <span class="kd">const</span> <span class="p">{</span> <span class="na">mutate</span><span class="p">:</span> <span class="nx">createProposal</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">useContractWrite</span><span class="p">(</span><span class="nx">contract</span><span class="p">,</span> <span class="dl">"</span><span class="s2">createProposal</span><span class="dl">"</span><span class="p">);</span>
+  <span class="kd">const</span> <span class="p">{</span> <span class="na">mutate</span><span class="p">:</span> <span class="nx">vote</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">useContractWrite</span><span class="p">(</span><span class="nx">contract</span><span class="p">,</span> <span class="dl">"</span><span class="s2">vote</span><span class="dl">"</span><span class="p">);</span>
   
-  <span class="kd">const</span> <span class="nx">handleCreateProposal</span> <span class="o">=</span> <span class="k">async </span><span class="p">(</span><span class="na">description</span><span class="p">:</span> <span class="kr">string</span><span class="p">,</span> <span class="na">amount</span><span class="p">:</span> <span class="kr">number</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
-    <span class="k">await</span> <span class="nf">createProposal</span><span class="p">({</span>
+  <span class="kd">const</span> <span class="nx">handleCreateProposal</span> <span class="o">=</span> <span class="k">async</span> <span class="p">(</span><span class="na">description</span><span class="p">:</span> <span class="kr">string</span><span class="p">,</span> <span class="na">amount</span><span class="p">:</span> <span class="kr">number</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="k">await</span> <span class="nx">createProposal</span><span class="p">({</span>
       <span class="na">args</span><span class="p">:</span> <span class="p">[</span><span class="nx">description</span><span class="p">,</span> <span class="nx">amount</span><span class="p">]</span>
     <span class="p">});</span>
   <span class="p">};</span>
   
-  <span class="kd">const</span> <span class="nx">handleVote</span> <span class="o">=</span> <span class="k">async </span><span class="p">(</span><span class="na">proposalId</span><span class="p">:</span> <span class="kr">number</span><span class="p">,</span> <span class="na">support</span><span class="p">:</span> <span class="nx">boolean</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
-    <span class="k">await</span> <span class="nf">vote</span><span class="p">({</span>
+  <span class="kd">const</span> <span class="nx">handleVote</span> <span class="o">=</span> <span class="k">async</span> <span class="p">(</span><span class="na">proposalId</span><span class="p">:</span> <span class="kr">number</span><span class="p">,</span> <span class="na">support</span><span class="p">:</span> <span class="nx">boolean</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="k">await</span> <span class="nx">vote</span><span class="p">({</span>
       <span class="na">args</span><span class="p">:</span> <span class="p">[</span><span class="nx">proposalId</span><span class="p">,</span> <span class="nx">support</span><span class="p">]</span>
     <span class="p">});</span>
   <span class="p">};</span>
   
-  <span class="k">return </span><span class="p">(</span>
+  <span class="k">return</span> <span class="p">(</span>
     <span class="o">&lt;</span><span class="nx">div</span> <span class="nx">className</span><span class="o">=</span><span class="dl">"</span><span class="s2">dao-interface</span><span class="dl">"</span><span class="o">&gt;</span>
       <span class="o">&lt;</span><span class="nx">h1</span><span class="o">&gt;</span><span class="nx">DAO</span> <span class="nx">Governance</span><span class="o">&lt;</span><span class="sr">/h1</span><span class="err">&gt;
 </span>      <span class="o">&lt;</span><span class="nx">ProposalForm</span> <span class="nx">onSubmit</span><span class="o">=</span><span class="p">{</span><span class="nx">handleCreateProposal</span><span class="p">}</span> <span class="sr">/</span><span class="err">&gt;
@@ -765,49 +767,49 @@ document.addEventListener('DOMContentLoaded', function() {
 </ul>
 
 <p><strong>Smart Contract Development</strong>:</p>
-<pre><code class="language-solidity">// Natural language: "Create a yield farming protocol with auto-compounding"
-
-// AI-generated Solidity contract:
-contract YieldFarm {
-    struct Pool {
-        IERC20 token;
-        uint256 totalStaked;
-        uint256 rewardRate;
-        uint256 lastUpdateTime;
-        mapping(address =&gt; uint256) userStakes;
-        mapping(address =&gt; uint256) userRewards;
-    }
+<div class="language-solidity highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Natural language: "Create a yield farming protocol with auto-compounding"
+</span>
+<span class="c1">// AI-generated Solidity contract:
+</span><span class="k">contract</span> <span class="n">YieldFarm</span> <span class="p">{</span>
+    <span class="k">struct</span> <span class="n">Pool</span> <span class="p">{</span>
+        <span class="n">IERC20</span> <span class="n">token</span><span class="p">;</span>
+        <span class="kt">uint256</span> <span class="n">totalStaked</span><span class="p">;</span>
+        <span class="kt">uint256</span> <span class="n">rewardRate</span><span class="p">;</span>
+        <span class="kt">uint256</span> <span class="n">lastUpdateTime</span><span class="p">;</span>
+        <span class="k">mapping</span><span class="p">(</span><span class="kt">address</span> <span class="o">=&gt;</span> <span class="kt">uint256</span><span class="p">)</span> <span class="n">userStakes</span><span class="p">;</span>
+        <span class="k">mapping</span><span class="p">(</span><span class="kt">address</span> <span class="o">=&gt;</span> <span class="kt">uint256</span><span class="p">)</span> <span class="n">userRewards</span><span class="p">;</span>
+    <span class="p">}</span>
     
-    mapping(uint256 =&gt; Pool) public pools;
-    uint256 public poolCount;
+    <span class="k">mapping</span><span class="p">(</span><span class="kt">uint256</span> <span class="o">=&gt;</span> <span class="n">Pool</span><span class="p">)</span> <span class="k">public</span> <span class="n">pools</span><span class="p">;</span>
+    <span class="kt">uint256</span> <span class="k">public</span> <span class="n">poolCount</span><span class="p">;</span>
     
-    function stake(uint256 _poolId, uint256 _amount) external {
-        Pool storage pool = pools[_poolId];
-        updatePool(_poolId);
+    <span class="k">function</span> <span class="n">stake</span><span class="p">(</span><span class="kt">uint256</span> <span class="n">_poolId</span><span class="p">,</span> <span class="kt">uint256</span> <span class="n">_amount</span><span class="p">)</span> <span class="k">external</span> <span class="p">{</span>
+        <span class="n">Pool</span> <span class="k">storage</span> <span class="n">pool</span> <span class="o">=</span> <span class="n">pools</span><span class="p">[</span><span class="n">_poolId</span><span class="p">];</span>
+        <span class="n">updatePool</span><span class="p">(</span><span class="n">_poolId</span><span class="p">);</span>
         
-        if (pool.userStakes[msg.sender] &gt; 0) {
-            uint256 pending = calculateReward(_poolId, msg.sender);
-            pool.userRewards[msg.sender] += pending;
-        }
+        <span class="k">if</span> <span class="p">(</span><span class="n">pool</span><span class="p">.</span><span class="n">userStakes</span><span class="p">[</span><span class="n">msg</span><span class="p">.</span><span class="n">sender</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+            <span class="kt">uint256</span> <span class="n">pending</span> <span class="o">=</span> <span class="n">calculateReward</span><span class="p">(</span><span class="n">_poolId</span><span class="p">,</span> <span class="n">msg</span><span class="p">.</span><span class="n">sender</span><span class="p">);</span>
+            <span class="n">pool</span><span class="p">.</span><span class="n">userRewards</span><span class="p">[</span><span class="n">msg</span><span class="p">.</span><span class="n">sender</span><span class="p">]</span> <span class="o">+=</span> <span class="n">pending</span><span class="p">;</span>
+        <span class="p">}</span>
         
-        pool.token.transferFrom(msg.sender, address(this), _amount);
-        pool.userStakes[msg.sender] += _amount;
-        pool.totalStaked += _amount;
-    }
+        <span class="n">pool</span><span class="p">.</span><span class="n">token</span><span class="p">.</span><span class="n">transferFrom</span><span class="p">(</span><span class="n">msg</span><span class="p">.</span><span class="n">sender</span><span class="p">,</span> <span class="kt">address</span><span class="p">(</span><span class="nb">this</span><span class="p">),</span> <span class="n">_amount</span><span class="p">);</span>
+        <span class="n">pool</span><span class="p">.</span><span class="n">userStakes</span><span class="p">[</span><span class="n">msg</span><span class="p">.</span><span class="n">sender</span><span class="p">]</span> <span class="o">+=</span> <span class="n">_amount</span><span class="p">;</span>
+        <span class="n">pool</span><span class="p">.</span><span class="n">totalStaked</span> <span class="o">+=</span> <span class="n">_amount</span><span class="p">;</span>
+    <span class="p">}</span>
     
-    function compound(uint256 _poolId) external {
-        Pool storage pool = pools[_poolId];
-        updatePool(_poolId);
+    <span class="k">function</span> <span class="n">compound</span><span class="p">(</span><span class="kt">uint256</span> <span class="n">_poolId</span><span class="p">)</span> <span class="k">external</span> <span class="p">{</span>
+        <span class="n">Pool</span> <span class="k">storage</span> <span class="n">pool</span> <span class="o">=</span> <span class="n">pools</span><span class="p">[</span><span class="n">_poolId</span><span class="p">];</span>
+        <span class="n">updatePool</span><span class="p">(</span><span class="n">_poolId</span><span class="p">);</span>
         
-        uint256 reward = calculateReward(_poolId, msg.sender);
-        if (reward &gt; 0) {
-            pool.userRewards[msg.sender] = 0;
-            pool.userStakes[msg.sender] += reward;
-            pool.totalStaked += reward;
-        }
-    }
-}
-</code></pre>
+        <span class="kt">uint256</span> <span class="n">reward</span> <span class="o">=</span> <span class="n">calculateReward</span><span class="p">(</span><span class="n">_poolId</span><span class="p">,</span> <span class="n">msg</span><span class="p">.</span><span class="n">sender</span><span class="p">);</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">reward</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">pool</span><span class="p">.</span><span class="n">userRewards</span><span class="p">[</span><span class="n">msg</span><span class="p">.</span><span class="n">sender</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+            <span class="n">pool</span><span class="p">.</span><span class="n">userStakes</span><span class="p">[</span><span class="n">msg</span><span class="p">.</span><span class="n">sender</span><span class="p">]</span> <span class="o">+=</span> <span class="n">reward</span><span class="p">;</span>
+            <span class="n">pool</span><span class="p">.</span><span class="n">totalStaked</span> <span class="o">+=</span> <span class="n">reward</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
 
 <h3 id="4-hardhat-the-development-environment">4. Hardhat: The Development Environment</h3>
 
@@ -823,8 +825,8 @@ contract YieldFarm {
 
 <p><strong>Development Setup</strong>:</p>
 <div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// hardhat.config.js with AI-generated configuration</span>
-<span class="nf">require</span><span class="p">(</span><span class="dl">"</span><span class="s2">@nomicfoundation/hardhat-toolbox</span><span class="dl">"</span><span class="p">);</span>
-<span class="nf">require</span><span class="p">(</span><span class="dl">"</span><span class="s2">@nomicfoundation/hardhat-verify</span><span class="dl">"</span><span class="p">);</span>
+<span class="nx">require</span><span class="p">(</span><span class="dl">"</span><span class="s2">@nomicfoundation/hardhat-toolbox</span><span class="dl">"</span><span class="p">);</span>
+<span class="nx">require</span><span class="p">(</span><span class="dl">"</span><span class="s2">@nomicfoundation/hardhat-verify</span><span class="dl">"</span><span class="p">);</span>
 
 <span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="p">{</span>
   <span class="na">solidity</span><span class="p">:</span> <span class="p">{</span>
@@ -890,23 +892,23 @@ contract YieldFarm {
 
 <span class="c1">// AI-generated React components:</span>
 <span class="kd">const</span> <span class="nx">DeFiDashboard</span> <span class="o">=</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
-  <span class="kd">const</span> <span class="p">[</span><span class="nx">portfolio</span><span class="p">,</span> <span class="nx">setPortfolio</span><span class="p">]</span> <span class="o">=</span> <span class="nf">useState</span><span class="p">(</span><span class="kc">null</span><span class="p">);</span>
-  <span class="kd">const</span> <span class="p">[</span><span class="nx">yieldFarms</span><span class="p">,</span> <span class="nx">setYieldFarms</span><span class="p">]</span> <span class="o">=</span> <span class="nf">useState</span><span class="p">([]);</span>
-  <span class="kd">const</span> <span class="p">[</span><span class="nx">stakingPools</span><span class="p">,</span> <span class="nx">setStakingPools</span><span class="p">]</span> <span class="o">=</span> <span class="nf">useState</span><span class="p">([]);</span>
+  <span class="kd">const</span> <span class="p">[</span><span class="nx">portfolio</span><span class="p">,</span> <span class="nx">setPortfolio</span><span class="p">]</span> <span class="o">=</span> <span class="nx">useState</span><span class="p">(</span><span class="kc">null</span><span class="p">);</span>
+  <span class="kd">const</span> <span class="p">[</span><span class="nx">yieldFarms</span><span class="p">,</span> <span class="nx">setYieldFarms</span><span class="p">]</span> <span class="o">=</span> <span class="nx">useState</span><span class="p">([]);</span>
+  <span class="kd">const</span> <span class="p">[</span><span class="nx">stakingPools</span><span class="p">,</span> <span class="nx">setStakingPools</span><span class="p">]</span> <span class="o">=</span> <span class="nx">useState</span><span class="p">([]);</span>
   
-  <span class="nf">useEffect</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="p">{</span>
-    <span class="nf">loadPortfolioData</span><span class="p">();</span>
-    <span class="nf">loadYieldFarms</span><span class="p">();</span>
-    <span class="nf">loadStakingPools</span><span class="p">();</span>
+  <span class="nx">useEffect</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="nx">loadPortfolioData</span><span class="p">();</span>
+    <span class="nx">loadYieldFarms</span><span class="p">();</span>
+    <span class="nx">loadStakingPools</span><span class="p">();</span>
   <span class="p">},</span> <span class="p">[]);</span>
   
-  <span class="kd">const</span> <span class="nx">loadPortfolioData</span> <span class="o">=</span> <span class="k">async </span><span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="nx">loadPortfolioData</span> <span class="o">=</span> <span class="k">async</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
     <span class="c1">// AI-generated portfolio loading logic</span>
-    <span class="kd">const</span> <span class="nx">data</span> <span class="o">=</span> <span class="k">await</span> <span class="nf">fetchPortfolioData</span><span class="p">();</span>
-    <span class="nf">setPortfolio</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span>
+    <span class="kd">const</span> <span class="nx">data</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">fetchPortfolioData</span><span class="p">();</span>
+    <span class="nx">setPortfolio</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span>
   <span class="p">};</span>
   
-  <span class="k">return </span><span class="p">(</span>
+  <span class="k">return</span> <span class="p">(</span>
     <span class="o">&lt;</span><span class="nx">div</span> <span class="nx">className</span><span class="o">=</span><span class="dl">"</span><span class="s2">defi-dashboard</span><span class="dl">"</span><span class="o">&gt;</span>
       <span class="o">&lt;</span><span class="nx">PortfolioOverview</span> <span class="nx">data</span><span class="o">=</span><span class="p">{</span><span class="nx">portfolio</span><span class="p">}</span> <span class="sr">/</span><span class="err">&gt;
 </span>      <span class="o">&lt;</span><span class="nx">YieldFarmingSection</span> <span class="nx">farms</span><span class="o">=</span><span class="p">{</span><span class="nx">yieldFarms</span><span class="p">}</span> <span class="sr">/</span><span class="err">&gt;

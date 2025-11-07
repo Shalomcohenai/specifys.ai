@@ -57,7 +57,10 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
-    <!-- JavaScript -->
+    <!-- JavaScript - Core utilities loaded before core bundle -->
+    <script src="/assets/js/config.js"></script>
+    <script src="/assets/js/css-monitor.js"></script>
+    <script type="module" src="/assets/js/security-utils.js"></script>
     <script src="/assets/js/bundles/core.js"></script>
     
     <!-- Fonts - Optimized: Only Montserrat and Inter -->
@@ -494,7 +497,6 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="header-right">
         <div class="credits-display" id="credits-display" style="display: none;">
             <div class="credits-container">
-                <i class="fa-solid fa-file-lines"></i>
                 <span id="credits-text">0</span>
             </div>
         </div>
@@ -614,27 +616,27 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Example: AI-generated React component with full functionality</span>
 <span class="kd">const</span> <span class="nx">UserDashboard</span> <span class="o">=</span> <span class="p">({</span> <span class="nx">userId</span> <span class="p">})</span> <span class="o">=&gt;</span> <span class="p">{</span>
-  <span class="kd">const</span> <span class="p">[</span><span class="nx">userData</span><span class="p">,</span> <span class="nx">setUserData</span><span class="p">]</span> <span class="o">=</span> <span class="nf">useState</span><span class="p">(</span><span class="kc">null</span><span class="p">);</span>
-  <span class="kd">const</span> <span class="p">[</span><span class="nx">loading</span><span class="p">,</span> <span class="nx">setLoading</span><span class="p">]</span> <span class="o">=</span> <span class="nf">useState</span><span class="p">(</span><span class="kc">true</span><span class="p">);</span>
+  <span class="kd">const</span> <span class="p">[</span><span class="nx">userData</span><span class="p">,</span> <span class="nx">setUserData</span><span class="p">]</span> <span class="o">=</span> <span class="nx">useState</span><span class="p">(</span><span class="kc">null</span><span class="p">);</span>
+  <span class="kd">const</span> <span class="p">[</span><span class="nx">loading</span><span class="p">,</span> <span class="nx">setLoading</span><span class="p">]</span> <span class="o">=</span> <span class="nx">useState</span><span class="p">(</span><span class="kc">true</span><span class="p">);</span>
   
-  <span class="nf">useEffect</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="p">{</span>
-    <span class="kd">const</span> <span class="nx">fetchUserData</span> <span class="o">=</span> <span class="k">async </span><span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="nx">useEffect</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="nx">fetchUserData</span> <span class="o">=</span> <span class="k">async</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
       <span class="k">try</span> <span class="p">{</span>
-        <span class="kd">const</span> <span class="nx">response</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">api</span><span class="p">.</span><span class="nf">getUser</span><span class="p">(</span><span class="nx">userId</span><span class="p">);</span>
-        <span class="nf">setUserData</span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">data</span><span class="p">);</span>
-      <span class="p">}</span> <span class="k">catch </span><span class="p">(</span><span class="nx">error</span><span class="p">)</span> <span class="p">{</span>
-        <span class="nx">console</span><span class="p">.</span><span class="nf">error</span><span class="p">(</span><span class="dl">'</span><span class="s1">Failed to fetch user data:</span><span class="dl">'</span><span class="p">,</span> <span class="nx">error</span><span class="p">);</span>
+        <span class="kd">const</span> <span class="nx">response</span> <span class="o">=</span> <span class="k">await</span> <span class="nx">api</span><span class="p">.</span><span class="nx">getUser</span><span class="p">(</span><span class="nx">userId</span><span class="p">);</span>
+        <span class="nx">setUserData</span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">data</span><span class="p">);</span>
+      <span class="p">}</span> <span class="k">catch</span> <span class="p">(</span><span class="nx">error</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="dl">'</span><span class="s1">Failed to fetch user data:</span><span class="dl">'</span><span class="p">,</span> <span class="nx">error</span><span class="p">);</span>
       <span class="p">}</span> <span class="k">finally</span> <span class="p">{</span>
-        <span class="nf">setLoading</span><span class="p">(</span><span class="kc">false</span><span class="p">);</span>
+        <span class="nx">setLoading</span><span class="p">(</span><span class="kc">false</span><span class="p">);</span>
       <span class="p">}</span>
     <span class="p">};</span>
     
-    <span class="nf">fetchUserData</span><span class="p">();</span>
+    <span class="nx">fetchUserData</span><span class="p">();</span>
   <span class="p">},</span> <span class="p">[</span><span class="nx">userId</span><span class="p">]);</span>
   
-  <span class="k">if </span><span class="p">(</span><span class="nx">loading</span><span class="p">)</span> <span class="k">return</span> <span class="o">&lt;</span><span class="nx">LoadingSpinner</span> <span class="o">/&gt;</span><span class="p">;</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">loading</span><span class="p">)</span> <span class="k">return</span> <span class="o">&lt;</span><span class="nx">LoadingSpinner</span> <span class="o">/&gt;</span><span class="p">;</span>
   
-  <span class="k">return </span><span class="p">(</span>
+  <span class="k">return</span> <span class="p">(</span>
     <span class="o">&lt;</span><span class="nx">div</span> <span class="nx">className</span><span class="o">=</span><span class="dl">"</span><span class="s2">dashboard-container</span><span class="dl">"</span><span class="o">&gt;</span>
       <span class="o">&lt;</span><span class="nx">UserProfile</span> <span class="nx">data</span><span class="o">=</span><span class="p">{</span><span class="nx">userData</span><span class="p">}</span> <span class="sr">/</span><span class="err">&gt;
 </span>      <span class="o">&lt;</span><span class="nx">ActivityFeed</span> <span class="nx">userId</span><span class="o">=</span><span class="p">{</span><span class="nx">userId</span><span class="p">}</span> <span class="sr">/</span><span class="err">&gt;

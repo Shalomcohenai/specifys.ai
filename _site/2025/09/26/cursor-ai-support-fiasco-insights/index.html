@@ -57,7 +57,10 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
-    <!-- JavaScript -->
+    <!-- JavaScript - Core utilities loaded before core bundle -->
+    <script src="/assets/js/config.js"></script>
+    <script src="/assets/js/css-monitor.js"></script>
+    <script type="module" src="/assets/js/security-utils.js"></script>
     <script src="/assets/js/bundles/core.js"></script>
     
     <!-- Fonts - Optimized: Only Montserrat and Inter -->
@@ -494,7 +497,6 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="header-right">
         <div class="credits-display" id="credits-display" style="display: none;">
             <div class="credits-container">
-                <i class="fa-solid fa-file-lines"></i>
                 <span id="credits-text">0</span>
             </div>
         </div>
@@ -677,7 +679,7 @@ document.addEventListener('DOMContentLoaded', function() {
   <span class="c1">// Problem: No real-time data integration</span>
   <span class="na">generateResponse</span><span class="p">:</span> <span class="p">(</span><span class="nx">query</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
     <span class="c1">// Uses outdated training data instead of current policies</span>
-    <span class="k">return</span> <span class="nx">aiModel</span><span class="p">.</span><span class="nf">generate</span><span class="p">(</span><span class="nx">query</span><span class="p">);</span>
+    <span class="k">return</span> <span class="nx">aiModel</span><span class="p">.</span><span class="nx">generate</span><span class="p">(</span><span class="nx">query</span><span class="p">);</span>
   <span class="p">}</span>
 <span class="p">};</span>
 </code></pre></div></div>
