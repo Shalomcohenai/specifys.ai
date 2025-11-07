@@ -590,15 +590,43 @@
                     </div>
 
                     <!-- Blog Management -->
-                    <div class="content-section">
-                        <h2><i class="fas fa-newspaper"></i> Blog Management</h2>
-                        <div class="content-info">
-                            <p>Blog posts are managed through the <code>_posts</code> directory.</p>
-                            <p>Use Jekyll's built-in blog system for post creation and management.</p>
-                        </div>
-                        <button class="btn-secondary" onclick="window.open('/blog/', '_blank')">
-                            <i class="fas fa-external-link-alt"></i> View Blog
-                        </button>
+                    <div class="content-section blog-post-creator">
+                        <h2><i class="fas fa-newspaper"></i> Create New Blog Post</h2>
+                        
+                        <form id="simple-blog-form" class="simple-blog-form">
+                            <div class="form-group">
+                                <label for="blog-title">Title <span class="required">*</span></label>
+                                <input type="text" id="blog-title" name="title" required placeholder="Enter post title">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="blog-description">Description <span class="required">*</span> <span class="char-count" id="blog-desc-count">0/160</span></label>
+                                <textarea id="blog-description" name="description" required rows="3" placeholder="Enter post description (max 160 characters)" maxlength="160"></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="blog-content">Content <span class="required">*</span></label>
+                                <textarea id="blog-content" name="content" required rows="10" placeholder="Enter post content (Markdown supported)"></textarea>
+                                <small class="form-hint">You can use Markdown formatting</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="blog-tags">SEO Tags</label>
+                                <input type="text" id="blog-tags" name="tags" placeholder="ai, development, coding (comma-separated)">
+                                <small class="form-hint">Separate tags with commas</small>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit" class="btn-primary" id="publish-blog-btn">
+                                    <i class="fas fa-paper-plane"></i> Publish Post
+                                </button>
+                                <button type="button" class="btn-secondary" onclick="window.open('/blog/', '_blank')">
+                                    <i class="fas fa-external-link-alt"></i> View Blog
+                                </button>
+                            </div>
+
+                            <div id="blog-form-message" class="form-message" style="display: none;"></div>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -1105,8 +1133,127 @@
             if (typeof BlogManager !== 'undefined') {
                 window.blogManager = new BlogManager();
             }
+
+            // Initialize Simple Blog Post Creator
+            initSimpleBlogForm();
         });
     });
+
+    // Simple Blog Post Creator
+    function initSimpleBlogForm() {
+        const form = document.getElementById('simple-blog-form');
+        const descInput = document.getElementById('blog-description');
+        const descCount = document.getElementById('blog-desc-count');
+        const messageDiv = document.getElementById('blog-form-message');
+        const publishBtn = document.getElementById('publish-blog-btn');
+
+        if (!form) return;
+
+        // Character counter for description
+        if (descInput && descCount) {
+            descInput.addEventListener('input', function() {
+                const count = this.value.length;
+                descCount.textContent = `${count}/160`;
+                descCount.style.color = count > 160 ? '#ff6b6b' : '#667eea';
+            });
+        }
+
+        // Form submission
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const title = document.getElementById('blog-title').value.trim();
+            const description = document.getElementById('blog-description').value.trim();
+            const content = document.getElementById('blog-content').value.trim();
+            const tags = document.getElementById('blog-tags').value.trim();
+            const date = new Date().toISOString().split('T')[0]; // Today's date
+
+            // Validation
+            if (!title || !description || !content) {
+                showBlogMessage('Please fill in all required fields', 'error');
+                return;
+            }
+
+            if (description.length > 160) {
+                showBlogMessage('Description must be 160 characters or less', 'error');
+                return;
+            }
+
+            // Show loading state
+            const originalBtnText = publishBtn.innerHTML;
+            publishBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Publishing...';
+            publishBtn.disabled = true;
+
+            try {
+                // Get API base URL
+                const apiBaseUrl = window.location.origin;
+
+                // Send to backend
+                const response = await fetch(`${apiBaseUrl}/api/blog/create-post`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${await getAuthToken()}`
+                    },
+                    body: JSON.stringify({
+                        title,
+                        description,
+                        content,
+                        date,
+                        tags: tags || '',
+                        author: 'specifys.ai Team'
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showBlogMessage(`✅ Post published successfully! <a href="${result.url}" target="_blank">View post</a>`, 'success');
+                    form.reset();
+                    if (descCount) descCount.textContent = '0/160';
+                } else {
+                    throw new Error(result.error || 'Failed to publish post');
+                }
+            } catch (error) {
+                console.error('Error publishing post:', error);
+                showBlogMessage(`❌ Error: ${error.message}`, 'error');
+            } finally {
+                publishBtn.innerHTML = originalBtnText;
+                publishBtn.disabled = false;
+            }
+        });
+    }
+
+    // Show message in blog form
+    function showBlogMessage(message, type) {
+        const messageDiv = document.getElementById('blog-form-message');
+        if (!messageDiv) return;
+
+        messageDiv.style.display = 'block';
+        messageDiv.className = `form-message ${type}`;
+        messageDiv.innerHTML = message;
+
+        // Auto hide after 5 seconds for success messages
+        if (type === 'success') {
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 5000);
+        }
+    }
+
+    // Get auth token for API requests
+    async function getAuthToken() {
+        try {
+            const auth = firebase.auth();
+            const user = auth.currentUser;
+            if (user) {
+                return await user.getIdToken();
+            }
+        } catch (error) {
+            console.error('Error getting auth token:', error);
+        }
+        return null;
+    }
 </script>
 
     

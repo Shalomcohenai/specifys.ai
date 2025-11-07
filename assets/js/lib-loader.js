@@ -132,7 +132,7 @@ const LibraryLoader = {
    */
   async loadJsPDF() {
     if (this.loaded.jspdf) {
-      return Promise.resolve(window.jspdf);
+      return Promise.resolve(window.jspdf || window.jsPDF);
     }
 
     if (this.loading.jspdf) {
@@ -140,20 +140,29 @@ const LibraryLoader = {
     }
 
     this.loading.jspdf = new Promise((resolve, reject) => {
-      if (typeof window.jspdf !== 'undefined') {
+      // Check if jsPDF is already available
+      if (typeof window.jspdf !== 'undefined' || typeof window.jsPDF !== 'undefined') {
         this.loaded.jspdf = true;
-        resolve(window.jspdf);
+        resolve(window.jspdf || window.jsPDF);
         return;
       }
 
       const script = document.createElement('script');
-      script.src = 'https://cdn.jsdelivr.net/npm/jspdf@2.5.1/jspdf.umd.min.js';
+      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
       script.async = true;
       script.onload = () => {
-        this.loaded.jspdf = true;
-        delete this.loading.jspdf;
-        // jsPDF is available as window.jspdf.jsPDF
-        resolve(window.jspdf);
+        // Wait a bit for the library to initialize
+        setTimeout(() => {
+          this.loaded.jspdf = true;
+          delete this.loading.jspdf;
+          // jsPDF can be available as window.jspdf.jsPDF or window.jsPDF
+          const jspdf = window.jspdf?.jsPDF || window.jspdf || window.jsPDF;
+          if (jspdf) {
+            resolve(jspdf);
+          } else {
+            reject(new Error('jsPDF library loaded but not found on window object'));
+          }
+        }, 100);
       };
       script.onerror = () => {
         delete this.loading.jspdf;
