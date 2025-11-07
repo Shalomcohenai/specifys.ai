@@ -861,6 +861,35 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Specs Activity Table -->
+                <div class="analytics-section" style="margin-top: 30px;">
+                    <div class="section-header">
+                        <h2><i class="fas fa-list-alt"></i> Specs Activity - Chronological Order</h2>
+                        <button class="btn-refresh" onclick="adminDashboard.renderSpecsActivityTable()">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                    </div>
+                    <div class="table-wrapper">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>User ID</th>
+                                    <th>Email</th>
+                                    <th>Time</th>
+                                    <th>Plan</th>
+                                    <th>Spec ID</th>
+                                    <th>Link</th>
+                                </tr>
+                            </thead>
+                            <tbody id="specs-activity-table-body">
+                                <tr>
+                                    <td colspan="6" class="loading-cell">Loading specs activity...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
 

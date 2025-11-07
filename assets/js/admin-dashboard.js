@@ -440,6 +440,10 @@ class AdminDashboard {
             }));
             
             this.renderSpecsTable(this.allSpecs);
+            // Also update specs activity table if it exists
+            if (typeof this.renderSpecsActivityTable === 'function') {
+                this.renderSpecsActivityTable();
+            }
         } catch (error) {
 
             const tbody = document.getElementById('specs-table-body');
@@ -576,6 +580,74 @@ class AdminDashboard {
                 </td>
                 </tr>
             `).join('');
+    }
+
+    // Render specs activity table (chronological order)
+    renderSpecsActivityTable() {
+        const tbody = document.getElementById('specs-activity-table-body');
+        
+        if (!tbody) {
+            return;
+        }
+
+        if (!this.allSpecs || this.allSpecs.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="loading-cell">No specs found</td></tr>';
+            return;
+        }
+
+        // Sort specs by createdAt (chronological order - newest first)
+        const sortedSpecs = [...this.allSpecs].sort((a, b) => {
+            const dateA = this.getDate(a.createdAt);
+            const dateB = this.getDate(b.createdAt);
+            if (!dateA && !dateB) return 0;
+            if (!dateA) return 1;
+            if (!dateB) return -1;
+            return dateB - dateA; // Newest first
+        });
+
+        // Build user lookup map
+        const userMap = {};
+        this.allUsers.forEach(user => {
+            userMap[user.id] = user;
+        });
+
+        // Build entitlements lookup map
+        const entitlementsMap = {};
+        this.allEntitlements.forEach(entitlement => {
+            entitlementsMap[entitlement.userId] = entitlement;
+        });
+
+        if (sortedSpecs.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="loading-cell">No specs found</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = sortedSpecs.map(spec => {
+            const user = userMap[spec.userId];
+            const entitlement = entitlementsMap[spec.userId];
+            const plan = entitlement && entitlement.unlimited ? 'Pro' : 'Free';
+            const userEmail = user ? (user.email || 'N/A') : 'Unknown';
+            const specLink = `/pages/spec-viewer.html?id=${spec.id}`;
+
+            return `
+                <tr>
+                    <td>${escapeHTML(spec.userId || 'N/A')}</td>
+                    <td>${escapeHTML(userEmail)}</td>
+                    <td>${this.formatDate(spec.createdAt)}</td>
+                    <td>
+                        <span class="status-badge ${entitlement && entitlement.unlimited ? 'status-pro' : 'status-free'}">
+                            ${plan}
+                        </span>
+                    </td>
+                    <td>${escapeHTML(spec.id || 'N/A')}</td>
+                    <td>
+                        <a href="${specLink}" target="_blank" class="btn-view" style="text-decoration: none; display: inline-block;">
+                            <i class="fas fa-external-link-alt"></i> View Spec
+                        </a>
+                    </td>
+                </tr>
+            `;
+        }).join('');
     }
 
     // Render market research table
@@ -1003,6 +1075,9 @@ class AdminDashboard {
         this.safeUpdateTextContent('analytics-specs-today', specsToday);
         this.safeUpdateTextContent('analytics-specs-week', specsWeek);
         this.safeUpdateTextContent('analytics-specs-month', specsMonth);
+        
+        // Render specs activity table
+        this.renderSpecsActivityTable();
     }
 
     // Update payment statistics
