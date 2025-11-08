@@ -120,8 +120,7 @@ router.post('/checkout', express.json(), verifyFirebaseToken, async (req, res) =
             custom: {
               user_id: userId,
               product_key: productKey,
-              variant_id: variantIdToUse,
-              quantity
+              variant_id: variantIdToUse
             }
           },
           test_mode: useTestMode,
@@ -168,7 +167,7 @@ router.post('/checkout', express.json(), verifyFirebaseToken, async (req, res) =
       }
       
       console.error('Lemon Squeezy API error:', JSON.stringify(errorData, null, 2));
-      console.error('Used variantId:', variantId);
+      console.error('Used variantId:', variantIdToUse);
       console.error('Used storeId:', storeId);
       
       // Parse Lemon Squeezy error details
@@ -182,11 +181,11 @@ router.post('/checkout', express.json(), verifyFirebaseToken, async (req, res) =
         );
         
         if (variantError) {
-          errorMessage = `Variant ID not found: ${variantId}`;
+          errorMessage = `Variant ID not found: ${variantIdToUse}`;
           errorDetails = {
             error: 'Variant does not exist',
             detail: variantError.detail || 'The variant ID provided does not exist in your Lemon Squeezy store',
-            variantId: variantId,
+            variantId: variantIdToUse,
             storeId: storeId,
             hint: 'Please verify that LEMON_SQUEEZY_VARIANT_ID in Render matches a valid variant ID from your Lemon Squeezy dashboard'
           };
