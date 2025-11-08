@@ -175,7 +175,7 @@
                             <span class="amount">4.90</span>
                             <span class="period">one-time</span>
                         </div>
-                        <button class="btn btn-primary" onclick="purchaseSpec('single_spec')" disabled style="opacity: 0.5; cursor: not-allowed;">
+                        <button class="btn btn-primary" data-product-key="single_spec" onclick="purchaseSpec(event, 'single_spec')" disabled style="opacity: 0.5; cursor: not-allowed;">
                             Buy Now
                         </button>
                     </div>
@@ -202,7 +202,7 @@
                             <span class="amount">9.90</span>
                             <span class="period">one-time</span>
                         </div>
-                        <button class="btn btn-primary highlight" onclick="purchaseSpec('three_pack')" disabled style="opacity: 0.5; cursor: not-allowed;">
+                        <button class="btn btn-primary highlight" data-product-key="three_pack" onclick="purchaseSpec(event, 'three_pack')" disabled style="opacity: 0.5; cursor: not-allowed;">
                             Buy Now
                         </button>
                     </div>
@@ -238,7 +238,7 @@
                                 <span class="amount">29.90</span>
                                 <span class="period">per month</span>
                             </div>
-                            <button class="btn btn-primary" onclick="purchaseSpec('pro_monthly')" disabled style="opacity: 0.5; cursor: not-allowed;">
+                            <button class="btn btn-primary" data-product-key="pro_monthly" onclick="purchaseSpec(event, 'pro_monthly')" disabled style="opacity: 0.5; cursor: not-allowed;">
                                 Subscribe Now
                             </button>
                         </div>
@@ -262,7 +262,7 @@
                                 <span class="period">per year</span>
                             </div>
                             <div class="savings-badge">Save $58.30/year</div>
-                            <button class="btn btn-primary" onclick="purchaseSpec('pro_yearly')" disabled style="opacity: 0.5; cursor: not-allowed;">
+                            <button class="btn btn-primary" data-product-key="pro_yearly" onclick="purchaseSpec(event, 'pro_yearly')" disabled style="opacity: 0.5; cursor: not-allowed;">
                                 Subscribe Now
                             </button>
                         </div>
@@ -364,6 +364,31 @@
 .pricing-container {
     padding: 60px 0;
     background: #ffffff;
+}
+
+.pricing-alert {
+    display: none;
+    max-width: 600px;
+    margin: 20px auto 0;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-weight: 500;
+    text-align: center;
+}
+
+.pricing-alert[data-type="success"] {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.pricing-alert[data-type="error"] {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.pricing-alert[data-type="info"] {
+    background: #e0f2fe;
+    color: #0369a1;
 }
 
 .pricing-container .container {
@@ -831,35 +856,280 @@
 </style>
 
 <script>
-// Purchase function
-async function purchaseSpec(productKey) {
+const API_BASE_URL = window.location.hostname === 'localhost'
+  ? 'http://localhost:10000/api'
+  : 'https://specifys-ai.onrender.com/api';
+
+let lemonConfigPromise = null;
+let lemonSdkPromise = null;
+
+function getPricingAlertContainer() {
+    let container = document.getElementById('pricing-alert');
+    if (container) {
+        return container;
+    }
+    container = document.createElement('div');
+    container.id = 'pricing-alert';
+    container.className = 'pricing-alert';
+    const hero = document.querySelector('.pricing-hero .container');
+    if (hero && hero.parentNode) {
+        hero.parentNode.insertBefore(container, hero.nextSibling);
+    } else {
+        document.body.prepend(container);
+    }
+    return container;
+}
+
+function showPricingAlert(message, type = 'success') {
+    const container = getPricingAlertContainer();
+    container.textContent = message;
+    container.setAttribute('data-type', type);
+    container.style.display = 'block';
+}
+
+function hidePricingAlert() {
+    const container = document.getElementById('pricing-alert');
+    if (container) {
+        container.style.display = 'none';
+        container.textContent = '';
+    }
+}
+
+function handleCheckoutRedirect() {
+    const params = new URLSearchParams(window.location.search);
+    const checkoutStatus = params.get('checkout');
+    const productKey = params.get('product');
+
+    if (checkoutStatus === 'success') {
+        const productLabel = productKey ? productKey.replace(/_/g, ' ') : 'purchase';
+        showPricingAlert(`Purchase successful! Your ${productLabel} will be available shortly.`, 'success');
+    } else if (checkoutStatus === 'cancel') {
+        showPricingAlert('Checkout was cancelled. You can try again whenever you are ready.', 'info');
+    }
+
+    if (checkoutStatus) {
+        params.delete('checkout');
+        params.delete('product');
+        const newUrl = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ''}`;
+        window.history.replaceState({}, document.title, newUrl);
+    }
+}
+
+function getLemonProductsConfig() {
+    if (!lemonConfigPromise) {
+        lemonConfigPromise = fetch('/assets/data/lemon-products.json')
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error('Failed to load product configuration');
+                }
+                return response.json();
+            })
+            .catch((error) => {
+                console.error('Error loading lemon products config:', error);
+                throw error;
+            });
+    }
+    return lemonConfigPromise;
+}
+
+function loadLemonSqueezySDK() {
+    if (lemonSdkPromise) {
+        return lemonSdkPromise;
+    }
+
+    if (window.LemonSqueezy && (typeof window.createLemonSqueezyCheckout === 'function' || window.LemonSqueezy.Setup)) {
+        lemonSdkPromise = Promise.resolve();
+        return lemonSdkPromise;
+    }
+
+    lemonSdkPromise = new Promise((resolve, reject) => {
+        const existingScript = document.querySelector('script[src="https://assets.lemonsqueezy.com/lemon.js"]');
+        if (existingScript) {
+            existingScript.addEventListener('load', resolve);
+            existingScript.addEventListener('error', () => reject(new Error('Failed to load Lemon Squeezy SDK')));
+            return;
+        }
+
+        const script = document.createElement('script');
+        script.src = 'https://assets.lemonsqueezy.com/lemon.js';
+        script.async = true;
+        script.onload = resolve;
+        script.onerror = () => reject(new Error('Failed to load Lemon Squeezy SDK'));
+        document.head.appendChild(script);
+    }).then(() => {
+        return new Promise((resolve, reject) => {
+            let attempts = 0;
+            const maxAttempts = 50;
+            const interval = setInterval(() => {
+                attempts += 1;
+
+                if (typeof window.createLemonSqueezy === 'function' && !window.LemonSqueezy) {
+                    try {
+                        window.LemonSqueezy = window.createLemonSqueezy();
+                    } catch (error) {
+                        console.warn('Failed to initialize LemonSqueezy object:', error);
+                    }
+                }
+
+                if (typeof window.createLemonSqueezyCheckout === 'function' || (window.LemonSqueezy && typeof window.LemonSqueezy.Setup === 'function')) {
+                    clearInterval(interval);
+                    resolve();
+                } else if (attempts >= maxAttempts) {
+                    clearInterval(interval);
+                    if (typeof window.createLemonSqueezyCheckout === 'function' || window.LemonSqueezy) {
+                        resolve();
+                    } else {
+                        reject(new Error('Lemon Squeezy SDK loaded but methods unavailable'));
+                    }
+                }
+            }, 100);
+        });
+    });
+
+    return lemonSdkPromise;
+}
+
+async function openCheckoutOverlay(checkoutUrl, handlers = {}) {
+    await loadLemonSqueezySDK().catch((error) => {
+        console.error('Error loading Lemon Squeezy SDK:', error);
+    });
+
+    const { onSuccess } = handlers;
+    let opened = false;
+
+    if (typeof window.createLemonSqueezyCheckout === 'function') {
+        try {
+            const checkout = window.createLemonSqueezyCheckout({
+                url: checkoutUrl,
+                onCheckoutSuccess: () => {
+                    if (typeof onSuccess === 'function') {
+                        onSuccess();
+                    }
+                }
+            });
+            if (checkout && typeof checkout.open === 'function') {
+                checkout.open();
+                opened = true;
+            }
+        } catch (error) {
+            console.error('createLemonSqueezyCheckout error:', error);
+        }
+    }
+
+    if (!opened && window.LemonSqueezy && typeof window.LemonSqueezy.Setup === 'function') {
+        try {
+            window.LemonSqueezy.Setup({
+                eventHandler: (eventName) => {
+                    if (eventName === 'Checkout.Success' && typeof onSuccess === 'function') {
+                        onSuccess();
+                    }
+                }
+            });
+            if (window.LemonSqueezy.Url && typeof window.LemonSqueezy.Url.Open === 'function') {
+                window.LemonSqueezy.Url.Open(checkoutUrl);
+                opened = true;
+            }
+        } catch (error) {
+            console.error('LemonSqueezy.Setup error:', error);
+        }
+    }
+
+    if (!opened) {
+        const popup = window.open(
+            checkoutUrl,
+            'lemon-checkout',
+            'width=600,height=700,scrollbars=yes,resizable=yes,centerscreen=yes'
+        );
+
+        if (popup) {
+            opened = true;
+            const interval = setInterval(() => {
+                if (popup.closed) {
+                    clearInterval(interval);
+                    if (typeof onSuccess === 'function') {
+                        onSuccess();
+                    }
+                }
+            }, 1000);
+            setTimeout(() => clearInterval(interval), 5 * 60 * 1000);
+        } else {
+            window.open(checkoutUrl, '_blank');
+            opened = true;
+        }
+    }
+
+    return opened;
+}
+
+async function purchaseSpec(evt, productKey) {
+    const triggerButton = evt?.currentTarget || document.querySelector(`button[data-product-key="${productKey}"]`);
+
+    if (triggerButton && triggerButton.disabled) {
+        return;
+    }
+
     try {
-        // Check if user is authenticated
+        hidePricingAlert();
+
         const user = firebase.auth().currentUser;
         if (!user) {
-            // Redirect to auth page
             window.location.href = '/pages/auth.html';
             return;
         }
 
-        // Track the purchase attempt
-        trackCTA('Purchase ' + productKey, 'pricing_page');
+        trackCTA(`Purchase ${productKey}`, 'pricing_page');
 
-        // Get Lemon Squeezy checkout URL
-        const config = await fetch('/assets/data/lemon-products.json').then(r => r.json());
-        const product = config.products[productKey];
-        
+        const productsConfig = await getLemonProductsConfig();
+        const product = productsConfig?.products?.[productKey];
+
         if (!product) {
-            alert('Product not found. Please try again.');
+            showPricingAlert('Selected product is not available. Please try again later.', 'error');
             return;
         }
 
-        // Redirect to Lemon Squeezy checkout
-        const checkoutUrl = `https://specifysai.lemonsqueezy.com/checkout/buy/${product.variant_id}`;
-        window.open(checkoutUrl, '_blank');
+        const token = await user.getIdToken();
 
+        if (triggerButton) {
+            triggerButton.disabled = true;
+            triggerButton.classList.add('loading');
+        }
+
+        const response = await fetch(`${API_BASE_URL}/lemon/checkout`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                productKey,
+                successPath: '/pages/pricing.html',
+                successQuery: { product: productKey }
+            })
+        });
+
+        if (!response.ok) {
+            const errorPayload = await response.json().catch(() => ({}));
+            throw new Error(errorPayload.error || 'Failed to start checkout');
+        }
+
+        const data = await response.json();
+        if (!data.checkoutUrl) {
+            throw new Error('Checkout URL missing from server response');
+        }
+
+        await openCheckoutOverlay(data.checkoutUrl, {
+            onSuccess: () => {
+                showPricingAlert('Purchase successful! You will be redirected shortly.', 'success');
+            }
+        });
     } catch (error) {
-        alert('Error initiating purchase. Please try again.');
+        console.error('Checkout error:', error);
+        showPricingAlert(error.message || 'Error initiating purchase. Please try again.', 'error');
+    } finally {
+        if (triggerButton) {
+            triggerButton.classList.remove('loading');
+            triggerButton.disabled = true; // keep disabled until system launch
+        }
     }
 }
 
@@ -867,16 +1137,15 @@ async function purchaseSpec(productKey) {
 function trackCTA(ctaName, location) {
     if (typeof gtag !== 'undefined') {
         gtag('event', 'cta_click', {
-            'event_category': 'CTA',
-            'event_label': ctaName,
-            'cta_location': location
+            event_category: 'CTA',
+            event_label: ctaName,
+            cta_location: location
         });
     }
 }
 
 // Switch billing period for Pro plan
 function switchBilling(period) {
-    // Update toggle buttons
     const monthlyBtn = document.querySelector('.toggle-btn.monthly');
     const yearlyBtn = document.querySelector('.toggle-btn.yearly');
     const monthlyPlan = document.getElementById('pro-monthly');
@@ -895,18 +1164,14 @@ function switchBilling(period) {
     }
 }
 
+document.addEventListener('DOMContentLoaded', () => {
+    handleCheckoutRedirect();
 
-// Initialize Firebase if not already done
-document.addEventListener('DOMContentLoaded', function() {
-    // Check if Firebase is already initialized
-    if (typeof firebase === 'undefined') {
-        return;
+    if (typeof firebase !== 'undefined') {
+        firebase.auth().onAuthStateChanged(() => {
+            // Placeholder for future auth-driven UI updates
+        });
     }
-
-    // Listen to auth state changes
-    firebase.auth().onAuthStateChanged((user) => {
-        // Auth state changed
-    });
 });
 </script>
 

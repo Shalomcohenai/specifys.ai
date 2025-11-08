@@ -12,26 +12,8 @@ if (typeof globalThis.fetch === 'function') {
 const { auth } = require('./firebase-admin');
 const { verifyWebhookSignature, parseWebhookPayload } = require('./lemon-webhook-utils');
 const { recordTestPurchase, getTestPurchaseCount } = require('./lemon-credits-service');
-const creditsService = require('./credits-service');
-
-/**
- * Get credits amount for a variant ID
- * This maps Lemon Squeezy variant IDs to credit amounts
- * TODO: Move this to a configuration file or database
- */
-function getCreditsForVariant(variantId) {
-  // Default mapping - can be moved to config or database
-  // For now, default to 3 credits per purchase
-  // This should match your Lemon Squeezy product configuration
-  const variantCreditMap = {
-    // Add your variant IDs here when you have them
-    // 'variant-id-1': 1,
-    // 'variant-id-2': 3,
-    // 'variant-id-3': 5,
-  };
-  
-  return variantCreditMap[variantId] || 3; // Default to 3 credits
-}
+const { getProductByKey, getProductByVariantId, getProductKeyByVariantId } = require('./lemon-products-config');
+const { recordPurchase } = require('./lemon-purchase-service');
 
 /**
  * Middleware to verify Firebase ID token
@@ -62,21 +44,44 @@ router.post('/checkout', verifyFirebaseToken, async (req, res) => {
   try {
     const userId = req.user.uid;
     const userEmail = req.user.email;
+    const {
+      productKey = null,
+      successPath = null,
+      successQuery = null,
+      quantity = 1
+    } = req.body || {};
 
     // Get Lemon Squeezy configuration
     const apiKey = process.env.LEMON_SQUEEZY_API_KEY;
     const storeId = process.env.LEMON_SQUEEZY_STORE_ID;
-    const variantId = process.env.LEMON_SQUEEZY_VARIANT_ID;
+    const defaultVariantId = process.env.LEMON_SQUEEZY_VARIANT_ID;
 
-    if (!apiKey || !storeId || !variantId) {
+    if (!apiKey || !storeId) {
       return res.status(500).json({ 
         error: 'Lemon Squeezy configuration missing',
-        details: 'Please configure LEMON_SQUEEZY_API_KEY, LEMON_SQUEEZY_STORE_ID, and LEMON_SQUEEZY_VARIANT_ID in Render environment variables',
+        details: 'Please configure LEMON_SQUEEZY_API_KEY and LEMON_SQUEEZY_STORE_ID in Render environment variables',
         missing: {
           apiKey: !apiKey,
-          storeId: !storeId,
-          variantId: !variantId
+          storeId: !storeId
         }
+      });
+    }
+
+    const productConfig = productKey ? getProductByKey(productKey) : null;
+    const variantIdToUse = productConfig?.variant_id || defaultVariantId;
+
+    if (!variantIdToUse) {
+      return res.status(500).json({
+        error: 'Lemon Squeezy variant configuration missing',
+        details: 'No variant ID provided. Ensure LEMON_SQUEEZY_VARIANT_ID is set or supply a valid productKey.',
+        productKey
+      });
+    }
+
+    if (productKey && !productConfig) {
+      return res.status(400).json({
+        error: 'Invalid product key',
+        details: `Product key "${productKey}" not found in lemon-products configuration`
       });
     }
 
@@ -85,7 +90,22 @@ router.post('/checkout', verifyFirebaseToken, async (req, res) => {
     
     // Build success URL for redirect after purchase
     const frontendUrl = process.env.FRONTEND_URL || 'https://specifys-ai.com';
-    const successUrl = `${frontendUrl}/pages/test-system.html?checkout=success`;
+    const inferredSuccessPath = productKey ? '/pages/pricing.html' : '/pages/test-system.html';
+    const finalSuccessPath = successPath || inferredSuccessPath;
+    const normalizedSuccessPath = finalSuccessPath.startsWith('/') ? finalSuccessPath : `/${finalSuccessPath}`;
+    const successParams = new URLSearchParams({ checkout: 'success' });
+    if (productKey) {
+      successParams.set('product', productKey);
+    }
+    if (successQuery && typeof successQuery === 'object') {
+      Object.entries(successQuery).forEach(([key, value]) => {
+        if (typeof value === 'undefined' || value === null) return;
+        successParams.set(key, String(value));
+      });
+    }
+    const successUrl = `${frontendUrl}${normalizedSuccessPath}?${successParams.toString()}`;
+
+    const useTestMode = process.env.LEMON_TEST_MODE !== 'false';
 
     // According to Lemon Squeezy API documentation:
     // - checkout_data should be an object (not array)
@@ -98,10 +118,13 @@ router.post('/checkout', verifyFirebaseToken, async (req, res) => {
           checkout_data: {
             email: userEmail,
             custom: {
-              user_id: userId
+              user_id: userId,
+              product_key: productKey,
+              variant_id: variantIdToUse,
+              quantity
             }
           },
-          test_mode: true,
+          test_mode: useTestMode,
           product_options: {
             redirect_url: successUrl
           },
@@ -119,7 +142,7 @@ router.post('/checkout', verifyFirebaseToken, async (req, res) => {
           variant: {
             data: {
               type: 'variants',
-              id: variantId.toString()
+              id: variantIdToUse.toString()
             }
           }
         }
@@ -186,7 +209,15 @@ router.post('/checkout', verifyFirebaseToken, async (req, res) => {
     res.json({
       success: true,
       checkoutUrl: checkoutUrlValue,
-      checkoutId: responseData.data?.id
+      checkoutId: responseData.data?.id,
+      product: productConfig ? {
+        key: productKey,
+        name: productConfig.name,
+        type: productConfig.type,
+        credits: productConfig.credits,
+        billingInterval: productConfig.billing_interval || null
+      } : null,
+      testMode: useTestMode
     });
 
   } catch (error) {
@@ -249,7 +280,7 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
 
     // Handle order_created event
     if (parsed.eventName === 'order_created') {
-      const { orderData } = parsed;
+      const { orderData, customData } = parsed;
 
       // Log full order data for debugging
       console.log('=== Webhook Order Data ===');
@@ -260,10 +291,19 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
       console.log('Variant ID:', orderData.variantId);
       console.log('Full orderData:', JSON.stringify(orderData, null, 2));
 
-      // Only process test mode purchases
-      if (!orderData.testMode) {
-        console.log('⚠️ Ignoring non-test mode purchase (testMode is false)');
-        return res.status(200).json({ received: true, handled: false, reason: 'Not test mode' });
+      const allowTestPurchases = process.env.LEMON_ALLOW_TEST_WEBHOOKS === 'true' || process.env.LEMON_TEST_MODE !== 'false';
+
+      // Determine product details
+      const resolvedProductKey = customData?.product_key || orderData.productKey || getProductKeyByVariantId(orderData.variantId);
+      const productConfig = resolvedProductKey ? getProductByKey(resolvedProductKey) : getProductByVariantId(orderData.variantId);
+
+      if (orderData.testMode) {
+        if (!allowTestPurchases) {
+          console.log('⚠️ Ignoring test mode purchase (test mode disabled)');
+          return res.status(200).json({ received: true, handled: false, reason: 'Test mode disabled' });
+        }
+      } else {
+        console.log('Processing live purchase (testMode false)');
       }
 
       // Check if userId exists
@@ -275,63 +315,56 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
       // Record purchase in Firebase
       if (orderData.orderId) {
         try {
-          await recordTestPurchase(
-            orderData.userId,
-            orderData.orderId,
-            orderData.variantId,
-            {
-              email: orderData.email,
-              orderNumber: orderData.orderNumber,
-              amount: orderData.total,
-              currency: orderData.currency,
-              productId: orderData.productId,
-              quantity: orderData.quantity || 1,
-              testMode: true
-            }
-          );
+          if (orderData.testMode) {
+            await recordTestPurchase(
+              orderData.userId,
+              orderData.orderId,
+              orderData.variantId,
+              {
+                email: orderData.email,
+                orderNumber: orderData.orderNumber,
+                amount: orderData.total,
+                currency: orderData.currency,
+                productId: orderData.productId,
+                quantity: orderData.quantity || 1,
+                testMode: true,
+                productKey: resolvedProductKey
+              }
+            );
 
-          console.log(`✅ Purchase recorded: Order ${orderData.orderId} for user ${orderData.userId}`);
-          
-          // Grant credits using credits-service (if payment system is enabled)
-          // This is optional - credits system works independently
-          const enablePaymentSystem = process.env.ENABLE_PAYMENT_SYSTEM === 'true';
-          
-          if (enablePaymentSystem && orderData.variantId) {
-            try {
-              const creditsToGrant = getCreditsForVariant(orderData.variantId) * (orderData.quantity || 1);
-              
-              console.log(`💳 Granting ${creditsToGrant} credits to user ${orderData.userId} for order ${orderData.orderId}`);
-              
-              await creditsService.grantCredits(
-                orderData.userId,
-                creditsToGrant,
-                'lemon_squeezy',
-                {
-                  orderId: orderData.orderId,
-                  variantId: orderData.variantId,
-                  productId: orderData.productId,
-                  quantity: orderData.quantity || 1,
-                  email: orderData.email,
-                  orderNumber: orderData.orderNumber,
-                  amount: orderData.total,
-                  currency: orderData.currency
-                }
-              );
-              
-              console.log(`✅ Credits granted successfully: ${creditsToGrant} credits to user ${orderData.userId}`);
-            } catch (creditError) {
-              // Log error but don't fail the webhook - purchase is already recorded
-              console.error('❌ Error granting credits (purchase still recorded):', creditError);
-              // Purchase is still recorded, credits can be granted manually if needed
-            }
+            console.log(`✅ Test purchase recorded: Order ${orderData.orderId} for user ${orderData.userId}`);
           } else {
-            console.log('ℹ️ Payment system not enabled or variant ID missing - skipping credit grant');
-            console.log(`   ENABLE_PAYMENT_SYSTEM=${enablePaymentSystem}, variantId=${orderData.variantId}`);
+            await recordPurchase({
+              orderId: orderData.orderId,
+              orderNumber: orderData.orderNumber,
+              userId: orderData.userId,
+              email: orderData.email,
+              variantId: orderData.variantId,
+              productId: orderData.productId,
+              productKey: resolvedProductKey,
+              productName: productConfig?.name || null,
+              productType: productConfig?.type || null,
+              credits: productConfig?.credits,
+              quantity: orderData.quantity || 1,
+              total: orderData.total,
+              currency: orderData.currency,
+              testMode: orderData.testMode,
+              subscriptionId: orderData.subscriptionId,
+              subscriptionStatus: orderData.subscriptionStatus,
+              subscriptionInterval: productConfig?.billing_interval || null,
+              rawPayload: event,
+              metadata: {
+                customData,
+                lemonMeta: event.meta || {}
+              }
+            });
+
+            console.log(`✅ Live purchase recorded: Order ${orderData.orderId} for user ${orderData.userId}`);
           }
 
-          console.log(`✅ Webhook processed successfully: Order ${orderData.orderId} for user ${orderData.userId}`);
+          console.log(`✅ Webhook processed successfully (mode: ${orderData.testMode ? 'test' : 'live'}): Order ${orderData.orderId} for user ${orderData.userId}`);
         } catch (error) {
-          console.error('❌ Error recording test purchase:', error);
+          console.error('❌ Error recording purchase:', error);
           throw error;
         }
       } else {

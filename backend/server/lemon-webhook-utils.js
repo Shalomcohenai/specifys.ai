@@ -77,7 +77,7 @@ function parseWebhookPayload(event) {
     }
 
     const eventName = event.meta.event_name;
-    const eventData = event.data;
+      const eventData = event.data;
 
     // Handle order_created event
     if (eventName === 'order_created') {
@@ -117,19 +117,39 @@ function parseWebhookPayload(event) {
       const testMode = event.meta?.test_mode !== undefined 
         ? event.meta.test_mode 
         : (attributes.test_mode !== undefined ? attributes.test_mode : false);
-      
+
+      let total = null;
+      if (typeof attributes.total === 'number') {
+        total = attributes.total;
+      } else if (typeof attributes.total === 'string') {
+        const parsedTotal = Number(attributes.total);
+        total = Number.isNaN(parsedTotal) ? null : parsedTotal;
+      }
+      if ((total === null || Number.isNaN(total)) && typeof attributes.total_formatted === 'string') {
+        const numeric = attributes.total_formatted.replace(/[^0-9.]/g, '');
+        const parsed = Number(numeric);
+        total = Number.isNaN(parsed) ? null : Math.round(parsed * 100);
+      }
+
       const orderData = {
         orderId: eventData.id,
         orderNumber: attributes.order_number || attributes.identifier || null,
         userId: customData.user_id || customData.userId || null,
         email: attributes.customer_email || attributes.email || attributes.user_email || null,
-        total: attributes.total || attributes.total_formatted ? parseFloat(attributes.total_formatted.replace(/[^0-9.]/g, '')) * 100 : 0,
+        total: typeof total === 'number' && !Number.isNaN(total) ? total : null,
         currency: attributes.currency || 'USD',
         testMode: testMode,
         createdAt: attributes.created_at || new Date().toISOString(),
         variantId: null,
         productId: null,
-        quantity: 1
+        productName: null,
+        quantity: 1,
+        subscriptionId: attributes.subscription_id || null,
+        subscriptionStatus: attributes.status || null,
+        status: attributes.status || null,
+        customerId: attributes.customer_id || null,
+        productKey: customData.product_key || customData.productKey || null,
+        customData
       };
 
       // Try to extract variant ID from order items
@@ -137,11 +157,22 @@ function parseWebhookPayload(event) {
         const firstItem = attributes.order_items[0];
         orderData.variantId = firstItem.variant_id || firstItem.product_variant_id || null;
         orderData.productId = firstItem.product_id || null;
+        orderData.productName = firstItem.product_name || firstItem.name || null;
         orderData.quantity = firstItem.quantity || 1;
+        if (!orderData.currency && firstItem.currency) {
+          orderData.currency = firstItem.currency;
+        }
+        if ((orderData.total === null || Number.isNaN(orderData.total)) && typeof firstItem.price === 'number') {
+          orderData.total = firstItem.price * (firstItem.quantity || 1);
+        }
+        if (!orderData.productKey && firstItem.custom) {
+          orderData.productKey = firstItem.custom.product_key || firstItem.custom.productKey || null;
+        }
         // Also check for custom data in order item
         if (firstItem.custom && !customData.user_id) {
           customData = firstItem.custom;
           orderData.userId = customData.user_id || customData.userId || orderData.userId;
+          orderData.customData = customData;
         }
       } else if (relationships.order_items?.data && relationships.order_items.data.length > 0) {
         // Try relationships if available
@@ -164,7 +195,8 @@ function parseWebhookPayload(event) {
 
       return {
         eventName,
-        orderData
+        orderData,
+        customData
       };
     }
 

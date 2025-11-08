@@ -62,6 +62,18 @@
   transform: scale(1.1);
 }
 
+.button-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(160px, 1fr));
+  gap: 1rem;
+  justify-items: center;
+  margin-bottom: 2.5rem;
+}
+
+.button-grid .buy-button {
+  width: 100%;
+}
+
 .buy-button {
   background: var(--primary-color, #FF6B35);
   color: var(--text-white, #ffffff);
@@ -181,6 +193,10 @@
 @media (max-width: 768px) {
   .test-system-content {
     padding: 2rem 1.5rem;
+  }
+
+  .button-grid {
+    grid-template-columns: 1fr;
   }
 
   .test-system-title {

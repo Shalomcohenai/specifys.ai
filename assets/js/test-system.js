@@ -4,7 +4,7 @@
   // API base URL - adjust based on your backend
   const API_BASE_URL = window.location.hostname === 'localhost' 
     ? 'http://localhost:10000/api'
-    : 'https://specifys-ai.onrender.com/api';
+    : 'https://specifys-ai-store.onrender.com/api';
 
   // State
   let currentUser = null;
@@ -12,10 +12,18 @@
 
   // DOM elements
   const counterValue = document.getElementById('counter-value');
-  const buyButton = document.getElementById('buy-button');
+  const productButtons = Array.from(document.querySelectorAll('.buy-button[data-product-key]'));
   const alertDiv = document.getElementById('alert');
   const alertMessage = document.getElementById('alert-message');
   const authMessage = document.getElementById('auth-message');
+
+  productButtons.forEach((btn) => {
+    if (!btn.dataset.originalLabel) {
+      btn.dataset.originalLabel = btn.textContent.trim();
+    }
+  });
+
+  disableProductButtons();
   
   // Debug logging system
   const debugLogs = document.getElementById('debug-logs');
@@ -260,11 +268,11 @@
       if (user) {
         addDebugLog(`User signed in: ${user.email} (UID: ${user.uid})`, 'success');
         hideAuthMessage();
-        enableBuyButton();
+        enableProductButtons();
       } else {
         addDebugLog('No user signed in', 'warning');
         showAuthMessage();
-        disableBuyButton();
+        disableProductButtons();
       }
     });
   }
@@ -298,41 +306,31 @@
   }
 
   /**
-   * Enable buy button
+   * Enable product buttons
    */
-  function enableBuyButton() {
-    // Refresh button reference in case it was cloned
-    const btn = document.getElementById('buy-button') || buyButton;
-    if (btn) {
-      btn.disabled = false;
-      btn.textContent = 'Buy Test Credit';
-      addDebugLog('Buy button enabled', 'success');
-      
-      // Update global reference
-      if (typeof window !== 'undefined') {
-        window.buyButton = btn;
-      }
-      
-      // Debug: Verify button state
-      console.log('Buy button enabled:', {
-        disabled: btn.disabled,
-        text: btn.textContent,
-        id: btn.id
-      });
-    } else {
-      addDebugLog('ERROR: Buy button element not found!', 'error');
-      console.error('Buy button element not found');
+  function enableProductButtons() {
+    if (!productButtons.length) {
+      addDebugLog('No product buttons found to enable', 'warning');
+      return;
     }
+
+    productButtons.forEach((btn) => {
+      btn.disabled = false;
+      const label = btn.dataset.originalLabel || btn.textContent.trim() || 'Buy';
+      btn.textContent = label;
+    });
+
+    addDebugLog(`Enabled ${productButtons.length} product buttons`, 'success');
   }
 
   /**
-   * Disable buy button
+   * Disable product buttons
    */
-  function disableBuyButton() {
-    if (buyButton) {
-      buyButton.disabled = true;
-      buyButton.textContent = 'Sign In Required';
-    }
+  function disableProductButtons() {
+    productButtons.forEach((btn) => {
+      btn.disabled = true;
+      btn.textContent = 'Sign In Required';
+    });
   }
 
   /**
@@ -432,36 +430,36 @@
   /**
    * Handle buy button click
    */
-  async function handleBuyClick() {
-    addDebugLog('=== handleBuyClick() called ===', 'info');
-    
-    // Refresh button reference
-    const btn = document.getElementById('buy-button') || buyButton || (typeof window !== 'undefined' ? window.buyButton : null);
+  async function handleBuyClick(event, productKey) {
+    const btn = event?.currentTarget || null;
+    const label = btn?.dataset?.originalLabel || productKey || 'Unknown Product';
+
+    addDebugLog(`=== handleBuyClick() called for ${label} (${productKey}) ===`, 'info');
     
     if (!currentUser) {
       addDebugLog('Buy button clicked but no user signed in', 'warning');
       showAlert('Please sign in to purchase', 'error');
       return;
     }
-    
-    if (!btn) {
-      addDebugLog('ERROR: Buy button element not found in handleBuyClick!', 'error');
+
+    if (!productKey) {
+      addDebugLog('No product key provided for checkout', 'error');
+      showAlert('Missing product information. Please try again.', 'error');
       return;
     }
     
-    if (btn.disabled) {
-      addDebugLog('WARNING: Buy button is disabled!', 'warning');
-      console.warn('Button state:', { disabled: btn.disabled, text: btn.textContent });
+    if (btn && btn.disabled) {
+      addDebugLog(`Button for ${label} is disabled; ignoring click`, 'warning');
       return;
     }
 
     try {
-      addDebugLog('Buy button clicked - starting checkout process...', 'info');
-      // Disable button and show loading
-      const btn = document.getElementById('buy-button') || buyButton;
+      addDebugLog(`Starting checkout process for ${label}`, 'info');
+
       if (btn) {
         btn.disabled = true;
         btn.classList.add('loading');
+        btn.textContent = 'Processing...';
       }
 
       addDebugLog('Getting Firebase ID token...', 'info');
@@ -470,8 +468,12 @@
       addDebugLog('ID token obtained successfully', 'success');
 
       const requestBody = {
-        userId: currentUser.uid,
-        email: currentUser.email
+        productKey,
+        successPath: '/pages/test-system.html',
+        successQuery: {
+          product: productKey,
+          source: 'test-system'
+        }
       };
       addDebugLog(`Sending checkout request to ${API_BASE_URL}/lemon/checkout`, 'info');
       addDebugLog(`Request body: ${JSON.stringify(requestBody)}`, 'info');
@@ -520,8 +522,8 @@
           const checkout = window.createLemonSqueezyCheckout({
             url: data.checkoutUrl,
             onCheckoutSuccess: () => {
-              addDebugLog('Purchase successful! Waiting for webhook...', 'success');
-              showAlert('Purchase successful! Counter will update shortly.', 'success');
+            addDebugLog(`Purchase successful for ${label}! Waiting for webhook...`, 'success');
+            showAlert(`Purchase successful for ${label}! Counter will update shortly.`, 'success');
               updateCounter();
               startPolling();
             }
@@ -628,7 +630,7 @@
       }
 
       if (checkoutOpened) {
-        addDebugLog('Checkout opened successfully', 'success');
+        addDebugLog(`Checkout opened successfully for ${label}`, 'success');
       } else {
         throw new Error('Failed to open checkout - no available methods');
       }
@@ -637,14 +639,13 @@
       addDebugLog(`Checkout error: ${error.message}`, 'error');
       console.error('Error creating checkout:', error);
       showAlert(error.message || 'Failed to create checkout. Please try again.', 'error');
-          } finally {
-        // Re-enable button
-        const btn = document.getElementById('buy-button') || buyButton;
-        if (btn) {
-          btn.disabled = false;
-          btn.classList.remove('loading');
-        }
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.classList.remove('loading');
+        btn.textContent = btn.dataset.originalLabel || label;
       }
+    }
   }
 
   /**
@@ -653,8 +654,10 @@
   function checkCheckoutSuccess() {
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('checkout') === 'success') {
-      addDebugLog('Checkout success detected from URL parameter', 'success');
-      showAlert('Purchase successful! Counter will update shortly.', 'success');
+      const productKey = urlParams.get('product');
+      const label = productKey ? productKey.replace(/_/g, ' ') : 'purchase';
+      addDebugLog(`Checkout success detected from URL parameter (product: ${productKey || 'unknown'})`, 'success');
+      showAlert(`Purchase successful for ${label}! Counter will update shortly.`, 'success');
       updateCounter();
       startPolling();
       
@@ -686,37 +689,21 @@
       startPolling();
       addDebugLog('Polling started (every 3 seconds)', 'info');
 
-      // Attach event listeners
-      if (buyButton) {
-        // Remove any existing listeners first by cloning
-        const newBuyButton = buyButton.cloneNode(true);
-        buyButton.parentNode.replaceChild(newBuyButton, buyButton);
-        
-        // Update the global reference to the new button
-        const updatedBuyButton = document.getElementById('buy-button');
-        if (updatedBuyButton) {
-          // Update the global buyButton variable
-          window.buyButton = updatedBuyButton;
-          
-          updatedBuyButton.addEventListener('click', (e) => {
+      // Attach event listeners to product buttons
+      if (productButtons.length) {
+        productButtons.forEach((button) => {
+          button.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            addDebugLog('Buy button clicked - event fired!', 'info');
-            handleBuyClick();
+            const productKey = button.dataset.productKey;
+            addDebugLog(`Button clicked for ${button.dataset.originalLabel || productKey}`, 'info');
+            handleBuyClick(e, productKey);
           });
-          
-          addDebugLog('Buy button event listener attached', 'info');
-          
-          // Debug: Verify click handler
-          console.log('Buy button click handler attached:', {
-            disabled: updatedBuyButton.disabled,
-            hasClickListener: true
-          });
-        } else {
-          addDebugLog('ERROR: Could not find button after cloning!', 'error');
-        }
+        });
+
+        addDebugLog(`Attached event listeners to ${productButtons.length} product buttons`, 'info');
       } else {
-        addDebugLog('ERROR: Buy button not found when attaching listener!', 'error');
+        addDebugLog('ERROR: No product buttons found when attaching listeners!', 'error');
       }
 
       // Cleanup on page unload

@@ -1,0 +1,35 @@
+{
+  "products": {
+    "single_spec": {
+      "name": "Single AI Specification",
+      "variant_id": "1055336",
+      "product_id": "671441",
+      "type": "one_time",
+      "credits": 1
+    },
+    "three_pack": {
+      "name": "3-Pack AI Specifications",
+      "variant_id": "1055344",
+      "product_id": "671444",
+      "type": "one_time",
+      "credits": 3
+    },
+    "pro_monthly": {
+      "name": "Specifys Pro \u2013 Monthly",
+      "variant_id": "1055346",
+      "product_id": "671446",
+      "type": "subscription",
+      "credits": "unlimited",
+      "billing_interval": "month"
+    },
+    "pro_yearly": {
+      "name": "Specifys Pro \u2013 Yearly",
+      "variant_id": "1055354",
+      "product_id": "671450",
+      "type": "subscription",
+      "credits": "unlimited",
+      "billing_interval": "year"
+    }
+  }
+}
+

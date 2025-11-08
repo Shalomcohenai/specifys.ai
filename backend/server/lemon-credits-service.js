@@ -17,6 +17,8 @@ async function recordTestPurchase(userId, orderId, variantId, metadata = {}) {
       email: metadata.email || null,
       variantId: variantId || null,
       productId: metadata.productId || null,
+      productKey: metadata.productKey || null,
+      productName: metadata.productName || null,
       orderId: orderId,
       orderNumber: metadata.orderNumber || null,
       amount: metadata.amount || 0,
