@@ -40,7 +40,7 @@ async function verifyFirebaseToken(req, res, next) {
  * POST /api/lemon/checkout
  * Creates a checkout session with Lemon Squeezy
  */
-router.post('/checkout', verifyFirebaseToken, async (req, res) => {
+router.post('/checkout', express.json(), verifyFirebaseToken, async (req, res) => {
   try {
     const userId = req.user.uid;
     const userEmail = req.user.email;
