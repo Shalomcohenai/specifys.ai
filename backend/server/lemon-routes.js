@@ -86,17 +86,16 @@ router.post('/checkout', express.json(), verifyFirebaseToken, async (req, res) =
     }
 
     console.log('=== Lemon Checkout Request ===');
-    console.log(JSON.stringify({
+    const requestLog = {
       userId,
       userEmail,
       productKey,
       variantId: variantIdToUse,
       storeId,
-      testMode: useTestMode,
-      quantity,
       successPath,
       successQuery
-    }, null, 2));
+    };
+    console.log(JSON.stringify(requestLog, null, 2));
 
     // Create checkout via Lemon Squeezy API
     const checkoutUrl = `https://api.lemonsqueezy.com/v1/checkouts`;
