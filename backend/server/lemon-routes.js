@@ -14,6 +14,7 @@ const { verifyWebhookSignature, parseWebhookPayload } = require('./lemon-webhook
 const { recordTestPurchase, getTestPurchaseCount } = require('./lemon-credits-service');
 const { getProductByKey, getProductByVariantId, getProductKeyByVariantId } = require('./lemon-products-config');
 const { recordPurchase } = require('./lemon-purchase-service');
+const creditsService = require('./credits-service');
 
 /**
  * Middleware to verify Firebase ID token
