@@ -352,6 +352,14 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
 
             console.log(`✅ Test purchase recorded: Order ${orderData.orderId} for user ${orderData.userId}`);
           } else {
+            const quantityOrdered = Number.isFinite(Number(orderData.quantity))
+              ? Math.max(1, Number(orderData.quantity))
+              : 1;
+            const baseCredits = typeof productConfig?.credits === 'number'
+              ? productConfig.credits
+              : (typeof productConfig?.credits === 'string' ? Number(productConfig.credits) : null);
+            const creditsToGrant = Number.isFinite(baseCredits) ? baseCredits * quantityOrdered : null;
+
             await recordPurchase({
               orderId: orderData.orderId,
               orderNumber: orderData.orderNumber,
@@ -362,8 +370,8 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
               productKey: resolvedProductKey,
               productName: productConfig?.name || null,
               productType: productConfig?.type || null,
-              credits: productConfig?.credits,
-              quantity: orderData.quantity || 1,
+              credits: creditsToGrant,
+              quantity: quantityOrdered,
               total: orderData.total,
               currency: orderData.currency,
               testMode: orderData.testMode,
@@ -378,6 +386,61 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
             });
 
             console.log(`✅ Live purchase recorded: Order ${orderData.orderId} for user ${orderData.userId}`);
+
+            if (productConfig) {
+              if (productConfig.type === 'one_time' && creditsToGrant && creditsToGrant > 0) {
+                try {
+                  await creditsService.grantCredits(
+                    orderData.userId,
+                    creditsToGrant,
+                    'lemon_squeezy',
+                    {
+                      orderId: orderData.orderId,
+                      variantId: orderData.variantId,
+                      productId: orderData.productId,
+                      productKey: resolvedProductKey,
+                      productName: productConfig.name,
+                      productType: productConfig.type,
+                      quantity: quantityOrdered,
+                      lemonCustomerId: orderData.customerId || null,
+                      transactionId: orderData.orderId ? `lemon_${orderData.orderId}` : undefined
+                    }
+                  );
+                  console.log(`✅ Granted ${creditsToGrant} credits to user ${orderData.userId} for order ${orderData.orderId}`);
+                } catch (creditError) {
+                  console.error('❌ Error granting credits from Lemon purchase:', creditError);
+                  throw creditError;
+                }
+              } else if (productConfig.type === 'subscription') {
+                try {
+                  await creditsService.enableProSubscription(orderData.userId, {
+                    plan: 'pro',
+                    orderId: orderData.orderId,
+                    productId: orderData.productId,
+                    productKey: resolvedProductKey,
+                    productName: productConfig.name,
+                    productType: productConfig.type,
+                    variantId: orderData.variantId,
+                    subscriptionId: orderData.subscriptionId || null,
+                    subscriptionStatus: orderData.subscriptionStatus || 'active',
+                    subscriptionInterval: productConfig.billing_interval || null,
+                    total: orderData.total,
+                    currency: orderData.currency,
+                    metadata: {
+                      lemonCustomerId: orderData.customerId || null
+                    }
+                  });
+                  console.log(`✅ Pro subscription enabled for user ${orderData.userId} (order ${orderData.orderId})`);
+                } catch (subscriptionError) {
+                  console.error('❌ Error enabling subscription entitlements:', subscriptionError);
+                  throw subscriptionError;
+                }
+              } else {
+                console.log(`ℹ️ No entitlement changes configured for product ${resolvedProductKey}`);
+              }
+            } else {
+              console.log('ℹ️ Product configuration not found, skipping entitlement updates');
+            }
           }
 
           console.log(`✅ Webhook processed successfully (mode: ${orderData.testMode ? 'test' : 'live'}): Order ${orderData.orderId} for user ${orderData.userId}`);

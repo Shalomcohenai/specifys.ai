@@ -37,6 +37,14 @@ async function recordPurchase({
   const purchaseRef = db.collection(PURCHASES_COLLECTION).doc(orderId.toString());
   const existing = await purchaseRef.get();
 
+  let normalizedCredits = null;
+  if (typeof credits === 'number' && Number.isFinite(credits)) {
+    normalizedCredits = credits;
+  } else if (typeof credits === 'string' && credits !== 'unlimited') {
+    const parsedCredits = Number(credits);
+    normalizedCredits = Number.isNaN(parsedCredits) ? null : parsedCredits;
+  }
+
   const purchaseData = {
     orderId: orderId ? orderId.toString() : null,
     orderNumber: orderNumber || null,
@@ -47,7 +55,7 @@ async function recordPurchase({
     productKey: productKey || null,
     productName: productName || null,
     productType: productType || null,
-    credits: typeof credits !== 'undefined' ? credits : null,
+    credits: normalizedCredits,
     quantity: quantity || 1,
     total: typeof total === 'number' ? total : null,
     currency: currency || 'USD',

@@ -4,6 +4,7 @@ const crypto = require('crypto');
 const TRANSACTIONS_COLLECTION = 'credits_transactions';
 const ENTITLEMENTS_COLLECTION = 'entitlements';
 const USERS_COLLECTION = 'users';
+const SUBSCRIPTIONS_COLLECTION = 'subscriptions';
 
 /**
  * Generate unique transaction ID for idempotency
@@ -160,6 +161,114 @@ async function grantCredits(userId, amount, source, metadata = {}) {
     console.error(`[CREDITS] [${requestId}] ❌ Error granting credits (${totalTime}ms):`, error);
     throw error;
   }
+}
+
+/**
+ * Enable Pro subscription (unlimited access)
+ * @param {string} userId
+ * @param {Object} options
+ */
+async function enableProSubscription(userId, options = {}) {
+  const {
+    plan = 'pro',
+    variantId = null,
+    productKey = null,
+    productName = null,
+    productType = null,
+    productId = null,
+    orderId = null,
+    subscriptionId = null,
+    subscriptionStatus = 'active',
+    subscriptionInterval = null,
+    currentPeriodEnd = null,
+    cancelAtPeriodEnd = false,
+    total = null,
+    currency = 'USD',
+    metadata = {}
+  } = options;
+
+  if (!userId) {
+    throw new Error('enableProSubscription requires userId');
+  }
+
+  const requestId = `pro-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  console.log(`[SUBSCRIPTION] [${requestId}] Enabling Pro access for user ${userId} (variant=${variantId || 'n/a'})`);
+
+  const result = await db.runTransaction(async (transaction) => {
+    const userRef = db.collection(USERS_COLLECTION).doc(userId);
+    const entitlementsRef = db.collection(ENTITLEMENTS_COLLECTION).doc(userId);
+    const subscriptionRef = db.collection(SUBSCRIPTIONS_COLLECTION).doc(userId);
+
+    const entitlementsSnap = await transaction.get(entitlementsRef);
+    const entitlements = entitlementsSnap.exists
+      ? entitlementsSnap.data()
+      : {
+          userId,
+          spec_credits: 0,
+          unlimited: false,
+          can_edit: false,
+          preserved_credits: 0
+        };
+
+    const currentCredits = entitlements.spec_credits || 0;
+    const alreadyUnlimited = !!entitlements.unlimited;
+
+    const entitlementsUpdate = {
+      unlimited: true,
+      can_edit: true,
+      updated_at: admin.firestore.FieldValue.serverTimestamp()
+    };
+
+    if (!alreadyUnlimited) {
+      entitlementsUpdate.preserved_credits = currentCredits;
+      entitlementsUpdate.spec_credits = 0;
+    }
+
+    transaction.set(entitlementsRef, entitlementsUpdate, { merge: true });
+
+    transaction.set(userRef, {
+      plan,
+      last_entitlement_sync_at: admin.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+
+    const subscriptionData = {
+      userId,
+      product_id: productId || null,
+      product_key: productKey || null,
+      product_name: productName || null,
+      product_type: productType || null,
+      variant_id: variantId ? variantId.toString() : null,
+      status: subscriptionStatus || 'active',
+      billing_interval: subscriptionInterval || null,
+      lemon_subscription_id: subscriptionId || null,
+      last_order_id: orderId || null,
+      last_order_total: typeof total === 'number' ? total : null,
+      currency: currency || 'USD',
+      cancel_at_period_end: !!cancelAtPeriodEnd,
+      updated_at: admin.firestore.FieldValue.serverTimestamp()
+    };
+
+    if (currentPeriodEnd) {
+      subscriptionData.current_period_end = currentPeriodEnd;
+    }
+
+    if (metadata && Object.keys(metadata).length > 0) {
+      subscriptionData.metadata = {
+        ...(metadata || {})
+      };
+    }
+
+    transaction.set(subscriptionRef, subscriptionData, { merge: true });
+
+    return {
+      previouslyUnlimited: alreadyUnlimited,
+      previousCredits: currentCredits,
+      preservedCredits: entitlementsUpdate.preserved_credits ?? entitlements.preserved_credits ?? 0
+    };
+  });
+
+  console.log(`[SUBSCRIPTION] [${requestId}] ✅ Pro access enabled (alreadyUnlimited=${result.previouslyUnlimited})`);
+  return result;
 }
 
 /**
@@ -624,6 +733,7 @@ module.exports = {
   consumeCredit,
   refundCredit,
   getEntitlements,
-  checkAccess
+  checkAccess,
+  enableProSubscription
 };
 
