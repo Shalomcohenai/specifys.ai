@@ -2,9 +2,7 @@
   'use strict';
 
   // API base URL - adjust based on your backend
-  const API_BASE_URL = window.location.hostname === 'localhost' 
-    ? 'http://localhost:10000/api'
-    : 'https://specifys-ai-store.onrender.com/api';
+  const API_BASE_URL = 'https://specifys-ai-store.onrender.com/api';
 
   // State
   let currentUser = null;
