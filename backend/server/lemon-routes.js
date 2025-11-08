@@ -85,6 +85,19 @@ router.post('/checkout', express.json(), verifyFirebaseToken, async (req, res) =
       });
     }
 
+    console.log('=== Lemon Checkout Request ===');
+    console.log(JSON.stringify({
+      userId,
+      userEmail,
+      productKey,
+      variantId: variantIdToUse,
+      storeId,
+      testMode: useTestMode,
+      quantity,
+      successPath,
+      successQuery
+    }, null, 2));
+
     // Create checkout via Lemon Squeezy API
     const checkoutUrl = `https://api.lemonsqueezy.com/v1/checkouts`;
     
@@ -216,6 +229,13 @@ router.post('/checkout', express.json(), verifyFirebaseToken, async (req, res) =
         credits: productConfig.credits,
         billingInterval: productConfig.billing_interval || null
       } : null,
+      testMode: useTestMode
+    });
+
+    console.log('✅ Lemon checkout created successfully:', {
+      checkoutId: responseData.data?.id,
+      productKey,
+      variantId: variantIdToUse,
       testMode: useTestMode
     });
 
