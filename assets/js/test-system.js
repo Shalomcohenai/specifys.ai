@@ -40,8 +40,12 @@
     logEntry.className = `debug-log-entry ${type}`;
     logEntry.innerHTML = `<span class="debug-log-time">[${time}]</span><span class="debug-log-message">${message}</span>`;
     
+    const isPinnedToBottom = Math.abs(debugLogs.scrollHeight - debugLogs.clientHeight - debugLogs.scrollTop) < 5;
+
     debugLogs.appendChild(logEntry);
-    debugLogs.scrollTop = debugLogs.scrollHeight;
+    if (isPinnedToBottom) {
+      debugLogs.scrollTop = debugLogs.scrollHeight;
+    }
     
     // Show debug section if hidden
     if (debugSection && debugSection.style.display === 'none') {
