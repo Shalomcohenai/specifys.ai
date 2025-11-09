@@ -57,9 +57,29 @@ const MAX_ACTIVITY_EVENTS = 200;
 const MAX_PURCHASES = 250;
 const MAX_SPEC_CACHE = 2000;
 
+let ChartLib = null;
+let MarkedLib = null;
+
 const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+
+function loadExternalScript(src) {
+  return new Promise((resolve, reject) => {
+    if (document.querySelector(`script[data-loaded-src="${src}"]`)) {
+      resolve();
+      return;
+    }
+    const script = document.createElement("script");
+    script.src = src;
+    script.async = true;
+    script.defer = true;
+    script.dataset.loadedSrc = src;
+    script.onload = () => resolve();
+    script.onerror = (event) => reject(event);
+    document.head.appendChild(script);
+  });
+}
 
 /**
  * Utility helpers
@@ -781,6 +801,7 @@ class AdminDashboardApp {
       activityLogs: "pending",
       blogQueue: "pending"
     };
+    this.sourceMessages = {};
 
     const specViewerElements = {
       root: utils.dom("#spec-viewer"),
@@ -908,6 +929,12 @@ class AdminDashboardApp {
   }
 
   initializeCharts() {
+    const ChartConstructor = ChartLib || window.Chart;
+    if (!ChartConstructor) {
+      console.warn("Chart.js not available. Skipping chart initialization.");
+      return;
+    }
+
     const defaultOptions = {
       responsive: true,
       maintainAspectRatio: false,
@@ -928,7 +955,7 @@ class AdminDashboardApp {
     };
     const planCtx = document.getElementById("users-plan-chart");
     if (planCtx) {
-      this.charts.usersPlan = new Chart(planCtx, {
+      this.charts.usersPlan = new ChartConstructor(planCtx, {
         type: "doughnut",
         data: {
           labels: ["Pro", "Free"],
@@ -950,7 +977,7 @@ class AdminDashboardApp {
     }
     const specsCtx = document.getElementById("specs-timeline-chart");
     if (specsCtx) {
-      this.charts.specsTimeline = new Chart(specsCtx, {
+      this.charts.specsTimeline = new ChartConstructor(specsCtx, {
         type: "line",
         data: {
           labels: [],
@@ -970,7 +997,7 @@ class AdminDashboardApp {
     }
     const revenueCtx = document.getElementById("revenue-trend-chart");
     if (revenueCtx) {
-      this.charts.revenueTrend = new Chart(revenueCtx, {
+      this.charts.revenueTrend = new ChartConstructor(revenueCtx, {
         type: "bar",
         data: {
           labels: [],
@@ -1160,14 +1187,24 @@ class AdminDashboardApp {
           this.renderLogs();
         },
         (error) => {
-          console.warn("Activity logs listener error", error);
-          this.markSourceError("activityLogs", error);
+          if (error?.code === "permission-denied") {
+            console.info("Activity logs access restricted for current user.");
+            this.markSourceRestricted("activityLogs", "Requires elevated Firebase permissions.");
+          } else {
+            console.warn("Activity logs listener error", error);
+            this.markSourceError("activityLogs", error);
+          }
         }
       );
       this.unsubscribeFns.push(unsubActivity);
     } catch (error) {
-      console.warn("Activity logs collection unavailable", error);
-      this.markSourceError("activityLogs", error);
+      if (error?.code === "permission-denied") {
+        console.info("Activity logs collection restricted for current user.");
+        this.markSourceRestricted("activityLogs", "Requires elevated Firebase permissions.");
+      } else {
+        console.warn("Activity logs collection unavailable", error);
+        this.markSourceError("activityLogs", error);
+      }
     }
 
     // Blog queue (optional)
@@ -1190,14 +1227,24 @@ class AdminDashboardApp {
           this.renderBlogQueue();
         },
         (error) => {
-          console.warn("Blog queue listener error", error);
-          this.markSourceError("blogQueue", error);
+          if (error?.code === "permission-denied") {
+            console.info("Blog queue access restricted for current user.");
+            this.markSourceRestricted("blogQueue", "Requires blog queue privileges.");
+          } else {
+            console.warn("Blog queue listener error", error);
+            this.markSourceError("blogQueue", error);
+          }
         }
       );
       this.unsubscribeFns.push(unsubQueue);
     } catch (error) {
-      console.warn("Blog queue not available", error);
-      this.markSourceError("blogQueue", error);
+      if (error?.code === "permission-denied") {
+        console.info("Blog queue not available for current user.");
+        this.markSourceRestricted("blogQueue", "Requires blog queue privileges.");
+      } else {
+        console.warn("Blog queue not available", error);
+        this.markSourceError("blogQueue", error);
+      }
     }
   }
 
@@ -1223,28 +1270,37 @@ class AdminDashboardApp {
     this.updateConnectionStatus();
   }
 
+  markSourceRestricted(key, message) {
+    this.sourceState[key] = "restricted";
+    if (message) {
+      this.sourceMessages[key] = message;
+    }
+    this.renderSourceStates();
+    this.updateConnectionStatus();
+  }
+
   renderSourceStates() {
     if (!this.dom.sourceList) return;
     this.dom.sourceList.querySelectorAll(".source-state").forEach((el) => {
       const key = el.dataset.source;
       const state = this.sourceState[key] || "pending";
-      el.textContent =
-        state === "ready"
-          ? "Ready"
-          : state === "error"
-          ? "Error"
-          : state === "pending"
-          ? "Pending"
-          : state;
-      el.classList.remove("ready", "error");
+      let label = state;
+      if (state === "ready") label = "Ready";
+      if (state === "pending") label = "Pending";
+      if (state === "error") label = "Error";
+      if (state === "restricted") label = "Restricted";
+      el.textContent = label;
+      el.title = this.sourceMessages[key] || "";
+      el.classList.remove("ready", "error", "restricted");
       if (state === "ready") el.classList.add("ready");
       if (state === "error") el.classList.add("error");
+      if (state === "restricted") el.classList.add("restricted");
     });
   }
 
   updateConnectionStatus() {
     const states = Object.values(this.sourceState);
-    if (states.every((state) => state === "ready")) {
+    if (states.every((state) => state === "ready" || state === "restricted")) {
       this.updateConnectionState("online", "Realtime sync active");
       const now = utils.now();
       if (this.dom.sidebarLastSync) {
@@ -1702,11 +1758,30 @@ class AdminDashboardApp {
       alert("Add title and content to preview.");
       return;
     }
+    if (!MarkedLib) {
+      try {
+        const module = await import("https://cdn.jsdelivr.net/npm/marked@11.2.0/lib/marked.esm.js");
+        MarkedLib = module.marked ?? module.default ?? null;
+      } catch (error) {
+        console.error("Failed to load marked", error);
+      }
+    }
+    let renderedContent;
+    if (MarkedLib) {
+      if (typeof MarkedLib === "function") {
+        renderedContent = MarkedLib(content);
+      } else if (typeof MarkedLib.parse === "function") {
+        renderedContent = MarkedLib.parse(content);
+      }
+    }
+    if (!renderedContent) {
+      renderedContent = `<pre>${content}</pre>`;
+    }
     previewArticle.innerHTML = `
       <h1>${title}</h1>
       ${description ? `<p class="lead">${description}</p>` : ""}
       <hr>
-      <div class="content">${marked.parse(content)}</div>
+      <div class="content">${renderedContent}</div>
     `;
     previewModal.classList.remove("hidden");
     previewModal
@@ -1835,9 +1910,12 @@ class AdminDashboardApp {
   }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  if (!window.Chart) {
-    console.warn("Chart.js failed to load. Statistics charts will be disabled.");
+document.addEventListener("DOMContentLoaded", async () => {
+  try {
+    await loadExternalScript("https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js");
+    ChartLib = window.Chart || null;
+  } catch (error) {
+    console.warn("Chart.js failed to load. Statistics charts will be disabled.", error);
   }
   window.adminDashboard = new AdminDashboardApp();
 });
