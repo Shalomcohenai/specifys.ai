@@ -1,2851 +1,1844 @@
-// Admin Dashboard JavaScript
+import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getAuth,
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {
+  getFirestore,
+  collection,
+  query,
+  orderBy,
+  where,
+  limit,
+  onSnapshot,
+  getDocs,
+  doc,
+  getDoc,
+  Timestamp
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// Security utilities for safe HTML rendering
-function escapeHTML(str) {
-    if (typeof str !== 'string') return '';
-    return str
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#x27;');
+const firebaseConfig = {
+  apiKey: "AIzaSyB9hr0IWM4EREzkKDxBxYoYinV6LJXWXV4",
+  authDomain: "specify-ai.firebaseapp.com",
+  projectId: "specify-ai",
+  storageBucket: "specify-ai.firebasestorage.app",
+  messagingSenderId: "734278787482",
+  appId: "1:734278787482:web:0e312fb6f197e849695a23",
+  measurementId: "G-4YR9LK63MR"
+};
+
+const COLLECTIONS = Object.freeze({
+  USERS: "users",
+  ENTITLEMENTS: "entitlements",
+  SPECS: "specs",
+  PURCHASES: "purchases",
+  SUBSCRIPTIONS: "subscriptions",
+  CREDITS_TRANSACTIONS: "credits_transactions",
+  ACTIVITY_LOGS: "activityLogs",
+  ERROR_LOGS: "errorLogs",
+  CSS_CRASH_LOGS: "cssCrashLogs",
+  BLOG_QUEUE: "blogQueue"
+});
+
+const ADMIN_EMAILS = new Set([
+  "specifysai@gmail.com",
+  "admin@specifys.ai",
+  "shalom@specifys.ai"
+]);
+
+const DATE_RANGES = Object.freeze({
+  day: 24 * 60 * 60 * 1000,
+  week: 7 * 24 * 60 * 60 * 1000,
+  month: 30 * 24 * 60 * 60 * 1000
+});
+
+const MAX_ACTIVITY_EVENTS = 200;
+const MAX_PURCHASES = 250;
+const MAX_SPEC_CACHE = 2000;
+
+const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+/**
+ * Utility helpers
+ */
+const utils = {
+  now: () => new Date(),
+  toDate(value) {
+    if (!value) return null;
+    if (value instanceof Date) return value;
+    if (value instanceof Timestamp) return value.toDate();
+    if (typeof value === "number") return new Date(value);
+    if (typeof value === "string") {
+      const parsed = Date.parse(value);
+      return Number.isNaN(parsed) ? null : new Date(parsed);
+    }
+    return null;
+  },
+  formatDate(value) {
+    const date = utils.toDate(value);
+    if (!date) return "—";
+    return date.toLocaleString("en-GB", {
+      year: "numeric",
+      month: "short",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+  },
+  formatRelative(value) {
+    const date = utils.toDate(value);
+    if (!date) return "—";
+    const diff = Date.now() - date.getTime();
+    const minutes = Math.round(diff / 60000);
+    if (minutes < 1) return "just now";
+    if (minutes < 60) return `${minutes} min ago`;
+    const hours = Math.round(minutes / 60);
+    if (hours < 24) return `${hours} h ago`;
+    const days = Math.round(hours / 24);
+    if (days < 30) return `${days} d ago`;
+    const months = Math.round(days / 30);
+    if (months < 12) return `${months} mo ago`;
+    const years = Math.round(months / 12);
+    return `${years} yr ago`;
+  },
+  formatCurrency(amount, currency = "USD") {
+    if (typeof amount !== "number") return "—";
+    try {
+      return new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency,
+        maximumFractionDigits: 2
+      }).format(amount);
+    } catch (e) {
+      return `${amount.toFixed(2)} ${currency}`;
+    }
+  },
+  formatNumber(value) {
+    if (value === null || value === undefined) return "—";
+    if (Math.abs(value) >= 1000) {
+      return new Intl.NumberFormat("en-US", { notation: "compact" }).format(
+        value
+      );
+    }
+    return new Intl.NumberFormat("en-US").format(value);
+  },
+  clampArray(arr, limit) {
+    if (arr.length <= limit) return arr;
+    return arr.slice(0, limit);
+  },
+  debounce(fn, wait = 250) {
+    let timeout = null;
+    return (...args) => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => fn(...args), wait);
+    };
+  },
+  dom(selector) {
+    return document.querySelector(selector);
+  },
+  domAll(selector) {
+    return Array.from(document.querySelectorAll(selector));
+  },
+  sanitizeSlug(slug) {
+    return slug
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 140);
+  }
+};
+
+class DashboardDataStore {
+  constructor() {
+    this.users = new Map();
+    this.entitlements = new Map();
+    this.specs = new Map();
+    this.specsByUser = new Map();
+    this.purchases = [];
+    this.activity = [];
+    this.manualActivity = [];
+    this.blogQueue = [];
+  }
+
+  reset() {
+    this.users.clear();
+    this.entitlements.clear();
+    this.specs.clear();
+    this.specsByUser.clear();
+    this.purchases = [];
+    this.activity = [];
+    this.manualActivity = [];
+    this.blogQueue = [];
+  }
+
+  upsertUser(id, data) {
+    const normalized = {
+      id,
+      email: data.email || "",
+      displayName: data.displayName || data.email || "",
+      plan: (data.plan || "free").toLowerCase(),
+      createdAt: utils.toDate(data.createdAt) || utils.toDate(data.creationTime),
+      lastActive: utils.toDate(data.lastActive),
+      newsletterSubscription: Boolean(data.newsletterSubscription),
+      disabled: Boolean(data.disabled),
+      emailVerified: Boolean(data.emailVerified),
+      metadata: data
+    };
+    this.users.set(id, normalized);
+    return normalized;
+  }
+
+  removeUser(id) {
+    this.users.delete(id);
+  }
+
+  upsertEntitlement(id, data) {
+    const normalized = {
+      userId: id,
+      specCredits:
+        typeof data.spec_credits === "number" ? data.spec_credits : null,
+      unlimited: Boolean(data.unlimited),
+      canEdit: Boolean(data.can_edit),
+      updatedAt: utils.toDate(data.updated_at),
+      metadata: data
+    };
+    this.entitlements.set(id, normalized);
+    return normalized;
+  }
+
+  removeEntitlement(id) {
+    this.entitlements.delete(id);
+  }
+
+  upsertSpec(id, data) {
+    const normalized = {
+      id,
+      userId: data.userId || data.uid || null,
+      title: data.title || "Untitled spec",
+      createdAt: utils.toDate(data.createdAt),
+      updatedAt: utils.toDate(data.updatedAt),
+      content: data.content || "",
+      metadata: data
+    };
+
+    const previous = this.specs.get(id);
+    if (previous && previous.userId && previous.userId !== normalized.userId) {
+      const prevList = this.specsByUser.get(previous.userId);
+      if (prevList) {
+        this.specsByUser.set(
+          previous.userId,
+          prevList.filter((spec) => spec.id !== id)
+        );
+      }
+    }
+
+    this.specs.set(id, normalized);
+    if (normalized.userId) {
+      const list = this.specsByUser.get(normalized.userId) || [];
+      const index = list.findIndex((spec) => spec.id === id);
+      if (index >= 0) {
+        list[index] = normalized;
+      } else {
+        list.push(normalized);
+      }
+      list.sort((a, b) => (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0));
+      this.specsByUser.set(
+        normalized.userId,
+        utils.clampArray(list, MAX_SPEC_CACHE)
+      );
+    }
+
+    return normalized;
+  }
+
+  removeSpec(id) {
+    const existing = this.specs.get(id);
+    if (existing) {
+      this.specs.delete(id);
+      if (existing.userId) {
+        const list = this.specsByUser.get(existing.userId) || [];
+        this.specsByUser.set(
+          existing.userId,
+          list.filter((spec) => spec.id !== id)
+        );
+      }
+    }
+  }
+
+  setPurchases(purchases) {
+    this.purchases = purchases
+      .map((doc) => ({
+        id: doc.id,
+        createdAt: utils.toDate(doc.createdAt),
+        total: typeof doc.total === "number" ? doc.total : null,
+        currency: doc.currency || "USD",
+        userId: doc.userId || null,
+        email: doc.email || "",
+        productName: doc.productName || doc.product_key || "Purchase",
+        productType: doc.productType || "one_time",
+        status: doc.status || "paid",
+        subscriptionId: doc.subscriptionId || null,
+        metadata: doc
+      }))
+      .sort((a, b) => (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0));
+    this.purchases = utils.clampArray(this.purchases, MAX_PURCHASES);
+  }
+
+  upsertPurchase(id, data) {
+    const normalized = {
+      id,
+      createdAt: utils.toDate(data.createdAt),
+      total: typeof data.total === "number" ? data.total : null,
+      currency: data.currency || "USD",
+      userId: data.userId || null,
+      email: data.email || "",
+      productName: data.productName || data.product_key || "Purchase",
+      productType: data.productType || "one_time",
+      status: data.status || "paid",
+      subscriptionId: data.subscriptionId || null,
+      metadata: data
+    };
+    const index = this.purchases.findIndex((item) => item.id === id);
+    if (index >= 0) {
+      this.purchases[index] = normalized;
+    } else {
+      this.purchases.unshift(normalized);
+    }
+    this.purchases.sort((a, b) => (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0));
+    this.purchases = utils.clampArray(this.purchases, MAX_PURCHASES);
+    return normalized;
+  }
+
+  removePurchase(id) {
+    this.purchases = this.purchases.filter((item) => item.id !== id);
+  }
+
+  setActivity(events, options = { append: false }) {
+    if (options.append) {
+      this.activity = utils.clampArray(
+        [...events, ...this.activity],
+        MAX_ACTIVITY_EVENTS
+      );
+    } else {
+      this.activity = utils.clampArray(events, MAX_ACTIVITY_EVENTS);
+    }
+  }
+
+  recordActivity(event) {
+    if (!event || !event.timestamp) return;
+    const normalized = {
+      id: event.id || `${event.type}-${event.timestamp.getTime()}-${Math.random().toString(36).slice(2, 8)}`,
+      type: event.type || "system",
+      title: event.title || "Activity",
+      description: event.description || "",
+      timestamp: utils.toDate(event.timestamp) || utils.now(),
+      meta: event.meta || {}
+    };
+    this.manualActivity.unshift(normalized);
+    this.manualActivity = utils.clampArray(this.manualActivity, MAX_ACTIVITY_EVENTS);
+  }
+
+  setBlogQueue(items) {
+    this.blogQueue = items
+      .map((item) => ({
+        id: item.id,
+        title: item.postData?.title || "Untitled post",
+        status: item.status || "pending",
+        createdAt: utils.toDate(item.createdAt),
+        startedAt: utils.toDate(item.startedAt),
+        completedAt: utils.toDate(item.completedAt),
+        error: item.error || null,
+        result: item.result || null
+      }))
+      .sort((a, b) => (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0));
+  }
+
+  getUsersSorted() {
+    return Array.from(this.users.values()).sort(
+      (a, b) => (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0)
+    );
+  }
+
+  getUser(userId) {
+    return this.users.get(userId) || null;
+  }
+
+  getEntitlement(userId) {
+    return this.entitlements.get(userId) || null;
+  }
+
+  getSpecCount(userId) {
+    const list = this.specsByUser.get(userId);
+    return list ? list.length : 0;
+  }
+
+  getSpecsForUser(userId) {
+    return this.specsByUser.get(userId) || [];
+  }
+
+  getPurchases(range) {
+    if (!range || range === "all") return this.purchases;
+    const threshold = Date.now() - DATE_RANGES[range];
+    return this.purchases.filter((purchase) => (purchase.createdAt?.getTime() || 0) >= threshold);
+  }
+
+  getActivityMerged() {
+    const combined = [...this.manualActivity, ...this.activity];
+    combined.sort((a, b) => (b.timestamp?.getTime() || 0) - (a.timestamp?.getTime() || 0));
+    return utils.clampArray(combined, MAX_ACTIVITY_EVENTS);
+  }
 }
 
-class AdminDashboard {
-    constructor() {
-        // Check if Firebase is available
-        if (typeof firebase === 'undefined') {
+class GlobalSearch {
+  constructor(store, elements) {
+    this.store = store;
+    this.elements = elements;
+    this.active = false;
+    this.boundHandleKey = this.handleKeydown.bind(this);
+    this.debouncedSearch = utils.debounce(this.executeSearch.bind(this), 160);
+    this.init();
+  }
 
-            this.updateFirebaseStatus('error', 'Firebase not loaded');
-            return;
-        }
-        
-        this.db = firebase.firestore();
-        this.auth = firebase.auth();
-        this.currentUser = null;
-        this.allUsers = [];
-        this.allSpecs = [];
-        this.allMarketResearch = [];
-        this.allDashboards = [];
-        this.allTasks = [];
-        this.allMilestones = [];
-        this.allSavedTools = [];
-        this.allLikes = [];
-        this.allNotes = [];
-        this.allExpenses = [];
-        this.allPurchases = [];
-        this.allSubscriptions = [];
-        this.allEntitlements = [];
-        this.allBuyClicks = [];
-        this.autoRefreshInterval = null;
-        this.lastRefreshTime = null;
-        
-        this.init();
+  init() {
+    document.addEventListener("keydown", this.boundHandleKey);
+    this.elements.openTrigger?.addEventListener("click", () => this.open());
+    this.elements.closeTrigger?.addEventListener("click", () => this.close());
+    this.elements.backdrop?.addEventListener("click", () => this.close());
+    this.elements.input?.addEventListener("input", (event) => {
+      this.debouncedSearch(event.target.value);
+    });
+  }
+
+  handleKeydown(event) {
+    if ((event.metaKey || event.ctrlKey) && event.key === "/") {
+      event.preventDefault();
+      this.toggle();
+    } else if (event.key === "Escape" && this.active) {
+      event.preventDefault();
+      this.close();
+    }
+  }
+
+  toggle() {
+    if (this.active) {
+      this.close();
+    } else {
+      this.open();
+    }
+  }
+
+  open() {
+    this.active = true;
+    this.elements.root?.classList.remove("hidden");
+    setTimeout(() => this.elements.input?.focus(), 20);
+    this.renderPlaceholder();
+  }
+
+  close() {
+    this.active = false;
+    this.elements.root?.classList.add("hidden");
+    if (this.elements.input) {
+      this.elements.input.value = "";
+    }
+    this.renderPlaceholder();
+  }
+
+  renderPlaceholder() {
+    if (!this.elements.results) return;
+    this.elements.results.innerHTML = `
+      <div class="results-placeholder">Start typing to search across modules.</div>
+    `;
+  }
+
+  executeSearch(rawTerm) {
+    if (!this.elements.results) return;
+    const term = rawTerm.trim().toLowerCase();
+    if (term.length < 2) {
+      this.renderPlaceholder();
+      return;
     }
 
-    async init() {
-        // Setup event listeners
-        this.setupTabs();
-        this.setupSubTabs();
-        this.setupFilters();
-        this.setupPermissionsFilters();
-    
-    // Check Firebase connection
-        this.updateFirebaseStatus('connecting', 'Connecting to Firebase...');
-        
-        // Get current user
-        this.auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                this.currentUser = user;
-                this.updateFirebaseStatus('connected', 'Connected to Firebase');
-                await this.loadAllData();
-                
-                // Setup auto-refresh every 24 hours
-                this.setupAutoRefresh();
-            } else {
-                this.updateFirebaseStatus('error', 'Not authenticated');
+    const userResults = [];
+    const paymentResults = [];
+    const specResults = [];
+    const logResults = [];
+
+    for (const user of this.store.getUsersSorted()) {
+      if (
+        user.email.toLowerCase().includes(term) ||
+        (user.displayName && user.displayName.toLowerCase().includes(term))
+      ) {
+        userResults.push({
+          id: user.id,
+          title: user.displayName || user.email,
+          subtitle: `${user.email} • Plan: ${user.plan}`,
+          action: () => {
+            const navButton = document.querySelector(
+              '[data-target="users-section"]'
+            );
+            navButton?.dispatchEvent(new Event("click", { bubbles: true }));
+            const searchInput = document.getElementById("users-search");
+            if (searchInput) {
+              searchInput.focus();
+              searchInput.value = user.email;
+              searchInput.dispatchEvent(new Event("input"));
             }
+            this.close();
+          }
         });
+      }
     }
 
-    // Update Firebase connection status
-    updateFirebaseStatus(status, text) {
-        const statusIndicator = document.getElementById('firebase-status');
-        if (!statusIndicator) return;
-        
-        const statusDot = statusIndicator.querySelector('.status-dot');
-        const statusText = statusIndicator.querySelector('.status-text');
-        
-        // Remove all status classes
-        statusDot.classList.remove('connected', 'error');
-        
-        // Add appropriate class
-        if (status === 'connected') {
-            statusDot.classList.add('connected');
-        } else if (status === 'error') {
-            statusDot.classList.add('error');
-        }
-        
-        statusText.textContent = text;
+    for (const purchase of this.store.purchases) {
+      const target = [purchase.email, purchase.productName, purchase.productType]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      if (target.includes(term)) {
+        paymentResults.push({
+          id: purchase.id,
+          title: `${utils.formatCurrency(purchase.total, purchase.currency)} • ${purchase.productName}`,
+          subtitle: `${purchase.email || purchase.userId || "Unknown user"} · ${utils.formatDate(purchase.createdAt)}`,
+          action: () => {
+            document
+              .querySelector('[data-target="payments-section"]')
+              ?.dispatchEvent(new Event("click", { bubbles: true }));
+            this.close();
+          }
+        });
+      }
     }
 
-    // Setup auto-refresh every 24 hours
-    setupAutoRefresh() {
-        // Clear existing interval if any
-        if (this.autoRefreshInterval) {
-            clearInterval(this.autoRefreshInterval);
-        }
-        
-        // Refresh every 24 hours (86400000 ms)
-        this.autoRefreshInterval = setInterval(() => {
-            this.refreshAllData();
-        }, 86400000);
-    }
-
-    // Load payment data from Firestore
-    async loadPaymentData() {
-        try {
-            // Load purchases
-            const purchasesSnapshot = await this.db.collection('purchases').get();
-            this.allPurchases = purchasesSnapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            }));
-
-            // Load subscriptions
-            const subscriptionsSnapshot = await this.db.collection('subscriptions').get();
-            this.allSubscriptions = subscriptionsSnapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            }));
-
-            // Load entitlements
-            const entitlementsSnapshot = await this.db.collection('entitlements').get();
-            this.allEntitlements = entitlementsSnapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            }));
-
-            this.updatePaymentStats();
-            this.updateRevenueAnalytics();
-            this.updateProductPerformance();
-            this.updateSubscriptionAnalytics();
-            this.updateTransactionsTable();
-            this.updateUserPaymentsTable();
-
-        } catch (error) {
-
-            this.showNotification('❌ Error loading payment data: ' + error.message, 'error');
-        }
-    }
-
-    // Manual refresh all data
-    async refreshAllData() {
-        const refreshBtn = document.getElementById('refresh-all-data');
-        if (refreshBtn) {
-            refreshBtn.classList.add('refreshing');
-            refreshBtn.disabled = true;
-        }
-        
-        this.showNotification('Refreshing all data...', 'info');
-        
-        try {
-            await this.loadAllData();
-            this.lastRefreshTime = new Date();
-            this.updateLastRefreshTime();
-            this.showNotification('Data refreshed successfully', 'success');
-        } catch (error) {
-
-            this.showNotification('Error refreshing data: ' + error.message, 'error');
-        } finally {
-            if (refreshBtn) {
-                refreshBtn.classList.remove('refreshing');
-                refreshBtn.disabled = false;
+    for (const [userId, specs] of this.store.specsByUser.entries()) {
+      for (const spec of specs) {
+        const target = `${spec.title} ${spec.metadata?.description || ""}`.toLowerCase();
+        if (target.includes(term)) {
+          specResults.push({
+            id: spec.id,
+            title: spec.title,
+            subtitle: `${this.store.getUser(userId)?.email || userId} · ${utils.formatDate(spec.createdAt)}`,
+            action: () => {
+              this.elements.specViewer?.openWithUser(userId);
+              this.close();
             }
+          });
         }
+      }
     }
 
-    // Sync current user to Firestore (creates user document if missing)
-    async syncUsersFromAuth() {
-        const syncBtn = document.getElementById('sync-users-btn');
-        if (syncBtn) {
-            syncBtn.classList.add('syncing');
-            syncBtn.disabled = true;
-        }
-        
-        this.showNotification('🔄 Creating user documents in Firestore...', 'info');
-        
-        try {
-            // For now, we can only sync the current user and create a template
-            // A full sync would require Firebase Admin SDK with service account
-            
-            if (!this.currentUser) {
-                throw new Error('No user logged in');
-            }
-            
-            // Create/update current user document
-            const userRef = this.db.collection('users').doc(this.currentUser.uid);
-            const userDoc = await userRef.get();
-            
-            if (!userDoc.exists) {
-                await userRef.set({
-                    email: this.currentUser.email,
-                    displayName: this.currentUser.displayName || this.currentUser.email.split('@')[0],
-                    emailVerified: this.currentUser.emailVerified,
-                    createdAt: new Date().toISOString(),
-                    lastActive: new Date().toISOString(),
-                    newsletterSubscription: false
-                });
-                this.showNotification('✅ Current user synced! Note: Other users will be synced when they login.', 'success');
-            } else {
-                // Update lastActive
-                await userRef.update({
-                    lastActive: new Date().toISOString()
-                });
-                this.showNotification('✅ Current user updated! Note: Other users will be synced when they login.', 'success');
-            }
-            
-            // Reload users data
-            await this.loadUsersData();
-            this.updateStatsCards();
-            this.updateAnalytics();
-            
-        } catch (error) {
-
-            this.showNotification('❌ Error: ' + error.message, 'error');
-        } finally {
-            if (syncBtn) {
-                syncBtn.classList.remove('syncing');
-                syncBtn.disabled = false;
-            }
-        }
-    }
-
-    // Update last refresh time display
-    updateLastRefreshTime() {
-        const lastRefreshEl = document.getElementById('last-refresh-time');
-        if (!lastRefreshEl) return;
-        
-        if (!this.lastRefreshTime) {
-            lastRefreshEl.textContent = 'Never refreshed';
-            return;
-        }
-        
-        const now = new Date();
-        const diff = now - this.lastRefreshTime;
-        const minutes = Math.floor(diff / 60000);
-        const hours = Math.floor(diff / 3600000);
-        
-        if (minutes < 1) {
-            lastRefreshEl.textContent = 'Just now';
-        } else if (minutes < 60) {
-            lastRefreshEl.textContent = `Last refresh: ${minutes} min ago`;
-        } else if (hours < 24) {
-            lastRefreshEl.textContent = `Last refresh: ${hours} hours ago`;
-                } else {
-            lastRefreshEl.textContent = `Last refresh: ${this.lastRefreshTime.toLocaleString()}`;
-        }
-    }
-
-    // Setup main tabs
-    setupTabs() {
-        const tabBtns = document.querySelectorAll('.tab-btn');
-        const tabContents = document.querySelectorAll('.tab-content');
-
-        tabBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const targetTab = btn.dataset.tab;
-                
-                // Remove active class from all
-                tabBtns.forEach(b => b.classList.remove('active'));
-                tabContents.forEach(c => c.classList.remove('active'));
-                
-                // Add active class to clicked
-                btn.classList.add('active');
-                document.getElementById(`${targetTab}-tab`).classList.add('active');
-            });
+    for (const event of this.store.getActivityMerged()) {
+      const target = `${event.title} ${event.description}`.toLowerCase();
+      if (target.includes(term)) {
+        logResults.push({
+          id: event.id,
+          title: event.title,
+          subtitle: `${event.type.toUpperCase()} · ${utils.formatDate(event.timestamp)}`,
+          action: () => {
+            document
+              .querySelector('[data-target="logs-section"]')
+              ?.dispatchEvent(new Event("click", { bubbles: true }));
+            this.close();
+          }
         });
+      }
     }
 
-    // Setup sub tabs
-    setupSubTabs() {
-        const subTabBtns = document.querySelectorAll('.sub-tab-btn');
-        const subTabContents = document.querySelectorAll('.sub-tab-content');
+    const renderGroup = (label, items) => {
+      if (!items.length) return "";
+      const htmlItems = items
+        .slice(0, 6)
+        .map(
+          (item) => `
+          <li class="result-item" data-result-id="${item.id}">
+            <span class="result-title">${item.title}</span>
+            <span class="result-meta">${item.subtitle}</span>
+          </li>
+        `
+        )
+        .join("");
+      return `
+        <section class="result-group" data-group="${label.toLowerCase()}">
+          <h3>${label}</h3>
+          <ul class="result-list">${htmlItems}</ul>
+        </section>
+      `;
+    };
 
-        subTabBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const targetSubTab = btn.dataset.subtab;
-                
-                // Remove active class from all
-                subTabBtns.forEach(b => b.classList.remove('active'));
-                subTabContents.forEach(c => c.classList.remove('active'));
-                
-                // Add active class to clicked
-                btn.classList.add('active');
-                document.getElementById(`${targetSubTab}-subtab`).classList.add('active');
-                });
-            });
-    }
+    const resultsHTML = [
+      renderGroup("Users", userResults),
+      renderGroup("Payments", paymentResults),
+      renderGroup("Specs", specResults),
+      renderGroup("Logs", logResults)
+    ]
+      .filter(Boolean)
+      .join("");
 
-    // Setup filters and search
-    setupFilters() {
-        // Users filters
-        document.getElementById('users-search')?.addEventListener('input', (e) => {
-            this.filterUsers(e.target.value, document.getElementById('users-newsletter-filter').value);
+    this.elements.results.innerHTML =
+      resultsHTML || `<div class="results-placeholder">No results found for “${term}”.</div>`;
+
+    this.elements.results
+      .querySelectorAll(".result-item")
+      .forEach((itemElement) => {
+        itemElement.addEventListener("click", () => {
+          const group = itemElement.closest(".result-group")?.dataset.group;
+          const id = itemElement.dataset.resultId;
+          const collectionMap = {
+            users: userResults,
+            payments: paymentResults,
+            specs: specResults,
+            logs: logResults
+          };
+          const targetCollection = collectionMap[group];
+          const found = targetCollection?.find((entry) => entry.id === id);
+          found?.action?.();
         });
-        
-        document.getElementById('users-newsletter-filter')?.addEventListener('change', (e) => {
-            this.filterUsers(document.getElementById('users-search').value, e.target.value);
-        });
+      });
+  }
+}
 
-        // Specs filters
-        document.getElementById('specs-search')?.addEventListener('input', () => this.filterSpecs());
-        document.getElementById('specs-user-filter')?.addEventListener('input', () => this.filterSpecs());
-        document.getElementById('specs-date-from')?.addEventListener('change', () => this.filterSpecs());
-        document.getElementById('specs-date-to')?.addEventListener('change', () => this.filterSpecs());
+class SpecViewerModal {
+  constructor(store, elements) {
+    this.store = store;
+    this.elements = elements;
+    this.currentUserId = null;
+    this.debouncedFilter = utils.debounce(this.renderList.bind(this), 150);
+    this.init();
+  }
 
-        // Market Research filters
-        document.getElementById('market-search')?.addEventListener('input', () => this.filterMarketResearch());
-        document.getElementById('market-user-filter')?.addEventListener('input', () => this.filterMarketResearch());
-        document.getElementById('market-date-from')?.addEventListener('change', () => this.filterMarketResearch());
-        document.getElementById('market-date-to')?.addEventListener('change', () => this.filterMarketResearch());
+  init() {
+    if (!this.elements.root) return;
+    this.elements.dismissButtons?.forEach((btn) =>
+      btn.addEventListener("click", () => this.close())
+    );
+    this.elements.backdrop?.addEventListener("click", () => this.close());
+    this.elements.search?.addEventListener("input", () => {
+      this.debouncedFilter();
+    });
+  }
 
-        // Dashboards filters
-        document.getElementById('dashboards-search')?.addEventListener('input', () => this.filterDashboards());
-        document.getElementById('dashboards-user-filter')?.addEventListener('input', () => this.filterDashboards());
-        document.getElementById('dashboards-date-from')?.addEventListener('change', () => this.filterDashboards());
-        document.getElementById('dashboards-date-to')?.addEventListener('change', () => this.filterDashboards());
+  open(userId) {
+    this.currentUserId = userId;
+    if (this.elements.root) {
+      this.elements.root.classList.remove("hidden");
+    }
+    if (this.elements.search) {
+      this.elements.search.value = "";
+    }
+    this.renderList();
+  }
 
-        // Errors type filter
-        document.getElementById('errors-type-filter')?.addEventListener('change', () => {
-            this.loadErrorLogs();
-        });
+  async openWithFetch(userId) {
+    await this.preloadSpecs(userId);
+    this.open(userId);
+  }
 
-        // CSS crash filters
-        document.getElementById('css-crash-type-filter')?.addEventListener('change', () => {
-            this.loadCSCCrashLogs();
-        });
-        document.getElementById('css-crash-url-filter')?.addEventListener('input', () => {
-            this.loadCSCCrashLogs();
-        });
+  async preloadSpecs(userId) {
+    if (this.store.getSpecsForUser(userId).length > 0) return;
+    try {
+      const q = query(
+        collection(db, COLLECTIONS.SPECS),
+        where("userId", "==", userId),
+        orderBy("createdAt", "desc"),
+        limit(100)
+      );
+      const snapshot = await getDocs(q);
+      snapshot.forEach((docSnap) => {
+        this.store.upsertSpec(docSnap.id, docSnap.data());
+      });
+    } catch (error) {
+      console.error("Failed to preload specs", error);
+    }
+  }
+
+  async openWithUser(userId) {
+    await this.preloadSpecs(userId);
+    this.open(userId);
+  }
+
+  close() {
+    if (this.elements.root) {
+      this.elements.root.classList.add("hidden");
+    }
+  }
+
+  renderList() {
+    if (!this.elements.list || !this.currentUserId) return;
+    const specs = this.store.getSpecsForUser(this.currentUserId);
+    const searchValue = this.elements.search?.value.trim().toLowerCase() ?? "";
+    const filtered = searchValue
+      ? specs.filter((spec) => {
+          const haystack = `${spec.title} ${spec.content}`.toLowerCase();
+          return haystack.includes(searchValue);
+        })
+      : specs;
+    if (!filtered.length) {
+      this.elements.list.innerHTML =
+        "<div class=\"modal-placeholder\">No specs found for this user.</div>";
+      return;
     }
 
-    // Setup permissions filters
-    setupPermissionsFilters() {
-        // Permissions search
-        const permissionsSearch = document.getElementById('permissions-search');
-        if (permissionsSearch) {
-            permissionsSearch.addEventListener('input', () => {
-                this.updatePermissionsTable();
-            });
-        }
-
-        // Permissions plan filter
-        const permissionsPlanFilter = document.getElementById('permissions-plan-filter');
-        if (permissionsPlanFilter) {
-            permissionsPlanFilter.addEventListener('change', () => {
-                this.updatePermissionsTable();
-            });
-        }
-    }
-
-    // Load all data
-    async loadAllData() {
-        try {
-            // Load data sequentially to better track errors
-            await this.loadUsersData();
-            await this.loadSpecsData();
-            await this.loadMarketResearchData();
-            await this.loadDashboardsData();
-            await this.loadActivityData();
-            await this.loadPaymentData();
-            await this.loadPermissionsData();
-            await this.loadBuyClicksData();
-            await this.loadErrorLogs();
-            await this.loadCSCCrashLogs();
-            
-            this.updateStatsCards();
-            this.updateAnalytics();
-            this.updateOverviewTab();
-            this.updateContentTab();
-            
-            // Update last refresh time
-            this.lastRefreshTime = new Date();
-            this.updateLastRefreshTime();
-        } catch (error) {
-
-            this.showNotification('Error loading data: ' + error.message, 'error');
-        }
-    }
-
-    // Load users data
-    async loadUsersData() {
-        try {
-            const usersSnapshot = await this.db.collection('users').get();
-            
-            // NO MOCK DATA - Only real data from Firebase
-            this.allUsers = usersSnapshot.docs.map(doc => {
-                const data = doc.data();
-                return {
-                    id: doc.id,
-                    ...data
-                };
-            });
-            
-            this.renderUsersTable(this.allUsers);
-        } catch (error) {
-
-
-
-
-            
-            // Show error in table
-            const tbody = document.getElementById('users-table-body');
-            if (tbody) {
-                let errorMessage = error.message;
-                if (error.code === 'permission-denied') {
-                    errorMessage = 'Permission denied. Firestore Rules not deployed yet.';
-                }
-                
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="5" style="text-align: center; color: var(--danger-color); padding: 20px;">
-                            <strong>Error loading users:</strong> ${errorMessage}
-                            <br><br>
-                            <small>
-                                <strong>Possible reasons:</strong><br>
-                                1. Firestore Rules not deployed yet (most likely)<br>
-                                2. Current user email: ${this.currentUser?.email}<br>
-                                3. Please deploy the rules manually via Firebase Console
-                            </small>
-                        </td>
-                    </tr>
-                `;
-            }
-            
-            // Don't throw - continue loading other data
-            this.allUsers = [];
-        }
-    }
-
-    // Load specs data
-    async loadSpecsData() {
-        try {
-            const specsSnapshot = await this.db.collection('specs').get();
-            
-            // NO MOCK DATA - Only real data from Firebase
-            this.allSpecs = specsSnapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            }));
-            
-            this.renderSpecsTable(this.allSpecs);
-            // Also update specs activity table if it exists
-            if (typeof this.renderSpecsActivityTable === 'function') {
-                this.renderSpecsActivityTable();
-            }
-        } catch (error) {
-
-            const tbody = document.getElementById('specs-table-body');
-            if (tbody) {
-            tbody.innerHTML = `
-                <tr>
-                        <td colspan="5" style="text-align: center; color: var(--danger-color); padding: 20px;">
-                            Error: ${error.message}
-                    </td>
-                </tr>
-            `;
-            }
-            throw error;
-        }
-    }
-
-    // Load market research data
-    async loadMarketResearchData() {
-        try {
-            const marketSnapshot = await this.db.collection('marketResearch').get();
-            
-            // NO MOCK DATA - Only real data from Firebase
-            this.allMarketResearch = marketSnapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            }));
-            
-            this.renderMarketResearchTable(this.allMarketResearch);
-        } catch (error) {
-
-            const tbody = document.getElementById('market-table-body');
-            if (tbody) {
-            tbody.innerHTML = `
-                <tr>
-                        <td colspan="5" style="text-align: center; color: var(--danger-color); padding: 20px;">
-                            Error: ${error.message}
-                    </td>
-                </tr>
-            `;
-        }
-            throw error;
-        }
-    }
-
-    // Load dashboards data
-    async loadDashboardsData() {
-        try {
-            // NO MOCK DATA - Only real data from Firebase
-            const dashboardsSnapshot = await this.db.collection('apps').get();
-            this.allDashboards = dashboardsSnapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            }));
-
-            // Load tasks and milestones
-            const tasksSnapshot = await this.db.collection('appTasks').get();
-            this.allTasks = tasksSnapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            }));
-
-            const milestonesSnapshot = await this.db.collection('appMilestones').get();
-            this.allMilestones = milestonesSnapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            }));
-            
-            this.renderDashboardsTable(this.allDashboards);
-        } catch (error) {
-
-            const tbody = document.getElementById('dashboards-table-body');
-            if (tbody) {
-            tbody.innerHTML = `
-                <tr>
-                        <td colspan="7" style="text-align: center; color: var(--danger-color); padding: 20px;">
-                            Error: ${error.message}
-                    </td>
-                </tr>
-            `;
-        }
-            throw error;
-        }
-    }
-
-    // Render users table
-    renderUsersTable(users) {
-        const tbody = document.getElementById('users-table-body');
-        
-        if (!users || users.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" class="loading-cell">No users found</td></tr>';
-            return;
-        }
-
-        tbody.innerHTML = users.map(user => `
-            <tr>
-                <td>${escapeHTML(user.email || 'N/A')}</td>
-                <td>${this.formatDate(user.createdAt)}</td>
-                <td><span class="status-badge status-${user.newsletterSubscription ? 'subscribed' : 'unsubscribed'}">${user.newsletterSubscription ? 'Subscribed' : 'Unsubscribed'}</span></td>
-                <td>${this.formatDate(user.lastActive)}</td>
-                <td>
-                    <button class="btn-delete" onclick="adminDashboard.confirmDeleteUser('${escapeHTML(user.id)}', '${escapeHTML(user.email)}')">
-                        <i class="fas fa-trash"></i> Delete
-                    </button>
-                </td>
-            </tr>
-        `).join('');
-    }
-
-    // Render specs table
-    renderSpecsTable(specs) {
-        const tbody = document.getElementById('specs-table-body');
-        
-        // Check if the element exists (it might not exist in simplified interface)
-        if (!tbody) {
-
-            return;
-        }
-        
-        if (!specs || specs.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" class="loading-cell">No specs found</td></tr>';
-            return;
-        }
-
-        tbody.innerHTML = specs.map(spec => `
-            <tr>
-                <td>${spec.title || 'Untitled'}</td>
-                <td>${spec.userName || 'Unknown'}</td>
-                <td>${this.formatDate(spec.createdAt)}</td>
-                <td>${spec.mode || 'N/A'}</td>
-                <td>
-                    <button class="btn-view" onclick="adminDashboard.viewSpec('${spec.id}', 'specs')">
-                        <i class="fas fa-eye"></i> View
-                    </button>
-                </td>
-                </tr>
-            `).join('');
-    }
-
-    // Render specs activity table (chronological order)
-    renderSpecsActivityTable() {
-        const tbody = document.getElementById('specs-activity-table-body');
-        
-        if (!tbody) {
-            return;
-        }
-
-        if (!this.allSpecs || this.allSpecs.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" class="loading-cell">No specs found</td></tr>';
-            return;
-        }
-
-        // Sort specs by createdAt (chronological order - newest first)
-        const sortedSpecs = [...this.allSpecs].sort((a, b) => {
-            const dateA = this.getDate(a.createdAt);
-            const dateB = this.getDate(b.createdAt);
-            if (!dateA && !dateB) return 0;
-            if (!dateA) return 1;
-            if (!dateB) return -1;
-            return dateB - dateA; // Newest first
-        });
-
-        // Build user lookup map
-        const userMap = {};
-        this.allUsers.forEach(user => {
-            userMap[user.id] = user;
-        });
-
-        // Build entitlements lookup map
-        const entitlementsMap = {};
-        this.allEntitlements.forEach(entitlement => {
-            entitlementsMap[entitlement.userId] = entitlement;
-        });
-
-        if (sortedSpecs.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" class="loading-cell">No specs found</td></tr>';
-            return;
-        }
-
-        tbody.innerHTML = sortedSpecs.map(spec => {
-            const user = userMap[spec.userId];
-            const entitlement = entitlementsMap[spec.userId];
-            const plan = entitlement && entitlement.unlimited ? 'Pro' : 'Free';
-            const userEmail = user ? (user.email || 'N/A') : 'Unknown';
-            const specLink = `/pages/spec-viewer.html?id=${spec.id}`;
-
-            return `
-                <tr>
-                    <td>${escapeHTML(spec.userId || 'N/A')}</td>
-                    <td>${escapeHTML(userEmail)}</td>
-                    <td>${this.formatDate(spec.createdAt)}</td>
-                    <td>
-                        <span class="status-badge ${entitlement && entitlement.unlimited ? 'status-pro' : 'status-free'}">
-                            ${plan}
-                        </span>
-                    </td>
-                    <td>${escapeHTML(spec.id || 'N/A')}</td>
-                    <td>
-                        <a href="${specLink}" target="_blank" class="btn-view" style="text-decoration: none; display: inline-block;">
-                            <i class="fas fa-external-link-alt"></i> View Spec
-                        </a>
-                    </td>
-                </tr>
-            `;
-        }).join('');
-    }
-
-    // Render market research table
-    renderMarketResearchTable(research) {
-        const tbody = document.getElementById('market-table-body');
-        
-        // Check if the element exists (it might not exist in simplified interface)
-        if (!tbody) {
-
-            return;
-        }
-        
-        if (!research || research.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" class="loading-cell">No market research found</td></tr>';
-            return;
-        }
-
-        tbody.innerHTML = research.map(item => `
-            <tr>
-                <td>${item.title || 'Untitled'}</td>
-                <td>${item.userName || 'Unknown'}</td>
-                <td>${this.formatDate(item.createdAt)}</td>
-                <td>${item.mode || 'Market Research'}</td>
-                <td>
-                    <button class="btn-view" onclick="adminDashboard.viewSpec('${item.id}', 'marketResearch')">
-                        <i class="fas fa-eye"></i> View
-                    </button>
-                    </td>
-                </tr>
-        `).join('');
-    }
-
-    // Load activity data (saved tools, likes, notes, expenses)
-    async loadActivityData() {
-
-        
-        // Load saved tools with individual error handling
-        try {
-            const savedToolsSnapshot = await this.db.collectionGroup('savedTools').get();
-            this.allSavedTools = savedToolsSnapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            }));
-
-        } catch (error) {
-
-            this.allSavedTools = [];
-            if (error.code === 'permission-denied') {
-
-            }
-        }
-
-        // Load likes with individual error handling
-        try {
-            const likesSnapshot = await this.db.collection('userLikes').get();
-            this.allLikes = likesSnapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            }));
-
-        } catch (error) {
-
-            this.allLikes = [];
-            if (error.code === 'permission-denied') {
-
-            }
-        }
-
-        // Load notes with individual error handling
-        try {
-            const notesSnapshot = await this.db.collection('appNotes').get();
-            this.allNotes = notesSnapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            }));
-
-        } catch (error) {
-
-            this.allNotes = [];
-        }
-
-        // Load expenses with individual error handling
-        try {
-            const expensesSnapshot = await this.db.collection('appExpenses').get();
-            this.allExpenses = expensesSnapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            }));
-
-        } catch (error) {
-
-            this.allExpenses = [];
-        }
-
-        // Render activity tables
-        this.renderSavedToolsTable();
-        this.renderActiveUsersTable();
-        this.updateEngagementStats();
-        
-
-    }
-
-    // Render saved tools table
-    renderSavedToolsTable() {
-        const tbody = document.getElementById('saved-tools-table-body');
-        if (!tbody) return;
-        
-        if (!this.allSavedTools || this.allSavedTools.length === 0) {
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="4" style="text-align: center; padding: 20px;">
-                        <div style="color: var(--warning-color);">
-                            <i class="fas fa-exclamation-triangle"></i> No saved tools data available
-                        </div>
-                        <small style="color: var(--primary-color);">
-                            This might be due to:<br>
-                            1. No users have saved tools yet, OR<br>
-                            2. Firestore Rules need to be updated (check console for permission errors)
-                        </small>
-                    </td>
-                        </tr>
-            `;
-            return;
-        }
-
-        // Group by tool name and count
-        const toolStats = {};
-        this.allSavedTools.forEach(tool => {
-            const toolName = tool.toolName || 'Unknown Tool';
-            if (!toolStats[toolName]) {
-                toolStats[toolName] = {
-                    count: 0,
-                    users: new Set()
-                };
-            }
-            toolStats[toolName].count++;
-            if (tool.userId) {
-                toolStats[toolName].users.add(tool.userId);
-            }
-        });
-
-        // Convert to array and sort
-        const toolArray = Object.entries(toolStats).map(([name, stats]) => ({
-            name,
-            count: stats.count,
-            uniqueUsers: stats.users.size,
-            popularity: ((stats.users.size / Math.max(this.allUsers.length, 1)) * 100).toFixed(1)
-        })).sort((a, b) => b.count - a.count);
-
-        tbody.innerHTML = toolArray.slice(0, 10).map((tool, index) => `
-            <tr>
-                <td><strong>${index + 1}.</strong> ${tool.name}</td>
-                <td>${tool.count}</td>
-                <td>${tool.uniqueUsers}</td>
-                <td>${tool.popularity}%</td>
-                            </tr>
-        `).join('');
-    }
-
-    // Render active users table
-    renderActiveUsersTable() {
-        const tbody = document.getElementById('active-users-table-body');
-        if (!tbody) return;
-        
-        if (!this.allUsers || this.allUsers.length === 0) {
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="5" style="text-align: center; padding: 20px;">
-                        <div style="color: var(--warning-color);">
-                            <i class="fas fa-exclamation-triangle"></i> No users data available
-                        </div>
-                        <small style="color: var(--primary-color);">
-                            Click "Sync Users" button to sync your user data
-                        </small>
-                    </td>
-                        </tr>
-            `;
-            return;
-        }
-
-        // Calculate activity per user
-        const userActivity = this.allUsers.map(user => {
-            const dashboards = this.allDashboards.filter(d => d.userId === user.id).length;
-            const specs = this.allSpecs.filter(s => s.userId === user.id).length;
-            const notes = this.allNotes.filter(n => n.userId === user.id).length;
-            const total = dashboards + specs + notes;
-
-            return {
-                email: user.email || 'N/A',
-                dashboards,
-                specs,
-                notes,
-                total
-            };
-        }).filter(u => u.total > 0).sort((a, b) => b.total - a.total);
-
-        if (userActivity.length === 0) {
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="5" style="text-align: center; padding: 20px;">
-                        <div style="color: var(--info-color);">
-                            <i class="fas fa-info-circle"></i> No active users yet
-                        </div>
-                        <small style="color: var(--primary-color);">
-                            Users will appear here once they create dashboards, specs, or notes
-                        </small>
-                    </td>
-                            </tr>
-            `;
-            return;
-        }
-
-        tbody.innerHTML = userActivity.slice(0, 10).map((user, index) => `
-            <tr>
-                <td><strong>${index + 1}.</strong> ${user.email}</td>
-                <td>${user.dashboards}</td>
-                <td>${user.specs}</td>
-                <td>${user.notes}</td>
-                <td><strong>${user.total}</strong></td>
-                        </tr>
-        `).join('');
-    }
-
-    // Update engagement statistics
-    updateEngagementStats() {
-        if (this.allUsers.length === 0) {
-            // Check if elements exist before updating
-            const dashboardsPercentEl = document.getElementById('users-with-dashboards-percent');
-            const toolsPercentEl = document.getElementById('users-with-saved-tools-percent');
-            const avgDashboardsEl = document.getElementById('avg-dashboards-per-user');
-            const avgSpecsEl = document.getElementById('avg-specs-per-user');
-            
-            if (dashboardsPercentEl) dashboardsPercentEl.textContent = '0%';
-            if (toolsPercentEl) toolsPercentEl.textContent = '0%';
-            if (avgDashboardsEl) avgDashboardsEl.textContent = '0';
-            if (avgSpecsEl) avgSpecsEl.textContent = '0';
-            return;
-        }
-
-        // Users with dashboards percentage
-        const usersWithDashboards = new Set(this.allDashboards.map(d => d.userId)).size;
-        const dashboardsPercent = ((usersWithDashboards / this.allUsers.length) * 100).toFixed(1);
-        const dashboardsPercentEl = document.getElementById('users-with-dashboards-percent');
-        if (dashboardsPercentEl) dashboardsPercentEl.textContent = dashboardsPercent + '%';
-
-        // Users with saved tools percentage
-        const usersWithTools = new Set(this.allSavedTools.map(t => t.userId).filter(Boolean)).size;
-        const toolsPercent = ((usersWithTools / this.allUsers.length) * 100).toFixed(1);
-        const toolsPercentEl = document.getElementById('users-with-saved-tools-percent');
-        if (toolsPercentEl) toolsPercentEl.textContent = toolsPercent + '%';
-
-        // Average dashboards per user
-        const avgDashboards = (this.allDashboards.length / this.allUsers.length).toFixed(1);
-        const avgDashboardsEl = document.getElementById('avg-dashboards-per-user');
-        if (avgDashboardsEl) avgDashboardsEl.textContent = avgDashboards;
-
-        // Average specs per user
-        const avgSpecs = (this.allSpecs.length / this.allUsers.length).toFixed(1);
-        const avgSpecsEl = document.getElementById('avg-specs-per-user');
-        if (avgSpecsEl) avgSpecsEl.textContent = avgSpecs;
-    }
-
-    renderDashboardsTable(dashboards) {
-        const tbody = document.getElementById('dashboards-table-body');
-        
-        // Check if the element exists (it might not exist in simplified interface)
-        if (!tbody) {
-
-            return;
-        }
-        
-        if (!dashboards || dashboards.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="9" class="loading-cell">No app dashboards found</td></tr>';
-            return;
-        }
-
-        tbody.innerHTML = dashboards.map(dashboard => {
-            const tasksCount = this.allTasks.filter(t => t.appId === dashboard.id).length;
-            const milestonesCount = this.allMilestones.filter(m => m.appId === dashboard.id).length;
-            const notesCount = this.allNotes.filter(n => n.appId === dashboard.id).length;
-            const expensesCount = this.allExpenses.filter(e => e.appId === dashboard.id).length;
-            
-            return `
-                <tr>
-                    <td>${dashboard.appName || 'Untitled App'}</td>
-                    <td>${dashboard.userEmail || 'Unknown'}</td>
-                    <td>${this.formatDate(dashboard.createdAt)}</td>
-                    <td><span class="status-badge status-active">Active</span></td>
-                    <td>${tasksCount}</td>
-                    <td>${milestonesCount}</td>
-                    <td>${notesCount}</td>
-                    <td>${expensesCount}</td>
-                    <td>
-                        <button class="btn-view" onclick="adminDashboard.viewDashboard('${dashboard.id}')">
-                            <i class="fas fa-eye"></i> View
-                        </button>
-                    </td>
-                            </tr>
-            `;
-        }).join('');
-    }
-
-    // Helper function to safely update element text content
-    safeUpdateTextContent(elementId, value) {
-        const element = document.getElementById(elementId);
-        if (element) {
-            element.textContent = value;
-        }
-    }
-
-    // Update stats cards - NO MOCK DATA, only real Firebase data
-    updateStatsCards() {
-                const oneWeekAgo = new Date();
-                oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-
-        // Total users - REAL DATA ONLY
-        this.safeUpdateTextContent('total-users', this.allUsers.length);
-
-        // New users this week - REAL DATA ONLY
-        const newUsersWeek = this.allUsers.filter(u => {
-            const created = this.getDate(u.createdAt);
-            return created && created >= oneWeekAgo;
-        }).length;
-        this.safeUpdateTextContent('new-users-week', newUsersWeek);
-
-        // Total dashboards - REAL DATA ONLY
-        this.safeUpdateTextContent('total-dashboards', this.allDashboards.length);
-
-        // New dashboards this week - REAL DATA ONLY
-        const newDashboardsWeek = this.allDashboards.filter(d => {
-            const created = this.getDate(d.createdAt);
-            return created && created >= oneWeekAgo;
-        }).length;
-        this.safeUpdateTextContent('new-dashboards-week', newDashboardsWeek);
-
-        // Total specs - REAL DATA ONLY
-        this.safeUpdateTextContent('total-specs', this.allSpecs.length);
-
-        // Total market research - REAL DATA ONLY
-        this.safeUpdateTextContent('total-market-research', this.allMarketResearch.length);
-
-        // Total saved tools - REAL DATA ONLY
-        this.safeUpdateTextContent('total-saved-tools', this.allSavedTools.length);
-
-        // Total likes - REAL DATA ONLY
-        this.safeUpdateTextContent('total-likes', this.allLikes.length);
-
-        // Total notes - REAL DATA ONLY
-        this.safeUpdateTextContent('total-notes', this.allNotes.length);
-
-        // Total expenses - REAL DATA ONLY
-        this.safeUpdateTextContent('total-expenses', this.allExpenses.length);
-    }
-
-    // Update analytics
-    updateAnalytics() {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        
-        const oneWeekAgo = new Date();
-        oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-        oneWeekAgo.setHours(0, 0, 0, 0);
-        
-        const oneMonthAgo = new Date();
-        oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
-        oneMonthAgo.setHours(0, 0, 0, 0);
-
-        // Users analytics
-        const usersToday = this.allUsers.filter(u => {
-            const created = this.getDate(u.createdAt);
-            return created && created >= today;
-        }).length;
-        
-        const usersWeek = this.allUsers.filter(u => {
-            const created = this.getDate(u.createdAt);
-            return created && created >= oneWeekAgo;
-        }).length;
-        
-        const usersMonth = this.allUsers.filter(u => {
-            const created = this.getDate(u.createdAt);
-            return created && created >= oneMonthAgo;
-        }).length;
-
-        // Update analytics tab elements
-        this.safeUpdateTextContent('analytics-users-today', usersToday);
-        this.safeUpdateTextContent('analytics-users-week', usersWeek);
-        this.safeUpdateTextContent('analytics-users-month', usersMonth);
-
-        // Dashboards analytics
-        const dashboardsToday = this.allDashboards.filter(d => {
-            const created = this.getDate(d.createdAt);
-            return created && created >= today;
-        }).length;
-        
-        const dashboardsWeek = this.allDashboards.filter(d => {
-            const created = this.getDate(d.createdAt);
-            return created && created >= oneWeekAgo;
-        }).length;
-        
-        const dashboardsMonth = this.allDashboards.filter(d => {
-            const created = this.getDate(d.createdAt);
-            return created && created >= oneMonthAgo;
-        }).length;
-
-        this.safeUpdateTextContent('analytics-dashboards-today', dashboardsToday);
-        this.safeUpdateTextContent('analytics-dashboards-week', dashboardsWeek);
-        this.safeUpdateTextContent('analytics-dashboards-month', dashboardsMonth);
-
-        // Specs analytics
-        const specsToday = this.allSpecs.filter(s => {
-            const created = this.getDate(s.createdAt);
-            return created && created >= today;
-        }).length;
-        
-        const specsWeek = this.allSpecs.filter(s => {
-            const created = this.getDate(s.createdAt);
-            return created && created >= oneWeekAgo;
-        }).length;
-        
-        const specsMonth = this.allSpecs.filter(s => {
-            const created = this.getDate(s.createdAt);
-            return created && created >= oneMonthAgo;
-        }).length;
-
-        this.safeUpdateTextContent('analytics-specs-today', specsToday);
-        this.safeUpdateTextContent('analytics-specs-week', specsWeek);
-        this.safeUpdateTextContent('analytics-specs-month', specsMonth);
-        
-        // Render specs activity table
-        this.renderSpecsActivityTable();
-    }
-
-    // Update payment statistics
-    updatePaymentStats() {
-        // Calculate total revenue
-        const totalRevenue = this.allPurchases.reduce((sum, purchase) => {
-            return sum + (purchase.total_amount_cents || 0);
-        }, 0) / 100; // Convert cents to shekels
-
-        // Calculate monthly revenue
-        const oneMonthAgo = new Date();
-        oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
-        
-        const monthlyRevenue = this.allPurchases.filter(purchase => {
-            const purchaseDate = this.getDate(purchase.purchased_at);
-            return purchaseDate && purchaseDate >= oneMonthAgo;
-        }).reduce((sum, purchase) => {
-            return sum + (purchase.total_amount_cents || 0);
-        }, 0) / 100;
-
-        // Count active subscriptions
-        const activeSubscriptions = this.allSubscriptions.filter(sub => 
-            sub.status === 'active' || sub.status === 'trialing'
-        ).length;
-
-        // Count Pro users
-        const proUsers = this.allEntitlements.filter(entitlement => 
-            entitlement.unlimited === true
-        ).length;
-
-        // Calculate conversion rate
-        const totalUsers = this.allUsers.length;
-        const payingUsers = new Set([
-            ...this.allPurchases.map(p => p.userId),
-            ...this.allSubscriptions.map(s => s.userId)
-        ]).size;
-        const conversionRate = totalUsers > 0 ? (payingUsers / totalUsers * 100).toFixed(1) : 0;
-
-        // Update DOM elements
-        document.getElementById('total-revenue').textContent = `$${totalRevenue.toFixed(0)}`;
-        document.getElementById('total-purchases').textContent = this.allPurchases.length;
-        document.getElementById('active-subscriptions').textContent = activeSubscriptions;
-        document.getElementById('pro-users').textContent = proUsers;
-        document.getElementById('monthly-revenue').textContent = `$${monthlyRevenue.toFixed(0)}`;
-        document.getElementById('conversion-rate').textContent = `${conversionRate}%`;
-    }
-
-    // Update revenue analytics
-    updateRevenueAnalytics() {
-        const today = new Date();
-        const oneWeekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
-        const oneMonthAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
-        const oneYearAgo = new Date(today.getTime() - 365 * 24 * 60 * 60 * 1000);
-
-        // Calculate revenue for different periods
-        const revenueToday = this.calculateRevenueForPeriod(today, today);
-        const revenueWeek = this.calculateRevenueForPeriod(oneWeekAgo, today);
-        const revenueMonth = this.calculateRevenueForPeriod(oneMonthAgo, today);
-        const revenueYear = this.calculateRevenueForPeriod(oneYearAgo, today);
-
-        // Update DOM
-        document.getElementById('revenue-today').textContent = `$${revenueToday.toFixed(0)}`;
-        document.getElementById('revenue-week').textContent = `$${revenueWeek.toFixed(0)}`;
-        document.getElementById('revenue-month').textContent = `$${revenueMonth.toFixed(0)}`;
-        document.getElementById('revenue-year').textContent = `$${revenueYear.toFixed(0)}`;
-    }
-
-    // Calculate revenue for a specific period
-    calculateRevenueForPeriod(startDate, endDate) {
-        return this.allPurchases.filter(purchase => {
-            const purchaseDate = this.getDate(purchase.purchased_at);
-            return purchaseDate && purchaseDate >= startDate && purchaseDate <= endDate;
-        }).reduce((sum, purchase) => {
-            return sum + (purchase.total_amount_cents || 0);
-        }, 0) / 100;
-    }
-
-    // Update product performance table
-    updateProductPerformance() {
-        const productStats = {};
-        
-        // Initialize product stats
-        const products = {
-            '671441': { name: 'Single AI Specification', price: 19 },
-            '671442': { name: '3-Pack AI Specifications', price: 38 },
-            '671443': { name: 'Pro Monthly Subscription', price: 115 },
-            '671444': { name: 'Pro Yearly Subscription', price: 1150 }
-        };
-
-        Object.keys(products).forEach(productId => {
-            productStats[productId] = {
-                ...products[productId],
-                salesCount: 0,
-                revenue: 0
-            };
-        });
-
-        // Calculate stats from purchases
-        this.allPurchases.forEach(purchase => {
-            if (productStats[purchase.product_id]) {
-                productStats[purchase.product_id].salesCount++;
-                productStats[purchase.product_id].revenue += (purchase.total_amount_cents || 0) / 100;
-            }
-        });
-
-        // Calculate stats from subscriptions
-        this.allSubscriptions.forEach(subscription => {
-            if (productStats[subscription.product_id]) {
-                productStats[subscription.product_id].salesCount++;
-                // For subscriptions, calculate monthly revenue
-                const monthlyRevenue = productStats[subscription.product_id].price;
-                productStats[subscription.product_id].revenue += monthlyRevenue;
-            }
-        });
-
-        // Update table
-        const tbody = document.getElementById('product-performance-table');
-        tbody.innerHTML = '';
-
-        Object.values(productStats).forEach(product => {
-            const conversionRate = this.allUsers.length > 0 ? 
-                (product.salesCount / this.allUsers.length * 100).toFixed(1) : 0;
-            
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${escapeHTML(product.name)}</td>
-                <td>$${product.price}</td>
-                <td>${product.salesCount}</td>
-                <td>$${product.revenue.toFixed(0)}</td>
-                <td>${conversionRate}%</td>
-                <td>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: ${Math.min(conversionRate * 10, 100)}%"></div>
-                    </div>
-                </td>
-            `;
-            tbody.appendChild(row);
-        });
-    }
-
-    // Update subscription analytics
-    updateSubscriptionAnalytics() {
-        const oneMonthAgo = new Date();
-        oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
-
-        const totalSubscribers = this.allSubscriptions.length;
-        const newSubscribersMonth = this.allSubscriptions.filter(sub => {
-            const createdDate = this.getDate(sub.created_at);
-            return createdDate && createdDate >= oneMonthAgo;
-        }).length;
-
-        const cancelledSubscriptionsMonth = this.allSubscriptions.filter(sub => {
-            const cancelledDate = this.getDate(sub.cancelled_at);
-            return cancelledDate && cancelledDate >= oneMonthAgo;
-        }).length;
-
-        const churnRate = totalSubscribers > 0 ? 
-            (cancelledSubscriptionsMonth / totalSubscribers * 100).toFixed(1) : 0;
-
-        document.getElementById('total-subscribers').textContent = totalSubscribers;
-        document.getElementById('new-subscribers-month').textContent = newSubscribersMonth;
-        document.getElementById('cancelled-subscriptions-month').textContent = cancelledSubscriptionsMonth;
-        document.getElementById('churn-rate').textContent = `${churnRate}%`;
-    }
-
-    // Update transactions table
-    updateTransactionsTable() {
-        const tbody = document.getElementById('transactions-table-body');
-        tbody.innerHTML = '';
-
-        // Combine purchases and subscriptions
-        const allTransactions = [
-            ...this.allPurchases.map(p => ({ ...p, type: 'purchase' })),
-            ...this.allSubscriptions.map(s => ({ ...s, type: 'subscription' }))
-        ].sort((a, b) => {
-            const dateA = this.getDate(a.purchased_at || a.created_at);
-            const dateB = this.getDate(b.purchased_at || b.created_at);
-            return dateB - dateA;
-        });
-
-        allTransactions.slice(0, 50).forEach(transaction => {
-            const date = this.getDate(transaction.purchased_at || transaction.created_at);
-            const userEmail = this.getUserEmailById(transaction.userId);
-            
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${date ? date.toLocaleDateString() : 'N/A'}</td>
-                <td>${escapeHTML(userEmail || 'Unknown')}</td>
-                <td>${escapeHTML(this.getProductName(transaction.product_id))}</td>
-                <td>$${((transaction.total_amount_cents || 0) / 100).toFixed(0)}</td>
-                <td><span class="status-badge status-${transaction.type}">${transaction.type}</span></td>
-                <td><span class="status-badge status-${transaction.status}">${transaction.status}</span></td>
-                <td>
-                    <button class="btn-view" onclick="adminDashboard.viewTransaction('${transaction.id}', '${transaction.type}')">
-                        <i class="fas fa-eye"></i> View
-                    </button>
-                </td>
-            `;
-            tbody.appendChild(row);
-        });
-    }
-
-    // Update user payments table
-    updateUserPaymentsTable() {
-        const tbody = document.getElementById('user-payments-table-body');
-        tbody.innerHTML = '';
-
-        // Create user payment summary
-        const userPayments = {};
-        
-        this.allUsers.forEach(user => {
-            userPayments[user.id] = {
-                email: user.email,
-                plan: 'free',
-                totalSpent: 0,
-                purchases: 0,
-                subscriptions: 0,
-                lastPayment: null,
-                status: 'active'
-            };
-        });
-
-        // Add purchase data
-        this.allPurchases.forEach(purchase => {
-            if (userPayments[purchase.userId]) {
-                userPayments[purchase.userId].totalSpent += (purchase.total_amount_cents || 0) / 100;
-                userPayments[purchase.userId].purchases++;
-                userPayments[purchase.userId].lastPayment = purchase.purchased_at;
-            }
-        });
-
-        // Add subscription data
-        this.allSubscriptions.forEach(subscription => {
-            if (userPayments[subscription.userId]) {
-                userPayments[subscription.userId].plan = 'pro';
-                userPayments[subscription.userId].subscriptions++;
-                userPayments[subscription.userId].lastPayment = subscription.created_at;
-                userPayments[subscription.userId].status = subscription.status;
-            }
-        });
-
-        // Sort by total spent
-        const sortedUsers = Object.values(userPayments)
-            .sort((a, b) => b.totalSpent - a.totalSpent);
-
-        sortedUsers.forEach(user => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${escapeHTML(user.email)}</td>
-                <td><span class="status-badge status-${user.plan}">${user.plan}</span></td>
-                <td>$${user.totalSpent.toFixed(0)}</td>
-                <td>${user.purchases}</td>
-                <td>${user.subscriptions}</td>
-                <td>${user.lastPayment ? this.getDate(user.lastPayment).toLocaleDateString() : 'Never'}</td>
-                <td><span class="status-badge status-${user.status}">${user.status}</span></td>
-            `;
-            tbody.appendChild(row);
-        });
-    }
-
-    // Get product name by ID
-    getProductName(productId) {
-        const products = {
-            '671441': 'Single AI Specification',
-            '671442': '3-Pack AI Specifications',
-            '671443': 'Pro Monthly Subscription',
-            '671444': 'Pro Yearly Subscription'
-        };
-        return products[productId] || 'Unknown Product';
-    }
-
-    // Get user email by ID
-    getUserEmailById(userId) {
-        const user = this.allUsers.find(u => u.id === userId);
-        return user ? user.email : null;
-    }
-
-    // Update overview tab
-    updateOverviewTab() {
-        // Update quick stats
-        document.getElementById('overview-total-users').textContent = this.allUsers.length;
-        document.getElementById('overview-total-revenue').textContent = `$${this.calculateTotalRevenue().toFixed(0)}`;
-        document.getElementById('overview-total-specs').textContent = this.allSpecs.length;
-        document.getElementById('overview-active-subscriptions').textContent = this.allSubscriptions.filter(sub => 
-            sub.status === 'active' || sub.status === 'trialing'
-        ).length;
-
-        // Update recent activity
-        this.updateRecentActivity();
-    }
-
-    // Calculate total revenue
-    calculateTotalRevenue() {
-        return this.allPurchases.reduce((sum, purchase) => {
-            return sum + (purchase.total_amount_cents || 0);
-        }, 0) / 100;
-    }
-
-    // Update recent activity list
-    updateRecentActivity() {
-        const activityList = document.getElementById('recent-activity-list');
-        if (!activityList) return;
-
-        const activities = [];
-
-        // Add recent users
-        const recentUsers = this.allUsers
-            .filter(user => {
-                const created = this.getDate(user.createdAt);
-                const oneWeekAgo = new Date();
-                oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-                return created && created >= oneWeekAgo;
-            })
-            .slice(0, 3);
-
-        recentUsers.forEach(user => {
-            activities.push({
-                icon: 'fas fa-user-plus',
-                text: `New user registered: ${user.email}`,
-                time: this.getDate(user.createdAt)
-            });
-        });
-
-        // Add recent specs
-        const recentSpecs = this.allSpecs
-            .filter(spec => {
-                const created = this.getDate(spec.createdAt);
-                const oneWeekAgo = new Date();
-                oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-                return created && created >= oneWeekAgo;
-            })
-            .slice(0, 3);
-
-        recentSpecs.forEach(spec => {
-            activities.push({
-                icon: 'fas fa-file-alt',
-                text: `New spec created: ${spec.title || 'Untitled'}`,
-                time: this.getDate(spec.createdAt)
-            });
-        });
-
-        // Add recent purchases
-        const recentPurchases = this.allPurchases
-            .filter(purchase => {
-                const created = this.getDate(purchase.purchased_at);
-                const oneWeekAgo = new Date();
-                oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-                return created && created >= oneWeekAgo;
-            })
-            .slice(0, 3);
-
-        recentPurchases.forEach(purchase => {
-            activities.push({
-                icon: 'fas fa-shekel-sign',
-                text: `New purchase: $${((purchase.total_amount_cents || 0) / 100).toFixed(0)}`,
-                time: this.getDate(purchase.purchased_at)
-            });
-        });
-
-        // Sort by time and take latest 10
-        activities.sort((a, b) => b.time - a.time);
-        const recentActivities = activities.slice(0, 10);
-
-        // Render activities
-        activityList.innerHTML = '';
-        if (recentActivities.length === 0) {
-            activityList.innerHTML = `
-                <div class="activity-item">
-                    <div class="activity-icon"><i class="fas fa-info-circle"></i></div>
-                    <div class="activity-text">No recent activity</div>
-                </div>
-            `;
-        } else {
-            recentActivities.forEach(activity => {
-                const activityItem = document.createElement('div');
-                activityItem.className = 'activity-item';
-                activityItem.innerHTML = `
-                    <div class="activity-icon"><i class="${activity.icon}"></i></div>
-                    <div class="activity-text">${escapeHTML(activity.text)}</div>
-                `;
-                activityList.appendChild(activityItem);
-            });
-        }
-    }
-
-    // Update content tab
-    updateContentTab() {
-        // Update content stats
-        document.getElementById('content-total-specs').textContent = this.allSpecs.length;
-        document.getElementById('content-total-market').textContent = this.allMarketResearch.length;
-        document.getElementById('content-total-dashboards').textContent = this.allDashboards.length;
-
-        // Calculate weekly stats
-        const oneWeekAgo = new Date();
-        oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-
-        const specsWeek = this.allSpecs.filter(spec => {
-            const created = this.getDate(spec.createdAt);
-            return created && created >= oneWeekAgo;
-        }).length;
-
-        const marketWeek = this.allMarketResearch.filter(research => {
-            const created = this.getDate(research.createdAt);
-            return created && created >= oneWeekAgo;
-        }).length;
-
-        const dashboardsWeek = this.allDashboards.filter(dashboard => {
-            const created = this.getDate(dashboard.createdAt);
-            return created && created >= oneWeekAgo;
-        }).length;
-
-        document.getElementById('content-specs-week').textContent = specsWeek;
-        document.getElementById('content-market-week').textContent = marketWeek;
-        document.getElementById('content-dashboards-week').textContent = dashboardsWeek;
-    }
-
-    // Load permissions data
-    async loadPermissionsData() {
-        try {
-
-            
-            // Load entitlements data
-            const entitlementsSnapshot = await this.db.collection('entitlements').get();
-            this.allEntitlements = entitlementsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            
-
-            
-            // Update permissions table
-            this.updatePermissionsTable();
-            
-        } catch (error) {
-
-            this.showNotification('Error loading permissions data: ' + error.message, 'error');
-        }
-    }
-
-    // Update permissions table
-    updatePermissionsTable() {
-        const tbody = document.getElementById('permissions-table-body');
-        if (!tbody) return;
-
-        // Combine users with their entitlements
-        const userPermissions = this.allUsers.map(user => {
-            const entitlement = this.allEntitlements.find(e => e.userId === user.id);
-            return {
-                user,
-                entitlement: entitlement || {
-                    userId: user.id,
-                    unlimited: false,
-                    can_edit: false,
-                    spec_credits: 0,
-                    lastUpdated: null
-                }
-            };
-        });
-
-        // Filter based on search and plan filter
-        const searchTerm = document.getElementById('permissions-search')?.value.toLowerCase() || '';
-        const planFilter = document.getElementById('permissions-plan-filter')?.value || 'all';
-
-        let filtered = userPermissions.filter(up => {
-            const matchesSearch = up.user.email.toLowerCase().includes(searchTerm);
-            const matchesPlan = planFilter === 'all' || 
-                (planFilter === 'pro' && up.entitlement.unlimited) ||
-                (planFilter === 'free' && !up.entitlement.unlimited);
-            
-            return matchesSearch && matchesPlan;
-        });
-
-        // Render table
-        tbody.innerHTML = '';
-        if (filtered.length === 0) {
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="7" class="loading-cell" style="color: #666; font-style: italic;">
-                        No users found matching the criteria
-                    </td>
-                </tr>
-            `;
-        } else {
-            filtered.forEach(up => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${escapeHTML(up.user.email)}</td>
-                    <td>
-                        <span class="status-badge ${up.entitlement.unlimited ? 'status-pro' : 'status-free'}">
-                            ${up.entitlement.unlimited ? 'Pro' : 'Free'}
-                        </span>
-                    </td>
-                    <td>
-                        <span class="credits-display ${up.entitlement.unlimited ? 'unlimited' : ''}">
-                            ${up.entitlement.unlimited ? '∞' : up.entitlement.spec_credits || 0}
-                        </span>
-                    </td>
-                    <td>
-                        <span class="status-badge ${up.entitlement.unlimited ? 'status-active' : 'status-cancelled'}">
-                            ${up.entitlement.unlimited ? 'Yes' : 'No'}
-                        </span>
-                    </td>
-                    <td>
-                        <span class="status-badge ${up.entitlement.can_edit ? 'status-active' : 'status-cancelled'}">
-                            ${up.entitlement.can_edit ? 'Yes' : 'No'}
-                        </span>
-                    </td>
-                    <td>${up.entitlement.lastUpdated ? this.formatDate(up.entitlement.lastUpdated) : 'Never'}</td>
-                    <td>
-                        <div class="action-buttons">
-                            <button class="btn-small btn-primary" onclick="adminDashboard.editUserPermissions('${up.user.id}')">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn-small btn-success" onclick="adminDashboard.addCreditsToUser('${up.user.id}')">
-                                <i class="fas fa-plus"></i>
-                            </button>
-                        </div>
-                    </td>
-                `;
-                tbody.appendChild(row);
-            });
-        }
-    }
-
-    // Edit user permissions
-    async editUserPermissions(userId) {
-        const user = this.allUsers.find(u => u.id === userId);
-        const entitlement = this.allEntitlements.find(e => e.userId === userId);
-        
-        if (!user) {
-            this.showNotification('User not found', 'error');
-            return;
-        }
-
-        const currentEntitlement = entitlement || {
-            userId: userId,
-            unlimited: false,
-            can_edit: false,
-            spec_credits: 0
-        };
-
-        // Create modal for editing permissions
-        const modal = document.createElement('div');
-        modal.className = 'modal';
-        modal.innerHTML = `
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3><i class="fas fa-key"></i> Edit Permissions - ${escapeHTML(user.email)}</h3>
-                    <button class="modal-close" onclick="this.closest('.modal').remove()">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label>
-                            <input type="checkbox" id="edit-unlimited" ${currentEntitlement.unlimited ? 'checked' : ''}>
-                            Unlimited Access (Pro)
-                        </label>
-                    </div>
-                    <div class="form-group">
-                        <label>
-                            <input type="checkbox" id="edit-can-edit" ${currentEntitlement.can_edit ? 'checked' : ''}>
-                            Can Edit Specs
-                        </label>
-                    </div>
-                    <div class="form-group">
-                        <label for="edit-spec-credits">Spec Credits:</label>
-                        <input type="number" id="edit-spec-credits" value="${currentEntitlement.spec_credits || 0}" min="0" max="1000">
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">Cancel</button>
-                    <button class="btn btn-primary" onclick="adminDashboard.saveUserPermissions('${userId}')">Save Changes</button>
-                </div>
+    const html = filtered
+      .map((spec) => {
+        const preview = (spec.content || "").split(/\s+/).slice(0, 50).join(" ");
+        return `
+          <article class="spec-item" data-spec-id="${spec.id}">
+            <header>
+              <h3>${spec.title}</h3>
+              <time>${utils.formatDate(spec.createdAt)}</time>
+            </header>
+            <div class="spec-meta">
+              <span>ID: ${spec.id}</span>
+              <span>Updated: ${utils.formatRelative(spec.updatedAt)}</span>
             </div>
-        `;
-        
-        document.body.appendChild(modal);
-    }
-
-    // Save user permissions
-    async saveUserPermissions(userId) {
-        try {
-            const unlimited = document.getElementById('edit-unlimited').checked;
-            const canEdit = document.getElementById('edit-can-edit').checked;
-            const specCredits = parseInt(document.getElementById('edit-spec-credits').value) || 0;
-
-            const entitlementData = {
-                userId: userId,
-                unlimited: unlimited,
-                can_edit: canEdit,
-                spec_credits: specCredits,
-                lastUpdated: new Date()
-            };
-
-            // Update in Firestore
-            await this.db.collection('entitlements').doc(userId).set(entitlementData, { merge: true });
-            
-            // Update local data
-            const existingIndex = this.allEntitlements.findIndex(e => e.userId === userId);
-            if (existingIndex >= 0) {
-                this.allEntitlements[existingIndex] = { ...this.allEntitlements[existingIndex], ...entitlementData };
-            } else {
-                this.allEntitlements.push(entitlementData);
-            }
-
-            // Close modal and refresh table
-            document.querySelector('.modal').remove();
-            this.updatePermissionsTable();
-            this.showNotification('Permissions updated successfully', 'success');
-
-        } catch (error) {
-
-            this.showNotification('Error saving permissions: ' + error.message, 'error');
-        }
-    }
-
-    // Payment system functions removed - addCreditsToUser and grantProAccess
-
-    // Add credits to a specific user
-    async addCreditsToUser(userId) {
-        const user = this.allUsers.find(u => u.id === userId);
-        if (!user) {
-            this.showNotification('User not found', 'error');
-            return;
-        }
-
-        const creditsToAdd = prompt(`How many credits to add to ${user.email}?`, '1');
-        if (!creditsToAdd || isNaN(creditsToAdd)) return;
-
-        const credits = parseInt(creditsToAdd);
-        if (credits <= 0) {
-            this.showNotification('Credits must be a positive number', 'error');
-            return;
-        }
-
-        const confirmAdd = confirm(`Add ${credits} credits to ${user.email}?`);
-        if (!confirmAdd) return;
-
-        try {
-            const token = await firebase.auth().currentUser.getIdToken();
-            const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai.onrender.com';
-            
-            const response = await fetch(`${apiBaseUrl}/api/credits/grant`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    userId: userId,
-                    amount: credits,
-                    source: 'admin',
-                    metadata: {
-                        adminEmail: firebase.auth().currentUser.email,
-                        timestamp: new Date().toISOString()
-                    }
-                })
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.details || errorData.error || 'Failed to add credits');
-            }
-
-            const result = await response.json();
-            
-            // Update local data
-            const existingIndex = this.allEntitlements.findIndex(e => e.userId === userId);
-            if (existingIndex >= 0) {
-                this.allEntitlements[existingIndex].spec_credits = (this.allEntitlements[existingIndex].spec_credits || 0) + credits;
-                this.allEntitlements[existingIndex].lastUpdated = new Date();
-            } else {
-                this.allEntitlements.push({
-                    userId: userId,
-                    unlimited: false,
-                    can_edit: false,
-                    spec_credits: credits,
-                    lastUpdated: new Date()
-                });
-            }
-
-            this.updatePermissionsTable();
-            this.showNotification(`Added ${credits} credits to ${user.email}`, 'success');
-
-        } catch (error) {
-            console.error('Error adding credits:', error);
-            this.showNotification('Error adding credits: ' + error.message, 'error');
-        }
-    }
-
-    // Add spec credits to multiple users
-    async addSpecCredits() {
-        const creditsToAdd = prompt('How many spec credits to add to all users?', '1');
-        if (!creditsToAdd || isNaN(creditsToAdd)) return;
-
-        const confirmAdd = confirm(`Add ${creditsToAdd} credits to all users?`);
-        if (!confirmAdd) return;
-
-        try {
-            const batch = this.db.batch();
-            const credits = parseInt(creditsToAdd);
-
-            this.allUsers.forEach(user => {
-                const entitlementRef = this.db.collection('entitlements').doc(user.id);
-                const currentEntitlement = this.allEntitlements.find(e => e.userId === user.id);
-                const currentCredits = currentEntitlement?.spec_credits || 0;
-                
-                batch.set(entitlementRef, {
-                    userId: user.id,
-                    spec_credits: currentCredits + credits,
-                    lastUpdated: new Date()
-                }, { merge: true });
-            });
-
-            await batch.commit();
-            
-            // Update local data
-            this.allEntitlements.forEach(entitlement => {
-                entitlement.spec_credits = (entitlement.spec_credits || 0) + credits;
-                entitlement.lastUpdated = new Date();
-            });
-
-            this.updatePermissionsTable();
-            this.showNotification(`Added ${credits} credits to all users`, 'success');
-
-        } catch (error) {
-
-            this.showNotification('Error adding credits: ' + error.message, 'error');
-        }
-    }
-
-    // Reset user permissions
-    async resetUserPermissions() {
-        const userEmail = prompt('Enter user email to reset permissions:');
-        if (!userEmail) return;
-
-        const user = this.allUsers.find(u => u.email.toLowerCase() === userEmail.toLowerCase());
-        if (!user) {
-            this.showNotification('User not found', 'error');
-            return;
-        }
-
-        const confirmReset = confirm(`Reset all permissions for ${user.email}?`);
-        if (!confirmReset) return;
-
-        try {
-            await this.db.collection('entitlements').doc(user.id).set({
-                userId: user.id,
-                unlimited: false,
-                can_edit: false,
-                spec_credits: 0,
-                lastUpdated: new Date()
-            }, { merge: true });
-
-            // Update local data
-            const existingIndex = this.allEntitlements.findIndex(e => e.userId === user.id);
-            if (existingIndex >= 0) {
-                this.allEntitlements[existingIndex] = {
-                    userId: user.id,
-                    unlimited: false,
-                    can_edit: false,
-                    spec_credits: 0,
-                    lastUpdated: new Date()
-                };
-            } else {
-                this.allEntitlements.push({
-                    userId: user.id,
-                    unlimited: false,
-                    can_edit: false,
-                    spec_credits: 0,
-                    lastUpdated: new Date()
-                });
-            }
-
-            this.updatePermissionsTable();
-            this.showNotification(`Permissions reset for ${user.email}`, 'success');
-
-        } catch (error) {
-
-            this.showNotification('Error resetting permissions: ' + error.message, 'error');
-        }
-    }
-
-    // Export permissions data
-    exportPermissions() {
-        const userPermissions = this.allUsers.map(user => {
-            const entitlement = this.allEntitlements.find(e => e.userId === user.id);
-            return {
-                email: user.email,
-                plan: entitlement?.unlimited ? 'Pro' : 'Free',
-                spec_credits: entitlement?.spec_credits || 0,
-                unlimited_access: entitlement?.unlimited || false,
-                can_edit: entitlement?.can_edit || false,
-                last_updated: entitlement?.lastUpdated ? this.formatDate(entitlement.lastUpdated) : 'Never'
-            };
-        });
-
-        const csv = this.convertToCSV(userPermissions);
-        this.downloadCSV(csv, 'user-permissions.csv');
-        this.showNotification('Permissions data exported successfully', 'success');
-    }
-
-    // Load buy clicks data for conversion funnel analysis
-    async loadBuyClicksData() {
-        try {
-
-            
-            // For now, we'll simulate buy clicks data since we don't have a collection yet
-            // In a real implementation, you would track buy button clicks in Firestore
-            this.allBuyClicks = this.simulateBuyClicksData();
-            
-
-            
-            // Update conversion funnel analytics
-            this.updateConversionFunnelAnalytics();
-            
-        } catch (error) {
-
-            this.showNotification('Error loading buy clicks data: ' + error.message, 'error');
-        }
-    }
-
-    // Simulate buy clicks data (replace with real Firestore collection)
-    simulateBuyClicksData() {
-        // This simulates buy button clicks based on actual purchases
-        // In reality, you would track clicks separately from purchases
-        const clicks = [];
-        
-        // Generate clicks for each product based on purchases
-        const products = ['671441', '671444', '671446', '671450']; // Product IDs from config
-        
-        products.forEach(productId => {
-            const purchases = this.allPurchases.filter(p => p.product_id === productId);
-            const subscriptions = this.allSubscriptions.filter(s => s.product_id === productId);
-            
-            // Assume 3-5 clicks per actual purchase (simulating abandonment)
-            const totalPurchases = purchases.length + subscriptions.length;
-            const clickMultiplier = Math.random() * 2 + 3; // 3-5x multiplier
-            const totalClicks = Math.floor(totalPurchases * clickMultiplier);
-            
-            for (let i = 0; i < totalClicks; i++) {
-                clicks.push({
-                    id: `click_${productId}_${i}`,
-                    productId: productId,
-                    userId: this.getRandomUserId(),
-                    timestamp: this.getRandomTimestamp(),
-                    completed: i < totalPurchases // First clicks are completed purchases
-                });
-            }
-        });
-        
-        return clicks;
-    }
-
-    // Get random user ID for simulation
-    getRandomUserId() {
-        if (this.allUsers.length === 0) return 'anonymous';
-        const randomIndex = Math.floor(Math.random() * this.allUsers.length);
-        return this.allUsers[randomIndex].id;
-    }
-
-    // Get random timestamp for simulation
-    getRandomTimestamp() {
-        const now = new Date();
-        const daysAgo = Math.floor(Math.random() * 30); // Last 30 days
-        const timestamp = new Date(now.getTime() - daysAgo * 24 * 60 * 60 * 1000);
-        return timestamp;
-    }
-
-    // Update conversion funnel analytics
-    updateConversionFunnelAnalytics() {
-        // Calculate total buy clicks
-        const totalBuyClicks = this.allBuyClicks.length;
-        document.getElementById('total-buy-clicks').textContent = totalBuyClicks;
-
-        // Calculate completed purchases
-        const totalPurchases = this.allPurchases.length + this.allSubscriptions.length;
-        document.getElementById('total-purchases').textContent = totalPurchases;
-
-        // Calculate abandoned carts (clicks that didn't result in purchases)
-        const abandonedPurchases = totalBuyClicks - totalPurchases;
-        document.getElementById('abandoned-purchases').textContent = Math.max(0, abandonedPurchases);
-
-        // Calculate conversion rate
-        const conversionRate = totalBuyClicks > 0 ? (totalPurchases / totalBuyClicks * 100).toFixed(1) : 0;
-        document.getElementById('conversion-rate').textContent = `${conversionRate}%`;
-
-        // Update conversion funnel table
-        this.updateConversionFunnelTable();
-    }
-
-    // Update conversion funnel breakdown table
-    updateConversionFunnelTable() {
-        const tbody = document.getElementById('conversion-funnel-table-body');
-        if (!tbody) return;
-
-        // Get product mapping from config
-        const productMapping = {
-            '671441': 'Single AI Specification',
-            '671444': '3-Pack AI Specifications', 
-            '671446': 'Pro Monthly Subscription',
-            '671450': 'Pro Yearly Subscription'
-        };
-
-        const productStats = {};
-
-        // Calculate stats for each product
-        Object.keys(productMapping).forEach(productId => {
-            const clicks = this.allBuyClicks.filter(c => c.productId === productId);
-            const purchases = this.allPurchases.filter(p => p.product_id === productId);
-            const subscriptions = this.allSubscriptions.filter(s => s.product_id === productId);
-            
-            const totalPurchases = purchases.length + subscriptions.length;
-            const buyClicks = clicks.length;
-            const abandoned = Math.max(0, buyClicks - totalPurchases);
-            const conversionRate = buyClicks > 0 ? (totalPurchases / buyClicks * 100).toFixed(1) : 0;
-            
-            // Calculate revenue
-            const revenue = purchases.reduce((sum, p) => sum + (p.total_amount_cents || 0), 0) / 100 +
-                           subscriptions.reduce((sum, s) => sum + (s.total_amount_cents || 0), 0) / 100;
-
-            productStats[productId] = {
-                name: productMapping[productId],
-                buyClicks,
-                purchases: totalPurchases,
-                abandoned,
-                conversionRate: parseFloat(conversionRate),
-                revenue
-            };
-        });
-
-        // Render table
-        tbody.innerHTML = '';
-        Object.values(productStats).forEach(stat => {
-            const row = document.createElement('tr');
-            
-            // Determine conversion rate color
-            let conversionClass = 'conversion-rate-low';
-            if (stat.conversionRate >= 20) conversionClass = 'conversion-rate-high';
-            else if (stat.conversionRate >= 10) conversionClass = 'conversion-rate-medium';
-
-            row.innerHTML = `
-                <td>${escapeHTML(stat.name)}</td>
-                <td>${stat.buyClicks}</td>
-                <td>${stat.purchases}</td>
-                <td>${stat.abandoned}</td>
-                <td class="${conversionClass}">${stat.conversionRate}%</td>
-                <td>$${stat.revenue.toFixed(0)}</td>
-            `;
-            tbody.appendChild(row);
-        });
-    }
-
-    // Filter users
-    filterUsers(searchTerm = '', newsletterFilter = 'all') {
-        let filtered = [...this.allUsers];
-
-        // Search filter
-        if (searchTerm) {
-            const term = searchTerm.toLowerCase();
-            filtered = filtered.filter(u => 
-                (u.email || '').toLowerCase().includes(term)
-            );
-        }
-
-        // Newsletter filter
-        if (newsletterFilter === 'subscribed') {
-            filtered = filtered.filter(u => u.newsletterSubscription === true);
-        } else if (newsletterFilter === 'unsubscribed') {
-            filtered = filtered.filter(u => !u.newsletterSubscription);
-        }
-
-        this.renderUsersTable(filtered);
-    }
-
-    // Filter specs
-    filterSpecs() {
-        const searchTerm = document.getElementById('specs-search').value.toLowerCase();
-        const userFilter = document.getElementById('specs-user-filter').value.toLowerCase();
-        const dateFrom = document.getElementById('specs-date-from').value;
-        const dateTo = document.getElementById('specs-date-to').value;
-
-        let filtered = [...this.allSpecs];
-
-        if (searchTerm) {
-            filtered = filtered.filter(s => 
-                (s.title || '').toLowerCase().includes(searchTerm)
-            );
-        }
-
-        if (userFilter) {
-            filtered = filtered.filter(s => 
-                (s.userName || '').toLowerCase().includes(userFilter)
-            );
-        }
-
-        if (dateFrom) {
-            const fromDate = new Date(dateFrom);
-            filtered = filtered.filter(s => {
-                const created = this.getDate(s.createdAt);
-                return created && created >= fromDate;
-            });
-        }
-
-        if (dateTo) {
-            const toDate = new Date(dateTo);
-            toDate.setHours(23, 59, 59, 999);
-            filtered = filtered.filter(s => {
-                const created = this.getDate(s.createdAt);
-                return created && created <= toDate;
-            });
-        }
-
-        this.renderSpecsTable(filtered);
-    }
-
-    // Filter market research
-    filterMarketResearch() {
-        const searchTerm = document.getElementById('market-search').value.toLowerCase();
-        const userFilter = document.getElementById('market-user-filter').value.toLowerCase();
-        const dateFrom = document.getElementById('market-date-from').value;
-        const dateTo = document.getElementById('market-date-to').value;
-
-        let filtered = [...this.allMarketResearch];
-
-        if (searchTerm) {
-            filtered = filtered.filter(m => 
-                (m.title || '').toLowerCase().includes(searchTerm)
-            );
-        }
-
-        if (userFilter) {
-            filtered = filtered.filter(m => 
-                (m.userName || '').toLowerCase().includes(userFilter)
-            );
-        }
-
-        if (dateFrom) {
-            const fromDate = new Date(dateFrom);
-            filtered = filtered.filter(m => {
-                const created = this.getDate(m.createdAt);
-                return created && created >= fromDate;
-            });
-        }
-
-        if (dateTo) {
-            const toDate = new Date(dateTo);
-            toDate.setHours(23, 59, 59, 999);
-            filtered = filtered.filter(m => {
-                const created = this.getDate(m.createdAt);
-                return created && created <= toDate;
-            });
-        }
-
-        this.renderMarketResearchTable(filtered);
-    }
-
-    // Filter dashboards
-    filterDashboards() {
-        const searchTerm = document.getElementById('dashboards-search').value.toLowerCase();
-        const userFilter = document.getElementById('dashboards-user-filter').value.toLowerCase();
-        const dateFrom = document.getElementById('dashboards-date-from').value;
-        const dateTo = document.getElementById('dashboards-date-to').value;
-
-        let filtered = [...this.allDashboards];
-
-        if (searchTerm) {
-            filtered = filtered.filter(d => 
-                (d.appName || '').toLowerCase().includes(searchTerm)
-            );
-        }
-
-        if (userFilter) {
-            filtered = filtered.filter(d => 
-                (d.userEmail || '').toLowerCase().includes(userFilter)
-            );
-        }
-
-        if (dateFrom) {
-            const fromDate = new Date(dateFrom);
-            filtered = filtered.filter(d => {
-                const created = this.getDate(d.createdAt);
-                return created && created >= fromDate;
-            });
-        }
-
-        if (dateTo) {
-            const toDate = new Date(dateTo);
-            toDate.setHours(23, 59, 59, 999);
-            filtered = filtered.filter(d => {
-                const created = this.getDate(d.createdAt);
-                return created && created <= toDate;
-            });
-        }
-
-        this.renderDashboardsTable(filtered);
-    }
-
-    // View spec in modal with Mermaid rendering
-    async viewSpec(specId, collection) {
-        try {
-            const doc = await this.db.collection(collection).doc(specId).get();
-            if (!doc.exists) {
-                this.showNotification('Spec not found', 'error');
-                return;
-            }
-
-            const data = doc.data();
-            const content = data.content || 'No content available';
-            
-            document.getElementById('modal-title').textContent = data.title || 'Specification';
-            
-            // Store raw content for toggle
-            document.getElementById('modal-spec-raw').textContent = content;
-            
-            // Render with Markdown and Mermaid
-            await this.renderSpecContent(content);
-            
-            // Show modal
-            document.getElementById('spec-modal').style.display = 'block';
-            
-            // Reset toggle button
-            const toggleBtn = document.getElementById('toggle-view-btn');
-            if (toggleBtn) {
-                toggleBtn.innerHTML = '<i class="fas fa-code"></i> Show Raw';
-            }
-        } catch (error) {
-
-            this.showNotification('Error loading spec: ' + error.message, 'error');
-        }
-    }
-
-    // Render spec content with Markdown and Mermaid
-    async renderSpecContent(content) {
-        const container = document.getElementById('modal-spec-content');
-        if (!container) return;
-
-        try {
-            // First, convert Markdown to HTML
-            let html = marked.parse(content);
-            
-            // Replace mermaid code blocks with divs for rendering
-            html = html.replace(/<pre><code class="language-mermaid">([\s\S]*?)<\/code><\/pre>/g, 
-                '<div class="mermaid">$1</div>');
-            
-            // Also handle ```mermaid blocks that might not have the language class
-            html = html.replace(/<pre><code>mermaid\n([\s\S]*?)<\/code><\/pre>/g, 
-                '<div class="mermaid">$1</div>');
-            
-            // Set the HTML
-            container.innerHTML = html;
-            
-            // Render all Mermaid diagrams
-            const mermaidDivs = container.querySelectorAll('.mermaid');
-            if (mermaidDivs.length > 0) {
-
-                
-                for (let i = 0; i < mermaidDivs.length; i++) {
-                    const div = mermaidDivs[i];
-                    const code = div.textContent;
-                    const id = `mermaid-${Date.now()}-${i}`;
-                    
-                    try {
-                        const { svg } = await mermaid.render(id, code);
-                        div.innerHTML = svg;
-
-                    } catch (error) {
-
-                        div.innerHTML = `<pre style="color: var(--danger-color);">Error rendering diagram:\n${code}</pre>`;
-                    }
-                }
-            }
-        } catch (error) {
-
-            // Fallback to plain text
-            container.textContent = content;
-        }
-    }
-
-    // Toggle between rendered and raw view
-    toggleView() {
-        const renderedView = document.getElementById('modal-spec-content');
-        const rawView = document.getElementById('modal-spec-raw');
-        const toggleBtn = document.getElementById('toggle-view-btn');
-        
-        if (renderedView.style.display === 'none') {
-            // Show rendered view
-            renderedView.style.display = 'block';
-            rawView.style.display = 'none';
-            toggleBtn.innerHTML = '<i class="fas fa-code"></i> Show Raw';
-        } else {
-            // Show raw view
-            renderedView.style.display = 'none';
-            rawView.style.display = 'block';
-            toggleBtn.innerHTML = '<i class="fas fa-eye"></i> Show Rendered';
-        }
-    }
-
-    // View dashboard details
-    async viewDashboard(dashboardId) {
-        try {
-            const doc = await this.db.collection('apps').doc(dashboardId).get();
-            if (!doc.exists) {
-                this.showNotification('Dashboard not found', 'error');
-                return;
-            }
-
-                const data = doc.data();
-            const tasks = this.allTasks.filter(t => t.appId === dashboardId);
-            const milestones = this.allMilestones.filter(m => m.appId === dashboardId);
-            const notes = this.allNotes.filter(n => n.appId === dashboardId);
-            const expenses = this.allExpenses.filter(e => e.appId === dashboardId);
-
-            // Create formatted content in Markdown
-            let content = `# ${data.appName || 'App Dashboard'}\n\n`;
-            content += `**User:** ${data.userEmail || 'N/A'}  \n`;
-            content += `**Created:** ${this.formatDate(data.createdAt)}\n\n`;
-            
-            content += `## Tasks (${tasks.length})\n\n`;
-            if (tasks.length > 0) {
-                tasks.forEach(task => {
-                    const status = task.status || 'pending';
-                    const icon = status === 'completed' ? '✅' : status === 'in-progress' ? '🔄' : '⏳';
-                    content += `- ${icon} **${task.title || 'Untitled'}** - ${status}\n`;
-                });
-            } else {
-                content += `*No tasks yet*\n`;
-            }
-            
-            content += `\n## Milestones (${milestones.length})\n\n`;
-            if (milestones.length > 0) {
-                milestones.forEach(milestone => {
-                    content += `- 🎯 ${milestone.title || 'Untitled'}\n`;
-                });
-            } else {
-                content += `*No milestones yet*\n`;
-            }
-            
-            content += `\n## Notes (${notes.length})\n\n`;
-            if (notes.length > 0) {
-                notes.forEach((note, i) => {
-                    content += `${i + 1}. ${note.content || 'No content'}\n\n`;
-                });
-            } else {
-                content += `*No notes yet*\n`;
-            }
-            
-            content += `\n## Expenses (${expenses.length})\n\n`;
-            if (expenses.length > 0) {
-                let totalExpenses = 0;
-                expenses.forEach(expense => {
-                    const amount = expense.amount || 0;
-                    totalExpenses += amount;
-                    content += `- 💰 **${expense.description || 'N/A'}:** $${amount}\n`;
-                });
-                content += `\n**Total Expenses:** $${totalExpenses}\n`;
-            } else {
-                content += `*No expenses tracked yet*\n`;
-            }
-
-            document.getElementById('modal-title').textContent = data.appName || 'App Dashboard';
-            
-            // Store raw content for toggle
-            document.getElementById('modal-spec-raw').textContent = content;
-            
-            // Render with Markdown
-            await this.renderSpecContent(content);
-            
-            document.getElementById('spec-modal').style.display = 'block';
-            
-            // Reset toggle button
-            const toggleBtn = document.getElementById('toggle-view-btn');
-            if (toggleBtn) {
-                toggleBtn.innerHTML = '<i class="fas fa-code"></i> Show Raw';
-            }
-        } catch (error) {
-
-            this.showNotification('Error loading dashboard: ' + error.message, 'error');
-        }
-    }
-
-    // Close modal
-    closeModal() {
-        document.getElementById('spec-modal').style.display = 'none';
-    }
-
-    // Confirm delete user
-    confirmDeleteUser(userId, userEmail) {
-        document.getElementById('confirm-message').textContent = 
-            `Are you sure you want to delete user "${userEmail}"? This will also delete all their specs, dashboards, and data.`;
-        
-        const confirmBtn = document.getElementById('confirm-delete-btn');
-        confirmBtn.onclick = () => this.deleteUser(userId);
-        
-        document.getElementById('confirm-modal').style.display = 'block';
-    }
-
-    // Delete user
-    async deleteUser(userId) {
-        try {
-            this.closeConfirmModal();
-            this.showNotification('Deleting user...', 'info');
-
-            // Delete user document
-            await this.db.collection('users').doc(userId).delete();
-
-            // Delete user's specs
-            const specsSnapshot = await this.db.collection('specs')
-                .where('userId', '==', userId).get();
-            const specsDeletePromises = specsSnapshot.docs.map(doc => doc.ref.delete());
-            await Promise.all(specsDeletePromises);
-
-            // Delete user's market research
-            const marketSnapshot = await this.db.collection('marketResearch')
-                .where('userId', '==', userId).get();
-            const marketDeletePromises = marketSnapshot.docs.map(doc => doc.ref.delete());
-            await Promise.all(marketDeletePromises);
-
-            // Delete user's apps
-            const appsSnapshot = await this.db.collection('apps')
-                .where('userId', '==', userId).get();
-            const appsDeletePromises = appsSnapshot.docs.map(doc => doc.ref.delete());
-            await Promise.all(appsDeletePromises);
-
-            // Delete user's tasks
-            const tasksSnapshot = await this.db.collection('appTasks')
-                .where('userId', '==', userId).get();
-            const tasksDeletePromises = tasksSnapshot.docs.map(doc => doc.ref.delete());
-            await Promise.all(tasksDeletePromises);
-
-            // Delete user's milestones
-            const milestonesSnapshot = await this.db.collection('appMilestones')
-                .where('userId', '==', userId).get();
-            const milestonesDeletePromises = milestonesSnapshot.docs.map(doc => doc.ref.delete());
-            await Promise.all(milestonesDeletePromises);
-
-            this.showNotification('User deleted successfully', 'success');
-            await this.loadAllData();
-        } catch (error) {
-
-            this.showNotification('Error deleting user: ' + error.message, 'error');
-        }
-    }
-
-    // Close confirm modal
-    closeConfirmModal() {
-        document.getElementById('confirm-modal').style.display = 'none';
-    }
-
-    // Format date
-    formatDate(timestamp) {
-        if (!timestamp) return 'N/A';
-        
-        let date;
-        if (timestamp.toDate) {
-            date = timestamp.toDate();
-        } else if (timestamp instanceof Date) {
-            date = timestamp;
-        } else if (typeof timestamp === 'string') {
-            date = new Date(timestamp);
-        } else {
-            return 'N/A';
-        }
-
-        if (isNaN(date.getTime())) return 'N/A';
-        
-        return date.toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-    }
-
-    // Get date object
-    getDate(timestamp) {
-        if (!timestamp) return null;
-        
-        if (timestamp.toDate) {
-            return timestamp.toDate();
-        } else if (timestamp instanceof Date) {
-            return timestamp;
-        } else if (typeof timestamp === 'string') {
-            return new Date(timestamp);
-        }
-        
-        return null;
-    }
-
-    // Show notification
-    showNotification(message, type = 'info') {
-        const notification = document.createElement('div');
-        notification.className = `notification notification-${type}`;
-        notification.style.cssText = `
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: ${type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : '#17a2b8'};
-            color: white;
-            padding: 1rem 1.5rem;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            z-index: 10001;
-            animation: slideIn 0.3s ease-out;
-        `;
-        notification.textContent = message;
-
-        document.body.appendChild(notification);
-
-        setTimeout(() => {
-            notification.style.animation = 'slideOut 0.3s ease-out';
-            setTimeout(() => {
-                if (notification.parentNode) {
-                    notification.parentNode.removeChild(notification);
-                }
-            }, 300);
-        }, 3000);
-    }
-
-    // Load error logs from API
-    async loadErrorLogs() {
-        try {
-
-            
-            const errorTypeFilter = document.getElementById('errors-type-filter')?.value || 'all';
-            const response = await fetch(
-                `${window.location.origin}/api/admin/error-logs?limit=100${errorTypeFilter !== 'all' ? '&errorType=' + errorTypeFilter : ''}`
-            );
-            
-            if (!response.ok) {
-                throw new Error('Failed to fetch error logs');
-            }
-            
-            const data = await response.json();
-            
-            if (data.success && data.logs) {
-                this.renderErrorsTable(data.logs);
-
-            } else {
-                throw new Error('Invalid response from server');
-            }
-            
-        } catch (error) {
-
-            const tbody = document.getElementById('errors-table-body');
-            if (tbody) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="6" style="text-align: center; color: var(--danger-color); padding: 20px;">
-                            Error loading error logs: ${error.message}
-                        </td>
-                    </tr>
-                `;
-            }
-        }
-    }
-
-    // Render error logs table
-    renderErrorsTable(errors) {
-        const tbody = document.getElementById('errors-table-body');
-        if (!tbody) return;
-        
-        if (!errors || errors.length === 0) {
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="6" class="loading-cell">No errors found</td>
-                </tr>
-            `;
-            return;
-        }
-
-        tbody.innerHTML = errors.map(error => {
-            const errorTypeBadge = error.errorType || 'unknown';
-            const frequency = error.frequency || 1;
-            
-            // Determine badge color based on frequency
-            let badgeClass = 'status-badge';
-            if (frequency > 10) {
-                badgeClass += ' status-error';
-            } else if (frequency > 5) {
-                badgeClass += ' status-warning';
-            } else {
-                badgeClass += ' status-success';
-            }
-            
-            return `
-                <tr>
-                    <td>
-                        <span class="status-badge ${this.getErrorTypeClass(errorTypeBadge)}">
-                            ${escapeHTML(errorTypeBadge)}
-                        </span>
-                    </td>
-                    <td>
-                        <span title="${escapeHTML(error.errorMessage || 'No message')}">
-                            ${this.truncateText(error.errorMessage || 'No message', 50)}
-                        </span>
-                    </td>
-                    <td>
-                        <span class="${badgeClass}">${frequency}</span>
-                    </td>
-                    <td><code>${escapeHTML(error.errorCode || 'N/A')}</code></td>
-                    <td>${error.firstOccurrence ? this.formatDate(error.firstOccurrence) : 'N/A'}</td>
-                    <td>${error.lastOccurrence ? this.formatDate(error.lastOccurrence) : 'N/A'}</td>
-                </tr>
-            `;
-        }).join('');
-    }
-
-    // Get error type badge class
-    getErrorTypeClass(errorType) {
-        const typeMap = {
-            'validation': 'status-warning',
-            'firebase': 'status-error',
-            'api': 'status-error',
-            'unknown': 'status-cancelled'
-        };
-        return typeMap[errorType.toLowerCase()] || 'status-cancelled';
-    }
-
-    // Truncate text with ellipsis
-    truncateText(text, maxLength) {
-        if (!text || text.length <= maxLength) {
-            return escapeHTML(text);
-        }
-        return escapeHTML(text.substring(0, maxLength)) + '...';
-    }
-
-    // Load CSS crash logs
-    async loadCSCCrashLogs() {
-        try {
-
-            
-            const crashTypeFilter = document.getElementById('css-crash-type-filter')?.value || 'all';
-            const urlFilter = document.getElementById('css-crash-url-filter')?.value || '';
-            
-            let url = `${window.location.origin}/api/admin/css-crash-logs?limit=100`;
-            if (crashTypeFilter !== 'all') {
-                url += `&crashType=${encodeURIComponent(crashTypeFilter)}`;
-            }
-            if (urlFilter) {
-                url += `&url=${encodeURIComponent(urlFilter)}`;
-            }
-            
-            const response = await fetch(url);
-            
-            if (!response.ok) {
-                throw new Error('Failed to fetch CSS crash logs');
-            }
-            
-            const data = await response.json();
-            
-            if (data.success && data.logs) {
-                this.renderCSCCrashLogs(data.logs);
-                
-                // Load summary
-                await this.loadCSCCrashSummary();
-                
-
-            } else {
-                throw new Error('Invalid response from server');
-            }
-            
-        } catch (error) {
-
-            const tbody = document.getElementById('css-crashes-table-body');
-            if (tbody) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="7" style="text-align: center; color: var(--danger-color); padding: 20px;">
-                            Error loading CSS crash logs: ${error.message}
-                        </td>
-                    </tr>
-                `;
-            }
-        }
-    }
-
-    // Load CSS crash summary
-    async loadCSCCrashSummary() {
-        try {
-            const response = await fetch(`${window.location.origin}/api/admin/css-crash-summary`);
-            
-            if (!response.ok) {
-                throw new Error('Failed to fetch CSS crash summary');
-            }
-            
-            const data = await response.json();
-            
-            if (data.success && data.summary) {
-                this.renderCSCCrashSummary(data.summary);
-            }
-        } catch (error) {
-
-            const summaryDiv = document.getElementById('css-crash-summary-content');
-            if (summaryDiv) {
-                summaryDiv.innerHTML = `<p style="color: var(--danger-color);">Error loading summary: ${error.message}</p>`;
-            }
-        }
-    }
-
-    // Render CSS crash summary
-    renderCSCCrashSummary(summary) {
-        const summaryDiv = document.getElementById('css-crash-summary-content');
-        if (!summaryDiv) return;
-        
-        const { total, byType, byUrl, recent } = summary;
-        
-        let html = `
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
-                <div>
-                    <strong>Total Crashes:</strong> <span style="font-size: 1.5em; color: var(--primary-color);">${total}</span>
-                </div>
-                <div>
-                    <strong>Recent (24h):</strong> <span style="font-size: 1.5em; color: var(--warning-color);">${recent.length}</span>
-                </div>
+            <p class="spec-preview">${preview}…</p>
+            <div class="spec-actions">
+              <a href="/pages/spec-viewer.html?spec=${spec.id}" target="_blank" rel="noopener">Open viewer</a>
+              <a href="/pages/spec.html?id=${spec.id}" target="_blank" rel="noopener">Open editor</a>
             </div>
+          </article>
         `;
-        
-        if (Object.keys(byType).length > 0) {
-            html += `<h4 style="margin-top: 20px; margin-bottom: 10px;">Crashes by Type:</h4>`;
-            html += `<div style="display: flex; flex-wrap: wrap; gap: 10px;">`;
-            for (const [type, count] of Object.entries(byType)) {
-                html += `<span class="status-badge status-warning">${escapeHTML(type)}: ${count}</span>`;
-            }
-            html += `</div>`;
-        }
-        
-        if (Object.keys(byUrl).length > 0) {
-            html += `<h4 style="margin-top: 20px; margin-bottom: 10px;">Top URLs:</h4>`;
-            html += `<ul style="margin: 0; padding-left: 20px;">`;
-            const sortedUrls = Object.entries(byUrl)
-                .sort((a, b) => b[1] - a[1])
-                .slice(0, 5);
-            for (const [url, count] of sortedUrls) {
-                html += `<li>${escapeHTML(url)}: <strong>${count}</strong></li>`;
-            }
-            html += `</ul>`;
-        }
-        
-        summaryDiv.innerHTML = html;
-    }
+      })
+      .join("");
 
-    // Render CSS crash logs table
-    renderCSCCrashLogs(logs) {
-        const tbody = document.getElementById('css-crashes-table-body');
-        if (!tbody) return;
-        
-        if (!logs || logs.length === 0) {
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="7" class="loading-cell">No CSS crash logs found</td>
-                </tr>
-            `;
-            return;
-        }
-
-        tbody.innerHTML = logs.map(log => {
-            const crashType = log.crashType || 'unknown';
-            const url = log.url || 'unknown';
-            const timeSinceLoad = log.timeSinceLoad ? this.formatDuration(log.timeSinceLoad) : 'N/A';
-            const idleTime = log.timeSinceLastActivity ? this.formatDuration(log.timeSinceLastActivity) : 'N/A';
-            const timestamp = log.timestamp ? this.formatDate(log.timestamp) : 'N/A';
-            
-            const issues = log.details?.issues || log.details?.criticalIssues || [];
-            const issuesText = issues.length > 0 
-                ? `${issues.length} issue(s)` 
-                : 'No details';
-            
-            const crashTypeBadge = `<span class="status-badge ${this.getCSCCrashTypeClass(crashType)}">${escapeHTML(crashType)}</span>`;
-            
-            return `
-                <tr>
-                    <td>${crashTypeBadge}</td>
-                    <td>
-                        <span title="${escapeHTML(url)}">
-                            ${this.truncateText(url, 40)}
-                        </span>
-                    </td>
-                    <td>${timeSinceLoad}</td>
-                    <td>${idleTime}</td>
-                    <td>${issuesText}</td>
-                    <td>${timestamp}</td>
-                    <td>
-                        <button class="btn-view" onclick="adminDashboard.viewCSCCrashDetails('${log.id}')" title="View Details">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                    </td>
-                </tr>
-            `;
-        }).join('');
-    }
-
-    // Get CSS crash type badge class
-    getCSCCrashTypeClass(crashType) {
-        const typeMap = {
-            'css_crash_detected': 'status-error',
-            'css_crash_after_idle': 'status-error',
-            'css_load_error': 'status-error',
-            'stylesheet_not_loaded': 'status-warning',
-            'stylesheet_disabled': 'status-warning',
-            'main_css_missing': 'status-error',
-            'css_removed_or_modified': 'status-warning',
-            'css_load_error': 'status-error'
-        };
-        return typeMap[crashType] || 'status-cancelled';
-    }
-
-    // Format duration in milliseconds to human readable
-    formatDuration(ms) {
-        if (!ms) return 'N/A';
-        const seconds = Math.floor(ms / 1000);
-        const minutes = Math.floor(seconds / 60);
-        const hours = Math.floor(minutes / 60);
-        
-        if (hours > 0) {
-            return `${hours}h ${minutes % 60}m`;
-        } else if (minutes > 0) {
-            return `${minutes}m ${seconds % 60}s`;
-        } else {
-            return `${seconds}s`;
-        }
-    }
-
-    // View CSS crash details
-    async viewCSCCrashDetails(logId) {
-        // This would fetch the full log details and show in a modal
-        // For now, we'll just show an alert with the log ID
-        this.showNotification('CSS crash details viewer - Coming soon', 'info');
-
-    }
+    this.elements.list.innerHTML = html;
+  }
 }
 
-// Close modals when clicking outside
-window.onclick = function(event) {
-    const specModal = document.getElementById('spec-modal');
-    const confirmModal = document.getElementById('confirm-modal');
-    
-    if (event.target === specModal) {
-        adminDashboard.closeModal();
+class AdminDashboardApp {
+  constructor() {
+    this.store = new DashboardDataStore();
+    this.unsubscribeFns = [];
+    this.isActivityPaused = false;
+    this.autoRefreshTimer = null;
+    this.nextAutoRefreshAt = null;
+    this.charts = {
+      usersPlan: null,
+      specsTimeline: null,
+      revenueTrend: null
+    };
+
+    this.dom = {
+      shell: utils.dom("#admin-shell"),
+      navButtons: utils.domAll(".nav-link"),
+      sections: utils.domAll(".dashboard-section"),
+      statusIndicator: utils.dom("#connection-indicator .dot"),
+      statusLabel: utils.dom("#connection-indicator .label"),
+      sidebarLastSync: utils.dom("#sidebar-last-sync"),
+      topbarStatus: utils.dom("#topbar-sync-status"),
+      manualRefresh: utils.dom("#manual-refresh-btn"),
+      signOut: utils.dom("#sign-out-btn"),
+      overviewRange: utils.dom("#overview-range"),
+      overviewMetrics: utils.dom("#overview-metrics"),
+      activityFeed: utils.dom("#activity-feed"),
+      toggleActivity: utils.dom("#toggle-activity-pause"),
+      sourceList: utils.dom("#source-status-list"),
+      autoRefreshNext: utils.dom("#auto-refresh-next"),
+      usersSearch: utils.dom("#users-search"),
+      usersPlanFilter: utils.dom("#users-plan-filter"),
+      usersTable: utils.dom("#users-table tbody"),
+      exportUsers: utils.dom("#export-users-btn"),
+      paymentsSearch: utils.dom("#payments-search"),
+      paymentsRange: utils.dom("#payments-range"),
+      paymentsTable: utils.dom("#payments-table tbody"),
+      logsStream: utils.dom("#logs-stream"),
+      logsFilter: utils.dom("#logs-filter"),
+      blogForm: utils.dom("#blog-form"),
+      blogFields: {
+        title: utils.dom("#blog-title"),
+        slug: utils.dom("#blog-slug"),
+        description: utils.dom("#blog-description"),
+        content: utils.dom("#blog-content"),
+        tags: utils.dom("#blog-tags"),
+        descriptionCount: utils.dom("#blog-description-count")
+      },
+      blogFeedback: utils.dom("#blog-feedback"),
+      blogPreview: utils.dom("#blog-preview-btn"),
+      blogQueueList: utils.dom("#blog-queue-list"),
+      refreshQueue: utils.dom("#refresh-queue-btn"),
+      statsRangeButtons: utils.domAll(".range-btn"),
+      statsStartDate: utils.dom("#stats-start-date"),
+      statsEndDate: utils.dom("#stats-end-date"),
+      metrics: {
+        totalUsers: utils.dom('[data-metric="users-total"]'),
+        newUsers: utils.dom('[data-kpi="users-new"]'),
+        proUsers: utils.dom('[data-metric="users-pro"]'),
+        proShare: utils.dom('[data-kpi="users-pro-share"]'),
+        specsTotal: utils.dom('[data-metric="specs-total"]'),
+        specsRange: utils.dom('[data-kpi="specs-range"]'),
+        revenueTotal: utils.dom('[data-metric="revenue-total"]'),
+        revenueRange: utils.dom('[data-kpi="revenue-range"]')
+      }
+    };
+
+    this.sourceState = {
+      users: "pending",
+      entitlements: "pending",
+      specs: "pending",
+      purchases: "pending",
+      activityLogs: "pending",
+      blogQueue: "pending"
+    };
+
+    const specViewerElements = {
+      root: utils.dom("#spec-viewer"),
+      backdrop: utils.dom("#spec-viewer .modal-backdrop"),
+      dismissButtons: utils.domAll('#spec-viewer [data-modal-dismiss]'),
+      list: utils.dom("#spec-list"),
+      search: utils.dom("#spec-search-input")
+    };
+    this.specViewer = new SpecViewerModal(this.store, specViewerElements);
+
+    const globalSearchElements = {
+      root: utils.dom("#global-search"),
+      results: utils.dom("#global-search-results"),
+      input: utils.dom("#global-search-input"),
+      openTrigger: utils.dom("#global-search-trigger"),
+      closeTrigger: utils.dom("#global-search-close"),
+      backdrop: utils.dom("#global-search-backdrop"),
+      specViewer: this.specViewer
+    };
+    this.globalSearch = new GlobalSearch(this.store, globalSearchElements);
+
+    this.bindNavigation();
+    this.bindInteractions();
+    this.setupAuthGate();
+  }
+
+  bindNavigation() {
+    this.dom.navButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const target = button.dataset.target;
+        if (!target) return;
+        this.dom.navButtons.forEach((btn) => btn.classList.remove("active"));
+        button.classList.add("active");
+        this.dom.sections.forEach((section) => {
+          if (section.id === target) {
+            section.classList.add("active");
+            section.scrollIntoView({ behavior: "smooth", block: "start" });
+          } else {
+            section.classList.remove("active");
+          }
+        });
+      });
+    });
+  }
+
+  bindInteractions() {
+    this.dom.manualRefresh?.addEventListener("click", () => this.refreshAllData("manual"));
+    this.dom.signOut?.addEventListener("click", async () => {
+      try {
+        await signOut(auth);
+      } catch (error) {
+        console.error("Error signing out", error);
+      }
+    });
+    this.dom.overviewRange?.addEventListener("change", () => this.updateOverview());
+    this.dom.toggleActivity?.addEventListener("click", () => this.toggleActivityStream());
+    this.dom.usersSearch?.addEventListener("input", utils.debounce(() => this.renderUsersTable(), 120));
+    this.dom.usersPlanFilter?.addEventListener("change", () => this.renderUsersTable());
+    this.dom.exportUsers?.addEventListener("click", () => this.exportUsersCsv());
+    this.dom.paymentsSearch?.addEventListener("input", utils.debounce(() => this.renderPaymentsTable(), 120));
+    this.dom.paymentsRange?.addEventListener("change", () => this.renderPaymentsTable());
+    this.dom.logsFilter?.addEventListener("change", () => this.renderLogs());
+    if (this.dom.blogFields.description) {
+      this.dom.blogFields.description.addEventListener("input", () => {
+        const count = this.dom.blogFields.description.value.length;
+        if (this.dom.blogFields.descriptionCount) {
+          this.dom.blogFields.descriptionCount.textContent = `${count} / 160`;
+        }
+      });
     }
-    if (event.target === confirmModal) {
-        adminDashboard.closeConfirmModal();
+    this.dom.blogFields.title?.addEventListener("input", () => {
+      if (!this.dom.blogFields.slug) return;
+      if (!this.dom.blogFields.slug.dataset.manual) {
+        this.dom.blogFields.slug.value = utils.sanitizeSlug(
+          this.dom.blogFields.title.value || ""
+        );
+      }
+    });
+    this.dom.blogFields.slug?.addEventListener("input", () => {
+      this.dom.blogFields.slug.dataset.manual = "true";
+    });
+    this.dom.blogForm?.addEventListener("submit", (event) => {
+      event.preventDefault();
+      this.handleBlogSubmit();
+    });
+    this.dom.blogPreview?.addEventListener("click", () => this.showBlogPreview());
+    this.dom.refreshQueue?.addEventListener("click", () => this.refreshBlogQueue());
+    this.dom.statsRangeButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        this.dom.statsRangeButtons.forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        this.updateStatistics();
+      });
+    });
+    this.dom.statsStartDate?.addEventListener("change", () => this.updateStatistics());
+    this.dom.statsEndDate?.addEventListener("change", () => this.updateStatistics());
+  }
+
+  setupAuthGate() {
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        this.redirectToLogin();
+        return;
+      }
+      const email = user.email?.toLowerCase();
+      if (!email || !ADMIN_EMAILS.has(email)) {
+        alert("Access denied. You must be an admin to view this dashboard.");
+        this.redirectToLogin();
+        return;
+      }
+      this.currentUser = user;
+      await this.start();
+    });
+  }
+
+  redirectToLogin() {
+    window.location.href = "/pages/auth.html";
+  }
+
+  async start() {
+    this.updateConnectionState("pending", "Connecting…");
+    this.initializeCharts();
+    await this.subscribeToSources();
+    this.updateAutoRefreshTimer();
+  }
+
+  initializeCharts() {
+    const defaultOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      color: "#f5f5f5",
+      scales: {
+        x: {
+          ticks: { color: "#a6a6a6" },
+          grid: { color: "rgba(255,255,255,0.06)" }
+        },
+        y: {
+          ticks: { color: "#a6a6a6" },
+          grid: { color: "rgba(255,255,255,0.06)" }
+        }
+      },
+      plugins: {
+        legend: { display: false }
+      }
+    };
+    const planCtx = document.getElementById("users-plan-chart");
+    if (planCtx) {
+      this.charts.usersPlan = new Chart(planCtx, {
+        type: "doughnut",
+        data: {
+          labels: ["Pro", "Free"],
+          datasets: [
+            {
+              data: [0, 0],
+              backgroundColor: ["#7f8dff", "#1f1f1f"],
+              borderWidth: 0
+            }
+          ]
+        },
+        options: {
+          cutout: "60%",
+          plugins: {
+            legend: { position: "bottom", labels: { color: "#a6a6a6" } }
+          }
+        }
+      });
     }
+    const specsCtx = document.getElementById("specs-timeline-chart");
+    if (specsCtx) {
+      this.charts.specsTimeline = new Chart(specsCtx, {
+        type: "line",
+        data: {
+          labels: [],
+          datasets: [
+            {
+              label: "Specs",
+              data: [],
+              borderColor: "#7f8dff",
+              backgroundColor: "rgba(127,141,255,0.2)",
+              tension: 0.3,
+              fill: true
+            }
+          ]
+        },
+        options: defaultOptions
+      });
+    }
+    const revenueCtx = document.getElementById("revenue-trend-chart");
+    if (revenueCtx) {
+      this.charts.revenueTrend = new Chart(revenueCtx, {
+        type: "bar",
+        data: {
+          labels: [],
+          datasets: [
+            {
+              label: "Revenue",
+              data: [],
+              backgroundColor: "#6bdcff"
+            }
+          ]
+        },
+        options: defaultOptions
+      });
+    }
+  }
+
+  async subscribeToSources() {
+    this.unsubscribeAll();
+    this.store.reset();
+    this.updateAllSources("pending");
+
+    // Users
+    try {
+      const unsubUsers = onSnapshot(
+        collection(db, COLLECTIONS.USERS),
+        (snapshot) => {
+          snapshot.docChanges().forEach((change) => {
+            if (change.type === "removed") {
+              this.store.removeUser(change.doc.id);
+            } else {
+              this.store.upsertUser(change.doc.id, change.doc.data());
+            }
+          });
+          this.markSourceReady("users");
+          this.renderUsersTable();
+          this.updateOverview();
+          this.rebuildSearchIndex();
+        },
+        (error) => {
+          console.error("Users listener error", error);
+          this.markSourceError("users", error);
+        }
+      );
+      this.unsubscribeFns.push(unsubUsers);
+    } catch (error) {
+      console.error("Failed to subscribe to users", error);
+      this.markSourceError("users", error);
+    }
+
+    // Entitlements
+    try {
+      const unsubEntitlements = onSnapshot(
+        collection(db, COLLECTIONS.ENTITLEMENTS),
+        (snapshot) => {
+          snapshot.docChanges().forEach((change) => {
+            if (change.type === "removed") {
+              this.store.removeEntitlement(change.doc.id);
+            } else {
+              this.store.upsertEntitlement(change.doc.id, change.doc.data());
+            }
+          });
+          this.markSourceReady("entitlements");
+          this.renderUsersTable();
+        },
+        (error) => {
+          console.error("Entitlements listener error", error);
+          this.markSourceError("entitlements", error);
+        }
+      );
+      this.unsubscribeFns.push(unsubEntitlements);
+    } catch (error) {
+      console.error("Failed to subscribe to entitlements", error);
+      this.markSourceError("entitlements", error);
+    }
+
+    // Specs
+    try {
+      const specsQuery = query(
+        collection(db, COLLECTIONS.SPECS),
+        orderBy("createdAt", "desc"),
+        limit(MAX_SPEC_CACHE)
+      );
+      const unsubSpecs = onSnapshot(
+        specsQuery,
+        (snapshot) => {
+          snapshot.docChanges().forEach((change) => {
+            if (change.type === "removed") {
+              this.store.removeSpec(change.doc.id);
+            } else {
+              const spec = this.store.upsertSpec(change.doc.id, change.doc.data());
+              if (change.type === "added") {
+                this.store.recordActivity({
+                  type: "spec",
+                  title: `Spec created · ${spec.title}`,
+                  description: this.store.getUser(spec.userId)?.email || spec.userId || "",
+                  timestamp: spec.createdAt,
+                  meta: { userId: spec.userId, specId: spec.id }
+                });
+              }
+            }
+          });
+          this.markSourceReady("specs");
+          this.renderUsersTable();
+          this.updateOverview();
+          this.renderLogs();
+          this.updateStatistics();
+          this.rebuildSearchIndex();
+        },
+        (error) => {
+          console.error("Specs listener error", error);
+          this.markSourceError("specs", error);
+        }
+      );
+      this.unsubscribeFns.push(unsubSpecs);
+    } catch (error) {
+      console.error("Failed to subscribe to specs", error);
+      this.markSourceError("specs", error);
+    }
+
+    // Purchases
+    try {
+      const purchasesQuery = query(
+        collection(db, COLLECTIONS.PURCHASES),
+        orderBy("createdAt", "desc"),
+        limit(MAX_PURCHASES)
+      );
+      const unsubPurchases = onSnapshot(
+        purchasesQuery,
+        (snapshot) => {
+          snapshot.docChanges().forEach((change) => {
+            if (change.type === "removed") {
+              this.store.removePurchase(change.doc.id);
+            } else {
+              const purchase = this.store.upsertPurchase(change.doc.id, change.doc.data());
+              if (change.type === "added") {
+                this.store.recordActivity({
+                  type: purchase.productType === "subscription" ? "subscription" : "payment",
+                  title: `${purchase.productName}`,
+                  description: `${utils.formatCurrency(purchase.total, purchase.currency)} • ${purchase.email || purchase.userId || "Unknown user"}`,
+                  timestamp: purchase.createdAt,
+                  meta: { userId: purchase.userId, purchaseId: purchase.id }
+                });
+              }
+            }
+          });
+          this.markSourceReady("purchases");
+          this.renderPaymentsTable();
+          this.updateOverview();
+          this.renderLogs();
+          this.updateStatistics();
+          this.rebuildSearchIndex();
+        },
+        (error) => {
+          console.error("Purchases listener error", error);
+          this.markSourceError("purchases", error);
+        }
+      );
+      this.unsubscribeFns.push(unsubPurchases);
+    } catch (error) {
+      console.error("Failed to subscribe to purchases", error);
+      this.markSourceError("purchases", error);
+    }
+
+    // Activity logs (optional)
+    try {
+      const activityQuery = query(
+        collection(db, COLLECTIONS.ACTIVITY_LOGS),
+        orderBy("timestamp", "desc"),
+        limit(MAX_ACTIVITY_EVENTS)
+      );
+      const unsubActivity = onSnapshot(
+        activityQuery,
+        (snapshot) => {
+          const events = snapshot.docs.map((docSnap) => {
+            const data = docSnap.data();
+            return {
+              id: docSnap.id,
+              type: data.type || "system",
+              title: data.title || data.event || "Activity",
+              description: data.description || data.message || "",
+              timestamp: utils.toDate(data.timestamp),
+              meta: data
+            };
+          });
+          this.store.setActivity(events);
+          this.markSourceReady("activityLogs");
+          this.renderLogs();
+        },
+        (error) => {
+          console.warn("Activity logs listener error", error);
+          this.markSourceError("activityLogs", error);
+        }
+      );
+      this.unsubscribeFns.push(unsubActivity);
+    } catch (error) {
+      console.warn("Activity logs collection unavailable", error);
+      this.markSourceError("activityLogs", error);
+    }
+
+    // Blog queue (optional)
+    try {
+      const queueQuery = query(
+        collection(db, COLLECTIONS.BLOG_QUEUE),
+        orderBy("createdAt", "desc"),
+        limit(50)
+      );
+      const unsubQueue = onSnapshot(
+        queueQuery,
+        (snapshot) => {
+          this.store.setBlogQueue(
+            snapshot.docs.map((docSnap) => ({
+              id: docSnap.id,
+              ...docSnap.data()
+            }))
+          );
+          this.markSourceReady("blogQueue");
+          this.renderBlogQueue();
+        },
+        (error) => {
+          console.warn("Blog queue listener error", error);
+          this.markSourceError("blogQueue", error);
+        }
+      );
+      this.unsubscribeFns.push(unsubQueue);
+    } catch (error) {
+      console.warn("Blog queue not available", error);
+      this.markSourceError("blogQueue", error);
+    }
+  }
+
+  updateAllSources(state) {
+    Object.keys(this.sourceState).forEach((key) => {
+      this.sourceState[key] = state;
+    });
+    this.renderSourceStates();
+  }
+
+  markSourceReady(key) {
+    this.sourceState[key] = "ready";
+    this.renderSourceStates();
+    this.updateConnectionStatus();
+  }
+
+  markSourceError(key, error) {
+    this.sourceState[key] = "error";
+    this.renderSourceStates();
+    if (error) {
+      console.error(`Source ${key} error`, error);
+    }
+    this.updateConnectionStatus();
+  }
+
+  renderSourceStates() {
+    if (!this.dom.sourceList) return;
+    this.dom.sourceList.querySelectorAll(".source-state").forEach((el) => {
+      const key = el.dataset.source;
+      const state = this.sourceState[key] || "pending";
+      el.textContent =
+        state === "ready"
+          ? "Ready"
+          : state === "error"
+          ? "Error"
+          : state === "pending"
+          ? "Pending"
+          : state;
+      el.classList.remove("ready", "error");
+      if (state === "ready") el.classList.add("ready");
+      if (state === "error") el.classList.add("error");
+    });
+  }
+
+  updateConnectionStatus() {
+    const states = Object.values(this.sourceState);
+    if (states.every((state) => state === "ready")) {
+      this.updateConnectionState("online", "Realtime sync active");
+      const now = utils.now();
+      if (this.dom.sidebarLastSync) {
+        this.dom.sidebarLastSync.textContent = utils.formatDate(now);
+      }
+    } else if (states.some((state) => state === "error")) {
+      this.updateConnectionState("offline", "Connection issues detected");
+    } else {
+      this.updateConnectionState("pending", "Connecting…");
+    }
+  }
+
+  updateConnectionState(state, label) {
+    if (this.dom.statusIndicator) {
+      this.dom.statusIndicator.classList.remove(
+        "status-online",
+        "status-offline",
+        "status-pending"
+      );
+      this.dom.statusIndicator.classList.add(
+        state === "online"
+          ? "status-online"
+          : state === "offline"
+          ? "status-offline"
+          : "status-pending"
+      );
+    }
+    if (this.dom.statusLabel) {
+      this.dom.statusLabel.textContent = label;
+    }
+    if (this.dom.topbarStatus) {
+      this.dom.topbarStatus.textContent = label;
+    }
+  }
+
+  toggleActivityStream() {
+    this.isActivityPaused = !this.isActivityPaused;
+    if (this.dom.toggleActivity) {
+      const icon = this.dom.toggleActivity.querySelector("i");
+      if (icon) {
+        icon.classList.toggle("fa-pause", !this.isActivityPaused);
+        icon.classList.toggle("fa-play", this.isActivityPaused);
+      }
+      this.dom.toggleActivity.innerHTML = `
+        <i class="fas ${this.isActivityPaused ? "fa-play" : "fa-pause"}"></i>
+        ${this.isActivityPaused ? "Resume stream" : "Pause stream"}
+      `;
+    }
+  }
+
+  renderUsersTable() {
+    if (!this.dom.usersTable) return;
+    const searchTerm = this.dom.usersSearch?.value.trim().toLowerCase() ?? "";
+    const planFilter = this.dom.usersPlanFilter?.value ?? "all";
+    const rows = [];
+
+    for (const user of this.store.getUsersSorted()) {
+      if (searchTerm) {
+        const haystack = `${user.email} ${user.displayName}`.toLowerCase();
+        if (!haystack.includes(searchTerm)) continue;
+      }
+      if (planFilter !== "all" && user.plan !== planFilter) continue;
+      const entitlement = this.store.getEntitlement(user.id);
+      const specCount = this.store.getSpecCount(user.id);
+      const planBadge = `<span class="badge ${user.plan}">${user.plan}</span>`;
+      const credits =
+        entitlement?.unlimited
+          ? "Unlimited"
+          : entitlement?.specCredits != null
+          ? entitlement.specCredits
+          : "—";
+      rows.push(`
+        <tr data-user-id="${user.id}">
+          <td>
+            <div>${user.displayName || user.email}</div>
+            <div class="meta-text">${user.email}</div>
+          </td>
+          <td>${utils.formatDate(user.createdAt)}</td>
+          <td>${planBadge}</td>
+          <td>${utils.formatNumber(specCount)}</td>
+          <td>${credits}</td>
+          <td>${utils.formatRelative(user.lastActive)}</td>
+          <td>
+            <div class="table-actions">
+              <button class="table-action-btn" data-action="view-specs" data-user-id="${user.id}">
+                <i class="fas fa-file-alt"></i> View specs
+              </button>
+              <button class="table-action-btn" data-action="copy-email" data-email="${user.email}">
+                <i class="fas fa-copy"></i> Copy email
+              </button>
+            </div>
+          </td>
+        </tr>
+      `);
+    }
+
+    if (!rows.length) {
+      this.dom.usersTable.innerHTML = `<tr><td colspan="7" class="table-empty">No users match the filter.</td></tr>`;
+    } else {
+      this.dom.usersTable.innerHTML = rows.join("");
+    }
+
+    this.dom.usersTable
+      .querySelectorAll('[data-action="view-specs"]')
+      .forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          const userId = btn.dataset.userId;
+          if (!userId) return;
+          await this.specViewer.openWithUser(userId);
+        });
+      });
+
+    this.dom.usersTable
+      .querySelectorAll('[data-action="copy-email"]')
+      .forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const email = btn.dataset.email;
+          if (!email) return;
+          navigator.clipboard?.writeText(email);
+          btn.classList.add("copied");
+          setTimeout(() => btn.classList.remove("copied"), 1000);
+        });
+      });
+  }
+
+  renderPaymentsTable() {
+    if (!this.dom.paymentsTable) return;
+    const searchTerm = this.dom.paymentsSearch?.value.trim().toLowerCase() ?? "";
+    const range = this.dom.paymentsRange?.value ?? "week";
+    const payments = this.store.getPurchases(range);
+    const rows = [];
+
+    for (const purchase of payments) {
+      if (searchTerm) {
+        const haystack = `${purchase.email} ${purchase.productName} ${purchase.productType}`.toLowerCase();
+        if (!haystack.includes(searchTerm)) continue;
+      }
+      rows.push(`
+        <tr>
+          <td>${utils.formatDate(purchase.createdAt)}</td>
+          <td>${purchase.email || purchase.userId || "Unknown user"}</td>
+          <td>${purchase.productName}</td>
+          <td>${utils.formatCurrency(purchase.total, purchase.currency)}</td>
+          <td>${purchase.productType}</td>
+          <td>${purchase.status}</td>
+        </tr>
+      `);
+    }
+
+    this.dom.paymentsTable.innerHTML = rows.length
+      ? rows.join("")
+      : `<tr><td colspan="6" class="table-empty">No payments in this range.</td></tr>`;
+  }
+
+  renderLogs() {
+    if (!this.dom.logsStream) return;
+    const filter = this.dom.logsFilter?.value ?? "all";
+    const events = this.store.getActivityMerged();
+    const filtered = filter === "all" ? events : events.filter((event) => event.type === filter);
+
+    if (!filtered.length) {
+      this.dom.logsStream.innerHTML = `<div class="logs-placeholder">No log events yet.</div>`;
+      return;
+    }
+
+    const html = filtered
+      .map(
+        (event) => `
+        <article class="log-entry ${event.type}">
+          <header>${event.title}</header>
+          <div>${event.description || ""}</div>
+          <footer class="log-meta">
+            <span>${event.type.toUpperCase()}</span>
+            <time>${utils.formatDate(event.timestamp)}</time>
+          </footer>
+        </article>
+      `
+      )
+      .join("");
+    if (!this.isActivityPaused) {
+      this.dom.logsStream.innerHTML = html;
+    }
+  }
+
+  updateOverview() {
+    const users = this.store.getUsersSorted();
+    const overviewRange = this.dom.overviewRange?.value ?? "week";
+    const rangeMs = DATE_RANGES[overviewRange] || DATE_RANGES.week;
+    const threshold = Date.now() - rangeMs;
+
+    const totalUsers = users.length;
+    const proUsers = users.filter((user) => user.plan === "pro").length;
+    const newUsers = users.filter((user) => (user.createdAt?.getTime() || 0) >= threshold).length;
+    const proShare = totalUsers ? Math.round((proUsers / totalUsers) * 100) : 0;
+
+    const specsTotal = Array.from(this.store.specs.values()).length;
+    const specsInRange = Array.from(this.store.specs.values()).filter(
+      (spec) => (spec.createdAt?.getTime() || 0) >= threshold
+    ).length;
+
+    const revenueTotal = this.store.purchases.reduce(
+      (sum, purchase) => sum + (purchase.total || 0),
+      0
+    );
+    const revenueRange = this.store.getPurchases(overviewRange).reduce(
+      (sum, purchase) => sum + (purchase.total || 0),
+      0
+    );
+
+    if (this.dom.metrics.totalUsers) {
+      this.dom.metrics.totalUsers.textContent = utils.formatNumber(totalUsers);
+    }
+    if (this.dom.metrics.newUsers) {
+      this.dom.metrics.newUsers.textContent = `New: ${utils.formatNumber(newUsers)}`;
+    }
+    if (this.dom.metrics.proUsers) {
+      this.dom.metrics.proUsers.textContent = utils.formatNumber(proUsers);
+    }
+    if (this.dom.metrics.proShare) {
+      this.dom.metrics.proShare.textContent = `${proShare || 0}%`;
+    }
+    if (this.dom.metrics.specsTotal) {
+      this.dom.metrics.specsTotal.textContent = utils.formatNumber(specsTotal);
+    }
+    if (this.dom.metrics.specsRange) {
+      this.dom.metrics.specsRange.textContent = `Range: ${utils.formatNumber(specsInRange)}`;
+    }
+    if (this.dom.metrics.revenueTotal) {
+      this.dom.metrics.revenueTotal.textContent = utils.formatCurrency(revenueTotal);
+    }
+    if (this.dom.metrics.revenueRange) {
+      this.dom.metrics.revenueRange.textContent = `Range: ${utils.formatCurrency(revenueRange)}`;
+    }
+
+    this.renderActivityFeed();
+    this.updateCharts();
+  }
+
+  renderActivityFeed() {
+    if (!this.dom.activityFeed) return;
+    const events = this.store.getActivityMerged();
+    if (!events.length) {
+      this.dom.activityFeed.innerHTML = `<li class="activity-placeholder">Waiting for events…</li>`;
+      return;
+    }
+    const html = events
+      .slice(0, 20)
+      .map(
+        (event) => `
+        <li class="${event.type}">
+          <span>${event.title}</span>
+          <time>${utils.formatRelative(event.timestamp)}</time>
+        </li>
+      `
+      )
+      .join("");
+    if (!this.isActivityPaused) {
+      this.dom.activityFeed.innerHTML = html;
+    }
+  }
+
+  updateCharts() {
+    const users = this.store.getUsersSorted();
+    const proUsers = users.filter((user) => user.plan === "pro").length;
+    const freeUsers = users.length - proUsers;
+    if (this.charts.usersPlan) {
+      this.charts.usersPlan.data.datasets[0].data = [proUsers, freeUsers];
+      this.charts.usersPlan.update();
+    }
+
+    const specsByDay = new Map();
+    this.store.specs.forEach((spec) => {
+      const date = spec.createdAt
+        ? spec.createdAt.toISOString().slice(0, 10)
+        : "Unknown";
+      specsByDay.set(date, (specsByDay.get(date) || 0) + 1);
+    });
+    const specsLabels = Array.from(specsByDay.keys()).sort();
+    const specsValues = specsLabels.map((label) => specsByDay.get(label));
+    if (this.charts.specsTimeline) {
+      this.charts.specsTimeline.data.labels = specsLabels;
+      this.charts.specsTimeline.data.datasets[0].data = specsValues;
+      this.charts.specsTimeline.update();
+    }
+
+    const revenueByDay = new Map();
+    this.store.purchases.forEach((purchase) => {
+      const date = purchase.createdAt
+        ? purchase.createdAt.toISOString().slice(0, 10)
+        : "Unknown";
+      revenueByDay.set(date, (revenueByDay.get(date) || 0) + (purchase.total || 0));
+    });
+    const revenueLabels = Array.from(revenueByDay.keys()).sort();
+    const revenueValues = revenueLabels.map((label) => Number(revenueByDay.get(label).toFixed(2)));
+    if (this.charts.revenueTrend) {
+      this.charts.revenueTrend.data.labels = revenueLabels;
+      this.charts.revenueTrend.data.datasets[0].data = revenueValues;
+      this.charts.revenueTrend.update();
+    }
+  }
+
+  updateStatistics() {
+    const rangeButton = this.dom.statsRangeButtons.find((btn) => btn.classList.contains("active"));
+    const rangeKey = rangeButton?.dataset.range ?? "week";
+    const rangeMs = DATE_RANGES[rangeKey] || DATE_RANGES.week;
+    const customStart = this.dom.statsStartDate?.value ? new Date(this.dom.statsStartDate.value) : null;
+    const customEnd = this.dom.statsEndDate?.value ? new Date(this.dom.statsEndDate.value) : null;
+    const endTimestamp = customEnd ? customEnd.getTime() + 24 * 60 * 60 * 1000 : Date.now();
+    const startTimestamp = customStart
+      ? customStart.getTime()
+      : endTimestamp - rangeMs;
+
+    const activeUsers = this.store.getUsersSorted().filter(
+      (user) => (user.lastActive?.getTime() || 0) >= startTimestamp
+    ).length;
+    const specsCreated = Array.from(this.store.specs.values()).filter(
+      (spec) => (spec.createdAt?.getTime() || 0) >= startTimestamp
+    ).length;
+    const purchasesInRange = this.store.purchases.filter((purchase) => (purchase.createdAt?.getTime() || 0) >= startTimestamp);
+    const creditsUsed = purchasesInRange.reduce((sum, purchase) => {
+      const credits = purchase.metadata?.credits || purchase.metadata?.metadata?.credits || 0;
+      return sum + (typeof credits === "number" ? credits : 0);
+    }, 0);
+    const revenue = purchasesInRange
+      .reduce((sum, purchase) => sum + (purchase.total || 0), 0);
+
+    const statsMapping = {
+      "active-users": utils.formatNumber(activeUsers),
+      "specs-created": utils.formatNumber(specsCreated),
+      "credits-used": utils.formatNumber(creditsUsed),
+      revenue: utils.formatCurrency(revenue)
+    };
+
+    Object.entries(statsMapping).forEach(([key, value]) => {
+      const element = utils.dom(`[data-stats="${key}"]`);
+      if (element) element.textContent = value;
+    });
+
+    const detailMapping = {
+      "active-users-change": `From ${utils.formatDate(startTimestamp)} to ${utils.formatDate(endTimestamp)}`,
+      "specs-change": `In range: ${utils.formatNumber(specsCreated)}`,
+      "credits-change": `Credits purchased: ${utils.formatNumber(creditsUsed)}`,
+      "revenue-change": `Revenue in range: ${utils.formatCurrency(revenue)}`
+    };
+    Object.entries(detailMapping).forEach(([key, value]) => {
+      const element = utils.dom(`[data-stats-detail="${key}"]`);
+      if (element) element.textContent = value;
+    });
+  }
+
+  async exportUsersCsv() {
+    const headers = [
+      "User ID",
+      "Email",
+      "Display Name",
+      "Plan",
+      "Created At",
+      "Last Active",
+      "Specs Count",
+      "Credits",
+      "Unlimited",
+      "Email Verified"
+    ];
+    const rows = this.store.getUsersSorted().map((user) => {
+      const entitlement = this.store.getEntitlement(user.id);
+      return [
+        user.id,
+        user.email,
+        user.displayName,
+        user.plan,
+        utils.formatDate(user.createdAt),
+        utils.formatDate(user.lastActive),
+        this.store.getSpecCount(user.id),
+        entitlement?.specCredits ?? "",
+        entitlement?.unlimited ? "yes" : "no",
+        user.emailVerified ? "yes" : "no"
+      ]
+        .map((value) => `"${String(value ?? "").replace(/"/g, '""')}"`)
+        .join(",");
+    });
+    const csv = [headers.join(","), ...rows].join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `specifys-users-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    setTimeout(() => {
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }, 0);
+  }
+
+  async handleBlogSubmit() {
+    if (!this.dom.blogForm) return;
+    const payload = {
+      title: this.dom.blogFields.title?.value.trim() ?? "",
+      slug: utils.sanitizeSlug(this.dom.blogFields.slug?.value.trim() ?? ""),
+      description: this.dom.blogFields.description?.value.trim() ?? "",
+      content: this.dom.blogFields.content?.value.trim() ?? "",
+      tags: this.dom.blogFields.tags?.value.trim() ?? ""
+    };
+
+    if (!payload.title || !payload.description || !payload.content) {
+      this.setBlogFeedback("Please fill in the required fields.", "error");
+      return;
+    }
+
+    const button = this.dom.blogForm.querySelector("button.primary");
+    const originalText = button?.innerHTML;
+    if (button) {
+      button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Publishing…';
+      button.disabled = true;
+    }
+    try {
+      const token = await this.getAuthToken();
+      const response = await fetch("/api/blog/create-post", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+      });
+      const result = await response.json();
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || "Failed to queue blog post");
+      }
+      this.setBlogFeedback("Post added to queue successfully.", "success");
+      this.dom.blogForm.reset();
+      if (this.dom.blogFields.descriptionCount) {
+        this.dom.blogFields.descriptionCount.textContent = "0 / 160";
+      }
+      await this.refreshBlogQueue();
+    } catch (error) {
+      console.error("Blog publish failed", error);
+      this.setBlogFeedback(error.message || "Failed to publish blog post.", "error");
+    } finally {
+      if (button) {
+        button.innerHTML = originalText;
+        button.disabled = false;
+      }
+    }
+  }
+
+  async showBlogPreview() {
+    const previewModal = document.getElementById("preview-modal");
+    const previewArticle = document.getElementById("preview-article");
+    if (!previewModal || !previewArticle) return;
+    const title = this.dom.blogFields.title?.value.trim();
+    const description = this.dom.blogFields.description?.value.trim();
+    const content = this.dom.blogFields.content?.value.trim();
+    if (!title || !content) {
+      alert("Add title and content to preview.");
+      return;
+    }
+    previewArticle.innerHTML = `
+      <h1>${title}</h1>
+      ${description ? `<p class="lead">${description}</p>` : ""}
+      <hr>
+      <div class="content">${marked.parse(content)}</div>
+    `;
+    previewModal.classList.remove("hidden");
+    previewModal
+      .querySelectorAll("[data-modal-dismiss]")
+      .forEach((btn) => btn.addEventListener("click", () => previewModal.classList.add("hidden")));
+    previewModal
+      .querySelector(".modal-backdrop")
+      ?.addEventListener("click", () => previewModal.classList.add("hidden"));
+  }
+
+  setBlogFeedback(message, type) {
+    if (!this.dom.blogFeedback) return;
+    this.dom.blogFeedback.textContent = message;
+    this.dom.blogFeedback.classList.remove("success", "error");
+    if (type) this.dom.blogFeedback.classList.add(type);
+  }
+
+  async refreshBlogQueue() {
+    try {
+      const snapshot = await getDocs(
+        query(
+          collection(db, COLLECTIONS.BLOG_QUEUE),
+          orderBy("createdAt", "desc"),
+          limit(50)
+        )
+      );
+      this.store.setBlogQueue(
+        snapshot.docs.map((docSnap) => ({
+          id: docSnap.id,
+          ...docSnap.data()
+        }))
+      );
+      this.renderBlogQueue();
+    } catch (error) {
+      console.error("Failed to refresh blog queue", error);
+    }
+  }
+
+  renderBlogQueue() {
+    if (!this.dom.blogQueueList) return;
+    if (!this.store.blogQueue.length) {
+      this.dom.blogQueueList.innerHTML = `<li class="queue-placeholder">Queue is empty.</li>`;
+      return;
+    }
+    const html = this.store.blogQueue
+      .slice(0, 20)
+      .map((item) => {
+        const statusClass = item.status || "pending";
+        const meta = [
+          item.createdAt ? `Created ${utils.formatRelative(item.createdAt)}` : null,
+          item.startedAt ? `Started ${utils.formatRelative(item.startedAt)}` : null,
+          item.completedAt ? `Completed ${utils.formatRelative(item.completedAt)}` : null
+        ]
+          .filter(Boolean)
+          .join(" · ");
+        return `
+          <li class="queue-item ${statusClass}">
+            <div class="queue-title">${item.title}</div>
+            <div class="queue-meta">
+              <span>${meta}</span>
+              <span class="queue-status">${item.status}</span>
+            </div>
+            ${
+              item.error
+                ? `<div class="queue-error">Error: ${item.error}</div>`
+                : ""
+            }
+            ${
+              item.result?.url
+                ? `<a href="${item.result.url}" target="_blank" rel="noopener">View post</a>`
+                : ""
+            }
+          </li>
+        `;
+      })
+      .join("");
+    this.dom.blogQueueList.innerHTML = html;
+  }
+
+  rebuildSearchIndex() {
+    if (this.globalSearch && this.globalSearch.active) {
+      const value = this.globalSearch.elements.input?.value;
+      if (value) {
+        this.globalSearch.executeSearch(value);
+      }
+    }
+  }
+
+  async refreshAllData(reason = "manual") {
+    console.info(`Refreshing dashboard data (${reason})`);
+    this.updateConnectionState("pending", "Refreshing data…");
+    await this.subscribeToSources();
+    this.updateAutoRefreshTimer();
+  }
+
+  updateAutoRefreshTimer() {
+    if (this.autoRefreshTimer) {
+      clearInterval(this.autoRefreshTimer);
+    }
+    const next = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    this.nextAutoRefreshAt = next;
+    if (this.dom.autoRefreshNext) {
+      this.dom.autoRefreshNext.textContent = `Scheduled at ${utils.formatDate(next)}`;
+    }
+    this.autoRefreshTimer = setInterval(() => {
+      this.refreshAllData("auto");
+    }, 24 * 60 * 60 * 1000);
+  }
+
+  async getAuthToken() {
+    try {
+      const user = auth.currentUser;
+      if (!user) return null;
+      return await user.getIdToken();
+    } catch (error) {
+      console.error("Failed to get auth token", error);
+      return null;
+    }
+  }
+
+  unsubscribeAll() {
+    this.unsubscribeFns.forEach((fn) => {
+      if (typeof fn === "function") fn();
+    });
+    this.unsubscribeFns = [];
+  }
 }
 
-// Add animations
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes slideIn {
-        from {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-        to {
-            transform: translateX(0);
-            opacity: 1;
-        }
-    }
-    
-    @keyframes slideOut {
-        from {
-            transform: translateX(0);
-            opacity: 1;
-        }
-        to {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-    }
-`;
-document.head.appendChild(style);
+document.addEventListener("DOMContentLoaded", () => {
+  if (!window.Chart) {
+    console.warn("Chart.js failed to load. Statistics charts will be disabled.");
+  }
+  window.adminDashboard = new AdminDashboardApp();
+});
 

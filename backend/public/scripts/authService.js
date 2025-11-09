@@ -7,7 +7,7 @@ import {
   GoogleAuthProvider,
   signInWithPopup
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { doc, setDoc, serverTimestamp, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 // Google Auth Provider
 const googleProvider = new GoogleAuthProvider();
@@ -24,16 +24,28 @@ async function createUserDocument(user) {
                       window.CREDITS_CONFIG.DEFAULT_PRO_FOR_NEW_USERS !== false;
     
     const userRef = doc(db, 'users', user.uid);
-    await setDoc(userRef, {
+    const existingUserSnapshot = await getDoc(userRef);
+
+    const userData = {
       email: user.email,
       displayName: user.displayName || user.email.split('@')[0],
       emailVerified: user.emailVerified,
       createdAt: serverTimestamp(),
       lastActive: serverTimestamp(),
       newsletterSubscription: false,
-      plan: defaultPro ? 'pro' : 'free',
-      free_specs_remaining: defaultPro ? 1 : 1
-    }, { merge: true }); // merge: true will update existing or create new
+      plan: defaultPro ? 'pro' : 'free'
+    };
+
+    if (!existingUserSnapshot.exists()) {
+      userData.free_specs_remaining = 1;
+    } else {
+      const currentFreeSpecs = existingUserSnapshot.data()?.free_specs_remaining;
+      if (typeof currentFreeSpecs !== 'number') {
+        userData.free_specs_remaining = 1;
+      }
+    }
+
+    await setDoc(userRef, userData, { merge: true }); // merge: true will update existing or create new
     
     // Also create entitlements document if doesn't exist
     const entitlementsRef = doc(db, 'entitlements', user.uid);

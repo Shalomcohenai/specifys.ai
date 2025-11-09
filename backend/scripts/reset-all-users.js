@@ -1,5 +1,5 @@
 /**
- * Reset all users to free tier with 2 credits.
+ * Reset all users to free tier with 1 credit.
  * Usage: node backend/scripts/reset-all-users.js
  */
 
@@ -23,7 +23,7 @@ async function resetUser(uid) {
   const entUpdate = {
     unlimited: false,
     can_edit: false,
-    spec_credits: 2,
+    spec_credits: 1,
     preserved_credits: admin.firestore.FieldValue.delete(),
     unlimited_since: admin.firestore.FieldValue.delete(),
     updated_at: admin.firestore.FieldValue.serverTimestamp()
@@ -31,6 +31,7 @@ async function resetUser(uid) {
 
   const userUpdate = {
     plan: 'free',
+    free_specs_remaining: 1,
     last_entitlement_sync_at: admin.firestore.FieldValue.serverTimestamp()
   };
 
@@ -58,7 +59,7 @@ async function main() {
       await resetUser(uid);
     }
 
-    console.log('🎉 All users reset to free tier with 2 credits.');
+    console.log('🎉 All users reset to free tier with 1 credit.');
     process.exit(0);
   } catch (error) {
     console.error('❌ Error resetting users:', error);

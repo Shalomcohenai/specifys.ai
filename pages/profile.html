@@ -579,16 +579,28 @@
 
             try {
                 const userRef = doc(db, 'users', user.uid);
-                await setDoc(userRef, {
+                const existingUserSnapshot = await getDoc(userRef);
+
+                const userData = {
                     email: user.email,
                     displayName: user.displayName || user.email.split('@')[0],
                     emailVerified: user.emailVerified,
                     createdAt: serverTimestamp(),
                     lastActive: serverTimestamp(),
                     newsletterSubscription: false,
-                    plan: 'free',
-                    free_specs_remaining: 2
-                }, { merge: true });
+                    plan: 'free'
+                };
+
+                if (!existingUserSnapshot.exists()) {
+                    userData.free_specs_remaining = 1;
+                } else {
+                    const currentFreeSpecs = existingUserSnapshot.data()?.free_specs_remaining;
+                    if (typeof currentFreeSpecs !== 'number') {
+                        userData.free_specs_remaining = 1;
+                    }
+                }
+
+                await setDoc(userRef, userData, { merge: true });
                 
                 // Note: entitlements document is managed by backend only
                 // Frontend cannot write to entitlements collection per security rules

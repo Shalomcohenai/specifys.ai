@@ -290,8 +290,8 @@
                     <div class="stat-label">Specs</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-number" id="specs-remaining-count">∞</div>
-                    <div class="stat-label">Remaining Specs</div>
+                    <div class="stat-number" id="specs-remaining-count">—</div>
+                    <div class="stat-label">Remaining Specification Credits</div>
                 </div>
                 <div class="stat-item">
                     <div class="stat-number" id="saved-tools-count">0</div>
@@ -425,8 +425,8 @@
                             <div class="info-value"><span id="info-status" class="status-badge">Loading...</span></div>
                         </div>
                         <div class="info-row" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
-                            <div class="info-value" style="font-size: 0.9rem; color: #888; line-height: 1.5;">
-                                Your plan currently includes unlimited specifications for the current period. This will transition to new pricing in a future billing cycle.
+                            <div id="subscription-note" class="info-value" style="font-size: 0.9rem; color: #888; line-height: 1.5;">
+                                Checking your subscription details...
                             </div>
                         </div>
                     </div>
@@ -436,7 +436,7 @@
                     <h3>Usage & Credits</h3>
                     <div class="info-card">
                         <div class="info-row">
-                            <label>Specs Remaining</label>
+                            <label>Specification Credits</label>
                             <div class="info-value" id="info-specs">Loading...</div>
                         </div>
                     </div>
@@ -445,12 +445,23 @@
                 <div class="info-section">
                     <h3>Manage Subscription</h3>
                     <div class="info-card">
-                        <button class="panel-action-btn" id="manageSubBtn" onclick="manageSubscription()" disabled style="opacity: 0.5; cursor: not-allowed;">
-                            <i class="fas fa-external-link-alt"></i> Manage in LemonSqueezy
-                        </button>
-                        <button class="panel-action-btn cancel-btn" id="cancelSubBtn" onclick="cancelSubscription()" style="display: none;" disabled style="opacity: 0.5; cursor: not-allowed;">
+                        <button class="panel-action-btn cancel-btn" id="cancelSubBtn" onclick="startCancelSubscription()" style="display: none;">
                             <i class="fas fa-times-circle"></i> Cancel Subscription
                         </button>
+                        <div id="subscription-cancel-confirmation" class="subscription-confirmation" style="display: none;">
+                            <p class="subscription-confirmation-text">
+                                Cancelling will stop any future auto-renewals and your access to unlimited specifications will end after the current billing period.
+                            </p>
+                            <div class="subscription-confirmation-actions">
+                                <button type="button" class="panel-action-btn confirm-btn" id="confirmCancelBtn" onclick="confirmCancelSubscription()">
+                                    Confirm Cancellation
+                                </button>
+                                <button type="button" class="link-button" id="keepSubscriptionBtn" onclick="keepSubscription()">
+                                    Keep Pro Plan
+                                </button>
+                            </div>
+                        </div>
+                        <div id="subscription-message" class="subscription-message" aria-live="polite"></div>
                     </div>
                 </div>
             </div>
@@ -568,17 +579,28 @@
 
             try {
                 const userRef = doc(db, 'users', user.uid);
-                await setDoc(userRef, {
+                const existingUserSnapshot = await getDoc(userRef);
+
+                const userData = {
                     email: user.email,
                     displayName: user.displayName || user.email.split('@')[0],
                     emailVerified: user.emailVerified,
                     createdAt: serverTimestamp(),
                     lastActive: serverTimestamp(),
                     newsletterSubscription: false,
-                    // ALL USERS GET PRO BY DEFAULT
-                    plan: 'pro',
-                    free_specs_remaining: 1
-                }, { merge: true });
+                    plan: 'free'
+                };
+
+                if (!existingUserSnapshot.exists()) {
+                    userData.free_specs_remaining = 1;
+                } else {
+                    const currentFreeSpecs = existingUserSnapshot.data()?.free_specs_remaining;
+                    if (typeof currentFreeSpecs !== 'number') {
+                        userData.free_specs_remaining = 1;
+                    }
+                }
+
+                await setDoc(userRef, userData, { merge: true });
                 
                 // Note: entitlements document is managed by backend only
                 // Frontend cannot write to entitlements collection per security rules
@@ -595,6 +617,9 @@
         let userApps = [];
         let userSavedTools = [];
         let userMarketResearch = [];
+        let currentEntitlements = null;
+        let currentUserProfileDoc = null;
+        let currentSubscription = null;
         
         // Pagination variables
         let workspaceItems = [];
@@ -610,6 +635,8 @@
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 currentUser = user;
+                currentEntitlements = null;
+                currentUserProfileDoc = null;
                 
                 // Create/update user document in Firestore (non-blocking)
                 createUserDocumentInProfile(user).catch(error => {
@@ -619,7 +646,8 @@
                 updateProfileInfo(user);
                 loadWorkspace();
                 loadUserSavedTools();
-                // loadSpecsRemaining(); // Removed - payment system integration
+                loadEntitlements().catch((error) => {
+                });
                 updateAuthUI(user);
             } else {
                 // Redirect to login if not authenticated
@@ -1287,15 +1315,260 @@
             }
         }
 
-        // Load specs remaining - removed payment system integration
-        async function loadSpecsRemaining() {
-            if (!currentUser) return;
-            
-            // Payment system removed - always show unlimited
+        async function loadEntitlements(forceRefresh = false) {
+            if (!currentUser) return null;
+
+            if (currentEntitlements && !forceRefresh) {
+                updateEntitlementUI();
+                return currentEntitlements;
+            }
+
+            try {
+                const entRef = doc(db, 'entitlements', currentUser.uid);
+                const entSnap = await getDoc(entRef);
+                currentEntitlements = entSnap.exists() ? entSnap.data() : null;
+
+                const subscriptionRef = doc(db, 'subscriptions', currentUser.uid);
+                const subscriptionSnap = await getDoc(subscriptionRef);
+                currentSubscription = subscriptionSnap.exists() ? subscriptionSnap.data() : null;
+            } catch (error) {
+                console.error('Failed to load entitlements', error);
+                currentEntitlements = null;
+                currentSubscription = null;
+            }
+
+            updateEntitlementUI();
+            return currentEntitlements;
+        }
+
+        function setSubscriptionMessage(text = '', type = null) {
+            const messageEl = document.getElementById('subscription-message');
+            if (!messageEl) return;
+            messageEl.textContent = text || '';
+            messageEl.classList.remove('warning', 'success', 'error', 'info');
+            if (type) {
+                messageEl.classList.add(type);
+            }
+        }
+
+        function resetCancellationUI() {
+            const confirmationEl = document.getElementById('subscription-cancel-confirmation');
+            if (confirmationEl) {
+                confirmationEl.style.display = 'none';
+            }
+            const confirmBtn = document.getElementById('confirmCancelBtn');
+            if (confirmBtn) {
+                confirmBtn.disabled = false;
+                confirmBtn.textContent = 'Confirm Cancellation';
+            }
+            const cancelBtn = document.getElementById('cancelSubBtn');
+            if (cancelBtn) {
+                cancelBtn.disabled = false;
+                cancelBtn.textContent = 'Cancel Subscription';
+            }
+        }
+
+        function updateEntitlementUI({ entitlements, userData, subscription } = {}) {
+            const ent = entitlements ?? currentEntitlements ?? {};
+            const user = userData ?? currentUserProfileDoc ?? {};
+            const sub = subscription ?? currentSubscription ?? {};
+            const unlimited = !!ent.unlimited;
+            let credits = Number(ent.spec_credits);
+
+            if (!Number.isFinite(credits)) {
+                credits = Number(user.free_specs_remaining);
+            }
+
+            if (!Number.isFinite(credits) || credits < 0) {
+                credits = 0;
+            }
+
+            const planLabel = unlimited ? 'Pro' : (user.plan ? user.plan.charAt(0).toUpperCase() + user.plan.slice(1) : 'Free');
+
             const specsRemainingEl = document.getElementById('specs-remaining-count');
             if (specsRemainingEl) {
-                specsRemainingEl.innerHTML = '∞';
+                specsRemainingEl.textContent = unlimited ? '∞' : credits;
             }
+
+            const infoPlanEl = document.getElementById('info-plan');
+            if (infoPlanEl) {
+                infoPlanEl.textContent = planLabel;
+            }
+
+            const statusEl = document.getElementById('info-status');
+            if (statusEl) {
+                statusEl.textContent = unlimited ? 'Active' : 'Free tier';
+                statusEl.className = `status-badge ${unlimited ? 'active' : 'free'}`;
+            }
+
+            const infoSpecsEl = document.getElementById('info-specs');
+            if (infoSpecsEl) {
+                if (unlimited) {
+                    infoSpecsEl.textContent = 'Unlimited specifications available';
+                } else if (credits === 0) {
+                    infoSpecsEl.textContent = 'No specification credits available';
+                } else {
+                    infoSpecsEl.textContent = `${credits} specification ${credits === 1 ? 'credit' : 'credits'} available`;
+                }
+            }
+
+            const noteEl = document.getElementById('subscription-note');
+            if (noteEl) {
+                if (unlimited) {
+                    noteEl.textContent = 'Your Pro subscription currently provides unlimited specifications.';
+                } else if (sub && sub.status === 'cancelled' && sub.cancel_mode === 'period_end') {
+                    noteEl.textContent = 'Your subscription cancellation is scheduled. You will retain access until the end of the current period.';
+                } else if (credits === 0) {
+                    noteEl.textContent = 'You currently have no specification credits. Visit the pricing page to purchase additional credits when you are ready.';
+                } else {
+                    noteEl.textContent = 'You have specification credits available. You can purchase additional credits from the pricing page whenever you need more.';
+                }
+            }
+
+            const cancelBtn = document.getElementById('cancelSubBtn');
+            const confirmationEl = document.getElementById('subscription-cancel-confirmation');
+
+            resetCancellationUI();
+            setSubscriptionMessage('', null);
+
+            if (cancelBtn) {
+                if (unlimited && sub && sub.status !== 'cancelled') {
+                    cancelBtn.style.display = 'block';
+                    cancelBtn.disabled = false;
+                    if (confirmationEl) {
+                        confirmationEl.style.display = 'none';
+                    }
+                } else {
+                    cancelBtn.style.display = 'none';
+                    if (confirmationEl) {
+                        confirmationEl.style.display = 'none';
+                    }
+                }
+            }
+
+            if (sub && sub.status === 'cancelled') {
+                if (sub.cancel_mode === 'period_end') {
+                    setSubscriptionMessage('Subscription cancellation scheduled. You will retain Pro features until the end of the current billing period and no additional renewals will be created.', 'info');
+                } else {
+                    setSubscriptionMessage('Subscription cancelled. Unlimited specifications are no longer available and future renewals have been stopped.', 'success');
+                }
+            }
+        }
+
+        window.startCancelSubscription = function() {
+            if (!currentUser) return;
+            if (!currentSubscription || currentSubscription.status === 'cancelled') {
+                setSubscriptionMessage('No active subscription to cancel.', 'warning');
+                return;
+            }
+
+            const confirmationEl = document.getElementById('subscription-cancel-confirmation');
+            if (confirmationEl) {
+                confirmationEl.style.display = 'block';
+            }
+
+            setSubscriptionMessage('Cancelling will stop future charges and unlimited specifications will end after this billing period, as described by Lemon Squeezy’s subscription lifecycle.', 'warning');
+        };
+
+        window.keepSubscription = function() {
+            resetCancellationUI();
+            setSubscriptionMessage('', null);
+        };
+
+        window.confirmCancelSubscription = async function() {
+            if (!currentUser) return;
+            if (!currentSubscription || currentSubscription.status === 'cancelled') {
+                setSubscriptionMessage('No active subscription to cancel.', 'warning');
+                resetCancellationUI();
+                return;
+            }
+
+            const cancelBtn = document.getElementById('cancelSubBtn');
+            const confirmBtn = document.getElementById('confirmCancelBtn');
+            let cancellationSucceeded = false;
+
+            try {
+                if (cancelBtn) {
+                    cancelBtn.disabled = true;
+                }
+                if (confirmBtn) {
+                    confirmBtn.disabled = true;
+                    confirmBtn.textContent = 'Cancelling…';
+                }
+                setSubscriptionMessage('Processing cancellation…', 'info');
+
+                const token = await currentUser.getIdToken();
+                const response = await fetch('https://specifys-ai-store.onrender.com/api/lemon/subscription/cancel', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({})
+                });
+
+                const data = await response.json().catch(() => ({}));
+                if (!response.ok) {
+                    const message = data.details || data.error || 'Unable to cancel subscription. Please verify your billing configuration (Test/Live) and try again.';
+                    const requestSuffix = data.requestId ? ` (Reference ID: ${data.requestId})` : '';
+                    setSubscriptionMessage(`${message}${requestSuffix}`, 'error');
+                    if (cancelBtn) {
+                        cancelBtn.disabled = false;
+                    }
+                    if (confirmBtn) {
+                        confirmBtn.disabled = false;
+                        confirmBtn.textContent = 'Confirm Cancellation';
+                    }
+                    return;
+                }
+
+                if (!data.success) {
+                    const message = data.details || data.error || 'Unable to cancel subscription. Please try again.';
+                    const requestSuffix = data.requestId ? ` (Reference ID: ${data.requestId})` : '';
+                    setSubscriptionMessage(`${message}${requestSuffix}`, 'error');
+                    if (cancelBtn) {
+                        cancelBtn.disabled = false;
+                    }
+                    if (confirmBtn) {
+                        confirmBtn.disabled = false;
+                        confirmBtn.textContent = 'Confirm Cancellation';
+                    }
+                    return;
+                }
+
+                cancellationSucceeded = true;
+                await loadEntitlements(true);
+
+                if (typeof window.updateCreditsDisplay === 'function') {
+                    window.updateCreditsDisplay();
+                }
+
+                const mode = data.cancellationMode || 'immediate';
+                const requestSuffix = data.requestId ? ` (Reference ID: ${data.requestId})` : '';
+                if (mode === 'period_end') {
+                    setSubscriptionMessage('Subscription cancellation scheduled. You will retain Pro features until the end of the current billing period and no additional renewals will be created.' + requestSuffix, 'success');
+                } else {
+                    setSubscriptionMessage('Subscription cancelled successfully. Unlimited specifications have ended and further charges are stopped.' + requestSuffix, 'success');
+                }
+            } catch (error) {
+                console.error('Failed to cancel subscription:', error);
+                setSubscriptionMessage(error.message || 'Failed to cancel subscription. Please try again later.', 'error');
+                if (cancelBtn) {
+                    cancelBtn.disabled = false;
+                }
+            } finally {
+                if (confirmBtn) {
+                    confirmBtn.disabled = false;
+                    confirmBtn.textContent = 'Confirm Cancellation';
+                }
+                if (cancellationSucceeded) {
+                    resetCancellationUI();
+                }
+            }
+        };
+
+        async function loadSpecsRemaining() {
+            await loadEntitlements();
         }
 
         // Load user market research
@@ -2583,18 +2856,14 @@
                     day: 'numeric' 
                 });
 
-                // Plan info removed - no longer using payment system
-                document.getElementById('info-plan').textContent = 'Free';
-                document.getElementById('info-status').textContent = 'Free';
-                document.getElementById('info-status').className = 'status-badge active';
+                currentUserProfileDoc = userDoc.exists() ? userDoc.data() : {};
+
                 document.getElementById('renewal-row').style.display = 'none';
                 document.getElementById('cost-row').style.display = 'none';
                 document.getElementById('cancelSubBtn').style.display = 'none';
-                document.getElementById('manageSubBtn').style.display = 'none';
-                document.getElementById('info-specs').textContent = 'N/A';
 
-                // Update specs remaining in header - payment system removed
-                // await loadSpecsRemaining();
+                await loadEntitlements(true);
+                updateEntitlementUI();
 
             } catch (error) {
 
@@ -2724,3 +2993,4 @@
     
 </body>
 </html>
+

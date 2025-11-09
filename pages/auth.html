@@ -305,7 +305,7 @@
             signInWithPopup,
             getAuth
         } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, serverTimestamp, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
         // Firebase configuration
         const firebaseConfig = {
@@ -423,17 +423,28 @@
                                   window.CREDITS_CONFIG.DEFAULT_PRO_FOR_NEW_USERS !== false;
 
                 const userRef = doc(db, 'users', user.uid);
-                
-                await setDoc(userRef, {
+                const existingUserSnapshot = await getDoc(userRef);
+
+                const userData = {
                     email: user.email,
                     displayName: user.displayName || user.email.split('@')[0],
                     emailVerified: user.emailVerified,
                     createdAt: serverTimestamp(),
                     lastActive: serverTimestamp(),
                     newsletterSubscription: false,
-                    plan: defaultPro ? 'pro' : 'free',
-                    free_specs_remaining: 1
-                }, { merge: true });
+                    plan: defaultPro ? 'pro' : 'free'
+                };
+
+                if (!existingUserSnapshot.exists()) {
+                    userData.free_specs_remaining = 1;
+                } else {
+                    const currentFreeSpecs = existingUserSnapshot.data()?.free_specs_remaining;
+                    if (typeof currentFreeSpecs !== 'number') {
+                        userData.free_specs_remaining = 1;
+                    }
+                }
+
+                await setDoc(userRef, userData, { merge: true });
                 
                 // Also create entitlements document if doesn't exist
                 const entitlementsRef = doc(db, 'entitlements', user.uid);
