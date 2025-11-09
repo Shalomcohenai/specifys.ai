@@ -84,6 +84,14 @@ function loadExternalScript(src) {
 /**
  * Utility helpers
  */
+const PRODUCT_PRICE_MAP = {
+  single_spec: 4.9,
+  three_pack: 9.9,
+  pro_monthly: 29.9,
+  pro_yearly: 299.9,
+  pro_lifetime: 499.0
+};
+
 const utils = {
   now: () => new Date(),
   toDate(value) {
@@ -169,16 +177,41 @@ const utils = {
       .replace(/^-+|-+$/g, "")
       .slice(0, 140);
   },
-  normalizeCurrency(value) {
-    if (value === null || value === undefined) return null;
+  normalizeCurrency(value, context = {}) {
+    if (value === null || value === undefined) {
+      return utils.lookupProductPrice(context) ?? null;
+    }
     const numeric = typeof value === "number" ? value : Number(value);
-    if (!Number.isFinite(numeric)) {
-      return null;
+    if (!Number.isFinite(numeric) || numeric <= 0) {
+      return utils.lookupProductPrice(context) ?? null;
     }
     if (Math.abs(numeric) >= 1000) {
       return Number((numeric / 100).toFixed(2));
     }
+    if (numeric >= 50 || numeric % 10 === 0) {
+      const mapped = utils.lookupProductPrice(context);
+      if (mapped) return mapped;
+    }
     return Number(numeric.toFixed(2));
+  },
+  lookupProductPrice(context) {
+    const key =
+      context?.productKey ||
+      context?.product_key ||
+      context?.metadata?.productKey ||
+      context?.metadata?.product_key ||
+      context?.metadata?.customData?.product_key ||
+      context?.metadata?.customData?.productKey;
+    if (key && PRODUCT_PRICE_MAP[key]) {
+      return PRODUCT_PRICE_MAP[key];
+    }
+    const name = (context?.productName || context?.metadata?.productName || "").toLowerCase();
+    if (!name) return null;
+    if (name.includes("single")) return PRODUCT_PRICE_MAP.single_spec;
+    if (name.includes("3-pack") || name.includes("three")) return PRODUCT_PRICE_MAP.three_pack;
+    if (name.includes("monthly")) return PRODUCT_PRICE_MAP.pro_monthly;
+    if (name.includes("yearly") || name.includes("annual")) return PRODUCT_PRICE_MAP.pro_yearly;
+    return null;
   }
 };
 
@@ -304,7 +337,7 @@ class DashboardDataStore {
       .map((doc) => ({
         id: doc.id,
         createdAt: utils.toDate(doc.createdAt),
-        total: utils.normalizeCurrency(doc.total),
+        total: utils.normalizeCurrency(doc.total, doc),
         currency: doc.currency || "USD",
         userId: doc.userId || null,
         email: doc.email || "",
@@ -322,7 +355,7 @@ class DashboardDataStore {
     const normalized = {
       id,
       createdAt: utils.toDate(data.createdAt),
-      total: utils.normalizeCurrency(data.total),
+      total: utils.normalizeCurrency(data.total, data),
       currency: data.currency || "USD",
       userId: data.userId || null,
       email: data.email || "",
