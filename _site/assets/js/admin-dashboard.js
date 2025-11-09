@@ -84,6 +84,14 @@ function loadExternalScript(src) {
 /**
  * Utility helpers
  */
+const PRODUCT_PRICE_MAP = {
+  single_spec: 4.9,
+  three_pack: 9.9,
+  pro_monthly: 29.9,
+  pro_yearly: 299.9,
+  pro_lifetime: 499.0
+};
+
 const utils = {
   now: () => new Date(),
   toDate(value) {
@@ -168,6 +176,42 @@ const utils = {
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-+|-+$/g, "")
       .slice(0, 140);
+  },
+  normalizeCurrency(value, context = {}) {
+    if (value === null || value === undefined) {
+      return utils.lookupProductPrice(context) ?? null;
+    }
+    const numeric = typeof value === "number" ? value : Number(value);
+    if (!Number.isFinite(numeric) || numeric <= 0) {
+      return utils.lookupProductPrice(context) ?? null;
+    }
+    if (Math.abs(numeric) >= 1000) {
+      return Number((numeric / 100).toFixed(2));
+    }
+    if (numeric >= 50 || numeric % 10 === 0) {
+      const mapped = utils.lookupProductPrice(context);
+      if (mapped) return mapped;
+    }
+    return Number(numeric.toFixed(2));
+  },
+  lookupProductPrice(context) {
+    const key =
+      context?.productKey ||
+      context?.product_key ||
+      context?.metadata?.productKey ||
+      context?.metadata?.product_key ||
+      context?.metadata?.customData?.product_key ||
+      context?.metadata?.customData?.productKey;
+    if (key && PRODUCT_PRICE_MAP[key]) {
+      return PRODUCT_PRICE_MAP[key];
+    }
+    const name = (context?.productName || context?.metadata?.productName || "").toLowerCase();
+    if (!name) return null;
+    if (name.includes("single")) return PRODUCT_PRICE_MAP.single_spec;
+    if (name.includes("3-pack") || name.includes("three")) return PRODUCT_PRICE_MAP.three_pack;
+    if (name.includes("monthly")) return PRODUCT_PRICE_MAP.pro_monthly;
+    if (name.includes("yearly") || name.includes("annual")) return PRODUCT_PRICE_MAP.pro_yearly;
+    return null;
   }
 };
 
@@ -261,7 +305,7 @@ class DashboardDataStore {
       const index = list.findIndex((spec) => spec.id === id);
       if (index >= 0) {
         list[index] = normalized;
-      } else {
+                } else {
         list.push(normalized);
       }
       list.sort((a, b) => (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0));
@@ -293,7 +337,7 @@ class DashboardDataStore {
       .map((doc) => ({
         id: doc.id,
         createdAt: utils.toDate(doc.createdAt),
-        total: typeof doc.total === "number" ? doc.total : null,
+        total: utils.normalizeCurrency(doc.total, doc),
         currency: doc.currency || "USD",
         userId: doc.userId || null,
         email: doc.email || "",
@@ -311,7 +355,7 @@ class DashboardDataStore {
     const normalized = {
       id,
       createdAt: utils.toDate(data.createdAt),
-      total: typeof data.total === "number" ? data.total : null,
+      total: utils.normalizeCurrency(data.total, data),
       currency: data.currency || "USD",
       userId: data.userId || null,
       email: data.email || "",
@@ -478,9 +522,9 @@ class GlobalSearch {
     const term = rawTerm.trim().toLowerCase();
     if (term.length < 2) {
       this.renderPlaceholder();
-      return;
-    }
-
+            return;
+        }
+        
     const userResults = [];
     const paymentResults = [];
     const specResults = [];
@@ -712,7 +756,7 @@ class SpecViewerModal {
             <div class="spec-meta">
               <span>ID: ${spec.id}</span>
               <span>Updated: ${utils.formatRelative(spec.updatedAt)}</span>
-            </div>
+                    </div>
             <p class="spec-preview">${preview}…</p>
             <div class="spec-actions">
               <a href="/pages/spec-viewer.html?spec=${spec.id}" target="_blank" rel="noopener">Open viewer</a>
@@ -756,6 +800,16 @@ class AdminDashboardApp {
       toggleActivity: utils.dom("#toggle-activity-pause"),
       sourceList: utils.dom("#source-status-list"),
       autoRefreshNext: utils.dom("#auto-refresh-next"),
+      activityDetail: {
+        root: utils.dom("#activity-detail"),
+        title: utils.dom("#activity-detail-title"),
+        close: utils.dom("#activity-detail-close"),
+        name: utils.dom("#activity-detail-user"),
+        email: utils.dom("#activity-detail-email"),
+        userId: utils.dom("#activity-detail-userid"),
+        time: utils.dom("#activity-detail-time"),
+        context: utils.dom("#activity-detail-context")
+      },
       usersSearch: utils.dom("#users-search"),
       usersPlanFilter: utils.dom("#users-plan-filter"),
       usersTable: utils.dom("#users-table tbody"),
@@ -898,6 +952,10 @@ class AdminDashboardApp {
     });
     this.dom.statsStartDate?.addEventListener("change", () => this.updateStatistics());
     this.dom.statsEndDate?.addEventListener("change", () => this.updateStatistics());
+
+    this.dom.activityDetail.close?.addEventListener("click", () => {
+      this.hideActivityDetail();
+    });
   }
 
   setupAuthGate() {
@@ -932,8 +990,8 @@ class AdminDashboardApp {
     const ChartConstructor = ChartLib || window.Chart;
     if (!ChartConstructor) {
       console.warn("Chart.js not available. Skipping chart initialization.");
-      return;
-    }
+            return;
+        }
 
     const defaultOptions = {
       responsive: true,
@@ -1042,7 +1100,7 @@ class AdminDashboardApp {
         }
       );
       this.unsubscribeFns.push(unsubUsers);
-    } catch (error) {
+        } catch (error) {
       console.error("Failed to subscribe to users", error);
       this.markSourceError("users", error);
     }
@@ -1068,7 +1126,7 @@ class AdminDashboardApp {
         }
       );
       this.unsubscribeFns.push(unsubEntitlements);
-    } catch (error) {
+        } catch (error) {
       console.error("Failed to subscribe to entitlements", error);
       this.markSourceError("entitlements", error);
     }
@@ -1181,7 +1239,7 @@ class AdminDashboardApp {
               timestamp: utils.toDate(data.timestamp),
               meta: data
             };
-          });
+        });
           this.store.setActivity(events);
           this.markSourceReady("activityLogs");
           this.renderLogs();
@@ -1237,7 +1295,7 @@ class AdminDashboardApp {
         }
       );
       this.unsubscribeFns.push(unsubQueue);
-    } catch (error) {
+        } catch (error) {
       if (error?.code === "permission-denied") {
         console.info("Blog queue not available for current user.");
         this.markSourceRestricted("blogQueue", "Requires blog queue privileges.");
@@ -1358,7 +1416,7 @@ class AdminDashboardApp {
     const rows = [];
 
     for (const user of this.store.getUsersSorted()) {
-      if (searchTerm) {
+        if (searchTerm) {
         const haystack = `${user.email} ${user.displayName}`.toLowerCase();
         if (!haystack.includes(searchTerm)) continue;
       }
@@ -1434,7 +1492,7 @@ class AdminDashboardApp {
     const rows = [];
 
     for (const purchase of payments) {
-      if (searchTerm) {
+        if (searchTerm) {
         const haystack = `${purchase.email} ${purchase.productName} ${purchase.productType}`.toLowerCase();
         if (!haystack.includes(searchTerm)) continue;
       }
@@ -1544,21 +1602,36 @@ class AdminDashboardApp {
     const events = this.store.getActivityMerged();
     if (!events.length) {
       this.dom.activityFeed.innerHTML = `<li class="activity-placeholder">Waiting for events…</li>`;
-      return;
-    }
-    const html = events
-      .slice(0, 20)
-      .map(
-        (event) => `
-        <li class="${event.type}">
-          <span>${event.title}</span>
+                return;
+            }
+    const html = events.slice(0, 20).map((event) => {
+      const userLabel = event.meta?.email || event.meta?.userEmail || this.store.getUser(event.meta?.userId)?.email;
+      const nameLabel = event.meta?.userName || this.store.getUser(event.meta?.userId)?.displayName;
+      const badge = userLabel ? `<span class="activity-badge">${userLabel}</span>` : "";
+      const icon = this.getActivityIcon(event.type);
+      return `
+        <li class="activity-item ${event.type}" data-activity-id="${event.id}">
+          <div class="activity-item__info">
+            <span class="activity-item__title">
+              <span class="activity-icon"><i class="${icon}"></i></span>
+              ${event.title}
+            </span>
+            <span class="activity-item__meta">${nameLabel || "Unknown user"} ${badge}</span>
+          </div>
           <time>${utils.formatRelative(event.timestamp)}</time>
         </li>
-      `
-      )
-      .join("");
+      `;
+    }).join("");
     if (!this.isActivityPaused) {
       this.dom.activityFeed.innerHTML = html;
+      this.dom.activityFeed.querySelectorAll(".activity-item").forEach((item) => {
+        item.addEventListener("click", () => {
+          const id = item.dataset.activityId;
+          if (id) {
+            this.toggleActivityDetail(id, item);
+          }
+        });
+      });
     }
   }
 
@@ -1736,7 +1809,7 @@ class AdminDashboardApp {
         this.dom.blogFields.descriptionCount.textContent = "0 / 160";
       }
       await this.refreshBlogQueue();
-    } catch (error) {
+        } catch (error) {
       console.error("Blog publish failed", error);
       this.setBlogFeedback(error.message || "Failed to publish blog post.", "error");
     } finally {
@@ -1756,8 +1829,8 @@ class AdminDashboardApp {
     const content = this.dom.blogFields.content?.value.trim();
     if (!title || !content) {
       alert("Add title and content to preview.");
-      return;
-    }
+            return;
+        }
     if (!MarkedLib) {
       try {
         const module = await import("https://cdn.jsdelivr.net/npm/marked@11.2.0/lib/marked.esm.js");
@@ -1815,7 +1888,7 @@ class AdminDashboardApp {
         }))
       );
       this.renderBlogQueue();
-    } catch (error) {
+        } catch (error) {
       console.error("Failed to refresh blog queue", error);
     }
   }
@@ -1868,6 +1941,61 @@ class AdminDashboardApp {
         this.globalSearch.executeSearch(value);
       }
     }
+  }
+
+  toggleActivityDetail(activityId, element) {
+    const events = this.store.getActivityMerged();
+    const record = events.find((event) => event.id === activityId);
+    if (!record) return;
+    const alreadySelected = element.classList.contains("selected");
+    this.dom.activityFeed.querySelectorAll(".activity-item").forEach((item) => item.classList.remove("selected"));
+    if (alreadySelected) {
+      this.hideActivityDetail();
+            return;
+    }
+    element.classList.add("selected");
+    this.showActivityDetail(record);
+  }
+
+  getActivityIcon(type) {
+    switch (type) {
+      case "payment":
+      case "subscription":
+        return "fas fa-hand-holding-dollar";
+      case "spec":
+        return "fas fa-file-alt";
+      case "auth":
+        return "fas fa-user-check";
+      default:
+        return "fas fa-info-circle";
+    }
+  }
+
+  showActivityDetail(event) {
+    const panel = this.dom.activityDetail;
+    if (!panel.root) return;
+    const user = this.store.getUser(event.meta?.userId);
+    const name = event.meta?.userName || user?.displayName || "Unknown user";
+    const email = event.meta?.email || event.meta?.userEmail || user?.email || "Not provided";
+    panel.title.textContent = event.title;
+    panel.name.textContent = name;
+    panel.email.textContent = email;
+    panel.userId.textContent = event.meta?.userId || "—";
+    panel.time.textContent = `${utils.formatDate(event.timestamp)} (${utils.formatRelative(event.timestamp)})`;
+    const contextParts = [];
+    if (event.meta?.specId) contextParts.push(`Spec: ${event.meta.specId}`);
+    if (event.meta?.purchaseId) contextParts.push(`Purchase: ${event.meta.purchaseId}`);
+    if (event.meta?.plan) contextParts.push(`Plan: ${event.meta.plan}`);
+    if (event.meta?.description) contextParts.push(event.meta.description);
+    panel.context.textContent = contextParts.join(" • ") || "—";
+    panel.root.classList.remove("hidden");
+  }
+
+  hideActivityDetail() {
+    if (this.dom.activityDetail.root) {
+      this.dom.activityDetail.root.classList.add("hidden");
+    }
+    this.dom.activityFeed?.querySelectorAll(".activity-item").forEach((item) => item.classList.remove("selected"));
   }
 
   async refreshAllData(reason = "manual") {
