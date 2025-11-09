@@ -381,6 +381,35 @@ body {
   justify-content: space-between;
     align-items: center;
   gap: 12px;
+  flex-wrap: wrap;
+}
+
+.activity-filters {
+  display: inline-flex;
+  gap: 8px;
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: 999px;
+  padding: 4px;
+}
+
+.activity-filter-btn {
+  background: transparent;
+  border: none;
+  color: var(--admin-text-muted);
+  padding: 6px 14px;
+  font-size: 0.85rem;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.activity-filter-btn.active {
+  background: rgba(92, 108, 255, 0.16);
+  color: var(--admin-accent-strong);
+}
+
+.activity-filter-btn:hover {
+  color: var(--admin-accent-strong);
 }
 
 .panel-action {

@@ -136,6 +136,12 @@
             <div class="panel recent-activity">
               <div class="panel-header">
                 <h3>Recent activity</h3>
+                <div class="activity-filters" role="group" aria-label="Activity filters">
+                  <button class="activity-filter-btn active" data-filter="all" type="button">All</button>
+                  <button class="activity-filter-btn" data-filter="spec" type="button">Specs</button>
+                  <button class="activity-filter-btn" data-filter="payment" type="button">Purchases</button>
+                  <button class="activity-filter-btn" data-filter="auth" type="button">Logins</button>
+                </div>
                 <button class="panel-action" id="toggle-activity-pause" type="button">
                   <i class="fas fa-pause"></i>
                   Pause stream

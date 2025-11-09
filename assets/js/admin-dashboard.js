@@ -783,6 +783,7 @@ class AdminDashboardApp {
       specsTimeline: null,
       revenueTrend: null
     };
+    this.activeActivityFilter = "all";
 
     this.dom = {
       shell: utils.dom("#admin-shell"),
@@ -798,6 +799,7 @@ class AdminDashboardApp {
       overviewMetrics: utils.dom("#overview-metrics"),
       activityFeed: utils.dom("#activity-feed"),
       toggleActivity: utils.dom("#toggle-activity-pause"),
+      activityFilterButtons: utils.domAll(".activity-filter-btn"),
       sourceList: utils.dom("#source-status-list"),
       autoRefreshNext: utils.dom("#auto-refresh-next"),
       activityDetail: {
@@ -956,7 +958,17 @@ class AdminDashboardApp {
     this.dom.activityDetail.close?.addEventListener("click", () => {
       this.hideActivityDetail();
     });
-  }
+    if (this.dom.activityFilterButtons.length) {
+      this.dom.activityFilterButtons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          this.dom.activityFilterButtons.forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+          this.activeActivityFilter = btn.dataset.filter || "all";
+          this.renderActivityFeed();
+        });
+            });
+        }
+    }
 
   setupAuthGate() {
     onAuthStateChanged(auth, async (user) => {
@@ -1604,7 +1616,17 @@ class AdminDashboardApp {
       this.dom.activityFeed.innerHTML = `<li class="activity-placeholder">Waiting for events…</li>`;
                 return;
             }
-    const html = events.slice(0, 20).map((event) => {
+    const filter = this.activeActivityFilter || "all";
+    const filtered = events.filter((event) => {
+      if (filter === "all") return true;
+      if (filter === "payment") return event.type === "payment" || event.type === "subscription";
+      return event.type === filter;
+    });
+    if (!filtered.length) {
+      this.dom.activityFeed.innerHTML = `<li class="activity-placeholder">No activity in this category.</li>`;
+      return;
+    }
+    const html = filtered.slice(0, 20).map((event) => {
       const userLabel = event.meta?.email || event.meta?.userEmail || this.store.getUser(event.meta?.userId)?.email;
       const nameLabel = event.meta?.userName || this.store.getUser(event.meta?.userId)?.displayName;
       const badge = userLabel ? `<span class="activity-badge">${userLabel}</span>` : "";
