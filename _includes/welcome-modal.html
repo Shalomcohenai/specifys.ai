@@ -1,39 +1,39 @@
 <!-- Welcome Modal -->
 <div id="welcomeModal" class="welcome-modal" style="display: none;">
   <div class="welcome-content">
-    <div class="welcome-header">
+    <button class="welcome-close" onclick="closeWelcomeModal()" aria-label="Close welcome message">×</button>
+    <header class="welcome-header">
       <h3>Welcome to Specifys.ai!</h3>
-      <button class="welcome-close" onclick="closeWelcomeModal()" aria-label="Close welcome message">×</button>
-    </div>
-    <div class="welcome-body">
-      <p><strong>Hey! We've been working on a new version!</strong></p>
-      <p>You can now save your specifications and manage your applications!</p>
-      <div class="welcome-features">
-        <div class="feature-highlight">
-          <i class="fa fa-save"></i>
-          <span>Save your specs</span>
+      <p class="welcome-subtitle">Let’s craft your perfect product spec in minutes.</p>
+    </header>
+    <section class="welcome-flow">
+      <h4>How it works</h4>
+      <div class="flow-steps">
+        <div class="flow-item">
+          <span class="flow-step-title">Sign up</span>
         </div>
-        <div class="feature-highlight">
-          <i class="fa fa-cogs"></i>
-          <span>Manage your apps</span>
+        <span class="flow-arrow" aria-hidden="true">
+          <svg viewBox="0 0 32 12" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2 6h26M22 2l6 4-6 4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+          </svg>
+        </span>
+        <div class="flow-item">
+          <span class="flow-step-title">Answer 4 simple questions</span>
         </div>
-        <div class="feature-highlight">
-          <i class="fa fa-line-chart"></i>
-          <span>Track progress</span>
-        </div>
-        <div class="feature-highlight">
-          <i class="fa fa-comments"></i>
-          <span>AI Chat</span>
-        </div>
-        <div class="feature-highlight">
-          <i class="fa fa-flask"></i>
-          <span>Research Tools</span>
+        <span class="flow-arrow" aria-hidden="true">
+          <svg viewBox="0 0 32 12" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2 6h26M22 2l6 4-6 4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+          </svg>
+        </span>
+        <div class="flow-item">
+          <span class="flow-step-title">Receive a tailored spec</span>
+          <span class="flow-step-meta">(General, Technical, Design, Branding, Diagrams & more!)</span>
         </div>
       </div>
-    </div>
-    <div class="welcome-actions">
-      <button type="button" onclick="closeWelcomeModal()" class="btn-continue">Continue Exploring</button>
-      <a href="/pages/auth.html" class="btn-register" onclick="trackCTA('Create Free Account', 'welcome_modal')">Create Free Account</a>
-    </div>
+    </section>
+    <footer class="welcome-actions">
+      <a href="/pages/auth.html" class="btn-register" onclick="trackCTA('Try for free', 'welcome_modal')">Try for free!</a>
+      <p class="welcome-footnote">No credit card required.</p>
+    </footer>
   </div>
 </div>

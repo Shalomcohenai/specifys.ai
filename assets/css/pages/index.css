@@ -1653,129 +1653,170 @@
 }
 
 .welcome-content {
-  background: #fff;
-  width: 90%;
-  max-width: 500px;
-  border-radius: 20px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  overflow: hidden;
+  position: relative;
+  background: #ff6b35;
+  width: 92%;
+  max-width: 560px;
+  border-radius: 24px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);
+  padding: 3rem 2.5rem 2.5rem;
+  color: #f8f8f8;
   animation: slideInUp 0.4s ease-out;
-}
-
-.welcome-header {
-  background: linear-gradient(135deg, #FF6B35, #FFA382);
-  color: #fff;
-  padding: 2rem 2rem 1rem;
-  text-align: center;
-}
-
-.welcome-header h3 {
-  margin: 0;
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #fff;
 }
 
 .welcome-close {
   position: absolute;
   top: 1rem;
   right: 1rem;
-  background: rgba(255, 255, 255, 0.2);
   border: none;
-  color: #fff;
-  font-size: 1.5rem;
+  background: rgba(255, 255, 255, 0.12);
+  color: #f5f5f5;
+  font-size: 1.25rem;
   cursor: pointer;
-  padding: 0.5rem;
-  width: 35px;
-  height: 35px;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  transition: all 0.3s ease;
+  transition: background 0.2s ease, transform 0.2s ease;
 }
 
 .welcome-close:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.22);
+  transform: scale(1.05);
 }
 
-.welcome-body {
-  padding: 2rem;
+.welcome-header {
   text-align: center;
+  margin-bottom: 2.5rem;
 }
 
-.welcome-features {
+.welcome-header h3 {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #f5f5f5;
+}
+
+.welcome-subtitle {
+  margin-top: 0.75rem;
+  font-size: 1.05rem;
+  color: #f2f2f2;
+  line-height: 1.5;
+}
+
+.welcome-flow h4 {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #f7f7f7;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.flow-steps {
   display: flex;
-  justify-content: center;
-  gap: 1.5rem;
-  margin: 2rem 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
   flex-wrap: wrap;
+  color: #f5f5f5;
 }
 
-.feature-highlight {
+.flow-item {
+  flex: 1 1 160px;
+  background: rgba(245, 245, 245, 0.94);
+  border: 1px solid rgba(34, 34, 34, 0.12);
+  border-radius: 18px;
+  padding: 1rem;
+  text-align: center;
+  backdrop-filter: blur(2px);
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 1rem;
-  background: #f8f9fa;
-  border-radius: 12px;
-  min-width: 100px;
+  gap: 0.35rem;
+  min-height: 110px;
+  transition: transform 0.25s ease, border-color 0.25s ease;
 }
 
-.feature-highlight i {
-  font-size: 1.5rem;
-  color: #FF6B35;
+.flow-item:hover {
+  transform: translateY(-4px);
+  border-color: rgba(34, 34, 34, 0.28);
 }
 
-.feature-highlight span {
-  font-size: 0.9rem;
+.flow-step-title {
+  font-size: 1.05rem;
   font-weight: 600;
-  color: #333;
+  color: #1f1f1f;
+}
+
+.flow-step-meta {
+  font-size: 0.85rem;
+  color: #555;
+  line-height: 1.4;
+}
+
+.flow-arrow {
+  color: #f5f5f5;
+  width: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: arrowPulse 1.8s ease-in-out infinite;
+}
+
+.flow-arrow svg {
+  width: 100%;
+  height: auto;
 }
 
 .welcome-actions {
+  margin-top: 2.5rem;
+  text-align: center;
   display: flex;
-  gap: 1rem;
-  padding: 1rem 2rem 2rem;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-.btn-continue {
-  background: #f0f0f0;
-  color: #666;
-  border: none;
-  border-radius: 25px;
-  padding: 0.8rem 1.5rem;
-  font-size: 0.95rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.btn-continue:hover {
-  background: #e0e0e0;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
 }
 
 .btn-register {
-  background: #555;
-  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 220px;
+  background: #f5f5f5;
+  color: #ff6b35;
   text-decoration: none;
-  border-radius: 25px;
-  padding: 0.8rem 1.5rem;
-  font-size: 0.95rem;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(85, 85, 85, 0.3);
+  border-radius: 999px;
+  padding: 0.95rem 2.5rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+  box-shadow: 0 14px 25px rgba(0, 0, 0, 0.18);
 }
 
 .btn-register:hover {
-  background: #666;
-  color: #fff;
-  text-decoration: none;
-  box-shadow: 0 6px 20px rgba(85, 85, 85, 0.4);
+  transform: translateY(-3px);
+  box-shadow: 0 18px 32px rgba(0, 0, 0, 0.22);
+  background: #ffffff;
 }
+
+.welcome-footnote {
+  font-size: 0.85rem;
+  color: rgba(245, 245, 245, 0.85);
+}
+
+@keyframes arrowPulse {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(6px);
+  }
 
 /* ===== MAINTENANCE MODAL ===== */
 .maintenance-modal {
