@@ -503,6 +503,80 @@ async function resolveSubscription(options) {
     return null;
   }
 
+  async function fetchSubscriptionIdFromLemonOrder() {
+    if (!lastOrderId || !apiKey) {
+      attempts.push({ type: 'orders_api_lookup', success: false, reason: 'no_last_order_id_or_api_key' });
+      return null;
+    }
+
+    const orderUrl = `https://api.lemonsqueezy.com/v1/orders/${encodeURIComponent(lastOrderId)}`;
+    try {
+      const response = await fetch(orderUrl, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          Accept: 'application/vnd.api+json'
+        }
+      });
+
+      if (!response.ok) {
+        let errorBody = null;
+        try {
+          errorBody = await response.json();
+        } catch (parseErr) {
+          try {
+            errorBody = await response.text();
+          } catch (textErr) {
+            errorBody = null;
+          }
+        }
+
+        log.warn('Lemon order lookup returned non-OK status', {
+          url: orderUrl,
+          status: response.status,
+          statusText: response.statusText,
+          body: errorBody
+        });
+        attempts.push({ type: 'orders_api_lookup', success: false, reason: 'non_ok', status: response.status });
+        return null;
+      }
+
+      const orderData = await response.json();
+      const attributes = orderData?.data?.attributes || {};
+      const relationships = orderData?.data?.relationships || {};
+
+      const attrId =
+        attributes.subscription_id ||
+        attributes.subscriptionId ||
+        attributes.subscription?.id ||
+        null;
+
+      const relId =
+        relationships?.subscription?.data?.id ||
+        relationships?.subscription_id?.data?.id ||
+        relationships?.subscriptionId?.data?.id ||
+        null;
+
+      const resolvedId = attrId || relId || null;
+      if (resolvedId) {
+        log.info('Found subscriptionId via Lemon order lookup', {
+          orderId: lastOrderId,
+          subscriptionId: resolvedId.toString()
+        });
+        attempts.push({ type: 'orders_api_lookup', success: true, subscriptionId: resolvedId.toString() });
+        return resolvedId.toString();
+      }
+
+      log.warn('Lemon order lookup did not include subscription reference', { orderId: lastOrderId });
+      attempts.push({ type: 'orders_api_lookup', success: false, reason: 'missing_subscription_reference' });
+      return null;
+    } catch (err) {
+      log.warn('Lemon order lookup failed', { orderId: lastOrderId, error: err?.message || err });
+      attempts.push({ type: 'orders_api_lookup', success: false, reason: 'exception', error: err?.message || err });
+      return null;
+    }
+  }
+
   async function resolveViaLemonOrderEndpoint() {
     if (!lastOrderId) {
       attempts.push({ type: 'orders_api', success: false, reason: 'no_last_order_id' });
