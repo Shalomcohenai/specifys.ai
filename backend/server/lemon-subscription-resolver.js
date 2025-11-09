@@ -157,12 +157,6 @@ async function listSubscriptions({ fetch, apiKey, storeId, status, mode, filters
   searchParams.append('filter[status]', status || 'active');
   searchParams.append('page[size]', '5');
 
-  if (mode === 'test') {
-    searchParams.append('filter[test_mode]', 'true');
-  } else if (mode === 'live') {
-    searchParams.append('filter[test_mode]', 'false');
-  }
-
   Object.entries(filters).forEach(([key, value]) => {
     if (value !== undefined && value !== null && value !== '') {
       searchParams.append(`filter[${key}]`, value);
