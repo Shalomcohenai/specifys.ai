@@ -1399,6 +1399,11 @@
     color: white;
 }
 
+.status-badge.free {
+    background: rgba(255, 255, 255, 0.08);
+    color: #d1d5db;
+}
+
 .status-badge.expired {
     background: #fee2e2;
     color: #991b1b;

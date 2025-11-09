@@ -1315,7 +1315,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Listen to auth state changes
     auth.onAuthStateChanged((user) => {
         updateAuthUI(user);
+        updateProductButtonsForUser(user);
     });
+
+    // Ensure buttons reflect current auth state once Firebase is ready
+    updateProductButtonsForUser(auth.currentUser);
 
     // Initialize auth buttons with default state
     document.addEventListener('DOMContentLoaded', function() {
