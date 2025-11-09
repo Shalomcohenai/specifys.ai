@@ -1,3 +1,37 @@
+.activity-feed li .activity-item__title {
+  font-weight: 600;
+  color: var(--admin-text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.activity-icon {
+  width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--admin-muted-bg);
+  color: var(--admin-accent);
+}
+
+.activity-item.payment .activity-icon {
+  color: var(--admin-warning);
+}
+
+.activity-item.spec .activity-icon {
+  color: var(--admin-success);
+}
+
+.activity-item.auth .activity-icon {
+  color: var(--admin-accent);
+}
+
+.activity-item.system .activity-icon {
+  color: var(--admin-text-muted);
+}
 :root {
   --admin-bg: #f4f6fb;
   --admin-sidebar: #ffffff;

@@ -272,7 +272,7 @@ class DashboardDataStore {
       const index = list.findIndex((spec) => spec.id === id);
       if (index >= 0) {
         list[index] = normalized;
-      } else {
+                } else {
         list.push(normalized);
       }
       list.sort((a, b) => (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0));
@@ -489,9 +489,9 @@ class GlobalSearch {
     const term = rawTerm.trim().toLowerCase();
     if (term.length < 2) {
       this.renderPlaceholder();
-      return;
-    }
-
+            return;
+        }
+        
     const userResults = [];
     const paymentResults = [];
     const specResults = [];
@@ -723,7 +723,7 @@ class SpecViewerModal {
             <div class="spec-meta">
               <span>ID: ${spec.id}</span>
               <span>Updated: ${utils.formatRelative(spec.updatedAt)}</span>
-            </div>
+                    </div>
             <p class="spec-preview">${preview}…</p>
             <div class="spec-actions">
               <a href="/pages/spec-viewer.html?spec=${spec.id}" target="_blank" rel="noopener">Open viewer</a>
@@ -957,8 +957,8 @@ class AdminDashboardApp {
     const ChartConstructor = ChartLib || window.Chart;
     if (!ChartConstructor) {
       console.warn("Chart.js not available. Skipping chart initialization.");
-      return;
-    }
+            return;
+        }
 
     const defaultOptions = {
       responsive: true,
@@ -1067,7 +1067,7 @@ class AdminDashboardApp {
         }
       );
       this.unsubscribeFns.push(unsubUsers);
-    } catch (error) {
+        } catch (error) {
       console.error("Failed to subscribe to users", error);
       this.markSourceError("users", error);
     }
@@ -1093,7 +1093,7 @@ class AdminDashboardApp {
         }
       );
       this.unsubscribeFns.push(unsubEntitlements);
-    } catch (error) {
+        } catch (error) {
       console.error("Failed to subscribe to entitlements", error);
       this.markSourceError("entitlements", error);
     }
@@ -1206,7 +1206,7 @@ class AdminDashboardApp {
               timestamp: utils.toDate(data.timestamp),
               meta: data
             };
-          });
+        });
           this.store.setActivity(events);
           this.markSourceReady("activityLogs");
           this.renderLogs();
@@ -1262,7 +1262,7 @@ class AdminDashboardApp {
         }
       );
       this.unsubscribeFns.push(unsubQueue);
-    } catch (error) {
+        } catch (error) {
       if (error?.code === "permission-denied") {
         console.info("Blog queue not available for current user.");
         this.markSourceRestricted("blogQueue", "Requires blog queue privileges.");
@@ -1383,7 +1383,7 @@ class AdminDashboardApp {
     const rows = [];
 
     for (const user of this.store.getUsersSorted()) {
-      if (searchTerm) {
+        if (searchTerm) {
         const haystack = `${user.email} ${user.displayName}`.toLowerCase();
         if (!haystack.includes(searchTerm)) continue;
       }
@@ -1459,7 +1459,7 @@ class AdminDashboardApp {
     const rows = [];
 
     for (const purchase of payments) {
-      if (searchTerm) {
+        if (searchTerm) {
         const haystack = `${purchase.email} ${purchase.productName} ${purchase.productType}`.toLowerCase();
         if (!haystack.includes(searchTerm)) continue;
       }
@@ -1569,16 +1569,20 @@ class AdminDashboardApp {
     const events = this.store.getActivityMerged();
     if (!events.length) {
       this.dom.activityFeed.innerHTML = `<li class="activity-placeholder">Waiting for events…</li>`;
-      return;
-    }
+                return;
+            }
     const html = events.slice(0, 20).map((event) => {
       const userLabel = event.meta?.email || event.meta?.userEmail || this.store.getUser(event.meta?.userId)?.email;
       const nameLabel = event.meta?.userName || this.store.getUser(event.meta?.userId)?.displayName;
       const badge = userLabel ? `<span class="activity-badge">${userLabel}</span>` : "";
+      const icon = this.getActivityIcon(event.type);
       return `
         <li class="activity-item ${event.type}" data-activity-id="${event.id}">
           <div class="activity-item__info">
-            <span class="activity-item__title">${event.title}</span>
+            <span class="activity-item__title">
+              <span class="activity-icon"><i class="${icon}"></i></span>
+              ${event.title}
+            </span>
             <span class="activity-item__meta">${nameLabel || "Unknown user"} ${badge}</span>
           </div>
           <time>${utils.formatRelative(event.timestamp)}</time>
@@ -1772,7 +1776,7 @@ class AdminDashboardApp {
         this.dom.blogFields.descriptionCount.textContent = "0 / 160";
       }
       await this.refreshBlogQueue();
-    } catch (error) {
+        } catch (error) {
       console.error("Blog publish failed", error);
       this.setBlogFeedback(error.message || "Failed to publish blog post.", "error");
     } finally {
@@ -1792,8 +1796,8 @@ class AdminDashboardApp {
     const content = this.dom.blogFields.content?.value.trim();
     if (!title || !content) {
       alert("Add title and content to preview.");
-      return;
-    }
+            return;
+        }
     if (!MarkedLib) {
       try {
         const module = await import("https://cdn.jsdelivr.net/npm/marked@11.2.0/lib/marked.esm.js");
@@ -1851,7 +1855,7 @@ class AdminDashboardApp {
         }))
       );
       this.renderBlogQueue();
-    } catch (error) {
+        } catch (error) {
       console.error("Failed to refresh blog queue", error);
     }
   }
@@ -1914,10 +1918,24 @@ class AdminDashboardApp {
     this.dom.activityFeed.querySelectorAll(".activity-item").forEach((item) => item.classList.remove("selected"));
     if (alreadySelected) {
       this.hideActivityDetail();
-      return;
+            return;
     }
     element.classList.add("selected");
     this.showActivityDetail(record);
+  }
+
+  getActivityIcon(type) {
+    switch (type) {
+      case "payment":
+      case "subscription":
+        return "fas fa-hand-holding-dollar";
+      case "spec":
+        return "fas fa-file-alt";
+      case "auth":
+        return "fas fa-user-check";
+      default:
+        return "fas fa-info-circle";
+    }
   }
 
   showActivityDetail(event) {
