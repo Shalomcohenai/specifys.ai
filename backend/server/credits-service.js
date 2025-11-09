@@ -272,6 +272,115 @@ async function enableProSubscription(userId, options = {}) {
 }
 
 /**
+ * Disable Pro subscription (revert to free plan)
+ * @param {string} userId
+ * @param {Object} options
+ */
+async function disableProSubscription(userId, options = {}) {
+  const {
+    plan = 'free',
+    subscriptionId = null,
+    cancelReason = 'user_requested',
+    cancelMode = 'immediate',
+    cancelMetadata = {},
+    restoreCredits = null,
+    metadata = {}
+  } = options;
+
+  if (!userId) {
+    throw new Error('disableProSubscription requires userId');
+  }
+
+  const requestId = `disable-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  console.log(`[SUBSCRIPTION] [${requestId}] Disabling Pro access for user ${userId}`);
+
+  const result = await db.runTransaction(async (transaction) => {
+    const userRef = db.collection(USERS_COLLECTION).doc(userId);
+    const entitlementsRef = db.collection(ENTITLEMENTS_COLLECTION).doc(userId);
+    const subscriptionRef = db.collection(SUBSCRIPTIONS_COLLECTION).doc(userId);
+
+    const [entitlementsSnap, subscriptionSnap] = await Promise.all([
+      transaction.get(entitlementsRef),
+      transaction.get(subscriptionRef)
+    ]);
+
+    const entitlements = entitlementsSnap.exists
+      ? entitlementsSnap.data()
+      : {
+          userId,
+          spec_credits: 0,
+          unlimited: false,
+          can_edit: false,
+          preserved_credits: 0
+        };
+
+    const preservedCredits = typeof entitlements.preserved_credits === 'number'
+      ? entitlements.preserved_credits
+      : 0;
+    const currentCredits = typeof entitlements.spec_credits === 'number'
+      ? entitlements.spec_credits
+      : 0;
+    const creditsToRestore = restoreCredits !== null && restoreCredits !== undefined
+      ? restoreCredits
+      : preservedCredits;
+
+    const entitlementsUpdate = {
+      unlimited: false,
+      can_edit: false,
+      updated_at: admin.firestore.FieldValue.serverTimestamp()
+    };
+
+    if (creditsToRestore && creditsToRestore > 0) {
+      entitlementsUpdate.spec_credits = creditsToRestore;
+    } else if (!entitlementsSnap.exists) {
+      entitlementsUpdate.spec_credits = 0;
+    }
+
+    entitlementsUpdate.preserved_credits = 0;
+
+    transaction.set(entitlementsRef, entitlementsUpdate, { merge: true });
+
+    transaction.set(userRef, {
+      plan,
+      last_entitlement_sync_at: admin.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+
+    const subscriptionData = {
+      userId,
+      status: 'cancelled',
+      cancel_reason: cancelReason,
+      cancel_mode: cancelMode,
+      cancelled_at: admin.firestore.FieldValue.serverTimestamp(),
+      updated_at: admin.firestore.FieldValue.serverTimestamp(),
+      lemon_subscription_id: subscriptionId || (subscriptionSnap.exists ? subscriptionSnap.data().lemon_subscription_id || null : null)
+    };
+
+    if (cancelMetadata && Object.keys(cancelMetadata).length > 0) {
+      subscriptionData.cancel_metadata = cancelMetadata;
+    }
+
+    if (metadata && Object.keys(metadata).length > 0) {
+      subscriptionData.metadata = {
+        ...(subscriptionSnap.exists ? subscriptionSnap.data().metadata || {} : {}),
+        ...metadata
+      };
+    }
+
+    transaction.set(subscriptionRef, subscriptionData, { merge: true });
+
+    return {
+      restoredCredits: creditsToRestore,
+      previousCredits: currentCredits,
+      preservedCredits: preservedCredits,
+      subscriptionStatus: subscriptionData.status
+    };
+  });
+
+  console.log(`[SUBSCRIPTION] [${requestId}] ✅ Pro access disabled (restoredCredits=${result.restoredCredits || 0})`);
+  return result;
+}
+
+/**
  * Consume a credit when creating a spec
  * @param {string} userId - Firebase user ID
  * @param {string} specId - Specification ID
@@ -734,6 +843,7 @@ module.exports = {
   refundCredit,
   getEntitlements,
   checkAccess,
-  enableProSubscription
+  enableProSubscription,
+  disableProSubscription
 };
 

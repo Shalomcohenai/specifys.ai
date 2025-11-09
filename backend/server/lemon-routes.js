@@ -9,7 +9,7 @@ if (typeof globalThis.fetch === 'function') {
   // Fallback for older Node versions
   fetch = require('node-fetch');
 }
-const { auth } = require('./firebase-admin');
+const { auth, db } = require('./firebase-admin');
 const { verifyWebhookSignature, parseWebhookPayload } = require('./lemon-webhook-utils');
 const { recordTestPurchase, getTestPurchaseCount } = require('./lemon-credits-service');
 const { getProductByKey, getProductByVariantId, getProductKeyByVariantId } = require('./lemon-products-config');
@@ -244,6 +244,119 @@ router.post('/checkout', express.json(), verifyFirebaseToken, async (req, res) =
     res.status(500).json({ 
       error: 'Failed to create checkout',
       details: error.message 
+    });
+  }
+});
+
+/**
+ * POST /api/lemon/subscription/cancel
+ * Cancel current Lemon Squeezy subscription for authenticated user
+ */
+router.post('/subscription/cancel', express.json(), verifyFirebaseToken, async (req, res) => {
+  try {
+    const userId = req.user.uid;
+    const reason = req.body?.reason || 'user_requested';
+    const cancelImmediately = req.body?.cancelImmediately === true;
+
+    const apiKey = process.env.LEMON_SQUEEZY_API_KEY;
+    if (!apiKey) {
+      return res.status(500).json({
+        error: 'Lemon Squeezy configuration missing',
+        details: 'LEMON_SQUEEZY_API_KEY not configured on server'
+      });
+    }
+
+    const subscriptionDoc = await db.collection('subscriptions').doc(userId).get();
+    if (!subscriptionDoc.exists) {
+      return res.status(404).json({ error: 'No active subscription found for this user' });
+    }
+
+    const subscriptionData = subscriptionDoc.data() || {};
+    const subscriptionId = subscriptionData.lemon_subscription_id;
+
+    if (!subscriptionId) {
+      return res.status(400).json({ error: 'Subscription record missing Lemon Squeezy subscription ID' });
+    }
+
+    const cancelEndpoint = `https://api.lemonsqueezy.com/v1/subscriptions/${subscriptionId}`;
+    const cancelPayload = {
+      data: {
+        type: 'subscriptions',
+        id: subscriptionId.toString(),
+        attributes: {
+          cancel_at_period_end: !cancelImmediately,
+          cancellation_reason: reason
+        }
+      }
+    };
+
+    let cancelResponse = await fetch(cancelEndpoint, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Accept': 'application/vnd.api+json',
+        'Content-Type': 'application/vnd.api+json'
+      },
+      body: JSON.stringify(cancelPayload)
+    });
+
+    let cancellationMode = cancelImmediately ? 'immediate' : 'period_end';
+    let cancelResponseBody = null;
+
+    if (!cancelResponse.ok) {
+      const fallbackEndpoint = `https://api.lemonsqueezy.com/v1/subscriptions/${subscriptionId}/cancel`;
+      cancelResponse = await fetch(fallbackEndpoint, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Accept': 'application/vnd.api+json',
+          'Content-Type': 'application/vnd.api+json'
+        },
+        body: JSON.stringify(cancelPayload)
+      });
+
+      if (!cancelResponse.ok) {
+        let errorDetails;
+        try {
+          errorDetails = await cancelResponse.json();
+        } catch (err) {
+          errorDetails = await cancelResponse.text();
+        }
+
+        console.error('Lemon Squeezy cancellation error:', errorDetails);
+        return res.status(cancelResponse.status || 500).json({
+          error: 'Failed to cancel subscription with Lemon Squeezy',
+          details: errorDetails
+        });
+      }
+    }
+
+    try {
+      cancelResponseBody = await cancelResponse.json();
+    } catch (err) {
+      cancelResponseBody = null;
+    }
+
+    const disableResult = await creditsService.disableProSubscription(userId, {
+      subscriptionId,
+      cancelReason: reason,
+      cancelMode: cancellationMode,
+      cancelMetadata: {
+        lemonResponse: cancelResponseBody
+      }
+    });
+
+    res.json({
+      success: true,
+      cancellationMode,
+      restoredCredits: disableResult.restoredCredits || 0,
+      subscriptionStatus: disableResult.subscriptionStatus || 'cancelled'
+    });
+  } catch (error) {
+    console.error('Error cancelling subscription:', error);
+    res.status(500).json({
+      error: 'Failed to cancel subscription',
+      details: error.message
     });
   }
 });
