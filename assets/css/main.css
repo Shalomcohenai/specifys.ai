@@ -51,6 +51,98 @@
   margin-right: 0;
 }
 
+.paywall-content {
+  max-width: 560px;
+}
+
+.paywall-content .modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.paywall-status {
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.paywall-status::before {
+  content: '⌛ ';
+}
+
+.paywall-products {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.paywall-product-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 14px 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #ffffff;
+  text-align: left;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.paywall-product-btn .label {
+  font-weight: 600;
+  color: #111827;
+}
+
+.paywall-product-btn .price {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #ff6b35;
+}
+
+.paywall-product-btn .description {
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.paywall-product-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
+.paywall-product-btn.loading,
+.paywall-product-btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+  pointer-events: none;
+}
+
+.paywall-product-btn.loading::after {
+  content: 'Processing…';
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+.paywall-footer {
+  font-size: 0.85rem;
+  color: #6b7280;
+  text-align: center;
+}
+
+.paywall-footer .pricing-link {
+  color: #3b82f6;
+  text-decoration: none;
+}
+
+.paywall-footer .pricing-link:hover {
+  text-decoration: underline;
+}
+
+.modal-body p.error {
+  color: #b91c1c;
+}
+
 .footer-social .fa,
 .footer-social .fab,
 .footer-social .fas {
