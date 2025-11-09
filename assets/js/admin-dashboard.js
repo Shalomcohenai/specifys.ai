@@ -168,6 +168,17 @@ const utils = {
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-+|-+$/g, "")
       .slice(0, 140);
+  },
+  normalizeCurrency(value) {
+    if (value === null || value === undefined) return null;
+    const numeric = typeof value === "number" ? value : Number(value);
+    if (!Number.isFinite(numeric)) {
+      return null;
+    }
+    if (Math.abs(numeric) >= 1000) {
+      return Number((numeric / 100).toFixed(2));
+    }
+    return Number(numeric.toFixed(2));
   }
 };
 
@@ -293,7 +304,7 @@ class DashboardDataStore {
       .map((doc) => ({
         id: doc.id,
         createdAt: utils.toDate(doc.createdAt),
-        total: typeof doc.total === "number" ? doc.total : null,
+        total: utils.normalizeCurrency(doc.total),
         currency: doc.currency || "USD",
         userId: doc.userId || null,
         email: doc.email || "",
@@ -311,7 +322,7 @@ class DashboardDataStore {
     const normalized = {
       id,
       createdAt: utils.toDate(data.createdAt),
-      total: typeof data.total === "number" ? data.total : null,
+      total: utils.normalizeCurrency(data.total),
       currency: data.currency || "USD",
       userId: data.userId || null,
       email: data.email || "",
