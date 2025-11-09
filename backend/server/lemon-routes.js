@@ -370,6 +370,105 @@ router.post('/subscription/cancel', express.json(), verifyFirebaseToken, async (
       return null;
     };
 
+    const fetchSubscriptionIdFromLemon = async () => {
+      if (!apiKey) return null;
+
+      const lemonHeaders = {
+        Authorization: `Bearer ${apiKey}`,
+        Accept: 'application/vnd.api+json'
+      };
+
+      const candidates = [];
+      if (subscriptionData?.metadata?.lemonCustomerId) {
+        candidates.push({
+          type: 'customer_id',
+          value: subscriptionData.metadata.lemonCustomerId
+        });
+      }
+      if (subscriptionData?.metadata?.lemonCustomerID) {
+        candidates.push({
+          type: 'customer_id',
+          value: subscriptionData.metadata.lemonCustomerID
+        });
+      }
+      if (subscriptionData?.metadata?.customer_id) {
+        candidates.push({
+          type: 'customer_id',
+          value: subscriptionData.metadata.customer_id
+        });
+      }
+      if (subscriptionData?.metadata?.customerId) {
+        candidates.push({
+          type: 'customer_id',
+          value: subscriptionData.metadata.customerId
+        });
+      }
+      if (userEmail) {
+        candidates.push({
+          type: 'email',
+          value: userEmail
+        });
+      }
+
+      for (const candidate of candidates) {
+        try {
+          const url =
+            candidate.type === 'customer_id'
+              ? `https://api.lemonsqueezy.com/v1/subscriptions?filter[customer_id]=${encodeURIComponent(candidate.value)}`
+              : `https://api.lemonsqueezy.com/v1/subscriptions?filter[email]=${encodeURIComponent(candidate.value)}`;
+
+          console.log('[LEMON][CANCEL] Attempting to fetch subscription from Lemon API', {
+            filterType: candidate.type,
+            value: candidate.value
+          });
+
+          const response = await fetch(url, {
+            method: 'GET',
+            headers: lemonHeaders
+          });
+
+          if (!response.ok) {
+            console.warn('[LEMON][CANCEL] Lemon API returned non-OK response for subscription lookup', {
+              status: response.status,
+              statusText: response.statusText
+            });
+            continue;
+          }
+
+          const data = await response.json();
+          const records = Array.isArray(data?.data) ? data.data : [];
+
+          console.log('[LEMON][CANCEL] Lemon API subscription lookup results', {
+            filterType: candidate.type,
+            recordCount: records.length
+          });
+
+          for (const record of records) {
+            const attributes = record?.attributes || {};
+            const status = attributes?.status || attributes?.data?.status;
+
+            if (status === 'cancelled' && !attributes?.renews_at) {
+              continue;
+            }
+
+            const foundId = record?.id || attributes?.subscription_id || attributes?.id;
+            if (foundId) {
+              console.log('[LEMON][CANCEL] Found subscriptionId via Lemon API lookup:', foundId);
+              return foundId.toString();
+            }
+          }
+        } catch (apiError) {
+          console.warn('[LEMON][CANCEL] Lemon API lookup failed', {
+            filterType: candidate.type,
+            error: apiError?.message || apiError
+          });
+        }
+      }
+
+      console.warn('[LEMON][CANCEL] Lemon API lookup did not return any active subscriptions for this user.');
+      return null;
+    };
+
     if (!subscriptionId) {
       subscriptionId = await findSubscriptionIdFromPurchases();
       if (subscriptionId) {
@@ -385,6 +484,25 @@ router.post('/subscription/cancel', express.json(), verifyFirebaseToken, async (
           console.log('[LEMON][CANCEL] Backfilled lemon_subscription_id onto subscription doc');
         } catch (updateError) {
           console.warn('Unable to backfill lemon_subscription_id on subscription doc:', updateError);
+        }
+      }
+    }
+
+    if (!subscriptionId) {
+      subscriptionId = await fetchSubscriptionIdFromLemon();
+      if (subscriptionId) {
+        try {
+          await subscriptionDocRef.set(
+            {
+              lemon_subscription_id: subscriptionId,
+              updated_at: admin.firestore.FieldValue.serverTimestamp()
+            },
+            { merge: true }
+          );
+          subscriptionDocUpdated = true;
+          console.log('[LEMON][CANCEL] Backfilled lemon_subscription_id from Lemon API onto subscription doc');
+        } catch (updateError) {
+          console.warn('Unable to backfill lemon_subscription_id from Lemon API on subscription doc:', updateError);
         }
       }
     }
