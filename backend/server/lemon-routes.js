@@ -9,7 +9,7 @@ if (typeof globalThis.fetch === 'function') {
   // Fallback for older Node versions
   fetch = require('node-fetch');
 }
-const { auth, db } = require('./firebase-admin');
+const { auth, db, admin } = require('./firebase-admin');
 const { verifyWebhookSignature, parseWebhookPayload } = require('./lemon-webhook-utils');
 const { recordTestPurchase, getTestPurchaseCount } = require('./lemon-credits-service');
 const { getProductByKey, getProductByVariantId, getProductKeyByVariantId } = require('./lemon-products-config');
@@ -266,16 +266,105 @@ router.post('/subscription/cancel', express.json(), verifyFirebaseToken, async (
       });
     }
 
-    const subscriptionDoc = await db.collection('subscriptions').doc(userId).get();
+    const subscriptionDocRef = db.collection('subscriptions').doc(userId);
+    const subscriptionDoc = await subscriptionDocRef.get();
     if (!subscriptionDoc.exists) {
       return res.status(404).json({ error: 'No active subscription found for this user' });
     }
 
     const subscriptionData = subscriptionDoc.data() || {};
-    const subscriptionId = subscriptionData.lemon_subscription_id;
+    let subscriptionId = subscriptionData.lemon_subscription_id;
+    let subscriptionDocUpdated = false;
+
+    const findSubscriptionIdFromPurchases = async () => {
+      try {
+        const purchasesQuery = db
+          .collection('purchases')
+          .where('userId', '==', userId)
+          .where('productType', '==', 'subscription')
+          .orderBy('createdAt', 'desc')
+          .limit(3);
+
+        const purchasesSnapshot = await purchasesQuery.get();
+        if (!purchasesSnapshot.empty) {
+          for (const docSnap of purchasesSnapshot.docs) {
+            const purchase = docSnap.data() || {};
+            const candidate =
+              purchase.subscriptionId ||
+              purchase.subscription_id ||
+              purchase.subscriptionID ||
+              purchase.metadata?.subscription_id ||
+              purchase.metadata?.subscriptionId ||
+              purchase.subscriptionId?.toString();
+            if (candidate) {
+              return candidate.toString();
+            }
+          }
+        }
+      } catch (queryError) {
+        if (queryError?.code === 9 || /index/i.test(queryError?.message || '')) {
+          const fallbackSnapshot = await db
+            .collection('purchases')
+            .where('userId', '==', userId)
+            .where('productType', '==', 'subscription')
+            .limit(10)
+            .get();
+
+          const sortedDocs = fallbackSnapshot.docs.sort((a, b) => {
+            const aDate =
+              a.data().createdAt?.toDate?.() ||
+              a.data().updatedAt?.toDate?.() ||
+              new Date(0);
+            const bDate =
+              b.data().createdAt?.toDate?.() ||
+              b.data().updatedAt?.toDate?.() ||
+              new Date(0);
+            return bDate - aDate;
+          });
+
+          for (const docSnap of sortedDocs) {
+            const purchase = docSnap.data() || {};
+            const candidate =
+              purchase.subscriptionId ||
+              purchase.subscription_id ||
+              purchase.subscriptionID ||
+              purchase.metadata?.subscription_id ||
+              purchase.metadata?.subscriptionId;
+            if (candidate) {
+              return candidate.toString();
+            }
+          }
+        } else {
+          console.warn('Failed to query purchases for subscription ID:', queryError);
+        }
+      }
+
+      return null;
+    };
 
     if (!subscriptionId) {
-      return res.status(400).json({ error: 'Subscription record missing Lemon Squeezy subscription ID' });
+      subscriptionId = await findSubscriptionIdFromPurchases();
+      if (subscriptionId) {
+        try {
+          await subscriptionDocRef.set(
+            {
+              lemon_subscription_id: subscriptionId,
+              updated_at: admin.firestore.FieldValue.serverTimestamp()
+            },
+            { merge: true }
+          );
+          subscriptionDocUpdated = true;
+        } catch (updateError) {
+          console.warn('Unable to backfill lemon_subscription_id on subscription doc:', updateError);
+        }
+      }
+    }
+
+    if (!subscriptionId) {
+      return res.status(400).json({
+        error: 'Subscription record missing Lemon Squeezy subscription ID',
+        details: 'No subscriptionId found in subscriptions or purchases collection for this user.'
+      });
     }
 
     const cancelEndpoint = `https://api.lemonsqueezy.com/v1/subscriptions/${subscriptionId}`;
