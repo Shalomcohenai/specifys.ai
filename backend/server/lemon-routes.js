@@ -428,9 +428,16 @@ router.post('/subscription/cancel', express.json(), verifyFirebaseToken, async (
           });
 
           if (!response.ok) {
+            let errorBody = null;
+            try {
+              errorBody = await response.json();
+            } catch (parseErr) {
+              errorBody = await response.text();
+            }
             console.warn('[LEMON][CANCEL] Lemon API returned non-OK response for subscription lookup', {
               status: response.status,
-              statusText: response.statusText
+              statusText: response.statusText,
+              body: errorBody
             });
             continue;
           }
@@ -469,6 +476,43 @@ router.post('/subscription/cancel', express.json(), verifyFirebaseToken, async (
       return null;
     };
 
+    const fetchSubscriptionIdFromLastOrder = async () => {
+      const lastOrderId =
+        subscriptionData?.last_order_id ||
+        subscriptionData?.lastOrderId ||
+        subscriptionData?.last_order?.id ||
+        subscriptionData?.metadata?.last_order_id ||
+        subscriptionData?.metadata?.order_id;
+
+      if (!lastOrderId) {
+        return null;
+      }
+
+      try {
+        const orderDoc = await db.collection('purchases').doc(lastOrderId.toString()).get();
+        if (orderDoc.exists) {
+          const purchase = orderDoc.data() || {};
+          const candidate =
+            purchase.subscriptionId ||
+            purchase.subscription_id ||
+            purchase.subscriptionID ||
+            purchase.metadata?.subscription_id ||
+            purchase.metadata?.subscriptionId ||
+            purchase.metadata?.subscription?.id;
+          if (candidate) {
+            console.log('[LEMON][CANCEL] Found subscriptionId via last order lookup:', candidate);
+            return candidate.toString();
+          }
+        } else {
+          console.log('[LEMON][CANCEL] Last order doc not found for id', lastOrderId);
+        }
+      } catch (orderError) {
+        console.warn('[LEMON][CANCEL] Failed to load last order doc:', orderError?.message || orderError);
+      }
+
+      return null;
+    };
+
     if (!subscriptionId) {
       subscriptionId = await findSubscriptionIdFromPurchases();
       if (subscriptionId) {
@@ -484,6 +528,25 @@ router.post('/subscription/cancel', express.json(), verifyFirebaseToken, async (
           console.log('[LEMON][CANCEL] Backfilled lemon_subscription_id onto subscription doc');
         } catch (updateError) {
           console.warn('Unable to backfill lemon_subscription_id on subscription doc:', updateError);
+        }
+      }
+    }
+
+    if (!subscriptionId) {
+      subscriptionId = await fetchSubscriptionIdFromLastOrder();
+      if (subscriptionId) {
+        try {
+          await subscriptionDocRef.set(
+            {
+              lemon_subscription_id: subscriptionId,
+              updated_at: admin.firestore.FieldValue.serverTimestamp()
+            },
+            { merge: true }
+          );
+          subscriptionDocUpdated = true;
+          console.log('[LEMON][CANCEL] Backfilled lemon_subscription_id via last order lookup onto subscription doc');
+        } catch (updateError) {
+          console.warn('Unable to backfill lemon_subscription_id from last order on subscription doc:', updateError);
         }
       }
     }
@@ -508,7 +571,13 @@ router.post('/subscription/cancel', express.json(), verifyFirebaseToken, async (
     }
 
     if (!subscriptionId) {
-      console.error('[LEMON][CANCEL] Unable to determine subscriptionId for user', userId);
+      console.error('[LEMON][CANCEL] Unable to determine subscriptionId for user', userId, {
+        subscriptionDocExists: subscriptionDoc.exists,
+        subscriptionDataKeys: Object.keys(subscriptionData || {}),
+        purchaseQueryTried: true,
+        lastOrderAttempted: !!(subscriptionData?.last_order_id || subscriptionData?.lastOrderId),
+        lemonLookupAttempted: !!apiKey
+      });
       return res.status(400).json({
         error: 'Subscription record missing Lemon Squeezy subscription ID',
         details: 'No subscriptionId found in subscriptions or purchases collection for this user.'
