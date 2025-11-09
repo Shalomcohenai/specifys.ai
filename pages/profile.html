@@ -1496,8 +1496,32 @@
                 });
 
                 const data = await response.json().catch(() => ({}));
-                if (!response.ok || !data.success) {
-                    throw new Error(data.error || 'Unable to cancel subscription. Please try again.');
+                if (!response.ok) {
+                    const message = data.details || data.error || 'Unable to cancel subscription. Please verify your billing configuration (Test/Live) and try again.';
+                    const requestSuffix = data.requestId ? ` (Reference ID: ${data.requestId})` : '';
+                    setSubscriptionMessage(`${message}${requestSuffix}`, 'error');
+                    if (cancelBtn) {
+                        cancelBtn.disabled = false;
+                    }
+                    if (confirmBtn) {
+                        confirmBtn.disabled = false;
+                        confirmBtn.textContent = 'Confirm Cancellation';
+                    }
+                    return;
+                }
+
+                if (!data.success) {
+                    const message = data.details || data.error || 'Unable to cancel subscription. Please try again.';
+                    const requestSuffix = data.requestId ? ` (Reference ID: ${data.requestId})` : '';
+                    setSubscriptionMessage(`${message}${requestSuffix}`, 'error');
+                    if (cancelBtn) {
+                        cancelBtn.disabled = false;
+                    }
+                    if (confirmBtn) {
+                        confirmBtn.disabled = false;
+                        confirmBtn.textContent = 'Confirm Cancellation';
+                    }
+                    return;
                 }
 
                 cancellationSucceeded = true;
@@ -1508,10 +1532,11 @@
                 }
 
                 const mode = data.cancellationMode || 'immediate';
+                const requestSuffix = data.requestId ? ` (Reference ID: ${data.requestId})` : '';
                 if (mode === 'period_end') {
-                    setSubscriptionMessage('Subscription cancellation scheduled. You will retain Pro features until the end of the current billing period and no additional renewals will be created.', 'success');
+                    setSubscriptionMessage('Subscription cancellation scheduled. You will retain Pro features until the end of the current billing period and no additional renewals will be created.' + requestSuffix, 'success');
                 } else {
-                    setSubscriptionMessage('Subscription cancelled successfully. Unlimited specifications have ended and further charges are stopped.', 'success');
+                    setSubscriptionMessage('Subscription cancelled successfully. Unlimited specifications have ended and further charges are stopped.' + requestSuffix, 'success');
                 }
             } catch (error) {
                 console.error('Failed to cancel subscription:', error);

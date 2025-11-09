@@ -193,11 +193,49 @@ function parseWebhookPayload(event) {
         }
       }
 
+    return {
+      eventName,
+      orderData,
+      customData
+    };
+  }
+
+  if (eventName.startsWith('subscription_')) {
+    if (!eventData || !eventData.attributes) {
       return {
         eventName,
-        orderData,
-        customData
+        subscriptionRecord: null,
+        customData: {}
       };
+    }
+
+    const attributes = eventData.attributes;
+    const customData =
+      event.meta?.custom_data ||
+      attributes.custom ||
+      attributes.checkout_data?.custom ||
+      {};
+
+    const subscriptionData = {
+      subscriptionId: eventData.id,
+      status: attributes.status || null,
+      cancelAtPeriodEnd: attributes.cancel_at_period_end ?? attributes.cancelled ?? false,
+      endsAt: attributes.ends_at || attributes.ends_at_formatted || null,
+      renewsAt: attributes.renews_at || null,
+      productId: attributes.product_id || null,
+      variantId: attributes.variant_id || null,
+      storeId: attributes.store_id || null,
+      customerId: attributes.customer_id || null,
+      orderId: attributes.order_id || null,
+      userId: customData.user_id || customData.userId || null,
+      raw: eventData
+    };
+
+    return {
+      eventName,
+      subscriptionData,
+      customData
+    };
     }
 
     return null;

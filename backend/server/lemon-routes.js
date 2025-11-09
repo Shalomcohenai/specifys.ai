@@ -15,11 +15,19 @@ const { recordTestPurchase, getTestPurchaseCount } = require('./lemon-credits-se
 const { getProductByKey, getProductByVariantId, getProductKeyByVariantId } = require('./lemon-products-config');
 const { recordPurchase } = require('./lemon-purchase-service');
 const creditsService = require('./credits-service');
+const {
+  resolveSubscription,
+  upsertSubscriptionFromWebhook,
+  buildSubscriptionUpdateFromRecord,
+  hasActiveStatus,
+  hasCancelledStatus
+} = require('./lemon-subscription-resolver');
 
 /**
  * Middleware to verify Firebase ID token
  */
 async function verifyFirebaseToken(req, res, next) {
+  let requestId = null;
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -294,458 +302,208 @@ router.post('/subscription/cancel', express.json(), verifyFirebaseToken, async (
       console.log('[LEMON][CANCEL] Subscription doc already has lemon_subscription_id', subscriptionId);
     }
 
-    const findSubscriptionIdFromPurchases = async () => {
-      try {
-        const snapshot = await db
-          .collection('purchases')
-          .where('userId', '==', userId)
-          .orderBy('createdAt', 'desc')
-          .limit(10)
-          .get();
+    const subscriptionData = subscriptionDoc.data() || {};
+    const lemonMode = process.env.LEMON_MODE
+      ? process.env.LEMON_MODE.toLowerCase()
+      : (process.env.LEMON_TEST_MODE === 'true' ? 'test' : 'live');
+    const storeId = process.env.LEMON_SQUEEZY_STORE_ID || null;
+    requestId = `cancel_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
 
-        if (!snapshot.empty) {
-          for (const docSnap of snapshot.docs) {
-            const purchase = docSnap.data() || {};
-            const candidate =
-              purchase.subscriptionId ||
-              purchase.subscription_id ||
-              purchase.subscriptionID ||
-              purchase.metadata?.subscription_id ||
-              purchase.metadata?.subscriptionId ||
-              purchase.metadata?.subscription?.id;
-            if (candidate) {
-              console.log('[LEMON][CANCEL] Found subscriptionId via purchases (createdAt ordered query):', candidate);
-              return candidate.toString();
-            }
-            const custom = purchase.metadata?.custom || purchase.checkoutData?.custom || {};
-            const customCandidate =
-              custom.subscription_id ||
-              custom.subscriptionId ||
-              custom.subscriptionID;
-            if (customCandidate) {
-              console.log('[LEMON][CANCEL] Found subscriptionId in purchase custom metadata:', customCandidate);
-              return customCandidate.toString();
-            }
-          }
-        }
-      } catch (queryError) {
-        if (queryError?.code === 9 || /index/i.test(queryError?.message || '')) {
-          console.warn('[LEMON][CANCEL] Index missing for purchases query, falling back to unordered scan.');
-          const fallbackSnapshot = await db
-            .collection('purchases')
-            .where('userId', '==', userId)
-            .limit(25)
-            .get();
+    console.log('[LEMON][CANCEL] Start resolver', {
+      requestId,
+      userId,
+      userEmail,
+      lemonMode,
+      storeId,
+      cancelImmediately,
+      hasStoredId: !!subscriptionData.lemon_subscription_id
+    });
 
-          for (const docSnap of fallbackSnapshot.docs) {
-            const purchase = docSnap.data() || {};
-            const candidate =
-              purchase.subscriptionId ||
-              purchase.subscription_id ||
-              purchase.subscriptionID ||
-              purchase.metadata?.subscription_id ||
-              purchase.metadata?.subscriptionId ||
-              purchase.metadata?.subscription?.id;
-            if (candidate) {
-              console.log('[LEMON][CANCEL] Found subscriptionId via purchases fallback (unordered):', candidate);
-              return candidate.toString();
-            }
-            const custom = purchase.metadata?.custom || purchase.checkoutData?.custom || {};
-            const customCandidate =
-              custom.subscription_id ||
-              custom.subscriptionId ||
-              custom.subscriptionID;
-            if (customCandidate) {
-              console.log('[LEMON][CANCEL] Found subscriptionId via purchases fallback custom metadata:', customCandidate);
-              return customCandidate.toString();
-            }
-          }
-        } else {
-          console.warn('Failed to query purchases for subscription ID:', queryError);
-        }
-      }
+    const resolution = await resolveSubscription({
+      db,
+      admin,
+      fetch,
+      userId,
+      userEmail,
+      subscriptionDocRef,
+      subscriptionData,
+      apiKey,
+      storeId,
+      mode: lemonMode,
+      requestId,
+      logger: console
+    });
 
-      console.log('[LEMON][CANCEL] No subscriptionId found in purchases collection.');
-
-      return null;
-    };
-
-    const fetchSubscriptionIdFromLemon = async () => {
-      if (!apiKey) return null;
-
-      const lemonHeaders = {
-        Authorization: `Bearer ${apiKey}`,
-        Accept: 'application/vnd.api+json'
-      };
-
-      const candidates = [];
-      if (subscriptionData?.metadata?.lemonCustomerId) {
-        candidates.push({
-          type: 'customer_id',
-          value: subscriptionData.metadata.lemonCustomerId
-        });
-      }
-      if (subscriptionData?.metadata?.lemonCustomerID) {
-        candidates.push({
-          type: 'customer_id',
-          value: subscriptionData.metadata.lemonCustomerID
-        });
-      }
-      if (subscriptionData?.metadata?.customer_id) {
-        candidates.push({
-          type: 'customer_id',
-          value: subscriptionData.metadata.customer_id
-        });
-      }
-      if (subscriptionData?.metadata?.customerId) {
-        candidates.push({
-          type: 'customer_id',
-          value: subscriptionData.metadata.customerId
-        });
-      }
-      if (userEmail) {
-        candidates.push({
-          type: 'customer_email',
-          value: userEmail
-        });
-      }
-
-      for (const candidate of candidates) {
-        try {
-          const url =
-            candidate.type === 'customer_id'
-              ? `https://api.lemonsqueezy.com/v1/subscriptions?filter[customer_id]=${encodeURIComponent(candidate.value)}`
-              : `https://api.lemonsqueezy.com/v1/subscriptions?filter[customer_email]=${encodeURIComponent(candidate.value)}`;
-
-          console.log('[LEMON][CANCEL] Attempting to fetch subscription from Lemon API', {
-            filterType: candidate.type,
-            value: candidate.value
-          });
-
-          const response = await fetch(url, {
-            method: 'GET',
-            headers: lemonHeaders
-          });
-
-          if (!response.ok) {
-            let errorBody = null;
-            try {
-              errorBody = await response.json();
-            } catch (parseErr) {
-              errorBody = await response.text();
-            }
-            console.warn('[LEMON][CANCEL] Lemon API returned non-OK response for subscription lookup', {
-              status: response.status,
-              statusText: response.statusText,
-              body: errorBody
-            });
-            continue;
-          }
-
-          const data = await response.json();
-          const records = Array.isArray(data?.data) ? data.data : [];
-
-          console.log('[LEMON][CANCEL] Lemon API subscription lookup results', {
-            filterType: candidate.type,
-            recordCount: records.length
-          });
-
-          for (const record of records) {
-            const attributes = record?.attributes || {};
-            const status = attributes?.status || attributes?.data?.status;
-
-            if (status === 'cancelled' && !attributes?.renews_at) {
-              continue;
-            }
-
-            const foundId = record?.id || attributes?.subscription_id || attributes?.id;
-            if (foundId) {
-              console.log('[LEMON][CANCEL] Found subscriptionId via Lemon API lookup:', foundId);
-              return foundId.toString();
-            }
-          }
-        } catch (apiError) {
-          console.warn('[LEMON][CANCEL] Lemon API lookup failed', {
-            filterType: candidate.type,
-            error: apiError?.message || apiError
-          });
-        }
-      }
-
-      console.warn('[LEMON][CANCEL] Lemon API lookup did not return any active subscriptions for this user.');
-      return null;
-    };
-
-    const fetchSubscriptionIdFromLastOrder = async () => {
-      const lastOrderId =
-        subscriptionData?.last_order_id ||
-        subscriptionData?.lastOrderId ||
-        subscriptionData?.last_order?.id ||
-        subscriptionData?.metadata?.last_order_id ||
-        subscriptionData?.metadata?.order_id;
-
-      if (!lastOrderId) {
-        return null;
-      }
-
-      try {
-        const orderDoc = await db.collection('purchases').doc(lastOrderId.toString()).get();
-        if (orderDoc.exists) {
-          const purchase = orderDoc.data() || {};
-          const candidate =
-            purchase.subscriptionId ||
-            purchase.subscription_id ||
-            purchase.subscriptionID ||
-            purchase.metadata?.subscription_id ||
-            purchase.metadata?.subscriptionId ||
-            purchase.metadata?.subscription?.id;
-          if (candidate) {
-            console.log('[LEMON][CANCEL] Found subscriptionId via last order lookup:', candidate);
-            return candidate.toString();
-          }
-        } else {
-          console.log('[LEMON][CANCEL] Last order doc not found for id', lastOrderId);
-        }
-      } catch (orderError) {
-        console.warn('[LEMON][CANCEL] Failed to load last order doc:', orderError?.message || orderError);
-      }
-
-      return null;
-    };
-
-    const fetchSubscriptionIdFromLemonOrder = async () => {
-      const lastOrderId =
-        subscriptionData?.last_order_id ||
-        subscriptionData?.lastOrderId ||
-        subscriptionData?.metadata?.last_order_id ||
-        subscriptionData?.metadata?.order_id;
-
-      if (!lastOrderId || !apiKey) {
-        return null;
-      }
-
-      const orderUrl = `https://api.lemonsqueezy.com/v1/orders/${encodeURIComponent(lastOrderId)}`;
-      try {
-        console.log('[LEMON][CANCEL] Attempting to fetch order from Lemon API for subscription lookup', {
-          orderId: lastOrderId
-        });
-        const response = await fetch(orderUrl, {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${apiKey}`,
-            Accept: 'application/vnd.api+json'
-          }
-        });
-
-        if (!response.ok) {
-          let errorBody = null;
-          try {
-            errorBody = await response.json();
-          } catch (parseErr) {
-            errorBody = await response.text();
-          }
-          console.warn('[LEMON][CANCEL] Lemon API returned non-OK response for order lookup', {
-            status: response.status,
-            statusText: response.statusText,
-            body: errorBody
-          });
-          return null;
-        }
-
-        const orderData = await response.json();
-        const orderAttributes = orderData?.data?.attributes || {};
-        const subscriptionIdFromAttributes =
-          orderAttributes.subscription_id ||
-          orderAttributes.subscriptionId ||
-          orderAttributes.subscription?.id;
-
-        if (subscriptionIdFromAttributes) {
-          console.log('[LEMON][CANCEL] Found subscriptionId via Lemon order attributes:', subscriptionIdFromAttributes);
-          return subscriptionIdFromAttributes.toString();
-        }
-
-        const relationships = orderData?.data?.relationships || {};
-        const relationshipId =
-          relationships?.subscription?.data?.id ||
-          relationships?.subscription_id?.data?.id ||
-          relationships?.subscriptionId?.data?.id;
-
-        if (relationshipId) {
-          console.log('[LEMON][CANCEL] Found subscriptionId via Lemon order relationships:', relationshipId);
-          return relationshipId.toString();
-        }
-
-        console.warn('[LEMON][CANCEL] Lemon order lookup did not include a subscription reference', {
-          orderId: lastOrderId
-        });
-      } catch (orderApiError) {
-        console.warn('[LEMON][CANCEL] Lemon order lookup failed', {
-          orderId: lastOrderId,
-          error: orderApiError?.message || orderApiError
-        });
-      }
-
-      return null;
-    };
-
-    if (!subscriptionId) {
-      subscriptionId = await findSubscriptionIdFromPurchases();
-      if (subscriptionId) {
-        try {
-          await subscriptionDocRef.set(
-            {
-              lemon_subscription_id: subscriptionId,
-              updated_at: admin.firestore.FieldValue.serverTimestamp()
-            },
-            { merge: true }
-          );
-          subscriptionDocUpdated = true;
-          console.log('[LEMON][CANCEL] Backfilled lemon_subscription_id onto subscription doc');
-        } catch (updateError) {
-          console.warn('Unable to backfill lemon_subscription_id on subscription doc:', updateError);
-        }
-      }
-    }
-
-    if (!subscriptionId) {
-      subscriptionId = await fetchSubscriptionIdFromLastOrder();
-      if (subscriptionId) {
-        try {
-          await subscriptionDocRef.set(
-            {
-              lemon_subscription_id: subscriptionId,
-              updated_at: admin.firestore.FieldValue.serverTimestamp()
-            },
-            { merge: true }
-          );
-          subscriptionDocUpdated = true;
-          console.log('[LEMON][CANCEL] Backfilled lemon_subscription_id via last order lookup onto subscription doc');
-        } catch (updateError) {
-          console.warn('Unable to backfill lemon_subscription_id from last order on subscription doc:', updateError);
-        }
-      }
-    }
-
-    if (!subscriptionId) {
-      subscriptionId = await fetchSubscriptionIdFromLemon();
-      if (subscriptionId) {
-        try {
-          await subscriptionDocRef.set(
-            {
-              lemon_subscription_id: subscriptionId,
-              updated_at: admin.firestore.FieldValue.serverTimestamp()
-            },
-            { merge: true }
-          );
-          subscriptionDocUpdated = true;
-          console.log('[LEMON][CANCEL] Backfilled lemon_subscription_id from Lemon API onto subscription doc');
-        } catch (updateError) {
-          console.warn('Unable to backfill lemon_subscription_id from Lemon API on subscription doc:', updateError);
-        }
-      }
-    }
-
-    if (!subscriptionId) {
-      subscriptionId = await fetchSubscriptionIdFromLemonOrder();
-      if (subscriptionId) {
-        try {
-          await subscriptionDocRef.set(
-            {
-              lemon_subscription_id: subscriptionId,
-              updated_at: admin.firestore.FieldValue.serverTimestamp()
-            },
-            { merge: true }
-          );
-          subscriptionDocUpdated = true;
-          console.log('[LEMON][CANCEL] Backfilled lemon_subscription_id via Lemon order lookup onto subscription doc');
-        } catch (updateError) {
-          console.warn('Unable to backfill lemon_subscription_id from Lemon order lookup on subscription doc:', updateError);
-        }
-      }
-    }
-
-    if (!subscriptionId) {
-      console.error('[LEMON][CANCEL] Unable to determine subscriptionId for user', userId, {
-        subscriptionDocExists: subscriptionDoc.exists,
-        subscriptionDataKeys: Object.keys(subscriptionData || {}),
-        purchaseQueryTried: true,
-        lastOrderAttempted: !!(subscriptionData?.last_order_id || subscriptionData?.lastOrderId),
-        lemonLookupAttempted: !!apiKey
+    if (!resolution || !resolution.subscriptionId) {
+      console.warn('[LEMON][CANCEL] Resolver could not determine subscription ID', {
+        requestId,
+        attempts: resolution?.attempts || null
       });
-      return res.status(400).json({
-        error: 'Subscription record missing Lemon Squeezy subscription ID',
-        details: 'No subscriptionId found in subscriptions or purchases collection for this user.'
+      return res.status(404).json({
+        error: 'Subscription not found',
+        details: 'לא נמצא מנוי פעיל לחשבון זה או שקיימת חוסר התאמה בין מצב Test/Live, ה-API key או ה-store ID.',
+        requestId
       });
     }
+
+    const subscriptionId = resolution.subscriptionId;
+    const subscriptionAttributes = resolution.attributes || {};
+    const resolvedStatus = resolution.status || subscriptionAttributes.status || null;
+    const resolvedEndsAt =
+      subscriptionAttributes.ends_at ||
+      subscriptionAttributes.ends_at_formatted ||
+      subscriptionAttributes.cancelled_at ||
+      subscriptionAttributes.renews_at ||
+      null;
+
+    console.log('[LEMON][CANCEL] Resolver result', {
+      requestId,
+      subscriptionId,
+      source: resolution.source,
+      resolvedStatus,
+      attempts: resolution.attempts
+    });
 
     console.log('[LEMON][CANCEL] Proceeding with Lemon Squeezy cancellation', {
+      requestId,
       subscriptionId,
-      subscriptionDocUpdated
+      cancelImmediately
     });
 
     const cancelEndpoint = `https://api.lemonsqueezy.com/v1/subscriptions/${subscriptionId}`;
-    const cancelPayload = {
-      data: {
-        type: 'subscriptions',
-        id: subscriptionId.toString(),
-        attributes: {
-          cancel_at_period_end: !cancelImmediately,
-          cancellation_reason: reason
-        }
-      }
+    const lemonHeaders = {
+      Authorization: `Bearer ${apiKey}`,
+      Accept: 'application/vnd.api+json'
     };
 
-    let cancelResponse = await fetch(cancelEndpoint, {
-      method: 'PATCH',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Accept': 'application/vnd.api+json',
-        'Content-Type': 'application/vnd.api+json'
-      },
-      body: JSON.stringify(cancelPayload)
-    });
-
     let cancellationMode = cancelImmediately ? 'immediate' : 'period_end';
+    let cancelResponse;
     let cancelResponseBody = null;
 
-    if (!cancelResponse.ok) {
-      const fallbackEndpoint = `https://api.lemonsqueezy.com/v1/subscriptions/${subscriptionId}/cancel`;
-      cancelResponse = await fetch(fallbackEndpoint, {
-        method: 'POST',
+    if (cancelImmediately) {
+      cancelResponse = await fetch(cancelEndpoint, {
+        method: 'DELETE',
+        headers: lemonHeaders
+      });
+    } else {
+      const patchPayload = {
+        data: {
+          type: 'subscriptions',
+          id: subscriptionId.toString(),
+          attributes: {
+            cancel_at_period_end: true,
+            cancellation_reason: reason
+          }
+        }
+      };
+
+      cancelResponse = await fetch(cancelEndpoint, {
+        method: 'PATCH',
         headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Accept': 'application/vnd.api+json',
+          ...lemonHeaders,
           'Content-Type': 'application/vnd.api+json'
         },
-        body: JSON.stringify(cancelPayload)
+        body: JSON.stringify(patchPayload)
       });
 
       if (!cancelResponse.ok) {
-        let errorDetails;
+        let patchErrorBody = null;
         try {
-          errorDetails = await cancelResponse.json();
-        } catch (err) {
-          errorDetails = await cancelResponse.text();
+          patchErrorBody = await cancelResponse.clone().json();
+        } catch (cloneErr) {
+          try {
+            patchErrorBody = await cancelResponse.clone().text();
+          } catch (textErr) {
+            patchErrorBody = null;
+          }
         }
 
-        console.error('Lemon Squeezy cancellation error:', errorDetails);
-        return res.status(cancelResponse.status || 500).json({
-          error: 'Failed to cancel subscription with Lemon Squeezy',
-          details: errorDetails
+        console.warn('[LEMON][CANCEL] Patch cancellation failed, attempting immediate delete', {
+          requestId,
+          subscriptionId,
+          status: cancelResponse.status,
+          body: patchErrorBody
+        });
+
+        cancellationMode = 'immediate';
+        cancelResponse = await fetch(cancelEndpoint, {
+          method: 'DELETE',
+          headers: lemonHeaders
         });
       }
     }
 
+    if (!cancelResponse.ok) {
+      let errorDetails = null;
+      try {
+        errorDetails = await cancelResponse.clone().json();
+      } catch (err) {
+        try {
+          errorDetails = await cancelResponse.clone().text();
+        } catch (textErr) {
+          errorDetails = null;
+        }
+      }
+
+      const errorSummary = Array.isArray(errorDetails?.errors)
+        ? errorDetails.errors.map((err) => err.detail || err.title).filter(Boolean).join(' | ')
+        : null;
+
+      console.error('[LEMON][CANCEL] Lemon API cancellation failed', {
+        requestId,
+        subscriptionId,
+        status: cancelResponse.status,
+        body: errorDetails
+      });
+
+      return res.status(cancelResponse.status || 500).json({
+        error: 'Failed to cancel subscription with Lemon Squeezy',
+        details: errorSummary || 'Lemon Squeezy rejected the cancellation request. בדוק שהחנות והמפתחות תואמים למצב Test/Live.',
+        requestId
+      });
+    }
+
     try {
-      cancelResponseBody = await cancelResponse.json();
+      cancelResponseBody = await cancelResponse.clone().json();
     } catch (err) {
       cancelResponseBody = null;
     }
+
+    if (cancelResponseBody?.data) {
+      const built = buildSubscriptionUpdateFromRecord(cancelResponseBody.data, subscriptionData, admin);
+      if (built?.update) {
+        const updatePayload = {
+          ...built.update,
+          last_synced_source: 'cancel_api',
+          last_synced_mode: lemonMode
+        };
+        try {
+          await subscriptionDocRef.set(updatePayload, { merge: true });
+        } catch (backfillErr) {
+          console.warn('[LEMON][CANCEL] Failed to backfill subscription doc after cancellation', {
+            requestId,
+            error: backfillErr?.message || backfillErr
+          });
+        }
+      }
+    }
+
+    const effectiveEndsAt =
+      cancelResponseBody?.data?.attributes?.ends_at ||
+      cancelResponseBody?.data?.attributes?.ends_at_formatted ||
+      resolvedEndsAt;
 
     const disableResult = await creditsService.disableProSubscription(userId, {
       subscriptionId,
       cancelReason: reason,
       cancelMode: cancellationMode,
+      metadata: {
+        resolverSource: resolution.source,
+        resolvedStatus,
+        resolvedEndsAt: resolvedEndsAt || null,
+        lemonMode,
+        requestId
+      },
       cancelMetadata: {
         lemonResponse: cancelResponseBody
       }
@@ -754,14 +512,20 @@ router.post('/subscription/cancel', express.json(), verifyFirebaseToken, async (
     res.json({
       success: true,
       cancellationMode,
+      subscriptionStatus: disableResult.subscriptionStatus || 'cancelled',
       restoredCredits: disableResult.restoredCredits || 0,
-      subscriptionStatus: disableResult.subscriptionStatus || 'cancelled'
+      endsAt: effectiveEndsAt || null,
+      requestId
     });
   } catch (error) {
-    console.error('Error cancelling subscription:', error);
+    console.error('Error cancelling subscription:', {
+      requestId: requestId || null,
+      error: error?.message || error
+    });
     res.status(500).json({
       error: 'Failed to cancel subscription',
-      details: error.message
+      details: error.message,
+      requestId: requestId || undefined
     });
   }
 });
@@ -971,6 +735,142 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
         console.log('⚠️ Missing orderId in order data, cannot record purchase');
         return res.status(200).json({ received: true, handled: false, reason: 'Missing orderId' });
       }
+    }
+
+    else if (parsed.subscriptionData) {
+      const { subscriptionData, customData } = parsed;
+      const subscriptionRecord = subscriptionData.raw;
+      const subscriptionUserId =
+        subscriptionData.userId ||
+        customData?.user_id ||
+        customData?.userId ||
+        null;
+      const webhookRequestId = `webhook_${subscriptionData.subscriptionId || Date.now()}`;
+      const isTestEvent = event.meta?.test_mode === true;
+      const allowTestPurchases = process.env.LEMON_ALLOW_TEST_WEBHOOKS === 'true' || process.env.LEMON_TEST_MODE !== 'false';
+
+      if (isTestEvent && !allowTestPurchases) {
+        console.log('[LEMON][WEBHOOK] Skipping test subscription event (test mode disabled)', {
+          webhookRequestId,
+          subscriptionId: subscriptionData.subscriptionId
+        });
+        return res.status(200).json({ received: true, handled: false, reason: 'Test mode disabled' });
+      }
+
+      if (!subscriptionUserId) {
+        console.warn('[LEMON][WEBHOOK] Subscription event missing userId', {
+          webhookRequestId,
+          subscriptionId: subscriptionData.subscriptionId
+        });
+        return res.status(200).json({ received: true, handled: false, reason: 'Missing userId' });
+      }
+
+      console.log('[LEMON][WEBHOOK] Processing subscription event', {
+        webhookRequestId,
+        eventName: parsed.eventName,
+        subscriptionId: subscriptionData.subscriptionId,
+        status: subscriptionData.status,
+        cancelAtPeriodEnd: subscriptionData.cancelAtPeriodEnd,
+        endsAt: subscriptionData.endsAt,
+        variantId: subscriptionData.variantId,
+        storeId: subscriptionData.storeId,
+        customerId: subscriptionData.customerId
+      });
+
+      const upsertResult = await upsertSubscriptionFromWebhook({
+        db,
+        admin,
+        fetch,
+        userId: subscriptionUserId,
+        subscriptionRecord: subscriptionRecord || event.data,
+        storeId: subscriptionData.storeId || null,
+        mode: isTestEvent ? 'test' : 'live',
+        logger: console,
+        requestId: webhookRequestId
+      });
+
+      const resolvedVariantId =
+        subscriptionData.variantId ||
+        upsertResult?.attributes?.variant_id ||
+        null;
+
+      const resolvedProductKey =
+        customData?.product_key ||
+        customData?.productKey ||
+        getProductKeyByVariantId(resolvedVariantId) ||
+        null;
+
+      const productConfig = resolvedProductKey
+        ? getProductByKey(resolvedProductKey)
+        : getProductByVariantId(resolvedVariantId);
+
+      const isActive = hasActiveStatus(subscriptionData.status);
+      const isCancelled = hasCancelledStatus(subscriptionData.status);
+
+      if (isActive) {
+        try {
+          await creditsService.enableProSubscription(subscriptionUserId, {
+            plan: 'pro',
+            orderId: subscriptionData.orderId || null,
+            productId: subscriptionData.productId || productConfig?.product_id || null,
+            productKey: resolvedProductKey,
+            productName: productConfig?.name || null,
+            productType: productConfig?.type || null,
+            variantId: resolvedVariantId || null,
+            subscriptionId: subscriptionData.subscriptionId,
+            subscriptionStatus: subscriptionData.status || 'active',
+            subscriptionInterval: productConfig?.billing_interval || null,
+            total: null,
+            currency: null,
+            metadata: {
+              lemonCustomerId: subscriptionData.customerId || null,
+              webhookRequestId
+            }
+          });
+          console.log('[LEMON][WEBHOOK] Enabled Pro subscription from webhook', {
+            webhookRequestId,
+            subscriptionId: subscriptionData.subscriptionId
+          });
+        } catch (enableErr) {
+          console.error('[LEMON][WEBHOOK] Failed to enable subscription entitlements from webhook', {
+            webhookRequestId,
+            error: enableErr?.message || enableErr
+          });
+        }
+      } else if (isCancelled || (!isActive && subscriptionData.cancelAtPeriodEnd)) {
+        try {
+          await creditsService.disableProSubscription(subscriptionUserId, {
+            subscriptionId: subscriptionData.subscriptionId,
+            cancelReason: 'webhook',
+            cancelMode: subscriptionData.cancelAtPeriodEnd ? 'period_end' : 'immediate',
+            metadata: {
+              lemonCustomerId: subscriptionData.customerId || null,
+              webhookRequestId
+            }
+          });
+          console.log('[LEMON][WEBHOOK] Disabled subscription entitlements from webhook', {
+            webhookRequestId,
+            subscriptionId: subscriptionData.subscriptionId
+          });
+        } catch (disableErr) {
+          console.error('[LEMON][WEBHOOK] Failed to disable subscription entitlements from webhook', {
+            webhookRequestId,
+            error: disableErr?.message || disableErr
+          });
+        }
+      } else {
+        console.log('[LEMON][WEBHOOK] Subscription event did not trigger entitlement change', {
+          webhookRequestId,
+          status: subscriptionData.status
+        });
+      }
+
+      return res.status(200).json({
+        received: true,
+        handled: true,
+        requestId: webhookRequestId,
+        event: parsed.eventName
+      });
     }
 
     // Always return 200 to acknowledge receipt
