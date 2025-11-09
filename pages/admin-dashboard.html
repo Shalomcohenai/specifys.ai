@@ -2,19 +2,19 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
   <title>Admin Dashboard · Specifys.ai</title>
   <meta name="description" content="Specifys.ai admin dashboard for live monitoring of users, payments, activity logs, blog publishing, and platform statistics.">
-  <link rel="canonical" href="https://specifys-ai.com/pages/admin-dashboard.html">
+    <link rel="canonical" href="https://specifys-ai.com/pages/admin-dashboard.html">
   <meta property="og:title" content="Admin Dashboard · Specifys.ai">
   <meta property="og:description" content="Live users, payments, logs, blog publishing, and platform statistics for Specifys.ai.">
   <meta property="og:url" content="https://specifys-ai.com/pages/admin-dashboard.html">
-  <meta property="og:site_name" content="Specifys.ai">
-  <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Specifys.ai">
+    <meta property="og:type" content="website">
   <link rel="icon" href="/favicon.ico">
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="/assets/css/main.css">
@@ -27,17 +27,17 @@
       <div class="sidebar-brand">
         <span class="brand-name">Specifys<span class="accent">.</span>AI</span>
         <span class="brand-subtitle">Admin</span>
-      </div>
+        </div>
 
       <nav class="sidebar-nav" id="sidebar-nav">
         <button class="nav-link active" data-target="overview-section">
           <span class="icon"><i class="fas fa-chart-line"></i></span>
           Overview
-        </button>
+                </button>
         <button class="nav-link" data-target="users-section">
           <span class="icon"><i class="fas fa-users"></i></span>
           Users
-        </button>
+                </button>
         <button class="nav-link" data-target="payments-section">
           <span class="icon"><i class="fas fa-credit-card"></i></span>
           Payments
@@ -60,9 +60,9 @@
         <div class="connection-indicator" id="connection-indicator">
           <span class="dot status-pending"></span>
           <span class="label">Connecting…</span>
-        </div>
+            </div>
         <small class="sync-label">Last sync · <span id="sidebar-last-sync">Never</span></small>
-      </div>
+        </div>
     </aside>
 
     <div class="admin-main">
@@ -71,11 +71,11 @@
           <div class="page-title">
             <h1>Admin Dashboard</h1>
             <p>Live control center for Specifys.ai</p>
-          </div>
+            </div>
           <div class="topbar-status">
             <span id="topbar-sync-status">Waiting for data…</span>
-          </div>
         </div>
+            </div>
         <div class="topbar-actions">
           <button class="action-btn" id="global-search-trigger" type="button">
             <i class="fas fa-search"></i>
@@ -83,13 +83,13 @@
             <span class="hint">⌘/</span>
           </button>
           <button class="action-btn" id="manual-refresh-btn" type="button">
-            <i class="fas fa-sync-alt"></i>
+                <i class="fas fa-sync-alt"></i>
             Refresh
-          </button>
+            </button>
           <button class="action-btn critical" id="sign-out-btn" type="button">
             <i class="fas fa-sign-out-alt"></i>
             Sign out
-          </button>
+            </button>
         </div>
       </header>
 
@@ -99,14 +99,14 @@
             <div>
               <h2>Live Overview</h2>
               <p>Realtime snapshot of the platform.</p>
-            </div>
+                                </div>
             <div class="section-controls">
               <select id="overview-range" aria-label="Overview range">
                 <option value="day">Last 24 hours</option>
                 <option value="week" selected>Last 7 days</option>
                 <option value="month">Last 30 days</option>
               </select>
-            </div>
+                            </div>
           </header>
 
           <div class="metrics-grid" id="overview-metrics">
@@ -130,7 +130,7 @@
               <p class="metric-value" data-metric="revenue-total">—</p>
               <span class="metric-sub" data-kpi="revenue-range">Range: —</span>
             </article>
-          </div>
+                    </div>
 
           <div class="overview-panels">
             <div class="panel recent-activity">
@@ -139,17 +139,17 @@
                 <button class="panel-action" id="toggle-activity-pause" type="button">
                   <i class="fas fa-pause"></i>
                   Pause stream
-                </button>
-              </div>
+                            </button>
+                        </div>
               <ol class="activity-feed" id="activity-feed" aria-live="polite">
                 <li class="activity-placeholder">Waiting for events…</li>
               </ol>
-            </div>
+                    </div>
 
             <div class="panel sync-status">
               <div class="panel-header">
                 <h3>Data sources</h3>
-              </div>
+                </div>
               <ul class="source-list" id="source-status-list">
                 <li><span class="source-label">Users</span><span class="source-state" data-source="users">Pending</span></li>
                 <li><span class="source-label">Specs</span><span class="source-state" data-source="specs">Pending</span></li>
@@ -160,9 +160,9 @@
               <div class="auto-refresh">
                 <span>Auto refresh</span>
                 <span class="auto-refresh-next" id="auto-refresh-next">Scheduled in 24h</span>
-              </div>
             </div>
-          </div>
+        </div>
+                </div>
         </section>
 
         <section class="dashboard-section" id="users-section">
@@ -177,18 +177,18 @@
                 <option value="all">All plans</option>
                 <option value="pro">Pro</option>
                 <option value="free">Free</option>
-              </select>
+                    </select>
               <button class="action-btn" id="export-users-btn" type="button">
                 <i class="fas fa-file-export"></i>
                 Export CSV
               </button>
-            </div>
+                </div>
           </header>
 
-          <div class="table-wrapper">
+                <div class="table-wrapper">
             <table class="data-table" id="users-table">
-              <thead>
-                <tr>
+                <thead>
+                    <tr>
                   <th scope="col">User</th>
                   <th scope="col">Created</th>
                   <th scope="col">Plan</th>
@@ -196,15 +196,15 @@
                   <th scope="col">Credits</th>
                   <th scope="col">Last active</th>
                   <th scope="col">Actions</th>
-                </tr>
-              </thead>
+                    </tr>
+                </thead>
               <tbody>
-                <tr>
+                            <tr>
                   <td colspan="7" class="table-empty">Loading users…</td>
-                </tr>
-              </tbody>
+                            </tr>
+                </tbody>
             </table>
-          </div>
+                </div>
         </section>
 
         <section class="dashboard-section" id="payments-section">
@@ -212,36 +212,36 @@
             <div>
               <h2>Payments</h2>
               <p>Realtime Lemon Squeezy purchases mapped to users.</p>
-            </div>
+                </div>
             <div class="section-controls">
               <input type="search" id="payments-search" placeholder="Search by user or product" aria-label="Search payments">
               <select id="payments-range" aria-label="Filter payments range">
                 <option value="all">All time</option>
                 <option value="week" selected>Last 7 days</option>
                 <option value="month">Last 30 days</option>
-              </select>
-            </div>
+                        </select>
+                    </div>
           </header>
 
-          <div class="table-wrapper">
+                <div class="table-wrapper">
             <table class="data-table" id="payments-table">
-              <thead>
-                <tr>
+                        <thead>
+                            <tr>
                   <th scope="col">Date</th>
                   <th scope="col">User</th>
                   <th scope="col">Product</th>
                   <th scope="col">Amount</th>
                   <th scope="col">Type</th>
                   <th scope="col">Status</th>
-                </tr>
-              </thead>
+                            </tr>
+                        </thead>
               <tbody>
-                <tr>
+                            <tr>
                   <td colspan="6" class="table-empty">Loading payments…</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
         </section>
 
         <section class="dashboard-section" id="logs-section">
@@ -249,7 +249,7 @@
             <div>
               <h2>Live Logs</h2>
               <p>Auth sessions, spec creation, and purchases in realtime.</p>
-            </div>
+                    </div>
             <div class="section-controls">
               <select id="logs-filter" aria-label="Filter log types">
                 <option value="all">All events</option>
@@ -258,12 +258,12 @@
                 <option value="payment">Payments</option>
                 <option value="system">System</option>
               </select>
-            </div>
+                </div>
           </header>
 
           <div class="logs-stream" id="logs-stream">
             <div class="logs-placeholder">Waiting for log events…</div>
-          </div>
+                            </div>
         </section>
 
         <section class="dashboard-section" id="blog-section">
@@ -271,7 +271,7 @@
             <div>
               <h2>Blog Publishing</h2>
               <p>Create and queue new posts for specifys.ai/blog.</p>
-            </div>
+                            </div>
           </header>
 
           <div class="blog-grid">
@@ -279,36 +279,36 @@
               <div class="form-group">
                 <label for="blog-title">Title</label>
                 <input id="blog-title" name="title" type="text" required maxlength="120" autocomplete="off">
-              </div>
-              <div class="form-group">
+                            </div>
+                            <div class="form-group">
                 <label for="blog-slug">Slug</label>
                 <input id="blog-slug" name="slug" type="text" required maxlength="140" placeholder="auto-generated if blank">
-              </div>
-              <div class="form-group">
+                            </div>
+                            <div class="form-group">
                 <label for="blog-description">Description</label>
                 <textarea id="blog-description" name="description" rows="3" maxlength="160" required></textarea>
                 <small id="blog-description-count">0 / 160</small>
-              </div>
-              <div class="form-group">
+                            </div>
+                            <div class="form-group">
                 <label for="blog-content">Content (Markdown)</label>
                 <textarea id="blog-content" name="content" rows="10" required></textarea>
-              </div>
-              <div class="form-group">
+                            </div>
+                            <div class="form-group">
                 <label for="blog-tags">Tags</label>
                 <input id="blog-tags" name="tags" type="text" placeholder="ai, product, planning">
-              </div>
-              <div class="form-actions">
+                            </div>
+                            <div class="form-actions">
                 <button class="primary" type="submit">
                   <i class="fas fa-paper-plane"></i>
                   Publish to queue
-                </button>
+                                </button>
                 <button class="secondary" id="blog-preview-btn" type="button">
                   <i class="fas fa-eye"></i>
                   Preview
-                </button>
-              </div>
+                                </button>
+                            </div>
               <div class="form-feedback" id="blog-feedback" role="status" aria-live="polite"></div>
-            </form>
+                        </form>
 
             <div class="blog-status">
               <div class="panel-header">
@@ -317,12 +317,12 @@
                   <i class="fas fa-sync-alt"></i>
                   Refresh
                 </button>
-              </div>
+                            </div>
               <ul class="queue-list" id="blog-queue-list">
                 <li class="queue-placeholder">Queue is loading…</li>
               </ul>
-            </div>
-          </div>
+                        </div>
+                    </div>
         </section>
 
         <section class="dashboard-section" id="stats-section">
@@ -330,16 +330,16 @@
             <div>
               <h2>Statistics</h2>
               <p>Interactive KPIs with flexible time slicing.</p>
-            </div>
+                        </div>
             <div class="section-controls">
               <div class="range-switch" role="radiogroup" aria-label="Statistics range">
                 <button type="button" class="range-btn active" data-range="day">Daily</button>
                 <button type="button" class="range-btn" data-range="week">Weekly</button>
                 <button type="button" class="range-btn" data-range="month">Monthly</button>
-              </div>
+                        </div>
               <input type="date" id="stats-start-date" aria-label="Stats start date">
               <input type="date" id="stats-end-date" aria-label="Stats end date">
-            </div>
+                        </div>
           </header>
 
           <div class="stats-panels">
@@ -363,8 +363,8 @@
               <p class="metric-value" data-stats="revenue">—</p>
               <span class="metric-sub" data-stats-detail="revenue-change">Range change —</span>
             </article>
-          </div>
-
+                    </div>
+                    
           <div class="chart-grid">
             <section class="chart-panel">
               <header>
@@ -384,11 +384,48 @@
               </header>
               <canvas id="revenue-trend-chart" height="180" aria-label="Revenue trend"></canvas>
             </section>
-          </div>
+                        </div>
         </section>
       </main>
-    </div>
-  </div>
+                    </div>
+                </div>
+
+  <!-- Activity detail panel -->
+  <aside class="activity-detail hidden" id="activity-detail">
+    <header class="activity-detail__header">
+      <div>
+        <h3>Activity details</h3>
+        <p id="activity-detail-title">Select an event</p>
+                    </div>
+      <button class="close-btn" id="activity-detail-close" type="button" aria-label="Close activity details">
+        <i class="fas fa-times"></i>
+                        </button>
+    </header>
+    <div class="activity-detail__body">
+      <dl>
+        <div class="activity-detail__row">
+          <dt>User</dt>
+          <dd id="activity-detail-user">—</dd>
+                    </div>
+        <div class="activity-detail__row">
+          <dt>Email</dt>
+          <dd id="activity-detail-email">—</dd>
+                    </div>
+        <div class="activity-detail__row">
+          <dt>User ID</dt>
+          <dd id="activity-detail-userid">—</dd>
+                </div>
+        <div class="activity-detail__row">
+          <dt>When</dt>
+          <dd id="activity-detail-time">—</dd>
+            </div>
+        <div class="activity-detail__row">
+          <dt>Context</dt>
+          <dd id="activity-detail-context">—</dd>
+        </div>
+      </dl>
+                </div>
+  </aside>
 
   <!-- Global search overlay -->
   <div class="global-search hidden" id="global-search" role="dialog" aria-modal="true" aria-labelledby="global-search-title">
@@ -399,13 +436,13 @@
         <input type="search" id="global-search-input" placeholder="Search users, payments, specs, logs…" autocomplete="off">
         <button class="close-btn" id="global-search-close" type="button" aria-label="Close search">
           <i class="fas fa-times"></i>
-        </button>
+                    </button>
       </header>
       <div class="global-search-results" id="global-search-results">
         <div class="results-placeholder">Start typing to search across modules.</div>
-      </div>
-    </div>
-  </div>
+                </div>
+                </div>
+                </div>
 
   <!-- Spec viewer modal -->
   <div class="modal hidden" id="spec-viewer" role="dialog" aria-modal="true" aria-labelledby="spec-viewer-title">
@@ -417,16 +454,16 @@
           <input type="search" id="spec-search-input" placeholder="Filter specs" aria-label="Filter specs">
           <button class="close-btn" data-modal-dismiss type="button" aria-label="Close">
             <i class="fas fa-times"></i>
-          </button>
-        </div>
+                    </button>
+                </div>
       </header>
-      <div class="modal-body">
+            <div class="modal-body">
         <div class="spec-list" id="spec-list">
           <div class="modal-placeholder">Select a user to load specs.</div>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
 
   <!-- Preview modal -->
   <div class="modal hidden" id="preview-modal" role="dialog" aria-modal="true" aria-labelledby="preview-modal-title">
@@ -440,9 +477,9 @@
       </header>
       <div class="modal-body" id="preview-modal-body">
         <article class="preview-article" id="preview-article"></article>
-      </div>
-    </div>
-  </div>
+                        </div>
+                        </div>
+                        </div>
 
   <script type="module" src="/assets/js/admin-dashboard.js"></script>
 </body>
