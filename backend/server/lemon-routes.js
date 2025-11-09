@@ -296,16 +296,15 @@ router.post('/subscription/cancel', express.json(), verifyFirebaseToken, async (
 
     const findSubscriptionIdFromPurchases = async () => {
       try {
-        const purchasesQuery = db
+        const snapshot = await db
           .collection('purchases')
           .where('userId', '==', userId)
-          .where('productType', '==', 'subscription')
           .orderBy('createdAt', 'desc')
-          .limit(3);
+          .limit(10)
+          .get();
 
-        const purchasesSnapshot = await purchasesQuery.get();
-        if (!purchasesSnapshot.empty) {
-          for (const docSnap of purchasesSnapshot.docs) {
+        if (!snapshot.empty) {
+          for (const docSnap of snapshot.docs) {
             const purchase = docSnap.data() || {};
             const candidate =
               purchase.subscriptionId ||
@@ -313,45 +312,52 @@ router.post('/subscription/cancel', express.json(), verifyFirebaseToken, async (
               purchase.subscriptionID ||
               purchase.metadata?.subscription_id ||
               purchase.metadata?.subscriptionId ||
-              purchase.subscriptionId?.toString();
+              purchase.metadata?.subscription?.id;
             if (candidate) {
-              console.log('[LEMON][CANCEL] Found subscriptionId via purchases (with productType filter):', candidate);
+              console.log('[LEMON][CANCEL] Found subscriptionId via purchases (createdAt ordered query):', candidate);
               return candidate.toString();
+            }
+            const custom = purchase.metadata?.custom || purchase.checkoutData?.custom || {};
+            const customCandidate =
+              custom.subscription_id ||
+              custom.subscriptionId ||
+              custom.subscriptionID;
+            if (customCandidate) {
+              console.log('[LEMON][CANCEL] Found subscriptionId in purchase custom metadata:', customCandidate);
+              return customCandidate.toString();
             }
           }
         }
       } catch (queryError) {
         if (queryError?.code === 9 || /index/i.test(queryError?.message || '')) {
+          console.warn('[LEMON][CANCEL] Index missing for purchases query, falling back to unordered scan.');
           const fallbackSnapshot = await db
             .collection('purchases')
             .where('userId', '==', userId)
-            .where('productType', '==', 'subscription')
-            .limit(10)
+            .limit(25)
             .get();
 
-          const sortedDocs = fallbackSnapshot.docs.sort((a, b) => {
-            const aDate =
-              a.data().createdAt?.toDate?.() ||
-              a.data().updatedAt?.toDate?.() ||
-              new Date(0);
-            const bDate =
-              b.data().createdAt?.toDate?.() ||
-              b.data().updatedAt?.toDate?.() ||
-              new Date(0);
-            return bDate - aDate;
-          });
-
-          for (const docSnap of sortedDocs) {
+          for (const docSnap of fallbackSnapshot.docs) {
             const purchase = docSnap.data() || {};
             const candidate =
               purchase.subscriptionId ||
               purchase.subscription_id ||
               purchase.subscriptionID ||
               purchase.metadata?.subscription_id ||
-              purchase.metadata?.subscriptionId;
+              purchase.metadata?.subscriptionId ||
+              purchase.metadata?.subscription?.id;
             if (candidate) {
-              console.log('[LEMON][CANCEL] Found subscriptionId via purchases fallback (with productType filter):', candidate);
+              console.log('[LEMON][CANCEL] Found subscriptionId via purchases fallback (unordered):', candidate);
               return candidate.toString();
+            }
+            const custom = purchase.metadata?.custom || purchase.checkoutData?.custom || {};
+            const customCandidate =
+              custom.subscription_id ||
+              custom.subscriptionId ||
+              custom.subscriptionID;
+            if (customCandidate) {
+              console.log('[LEMON][CANCEL] Found subscriptionId via purchases fallback custom metadata:', customCandidate);
+              return customCandidate.toString();
             }
           }
         } else {
@@ -359,29 +365,7 @@ router.post('/subscription/cancel', express.json(), verifyFirebaseToken, async (
         }
       }
 
-      console.log('[LEMON][CANCEL] No subscriptionId found with productType filter, trying without filter...');
-
-      const withoutTypeSnapshot = await db
-        .collection('purchases')
-        .where('userId', '==', userId)
-        .orderBy('createdAt', 'desc')
-        .limit(5)
-        .get();
-
-      for (const docSnap of withoutTypeSnapshot.docs) {
-        const purchase = docSnap.data() || {};
-        const candidate =
-          purchase.subscriptionId ||
-          purchase.subscription_id ||
-          purchase.subscriptionID ||
-          purchase.metadata?.subscription_id ||
-          purchase.metadata?.subscriptionId ||
-          purchase.metadata?.subscription?.id;
-        if (candidate) {
-          console.log('[LEMON][CANCEL] Found subscriptionId via purchases (without productType filter):', candidate);
-          return candidate.toString();
-        }
-      }
+      console.log('[LEMON][CANCEL] No subscriptionId found in purchases collection.');
 
       return null;
     };
