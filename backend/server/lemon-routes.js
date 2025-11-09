@@ -290,19 +290,6 @@ router.post('/subscription/cancel', express.json(), verifyFirebaseToken, async (
     }
 
     const subscriptionData = subscriptionDoc.data() || {};
-    let subscriptionId = subscriptionData.lemon_subscription_id;
-    let subscriptionDocUpdated = false;
-
-    if (!subscriptionId) {
-      console.warn('[LEMON][CANCEL] Subscription doc missing lemon_subscription_id', {
-        userId,
-        subscriptionDoc: subscriptionData
-      });
-    } else {
-      console.log('[LEMON][CANCEL] Subscription doc already has lemon_subscription_id', subscriptionId);
-    }
-
-    const subscriptionData = subscriptionDoc.data() || {};
     const lemonMode = process.env.LEMON_MODE
       ? process.env.LEMON_MODE.toLowerCase()
       : (process.env.LEMON_TEST_MODE === 'true' ? 'test' : 'live');
