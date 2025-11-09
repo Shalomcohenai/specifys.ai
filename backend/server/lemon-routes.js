@@ -255,8 +255,16 @@ router.post('/checkout', express.json(), verifyFirebaseToken, async (req, res) =
 router.post('/subscription/cancel', express.json(), verifyFirebaseToken, async (req, res) => {
   try {
     const userId = req.user.uid;
+    const userEmail = req.user.email;
     const reason = req.body?.reason || 'user_requested';
     const cancelImmediately = req.body?.cancelImmediately === true;
+
+    console.log('[LEMON][CANCEL] Cancellation requested', {
+      userId,
+      userEmail,
+      reason,
+      cancelImmediately
+    });
 
     const apiKey = process.env.LEMON_SQUEEZY_API_KEY;
     if (!apiKey) {
@@ -269,12 +277,22 @@ router.post('/subscription/cancel', express.json(), verifyFirebaseToken, async (
     const subscriptionDocRef = db.collection('subscriptions').doc(userId);
     const subscriptionDoc = await subscriptionDocRef.get();
     if (!subscriptionDoc.exists) {
+      console.warn('[LEMON][CANCEL] No subscription doc found for user', userId);
       return res.status(404).json({ error: 'No active subscription found for this user' });
     }
 
     const subscriptionData = subscriptionDoc.data() || {};
     let subscriptionId = subscriptionData.lemon_subscription_id;
     let subscriptionDocUpdated = false;
+
+    if (!subscriptionId) {
+      console.warn('[LEMON][CANCEL] Subscription doc missing lemon_subscription_id', {
+        userId,
+        subscriptionDoc: subscriptionData
+      });
+    } else {
+      console.log('[LEMON][CANCEL] Subscription doc already has lemon_subscription_id', subscriptionId);
+    }
 
     const findSubscriptionIdFromPurchases = async () => {
       try {
@@ -297,6 +315,7 @@ router.post('/subscription/cancel', express.json(), verifyFirebaseToken, async (
               purchase.metadata?.subscriptionId ||
               purchase.subscriptionId?.toString();
             if (candidate) {
+              console.log('[LEMON][CANCEL] Found subscriptionId via purchases (with productType filter):', candidate);
               return candidate.toString();
             }
           }
@@ -331,11 +350,36 @@ router.post('/subscription/cancel', express.json(), verifyFirebaseToken, async (
               purchase.metadata?.subscription_id ||
               purchase.metadata?.subscriptionId;
             if (candidate) {
+              console.log('[LEMON][CANCEL] Found subscriptionId via purchases fallback (with productType filter):', candidate);
               return candidate.toString();
             }
           }
         } else {
           console.warn('Failed to query purchases for subscription ID:', queryError);
+        }
+      }
+
+      console.log('[LEMON][CANCEL] No subscriptionId found with productType filter, trying without filter...');
+
+      const withoutTypeSnapshot = await db
+        .collection('purchases')
+        .where('userId', '==', userId)
+        .orderBy('createdAt', 'desc')
+        .limit(5)
+        .get();
+
+      for (const docSnap of withoutTypeSnapshot.docs) {
+        const purchase = docSnap.data() || {};
+        const candidate =
+          purchase.subscriptionId ||
+          purchase.subscription_id ||
+          purchase.subscriptionID ||
+          purchase.metadata?.subscription_id ||
+          purchase.metadata?.subscriptionId ||
+          purchase.metadata?.subscription?.id;
+        if (candidate) {
+          console.log('[LEMON][CANCEL] Found subscriptionId via purchases (without productType filter):', candidate);
+          return candidate.toString();
         }
       }
 
@@ -354,6 +398,7 @@ router.post('/subscription/cancel', express.json(), verifyFirebaseToken, async (
             { merge: true }
           );
           subscriptionDocUpdated = true;
+          console.log('[LEMON][CANCEL] Backfilled lemon_subscription_id onto subscription doc');
         } catch (updateError) {
           console.warn('Unable to backfill lemon_subscription_id on subscription doc:', updateError);
         }
@@ -361,11 +406,17 @@ router.post('/subscription/cancel', express.json(), verifyFirebaseToken, async (
     }
 
     if (!subscriptionId) {
+      console.error('[LEMON][CANCEL] Unable to determine subscriptionId for user', userId);
       return res.status(400).json({
         error: 'Subscription record missing Lemon Squeezy subscription ID',
         details: 'No subscriptionId found in subscriptions or purchases collection for this user.'
       });
     }
+
+    console.log('[LEMON][CANCEL] Proceeding with Lemon Squeezy cancellation', {
+      subscriptionId,
+      subscriptionDocUpdated
+    });
 
     const cancelEndpoint = `https://api.lemonsqueezy.com/v1/subscriptions/${subscriptionId}`;
     const cancelPayload = {
