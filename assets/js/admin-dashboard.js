@@ -1834,14 +1834,27 @@ class AdminDashboardApp {
       const apiBaseUrl = typeof window.getApiBaseUrl === "function"
         ? window.getApiBaseUrl()
         : "https://specifys-ai.onrender.com";
-      const response = await fetch(`${apiBaseUrl}/api/blog/create-post`, {
+      const requestUrl = `${apiBaseUrl}/api/blog/create-post`;
+      const makeRequest = async (idToken) => {
+        return fetch(requestUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
+            Authorization: `Bearer ${idToken}`
         },
         body: JSON.stringify(payload)
       });
+      };
+
+      let response = await makeRequest(token);
+      if (response.status === 401) {
+        console.info("[BlogPublish] Token rejected, attempting refresh…");
+        const refreshedToken = await this.getAuthToken(true);
+        if (!refreshedToken) {
+          throw new Error("Unable to refresh authentication token for blog publishing.");
+        }
+        response = await makeRequest(refreshedToken);
+      }
       const text = await response.text();
       let result = null;
       try {
@@ -1850,6 +1863,12 @@ class AdminDashboardApp {
         console.warn("Non-JSON response from blog publish endpoint", parseError, text);
       }
       if (!response.ok || !(result && result.success)) {
+        console.warn("[BlogPublish] Request failed", {
+          url: requestUrl,
+          status: response.status,
+          statusText: response.statusText,
+          result
+        });
         const message =
           result?.error ||
           `Failed to queue blog post (HTTP ${response.status} ${response.statusText})`;
@@ -1872,7 +1891,10 @@ class AdminDashboardApp {
         console.warn("Blog queue refresh failed after publish", queueError);
       }
         } catch (error) {
-      console.error("Blog publish failed", error);
+      console.error("[BlogPublish] Blog publish failed", {
+        message: error.message,
+        stack: error.stack
+      });
       this.setBlogFeedback(error.message || "Failed to publish blog post.", "error");
     } finally {
       if (button) {
@@ -1936,24 +1958,38 @@ class AdminDashboardApp {
 
   async refreshBlogQueue(options = {}) {
     const { silent = false } = options;
-    const token = await this.getAuthToken();
-    if (!token) {
-      const authError = new Error("Authentication required to refresh the blog queue.");
-      authError.status = 401;
-      if (!silent) {
-        this.setBlogFeedback(authError.message, "error");
-      }
-      throw authError;
-    }
     try {
+      let token = await this.getAuthToken();
+      if (!token) {
+        const authError = new Error("Authentication required to refresh the blog queue.");
+        authError.status = 401;
+        throw authError;
+      }
+
       const apiBaseUrl = typeof window.getApiBaseUrl === "function"
         ? window.getApiBaseUrl()
         : "https://specifys-ai.onrender.com";
-      const response = await fetch(`${apiBaseUrl}/api/blog/queue-status`, {
-        headers: {
-          Authorization: `Bearer ${token}`
+      const requestUrl = `${apiBaseUrl}/api/blog/queue-status`;
+      const makeRequest = async (idToken) => {
+        return fetch(requestUrl, {
+          headers: {
+            Authorization: `Bearer ${idToken}`
+          }
+        });
+      };
+
+      let response = await makeRequest(token);
+      if (response.status === 401) {
+        console.info("[BlogQueue] Token rejected, attempting refresh…");
+        token = await this.getAuthToken(true);
+        if (!token) {
+          const refreshError = new Error("Unable to refresh authentication token.");
+          refreshError.status = 401;
+          throw refreshError;
         }
-      });
+        response = await makeRequest(token);
+      }
+
       const text = await response.text();
       let result = null;
       try {
@@ -1962,6 +1998,12 @@ class AdminDashboardApp {
         console.warn("Non-JSON response when loading blog queue", parseError, text);
       }
       if (!response.ok || !(result && result.success)) {
+        console.warn("[BlogQueue] Request failed", {
+          url: requestUrl,
+          status: response.status,
+          statusText: response.statusText,
+          result
+        });
         const message =
           result?.error ||
           `Failed to load blog queue (HTTP ${response.status} ${response.statusText})`;
@@ -1984,7 +2026,11 @@ class AdminDashboardApp {
       if (!silent) {
         this.setBlogFeedback(error.message || "Failed to refresh blog queue.", "error");
       }
-      console.error("Failed to refresh blog queue", error);
+      console.error("[BlogQueue] Failed to refresh blog queue", {
+        message: error.message,
+        status: error.status,
+        stack: error.stack
+      });
       throw error;
     }
   }
@@ -2115,11 +2161,12 @@ class AdminDashboardApp {
     }, 24 * 60 * 60 * 1000);
   }
 
-  async getAuthToken() {
+  async getAuthToken(forceRefresh = false) {
     try {
       const user = auth.currentUser;
       if (!user) return null;
-      return await user.getIdToken();
+      const token = await user.getIdToken(forceRefresh);
+      return token;
     } catch (error) {
       console.error("Failed to get auth token", error);
       return null;
