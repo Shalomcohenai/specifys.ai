@@ -524,7 +524,7 @@ class GlobalSearch {
       this.renderPlaceholder();
             return;
         }
-        
+
     const userResults = [];
     const paymentResults = [];
     const specResults = [];
@@ -824,7 +824,10 @@ class AdminDashboardApp {
       blogForm: utils.dom("#blog-form"),
       blogFields: {
         title: utils.dom("#blog-title"),
+        date: utils.dom("#blog-date"),
         slug: utils.dom("#blog-slug"),
+        seoTitle: utils.dom("#blog-seo-title"),
+        seoDescription: utils.dom("#blog-seo-description"),
         description: utils.dom("#blog-description"),
         content: utils.dom("#blog-content"),
         tags: utils.dom("#blog-tags"),
@@ -848,6 +851,10 @@ class AdminDashboardApp {
         revenueRange: utils.dom('[data-kpi="revenue-range"]')
       }
     };
+
+    if (this.dom.blogFields.date && !this.dom.blogFields.date.value) {
+      this.dom.blogFields.date.value = utils.now().toISOString().slice(0, 10);
+    }
 
     this.sourceState = {
       users: "pending",
@@ -937,14 +944,26 @@ class AdminDashboardApp {
       }
     });
     this.dom.blogFields.slug?.addEventListener("input", () => {
-      this.dom.blogFields.slug.dataset.manual = "true";
+      const currentValue = this.dom.blogFields.slug.value.trim();
+      if (currentValue) {
+        this.dom.blogFields.slug.dataset.manual = "true";
+      } else {
+        delete this.dom.blogFields.slug.dataset.manual;
+      }
     });
     this.dom.blogForm?.addEventListener("submit", (event) => {
       event.preventDefault();
       this.handleBlogSubmit();
     });
     this.dom.blogPreview?.addEventListener("click", () => this.showBlogPreview());
-    this.dom.refreshQueue?.addEventListener("click", () => this.refreshBlogQueue());
+    this.dom.refreshQueue?.addEventListener("click", async () => {
+      try {
+        await this.refreshBlogQueue();
+        this.setBlogFeedback("Queue refreshed.", "success");
+      } catch (error) {
+        // refreshBlogQueue already handled feedback/logging when not silent
+      }
+    });
     this.dom.statsRangeButtons.forEach((btn) => {
       btn.addEventListener("click", () => {
         this.dom.statsRangeButtons.forEach((b) => b.classList.remove("active"));
@@ -1277,42 +1296,19 @@ class AdminDashboardApp {
       }
     }
 
-    // Blog queue (optional)
+    // Blog queue (via API)
     try {
-      const queueQuery = query(
-        collection(db, COLLECTIONS.BLOG_QUEUE),
-        orderBy("createdAt", "desc"),
-        limit(50)
-      );
-      const unsubQueue = onSnapshot(
-        queueQuery,
-        (snapshot) => {
-          this.store.setBlogQueue(
-            snapshot.docs.map((docSnap) => ({
-              id: docSnap.id,
-              ...docSnap.data()
-            }))
-          );
-          this.markSourceReady("blogQueue");
-          this.renderBlogQueue();
-        },
-        (error) => {
-          if (error?.code === "permission-denied") {
-            console.info("Blog queue access restricted for current user.");
-            this.markSourceRestricted("blogQueue", "Requires blog queue privileges.");
-          } else {
-            console.warn("Blog queue listener error", error);
-            this.markSourceError("blogQueue", error);
-          }
-        }
-      );
-      this.unsubscribeFns.push(unsubQueue);
+      await this.refreshBlogQueue({ silent: true });
+      this.markSourceReady("blogQueue");
         } catch (error) {
-      if (error?.code === "permission-denied") {
-        console.info("Blog queue not available for current user.");
+      if (error?.status === 403) {
+        console.info("Blog queue access restricted for current user.");
         this.markSourceRestricted("blogQueue", "Requires blog queue privileges.");
+      } else if (error?.status === 401) {
+        console.info("Blog queue requires authentication.");
+        this.markSourceError("blogQueue", "Authentication required.");
       } else {
-        console.warn("Blog queue not available", error);
+        console.warn("Blog queue unavailable", error);
         this.markSourceError("blogQueue", error);
       }
     }
@@ -1792,13 +1788,35 @@ class AdminDashboardApp {
 
   async handleBlogSubmit() {
     if (!this.dom.blogForm) return;
+    const title = this.dom.blogFields.title?.value.trim() ?? "";
+    const description = this.dom.blogFields.description?.value.trim() ?? "";
+    const content = this.dom.blogFields.content?.value.trim() ?? "";
+    const rawTags = this.dom.blogFields.tags?.value ?? "";
+    const slugInput = this.dom.blogFields.slug?.value.trim() ?? "";
+    const seoTitle = this.dom.blogFields.seoTitle?.value.trim() ?? "";
+    const seoDescription = this.dom.blogFields.seoDescription?.value.trim() ?? "";
+    const dateValue = this.dom.blogFields.date?.value || utils.now().toISOString().slice(0, 10);
+
+    const tags = rawTags
+      .split(",")
+      .map((tag) => tag.trim())
+      .filter(Boolean);
+
     const payload = {
-      title: this.dom.blogFields.title?.value.trim() ?? "",
-      slug: utils.sanitizeSlug(this.dom.blogFields.slug?.value.trim() ?? ""),
-      description: this.dom.blogFields.description?.value.trim() ?? "",
-      content: this.dom.blogFields.content?.value.trim() ?? "",
-      tags: this.dom.blogFields.tags?.value.trim() ?? ""
+      title,
+      description,
+      content,
+      tags,
+      date: dateValue,
+      slug: slugInput ? utils.sanitizeSlug(slugInput) : utils.sanitizeSlug(title)
     };
+
+    if (seoTitle) {
+      payload.seoTitle = seoTitle;
+    }
+    if (seoDescription) {
+      payload.seoDescription = seoDescription;
+    }
 
     if (!payload.title || !payload.description || !payload.content) {
       this.setBlogFeedback("Please fill in the required fields.", "error");
@@ -1813,7 +1831,10 @@ class AdminDashboardApp {
     }
     try {
       const token = await this.getAuthToken();
-      const response = await fetch("/api/blog/create-post", {
+      const apiBaseUrl = typeof window.getApiBaseUrl === "function"
+        ? window.getApiBaseUrl()
+        : "https://specifys-ai.onrender.com";
+      const response = await fetch(`${apiBaseUrl}/api/blog/create-post`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -1821,16 +1842,35 @@ class AdminDashboardApp {
         },
         body: JSON.stringify(payload)
       });
-      const result = await response.json();
-      if (!response.ok || !result.success) {
-        throw new Error(result.error || "Failed to queue blog post");
+      const text = await response.text();
+      let result = null;
+      try {
+        result = text ? JSON.parse(text) : null;
+      } catch (parseError) {
+        console.warn("Non-JSON response from blog publish endpoint", parseError, text);
+      }
+      if (!response.ok || !(result && result.success)) {
+        const message =
+          result?.error ||
+          `Failed to queue blog post (HTTP ${response.status} ${response.statusText})`;
+        throw new Error(message);
       }
       this.setBlogFeedback("Post added to queue successfully.", "success");
       this.dom.blogForm.reset();
+      if (this.dom.blogFields.date) {
+        this.dom.blogFields.date.value = utils.now().toISOString().slice(0, 10);
+      }
+      if (this.dom.blogFields.slug) {
+        delete this.dom.blogFields.slug.dataset.manual;
+      }
       if (this.dom.blogFields.descriptionCount) {
         this.dom.blogFields.descriptionCount.textContent = "0 / 160";
       }
-      await this.refreshBlogQueue();
+      try {
+        await this.refreshBlogQueue({ silent: true });
+      } catch (queueError) {
+        console.warn("Blog queue refresh failed after publish", queueError);
+      }
         } catch (error) {
       console.error("Blog publish failed", error);
       this.setBlogFeedback(error.message || "Failed to publish blog post.", "error");
@@ -1894,24 +1934,58 @@ class AdminDashboardApp {
     if (type) this.dom.blogFeedback.classList.add(type);
   }
 
-  async refreshBlogQueue() {
+  async refreshBlogQueue(options = {}) {
+    const { silent = false } = options;
+    const token = await this.getAuthToken();
+    if (!token) {
+      const authError = new Error("Authentication required to refresh the blog queue.");
+      authError.status = 401;
+      if (!silent) {
+        this.setBlogFeedback(authError.message, "error");
+      }
+      throw authError;
+    }
     try {
-      const snapshot = await getDocs(
-        query(
-          collection(db, COLLECTIONS.BLOG_QUEUE),
-          orderBy("createdAt", "desc"),
-          limit(50)
-        )
-      );
+      const apiBaseUrl = typeof window.getApiBaseUrl === "function"
+        ? window.getApiBaseUrl()
+        : "https://specifys-ai.onrender.com";
+      const response = await fetch(`${apiBaseUrl}/api/blog/queue-status`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      const text = await response.text();
+      let result = null;
+      try {
+        result = text ? JSON.parse(text) : null;
+      } catch (parseError) {
+        console.warn("Non-JSON response when loading blog queue", parseError, text);
+      }
+      if (!response.ok || !(result && result.success)) {
+        const message =
+          result?.error ||
+          `Failed to load blog queue (HTTP ${response.status} ${response.statusText})`;
+        const error = new Error(message);
+        error.status = response.status;
+        throw error;
+      }
+      const items = Array.isArray(result.items) ? result.items : [];
       this.store.setBlogQueue(
-        snapshot.docs.map((docSnap) => ({
-          id: docSnap.id,
-          ...docSnap.data()
+        items.map((item) => ({
+          ...item,
+          createdAt: utils.toDate(item.createdAt),
+          startedAt: utils.toDate(item.startedAt),
+          completedAt: utils.toDate(item.completedAt)
         }))
       );
       this.renderBlogQueue();
+      return result;
         } catch (error) {
+      if (!silent) {
+        this.setBlogFeedback(error.message || "Failed to refresh blog queue.", "error");
+      }
       console.error("Failed to refresh blog queue", error);
+      throw error;
     }
   }
 
@@ -1938,7 +2012,7 @@ class AdminDashboardApp {
             <div class="queue-meta">
               <span>${meta}</span>
               <span class="queue-status">${item.status}</span>
-            </div>
+                </div>
             ${
               item.error
                 ? `<div class="queue-error">Error: ${item.error}</div>`

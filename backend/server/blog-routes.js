@@ -123,8 +123,7 @@ function createPostMarkdown(data) {
         }
     }
     const tags = tagsArray.map(t => `"${t}"`).join(', ');
-    
-    const slug = slugify(data.title);
+    const slug = data.slug ? slugify(data.slug) : slugify(data.title);
     const canonicalUrl = `https://specifys-ai.com/blog/${slug}.html`;
     const blogUrl = `/blog/${slug}.html`;
 
@@ -139,15 +138,21 @@ function createPostMarkdown(data) {
             .replace(/\r/g, '');
     };
 
+    const frontMatterLines = [
+        'layout: post',
+        `title: "${escapeYaml(data.title)}"`,
+        `description: "${escapeYaml(data.description)}"`,
+        data.seoTitle ? `seo_title: "${escapeYaml(data.seoTitle)}"` : null,
+        data.seoDescription ? `seo_description: "${escapeYaml(data.seoDescription)}"` : null,
+        `date: ${data.date}`,
+        `tags: [${tags}]`,
+        `author: "${data.author || 'specifys.ai Team'}"`,
+        `canonical_url: "${canonicalUrl}"`,
+        `redirect_from: ["${blogUrl}"]`
+    ].filter(Boolean);
+
     return `---
-layout: post
-title: "${escapeYaml(data.title)}"
-description: "${escapeYaml(data.description)}"
-date: ${data.date}
-tags: [${tags}]
-author: "${data.author || 'specifys.ai Team'}"
-canonical_url: "${canonicalUrl}"
-redirect_from: ["${blogUrl}"]
+${frontMatterLines.join('\n')}
 ---
 
 # ${data.title}
@@ -165,7 +170,17 @@ const { addToQueue, processQueueItem, getQueueStatus, getQueueItems, QUEUE_STATU
 
 // Internal function to actually publish a post
 async function publishPostToGitHub(postData) {
-    const { title, description, date, author, tags, content } = postData;
+    const {
+        title,
+        description,
+        date,
+        author,
+        tags,
+        content,
+        slug: providedSlug,
+        seoTitle,
+        seoDescription
+    } = postData;
 
     // Validate GitHub token
     if (!GITHUB_CONFIG.token) {
@@ -173,7 +188,11 @@ async function publishPostToGitHub(postData) {
     }
 
     // Create filename
-    const slug = slugify(title);
+    const slugSource = providedSlug || title;
+    const slug = slugify(slugSource);
+    if (!slug) {
+        throw new Error('Unable to generate a valid slug for this post.');
+    }
     const filename = `${date}-${slug}.md`;
     const filePath = `_posts/${filename}`;
 
@@ -192,7 +211,10 @@ async function publishPostToGitHub(postData) {
         date,
         author: author || 'specifys.ai Team',
         tags,
-        content
+        content,
+        slug,
+        seoTitle,
+        seoDescription
     });
 
     console.log(`[Blog Post] Created markdown content (${markdownContent.length} chars)`);
@@ -215,13 +237,30 @@ async function publishPostToGitHub(postData) {
 // Route: Create new blog post (adds to queue)
 async function createPost(req, res) {
     try {
-        const { title, description, date, author, tags, content } = req.body;
+        const {
+            title,
+            description,
+            date,
+            author,
+            tags,
+            content,
+            slug,
+            seoTitle,
+            seoDescription
+        } = req.body;
 
         // Validate required fields
         if (!title || !description || !date || !content) {
             return res.status(400).json({
                 success: false,
                 error: 'Missing required fields: title, description, date, content'
+            });
+        }
+
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+            return res.status(400).json({
+                success: false,
+                error: 'Date must be in YYYY-MM-DD format'
             });
         }
 
@@ -233,6 +272,14 @@ async function createPost(req, res) {
             });
         }
 
+        const normalizedSlug = slugify((slug && slug.trim()) || title);
+        if (!normalizedSlug) {
+            return res.status(400).json({
+                success: false,
+                error: 'Unable to generate slug from provided values'
+            });
+        }
+
         // Add to queue
         const queueItem = await addToQueue({
             title,
@@ -240,7 +287,13 @@ async function createPost(req, res) {
             date,
             author: author || 'specifys.ai Team',
             tags,
-            content
+            content,
+            slug: normalizedSlug,
+            seoTitle: typeof seoTitle === 'string' && seoTitle.trim() ? seoTitle.trim() : null,
+            seoDescription:
+                typeof seoDescription === 'string' && seoDescription.trim()
+                    ? seoDescription.trim()
+                    : null
         });
 
         // Process the queue item asynchronously (only if not already processing)
@@ -257,7 +310,8 @@ async function createPost(req, res) {
             success: true,
             message: 'Blog post added to queue',
             queueId: queueItem.id,
-            status: queueItem.status
+            status: queueItem.status,
+            slug: normalizedSlug
         });
 
     } catch (error) {
