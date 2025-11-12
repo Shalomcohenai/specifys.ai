@@ -1,5 +1,14 @@
 const { db, auth } = require('./firebase-admin');
 const admin = require('firebase-admin');
+const MAX_REPORT_SAMPLE = 50;
+let lastUserSyncReport = null;
+
+function summarizeIdList(list) {
+    return {
+        total: list.length,
+        sample: list.slice(0, MAX_REPORT_SAMPLE)
+    };
+}
 
 /**
  * User Management Functions for Firebase Admin SDK
@@ -57,65 +66,243 @@ async function getUserByUid(uid) {
 async function createOrUpdateUserDocument(uid, userData = {}) {
     try {
         const userDocRef = db.collection('users').doc(uid);
-        
-        // Get current user data from Auth
+        const existingSnapshot = await userDocRef.get();
+        const existingData = existingSnapshot.exists ? existingSnapshot.data() : null;
+
         const authUser = await getUserByUid(uid);
-        
-        const userDoc = {
+        const nowIso = new Date().toISOString();
+
+        const docToWrite = {
             email: authUser.email,
-            displayName: authUser.displayName || authUser.email.split('@')[0],
+            displayName: authUser.displayName || (authUser.email ? authUser.email.split('@')[0] : ''),
             emailVerified: authUser.emailVerified,
             disabled: authUser.disabled,
-            createdAt: authUser.creationTime,
-            lastActive: authUser.lastSignInTime || new Date().toISOString(),
-            ...userData // Allow overriding with custom data
+            lastActive: authUser.lastSignInTime || existingData?.lastActive || nowIso,
+            ...userData
         };
-        
-        await userDocRef.set(userDoc, { merge: true });
-        
-        return userDoc;
+
+        if (!existingSnapshot.exists) {
+            docToWrite.createdAt = authUser.creationTime || nowIso;
+            if (docToWrite.plan === undefined) {
+                docToWrite.plan = 'free';
+            }
+            if (typeof docToWrite.free_specs_remaining !== 'number') {
+                docToWrite.free_specs_remaining = 1;
+            }
+        } else {
+            docToWrite.createdAt = existingData?.createdAt || authUser.creationTime || nowIso;
+        }
+
+        Object.keys(docToWrite).forEach((key) => {
+            if (docToWrite[key] === undefined) {
+                delete docToWrite[key];
+            }
+        });
+
+        if (Object.keys(docToWrite).length === 0) {
+            return {
+                user: existingData,
+                created: false,
+                updated: false,
+                unchanged: true,
+                changes: {}
+            };
+        }
+
+        await userDocRef.set(docToWrite, { merge: true });
+
+        const mergedData = { ...(existingData || {}), ...docToWrite };
+        const changes = {};
+
+        if (existingData) {
+            for (const key of Object.keys(docToWrite)) {
+                const before = existingData[key];
+                const after = mergedData[key];
+                if (JSON.stringify(before) !== JSON.stringify(after)) {
+                    changes[key] = {
+                        before: before ?? null,
+                        after
+                    };
+                }
+            }
+        }
+
+        const created = !existingSnapshot.exists;
+        const updated = existingSnapshot.exists && Object.keys(changes).length > 0;
+        const unchanged = existingSnapshot.exists && !updated;
+
+        return {
+            user: mergedData,
+            created,
+            updated,
+            unchanged,
+            changes
+        };
     } catch (error) {
         throw error;
     }
 }
 
+async function ensureEntitlementDocument(uid, overrides = {}) {
+    const entitlementsRef = db.collection('entitlements').doc(uid);
+    const snapshot = await entitlementsRef.get();
+    const isNew = !snapshot.exists;
+
+    const defaultData = {
+        userId: uid,
+        spec_credits: 0,
+        unlimited: false,
+        can_edit: false
+    };
+
+    const dataToWrite = isNew ? { ...defaultData, ...overrides } : { ...overrides };
+
+    Object.keys(dataToWrite).forEach((key) => {
+        if (dataToWrite[key] === undefined) {
+            delete dataToWrite[key];
+        }
+    });
+
+    const shouldWrite = isNew || Object.keys(dataToWrite).length > 0;
+
+    if (shouldWrite) {
+        dataToWrite.updated_at = admin.firestore.FieldValue.serverTimestamp();
+        await entitlementsRef.set(dataToWrite, { merge: true });
+    }
+
+    const mergedData = snapshot.exists ? { ...snapshot.data(), ...dataToWrite } : { ...defaultData, ...overrides };
+
+    return {
+        created: isNew,
+        updated: !isNew && shouldWrite,
+        unchanged: !isNew && !shouldWrite,
+        data: mergedData
+    };
+}
+
 /**
  * Sync all users - create Firestore documents for users who don't have them
  */
-async function syncAllUsers() {
+async function syncAllUsers(options = {}) {
+    const {
+        ensureEntitlements: shouldEnsureEntitlements = true,
+        includeDataCollections = true,
+        dryRun = false,
+        recordResult = !options.dryRun
+    } = options;
+
     try {
-        
+        const startedAt = Date.now();
+        const runAt = new Date().toISOString();
         const authUsers = await getAllUsers();
-        
-        let synced = 0;
-        let alreadyExists = 0;
-        let errors = 0;
-        
-        for (const user of authUsers) {
-            try {
-                const userDocRef = db.collection('users').doc(user.uid);
-                const userDoc = await userDocRef.get();
-                
-                if (!userDoc.exists) {
-                    await createOrUpdateUserDocument(user.uid);
-                    synced++;
-                } else {
-                    // Update existing user with latest data
-                    await createOrUpdateUserDocument(user.uid);
-                    alreadyExists++;
+
+        const summary = {
+            runAt,
+            durationMs: 0,
+            totalAuth: authUsers.length,
+            created: 0,
+            updated: 0,
+            unchanged: 0,
+            entitlementsCreated: 0,
+            entitlementsUpdated: 0,
+            errors: 0,
+            errorDetails: [],
+            potentialCreates: 0,
+            potentialEntitlementCreates: 0
+        };
+
+        if (!dryRun) {
+            for (const user of authUsers) {
+                try {
+                    const docResult = await createOrUpdateUserDocument(user.uid);
+                    if (docResult.created) {
+                        summary.created += 1;
+                    } else if (docResult.updated) {
+                        summary.updated += 1;
+                    } else {
+                        summary.unchanged += 1;
+                    }
+
+                    if (shouldEnsureEntitlements) {
+                        const entitlementResult = await ensureEntitlementDocument(user.uid);
+                        if (entitlementResult.created) {
+                            summary.entitlementsCreated += 1;
+                        } else if (entitlementResult.updated) {
+                            summary.entitlementsUpdated += 1;
+                        }
+                    }
+                } catch (error) {
+                    summary.errors += 1;
+                    summary.errorDetails.push({
+                        uid: user.uid,
+                        email: user.email || null,
+                        message: error.message
+                    });
                 }
-            } catch (error) {
-                errors++;
             }
         }
-        
-        
-        return {
-            total: authUsers.length,
-            synced,
-            alreadyExists,
-            errors
+
+        const authUserIds = new Set(authUsers.map((user) => user.uid));
+
+        const firestoreUsersSnapshot = await db.collection('users').get();
+        const firestoreUsers = firestoreUsersSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        const firestoreUserIds = new Set(firestoreUsers.map((user) => user.id));
+
+        const entitlementsSnapshot = await db.collection('entitlements').get();
+        const entitlementIds = new Set(entitlementsSnapshot.docs.map((doc) => doc.id));
+
+        const authWithoutFirestore = [...authUserIds].filter((id) => !firestoreUserIds.has(id));
+        const firestoreWithoutAuth = [...firestoreUserIds].filter((id) => !authUserIds.has(id));
+        const missingEntitlements = [...authUserIds].filter((id) => !entitlementIds.has(id));
+
+        summary.firestoreTotal = firestoreUsersSnapshot.size;
+        summary.entitlementsTotal = entitlementsSnapshot.size;
+        summary.inconsistencies = {
+            authWithoutFirestore: summarizeIdList(authWithoutFirestore),
+            firestoreWithoutAuth: summarizeIdList(firestoreWithoutAuth),
+            missingEntitlements: summarizeIdList(missingEntitlements)
         };
+
+        if (includeDataCollections) {
+            const specsSnapshot = await db.collection('specs').get();
+            const appsSnapshot = await db.collection('apps').get();
+            const marketSnapshot = await db.collection('marketResearch').get();
+
+            const dataUserIds = new Set();
+            [...specsSnapshot.docs, ...appsSnapshot.docs, ...marketSnapshot.docs].forEach((doc) => {
+                const data = doc.data();
+                if (data && data.userId) {
+                    dataUserIds.add(data.userId);
+                }
+            });
+
+            const dataWithoutAuth = [...dataUserIds].filter((id) => !authUserIds.has(id));
+
+            summary.collectionStats = {
+                specs: specsSnapshot.size,
+                apps: appsSnapshot.size,
+                marketResearch: marketSnapshot.size
+            };
+            summary.inconsistencies.dataWithoutAuth = summarizeIdList(dataWithoutAuth);
+        }
+
+        if (dryRun) {
+            summary.potentialCreates = authWithoutFirestore.length;
+            summary.potentialEntitlementCreates = missingEntitlements.length;
+            summary.unchanged = authUsers.length;
+        }
+
+        if (summary.errorDetails.length > MAX_REPORT_SAMPLE) {
+            summary.errorDetails = summary.errorDetails.slice(0, MAX_REPORT_SAMPLE);
+        }
+
+        summary.durationMs = Date.now() - startedAt;
+
+        if (recordResult) {
+            lastUserSyncReport = summary;
+        }
+
+        return summary;
     } catch (error) {
         throw error;
     }
@@ -185,6 +372,10 @@ async function getUserStats() {
     } catch (error) {
         throw error;
     }
+}
+
+function getLastUserSyncReport() {
+    return lastUserSyncReport;
 }
 
 /**
@@ -286,8 +477,10 @@ module.exports = {
     getAllUsers,
     getUserByUid,
     createOrUpdateUserDocument,
+    ensureEntitlementDocument,
     syncAllUsers,
     getUserStats,
+    getLastUserSyncReport,
     cleanupOrphanedData,
     deleteUser
 };

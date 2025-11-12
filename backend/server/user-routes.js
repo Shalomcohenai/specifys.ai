@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { auth } = require('./firebase-admin');
-const { createOrUpdateUserDocument } = require('./user-management');
+const { createOrUpdateUserDocument, ensureEntitlementDocument } = require('./user-management');
 
 /**
  * Middleware to verify Firebase ID token
@@ -32,13 +32,42 @@ router.post('/ensure', verifyFirebaseToken, async (req, res) => {
     try {
         const userId = req.user.uid;
 
-        // Create or update user document in Firestore
-        const userDoc = await createOrUpdateUserDocument(userId);
+        const userDataOverrides = req.body && typeof req.body === 'object' ? req.body.userData || {} : {};
+
+        const ensureResult = await createOrUpdateUserDocument(userId, userDataOverrides);
+
+        let entitlementResult = null;
+        try {
+            entitlementResult = await ensureEntitlementDocument(userId);
+        } catch (entitlementError) {
+            console.error('[users/ensure] Failed to ensure entitlements', {
+                userId,
+                message: entitlementError.message
+            });
+            entitlementResult = {
+                created: false,
+                updated: false,
+                unchanged: false,
+                error: entitlementError.message
+            };
+        }
+
+        const statusMessage = ensureResult.created
+            ? 'User document created in Firestore'
+            : ensureResult.updated
+              ? 'User document updated in Firestore'
+              : 'User document already up to date';
 
         res.json({
             success: true,
-            user: userDoc,
-            message: 'User document ensured in Firestore'
+            message: statusMessage,
+            user: ensureResult.user,
+            created: ensureResult.created,
+            updated: ensureResult.updated,
+            unchanged: ensureResult.unchanged,
+            changes: ensureResult.changes,
+            entitlements: entitlementResult,
+            timestamp: new Date().toISOString()
         });
 
     } catch (error) {

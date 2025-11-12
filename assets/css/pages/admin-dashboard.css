@@ -575,6 +575,30 @@ body {
   border-color: rgba(243, 156, 61, 0.35);
 }
 
+.sync-actions {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sync-actions .action-btn {
+  align-self: flex-start;
+}
+
+.sync-note {
+  font-size: 0.85rem;
+  color: var(--admin-text-muted);
+}
+
+.sync-note.success {
+  color: var(--admin-success);
+}
+
+.sync-note.error {
+  color: var(--admin-critical);
+}
+
 .auto-refresh {
   display: flex;
   justify-content: space-between;

@@ -1,5 +1,45 @@
 // API Configuration
 // This file centralizes all API endpoints
+//
+// Suppress console output on production hosts to avoid exposing internal details
+(function suppressConsoleInProduction() {
+  if (typeof window === 'undefined' || typeof window.location === 'undefined' || typeof console === 'undefined') {
+    return;
+  }
+
+  const hostname = (window.location.hostname || '').toLowerCase();
+  const search = window.location.search || '';
+  const hash = window.location.hash || '';
+
+  const devHosts = new Set(['', 'localhost', '127.0.0.1', '::1']);
+  const isDevHost =
+    devHosts.has(hostname) ||
+    hostname.endsWith('.local') ||
+    hostname.endsWith('.localhost') ||
+    hostname.endsWith('.lan') ||
+    hostname.endsWith('.test');
+
+  const debugFlagPattern = /(?:[?&#])(debug-console|debugConsole)=(?:1|true)/i;
+  const hasDebugFlag = debugFlagPattern.test(`${search}${hash}`);
+
+  if (isDevHost || hasDebugFlag) {
+    return;
+  }
+
+  const noop = function() {};
+  const methods = ['log', 'info', 'debug', 'warn', 'error', 'trace'];
+
+  window.__SPECIFYS_ORIGINAL_CONSOLE__ = window.__SPECIFYS_ORIGINAL_CONSOLE__ || {};
+
+  methods.forEach((method) => {
+    if (typeof console[method] === 'function') {
+      if (!window.__SPECIFYS_ORIGINAL_CONSOLE__[method]) {
+        window.__SPECIFYS_ORIGINAL_CONSOLE__[method] = console[method].bind(console);
+      }
+      console[method] = noop;
+    }
+  });
+})();
 
 const API_CONFIG = {
   // Production backend URL - always use Render

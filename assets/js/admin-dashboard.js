@@ -924,6 +924,7 @@ class AdminDashboardApp {
     this.isActivityPaused = false;
     this.autoRefreshTimer = null;
     this.nextAutoRefreshAt = null;
+    this.syncInProgress = false;
     this.charts = {
       usersPlan: null,
       specsTimeline: null,
@@ -948,6 +949,8 @@ class AdminDashboardApp {
       activityFilterButtons: utils.domAll(".activity-filter-btn"),
       sourceList: utils.dom("#source-status-list"),
       autoRefreshNext: utils.dom("#auto-refresh-next"),
+      syncUsersButton: utils.dom("#sync-users-btn"),
+      syncUsersSummary: utils.dom("#sync-users-summary"),
       activityDetail: {
         root: utils.dom("#activity-detail"),
         title: utils.dom("#activity-detail-title"),
@@ -1062,6 +1065,7 @@ class AdminDashboardApp {
 
   bindInteractions() {
     this.dom.manualRefresh?.addEventListener("click", () => this.refreshAllData("manual"));
+    this.dom.syncUsersButton?.addEventListener("click", () => this.syncUsersManually());
     this.dom.signOut?.addEventListener("click", async () => {
       try {
         await signOut(auth);
@@ -1165,6 +1169,7 @@ class AdminDashboardApp {
     this.initializeCharts();
     await this.subscribeToSources();
     this.updateAutoRefreshTimer();
+    await this.fetchUserSyncStatus();
   }
 
   initializeCharts() {
@@ -2395,6 +2400,146 @@ class AdminDashboardApp {
       if (typeof fn === "function") fn();
     });
     this.unsubscribeFns = [];
+  }
+
+  updateSyncSummary(message, variant = "info") {
+    const summaryEl = this.dom.syncUsersSummary;
+    if (!summaryEl) return;
+    summaryEl.textContent = message;
+    summaryEl.classList.remove("success", "error");
+    if (variant === "success") {
+      summaryEl.classList.add("success");
+    } else if (variant === "error") {
+      summaryEl.classList.add("error");
+    }
+  }
+
+  async fetchUserSyncStatus() {
+    if (!this.dom.syncUsersSummary) return;
+    this.updateSyncSummary("Loading sync status…", "info");
+    try {
+      const token = await this.getAuthToken();
+      if (!token) {
+        return;
+      }
+
+      const apiBaseUrl = typeof window.getApiBaseUrl === "function"
+        ? window.getApiBaseUrl()
+        : "https://specifys-ai.onrender.com";
+
+      const response = await fetch(`${apiBaseUrl}/api/admin/users/sync-status`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      const payload = await response.json().catch(() => null);
+
+      if (!response.ok || !payload?.success) {
+        const message = payload?.error || payload?.details || `HTTP ${response.status}`;
+        throw new Error(message);
+      }
+
+      const summary = payload.summary || {};
+      const parts = [];
+
+      if (summary.runAt) {
+        parts.push(`Last run ${utils.formatDate(summary.runAt)}`);
+      } else {
+        parts.push("No sync executed yet");
+      }
+
+      parts.push(`Created ${summary.created || 0}`);
+      parts.push(`Updated ${summary.updated || 0}`);
+
+      if (typeof summary.errors === "number") {
+        parts.push(`Errors ${summary.errors}`);
+      }
+
+      if (summary.inconsistencies?.authWithoutFirestore?.total) {
+        parts.push(`${summary.inconsistencies.authWithoutFirestore.total} users missing docs`);
+      } else if (summary.potentialCreates) {
+        parts.push(`${summary.potentialCreates} users missing docs`);
+      }
+
+      if (summary.inconsistencies?.missingEntitlements?.total) {
+        parts.push(`${summary.inconsistencies.missingEntitlements.total} missing entitlements`);
+      } else if (summary.potentialEntitlementCreates) {
+        parts.push(`${summary.potentialEntitlementCreates} missing entitlements`);
+      }
+
+      if (payload.cached) {
+        parts.push("cached");
+      }
+
+      const statusText = parts.join(" · ");
+      const variant = summary.errors && summary.errors > 0 ? "error" : (summary.created || summary.updated) ? "success" : "info";
+      this.updateSyncSummary(statusText, variant);
+    } catch (error) {
+      this.updateSyncSummary(`Unable to load sync status: ${error.message || error}`, "error");
+      console.error("[AdminDashboard] Failed to fetch user sync status", error);
+    }
+  }
+
+  async syncUsersManually() {
+    if (this.syncInProgress) {
+      return;
+    }
+
+    const button = this.dom.syncUsersButton;
+    const originalLabel = button?.innerHTML;
+
+    try {
+      this.syncInProgress = true;
+      if (button) {
+        button.disabled = true;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Syncing…';
+      }
+      this.updateSyncSummary("Sync in progress…", "info");
+
+      const token = await this.getAuthToken();
+      if (!token) {
+        this.updateSyncSummary("Missing admin session. Please sign in again.", "error");
+        return;
+      }
+
+      const apiBaseUrl = typeof window.getApiBaseUrl === "function"
+        ? window.getApiBaseUrl()
+        : "https://specifys-ai.onrender.com";
+
+      const response = await fetch(`${apiBaseUrl}/api/admin/users/sync`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({})
+      });
+
+      const payload = await response.json().catch(() => null);
+
+      if (!response.ok || !payload?.success) {
+        const message = payload?.error || payload?.details || `HTTP ${response.status}`;
+        throw new Error(message);
+      }
+
+      const summary = payload.summary || {};
+      const message = `Created ${summary.created || 0} · Updated ${summary.updated || 0} · Errors ${summary.errors || 0}`;
+      const variant = summary.errors && summary.errors > 0 ? "error" : "success";
+      this.updateSyncSummary(message, variant);
+
+      await this.fetchUserSyncStatus();
+      await this.refreshAllData("manual-user-sync");
+    } catch (error) {
+      this.updateSyncSummary(`User sync failed: ${error.message || error}`, "error");
+      console.error("[AdminDashboard] Manual user sync failed", error);
+    } finally {
+      if (button) {
+        button.disabled = false;
+        button.innerHTML = originalLabel || '<i class="fas fa-user-check"></i> Sync users';
+      }
+      this.syncInProgress = false;
+    }
   }
 }
 

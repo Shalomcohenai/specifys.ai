@@ -274,16 +274,25 @@ app.get('/api/status', (req, res) => {
 // Endpoint to sync users from Firebase Auth to Firestore (admin only)
 app.post('/api/sync-users', requireAdmin, async (req, res) => {
   try {
-    const result = await syncAllUsers();
+    const options = req.body && typeof req.body === 'object' ? req.body : {};
+    const dryRun = options.dryRun === true;
+    const summary = await syncAllUsers({
+      ensureEntitlements: options.ensureEntitlements !== false,
+      includeDataCollections: options.includeDataCollections !== false,
+      dryRun,
+      recordResult: !dryRun
+    });
+
     res.json({
       success: true,
-      message: 'Users synced successfully',
-      result: result
+      dryRun,
+      summary
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: error.message
+      error: 'Failed to sync users',
+      details: error.message
     });
   }
 });

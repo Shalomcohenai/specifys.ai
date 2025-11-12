@@ -207,13 +207,14 @@
                     </div>
                     
                     <!-- Privacy Policy Checkbox -->
-                    <div class="checkbox-group">
+                    <div class="checkbox-group" id="privacy-policy-group">
                         <label class="checkbox-label">
                             <input type="checkbox" id="privacy-policy-agreement" required>
                             <span class="checkmark"></span>
                             I have read and agree to the <a href="#" class="privacy-link" onclick="openPrivacyModal(); return false;"> privacy policy</a>
                         </label>
                     </div>
+                    <div id="privacy-policy-error" class="checkbox-error" role="alert" aria-live="assertive"></div>
                     
                     <button type="submit" class="compact-btn compact-btn-primary" id="register-btn">
                         <span id="register-btn-text">Sign Up</span>
@@ -323,6 +324,9 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
         const googleProvider = new GoogleAuthProvider();
+        const privacyPolicyCheckbox = document.getElementById('privacy-policy-agreement');
+        const privacyPolicyGroup = document.getElementById('privacy-policy-group');
+        const privacyPolicyError = document.getElementById('privacy-policy-error');
         
         // Track if we're processing a redirect
         let isProcessingRedirect = false;
@@ -558,6 +562,26 @@
             if (successMsg) successMsg.style.display = 'none';
         }
 
+        function showPrivacyPolicyError() {
+            if (!privacyPolicyGroup || !privacyPolicyError) return;
+
+            // Restart animation if already applied
+            privacyPolicyGroup.classList.remove('has-error');
+            // eslint-disable-next-line no-unused-expressions
+            privacyPolicyGroup.offsetWidth;
+            privacyPolicyGroup.classList.add('has-error');
+
+            privacyPolicyError.textContent = 'Please agree to the privacy policy before continuing.';
+            privacyPolicyError.classList.add('visible');
+        }
+
+        function hidePrivacyPolicyError() {
+            if (!privacyPolicyGroup || !privacyPolicyError) return;
+            privacyPolicyGroup.classList.remove('has-error');
+            privacyPolicyError.textContent = '';
+            privacyPolicyError.classList.remove('visible');
+        }
+
         // Auth functions
         async function registerWithEmail(email, password) {
             try {
@@ -675,7 +699,7 @@
             const password = document.getElementById('register-password').value;
             const confirmPassword = document.getElementById('register-confirm').value;
             const newsletterSubscription = document.getElementById('newsletter-subscription').checked;
-            const privacyPolicyAgreed = document.getElementById('privacy-policy-agreement').checked;
+            const privacyPolicyAgreed = privacyPolicyCheckbox ? privacyPolicyCheckbox.checked : false;
             
             if (password !== confirmPassword) {
                 showError('Passwords do not match');
@@ -683,9 +707,12 @@
             }
             
             if (!privacyPolicyAgreed) {
+                showPrivacyPolicyError();
                 showError('You must agree to the privacy policy to register');
                 return;
             }
+
+            hidePrivacyPolicyError();
             
             const btn = document.getElementById('register-btn');
             const btnText = document.getElementById('register-btn-text');
@@ -695,22 +722,6 @@
             
             try {
                 const user = await registerWithEmail(email, password);
-                
-                // Save newsletter subscription preference
-                const userData = {
-                    email: email,
-                    newsletterSubscription: newsletterSubscription,
-                    privacyPolicyAgreed: privacyPolicyAgreed,
-                    registrationDate: new Date().toISOString()
-                };
-                
-                // Save to localStorage (in a real app, this would be saved to a database)
-                localStorage.setItem(`user_${user.uid}`, JSON.stringify(userData));
-                
-                // Also save to a general users list for admin dashboard
-                let usersList = JSON.parse(localStorage.getItem('users_list') || '[]');
-                usersList.push(userData);
-                localStorage.setItem('users_list', JSON.stringify(usersList));
                 
                 showSuccess('Registration successful! Redirecting to homepage...');
                 setTimeout(() => {
@@ -723,6 +734,16 @@
                 btnText.textContent = 'Sign Up';
             }
         });
+
+        if (privacyPolicyCheckbox) {
+            privacyPolicyCheckbox.addEventListener('change', (event) => {
+                if (event.target.checked) {
+                    hidePrivacyPolicyError();
+                } else {
+                    showPrivacyPolicyError();
+                }
+            });
+        }
 
         // Check browser compatibility
         function checkBrowserCompatibility() {

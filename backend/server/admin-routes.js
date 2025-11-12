@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { requireAdmin } = require('./security');
 const { db, admin } = require('./firebase-admin');
+const { syncAllUsers, getLastUserSyncReport } = require('./user-management');
 
 /**
  * Verify user has admin access
@@ -35,6 +36,68 @@ router.get('/users', requireAdmin, async (req, res) => {
   } catch (error) {
 
     res.status(500).json({ error: 'Failed to fetch users' });
+  }
+});
+
+/**
+ * Trigger a full user sync (admin only)
+ * POST /api/admin/users/sync
+ */
+router.post('/users/sync', requireAdmin, async (req, res) => {
+  try {
+    const options = req.body && typeof req.body === 'object' ? req.body : {};
+    const summary = await syncAllUsers({
+      ensureEntitlements: options.ensureEntitlements !== false,
+      includeDataCollections: options.includeDataCollections !== false,
+      dryRun: false,
+      recordResult: true
+    });
+
+    res.json({
+      success: true,
+      summary
+    });
+  } catch (error) {
+    console.error('[admin/users/sync] Failed to sync users', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to sync users',
+      details: error.message
+    });
+  }
+});
+
+/**
+ * Get latest sync summary (admin only)
+ * GET /api/admin/users/sync-status
+ */
+router.get('/users/sync-status', requireAdmin, async (req, res) => {
+  try {
+    const cached = getLastUserSyncReport();
+    if (cached) {
+      return res.json({ success: true, summary: cached, cached: true });
+    }
+
+    const includeDataCollections = req.query.includeDataCollections !== 'false';
+    const preview = await syncAllUsers({
+      ensureEntitlements: false,
+      includeDataCollections,
+      dryRun: true,
+      recordResult: false
+    });
+
+    res.json({
+      success: true,
+      summary: preview,
+      cached: false
+    });
+  } catch (error) {
+    console.error('[admin/users/sync-status] Failed to compute sync status', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to compute sync status',
+      details: error.message
+    });
   }
 });
 
