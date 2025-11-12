@@ -3,16 +3,19 @@
  * Centralized admin email list
  */
 
-module.exports = {
-  ADMIN_EMAILS: [
-    'specifysai@gmail.com',
-    'admin@specifys.ai',
-    'shalom@specifys.ai'
-  ],
+const ADMIN_EMAILS = [
+  'specifysai@gmail.com',
+  'admin@specifys.ai',
+  'shalom@specifys.ai'
+];
 
-  isAdminEmail(email) {
-    if (!email) return false;
-    return this.ADMIN_EMAILS.includes(email.toLowerCase());
-  }
+function isAdminEmail(email) {
+  if (!email) return false;
+  return ADMIN_EMAILS.includes(email.toLowerCase());
+}
+
+module.exports = {
+  ADMIN_EMAILS,
+  isAdminEmail
 };
 
