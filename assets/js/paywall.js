@@ -269,9 +269,10 @@
       }
 
       const data = await response.json();
-      const { entitlements, user: userData } = data;
+      const entitlements = data?.entitlements || {};
+      const userData = data?.user || null;
 
-      if (entitlements.unlimited) {
+      if (entitlements?.unlimited) {
         return {
           hasAccess: true,
           entitlements: entitlements,
@@ -279,7 +280,7 @@
         };
       }
 
-      if (entitlements.spec_credits && entitlements.spec_credits > 0) {
+      if (typeof entitlements?.spec_credits === 'number' && entitlements.spec_credits > 0) {
         return {
           hasAccess: true,
           entitlements: entitlements,
@@ -287,7 +288,7 @@
         };
       }
 
-      const freeSpecs = typeof userData.free_specs_remaining === 'number' 
+      const freeSpecs = typeof userData?.free_specs_remaining === 'number'
         ? Math.max(0, userData.free_specs_remaining)
         : 1;
 

@@ -143,23 +143,24 @@
       }
 
       const data = await response.json();
-      const { entitlements, user: userData } = data;
+      const entitlements = data?.entitlements || {};
+      const userData = data?.user || null;
       
       let creditsState = null;
-      if (entitlements.unlimited) {
+      if (entitlements?.unlimited) {
         creditsState = {
           text: 'Plan: Pro',
           title: 'Unlimited specifications - Pro plan',
           variant: 'unlimited'
         };
-      } else if (entitlements.spec_credits && entitlements.spec_credits > 0) {
+      } else if (typeof entitlements?.spec_credits === 'number' && entitlements.spec_credits > 0) {
         creditsState = {
           text: `Credits: ${entitlements.spec_credits}`,
           title: `${entitlements.spec_credits} specification credit${entitlements.spec_credits !== 1 ? 's' : ''}`,
           variant: 'credits'
         };
       } else {
-        const freeSpecs = typeof userData.free_specs_remaining === 'number' 
+        const freeSpecs = typeof userData?.free_specs_remaining === 'number'
           ? Math.max(0, userData.free_specs_remaining)
           : 1;
         
