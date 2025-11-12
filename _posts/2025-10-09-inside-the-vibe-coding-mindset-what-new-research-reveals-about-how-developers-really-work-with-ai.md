@@ -5,9 +5,8 @@ description: "A new arXiv study exposes the psychological and practical realitie
 date: 2025-10-09
 tags: ["Vibe Coding", "Research", "AI Interaction", "Developer Psychology", "Human-AI Collaboration", "arXiv", "Programming Behavior", "Cognitive Science", "Software Studies", "Generative AI"]
 author: "specifys.ai Team"
-canonical_url: "https://specifys-ai.com/blog/inside-the-vibe-coding-mindset-what-new-research-reveals-about-how-developers-really-work-with-ai.html"
----
 
+---
 # Inside the Vibe Coding Mindset: What New Research Reveals About How Developers Really Work With AI
 
 A new arXiv study exposes the psychological and practical realities behind Vibe Coding — how humans adapt when code becomes a conversation.
@@ -36,5 +35,4 @@ The authors conclude that Vibe Coding is not replacing human creativity — it�
 It’s a future where “good communication” may become more valuable than knowing Python.
 
 ---
-
 *Published on October 9, 2025*

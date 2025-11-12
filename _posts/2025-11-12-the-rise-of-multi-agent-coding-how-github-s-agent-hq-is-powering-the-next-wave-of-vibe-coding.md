@@ -6,10 +6,8 @@ seo_description: "GitHub’s new Agent HQ lets multiple AI agents code, test, an
 date: 2025-11-12
 tags: ["#VibeCoding #GitHubAgentHQ #MultiAgentAI #AICodingTools #SoftwareAutomation #AIinDevelopment #OpenAI #FutureOfCoding #AgenticSystems #GitHub2025"]
 author: "specifys.ai Team"
-canonical_url: "https://specifys-ai.com/blog/the-rise-of-multi-agent-coding-how-github-s-agent-hq-is-powering-the-next-wave-of-vibe-coding.html"
-redirect_from: ["/blog/the-rise-of-multi-agent-coding-how-github-s-agent-hq-is-powering-the-next-wave-of-vibe-coding.html"]
----
 
+---
 # The Rise of Multi-Agent Coding: How GitHub’s “Agent HQ” Is Powering the Next Wave of Vibe Coding
 
 The world of vibe coding is evolving from single-prompt AI tools into complex multi-agent ecosystems. The latest breakthrough comes from GitHub’s “Agent HQ”, a new platform that lets developers coordinate multiple AI coding agents working together on one project.
@@ -50,5 +48,4 @@ It proves that the future of development isn’t one coder and one model, but a 
 The era of multi-agent coding has begun — and it’s redefining how software teams, both human and artificial, build the digital world.
 
 ---
-
 *Published on November 12, 2025*

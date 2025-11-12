@@ -6,9 +6,8 @@ description: "A groundbreaking RCT study followed developers for weeks as they w
 date: 2025-10-09
 tags: ["Vibe Coding", "AI Research", "Developer Psychology", "Human-AI Collaboration", "Productivity", "Cognitive Science", "Software Development", "Emotional Impact", "Work Culture", "AI Studies"]
 author: "specifys.ai Team"
-canonical_url: "https://specifys-ai.com/blog/dear-diary-what-happens-to-developers-when-they-code-with-ai-every-day.html"
----
 
+---
 # Dear Diary: What Happens to Developers When They Code With AI Every Day
 
 A groundbreaking RCT study followed developers for weeks as they worked with AI tools — revealing subtle emotional, cognitive, and creative shifts.
@@ -58,5 +57,4 @@ The final line of the study reads more like a warning than a conclusion:
 It’s a haunting summary of where Vibe Coding may lead — a world of limitless output, but where rediscovering purpose might become the hardest task of all.
 
 ---
-
 *Published on October 9, 2025*

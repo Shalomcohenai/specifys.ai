@@ -5,10 +5,8 @@ description: "Prompt coding emerged as a foundational technique in AI-assisted d
 date: 2025-01-19
 tags: ["ai", "vibe-coding", "prompt-coding", "development", "coding"]
 author: "specifys.ai Team"
-canonical_url: "https://specifys-ai.com/blog/prompt-coding-evolution-vibe-coding.html"
-redirect_from: ["/blog/prompt-coding-evolution-vibe-coding.html"]
----
 
+---
 # Prompt Coding: The Evolution of Vibe Coding in 2025
 
 Prompt coding emerged as a foundational technique in AI-assisted development, where developers craft detailed, structured natural language instructions to guide LLMs in generating precise code. By 2025, as coined by Andrej Karpathy, it transitioned into vibe coding—a more fluid, intuitive style...
@@ -91,5 +89,4 @@ Prompt coding emerged as a foundational technique in AI-assisted development, wh
 This comprehensive approach provides a solid foundation for success in modern development practices.
 
 ---
-
 *This post was created as part of the Specifys.ai blog migration to provide comprehensive content for our readers.*

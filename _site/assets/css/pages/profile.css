@@ -1399,6 +1399,11 @@
     color: white;
 }
 
+.status-badge.free {
+    background: rgba(255, 255, 255, 0.08);
+    color: #d1d5db;
+}
+
 .status-badge.expired {
     background: #fee2e2;
     color: #991b1b;
@@ -1441,12 +1446,103 @@
     background: #c82333;
 }
 
+.panel-action-btn.confirm-btn {
+    background: #dc3545;
+}
+
+.panel-action-btn.confirm-btn:hover {
+    background: #c82333;
+}
+
 .panel-action-btn i {
     font-size: 1rem;
 }
 
 .info-value .plan-badge {
     display: inline-block;
+}
+
+.subscription-confirmation {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 16px;
+    margin-top: 12px;
+}
+
+.subscription-confirmation-text {
+    margin: 0;
+    color: #d1d5db;
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+.subscription-confirmation-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 14px;
+}
+
+.subscription-confirmation-actions .panel-action-btn {
+    flex: 1 1 220px;
+}
+
+.subscription-confirmation-actions .link-button {
+    flex: 1 1 160px;
+}
+
+.link-button {
+    background: transparent;
+    border: none;
+    color: #FF6B35;
+    font-weight: var(--font-weight-semibold);
+    cursor: pointer;
+    text-decoration: underline;
+    padding: 8px 0;
+}
+
+.link-button:hover {
+    color: #FF8551;
+}
+
+.subscription-message {
+    margin-top: 12px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    color: #d1d5db;
+}
+
+.subscription-message:empty {
+    display: none;
+}
+
+.subscription-message.warning {
+    background: rgba(251, 191, 36, 0.12);
+    border-color: rgba(251, 191, 36, 0.35);
+    color: #fbbf24;
+}
+
+.subscription-message.info {
+    background: rgba(59, 130, 246, 0.12);
+    border-color: rgba(59, 130, 246, 0.35);
+    color: #93c5fd;
+}
+
+.subscription-message.success {
+    background: rgba(16, 185, 129, 0.12);
+    border-color: rgba(16, 185, 129, 0.35);
+    color: #6ee7b7;
+}
+
+.subscription-message.error {
+    background: rgba(239, 68, 68, 0.12);
+    border-color: rgba(239, 68, 68, 0.35);
+    color: #fca5a5;
 }
 
 /* Responsive adjustments for panel */

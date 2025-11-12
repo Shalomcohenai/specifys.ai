@@ -5,10 +5,8 @@ description: "A developer from the vibe coding community, contributing under Ai-
 date: 2025-01-19
 tags: ["ai", "vibe-coding", "base44", "supabase", "coding"]
 author: "specifys.ai Team"
-canonical_url: "https://specifys-ai.com/blog/base44-supabase-migration-sdk.html"
-redirect_from: ["/blog/base44-supabase-migration-sdk.html"]
----
 
+---
 # Vibe Coding: Migrating Base44 to a Custom Supabase Backend with Zero Code Changes
 
 A developer from the vibe coding community, contributing under Ai-Automators, shared a powerful open-source solution on GitHub for migrating Base44 projects to a self-hosted Supabase backend without altering existing code...
@@ -91,5 +89,4 @@ A developer from the vibe coding community, contributing under Ai-Automators, sh
 This comprehensive approach provides a solid foundation for success in modern development practices.
 
 ---
-
 *This post was created as part of the Specifys.ai blog migration to provide comprehensive content for our readers.*

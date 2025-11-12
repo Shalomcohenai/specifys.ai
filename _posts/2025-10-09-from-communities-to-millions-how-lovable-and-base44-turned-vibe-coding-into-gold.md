@@ -5,9 +5,8 @@ description: "Lovable and Base44 started as experimental Vibe Coding platforms �
 date: 2025-10-09
 tags: ["Vibe Coding", "Lovable", "Base44", "Startups", "AI Platforms", "No-Code Evolution", "Agentic Development", "Product Design", "AI Tools", "Startup Growth"]
 author: "specifys.ai Team"
-canonical_url: "https://specifys-ai.com/blog/from-communities-to-millions-how-lovable-and-base44-turned-vibe-coding-into-gold.html"
----
 
+---
 # From Communities to Millions: How Lovable and Base44 Turned Vibe Coding Into Gold
 
 Lovable and Base44 started as experimental Vibe Coding platforms — today, they represent the multi-million-dollar potential of conversational software creation.
@@ -50,5 +49,4 @@ Or, as Lovable’s co-founder once said after the acquisition:
 “We thought we were building a fun little AI friend. Turns out, we built a new industry.”
 
 ---
-
 *Published on October 9, 2025*

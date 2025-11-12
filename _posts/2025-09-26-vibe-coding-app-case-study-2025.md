@@ -5,10 +5,8 @@ description: "We took on the challenge of building a fully functional app in jus
 date: 2025-09-26
 tags: ["vibe-coding", "lovable", "case-study", "tools", "coding", "app-development"]
 author: "specifys.ai Team"
-canonical_url: "https://specifys-ai.com/blog/vibe-coding-app-case-study-2025.html"
-redirect_from: ["/blog/vibe-coding-app-case-study-2025.html"]
----
 
+---
 # Case Study: Building a Full App with Vibe Coding in One Week
 
 In an ambitious experiment to test the limits of modern development tools, our team set out to build a complete, production-ready application in just seven days using vibe coding platforms. This case study documents our journey, challenges, successes, and the valuable insights we gained about the current state of AI-powered development.
@@ -165,5 +163,4 @@ Our 7-day experiment with vibe coding was a resounding success. We built a produ
 **Final Result**: A fully functional, production-ready task management application built in 7 days, demonstrating the transformative power of vibe coding in modern software development.
 
 ---
-
 *This post was created as part of the Specifys.ai blog migration to provide comprehensive content for our readers.*

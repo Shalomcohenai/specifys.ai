@@ -5,10 +5,8 @@ description: "Lovable’s July 2025 update introduces AI-driven features that st
 date: 2025-09-26
 tags: ["ai", "vibe-coding", "lovable", "features", "coding"]
 author: "specifys.ai Team"
-canonical_url: "https://specifys-ai.com/blog/lovable-new-features-2025.html"
-redirect_from: ["/blog/lovable-new-features-2025.html"]
----
 
+---
 # Lovable’s New Features: Powering Vibe Coding in 2025
 
 Lovable’s July 2025 update introduces AI-driven features that streamline CI/CD workflows, making it a top contender in Vibe Coding...
@@ -91,5 +89,4 @@ Lovable’s July 2025 update introduces AI-driven features that streamline CI/CD
 This comprehensive approach provides a solid foundation for success in modern development practices.
 
 ---
-
 *This post was created as part of the Specifys.ai blog migration to provide comprehensive content for our readers.*

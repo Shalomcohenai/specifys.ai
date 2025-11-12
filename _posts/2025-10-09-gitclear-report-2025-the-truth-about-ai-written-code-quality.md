@@ -6,9 +6,8 @@ description: "A massive GitClear analysis reveals what really happens when devel
 date: 2025-10-09
 tags: ["Vibe Coding", "GitClear", "Code Quality", "AI Development", "Productivity", "Software Engineering", "Technical Debt", "Developer Tools", "Machine Learning", "Programming Trends"]
 author: "specifys.ai Team"
-canonical_url: "https://specifys-ai.com/blog/gitclear-report-2025-the-truth-about-ai-written-code-quality.html"
----
 
+---
 # GitClear Report 2025: The Truth About AI-Written Code Quality
 
 A massive GitClear analysis reveals what really happens when developers rely on AI coding tools — cleaner commits, faster delivery, and hidden technical debt.
@@ -54,5 +53,4 @@ The GitClear report closes with a warning that could define the next decade of A
 “Unchecked acceleration isn’t progress. It’s entropy disguised as productivity.”
 
 ---
-
 *Published on October 9, 2025*

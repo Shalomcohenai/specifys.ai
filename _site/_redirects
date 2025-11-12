@@ -1,57 +1,57 @@
 # Main blog redirect
+/index.html / 301
 /blog.html /blog/ 301
 
-# Legacy blog post redirects
-# These redirects ensure old /blog/*.html URLs redirect to new Jekyll permalinks
-
-# ChatGPT-5 article
-/blog/chatgpt-5-app-development.html /2025/08/07/chatgpt-5-app-development/ 301
-
-# Lovable articles
-/blog/lovable-vibe-coding-2025.html /2025/01/15/lovable-vibe-coding-2025/ 301
-/blog/lovable-new-features-2025.html /2025/07/26/lovable-new-features-2025/ 301
-
-# Vibe coding articles
-/blog/vibe-coding-revolution-2025-impact.html /2025/06/01/vibe-coding-revolution-2025-impact/ 301
-/blog/vibe-coding-app-case-study-2025.html /2025/06/10/vibe-coding-app-case-study-2025/ 301
-/blog/vibe-coding-vs-traditional-programming-2025.html /2025/06/15/vibe-coding-vs-traditional-programming-2025/ 301
-/blog/vibe-coding-web3-dapps.html /2025/01/20/vibe-coding-web3-dapps/ 301
-/blog/vibe-coding-game-development.html /2025/01/20/vibe-coding-game-development/ 301
-
-# Tool articles
-/blog/top-vibe-coding-tools-2025.html /2025/06/05/top-vibe-coding-tools-2025/ 301
-/blog/base44-ai-powered-saas-builder.html /2025/07/20/base44-ai-powered-saas-builder/ 301
-/blog/base44-supabase-migration-sdk.html /2025/01/20/base44-supabase-migration-sdk/ 301
-/blog/bolt-ai-vibe-coding-scalability-challenges.html /2025/07/22/bolt-ai-vibe-coding-scalability-challenges/ 301
-/blog/cursor-ai-support-fiasco-insights.html /2025/07/24/cursor-ai-support-fiasco-insights/ 301
-/blog/windsurf-double-acquisition-impact.html /2025/07/28/windsurf-double-acquisition-impact/ 301
-
-# AI and development articles
-/blog/ai-coding-assistants-2025.html /2025/01/20/ai-coding-assistants-2025/ 301
-/blog/automating-devops-vibe-coding.html /2025/01/20/automating-devops-vibe-coding/ 301
-/blog/security-challenges-vibe-coding.html /2025/01/20/security-challenges-vibe-coding/ 301
-/blog/prompt-coding-evolution-vibe-coding.html /2025/01/20/prompt-coding-evolution-vibe-coding/ 301
-/blog/no-code-ai-agent-builders.html /2025/01/20/no-code-ai-agent-builders/ 301
-/blog/open-source-vibe-coding-agents.html /2025/01/20/open-source-vibe-coding-agents/ 301
-/blog/gpt5-vibe-coding-revolution.html /2025/01/20/gpt5-vibe-coding-revolution/ 301
-
-# Article series
-/blog/article1.html /2025/06/12/meet-the-new-vibe-coding-strategy/ 301
-/blog/article2.html /2025/06/13/revolutionize-mvps-with-prompt-to-app-ai-tools/ 301
-/blog/article3.html /2025/06/14/boost-developer-productivity-with-ai-agent-coding/ 301
-/blog/article4.html /2025/06/15/ensuring-code-quality-in-ai-generated-apps/ 301
-/blog/article5.html /2025/06/16/ultimate-review-of-vibe-coding-platforms/ 301
-/blog/article6.html /2025/06/17/global-market-for-ai-app-development/ 301
-/blog/article7.html /2025/06/22/vibe-coding-new-era-software-development/ 301
-/blog/article8.html /2025/06/22/mastering-the-vibe-key-trends-keywords/ 301
-/blog/article9.html /2025/06/22/from-idea-to-spec-specifys-ai-streamlines-vibe-coding/ 301
-/blog/article10.html /2025/07/14/ai-powered-specification-next-big-thing/ 301
-/blog/article11.html /2025/07/13/chatgpt-enough-to-build-app/ 301
-/blog/article12.html /2025/07/15/no-code-low-code-vibe-coding-difference/ 301
-
+# Legacy blog post redirects generated from _posts filenames
+/blog/lovable-vibe-coding-2025.html /2025/01/14/lovable-vibe-coding-2025/ 301
+/blog/ai-coding-assistants-2025.html /2025/01/19/ai-coding-assistants-2025/ 301
+/blog/automating-devops-vibe-coding.html /2025/01/19/automating-devops-vibe-coding/ 301
+/blog/base44-supabase-migration-sdk.html /2025/01/19/base44-supabase-migration-sdk/ 301
+/blog/gpt5-vibe-coding-revolution.html /2025/01/19/gpt5-vibe-coding-revolution/ 301
+/blog/no-code-ai-agent-builders.html /2025/01/19/no-code-ai-agent-builders/ 301
+/blog/open-source-vibe-coding-agents.html /2025/01/19/open-source-vibe-coding-agents/ 301
+/blog/prompt-coding-evolution-vibe-coding.html /2025/01/19/prompt-coding-evolution-vibe-coding/ 301
+/blog/security-challenges-vibe-coding.html /2025/01/19/security-challenges-vibe-coding/ 301
+/blog/vibe-coding-game-development.html /2025/01/19/vibe-coding-game-development/ 301
+/blog/vibe-coding-web3-dapps.html /2025/01/19/vibe-coding-web3-dapps/ 301
+/blog/article11.html /2025/07/12/article11/ 301
+/blog/article12.html /2025/07/14/article12/ 301
+/blog/chatgpt-5-app-development.html /2025/08/06/chatgpt-5-app-development/ 301
+/blog/article1.html /2025/09/26/article1/ 301
+/blog/article2.html /2025/09/26/article2/ 301
+/blog/article3.html /2025/09/26/article3/ 301
+/blog/article4.html /2025/09/26/article4/ 301
+/blog/article5.html /2025/09/26/article5/ 301
+/blog/article6.html /2025/09/26/article6/ 301
+/blog/article7.html /2025/09/26/article7/ 301
+/blog/article8.html /2025/09/26/article8/ 301
+/blog/article9.html /2025/09/26/article9/ 301
+/blog/base44-ai-powered-saas-builder.html /2025/09/26/base44-ai-powered-saas-builder/ 301
+/blog/bolt-ai-vibe-coding-scalability-challenges.html /2025/09/26/bolt-ai-vibe-coding-scalability-challenges/ 301
+/blog/cursor-ai-support-fiasco-insights.html /2025/09/26/cursor-ai-support-fiasco-insights/ 301
+/blog/lovable-new-features-2025.html /2025/09/26/lovable-new-features-2025/ 301
+/blog/top-vibe-coding-tools-2025.html /2025/09/26/top-vibe-coding-tools-2025/ 301
+/blog/vibe-coding-app-case-study-2025.html /2025/09/26/vibe-coding-app-case-study-2025/ 301
+/blog/vibe-coding-revolution-2025-impact.html /2025/09/26/vibe-coding-revolution-2025-impact/ 301
+/blog/vibe-coding-vs-traditional-programming-2025.html /2025/09/26/vibe-coding-vs-traditional-programming-2025/ 301
+/blog/windsurf-double-acquisition-impact.html /2025/09/26/windsurf-double-acquisition-impact/ 301
+/blog/alphaevolve-by-deepmind-the-ai-that-invents-new-algorithms.html /2025/10/09/alphaevolve-by-deepmind-the-ai-that-invents-new-algorithms/ 301
+/blog/bugbot-by-cursor-the-ai-that-debugs-its-own-code.html /2025/10/09/bugbot-by-cursor-the-ai-that-debugs-its-own-code/ 301
+/blog/dear-diary-what-happens-to-developers-when-they-code-with-ai-every-day.html /2025/10/09/dear-diary-what-happens-to-developers-when-they-code-with-ai-every-day/ 301
+/blog/devmate-by-meta-when-ai-assistants-learn-to-work-together.html /2025/10/09/devmate-by-meta-when-ai-assistants-learn-to-work-together/ 301
+/blog/from-communities-to-millions-how-lovable-and-base44-turned-vibe-coding-into-gold.html /2025/10/09/from-communities-to-millions-how-lovable-and-base44-turned-vibe-coding-into-gold/ 301
+/blog/gitclear-report-2025-the-truth-about-ai-written-code-quality.html /2025/10/09/gitclear-report-2025-the-truth-about-ai-written-code-quality/ 301
+/blog/inside-the-vibe-coding-mindset-what-new-research-reveals-about-how-developers-really-work-with-ai.html /2025/10/09/inside-the-vibe-coding-mindset-what-new-research-reveals-about-how-developers-really-work-with-ai/ 301
+/blog/kiro-by-amazon-the-autonomous-ide-that-organizes-the-chaos-of-vibe-coding.html /2025/10/09/kiro-by-amazon-the-autonomous-ide-that-organizes-the-chaos-of-vibe-coding/ 301
+/blog/the-end-of-typing-what-it-means-to-be-a-developer-when-code-writes-itself.html /2025/10/09/the-end-of-typing-what-it-means-to-be-a-developer-when-code-writes-itself/ 301
+/blog/windsurf-and-pearai-the-rise-of-agentic-ides.html /2025/10/09/windsurf-and-pearai-the-rise-of-agentic-ides/ 301
+/blog/agentic-pipelines-when-ai-teams-code-together-across-frontend-backend-and-devops.html /2025/11/12/agentic-pipelines-when-ai-teams-code-together-across-frontend-backend-and-devops/ 301
+/blog/feefwe.html /2025/11/12/feefwe/ 301
+/blog/the-rise-of-multi-agent-coding-how-github-s-agent-hq-is-powering-the-next-wave-of-vibe-coding.html /2025/11/12/the-rise-of-multi-agent-coding-how-github-s-agent-hq-is-powering-the-next-wave-of-vibe-coding/ 301
 # Legacy specification viewer redirects
 /pages/spec.html* /pages/legacy-viewer.html 301
 /pages/research.html* /pages/legacy-viewer.html 301
 
 # App dashboard redirect to 404
 /pages/app-dashboard.html* /pages/404.html 301
+

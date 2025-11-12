@@ -5,9 +5,8 @@ description: "In the age of Vibe Coding, the role of the developer is no longer 
 date: 2025-10-09
 tags: ["Vibe Coding", "AI Philosophy", "Future of Work", "Software Engineering", "Automation", "Human Creativity", "Developer Identity", "Technology Ethics", "Cognitive Labor", "AI and Society"]
 author: "specifys.ai Team"
-canonical_url: "https://specifys-ai.com/blog/the-end-of-typing-what-it-means-to-be-a-developer-when-code-writes-itself.html"
----
 
+---
 # The End of Typing: What It Means to Be a Developer When Code Writes Itself
 
 In the age of Vibe Coding, the role of the developer is no longer to type but to think. What happens when creativity replaces syntax as the core of engineering?
@@ -54,5 +53,4 @@ Because for the first time, the limit isn’t what we can code.
 It’s what we can imagine.
 
 ---
-
 *Published on October 9, 2025*

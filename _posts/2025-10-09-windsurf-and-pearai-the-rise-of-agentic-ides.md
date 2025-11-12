@@ -5,9 +5,8 @@ description: "Two emerging tools, Windsurf and PearAI, redefine what an IDE can 
 date: 2025-10-09
 tags: ["Vibe Coding", "Agentic IDE", "Windsurf", "PearAI", "AI Development", "Software Engineering", "Code Generation", "Automation", "Developer Tools", "Future of Coding"]
 author: "specifys.ai Team"
-canonical_url: "https://specifys-ai.com/blog/windsurf-and-pearai-the-rise-of-agentic-ides.html"
----
 
+---
 # Windsurf and PearAI: The Rise of Agentic IDEs
 
 Two emerging tools, Windsurf and PearAI, redefine what an IDE can be — autonomous, reasoning, and deeply conversational.
@@ -57,5 +56,4 @@ An IDE is no longer a place where code lives — it’s a thinking environment t
 In the coming years, Agentic IDEs may become the new default — where every project begins not with an empty file, but with a conversation.
 
 ---
-
 *Published on October 9, 2025*

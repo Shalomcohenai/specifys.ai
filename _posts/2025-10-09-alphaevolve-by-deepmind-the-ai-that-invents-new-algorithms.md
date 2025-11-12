@@ -6,9 +6,8 @@ description: "DeepMind’s AlphaEvolve pushes Vibe Coding beyond human imitation
 date: 2025-10-09
 tags: ["Vibe Coding", "DeepMind", "AlphaEvolve", "Generative AI", "Autonomous Systems", "Machine Learning", "AI Research", "Code Evolution", "Future of Programming", "Artificial Intelligence"]
 author: "specifys.ai Team"
-canonical_url: "https://specifys-ai.com/blog/alphaevolve-by-deepmind-the-ai-that-invents-new-algorithms.html"
----
 
+---
 # AlphaEvolve by DeepMind: The AI That Invents New Algorithms
 
 DeepMind’s AlphaEvolve pushes Vibe Coding beyond human imitation - it autonomously designs, tests, and optimizes brand-new algorithms.
@@ -51,5 +50,4 @@ For the Vibe Coding movement, it’s a wake-up call and a promise: the next leap
 
 
 ---
-
 *Published on October 9, 2025*

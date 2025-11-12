@@ -6,9 +6,8 @@ description: "Cursor introduces Bugbot, an AI debugger that fixes mistakes made 
 date: 2025-10-09
 tags: ["Vibe Coding", "AI Development", "Cursor", "Bugbot", "Debugging", "Agentic IDE", "AI Tools", "Code Quality", "Generative AI", "Future of Coding"]
 author: "specifys.ai Team"
-canonical_url: "https://specifys-ai.com/blog/bugbot-by-cursor-the-ai-that-debugs-its-own-code.html"
----
 
+---
 # Bugbot by Cursor: The AI That Debugs Its Own Code
 
 Cursor introduces Bugbot, an AI debugger that fixes mistakes made by AI-generated code - a major leap for the Vibe Coding movement.
@@ -34,5 +33,4 @@ As Vibe Coding matures, systems like Bugbot will form the backbone of AI-native 
 
 
 ---
-
 *Published on October 9, 2025*

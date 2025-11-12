@@ -5,9 +5,8 @@ description: "Meta’s new AI tool, Devmate, uses multiple external models like 
 date: 2025-10-09
 tags: ["Vibe Coding", "Meta", "Devmate", "Claude", "Llama", "AI Collaboration", "Multi-Agent Systems", "AI Tools", "Code Generation", "Future of Software Development"]
 author: "specifys.ai Team"
-canonical_url: "https://specifys-ai.com/blog/devmate-by-meta-when-ai-assistants-learn-to-work-together.html"
----
 
+---
 # Devmate by Meta: When AI Assistants Learn to Work Together
 
 Meta’s new AI tool, Devmate, uses multiple external models like Claude and Llama to collaborate on code - redefining how AI systems co-develop software.
@@ -45,5 +44,4 @@ Meta’s engineers acknowledge this tension, calling it “the politics of AI co
 Devmate is still in limited testing across Meta’s internal engineering teams, but its implications are vast. By turning isolated AIs into a cooperative ecosystem, it may be paving the way for the next stage of Vibe Coding — one where software isn’t written by humans or machines alone, but by communities of intelligences learning to build together.
 
 ---
-
 *Published on October 9, 2025*

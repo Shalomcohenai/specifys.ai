@@ -5,9 +5,8 @@ description: "Amazon launches Kiro, an autonomous AI IDE that turns Vibe Coding 
 date: 2025-10-09
 tags: ["Vibe Coding", "Amazon Kiro", "AI IDE", "Agentic Development", "Generative AI", "Software Engineering", "AI Agents", "Code Automation", "Future of Development", "Autonomous Coding"]
 author: "specifys.ai Team"
-canonical_url: "https://specifys-ai.com/blog/kiro-by-amazon-the-autonomous-ide-that-organizes-the-chaos-of-vibe-coding.html"
----
 
+---
 # Kiro by Amazon: The Autonomous IDE That Organizes the Chaos of Vibe Coding
 
 Amazon launches Kiro, an autonomous AI IDE that turns Vibe Coding conversations into structured, scalable development projects.
@@ -52,5 +51,4 @@ Amazon’s move into autonomous IDEs shows that Vibe Coding isn’t just a passi
 
 
 ---
-
 *Published on October 9, 2025*

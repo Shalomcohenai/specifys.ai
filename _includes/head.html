@@ -14,7 +14,14 @@
     {% if page.canonical_url %}
     <link rel="canonical" href="{{ page.canonical_url }}">
     {% else %}
-    <link rel="canonical" href="{{ page.url | absolute_url }}">
+    {% assign canonical_path = page.url | replace:'index.html','' | replace:'index.htm','' %}
+    {% assign canonical_path = canonical_path | strip %}
+    {% if canonical_path == '' %}
+      {% assign canonical_path = '/' %}
+    {% endif %}
+    {% assign canonical_base = site.url | default: 'https://specifys-ai.com' %}
+    {% assign canonical_href = canonical_base | append: canonical_path %}
+    <link rel="canonical" href="{{ canonical_href }}">
     {% endif %}
     
     <!-- Open Graph -->

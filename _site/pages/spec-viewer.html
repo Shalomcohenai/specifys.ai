@@ -205,7 +205,7 @@
     <div class="header-right">
         <div class="credits-display" id="credits-display" style="display: none;">
             <div class="credits-container">
-                <span id="credits-text">0</span>
+                <span id="credits-text">Credits: 0</span>
             </div>
         </div>
         <div class="auth-buttons" id="auth-buttons">
@@ -5661,7 +5661,7 @@ function updateDiagramsStatus(status) {
     } else {
       // User is not logged in
       authButtons.innerHTML = `
-        <button class="auth-btn" onclick="showLoginModal()">Login</button>
+        <button class="auth-btn" onclick="showLoginModal()">Log in/Sign up</button>
       `;
     }
   }
@@ -5704,7 +5704,7 @@ function updateDiagramsStatus(status) {
     const authButtons = document.getElementById('auth-buttons');
     if (authButtons && !authButtons.innerHTML.trim()) {
       authButtons.innerHTML = `
-        <button class="auth-btn login-btn">Login</button>
+        <button class="auth-btn login-btn">Log in/Sign up</button>
       `;
       
       const loginBtn = authButtons.querySelector('.login-btn');
