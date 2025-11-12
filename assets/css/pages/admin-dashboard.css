@@ -33,26 +33,26 @@
   color: var(--admin-text-muted);
 }
 :root {
-  --admin-bg: var(--bg-secondary);
-  --admin-sidebar: #090f1f;
-  --admin-surface: var(--bg-primary);
-  --admin-surface-alt: #f7f9fc;
-  --admin-border: rgba(9, 15, 31, 0.12);
-  --admin-border-light: rgba(9, 15, 31, 0.06);
-  --admin-text: var(--text-color);
-  --admin-text-muted: var(--text-secondary);
-  --admin-accent: var(--primary-color);
-  --admin-accent-strong: #ef541c;
+  --admin-bg: #f7f9fc;
+  --admin-sidebar: #ffffff;
+  --admin-surface: #ffffff;
+  --admin-surface-alt: #f9fbff;
+  --admin-border: #e5e7eb;
+  --admin-border-light: #f0f2f8;
+  --admin-text: #1f2937;
+  --admin-text-muted: #6b7280;
+  --admin-accent: #ff6b35;
+  --admin-accent-strong: #e85a26;
   --admin-critical: #dc3545;
   --admin-success: #18b47d;
-  --admin-warning: #ffc107;
-  --admin-muted-bg: rgba(9, 15, 31, 0.04);
+  --admin-warning: #f39c3d;
+  --admin-muted-bg: rgba(31, 41, 55, 0.05);
   --admin-hover-bg: rgba(255, 107, 53, 0.12);
   --admin-card-radius: 18px;
-  --admin-spacing: clamp(16px, 1.6vw, 26px);
-  --admin-font: var(--font-family-primary);
-  --admin-scrollbar: rgba(9, 15, 31, 0.35);
-  --admin-scrollbar-track: rgba(9, 15, 31, 0.06);
+  --admin-spacing: clamp(16px, 1.6vw, 24px);
+  --admin-font: 'Inter', 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --admin-scrollbar: #c7ccd6;
+  --admin-scrollbar-track: #eef2f8;
 }
 
 body {
@@ -70,21 +70,23 @@ body {
 }
 
 .admin-sidebar {
-  background: var(--admin-sidebar);
-  border-right: 1px solid var(--admin-border);
-    display: flex;
+  background: #ffffff;
+  border-right: 1px solid #e5e7eb;
+  display: flex;
   flex-direction: column;
   padding: var(--admin-spacing);
   gap: var(--admin-spacing);
   position: sticky;
   top: 0;
   height: 100vh;
+  box-shadow: 4px 0 18px rgba(15, 23, 42, 0.05);
 }
 
 .sidebar-brand {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
   gap: 6px;
+  color: #1f2937;
 }
 
 .brand-name {
@@ -94,12 +96,12 @@ body {
 }
 
 .brand-name .accent {
-  color: var(--admin-accent);
+  color: var(--primary-color);
 }
 
 .brand-subtitle {
   font-size: 0.92rem;
-  color: var(--admin-text-muted);
+  color: #6b7280;
   text-transform: uppercase;
   letter-spacing: 0.12em;
 }
@@ -117,7 +119,7 @@ body {
   background: transparent;
   border: 1px solid transparent;
   border-radius: 12px;
-  color: var(--admin-text-muted);
+  color: #6b7280;
   font-size: 0.98rem;
   transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
   text-align: left;
@@ -127,31 +129,61 @@ body {
   width: 22px;
   display: grid;
   place-items: center;
-  color: var(--admin-text-muted);
+  color: #9ca3af;
 }
 
 .nav-link:hover,
 .nav-link:focus-visible {
-  background: var(--admin-hover-bg);
-  color: var(--admin-text);
-  border-color: var(--admin-border);
+  background: rgba(255, 107, 53, 0.12);
+  color: var(--admin-accent-strong);
+  border-color: rgba(255, 107, 53, 0.25);
   outline: none;
 }
 
-.nav-link.active {
-  background: rgba(92, 108, 255, 0.16);
+.nav-link:hover .icon,
+.nav-link:focus-visible .icon {
   color: var(--admin-accent-strong);
-  border-color: rgba(92, 108, 255, 0.35);
+}
+
+.nav-link.active {
+  background: rgba(255, 107, 53, 0.18);
+  color: var(--admin-accent-strong);
+  border-color: rgba(255, 107, 53, 0.35);
+}
+
+.nav-link.active .icon {
+  color: var(--admin-accent-strong);
 }
 
 .sidebar-footer {
   margin-top: auto;
   padding-top: var(--admin-spacing);
-  border-top: 1px solid var(--admin-border);
-    display: grid;
+  border-top: 1px solid #e5e7eb;
+  display: grid;
   gap: 8px;
   font-size: 0.9rem;
-  color: var(--admin-text-muted);
+  color: #6b7280;
+}
+
+.sidebar-footer .home-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  margin-top: 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 107, 53, 0.3);
+  color: var(--primary-color);
+  background: rgba(255, 107, 53, 0.08);
+  text-decoration: none;
+  font-weight: 600;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.sidebar-footer .home-link:hover,
+.sidebar-footer .home-link:focus-visible {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(255, 107, 53, 0.18);
 }
 
 .connection-indicator {
@@ -164,7 +196,7 @@ body {
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: var(--admin-text-muted);
+  background: #d1d5db;
   position: relative;
 }
 
@@ -185,27 +217,29 @@ body {
 
 .connection-indicator .label {
   font-size: 0.92rem;
+  color: #6b7280;
 }
 
 .admin-main {
-    display: flex;
+  display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: var(--admin-bg);
+  background: #f7f9fc;
 }
 
 .admin-topbar {
   position: sticky;
   top: 0;
   z-index: 20;
-  background: rgba(255, 255, 255, 0.94);
-  backdrop-filter: blur(16px);
-  border-bottom: 1px solid var(--admin-border);
+  background: rgba(255, 255, 255, 0.97);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid #e5e7eb;
   padding: var(--admin-spacing);
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--admin-spacing);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
 }
 
 .page-title h1 {
@@ -249,34 +283,35 @@ body {
 
 .action-btn:hover,
 .action-btn:focus-visible {
-  border-color: rgba(128, 140, 255, 0.5);
+  border-color: rgba(255, 107, 53, 0.5);
   transform: translateY(-1px);
+  background: rgba(255, 107, 53, 0.08);
   outline: none;
 }
 
 .action-btn.critical {
-  border-color: rgba(255, 107, 107, 0.4);
-  background: rgba(255, 107, 107, 0.1);
+  border-color: rgba(255, 107, 107, 0.35);
+  background: rgba(255, 107, 107, 0.12);
 }
 
 .admin-content {
-  padding: var(--admin-spacing);
+  flex: 1;
+  padding: calc(var(--admin-spacing) * 1.2);
+  padding-bottom: calc(var(--admin-spacing) * 2.5);
   display: grid;
-  gap: var(--admin-spacing);
+  gap: clamp(18px, 2vw, 28px);
+  grid-auto-rows: minmax(min-content, auto);
+  scroll-margin-top: calc(var(--header-height) + 48px);
 }
 
 .dashboard-section {
   background: var(--admin-surface);
   border: 1px solid var(--admin-border);
   border-radius: var(--admin-card-radius);
-  padding: var(--admin-spacing);
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.05);
+  padding: clamp(4px, 0.6vw, 8px) 0;
   display: grid;
-  gap: var(--admin-spacing);
-  opacity: 0;
-  visibility: hidden;
-  position: relative;
-  transform: translateY(20px);
-  transition: opacity 0.25s ease, transform 0.25s ease;
+  gap: clamp(16px, 1.8vw, 24px);
 }
 
 .dashboard-section.active {
@@ -404,7 +439,7 @@ body {
 }
 
 .activity-filter-btn.active {
-  background: rgba(92, 108, 255, 0.16);
+  background: rgba(255, 107, 53, 0.16);
   color: var(--admin-accent-strong);
 }
 
