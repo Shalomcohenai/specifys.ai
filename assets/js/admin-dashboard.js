@@ -661,6 +661,152 @@ class GlobalSearch {
         });
       });
   }
+
+  async fetchBlogPost(filename) {
+    if (!filename) {
+      throw new Error("Filename is required to load the post.");
+    }
+    let token = await this.getAuthToken();
+    if (!token) {
+      const authError = new Error("Authentication required to load blog post.");
+      authError.status = 401;
+      throw authError;
+    }
+    const apiBaseUrl = typeof window.getApiBaseUrl === "function"
+      ? window.getApiBaseUrl()
+      : "https://specifys-ai.onrender.com";
+    const requestUrl = `${apiBaseUrl}/api/blog/get-post?filename=${encodeURIComponent(filename)}`;
+
+    const makeRequest = async (idToken) => {
+      return fetch(requestUrl, {
+        headers: {
+          Authorization: `Bearer ${idToken}`
+        }
+      });
+    };
+
+    let response = await makeRequest(token);
+    if (response.status === 401) {
+      token = await this.getAuthToken(true);
+      if (!token) {
+        const refreshError = new Error("Unable to refresh authentication token.");
+        refreshError.status = 401;
+        throw refreshError;
+      }
+      response = await makeRequest(token);
+    }
+
+    const text = await response.text();
+    let result = null;
+    try {
+      result = text ? JSON.parse(text) : null;
+    } catch (parseError) {
+      console.warn("Non-JSON response when loading blog post", parseError, text);
+    }
+
+    if (!response.ok || !(result && result.success && result.post)) {
+      const message =
+        result?.error ||
+        `Failed to load blog post (HTTP ${response.status} ${response.statusText})`;
+      const error = new Error(message);
+      error.status = response.status;
+      throw error;
+    }
+
+    return result.post;
+  }
+
+  async enterBlogEditMode(filename) {
+    if (!filename) return;
+    try {
+      if (this.editingPost?.filename !== filename) {
+        this.exitBlogEditMode();
+      }
+      this.setBlogFeedback("Loading post for editing…", "success");
+      const post = await this.fetchBlogPost(filename);
+
+      this.editingPost = {
+        filename,
+        date: post.date,
+        slug: post.slug
+      };
+
+      if (this.dom.blogFields.title) {
+        this.dom.blogFields.title.value = post.title || "";
+      }
+      if (this.dom.blogFields.description) {
+        this.dom.blogFields.description.value = post.description || "";
+        if (this.dom.blogFields.descriptionCount) {
+          this.dom.blogFields.descriptionCount.textContent = `${post.description?.length || 0} / 160`;
+        }
+      }
+      if (this.dom.blogFields.content) {
+        this.dom.blogFields.content.value = post.content || "";
+      }
+      if (this.dom.blogFields.tags) {
+        this.dom.blogFields.tags.value = Array.isArray(post.tags) ? post.tags.join(", ") : "";
+      }
+      if (this.dom.blogFields.slug) {
+        this.dom.blogFields.slug.value = post.slug || "";
+        this.dom.blogFields.slug.dataset.manual = "true";
+        this.dom.blogFields.slug.disabled = true;
+      }
+      if (this.dom.blogFields.date) {
+        this.dom.blogFields.date.value = post.date || "";
+        this.dom.blogFields.date.disabled = true;
+      }
+      if (this.dom.blogFields.seoTitle) {
+        this.dom.blogFields.seoTitle.value = post.seoTitle || "";
+      }
+      if (this.dom.blogFields.seoDescription) {
+        this.dom.blogFields.seoDescription.value = post.seoDescription || "";
+      }
+
+      if (this.blogSubmitButton) {
+        this.blogSubmitButton.innerHTML = '<i class="fas fa-save"></i> Save changes';
+      }
+
+      this.setBlogFeedback(`Editing ${filename}`, "success");
+      this.dom.blogForm?.scrollIntoView({ behavior: "smooth", block: "start" });
+    } catch (error) {
+      console.error("[BlogEdit] Failed to load post", {
+        message: error.message,
+        stack: error.stack
+      });
+      this.setBlogFeedback(error.message || "Failed to load post for editing.", "error");
+      this.exitBlogEditMode();
+    }
+  }
+
+  exitBlogEditMode(options = {}) {
+    const { resetForm = false } = options;
+    this.editingPost = null;
+
+    if (this.dom.blogFields.slug) {
+      this.dom.blogFields.slug.disabled = false;
+      delete this.dom.blogFields.slug.dataset.manual;
+    }
+    if (this.dom.blogFields.date) {
+      this.dom.blogFields.date.disabled = false;
+      if (!this.dom.blogFields.date.value) {
+        this.dom.blogFields.date.value = utils.now().toISOString().slice(0, 10);
+      }
+    }
+
+    if (resetForm && this.dom.blogForm) {
+      this.dom.blogForm.reset();
+      if (this.dom.blogFields.date) {
+        this.dom.blogFields.date.value = utils.now().toISOString().slice(0, 10);
+      }
+      if (this.dom.blogFields.descriptionCount) {
+        this.dom.blogFields.descriptionCount.textContent = "0 / 160";
+      }
+    }
+
+    if (this.blogSubmitButton) {
+      this.blogSubmitButton.innerHTML = this.blogSubmitDefaultText;
+    }
+  }
 }
 
 class SpecViewerModal {
@@ -855,6 +1001,10 @@ class AdminDashboardApp {
     if (this.dom.blogFields.date && !this.dom.blogFields.date.value) {
       this.dom.blogFields.date.value = utils.now().toISOString().slice(0, 10);
     }
+
+    this.blogSubmitButton = this.dom.blogForm?.querySelector("button.primary") || null;
+    this.blogSubmitDefaultText = this.blogSubmitButton?.innerHTML || "Publish post";
+    this.editingPost = null;
 
     this.sourceState = {
       users: "pending",
@@ -1788,6 +1938,7 @@ class AdminDashboardApp {
 
   async handleBlogSubmit() {
     if (!this.dom.blogForm) return;
+    const isEditing = Boolean(this.editingPost);
     const title = this.dom.blogFields.title?.value.trim() ?? "";
     const description = this.dom.blogFields.description?.value.trim() ?? "";
     const content = this.dom.blogFields.content?.value.trim() ?? "";
@@ -1823,10 +1974,16 @@ class AdminDashboardApp {
       return;
     }
 
-    const button = this.dom.blogForm.querySelector("button.primary");
+    if (isEditing && this.editingPost?.filename) {
+      payload.filename = this.editingPost.filename;
+      payload.date = this.editingPost.date || payload.date;
+      payload.slug = this.editingPost.slug || payload.slug;
+    }
+
+    const button = this.blogSubmitButton;
     const originalText = button?.innerHTML;
     if (button) {
-      button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Publishing…';
+      button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving…';
       button.disabled = true;
     }
     try {
@@ -1834,16 +1991,18 @@ class AdminDashboardApp {
       const apiBaseUrl = typeof window.getApiBaseUrl === "function"
         ? window.getApiBaseUrl()
         : "https://specifys-ai.onrender.com";
-      const requestUrl = `${apiBaseUrl}/api/blog/create-post`;
+      const requestUrl = isEditing
+        ? `${apiBaseUrl}/api/blog/update-post`
+        : `${apiBaseUrl}/api/blog/create-post`;
       const makeRequest = async (idToken) => {
         return fetch(requestUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
             Authorization: `Bearer ${idToken}`
-        },
-        body: JSON.stringify(payload)
-      });
+          },
+          body: JSON.stringify(payload)
+        });
       };
 
       let response = await makeRequest(token);
@@ -1851,7 +2010,7 @@ class AdminDashboardApp {
         console.info("[BlogPublish] Token rejected, attempting refresh…");
         const refreshedToken = await this.getAuthToken(true);
         if (!refreshedToken) {
-          throw new Error("Unable to refresh authentication token for blog publishing.");
+          throw new Error("Unable to refresh authentication token.");
         }
         response = await makeRequest(refreshedToken);
       }
@@ -1860,7 +2019,7 @@ class AdminDashboardApp {
       try {
         result = text ? JSON.parse(text) : null;
       } catch (parseError) {
-        console.warn("Non-JSON response from blog publish endpoint", parseError, text);
+        console.warn("Non-JSON response from blog endpoint", parseError, text);
       }
       if (!response.ok || !(result && result.success)) {
         console.warn("[BlogPublish] Request failed", {
@@ -1871,31 +2030,39 @@ class AdminDashboardApp {
         });
         const message =
           result?.error ||
-          `Failed to queue blog post (HTTP ${response.status} ${response.statusText})`;
+          `Failed to ${isEditing ? "update" : "queue"} blog post (HTTP ${response.status} ${response.statusText})`;
         throw new Error(message);
       }
-      this.setBlogFeedback("Post added to queue successfully.", "success");
-      this.dom.blogForm.reset();
-      if (this.dom.blogFields.date) {
-        this.dom.blogFields.date.value = utils.now().toISOString().slice(0, 10);
+      if (isEditing) {
+        this.setBlogFeedback("Post updated successfully.", "success");
+        this.exitBlogEditMode({ resetForm: true });
+        await this.refreshBlogQueue({ silent: true }).catch((queueError) =>
+          console.warn("Blog queue refresh failed after update", queueError)
+        );
+      } else {
+        this.setBlogFeedback("Post added to queue successfully.", "success");
+        this.dom.blogForm.reset();
+        if (this.dom.blogFields.date) {
+          this.dom.blogFields.date.value = utils.now().toISOString().slice(0, 10);
+        }
+        if (this.dom.blogFields.slug) {
+          delete this.dom.blogFields.slug.dataset.manual;
+        }
+        if (this.dom.blogFields.descriptionCount) {
+          this.dom.blogFields.descriptionCount.textContent = "0 / 160";
+        }
+        try {
+          await this.refreshBlogQueue({ silent: true });
+        } catch (queueError) {
+          console.warn("Blog queue refresh failed after publish", queueError);
+        }
       }
-      if (this.dom.blogFields.slug) {
-        delete this.dom.blogFields.slug.dataset.manual;
-      }
-      if (this.dom.blogFields.descriptionCount) {
-        this.dom.blogFields.descriptionCount.textContent = "0 / 160";
-      }
-      try {
-        await this.refreshBlogQueue({ silent: true });
-      } catch (queueError) {
-        console.warn("Blog queue refresh failed after publish", queueError);
-      }
-        } catch (error) {
-      console.error("[BlogPublish] Blog publish failed", {
+    } catch (error) {
+      console.error("[BlogPublish] Blog save failed", {
         message: error.message,
         stack: error.stack
       });
-      this.setBlogFeedback(error.message || "Failed to publish blog post.", "error");
+      this.setBlogFeedback(error.message || `Failed to ${isEditing ? "update" : "publish"} blog post.`, "error");
     } finally {
       if (button) {
         button.innerHTML = originalText;
@@ -2064,16 +2231,34 @@ class AdminDashboardApp {
                 ? `<div class="queue-error">Error: ${item.error}</div>`
                 : ""
             }
-            ${
-              item.result?.url
-                ? `<a href="${item.result.url}" target="_blank" rel="noopener">View post</a>`
-                : ""
-            }
+            <div class="queue-actions">
+              ${
+                item.result?.url
+                  ? `<a href="${item.result.url}" target="_blank" rel="noopener">View post</a>`
+                  : ""
+              }
+              ${
+                item.status === "completed" && item.result?.filename
+                  ? `<button class="queue-edit-btn" data-filename="${item.result.filename}"><i class="fas fa-edit"></i> Edit</button>`
+                  : ""
+              }
+            </div>
           </li>
         `;
       })
       .join("");
     this.dom.blogQueueList.innerHTML = html;
+
+    this.dom.blogQueueList
+      .querySelectorAll(".queue-edit-btn")
+      .forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const filename = btn.dataset.filename;
+          if (filename) {
+            this.enterBlogEditMode(filename);
+          }
+        });
+      });
   }
 
   rebuildSearchIndex() {

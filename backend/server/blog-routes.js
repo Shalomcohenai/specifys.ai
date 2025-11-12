@@ -234,6 +234,56 @@ async function publishPostToGitHub(postData) {
     };
 }
 
+// Helper: Parse front matter and content from markdown
+function parsePostContent(filename, rawContent) {
+    const match = rawContent.match(/^---\n([\s\S]+?)\n---\n?([\s\S]*)$/);
+    if (!match) {
+        throw new Error('Invalid blog post format.');
+    }
+
+    const [, frontMatter, bodyRaw] = match;
+    const body = bodyRaw.trim();
+    const data = {};
+
+    const captureString = (key) => {
+        const regex = new RegExp(`${key}:\\s*"([^"]*)"`);
+        const m = frontMatter.match(regex);
+        return m ? m[1] : '';
+    };
+
+    const captureArray = (key) => {
+        const regex = new RegExp(`${key}:\\s*\\[(.*?)\\]`);
+        const m = frontMatter.match(regex);
+        if (!m) return [];
+        return m[1]
+            .split(',')
+            .map((item) => item.trim().replace(/^"|"$/g, ''))
+            .filter(Boolean);
+    };
+
+    const captureValue = (key) => {
+        const regex = new RegExp(`${key}:\\s*([^\\n]+)`);
+        const m = frontMatter.match(regex);
+        return m ? m[1].trim() : '';
+    };
+
+    const filenameMatch = filename.match(/^(\d{4}-\d{2}-\d{2})-(.+)\.md$/);
+    const derivedDate = filenameMatch ? filenameMatch[1] : '';
+    const derivedSlug = filenameMatch ? filenameMatch[2] : '';
+
+    data.title = captureString('title') || derivedSlug.replace(/-/g, ' ');
+    data.description = captureString('description');
+    data.date = captureValue('date') || derivedDate;
+    data.author = captureString('author') || 'specifys.ai Team';
+    data.tags = captureArray('tags');
+    data.slug = derivedSlug;
+    data.seoTitle = captureString('seo_title');
+    data.seoDescription = captureString('seo_description');
+    data.content = body;
+
+    return data;
+}
+
 // Route: Create new blog post (adds to queue)
 async function createPost(req, res) {
     try {
@@ -327,6 +377,145 @@ async function createPost(req, res) {
         res.status(500).json({
             success: false,
             error: error.message || 'Failed to add blog post to queue'
+        });
+    }
+}
+
+// Route: Get single post details
+async function getPost(req, res) {
+    try {
+        const { filename } = req.query;
+        if (!filename) {
+            return res.status(400).json({
+                success: false,
+                error: 'Filename is required'
+            });
+        }
+
+        const filePath = `_posts/${filename}`;
+        const file = await getFileFromGitHub(filePath);
+        if (!file || !file.content) {
+            return res.status(404).json({
+                success: false,
+                error: 'Post not found'
+            });
+        }
+
+        const rawContent = Buffer.from(file.content, 'base64').toString('utf-8');
+        const parsed = parsePostContent(filename, rawContent);
+
+        res.json({
+            success: true,
+            post: {
+                filename,
+                ...parsed
+            }
+        });
+    } catch (error) {
+        console.error('Error getting blog post:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message || 'Failed to load blog post'
+        });
+    }
+}
+
+// Route: Update existing blog post
+async function updatePost(req, res) {
+    try {
+        const {
+            filename,
+            title,
+            description,
+            date,
+            author,
+            tags,
+            content,
+            slug,
+            seoTitle,
+            seoDescription
+        } = req.body;
+
+        if (!filename || !title || !description || !date || !content) {
+            return res.status(400).json({
+                success: false,
+                error: 'Missing required fields: filename, title, description, date, content'
+            });
+        }
+
+        if (description.length > 160) {
+            return res.status(400).json({
+                success: false,
+                error: 'Description must be 160 characters or less'
+            });
+        }
+
+        const filenameMatch = filename.match(/^(\d{4}-\d{2}-\d{2})-(.+)\.md$/);
+        if (!filenameMatch) {
+            return res.status(400).json({
+                success: false,
+                error: 'Invalid filename format'
+            });
+        }
+
+        const [ , filenameDate, filenameSlug ] = filenameMatch;
+
+        if (date !== filenameDate) {
+            return res.status(400).json({
+                success: false,
+                error: 'Date cannot be changed. It must match the filename.'
+            });
+        }
+
+        const normalizedSlug = slugify(slug || filenameSlug);
+        if (normalizedSlug !== filenameSlug) {
+            return res.status(400).json({
+                success: false,
+                error: 'Slug cannot be changed. It must match the filename.'
+            });
+        }
+
+        const filePath = `_posts/${filename}`;
+        const existingFile = await getFileFromGitHub(filePath);
+        if (!existingFile) {
+            return res.status(404).json({
+                success: false,
+                error: 'Post not found'
+            });
+        }
+
+        const markdownContent = createPostMarkdown({
+            title,
+            description,
+            date,
+            author: author || 'specifys.ai Team',
+            tags,
+            content,
+            slug: filenameSlug,
+            seoTitle: typeof seoTitle === 'string' && seoTitle.trim() ? seoTitle.trim() : null,
+            seoDescription:
+                typeof seoDescription === 'string' && seoDescription.trim()
+                    ? seoDescription.trim()
+                    : null
+        });
+
+        const result = await updateFileInGitHub(
+            filePath,
+            markdownContent,
+            `Update blog post: ${title}`,
+            existingFile.sha
+        );
+
+        res.json({
+            success: true,
+            message: 'Blog post updated successfully',
+            commitSha: result.commit?.sha || null
+        });
+    } catch (error) {
+        console.error('Error updating blog post:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message || 'Failed to update blog post'
         });
     }
 }
@@ -539,6 +728,8 @@ async function getQueueStatusRoute(req, res) {
 module.exports = {
     createPost,
     listPosts,
+    getPost,
+    updatePost,
     deletePost,
     getQueueStatus: getQueueStatusRoute
 };

@@ -164,6 +164,8 @@ app.use('/api/chat', chatRoutes);
 // Blog routes (must be before static files to avoid conflicts)
 app.post('/api/blog/create-post', requireAdmin, blogRoutes.createPost);
 app.get('/api/blog/list-posts', requireAdmin, blogRoutes.listPosts);
+app.get('/api/blog/get-post', requireAdmin, blogRoutes.getPost);
+app.post('/api/blog/update-post', requireAdmin, blogRoutes.updatePost);
 app.post('/api/blog/delete-post', requireAdmin, blogRoutes.deletePost);
 app.get('/api/blog/queue-status', requireAdmin, blogRoutes.getQueueStatus);
 
