@@ -172,9 +172,9 @@
           };
         } else {
           creditsState = {
-            text: 'Plan: Free',
-            title: 'Free plan - no specification credits remaining',
-            variant: 'free'
+            text: 'Credits: 0',
+            title: 'No specification credits remaining',
+            variant: 'credits'
           };
         }
       }

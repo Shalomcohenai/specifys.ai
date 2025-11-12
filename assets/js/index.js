@@ -912,6 +912,21 @@ async function generateSpecification() {
     });
 
     if (!response.ok) {
+      if (response.status === 403) {
+        hideLoadingOverlay();
+        console.warn(`[${requestId}] ℹ️ Spec generation blocked due to insufficient credits`);
+        if (typeof showPaywall !== 'undefined') {
+          const paywallData = {
+            reason: 'insufficient_credits',
+            message: 'You have no remaining spec credits'
+          };
+          showPaywall(paywallData);
+        } else {
+          alert('You do not have enough credits to create a spec. Please purchase credits or upgrade to Pro.');
+        }
+        return;
+      }
+      
       console.error(`[${requestId}] ❌ Response not OK: ${response.status} ${response.statusText}`);
       let errorMessage = 'Failed to generate specification';
       let errorDetails = null;
