@@ -521,36 +521,34 @@ async function consumeCredit(userId, specId) {
       // Check free specs from users collection
       const userRef = db.collection(USERS_COLLECTION).doc(userId);
       const userDoc = await transaction.get(userRef);
-      
+
+      const userData = userDoc.exists ? userDoc.data() || {} : {};
+      let previousFreeCredits;
+
       if (!userDoc.exists) {
-        // User document doesn't exist - create it with 0 free specs
-        transaction.set(userRef, {
-          free_specs_remaining: 0,
-          createdAt: admin.firestore.FieldValue.serverTimestamp()
-        }, { merge: true });
-        throw new Error('Insufficient credits');
+        previousFreeCredits = 1;
+      } else if (typeof userData.free_specs_remaining === 'number') {
+        previousFreeCredits = Math.max(0, userData.free_specs_remaining);
+      } else {
+        previousFreeCredits = 1;
       }
-      
-      const userData = userDoc.data();
-      // Default to 0 if not set
-      const freeSpecsRemaining = typeof userData?.free_specs_remaining === 'number'
-        ? Math.max(0, userData.free_specs_remaining)
-        : 0;
-      
-      // Check if user has free specs
-      if (freeSpecsRemaining > 0) {
-        // Decrement free_specs_remaining
-        transaction.update(userRef, {
-          free_specs_remaining: admin.firestore.FieldValue.increment(-1)
-        });
-        
-        const remaining = freeSpecsRemaining - 1;
-        
-        // Record transaction - use transactionId as document ID for idempotency
+
+      if (previousFreeCredits > 0) {
+        const remaining = previousFreeCredits - 1;
+        const updatePayload = {
+          free_specs_remaining: remaining,
+          lastActive: admin.firestore.FieldValue.serverTimestamp()
+        };
+        if (!userDoc.exists) {
+          updatePayload.plan = 'free';
+          updatePayload.createdAt = admin.firestore.FieldValue.serverTimestamp();
+        }
+        transaction.set(userRef, updatePayload, { merge: true });
+
         const transactionRef = db.collection(TRANSACTIONS_COLLECTION).doc(transactionId);
         transaction.set(transactionRef, {
           userId: userId,
-          amount: -1, // Negative for consume
+          amount: -1,
           type: 'consume',
           source: 'free_trial',
           specId: specId,
@@ -558,13 +556,13 @@ async function consumeCredit(userId, specId) {
           transactionId: transactionId,
           metadata: {
             creditType: 'free',
-            previousCredits: freeSpecsRemaining,
+            previousCredits: previousFreeCredits,
             remaining: remaining
           },
           timestamp: admin.firestore.FieldValue.serverTimestamp(),
           createdAt: admin.firestore.FieldValue.serverTimestamp()
         });
-        
+
         return {
           success: true,
           remaining: remaining,
@@ -757,9 +755,33 @@ async function getEntitlements(userId) {
         };
     
     // Get user document
-    const userDoc = await db.collection(USERS_COLLECTION).doc(userId).get();
-    const user = userDoc.exists ? userDoc.data() : null;
-    
+    const userRef = db.collection(USERS_COLLECTION).doc(userId);
+    const userDoc = await userRef.get();
+    let user = null;
+
+    if (!userDoc.exists) {
+      await userRef.set({
+        free_specs_remaining: 1,
+        plan: 'free',
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        lastActive: admin.firestore.FieldValue.serverTimestamp()
+      }, { merge: true });
+      user = {
+        free_specs_remaining: 1,
+        plan: 'free'
+      };
+    } else {
+      const data = userDoc.data() || {};
+      if (typeof data.free_specs_remaining !== 'number') {
+        await userRef.set({
+          free_specs_remaining: 1,
+          lastActive: admin.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+        data.free_specs_remaining = 1;
+      }
+      user = data;
+    }
+
     return {
       entitlements: {
         unlimited: entitlements.unlimited || false,
