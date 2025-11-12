@@ -2414,6 +2414,112 @@ class AdminDashboardApp {
     }
   }
 
+  async parseJsonSafely(response) {
+    if (!response) return null;
+    try {
+      return await response.clone().json();
+    } catch (error) {
+      return null;
+    }
+  }
+
+  buildSyncSummaryDisplay(summary = {}, cached = false) {
+    const parts = [];
+
+    if (summary.runAt) {
+      parts.push(`Last run ${utils.formatDate(summary.runAt)}`);
+    } else {
+      parts.push("No sync executed yet");
+    }
+
+    parts.push(`Created ${summary.created || 0}`);
+    parts.push(`Updated ${summary.updated || 0}`);
+
+    if (typeof summary.errors === "number") {
+      parts.push(`Errors ${summary.errors}`);
+    }
+
+    if (summary.inconsistencies?.authWithoutFirestore?.total) {
+      parts.push(`${summary.inconsistencies.authWithoutFirestore.total} users missing docs`);
+    } else if (summary.potentialCreates) {
+      parts.push(`${summary.potentialCreates} users missing docs`);
+    }
+
+    if (summary.inconsistencies?.missingEntitlements?.total) {
+      parts.push(`${summary.inconsistencies.missingEntitlements.total} missing entitlements`);
+    } else if (summary.potentialEntitlementCreates) {
+      parts.push(`${summary.potentialEntitlementCreates} missing entitlements`);
+    }
+
+    if (cached) {
+      parts.push("cached");
+    }
+
+    const text = parts.join(" · ");
+    const variant = summary.errors && summary.errors > 0
+      ? "error"
+      : (summary.created || summary.updated)
+        ? "success"
+        : "info";
+
+    return { text, variant };
+  }
+
+  async fetchSyncStatusPrimary(token, apiBaseUrl) {
+    const response = await fetch(`${apiBaseUrl}/api/admin/users/sync-status`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    if (response.status === 404) {
+      return null;
+    }
+
+    const payload = await this.parseJsonSafely(response);
+
+    if (!response.ok || !payload?.success) {
+      const message = payload?.error || payload?.details || `HTTP ${response.status}`;
+      const error = new Error(message);
+      error.status = response.status;
+      throw error;
+    }
+
+    return {
+      summary: payload.summary || {},
+      cached: Boolean(payload.cached)
+    };
+  }
+
+  async fetchSyncStatusLegacy(token, apiBaseUrl) {
+    const response = await fetch(`${apiBaseUrl}/api/sync-users`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        dryRun: true,
+        ensureEntitlements: true,
+        includeDataCollections: true
+      })
+    });
+
+    const payload = await this.parseJsonSafely(response);
+
+    if (!response.ok || !payload?.success || !payload.summary) {
+      const message = payload?.error || payload?.details || `HTTP ${response.status}`;
+      const error = new Error(message);
+      error.status = response.status;
+      throw error;
+    }
+
+    return {
+      summary: payload.summary || {},
+      cached: false
+    };
+  }
+
   async fetchUserSyncStatus() {
     if (!this.dom.syncUsersSummary) return;
     this.updateSyncSummary("Loading sync status…", "info");
@@ -2427,58 +2533,84 @@ class AdminDashboardApp {
         ? window.getApiBaseUrl()
         : "https://specifys-ai.onrender.com";
 
-      const response = await fetch(`${apiBaseUrl}/api/admin/users/sync-status`, {
-        headers: {
-          Authorization: `Bearer ${token}`
+      let result = null;
+      try {
+        result = await this.fetchSyncStatusPrimary(token, apiBaseUrl);
+      } catch (error) {
+        if (error?.status === 404) {
+          result = null;
+        } else {
+          throw error;
         }
-      });
-
-      const payload = await response.json().catch(() => null);
-
-      if (!response.ok || !payload?.success) {
-        const message = payload?.error || payload?.details || `HTTP ${response.status}`;
-        throw new Error(message);
       }
 
-      const summary = payload.summary || {};
-      const parts = [];
-
-      if (summary.runAt) {
-        parts.push(`Last run ${utils.formatDate(summary.runAt)}`);
-      } else {
-        parts.push("No sync executed yet");
+      if (!result) {
+        result = await this.fetchSyncStatusLegacy(token, apiBaseUrl);
+        console.warn("[AdminDashboard] Fallback to legacy /api/sync-users for sync status");
       }
 
-      parts.push(`Created ${summary.created || 0}`);
-      parts.push(`Updated ${summary.updated || 0}`);
-
-      if (typeof summary.errors === "number") {
-        parts.push(`Errors ${summary.errors}`);
-      }
-
-      if (summary.inconsistencies?.authWithoutFirestore?.total) {
-        parts.push(`${summary.inconsistencies.authWithoutFirestore.total} users missing docs`);
-      } else if (summary.potentialCreates) {
-        parts.push(`${summary.potentialCreates} users missing docs`);
-      }
-
-      if (summary.inconsistencies?.missingEntitlements?.total) {
-        parts.push(`${summary.inconsistencies.missingEntitlements.total} missing entitlements`);
-      } else if (summary.potentialEntitlementCreates) {
-        parts.push(`${summary.potentialEntitlementCreates} missing entitlements`);
-      }
-
-      if (payload.cached) {
-        parts.push("cached");
-      }
-
-      const statusText = parts.join(" · ");
-      const variant = summary.errors && summary.errors > 0 ? "error" : (summary.created || summary.updated) ? "success" : "info";
-      this.updateSyncSummary(statusText, variant);
+      const { text, variant } = this.buildSyncSummaryDisplay(result.summary, result.cached);
+      this.updateSyncSummary(text, variant);
     } catch (error) {
       this.updateSyncSummary(`Unable to load sync status: ${error.message || error}`, "error");
       console.error("[AdminDashboard] Failed to fetch user sync status", error);
     }
+  }
+
+  async syncUsersPrimary(token, apiBaseUrl) {
+    const response = await fetch(`${apiBaseUrl}/api/admin/users/sync`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({})
+    });
+
+    if (response.status === 404) {
+      return null;
+    }
+
+    const payload = await this.parseJsonSafely(response);
+
+    if (!response.ok || !payload?.success) {
+      const message = payload?.error || payload?.details || `HTTP ${response.status}`;
+      const error = new Error(message);
+      error.status = response.status;
+      throw error;
+    }
+
+    return {
+      summary: payload.summary || {}
+    };
+  }
+
+  async syncUsersLegacy(token, apiBaseUrl) {
+    const response = await fetch(`${apiBaseUrl}/api/sync-users`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        dryRun: false,
+        ensureEntitlements: true,
+        includeDataCollections: true
+      })
+    });
+
+    const payload = await this.parseJsonSafely(response);
+
+    if (!response.ok || !payload?.success) {
+      const message = payload?.error || payload?.details || `HTTP ${response.status}`;
+      const error = new Error(message);
+      error.status = response.status;
+      throw error;
+    }
+
+    return {
+      summary: payload.summary || {}
+    };
   }
 
   async syncUsersManually() {
@@ -2507,23 +2639,23 @@ class AdminDashboardApp {
         ? window.getApiBaseUrl()
         : "https://specifys-ai.onrender.com";
 
-      const response = await fetch(`${apiBaseUrl}/api/admin/users/sync`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({})
-      });
-
-      const payload = await response.json().catch(() => null);
-
-      if (!response.ok || !payload?.success) {
-        const message = payload?.error || payload?.details || `HTTP ${response.status}`;
-        throw new Error(message);
+      let result = null;
+      try {
+        result = await this.syncUsersPrimary(token, apiBaseUrl);
+      } catch (error) {
+        if (error?.status === 404) {
+          result = null;
+        } else {
+          throw error;
+        }
       }
 
-      const summary = payload.summary || {};
+      if (!result) {
+        result = await this.syncUsersLegacy(token, apiBaseUrl);
+        console.warn("[AdminDashboard] Fallback to legacy /api/sync-users for manual sync");
+      }
+
+      const summary = result.summary || {};
       const message = `Created ${summary.created || 0} · Updated ${summary.updated || 0} · Errors ${summary.errors || 0}`;
       const variant = summary.errors && summary.errors > 0 ? "error" : "success";
       this.updateSyncSummary(message, variant);
