@@ -151,5 +151,11 @@ service cloud.firestore {
       // Only backend (via admin SDK) can write
       allow write: if false;
     }
+
+    // Activity logs collection
+    match /activityLogs/{logId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
   }
 }

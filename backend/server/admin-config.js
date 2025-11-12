@@ -9,9 +9,10 @@ module.exports = {
     'admin@specifys.ai',
     'shalom@specifys.ai'
   ],
-  
+
   isAdminEmail(email) {
-    return this.ADMIN_EMAILS.includes(email);
+    if (!email) return false;
+    return this.ADMIN_EMAILS.includes(email.toLowerCase());
   }
 };
 
