@@ -859,10 +859,19 @@ async function generateSpecification() {
       if (!entitlementCheck.hasAccess) {
         hideLoadingOverlay();
         console.error(`[${requestId}] ❌ Access denied: No credits/entitlement`);
-        if (typeof showPaywall !== 'undefined') {
-          showPaywall(entitlementCheck.paywallData);
-        } else {
-          alert('You do not have enough credits to create a spec. Please purchase credits or upgrade to Pro.');
+        const paywallPayload = entitlementCheck.paywallData || {
+          reason: 'insufficient_credits',
+          message: 'You have no remaining spec credits'
+        };
+        try {
+          if (typeof showPaywall === 'function') {
+            showPaywall(paywallPayload);
+          } else {
+            throw new Error('showPaywall is not available');
+          }
+        } catch (paywallError) {
+          console.error(`[${requestId}] ⚠️ Failed to display paywall`, paywallError);
+          alert(paywallPayload.message || 'You do not have enough credits to create a spec. Please purchase credits or upgrade to Pro.');
         }
         return;
       }
@@ -915,14 +924,32 @@ async function generateSpecification() {
       if (response.status === 403) {
         hideLoadingOverlay();
         console.warn(`[${requestId}] ℹ️ Spec generation blocked due to insufficient credits`);
-        if (typeof showPaywall !== 'undefined') {
-          const paywallData = {
+        let paywallPayload;
+        try {
+          const cloned = response.clone();
+          const payload = await cloned.json();
+          paywallPayload = payload?.paywallData || {
+            reason: payload?.error || 'insufficient_credits',
+            message: payload?.message || payload?.details || 'You have no remaining spec credits'
+          };
+        } catch (parseError) {
+          console.debug(`[${requestId}] Unable to parse 403 payload`, parseError);
+        }
+        if (!paywallPayload) {
+          paywallPayload = {
             reason: 'insufficient_credits',
             message: 'You have no remaining spec credits'
           };
-          showPaywall(paywallData);
-        } else {
-          alert('You do not have enough credits to create a spec. Please purchase credits or upgrade to Pro.');
+        }
+        try {
+          if (typeof showPaywall === 'function') {
+            showPaywall(paywallPayload);
+          } else {
+            throw new Error('showPaywall is not available');
+          }
+        } catch (paywallError) {
+          console.error(`[${requestId}] ⚠️ Failed to display paywall after 403`, paywallError);
+          alert(paywallPayload.message || 'You do not have enough credits to create a spec. Please purchase credits or upgrade to Pro.');
         }
         return;
       }
