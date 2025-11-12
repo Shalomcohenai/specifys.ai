@@ -864,13 +864,13 @@ async function generateSpecification() {
           message: 'You have no remaining spec credits'
         };
         try {
-          if (typeof showPaywall === 'function') {
-            showPaywall(paywallPayload);
-          } else {
-            throw new Error('showPaywall is not available');
-          }
-        } catch (paywallError) {
-          console.error(`[${requestId}] ⚠️ Failed to display paywall`, paywallError);
+          const searchParams = new URLSearchParams({
+            reason: paywallPayload.reason || 'insufficient_credits',
+            message: paywallPayload.message || 'You have no remaining spec credits'
+          });
+          window.location.href = `/pages/pricing.html?${searchParams.toString()}`;
+        } catch (redirectError) {
+          console.error(`[${requestId}] ⚠️ Failed to redirect to pricing`, redirectError);
           alert(paywallPayload.message || 'You do not have enough credits to create a spec. Please purchase credits or upgrade to Pro.');
         }
         return;
@@ -942,13 +942,13 @@ async function generateSpecification() {
           };
         }
         try {
-          if (typeof showPaywall === 'function') {
-            showPaywall(paywallPayload);
-          } else {
-            throw new Error('showPaywall is not available');
-          }
-        } catch (paywallError) {
-          console.error(`[${requestId}] ⚠️ Failed to display paywall after 403`, paywallError);
+          const searchParams = new URLSearchParams({
+            reason: paywallPayload.reason || 'insufficient_credits',
+            message: paywallPayload.message || 'You have no remaining spec credits'
+          });
+          window.location.href = `/pages/pricing.html?${searchParams.toString()}`;
+        } catch (redirectError) {
+          console.error(`[${requestId}] ⚠️ Failed to redirect to pricing after 403`, redirectError);
           alert(paywallPayload.message || 'You do not have enough credits to create a spec. Please purchase credits or upgrade to Pro.');
         }
         return;

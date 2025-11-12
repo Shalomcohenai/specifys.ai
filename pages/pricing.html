@@ -932,9 +932,23 @@ function handleCheckoutRedirect() {
         showPricingAlert('Checkout was cancelled. You can try again whenever you are ready.', 'info');
     }
 
+    const redirectReason = params.get('reason');
+    const redirectMessage = params.get('message');
+    if (redirectReason || redirectMessage) {
+        const alertType = redirectReason === 'insufficient_credits' ? 'error' : 'info';
+        showPricingAlert(redirectMessage || 'Please choose a plan to continue.', alertType);
+    }
+
     if (checkoutStatus) {
         params.delete('checkout');
         params.delete('product');
+    }
+    if (redirectReason || redirectMessage) {
+        params.delete('reason');
+        params.delete('message');
+    }
+
+    if (checkoutStatus || redirectReason || redirectMessage) {
         const newUrl = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ''}`;
         window.history.replaceState({}, document.title, newUrl);
     }
