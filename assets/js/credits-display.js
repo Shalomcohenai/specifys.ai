@@ -44,6 +44,15 @@
     creditsText.textContent = state.text || '';
     creditsText.title = state.title || '';
 
+    if (!creditsDisplay.dataset.pricingAttached) {
+      creditsDisplay.style.cursor = 'pointer';
+      creditsDisplay.title = 'View pricing plans';
+      creditsDisplay.addEventListener('click', () => {
+        window.location.href = '/pages/pricing.html';
+      });
+      creditsDisplay.dataset.pricingAttached = 'true';
+    }
+
     CREDIT_CLASSES.forEach((cls) => creditsDisplay.classList.remove(cls));
     if (state.variant && CREDIT_CLASSES.includes(state.variant)) {
       creditsDisplay.classList.add(state.variant);
