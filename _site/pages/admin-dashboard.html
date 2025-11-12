@@ -90,7 +90,7 @@
             <i class="fas fa-sign-out-alt"></i>
             Sign out
             </button>
-        </div>
+            </div>
       </header>
 
       <main class="admin-content" id="admin-content">
@@ -99,14 +99,14 @@
             <div>
               <h2>Live Overview</h2>
               <p>Realtime snapshot of the platform.</p>
-                                </div>
+            </div>
             <div class="section-controls">
               <select id="overview-range" aria-label="Overview range">
                 <option value="day">Last 24 hours</option>
                 <option value="week" selected>Last 7 days</option>
                 <option value="month">Last 30 days</option>
               </select>
-                            </div>
+        </div>
           </header>
 
           <div class="metrics-grid" id="overview-metrics">
@@ -130,7 +130,7 @@
               <p class="metric-value" data-metric="revenue-total">—</p>
               <span class="metric-sub" data-kpi="revenue-range">Range: —</span>
             </article>
-                    </div>
+        </div>
 
           <div class="overview-panels">
             <div class="panel recent-activity">
@@ -141,12 +141,12 @@
                   <button class="activity-filter-btn" data-filter="spec" type="button">Specs</button>
                   <button class="activity-filter-btn" data-filter="payment" type="button">Purchases</button>
                   <button class="activity-filter-btn" data-filter="auth" type="button">Logins</button>
-                </div>
+            </div>
                 <button class="panel-action" id="toggle-activity-pause" type="button">
                   <i class="fas fa-pause"></i>
                   Pause stream
-                            </button>
-                        </div>
+            </button>
+        </div>
               <ol class="activity-feed" id="activity-feed" aria-live="polite">
                 <li class="activity-placeholder">Waiting for events…</li>
               </ol>
@@ -155,7 +155,7 @@
             <div class="panel sync-status">
               <div class="panel-header">
                 <h3>Data sources</h3>
-                </div>
+                            </div>
               <ul class="source-list" id="source-status-list">
                 <li><span class="source-label">Users</span><span class="source-state" data-source="users">Pending</span></li>
                 <li><span class="source-label">Specs</span><span class="source-state" data-source="specs">Pending</span></li>
@@ -166,9 +166,9 @@
               <div class="auto-refresh">
                 <span>Auto refresh</span>
                 <span class="auto-refresh-next" id="auto-refresh-next">Scheduled in 24h</span>
-            </div>
-        </div>
-                </div>
+                        </div>
+                    </div>
+                        </div>
         </section>
 
         <section class="dashboard-section" id="users-section">
@@ -176,7 +176,7 @@
             <div>
               <h2>Users</h2>
               <p>Sorted by creation date with plan, specs, and credits.</p>
-            </div>
+                </div>
             <div class="section-controls">
               <input type="search" id="users-search" placeholder="Search by email or name" aria-label="Search users">
               <select id="users-plan-filter" aria-label="Filter by plan">
@@ -286,9 +286,22 @@
                 <label for="blog-title">Title</label>
                 <input id="blog-title" name="title" type="text" required maxlength="120" autocomplete="off">
                             </div>
+              <div class="form-group">
+                <label for="blog-date">Publish date</label>
+                <input id="blog-date" name="date" type="date" required>
+                            </div>
                             <div class="form-group">
                 <label for="blog-slug">Slug</label>
-                <input id="blog-slug" name="slug" type="text" required maxlength="140" placeholder="auto-generated if blank">
+                <input id="blog-slug" name="slug" type="text" maxlength="140" placeholder="Auto-generated from title if left blank">
+                <small class="field-hint">Letters, numbers, and hyphens only.</small>
+                        </div>
+              <div class="form-group">
+                <label for="blog-seo-title">SEO title</label>
+                <input id="blog-seo-title" name="seoTitle" type="text" maxlength="140" placeholder="Optional – defaults to title">
+                    </div>
+                            <div class="form-group">
+                <label for="blog-seo-description">SEO description</label>
+                <textarea id="blog-seo-description" name="seoDescription" rows="2" maxlength="160" placeholder="Optional – defaults to description"></textarea>
                             </div>
                             <div class="form-group">
                 <label for="blog-description">Description</label>
