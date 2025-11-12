@@ -27,6 +27,56 @@ const QUEUE_STATUS = {
  * @returns {Promise<Object>} Queue item
  */
 async function addToQueue(postData) {
+  const slug = postData?.slug;
+
+  if (!slug) {
+    throw new Error('Queue item requires a valid slug.');
+  }
+
+  // Check for duplicates in memory (current or pending)
+  const duplicateInMemory =
+    (blogQueue.currentItem &&
+      blogQueue.currentItem.status !== QUEUE_STATUS.COMPLETED &&
+      blogQueue.currentItem.status !== QUEUE_STATUS.FAILED &&
+      blogQueue.currentItem.postData?.slug === slug) ||
+    blogQueue.items.some(
+      (item) =>
+        item.postData?.slug === slug &&
+        item.status !== QUEUE_STATUS.COMPLETED &&
+        item.status !== QUEUE_STATUS.FAILED
+    );
+
+  if (duplicateInMemory) {
+    const error = new Error(
+      'A post with this slug is already queued or being published.'
+    );
+    error.code = 'duplicate-slug';
+    throw error;
+  }
+
+  // Check for duplicates persisted in Firestore (handles restarts)
+  try {
+    const snapshot = await db
+      .collection('blogQueue')
+      .where('postData.slug', '==', slug)
+      .where('status', 'in', [QUEUE_STATUS.PENDING, QUEUE_STATUS.PROCESSING])
+      .limit(1)
+      .get();
+
+    if (!snapshot.empty) {
+      const error = new Error(
+        'A post with this slug is already queued or being published.'
+      );
+      error.code = 'duplicate-slug';
+      throw error;
+    }
+  } catch (firestoreCheckError) {
+    console.error(
+      '[Blog Queue] Failed to check for duplicate slug in Firestore',
+      firestoreCheckError
+    );
+  }
+
   const queueItem = {
     id: `queue-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
     status: QUEUE_STATUS.PENDING,
@@ -65,6 +115,12 @@ async function addToQueue(postData) {
 async function processQueueItem(item, publishFunction) {
   try {
     blogQueue.processing = true;
+
+    // Remove item from pending queue if it still exists there
+    const pendingIndex = blogQueue.items.findIndex((queued) => queued.id === item.id);
+    if (pendingIndex >= 0) {
+      blogQueue.items.splice(pendingIndex, 1);
+    }
 
     // Update status
     item.status = QUEUE_STATUS.PROCESSING;

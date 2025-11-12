@@ -316,6 +316,14 @@ async function createPost(req, res) {
 
     } catch (error) {
         console.error('Error adding post to queue:', error);
+
+        if (error.code === 'duplicate-slug') {
+            return res.status(409).json({
+                success: false,
+                error: 'A blog post with this slug is already queued or publishing. Wait for it to complete before trying again.'
+            });
+        }
+
         res.status(500).json({
             success: false,
             error: error.message || 'Failed to add blog post to queue'
