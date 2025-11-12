@@ -6,7 +6,7 @@ const path = require('path');
 const GITHUB_CONFIG = {
     owner: 'Shalomcohenai',
     repo: 'specifys.ai',
-    branch: 'jekyll',
+    branch: 'with-store',
     token: process.env.GITHUB_TOKEN || '' // GitHub Personal Access Token (use environment variable)
 };
 
