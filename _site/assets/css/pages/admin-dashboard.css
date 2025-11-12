@@ -25,7 +25,7 @@
   color: var(--admin-success);
 }
 
-.activity-item.auth .activity-icon {
+.activity-item.user .activity-icon {
   color: var(--admin-accent);
 }
 
@@ -489,7 +489,7 @@ body {
   cursor: pointer;
 }
 
-.activity-feed li.auth {
+.activity-feed li.user {
   border-left: 3px solid var(--admin-accent);
 }
 .activity-feed li .activity-item__info {
@@ -688,7 +688,8 @@ body {
   font-size: 0.92rem;
 }
 
-.log-entry.auth {
+.log-entry.auth,
+.log-entry.user {
   border-left: 3px solid var(--admin-accent);
 }
 

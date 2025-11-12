@@ -641,7 +641,7 @@ class GlobalSearch {
       .join("");
 
     this.elements.results.innerHTML =
-      resultsHTML || `<div class="results-placeholder">No results found for “${term}”.</div>`;
+      resultsHTML || `<div class="results-placeholder">No results found for "${term}".</div>`;
 
     this.elements.results
       .querySelectorAll(".result-item")
@@ -1258,6 +1258,8 @@ class AdminDashboardApp {
     this.store.reset();
     this.updateAllSources("pending");
 
+    let usersInitialLoad = true;
+
     // Users
     try {
       const unsubUsers = onSnapshot(
@@ -1267,13 +1269,40 @@ class AdminDashboardApp {
             if (change.type === "removed") {
               this.store.removeUser(change.doc.id);
             } else {
-              this.store.upsertUser(change.doc.id, change.doc.data());
+              const user = this.store.upsertUser(change.doc.id, change.doc.data());
+              if (!usersInitialLoad && change.type === "added") {
+                console.debug("[Users] New user detected", {
+                  id: change.doc.id,
+                  email: user.email,
+                  createdAt: user.createdAt?.toISOString?.() || user.createdAt,
+                  plan: user.plan
+                });
+                this.store.recordActivity({
+                  type: "user",
+                  title: `New user · ${user.displayName || user.email || change.doc.id}`,
+                  description: user.email || user.displayName || change.doc.id,
+                  timestamp: user.createdAt || utils.now(),
+                  meta: {
+                    userId: change.doc.id,
+                    email: user.email,
+                    userEmail: user.email,
+                    userName: user.displayName,
+                    plan: user.plan
+                  }
+                });
+              }
             }
+          });
+          console.debug("[Users] Snapshot applied", {
+            total: this.store.users.size,
+            changes: snapshot.docChanges().length,
+            initialLoad: usersInitialLoad
           });
           this.markSourceReady("users");
           this.renderUsersTable();
           this.updateOverview();
           this.rebuildSearchIndex();
+          usersInitialLoad = false;
         },
         (error) => {
           console.error("Users listener error", error);
@@ -1766,6 +1795,7 @@ class AdminDashboardApp {
     const filtered = events.filter((event) => {
       if (filter === "all") return true;
       if (filter === "payment") return event.type === "payment" || event.type === "subscription";
+      if (filter === "user") return event.type === "user" || event.type === "auth";
       return event.type === filter;
     });
     if (!filtered.length) {
@@ -2291,6 +2321,8 @@ class AdminDashboardApp {
         return "fas fa-hand-holding-dollar";
       case "spec":
         return "fas fa-file-alt";
+      case "user":
+        return "fas fa-user-plus";
       case "auth":
         return "fas fa-user-check";
       default:
