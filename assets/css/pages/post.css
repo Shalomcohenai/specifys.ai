@@ -298,6 +298,7 @@
   color: var(--text-color);
   line-height: 1.8;
   transition: background-color var(--transition-fast);
+  white-space: pre-line;
 }
 
 .post-body p:hover {

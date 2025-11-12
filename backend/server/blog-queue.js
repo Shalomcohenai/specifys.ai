@@ -53,65 +53,7 @@ async function addToQueue(postData) {
     console.error('Error saving queue item to Firestore:', error);
   }
 
-  // Start processing if not already processing
-  if (!blogQueue.processing) {
-    processQueue();
-  }
-
   return queueItem;
-}
-
-/**
- * Process queue items sequentially
- */
-async function processQueue() {
-  if (blogQueue.processing) {
-    return;
-  }
-
-  blogQueue.processing = true;
-
-  while (blogQueue.items.length > 0 || blogQueue.currentItem) {
-    let item;
-    
-    if (blogQueue.currentItem) {
-      // Continue processing current item
-      item = blogQueue.currentItem;
-    } else if (blogQueue.items.length > 0) {
-      // Get next item from queue
-      item = blogQueue.items.shift();
-      blogQueue.currentItem = item;
-    } else {
-      break;
-    }
-
-    try {
-      // Update status to processing
-      if (item.status === QUEUE_STATUS.PENDING) {
-        item.status = QUEUE_STATUS.PROCESSING;
-        item.startedAt = new Date();
-        await updateQueueItemInFirestore(item);
-      }
-
-      console.log(`[Blog Queue] Processing item ${item.id}: ${item.postData.title}`);
-
-      // Wait for the actual processing to complete
-      // The processing will be done by calling processQueueItem from blog-routes.js
-      // We'll wait a bit and check if it's completed
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-    } catch (error) {
-      console.error(`[Blog Queue] Error processing item ${item.id}:`, error);
-      item.status = QUEUE_STATUS.FAILED;
-      item.error = error.message;
-      item.completedAt = new Date();
-      await updateQueueItemInFirestore(item);
-      blogQueue.currentItem = null;
-    }
-  }
-
-  blogQueue.currentItem = null;
-  blogQueue.processing = false;
 }
 
 /**
@@ -122,6 +64,8 @@ async function processQueue() {
  */
 async function processQueueItem(item, publishFunction) {
   try {
+    blogQueue.processing = true;
+
     // Update status
     item.status = QUEUE_STATUS.PROCESSING;
     item.startedAt = new Date();
@@ -273,7 +217,6 @@ setTimeout(() => clearOldQueueItems(), 60000); // Run after 1 minute
 
 module.exports = {
   addToQueue,
-  processQueue,
   processQueueItem,
   getQueueStatus,
   getQueueItems,
