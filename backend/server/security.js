@@ -327,10 +327,14 @@ async function requireAdmin(req, res, next) {
     next();
     
   } catch (error) {
-
-    return res.status(401).json({ 
+    console.error('[requireAdmin] Token verification failed', {
+      message: error?.message,
+      code: error?.code,
+      stack: error?.stack
+    });
+    return res.status(401).json({
       error: 'Invalid token',
-      message: 'Authentication failed'
+      message: error?.message || 'Authentication failed'
     });
   }
 }
