@@ -619,6 +619,7 @@
 
 .input-area {
   margin-bottom: 16px;
+  position: relative;
 }
 
 .main-input {
@@ -636,6 +637,29 @@
 
 .main-input::placeholder {
   color: #999;
+}
+
+.character-count-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+  padding-right: 4px;
+}
+
+.character-count {
+  font-size: 12px;
+  color: #999;
+  transition: color 0.3s ease;
+  font-family: inherit;
+}
+
+.character-count.warning {
+  color: #FF6B35;
+}
+
+.character-count.danger {
+  color: #ff3333;
+  font-weight: 600;
 }
 
 .input-controls {

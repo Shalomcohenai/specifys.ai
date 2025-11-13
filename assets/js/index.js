@@ -230,6 +230,14 @@ const questionDetails = [
   "Add any technical requirements, integrations with other services, future features, or special considerations"
 ];
 
+// Character limits for each question
+const characterLimits = [
+  900, // Question 1: Describe your application
+  800, // Question 2: Describe the workflow
+  700, // Question 3: Target audience and goals
+  600  // Question 4: Additional details
+];
+
 function showModernInput() {
   const inputContainer = document.getElementById('modernInputContainer');
   const questionsDisplay = document.getElementById('questionsDisplay');
@@ -292,6 +300,9 @@ function showCurrentQuestion() {
   
   // Update lightbulb tooltip based on current question
   updateLightbulbTooltip();
+  
+  // Update character limit for current question
+  updateCharacterLimit();
 }
 
 function updateProgressDots() {
@@ -326,6 +337,35 @@ function updateLightbulbTooltip() {
 // Removed duplicated tooltip init block (handled by updateLightbulbTooltip)
 }
 
+// ===== CHARACTER LIMIT MANAGEMENT =====
+function updateCharacterLimit() {
+  const textarea = document.getElementById('mainInput');
+  const characterCountElement = document.getElementById('characterCount');
+  
+  if (!textarea || !characterCountElement || currentQuestionIndex >= characterLimits.length) {
+    return;
+  }
+  
+  const maxLength = characterLimits[currentQuestionIndex];
+  textarea.maxLength = maxLength;
+  
+  // Update character count display
+  const currentLength = textarea.value.length;
+  characterCountElement.textContent = `${currentLength} / ${maxLength}`;
+  
+  // Update styling based on character count
+  const percentage = (currentLength / maxLength) * 100;
+  if (percentage >= 100) {
+    characterCountElement.classList.add('danger');
+    characterCountElement.classList.remove('warning');
+  } else if (percentage >= 90) {
+    characterCountElement.classList.add('warning');
+    characterCountElement.classList.remove('danger');
+  } else {
+    characterCountElement.classList.remove('warning', 'danger');
+  }
+}
+
 function jumpToQuestion(questionIndex) {
   if (questionIndex >= 0 && questionIndex < questions.length) {
     // Save current answer before jumping
@@ -339,6 +379,8 @@ function jumpToQuestion(questionIndex) {
     // Restore answer if exists
     if (textarea) {
       textarea.value = answers[currentQuestionIndex] || '';
+      // Update character limit for new question
+      updateCharacterLimit();
     }
     
     // Update button state after restoring answer
@@ -394,6 +436,7 @@ function jumpToQuestion(questionIndex) {
         }
         updateProgressDots();
         updateLightbulbTooltip();
+        updateCharacterLimit();
       }, 600);
     }
   }
@@ -483,6 +526,9 @@ function nextQuestion() {
             sendBtn.style.cursor = 'pointer';
             sendBtn.style.opacity = '0.6';
           }
+          
+          // Update character limit for new question
+          updateCharacterLimit();
         }
       }, 600); // Match the CSS transition duration
     }
@@ -501,6 +547,8 @@ function previousQuestion() {
     const textarea = document.getElementById('mainInput');
     if (textarea) {
       textarea.value = answers[currentQuestionIndex] || '';
+      // Update character limit for new question
+      updateCharacterLimit();
     }
     
     // Show previous question with enhanced transition
@@ -522,6 +570,8 @@ function previousQuestion() {
         updateLightbulbTooltip();
         // Update progress dots
         updateProgressDots();
+        // Update character limit
+        updateCharacterLimit();
       }, 600); // Match the CSS transition duration
     }
   }
@@ -559,17 +609,37 @@ function setupModernInput() {
       sendBtn.style.cursor = 'pointer';
       sendBtn.style.opacity = '0.6';
     }
+    
+    // Update character count
+    updateCharacterLimit();
   }
   
   textarea.addEventListener('input', function() {
+    // Trim text if it exceeds the limit (handles paste events)
+    const maxLength = characterLimits[currentQuestionIndex] || 900;
+    if (textarea.value.length > maxLength) {
+      textarea.value = textarea.value.substring(0, maxLength);
+    }
     autoResize();
     updateButtonState();
   });
   
   textarea.addEventListener('keyup', updateButtonState);
   
-  // Initialize button state
+  // Handle paste events to prevent exceeding limit
+  textarea.addEventListener('paste', function(e) {
+    const maxLength = characterLimits[currentQuestionIndex] || 900;
+    setTimeout(() => {
+      if (textarea.value.length > maxLength) {
+        textarea.value = textarea.value.substring(0, maxLength);
+        updateButtonState();
+      }
+    }, 0);
+  });
+  
+  // Initialize button state and character limit
   updateButtonState();
+  updateCharacterLimit();
   
   sendBtn.addEventListener('click', function() {
     // Platform validation check
@@ -614,11 +684,22 @@ function setupModernInput() {
   });
 
   textarea.addEventListener('keydown', function(e) {
+    // Prevent input beyond character limit
+    const maxLength = characterLimits[currentQuestionIndex] || 900;
+    if (textarea.value.length >= maxLength && e.key !== 'Backspace' && e.key !== 'Delete' && !e.ctrlKey && !e.metaKey) {
+      // Allow navigation keys, shortcuts, and Enter/Backspace for navigation
+      if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End', 'Tab', 'Enter'].includes(e.key)) {
+        e.preventDefault();
+      }
+    }
+    
+    // Handle Enter key for navigation
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       sendBtn.click();
     }
     
+    // Handle Backspace to go to previous question when textarea is empty
     if (e.key === 'Backspace' && textarea.value === '') {
       e.preventDefault();
       previousQuestion();
@@ -776,10 +857,17 @@ function initSpeechRecognition() {
       const transcript = event.results[0][0].transcript;
       const textarea = document.getElementById('mainInput');
       if (textarea) {
-        textarea.value = transcript;
-        // Trigger auto-resize
+        // Trim transcript if it exceeds the limit
+        const maxLength = characterLimits[currentQuestionIndex] || 900;
+        const trimmedTranscript = transcript.substring(0, maxLength);
+        textarea.value = trimmedTranscript;
+        // Trigger auto-resize and update UI
         textarea.style.height = 'auto';
         textarea.style.height = textarea.scrollHeight + 'px';
+        // Update character count - this will also trigger updateButtonState via input event
+        updateCharacterLimit();
+        // Manually trigger input event to update button state
+        textarea.dispatchEvent(new Event('input'));
       }
     };
     
