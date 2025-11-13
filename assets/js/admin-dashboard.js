@@ -2425,9 +2425,19 @@ class AdminDashboardApp {
   async parseJsonSafely(response) {
     if (!response) return null;
     try {
-      return await response.clone().json();
+      // Clone the response so we can read it multiple times if needed
+      const clonedResponse = response.clone();
+      return await clonedResponse.json();
     } catch (error) {
-      return null;
+      // If JSON parsing fails, try to get text for debugging from a fresh clone
+      try {
+        const textResponse = response.clone();
+        const text = await textResponse.text();
+        console.warn('[AdminDashboard] Failed to parse JSON response:', text.substring(0, 200));
+        return null;
+      } catch (textError) {
+        return null;
+      }
     }
   }
 
@@ -2513,17 +2523,34 @@ class AdminDashboardApp {
       })
     });
 
-    const payload = await this.parseJsonSafely(response);
-
-    if (!response.ok || !payload?.success || !payload.summary) {
+    if (!response.ok) {
+      const payload = await this.parseJsonSafely(response);
       const message = payload?.error || payload?.details || `HTTP ${response.status}`;
       const error = new Error(message);
       error.status = response.status;
       throw error;
     }
 
+    const payload = await this.parseJsonSafely(response);
+    
+    if (!payload) {
+      throw new Error('Invalid response format: server returned non-JSON response');
+    }
+
+    if (!payload.success) {
+      const message = payload?.error || payload?.details || 'Sync failed';
+      throw new Error(message);
+    }
+
+    // For legacy endpoint, summary might be at root level or in summary field
+    const summary = payload.summary || payload;
+    
+    if (!summary || typeof summary !== 'object') {
+      throw new Error('Invalid response: missing summary data');
+    }
+
     return {
-      summary: payload.summary || {},
+      summary: summary,
       cached: false
     };
   }
@@ -2607,17 +2634,30 @@ class AdminDashboardApp {
       })
     });
 
-    const payload = await this.parseJsonSafely(response);
-
-    if (!response.ok || !payload?.success) {
+    if (!response.ok) {
+      const payload = await this.parseJsonSafely(response);
       const message = payload?.error || payload?.details || `HTTP ${response.status}`;
       const error = new Error(message);
       error.status = response.status;
       throw error;
     }
 
+    const payload = await this.parseJsonSafely(response);
+    
+    if (!payload) {
+      throw new Error('Invalid response format: server returned non-JSON response');
+    }
+
+    if (!payload.success) {
+      const message = payload?.error || payload?.details || 'Sync failed';
+      throw new Error(message);
+    }
+
+    // For legacy endpoint, summary might be at root level or in summary field
+    const summary = payload.summary || payload;
+    
     return {
-      summary: payload.summary || {}
+      summary: summary || {}
     };
   }
 
