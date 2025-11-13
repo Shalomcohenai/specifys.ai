@@ -2771,23 +2771,16 @@ class AdminDashboardApp {
         ? window.getApiBaseUrl()
         : "https://specifys-ai.onrender.com";
 
-      // Prepare test data (minimal test request)
-      const testPrompt = "Test API connectivity. This is a health check request.";
-
-      // Create abort controller for timeout
+      // Simple health check - just ping the status endpoint
+      // This is much simpler than testing generate-spec which requires auth/credits
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
       let response;
       try {
-        response = await fetch(`${apiBaseUrl}/api/generate-spec`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            userInput: testPrompt
-          }),
+        // Simple GET request to /api/status - no auth, no body, just check connectivity
+        response = await fetch(`${apiBaseUrl}/api/status`, {
+          method: "GET",
           signal: controller.signal
         });
         clearTimeout(timeoutId);
@@ -2823,24 +2816,7 @@ class AdminDashboardApp {
 
       // Check if response is OK
       if (!response.ok) {
-        let errorText = "";
-        try {
-          errorText = await response.text();
-        } catch (e) {
-          // Ignore text parsing errors
-        }
-        
-        let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
-        try {
-          if (errorText) {
-            const errorData = JSON.parse(errorText);
-            errorMessage = errorData.error || errorData.details || errorMessage;
-          }
-        } catch (e) {
-          // Use status text if JSON parsing fails
-        }
-
-        throw new Error(errorMessage);
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
       // Try to parse response to ensure it's valid JSON
@@ -2851,7 +2827,7 @@ class AdminDashboardApp {
         throw new Error("Invalid JSON response from API");
       }
       
-      // Check if we got a valid response structure
+      // Check if we got a valid response (just needs to be an object)
       if (!data || typeof data !== "object") {
         throw new Error("Invalid response format");
       }
