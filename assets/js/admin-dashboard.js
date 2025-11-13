@@ -998,6 +998,17 @@ class AdminDashboardApp {
         specsRange: utils.dom('[data-kpi="specs-range"]'),
         revenueTotal: utils.dom('[data-metric="revenue-total"]'),
         revenueRange: utils.dom('[data-kpi="revenue-range"]')
+      },
+      apiHealth: {
+        status: utils.dom("#api-health-status"),
+        statusDot: utils.dom("#api-health-status .status-dot"),
+        statusText: utils.dom("#api-health-status .status-text"),
+        lastCheck: utils.dom("#api-last-check"),
+        responseTime: utils.dom("#api-response-time"),
+        nextCheck: utils.dom("#api-next-check"),
+        checkButton: utils.dom("#api-health-check-btn"),
+        summary: utils.dom("#api-health-summary"),
+        historyList: utils.dom("#api-health-history-list")
       }
     };
 
@@ -1018,6 +1029,12 @@ class AdminDashboardApp {
       blogQueue: "pending"
     };
     this.sourceMessages = {};
+
+    // API Health Check state
+    this.apiHealthCheckInProgress = false;
+    this.apiHealthCheckTimer = null;
+    this.apiHealthHistory = this.loadHealthHistory();
+    this.lastHealthCheck = this.getLastHealthCheck();
 
     const specViewerElements = {
       root: utils.dom("#spec-viewer"),
@@ -1042,6 +1059,7 @@ class AdminDashboardApp {
     this.bindNavigation();
     this.bindInteractions();
     this.setupAuthGate();
+    this.initApiHealthCheck();
   }
 
   bindNavigation() {
@@ -1066,6 +1084,7 @@ class AdminDashboardApp {
   bindInteractions() {
     this.dom.manualRefresh?.addEventListener("click", () => this.refreshAllData("manual"));
     this.dom.syncUsersButton?.addEventListener("click", () => this.syncUsersManually());
+    this.dom.apiHealth.checkButton?.addEventListener("click", () => this.performApiHealthCheck());
     this.dom.signOut?.addEventListener("click", async () => {
       try {
         await signOut(auth);
@@ -2671,6 +2690,339 @@ class AdminDashboardApp {
         button.innerHTML = originalLabel || '<i class="fas fa-user-check"></i> Sync users';
       }
       this.syncInProgress = false;
+    }
+  }
+
+  // ===== API Health Check Methods =====
+
+  initApiHealthCheck() {
+    // Load and display initial state
+    this.updateApiHealthUI();
+    this.renderHealthHistory();
+
+    // Check if we need to run automatic check
+    const now = Date.now();
+    const lastCheck = this.lastHealthCheck?.timestamp || 0;
+    const timeSinceLastCheck = now - lastCheck;
+    const oneDay = 24 * 60 * 60 * 1000;
+
+    // If last check was more than 24 hours ago, run check immediately
+    if (timeSinceLastCheck >= oneDay) {
+      // Run check after a short delay to let page load
+      setTimeout(() => {
+        this.performApiHealthCheck(true);
+      }, 2000);
+    } else {
+      // Schedule next check
+      const timeUntilNextCheck = oneDay - timeSinceLastCheck;
+      this.scheduleNextHealthCheck(timeUntilNextCheck);
+    }
+  }
+
+  loadHealthHistory() {
+    try {
+      const stored = localStorage.getItem("apiHealthHistory");
+      if (stored) {
+        const history = JSON.parse(stored);
+        // Keep only last 10 checks
+        return history.slice(-10);
+      }
+    } catch (error) {
+      console.warn("[AdminDashboard] Failed to load health history", error);
+    }
+    return [];
+  }
+
+  saveHealthHistory() {
+    try {
+      localStorage.setItem("apiHealthHistory", JSON.stringify(this.apiHealthHistory));
+    } catch (error) {
+      console.warn("[AdminDashboard] Failed to save health history", error);
+    }
+  }
+
+  getLastHealthCheck() {
+    if (this.apiHealthHistory.length > 0) {
+      return this.apiHealthHistory[this.apiHealthHistory.length - 1];
+    }
+    return null;
+  }
+
+  async performApiHealthCheck(isAutomatic = false) {
+    if (this.apiHealthCheckInProgress) {
+      return;
+    }
+
+    this.apiHealthCheckInProgress = true;
+    const button = this.dom.apiHealth.checkButton;
+    const originalLabel = button?.innerHTML;
+
+    try {
+      // Update UI to show checking state
+      if (button) {
+        button.disabled = true;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Testing...';
+      }
+      this.updateHealthStatus("checking", "Checking API...");
+
+      const apiBaseUrl = typeof window.getApiBaseUrl === "function"
+        ? window.getApiBaseUrl()
+        : "https://specifys-ai.onrender.com";
+
+      // Prepare test data (minimal test request)
+      const testPrompt = "Test API connectivity. This is a health check request.";
+      const startTime = Date.now();
+
+      // Create abort controller for timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 seconds timeout
+
+      let response;
+      try {
+        response = await fetch(`${apiBaseUrl}/api/generate-spec`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            userInput: testPrompt
+          }),
+          signal: controller.signal
+        });
+      } finally {
+        clearTimeout(timeoutId);
+      }
+
+      const responseTime = Date.now() - startTime;
+
+      // Check if response is OK
+      if (!response.ok) {
+        const errorText = await response.text();
+        let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+        try {
+          const errorData = JSON.parse(errorText);
+          errorMessage = errorData.error || errorData.details || errorMessage;
+        } catch (e) {
+          // Use text as is
+        }
+
+        throw new Error(errorMessage);
+      }
+
+      // Try to parse response to ensure it's valid JSON
+      const data = await response.json();
+      
+      // Check if we got a valid response structure
+      if (!data || typeof data !== "object") {
+        throw new Error("Invalid response format");
+      }
+
+      // Success!
+      const checkResult = {
+        timestamp: Date.now(),
+        success: true,
+        responseTime: responseTime,
+        status: response.status,
+        message: "API is responding correctly"
+      };
+
+      this.recordHealthCheck(checkResult);
+      this.updateHealthStatus("success", "API is healthy");
+      this.updateHealthSummary(`✅ API check passed (${responseTime}ms)`, "success");
+      this.updateApiHealthUI(checkResult);
+
+      // Schedule next automatic check (24 hours from now)
+      if (isAutomatic) {
+        this.scheduleNextHealthCheck(24 * 60 * 60 * 1000);
+      }
+
+    } catch (error) {
+      const responseTime = error.name === "AbortError" ? 30000 : (Date.now() - startTime);
+      
+      const checkResult = {
+        timestamp: Date.now(),
+        success: false,
+        responseTime: responseTime,
+        status: error.status || 0,
+        message: error.message || "Unknown error",
+        error: error.name || "Error"
+      };
+
+      this.recordHealthCheck(checkResult);
+      this.updateHealthStatus("error", "API check failed");
+      this.updateHealthSummary(`❌ API check failed: ${checkResult.message}`, "error");
+      this.updateApiHealthUI(checkResult);
+
+      console.error("[AdminDashboard] API health check failed", error);
+    } finally {
+      if (button) {
+        button.disabled = false;
+        button.innerHTML = originalLabel || '<i class="fas fa-heartbeat"></i> Test API Connection';
+      }
+      this.apiHealthCheckInProgress = false;
+    }
+  }
+
+  recordHealthCheck(result) {
+    this.apiHealthHistory.push(result);
+    // Keep only last 10 checks
+    if (this.apiHealthHistory.length > 10) {
+      this.apiHealthHistory = this.apiHealthHistory.slice(-10);
+    }
+    this.lastHealthCheck = result;
+    this.saveHealthHistory();
+    this.renderHealthHistory();
+  }
+
+  updateHealthStatus(status, text) {
+    const statusDot = this.dom.apiHealth.statusDot;
+    const statusText = this.dom.apiHealth.statusText;
+
+    if (statusDot) {
+      statusDot.className = "status-dot";
+      if (status === "success") {
+        statusDot.classList.add("status-success");
+      } else if (status === "error") {
+        statusDot.classList.add("status-error");
+      } else if (status === "checking") {
+        statusDot.classList.add("status-checking");
+      } else {
+        statusDot.classList.add("status-unknown");
+      }
+    }
+
+    if (statusText) {
+      statusText.textContent = text || "Not checked";
+    }
+  }
+
+  updateHealthSummary(message, variant) {
+    const summary = this.dom.apiHealth.summary;
+    if (summary) {
+      summary.textContent = message;
+      summary.className = `health-check-note ${variant || ""}`;
+    }
+  }
+
+  updateApiHealthUI(checkResult = null) {
+    const lastCheck = checkResult || this.lastHealthCheck;
+
+    // Update last check time
+    if (this.dom.apiHealth.lastCheck) {
+      if (lastCheck) {
+        const date = new Date(lastCheck.timestamp);
+        const timeStr = date.toLocaleString("en-US", {
+          month: "short",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit"
+        });
+        this.dom.apiHealth.lastCheck.textContent = timeStr;
+      } else {
+        this.dom.apiHealth.lastCheck.textContent = "Never";
+      }
+    }
+
+    // Update response time
+    if (this.dom.apiHealth.responseTime) {
+      if (lastCheck && lastCheck.responseTime) {
+        this.dom.apiHealth.responseTime.textContent = `${lastCheck.responseTime}ms`;
+      } else {
+        this.dom.apiHealth.responseTime.textContent = "—";
+      }
+    }
+
+    // Update next check time
+    if (this.dom.apiHealth.nextCheck) {
+      if (lastCheck && lastCheck.timestamp) {
+        const nextCheckTime = lastCheck.timestamp + (24 * 60 * 60 * 1000);
+        const now = Date.now();
+        const timeUntilNext = nextCheckTime - now;
+
+        if (timeUntilNext <= 0) {
+          this.dom.apiHealth.nextCheck.textContent = "Due now";
+        } else {
+          const hours = Math.floor(timeUntilNext / (60 * 60 * 1000));
+          const minutes = Math.floor((timeUntilNext % (60 * 60 * 1000)) / (60 * 1000));
+          
+          if (hours > 0) {
+            this.dom.apiHealth.nextCheck.textContent = `In ${hours}h ${minutes}m`;
+          } else {
+            this.dom.apiHealth.nextCheck.textContent = `In ${minutes}m`;
+          }
+        }
+      } else {
+        this.dom.apiHealth.nextCheck.textContent = "Scheduled in 24h";
+      }
+    }
+
+    // Update status indicator
+    if (lastCheck) {
+      if (lastCheck.success) {
+        this.updateHealthStatus("success", "API is healthy");
+      } else {
+        this.updateHealthStatus("error", "API check failed");
+      }
+    } else {
+      this.updateHealthStatus("unknown", "Not checked");
+    }
+  }
+
+  renderHealthHistory() {
+    const historyList = this.dom.apiHealth.historyList;
+    if (!historyList) return;
+
+    if (this.apiHealthHistory.length === 0) {
+      historyList.innerHTML = '<li class="history-placeholder">No checks yet</li>';
+      return;
+    }
+
+    // Show last 5 checks
+    const recentChecks = this.apiHealthHistory.slice(-5).reverse();
+    
+    historyList.innerHTML = recentChecks.map(check => {
+      const date = new Date(check.timestamp);
+      const timeStr = date.toLocaleString("en-US", {
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+      
+      const statusIcon = check.success ? "✅" : "❌";
+      const statusClass = check.success ? "success" : "error";
+      
+      return `
+        <li class="history-item ${statusClass}">
+          <span class="history-time">${timeStr}</span>
+          <span class="history-status">${statusIcon}</span>
+          <span class="history-details">${check.responseTime}ms</span>
+        </li>
+      `;
+    }).join("");
+  }
+
+  scheduleNextHealthCheck(delay) {
+    // Clear existing timer
+    if (this.apiHealthCheckTimer) {
+      clearTimeout(this.apiHealthCheckTimer);
+    }
+
+    // Schedule next check
+    this.apiHealthCheckTimer = setTimeout(() => {
+      this.performApiHealthCheck(true);
+    }, delay);
+
+    // Update UI to show next check time
+    if (this.dom.apiHealth.nextCheck) {
+      const hours = Math.floor(delay / (60 * 60 * 1000));
+      const minutes = Math.floor((delay % (60 * 60 * 1000)) / (60 * 1000));
+      
+      if (hours > 0) {
+        this.dom.apiHealth.nextCheck.textContent = `In ${hours}h ${minutes}m`;
+      } else {
+        this.dom.apiHealth.nextCheck.textContent = `In ${minutes}m`;
+      }
     }
   }
 }

@@ -179,6 +179,45 @@
                 <span class="sync-note" id="sync-users-summary">No manual sync run yet.</span>
               </div>
             </div>
+
+            <div class="panel api-health-check">
+              <div class="panel-header">
+                <h3>API Health Check</h3>
+                <div class="health-status-indicator" id="api-health-status">
+                  <span class="status-dot status-unknown"></span>
+                  <span class="status-text">Not checked</span>
+                </div>
+              </div>
+              <div class="health-check-info">
+                <div class="health-metric">
+                  <span class="metric-label">Last check:</span>
+                  <span class="metric-value" id="api-last-check">Never</span>
+                </div>
+                <div class="health-metric">
+                  <span class="metric-label">Response time:</span>
+                  <span class="metric-value" id="api-response-time">—</span>
+                </div>
+                <div class="health-metric">
+                  <span class="metric-label">Next auto-check:</span>
+                  <span class="metric-value" id="api-next-check">Scheduled in 24h</span>
+                </div>
+              </div>
+              <div class="health-check-actions">
+                <button class="action-btn" id="api-health-check-btn" type="button">
+                  <i class="fas fa-heartbeat"></i>
+                  Test API Connection
+                </button>
+                <span class="health-check-note" id="api-health-summary">Click to test API connectivity</span>
+              </div>
+              <div class="health-check-history" id="api-health-history">
+                <div class="history-header">
+                  <h4>Recent checks</h4>
+                </div>
+                <ul class="history-list" id="api-health-history-list">
+                  <li class="history-placeholder">No checks yet</li>
+                </ul>
+              </div>
+            </div>
                         </div>
         </section>
 

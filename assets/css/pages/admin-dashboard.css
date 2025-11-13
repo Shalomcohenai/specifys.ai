@@ -599,6 +599,169 @@ body {
   color: var(--admin-critical);
 }
 
+/* API Health Check Panel */
+.api-health-check {
+  background: var(--admin-surface-alt);
+  border: 1px solid var(--admin-border);
+  border-radius: 18px;
+  padding: 18px;
+  display: grid;
+  gap: 16px;
+}
+
+.health-status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+}
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.status-dot.status-success {
+  background: var(--admin-success);
+  box-shadow: 0 0 0 3px rgba(24, 180, 125, 0.2);
+}
+
+.status-dot.status-error {
+  background: var(--admin-critical);
+  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.2);
+}
+
+.status-dot.status-checking {
+  background: var(--admin-warning);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.status-dot.status-unknown {
+  background: var(--admin-text-muted);
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.health-check-info {
+  display: grid;
+  gap: 10px;
+  font-size: 0.9rem;
+}
+
+.health-metric {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.metric-label {
+  color: var(--admin-text-muted);
+}
+
+.metric-value {
+  font-weight: 500;
+  color: var(--admin-text);
+}
+
+.health-check-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.health-check-actions .action-btn {
+  align-self: flex-start;
+}
+
+.health-check-note {
+  font-size: 0.85rem;
+  color: var(--admin-text-muted);
+}
+
+.health-check-note.success {
+  color: var(--admin-success);
+}
+
+.health-check-note.error {
+  color: var(--admin-critical);
+}
+
+.health-check-history {
+  margin-top: 8px;
+  padding-top: 16px;
+  border-top: 1px solid var(--admin-border);
+}
+
+.history-header {
+  margin-bottom: 12px;
+}
+
+.history-header h4 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--admin-text);
+  margin: 0;
+}
+
+.history-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 8px;
+  font-size: 0.85rem;
+}
+
+.history-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: 10px;
+}
+
+.history-item.success {
+  border-left: 3px solid var(--admin-success);
+}
+
+.history-item.error {
+  border-left: 3px solid var(--admin-critical);
+}
+
+.history-time {
+  flex: 1;
+  color: var(--admin-text-muted);
+  font-size: 0.82rem;
+}
+
+.history-status {
+  font-size: 0.9rem;
+}
+
+.history-details {
+  color: var(--admin-text-muted);
+  font-size: 0.8rem;
+}
+
+.history-placeholder {
+  text-align: center;
+  color: var(--admin-text-muted);
+  font-style: italic;
+  padding: 12px;
+}
+
 .auto-refresh {
   display: flex;
   justify-content: space-between;
