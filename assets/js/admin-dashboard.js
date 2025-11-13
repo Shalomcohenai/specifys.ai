@@ -2756,6 +2756,8 @@ class AdminDashboardApp {
     this.apiHealthCheckInProgress = true;
     const button = this.dom.apiHealth.checkButton;
     const originalLabel = button?.innerHTML;
+    const startTime = Date.now();
+    const TIMEOUT_MS = 30000; // 30 seconds
 
     try {
       // Update UI to show checking state
@@ -2771,11 +2773,10 @@ class AdminDashboardApp {
 
       // Prepare test data (minimal test request)
       const testPrompt = "Test API connectivity. This is a health check request.";
-      const startTime = Date.now();
 
       // Create abort controller for timeout
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 seconds timeout
+      const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
       let response;
       try {
@@ -2789,28 +2790,66 @@ class AdminDashboardApp {
           }),
           signal: controller.signal
         });
-      } finally {
         clearTimeout(timeoutId);
+      } catch (fetchError) {
+        clearTimeout(timeoutId);
+        
+        // Handle timeout/abort error
+        if (fetchError.name === "AbortError" || fetchError.name === "TimeoutError") {
+          const responseTime = Date.now() - startTime;
+          const checkResult = {
+            timestamp: Date.now(),
+            success: false,
+            responseTime: responseTime,
+            status: 0,
+            message: `Request timeout after ${TIMEOUT_MS / 1000} seconds`,
+            error: "TimeoutError"
+          };
+
+          this.recordHealthCheck(checkResult);
+          this.updateHealthStatus("error", "API check failed");
+          this.updateHealthSummary(`❌ API check failed: ${checkResult.message}`, "error");
+          this.updateApiHealthUI(checkResult);
+
+          console.error("[AdminDashboard] API health check failed - timeout", fetchError);
+          return;
+        }
+        
+        // Re-throw other fetch errors
+        throw fetchError;
       }
 
       const responseTime = Date.now() - startTime;
 
       // Check if response is OK
       if (!response.ok) {
-        const errorText = await response.text();
+        let errorText = "";
+        try {
+          errorText = await response.text();
+        } catch (e) {
+          // Ignore text parsing errors
+        }
+        
         let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
         try {
-          const errorData = JSON.parse(errorText);
-          errorMessage = errorData.error || errorData.details || errorMessage;
+          if (errorText) {
+            const errorData = JSON.parse(errorText);
+            errorMessage = errorData.error || errorData.details || errorMessage;
+          }
         } catch (e) {
-          // Use text as is
+          // Use status text if JSON parsing fails
         }
 
         throw new Error(errorMessage);
       }
 
       // Try to parse response to ensure it's valid JSON
-      const data = await response.json();
+      let data;
+      try {
+        data = await response.json();
+      } catch (parseError) {
+        throw new Error("Invalid JSON response from API");
+      }
       
       // Check if we got a valid response structure
       if (!data || typeof data !== "object") {
@@ -2837,14 +2876,22 @@ class AdminDashboardApp {
       }
 
     } catch (error) {
-      const responseTime = error.name === "AbortError" ? 30000 : (Date.now() - startTime);
+      const responseTime = Date.now() - startTime;
+      
+      // Create user-friendly error message
+      let errorMessage = error.message || "Unknown error";
+      if (error.name === "TypeError" && error.message.includes("fetch")) {
+        errorMessage = "Network error: Could not connect to API";
+      } else if (error.name === "AbortError" || error.name === "TimeoutError") {
+        errorMessage = `Request timeout after ${TIMEOUT_MS / 1000} seconds`;
+      }
       
       const checkResult = {
         timestamp: Date.now(),
         success: false,
         responseTime: responseTime,
         status: error.status || 0,
-        message: error.message || "Unknown error",
+        message: errorMessage,
         error: error.name || "Error"
       };
 
