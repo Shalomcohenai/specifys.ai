@@ -609,6 +609,34 @@ body {
   gap: 16px;
 }
 
+.health-check-simple {
+  display: grid;
+  gap: 16px;
+}
+
+.api-response-box {
+  width: 100%;
+}
+
+.api-response-box textarea {
+  width: 100%;
+  min-height: 300px;
+  padding: 12px;
+  border: 1px solid var(--admin-border);
+  border-radius: 10px;
+  background: var(--admin-surface);
+  color: var(--admin-text);
+  font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.api-response-box textarea:focus {
+  outline: none;
+  border-color: var(--admin-accent);
+}
+
 .health-status-indicator {
   display: flex;
   align-items: center;
