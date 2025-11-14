@@ -998,6 +998,10 @@ class AdminDashboardApp {
         specsRange: utils.dom('[data-kpi="specs-range"]'),
         revenueTotal: utils.dom('[data-metric="revenue-total"]'),
         revenueRange: utils.dom('[data-kpi="revenue-range"]')
+      },
+      apiHealth: {
+        checkButton: utils.dom("#api-health-check-btn"),
+        responseText: utils.dom("#api-response-text")
       }
     };
 
@@ -1018,6 +1022,9 @@ class AdminDashboardApp {
       blogQueue: "pending"
     };
     this.sourceMessages = {};
+
+    // API Health Check state
+    this.apiHealthCheckInProgress = false;
 
     const specViewerElements = {
       root: utils.dom("#spec-viewer"),
@@ -1066,6 +1073,7 @@ class AdminDashboardApp {
   bindInteractions() {
     this.dom.manualRefresh?.addEventListener("click", () => this.refreshAllData("manual"));
     this.dom.syncUsersButton?.addEventListener("click", () => this.syncUsersManually());
+    this.dom.apiHealth.checkButton?.addEventListener("click", () => this.performApiHealthCheck());
     this.dom.signOut?.addEventListener("click", async () => {
       try {
         await signOut(auth);
@@ -2417,9 +2425,19 @@ class AdminDashboardApp {
   async parseJsonSafely(response) {
     if (!response) return null;
     try {
-      return await response.clone().json();
+      // Clone the response so we can read it multiple times if needed
+      const clonedResponse = response.clone();
+      return await clonedResponse.json();
     } catch (error) {
-      return null;
+      // If JSON parsing fails, try to get text for debugging from a fresh clone
+      try {
+        const textResponse = response.clone();
+        const text = await textResponse.text();
+        console.warn('[AdminDashboard] Failed to parse JSON response:', text.substring(0, 200));
+        return null;
+      } catch (textError) {
+        return null;
+      }
     }
   }
 
@@ -2505,17 +2523,34 @@ class AdminDashboardApp {
       })
     });
 
-    const payload = await this.parseJsonSafely(response);
-
-    if (!response.ok || !payload?.success || !payload.summary) {
+    if (!response.ok) {
+      const payload = await this.parseJsonSafely(response);
       const message = payload?.error || payload?.details || `HTTP ${response.status}`;
       const error = new Error(message);
       error.status = response.status;
       throw error;
     }
 
+    const payload = await this.parseJsonSafely(response);
+    
+    if (!payload) {
+      throw new Error('Invalid response format: server returned non-JSON response');
+    }
+
+    if (!payload.success) {
+      const message = payload?.error || payload?.details || 'Sync failed';
+      throw new Error(message);
+    }
+
+    // For legacy endpoint, summary might be at root level or in summary field
+    const summary = payload.summary || payload;
+    
+    if (!summary || typeof summary !== 'object') {
+      throw new Error('Invalid response: missing summary data');
+    }
+
     return {
-      summary: payload.summary || {},
+      summary: summary,
       cached: false
     };
   }
@@ -2599,17 +2634,30 @@ class AdminDashboardApp {
       })
     });
 
-    const payload = await this.parseJsonSafely(response);
-
-    if (!response.ok || !payload?.success) {
+    if (!response.ok) {
+      const payload = await this.parseJsonSafely(response);
       const message = payload?.error || payload?.details || `HTTP ${response.status}`;
       const error = new Error(message);
       error.status = response.status;
       throw error;
     }
 
+    const payload = await this.parseJsonSafely(response);
+    
+    if (!payload) {
+      throw new Error('Invalid response format: server returned non-JSON response');
+    }
+
+    if (!payload.success) {
+      const message = payload?.error || payload?.details || 'Sync failed';
+      throw new Error(message);
+    }
+
+    // For legacy endpoint, summary might be at root level or in summary field
+    const summary = payload.summary || payload;
+    
     return {
-      summary: payload.summary || {}
+      summary: summary || {}
     };
   }
 
@@ -2671,6 +2719,83 @@ class AdminDashboardApp {
         button.innerHTML = originalLabel || '<i class="fas fa-user-check"></i> Sync users';
       }
       this.syncInProgress = false;
+    }
+  }
+
+  // ===== API Health Check Methods =====
+
+  async performApiHealthCheck() {
+    if (this.apiHealthCheckInProgress) {
+      return;
+    }
+
+    this.apiHealthCheckInProgress = true;
+    const button = this.dom.apiHealth.checkButton;
+    const responseText = this.dom.apiHealth.responseText;
+    const originalLabel = button?.innerHTML;
+
+    try {
+      // Update UI
+      if (button) {
+        button.disabled = true;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+      }
+      if (responseText) {
+        responseText.value = "Sending request to API...";
+      }
+
+      const apiBaseUrl = typeof window.getApiBaseUrl === "function"
+        ? window.getApiBaseUrl()
+        : "https://specifys-ai.onrender.com";
+
+      // Sample answers (like on home page)
+      const sampleAnswers = [
+        "A task management app for teams",
+        "Users create projects, add tasks, assign them to team members, and track progress",
+        "Project managers and team members aged 25-45 working in tech companies",
+        "Needs to integrate with Slack and support real-time updates"
+      ];
+
+      // Build prompt like on home page (using PROMPTS.overview if available, otherwise simple format)
+      let prompt;
+      if (typeof window.PROMPTS !== 'undefined' && window.PROMPTS.overview) {
+        prompt = window.PROMPTS.overview(sampleAnswers);
+      } else {
+        // Simple prompt format
+        prompt = `App Description: ${sampleAnswers[0]}\nUser Workflow: ${sampleAnswers[1]}\nAdditional Details: ${sampleAnswers[2]}\nNote: Target Audience information should be inferred from the app description and workflow provided above.`;
+      }
+
+      // Send to API (like home page does)
+      const response = await fetch(`${apiBaseUrl}/api/generate-spec`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          userInput: prompt
+        })
+      });
+
+      // Get response
+      const responseData = await response.json();
+      
+      // Display response in textarea (raw JSON)
+      if (responseText) {
+        responseText.value = JSON.stringify(responseData, null, 2);
+      }
+
+    } catch (error) {
+      // Display error in textarea
+      if (responseText) {
+        responseText.value = `Error: ${error.message}\n\n${error.stack || ''}`;
+      }
+      console.error("[AdminDashboard] API health check failed", error);
+    } finally {
+      if (button) {
+        button.disabled = false;
+        button.innerHTML = originalLabel || '<i class="fas fa-paper-plane"></i> Test API with Sample Data';
+      }
+      this.apiHealthCheckInProgress = false;
     }
   }
 }

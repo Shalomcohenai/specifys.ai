@@ -219,14 +219,12 @@ let isRecording = false;
 const questions = [
   "Describe your application",
   "Describe the workflow", 
-  "Target audience and goals",
   "Additional details"
 ];
 
 const questionDetails = [
   "Describe the main idea of your application - including core features, target audience, and the problem it solves",
   "Walk through a typical user journey step by step - explain how users interact with different features and workflows",
-  "Define your primary user demographics (age, profession, etc.) and explain what goals users want to achieve with your app",
   "Add any technical requirements, integrations with other services, future features, or special considerations"
 ];
 
@@ -234,8 +232,7 @@ const questionDetails = [
 const characterLimits = [
   900, // Question 1: Describe your application
   800, // Question 2: Describe the workflow
-  700, // Question 3: Target audience and goals
-  600  // Question 4: Additional details
+  600  // Question 3: Additional details
 ];
 
 function showModernInput() {
@@ -326,8 +323,8 @@ function updateProgressDots() {
 function markUnansweredQuestionsAsError() {
   const dots = document.querySelectorAll('.progress-dot');
   dots.forEach((dot, index) => {
-    // Mark first 3 questions as error if not answered (excluding last question)
-    if (index < 3 && (!answers[index] || answers[index].trim() === '')) {
+    // Mark first 2 questions as error if not answered (excluding last question)
+    if (index < 2 && (!answers[index] || answers[index].trim() === '')) {
       dot.classList.add('error');
     }
   });
@@ -446,7 +443,6 @@ function jumpToQuestion(questionIndex) {
     const tooltips = [
       "💡 Be specific about your app's main purpose and core features\n💡 Mention the platform (web, mobile, desktop) you're targeting\n💡 Include key functionalities that make your app unique\n💡 Describe the problem your app solves for users",
       "💡 Walk through a typical user journey step by step\n💡 Explain how users interact with different features\n💡 Describe the main user actions and workflows\n💡 Include any important user flows or processes", 
-      "💡 Define your primary user demographics (age, profession, etc.)\n💡 Explain what goals users want to achieve with your app\n💡 Describe your target market and user needs\n💡 Mention any specific user personas or segments",
       "💡 Add any technical requirements or constraints\n💡 Mention integrations with other services or platforms\n💡 Include future features or expansion plans\n💡 Add any special considerations or unique aspects"
     ];
     
@@ -657,9 +653,9 @@ function setupModernInput() {
         answers[currentQuestionIndex] = currentAnswer;
       }
       
-      // Check if first 3 questions are answered
+      // Check if first 2 questions are answered
       let allAnswered = true;
-      for (let i = 0; i < 3; i++) {
+      for (let i = 0; i < 2; i++) {
         if (!answers[i] || answers[i].trim() === '') {
           allAnswered = false;
           break;
@@ -813,15 +809,7 @@ function showLightbulbTips() {
         "💡 Include any important user flows or processes"
       ];
       break;
-    case 2: // Target audience and goals
-      tips = [
-        "💡 Define your primary user demographics (age, profession, etc.)",
-        "💡 Explain what goals users want to achieve with your app",
-        "💡 Describe your target market and user needs",
-        "💡 Mention any specific user personas or segments"
-      ];
-      break;
-    case 3: // Additional details
+    case 2: // Additional details
       tips = [
         "💡 Add any technical requirements or constraints",
         "💡 Mention integrations with other services or platforms",
@@ -925,10 +913,10 @@ async function generateSpecification() {
     localStorage.removeItem('initialAnswers');
     
     // Check if answers exist and are valid
-    if (!answers || answers.length !== 4) {
+    if (!answers || answers.length !== 3) {
       hideLoadingOverlay();
       console.error(`[${requestId}] ❌ Validation failed: Invalid answers`);
-      alert('Error: Invalid answers provided. Please provide answers to all 4 questions.');
+      alert('Error: Invalid answers provided. Please provide answers to all 3 questions.');
       return;
     }
     

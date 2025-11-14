@@ -2762,7 +2762,7 @@ class AdminDashboardApp {
         prompt = window.PROMPTS.overview(sampleAnswers);
       } else {
         // Simple prompt format
-        prompt = `App Description: ${sampleAnswers[0]}\nUser Workflow: ${sampleAnswers[1]}\nTarget Audience: ${sampleAnswers[2]}\nAdditional Details: ${sampleAnswers[3]}`;
+        prompt = `App Description: ${sampleAnswers[0]}\nUser Workflow: ${sampleAnswers[1]}\nAdditional Details: ${sampleAnswers[2]}\nNote: Target Audience information should be inferred from the app description and workflow provided above.`;
       }
 
       // Send to API (like home page does)
