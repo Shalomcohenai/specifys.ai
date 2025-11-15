@@ -1540,6 +1540,36 @@ document.addEventListener('DOMContentLoaded', function() {
     startButton.addEventListener('click', handleStartButtonClick);
   }
   
+  // Switch to voice button (in questions mode)
+  const switchToVoiceBtn = document.getElementById('switchToVoiceBtn');
+  if (switchToVoiceBtn) {
+    switchToVoiceBtn.addEventListener('click', () => {
+      // Save current answers before switching
+      const currentAnswer = document.getElementById('mainInput')?.value || '';
+      if (currentAnswer && currentQuestionIndex < answers.length) {
+        answers[currentQuestionIndex] = currentAnswer;
+      }
+      
+      // Open Live Brief modal with current answers
+      if (window.liveBriefModal) {
+        // Prepare answers array with current data
+        const answersToPrefill = [];
+        for (let i = 0; i < 3; i++) {
+          if (i === currentQuestionIndex && currentAnswer) {
+            answersToPrefill[i] = currentAnswer;
+          } else if (answers[i]) {
+            answersToPrefill[i] = answers[i];
+          }
+        }
+        
+        // Open modal with pre-filled answers
+        window.liveBriefModal.open(answersToPrefill.length > 0 ? answersToPrefill : null);
+      } else {
+        console.warn('Live Brief Modal not available');
+      }
+    });
+  }
+  
   const navicon = document.querySelector('.navicon');
   if (navicon) {
     navicon.addEventListener('click', toggleMenu);

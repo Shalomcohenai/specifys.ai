@@ -144,9 +144,18 @@ class LiveBriefModal {
     });
   }
 
-  async open() {
+  async open(prefilledAnswers = null) {
     // Generate session ID
     this.sessionId = `live-brief-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    
+    // Store pre-filled answers if provided
+    if (prefilledAnswers && Array.isArray(prefilledAnswers)) {
+      this.prefillAnswers = prefilledAnswers.slice();
+    } else if (this.prefillAnswers) {
+      // Use existing prefill if available
+    } else {
+      this.prefillAnswers = null;
+    }
     
     // Show modal
     this.modal.style.display = 'flex';
@@ -160,9 +169,17 @@ class LiveBriefModal {
       // If permission denied, fallback to 3-questions modal
       if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
         this.close();
-        // Open existing 3-questions modal
+        // Open existing 3-questions modal with pre-filled answers
         if (typeof proceedWithAppPlanning === 'function') {
           proceedWithAppPlanning();
+          // Pre-fill answers after a short delay
+          if (this.prefillAnswers && this.prefillAnswers.length > 0) {
+            setTimeout(() => {
+              if (typeof showModernInput === 'function') {
+                showModernInput(this.prefillAnswers);
+              }
+            }, 100);
+          }
         }
         return;
       }
@@ -551,16 +568,32 @@ class LiveBriefModal {
     // Stop recording
     this.stopRecording();
     
+    // Save current answers if available
+    const currentAnswers = [];
+    if (this.prefillAnswers && Array.isArray(this.prefillAnswers)) {
+      currentAnswers.push(...this.prefillAnswers);
+    }
+    // If we have a summary but no answers, use summary as first answer
+    if (this.summary && !currentAnswers[0]) {
+      currentAnswers[0] = this.summary;
+    }
+    
     // Close modal
     this.close();
     
-    // Open existing 3-questions modal
+    // Open existing 3-questions modal with pre-filled data
     if (typeof proceedWithAppPlanning === 'function') {
       proceedWithAppPlanning();
+      // Pre-fill answers after a short delay to ensure DOM is ready
+      if (currentAnswers.length > 0) {
+        setTimeout(() => {
+          if (typeof showModernInput === 'function') {
+            showModernInput(currentAnswers);
+          }
+        }, 100);
+      }
     } else if (typeof showModernInput === 'function') {
-      // Optionally pre-populate with partial summary
-      const prefillData = this.summary ? [this.summary, '', ''] : null;
-      showModernInput(prefillData);
+      showModernInput(currentAnswers.length > 0 ? currentAnswers : null);
     }
   }
 

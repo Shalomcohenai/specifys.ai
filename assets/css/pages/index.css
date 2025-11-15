@@ -714,6 +714,36 @@
   stroke: white;
 }
 
+/* Switch to Voice Button */
+.switch-to-voice-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: var(--primary-color, #FF6B35);
+  color: white;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.switch-to-voice-btn:hover {
+  background: var(--primary-hover, #FF8551);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3);
+}
+
+.switch-to-voice-btn .btn-label {
+  display: inline-block;
+}
+
+.switch-to-voice-btn svg {
+  width: 16px;
+  height: 16px;
+  color: white;
+}
+
 @keyframes pulse {
   0% { transform: scale(1); }
   50% { transform: scale(1.1); }
