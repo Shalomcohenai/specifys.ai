@@ -186,8 +186,15 @@ function handleStartButtonClick() {
   // Open Live Brief modal instead of proceeding with app planning
   // Keep authentication check intact - only change what happens after auth
   if (window.liveBriefModal) {
-    window.liveBriefModal.open();
+    try {
+      window.liveBriefModal.open();
+    } catch (error) {
+      console.error('Error opening Live Brief Modal:', error);
+      // Fallback to old flow if modal fails to open
+      proceedWithAppPlanning();
+    }
   } else {
+    console.warn('Live Brief Modal not initialized. Falling back to old flow.');
     // Fallback to old flow if modal not initialized
     proceedWithAppPlanning();
   }
@@ -1514,9 +1521,19 @@ document.addEventListener('DOMContentLoaded', function() {
   checkAutoStart();
   
   // Initialize Live Brief Modal (after DOM is ready)
-  if (typeof LiveBriefModal !== 'undefined') {
-    window.liveBriefModal = new LiveBriefModal();
-  }
+  // Wait a bit to ensure all scripts are loaded
+  setTimeout(() => {
+    if (typeof LiveBriefModal !== 'undefined') {
+      try {
+        window.liveBriefModal = new LiveBriefModal();
+        console.log('Live Brief Modal initialized successfully');
+      } catch (error) {
+        console.error('Error initializing Live Brief Modal:', error);
+      }
+    } else {
+      console.warn('LiveBriefModal class not found. Make sure live-brief-modal.js is loaded.');
+    }
+  }, 100);
   
   const startButton = document.getElementById('startButton');
   if (startButton) {
