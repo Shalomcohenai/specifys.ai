@@ -185,7 +185,9 @@ function handleStartButtonClick() {
   
   // Open Live Brief modal instead of proceeding with app planning
   // Keep authentication check intact - only change what happens after auth
+  console.log('handleStartButtonClick: Checking for liveBriefModal...', window.liveBriefModal);
   if (window.liveBriefModal) {
+    console.log('handleStartButtonClick: Opening Live Brief Modal');
     try {
       window.liveBriefModal.open();
     } catch (error) {
@@ -194,7 +196,11 @@ function handleStartButtonClick() {
       proceedWithAppPlanning();
     }
   } else {
-    console.warn('Live Brief Modal not initialized. Falling back to old flow.');
+    console.warn('Live Brief Modal not initialized. Available:', {
+      LiveBriefModal: typeof LiveBriefModal,
+      liveBriefModal: window.liveBriefModal,
+      windowKeys: Object.keys(window).filter(k => k.includes('live') || k.includes('Live'))
+    });
     // Fallback to old flow if modal not initialized
     proceedWithAppPlanning();
   }
@@ -1511,16 +1517,21 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Initialize Live Brief Modal (after DOM is ready)
   // Wait a bit to ensure all scripts are loaded
+  console.log('DOMContentLoaded: Checking for LiveBriefModal...', typeof LiveBriefModal);
   setTimeout(() => {
+    console.log('DOMContentLoaded: After timeout, checking LiveBriefModal...', typeof LiveBriefModal);
     if (typeof LiveBriefModal !== 'undefined') {
       try {
+        console.log('DOMContentLoaded: Creating new LiveBriefModal instance...');
         window.liveBriefModal = new LiveBriefModal();
-        console.log('Live Brief Modal initialized successfully');
+        console.log('✅ Live Brief Modal initialized successfully', window.liveBriefModal);
       } catch (error) {
-        console.error('Error initializing Live Brief Modal:', error);
+        console.error('❌ Error initializing Live Brief Modal:', error);
+        console.error('Error stack:', error.stack);
       }
     } else {
-      console.warn('LiveBriefModal class not found. Make sure live-brief-modal.js is loaded.');
+      console.warn('⚠️ LiveBriefModal class not found. Make sure live-brief-modal.js is loaded.');
+      console.warn('Available window properties:', Object.keys(window).filter(k => k.toLowerCase().includes('live')));
     }
   }, 100);
   

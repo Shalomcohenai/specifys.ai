@@ -23,26 +23,41 @@ class LiveBriefModal {
   }
 
   init() {
+    console.log('LiveBriefModal: init() called');
     // Wait for DOM to be ready
     if (document.readyState === 'loading') {
+      console.log('LiveBriefModal: DOM is loading, waiting for DOMContentLoaded');
       document.addEventListener('DOMContentLoaded', () => {
+        console.log('LiveBriefModal: DOMContentLoaded fired, creating modal');
         this.createModalHTML();
         this.setupEventListeners();
       });
     } else {
       // DOM is already ready
+      console.log('LiveBriefModal: DOM is already ready, creating modal immediately');
       this.createModalHTML();
       this.setupEventListeners();
     }
   }
 
   createModalHTML() {
+    console.log('LiveBriefModal: createModalHTML() called');
     // Check if modal already exists
     if (document.getElementById('liveBriefModal')) {
       console.log('Live Brief Modal HTML already exists');
+      this.modal = document.getElementById('liveBriefModal');
+      this.microphoneIcon = document.getElementById('liveBriefMicrophone');
+      this.summaryText = document.getElementById('liveBriefSummary');
       return;
     }
     
+    // Check if body exists
+    if (!document.body) {
+      console.error('LiveBriefModal: document.body not found, cannot create modal');
+      return;
+    }
+    
+    console.log('LiveBriefModal: Creating modal HTML');
     // Create modal structure
     const modalHTML = `
       <div id="liveBriefModal" class="live-brief-modal-overlay" style="display: none;">
@@ -92,6 +107,12 @@ class LiveBriefModal {
     this.modal = document.getElementById('liveBriefModal');
     this.microphoneIcon = document.getElementById('liveBriefMicrophone');
     this.summaryText = document.getElementById('liveBriefSummary');
+    
+    if (this.modal) {
+      console.log('LiveBriefModal: Modal HTML created successfully');
+    } else {
+      console.error('LiveBriefModal: Failed to create modal - element not found after insertion');
+    }
   }
 
   setupEventListeners() {
@@ -573,5 +594,7 @@ class LiveBriefModal {
 // Export for use in other files
 if (typeof window !== 'undefined') {
   window.LiveBriefModal = LiveBriefModal;
-  console.log('LiveBriefModal class exported to window');
+  console.log('✅ LiveBriefModal class exported to window');
+} else {
+  console.error('❌ window is undefined, cannot export LiveBriefModal');
 }
