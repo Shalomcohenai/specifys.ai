@@ -183,8 +183,14 @@ function handleStartButtonClick() {
     return;
   }
   
-  // Proceed with app planning only if authenticated
-  proceedWithAppPlanning();
+  // Open Live Brief modal instead of proceeding with app planning
+  // Keep authentication check intact - only change what happens after auth
+  if (window.liveBriefModal) {
+    window.liveBriefModal.open();
+  } else {
+    // Fallback to old flow if modal not initialized
+    proceedWithAppPlanning();
+  }
 }
 
 // ===== APP PLANNING FLOW =====
@@ -238,7 +244,7 @@ const characterLimits = [
   600  // Question 4: Additional details
 ];
 
-function showModernInput() {
+function showModernInput(prefilledAnswers = null) {
   const inputContainer = document.getElementById('modernInputContainer');
   const questionsDisplay = document.getElementById('questionsDisplay');
   const heroContent = document.getElementById('heroContent');
@@ -266,6 +272,31 @@ function showModernInput() {
   
   if (heroContent) {
     heroContent.classList.add('fade-out');
+  }
+  
+  // Pre-fill answers if provided
+  if (prefilledAnswers && Array.isArray(prefilledAnswers)) {
+    // Reset to first question
+    currentQuestionIndex = 0;
+    answers = [];
+    
+    // Pre-fill the answers array
+    for (let i = 0; i < Math.min(prefilledAnswers.length, 3); i++) {
+      if (prefilledAnswers[i]) {
+        answers[i] = prefilledAnswers[i];
+      }
+    }
+    
+    // If we have pre-filled data, show it in the textarea
+    if (answers[0]) {
+      const textarea = document.getElementById('mainInput');
+      if (textarea) {
+        textarea.value = answers[0];
+        updateCharacterLimit();
+        updateButtonState();
+        autoResize();
+      }
+    }
   }
 }
 
@@ -924,11 +955,22 @@ async function generateSpecification() {
     localStorage.removeItem('generatedOverviewContent');
     localStorage.removeItem('initialAnswers');
     
-    // Check if answers exist and are valid
-    if (!answers || answers.length !== 4) {
+    // Check if answers come from Live Brief modal
+    if (window.liveBriefAnswers && Array.isArray(window.liveBriefAnswers) && window.liveBriefAnswers.length === 3) {
+      answers = window.liveBriefAnswers;
+      if (window.liveBriefSelectedPlatforms) {
+        selectedPlatforms = window.liveBriefSelectedPlatforms;
+      }
+      // Clear the window variables after using them
+      delete window.liveBriefAnswers;
+      delete window.liveBriefSelectedPlatforms;
+    }
+    
+    // Check if answers exist and are valid (support both 3 and 4 answers for compatibility)
+    if (!answers || (answers.length !== 3 && answers.length !== 4)) {
       hideLoadingOverlay();
       console.error(`[${requestId}] ❌ Validation failed: Invalid answers`);
-      alert('Error: Invalid answers provided. Please provide answers to all 4 questions.');
+      alert('Error: Invalid answers provided. Please provide answers to all questions.');
       return;
     }
     
@@ -1470,6 +1512,11 @@ document.addEventListener('DOMContentLoaded', function() {
   checkFirstVisit();
   setupModernInput();
   checkAutoStart();
+  
+  // Initialize Live Brief Modal (after DOM is ready)
+  if (typeof LiveBriefModal !== 'undefined') {
+    window.liveBriefModal = new LiveBriefModal();
+  }
   
   const startButton = document.getElementById('startButton');
   if (startButton) {

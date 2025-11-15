@@ -532,6 +532,10 @@ app.use('/api/specs', specsRoutes);
 const statsRoutes = require('./stats-routes');
 app.use('/api/stats', statsRoutes);
 
+// Live Brief routes
+const liveBriefRoutes = require('./live-brief-routes');
+app.use('/api/live-brief', liveBriefRoutes);
+
 // Import error logger
 const { logError, getErrorLogs, getErrorSummary } = require('./error-logger');
 
