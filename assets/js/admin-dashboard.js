@@ -1000,15 +1000,8 @@ class AdminDashboardApp {
         revenueRange: utils.dom('[data-kpi="revenue-range"]')
       },
       apiHealth: {
-        status: utils.dom("#api-health-status"),
-        statusDot: utils.dom("#api-health-status .status-dot"),
-        statusText: utils.dom("#api-health-status .status-text"),
-        lastCheck: utils.dom("#api-last-check"),
-        responseTime: utils.dom("#api-response-time"),
-        nextCheck: utils.dom("#api-next-check"),
         checkButton: utils.dom("#api-health-check-btn"),
-        summary: utils.dom("#api-health-summary"),
-        historyList: utils.dom("#api-health-history-list")
+        responseText: utils.dom("#api-response-text")
       }
     };
 
@@ -1032,9 +1025,6 @@ class AdminDashboardApp {
 
     // API Health Check state
     this.apiHealthCheckInProgress = false;
-    this.apiHealthCheckTimer = null;
-    this.apiHealthHistory = this.loadHealthHistory();
-    this.lastHealthCheck = this.getLastHealthCheck();
 
     const specViewerElements = {
       root: utils.dom("#spec-viewer"),
@@ -1059,7 +1049,6 @@ class AdminDashboardApp {
     this.bindNavigation();
     this.bindInteractions();
     this.setupAuthGate();
-    this.initApiHealthCheck();
   }
 
   bindNavigation() {
@@ -2436,9 +2425,19 @@ class AdminDashboardApp {
   async parseJsonSafely(response) {
     if (!response) return null;
     try {
-      return await response.clone().json();
+      // Clone the response so we can read it multiple times if needed
+      const clonedResponse = response.clone();
+      return await clonedResponse.json();
     } catch (error) {
-      return null;
+      // If JSON parsing fails, try to get text for debugging from a fresh clone
+      try {
+        const textResponse = response.clone();
+        const text = await textResponse.text();
+        console.warn('[AdminDashboard] Failed to parse JSON response:', text.substring(0, 200));
+        return null;
+      } catch (textError) {
+        return null;
+      }
     }
   }
 
@@ -2524,17 +2523,34 @@ class AdminDashboardApp {
       })
     });
 
-    const payload = await this.parseJsonSafely(response);
-
-    if (!response.ok || !payload?.success || !payload.summary) {
+    if (!response.ok) {
+      const payload = await this.parseJsonSafely(response);
       const message = payload?.error || payload?.details || `HTTP ${response.status}`;
       const error = new Error(message);
       error.status = response.status;
       throw error;
     }
 
+    const payload = await this.parseJsonSafely(response);
+    
+    if (!payload) {
+      throw new Error('Invalid response format: server returned non-JSON response');
+    }
+
+    if (!payload.success) {
+      const message = payload?.error || payload?.details || 'Sync failed';
+      throw new Error(message);
+    }
+
+    // For legacy endpoint, summary might be at root level or in summary field
+    const summary = payload.summary || payload;
+    
+    if (!summary || typeof summary !== 'object') {
+      throw new Error('Invalid response: missing summary data');
+    }
+
     return {
-      summary: payload.summary || {},
+      summary: summary,
       cached: false
     };
   }
@@ -2618,17 +2634,30 @@ class AdminDashboardApp {
       })
     });
 
-    const payload = await this.parseJsonSafely(response);
-
-    if (!response.ok || !payload?.success) {
+    if (!response.ok) {
+      const payload = await this.parseJsonSafely(response);
       const message = payload?.error || payload?.details || `HTTP ${response.status}`;
       const error = new Error(message);
       error.status = response.status;
       throw error;
     }
 
+    const payload = await this.parseJsonSafely(response);
+    
+    if (!payload) {
+      throw new Error('Invalid response format: server returned non-JSON response');
+    }
+
+    if (!payload.success) {
+      const message = payload?.error || payload?.details || 'Sync failed';
+      throw new Error(message);
+    }
+
+    // For legacy endpoint, summary might be at root level or in summary field
+    const summary = payload.summary || payload;
+    
     return {
-      summary: payload.summary || {}
+      summary: summary || {}
     };
   }
 
@@ -2695,357 +2724,78 @@ class AdminDashboardApp {
 
   // ===== API Health Check Methods =====
 
-  initApiHealthCheck() {
-    // Load and display initial state
-    this.updateApiHealthUI();
-    this.renderHealthHistory();
-
-    // Check if we need to run automatic check
-    const now = Date.now();
-    const lastCheck = this.lastHealthCheck?.timestamp || 0;
-    const timeSinceLastCheck = now - lastCheck;
-    const oneDay = 24 * 60 * 60 * 1000;
-
-    // If last check was more than 24 hours ago, run check immediately
-    if (timeSinceLastCheck >= oneDay) {
-      // Run check after a short delay to let page load
-      setTimeout(() => {
-        this.performApiHealthCheck(true);
-      }, 2000);
-    } else {
-      // Schedule next check
-      const timeUntilNextCheck = oneDay - timeSinceLastCheck;
-      this.scheduleNextHealthCheck(timeUntilNextCheck);
-    }
-  }
-
-  loadHealthHistory() {
-    try {
-      const stored = localStorage.getItem("apiHealthHistory");
-      if (stored) {
-        const history = JSON.parse(stored);
-        // Keep only last 10 checks
-        return history.slice(-10);
-      }
-    } catch (error) {
-      console.warn("[AdminDashboard] Failed to load health history", error);
-    }
-    return [];
-  }
-
-  saveHealthHistory() {
-    try {
-      localStorage.setItem("apiHealthHistory", JSON.stringify(this.apiHealthHistory));
-    } catch (error) {
-      console.warn("[AdminDashboard] Failed to save health history", error);
-    }
-  }
-
-  getLastHealthCheck() {
-    if (this.apiHealthHistory.length > 0) {
-      return this.apiHealthHistory[this.apiHealthHistory.length - 1];
-    }
-    return null;
-  }
-
-  async performApiHealthCheck(isAutomatic = false) {
+  async performApiHealthCheck() {
     if (this.apiHealthCheckInProgress) {
       return;
     }
 
     this.apiHealthCheckInProgress = true;
     const button = this.dom.apiHealth.checkButton;
+    const responseText = this.dom.apiHealth.responseText;
     const originalLabel = button?.innerHTML;
-    const startTime = Date.now();
-    const TIMEOUT_MS = 30000; // 30 seconds
 
     try {
-      // Update UI to show checking state
+      // Update UI
       if (button) {
         button.disabled = true;
-        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Testing...';
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
       }
-      this.updateHealthStatus("checking", "Checking API...");
+      if (responseText) {
+        responseText.value = "Sending request to API...";
+      }
 
       const apiBaseUrl = typeof window.getApiBaseUrl === "function"
         ? window.getApiBaseUrl()
         : "https://specifys-ai.onrender.com";
 
-      // Simple health check - just ping the status endpoint
-      // This is much simpler than testing generate-spec which requires auth/credits
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
+      // Sample answers (like on home page)
+      const sampleAnswers = [
+        "A task management app for teams",
+        "Users create projects, add tasks, assign them to team members, and track progress",
+        "Project managers and team members aged 25-45 working in tech companies",
+        "Needs to integrate with Slack and support real-time updates"
+      ];
 
-      let response;
-      try {
-        // Simple GET request to /api/status - no auth, no body, just check connectivity
-        response = await fetch(`${apiBaseUrl}/api/status`, {
-          method: "GET",
-          signal: controller.signal
-        });
-        clearTimeout(timeoutId);
-      } catch (fetchError) {
-        clearTimeout(timeoutId);
-        
-        // Handle timeout/abort error
-        if (fetchError.name === "AbortError" || fetchError.name === "TimeoutError") {
-          const responseTime = Date.now() - startTime;
-          const checkResult = {
-            timestamp: Date.now(),
-            success: false,
-            responseTime: responseTime,
-            status: 0,
-            message: `Request timeout after ${TIMEOUT_MS / 1000} seconds`,
-            error: "TimeoutError"
-          };
-
-          this.recordHealthCheck(checkResult);
-          this.updateHealthStatus("error", "API check failed");
-          this.updateHealthSummary(`❌ API check failed: ${checkResult.message}`, "error");
-          this.updateApiHealthUI(checkResult);
-
-          console.error("[AdminDashboard] API health check failed - timeout", fetchError);
-          return;
-        }
-        
-        // Re-throw other fetch errors
-        throw fetchError;
+      // Build prompt like on home page (using PROMPTS.overview if available, otherwise simple format)
+      let prompt;
+      if (typeof window.PROMPTS !== 'undefined' && window.PROMPTS.overview) {
+        prompt = window.PROMPTS.overview(sampleAnswers);
+      } else {
+        // Simple prompt format
+        prompt = `App Description: ${sampleAnswers[0]}\nUser Workflow: ${sampleAnswers[1]}\nAdditional Details: ${sampleAnswers[2]}\nNote: Target Audience information should be inferred from the app description and workflow provided above.`;
       }
 
-      const responseTime = Date.now() - startTime;
+      // Send to API (like home page does)
+      const response = await fetch(`${apiBaseUrl}/api/generate-spec`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          userInput: prompt
+        })
+      });
 
-      // Check if response is OK
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      // Try to parse response to ensure it's valid JSON
-      let data;
-      try {
-        data = await response.json();
-      } catch (parseError) {
-        throw new Error("Invalid JSON response from API");
-      }
+      // Get response
+      const responseData = await response.json();
       
-      // Check if we got a valid response (just needs to be an object)
-      if (!data || typeof data !== "object") {
-        throw new Error("Invalid response format");
-      }
-
-      // Success!
-      const checkResult = {
-        timestamp: Date.now(),
-        success: true,
-        responseTime: responseTime,
-        status: response.status,
-        message: "API is responding correctly"
-      };
-
-      this.recordHealthCheck(checkResult);
-      this.updateHealthStatus("success", "API is healthy");
-      this.updateHealthSummary(`✅ API check passed (${responseTime}ms)`, "success");
-      this.updateApiHealthUI(checkResult);
-
-      // Schedule next automatic check (24 hours from now)
-      if (isAutomatic) {
-        this.scheduleNextHealthCheck(24 * 60 * 60 * 1000);
+      // Display response in textarea (raw JSON)
+      if (responseText) {
+        responseText.value = JSON.stringify(responseData, null, 2);
       }
 
     } catch (error) {
-      const responseTime = Date.now() - startTime;
-      
-      // Create user-friendly error message
-      let errorMessage = error.message || "Unknown error";
-      if (error.name === "TypeError" && error.message.includes("fetch")) {
-        errorMessage = "Network error: Could not connect to API";
-      } else if (error.name === "AbortError" || error.name === "TimeoutError") {
-        errorMessage = `Request timeout after ${TIMEOUT_MS / 1000} seconds`;
+      // Display error in textarea
+      if (responseText) {
+        responseText.value = `Error: ${error.message}\n\n${error.stack || ''}`;
       }
-      
-      const checkResult = {
-        timestamp: Date.now(),
-        success: false,
-        responseTime: responseTime,
-        status: error.status || 0,
-        message: errorMessage,
-        error: error.name || "Error"
-      };
-
-      this.recordHealthCheck(checkResult);
-      this.updateHealthStatus("error", "API check failed");
-      this.updateHealthSummary(`❌ API check failed: ${checkResult.message}`, "error");
-      this.updateApiHealthUI(checkResult);
-
       console.error("[AdminDashboard] API health check failed", error);
     } finally {
       if (button) {
         button.disabled = false;
-        button.innerHTML = originalLabel || '<i class="fas fa-heartbeat"></i> Test API Connection';
+        button.innerHTML = originalLabel || '<i class="fas fa-paper-plane"></i> Test API with Sample Data';
       }
       this.apiHealthCheckInProgress = false;
-    }
-  }
-
-  recordHealthCheck(result) {
-    this.apiHealthHistory.push(result);
-    // Keep only last 10 checks
-    if (this.apiHealthHistory.length > 10) {
-      this.apiHealthHistory = this.apiHealthHistory.slice(-10);
-    }
-    this.lastHealthCheck = result;
-    this.saveHealthHistory();
-    this.renderHealthHistory();
-  }
-
-  updateHealthStatus(status, text) {
-    const statusDot = this.dom.apiHealth.statusDot;
-    const statusText = this.dom.apiHealth.statusText;
-
-    if (statusDot) {
-      statusDot.className = "status-dot";
-      if (status === "success") {
-        statusDot.classList.add("status-success");
-      } else if (status === "error") {
-        statusDot.classList.add("status-error");
-      } else if (status === "checking") {
-        statusDot.classList.add("status-checking");
-      } else {
-        statusDot.classList.add("status-unknown");
-      }
-    }
-
-    if (statusText) {
-      statusText.textContent = text || "Not checked";
-    }
-  }
-
-  updateHealthSummary(message, variant) {
-    const summary = this.dom.apiHealth.summary;
-    if (summary) {
-      summary.textContent = message;
-      summary.className = `health-check-note ${variant || ""}`;
-    }
-  }
-
-  updateApiHealthUI(checkResult = null) {
-    const lastCheck = checkResult || this.lastHealthCheck;
-
-    // Update last check time
-    if (this.dom.apiHealth.lastCheck) {
-      if (lastCheck) {
-        const date = new Date(lastCheck.timestamp);
-        const timeStr = date.toLocaleString("en-US", {
-          month: "short",
-          day: "numeric",
-          hour: "2-digit",
-          minute: "2-digit"
-        });
-        this.dom.apiHealth.lastCheck.textContent = timeStr;
-      } else {
-        this.dom.apiHealth.lastCheck.textContent = "Never";
-      }
-    }
-
-    // Update response time
-    if (this.dom.apiHealth.responseTime) {
-      if (lastCheck && lastCheck.responseTime) {
-        this.dom.apiHealth.responseTime.textContent = `${lastCheck.responseTime}ms`;
-      } else {
-        this.dom.apiHealth.responseTime.textContent = "—";
-      }
-    }
-
-    // Update next check time
-    if (this.dom.apiHealth.nextCheck) {
-      if (lastCheck && lastCheck.timestamp) {
-        const nextCheckTime = lastCheck.timestamp + (24 * 60 * 60 * 1000);
-        const now = Date.now();
-        const timeUntilNext = nextCheckTime - now;
-
-        if (timeUntilNext <= 0) {
-          this.dom.apiHealth.nextCheck.textContent = "Due now";
-        } else {
-          const hours = Math.floor(timeUntilNext / (60 * 60 * 1000));
-          const minutes = Math.floor((timeUntilNext % (60 * 60 * 1000)) / (60 * 1000));
-          
-          if (hours > 0) {
-            this.dom.apiHealth.nextCheck.textContent = `In ${hours}h ${minutes}m`;
-          } else {
-            this.dom.apiHealth.nextCheck.textContent = `In ${minutes}m`;
-          }
-        }
-      } else {
-        this.dom.apiHealth.nextCheck.textContent = "Scheduled in 24h";
-      }
-    }
-
-    // Update status indicator
-    if (lastCheck) {
-      if (lastCheck.success) {
-        this.updateHealthStatus("success", "API is healthy");
-      } else {
-        this.updateHealthStatus("error", "API check failed");
-      }
-    } else {
-      this.updateHealthStatus("unknown", "Not checked");
-    }
-  }
-
-  renderHealthHistory() {
-    const historyList = this.dom.apiHealth.historyList;
-    if (!historyList) return;
-
-    if (this.apiHealthHistory.length === 0) {
-      historyList.innerHTML = '<li class="history-placeholder">No checks yet</li>';
-      return;
-    }
-
-    // Show last 5 checks
-    const recentChecks = this.apiHealthHistory.slice(-5).reverse();
-    
-    historyList.innerHTML = recentChecks.map(check => {
-      const date = new Date(check.timestamp);
-      const timeStr = date.toLocaleString("en-US", {
-        month: "short",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit"
-      });
-      
-      const statusIcon = check.success ? "✅" : "❌";
-      const statusClass = check.success ? "success" : "error";
-      
-      return `
-        <li class="history-item ${statusClass}">
-          <span class="history-time">${timeStr}</span>
-          <span class="history-status">${statusIcon}</span>
-          <span class="history-details">${check.responseTime}ms</span>
-        </li>
-      `;
-    }).join("");
-  }
-
-  scheduleNextHealthCheck(delay) {
-    // Clear existing timer
-    if (this.apiHealthCheckTimer) {
-      clearTimeout(this.apiHealthCheckTimer);
-    }
-
-    // Schedule next check
-    this.apiHealthCheckTimer = setTimeout(() => {
-      this.performApiHealthCheck(true);
-    }, delay);
-
-    // Update UI to show next check time
-    if (this.dom.apiHealth.nextCheck) {
-      const hours = Math.floor(delay / (60 * 60 * 1000));
-      const minutes = Math.floor((delay % (60 * 60 * 1000)) / (60 * 1000));
-      
-      if (hours > 0) {
-        this.dom.apiHealth.nextCheck.textContent = `In ${hours}h ${minutes}m`;
-      } else {
-        this.dom.apiHealth.nextCheck.textContent = `In ${minutes}m`;
-      }
     }
   }
 }

@@ -1,4 +1,4 @@
-// Prompts for New 4-Question Specification Flow
+// Prompts for New 3-Question Specification Flow
 // This file contains all the prompts for the simplified specification system
 
 const PROMPTS = {
@@ -7,7 +7,7 @@ const PROMPTS = {
     const appDescription = answers[0] || 'Not provided';
     const workflow = answers[1] || 'Not provided';
     const additionalDetails = answers[2] || 'Not provided';
-    const targetAudience = answers[3] || 'Not provided';
+    // Target Audience information should be inferred from app description and workflow
 
     return `Return ONLY valid JSON (no text/markdown). Top-level key MUST be overview. If a value is unknown, return an empty array/object—never omit required keys.
 
@@ -66,7 +66,7 @@ User Input:
 App Description: ${appDescription}
 User Workflow: ${workflow}
 Additional Details: ${additionalDetails}
-Target Audience: ${targetAudience}`;
+Note: Target Audience information should be inferred from the app description and workflow provided above.`;
   },
 
   // Technical specification prompt - generates detailed technical specs
@@ -74,7 +74,7 @@ Target Audience: ${targetAudience}`;
     const appDescription = answers[0] || 'Not provided';
     const workflow = answers[1] || 'Not provided';
     const additionalDetails = answers[2] || 'Not provided';
-    const targetAudience = answers[3] || 'Not provided';
+    // Target Audience information should be inferred from app description and workflow
 
     // Determine if using reference or full content
     const isReference = typeof specId === 'string' && specId.length < 100;
@@ -217,7 +217,7 @@ User Input:
 App Description: ${appDescription}
 User Workflow: ${workflow}
 Additional Details: ${additionalDetails}
-Target Audience: ${targetAudience}`;
+Note: Target Audience information should be inferred from the app description and workflow provided above.`;
   },
 
   // Market research prompt - generates market analysis
@@ -225,7 +225,7 @@ Target Audience: ${targetAudience}`;
     const appDescription = answers[0] || 'Not provided';
     const workflow = answers[1] || 'Not provided';
     const additionalDetails = answers[2] || 'Not provided';
-    const targetAudience = answers[3] || 'Not provided';
+    // Target Audience information should be inferred from app description and workflow
 
     // Calculate current date and last 3 months for historical data
     const now = new Date();
@@ -496,7 +496,7 @@ User Input:
 App Description: ${appDescription}
 User Workflow: ${workflow}
 Additional Details: ${additionalDetails}
-Target Audience: ${targetAudience}`;
+Note: Target Audience information should be inferred from the app description and workflow provided above.`;
   },
 
   // Design & Branding prompt - generates design guidelines and branding
@@ -504,7 +504,7 @@ Target Audience: ${targetAudience}`;
     const appDescription = answers[0] || 'Not provided';
     const workflow = answers[1] || 'Not provided';
     const additionalDetails = answers[2] || 'Not provided';
-    const targetAudience = answers[3] || 'Not provided';
+    // Target Audience information should be inferred from app description and workflow
 
     // Determine if using reference or full content
     const isReference = typeof specId === 'string' && specId.length < 100;
@@ -612,7 +612,7 @@ User Input:
 App Description: ${appDescription}
 User Workflow: ${workflow}
 Additional Details: ${additionalDetails}
-Target Audience: ${targetAudience}`;
+Note: Target Audience information should be inferred from the app description and workflow provided above.`;
   },
 
   // Diagrams prompt - generates Mermaid diagrams
@@ -733,7 +733,7 @@ ${overviewContent}`;
     const appDescription = answers[0] || 'Not provided';
     const workflow = answers[1] || 'Not provided';
     const additionalDetails = answers[2] || 'Not provided';
-    const targetAudience = answers[3] || 'Not provided';
+    // Target Audience information should be inferred from app description and workflow
 
     return `Return ONLY valid JSON (no text/markdown). Top-level key MUST be rawText. If a value is unknown, return an empty array/object—never omit required keys.
 
@@ -751,7 +751,7 @@ User Input:
 App Description: ${appDescription}
 User Workflow: ${workflow}
 Additional Details: ${additionalDetails}
-Target Audience: ${targetAudience}`;
+Note: Target Audience information should be inferred from the app description and workflow provided above.`;
   }
 };
 
