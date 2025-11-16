@@ -312,8 +312,18 @@
             
             <!-- Questions Display -->
             <div class="questions-display" id="questionsDisplay" style="display: none;">
-                <div class="current-question" id="currentQuestion">
-                    Describe your application
+                <div class="questions-header">
+                    <div class="current-question" id="currentQuestion">
+                        Describe your application
+                    </div>
+                    <div class="mode-toggle-container typing-mode-toggle">
+                        <span class="mode-label" data-mode="voice">Voice</span>
+                        <label class="mode-toggle-switch">
+                            <input type="checkbox" id="typingModeToggleSwitch" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="mode-label active" data-mode="typing">Typing</span>
+                    </div>
                 </div>
                 <div class="question-detail" id="currentQuestionDetail">
                     Describe the main idea of your application - including core features, target audience, and the problem it solves
@@ -349,15 +359,6 @@
                 
                 <div class="input-controls">
                     <div class="left-controls">
-                        <button class="control-btn switch-to-voice-btn" title="Switch to Live Brief (Voice Input)" id="switchToVoiceBtn">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
-                                <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-                                <line x1="12" y1="19" x2="12" y2="23"></line>
-                                <line x1="8" y1="23" x2="16" y2="23"></line>
-                            </svg>
-                            <span class="btn-label">Live Brief</span>
-                        </button>
                         <button class="control-btn" title="Microphone" id="microphoneBtn" style="display: none;">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
@@ -935,6 +936,11 @@
     
     <!-- Paywall Script -->
     <script src="/assets/js/paywall.js"></script>
+    
+    <!-- Question Flow Architecture - must load first -->
+    <script src="/assets/js/question-flow-state.js"></script>
+    <script src="/assets/js/question-flow-view.js"></script>
+    <script src="/assets/js/question-flow-controller.js"></script>
     
     <!-- Live Brief Modal Script - must load before index.js (no defer to ensure it loads first) -->
     <script src="/assets/js/live-brief-modal.js"></script>

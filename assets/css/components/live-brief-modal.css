@@ -1,103 +1,170 @@
-/* Live Brief Modal Styles */
+/* Live Brief Container Styles - Inline Content (Not Modal) */
 
-.live-brief-modal-overlay {
-  position: fixed;
+.live-brief-container {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+  display: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  position: relative;
+  z-index: 10 !important; /* Higher than hero-content z-index: 2 */
+}
+
+.live-brief-container.fade-in {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.live-brief-container[style*="display: block"] {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* Override hero-content fade-out for live-brief-container */
+.hero-content.fade-out .live-brief-container {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.live-brief-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem; /* Same as typing mode */
+  padding: 0;
+  margin-bottom: 1rem; /* Same as typing mode */
+  width: 100%;
+  /* Removed border-bottom */
+}
+
+.live-brief-title {
+  margin: 0;
+  color: #ffffff;
+  font-size: 2rem;
+  font-weight: 600;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  order: 2; /* Title comes after toggle */
+}
+
+.live-brief-header .mode-toggle-container {
+  order: 1; /* Toggle comes first */
+}
+
+/* Question detail in Live Brief - same style as typing mode */
+.live-brief-header .question-detail {
+  font-family: "Inter", sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  color: #cccccc;
+  text-align: center;
+  line-height: 1.5;
+  margin-top: 12px;
+  opacity: 0.9;
+  transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), filter 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  position: relative;
+  order: 3; /* Question detail comes after title */
+}
+
+/* Mode Toggle Switch */
+.mode-toggle-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0; /* Same as typing-mode-toggle */
+}
+
+.mode-label {
+  color: #FF6B35; /* Orange color for both sides */
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: color 0.3s ease, background 0.3s ease;
+  user-select: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.mode-label:hover {
+  color: #FF8551; /* Lighter orange on hover */
+  background: rgba(255, 107, 53, 0.1);
+}
+
+.mode-label.active {
+  color: #FF6B35; /* Keep orange for active */
+  font-weight: 600;
+}
+
+.mode-toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 26px;
+  cursor: pointer;
+}
+
+.mode-toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: var(--z-modal, 10000);
-  animation: fadeIn 0.3s ease;
-  backdrop-filter: blur(2px);
+  background-color: #FF6B35; /* Orange background always */
+  transition: 0.3s;
+  border-radius: 26px;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.3s;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-.live-brief-modal-content {
-  background: var(--bg-primary, #ffffff);
-  border-radius: var(--border-radius-lg, 1rem);
-  box-shadow: var(--shadow-xl, 0 8px 32px rgba(0, 0, 0, 0.3));
-  width: 90%;
-  max-width: 600px;
-  max-height: 90vh;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  animation: slideIn 0.3s ease;
+.mode-toggle-switch input:checked + .toggle-slider {
+  background-color: #FF6B35; /* Keep orange when checked */
 }
 
-@keyframes slideIn {
-  from {
-    transform: translateY(-20px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
+.mode-toggle-switch input:checked + .toggle-slider:before {
+  transform: translateX(24px);
 }
 
-.live-brief-modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: var(--spacing-lg, 1.5rem) var(--spacing-xl, 2rem);
-  border-bottom: 1px solid var(--border-light, #e9ecef);
+.mode-toggle-switch:hover .toggle-slider {
+  background-color: #FF8551; /* Lighter orange on hover */
 }
 
-.live-brief-modal-header h3 {
-  margin: 0;
-  color: var(--text-color, #333);
-  font-size: 1.5rem;
-  font-weight: var(--font-weight-semibold, 600);
+.mode-toggle-switch input:checked:hover + .toggle-slider {
+  background-color: #FF8551;
 }
 
-.live-brief-switch-to-typing {
-  background: none;
-  border: none;
-  color: var(--text-secondary, #666);
-  font-size: 0.9rem;
-  cursor: pointer;
-  padding: 0.5rem 1rem;
-  border-radius: var(--border-radius-md, 0.5rem);
-  transition: all var(--transition-normal, 0.3s ease);
-  text-decoration: underline;
-}
-
-.live-brief-switch-to-typing:hover {
-  color: var(--primary-color, #FF6B35);
-  background: var(--primary-light, #FFF4F0);
-}
-
-.live-brief-modal-body {
-  padding: var(--spacing-xl, 2rem);
-  flex: 1;
-  overflow-y: auto;
+.live-brief-body {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-lg, 1.5rem);
+  gap: var(--spacing-md, 1rem); /* Reduced gap */
   align-items: center;
+  padding: 1rem 0; /* Reduced padding */
 }
 
-.live-brief-prompt {
-  text-align: center;
-  color: var(--text-secondary, #666);
-  font-size: 1.1rem;
-  opacity: 0.4;
-  font-style: italic;
-  margin-bottom: var(--spacing-md, 1rem);
-}
+/* Prompt removed - no longer needed */
 
 /* Microphone Container with Ripple Animation */
 .live-brief-microphone-container {
@@ -105,8 +172,9 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: var(--spacing-xl, 2rem) 0;
-  min-height: 200px;
+  padding: var(--spacing-md, 1rem) 0; /* Reduced padding */
+  min-height: 150px; /* Reduced min-height */
+  order: 2; /* Microphone comes before prompt */
 }
 
 .live-brief-microphone-wrapper {
@@ -126,22 +194,35 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--primary-color, #FF6B35);
+  background: #FF6B35; /* Orange color */
   border-radius: 50%;
   color: white;
   transition: all 0.3s ease;
   box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+  cursor: pointer;
+  user-select: none;
+}
+
+.live-brief-microphone-icon:hover {
+  background: #FF8551; /* Lighter orange on hover */
+  transform: scale(1.05);
+  box-shadow: 0 4px 16px rgba(255, 107, 53, 0.4);
+}
+
+.live-brief-microphone-icon:active {
+  transform: scale(0.95);
 }
 
 .live-brief-microphone-wrapper.recording .live-brief-microphone-icon {
-  background: var(--danger-color, #dc3545);
-  box-shadow: 0 4px 20px rgba(220, 53, 69, 0.5);
+  background: #FF6B35; /* Keep orange when recording */
+  box-shadow: 0 4px 20px rgba(255, 107, 53, 0.6);
   transform: scale(1.1);
 }
 
 .live-brief-microphone-icon svg {
   width: 40px;
   height: 40px;
+  color: white;
 }
 
 /* Ripple Rings */
@@ -152,7 +233,7 @@
   transform: translate(-50%, -50%);
   width: 80px;
   height: 80px;
-  border: 2px solid var(--primary-color, #FF6B35);
+  border: 2px solid #FF6B35; /* Orange color */
   border-radius: 50%;
   opacity: 0;
   pointer-events: none;
@@ -178,7 +259,7 @@
 
 /* Adjust ripple intensity based on amplitude */
 .live-brief-microphone-wrapper.recording .live-brief-ripple-ring {
-  border-color: var(--primary-color, #FF6B35);
+  border-color: #FF6B35; /* Orange color */
   animation: ripple 2s ease-out infinite;
   animation-duration: calc(2s / (1 + var(--amplitude, 0.5)));
 }
@@ -189,31 +270,46 @@
   max-height: 300px;
   overflow-y: auto;
   padding: var(--spacing-lg, 1.5rem);
-  background: var(--bg-secondary, #f5f5f5);
+  background: rgba(255, 255, 255, 0.1);
   border-radius: var(--border-radius-md, 0.5rem);
-  border: 1px solid var(--border-light, #e9ecef);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  position: relative;
 }
 
 .live-brief-summary-text {
-  color: var(--text-color, #333);
+  color: #ffffff;
   font-size: 1rem;
   line-height: 1.6;
   white-space: pre-wrap;
   word-wrap: break-word;
   opacity: 0;
   transition: opacity 0.3s ease;
+  padding-bottom: 1.5rem; /* Space for language indicator */
+}
+
+.live-brief-language-indicator {
+  position: absolute;
+  bottom: 0.5rem;
+  right: 0.75rem;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.75rem;
+  font-weight: 400;
+  text-transform: lowercase;
+  user-select: none;
 }
 
 .live-brief-summary-text:not(:empty) {
   opacity: 1;
 }
 
-.live-brief-modal-footer {
+.live-brief-footer {
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   gap: var(--spacing-md, 1rem);
-  padding: var(--spacing-lg, 1.5rem) var(--spacing-xl, 2rem);
-  border-top: 1px solid var(--border-light, #e9ecef);
+  padding: var(--spacing-lg, 1.5rem) 0 0 0;
+  /* Removed border-top */
+  margin-top: 1.5rem;
 }
 
 .live-brief-btn {
@@ -233,30 +329,42 @@
 }
 
 .live-brief-btn-primary {
-  background: var(--primary-color, #FF6B35);
-  color: var(--text-white, #ffffff);
+  background: #FF6B35;
+  color: #ffffff;
 }
 
 .live-brief-btn-primary:hover:not(:disabled) {
-  background: var(--primary-hover, #FF8551);
+  background: #FF8551;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.4);
+}
+
+.live-brief-btn-primary:disabled {
+  background: #cccccc;
+  color: #666666;
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 .live-brief-btn-secondary {
-  background: var(--secondary-color, #6c757d);
-  color: var(--text-white, #ffffff);
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .live-brief-btn-secondary:hover:not(:disabled) {
-  background: var(--secondary-hover, #5a6268);
+  background: rgba(255, 255, 255, 0.3);
 }
 
 .live-brief-btn-stop {
-  background: var(--danger-color, #dc3545);
-  color: var(--text-white, #ffffff);
+  background: #FF6B35; /* Changed from red to orange */
+  color: #ffffff;
 }
 
 .live-brief-btn-stop:hover:not(:disabled) {
-  background: #c82333;
+  background: #FF8551; /* Lighter orange on hover */
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.4);
 }
 
 .live-brief-error {
@@ -285,32 +393,41 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .live-brief-modal-content {
-    width: 95%;
-    max-height: 95vh;
-    border-radius: var(--border-radius-md, 0.5rem);
+  .live-brief-container {
+    padding: 1.5rem;
   }
   
-  .live-brief-modal-header {
-    padding: var(--spacing-md, 1rem) var(--spacing-lg, 1.5rem);
+  .live-brief-header {
+    padding: 0;
+    margin-bottom: 1.5rem; /* Same as typing mode */
+    flex-direction: column;
+    align-items: center; /* Same as typing mode */
+    gap: 1.5rem; /* Same as typing mode */
+    width: 100%;
   }
   
-  .live-brief-modal-header h3 {
-    font-size: 1.25rem;
+  .live-brief-title {
+    font-size: 1.5rem;
+  }
+  
+  .live-brief-header .question-detail {
+    font-size: 14px;
+    margin-top: 8px;
   }
   
   .live-brief-switch-to-typing {
+    align-self: flex-end;
     font-size: 0.85rem;
     padding: 0.4rem 0.8rem;
   }
   
-  .live-brief-modal-body {
-    padding: var(--spacing-lg, 1.5rem);
+  .live-brief-body {
+    padding: 1.5rem 0;
   }
   
   .live-brief-microphone-container {
     min-height: 150px;
-    padding: var(--spacing-lg, 1.5rem) 0;
+    padding: 1rem 0;
   }
   
   .live-brief-microphone-wrapper {
@@ -333,8 +450,8 @@
     max-height: 250px;
   }
   
-  .live-brief-modal-footer {
-    padding: var(--spacing-md, 1rem) var(--spacing-lg, 1.5rem);
+  .live-brief-footer {
+    padding: 1rem 0 0 0;
     flex-wrap: wrap;
   }
   
@@ -345,59 +462,27 @@
 }
 
 @media (max-width: 480px) {
-  .live-brief-modal-content {
-    width: 98%;
-    max-height: 98vh;
+  .live-brief-container {
+    padding: 1rem;
   }
   
-  .live-brief-modal-header {
+  .live-brief-header {
     flex-direction: column;
-    align-items: flex-start;
-    gap: var(--spacing-sm, 0.5rem);
+    align-items: center; /* Same as typing mode */
+    gap: 1.25rem; /* Same as typing mode */
+    margin-bottom: 1.25rem; /* Same as typing mode */
+    width: 100%;
   }
   
   .live-brief-switch-to-typing {
     align-self: flex-end;
   }
   
-  .live-brief-modal-footer {
+  .live-brief-footer {
     flex-direction: column;
   }
   
   .live-brief-btn {
     width: 100%;
   }
-}
-
-/* Dark Mode Support */
-:root[data-theme="dark"] .live-brief-modal-content,
-body.dark-mode .live-brief-modal-content {
-  background: var(--bg-primary, #2d2d2d);
-  border: 1px solid var(--border-color, #404040);
-}
-
-:root[data-theme="dark"] .live-brief-modal-header,
-body.dark-mode .live-brief-modal-header {
-  border-bottom-color: var(--border-color, #404040);
-}
-
-:root[data-theme="dark"] .live-brief-modal-footer,
-body.dark-mode .live-brief-modal-footer {
-  border-top-color: var(--border-color, #404040);
-}
-
-:root[data-theme="dark"] .live-brief-prompt,
-body.dark-mode .live-brief-prompt {
-  color: var(--text-secondary, #cccccc);
-}
-
-:root[data-theme="dark"] .live-brief-summary-text,
-body.dark-mode .live-brief-summary-text {
-  color: var(--text-color, #ffffff);
-}
-
-:root[data-theme="dark"] .live-brief-summary-container,
-body.dark-mode .live-brief-summary-container {
-  background: var(--bg-secondary, #333333);
-  border-color: var(--border-color, #404040);
 }

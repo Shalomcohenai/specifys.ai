@@ -183,44 +183,43 @@ function handleStartButtonClick() {
     return;
   }
   
-  // Open Live Brief modal instead of proceeding with app planning
-  // Keep authentication check intact - only change what happens after auth
-  console.log('handleStartButtonClick: Checking for liveBriefModal...', window.liveBriefModal);
-  if (window.liveBriefModal) {
-    console.log('handleStartButtonClick: Opening Live Brief Modal');
+  // Use new Question Flow Controller
+  if (window.questionFlowController) {
     try {
-      window.liveBriefModal.open();
+      window.questionFlowController.start('voice').catch(error => {
+        // Fallback to old flow if controller fails
+        proceedWithAppPlanning();
+      });
     } catch (error) {
-      console.error('Error opening Live Brief Modal:', error);
-      // Fallback to old flow if modal fails to open
+      // Fallback to old flow if controller fails
       proceedWithAppPlanning();
     }
   } else {
-    console.warn('Live Brief Modal not initialized. Available:', {
-      LiveBriefModal: typeof LiveBriefModal,
-      liveBriefModal: window.liveBriefModal,
-      windowKeys: Object.keys(window).filter(k => k.includes('live') || k.includes('Live'))
-    });
-    // Fallback to old flow if modal not initialized
     proceedWithAppPlanning();
   }
 }
 
 // ===== APP PLANNING FLOW =====
 function proceedWithAppPlanning() {
-  const heroContent = document.getElementById('heroContent');
-  const heroTitle = document.querySelector('.hero-main-title');
-  const heroSubtitle = document.querySelector('.hero-subtitle');
-  const heroButtonContainer = document.querySelector('.hero-button-container');
-  
-  if (heroContent) heroContent.classList.add('fade-out');
-  if (heroTitle) heroTitle.classList.add('fade-out');
-  if (heroSubtitle) heroSubtitle.classList.add('fade-out');
-  if (heroButtonContainer) heroButtonContainer.classList.add('fade-out');
-  
-  setTimeout(() => {
-    showModernInput();
-  }, 1000);
+  // Use new Question Flow Controller
+  if (window.questionFlowController) {
+    window.questionFlowController.start('typing');
+  } else {
+    // Fallback to old implementation
+    const heroContent = document.getElementById('heroContent');
+    const heroTitle = document.querySelector('.hero-main-title');
+    const heroSubtitle = document.querySelector('.hero-subtitle');
+    const heroButtonContainer = document.querySelector('.hero-button-container');
+    
+    if (heroContent) heroContent.classList.add('fade-out');
+    if (heroTitle) heroTitle.classList.add('fade-out');
+    if (heroSubtitle) heroSubtitle.classList.add('fade-out');
+    if (heroButtonContainer) heroButtonContainer.classList.add('fade-out');
+    
+    setTimeout(() => {
+      showModernInput();
+    }, 1000);
+  }
 }
 
 // ===== INTERACTIVE QUESTIONS SYSTEM =====
@@ -255,56 +254,73 @@ const characterLimits = [
 ];
 
 function showModernInput(prefilledAnswers = null) {
-  const inputContainer = document.getElementById('modernInputContainer');
-  const questionsDisplay = document.getElementById('questionsDisplay');
-  const heroContent = document.getElementById('heroContent');
-  const specCardsShowcase = document.getElementById('specCardsShowcase');
-  
-  if (inputContainer) {
-    inputContainer.style.display = 'block';
-    setTimeout(() => {
-      inputContainer.classList.add('fade-in');
-    }, 100);
-  }
-  
-  if (questionsDisplay) {
-    questionsDisplay.style.display = 'block';
-    showCurrentQuestion();
-    setTimeout(() => {
-      questionsDisplay.classList.add('fade-in');
-    }, 100);
-  }
-  
-  // Hide spec cards showcase and add fade-out to hero content
-  if (specCardsShowcase) {
-    specCardsShowcase.style.display = 'none';
-  }
-  
-  if (heroContent) {
-    heroContent.classList.add('fade-out');
-  }
-  
-  // Pre-fill answers if provided
-  if (prefilledAnswers && Array.isArray(prefilledAnswers)) {
-    // Reset to first question
-    currentQuestionIndex = 0;
-    answers = [];
+  // Use new Question Flow Controller
+  if (window.questionFlowController) {
+    window.questionFlowController.switchToTyping(prefilledAnswers);
+  } else {
+    // Fallback to old implementation
+    const liveBriefContainer = document.getElementById('liveBriefContainer');
+    if (liveBriefContainer) {
+      liveBriefContainer.style.display = 'none';
+      liveBriefContainer.style.visibility = 'hidden';
+      liveBriefContainer.style.opacity = '0';
+      liveBriefContainer.style.transition = 'none';
+      liveBriefContainer.classList.remove('fade-in');
+    }
     
-    // Pre-fill the answers array
-    for (let i = 0; i < Math.min(prefilledAnswers.length, 3); i++) {
-      if (prefilledAnswers[i]) {
-        answers[i] = prefilledAnswers[i];
+    const inputContainer = document.getElementById('modernInputContainer');
+    const questionsDisplay = document.getElementById('questionsDisplay');
+    const heroContent = document.getElementById('heroContent');
+    const specCardsShowcase = document.getElementById('specCardsShowcase');
+    
+    if (inputContainer) {
+      inputContainer.style.display = 'block';
+      inputContainer.style.visibility = 'visible';
+      inputContainer.style.opacity = '1';
+      inputContainer.style.transition = 'none';
+    }
+    
+    if (questionsDisplay) {
+      questionsDisplay.style.display = 'block';
+      questionsDisplay.style.visibility = 'visible';
+      questionsDisplay.style.opacity = '1';
+      questionsDisplay.style.transition = 'none';
+      questionsDisplay.style.pointerEvents = 'auto';
+      if (typeof showCurrentQuestion === 'function') {
+        showCurrentQuestion();
       }
     }
     
-    // If we have pre-filled data, show it in the textarea
-    if (answers[0]) {
-      const textarea = document.getElementById('mainInput');
-      if (textarea) {
-        textarea.value = answers[0];
-        updateCharacterLimit();
-        updateButtonState();
-        autoResize();
+    if (specCardsShowcase) {
+      specCardsShowcase.style.display = 'none';
+    }
+    
+    if (heroContent) {
+      heroContent.classList.add('fade-out');
+    }
+    
+    if (prefilledAnswers && Array.isArray(prefilledAnswers)) {
+      currentQuestionIndex = 0;
+      answers = [];
+      for (let i = 0; i < Math.min(prefilledAnswers.length, 3); i++) {
+        if (prefilledAnswers[i]) {
+          answers[i] = prefilledAnswers[i];
+        }
+      }
+      if (answers[0]) {
+        const textarea = document.getElementById('mainInput');
+        if (textarea) {
+          textarea.value = answers[0];
+          if (typeof updateCharacterLimit === 'function') {
+            updateCharacterLimit();
+          }
+          if (typeof updateButtonState === 'function') {
+            updateButtonState();
+          }
+          if (typeof autoResize === 'function') {
+            autoResize();
+          }
+        }
       }
     }
   }
@@ -878,7 +894,9 @@ function initSpeechRecognition() {
     
     recognition.continuous = false;
     recognition.interimResults = false;
-    recognition.lang = 'en-US';
+    // Use browser/system language or fallback to English
+    const browserLanguage = navigator.language || navigator.userLanguage || 'en-US';
+    recognition.lang = browserLanguage;
     
     recognition.onstart = function() {
       isRecording = true;
@@ -943,20 +961,12 @@ function updateMicrophoneButton() {
 
 // ===== API INTEGRATION =====
 async function generateSpecification() {
-  // Initialize logging variables at the start of the function
-  const requestId = `client-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-  const requestStartTime = Date.now();
-  
   try {
-    console.log(`[${requestId}] ===== CLIENT: generateSpecification START =====`);
-    console.log(`[${requestId}] Timestamp: ${new Date().toISOString()}`);
-    
     // Clear any previous spec data to force creating a NEW spec
     localStorage.removeItem('currentSpecId');
     localStorage.removeItem('generatedOverviewContent');
     localStorage.removeItem('initialAnswers');
     
-<<<<<<< HEAD
     // Check if answers come from Live Brief modal
     if (window.liveBriefAnswers && Array.isArray(window.liveBriefAnswers) && window.liveBriefAnswers.length === 3) {
       answers = window.liveBriefAnswers;
@@ -971,7 +981,6 @@ async function generateSpecification() {
     // Check if answers exist and are valid (support both 3 and 4 answers for compatibility)
     if (!answers || (answers.length !== 3 && answers.length !== 4)) {
       hideLoadingOverlay();
-      console.error(`[${requestId}] ❌ Validation failed: Invalid answers`);
       alert('Error: Invalid answers provided. Please provide answers to all questions.');
       return;
     }
@@ -980,7 +989,6 @@ async function generateSpecification() {
     const user = firebase.auth().currentUser;
     if (!user) {
       hideLoadingOverlay();
-      console.error(`[${requestId}] ❌ Authentication failed: No user`);
       showRegistrationModal();
       return;
     }
@@ -990,7 +998,6 @@ async function generateSpecification() {
       const entitlementCheck = await checkEntitlement();
       if (!entitlementCheck.hasAccess) {
         hideLoadingOverlay();
-        console.error(`[${requestId}] ❌ Access denied: No credits/entitlement`);
         const paywallPayload = entitlementCheck.paywallData || {
           reason: 'insufficient_credits',
           message: 'You have no remaining spec credits'
@@ -1002,7 +1009,6 @@ async function generateSpecification() {
           });
           window.location.href = `/pages/pricing.html?${searchParams.toString()}`;
         } catch (redirectError) {
-          console.error(`[${requestId}] ⚠️ Failed to redirect to pricing`, redirectError);
           alert(paywallPayload.message || 'You do not have enough credits to create a spec. Please purchase credits or upgrade to Pro.');
         }
         return;
@@ -1028,11 +1034,6 @@ async function generateSpecification() {
     
     // Generate specification using the legacy API endpoint
     const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai.onrender.com';
-    console.log(`[${requestId}] Request Payload:`, {
-      userInputLength: enhancedPrompt.length,
-      userInputPreview: enhancedPrompt.substring(0, 200),
-      platformInfo: platformInfo
-    });
     
     const response = await fetch(`${apiBaseUrl}/api/generate-spec`, {
       method: 'POST',
@@ -1044,18 +1045,9 @@ async function generateSpecification() {
       })
     });
     
-    const requestTime = Date.now() - requestStartTime;
-    console.log(`[${requestId}] 📥 Response received (${requestTime}ms):`, {
-      status: response.status,
-      statusText: response.statusText,
-      ok: response.ok,
-      contentType: response.headers.get('content-type')
-    });
-
     if (!response.ok) {
       if (response.status === 403) {
         hideLoadingOverlay();
-        console.warn(`[${requestId}] ℹ️ Spec generation blocked due to insufficient credits`);
         let paywallPayload;
         try {
           const cloned = response.clone();
@@ -1065,7 +1057,7 @@ async function generateSpecification() {
             message: payload?.message || payload?.details || 'You have no remaining spec credits'
           };
         } catch (parseError) {
-          console.debug(`[${requestId}] Unable to parse 403 payload`, parseError);
+          // Unable to parse 403 payload
         }
         if (!paywallPayload) {
           paywallPayload = {
@@ -1080,13 +1072,10 @@ async function generateSpecification() {
           });
           window.location.href = `/pages/pricing.html?${searchParams.toString()}`;
         } catch (redirectError) {
-          console.error(`[${requestId}] ⚠️ Failed to redirect to pricing after 403`, redirectError);
           alert(paywallPayload.message || 'You do not have enough credits to create a spec. Please purchase credits or upgrade to Pro.');
         }
         return;
       }
-      
-      console.error(`[${requestId}] ❌ Response not OK: ${response.status} ${response.statusText}`);
       let errorMessage = 'Failed to generate specification';
       let errorDetails = null;
       let serverRequestId = null;
@@ -1103,65 +1092,25 @@ async function generateSpecification() {
         if (serverRequestId) {
           errorMessage += ` [Server Request ID: ${serverRequestId}]`;
         }
-        
-        console.error(`[${requestId}] API Error Response (JSON):`, {
-          status: response.status,
-          statusText: response.statusText,
-          error: errorData,
-          errorString: JSON.stringify(errorData, null, 2),
-          serverRequestId: serverRequestId
-        });
-        console.error(`[${requestId}] Full error details:`, errorData);
-        console.error(`[${requestId}] Server Request ID: ${serverRequestId || 'N/A'} - Check server logs with this ID`);
       } catch (parseError) {
         // If response is not JSON, try to get text
         try {
           const errorText = await response.text();
           errorDetails = { text: errorText };
           errorMessage = errorText || `HTTP ${response.status}: ${response.statusText}`;
-          console.error(`[${requestId}] API Error (non-JSON):`, {
-            status: response.status,
-            statusText: response.statusText,
-            errorText: errorText,
-            parseError: parseError.message
-          });
         } catch (textError) {
           errorMessage = `HTTP ${response.status}: ${response.statusText}`;
           errorDetails = { parseError: textError.message };
-          console.error(`[${requestId}] API Error (could not parse):`, {
-            status: response.status,
-            statusText: response.statusText,
-            textError: textError.message
-          });
         }
       }
       
-      const totalTime = Date.now() - requestStartTime;
-      console.error(`[${requestId}] ===== CLIENT: generateSpecification FAILED (${totalTime}ms) =====`);
-      if (serverRequestId) {
-        console.error(`[${requestId}] ⚠️  Check server logs for request ID: ${serverRequestId}`);
-      }
       throw new Error(errorMessage);
     }
 
-    const parseStart = Date.now();
     const data = await response.json();
-    const parseTime = Date.now() - parseStart;
-    
-    console.log(`[${requestId}] ✅ Successfully parsed response (${parseTime}ms)`);
-    console.log(`[${requestId}] Response Data Structure:`, {
-      hasSpecification: !!data.specification,
-      specificationType: typeof data.specification,
-      specificationLength: data.specification?.length || 0,
-      keys: Object.keys(data)
-    });
     
     // Extract overview content from the response
     const overviewContent = data.specification || 'No overview generated';
-    console.log(`[${requestId}] Overview Content:`, {
-      length: overviewContent.length,
-      preview: overviewContent.substring(0, 200)
-    });
     
     // Consume credit BEFORE saving to Firebase
     // If save fails, we'll refund the credit
@@ -1169,7 +1118,6 @@ async function generateSpecification() {
     let consumeTransactionId = null;
     
     try {
-      console.log(`[${requestId}] 💳 Consuming credit before spec creation...`);
       const token = await user.getIdToken();
       const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai.onrender.com';
       
@@ -1188,17 +1136,14 @@ async function generateSpecification() {
 
       if (!consumeResponse.ok) {
         const errorData = await consumeResponse.json();
-        console.error(`[${requestId}] ❌ Failed to consume credit:`, errorData);
         throw new Error(errorData.message || 'Failed to consume credit');
       }
       
       const consumeResult = await consumeResponse.json();
       creditConsumed = true;
       consumeTransactionId = consumeResult.transactionId || tempSpecId;
-      console.log(`[${requestId}] ✅ Credit consumed successfully (transactionId: ${consumeTransactionId})`);
       
     } catch (creditError) {
-      console.error(`[${requestId}] ❌ Error consuming credit:`, creditError);
       hideLoadingOverlay();
       throw new Error(`Failed to consume credit: ${creditError.message}`);
     }
@@ -1206,18 +1151,11 @@ async function generateSpecification() {
     // Save to Firebase and redirect
     let firebaseId = null;
     try {
-      console.log(`[${requestId}] 💾 Saving to Firebase...`);
-      const firebaseSaveStart = Date.now();
       firebaseId = await saveSpecToFirebase(overviewContent, answers);
-      const firebaseSaveTime = Date.now() - firebaseSaveStart;
-      console.log(`[${requestId}] ✅ Saved to Firebase (${firebaseSaveTime}ms): ${firebaseId}`);
     } catch (saveError) {
-      console.error(`[${requestId}] ❌ Failed to save spec to Firebase:`, saveError);
-      
       // Refund credit if save failed
       if (creditConsumed) {
         try {
-          console.log(`[${requestId}] 💰 Refunding credit due to save failure...`);
           const token = await user.getIdToken();
           const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai.onrender.com';
           
@@ -1234,14 +1172,11 @@ async function generateSpecification() {
             })
           });
           
-          if (refundResponse.ok) {
-            console.log(`[${requestId}] ✅ Credit refunded successfully`);
-          } else {
-            console.error(`[${requestId}] ⚠️ Failed to refund credit:`, await refundResponse.json());
+          if (!refundResponse.ok) {
+            await refundResponse.json();
           }
         } catch (refundError) {
-          console.error(`[${requestId}] ❌ Error refunding credit:`, refundError);
-          // Log but don't throw - the main error is the save failure
+          // Error refunding credit - the main error is the save failure
         }
       }
       
@@ -1259,21 +1194,14 @@ async function generateSpecification() {
     
     // Trigger OpenAI upload (non-blocking)
     if (window.ENABLE_OPENAI_STORAGE !== false) {
-      console.log(`[${requestId}] 📤 Triggering OpenAI upload (background)...`);
       triggerOpenAIUpload(firebaseId).catch(err => {
-        console.error(`[${requestId}] ❌ Background OpenAI upload failed:`, err);
+        // Background OpenAI upload failed
       });
     }
     
     // Store in localStorage for backup
     localStorage.setItem('generatedOverviewContent', overviewContent);
     localStorage.setItem('initialAnswers', JSON.stringify(answers));
-    console.log(`[${requestId}] 💾 Stored in localStorage for backup`);
-    
-    const totalTime = Date.now() - requestStartTime;
-    console.log(`[${requestId}] ✅ Successfully completed specification generation (${totalTime}ms total)`);
-    console.log(`[${requestId}] 🔄 Redirecting to spec viewer...`);
-    console.log(`[${requestId}] ===== CLIENT: generateSpecification SUCCESS =====`);
     
     // Redirect to spec viewer with Firebase ID
     setTimeout(() => {
@@ -1283,17 +1211,6 @@ async function generateSpecification() {
   } catch (error) {
     // Hide loading overlay
     hideLoadingOverlay();
-    
-    // Use requestStartTime if available, otherwise calculate from start
-    const totalTime = requestStartTime ? Date.now() - requestStartTime : 0;
-    
-    // Show detailed error message
-    console.error(`[${requestId}] ❌ Full error in generateSpecification (${totalTime}ms):`, {
-      message: error.message,
-      stack: error.stack,
-      name: error.name
-    });
-    console.error(`[${requestId}] ===== CLIENT: generateSpecification ERROR =====`);
     
     const errorMessage = error.message || 'Error generating specification. Please try again.';
     
@@ -1400,24 +1317,15 @@ async function saveSpecToFirebase(overviewContent, answers) {
 
 // ===== OPENAI UPLOAD TRIGGER =====
 async function triggerOpenAIUpload(specId) {
-  const requestId = `upload-trigger-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-  
   try {
-    console.log(`[${requestId}] ===== triggerOpenAIUpload START =====`);
-    console.log(`[${requestId}] Spec ID: ${specId}`);
-    
     const user = firebase.auth().currentUser;
     if (!user) {
-      console.warn(`[${requestId}] ⚠️  No authenticated user, skipping upload`);
       return;
     }
     
     const token = await user.getIdToken();
     const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai.onrender.com';
     const uploadUrl = `${apiBaseUrl}/api/specs/${specId}/upload-to-openai`;
-    
-    console.log(`[${requestId}] 📤 Uploading spec to OpenAI`);
-    console.log(`[${requestId}] API URL: ${uploadUrl}`);
     
     const response = await fetch(uploadUrl, {
       method: 'POST',
@@ -1438,7 +1346,6 @@ async function triggerOpenAIUpload(specId) {
           details: error.details || null,
           requestId: error.requestId || null
         };
-        console.error(`[${requestId}] ❌ Upload failed:`, errorDetails);
         throw new Error(error.error || 'Upload failed');
       } catch (parseError) {
         // If response is not JSON, try to get text
@@ -1449,7 +1356,6 @@ async function triggerOpenAIUpload(specId) {
             statusText: response.statusText,
             errorText: errorText.substring(0, 500)
           };
-          console.error(`[${requestId}] ❌ Upload failed (non-JSON response):`, errorDetails);
           throw new Error(`Upload failed: HTTP ${response.status} ${response.statusText}`);
         } catch (textError) {
           errorDetails = {
@@ -1457,28 +1363,13 @@ async function triggerOpenAIUpload(specId) {
             statusText: response.statusText,
             parseError: textError.message
           };
-          console.error(`[${requestId}] ❌ Upload failed (could not parse response):`, errorDetails);
           throw new Error(`Upload failed: HTTP ${response.status} ${response.statusText}`);
         }
       }
     }
     
-    const data = await response.json();
-    console.log(`[${requestId}] ✅ Upload successful:`, {
-      success: data.success,
-      fileId: data.fileId,
-      message: data.message
-    });
-    console.log(`[${requestId}] ===== triggerOpenAIUpload SUCCESS =====`);
+    await response.json();
   } catch (error) {
-    // Log detailed error information for debugging
-    console.error(`[${requestId}] ❌ OpenAI upload trigger failed:`, {
-      specId: specId,
-      error: error.message,
-      stack: error.stack,
-      name: error.name
-    });
-    console.error(`[${requestId}] ===== triggerOpenAIUpload FAILED =====`);
     // Note: This is non-critical, so we don't throw - upload happens in background
   }
 }
@@ -1517,21 +1408,13 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Initialize Live Brief Modal (after DOM is ready)
   // Wait a bit to ensure all scripts are loaded
-  console.log('DOMContentLoaded: Checking for LiveBriefModal...', typeof LiveBriefModal);
   setTimeout(() => {
-    console.log('DOMContentLoaded: After timeout, checking LiveBriefModal...', typeof LiveBriefModal);
     if (typeof LiveBriefModal !== 'undefined') {
       try {
-        console.log('DOMContentLoaded: Creating new LiveBriefModal instance...');
         window.liveBriefModal = new LiveBriefModal();
-        console.log('✅ Live Brief Modal initialized successfully', window.liveBriefModal);
       } catch (error) {
-        console.error('❌ Error initializing Live Brief Modal:', error);
-        console.error('Error stack:', error.stack);
+        // Error initializing Live Brief Modal
       }
-    } else {
-      console.warn('⚠️ LiveBriefModal class not found. Make sure live-brief-modal.js is loaded.');
-      console.warn('Available window properties:', Object.keys(window).filter(k => k.toLowerCase().includes('live')));
     }
   }, 100);
   
@@ -1540,19 +1423,38 @@ document.addEventListener('DOMContentLoaded', function() {
     startButton.addEventListener('click', handleStartButtonClick);
   }
   
-  // Switch to voice button (in questions mode)
-  const switchToVoiceBtn = document.getElementById('switchToVoiceBtn');
-  if (switchToVoiceBtn) {
-    switchToVoiceBtn.addEventListener('click', () => {
-      // Save current answers before switching
+  // Function to switch to voice mode
+  function switchToVoiceMode() {
+    // Use new Question Flow Controller
+    if (window.questionFlowController) {
+      window.questionFlowController.switchToVoice();
+    } else {
+      // Fallback to old implementation
       const currentAnswer = document.getElementById('mainInput')?.value || '';
       if (currentAnswer && currentQuestionIndex < answers.length) {
         answers[currentQuestionIndex] = currentAnswer;
       }
       
-      // Open Live Brief modal with current answers
+      const inputContainer = document.getElementById('modernInputContainer');
+      const questionsDisplay = document.getElementById('questionsDisplay');
+      
+      if (inputContainer) {
+        inputContainer.style.display = 'none';
+        inputContainer.style.visibility = 'hidden';
+        inputContainer.style.opacity = '0';
+        inputContainer.style.transition = 'none';
+        inputContainer.classList.remove('fade-in');
+      }
+      
+      if (questionsDisplay) {
+        questionsDisplay.style.display = 'none';
+        questionsDisplay.style.visibility = 'hidden';
+        questionsDisplay.style.opacity = '0';
+        questionsDisplay.style.transition = 'none';
+        questionsDisplay.classList.remove('fade-in');
+      }
+      
       if (window.liveBriefModal) {
-        // Prepare answers array with current data
         const answersToPrefill = [];
         for (let i = 0; i < 3; i++) {
           if (i === currentQuestionIndex && currentAnswer) {
@@ -1561,14 +1463,106 @@ document.addEventListener('DOMContentLoaded', function() {
             answersToPrefill[i] = answers[i];
           }
         }
-        
-        // Open modal with pre-filled answers
         window.liveBriefModal.open(answersToPrefill.length > 0 ? answersToPrefill : null);
-      } else {
-        console.warn('Live Brief Modal not available');
       }
-    });
+    }
   }
+  
+  // Setup typing mode toggle handlers - called when typing mode is shown
+  // Make it available globally so Live Brief modal can call it
+  window.setupTypingModeToggle = function() {
+    // Helper function to update toggle and labels state
+    const updateToggleState = (checked) => {
+      const toggleInput = document.getElementById('typingModeToggleSwitch');
+      if (toggleInput) {
+        toggleInput.checked = checked;
+      }
+      const voiceLabel = document.querySelector('.typing-mode-toggle .mode-label[data-mode="voice"]');
+      const typingLabel = document.querySelector('.typing-mode-toggle .mode-label[data-mode="typing"]');
+      if (voiceLabel && typingLabel) {
+        if (checked) {
+          voiceLabel.classList.remove('active');
+          typingLabel.classList.add('active');
+        } else {
+          voiceLabel.classList.add('active');
+          typingLabel.classList.remove('active');
+        }
+      }
+    };
+    
+    // Make toggle clickable for switching modes
+    const toggleInput = document.getElementById('typingModeToggleSwitch');
+    if (toggleInput) {
+      toggleInput.disabled = false;
+      toggleInput.style.pointerEvents = 'auto';
+      toggleInput.style.cursor = 'pointer';
+      
+      // Remove any existing listeners by cloning
+      const newToggle = toggleInput.cloneNode(true);
+      toggleInput.parentNode.replaceChild(newToggle, toggleInput);
+      
+      newToggle.addEventListener('change', function(e) {
+        // Use Question Flow Controller if available
+        if (window.questionFlowController) {
+          if (!e.target.checked) {
+            window.questionFlowController.switchToVoice();
+          } else {
+            // Already in typing mode
+            window.questionFlowController.switchToMode('typing');
+          }
+        } else {
+          // Fallback to old implementation
+          updateToggleState(e.target.checked);
+          if (!e.target.checked) {
+            switchToVoiceMode();
+          }
+        }
+      });
+    }
+    
+    // Get mode labels
+    const voiceLabel = document.querySelector('.typing-mode-toggle .mode-label[data-mode="voice"]');
+    const typingLabel = document.querySelector('.typing-mode-toggle .mode-label[data-mode="typing"]');
+    
+    // Remove any existing listeners by cloning and replacing
+    if (voiceLabel) {
+      const newVoiceLabel = voiceLabel.cloneNode(true);
+      voiceLabel.parentNode.replaceChild(newVoiceLabel, voiceLabel);
+      
+      newVoiceLabel.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (window.questionFlowController) {
+          window.questionFlowController.switchToVoice();
+        } else {
+          updateToggleState(false);
+          switchToVoiceMode();
+        }
+      });
+    }
+    
+    if (typingLabel) {
+      const newTypingLabel = typingLabel.cloneNode(true);
+      typingLabel.parentNode.replaceChild(newTypingLabel, typingLabel);
+      
+      newTypingLabel.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        // Already in typing mode, just update visual state
+        updateToggleState(true);
+      });
+    }
+  };
+  
+  // Override showModernInput to setup toggle handlers
+  const originalShowModernInput = showModernInput;
+  showModernInput = function(prefilledAnswers) {
+    originalShowModernInput(prefilledAnswers);
+    // Setup toggle handlers after a short delay to ensure DOM is ready
+    setTimeout(() => {
+      window.setupTypingModeToggle();
+    }, 100);
+  };
   
   const navicon = document.querySelector('.navicon');
   if (navicon) {

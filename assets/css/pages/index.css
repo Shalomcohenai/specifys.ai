@@ -473,9 +473,11 @@
 
 /* ===== MODERN INPUT CONTAINER ===== */
 .modern-input-container {
-  background: white;
-  border-radius: 16px;
-  padding: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: var(--border-radius-md, 0.5rem);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  padding: var(--spacing-lg, 1.5rem);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   max-width: 800px;
   width: 90%;
@@ -498,13 +500,16 @@
 /* Mobile: Use relative positioning for better flow */
 @media (max-width: 768px) {
   .questions-display {
-    position: relative;
-    top: auto;
-    left: auto;
-    transform: none;
-    margin: 20px auto;
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    transform: none !important;
+    margin: 0 auto !important;
+    padding: 100px 15px 30px 15px !important; /* More space for header and better spacing */
     order: 1;
-    opacity: 1;
+    opacity: 1 !important;
+    width: 100% !important;
+    max-width: 100% !important;
   }
   
   .questions-display.fade-in {
@@ -513,11 +518,11 @@
   }
   
   .modern-input-container {
-    position: relative;
-    top: auto;
-    left: auto;
-    transform: none;
-    margin: 0 auto;
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    transform: none !important;
+    margin: 0 auto !important;
     order: 2;
   }
   
@@ -544,7 +549,7 @@
 }
 
 .input-instruction {
-  color: #666;
+  color: rgba(255, 255, 255, 0.6);
   font-size: 14px;
   margin-bottom: 12px;
   font-weight: 400;
@@ -628,15 +633,16 @@
   outline: none;
   resize: none;
   font-size: 16px;
-  line-height: 1.5;
+  line-height: 1.6;
   min-height: 60px;
   max-height: 200px;
   font-family: inherit;
   background: transparent;
+  color: #ffffff;
 }
 
 .main-input::placeholder {
-  color: #999;
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .character-count-container {
@@ -648,7 +654,7 @@
 
 .character-count {
   font-size: 12px;
-  color: #999;
+  color: rgba(255, 255, 255, 0.5);
   transition: color 0.3s ease;
   font-family: inherit;
 }
@@ -680,7 +686,7 @@
   padding: 8px;
   border-radius: 8px;
   cursor: pointer;
-  color: #666;
+  color: rgba(255, 255, 255, 0.7);
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
@@ -689,8 +695,8 @@
 }
 
 .control-btn:hover {
-  background: #f5f5f5;
-  color: #333;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .control-btn.selected {
@@ -2203,12 +2209,62 @@
   margin: 0 auto;
   opacity: 0;
   transition: opacity 0.8s ease-out, transform 0.8s ease-out;
-  pointer-events: none;
+  pointer-events: none; /* Disable pointer events by default */
 }
 
 .questions-display.fade-in {
   opacity: 1;
   transform: translate(-50%, -50%) translateY(-200px);
+  pointer-events: auto; /* Enable pointer events when visible */
+}
+
+/* Ensure mode toggle is always clickable */
+.questions-display .typing-mode-toggle,
+.questions-display .typing-mode-toggle * {
+  pointer-events: auto !important;
+}
+
+.questions-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  width: 100%;
+}
+
+.questions-header .current-question {
+  text-align: center;
+  order: 2; /* Title comes after toggle */
+}
+
+.questions-header .typing-mode-toggle {
+  order: 1; /* Toggle comes first */
+}
+
+.typing-mode-toggle {
+  flex-shrink: 0;
+}
+
+.typing-mode-toggle .mode-label {
+  color: #FF6B35; /* Orange color for both sides */
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: color 0.3s ease, background 0.3s ease;
+  user-select: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.typing-mode-toggle .mode-label:hover {
+  color: #FF8551; /* Lighter orange on hover */
+  background: rgba(255, 107, 53, 0.1);
+}
+
+.typing-mode-toggle .mode-label.active {
+  color: #FF6B35; /* Keep orange for active */
+  font-weight: 600;
 }
 
 .current-question {
@@ -2336,8 +2392,8 @@
 
 @media (max-width: 768px) {
   .hero-section {
-    padding-top: 100px;
-    padding-bottom: 2rem;
+    padding-top: 0;
+    padding-bottom: 0;
     min-height: auto;
     display: flex;
     flex-direction: column;
@@ -2373,24 +2429,41 @@
   }
   
   .modern-input-container {
-    width: 95%;
-    padding: 15px;
-    margin-top: 0;
-    margin-bottom: 20px;
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    transform: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 20px 15px !important;
+    margin: 20px 0 !important;
   }
   
   .questions-display {
-    width: 95%;
-    margin-top: 0;
-    margin-bottom: 10px;
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    transform: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 100px 15px 30px 15px !important; /* More space for header and better spacing */
+  }
+  
+  .questions-header {
+    margin-bottom: 1.5rem;
+    gap: 1.5rem;
   }
   
   .current-question {
-    font-size: 24px;
+    font-size: 28px;
+    margin-bottom: 0.5rem;
   }
   
   .question-detail {
-    font-size: 14px;
+    font-size: 15px;
+    margin-top: 16px;
+    line-height: 1.6;
   }
   
   .modern-input-container {
@@ -2434,23 +2507,41 @@
   }
   
   .modern-input-container {
-    width: 98%;
-    padding: 10px;
-    margin-bottom: 15px;
-    margin-top: 8px;
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    transform: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 18px 12px !important;
+    margin: 18px 0 !important;
   }
   
   .questions-display {
-    width: 98%;
-    margin-bottom: 8px;
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    transform: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 100px 10px 25px 10px !important; /* More space for header and better spacing */
+  }
+  
+  .questions-header {
+    margin-bottom: 1.25rem;
+    gap: 1.25rem;
   }
   
   .current-question {
-    font-size: 20px;
+    font-size: 24px;
+    margin-bottom: 0.5rem;
   }
   
   .question-detail {
-    font-size: 13px;
+    font-size: 14px;
+    margin-top: 14px;
+    line-height: 1.6;
   }
   
   .input-instruction {

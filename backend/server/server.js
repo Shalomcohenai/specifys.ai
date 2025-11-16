@@ -536,11 +536,11 @@ app.use('/api/stats', statsRoutes);
 const liveBriefRoutes = require('./live-brief-routes');
 app.use('/api/live-brief', liveBriefRoutes);
 
-// Import error logger
-const { logError, getErrorLogs, getErrorSummary } = require('./error-logger');
+// Import error logger (already imported above, skip duplicate)
+// const { logError, getErrorLogs, getErrorSummary } = require('./error-logger');
 
-// Import CSS crash logger
-const { logCSCCrash, getCSCCrashLogs, getCSCCrashSummary } = require('./css-crash-logger');
+// Import CSS crash logger (already imported above, skip duplicate)
+// const { logCSCCrash, getCSCCrashLogs, getCSCCrashSummary } = require('./css-crash-logger');
 
 // Admin error logs endpoint
 app.get('/api/admin/error-logs', async (req, res) => {
