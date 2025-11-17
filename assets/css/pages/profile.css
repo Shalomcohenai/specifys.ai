@@ -1436,6 +1436,7 @@
     background: #FF8551;
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+    color: white !important;
 }
 
 .panel-action-btn.cancel-btn {
@@ -1460,6 +1461,21 @@
 
 .info-value .plan-badge {
     display: inline-block;
+}
+
+#upgrade-row .info-value {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#upgrade-row .panel-action-btn {
+    text-decoration: none;
+    color: white !important;
+}
+
+#upgrade-row .panel-action-btn:hover {
+    color: white !important;
 }
 
 .subscription-confirmation {

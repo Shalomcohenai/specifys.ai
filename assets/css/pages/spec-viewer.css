@@ -1525,3 +1525,549 @@
     vertical-align: middle;
     margin-right: 8px;
 }
+
+/* ===== EXPORT TAB STYLES ===== */
+
+.export-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 30px 20px;
+}
+
+.export-intro {
+    margin-bottom: 30px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #FF6B35;
+}
+
+.export-intro p {
+    margin: 0;
+    color: #666;
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+.export-options {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 25px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.export-section-header {
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.export-sections-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.export-checkbox-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 12px;
+    border-radius: 6px;
+    transition: background-color 0.2s ease;
+    user-select: none;
+}
+
+.export-checkbox-label:hover {
+    background-color: #f8f9fa;
+}
+
+.export-checkbox {
+    width: 20px;
+    height: 20px;
+    margin-right: 12px;
+    cursor: pointer;
+    accent-color: #FF6B35;
+    flex-shrink: 0;
+}
+
+.export-checkbox-label span {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+    color: #333;
+    flex: 1;
+}
+
+.export-checkbox-label span i {
+    color: #FF6B35;
+    width: 18px;
+    text-align: center;
+}
+
+.export-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+.export-generate-btn {
+    padding: 14px 40px;
+    font-size: 16px;
+    font-weight: 600;
+    background: linear-gradient(135deg, #FF8551 0%, #FF6B35 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3);
+}
+
+.export-generate-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 107, 53, 0.4);
+}
+
+.export-generate-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.export-progress {
+    margin-top: 30px;
+    padding: 25px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+}
+
+.progress-bar-container {
+    width: 100%;
+    height: 8px;
+    background: #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 15px;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #FF8551 0%, #FF6B35 100%);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+    width: 0%;
+}
+
+.progress-text {
+    text-align: center;
+    color: #666;
+    font-size: 14px;
+    margin: 0;
+}
+
+/* Dark mode support for export */
+body.dark-mode .export-intro {
+    background: #2a2a2a;
+    border-left-color: #FF6B35;
+}
+
+body.dark-mode .export-intro p {
+    color: #ccc;
+}
+
+body.dark-mode .export-options {
+    background: #2a2a2a;
+    border-color: #444;
+}
+
+body.dark-mode .export-section-header {
+    border-bottom-color: #444;
+}
+
+body.dark-mode .export-checkbox-label:hover {
+    background-color: #333;
+}
+
+body.dark-mode .export-checkbox-label span {
+    color: #e0e0e0;
+}
+
+body.dark-mode .export-progress {
+    background: #2a2a2a;
+    border-color: #444;
+}
+
+body.dark-mode .progress-bar-container {
+    background: #444;
+}
+
+body.dark-mode .progress-text {
+    color: #ccc;
+}
+
+/* Responsive design for export */
+@media (max-width: 768px) {
+    .export-container {
+        padding: 20px 15px;
+    }
+    
+    .export-options {
+        padding: 20px;
+    }
+    
+    .export-generate-btn {
+        width: 100%;
+        padding: 12px 30px;
+    }
+}
+
+/* ===== EXPORT INNER TABS ===== */
+
+.export-inner-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 30px;
+    border-bottom: 2px solid #e0e0e0;
+    padding-bottom: 0;
+}
+
+.export-inner-tab {
+    padding: 12px 24px;
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 500;
+    color: #666;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.export-inner-tab:hover {
+    color: #FF6B35;
+    background: #f8f9fa;
+}
+
+.export-inner-tab.active {
+    color: #FF6B35;
+    border-bottom-color: #FF6B35;
+    background: transparent;
+}
+
+.export-inner-content {
+    display: none;
+}
+
+.export-inner-content.active {
+    display: block;
+}
+
+/* Jira Export Styles */
+.jira-export-options {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 25px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.jira-field-group {
+    margin-bottom: 25px;
+}
+
+.jira-field-group:last-child {
+    margin-bottom: 0;
+}
+
+.jira-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #333;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.jira-label i {
+    color: #FF6B35;
+    width: 16px;
+}
+
+.jira-label .required {
+    color: #e74c3c;
+}
+
+.jira-input,
+.jira-select {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: inherit;
+    transition: border-color 0.2s ease;
+    background: white;
+    color: #333;
+}
+
+.jira-input:focus,
+.jira-select:focus {
+    outline: none;
+    border-color: #FF6B35;
+    box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+}
+
+.jira-help {
+    display: block;
+    margin-top: 6px;
+    font-size: 12px;
+    color: #666;
+}
+
+/* Dark mode for Jira export */
+body.dark-mode .export-inner-tab {
+    color: #999;
+}
+
+body.dark-mode .export-inner-tab:hover {
+    color: #FF6B35;
+    background: #333;
+}
+
+body.dark-mode .jira-export-options {
+    background: #2a2a2a;
+    border-color: #444;
+}
+
+body.dark-mode .jira-label {
+    color: #e0e0e0;
+}
+
+body.dark-mode .jira-input,
+body.dark-mode .jira-select {
+    background: #333;
+    border-color: #555;
+    color: #e0e0e0;
+}
+
+body.dark-mode .jira-help {
+    color: #999;
+}
+
+/* Responsive for inner tabs */
+@media (max-width: 768px) {
+    .export-inner-tabs {
+        flex-wrap: wrap;
+    }
+    
+    .export-inner-tab {
+        padding: 10px 16px;
+        font-size: 14px;
+    }
+}
+
+/* Complexity Score Section */
+.complexity-score-section {
+    background: white;
+    padding: 25px;
+    margin-top: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.complexity-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 15px;
+}
+
+.complexity-header h3 {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #333;
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.complexity-header h3 i {
+    color: #FF6B35;
+    margin-right: 8px;
+}
+
+.total-score {
+    font-size: 2rem;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: 8px;
+    background: #f8f9fa;
+}
+
+.total-score.score-low {
+    color: #4CAF50;
+}
+
+.total-score.score-medium {
+    color: #FFC107;
+}
+
+.total-score.score-high {
+    color: #FF6B35;
+}
+
+.complexity-metrics {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.metric-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    position: relative;
+}
+
+.metric-label {
+    min-width: 120px;
+    font-weight: 500;
+    color: #555;
+    font-size: 0.95rem;
+}
+
+.metric-bar {
+    flex: 1;
+    height: 24px;
+    background: #f0f0f0;
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+}
+
+.metric-fill {
+    height: 100%;
+    transition: width 0.5s ease;
+    border-radius: 12px;
+}
+
+.metric-fill.score-low {
+    background: linear-gradient(90deg, #4CAF50 0%, #66BB6A 100%);
+}
+
+.metric-fill.score-medium {
+    background: linear-gradient(90deg, #FFC107 0%, #FFD54F 100%);
+}
+
+.metric-fill.score-high {
+    background: linear-gradient(90deg, #FF6B35 0%, #FF8A65 100%);
+}
+
+.metric-value {
+    min-width: 40px;
+    text-align: right;
+    font-weight: 600;
+    color: #333;
+    font-size: 0.95rem;
+}
+
+.metric-item[data-tooltip] {
+    cursor: help;
+}
+
+.metric-item[data-tooltip]:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 0;
+    background: #333;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    white-space: normal;
+    width: 250px;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    line-height: 1.4;
+}
+
+.metric-item[data-tooltip]:hover::before {
+    content: '';
+    position: absolute;
+    bottom: calc(100% + 2px);
+    left: 20px;
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 6px solid #333;
+    z-index: 1001;
+}
+
+/* Dark mode support */
+body.dark-mode .complexity-score-section {
+    background: #2a2a2a;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+body.dark-mode .complexity-header {
+    border-bottom-color: #444;
+}
+
+body.dark-mode .complexity-header h3 {
+    color: #e0e0e0;
+}
+
+body.dark-mode .total-score {
+    background: #333;
+}
+
+body.dark-mode .metric-label,
+body.dark-mode .metric-value {
+    color: #e0e0e0;
+}
+
+body.dark-mode .metric-bar {
+    background: #333;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .complexity-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    
+    .total-score {
+        font-size: 1.5rem;
+    }
+    
+    .metric-item {
+        flex-wrap: wrap;
+    }
+    
+    .metric-label {
+        min-width: 100%;
+        margin-bottom: 5px;
+    }
+    
+    .metric-item[data-tooltip]:hover::after {
+        width: 200px;
+        font-size: 0.8rem;
+    }
+}

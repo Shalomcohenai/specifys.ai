@@ -195,6 +195,47 @@ function validateRawTextPayload(obj) {
   return issues.length ? { ok: false, issues } : { ok: true, value: obj };
 }
 
+function validatePromptsPayload(obj) {
+  const issues = [];
+  const p = obj?.prompts;
+  if (!p) return { ok: false, issues: ["prompts missing"] };
+
+  // NOTE: All content (fullPrompt, descriptions, instructions) MUST be in English
+  // This is a site-wide requirement - all user-facing content is in English
+
+  if (typeof p.fullPrompt !== "string" || p.fullPrompt.trim().length === 0) {
+    issues.push("prompts.fullPrompt required and must be non-empty string");
+  }
+  if (!Array.isArray(p.thirdPartyIntegrations)) {
+    issues.push("prompts.thirdPartyIntegrations must be an array");
+  } else {
+    // Validate each integration object
+    p.thirdPartyIntegrations.forEach((integration, index) => {
+      if (!integration || typeof integration !== "object") {
+        issues.push(`prompts.thirdPartyIntegrations[${index}] must be an object`);
+      } else {
+        if (typeof integration.service !== "string" || integration.service.trim().length === 0) {
+          issues.push(`prompts.thirdPartyIntegrations[${index}].service required`);
+        }
+        if (typeof integration.description !== "string" || integration.description.trim().length === 0) {
+          issues.push(`prompts.thirdPartyIntegrations[${index}].description required`);
+        }
+        if (!Array.isArray(integration.instructions) || integration.instructions.length === 0) {
+          issues.push(`prompts.thirdPartyIntegrations[${index}].instructions must be a non-empty array`);
+        } else {
+          integration.instructions.forEach((instruction, instIndex) => {
+            if (typeof instruction !== "string" || instruction.trim().length === 0) {
+              issues.push(`prompts.thirdPartyIntegrations[${index}].instructions[${instIndex}] must be a non-empty string`);
+            }
+          });
+        }
+      }
+    });
+  }
+
+  return issues.length ? { ok: false, issues } : { ok: true, value: obj };
+}
+
 // ---------- OpenAI caller (with upstream error surfacing) ----------
 async function callLLM(env, { system, developer, user }) {
   // Combine developer instructions into system prompt (developer role is not supported by OpenAI API)
@@ -349,6 +390,10 @@ async function handleGenerate(request, env) {
         }
         case "rawText": {
           const v = validateRawTextPayload(obj);
+          return v.ok ? { ok: true, value: { ...obj, correlationId } } : { ok: false, issues: v.issues };
+        }
+        case "prompts": {
+          const v = validatePromptsPayload(obj);
           return v.ok ? { ok: true, value: { ...obj, correlationId } } : { ok: false, issues: v.issues };
         }
         default:

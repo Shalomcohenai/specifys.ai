@@ -246,8 +246,14 @@
         <button class="tab-button" onclick="showTab('diagrams')" id="diagramsTab" disabled>
             <i class="fa fa-sitemap"></i> Diagrams
         </button>
+        <button class="tab-button" onclick="showTab('prompts')" id="promptsTab" disabled>
+            <i class="fa fa-terminal"></i> Prompts
+        </button>
         <button class="tab-button" onclick="showTab('chat')" id="chatTab" disabled>
             <i class="fa fa-comments"></i> AI Chat
+        </button>
+        <button class="tab-button" onclick="showTab('export')" id="exportTab">
+            <i class="fa fa-download"></i> Export
         </button>
         <button class="tab-button" onclick="showTab('raw')" id="rawTab" style="display: none;">
             <i class="fa fa-code"></i> Raw Data
@@ -340,6 +346,21 @@
                 </div>
             </div>
             
+            <div id="prompts-content" class="tab-content" style="display: none;">
+                <div class="content-header">
+                    <h2><i class="fa fa-terminal"></i> Development Prompts</h2>
+                    <button id="generatePromptsBtn" class="btn btn-primary" onclick="generatePrompts()" style="display: none;">
+                        Generate Prompts
+                    </button>
+                </div>
+                <div id="prompts-data" class="content-body">
+                    <div class="locked-tab-message">
+                        <h3><i class="fa fa-lock"></i> Prompts</h3>
+                        <p>Please approve the Overview and generate Technical & Design specifications first to create development prompts.</p>
+                    </div>
+                </div>
+            </div>
+            
             <div id="chat-content" class="tab-content" style="display: none;">
                 <div class="chat-container" style="height: 600px; display: flex; flex-direction: column; border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
                     <div class="chat-header" style="padding: 15px 20px; background: white; color: #333; border-bottom: 2px solid #ff6b35; display: flex; justify-content: space-between; align-items: center;">
@@ -375,6 +396,139 @@
                 </div>
             </div>
             
+            <div id="export-content" class="tab-content" style="display: none;">
+                <div class="content-header">
+                    <h2><i class="fa fa-download"></i> Export Specification</h2>
+                </div>
+                <div id="export-data" class="content-body">
+                    <!-- כרטיסיות פנימיות -->
+                    <div class="export-inner-tabs">
+                        <button class="export-inner-tab active" onclick="showExportTab('html')" id="export-html-tab">
+                            <i class="fa fa-file-code"></i> HTML Export
+                        </button>
+                        <button class="export-inner-tab" onclick="showExportTab('jira')" id="export-jira-tab">
+                            <i class="fa fa-tasks"></i> Jira Export
+                        </button>
+                    </div>
+                    
+                    <!-- HTML Export Tab -->
+                    <div id="export-html-content" class="export-inner-content active">
+                        <div class="export-container">
+                            <div class="export-intro">
+                                <p>Select the sections you want to include in your exported HTML document.</p>
+                            </div>
+                            
+                            <div class="export-options">
+                                <div class="export-section-header">
+                                    <label class="export-checkbox-label">
+                                        <input type="checkbox" id="select-all-html" class="export-checkbox" onchange="toggleAllSections(this.checked, 'html')">
+                                        <span><strong>Select All</strong></span>
+                                    </label>
+                                </div>
+                                
+                                <div class="export-sections-list">
+                                    <label class="export-checkbox-label">
+                                        <input type="checkbox" id="export-overview" class="export-checkbox section-checkbox html-checkbox" checked>
+                                        <span><i class="fa fa-book"></i> Overview</span>
+                                    </label>
+                                    
+                                    <label class="export-checkbox-label">
+                                        <input type="checkbox" id="export-technical" class="export-checkbox section-checkbox html-checkbox" checked>
+                                        <span><i class="fa fa-cog"></i> Technical Specification</span>
+                                    </label>
+                                    
+                                    <label class="export-checkbox-label">
+                                        <input type="checkbox" id="export-market" class="export-checkbox section-checkbox html-checkbox" checked>
+                                        <span><i class="fa fa-bar-chart"></i> Market Research</span>
+                                    </label>
+                                    
+                                    <label class="export-checkbox-label">
+                                        <input type="checkbox" id="export-design" class="export-checkbox section-checkbox html-checkbox" checked>
+                                        <span><i class="fa fa-paint-brush"></i> Design & Branding</span>
+                                    </label>
+                                    
+                                    <label class="export-checkbox-label">
+                                        <input type="checkbox" id="export-diagrams" class="export-checkbox section-checkbox html-checkbox" checked>
+                                        <span><i class="fa fa-sitemap"></i> Diagrams</span>
+                                    </label>
+                                    
+                                    <label class="export-checkbox-label">
+                                        <input type="checkbox" id="export-prompts" class="export-checkbox section-checkbox html-checkbox">
+                                        <span><i class="fa fa-terminal"></i> Development Prompts</span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="export-actions">
+                                <button id="generate-export-btn" class="btn btn-primary export-generate-btn" onclick="generateExport()">
+                                    <i class="fa fa-file-download"></i> Generate HTML Export
+                                </button>
+                            </div>
+                            
+                            <div id="export-progress" class="export-progress" style="display: none;">
+                                <div class="progress-bar-container">
+                                    <div id="progress-bar" class="progress-bar"></div>
+                                </div>
+                                <p id="progress-text" class="progress-text">Preparing export...</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Jira Export Tab -->
+                    <div id="export-jira-content" class="export-inner-content" style="display: none;">
+                        <div class="export-container">
+                            <div class="export-intro">
+                                <p>Generate Jira issues from your specification. The system will automatically create Epics, Stories, Tasks, and Sub-tasks based on your spec content.</p>
+                            </div>
+                            
+                            <div class="jira-export-options">
+                                <div class="jira-field-group">
+                                    <label for="jira-project-key" class="jira-label">
+                                        <i class="fa fa-key"></i> Project Key <span class="required">*</span>
+                                    </label>
+                                    <input type="text" id="jira-project-key" class="jira-input" placeholder="e.g., PROJ" maxlength="10" required>
+                                    <small class="jira-help">The project key for your Jira project (e.g., PROJ, APP, DEV)</small>
+                                </div>
+                                
+                                <div class="jira-field-group">
+                                    <label for="jira-priority" class="jira-label">
+                                        <i class="fa fa-flag"></i> Default Priority
+                                    </label>
+                                    <select id="jira-priority" class="jira-select">
+                                        <option value="Highest">Highest</option>
+                                        <option value="High" selected>High</option>
+                                        <option value="Medium">Medium</option>
+                                        <option value="Low">Low</option>
+                                        <option value="Lowest">Lowest</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="jira-field-group">
+                                    <label for="jira-labels" class="jira-label">
+                                        <i class="fa fa-tags"></i> Labels (comma-separated)
+                                    </label>
+                                    <input type="text" id="jira-labels" class="jira-input" placeholder="e.g., specifys-ai, ai-generated, v1.0">
+                                    <small class="jira-help">Optional labels to add to all issues</small>
+                                </div>
+                            </div>
+                            
+                            <div class="export-actions">
+                                <button id="generate-jira-btn" class="btn btn-primary export-generate-btn" onclick="generateJiraExport()">
+                                    <i class="fa fa-tasks"></i> Generate Jira Export
+                                </button>
+                            </div>
+                            
+                            <div id="jira-export-progress" class="export-progress" style="display: none;">
+                                <div class="progress-bar-container">
+                                    <div id="jira-progress-bar" class="progress-bar"></div>
+                                </div>
+                                <p id="jira-progress-text" class="progress-text">Preparing Jira export...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
             <div id="raw-content" class="tab-content" style="display: none;">
                 <div class="content-header">
                 <h2><i class="fa fa-search"></i> Raw JSON Data</h2>
@@ -404,6 +558,11 @@
                         <div class="raw-section">
                             <h3><i class="fa fa-sitemap"></i> Diagrams Raw</h3>
                             <pre id="raw-diagrams" class="raw-display"></pre>
+                        </div>
+                        
+                        <div class="raw-section">
+                            <h3><i class="fa fa-terminal"></i> Prompts Raw</h3>
+                            <pre id="raw-prompts" class="raw-display"></pre>
                         </div>
                         
                         <div class="raw-section">
@@ -878,6 +1037,7 @@ function displaySpec(data) {
     displayMarket(data.market);
     displayDesign(data.design);
     displayDiagramsFromData(data);
+    displayPromptsFromData(data);
     displayRaw(data);
     
     // Handle approval state
@@ -902,6 +1062,14 @@ function displaySpec(data) {
             // Show Generate only if no diagrams yet
             const hasDiagrams = !!(data.diagrams && Array.isArray(data.diagrams.diagrams) && data.diagrams.diagrams.length > 0);
             document.getElementById('generateDiagramsBtn').style.display = hasDiagrams ? 'none' : 'inline-block';
+        }
+        
+        // Enable prompts only if both technical and design are ready
+        if (data.status?.technical === 'ready' && data.status?.design === 'ready') {
+            document.getElementById('promptsTab').disabled = false;
+            // Show Generate only if no prompts yet
+            const hasPrompts = !!(data.prompts && data.prompts.generated);
+            document.getElementById('generatePromptsBtn').style.display = hasPrompts ? 'none' : 'inline-block';
         }
         
         hideApproveButton();
@@ -939,6 +1107,11 @@ function displayOverview(overview) {
     const formattedContent = formatTextContent(overview);
     container.innerHTML = formattedContent;
     
+    // Calculate and display complexity score
+    const complexityScore = calculateComplexityScore(overview);
+    const complexityHTML = renderComplexityScore(complexityScore);
+    container.innerHTML += complexityHTML;
+    
     // Update raw data
     document.getElementById('raw-overview').textContent = JSON.stringify(overview, null, 2);
     
@@ -950,6 +1123,163 @@ function displayOverview(overview) {
     
     // Update edit button based on PRO access
     updateEditButton();
+}
+
+function calculateComplexityScore(overview) {
+    // Parse overview if it's a string
+    let o = overview;
+    if (typeof overview === 'string') {
+        try {
+            o = JSON.parse(overview);
+        } catch (e) {
+            o = overview;
+        }
+    }
+    
+    // Handle nested structure
+    if (o.overview && typeof o.overview === 'object') {
+        o = o.overview;
+    }
+    
+    // Check if complexityScore already exists from AI
+    if (o.complexityScore && 
+        typeof o.complexityScore.architecture === 'number' &&
+        typeof o.complexityScore.integrations === 'number' &&
+        typeof o.complexityScore.functionality === 'number' &&
+        typeof o.complexityScore.userSystem === 'number') {
+        const scores = o.complexityScore;
+        const total = Math.round(
+            (scores.architecture * 0.3) + 
+            (scores.integrations * 0.2) + 
+            (scores.functionality * 0.3) + 
+            (scores.userSystem * 0.2)
+        );
+        return {
+            architecture: scores.architecture,
+            integrations: scores.integrations,
+            functionality: scores.functionality,
+            userSystem: scores.userSystem,
+            total: total
+        };
+    }
+    
+    // Fallback calculation if AI didn't provide scores
+    const ideaText = (o.ideaSummary || '').toLowerCase();
+    const allText = JSON.stringify(o).toLowerCase();
+    
+    // 1. Architecture (0-100)
+    const hasBackend = ideaText.includes('backend') || ideaText.includes('server') || 
+                       ideaText.includes('api') || ideaText.includes('database') ||
+                       allText.includes('backend') || allText.includes('server');
+    const hasDatabase = allText.includes('database') || allText.includes('db') || 
+                        allText.includes('firestore') || allText.includes('mysql') ||
+                        allText.includes('postgresql') || allText.includes('mongodb');
+    let architecture = 20; // Frontend only default
+    if (hasBackend && hasDatabase) {
+        architecture = 90; // Full stack
+    } else if (hasBackend) {
+        architecture = 60; // Frontend + Backend
+    }
+    
+    // 2. Integrations (0-100)
+    const integrationKeywords = ['payment', 'stripe', 'paypal', 'email', 'sendgrid', 
+                                 'storage', 's3', 'cloud', 'api', 'integration', 
+                                 'third-party', 'external', 'service', 'oauth',
+                                 'google', 'facebook', 'twitter', 'github', 'auth0'];
+    const integrationCount = integrationKeywords.filter(kw => allText.includes(kw)).length;
+    const integrations = Math.min(integrationCount * 12, 100);
+    
+    // 3. Functionality (0-100)
+    const featuresCount = o.coreFeaturesOverview?.length || 0;
+    const screensCount = o.screenDescriptions?.screens?.length || 0;
+    const stepsCount = o.detailedUserFlow?.steps?.length || 0;
+    const functionality = Math.min(
+        (featuresCount * 8) + 
+        (screensCount * 5) + 
+        (stepsCount * 3), 
+        100
+    );
+    
+    // 4. User System (0-100)
+    const userKeywords = ['login', 'signup', 'authentication', 'user account', 'profile', 
+                          'registration', 'password', 'auth', 'user', 'account',
+                          'sign in', 'sign up', 'register'];
+    const hasUserSystem = userKeywords.some(kw => allText.includes(kw));
+    const hasAuth = allText.includes('authentication') || allText.includes('auth');
+    const hasProfiles = allText.includes('profile') || allText.includes('user profile');
+    
+    let userSystem = 0;
+    if (hasProfiles && hasAuth) {
+        userSystem = 80; // Full user system
+    } else if (hasAuth || hasUserSystem) {
+        userSystem = 40; // Basic authentication
+    }
+    
+    const total = Math.round(
+        (architecture * 0.3) + 
+        (integrations * 0.2) + 
+        (functionality * 0.3) + 
+        (userSystem * 0.2)
+    );
+    
+    return {
+        architecture,
+        integrations,
+        functionality,
+        userSystem,
+        total
+    };
+}
+
+function renderComplexityScore(score) {
+    const getColorClass = (value) => {
+        if (value <= 40) return 'score-low';
+        if (value <= 70) return 'score-medium';
+        return 'score-high';
+    };
+    
+    return `
+        <div class="complexity-score-section">
+            <div class="complexity-header">
+                <h3><i class="fa fa-chart-line"></i> Complexity Score</h3>
+                <div class="total-score ${getColorClass(score.total)}">${score.total}/100</div>
+            </div>
+            
+            <div class="complexity-metrics">
+                <div class="metric-item" data-tooltip="Architecture complexity: Frontend only vs Full stack with backend and database">
+                    <div class="metric-label">Architecture</div>
+                    <div class="metric-bar">
+                        <div class="metric-fill ${getColorClass(score.architecture)}" style="width: ${score.architecture}%"></div>
+                    </div>
+                    <div class="metric-value">${score.architecture}</div>
+                </div>
+                
+                <div class="metric-item" data-tooltip="Number of external integrations and third-party services (payment, email, storage, APIs)">
+                    <div class="metric-label">Integrations</div>
+                    <div class="metric-bar">
+                        <div class="metric-fill ${getColorClass(score.integrations)}" style="width: ${score.integrations}%"></div>
+                    </div>
+                    <div class="metric-value">${score.integrations}</div>
+                </div>
+                
+                <div class="metric-item" data-tooltip="Functionality complexity based on number of features, screens, and user flow steps">
+                    <div class="metric-label">Functionality</div>
+                    <div class="metric-bar">
+                        <div class="metric-fill ${getColorClass(score.functionality)}" style="width: ${score.functionality}%"></div>
+                    </div>
+                    <div class="metric-value">${score.functionality}</div>
+                </div>
+                
+                <div class="metric-item" data-tooltip="User system complexity: authentication, user accounts, profiles, and user management">
+                    <div class="metric-label">User System</div>
+                    <div class="metric-bar">
+                        <div class="metric-fill ${getColorClass(score.userSystem)}" style="width: ${score.userSystem}%"></div>
+                    </div>
+                    <div class="metric-value">${score.userSystem}</div>
+                </div>
+            </div>
+        </div>
+    `;
 }
 
 function displayTechnical(technical) {
@@ -1376,6 +1706,7 @@ function displayRaw(data) {
     document.getElementById('raw-market').textContent = data.market ? JSON.stringify(data.market, null, 2) : 'No market data available';
     document.getElementById('raw-design').textContent = data.design ? JSON.stringify(data.design, null, 2) : 'No design data available';
     document.getElementById('raw-diagrams').textContent = data.diagrams ? JSON.stringify(data.diagrams, null, 2) : 'No diagrams data available';
+    document.getElementById('raw-prompts').textContent = data.prompts ? JSON.stringify(data.prompts, null, 2) : 'No prompts data available';
     
     // Display complete data
     document.getElementById('raw-complete').textContent = JSON.stringify(data, null, 2);
@@ -1463,6 +1794,54 @@ function displayDiagramsFromData(data) {
     document.getElementById('raw-diagrams').textContent = JSON.stringify(data.diagrams, null, 2);
 }
 
+function displayPromptsFromData(data) {
+    const container = document.getElementById('prompts-data');
+    
+    // FIRST CHECK: Overview must be approved
+    if (!data.overviewApproved) {
+        container.innerHTML = `
+            <div class="locked-tab-message">
+                <h3><i class="fa fa-lock"></i> Prompts</h3>
+                <p>Please approve the Overview and generate Technical & Design specifications first to create development prompts.</p>
+            </div>
+        `;
+        return;
+    }
+    
+    // SECOND CHECK: Technical and Design must be ready
+    if (!data.technical || !data.design || 
+        data.status?.technical !== 'ready' || 
+        data.status?.design !== 'ready') {
+        container.innerHTML = `
+            <div class="locked-tab-message">
+                <h3><i class="fa fa-lock"></i> Prompts</h3>
+                <p>Please generate Technical & Design specifications first to create development prompts.</p>
+            </div>
+        `;
+        return;
+    }
+    
+    // THIRD CHECK: Prompts must be generated and valid
+    if (!data.prompts?.generated || 
+        !data.prompts?.fullPrompt || 
+        typeof data.prompts.fullPrompt !== 'string' ||
+        data.prompts.fullPrompt.trim().length === 0) {
+        container.innerHTML = `
+            <div class="locked-tab-message">
+                <h3><i class="fa fa-terminal"></i> Prompts</h3>
+                <p>Click "Generate Prompts" to create comprehensive development prompts and third-party integration instructions.</p>
+            </div>
+        `;
+        return;
+    }
+    
+    // ALL CHECKS PASSED - Display prompts
+    displayPrompts(data.prompts);
+    
+    // Update raw data
+    document.getElementById('raw-prompts').textContent = JSON.stringify(data.prompts, null, 2);
+}
+
 function formatTextContent(content) {
     
     if (!content) {
@@ -1482,6 +1861,12 @@ function formatTextContent(content) {
 
         return formatPlainTextContent(content);
     }
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 }
 
 function formatJSONContent(jsonData) {
@@ -1844,6 +2229,23 @@ function formatJSONContent(jsonData) {
     if (jsonData.securityAuthentication) {
         html += '<div class="content-section">';
         html += '<h3><i class="fa fa-lock"></i> Security & Authentication</h3>';
+        
+        // Display Security Critical Points as red banners
+        if (jsonData.securityAuthentication.securityCriticalPoints && Array.isArray(jsonData.securityAuthentication.securityCriticalPoints) && jsonData.securityAuthentication.securityCriticalPoints.length > 0) {
+            html += '<div class="security-critical-points" style="margin-bottom: 25px;">';
+            jsonData.securityAuthentication.securityCriticalPoints.forEach((point, index) => {
+                html += `
+                    <div class="security-banner" style="background-color: #ff4444; color: white; padding: 15px; margin-bottom: 12px; border-radius: 6px; border-left: 4px solid #cc0000; display: flex; align-items: flex-start;">
+                        <i class="fa fa-exclamation-triangle" style="font-size: 20px; margin-right: 12px; margin-top: 2px; flex-shrink: 0;"></i>
+                        <div style="flex: 1;">
+                            <strong style="display: block; margin-bottom: 5px; font-size: 15px;">CRITICAL SECURITY WARNING</strong>
+                            <p style="margin: 0; line-height: 1.5;">${escapeHtml(point)}</p>
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+        }
         
         if (jsonData.securityAuthentication.authentication) {
             html += `<p><strong>Authentication:</strong> ${jsonData.securityAuthentication.authentication}</p>`;
@@ -4986,6 +5388,169 @@ async function generateDiagrams() {
     }
 }
 
+async function generatePrompts() {
+    if (isLoading) return;
+    
+    try {
+        isLoading = true;
+        const generateBtn = document.getElementById('generatePromptsBtn');
+        
+        // Store original background color and styles
+        const originalBgColor = window.getComputedStyle(generateBtn).backgroundColor;
+        const originalClasses = generateBtn.className;
+        
+        generateBtn.disabled = true;
+        generateBtn.innerHTML = '<span class="loading-spinner"></span> Generating Prompts...';
+        
+        // Keep the original background color and prevent it from changing
+        generateBtn.style.backgroundColor = originalBgColor || '';
+        generateBtn.style.opacity = '1';
+        
+        // Check if technical and design specs exist
+        if (!currentSpecData.technical || currentSpecData.technical === 'error') {
+            throw new Error('Technical specification must be generated first');
+        }
+        if (!currentSpecData.design || currentSpecData.design === 'error') {
+            throw new Error('Design specification must be generated first');
+        }
+        
+        // Parse overview, technical, and design content
+        let overviewContent = currentSpecData.overview;
+        let technicalContent = currentSpecData.technical;
+        let designContent = currentSpecData.design;
+        
+        // If content is JSON string, parse it
+        try {
+            if (typeof overviewContent === 'string') {
+                const parsedOverview = JSON.parse(overviewContent);
+                overviewContent = JSON.stringify(parsedOverview, null, 2);
+            }
+        } catch (e) {
+            // Keep as is if not JSON
+        }
+        
+        try {
+            if (typeof technicalContent === 'string') {
+                const parsedTechnical = JSON.parse(technicalContent);
+                technicalContent = JSON.stringify(parsedTechnical, null, 2);
+            }
+        } catch (e) {
+            // Keep as is if not JSON
+        }
+        
+        try {
+            if (typeof designContent === 'string') {
+                const parsedDesign = JSON.parse(designContent);
+                designContent = JSON.stringify(parsedDesign, null, 2);
+            }
+        } catch (e) {
+            // Keep as is if not JSON
+        }
+        
+        // Build prompt using PROMPTS.prompts function
+        const prompt = PROMPTS.prompts(overviewContent, technicalContent, designContent);
+        
+        const requestBody = {
+            stage: 'prompts',
+            locale: 'en-US',
+            temperature: 0,
+            prompt: {
+                system: 'You are an expert software development prompt engineer. Create EXTREMELY DETAILED, PRACTICAL development prompts that guide developers to build complete applications perfectly on the first try. Focus on operational implementation details, not high-level concepts.',
+                developer: 'Generate an extremely detailed (15000-30000+ characters), practical development prompt that covers EVERY operational aspect: exact functions with parameters, all UI components per page, step-by-step process flows, data model relationships, authentication flows, API implementations, database operations, and styling details. Focus on WHAT TO BUILD and HOW TO BUILD IT with exact implementation details. Do NOT include abstract concepts or high-level descriptions. The prompt must be so detailed that a developer can build the perfect application from scratch on the first attempt. Also identify all third-party integrations and provide detailed setup instructions.',
+                user: prompt
+            }
+        };
+        
+        // Create AbortController for timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 180000); // 3 minutes timeout
+        
+        const response = await fetch('https://promtmaker.shalom-cohen-111.workers.dev/generate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestBody),
+            signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`API Error: ${response.status} - ${errorText}`);
+        }
+        
+        const responseText = await response.text();
+        const data = JSON.parse(responseText);
+        
+        if (!data.prompts) {
+            throw new Error('Invalid response from prompts API');
+        }
+        
+        const promptsData = {
+            generated: true,
+            fullPrompt: data.prompts.fullPrompt,
+            thirdPartyIntegrations: data.prompts.thirdPartyIntegrations || [],
+            generatedAt: new Date().toISOString()
+        };
+        
+        // Save to Firebase
+        if (currentSpecData && currentSpecData.id) {
+            try {
+                await firebase.firestore().collection('specs').doc(currentSpecData.id).update({
+                    prompts: promptsData,
+                    'status.prompts': 'ready',
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // Update local spec data
+                currentSpecData.prompts = promptsData;
+                currentSpecData.status = currentSpecData.status || {};
+                currentSpecData.status.prompts = 'ready';
+            } catch (error) {
+                console.error('Failed to save prompts to Firebase:', error);
+            }
+        }
+        
+        // Display prompts
+        displayPrompts(promptsData);
+        
+        // Hide generate button
+        generateBtn.style.display = 'none';
+        
+        // Update raw data
+        document.getElementById('raw-prompts').textContent = JSON.stringify(promptsData, null, 2);
+        
+        showNotification('Prompts generated successfully!', 'success');
+        
+    } catch (error) {
+        console.error('Error generating prompts:', error);
+        showNotification(`Failed to generate prompts: ${error.message}`, 'error');
+        
+        const container = document.getElementById('prompts-data');
+        if (container) {
+            container.innerHTML = `
+                <div class="prompt-error">
+                    <h3><i class="fa fa-times-circle"></i> Error Generating Prompts</h3>
+                    <p>${escapeHtml(error.message)}</p>
+                    <button onclick="generatePrompts()" class="btn btn-primary" style="margin-top: 10px;">
+                        <i class="fa fa-refresh"></i> Try Again
+                    </button>
+                </div>
+            `;
+        }
+    } finally {
+        isLoading = false;
+        const generateBtn = document.getElementById('generatePromptsBtn');
+        if (generateBtn) {
+            generateBtn.disabled = false;
+            generateBtn.innerHTML = 'Generate Prompts';
+            generateBtn.style.backgroundColor = '';
+        }
+    }
+}
+
 function displayDiagrams(diagramsArray) {
     const container = document.getElementById('diagrams-data');
     
@@ -5076,6 +5641,118 @@ function isSyntaxError(error) {
     ];
     
     return syntaxErrorKeywords.some(keyword => errorMsg.includes(keyword));
+}
+
+function displayPrompts(promptsData) {
+    const container = document.getElementById('prompts-data');
+    
+    if (!promptsData || !promptsData.fullPrompt) {
+        container.innerHTML = '<div class="prompt-error"><h3><i class="fa fa-times-circle"></i> No Prompts Generated</h3><p>Failed to generate prompts. Please try again.</p></div>';
+        return;
+    }
+    
+    // Clear container
+    container.innerHTML = '';
+    
+    // Create full prompt section
+    const fullPromptSection = document.createElement('div');
+    fullPromptSection.className = 'prompt-section';
+    fullPromptSection.innerHTML = `
+        <div class="prompt-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h3><i class="fa fa-code"></i> Full Development Prompt</h3>
+            <button onclick="copyPromptToClipboard()" class="btn btn-secondary" style="padding: 6px 12px; font-size: 14px; background-color: #ff6b35; color: white; border: none; margin-left: 15px; cursor: pointer; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='#e55a2b'" onmouseout="this.style.backgroundColor='#ff6b35'">
+                <i class="fa fa-copy" style="color: white !important;"></i> Copy Prompt
+            </button>
+        </div>
+        <div class="prompt-content" id="full-prompt-content">
+            <pre class="prompt-text">${escapeHtml(promptsData.fullPrompt)}</pre>
+        </div>
+    `;
+    container.appendChild(fullPromptSection);
+    
+    // Store full prompt globally for copy function
+    window.fullPromptText = promptsData.fullPrompt;
+    
+    // Create third-party integrations section
+    if (promptsData.thirdPartyIntegrations && Array.isArray(promptsData.thirdPartyIntegrations) && promptsData.thirdPartyIntegrations.length > 0) {
+        const integrationsSection = document.createElement('div');
+        integrationsSection.className = 'integrations-section';
+        integrationsSection.innerHTML = '<h3><i class="fa fa-plug"></i> Third-Party Integration Instructions</h3>';
+        
+        const integrationsContainer = document.createElement('div');
+        integrationsContainer.className = 'integrations-container';
+        
+        promptsData.thirdPartyIntegrations.forEach((integration, index) => {
+            const integrationCard = document.createElement('div');
+            integrationCard.className = 'integration-card';
+            
+            // Convert URLs in instructions to clickable links
+            const instructionsWithLinks = integration.instructions.map(instruction => {
+                // Match URLs (http://, https://, www.) BEFORE escaping HTML
+                const urlRegex = /(https?:\/\/[^\s<>]+|www\.[^\s<>]+)/gi;
+                let match;
+                let lastIndex = 0;
+                let result = '';
+                
+                // Find all URLs and their positions
+                while ((match = urlRegex.exec(instruction)) !== null) {
+                    // Escape text before URL
+                    result += escapeHtml(instruction.substring(lastIndex, match.index));
+                    
+                    // Create clickable link for URL
+                    const url = match[0];
+                    const fullUrl = url.startsWith('http') ? url : `http://${url}`;
+                    result += `<a href="${escapeHtml(fullUrl)}" target="_blank" rel="noopener noreferrer" style="color: #ff6b35; text-decoration: underline; cursor: pointer;">${escapeHtml(url)}</a>`;
+                    
+                    lastIndex = match.index + match[0].length;
+                }
+                
+                // Escape remaining text
+                result += escapeHtml(instruction.substring(lastIndex));
+                
+                return result || escapeHtml(instruction);
+            });
+            
+            integrationCard.innerHTML = `
+                <div class="integration-header">
+                    <h4><i class="fa fa-link"></i> ${escapeHtml(integration.service)}</h4>
+                </div>
+                <div class="integration-description">
+                    <p>${escapeHtml(integration.description)}</p>
+                </div>
+                <div class="integration-instructions">
+                    <h5>Setup Instructions:</h5>
+                    <ol>
+                        ${instructionsWithLinks.map(instruction => `<li>${instruction}</li>`).join('')}
+                    </ol>
+                </div>
+            `;
+            integrationsContainer.appendChild(integrationCard);
+        });
+        
+        integrationsSection.appendChild(integrationsContainer);
+        container.appendChild(integrationsSection);
+    }
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function copyPromptToClipboard() {
+    if (!window.fullPromptText) {
+        showNotification('No prompt text available', 'error');
+        return;
+    }
+    
+    navigator.clipboard.writeText(window.fullPromptText).then(() => {
+        showNotification('Prompt copied to clipboard!', 'success');
+    }).catch(err => {
+        console.error('Failed to copy:', err);
+        showNotification('Failed to copy prompt', 'error');
+    });
 }
 
 async function renderSingleDiagram(diagramData, containerId, isRefresh = false) {
@@ -6493,5 +7170,661 @@ showTab = function(tabName) {
         initializeChat();
     }
 };
+
+// ===== EXPORT FUNCTIONALITY =====
+
+/**
+ * Show export inner tab
+ */
+function showExportTab(tabName) {
+    // Hide all inner content
+    document.querySelectorAll('.export-inner-content').forEach(content => {
+        content.classList.remove('active');
+        content.style.display = 'none';
+    });
+    
+    // Remove active class from all tabs
+    document.querySelectorAll('.export-inner-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Show selected content
+    const content = document.getElementById(`export-${tabName}-content`);
+    const tab = document.getElementById(`export-${tabName}-tab`);
+    
+    if (content) {
+        content.classList.add('active');
+        content.style.display = 'block';
+    }
+    
+    if (tab) {
+        tab.classList.add('active');
+    }
+}
+
+/**
+ * Toggle all sections selection
+ */
+function toggleAllSections(checked, type = 'html') {
+    const selector = type === 'html' ? '.html-checkbox' : '.jira-checkbox';
+    const checkboxes = document.querySelectorAll(selector);
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = checked;
+    });
+}
+
+/**
+ * Update select all checkbox based on individual checkboxes
+ */
+function updateSelectAll() {
+    // Update HTML select all
+    const htmlCheckboxes = document.querySelectorAll('.html-checkbox');
+    const selectAllHtml = document.getElementById('select-all-html');
+    if (selectAllHtml && htmlCheckboxes.length > 0) {
+        const allChecked = Array.from(htmlCheckboxes).every(cb => cb.checked);
+        const someChecked = Array.from(htmlCheckboxes).some(cb => cb.checked);
+        selectAllHtml.checked = allChecked;
+        selectAllHtml.indeterminate = someChecked && !allChecked;
+    }
+}
+
+// Add event listeners to section checkboxes
+document.addEventListener('DOMContentLoaded', function() {
+    const checkboxes = document.querySelectorAll('.html-checkbox');
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateSelectAll);
+    });
+});
+
+/**
+ * Render Mermaid diagram to SVG
+ */
+async function renderMermaidToSVG(mermaidCode, diagramId) {
+    if (!mermaidCode || typeof mermaidCode !== 'string' || mermaidCode.trim().length === 0) {
+        return null;
+    }
+    
+    if (typeof mermaid === 'undefined') {
+        // Fallback: return code block
+        return `<pre class="code-block"><code>${escapeHtml(mermaidCode)}</code></pre>`;
+    }
+    
+    try {
+        const uniqueId = `mermaid-export-${diagramId}-${Date.now()}`;
+        const { svg } = await mermaid.render(uniqueId, mermaidCode);
+        return svg;
+    } catch (error) {
+        console.error('Error rendering Mermaid diagram:', error);
+        // Fallback: return code block
+        return `<pre class="code-block"><code>${escapeHtml(mermaidCode)}</code></pre>`;
+    }
+}
+
+/**
+ * Escape HTML
+ */
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+/**
+ * Get formatted content for a section
+ */
+function getSectionContent(sectionName, specData) {
+    switch(sectionName) {
+        case 'overview':
+            return specData.overview ? formatTextContent(specData.overview) : null;
+        case 'technical':
+            return specData.technical ? formatTextContent(specData.technical) : null;
+        case 'market':
+            return specData.market ? formatTextContent(specData.market) : null;
+        case 'design':
+            return specData.design ? formatTextContent(specData.design) : null;
+        case 'diagrams':
+            return specData.diagrams ? specData.diagrams : null;
+        case 'prompts':
+            // Prompts can be an object with fullPrompt property or a string
+            if (specData.prompts) {
+                if (typeof specData.prompts === 'object' && specData.prompts.fullPrompt) {
+                    return formatTextContent(specData.prompts.fullPrompt);
+                } else if (typeof specData.prompts === 'string') {
+                    return formatTextContent(specData.prompts);
+                }
+            }
+            return null;
+        default:
+            return null;
+    }
+}
+
+/**
+ * Generate HTML export
+ */
+async function generateExport() {
+    if (!currentSpecData) {
+        showNotification('No specification data available', 'error');
+        return;
+    }
+    
+    // Get selected sections
+    const selectedSections = [];
+    if (document.getElementById('export-overview')?.checked) selectedSections.push('overview');
+    if (document.getElementById('export-technical')?.checked) selectedSections.push('technical');
+    if (document.getElementById('export-market')?.checked) selectedSections.push('market');
+    if (document.getElementById('export-design')?.checked) selectedSections.push('design');
+    if (document.getElementById('export-diagrams')?.checked) selectedSections.push('diagrams');
+    if (document.getElementById('export-prompts')?.checked) selectedSections.push('prompts');
+    
+    if (selectedSections.length === 0) {
+        showNotification('Please select at least one section to export', 'error');
+        return;
+    }
+    
+    // Show progress
+    const progressContainer = document.getElementById('export-progress');
+    const progressBar = document.getElementById('progress-bar');
+    const progressText = document.getElementById('progress-text');
+    const generateBtn = document.getElementById('generate-export-btn');
+    
+    progressContainer.style.display = 'block';
+    generateBtn.disabled = true;
+    generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
+    
+    try {
+        // Step 1: Prepare content
+        updateProgress(10, 'Preparing content...');
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        const sections = {};
+        for (const section of selectedSections) {
+            const content = getSectionContent(section, currentSpecData);
+            if (content) {
+                sections[section] = content;
+            }
+        }
+        
+        // Step 2: Render Mermaid diagrams
+        updateProgress(30, 'Rendering diagrams...');
+        const diagramSVGs = {};
+        
+        if (sections.diagrams && sections.diagrams.diagrams) {
+            const diagrams = sections.diagrams.diagrams;
+            for (let i = 0; i < diagrams.length; i++) {
+                const diagram = diagrams[i];
+                if (diagram.mermaidCode) {
+                    updateProgress(30 + (i / diagrams.length) * 30, `Rendering diagram ${i + 1} of ${diagrams.length}...`);
+                    const svg = await renderMermaidToSVG(diagram.mermaidCode, diagram.id || `diagram-${i}`);
+                    if (svg) {
+                        diagramSVGs[diagram.id || `diagram-${i}`] = {
+                            svg: svg,
+                            title: diagram.title || diagram.name || `Diagram ${i + 1}`,
+                            description: diagram.description || ''
+                        };
+                    }
+                }
+            }
+        }
+        
+        // Step 3: Generate HTML
+        updateProgress(70, 'Generating HTML document...');
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        const htmlContent = generateHTMLExport(currentSpecData, sections, diagramSVGs);
+        
+        // Step 4: Download file
+        updateProgress(90, 'Preparing download...');
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        downloadHTML(htmlContent, currentSpecData.title || 'specification');
+        
+        updateProgress(100, 'Export completed!');
+        
+        setTimeout(() => {
+            progressContainer.style.display = 'none';
+            generateBtn.disabled = false;
+            generateBtn.innerHTML = '<i class="fa fa-file-download"></i> Generate Export';
+            showNotification('Export generated successfully!', 'success');
+        }, 1000);
+        
+    } catch (error) {
+        console.error('Error generating export:', error);
+        showNotification('Error generating export: ' + error.message, 'error');
+        progressContainer.style.display = 'none';
+        generateBtn.disabled = false;
+        generateBtn.innerHTML = '<i class="fa fa-file-download"></i> Generate Export';
+    }
+}
+
+/**
+ * Update progress bar
+ */
+function updateProgress(percent, text) {
+    const progressBar = document.getElementById('progress-bar');
+    const progressText = document.getElementById('progress-text');
+    
+    if (progressBar) {
+        progressBar.style.width = percent + '%';
+    }
+    if (progressText) {
+        progressText.textContent = text;
+    }
+}
+
+/**
+ * Generate HTML export document
+ */
+function generateHTMLExport(specData, sections, diagramSVGs) {
+    const title = specData.title || 'App Specification';
+    const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    
+    // Logo SVG (minimal)
+    const logoSVG = `
+        <svg width="120" height="30" xmlns="http://www.w3.org/2000/svg">
+            <text x="0" y="20" font-family="Inter, sans-serif" font-size="20" font-weight="600" fill="#333">
+                Specifys<span fill="#FF6B35">.</span>AI
+            </text>
+        </svg>
+    `;
+    
+    let html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${escapeHtml(title)} - Specifys.ai</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #fff;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .export-header {
+            background: #fff;
+            border-bottom: 2px solid #FF6B35;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .export-logo {
+            display: flex;
+            align-items: center;
+        }
+        
+        .export-meta {
+            text-align: right;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .export-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px;
+        }
+        
+        .export-title {
+            font-size: 36px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 10px;
+            border-bottom: 3px solid #FF6B35;
+            padding-bottom: 15px;
+        }
+        
+        .export-section {
+            margin: 40px 0;
+            page-break-inside: avoid;
+        }
+        
+        .export-section-title {
+            font-size: 28px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .export-content {
+            font-size: 16px;
+            line-height: 1.8;
+            color: #444;
+        }
+        
+        .export-content h1, .export-content h2, .export-content h3, .export-content h4 {
+            margin-top: 25px;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .export-content h1 { font-size: 32px; }
+        .export-content h2 { font-size: 26px; }
+        .export-content h3 { font-size: 22px; }
+        .export-content h4 { font-size: 18px; }
+        
+        .export-content p {
+            margin-bottom: 15px;
+        }
+        
+        .export-content ul, .export-content ol {
+            margin-left: 30px;
+            margin-bottom: 15px;
+        }
+        
+        .export-content li {
+            margin-bottom: 8px;
+        }
+        
+        .export-content code {
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+        
+        .code-block {
+            background: #f8f8f8;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 20px;
+            margin: 20px 0;
+            overflow-x: auto;
+        }
+        
+        .code-block code {
+            background: none;
+            padding: 0;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .diagram-container {
+            margin: 30px 0;
+            padding: 20px;
+            background: #fafafa;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            page-break-inside: avoid;
+        }
+        
+        .diagram-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .diagram-description {
+            color: #666;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+        
+        .diagram-svg {
+            width: 100%;
+            max-width: 100%;
+            height: auto;
+            margin: 15px 0;
+        }
+        
+        .diagram-svg svg {
+            max-width: 100%;
+            height: auto;
+        }
+        
+        @media print {
+            .export-header {
+                position: static;
+            }
+            
+            .export-section {
+                page-break-inside: avoid;
+            }
+            
+            .diagram-container {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="export-header">
+        <div class="export-logo">
+            ${logoSVG}
+        </div>
+        <div class="export-meta">
+            <div><strong>Generated:</strong> ${date}</div>
+            <div style="margin-top: 5px;"><strong>Source:</strong> Specifys.ai</div>
+        </div>
+    </div>
+    
+    <div class="export-container">
+        <h1 class="export-title">${escapeHtml(title)}</h1>`;
+    
+    // Add sections
+    if (sections.overview) {
+        html += `
+        <div class="export-section">
+            <h2 class="export-section-title"><i class="fa fa-book"></i> Overview</h2>
+            <div class="export-content">${sections.overview}</div>
+        </div>`;
+    }
+    
+    if (sections.technical) {
+        html += `
+        <div class="export-section">
+            <h2 class="export-section-title"><i class="fa fa-cog"></i> Technical Specification</h2>
+            <div class="export-content">${sections.technical}</div>
+        </div>`;
+    }
+    
+    if (sections.market) {
+        html += `
+        <div class="export-section">
+            <h2 class="export-section-title"><i class="fa fa-bar-chart"></i> Market Research</h2>
+            <div class="export-content">${sections.market}</div>
+        </div>`;
+    }
+    
+    if (sections.design) {
+        html += `
+        <div class="export-section">
+            <h2 class="export-section-title"><i class="fa fa-paint-brush"></i> Design & Branding</h2>
+            <div class="export-content">${sections.design}</div>
+        </div>`;
+    }
+    
+    if (sections.diagrams && diagramSVGs && Object.keys(diagramSVGs).length > 0) {
+        html += `
+        <div class="export-section">
+            <h2 class="export-section-title"><i class="fa fa-sitemap"></i> Diagrams</h2>`;
+        
+        for (const diagramId in diagramSVGs) {
+            const diagram = diagramSVGs[diagramId];
+            html += `
+            <div class="diagram-container">
+                <div class="diagram-title">${escapeHtml(diagram.title)}</div>
+                ${diagram.description ? `<div class="diagram-description">${escapeHtml(diagram.description)}</div>` : ''}
+                <div class="diagram-svg">${diagram.svg}</div>
+            </div>`;
+        }
+        
+        html += `
+        </div>`;
+    }
+    
+    if (sections.prompts) {
+        html += `
+        <div class="export-section">
+            <h2 class="export-section-title"><i class="fa fa-terminal"></i> Development Prompts</h2>
+            <div class="export-content">${sections.prompts}</div>
+        </div>`;
+    }
+    
+    html += `
+    </div>
+</body>
+</html>`;
+    
+    return html;
+}
+
+/**
+ * Download HTML file
+ */
+function downloadHTML(htmlContent, filename) {
+    const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${filename.replace(/[^a-z0-9]/gi, '_')}_export_${new Date().toISOString().split('T')[0]}.html`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+}
+
+/**
+ * Generate Jira Export
+ */
+async function generateJiraExport() {
+    if (!currentSpecData) {
+        showNotification('No specification data available', 'error');
+        return;
+    }
+    
+    const projectKey = document.getElementById('jira-project-key')?.value?.trim().toUpperCase();
+    if (!projectKey) {
+        showNotification('Please enter a project key', 'error');
+        return;
+    }
+    
+    const priority = document.getElementById('jira-priority')?.value || 'High';
+    const labelsInput = document.getElementById('jira-labels')?.value || '';
+    const labels = labelsInput.split(',').map(l => l.trim()).filter(l => l);
+    
+    // Show progress
+    const progressContainer = document.getElementById('jira-export-progress');
+    const progressBar = document.getElementById('jira-progress-bar');
+    const progressText = document.getElementById('jira-progress-text');
+    const generateBtn = document.getElementById('generate-jira-btn');
+    
+    progressContainer.style.display = 'block';
+    generateBtn.disabled = true;
+    generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
+    
+    try {
+        updateJiraProgress(10, 'Preparing specification data...');
+        
+        // Prepare spec data for worker
+        const specPayload = {
+            projectKey: projectKey,
+            priority: priority,
+            labels: labels,
+            spec: {
+                title: currentSpecData.title || 'App Specification',
+                overview: currentSpecData.overview,
+                technical: currentSpecData.technical,
+                market: currentSpecData.market,
+                design: currentSpecData.design,
+                diagrams: currentSpecData.diagrams
+            }
+        };
+        
+        updateJiraProgress(30, 'Sending to Jira export service...');
+        
+        // Call worker endpoint
+        const response = await fetch('https://jiramaker.shalom-cohen-111.workers.dev/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(specPayload)
+        });
+        
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ error: { message: 'Unknown error' } }));
+            throw new Error(errorData.error?.message || `HTTP ${response.status}`);
+        }
+        
+        updateJiraProgress(70, 'Processing Jira issues...');
+        
+        const result = await response.json();
+        
+        if (result.error) {
+            throw new Error(result.error.message || 'Failed to generate Jira export');
+        }
+        
+        updateJiraProgress(90, 'Preparing download...');
+        
+        // Download CSV file
+        downloadJiraCSV(result.csv, projectKey);
+        
+        updateJiraProgress(100, 'Export completed!');
+        
+        setTimeout(() => {
+            progressContainer.style.display = 'none';
+            generateBtn.disabled = false;
+            generateBtn.innerHTML = '<i class="fa fa-tasks"></i> Generate Jira Export';
+            showNotification('Jira export generated successfully!', 'success');
+        }, 1000);
+        
+    } catch (error) {
+        console.error('Error generating Jira export:', error);
+        showNotification('Error generating Jira export: ' + error.message, 'error');
+        progressContainer.style.display = 'none';
+        generateBtn.disabled = false;
+        generateBtn.innerHTML = '<i class="fa fa-tasks"></i> Generate Jira Export';
+    }
+}
+
+/**
+ * Update Jira progress bar
+ */
+function updateJiraProgress(percent, text) {
+    const progressBar = document.getElementById('jira-progress-bar');
+    const progressText = document.getElementById('jira-progress-text');
+    
+    if (progressBar) {
+        progressBar.style.width = percent + '%';
+    }
+    if (progressText) {
+        progressText.textContent = text;
+    }
+}
+
+/**
+ * Download Jira CSV file
+ */
+function downloadJiraCSV(csvContent, projectKey) {
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${projectKey}_jira_export_${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+}
 </script>
 </html>

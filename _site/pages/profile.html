@@ -409,7 +409,7 @@
                         <div class="info-row">
                             <label>Plan Type</label>
                             <div class="info-value">
-                                <span id="info-plan" class="plan-badge">Loading...</span><a href="/pages/pricing.html" class="link-button upgrade-link" style="margin-left: 10px;">Upgrade</a>
+                                <span id="info-plan" class="plan-badge">Loading...</span>
                             </div>
                         </div>
                         <div class="info-row" id="renewal-row" style="display: none;">
@@ -427,6 +427,11 @@
                         <div class="info-row" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
                             <div id="subscription-note" class="info-value" style="font-size: 0.9rem; color: #888; line-height: 1.5;">
                                 Checking your subscription details...
+                            </div>
+                        </div>
+                        <div class="info-row" id="upgrade-row" style="display: none;">
+                            <div class="info-value">
+                                <a href="/pages/pricing.html" class="panel-action-btn" style="max-width: 220px;">Upgrade</a>
                             </div>
                         </div>
                     </div>
@@ -1422,6 +1427,15 @@
                     noteEl.textContent = 'You currently have no specification credits. Visit the pricing page to purchase additional credits when you are ready.';
                 } else {
                     noteEl.textContent = 'You have specification credits available. You can purchase additional credits from the pricing page whenever you need more.';
+                }
+            }
+
+            const upgradeRowEl = document.getElementById('upgrade-row');
+            if (upgradeRowEl) {
+                if (!unlimited && credits === 0) {
+                    upgradeRowEl.style.display = 'block';
+                } else {
+                    upgradeRowEl.style.display = 'none';
                 }
             }
 
