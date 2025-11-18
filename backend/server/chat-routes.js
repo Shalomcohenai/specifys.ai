@@ -3,6 +3,8 @@ const router = express.Router();
 const rateLimit = require('express-rate-limit');
 const { auth, db, admin } = require('./firebase-admin');
 const OpenAIStorageService = require('./openai-storage-service');
+const { createError, ERROR_CODES } = require('./error-handler');
+const { logger } = require('./logger');
 
 const openaiStorage = process.env.OPENAI_API_KEY 
   ? new OpenAIStorageService(process.env.OPENAI_API_KEY)
@@ -55,18 +57,21 @@ const demoChatLimiter = rateLimit({
  * Middleware to verify Firebase token
  */
 async function verifyFirebaseToken(req, res, next) {
+  logger.debug({ path: req.path }, '[chat-routes] Verifying Firebase token');
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ error: 'No valid authorization header' });
+      logger.warn({ path: req.path }, '[chat-routes] No valid authorization header');
+      return next(createError('No valid authorization header', ERROR_CODES.UNAUTHORIZED, 401));
     }
     const idToken = authHeader.split('Bearer ')[1];
     const decodedToken = await auth.verifyIdToken(idToken);
+    logger.debug({ userId: decodedToken.uid, path: req.path }, '[chat-routes] Token verified successfully');
     req.user = decodedToken;
     next();
   } catch (error) {
-
-    res.status(401).json({ error: 'Invalid token' });
+    logger.error({ error: error.message, path: req.path }, '[chat-routes] Token verification failed');
+    next(createError('Invalid token', ERROR_CODES.INVALID_TOKEN, 401));
   }
 }
 
@@ -74,19 +79,25 @@ async function verifyFirebaseToken(req, res, next) {
  * Initialize chat session for a spec
  * POST /api/chat/init
  */
-router.post('/init', verifyFirebaseToken, async (req, res) => {
+router.post('/init', verifyFirebaseToken, async (req, res, next) => {
+  const requestId = req.requestId || `chat-init-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  logger.info({ requestId, userId: req.user?.uid }, '[chat-routes] POST /init - Starting chat initialization');
+  
   try {
     if (!openaiStorage) {
-      return res.status(503).json({ error: 'OpenAI not configured' });
+      logger.error({ requestId }, '[chat-routes] OpenAI not configured');
+      return next(createError('OpenAI not configured', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 503));
     }
     
     const { specId } = req.body;
     const userId = req.user.uid;
+    logger.debug({ requestId, specId, userId }, '[chat-routes] Initializing chat session');
     
     // Verify spec ownership
     const specDoc = await db.collection('specs').doc(specId).get();
     if (!specDoc.exists || specDoc.data().userId !== userId) {
-      return res.status(403).json({ error: 'Unauthorized' });
+      logger.warn({ requestId, specId, userId }, '[chat-routes] Unauthorized: Spec not found or user does not own it');
+      return next(createError('Unauthorized', ERROR_CODES.FORBIDDEN, 403));
     }
     
     const specData = specDoc.data();
@@ -108,12 +119,11 @@ router.post('/init', verifyFirebaseToken, async (req, res) => {
         specData.openaiFileId = fileId;
 
       } catch (uploadError) {
-
-        return res.status(400).json({ 
-          error: 'Spec not uploaded to OpenAI yet',
+        logger.error({ requestId, specId, error: uploadError.message }, '[chat-routes] Failed to upload spec to OpenAI');
+        return next(createError('Spec not uploaded to OpenAI yet', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 400, {
           needsUpload: true,
           uploadError: uploadError.message
-        });
+        }));
       }
     } else {
       // Check if spec has been updated since last upload
@@ -156,12 +166,11 @@ router.post('/init', verifyFirebaseToken, async (req, res) => {
 
           
         } catch (uploadError) {
-
-          return res.status(400).json({ 
-            error: 'Failed to update OpenAI file',
+          logger.error({ requestId, specId, error: uploadError.message }, '[chat-routes] Failed to update OpenAI file');
+          return next(createError('Failed to update OpenAI file', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 400, {
             needsUpload: true,
             uploadError: uploadError.message
-          });
+          }));
         }
       }
     }
@@ -225,11 +234,16 @@ router.post('/init', verifyFirebaseToken, async (req, res) => {
     });
     
   } catch (error) {
-
-    res.status(500).json({ 
-      error: 'Failed to initialize chat',
-      details: error.message 
-    });
+    logger.error({
+      requestId,
+      error: {
+        message: error.message,
+        stack: error.stack
+      }
+    }, '[chat-routes] POST /init - Error');
+    next(createError('Failed to initialize chat', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, {
+      details: error.message
+    }));
   }
 });
 
@@ -237,21 +251,26 @@ router.post('/init', verifyFirebaseToken, async (req, res) => {
  * Send message to chat
  * POST /api/chat/message
  */
-router.post('/message', verifyFirebaseToken, async (req, res) => {
+router.post('/message', verifyFirebaseToken, async (req, res, next) => {
+  const requestId = req.requestId || `chat-message-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  logger.info({ requestId, userId: req.user?.uid }, '[chat-routes] POST /message - Starting message send');
 
   try {
     if (!openaiStorage) {
-      return res.status(503).json({ error: 'OpenAI not configured' });
+      logger.error({ requestId }, '[chat-routes] OpenAI not configured');
+      return next(createError('OpenAI not configured', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 503));
     }
     
     const { specId, threadId, assistantId: initialAssistantId, message } = req.body;
     let assistantId = initialAssistantId; // Use let so we can update it during recreation
     const userId = req.user.uid;
+    logger.debug({ requestId, specId, threadId, assistantId, hasMessage: !!message }, '[chat-routes] Processing message');
     
     // Verify ownership
     const specDoc = await db.collection('specs').doc(specId).get();
     if (!specDoc.exists || specDoc.data().userId !== userId) {
-      return res.status(403).json({ error: 'Unauthorized' });
+      logger.warn({ requestId, specId, userId }, '[chat-routes] Unauthorized: Spec not found or user does not own it');
+      return next(createError('Unauthorized', ERROR_CODES.FORBIDDEN, 403));
     }
     
     // Ensure assistant has vector store before sending message
@@ -380,11 +399,16 @@ router.post('/message', verifyFirebaseToken, async (req, res) => {
     }
     
   } catch (error) {
-
-    res.status(500).json({ 
-      error: 'Failed to send message',
-      details: error.message 
-    });
+    logger.error({
+      requestId,
+      error: {
+        message: error.message,
+        stack: error.stack
+      }
+    }, '[chat-routes] POST /message - Error');
+    next(createError('Failed to send message', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, {
+      details: error.message
+    }));
   }
 });
 
@@ -392,7 +416,7 @@ router.post('/message', verifyFirebaseToken, async (req, res) => {
  * Generate diagrams for a specification
  * POST /api/chat/diagrams/generate
  */
-router.post('/diagrams/generate', verifyFirebaseToken, async (req, res) => {
+router.post('/diagrams/generate', verifyFirebaseToken, async (req, res, next) => {
   const requestId = req.requestId || `diagrams-generate-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   const startTime = Date.now();
   
@@ -406,34 +430,28 @@ router.post('/diagrams/generate', verifyFirebaseToken, async (req, res) => {
 
   try {
     if (!openaiStorage) {
-      console.error(`[${requestId}] ❌ OpenAI not configured`);
-      const totalTime = Date.now() - startTime;
-      console.error(`[${requestId}] ===== /api/chat/diagrams/generate FAILED (${totalTime}ms) =====`);
-      return res.status(503).json({ error: 'OpenAI not configured', requestId });
+      logger.error({ requestId }, '[chat-routes] OpenAI not configured');
+      return next(createError('OpenAI not configured', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 503, { requestId }));
     }
     
     const { specId } = req.body;
     const userId = req.user.uid;
     
     if (!specId) {
-      console.error(`[${requestId}] ❌ Missing specId in request body`);
-      const totalTime = Date.now() - startTime;
-      console.error(`[${requestId}] ===== /api/chat/diagrams/generate FAILED (${totalTime}ms) =====`);
-      return res.status(400).json({ error: 'specId is required', requestId });
+      logger.error({ requestId }, '[chat-routes] Missing specId in request body');
+      return next(createError('specId is required', ERROR_CODES.MISSING_REQUIRED_FIELD, 400, { requestId }));
     }
     
     // Verify spec ownership
-    console.log(`[${requestId}] 📤 Step 1: Verifying spec ownership`);
+    logger.debug({ requestId, specId, userId }, '[chat-routes] Verifying spec ownership');
     const specCheckStart = Date.now();
     const specDoc = await db.collection('specs').doc(specId).get();
     const specCheckTime = Date.now() - specCheckStart;
-    console.log(`[${requestId}] ⏱️  Spec check took ${specCheckTime}ms`);
+    logger.debug({ requestId, duration: `${specCheckTime}ms` }, '[chat-routes] Spec check completed');
     
     if (!specDoc.exists || specDoc.data().userId !== userId) {
-      console.error(`[${requestId}] ❌ Unauthorized: Spec not found or user does not own it`);
-      const totalTime = Date.now() - startTime;
-      console.error(`[${requestId}] ===== /api/chat/diagrams/generate FAILED (${totalTime}ms) =====`);
-      return res.status(403).json({ error: 'Unauthorized', requestId });
+      logger.warn({ requestId, specId, userId }, '[chat-routes] Unauthorized: Spec not found or user does not own it');
+      return next(createError('Unauthorized', ERROR_CODES.FORBIDDEN, 403, { requestId }));
     }
     
     const specData = specDoc.data();
@@ -714,11 +732,20 @@ router.post('/diagrams/generate', verifyFirebaseToken, async (req, res) => {
       errorMessage = `Failed to generate diagrams: ${errorDetails}`;
     }
     
-    res.status(500).json({ 
-      error: errorMessage,
+    logger.error({
+      requestId,
+      error: {
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      },
+      duration: `${totalTime}ms`
+    }, '[chat-routes] POST /diagrams/generate - Error');
+    
+    next(createError(errorMessage, ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, {
       details: errorDetails,
       requestId
-    });
+    }));
   }
 });
 
@@ -726,24 +753,30 @@ router.post('/diagrams/generate', verifyFirebaseToken, async (req, res) => {
  * Repair a broken diagram using Assistant API
  * POST /api/chat/diagrams/repair
  */
-router.post('/diagrams/repair', verifyFirebaseToken, async (req, res) => {
+router.post('/diagrams/repair', verifyFirebaseToken, async (req, res, next) => {
+  const requestId = req.requestId || `diagrams-repair-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  logger.info({ requestId, userId: req.user?.uid }, '[chat-routes] POST /diagrams/repair - Starting diagram repair');
+  
   try {
-
     if (!openaiStorage) {
-      return res.status(503).json({ error: 'OpenAI not configured' });
+      logger.error({ requestId }, '[chat-routes] OpenAI not configured');
+      return next(createError('OpenAI not configured', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 503));
     }
     
     const { specId, diagramId, brokenCode, diagramType, errorMessage } = req.body;
     const userId = req.user.uid;
+    logger.debug({ requestId, specId, diagramId, diagramType }, '[chat-routes] Processing diagram repair');
     
     if (!specId || !brokenCode || !diagramType) {
-      return res.status(400).json({ error: 'specId, brokenCode, and diagramType are required' });
+      logger.warn({ requestId }, '[chat-routes] Missing required fields');
+      return next(createError('specId, brokenCode, and diagramType are required', ERROR_CODES.MISSING_REQUIRED_FIELD, 400));
     }
     
     // Verify spec ownership
     const specDoc = await db.collection('specs').doc(specId).get();
     if (!specDoc.exists || specDoc.data().userId !== userId) {
-      return res.status(403).json({ error: 'Unauthorized' });
+      logger.warn({ requestId, specId, userId }, '[chat-routes] Unauthorized: Spec not found or user does not own it');
+      return next(createError('Unauthorized', ERROR_CODES.FORBIDDEN, 403));
     }
     
     const specData = specDoc.data();
@@ -798,11 +831,16 @@ router.post('/diagrams/repair', verifyFirebaseToken, async (req, res) => {
     });
     
   } catch (error) {
-
-    res.status(500).json({ 
-      error: 'Failed to repair diagram',
-      details: error && error.message 
-    });
+    logger.error({
+      requestId,
+      error: {
+        message: error.message,
+        stack: error.stack
+      }
+    }, '[chat-routes] POST /diagrams/repair - Error');
+    next(createError('Failed to repair diagram', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, {
+      details: error && error.message
+    }));
   }
 });
 
@@ -810,26 +848,34 @@ router.post('/diagrams/repair', verifyFirebaseToken, async (req, res) => {
  * Public demo chat endpoint (no authentication required)
  * POST /api/chat/demo
  */
-router.post('/demo', demoChatLimiter, async (req, res) => {
+router.post('/demo', demoChatLimiter, async (req, res, next) => {
+  const requestId = req.requestId || `chat-demo-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  logger.info({ requestId, ip: req.ip }, '[chat-routes] POST /demo - Starting demo chat');
+  
   try {
     if (!openaiStorage) {
-      return res.status(503).json({ error: 'OpenAI not configured' });
+      logger.error({ requestId }, '[chat-routes] OpenAI not configured');
+      return next(createError('OpenAI not configured', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 503));
     }
     
     const { threadId, assistantId, message } = req.body;
+    logger.debug({ requestId, hasThreadId: !!threadId, hasAssistantId: !!assistantId, hasMessage: !!message }, '[chat-routes] Processing demo chat');
     
     // Validate input
     if (!message || !message.trim()) {
-      return res.status(400).json({ error: 'Message is required' });
+      logger.warn({ requestId }, '[chat-routes] Message is required');
+      return next(createError('Message is required', ERROR_CODES.MISSING_REQUIRED_FIELD, 400));
     }
     
     // Get demo spec ID
     const demoSpecId = await getDemoSpecId();
+    logger.debug({ requestId, demoSpecId }, '[chat-routes] Demo spec ID retrieved');
     
     // Load demo spec data
     const specDoc = await db.collection('specs').doc(demoSpecId).get();
     if (!specDoc.exists) {
-      return res.status(404).json({ error: 'Demo specification not found' });
+      logger.error({ requestId, demoSpecId }, '[chat-routes] Demo specification not found');
+      return next(createError('Demo specification not found', ERROR_CODES.RESOURCE_NOT_FOUND, 404));
     }
     
     const specData = specDoc.data();
@@ -883,6 +929,7 @@ router.post('/demo', demoChatLimiter, async (req, res) => {
     
 
     
+    logger.info({ requestId }, '[chat-routes] POST /demo - Success');
     res.json({
       success: true,
       response: response,
@@ -891,11 +938,16 @@ router.post('/demo', demoChatLimiter, async (req, res) => {
     });
     
   } catch (error) {
-
-    res.status(500).json({ 
-      error: 'Failed to send message',
-      details: error.message 
-    });
+    logger.error({
+      requestId,
+      error: {
+        message: error.message,
+        stack: error.stack
+      }
+    }, '[chat-routes] POST /demo - Error');
+    next(createError('Failed to send message', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, {
+      details: error.message
+    }));
   }
 });
 

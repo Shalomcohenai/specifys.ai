@@ -3,6 +3,8 @@ const router = express.Router();
 const { db, admin, auth } = require('./firebase-admin');
 const OpenAIStorageService = require('./openai-storage-service');
 const creditsService = require('./credits-service');
+const { createError, ERROR_CODES } = require('./error-handler');
+const { logger } = require('./logger');
 
 /**
  * Function to send spec ready notification email
@@ -95,20 +97,23 @@ const openaiStorage = process.env.OPENAI_API_KEY
  * Middleware to verify Firebase ID token
  */
 async function verifyFirebaseToken(req, res, next) {
+    logger.debug({ path: req.path }, 'Verifying Firebase token');
     try {
         const authHeader = req.headers.authorization;
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
-            return res.status(401).json({ error: 'No valid authorization header' });
+            logger.warn({ path: req.path }, 'No valid authorization header');
+            return next(createError('No valid authorization header', ERROR_CODES.UNAUTHORIZED, 401));
         }
 
         const idToken = authHeader.split('Bearer ')[1];
         const decodedToken = await auth.verifyIdToken(idToken);
 
+        logger.debug({ userId: decodedToken.uid, path: req.path }, 'Token verified successfully');
         req.user = decodedToken;
         next();
     } catch (error) {
-        console.error('Error verifying token:', error);
-        res.status(401).json({ error: 'Invalid token' });
+        logger.error({ error: error.message, path: req.path }, 'Token verification failed');
+        next(createError('Invalid token', ERROR_CODES.INVALID_TOKEN, 401));
     }
 }
 
@@ -118,17 +123,14 @@ async function verifyFirebaseToken(req, res, next) {
  * Note: This endpoint is kept for backward compatibility
  * New code should use /api/credits/entitlements
  */
-router.get('/entitlements', verifyFirebaseToken, async (req, res) => {
+router.get('/entitlements', verifyFirebaseToken, async (req, res, next) => {
     try {
         const userId = req.user.uid;
         const result = await creditsService.getEntitlements(userId);
         res.json(result);
     } catch (error) {
-        console.error('Error fetching entitlements:', error);
-        res.status(500).json({
-            error: 'Failed to fetch entitlements',
-            details: error.message
-        });
+        logger.error({ error: error.message, userId }, 'Error fetching entitlements');
+        next(createError('Failed to fetch entitlements', ERROR_CODES.DATABASE_ERROR, 500, { details: error.message }));
     }
 });
 
@@ -138,13 +140,13 @@ router.get('/entitlements', verifyFirebaseToken, async (req, res) => {
  * Body: { specId: string }
  * Note: Uses credits-service for atomic credit consumption with validation
  */
-router.post('/consume-credit', verifyFirebaseToken, async (req, res) => {
+router.post('/consume-credit', verifyFirebaseToken, async (req, res, next) => {
     try {
         const userId = req.user.uid;
         const { specId } = req.body;
 
         if (!specId) {
-            return res.status(400).json({ error: 'specId is required' });
+            return next(createError('specId is required', ERROR_CODES.MISSING_REQUIRED_FIELD, 400));
         }
 
         // Use credits-service for atomic credit consumption
@@ -152,19 +154,15 @@ router.post('/consume-credit', verifyFirebaseToken, async (req, res) => {
 
         res.json(result);
     } catch (error) {
-        console.error('Error consuming credit:', error);
+        logger.error({ error: error.message, userId }, 'Error consuming credit');
         
         if (error.message === 'Insufficient credits') {
-            return res.status(403).json({
-                error: 'Insufficient credits',
+            return next(createError('Insufficient credits', ERROR_CODES.INSUFFICIENT_PERMISSIONS, 403, {
                 message: 'You do not have enough credits to create a spec'
-            });
+            }));
         }
 
-        res.status(500).json({
-            error: 'Failed to consume credit',
-            details: error.message
-        });
+        next(createError('Failed to consume credit', ERROR_CODES.DATABASE_ERROR, 500, { details: error.message }));
     }
 });
 
@@ -172,7 +170,7 @@ router.post('/consume-credit', verifyFirebaseToken, async (req, res) => {
  * Upload spec to OpenAI Storage
  * POST /api/specs/:id/upload-to-openai
  */
-router.post('/:id/upload-to-openai', verifyFirebaseToken, async (req, res) => {
+router.post('/:id/upload-to-openai', verifyFirebaseToken, async (req, res, next) => {
     const requestId = req.requestId || `upload-endpoint-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     const startTime = Date.now();
     
@@ -186,10 +184,8 @@ router.post('/:id/upload-to-openai', verifyFirebaseToken, async (req, res) => {
         const userId = req.user.uid;
 
         if (!openaiStorage) {
-            console.error(`[${requestId}] ❌ OpenAI not configured`);
-            const totalTime = Date.now() - startTime;
-            console.error(`[${requestId}] ===== /api/specs/:id/upload-to-openai FAILED (${totalTime}ms) =====`);
-            return res.status(503).json({ error: 'OpenAI not configured', requestId });
+            logger.error({ requestId }, 'OpenAI not configured');
+            return next(createError('OpenAI not configured', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 503, { requestId }));
         }
 
         // Verify spec ownership
@@ -200,10 +196,8 @@ router.post('/:id/upload-to-openai', verifyFirebaseToken, async (req, res) => {
         console.log(`[${requestId}] ⏱️  Spec check took ${specCheckTime}ms`);
         
         if (!specDoc.exists) {
-            console.error(`[${requestId}] ❌ Spec not found: ${specId}`);
-            const totalTime = Date.now() - startTime;
-            console.error(`[${requestId}] ===== /api/specs/:id/upload-to-openai FAILED (${totalTime}ms) =====`);
-            return res.status(404).json({ error: 'Specification not found', requestId });
+            logger.error({ requestId, specId }, 'Spec not found');
+            return next(createError('Specification not found', ERROR_CODES.RESOURCE_NOT_FOUND, 404, { requestId }));
         }
 
         const specData = specDoc.data();
@@ -216,10 +210,8 @@ router.post('/:id/upload-to-openai', verifyFirebaseToken, async (req, res) => {
         });
         
         if (specData.userId !== userId) {
-            console.error(`[${requestId}] ❌ Unauthorized: User ${userId} does not own spec ${specId}`);
-            const totalTime = Date.now() - startTime;
-            console.error(`[${requestId}] ===== /api/specs/:id/upload-to-openai FAILED (${totalTime}ms) =====`);
-            return res.status(403).json({ error: 'Unauthorized', requestId });
+            logger.warn({ requestId, userId, specId }, 'Unauthorized: User does not own spec');
+            return next(createError('Unauthorized', ERROR_CODES.FORBIDDEN, 403, { requestId }));
         }
 
         // Check if already uploaded
@@ -267,17 +259,19 @@ router.post('/:id/upload-to-openai', verifyFirebaseToken, async (req, res) => {
         });
     } catch (error) {
         const totalTime = Date.now() - startTime;
-        console.error(`[${requestId}] ❌ ERROR in /api/specs/:id/upload-to-openai (${totalTime}ms):`, {
-            message: error.message,
-            stack: error.stack,
-            name: error.name
-        });
-        console.error(`[${requestId}] ===== /api/specs/:id/upload-to-openai ERROR =====`);
-        res.status(500).json({ 
-            error: 'Failed to upload spec to OpenAI',
+        logger.error({
+            requestId,
+            error: {
+                message: error.message,
+                stack: error.stack,
+                name: error.name
+            },
+            duration: `${totalTime}ms`
+        }, 'Error uploading spec to OpenAI');
+        next(createError('Failed to upload spec to OpenAI', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, {
             details: error.message,
             requestId
-        });
+        }));
     }
 });
 
@@ -285,31 +279,32 @@ router.post('/:id/upload-to-openai', verifyFirebaseToken, async (req, res) => {
  * Send spec ready notification email
  * POST /api/specs/:id/send-ready-notification
  */
-router.post('/:id/send-ready-notification', verifyFirebaseToken, async (req, res) => {
+router.post('/:id/send-ready-notification', verifyFirebaseToken, async (req, res, next) => {
+    console.log(`[send-ready-notification] Request received for specId: ${req.params.id}`);
     try {
         const specId = req.params.id;
         const userId = req.user.uid;
+        console.log(`[send-ready-notification] Processing for userId: ${userId}, specId: ${specId}`);
         
         // Get spec from Firestore
         const specDoc = await db.collection('specs').doc(specId).get();
         
         if (!specDoc.exists) {
-            return res.status(404).json({ error: 'Specification not found' });
+            return next(createError('Specification not found', ERROR_CODES.RESOURCE_NOT_FOUND, 404));
         }
         
         const specData = specDoc.data();
         
         // Verify ownership
         if (specData.userId !== userId) {
-            return res.status(403).json({ error: 'Unauthorized' });
+            return next(createError('Unauthorized', ERROR_CODES.FORBIDDEN, 403));
         }
         
         // Check if overview is ready
         if (specData.status?.overview !== 'ready') {
-            return res.status(400).json({ 
-                error: 'Specification overview is not ready yet',
-                status: specData.status?.overview 
-            });
+            return next(createError('Specification overview is not ready yet', ERROR_CODES.VALIDATION_ERROR, 400, {
+                status: specData.status?.overview
+            }));
         }
         
         // Check if email was already sent (optional - to prevent duplicate emails)
@@ -326,7 +321,7 @@ router.post('/:id/send-ready-notification', verifyFirebaseToken, async (req, res
         const userEmail = userRecord.email;
         
         if (!userEmail) {
-            return res.status(400).json({ error: 'User email not found' });
+            return next(createError('User email not found', ERROR_CODES.RESOURCE_NOT_FOUND, 400));
         }
         
         // Get base URL from request or use default
@@ -357,11 +352,10 @@ router.post('/:id/send-ready-notification', verifyFirebaseToken, async (req, res
         });
         
     } catch (error) {
-        console.error('Error sending spec ready notification:', error);
-        res.status(500).json({ 
-            error: 'Failed to send notification',
+        logger.error({ error: error.message, stack: error.stack, specId: req.params.id }, 'Error sending spec ready notification');
+        next(createError('Failed to send notification', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, {
             details: error.message
-        });
+        }));
     }
 });
 

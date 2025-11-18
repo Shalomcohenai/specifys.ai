@@ -1,6 +1,8 @@
 // Blog Routes - Handle blog post creation and management with GitHub integration
 const fs = require('fs').promises;
 const path = require('path');
+const { createError, ERROR_CODES } = require('./error-handler');
+const { logger } = require('./logger');
 
 // GitHub configuration
 const GITHUB_CONFIG = {
@@ -285,7 +287,7 @@ function parsePostContent(filename, rawContent) {
 }
 
 // Route: Create new blog post (adds to queue)
-async function createPost(req, res) {
+async function createPost(req, res, next) {
     try {
         const {
             title,
@@ -299,35 +301,30 @@ async function createPost(req, res) {
             seoDescription
         } = req.body;
 
+        const requestId = req.requestId || `blog-create-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        logger.info({ requestId }, '[blog-routes] Creating blog post');
+        
         // Validate required fields
         if (!title || !description || !date || !content) {
-            return res.status(400).json({
-                success: false,
-                error: 'Missing required fields: title, description, date, content'
-            });
+            logger.warn({ requestId }, '[blog-routes] Missing required fields');
+            return next(createError('Missing required fields: title, description, date, content', ERROR_CODES.MISSING_REQUIRED_FIELD, 400));
         }
 
         if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-            return res.status(400).json({
-                success: false,
-                error: 'Date must be in YYYY-MM-DD format'
-            });
+            logger.warn({ requestId, date }, '[blog-routes] Invalid date format');
+            return next(createError('Date must be in YYYY-MM-DD format', ERROR_CODES.INVALID_INPUT, 400));
         }
 
         // Validate description length
         if (description.length > 160) {
-            return res.status(400).json({
-                success: false,
-                error: 'Description must be 160 characters or less'
-            });
+            logger.warn({ requestId, descriptionLength: description.length }, '[blog-routes] Description too long');
+            return next(createError('Description must be 160 characters or less', ERROR_CODES.INVALID_INPUT, 400));
         }
 
         const normalizedSlug = slugify((slug && slug.trim()) || title);
         if (!normalizedSlug) {
-            return res.status(400).json({
-                success: false,
-                error: 'Unable to generate slug from provided values'
-            });
+            logger.warn({ requestId, title, slug }, '[blog-routes] Unable to generate slug');
+            return next(createError('Unable to generate slug from provided values', ERROR_CODES.INVALID_INPUT, 400));
         }
 
         // Add to queue
@@ -365,45 +362,40 @@ async function createPost(req, res) {
         });
 
     } catch (error) {
-        console.error('Error adding post to queue:', error);
+        const requestId = req.requestId || `blog-create-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[blog-routes] Error adding post to queue');
 
         if (error.code === 'duplicate-slug') {
-            return res.status(409).json({
-                success: false,
-                error: 'A blog post with this slug is already queued or publishing. Wait for it to complete before trying again.'
-            });
+            return next(createError('A blog post with this slug is already queued or publishing. Wait for it to complete before trying again.', ERROR_CODES.DUPLICATE_RESOURCE, 409));
         }
 
-        res.status(500).json({
-            success: false,
-            error: error.message || 'Failed to add blog post to queue'
-        });
+        next(createError(error.message || 'Failed to add blog post to queue', ERROR_CODES.DATABASE_ERROR, 500));
     }
 }
 
 // Route: Get single post details
-async function getPost(req, res) {
+async function getPost(req, res, next) {
+    const requestId = req.requestId || `blog-get-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    logger.info({ requestId }, '[blog-routes] Getting blog post');
+    
     try {
         const { filename } = req.query;
         if (!filename) {
-            return res.status(400).json({
-                success: false,
-                error: 'Filename is required'
-            });
+            logger.warn({ requestId }, '[blog-routes] Filename is required');
+            return next(createError('Filename is required', ERROR_CODES.MISSING_REQUIRED_FIELD, 400));
         }
 
         const filePath = `_posts/${filename}`;
         const file = await getFileFromGitHub(filePath);
         if (!file || !file.content) {
-            return res.status(404).json({
-                success: false,
-                error: 'Post not found'
-            });
+            logger.warn({ requestId, filename }, '[blog-routes] Post not found');
+            return next(createError('Post not found', ERROR_CODES.RESOURCE_NOT_FOUND, 404));
         }
 
         const rawContent = Buffer.from(file.content, 'base64').toString('utf-8');
         const parsed = parsePostContent(filename, rawContent);
 
+        logger.info({ requestId, filename }, '[blog-routes] GET post - Success');
         res.json({
             success: true,
             post: {
@@ -412,16 +404,14 @@ async function getPost(req, res) {
             }
         });
     } catch (error) {
-        console.error('Error getting blog post:', error);
-        res.status(500).json({
-            success: false,
-            error: error.message || 'Failed to load blog post'
-        });
+        const requestId = req.requestId || `blog-get-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[blog-routes] GET post - Error');
+        next(createError(error.message || 'Failed to load blog post', ERROR_CODES.DATABASE_ERROR, 500));
     }
 }
 
 // Route: Update existing blog post
-async function updatePost(req, res) {
+async function updatePost(req, res, next) {
     try {
         const {
             filename,
@@ -436,52 +426,43 @@ async function updatePost(req, res) {
             seoDescription
         } = req.body;
 
+        const requestId = req.requestId || `blog-update-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        logger.info({ requestId, filename }, '[blog-routes] Updating blog post');
+        
         if (!filename || !title || !description || !date || !content) {
-            return res.status(400).json({
-                success: false,
-                error: 'Missing required fields: filename, title, description, date, content'
-            });
+            logger.warn({ requestId }, '[blog-routes] Missing required fields');
+            return next(createError('Missing required fields: filename, title, description, date, content', ERROR_CODES.MISSING_REQUIRED_FIELD, 400));
         }
 
         if (description.length > 160) {
-            return res.status(400).json({
-                success: false,
-                error: 'Description must be 160 characters or less'
-            });
+            logger.warn({ requestId, descriptionLength: description.length }, '[blog-routes] Description too long');
+            return next(createError('Description must be 160 characters or less', ERROR_CODES.INVALID_INPUT, 400));
         }
 
         const filenameMatch = filename.match(/^(\d{4}-\d{2}-\d{2})-(.+)\.md$/);
         if (!filenameMatch) {
-            return res.status(400).json({
-                success: false,
-                error: 'Invalid filename format'
-            });
+            logger.warn({ requestId, filename }, '[blog-routes] Invalid filename format');
+            return next(createError('Invalid filename format', ERROR_CODES.INVALID_INPUT, 400));
         }
 
         const [ , filenameDate, filenameSlug ] = filenameMatch;
 
         if (date !== filenameDate) {
-            return res.status(400).json({
-                success: false,
-                error: 'Date cannot be changed. It must match the filename.'
-            });
+            logger.warn({ requestId, date, filenameDate }, '[blog-routes] Date mismatch');
+            return next(createError('Date cannot be changed. It must match the filename.', ERROR_CODES.INVALID_INPUT, 400));
         }
 
         const normalizedSlug = slugify(slug || filenameSlug);
         if (normalizedSlug !== filenameSlug) {
-            return res.status(400).json({
-                success: false,
-                error: 'Slug cannot be changed. It must match the filename.'
-            });
+            logger.warn({ requestId, normalizedSlug, filenameSlug }, '[blog-routes] Slug mismatch');
+            return next(createError('Slug cannot be changed. It must match the filename.', ERROR_CODES.INVALID_INPUT, 400));
         }
 
         const filePath = `_posts/${filename}`;
         const existingFile = await getFileFromGitHub(filePath);
         if (!existingFile) {
-            return res.status(404).json({
-                success: false,
-                error: 'Post not found'
-            });
+            logger.warn({ requestId, filename }, '[blog-routes] Post not found');
+            return next(createError('Post not found', ERROR_CODES.RESOURCE_NOT_FOUND, 404));
         }
 
         const markdownContent = createPostMarkdown({
@@ -506,22 +487,24 @@ async function updatePost(req, res) {
             existingFile.sha
         );
 
+        logger.info({ requestId, filename }, '[blog-routes] UPDATE post - Success');
         res.json({
             success: true,
             message: 'Blog post updated successfully',
             commitSha: result.commit?.sha || null
         });
     } catch (error) {
-        console.error('Error updating blog post:', error);
-        res.status(500).json({
-            success: false,
-            error: error.message || 'Failed to update blog post'
-        });
+        const requestId = req.requestId || `blog-update-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[blog-routes] UPDATE post - Error');
+        next(createError(error.message || 'Failed to update blog post', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500));
     }
 }
 
 // Route: List all blog posts
-async function listPosts(req, res) {
+async function listPosts(req, res, next) {
+    const requestId = req.requestId || `blog-list-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    logger.info({ requestId }, '[blog-routes] Listing blog posts');
+    
     try {
         // Get all files from _posts directory
         const endpoint = `/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/_posts?ref=${GITHUB_CONFIG.branch}`;
@@ -595,15 +578,16 @@ async function listPosts(req, res) {
 }
 
 // Route: Delete blog post
-async function deletePost(req, res) {
+async function deletePost(req, res, next) {
     try {
+        const requestId = req.requestId || `blog-delete-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        logger.info({ requestId }, '[blog-routes] Deleting blog post');
+        
         const { filename } = req.body;
 
         if (!filename) {
-            return res.status(400).json({
-                success: false,
-                error: 'Filename is required'
-            });
+            logger.warn({ requestId }, '[blog-routes] Filename is required');
+            return next(createError('Filename is required', ERROR_CODES.MISSING_REQUIRED_FIELD, 400));
         }
 
         const filePath = `_posts/${filename}`;
@@ -614,17 +598,16 @@ async function deletePost(req, res) {
         // Note: Sitemap will be auto-updated by Jekyll build
         // await removeFromSitemap(filename);
 
+        logger.info({ requestId, filename }, '[blog-routes] DELETE post - Success');
         res.json({
             success: true,
             message: 'Blog post deleted successfully'
         });
 
     } catch (error) {
-
-        res.status(500).json({
-            success: false,
-            error: error.message || 'Failed to delete blog post'
-        });
+        const requestId = req.requestId || `blog-delete-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[blog-routes] DELETE post - Error');
+        next(createError(error.message || 'Failed to delete blog post', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500));
     }
 }
 
@@ -706,22 +689,22 @@ async function removeFromSitemap(filename) {
 }
 
 // Route: Get queue status
-async function getQueueStatusRoute(req, res) {
+async function getQueueStatusRoute(req, res, next) {
     try {
         const status = getQueueStatus();
         const items = await getQueueItems(20);
         
+        const requestId = req.requestId || `blog-queue-status-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        logger.info({ requestId }, '[blog-routes] GET queue status - Success');
         res.json({
             success: true,
             status,
             items
         });
     } catch (error) {
-        console.error('Error getting queue status:', error);
-        res.status(500).json({
-            success: false,
-            error: error.message || 'Failed to get queue status'
-        });
+        const requestId = req.requestId || `blog-queue-status-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[blog-routes] GET queue status - Error');
+        next(createError(error.message || 'Failed to get queue status', ERROR_CODES.DATABASE_ERROR, 500));
     }
 }
 

@@ -12,26 +12,73 @@ const dotenv = require('dotenv');
 const config = require('./config');
 const blogRoutes = require('./blog-routes');
 const adminRoutes = require('./admin-routes');
-const { requireAdmin } = require('./security');
+const { requireAdmin, securityHeaders, rateLimiters } = require('./security');
 const { logError, getErrorLogs, getErrorSummary } = require('./error-logger');
 const { logCSCCrash, getCSCCrashLogs, getCSCCrashSummary } = require('./css-crash-logger');
+const { errorHandler, notFoundHandler, createError, ERROR_CODES } = require('./error-handler');
+const { logger, logRequest, logResponse } = require('./logger');
 
 dotenv.config();
 
 const app = express();
 const port = config.port;
 
+// Apply security headers (must be before other middleware)
+app.use(securityHeaders);
+
 // Middleware to parse JSON bodies
 app.use(express.json());
+
+// Request logging middleware (using structured logger)
+app.use((req, res, next) => {
+  const requestId = `req-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  const startTime = Date.now();
+  
+  // Store requestId in request object for use in route handlers
+  req.requestId = requestId;
+  
+  // Log request start (only for API routes)
+  if (req.path.startsWith('/api/')) {
+    logRequest(req, requestId);
+  }
+  
+  // Log response when it finishes
+  res.on('finish', () => {
+    const duration = Date.now() - startTime;
+    if (req.path.startsWith('/api/')) {
+      logResponse(req, res, requestId, duration);
+    }
+  });
+  
+  next();
+});
 
 // CORS middleware to allow requests from your frontend
 app.use((req, res, next) => {
   const origin = req.headers.origin;
   
+  // LOGGING: Log incoming origin for debugging
+  if (req.path.startsWith('/api/')) {
+    console.log(`[CORS] Request from origin: ${origin || 'none (same-origin)'}`);
+    console.log(`[CORS] Allowed origins:`, config.allowedOrigins);
+  }
+  
   // Check if origin is in allowed list
   if (origin && config.allowedOrigins.includes(origin)) {
+    // LOGGING: Origin is allowed
+    if (req.path.startsWith('/api/')) {
+      console.log(`[CORS] ✅ Allowed origin: ${origin}`);
+    }
     res.header('Access-Control-Allow-Origin', origin);
   } else {
+    // LOGGING: Using fallback (origin not in list or no origin)
+    if (req.path.startsWith('/api/')) {
+      if (origin) {
+        console.warn(`[CORS] ⚠️  Origin not in allowed list: ${origin} - using fallback '*'`);
+      } else {
+        console.log(`[CORS] ℹ️  No origin header (same-origin request) - using fallback '*'`);
+      }
+    }
     res.header('Access-Control-Allow-Origin', '*'); // Fallback for development
   }
   
@@ -47,7 +94,7 @@ app.use((req, res, next) => {
 });
 
 // Admin error logs endpoint
-app.get('/api/admin/error-logs', requireAdmin, async (req, res) => {
+app.get('/api/admin/error-logs', requireAdmin, async (req, res, next) => {
   try {
     const limit = parseInt(req.query.limit) || 100;
     const errorType = req.query.errorType || null;
@@ -60,18 +107,18 @@ app.get('/api/admin/error-logs', requireAdmin, async (req, res) => {
       total: logs.length
     });
   } catch (error) {
-    console.error('Error fetching error logs:', error);
-    res.status(500).json({ error: 'Failed to get error logs' });
+    logger.error({ error: error.message, stack: error.stack }, 'Error fetching error logs');
+    next(createError('Failed to get error logs', ERROR_CODES.DATABASE_ERROR, 500));
   }
 });
 
 // CSS crash logs endpoint - POST to receive logs
-app.post('/api/admin/css-crash-logs', async (req, res) => {
+app.post('/api/admin/css-crash-logs', async (req, res, next) => {
   try {
     const { log } = req.body;
 
     if (!log || !log.crashType) {
-      return res.status(400).json({ error: 'Invalid crash log data' });
+      return next(createError('Invalid crash log data', ERROR_CODES.VALIDATION_ERROR, 400));
     }
 
     await logCSCCrash(log);
@@ -81,13 +128,13 @@ app.post('/api/admin/css-crash-logs', async (req, res) => {
       message: 'CSS crash log saved'
     });
   } catch (error) {
-    console.error('Error saving CSS crash log:', error);
-    res.status(500).json({ error: 'Failed to save CSS crash log' });
+    logger.error({ error: error.message, stack: error.stack }, 'Error saving CSS crash log');
+    next(createError('Failed to save CSS crash log', ERROR_CODES.DATABASE_ERROR, 500));
   }
 });
 
 // CSS crash logs endpoint - GET to retrieve logs
-app.get('/api/admin/css-crash-logs', requireAdmin, async (req, res) => {
+app.get('/api/admin/css-crash-logs', requireAdmin, async (req, res, next) => {
   try {
     const limit = parseInt(req.query.limit) || 100;
     const crashType = req.query.crashType || null;
@@ -101,13 +148,13 @@ app.get('/api/admin/css-crash-logs', requireAdmin, async (req, res) => {
       total: logs.length
     });
   } catch (error) {
-    console.error('Error fetching CSS crash logs:', error);
-    res.status(500).json({ error: 'Failed to get CSS crash logs' });
+    logger.error({ error: error.message, stack: error.stack }, 'Error fetching CSS crash logs');
+    next(createError('Failed to get CSS crash logs', ERROR_CODES.DATABASE_ERROR, 500));
   }
 });
 
 // CSS crash summary endpoint
-app.get('/api/admin/css-crash-summary', requireAdmin, async (req, res) => {
+app.get('/api/admin/css-crash-summary', requireAdmin, async (req, res, next) => {
   try {
     const summary = await getCSCCrashSummary();
 
@@ -116,13 +163,13 @@ app.get('/api/admin/css-crash-summary', requireAdmin, async (req, res) => {
       summary
     });
   } catch (error) {
-    console.error('Error fetching CSS crash summary:', error);
-    res.status(500).json({ error: 'Failed to get CSS crash summary' });
+    logger.error({ error: error.message, stack: error.stack }, 'Error fetching CSS crash summary');
+    next(createError('Failed to get CSS crash summary', ERROR_CODES.DATABASE_ERROR, 500));
   }
 });
 
 // Error summary endpoint
-app.get('/api/admin/error-summary', requireAdmin, async (req, res) => {
+app.get('/api/admin/error-summary', requireAdmin, async (req, res, next) => {
   try {
     const summary = await getErrorSummary();
 
@@ -131,8 +178,8 @@ app.get('/api/admin/error-summary', requireAdmin, async (req, res) => {
       summary
     });
   } catch (error) {
-    console.error('Error fetching error summary:', error);
-    res.status(500).json({ error: 'Failed to get error summary' });
+    logger.error({ error: error.message, stack: error.stack }, 'Error fetching error summary');
+    next(createError('Failed to get error summary', ERROR_CODES.DATABASE_ERROR, 500));
   }
 });
 
@@ -142,15 +189,15 @@ app.get('/api/blog/list-posts', requireAdmin, blogRoutes.listPosts);
 app.post('/api/blog/delete-post', requireAdmin, blogRoutes.deletePost);
 app.get('/api/blog/queue-status', requireAdmin, blogRoutes.getQueueStatus);
 
-// Admin routes (must be after specific admin endpoints)
-app.use('/api/admin', adminRoutes);
+// Admin routes (must be after specific admin endpoints, with rate limiting)
+app.use('/api/admin', rateLimiters.admin, adminRoutes);
 
-// Feedback endpoint
-app.post('/api/feedback', async (req, res) => {
+// Feedback endpoint (with rate limiting)
+app.post('/api/feedback', rateLimiters.feedback, async (req, res, next) => {
   const { email, feedback, type, source } = req.body;
 
   if (!feedback) {
-    return res.status(400).json({ error: 'Feedback text is required' });
+    return next(createError('Feedback text is required', ERROR_CODES.MISSING_REQUIRED_FIELD, 400));
   }
 
   try {
@@ -162,8 +209,8 @@ app.post('/api/feedback', async (req, res) => {
     
     res.json({ success: true, message: 'Feedback submitted successfully' });
   } catch (error) {
-
-    res.status(500).json({ error: 'Failed to process feedback' });
+    logger.error({ error: error.message, stack: error.stack }, 'Error processing feedback');
+    next(createError('Failed to process feedback', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500));
   }
 });
 
@@ -255,7 +302,7 @@ async function saveToGoogleSheets(email, feedback, type, source) {
 }
 
 // Endpoint for generating specifications via Cloudflare Worker
-app.post('/api/generate-spec', async (req, res) => {
+app.post('/api/generate-spec', rateLimiters.generation, async (req, res, next) => {
   const requestId = req.requestId || `req-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   const startTime = Date.now();
   
@@ -272,8 +319,8 @@ app.post('/api/generate-spec', async (req, res) => {
   const { userInput } = req.body;
 
   if (!userInput) {
-    console.log(`[${requestId}] ❌ VALIDATION FAILED: userInput is missing`);
-    return res.status(400).json({ error: 'User input is required' });
+    logger.warn({ requestId }, 'Validation failed: userInput is missing');
+    return next(createError('User input is required', ERROR_CODES.MISSING_REQUIRED_FIELD, 400));
   }
 
   try {
@@ -430,32 +477,42 @@ app.post('/api/generate-spec', async (req, res) => {
     res.json({ specification });
   } catch (error) {
     const totalTime = Date.now() - startTime;
-    console.error(`[${requestId}] ❌ ERROR in /api/generate-spec (${totalTime}ms):`, {
-      message: error.message,
-      stack: error.stack,
-      name: error.name,
-      cause: error.cause
-    });
-    console.error(`[${requestId}] ===== /api/generate-spec REQUEST ERROR =====`);
+    logger.error({
+      requestId,
+      error: {
+        message: error.message,
+        stack: error.stack,
+        name: error.name,
+        cause: error.cause
+      },
+      duration: `${totalTime}ms`
+    }, `Error in /api/generate-spec (${totalTime}ms)`);
     
-    // Always include error details in response for debugging
-    res.status(500).json({ 
-      error: 'Failed to generate specification',
-      details: error.message,
-      errorType: error.name,
-      requestId: requestId
-    });
+    // Determine error code based on error type
+    let errorCode = ERROR_CODES.EXTERNAL_SERVICE_ERROR;
+    if (error.message.includes('connect') || error.message.includes('fetch')) {
+      errorCode = ERROR_CODES.EXTERNAL_SERVICE_ERROR;
+    } else if (error.message.includes('validation') || error.message.includes('required')) {
+      errorCode = ERROR_CODES.VALIDATION_ERROR;
+    }
+    
+    // Pass error to error handler with details
+    const enhancedError = createError(
+      `Failed to generate specification: ${error.message}`,
+      errorCode,
+      500,
+      { errorType: error.name, requestId }
+    );
+    next(enhancedError);
   }
 });
 
 // Repair diagram endpoint (legacy - kept for backward compatibility)
-app.post('/api/diagrams/repair', async (req, res) => {
-
-  
+app.post('/api/diagrams/repair', async (req, res, next) => {
   const { overview, technical, market, diagramTitle, brokenDiagramCode } = req.body;
   
   if (!brokenDiagramCode) {
-    return res.status(400).json({ error: 'Broken diagram code is required' });
+    return next(createError('Broken diagram code is required', ERROR_CODES.MISSING_REQUIRED_FIELD, 400));
   }
   
   try {
@@ -511,8 +568,8 @@ Return ONLY valid Mermaid code, nothing else.`;
     });
     
   } catch (error) {
-
-    res.status(500).json({ error: 'Failed to repair diagram' });
+    logger.error({ error: error.message, stack: error.stack }, 'Error repairing diagram');
+    next(createError('Failed to repair diagram', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500));
   }
 });
 
@@ -536,104 +593,26 @@ app.use('/api/stats', statsRoutes);
 const liveBriefRoutes = require('./live-brief-routes');
 app.use('/api/live-brief', liveBriefRoutes);
 
-// Import error logger (already imported above, skip duplicate)
-// const { logError, getErrorLogs, getErrorSummary } = require('./error-logger');
+// Note: Admin endpoints are defined above (lines 97-184)
 
-// Import CSS crash logger (already imported above, skip duplicate)
-// const { logCSCCrash, getCSCCrashLogs, getCSCCrashSummary } = require('./css-crash-logger');
+// 404 handler - must be after all routes
+app.use(notFoundHandler);
 
-// Admin error logs endpoint
-app.get('/api/admin/error-logs', async (req, res) => {
-  try {
-    const limit = parseInt(req.query.limit) || 100;
-    const errorType = req.query.errorType || null;
-    
-    const logs = await getErrorLogs(limit, errorType);
-    
-    res.json({ 
-      success: true, 
-      logs: logs,
-      total: logs.length
-    });
-  } catch (error) {
-
-    res.status(500).json({ error: 'Failed to get error logs' });
-  }
-});
-
-// CSS crash logs endpoint - POST to receive logs
-app.post('/api/admin/css-crash-logs', async (req, res) => {
-  try {
-    const { log, pageInfo } = req.body;
-    
-    if (!log || !log.crashType) {
-      return res.status(400).json({ error: 'Invalid crash log data' });
-    }
-    
-    await logCSCCrash(log);
-    
-    res.json({ 
-      success: true, 
-      message: 'CSS crash log saved' 
-    });
-  } catch (error) {
-
-    res.status(500).json({ error: 'Failed to save CSS crash log' });
-  }
-});
-
-// CSS crash logs endpoint - GET to retrieve logs
-app.get('/api/admin/css-crash-logs', async (req, res) => {
-  try {
-    const limit = parseInt(req.query.limit) || 100;
-    const crashType = req.query.crashType || null;
-    const url = req.query.url || null;
-    
-    const logs = await getCSCCrashLogs(limit, crashType, url);
-    
-    res.json({ 
-      success: true, 
-      logs: logs,
-      total: logs.length
-    });
-  } catch (error) {
-
-    res.status(500).json({ error: 'Failed to get CSS crash logs' });
-  }
-});
-
-// CSS crash summary endpoint
-app.get('/api/admin/css-crash-summary', async (req, res) => {
-  try {
-    const summary = await getCSCCrashSummary();
-    
-    res.json({ 
-      success: true, 
-      summary: summary
-    });
-  } catch (error) {
-
-    res.status(500).json({ error: 'Failed to get CSS crash summary' });
-  }
-});
-
-// Error summary endpoint
-app.get('/api/admin/error-summary', async (req, res) => {
-  try {
-    const summary = await getErrorSummary();
-    
-    res.json({ 
-      success: true, 
-      summary: summary 
-    });
-  } catch (error) {
-
-    res.status(500).json({ error: 'Failed to get error summary' });
-  }
-});
-
+// Error handler - must be last middleware
+app.use(errorHandler);
 
 app.listen(port, () => {
+  logger.info({
+    type: 'server_start',
+    port,
+    nodeVersion: process.version,
+    environment: process.env.NODE_ENV || 'development',
+    openaiConfigured: !!process.env.OPENAI_API_KEY,
+    emailConfigured: !!(process.env.EMAIL_USER && process.env.EMAIL_APP_PASSWORD),
+    googleSheetsConfigured: !!process.env.GOOGLE_SHEETS_WEBHOOK_URL
+  }, '🚀 SERVER STARTED SUCCESSFULLY (server/server.js)');
+  
+  // Also log to console for visibility
   console.log('='.repeat(60));
   console.log('🚀 SERVER STARTED SUCCESSFULLY (server/server.js)');
   console.log('='.repeat(60));
@@ -644,23 +623,33 @@ app.listen(port, () => {
   console.log(`🔧 OpenAI API Key: ${process.env.OPENAI_API_KEY ? '✅ Configured' : '❌ Not configured'}`);
   console.log(`☁️  Cloudflare Worker: https://spspec.shalom-cohen-111.workers.dev/generate`);
   console.log('='.repeat(60));
-  console.log('📝 Logging enabled for all API requests');
-  console.log('📊 Detailed logs for /api/generate-spec endpoint');
+  console.log('📝 Structured logging enabled (Pino)');
+  console.log('📊 Error handling enabled');
   console.log('='.repeat(60));
   
   // Check configuration
   if (!process.env.EMAIL_USER || !process.env.EMAIL_APP_PASSWORD) {
-    console.log('⚠️  Email configuration not found (EMAIL_USER, EMAIL_APP_PASSWORD)');
+    logger.warn({ type: 'config_check' }, '⚠️  Email configuration not found (EMAIL_USER, EMAIL_APP_PASSWORD)');
   } else {
-    console.log('✅ Email configuration found');
+    logger.info({ type: 'config_check' }, '✅ Email configuration found');
   }
   
   if (!process.env.GOOGLE_SHEETS_WEBHOOK_URL) {
-    console.log('⚠️  Google Sheets webhook URL not configured');
+    logger.warn({ type: 'config_check' }, '⚠️  Google Sheets webhook URL not configured');
   } else {
-    console.log('✅ Google Sheets webhook URL configured');
+    logger.info({ type: 'config_check' }, '✅ Google Sheets webhook URL configured');
   }
 }).on('error', (err) => {
+  logger.error({
+    type: 'server_start_error',
+    error: {
+      message: err.message,
+      code: err.code,
+      stack: err.stack
+    }
+  }, '❌ FAILED TO START SERVER (server/server.js)');
+  
+  // Also log to console for visibility
   console.error('='.repeat(60));
   console.error('❌ FAILED TO START SERVER (server/server.js)');
   console.error('='.repeat(60));

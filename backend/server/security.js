@@ -226,10 +226,10 @@ function validateBody(schema) {
     const validation = validateInput(req.body, schema);
     
     if (!validation.isValid) {
-      return res.status(400).json({
-        error: 'Invalid input',
+      const { createError, ERROR_CODES } = require('./error-handler');
+      return next(createError('Invalid input', ERROR_CODES.VALIDATION_ERROR, 400, {
         details: validation.error
-      });
+      }));
     }
 
     req.body = validation.value;
@@ -248,10 +248,10 @@ function validateParams(schemas) {
       const validation = validateInput(req.params[param], schema);
       
       if (!validation.isValid) {
-        return res.status(400).json({
-          error: `Invalid parameter: ${param}`,
+        const { createError, ERROR_CODES } = require('./error-handler');
+        return next(createError(`Invalid parameter: ${param}`, ERROR_CODES.VALIDATION_ERROR, 400, {
           details: validation.error
-        });
+        }));
       }
 
       req.params[param] = validation.value;
@@ -296,15 +296,17 @@ function securityLogger(action) {
  * @param {Function} next 
  */
 async function requireAdmin(req, res, next) {
+  const { createError, ERROR_CODES } = require('./error-handler');
+  const { logger } = require('./logger');
+  
   try {
     const authHeader = req.headers.authorization;
     
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-
-      return res.status(401).json({ 
-        error: 'Authentication required',
+      logger.warn({ path: req.path }, '[security] Admin authentication required - no token');
+      return next(createError('Authentication required', ERROR_CODES.UNAUTHORIZED, 401, {
         message: 'Admin access requires valid authentication token'
-      });
+      }));
     }
 
     const idToken = authHeader.split('Bearer ')[1];
@@ -315,27 +317,29 @@ async function requireAdmin(req, res, next) {
     
     // Check if user is admin using centralized config
     if (!isAdminEmail(decodedToken.email)) {
-
-      return res.status(403).json({ 
-        error: 'Forbidden',
+      logger.warn({ path: req.path, email: decodedToken.email }, '[security] Admin access denied');
+      return next(createError('Forbidden', ERROR_CODES.FORBIDDEN, 403, {
         message: 'Admin access required'
-      });
+      }));
     }
     
+    logger.debug({ userId: decodedToken.uid, email: decodedToken.email, path: req.path }, '[security] Admin authenticated');
     req.adminUser = decodedToken;
 
     next();
     
   } catch (error) {
-    console.error('[requireAdmin] Token verification failed', {
-      message: error?.message,
-      code: error?.code,
-      stack: error?.stack
-    });
-    return res.status(401).json({
-      error: 'Invalid token',
+    logger.error({ 
+      path: req.path,
+      error: {
+        message: error?.message,
+        code: error?.code,
+        stack: error?.stack
+      }
+    }, '[security] Admin token verification failed');
+    return next(createError('Invalid token', ERROR_CODES.INVALID_TOKEN, 401, {
       message: error?.message || 'Authentication failed'
-    });
+    }));
   }
 }
 

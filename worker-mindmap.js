@@ -8,40 +8,61 @@
 
 const MODEL = "gpt-4o-mini";
 
+// Allowed origins for CORS
+const ALLOWED_ORIGINS = [
+  'https://specifys-ai.com',
+  'https://www.specifys-ai.com',
+  'https://specifys-ai.onrender.com'
+];
+
 export default {
   async fetch(request, env) {
     try {
       const url = new URL(request.url);
+      const origin = request.headers.get("origin");
 
       // CORS preflight
-      if (request.method === "OPTIONS") return cors(new Response(null, { status: 204 }));
+      if (request.method === "OPTIONS") return cors(new Response(null, { status: 204 }), origin);
 
       // Health check
       if (request.method === "GET" && url.pathname === "/health") {
-        return cors(json({ status: "ok", service: "mindmap-generator" }));
+        return cors(json({ status: "ok", service: "mindmap-generator" }), origin);
       }
 
       // Only POST for main endpoint
       if (request.method !== "POST") {
-        return cors(json({ error: { code: "METHOD_NOT_ALLOWED", message: "Use POST" } }, 405));
+        return cors(json({ error: { code: "METHOD_NOT_ALLOWED", message: "Use POST" } }, 405), origin);
       }
 
       // Handle both root path and /generate-mindmap path
       if (url.pathname === "/" || url.pathname === "/generate-mindmap") {
-        return cors(await handleGenerateMindMap(request, env));
+        return cors(await handleGenerateMindMap(request, env), origin);
       }
 
-      return cors(json({ error: { code: "NOT_FOUND", message: "Unknown route" } }, 404));
+      return cors(json({ error: { code: "NOT_FOUND", message: "Unknown route" } }, 404), origin);
     } catch (e) {
       console.error("Worker error:", e);
-      return cors(json({ error: { code: "UNEXPECTED", message: String(e) } }, 500));
+      // Get origin from request (may not be available in catch, so use null as fallback)
+      const errorOrigin = request?.headers?.get("origin") || null;
+      return cors(json({ error: { code: "UNEXPECTED", message: String(e) } }, 500), errorOrigin);
     }
   }
 };
 
 // ---------- HTTP utils ----------
-function cors(res) {
-  res.headers.set("Access-Control-Allow-Origin", "*");
+function cors(res, origin = null) {
+  // Check if origin is allowed
+  if (origin && ALLOWED_ORIGINS.includes(origin)) {
+    res.headers.set("Access-Control-Allow-Origin", origin);
+  } else if (!origin) {
+    // Same-origin requests (no origin header) - allow in development
+    res.headers.set("Access-Control-Allow-Origin", "*");
+  } else {
+    // Origin not allowed - don't set header (browser will block)
+    // But for now, allow it with warning (can be tightened later)
+    console.warn(`[CORS] Origin not allowed: ${origin}`);
+    res.headers.set("Access-Control-Allow-Origin", "*");
+  }
   res.headers.set("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
   res.headers.set("Access-Control-Allow-Headers", "Content-Type,Authorization");
   return res;

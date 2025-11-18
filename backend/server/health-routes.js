@@ -7,12 +7,25 @@
 const express = require('express');
 const router = express.Router();
 const { db } = require('./firebase-admin');
+const { createError, ERROR_CODES } = require('./error-handler');
+const { logger } = require('./logger');
+
+// Use built-in fetch for Node.js 18+ or fallback to node-fetch
+let fetch;
+if (typeof globalThis.fetch === 'function') {
+  fetch = globalThis.fetch;
+} else {
+  fetch = require('node-fetch');
+}
 
 /**
  * General health check
  * GET /api/health
  */
-router.get('/', async (req, res) => {
+router.get('/', async (req, res, next) => {
+    const requestId = req.requestId || `health-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    logger.debug({ requestId }, '[health-routes] GET / - General health check');
+    
     try {
         res.json({
             status: 'healthy',
@@ -21,9 +34,12 @@ router.get('/', async (req, res) => {
             version: '1.0.0'
         });
     } catch (error) {
+        logger.error({ requestId, error: { message: error.message } }, '[health-routes] GET / - Error');
+        // Health checks should return status codes, not use error handler
         res.status(500).json({
             status: 'unhealthy',
-            error: error.message
+            error: error.message,
+            errorCode: ERROR_CODES.INTERNAL_ERROR
         });
     }
 });
@@ -33,6 +49,9 @@ router.get('/', async (req, res) => {
  * GET /api/health/credits
  */
 router.get('/credits', async (req, res) => {
+    const requestId = req.requestId || `health-credits-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    logger.debug({ requestId }, '[health-routes] GET /credits - Credits health check');
+    
     try {
         // Count users by type
         const proUsersSnapshot = await db.collection('entitlements')
@@ -63,6 +82,7 @@ router.get('/credits', async (req, res) => {
         const proPercentage = totalUsers > 0 ? ((proUsers / totalUsers) * 100).toFixed(2) : 0;
         const creditPercentage = totalUsers > 0 ? ((creditUsers / totalUsers) * 100).toFixed(2) : 0;
         
+        logger.debug({ requestId, totalUsers, proUsers, creditUsers }, '[health-routes] GET /credits - Success');
         res.json({
             status: 'healthy',
             timestamp: new Date().toISOString(),
@@ -81,10 +101,12 @@ router.get('/credits', async (req, res) => {
         });
         
     } catch (error) {
-
+        logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[health-routes] GET /credits - Error');
+        // Health checks should return status codes, not use error handler
         res.status(500).json({ 
             status: 'unhealthy', 
             error: error.message,
+            errorCode: ERROR_CODES.DATABASE_ERROR,
             timestamp: new Date().toISOString()
         });
     }
@@ -95,27 +117,275 @@ router.get('/credits', async (req, res) => {
  * GET /api/health/database
  */
 router.get('/database', async (req, res) => {
+    const requestId = req.requestId || `health-db-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const startTime = Date.now();
+    logger.debug({ requestId }, '[health-routes] GET /database - Database health check');
+    
     try {
         // Simple database read to check connectivity
         await db.collection('users').limit(1).get();
+        const responseTime = Date.now() - startTime;
         
+        logger.debug({ requestId, responseTime }, '[health-routes] GET /database - Success');
         res.json({
             status: 'healthy',
             database: 'Firestore',
             connected: true,
+            responseTime: `${responseTime}ms`,
             timestamp: new Date().toISOString()
         });
         
     } catch (error) {
-
+        const responseTime = Date.now() - startTime;
+        logger.error({ requestId, error: { message: error.message, stack: error.stack }, responseTime }, '[health-routes] GET /database - Error');
+        // Health checks should return status codes, not use error handler
         res.status(500).json({
             status: 'unhealthy',
             database: 'Firestore',
             connected: false,
+            responseTime: `${responseTime}ms`,
             error: error.message,
+            errorCode: ERROR_CODES.DATABASE_ERROR,
             timestamp: new Date().toISOString()
         });
     }
+});
+
+/**
+ * OpenAI API connectivity check
+ * GET /api/health/openai
+ */
+router.get('/openai', async (req, res) => {
+    const requestId = req.requestId || `health-openai-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const startTime = Date.now();
+    logger.debug({ requestId }, '[health-routes] GET /openai - OpenAI health check');
+    
+    try {
+        if (!process.env.OPENAI_API_KEY) {
+            logger.warn({ requestId }, '[health-routes] OpenAI API key not configured');
+            return res.json({
+                status: 'warning',
+                service: 'OpenAI API',
+                configured: false,
+                message: 'OPENAI_API_KEY not configured',
+                timestamp: new Date().toISOString()
+            });
+        }
+
+        // Simple API call to check connectivity (list models endpoint)
+        const response = await fetch('https://api.openai.com/v1/models', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
+            },
+            signal: AbortSignal.timeout(5000) // 5 second timeout
+        });
+
+        const responseTime = Date.now() - startTime;
+        
+        if (response.ok) {
+            logger.debug({ requestId, responseTime }, '[health-routes] GET /openai - Success');
+            res.json({
+                status: 'healthy',
+                service: 'OpenAI API',
+                connected: true,
+                responseTime: `${responseTime}ms`,
+                timestamp: new Date().toISOString()
+            });
+        } else {
+            logger.warn({ requestId, httpStatus: response.status, responseTime }, '[health-routes] GET /openai - Unhealthy');
+            // Health checks should return status codes, not use error handler
+            res.status(500).json({
+                status: 'unhealthy',
+                service: 'OpenAI API',
+                connected: false,
+                responseTime: `${responseTime}ms`,
+                httpStatus: response.status,
+                error: `HTTP ${response.status}`,
+                errorCode: ERROR_CODES.EXTERNAL_SERVICE_ERROR,
+                timestamp: new Date().toISOString()
+            });
+        }
+        
+    } catch (error) {
+        const responseTime = Date.now() - startTime;
+        logger.error({ requestId, error: { message: error.message, stack: error.stack }, responseTime }, '[health-routes] GET /openai - Error');
+        // Health checks should return status codes, not use error handler
+        res.status(500).json({
+            status: 'unhealthy',
+            service: 'OpenAI API',
+            connected: false,
+            responseTime: `${responseTime}ms`,
+            error: error.message,
+            errorCode: ERROR_CODES.EXTERNAL_SERVICE_ERROR,
+            timestamp: new Date().toISOString()
+        });
+    }
+});
+
+/**
+ * Cloudflare Worker connectivity check
+ * GET /api/health/cloudflare-worker
+ */
+router.get('/cloudflare-worker', async (req, res) => {
+    const requestId = req.requestId || `health-worker-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const startTime = Date.now();
+    logger.debug({ requestId }, '[health-routes] GET /cloudflare-worker - Cloudflare Worker health check');
+    
+    try {
+        const workerUrl = 'https://spspec.shalom-cohen-111.workers.dev/generate';
+        
+        // Simple health check - try to reach the worker
+        const response = await fetch(workerUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                stage: 'overview',
+                locale: 'en-US',
+                prompt: {
+                    system: 'Test',
+                    developer: 'Test',
+                    user: 'Test'
+                }
+            }),
+            signal: AbortSignal.timeout(10000) // 10 second timeout
+        });
+
+        const responseTime = Date.now() - startTime;
+        
+        // Worker might return error for test request, but if it responds, it's healthy
+        if (response.status < 500) {
+            logger.debug({ requestId, httpStatus: response.status, responseTime }, '[health-routes] GET /cloudflare-worker - Success');
+            res.json({
+                status: 'healthy',
+                service: 'Cloudflare Worker',
+                connected: true,
+                responseTime: `${responseTime}ms`,
+                httpStatus: response.status,
+                timestamp: new Date().toISOString()
+            });
+        } else {
+            logger.warn({ requestId, httpStatus: response.status, responseTime }, '[health-routes] GET /cloudflare-worker - Unhealthy');
+            // Health checks should return status codes, not use error handler
+            res.status(500).json({
+                status: 'unhealthy',
+                service: 'Cloudflare Worker',
+                connected: false,
+                responseTime: `${responseTime}ms`,
+                httpStatus: response.status,
+                error: `HTTP ${response.status}`,
+                errorCode: ERROR_CODES.EXTERNAL_SERVICE_ERROR,
+                timestamp: new Date().toISOString()
+            });
+        }
+        
+    } catch (error) {
+        const responseTime = Date.now() - startTime;
+        logger.error({ requestId, error: { message: error.message, stack: error.stack }, responseTime }, '[health-routes] GET /cloudflare-worker - Error');
+        // Health checks should return status codes, not use error handler
+        res.status(500).json({
+            status: 'unhealthy',
+            service: 'Cloudflare Worker',
+            connected: false,
+            responseTime: `${responseTime}ms`,
+            error: error.message,
+            errorCode: ERROR_CODES.EXTERNAL_SERVICE_ERROR,
+            timestamp: new Date().toISOString()
+        });
+    }
+});
+
+/**
+ * Comprehensive health check - checks all services
+ * GET /api/health/comprehensive
+ */
+router.get('/comprehensive', async (req, res) => {
+    const checks = {
+        database: { status: 'unknown', responseTime: null, error: null },
+        openai: { status: 'unknown', responseTime: null, error: null },
+        cloudflareWorker: { status: 'unknown', responseTime: null, error: null }
+    };
+    
+    let overallStatus = 'healthy';
+    
+    // Check database
+    try {
+        const dbStart = Date.now();
+        await db.collection('users').limit(1).get();
+        checks.database = {
+            status: 'healthy',
+            responseTime: Date.now() - dbStart
+        };
+    } catch (error) {
+        checks.database = {
+            status: 'unhealthy',
+            error: error.message
+        };
+        overallStatus = 'unhealthy';
+    }
+    
+    // Check OpenAI (if configured)
+    if (process.env.OPENAI_API_KEY) {
+        try {
+            const openaiStart = Date.now();
+            const response = await fetch('https://api.openai.com/v1/models', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
+                },
+                signal: AbortSignal.timeout(5000)
+            });
+            checks.openai = {
+                status: response.ok ? 'healthy' : 'unhealthy',
+                responseTime: Date.now() - openaiStart,
+                httpStatus: response.status
+            };
+            if (!response.ok) overallStatus = 'unhealthy';
+        } catch (error) {
+            checks.openai = {
+                status: 'unhealthy',
+                error: error.message
+            };
+            overallStatus = 'unhealthy';
+        }
+    } else {
+        checks.openai = {
+            status: 'not_configured',
+            message: 'OPENAI_API_KEY not set'
+        };
+    }
+    
+    // Check Cloudflare Worker
+    try {
+        const workerStart = Date.now();
+        const response = await fetch('https://spspec.shalom-cohen-111.workers.dev/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ stage: 'overview', locale: 'en-US', prompt: { system: 'Test', developer: 'Test', user: 'Test' } }),
+            signal: AbortSignal.timeout(10000)
+        });
+        checks.cloudflareWorker = {
+            status: response.status < 500 ? 'healthy' : 'unhealthy',
+            responseTime: Date.now() - workerStart,
+            httpStatus: response.status
+        };
+        if (response.status >= 500) overallStatus = 'unhealthy';
+    } catch (error) {
+        checks.cloudflareWorker = {
+            status: 'unhealthy',
+            error: error.message
+        };
+        overallStatus = 'unhealthy';
+    }
+    
+    const statusCode = overallStatus === 'healthy' ? 200 : 503;
+    res.status(statusCode).json({
+        status: overallStatus,
+        timestamp: new Date().toISOString(),
+        checks
+    });
 });
 
 /**

@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const FormData = require('form-data');
+const { createError, ERROR_CODES } = require('./error-handler');
+const { logger } = require('./logger');
 
 // Use built-in fetch for Node.js 18+ or fallback to node-fetch
 let fetch;
@@ -26,29 +28,31 @@ const sessionSummaries = new Map();
  * POST /api/live-brief/transcribe-audio
  * Accept audio file and transcribe using OpenAI Whisper API
  */
-router.post('/transcribe-audio', upload.single('audio'), async (req, res) => {
-  const requestId = `transcribe-audio-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+router.post('/transcribe-audio', upload.single('audio'), async (req, res, next) => {
+  const requestId = req.requestId || `transcribe-audio-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   const startTime = Date.now();
+  logger.info({ requestId }, '[live-brief-routes] POST /transcribe-audio - Starting audio transcription');
   
   try {
     if (!req.file) {
-      return res.status(400).json({ error: 'Audio file is required' });
+      logger.warn({ requestId }, '[live-brief-routes] Audio file is required');
+      return next(createError('Audio file is required', ERROR_CODES.MISSING_REQUIRED_FIELD, 400));
     }
     
     const { sessionId } = req.body;
     
     if (!sessionId) {
-      return res.status(400).json({ error: 'sessionId is required' });
+      logger.warn({ requestId }, '[live-brief-routes] sessionId is required');
+      return next(createError('sessionId is required', ERROR_CODES.MISSING_REQUIRED_FIELD, 400));
     }
     
-    console.log(`[${requestId}] Processing audio for session: ${sessionId}`);
-    console.log(`[${requestId}] Audio size: ${req.file.size} bytes`);
-    console.log(`[${requestId}] Audio type: ${req.file.mimetype}`);
+    logger.debug({ requestId, sessionId, audioSize: req.file.size, audioType: req.file.mimetype }, '[live-brief-routes] Processing audio');
     
     // Transcribe using OpenAI Whisper API
     const transcript = await transcribeWithWhisper(req.file.buffer, req.file.mimetype, requestId);
     
     if (!transcript || transcript.trim().length === 0) {
+      logger.debug({ requestId }, '[live-brief-routes] Empty transcript');
       return res.json({
         transcript: '',
         sessionId: sessionId
@@ -56,8 +60,7 @@ router.post('/transcribe-audio', upload.single('audio'), async (req, res) => {
     }
     
     const processingTime = Date.now() - startTime;
-    console.log(`[${requestId}] Transcription completed in ${processingTime}ms`);
-    console.log(`[${requestId}] Transcript length: ${transcript.length} characters`);
+    logger.info({ requestId, processingTime, transcriptLength: transcript.length }, '[live-brief-routes] POST /transcribe-audio - Success');
     
     res.json({
       transcript: transcript,
@@ -65,11 +68,11 @@ router.post('/transcribe-audio', upload.single('audio'), async (req, res) => {
     });
     
   } catch (error) {
-    console.error(`[${requestId}] Error transcribing audio:`, error);
-    res.status(500).json({
-      error: 'Failed to transcribe audio',
+    const processingTime = Date.now() - startTime;
+    logger.error({ requestId, error: { message: error.message, stack: error.stack }, processingTime }, '[live-brief-routes] POST /transcribe-audio - Error');
+    next(createError('Failed to transcribe audio', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, {
       details: error.message
-    });
+    }));
   }
 });
 
@@ -77,15 +80,17 @@ router.post('/transcribe-audio', upload.single('audio'), async (req, res) => {
  * POST /api/live-brief/transcribe
  * Accept transcript chunks and return updated summary
  */
-router.post('/transcribe', async (req, res) => {
-  const requestId = `transcribe-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+router.post('/transcribe', async (req, res, next) => {
+  const requestId = req.requestId || `transcribe-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   const startTime = Date.now();
+  logger.info({ requestId }, '[live-brief-routes] POST /transcribe - Processing transcript');
   
   try {
     const { sessionId, fullTranscript } = req.body;
     
     if (!sessionId) {
-      return res.status(400).json({ error: 'sessionId is required' });
+      logger.warn({ requestId }, '[live-brief-routes] sessionId is required');
+      return next(createError('sessionId is required', ERROR_CODES.MISSING_REQUIRED_FIELD, 400));
     }
     
     if (!fullTranscript || fullTranscript.trim().length === 0) {
@@ -95,8 +100,7 @@ router.post('/transcribe', async (req, res) => {
       });
     }
     
-    console.log(`[${requestId}] Processing transcript for session: ${sessionId}`);
-    console.log(`[${requestId}] Transcript length: ${fullTranscript.length} characters`);
+    logger.debug({ requestId, sessionId, transcriptLength: fullTranscript?.length || 0 }, '[live-brief-routes] Processing transcript');
     
     // Generate summary using OpenAI
     const summary = await generateSummary(fullTranscript, requestId);
@@ -109,7 +113,7 @@ router.post('/transcribe', async (req, res) => {
     });
     
     const processingTime = Date.now() - startTime;
-    console.log(`[${requestId}] Summary generated in ${processingTime}ms`);
+    logger.info({ requestId, processingTime }, '[live-brief-routes] POST /transcribe - Success');
     
     res.json({
       summary,
@@ -117,11 +121,11 @@ router.post('/transcribe', async (req, res) => {
     });
     
   } catch (error) {
-    console.error(`[${requestId}] Error processing transcript:`, error);
-    res.status(500).json({
-      error: 'Failed to process transcript',
+    const processingTime = Date.now() - startTime;
+    logger.error({ requestId, error: { message: error.message, stack: error.stack }, processingTime }, '[live-brief-routes] POST /transcribe - Error');
+    next(createError('Failed to process transcript', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, {
       details: error.message
-    });
+    }));
   }
 });
 
@@ -130,20 +134,20 @@ router.post('/transcribe', async (req, res) => {
  * Convert summary + full transcript to 3 answers format
  * Answer 3 = full transcript text
  */
-router.post('/convert-to-answers', async (req, res) => {
-  const requestId = `convert-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+router.post('/convert-to-answers', async (req, res, next) => {
+  const requestId = req.requestId || `convert-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   const startTime = Date.now();
+  logger.info({ requestId }, '[live-brief-routes] POST /convert-to-answers - Converting to answers');
   
   try {
     const { summary, fullTranscript } = req.body;
     
     if (!summary && !fullTranscript) {
-      return res.status(400).json({ error: 'summary or fullTranscript is required' });
+      logger.warn({ requestId }, '[live-brief-routes] summary or fullTranscript is required');
+      return next(createError('summary or fullTranscript is required', ERROR_CODES.MISSING_REQUIRED_FIELD, 400));
     }
     
-    console.log(`[${requestId}] Converting to answers`);
-    console.log(`[${requestId}] Summary length: ${summary?.length || 0}`);
-    console.log(`[${requestId}] Transcript length: ${fullTranscript?.length || 0}`);
+    logger.debug({ requestId, summaryLength: summary?.length || 0, transcriptLength: fullTranscript?.length || 0 }, '[live-brief-routes] Converting to answers');
     
     // Extract answer1 and answer2 from summary using AI
     let answer1 = '';
@@ -161,19 +165,18 @@ router.post('/convert-to-answers', async (req, res) => {
     const answers = [answer1, answer2, answer3];
     
     const processingTime = Date.now() - startTime;
-    console.log(`[${requestId}] Answers extracted in ${processingTime}ms`);
-    console.log(`[${requestId}] Answer lengths: [${answer1.length}, ${answer2.length}, ${answer3.length}]`);
+    logger.info({ requestId, processingTime, answerLengths: [answer1.length, answer2.length, answer3.length] }, '[live-brief-routes] POST /convert-to-answers - Success');
     
     res.json({
       answers
     });
     
   } catch (error) {
-    console.error(`[${requestId}] Error converting to answers:`, error);
-    res.status(500).json({
-      error: 'Failed to convert to answers',
+    const processingTime = Date.now() - startTime;
+    logger.error({ requestId, error: { message: error.message, stack: error.stack }, processingTime }, '[live-brief-routes] POST /convert-to-answers - Error');
+    next(createError('Failed to convert to answers', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, {
       details: error.message
-    });
+    }));
   }
 });
 

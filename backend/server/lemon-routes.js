@@ -10,6 +10,8 @@ if (typeof globalThis.fetch === 'function') {
   fetch = require('node-fetch');
 }
 const { auth, db, admin } = require('./firebase-admin');
+const { createError, ERROR_CODES } = require('./error-handler');
+const { logger } = require('./logger');
 const { verifyWebhookSignature, parseWebhookPayload } = require('./lemon-webhook-utils');
 const { recordTestPurchase, getTestPurchaseCount } = require('./lemon-credits-service');
 const { getProductByKey, getProductByVariantId, getProductKeyByVariantId } = require('./lemon-products-config');
@@ -27,21 +29,23 @@ const {
  * Middleware to verify Firebase ID token
  */
 async function verifyFirebaseToken(req, res, next) {
-  let requestId = null;
+  logger.debug({ path: req.path }, '[lemon-routes] Verifying Firebase token');
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ error: 'No valid authorization header' });
+      logger.warn({ path: req.path }, '[lemon-routes] No valid authorization header');
+      return next(createError('No valid authorization header', ERROR_CODES.UNAUTHORIZED, 401));
     }
 
     const idToken = authHeader.split('Bearer ')[1];
     const decodedToken = await auth.verifyIdToken(idToken);
 
+    logger.debug({ userId: decodedToken.uid, path: req.path }, '[lemon-routes] Token verified successfully');
     req.user = decodedToken;
     next();
   } catch (error) {
-    console.error('Error verifying Firebase token:', error);
-    res.status(401).json({ error: 'Invalid token' });
+    logger.error({ error: error.message, path: req.path }, '[lemon-routes] Token verification failed');
+    next(createError('Invalid token', ERROR_CODES.INVALID_TOKEN, 401));
   }
 }
 
@@ -49,7 +53,7 @@ async function verifyFirebaseToken(req, res, next) {
  * POST /api/lemon/checkout
  * Creates a checkout session with Lemon Squeezy
  */
-router.post('/checkout', express.json(), verifyFirebaseToken, async (req, res) => {
+router.post('/checkout', express.json(), verifyFirebaseToken, async (req, res, next) => {
   try {
     const userId = req.user.uid;
     const userEmail = req.user.email;
@@ -66,32 +70,32 @@ router.post('/checkout', express.json(), verifyFirebaseToken, async (req, res) =
     const defaultVariantId = process.env.LEMON_SQUEEZY_VARIANT_ID;
 
     if (!apiKey || !storeId) {
-      return res.status(500).json({ 
-        error: 'Lemon Squeezy configuration missing',
+      logger.error({ userId }, '[lemon-routes] Lemon Squeezy configuration missing');
+      return next(createError('Lemon Squeezy configuration missing', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, {
         details: 'Please configure LEMON_SQUEEZY_API_KEY and LEMON_SQUEEZY_STORE_ID in Render environment variables',
         missing: {
           apiKey: !apiKey,
           storeId: !storeId
         }
-      });
+      }));
     }
 
     const productConfig = productKey ? getProductByKey(productKey) : null;
     const variantIdToUse = productConfig?.variant_id || defaultVariantId;
 
     if (!variantIdToUse) {
-      return res.status(500).json({
-        error: 'Lemon Squeezy variant configuration missing',
+      logger.error({ userId, productKey }, '[lemon-routes] Lemon Squeezy variant configuration missing');
+      return next(createError('Lemon Squeezy variant configuration missing', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, {
         details: 'No variant ID provided. Ensure LEMON_SQUEEZY_VARIANT_ID is set or supply a valid productKey.',
         productKey
-      });
+      }));
     }
 
     if (productKey && !productConfig) {
-      return res.status(400).json({
-        error: 'Invalid product key',
+      logger.warn({ userId, productKey }, '[lemon-routes] Invalid product key');
+      return next(createError('Invalid product key', ERROR_CODES.INVALID_INPUT, 400, {
         details: `Product key "${productKey}" not found in lemon-products configuration`
-      });
+      }));
     }
 
     console.log('=== Lemon Checkout Request ===');
@@ -213,19 +217,19 @@ router.post('/checkout', express.json(), verifyFirebaseToken, async (req, res) =
         }
       }
       
-      return res.status(response.status).json({ 
-        error: errorMessage,
-        details: errorDetails
-      });
+      logger.error({ userId, errorData, variantId: variantIdToUse, storeId }, '[lemon-routes] Lemon Squeezy API error');
+      return next(createError(errorMessage, ERROR_CODES.EXTERNAL_SERVICE_ERROR, response.status || 500, errorDetails));
     }
 
     const responseData = await response.json();
     const checkoutUrlValue = responseData.data?.attributes?.url;
 
     if (!checkoutUrlValue) {
-      return res.status(500).json({ error: 'No checkout URL in response' });
+      logger.error({ userId }, '[lemon-routes] No checkout URL in response');
+      return next(createError('No checkout URL in response', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500));
     }
 
+    logger.info({ userId, checkoutUrl: checkoutUrlValue }, '[lemon-routes] POST /checkout - Success');
     res.json({
       success: true,
       checkoutUrl: checkoutUrlValue,
@@ -248,11 +252,11 @@ router.post('/checkout', express.json(), verifyFirebaseToken, async (req, res) =
     });
 
   } catch (error) {
-    console.error('Error creating checkout:', error);
-    res.status(500).json({ 
-      error: 'Failed to create checkout',
-      details: error.message 
-    });
+    const requestId = req.requestId || `lemon-checkout-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    logger.error({ requestId, userId: req.user?.uid, error: { message: error.message, stack: error.stack } }, '[lemon-routes] POST /checkout - Error');
+    next(createError('Failed to create checkout', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, {
+      details: error.message
+    }));
   }
 });
 
@@ -260,33 +264,31 @@ router.post('/checkout', express.json(), verifyFirebaseToken, async (req, res) =
  * POST /api/lemon/subscription/cancel
  * Cancel current Lemon Squeezy subscription for authenticated user
  */
-router.post('/subscription/cancel', express.json(), verifyFirebaseToken, async (req, res) => {
+router.post('/subscription/cancel', express.json(), verifyFirebaseToken, async (req, res, next) => {
+  const requestId = req.requestId || `lemon-cancel-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  logger.info({ requestId, userId: req.user?.uid }, '[lemon-routes] POST /subscription/cancel - Cancelling subscription');
+  
   try {
     const userId = req.user.uid;
     const userEmail = req.user.email;
     const reason = req.body?.reason || 'user_requested';
     const cancelImmediately = req.body?.cancelImmediately === true;
 
-    console.log('[LEMON][CANCEL] Cancellation requested', {
-      userId,
-      userEmail,
-      reason,
-      cancelImmediately
-    });
+    logger.debug({ requestId, userId, userEmail, reason, cancelImmediately }, '[lemon-routes] Cancellation requested');
 
     const apiKey = process.env.LEMON_SQUEEZY_API_KEY;
     if (!apiKey) {
-      return res.status(500).json({
-        error: 'Lemon Squeezy configuration missing',
+      logger.error({ requestId }, '[lemon-routes] Lemon Squeezy configuration missing');
+      return next(createError('Lemon Squeezy configuration missing', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, {
         details: 'LEMON_SQUEEZY_API_KEY not configured on server'
-      });
+      }));
     }
 
     const subscriptionDocRef = db.collection('subscriptions').doc(userId);
     const subscriptionDoc = await subscriptionDocRef.get();
     if (!subscriptionDoc.exists) {
-      console.warn('[LEMON][CANCEL] No subscription doc found for user', userId);
-      return res.status(404).json({ error: 'No active subscription found for this user' });
+      logger.warn({ requestId, userId }, '[lemon-routes] No subscription doc found for user');
+      return next(createError('No active subscription found for this user', ERROR_CODES.RESOURCE_NOT_FOUND, 404));
     }
 
     const subscriptionData = subscriptionDoc.data() || {};
@@ -326,11 +328,11 @@ router.post('/subscription/cancel', express.json(), verifyFirebaseToken, async (
         requestId,
         attempts: resolution?.attempts || null
       });
-      return res.status(404).json({
-        error: 'Subscription not found',
+      logger.warn({ requestId, userId }, '[lemon-routes] Subscription not found');
+      return next(createError('Subscription not found', ERROR_CODES.RESOURCE_NOT_FOUND, 404, {
         details: 'לא נמצא מנוי פעיל לחשבון זה או שקיימת חוסר התאמה בין מצב Test/Live, ה-API key או ה-store ID.',
         requestId
-      });
+      }));
     }
 
     const subscriptionId = resolution.subscriptionId;
@@ -505,15 +507,11 @@ router.post('/subscription/cancel', express.json(), verifyFirebaseToken, async (
       requestId
     });
   } catch (error) {
-    console.error('Error cancelling subscription:', {
-      requestId: requestId || null,
-      error: error?.message || error
-    });
-    res.status(500).json({
-      error: 'Failed to cancel subscription',
+    logger.error({ requestId, userId: req.user?.uid, error: { message: error.message, stack: error.stack } }, '[lemon-routes] POST /subscription/cancel - Error');
+    next(createError('Failed to cancel subscription', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, {
       details: error.message,
       requestId: requestId || undefined
-    });
+    }));
   }
 });
 
@@ -523,10 +521,11 @@ router.post('/subscription/cancel', express.json(), verifyFirebaseToken, async (
  * Note: This endpoint does NOT require Firebase auth (Lemon Squeezy calls it directly)
  * Note: This route must be registered BEFORE express.json() middleware to access raw body
  */
-router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' }), async (req, res) => {
+router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' }), async (req, res, next) => {
+  const webhookRequestId = req.headers['x-request-id'] || `webhook-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  logger.info({ webhookRequestId }, '[lemon-routes] POST /webhook - Webhook received');
+  
   try {
-    console.log('=== Webhook Received ===');
-    console.log('Headers:', JSON.stringify(req.headers, null, 2));
     
     // Get webhook signature
     const signature = req.headers['x-signature'];
@@ -538,18 +537,18 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
       console.error('Secret:', secret ? 'Present' : 'Missing');
       console.error('Environment variable LEMON_WEBHOOK_SECRET is:', secret ? `Set (length: ${secret.length})` : 'NOT SET');
       console.error('Please ensure LEMON_WEBHOOK_SECRET=testpassword123 is set in Render environment variables');
-      return res.status(401).json({ error: 'Unauthorized' });
+      logger.warn({}, '[lemon-routes] Webhook unauthorized - missing signature or secret');
+      return next(createError('Unauthorized', ERROR_CODES.UNAUTHORIZED, 401));
     }
 
     // Get raw body for signature verification
     const payload = req.body.toString('utf8');
-    console.log('Payload length:', payload.length);
-    console.log('Payload preview:', payload.substring(0, 500));
+    logger.debug({ payloadLength: payload.length }, '[lemon-routes] Webhook payload received');
     
     // Verify signature
     if (!verifyWebhookSignature(payload, signature, secret)) {
-      console.error('❌ Invalid webhook signature');
-      return res.status(401).json({ error: 'Invalid signature' });
+      logger.warn({}, '[lemon-routes] Webhook invalid signature');
+      return next(createError('Invalid signature', ERROR_CODES.UNAUTHORIZED, 401));
     }
 
     console.log('✅ Webhook signature verified');
@@ -864,9 +863,9 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
     res.status(200).json({ received: true, handled: true });
 
   } catch (error) {
-    console.error('Error processing webhook:', error);
-    // Still return 200 to prevent Lemon Squeezy from retrying
-    res.status(200).json({ received: true, error: error.message });
+    logger.error({ webhookRequestId, error: { message: error.message, stack: error.stack } }, '[lemon-routes] POST /webhook - Error');
+    // Still return 200 to prevent Lemon Squeezy from retrying (webhooks should not use error handler)
+    res.status(200).json({ received: true, error: error.message, requestId: webhookRequestId });
   }
 });
 
@@ -875,19 +874,20 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
  * Get total test purchase count
  * Public endpoint (no auth required)
  */
-router.get('/counter', async (req, res) => {
+router.get('/counter', async (req, res, next) => {
   try {
     const count = await getTestPurchaseCount();
+    logger.info({ count }, '[lemon-routes] GET /counter - Success');
     res.json({
       success: true,
       count: count
     });
   } catch (error) {
-    console.error('Error getting counter:', error);
-    res.status(500).json({ 
-      error: 'Failed to get counter',
-      details: error.message 
-    });
+    const requestId = req.requestId || `lemon-counter-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[lemon-routes] GET /counter - Error');
+    next(createError('Failed to get counter', ERROR_CODES.DATABASE_ERROR, 500, {
+      details: error.message
+    }));
   }
 });
 
