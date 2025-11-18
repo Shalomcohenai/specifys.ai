@@ -815,20 +815,20 @@ Create an EXTREMELY DETAILED, PRACTICAL development prompt that guides a develop
 }
 
 CRITICAL REQUIREMENTS FOR FULLPROMPT:
-- MUST be EXTREMELY DETAILED (20000-40000+ characters) - this is not optional
+- MUST be EXTREMELY DETAILED (MINIMUM 25000 characters, ideally 30000-50000+ characters) - this is not optional
 - MUST be organized in EXACTLY 10 DEVELOPMENT STAGES as shown in the template above
 - MUST follow the exact order: Stage 1 → Stage 2 → ... → Stage 10
 - MUST replace ALL placeholders in brackets [LIKE_THIS] with actual values from the specifications:
   * [APPLICATION_NAME] → actual app name from overview
-  * [APPLICATION_DESCRIPTION] → ideaSummary from overview
+  * [APPLICATION_DESCRIPTION] → ideaSummary from overview (use the FULL text, not a summary)
   * [FRAMEWORK] → exact framework from tech stack (e.g., "Next.js 14")
   * [CSS_FRAMEWORK] → exact CSS framework (e.g., "Tailwind CSS 3.4")
   * [AUTH_LIBRARY] → exact auth library (e.g., "NextAuth.js v5")
   * [BACKEND_FRAMEWORK] → exact backend framework (e.g., "Express.js 4.21")
   * [DATABASE_TYPE] → exact database (e.g., "PostgreSQL 15")
   * [ORM] → exact ORM (e.g., "Prisma 5.11")
-  * [MAIN_FEATURE_1], [MAIN_FEATURE_2] → actual features from overview.coreFeaturesOverview
-  * [MAIN_ENTITY_1], [MAIN_ENTITY_2] → actual entities from databaseSchema.tables
+  * [MAIN_FEATURE_1], [MAIN_FEATURE_2] → actual features from overview.coreFeaturesOverview (include ALL features, not just 2)
+  * [MAIN_ENTITY_1], [MAIN_ENTITY_2] → actual entities from databaseSchema.tables (include ALL entities, not just 2)
   * [SERVICE_NAME] → actual third-party services from integrationExternalApis
   * [CLOUD_PLATFORM] → actual deployment platform from devops
   * [MONITORING_TOOL] → actual monitoring tool from devops
@@ -837,7 +837,7 @@ CRITICAL REQUIREMENTS FOR FULLPROMPT:
 - MUST provide detailed sub-steps (1.1, 1.2, etc.) for each stage
 - MUST focus on OPERATIONAL DETAILS, not high-level concepts
 - MUST include exact implementation details: function signatures, component props, API formats, database schemas
-- MUST cover EVERY page with ALL its UI components (from overview.screenDescriptions)
+- MUST cover EVERY page with ALL its UI components (from overview.screenDescriptions.screens - include ALL screens mentioned)
 - MUST detail EVERY function with exact parameters and logic
 - MUST explain HOW data models connect (relationships, not just definitions)
 - MUST provide step-by-step flows for ALL processes (authentication, user journeys, etc.)
@@ -845,11 +845,48 @@ CRITICAL REQUIREMENTS FOR FULLPROMPT:
 - MUST NOT include high-level concepts like "User Experience Principles" or abstract descriptions
 - MUST be practical and actionable - a developer should be able to build the app exactly as imagined from this prompt
 - MUST be in English
+
+MANDATORY CONTENT INCLUSION - YOU MUST INCLUDE ALL OF THE FOLLOWING FROM THE SPECIFICATIONS:
+
+FROM OVERVIEW SPECIFICATION:
+- Include the COMPLETE ideaSummary (all 500-1500 characters) - do not summarize or shorten it
+- Include the COMPLETE problemStatement (all 2-3 paragraphs) - explain the problem in detail
+- Include ALL targetAudience details: ageRange, sector, ALL interests (5-7 items), ALL needs (5-7 items)
+- Include the COMPLETE valueProposition (2-3 sentences explaining uniqueness)
+- Include ALL coreFeaturesOverview items (6-8 features) - list each feature with its description
+- Include the COMPLETE userJourneySummary (4-5 sentences describing the full flow)
+- Include ALL detailedUserFlow details: ALL steps, decisionPoints, errorHandling, confirmations, feedbackLoops
+- Include ALL screens from screenDescriptions.screens (5-7 screens) - describe each screen with its purpose, key elements, and user interactions
+- Include ALL uiComponents from screenDescriptions.uiComponents (at least 3 components) - describe each component's purpose, placement, and behavior
+- Include the COMPLETE navigationStructure - describe all navigation paths, side navigation, bottom navigation, modal flows, deep linking
+- Include complexityScore values: architecture, integrations, functionality, userSystem
+
+FROM TECHNICAL SPECIFICATION:
+- Include ALL technologies from techStack: frontend, backend, database, authentication, and ALL other services
+- Include ALL entities from databaseSchema.tables - list EVERY table with ALL its fields, data types, constraints, and relationships
+- Include ALL API endpoints from apiEndpoints - describe each endpoint with method, path, parameters, request body, response format
+- Include ALL security requirements: authentication methods, authorization rules, data encryption, rate limiting
+- Include ALL third-party integrations from integrationExternalApis - describe each integration's purpose, setup, and usage
+- Include ALL environment variables needed
+- Include ALL deployment configurations from devops
+- Include ALL monitoring and logging requirements
+
+FROM DESIGN SPECIFICATION:
+- Include ALL colors from visualStyleGuide.colors - list each color with its hex code and usage
+- Include ALL typography details: font families, sizes, weights, line heights
+- Include ALL spacing values and layout grid system
+- Include ALL component specifications: buttons, inputs, cards, modals, etc.
+- Include ALL responsive breakpoints
+- Include ALL animation and transition specifications
+
+CRITICAL: Do NOT create generic or placeholder content. Every single detail must come from the actual specifications provided. If a detail exists in the specifications, it MUST appear in the prompt. If you find yourself writing generic descriptions like "build a component" or "implement a feature", STOP and replace it with the SPECIFIC details from the specifications.
+
 - MUST adapt stages 5, 6, and 8 based on whether those features exist in the spec:
   * Stage 5 (AI) - only if AI features are mentioned
   * Stage 6 (Real-time) - only if real-time features are mentioned
   * Stage 8 (Mobile) - only if mobile app is mentioned
 - The prompt should be so detailed that it leads to perfect results on the first implementation attempt
+- If the prompt is less than 25000 characters, you have NOT included enough detail - expand each section with more specific implementation details from the specifications
 
 CRITICAL REQUIREMENTS FOR THIRD-PARTY INTEGRATIONS:
 - thirdPartyIntegrations MUST identify ALL third-party services mentioned in technical specification

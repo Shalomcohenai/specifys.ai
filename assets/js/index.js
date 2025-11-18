@@ -981,7 +981,7 @@ async function generateSpecification() {
     // Check if answers exist and are valid (support both 3 and 4 answers for compatibility)
     if (!answers || (answers.length !== 3 && answers.length !== 4)) {
       hideLoadingOverlay();
-      alert('Error: Invalid answers provided. Please provide answers to all questions.');
+      alert('Error: Invalid answers provided. Please provide answers to all required questions.');
       return;
     }
     

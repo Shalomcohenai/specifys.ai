@@ -114,7 +114,7 @@
     <!-- Library Loader - for conditional loading of external libraries -->
     <script src="/assets/js/lib-loader.js"></script>
     
-    <!-- Load required libraries: mermaid and marked -->
+    <!-- Load required libraries: mermaid, marked, and mind-elixir -->
     <script>
       document.addEventListener('DOMContentLoaded', function() {
         window.LibraryLoader.loadLibraries(['mermaid', 'marked']).then(function() {
@@ -124,6 +124,9 @@
         });
       });
     </script>
+    
+    <!-- MindElixir Library - Loaded dynamically when needed -->
+    <!-- The library will be loaded by ensureMindElixirLoaded() function when Mind Map is generated -->
     
     <!-- Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-RWBT69JCM7"></script>
@@ -260,6 +263,14 @@
                     </span>
                 </button>
                 <div class="side-menu-submenu" id="submenu-technical"></div>
+            </div>
+            
+            <div class="side-menu-item" data-tab="mindmap" style="display: none;">
+                <button class="side-menu-button" onclick="showTab('mindmap')" id="mindmapTab" disabled>
+                    <i class="fa fa-project-diagram"></i>
+                    <span class="side-menu-notification-dot" id="mindmapNotification" style="display: none;"></span>
+                    <span class="side-menu-text">Mind Map</span>
+                </button>
             </div>
             
             <div class="side-menu-item" data-tab="market">
@@ -402,6 +413,21 @@
                 <div id="technical-data" class="content-body"></div>
             </div>
             
+            <div id="mindmap-content" class="tab-content" style="display: none;">
+                <div class="content-header">
+                    <h2><i class="fa fa-project-diagram"></i> Mind Map</h2>
+                    <button id="generateMindMapBtn" class="btn btn-primary retry-btn" onclick="generateMindMap()">
+                        <i class="fa fa-magic"></i> Generate Mind Map
+                    </button>
+                    <button id="retryMindMapBtn" class="btn btn-secondary retry-btn" onclick="retryMindMap()" style="display: none;">
+                        <i class="fa fa-refresh"></i> Regenerate
+                    </button>
+                </div>
+                <div id="mindmap-data" class="content-body">
+                    <div id="mindmap-container" style="width: 100%; height: 800px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-color);"></div>
+                </div>
+            </div>
+            
             <div id="market-content" class="tab-content" style="display: none;">
                 <div class="content-header">
                     <h2><i class="fa fa-bar-chart"></i> Market Research</h2>
@@ -528,10 +554,10 @@
                     <!-- כרטיסיות פנימיות -->
                     <div class="export-inner-tabs">
                         <button class="export-inner-tab active" onclick="showExportTab('html')" id="export-html-tab">
-                            <i class="fa fa-file-code"></i> HTML Export
+                            HTML Export
                         </button>
                         <button class="export-inner-tab" onclick="showExportTab('jira')" id="export-jira-tab">
-                            <i class="fa fa-tasks"></i> Jira Export
+                            Jira Export
                         </button>
                     </div>
                     
@@ -552,27 +578,27 @@
                                 
                                 <div class="export-sections-list">
                                     <label class="export-checkbox-label">
-                                        <input type="checkbox" id="export-overview" class="export-checkbox section-checkbox html-checkbox" checked>
+                                        <input type="checkbox" id="export-overview" class="export-checkbox section-checkbox html-checkbox">
                                         <span><i class="fa fa-book"></i> Overview</span>
                                     </label>
                                     
                                     <label class="export-checkbox-label">
-                                        <input type="checkbox" id="export-technical" class="export-checkbox section-checkbox html-checkbox" checked>
+                                        <input type="checkbox" id="export-technical" class="export-checkbox section-checkbox html-checkbox">
                                         <span><i class="fa fa-cog"></i> Technical Specification</span>
                                     </label>
                                     
                                     <label class="export-checkbox-label">
-                                        <input type="checkbox" id="export-market" class="export-checkbox section-checkbox html-checkbox" checked>
+                                        <input type="checkbox" id="export-market" class="export-checkbox section-checkbox html-checkbox">
                                         <span><i class="fa fa-bar-chart"></i> Market Research</span>
                                     </label>
                                     
                                     <label class="export-checkbox-label">
-                                        <input type="checkbox" id="export-design" class="export-checkbox section-checkbox html-checkbox" checked>
+                                        <input type="checkbox" id="export-design" class="export-checkbox section-checkbox html-checkbox">
                                         <span><i class="fa fa-paint-brush"></i> Design & Branding</span>
                                     </label>
                                     
                                     <label class="export-checkbox-label">
-                                        <input type="checkbox" id="export-diagrams" class="export-checkbox section-checkbox html-checkbox" checked>
+                                        <input type="checkbox" id="export-diagrams" class="export-checkbox section-checkbox html-checkbox">
                                         <span><i class="fa fa-sitemap"></i> Diagrams</span>
                                     </label>
                                     
@@ -580,12 +606,17 @@
                                         <input type="checkbox" id="export-prompts" class="export-checkbox section-checkbox html-checkbox">
                                         <span><i class="fa fa-terminal"></i> Development Prompts</span>
                                     </label>
+                                    
+                                    <label class="export-checkbox-label">
+                                        <input type="checkbox" id="export-mockups" class="export-checkbox section-checkbox html-checkbox">
+                                        <span><i class="fa fa-desktop"></i> Mockups</span>
+                                    </label>
                                 </div>
                             </div>
                             
                             <div class="export-actions">
                                 <button id="generate-export-btn" class="btn btn-primary export-generate-btn" onclick="generateExport()">
-                                    <i class="fa fa-file-download"></i> Generate HTML Export
+                                    <i class="fa fa-file-download"></i> Export
                                 </button>
                             </div>
                             
@@ -638,7 +669,7 @@
                             
                             <div class="export-actions">
                                 <button id="generate-jira-btn" class="btn btn-primary export-generate-btn" onclick="generateJiraExport()">
-                                    <i class="fa fa-tasks"></i> Generate Jira Export
+                                    <i class="fa fa-tasks"></i> Export
                                 </button>
                             </div>
                             
@@ -760,6 +791,8 @@ let isLoading = false;
 
 // Worker endpoints configuration
 const MOCKUPS_WORKER_URL = 'https://mockup.shalom-cohen-111.workers.dev/generate';
+const MOCKUPS_ANALYZE_URL = 'https://mockup.shalom-cohen-111.workers.dev/analyze-screens';
+const MOCKUPS_SINGLE_URL = 'https://mockup.shalom-cohen-111.workers.dev/generate-single-mockup';
 
 // OpenAI Storage helper function
 async function triggerOpenAIUploadForSpec(specId) {
@@ -1177,6 +1210,9 @@ function displaySpec(data) {
     displayPromptsFromData(data);
     displayRaw(data);
     
+    // Update export checkboxes based on available sections
+    updateExportCheckboxes();
+    
     // Handle approval state
     if (data.overviewApproved) {
         // Enable AI Chat immediately when overview is approved
@@ -1185,6 +1221,8 @@ function displaySpec(data) {
         // Only enable other tabs if their specs are ready
         if (data.status?.technical === 'ready') {
             document.getElementById('technicalTab').disabled = false;
+            // Enable Mind Map tab when technical is ready
+            document.getElementById('mindmapTab').disabled = false;
         }
         if (data.status?.market === 'ready') {
             document.getElementById('marketTab').disabled = false;
@@ -1504,6 +1542,307 @@ function displayMarket(market) {
     if (marketTab) {
         marketTab.classList.add('generated');
     }
+}
+
+// Drawflow instance
+let drawflowInstance = null;
+let mindMapGenerated = false;
+
+// Initialize Mind Map tab (show placeholder or existing map)
+function initializeMindMapTab() {
+    const container = document.getElementById('mindmap-container');
+    const generateBtn = document.getElementById('generateMindMapBtn');
+    const retryBtn = document.getElementById('retryMindMapBtn');
+    
+    if (!currentSpecData || !currentSpecData.overview || !currentSpecData.technical) {
+        container.innerHTML = '<div class="locked-tab-message"><h3><i class="fa fa-lock"></i> Mind Map</h3><p>Please generate Technical specification first to create the mind map.</p></div>';
+        generateBtn.style.display = 'none';
+        return;
+    }
+    
+    // If mind map already generated, show it
+    if (mindMapGenerated && drawflowInstance) {
+        generateBtn.style.display = 'none';
+        retryBtn.style.display = 'inline-block';
+        return;
+    }
+    
+    // Show placeholder with generate button
+    container.innerHTML = '<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--text-color, #666);"><i class="fa fa-project-diagram" style="font-size: 4em; margin-bottom: 20px; opacity: 0.5;"></i><h3 style="margin-bottom: 10px;">Visualize Your Product Architecture</h3><p style="text-align: center; max-width: 500px;">Click "Generate Mind Map" to create an interactive visualization of your product structure, including features, screens, variables, permissions, integrations, and user flows.</p></div>';
+    generateBtn.style.display = 'inline-block';
+    retryBtn.style.display = 'none';
+}
+
+// Generate Mind Map from worker
+async function generateMindMap() {
+    const container = document.getElementById('mindmap-container');
+    const generateBtn = document.getElementById('generateMindMapBtn');
+    const retryBtn = document.getElementById('retryMindMapBtn');
+    
+    if (!currentSpecData || !currentSpecData.overview || !currentSpecData.technical) {
+        container.innerHTML = '<div class="locked-tab-message"><h3><i class="fa fa-lock"></i> Mind Map</h3><p>Please generate Technical specification first to create the mind map.</p></div>';
+        return;
+    }
+    
+    // Disable generate button and show loading state
+    generateBtn.disabled = true;
+            generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Exporting...';
+    retryBtn.style.display = 'none';
+    
+    // Show loading state
+    container.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%;"><i class="fa fa-spinner fa-spin" style="font-size: 2em; color: var(--primary-color);"></i><span style="margin-left: 15px;">Generating mind map...</span></div>';
+    
+    try {
+        // Worker URL
+        const WORKER_URL = 'https://generate-mindmap.shalom-cohen-111.workers.dev/';
+        
+        const response = await fetch(WORKER_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                overview: currentSpecData.overview,
+                technical: currentSpecData.technical
+            })
+        });
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Worker returned ${response.status}: ${errorText || response.statusText}`);
+        }
+        
+        const result = await response.json();
+        
+        if (result.error) {
+            throw new Error(result.error.message || 'Failed to generate mind map');
+        }
+        
+        if (!result.mindMap) {
+            throw new Error('Invalid mind map data received - no mindMap field');
+        }
+        
+        console.log('Mind map result from worker:', result);
+        
+        // Display the mind map
+        await displayMindMap(result.mindMap);
+        
+        // Mark as generated and update buttons
+        mindMapGenerated = true;
+        generateBtn.style.display = 'none';
+        retryBtn.style.display = 'inline-block';
+        
+        // Mark tab as generated
+        const mindmapTab = document.getElementById('mindmapTab');
+        if (mindmapTab) {
+            mindmapTab.classList.add('generated');
+        }
+        
+        showNotification('Mind map generated successfully!', 'success');
+        
+    } catch (error) {
+        console.error('Error generating mind map:', error);
+        container.innerHTML = `<div class="locked-tab-message"><h3><i class="fa fa-exclamation-triangle"></i> Error Generating Mind Map</h3><p>${error.message || 'There was an error generating the mind map. Please try again.'}</p></div>`;
+        generateBtn.disabled = false;
+        generateBtn.innerHTML = '<i class="fa fa-magic"></i> Generate Mind Map';
+        retryBtn.style.display = 'inline-block';
+        showNotification('Failed to generate mind map. Please try again.', 'error');
+    }
+}
+
+// Load Mind Map from worker (kept for retry functionality)
+async function loadMindMap() {
+    await generateMindMap();
+}
+
+// Load Drawflow library dynamically if not already loaded
+async function ensureDrawflowLoaded() {
+    if (typeof Drawflow !== 'undefined') {
+        return Promise.resolve();
+    }
+    
+    return new Promise((resolve, reject) => {
+        // Check if script is already being loaded
+        if (document.querySelector('script[src*="drawflow"]')) {
+            // Wait for it to load
+            const checkInterval = setInterval(() => {
+                if (typeof Drawflow !== 'undefined') {
+                    clearInterval(checkInterval);
+                    resolve();
+                }
+            }, 100);
+            
+            // Timeout after 10 seconds
+            setTimeout(() => {
+                clearInterval(checkInterval);
+                reject(new Error('Drawflow library failed to load'));
+            }, 10000);
+        } else {
+            // Load Drawflow from CDN
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = 'https://cdn.jsdelivr.net/gh/jerosoler/Drawflow/dist/drawflow.min.css';
+            document.head.appendChild(link);
+            
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/gh/jerosoler/Drawflow/dist/drawflow.min.js';
+            script.onload = () => {
+                // Wait a bit for the library to fully initialize
+                setTimeout(() => {
+                    if (typeof Drawflow !== 'undefined') {
+                        resolve();
+                    } else {
+                        reject(new Error('Drawflow loaded but not available'));
+                    }
+                }, 200);
+            };
+            script.onerror = () => reject(new Error('Failed to load Drawflow library from CDN. Please check your internet connection.'));
+            document.head.appendChild(script);
+        }
+    });
+}
+
+// Convert MindElixir format to Drawflow format
+function convertToDrawflow(mindElixirData) {
+    if (!mindElixirData || !mindElixirData.nodeData) {
+        throw new Error('Invalid MindElixir data format');
+    }
+    
+    const drawflowData = {
+        drawflow: {
+            Home: {
+                data: {}
+            }
+        }
+    };
+    
+    let nodeId = 1;
+    const nodeMap = new Map(); // Map from original id to new node id
+    
+    function processNode(node, parentId = null, level = 0) {
+        const currentNodeId = nodeId++;
+        const nodeName = node.id || `node-${currentNodeId}`;
+        const nodeLabel = node.topic || node.name || 'Untitled';
+        
+        // Calculate position based on level and order
+        const posX = 100 + (level * 300);
+        const posY = 100 + ((currentNodeId - 1) * 150);
+        
+        const drawflowNode = {
+            id: currentNodeId,
+            name: nodeName,
+            data: {
+                label: nodeLabel
+            },
+            class: level === 0 ? 'product' : level === 1 ? 'category' : 'item',
+            html: `<div class="title-box" style="padding: 10px; background: ${level === 0 ? '#FF6B35' : level === 1 ? '#4A90E2' : '#7B68EE'}; color: white; border-radius: 5px; text-align: center; min-width: 150px;">${nodeLabel}</div>`,
+            typenode: false,
+            inputs: {},
+            outputs: {},
+            pos_x: posX,
+            pos_y: posY
+        };
+        
+        // Add input connection if has parent
+        if (parentId !== null) {
+            drawflowNode.inputs = {
+                input_1: {
+                    connections: [{
+                        node: parentId.toString(),
+                        output: 'output_1'
+                    }]
+                }
+            };
+        }
+        
+        // Add output connections if has children
+        if (node.children && node.children.length > 0) {
+            drawflowNode.outputs = {
+                output_1: {
+                    connections: []
+                }
+            };
+        }
+        
+        nodeMap.set(node.id || currentNodeId, currentNodeId);
+        drawflowData.drawflow.Home.data[currentNodeId.toString()] = drawflowNode;
+        
+        // Process children
+        if (node.children && node.children.length > 0) {
+            node.children.forEach((child, index) => {
+                const childNodeId = processNode(child, currentNodeId, level + 1);
+                // Add connection from parent to child
+                if (drawflowNode.outputs.output_1) {
+                    drawflowNode.outputs.output_1.connections.push({
+                        node: childNodeId.toString(),
+                        input: 'input_1'
+                    });
+                }
+            });
+        }
+        
+        return currentNodeId;
+    }
+    
+    // Process root node
+    processNode(mindElixirData.nodeData);
+    
+    return drawflowData;
+}
+
+// Display Mind Map using Drawflow
+async function displayMindMap(data) {
+    const container = document.getElementById('mindmap-container');
+    
+    // Show loading state
+    container.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%;"><i class="fa fa-spinner fa-spin" style="font-size: 2em; color: var(--primary-color);"></i><span style="margin-left: 15px;">Loading flow diagram viewer...</span></div>';
+    
+    try {
+        // Ensure Drawflow is loaded
+        await ensureDrawflowLoaded();
+        
+        // Clear container
+        container.innerHTML = '<div id="drawflow"></div>';
+        const drawflowElement = document.getElementById('drawflow');
+        
+        // Initialize Drawflow
+        drawflowInstance = new Drawflow(drawflowElement);
+        drawflowInstance.start();
+        
+        // Convert data format if needed
+        let drawflowData;
+        console.log('Data received:', data);
+        
+        if (!data) {
+            throw new Error('No data received from worker');
+        }
+        
+        // Check if data is already in Drawflow format
+        if (data.drawflow && data.drawflow.Home && data.drawflow.Home.data) {
+            drawflowData = data;
+        } else if (data.nodeData) {
+            // Convert from MindElixir format to Drawflow
+            console.log('Converting MindElixir format to Drawflow...');
+            drawflowData = convertToDrawflow(data);
+        } else {
+            throw new Error(`Unknown data format. Expected drawflow or nodeData structure. Got: ${JSON.stringify(Object.keys(data))}`);
+        }
+        
+        console.log('Drawflow data to import:', drawflowData);
+        
+        // Import the data
+        drawflowInstance.import(drawflowData);
+        
+        console.log('Mind Map initialized successfully with Drawflow');
+    } catch (error) {
+        console.error('Error initializing Drawflow:', error);
+        container.innerHTML = `<div class="locked-tab-message"><h3><i class="fa fa-exclamation-triangle"></i> Error Displaying Mind Map</h3><p>Failed to initialize flow diagram viewer: ${error.message}</p><p>Please refresh the page and try again.</p></div>`;
+    }
+}
+
+// Retry Mind Map generation
+function retryMindMap() {
+    loadMindMap();
 }
 
 function displayDesign(design) {
@@ -2405,17 +2744,14 @@ function formatJSONContent(jsonData) {
         html += '<div class="content-section">';
         html += '<h3><i class="fa fa-lock"></i> Security & Authentication</h3>';
         
-        // Display Security Critical Points as red banners
+        // Display Security Critical Points with normal styling
         if (jsonData.securityAuthentication.securityCriticalPoints && Array.isArray(jsonData.securityAuthentication.securityCriticalPoints) && jsonData.securityAuthentication.securityCriticalPoints.length > 0) {
             html += '<div class="security-critical-points" style="margin-bottom: 25px;">';
             jsonData.securityAuthentication.securityCriticalPoints.forEach((point, index) => {
                 html += `
-                    <div class="security-banner" style="background-color: #ff4444; color: white; padding: 15px; margin-bottom: 12px; border-radius: 6px; border-left: 4px solid #cc0000; display: flex; align-items: flex-start;">
-                        <i class="fa fa-exclamation-triangle" style="font-size: 20px; margin-right: 12px; margin-top: 2px; flex-shrink: 0;"></i>
-                        <div style="flex: 1;">
-                            <strong style="display: block; margin-bottom: 5px; font-size: 15px;">CRITICAL SECURITY WARNING</strong>
-                            <p style="margin: 0; line-height: 1.5;">${escapeHtml(point)}</p>
-                        </div>
+                    <div class="security-banner" style="display: flex; align-items: flex-start; gap: 10px; padding: 12px; margin-bottom: 12px; background: #f8f9fa; border-radius: 6px; border: 1px solid #e0e0e0;">
+                        <i class="fa fa-exclamation-triangle" style="font-size: 16px; color: #dc3545 !important; margin-top: 2px; flex-shrink: 0;"></i>
+                        <p style="margin: 0; line-height: 1.6; color: #555; flex: 1;">${escapeHtml(point)}</p>
                     </div>
                 `;
             });
@@ -4148,6 +4484,11 @@ function showTab(tabName) {
     // Update subsections for the active tab (but don't close other submenus)
     updateSubsections(tabName);
     
+    // Show Mind Map container when tab is opened (but don't auto-generate)
+    if (tabName === 'mindmap') {
+        initializeMindMapTab();
+    }
+    
     currentTab = tabName;
 }
 
@@ -4617,6 +4958,7 @@ function enableChatTabOnly() {
 
 function disableTechnicalTabs() {
     document.getElementById('technicalTab').disabled = true;
+    document.getElementById('mindmapTab').disabled = true;
     document.getElementById('marketTab').disabled = true;
     document.getElementById('designTab').disabled = true;
     document.getElementById('diagramsTab').disabled = true;
@@ -4799,6 +5141,8 @@ async function approveOverview() {
         // Enable Technical tab when ready
         if (technicalContent !== 'error') {
             document.getElementById('technicalTab').disabled = false;
+            // Enable Mind Map tab when technical is ready
+            document.getElementById('mindmapTab').disabled = false;
             
             // If Market is also ready, enable Diagrams tab
             if (currentSpecData.status.market === 'ready') {
@@ -4810,7 +5154,9 @@ async function approveOverview() {
         
         displayTechnical(technicalContent);
         
+        // Update export checkboxes when technical section is ready
         if (technicalContent !== 'error') {
+            updateExportCheckboxes();
             showNotification('Technical specification created successfully', 'success');
         }
         
@@ -4885,7 +5231,9 @@ async function approveOverview() {
         
         displayMarket(marketContent);
         
+        // Update export checkboxes when market section is ready
         if (marketContent !== 'error') {
+            updateExportCheckboxes();
             showNotification('Market research completed successfully', 'success');
         }
         
@@ -4953,7 +5301,9 @@ async function approveOverview() {
         
         displayDesign(designContent);
         
+        // Update export checkboxes when design section is ready
         if (designContent !== 'error') {
+            updateExportCheckboxes();
             showNotification('Design specification created successfully', 'success');
         }
         
@@ -5353,6 +5703,9 @@ async function retryTechnical() {
             currentSpecData.technical = technicalContent;
             currentSpecData.status.technical = "ready";
             
+            // Update export checkboxes when technical section is ready
+            updateExportCheckboxes();
+            
             // Update localStorage backup
             localStorage.setItem(`specBackup_${currentSpecData.id}`, JSON.stringify(currentSpecData));
             
@@ -5361,6 +5714,9 @@ async function retryTechnical() {
             updateTabLoadingState('technical', false);
             displayTechnical(technicalContent);
             document.getElementById('retryTechnicalBtn').style.display = 'none';
+            
+            // Enable Mind Map tab when technical is ready
+            document.getElementById('mindmapTab').disabled = false;
             
             showNotification('Technical specification generated successfully!', 'success');
 
@@ -5418,6 +5774,9 @@ async function retryMarket() {
             // Update local data
             currentSpecData.market = marketContent;
             currentSpecData.status.market = "ready";
+            
+            // Update export checkboxes when market section is ready
+            updateExportCheckboxes();
             
             // Update localStorage backup
             localStorage.setItem(`specBackup_${currentSpecData.id}`, JSON.stringify(currentSpecData));
@@ -5482,6 +5841,9 @@ async function retryDesign() {
             currentSpecData.design = designContent;
             currentSpecData.status.design = "ready";
             
+            // Update export checkboxes when design section is ready
+            updateExportCheckboxes();
+            
             // Update localStorage backup
             localStorage.setItem(`specBackup_${currentSpecData.id}`, JSON.stringify(currentSpecData));
             
@@ -5520,8 +5882,41 @@ async function retryDesign() {
 // ---------- Mockup Functions ----------
 function displayMockup(mockupData) {
     const container = document.getElementById('mockup-data');
-    const generateSection = document.getElementById('mockup-generate-section');
-    const viewerSection = document.getElementById('mockup-viewer-section');
+    if (!container) return;
+    
+    let generateSection = document.getElementById('mockup-generate-section');
+    let viewerSection = document.getElementById('mockup-viewer-section');
+    
+    // If sections don't exist (e.g., were removed by innerHTML), recreate them
+    if (!generateSection || !viewerSection) {
+        // Restore the container structure
+        container.innerHTML = `
+            <div id="mockup-generate-section" style="display: none;">
+                <div style="text-align: center; padding: 40px 20px;">
+                    <i class="fa fa-desktop" style="font-size: 64px; color: #FF6B35; margin-bottom: 20px;"></i>
+                    <h3 style="margin-bottom: 10px;">Create Frontend Mockups</h3>
+                    <p style="color: #666; margin-bottom: 30px;">Generate interactive HTML+CSS mockups based on your specifications</p>
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer;">
+                            <input type="checkbox" id="useMockDataCheckbox" style="width: 18px; height: 18px; cursor: pointer;">
+                            <span style="font-size: 14px; color: #333;">Use mock data (fill with realistic sample data)</span>
+                        </label>
+                    </div>
+                    <button id="generateMockupBtn" class="btn btn-primary" onclick="generateMockupSpec()" style="padding: 12px 32px; font-size: 16px;">
+                        <i class="fa fa-magic"></i> Create Mockups
+                    </button>
+                </div>
+            </div>
+            <div id="mockup-viewer-section" style="display: none;"></div>
+        `;
+        generateSection = document.getElementById('mockup-generate-section');
+        viewerSection = document.getElementById('mockup-viewer-section');
+    }
+    
+    if (!generateSection || !viewerSection) {
+        console.error('Failed to create mockup sections');
+        return;
+    }
     
     if (!mockupData || !mockupData.mockups || mockupData.mockups.length === 0) {
         // Check if design is ready
@@ -5532,8 +5927,6 @@ function displayMockup(mockupData) {
         } else {
             // Design not ready, show locked message
             container.innerHTML = '<div class="locked-tab-message"><h3><i class="fa fa-lock"></i> Frontend Mockups</h3><p>Please approve the Overview and generate Design specification first to create mockups.</p></div>';
-            generateSection.style.display = 'none';
-            viewerSection.style.display = 'none';
         }
         return;
     }
@@ -5542,11 +5935,21 @@ function displayMockup(mockupData) {
     generateSection.style.display = 'none';
     viewerSection.style.display = 'block';
     
-    const mockups = mockupData.mockups;
+    const mockups = mockupData.mockups || [];
     let currentIndex = 0;
     
     // Build viewer HTML
+    let partialWarningHTML = '';
+    if (mockupData.meta && mockupData.meta.partial && mockupData.meta.total) {
+        partialWarningHTML = `
+            <div style="padding: 12px 20px; margin-bottom: 15px; background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; color: #856404; font-size: 14px;">
+                <i class="fa fa-info-circle"></i> Generating in progress: ${mockupData.meta.completed} of ${mockupData.meta.total} screens completed
+            </div>
+        `;
+    }
+    
     let viewerHTML = `
+        ${partialWarningHTML}
         <div class="mockup-viewer-container" style="display: flex; flex-direction: column; height: 100%;">
             <!-- Screens List -->
             <div class="mockup-screens-list" style="display: flex; gap: 10px; padding: 15px; background: #f5f5f5; border-bottom: 2px solid #ddd; overflow-x: auto; flex-wrap: wrap;">
@@ -5819,6 +6222,16 @@ function downloadMockup() {
     showNotification('Mockup downloaded!', 'success');
 }
 
+// Batch Mockup Generation Manager
+let mockupBatchManager = {
+    isRunning: false,
+    screens: [],
+    mockups: [],
+    failedScreens: [],
+    currentIndex: 0,
+    useMockData: false
+};
+
 async function generateMockupSpec() {
     if (!currentSpecData) {
         showNotification('No specification data available', 'error');
@@ -5830,25 +6243,35 @@ async function generateMockupSpec() {
         return;
     }
     
+    // Prevent multiple simultaneous generations
+    if (mockupBatchManager.isRunning) {
+        showNotification('Mockup generation is already in progress', 'info');
+        return;
+    }
+    
     const useMockData = document.getElementById('useMockDataCheckbox').checked;
     const generateBtn = document.getElementById('generateMockupBtn');
     
+    // Initialize batch manager
+    mockupBatchManager.isRunning = true;
+    mockupBatchManager.screens = [];
+    mockupBatchManager.mockups = [];
+    mockupBatchManager.failedScreens = [];
+    mockupBatchManager.currentIndex = 0;
+    mockupBatchManager.useMockData = useMockData;
+    
     // Disable button and show loading
     generateBtn.disabled = true;
-    generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating Mockups...';
+    generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Analyzing Screens...';
     updateTabLoadingState('mockup', true);
     
     const container = document.getElementById('mockup-data');
-    container.innerHTML = `
-        <div style="text-align: center; padding: 40px 20px;">
-            <div class="spinner" style="margin: 0 auto 20px;"></div>
-            <h3>Generating Mockups...</h3>
-            <p style="color: #666;">This may take 1-3 minutes. Please wait...</p>
-        </div>
-    `;
     
     try {
-        const response = await fetch(MOCKUPS_WORKER_URL, {
+        // Step 1: Analyze screens
+        updateMockupProgress(0, 0, 'Analyzing screens...');
+        
+        const analyzeResponse = await fetch(MOCKUPS_ANALYZE_URL, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -5856,32 +6279,91 @@ async function generateMockupSpec() {
             body: JSON.stringify({
                 overview: currentSpecData.overview,
                 design: currentSpecData.design,
-                technical: currentSpecData.technical || null,
-                useMockData: useMockData
+                technical: currentSpecData.technical || null
             })
         });
         
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error?.message || 'Failed to generate mockups');
+        if (!analyzeResponse.ok) {
+            const errorData = await analyzeResponse.json();
+            throw new Error(errorData.error?.message || 'Failed to analyze screens');
         }
         
-        const mockupData = await response.json();
+        const analyzeData = await analyzeResponse.json();
+        mockupBatchManager.screens = analyzeData.screens || [];
+        
+        if (mockupBatchManager.screens.length === 0) {
+            throw new Error('No screens identified for mockup generation');
+        }
+        
+        // Step 2: Generate mockups one by one
+        generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating Mockups...';
+        
+        for (let i = 0; i < mockupBatchManager.screens.length; i++) {
+            mockupBatchManager.currentIndex = i;
+            const screen = mockupBatchManager.screens[i];
+            
+            updateMockupProgress(i + 1, mockupBatchManager.screens.length, `Generating: ${screen.name}...`);
+            
+            // Try to generate with retry logic
+            const mockup = await generateSingleMockupWithRetry(screen, 3);
+            
+            if (mockup) {
+                mockupBatchManager.mockups.push(mockup);
+                // Update UI incrementally
+                updateMockupProgress(i + 1, mockupBatchManager.screens.length, `Completed: ${screen.name}`);
+                // Show partial results
+                displayMockup({
+                    mockups: mockupBatchManager.mockups,
+                    meta: {
+                        partial: true,
+                        total: mockupBatchManager.screens.length,
+                        completed: mockupBatchManager.mockups.length
+                    }
+                });
+            } else {
+                mockupBatchManager.failedScreens.push(screen);
+                console.warn(`Failed to generate mockup for screen: ${screen.name}`);
+            }
+            
+            // Small delay between requests to avoid rate limiting
+            if (i < mockupBatchManager.screens.length - 1) {
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+        }
+        
+        // Final update
+        if (mockupBatchManager.mockups.length === 0) {
+            throw new Error('Failed to generate any mockups');
+        }
+        
+        const finalMockupData = {
+            mockups: mockupBatchManager.mockups,
+            meta: {
+                version: '1.0',
+                generatedAt: new Date().toISOString(),
+                totalScreens: mockupBatchManager.mockups.length,
+                failedScreens: mockupBatchManager.failedScreens.length,
+                useMockData: useMockData
+            }
+        };
         
         // Update Firebase
         const user = firebase.auth().currentUser;
         if (user && currentSpecData) {
             await firebase.firestore().collection('specs').doc(currentSpecData.id).update({
-                mockups: mockupData,
+                mockups: finalMockupData,
                 'status.mockup': 'ready',
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             });
         }
         
         // Update local data
-        currentSpecData.mockups = mockupData;
+        currentSpecData.mockups = finalMockupData;
         if (!currentSpecData.status) currentSpecData.status = {};
         currentSpecData.status.mockup = 'ready';
+        
+        // Update export checkboxes when mockups are ready
+        updateExportCheckboxes();
         
         // Update localStorage backup
         localStorage.setItem(`specBackup_${currentSpecData.id}`, JSON.stringify(currentSpecData));
@@ -5889,7 +6371,7 @@ async function generateMockupSpec() {
         // Update UI
         updateStatus('mockup', 'ready');
         updateTabLoadingState('mockup', false);
-        displayMockup(mockupData);
+        displayMockup(finalMockupData);
         
         // Mark tab as generated
         const mockupTab = document.getElementById('mockupTab');
@@ -5898,7 +6380,10 @@ async function generateMockupSpec() {
             mockupTab.disabled = false;
         }
         
-        showNotification('Mockups generated successfully!', 'success');
+        const successMsg = mockupBatchManager.failedScreens.length > 0
+            ? `Generated ${mockupBatchManager.mockups.length} of ${mockupBatchManager.screens.length} mockups (${mockupBatchManager.failedScreens.length} failed)`
+            : 'Mockups generated successfully!';
+        showNotification(successMsg, mockupBatchManager.failedScreens.length > 0 ? 'warning' : 'success');
         
     } catch (error) {
         console.error('Error generating mockups:', error);
@@ -5906,18 +6391,91 @@ async function generateMockupSpec() {
             <div class="locked-tab-message">
                 <h3><i class="fa fa-exclamation-triangle"></i> Error Generating Mockups</h3>
                 <p>${error.message}</p>
+                ${mockupBatchManager.mockups.length > 0 ? `
+                    <p style="margin-top: 15px; color: #666;">
+                        Partial results: ${mockupBatchManager.mockups.length} mockups generated successfully.
+                    </p>
+                ` : ''}
                 <button onclick="generateMockupSpec()" class="btn btn-primary" style="margin-top: 15px;">
                     <i class="fa fa-refresh"></i> Try Again
                 </button>
             </div>
         `;
-        document.getElementById('retryMockupBtn').style.display = 'inline-block';
         updateTabLoadingState('mockup', false);
         showNotification(`Failed to generate mockups: ${error.message}`, 'error');
     } finally {
+        mockupBatchManager.isRunning = false;
         generateBtn.disabled = false;
         generateBtn.innerHTML = '<i class="fa fa-magic"></i> Create Mockups';
     }
+}
+
+// Generate single mockup with retry logic
+async function generateSingleMockupWithRetry(screen, maxRetries = 3) {
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+            const response = await fetch(MOCKUPS_SINGLE_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    overview: currentSpecData.overview,
+                    design: currentSpecData.design,
+                    technical: currentSpecData.technical || null,
+                    screen: screen,
+                    useMockData: mockupBatchManager.useMockData
+                })
+            });
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error?.message || 'Failed to generate mockup');
+            }
+            
+            const data = await response.json();
+            return data.mockup;
+            
+        } catch (error) {
+            console.warn(`Attempt ${attempt}/${maxRetries} failed for screen ${screen.name}:`, error);
+            
+            if (attempt === maxRetries) {
+                // Last attempt failed
+                return null;
+            }
+            
+            // Wait before retry (exponential backoff)
+            const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000);
+            await new Promise(resolve => setTimeout(resolve, delay));
+        }
+    }
+    return null;
+}
+
+// Update progress UI
+function updateMockupProgress(current, total, status) {
+    const container = document.getElementById('mockup-data');
+    if (!container) return;
+    
+    const percentage = total > 0 ? Math.round((current / total) * 100) : 0;
+    
+    container.innerHTML = `
+        <div style="text-align: center; padding: 40px 20px;">
+            <div class="spinner" style="margin: 0 auto 20px;"></div>
+            <h3>Generating Mockups...</h3>
+            <p style="color: #666; margin: 20px 0;">${status}</p>
+            <div style="width: 100%; max-width: 400px; margin: 20px auto; background: #f0f0f0; border-radius: 10px; overflow: hidden;">
+                <div style="width: ${percentage}%; background: linear-gradient(90deg, #FF6B35, #FF8C42); height: 30px; transition: width 0.3s ease; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600;">
+                    ${percentage}%
+                </div>
+            </div>
+            <p style="color: #999; font-size: 14px; margin-top: 15px;">
+                Screen ${current} of ${total}
+                ${mockupBatchManager.mockups.length > 0 ? ` • ${mockupBatchManager.mockups.length} completed` : ''}
+                ${mockupBatchManager.failedScreens.length > 0 ? ` • ${mockupBatchManager.failedScreens.length} failed` : ''}
+            </p>
+        </div>
+    `;
 }
 
 async function retryMockup() {
@@ -6244,6 +6802,8 @@ async function generateDiagrams() {
 
                     // Update local spec data immediately so UI reflects without refresh
                     currentSpecData.diagrams = { generated: true, diagrams: diagramsData };
+                    // Update export checkboxes when diagrams are ready
+                    updateExportCheckboxes();
                 } catch (error) {
 
                 }
@@ -6356,8 +6916,41 @@ async function generatePrompts() {
             locale: 'en-US',
             temperature: 0,
             prompt: {
-                system: 'You are an expert software development prompt engineer. Create EXTREMELY DETAILED, PRACTICAL development prompts that guide developers to build complete applications perfectly on the first try. Focus on operational implementation details, not high-level concepts.',
-                developer: 'Generate an extremely detailed (15000-30000+ characters), practical development prompt that covers EVERY operational aspect: exact functions with parameters, all UI components per page, step-by-step process flows, data model relationships, authentication flows, API implementations, database operations, and styling details. Focus on WHAT TO BUILD and HOW TO BUILD IT with exact implementation details. Do NOT include abstract concepts or high-level descriptions. The prompt must be so detailed that a developer can build the perfect application from scratch on the first attempt. Also identify all third-party integrations and provide detailed setup instructions.',
+                system: 'You are an expert software development prompt engineer. Create EXTREMELY DETAILED, PRACTICAL development prompts that guide developers to build complete applications perfectly on the first try. Focus on operational implementation details, not high-level concepts. You MUST include ALL details from the provided specifications - do not summarize, shorten, or omit any information.',
+                developer: 'CRITICAL REQUIREMENTS - READ CAREFULLY:\n\n' +
+                '1. MINIMUM LENGTH: The fullPrompt MUST be at least 25,000 characters (ideally 30,000-50,000+). This is NOT optional - if your response is shorter, you have FAILED the task.\n\n' +
+                '2. ALL 10 STAGES REQUIRED: You MUST include ALL 10 development stages in this exact order:\n' +
+                '   - STAGE 1: PROJECT SETUP & BASIC STRUCTURE\n' +
+                '   - STAGE 2: FRONTEND CORE FUNCTIONALITY\n' +
+                '   - STAGE 3: AUTHENTICATION & USER MANAGEMENT\n' +
+                '   - STAGE 4: BACKEND API DEVELOPMENT\n' +
+                '   - STAGE 5: AI INTEGRATION (if applicable)\n' +
+                '   - STAGE 6: REAL-TIME COLLABORATION (if applicable)\n' +
+                '   - STAGE 7: THIRD-PARTY INTEGRATIONS\n' +
+                '   - STAGE 8: MOBILE APP DEVELOPMENT (if applicable)\n' +
+                '   - STAGE 9: TESTING & QUALITY ASSURANCE\n' +
+                '   - STAGE 10: DEPLOYMENT & DEVOPS\n\n' +
+                '3. Each stage MUST have detailed sub-steps (1.1, 1.2, 2.1, 2.2, etc.) with specific implementation instructions.\n\n' +
+                '4. INCLUDE ALL DETAILS FROM SPECIFICATIONS:\n' +
+                '   - ALL features from overview.coreFeaturesOverview (list each one with full description)\n' +
+                '   - ALL screens from overview.screenDescriptions.screens (describe each screen with purpose, key elements, user interactions)\n' +
+                '   - ALL database entities from technical.databaseSchema.tables (list EVERY table with ALL fields, data types, constraints, relationships)\n' +
+                '   - ALL API endpoints from technical.apiEndpoints (describe each with method, path, parameters, request body, response format)\n' +
+                '   - ALL UI components from overview.screenDescriptions.uiComponents (describe purpose, placement, behavior)\n' +
+                '   - ALL colors from design.visualStyleGuide.colors (list each color with hex code and usage)\n' +
+                '   - ALL typography from design.visualStyleGuide.typography (font families, sizes, weights, line heights)\n' +
+                '   - ALL spacing values and layout grid system\n' +
+                '   - ALL third-party integrations with detailed setup instructions\n\n' +
+                '5. REPLACE ALL PLACEHOLDERS: Replace [APPLICATION_NAME], [FRAMEWORK], [MAIN_FEATURE_1], [MAIN_ENTITY_1], etc. with ACTUAL values from the specifications.\n\n' +
+                '6. OPERATIONAL DETAILS ONLY: Focus on WHAT TO BUILD and HOW TO BUILD IT with:\n' +
+                '   - Exact function signatures with parameters\n' +
+                '   - Specific component props and structure\n' +
+                '   - Detailed API endpoint formats\n' +
+                '   - Complete database schemas with relationships\n' +
+                '   - Step-by-step implementation flows\n' +
+                '   - Do NOT include abstract concepts or high-level descriptions\n\n' +
+                '7. DO NOT SUMMARIZE: Include the COMPLETE ideaSummary, problemStatement, userJourneySummary, navigationStructure - do not shorten them.\n\n' +
+                'The prompt must be so detailed that a developer can build the complete application from scratch on the first attempt without asking any questions.',
                 user: prompt
             }
         };
@@ -6409,6 +7002,8 @@ async function generatePrompts() {
                 currentSpecData.prompts = promptsData;
                 currentSpecData.status = currentSpecData.status || {};
                 currentSpecData.status.prompts = 'ready';
+                // Update export checkboxes when prompts are ready
+                updateExportCheckboxes();
             } catch (error) {
                 console.error('Failed to save prompts to Firebase:', error);
             }
@@ -6568,8 +7163,8 @@ function displayPrompts(promptsData) {
                 <i class="fa fa-copy" style="color: white !important;"></i> Copy Prompt
             </button>
         </div>
-        <div class="prompt-content" id="full-prompt-content">
-            <pre class="prompt-text">${escapeHtml(promptsData.fullPrompt)}</pre>
+        <div class="prompt-content" id="full-prompt-content" style="background: #f5f5f5; border: 1px solid #e0e0e0; border-radius: 8px; padding: 20px; overflow-x: auto; max-width: 100%;">
+            <pre class="prompt-text" style="margin: 0; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word; font-family: 'Monaco', 'Courier New', monospace; font-size: 13px; line-height: 1.6; color: #333;">${escapeHtml(promptsData.fullPrompt)}</pre>
         </div>
     `;
     container.appendChild(fullPromptSection);
@@ -8141,22 +8736,97 @@ function showExportTab(tabName) {
 }
 
 /**
- * Toggle all sections selection
+ * Check if a section exists in the spec data
+ */
+function sectionExists(sectionName, specData) {
+    if (!specData) return false;
+    
+    switch(sectionName) {
+        case 'overview':
+            return !!(specData.overview && specData.overview.trim());
+        case 'technical':
+            return !!(specData.technical && specData.technical.trim() && specData.technical !== 'error');
+        case 'market':
+            return !!(specData.market && specData.market.trim() && specData.market !== 'error');
+        case 'design':
+            return !!(specData.design && specData.design.trim() && specData.design !== 'error');
+        case 'diagrams':
+            return !!(specData.diagrams && specData.diagrams.diagrams && Array.isArray(specData.diagrams.diagrams) && specData.diagrams.diagrams.length > 0);
+        case 'prompts':
+            if (specData.prompts) {
+                if (typeof specData.prompts === 'object' && specData.prompts.fullPrompt) {
+                    return !!(specData.prompts.fullPrompt && specData.prompts.fullPrompt.trim());
+                } else if (typeof specData.prompts === 'string') {
+                    return !!(specData.prompts.trim());
+                }
+            }
+            return false;
+        case 'mockups':
+            return !!(specData.mockups && specData.mockups.mockups && Array.isArray(specData.mockups.mockups) && specData.mockups.mockups.length > 0);
+        default:
+            return false;
+    }
+}
+
+/**
+ * Update export checkboxes based on available sections
+ */
+function updateExportCheckboxes() {
+    if (!currentSpecData) return;
+    
+    const sections = [
+        { id: 'export-overview', name: 'overview' },
+        { id: 'export-technical', name: 'technical' },
+        { id: 'export-market', name: 'market' },
+        { id: 'export-design', name: 'design' },
+        { id: 'export-diagrams', name: 'diagrams' },
+        { id: 'export-prompts', name: 'prompts' },
+        { id: 'export-mockups', name: 'mockups' }
+    ];
+    
+    sections.forEach(section => {
+        const checkbox = document.getElementById(section.id);
+        if (checkbox) {
+            const exists = sectionExists(section.name, currentSpecData);
+            checkbox.disabled = !exists;
+            if (!exists) {
+                checkbox.checked = false;
+            } else {
+                // Only check if it was previously checked and the section exists
+                // Otherwise leave it unchecked initially
+                if (!checkbox.hasAttribute('data-initialized')) {
+                    checkbox.checked = true; // Default to checked for existing sections
+                    checkbox.setAttribute('data-initialized', 'true');
+                }
+            }
+        }
+    });
+    
+    // Update select all checkbox
+    updateSelectAll();
+}
+
+/**
+ * Toggle all sections selection (only enabled sections)
  */
 function toggleAllSections(checked, type = 'html') {
     const selector = type === 'html' ? '.html-checkbox' : '.jira-checkbox';
     const checkboxes = document.querySelectorAll(selector);
     checkboxes.forEach(checkbox => {
-        checkbox.checked = checked;
+        // Only toggle enabled checkboxes
+        if (!checkbox.disabled) {
+            checkbox.checked = checked;
+        }
     });
+    updateSelectAll();
 }
 
 /**
- * Update select all checkbox based on individual checkboxes
+ * Update select all checkbox based on individual checkboxes (only enabled ones)
  */
 function updateSelectAll() {
     // Update HTML select all
-    const htmlCheckboxes = document.querySelectorAll('.html-checkbox');
+    const htmlCheckboxes = document.querySelectorAll('.html-checkbox:not(:disabled)');
     const selectAllHtml = document.getElementById('select-all-html');
     if (selectAllHtml && htmlCheckboxes.length > 0) {
         const allChecked = Array.from(htmlCheckboxes).every(cb => cb.checked);
@@ -8232,6 +8902,8 @@ function getSectionContent(sectionName, specData) {
                 }
             }
             return null;
+        case 'mockups':
+            return specData.mockups ? specData.mockups : null;
         default:
             return null;
     }
@@ -8246,14 +8918,23 @@ async function generateExport() {
         return;
     }
     
-    // Get selected sections
+    // Get selected sections (only from enabled checkboxes)
     const selectedSections = [];
-    if (document.getElementById('export-overview')?.checked) selectedSections.push('overview');
-    if (document.getElementById('export-technical')?.checked) selectedSections.push('technical');
-    if (document.getElementById('export-market')?.checked) selectedSections.push('market');
-    if (document.getElementById('export-design')?.checked) selectedSections.push('design');
-    if (document.getElementById('export-diagrams')?.checked) selectedSections.push('diagrams');
-    if (document.getElementById('export-prompts')?.checked) selectedSections.push('prompts');
+    const overviewCheckbox = document.getElementById('export-overview');
+    const technicalCheckbox = document.getElementById('export-technical');
+    const marketCheckbox = document.getElementById('export-market');
+    const designCheckbox = document.getElementById('export-design');
+    const diagramsCheckbox = document.getElementById('export-diagrams');
+    const promptsCheckbox = document.getElementById('export-prompts');
+    const mockupsCheckbox = document.getElementById('export-mockups');
+    
+    if (overviewCheckbox?.checked && !overviewCheckbox.disabled) selectedSections.push('overview');
+    if (technicalCheckbox?.checked && !technicalCheckbox.disabled) selectedSections.push('technical');
+    if (marketCheckbox?.checked && !marketCheckbox.disabled) selectedSections.push('market');
+    if (designCheckbox?.checked && !designCheckbox.disabled) selectedSections.push('design');
+    if (diagramsCheckbox?.checked && !diagramsCheckbox.disabled) selectedSections.push('diagrams');
+    if (promptsCheckbox?.checked && !promptsCheckbox.disabled) selectedSections.push('prompts');
+    if (mockupsCheckbox?.checked && !mockupsCheckbox.disabled) selectedSections.push('mockups');
     
     if (selectedSections.length === 0) {
         showNotification('Please select at least one section to export', 'error');
@@ -8268,7 +8949,7 @@ async function generateExport() {
     
     progressContainer.style.display = 'block';
     generateBtn.disabled = true;
-    generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
+            generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Exporting...';
     
     try {
         // Step 1: Prepare content
@@ -8322,7 +9003,7 @@ async function generateExport() {
         setTimeout(() => {
             progressContainer.style.display = 'none';
             generateBtn.disabled = false;
-            generateBtn.innerHTML = '<i class="fa fa-file-download"></i> Generate Export';
+            generateBtn.innerHTML = '<i class="fa fa-file-download"></i> Export';
             showNotification('Export generated successfully!', 'success');
         }, 1000);
         
@@ -8331,7 +9012,7 @@ async function generateExport() {
         showNotification('Error generating export: ' + error.message, 'error');
         progressContainer.style.display = 'none';
         generateBtn.disabled = false;
-        generateBtn.innerHTML = '<i class="fa fa-file-download"></i> Generate Export';
+        generateBtn.innerHTML = '<i class="fa fa-file-download"></i> Export';
     }
 }
 
@@ -8357,11 +9038,11 @@ function generateHTMLExport(specData, sections, diagramSVGs) {
     const title = specData.title || 'App Specification';
     const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
     
-    // Logo SVG (minimal)
+    // Logo SVG (centered and styled)
     const logoSVG = `
-        <svg width="120" height="30" xmlns="http://www.w3.org/2000/svg">
-            <text x="0" y="20" font-family="Inter, sans-serif" font-size="20" font-weight="600" fill="#333">
-                Specifys<span fill="#FF6B35">.</span>AI
+        <svg width="140" height="35" xmlns="http://www.w3.org/2000/svg">
+            <text x="70" y="25" font-family="Inter, sans-serif" font-size="24" font-weight="700" fill="#333" text-anchor="middle">
+                Specifys<tspan fill="#FF6B35">.</tspan>AI
             </text>
         </svg>
     `;
@@ -8391,9 +9072,9 @@ function generateHTMLExport(specData, sections, diagramSVGs) {
         .export-header {
             background: #fff;
             border-bottom: 2px solid #FF6B35;
-            padding: 20px 40px;
+            padding: 30px 40px;
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
             position: sticky;
             top: 0;
@@ -8404,12 +9085,11 @@ function generateHTMLExport(specData, sections, diagramSVGs) {
         .export-logo {
             display: flex;
             align-items: center;
+            justify-content: center;
         }
         
         .export-meta {
-            text-align: right;
-            color: #666;
-            font-size: 14px;
+            display: none;
         }
         
         .export-container {
@@ -8549,10 +9229,6 @@ function generateHTMLExport(specData, sections, diagramSVGs) {
         <div class="export-logo">
             ${logoSVG}
         </div>
-        <div class="export-meta">
-            <div><strong>Generated:</strong> ${date}</div>
-            <div style="margin-top: 5px;"><strong>Source:</strong> Specifys.ai</div>
-        </div>
     </div>
     
     <div class="export-container">
@@ -8618,6 +9294,36 @@ function generateHTMLExport(specData, sections, diagramSVGs) {
         </div>`;
     }
     
+    if (sections.mockups && sections.mockups.mockups && Array.isArray(sections.mockups.mockups) && sections.mockups.mockups.length > 0) {
+        html += `
+        <div class="export-section">
+            <h2 class="export-section-title"><i class="fa fa-desktop"></i> Frontend Mockups</h2>`;
+        
+        const mockups = sections.mockups.mockups;
+        for (let i = 0; i < mockups.length; i++) {
+            const mockup = mockups[i];
+            const screenName = mockup.screenName || mockup.name || `Screen ${i + 1}`;
+            const deviceType = mockup.deviceType || 'desktop';
+            const htmlContent = mockup.html || '';
+            
+            html += `
+            <div class="mockup-container" style="margin: 30px 0; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                <div style="background: #f8f9fa; padding: 15px 20px; border-bottom: 1px solid #e0e0e0;">
+                    <h3 style="margin: 0; font-size: 20px; font-weight: 600; color: #333;">
+                        ${escapeHtml(screenName)}
+                        <span style="font-size: 14px; font-weight: 400; color: #666; margin-left: 10px;">(${deviceType})</span>
+                    </h3>
+                </div>
+                <div style="padding: 20px; background: white;">
+                    ${htmlContent}
+                </div>
+            </div>`;
+        }
+        
+        html += `
+        </div>`;
+    }
+    
     html += `
     </div>
 </body>
@@ -8668,7 +9374,7 @@ async function generateJiraExport() {
     
     progressContainer.style.display = 'block';
     generateBtn.disabled = true;
-    generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
+            generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Exporting...';
     
     try {
         updateJiraProgress(10, 'Preparing specification data...');
@@ -8722,7 +9428,7 @@ async function generateJiraExport() {
         setTimeout(() => {
             progressContainer.style.display = 'none';
             generateBtn.disabled = false;
-            generateBtn.innerHTML = '<i class="fa fa-tasks"></i> Generate Jira Export';
+            generateBtn.innerHTML = '<i class="fa fa-tasks"></i> Export';
             showNotification('Jira export generated successfully!', 'success');
         }, 1000);
         
@@ -8731,7 +9437,7 @@ async function generateJiraExport() {
         showNotification('Error generating Jira export: ' + error.message, 'error');
         progressContainer.style.display = 'none';
         generateBtn.disabled = false;
-        generateBtn.innerHTML = '<i class="fa fa-tasks"></i> Generate Jira Export';
+        generateBtn.innerHTML = '<i class="fa fa-tasks"></i> Export';
     }
 }
 

@@ -1,5 +1,49 @@
 /* Spec Viewer Page Styles */
 
+/* Mind Map Container Styles - Drawflow */
+#mindmap-container {
+    width: 100%;
+    height: 800px;
+    min-height: 600px;
+    border: 1px solid var(--border-color, #e0e0e0);
+    border-radius: 8px;
+    background: var(--bg-color, #ffffff);
+    overflow: hidden;
+    position: relative;
+}
+
+#mindmap-container #drawflow {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+/* Drawflow Dark Mode Support */
+[data-theme="dark"] #mindmap-container,
+.dark-mode #mindmap-container {
+    background: var(--bg-color-dark, #1a1a1a);
+    border-color: var(--border-color-dark, #333);
+}
+
+[data-theme="dark"] #mindmap-container #drawflow,
+.dark-mode #mindmap-container #drawflow {
+    background: var(--bg-color-dark, #1a1a1a);
+}
+
+/* Mind Map Loading State */
+#mindmap-container .loading-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--primary-color, #FF6B35);
+}
+
+#mindmap-container .loading-state i {
+    font-size: 2em;
+    margin-right: 15px;
+}
+
 /* Override header styles to ensure consistency */
 .thematic-header {
     padding: 10px 20px !important;
@@ -1998,16 +2042,18 @@
 .export-intro {
     margin-bottom: 30px;
     padding: 20px;
-    background: #f8f9fa;
+    background: white;
     border-radius: 8px;
-    border-left: 4px solid #FF6B35;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
 .export-intro p {
     margin: 0;
-    color: #666;
+    color: #333;
     font-size: 15px;
     line-height: 1.6;
+    text-align: center;
 }
 
 .export-options {
@@ -2052,6 +2098,45 @@
     cursor: pointer;
     accent-color: #FF6B35;
     flex-shrink: 0;
+    position: relative;
+    appearance: none;
+    -webkit-appearance: none;
+    border: 2px solid #ddd;
+    border-radius: 4px;
+    background: white;
+}
+
+.export-checkbox:checked {
+    background: #FF6B35;
+    border-color: #FF6B35;
+}
+
+.export-checkbox:checked::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+    line-height: 1;
+}
+
+.export-checkbox:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: #f5f5f5;
+    border-color: #e0e0e0;
+}
+
+.export-checkbox-label:has(.export-checkbox:disabled) {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.export-checkbox-label:has(.export-checkbox:disabled):hover {
+    background-color: transparent;
 }
 
 .export-checkbox-label span {
@@ -2064,7 +2149,7 @@
 }
 
 .export-checkbox-label span i {
-    color: #FF6B35;
+    color: #6366F1;
     width: 18px;
     text-align: center;
 }
@@ -2086,6 +2171,10 @@
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3);
+}
+
+.export-generate-btn i {
+    color: white !important;
 }
 
 .export-generate-btn:hover:not(:disabled) {
@@ -2134,11 +2223,11 @@
 /* Dark mode support for export */
 body.dark-mode .export-intro {
     background: #2a2a2a;
-    border-left-color: #FF6B35;
+    border-color: #444;
 }
 
 body.dark-mode .export-intro p {
-    color: #ccc;
+    color: #e0e0e0;
 }
 
 body.dark-mode .export-options {
@@ -2156,6 +2245,30 @@ body.dark-mode .export-checkbox-label:hover {
 
 body.dark-mode .export-checkbox-label span {
     color: #e0e0e0;
+}
+
+body.dark-mode .export-checkbox-label span i {
+    color: #6366F1;
+}
+
+body.dark-mode .export-checkbox {
+    background: #333;
+    border-color: #555;
+}
+
+body.dark-mode .export-checkbox:checked {
+    background: #FF6B35;
+    border-color: #FF6B35;
+}
+
+body.dark-mode .export-checkbox:disabled {
+    opacity: 0.4;
+    background: #1a1a1a;
+    border-color: #333;
+}
+
+body.dark-mode .export-checkbox-label:has(.export-checkbox:disabled) {
+    opacity: 0.5;
 }
 
 body.dark-mode .export-progress {
@@ -2195,6 +2308,7 @@ body.dark-mode .progress-text {
     margin-bottom: 30px;
     border-bottom: 2px solid #e0e0e0;
     padding-bottom: 0;
+    justify-content: center;
 }
 
 .export-inner-tab {
@@ -2212,15 +2326,27 @@ body.dark-mode .progress-text {
     gap: 8px;
 }
 
+.export-inner-tab i {
+    color: #6366F1;
+}
+
 .export-inner-tab:hover {
     color: #FF6B35;
     background: #f8f9fa;
+}
+
+.export-inner-tab:hover i {
+    color: #FF6B35;
 }
 
 .export-inner-tab.active {
     color: #FF6B35;
     border-bottom-color: #FF6B35;
     background: transparent;
+}
+
+.export-inner-tab.active i {
+    color: #FF6B35;
 }
 
 .export-inner-content {
@@ -2261,7 +2387,7 @@ body.dark-mode .progress-text {
 }
 
 .jira-label i {
-    color: #FF6B35;
+    color: #6366F1;
     width: 16px;
 }
 
@@ -2301,9 +2427,21 @@ body.dark-mode .export-inner-tab {
     color: #999;
 }
 
+body.dark-mode .export-inner-tab i {
+    color: #6366F1;
+}
+
 body.dark-mode .export-inner-tab:hover {
     color: #FF6B35;
     background: #333;
+}
+
+body.dark-mode .export-inner-tab:hover i {
+    color: #FF6B35;
+}
+
+body.dark-mode .export-inner-tab.active i {
+    color: #FF6B35;
 }
 
 body.dark-mode .jira-export-options {
@@ -2313,6 +2451,10 @@ body.dark-mode .jira-export-options {
 
 body.dark-mode .jira-label {
     color: #e0e0e0;
+}
+
+body.dark-mode .jira-label i {
+    color: #6366F1;
 }
 
 body.dark-mode .jira-input,

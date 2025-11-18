@@ -1323,23 +1323,35 @@
         async function loadEntitlements(forceRefresh = false) {
             if (!currentUser) return null;
 
-            if (currentEntitlements && !forceRefresh) {
+            if (currentEntitlements && currentUserProfileDoc && !forceRefresh) {
                 updateEntitlementUI();
                 return currentEntitlements;
             }
 
             try {
+                // Load entitlements
                 const entRef = doc(db, 'entitlements', currentUser.uid);
                 const entSnap = await getDoc(entRef);
                 currentEntitlements = entSnap.exists() ? entSnap.data() : null;
 
+                // Load subscription
                 const subscriptionRef = doc(db, 'subscriptions', currentUser.uid);
                 const subscriptionSnap = await getDoc(subscriptionRef);
                 currentSubscription = subscriptionSnap.exists() ? subscriptionSnap.data() : null;
+
+                // Load user document (needed for free_specs_remaining)
+                if (!currentUserProfileDoc || forceRefresh) {
+                    const userRef = doc(db, 'users', currentUser.uid);
+                    const userSnap = await getDoc(userRef);
+                    currentUserProfileDoc = userSnap.exists() ? userSnap.data() : {};
+                }
             } catch (error) {
                 console.error('Failed to load entitlements', error);
                 currentEntitlements = null;
                 currentSubscription = null;
+                if (!currentUserProfileDoc) {
+                    currentUserProfileDoc = {};
+                }
             }
 
             updateEntitlementUI();
@@ -1378,14 +1390,24 @@
             const user = userData ?? currentUserProfileDoc ?? {};
             const sub = subscription ?? currentSubscription ?? {};
             const unlimited = !!ent.unlimited;
-            let credits = Number(ent.spec_credits);
+            let credits = 0;
 
-            if (!Number.isFinite(credits)) {
-                credits = Number(user.free_specs_remaining);
-            }
+            // Same logic as header: check unlimited first, then spec_credits, then free_specs_remaining with fallback to 1
+            if (!unlimited) {
+                if (typeof ent.spec_credits === 'number' && ent.spec_credits > 0) {
+                    credits = ent.spec_credits;
+                } else {
+                    // Use free_specs_remaining with fallback to 1 (same as header)
+                    const freeSpecs = typeof user?.free_specs_remaining === 'number'
+                        ? Math.max(0, user.free_specs_remaining)
+                        : 1;
+                    credits = freeSpecs;
+                }
 
-            if (!Number.isFinite(credits) || credits < 0) {
-                credits = 0;
+                // Ensure credits is a valid number
+                if (!Number.isFinite(credits) || credits < 0) {
+                    credits = 0;
+                }
             }
 
             const planLabel = unlimited ? 'Pro' : (user.plan ? user.plan.charAt(0).toUpperCase() + user.plan.slice(1) : 'Free');

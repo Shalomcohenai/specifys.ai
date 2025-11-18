@@ -206,6 +206,25 @@ function validatePromptsPayload(obj) {
 
   if (typeof p.fullPrompt !== "string" || p.fullPrompt.trim().length === 0) {
     issues.push("prompts.fullPrompt required and must be non-empty string");
+  } else {
+    // CRITICAL: Check minimum length requirement
+    const minLength = 25000;
+    const currentLength = p.fullPrompt.length;
+    if (currentLength < minLength) {
+      issues.push(`prompts.fullPrompt must be at least ${minLength} characters (currently ${currentLength}). The prompt must include all 10 development stages with detailed implementation instructions from the specifications.`);
+    }
+    
+    // Check if all 10 stages are mentioned
+    const stageMatches = p.fullPrompt.match(/STAGE \d+:/g) || [];
+    const stageCount = stageMatches.length;
+    if (stageCount < 10) {
+      issues.push(`prompts.fullPrompt must include all 10 development stages (found only ${stageCount} stages). Each stage must be detailed with sub-steps (1.1, 1.2, etc.) and include ALL implementation details from the specifications.`);
+    }
+    
+    // Check if it's just the introduction (common mistake - only PROJECT OVERVIEW without stages)
+    if (currentLength < 2000 || (!p.fullPrompt.includes("STAGE 1:") && !p.fullPrompt.includes("STAGE 1"))) {
+      issues.push("prompts.fullPrompt appears to be incomplete - it should include all 10 development stages starting with 'STAGE 1: PROJECT SETUP & BASIC STRUCTURE'. The prompt must be extremely detailed with implementation instructions, not just a high-level overview.");
+    }
   }
   if (!Array.isArray(p.thirdPartyIntegrations)) {
     issues.push("prompts.thirdPartyIntegrations must be an array");
@@ -281,17 +300,76 @@ async function callLLM(env, { system, developer, user }) {
 }
 
 function buildRepairPrompt(issues, originalJSON) {
-  return [
+  const isLengthIssue = issues.some(issue => 
+    issue.includes("characters") || 
+    issue.includes("stages") || 
+    issue.includes("incomplete")
+  );
+  
+  let repairInstructions = [
     "You returned JSON that failed validation.",
     "Fix ONLY the listed issues. Keep structure and IDs stable.",
     "Return ONLY valid JSON (no markdown, no code fences).",
     "",
     "Issues:",
-    JSON.stringify(issues, null, 2),
+    JSON.stringify(issues, null, 2)
+  ];
+  
+  if (isLengthIssue) {
+    repairInstructions.push(
+      "",
+      "═══════════════════════════════════════════════════════════════",
+      "CRITICAL: The fullPrompt is too short or incomplete.",
+      "═══════════════════════════════════════════════════════════════",
+      "",
+      "You MUST expand the fullPrompt to include:",
+      "",
+      "1. ALL 10 DEVELOPMENT STAGES in this exact order:",
+      "   - STAGE 1: PROJECT SETUP & BASIC STRUCTURE",
+      "   - STAGE 2: FRONTEND CORE FUNCTIONALITY",
+      "   - STAGE 3: AUTHENTICATION & USER MANAGEMENT",
+      "   - STAGE 4: BACKEND API DEVELOPMENT",
+      "   - STAGE 5: AI INTEGRATION (if applicable)",
+      "   - STAGE 6: REAL-TIME COLLABORATION (if applicable)",
+      "   - STAGE 7: THIRD-PARTY INTEGRATIONS",
+      "   - STAGE 8: MOBILE APP DEVELOPMENT (if applicable)",
+      "   - STAGE 9: TESTING & QUALITY ASSURANCE",
+      "   - STAGE 10: DEPLOYMENT & DEVOPS",
+      "",
+      "2. Each stage MUST have detailed sub-steps (1.1, 1.2, 2.1, 2.2, etc.)",
+      "",
+      "3. Include ALL details from the specifications provided:",
+      "   - ALL features from overview.coreFeaturesOverview",
+      "   - ALL screens from overview.screenDescriptions.screens",
+      "   - ALL database entities from technical.databaseSchema.tables",
+      "   - ALL API endpoints from technical.apiEndpoints",
+      "   - ALL UI components from overview.screenDescriptions.uiComponents",
+      "   - ALL colors, typography, spacing from design.visualStyleGuide",
+      "",
+      "4. Minimum 25,000 characters total - this is NOT optional",
+      "",
+      "5. Do NOT summarize or shorten - include EVERY detail",
+      "   Replace ALL placeholders [LIKE_THIS] with actual values from the specifications",
+      "",
+      "6. Focus on OPERATIONAL DETAILS:",
+      "   - Exact function signatures with parameters",
+      "   - Specific component props and structure",
+      "   - Detailed API endpoint formats",
+      "   - Complete database schemas with relationships",
+      "   - Step-by-step implementation flows",
+      "",
+      "The prompt must be so detailed that a developer can build the complete",
+      "application from scratch on the first attempt without asking questions."
+    );
+  }
+  
+  repairInstructions.push(
     "",
     "Original JSON:",
     (originalJSON || "").slice(0, 15000)
-  ].join("\n");
+  );
+  
+  return repairInstructions.join("\n");
 }
 
 // ---------- Retry with Repair (bubble upstream errors) ----------
@@ -587,6 +665,85 @@ REQUIREMENTS:
 8. Ensure the design is polished and professional
 9. ${useMockData ? 'Fill with realistic mock data' : 'Use placeholder text'}
 10. Complete any missing information intelligently based on context
+
+PREMIUM DESIGN REQUIREMENTS (inspired by Stripe, Linear, Vercel, Notion):
+- BUTTONS: Use sophisticated button designs with:
+  * Subtle shadows (box-shadow: 0 2px 4px rgba(0,0,0,0.1))
+  * Smooth hover transitions (transform: translateY(-1px), scale(1.02))
+  * Gradient backgrounds where appropriate
+  * Rounded corners (border-radius: 8-12px)
+  * Proper padding (12px 24px minimum)
+  * Active states with darker shades
+
+- CARDS: Create elegant card components with:
+  * Subtle borders (border: 1px solid rgba(0,0,0,0.1))
+  * Soft shadows (box-shadow: 0 4px 6px rgba(0,0,0,0.07))
+  * Rounded corners (border-radius: 12px)
+  * Hover effects (elevation increase, slight scale)
+  * Proper spacing (padding: 24px minimum)
+  * Background colors that contrast nicely
+
+- TYPOGRAPHY: Ensure excellent typography:
+  * Proper line-height (1.5-1.6 for body, 1.2-1.3 for headings)
+  * Letter-spacing for headings (-0.02em to -0.05em)
+  * Font weights: 400 for body, 600-700 for headings
+  * Proper hierarchy with size scale (1rem, 1.25rem, 1.5rem, 2rem, etc.)
+  * Color contrast (WCAG AA minimum)
+
+- ANIMATIONS & TRANSITIONS:
+  * Smooth transitions on all interactive elements (transition: all 0.2s ease)
+  * Fade-in animations for content (opacity, transform)
+  * Hover effects on buttons, cards, links
+  * Loading states with subtle animations
+  * Micro-interactions (button press, card lift)
+
+- COLORS & GRADIENTS:
+  * Use subtle gradients for backgrounds (linear-gradient with low opacity)
+  * Apply gradients to buttons and CTAs
+  * Use color variations (lighter/darker shades) for depth
+  * Implement proper color hierarchy
+
+- SPACING & LAYOUT:
+  * Consistent spacing system (4px, 8px, 16px, 24px, 32px, 48px)
+  * Proper margins and padding
+  * Grid-based layouts where appropriate
+  * White space for breathing room
+
+- FORMS & INPUTS:
+  * Modern input designs with borders and focus states
+  * Focus rings (outline: 2px solid primary color)
+  * Placeholder styling
+  * Error states with red accents
+  * Labels with proper spacing
+
+- NAVIGATION:
+  * Clean navigation bars
+  * Active state indicators
+  * Hover effects on nav items
+  * Proper spacing between items
+
+- TABLES & DATA:
+  * Clean table designs with alternating row colors
+  * Proper cell padding
+  * Hover effects on rows
+  * Sortable headers with indicators
+
+- DEPTH & SHADOWS:
+  * Use multiple shadow layers for depth
+  * Elevation system (0px, 2px, 4px, 8px, 16px shadows)
+  * Shadows should be subtle and realistic
+
+- INTERACTIVITY:
+  * All interactive elements must have hover states
+  * Click/tap feedback (active states)
+  * Smooth transitions everywhere
+  * Loading states for async actions
+
+- RESPONSIVE DESIGN:
+  * Mobile-first approach
+  * Breakpoints: mobile (375px), tablet (768px), desktop (1024px+)
+  * Flexible layouts (flexbox/grid)
+  * Responsive typography (clamp or media queries)
 
 Return ONLY the HTML code, nothing else.`
       };

@@ -17,6 +17,11 @@ class LiveBriefModal {
     this.rippleAnimationId = null;
     this.recognition = null; // Web Speech API
     
+    // Server availability tracking
+    this.serverAvailable = true; // Assume available initially
+    this.consecutiveErrors = 0; // Track consecutive errors
+    this.maxConsecutiveErrors = 3; // Stop trying after 3 errors
+    
     // DOM elements
     this.modal = null;
     this.microphoneIcon = null;
@@ -27,12 +32,9 @@ class LiveBriefModal {
   }
 
   init() {
-    console.log('LiveBriefModal: init() called');
     // Wait for DOM to be ready
     if (document.readyState === 'loading') {
-      console.log('LiveBriefModal: DOM is loading, waiting for DOMContentLoaded');
       document.addEventListener('DOMContentLoaded', () => {
-        console.log('LiveBriefModal: DOMContentLoaded fired, creating modal');
         this.createModalHTML();
         // Setup event listeners after HTML is created
         setTimeout(() => {
@@ -41,7 +43,6 @@ class LiveBriefModal {
       });
     } else {
       // DOM is already ready
-      console.log('LiveBriefModal: DOM is already ready, creating modal immediately');
       this.createModalHTML();
       // Setup event listeners after HTML is created
       setTimeout(() => {
@@ -51,10 +52,8 @@ class LiveBriefModal {
   }
 
   createModalHTML() {
-    console.log('LiveBriefModal: createModalHTML() called');
     // Check if container already exists
     if (document.getElementById('liveBriefContainer')) {
-      console.log('Live Brief Container HTML already exists');
       this.modal = document.getElementById('liveBriefContainer');
       this.microphoneIcon = document.getElementById('liveBriefMicrophone');
       this.summaryText = document.getElementById('liveBriefSummary');
@@ -67,8 +66,6 @@ class LiveBriefModal {
       console.error('LiveBriefModal: hero-section not found, cannot create container');
       return;
     }
-    
-    console.log('LiveBriefModal: Creating container HTML');
     // Create container structure (not a modal, but inline content)
     const containerHTML = `
       <div id="liveBriefContainer" class="live-brief-container" style="display: none;">
@@ -124,9 +121,7 @@ class LiveBriefModal {
     this.microphoneIcon = document.getElementById('liveBriefMicrophone');
     this.summaryText = document.getElementById('liveBriefSummary');
     
-    if (this.modal) {
-      console.log('LiveBriefModal: Container HTML created successfully');
-    } else {
+    if (!this.modal) {
       console.error('LiveBriefModal: Failed to create container - element not found after insertion');
     }
   }
@@ -164,7 +159,6 @@ class LiveBriefModal {
       modeToggleSwitch.parentNode.replaceChild(newToggle, modeToggleSwitch);
       
       newToggle.addEventListener('change', (e) => {
-        console.log('Live Brief toggle changed, checked:', e.target.checked);
         // Use Question Flow Controller if available
         if (window.questionFlowController) {
           if (e.target.checked) {
@@ -177,7 +171,6 @@ class LiveBriefModal {
           // Fallback to old implementation
           updateToggleState(e.target.checked);
           if (e.target.checked) {
-            console.log('Switching to typing mode from toggle');
             this.switchToTyping();
           }
         }
@@ -195,11 +188,9 @@ class LiveBriefModal {
         e.preventDefault();
         e.stopPropagation();
         const mode = newLabel.getAttribute('data-mode');
-        console.log('Live Brief mode label clicked:', mode);
         
         if (mode === 'typing') {
           // Switch to typing mode
-          console.log('Switching to typing mode from label click');
           if (window.questionFlowController) {
             window.questionFlowController.switchToTyping();
           } else {
@@ -248,9 +239,12 @@ class LiveBriefModal {
 
   // Initialize for voice mode (called by controller, container already shown)
   async initializeForVoice(prefilledAnswers = null) {
-    console.log('LiveBriefModal: initializeForVoice() called');
     // Generate session ID
     this.sessionId = `live-brief-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    
+    // Reset server availability for new session (give it a chance)
+    this.serverAvailable = true;
+    this.consecutiveErrors = 0;
     
     // Store pre-filled answers if provided
     if (prefilledAnswers && Array.isArray(prefilledAnswers)) {
@@ -263,7 +257,6 @@ class LiveBriefModal {
     
     // Ensure container exists
     if (!this.modal) {
-      console.log('LiveBriefModal: Container not found, creating it...');
       this.createModalHTML();
       // Wait a bit for HTML to be created
       await new Promise(resolve => setTimeout(resolve, 100));
@@ -329,7 +322,6 @@ class LiveBriefModal {
     }
     
     // Old implementation for backward compatibility
-    console.log('LiveBriefModal: open() called (legacy mode)');
     // Generate session ID
     this.sessionId = `live-brief-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     
@@ -344,7 +336,6 @@ class LiveBriefModal {
     
     // Ensure container exists
     if (!this.modal) {
-      console.log('LiveBriefModal: Container not found, creating it...');
       this.createModalHTML();
       // Wait a bit for HTML to be created
       await new Promise(resolve => setTimeout(resolve, 100));
@@ -365,14 +356,12 @@ class LiveBriefModal {
     
     // Show live brief container IMMEDIATELY (no animations)
     if (this.modal) {
-      console.log('LiveBriefModal: Showing container');
       this.modal.style.display = 'block';
       // Force visibility with !important values
       this.modal.style.setProperty('visibility', 'visible', 'important');
       this.modal.style.setProperty('opacity', '1', 'important');
       this.modal.style.setProperty('z-index', '10', 'important');
       this.modal.style.setProperty('transition', 'none', 'important');
-      console.log('LiveBriefModal: Container should be visible now');
     } else {
       console.error('LiveBriefModal: Container still not found after creation!');
       return;
@@ -533,7 +522,6 @@ class LiveBriefModal {
 
   async startRecording() {
     try {
-      console.log('LiveBriefModal: startRecording() called');
       // Check if Web Speech API is available
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (!SpeechRecognition) {
@@ -541,7 +529,6 @@ class LiveBriefModal {
         throw new Error('Web Speech API is not supported in this browser');
       }
       
-      console.log('LiveBriefModal: Requesting microphone access...');
       // Request microphone access
       const stream = await navigator.mediaDevices.getUserMedia({ 
         audio: {
@@ -550,8 +537,6 @@ class LiveBriefModal {
           noiseSuppression: true
         }
       });
-      
-      console.log('LiveBriefModal: Microphone access granted');
       
       // Store stream reference for cleanup
       this.mediaStream = stream;
@@ -584,13 +569,17 @@ class LiveBriefModal {
       // Use browser/system language or fallback to English
       const browserLanguage = navigator.language || navigator.userLanguage || 'en-US';
       this.recognition.lang = browserLanguage;
-      console.log('Speech recognition language set to:', browserLanguage);
       
       // Update language indicator
       this.updateLanguageIndicator();
       
       // Handle transcription results
       this.recognition.onresult = (event) => {
+        // Don't process results if recording has stopped
+        if (!this.isRecording) {
+          return;
+        }
+        
         let interimTranscript = '';
         let finalTranscript = '';
         
@@ -604,30 +593,48 @@ class LiveBriefModal {
         }
         
         // Append final transcript to full transcript
-        if (finalTranscript) {
+        if (finalTranscript && this.isRecording) {
           this.fullTranscript += finalTranscript;
-          // Trigger summary update
-          this.updateSummary();
+          // Update display immediately with full transcript
+          this.updateDisplayText();
+          // Trigger summary update only if server is available (but don't wait for it)
+          if (this.serverAvailable) {
+            this.updateSummary().catch(() => {
+              // If summary fails, still show transcript (silently)
+              this.updateDisplayText();
+            });
+          }
         }
         
         // Show interim results in real-time (transcript + summary)
-        if (interimTranscript) {
-          const displayText = this.summary 
-            ? `${this.summary}\n\n[Live: ${interimTranscript}]`
-            : `[Live: ${interimTranscript}]`;
+        // ALWAYS show interim transcript if available, even without summary
+        if (interimTranscript && this.isRecording) {
+          // Build display text: show full transcript + interim, with summary if available
+          let displayText = '';
+          if (this.summary) {
+            displayText = `${this.summary}\n\n`;
+          }
+          if (this.fullTranscript) {
+            displayText += `${this.fullTranscript} `;
+          }
+          displayText += `[Live: ${interimTranscript}]`;
           this.updateSummaryText(displayText, true);
-        } else if (this.summary) {
-          // Show only summary if no interim results
-          this.updateSummaryText(this.summary, false);
+        } else if (this.isRecording && this.fullTranscript) {
+          // Show current transcript (with summary if available)
+          this.updateDisplayText();
         }
       };
       
       this.recognition.onerror = (event) => {
-        console.error('Speech recognition error:', event.error);
+        // Don't log "no-speech" errors - they're normal and expected
         if (event.error === 'no-speech') {
           // This is normal, just continue
           return;
         }
+        
+        // Only log actual errors (not "no-speech")
+        console.error('Speech recognition error:', event.error);
+        
         if (event.error === 'not-allowed') {
           this.showError('Microphone permission denied');
           this.stopRecording();
@@ -635,13 +642,13 @@ class LiveBriefModal {
       };
       
       this.recognition.onend = () => {
-        // Restart recognition if still recording
-        if (this.isRecording && this.recognition) {
+        // Restart recognition ONLY if still recording and recognition object exists
+        if (this.isRecording && this.recognition && this.recognition.onresult) {
+          // Double-check that handlers weren't cleared (if they're no-ops, don't restart)
           try {
             this.recognition.start();
           } catch (e) {
-            // Recognition might already be starting
-            console.log('Recognition restart:', e.message);
+            // Recognition might already be starting or stopped - silently ignore
           }
         }
       };
@@ -659,46 +666,63 @@ class LiveBriefModal {
   }
 
   stopRecording() {
+    // Set flag FIRST to prevent any handlers from continuing
     this.isRecording = false;
     
-    // Stop Speech Recognition
+    // Clear polling IMMEDIATELY to prevent API calls
+    if (this.summaryPollInterval) {
+      clearInterval(this.summaryPollInterval);
+      this.summaryPollInterval = null;
+    }
+    
+    // Remove recognition event handlers BEFORE stopping to prevent callbacks
     if (this.recognition) {
+      // Remove all event listeners by replacing handlers with no-ops
+      this.recognition.onresult = () => {};
+      this.recognition.onerror = () => {};
+      this.recognition.onend = () => {};
+      
       try {
         this.recognition.stop();
       } catch (e) {
-        console.log('Error stopping recognition:', e.message);
+        // Silently ignore - recognition might already be stopped
       }
       this.recognition = null;
     }
     
     // Stop AudioContext
     if (this.audioContext) {
-      this.audioContext.close();
+      try {
+        this.audioContext.close();
+      } catch (e) {
+        // Silently ignore - audio context might already be closed
+      }
       this.audioContext = null;
     }
     
     // Stop all tracks (from getUserMedia stream)
     if (this.mediaStream) {
-      this.mediaStream.getTracks().forEach(track => track.stop());
+      this.mediaStream.getTracks().forEach(track => {
+        try {
+          track.stop();
+        } catch (e) {
+          // Silently ignore - track might already be stopped
+        }
+      });
       this.mediaStream = null;
     }
     
     // Stop ripple animation
     this.stopRippleAnimation();
     
+    // Stop amplitude monitoring
+    if (this.animationFrameId) {
+      cancelAnimationFrame(this.animationFrameId);
+      this.animationFrameId = null;
+    }
+    
     // Update Generate button - enable if there's text
     this.updateGenerateButton();
-    
-    // Clear polling
-    if (this.summaryPollInterval) {
-      clearInterval(this.summaryPollInterval);
-      this.summaryPollInterval = null;
-    }
-    
-    // Final summary update
-    if (this.fullTranscript) {
-      this.updateSummary();
-    }
   }
 
   startRippleAnimation() {
@@ -771,23 +795,34 @@ class LiveBriefModal {
   // Removed sendAudioChunkForTranscription - now using Web Speech API directly
 
   startSummaryPolling() {
+    // Only poll if server is available
+    if (!this.serverAvailable) {
+      return;
+    }
+    
     // Poll every 3 seconds for summary updates
     this.summaryPollInterval = setInterval(() => {
-      if (this.isRecording && this.fullTranscript) {
+      if (this.isRecording && this.fullTranscript && this.serverAvailable) {
         this.updateSummary();
       }
     }, 3000);
     
     // Initial update after 2 seconds
     setTimeout(() => {
-      if (this.isRecording && this.fullTranscript) {
+      if (this.isRecording && this.fullTranscript && this.serverAvailable) {
         this.updateSummary();
       }
     }, 2000);
   }
 
   async updateSummary() {
-    if (!this.fullTranscript || !this.sessionId) {
+    // Don't update if not recording or if session is cleared
+    if (!this.isRecording || !this.fullTranscript || !this.sessionId) {
+      return;
+    }
+    
+    // Don't try if server is marked as unavailable
+    if (!this.serverAvailable) {
       return;
     }
     
@@ -817,13 +852,59 @@ class LiveBriefModal {
       
       const data = await response.json();
       
+      // Reset error counter on success
+      this.consecutiveErrors = 0;
+      this.serverAvailable = true;
+      
       if (data.summary) {
         this.summary = data.summary;
-        this.displaySummary(this.summary);
+        // Update display with summary + transcript
+        this.updateDisplayText();
       }
     } catch (error) {
-      console.error('Error updating summary:', error);
-      // Don't show error to user, just log it
+      // Increment error counter
+      this.consecutiveErrors++;
+      
+      // If too many consecutive errors, mark server as unavailable
+      if (this.consecutiveErrors >= this.maxConsecutiveErrors) {
+        this.serverAvailable = false;
+        // Only log once when server becomes unavailable (not every time)
+        console.warn('LiveBriefModal: Summary server unavailable, continuing without summary. Transcript will still be displayed.');
+        // Stop polling
+        if (this.summaryPollInterval) {
+          clearInterval(this.summaryPollInterval);
+          this.summaryPollInterval = null;
+        }
+      } else {
+        // For first few errors, log silently (no console.error)
+        // Only log at debug level if needed
+      }
+      
+      // Even if summary fails, show transcript
+      // This ensures user always sees what they said
+      if (this.fullTranscript) {
+        this.updateDisplayText();
+      }
+    }
+  }
+
+  // Update display with current transcript and summary
+  updateDisplayText() {
+    if (!this.summaryText) return;
+    
+    // Build display text: summary + transcript, or just transcript
+    let displayText = '';
+    if (this.summary) {
+      displayText = this.summary;
+      if (this.fullTranscript) {
+        displayText += `\n\n${this.fullTranscript}`;
+      }
+    } else if (this.fullTranscript) {
+      displayText = this.fullTranscript;
+    }
+    
+    if (displayText) {
+      this.updateSummaryText(displayText, false);
     }
   }
 
@@ -838,31 +919,10 @@ class LiveBriefModal {
       // Update button state for interim text
       this.updateGenerateButton();
     } else {
-      // Show final summary with typewriter effect
-      const targetText = text || '';
-      const currentText = this.summaryText.textContent;
-      
-      if (targetText === currentText) {
-        this.updateGenerateButton();
-        return;
-      }
-      
+      // Show final text immediately (no typewriter for better UX)
+      this.summaryText.textContent = text;
       this.summaryText.style.opacity = '1';
-      
-      // Simple typewriter effect for final text
-      let i = 0;
-      const typeInterval = setInterval(() => {
-        if (i < targetText.length) {
-          this.summaryText.textContent = targetText.substring(0, i + 1);
-          i++;
-          // Update button state as text appears
-          this.updateGenerateButton();
-        } else {
-          clearInterval(typeInterval);
-          // Final update after typewriter completes
-          this.updateGenerateButton();
-        }
-      }, 20);
+      this.updateGenerateButton();
     }
   }
 
@@ -980,18 +1040,69 @@ class LiveBriefModal {
   }
 
   switchToTyping() {
-    console.log('LiveBriefModal: Switching to typing mode');
-    // Stop recording
-    this.stopRecording();
     
-    // Save current answers if available
-    const currentAnswers = [];
-    if (this.prefillAnswers && Array.isArray(this.prefillAnswers)) {
-      currentAnswers.push(...this.prefillAnswers);
+    // CRITICAL: Stop recording FIRST and clean up everything IMMEDIATELY
+    // This prevents any ongoing API calls or event handlers from continuing
+    this.isRecording = false;
+    
+    // Clear polling IMMEDIATELY to prevent any API calls
+    if (this.summaryPollInterval) {
+      clearInterval(this.summaryPollInterval);
+      this.summaryPollInterval = null;
     }
-    // If we have a summary but no answers, use summary as first answer
-    if (this.summary && !currentAnswers[0]) {
-      currentAnswers[0] = this.summary;
+    
+    // Remove recognition event handlers BEFORE stopping to prevent callbacks
+    if (this.recognition) {
+      // Replace handlers with no-ops to prevent any callbacks
+      this.recognition.onresult = () => {};
+      this.recognition.onerror = () => {};
+      this.recognition.onend = () => {};
+      
+      try {
+        this.recognition.stop();
+      } catch (e) {
+        // Ignore errors - recognition might already be stopped
+      }
+      this.recognition = null;
+    }
+    
+    // Stop AudioContext
+    if (this.audioContext) {
+      try {
+        this.audioContext.close();
+      } catch (e) {
+        // Ignore errors
+      }
+      this.audioContext = null;
+    }
+    
+    // Stop all tracks (from getUserMedia stream)
+    if (this.mediaStream) {
+      this.mediaStream.getTracks().forEach(track => {
+        try {
+          track.stop();
+        } catch (e) {
+          // Ignore errors
+        }
+      });
+      this.mediaStream = null;
+    }
+    
+    // Stop ripple animation and amplitude monitoring
+    this.stopRippleAnimation();
+    if (this.animationFrameId) {
+      cancelAnimationFrame(this.animationFrameId);
+      this.animationFrameId = null;
+    }
+    
+    // Clear all state WITHOUT processing (as requested)
+    this.fullTranscript = '';
+    this.summary = '';
+    this.sessionId = null;
+    
+    // Clear summary text display
+    if (this.summaryText) {
+      this.summaryText.textContent = '';
     }
     
     // Close Live Brief container IMMEDIATELY (no animations)
@@ -1002,30 +1113,17 @@ class LiveBriefModal {
       this.modal.classList.remove('fade-in');
     }
     
-    // Update state if available
-    if (window.questionFlowState) {
-      if (this.summary) {
-        window.questionFlowState.setVoiceState({ summary: this.summary });
-      }
-      if (this.fullTranscript) {
-        window.questionFlowState.setVoiceState({ fullTranscript: this.fullTranscript });
-      }
-    }
-    
-    // Clean up state
-    this.cleanup();
-    
+    // Don't save any state - just switch to typing mode cleanly
     // Use new Question Flow Controller
     if (window.questionFlowController) {
-      window.questionFlowController.switchToTyping(currentAnswers.length > 0 ? currentAnswers : null);
+      // Pass null to start fresh (no pre-filled answers)
+      window.questionFlowController.switchToTyping(null);
     } else {
       // Fallback to old implementation
       if (typeof proceedWithAppPlanning === 'function') {
         proceedWithAppPlanning();
       }
-      if (currentAnswers.length > 0 && typeof showModernInput === 'function') {
-        showModernInput(currentAnswers);
-      } else if (typeof showModernInput === 'function') {
+      if (typeof showModernInput === 'function') {
         showModernInput(null);
       }
       if (typeof window.setupTypingModeToggle === 'function') {
