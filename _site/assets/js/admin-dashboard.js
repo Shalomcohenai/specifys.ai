@@ -249,6 +249,7 @@ class DashboardDataStore {
       newsletterSubscription: Boolean(data.newsletterSubscription),
       disabled: Boolean(data.disabled),
       emailVerified: Boolean(data.emailVerified),
+      freeSpecsRemaining: typeof data.free_specs_remaining === "number" ? data.free_specs_remaining : null,
       metadata: data
     };
     this.users.set(id, normalized);
@@ -928,9 +929,24 @@ class AdminDashboardApp {
     this.charts = {
       usersPlan: null,
       specsTimeline: null,
-      revenueTrend: null
+      revenueTrend: null,
+      usersGrowth: null,
+      specsGrowth: null,
+      conversionFunnel: null,
+      apiResponse: null,
+      errorRate: null
     };
     this.activeActivityFilter = "all";
+    this.usersCurrentPage = 1;
+    this.usersPerPage = 25; // Number of users per page
+    this.selectedUsers = new Set(); // For bulk actions
+    this.alerts = [];
+    this.performanceData = {
+      apiResponseTimes: [],
+      errorRates: [],
+      connections: 0,
+      uptime: 100
+    };
 
     this.dom = {
       shell: utils.dom("#admin-shell"),
@@ -965,6 +981,13 @@ class AdminDashboardApp {
       usersPlanFilter: utils.dom("#users-plan-filter"),
       usersTable: utils.dom("#users-table tbody"),
       exportUsers: utils.dom("#export-users-btn"),
+      usersPagination: utils.dom("#users-pagination"),
+      usersPaginationInfo: utils.dom("#users-pagination-info"),
+      usersPaginationPrev: utils.dom("#users-pagination-prev"),
+      usersPaginationNext: utils.dom("#users-pagination-next"),
+      usersPaginationPages: utils.dom("#users-pagination-pages"),
+      conversionFunnel: utils.dom("#conversion-funnel"),
+      retentionMetrics: utils.dom("#retention-metrics"),
       paymentsSearch: utils.dom("#payments-search"),
       paymentsRange: utils.dom("#payments-range"),
       paymentsTable: utils.dom("#payments-table tbody"),
@@ -1002,6 +1025,39 @@ class AdminDashboardApp {
       apiHealth: {
         checkButton: utils.dom("#api-health-check-btn"),
         responseText: utils.dom("#api-response-text")
+      },
+      quickActions: {
+        addCredits: utils.dom("#quick-action-add-credits"),
+        changePlan: utils.dom("#quick-action-change-plan"),
+        resetPassword: utils.dom("#quick-action-reset-password"),
+        toggleUser: utils.dom("#quick-action-toggle-user"),
+        modal: utils.dom("#quick-actions-modal"),
+        modalTitle: utils.dom("#quick-actions-title"),
+        modalBody: utils.dom("#quick-actions-body")
+      },
+      usersStatusFilter: utils.dom("#users-status-filter"),
+      usersDateFrom: utils.dom("#users-date-from"),
+      usersDateTo: utils.dom("#users-date-to"),
+      usersSelectAll: utils.dom("#users-select-all"),
+      exportUsersPdf: utils.dom("#export-users-pdf-btn"),
+      bulkActionsBtn: utils.dom("#bulk-actions-btn"),
+      bulkSelectedCount: utils.dom("#bulk-selected-count"),
+      bulkActionsModal: utils.dom("#bulk-actions-modal"),
+      bulkAddCredits: utils.dom("#bulk-add-credits"),
+      bulkChangePlan: utils.dom("#bulk-change-plan"),
+      bulkDisableUsers: utils.dom("#bulk-disable-users"),
+      alertsList: utils.dom("#alerts-list"),
+      alertsSeverityFilter: utils.dom("#alerts-severity-filter"),
+      markAllReadBtn: utils.dom("#mark-all-read-btn"),
+      userActivityModal: utils.dom("#user-activity-modal"),
+      userActivityTitle: utils.dom("#user-activity-title"),
+      userActivityTimeline: utils.dom("#user-activity-timeline"),
+      performanceRange: utils.dom("#performance-range"),
+      performanceMetrics: {
+        apiResponse: utils.dom('[data-perf="api-response"]'),
+        errorRate: utils.dom('[data-perf="error-rate"]'),
+        connections: utils.dom('[data-perf="connections"]'),
+        uptime: utils.dom('[data-perf="uptime"]')
       }
     };
 
@@ -1083,9 +1139,51 @@ class AdminDashboardApp {
     });
     this.dom.overviewRange?.addEventListener("change", () => this.updateOverview());
     this.dom.toggleActivity?.addEventListener("click", () => this.toggleActivityStream());
-    this.dom.usersSearch?.addEventListener("input", utils.debounce(() => this.renderUsersTable(), 120));
-    this.dom.usersPlanFilter?.addEventListener("change", () => this.renderUsersTable());
+    this.dom.usersSearch?.addEventListener("input", utils.debounce(() => {
+      this.usersCurrentPage = 1; // Reset to first page on search
+      this.renderUsersTable();
+    }, 120));
+    this.dom.usersPlanFilter?.addEventListener("change", () => {
+      this.usersCurrentPage = 1; // Reset to first page on filter change
+      this.renderUsersTable();
+    });
+    this.dom.usersStatusFilter?.addEventListener("change", () => {
+      this.usersCurrentPage = 1;
+      this.renderUsersTable();
+    });
+    this.dom.usersDateFrom?.addEventListener("change", () => {
+      this.usersCurrentPage = 1;
+      this.renderUsersTable();
+    });
+    this.dom.usersDateTo?.addEventListener("change", () => {
+      this.usersCurrentPage = 1;
+      this.renderUsersTable();
+    });
+    this.dom.usersSelectAll?.addEventListener("change", (e) => {
+      this.toggleSelectAllUsers(e.target.checked);
+    });
     this.dom.exportUsers?.addEventListener("click", () => this.exportUsersCsv());
+    this.dom.exportUsersPdf?.addEventListener("click", () => this.exportUsersPdf());
+    this.dom.bulkActionsBtn?.addEventListener("click", () => {
+      this.dom.bulkActionsModal?.classList.remove("hidden");
+    });
+    this.dom.quickActions.addCredits?.addEventListener("click", () => this.openQuickAction("add-credits"));
+    this.dom.quickActions.changePlan?.addEventListener("click", () => this.openQuickAction("change-plan"));
+    this.dom.quickActions.resetPassword?.addEventListener("click", () => this.openQuickAction("reset-password"));
+    this.dom.quickActions.toggleUser?.addEventListener("click", () => this.openQuickAction("toggle-user"));
+    this.dom.alertsSeverityFilter?.addEventListener("change", () => this.renderAlerts());
+    this.dom.markAllReadBtn?.addEventListener("click", () => this.markAllAlertsRead());
+    this.dom.performanceRange?.addEventListener("change", () => this.updatePerformanceMetrics());
+    this.dom.usersPaginationPrev?.addEventListener("click", () => {
+      if (this.usersCurrentPage > 1) {
+        this.usersCurrentPage--;
+        this.renderUsersTable();
+      }
+    });
+    this.dom.usersPaginationNext?.addEventListener("click", () => {
+      this.usersCurrentPage++;
+      this.renderUsersTable();
+    });
     this.dom.paymentsSearch?.addEventListener("input", utils.debounce(() => this.renderPaymentsTable(), 120));
     this.dom.paymentsRange?.addEventListener("change", () => this.renderPaymentsTable());
     this.dom.logsFilter?.addEventListener("change", () => this.renderLogs());
@@ -1178,6 +1276,13 @@ class AdminDashboardApp {
     await this.subscribeToSources();
     this.updateAutoRefreshTimer();
     await this.fetchUserSyncStatus();
+    this.loadAlerts();
+    this.updatePerformanceMetrics();
+    // Set up periodic updates
+    setInterval(() => {
+      this.loadAlerts();
+      this.updatePerformanceMetrics();
+    }, 60000); // Update every minute
   }
 
   initializeCharts() {
@@ -1264,6 +1369,56 @@ class AdminDashboardApp {
         options: defaultOptions
       });
     }
+    const usersGrowthCtx = document.getElementById("users-growth-chart");
+    if (usersGrowthCtx) {
+      this.charts.usersGrowth = new ChartConstructor(usersGrowthCtx, {
+        type: "line",
+        data: {
+          labels: [],
+          datasets: [
+            {
+              label: "Users",
+              data: [],
+              borderColor: "#ff6b35",
+              backgroundColor: "rgba(255, 107, 53, 0.2)",
+              tension: 0.3,
+              fill: true
+            }
+          ]
+        },
+        options: {
+          ...defaultOptions,
+          plugins: {
+            legend: { display: true, position: "top", labels: { color: "#a6a6a6" } }
+          }
+        }
+      });
+    }
+    const specsGrowthCtx = document.getElementById("specs-growth-chart");
+    if (specsGrowthCtx) {
+      this.charts.specsGrowth = new ChartConstructor(specsGrowthCtx, {
+        type: "line",
+        data: {
+          labels: [],
+          datasets: [
+            {
+              label: "Specs",
+              data: [],
+              borderColor: "#18b47d",
+              backgroundColor: "rgba(24, 180, 125, 0.2)",
+              tension: 0.3,
+              fill: true
+            }
+          ]
+        },
+        options: {
+          ...defaultOptions,
+          plugins: {
+            legend: { display: true, position: "top", labels: { color: "#a6a6a6" } }
+          }
+        }
+      });
+    }
   }
 
   async subscribeToSources() {
@@ -1303,6 +1458,8 @@ class AdminDashboardApp {
                     plan: user.plan
                   }
                 });
+                // Immediately render activity feed to show new user event
+                this.renderActivityFeed();
               }
             }
           });
@@ -1613,25 +1770,87 @@ class AdminDashboardApp {
     if (!this.dom.usersTable) return;
     const searchTerm = this.dom.usersSearch?.value.trim().toLowerCase() ?? "";
     const planFilter = this.dom.usersPlanFilter?.value ?? "all";
-    const rows = [];
+    const statusFilter = this.dom.usersStatusFilter?.value ?? "all";
+    const dateFrom = this.dom.usersDateFrom?.value;
+    const dateTo = this.dom.usersDateTo?.value;
+    const filteredUsers = [];
 
+    // First, filter users
     for (const user of this.store.getUsersSorted()) {
-        if (searchTerm) {
+      if (searchTerm) {
         const haystack = `${user.email} ${user.displayName}`.toLowerCase();
         if (!haystack.includes(searchTerm)) continue;
       }
       if (planFilter !== "all" && user.plan !== planFilter) continue;
+      
+      // Status filter (active/inactive based on lastActive)
+      if (statusFilter !== "all") {
+        const now = Date.now();
+        const thirtyDaysAgo = now - (30 * 24 * 60 * 60 * 1000);
+        const isActive = user.lastActive && user.lastActive.getTime() >= thirtyDaysAgo;
+        if (statusFilter === "active" && !isActive) continue;
+        if (statusFilter === "inactive" && isActive) continue;
+      }
+      
+      // Date filters
+      if (dateFrom && user.createdAt) {
+        const userDate = new Date(user.createdAt);
+        const fromDate = new Date(dateFrom);
+        if (userDate < fromDate) continue;
+      }
+      if (dateTo && user.createdAt) {
+        const userDate = new Date(user.createdAt);
+        const toDate = new Date(dateTo);
+        toDate.setHours(23, 59, 59, 999); // End of day
+        if (userDate > toDate) continue;
+      }
+      
+      filteredUsers.push(user);
+    }
+
+    // Calculate pagination
+    const totalUsers = filteredUsers.length;
+    const totalPages = Math.max(1, Math.ceil(totalUsers / this.usersPerPage));
+    
+    // Ensure current page is valid
+    if (this.usersCurrentPage > totalPages) {
+      this.usersCurrentPage = totalPages;
+    }
+    if (this.usersCurrentPage < 1) {
+      this.usersCurrentPage = 1;
+    }
+
+    // Get users for current page
+    const startIndex = (this.usersCurrentPage - 1) * this.usersPerPage;
+    const endIndex = Math.min(startIndex + this.usersPerPage, totalUsers);
+    const usersForPage = filteredUsers.slice(startIndex, endIndex);
+
+    // Build rows for current page
+    const rows = [];
+    for (const user of usersForPage) {
       const entitlement = this.store.getEntitlement(user.id);
       const specCount = this.store.getSpecCount(user.id);
       const planBadge = `<span class="badge ${user.plan}">${user.plan}</span>`;
-      const credits =
-        entitlement?.unlimited
-          ? "Unlimited"
-          : entitlement?.specCredits != null
-          ? entitlement.specCredits
-          : "—";
+      
+      // Calculate credits: check entitlement first, then fallback to free_specs_remaining
+      let credits = "—";
+      if (entitlement?.unlimited) {
+        credits = "Unlimited";
+      } else if (entitlement?.specCredits != null) {
+        credits = entitlement.specCredits;
+      } else if (user.freeSpecsRemaining != null) {
+        // Fallback to free_specs_remaining from user document
+        credits = user.freeSpecsRemaining;
+      } else {
+        // If no credits info found, default to 0 for display
+        credits = 0;
+      }
+      const isSelected = this.selectedUsers.has(user.id);
       rows.push(`
         <tr data-user-id="${user.id}">
+          <td>
+            <input type="checkbox" data-user-id="${user.id}" ${isSelected ? "checked" : ""}>
+          </td>
           <td>
             <div>${user.displayName || user.email}</div>
             <div class="meta-text">${user.email}</div>
@@ -1655,10 +1874,33 @@ class AdminDashboardApp {
       `);
     }
 
+    // Render table
     if (!rows.length) {
-      this.dom.usersTable.innerHTML = `<tr><td colspan="7" class="table-empty">No users match the filter.</td></tr>`;
+      this.dom.usersTable.innerHTML = `<tr><td colspan="8" class="table-empty">No users match the filter.</td></tr>`;
+      if (this.dom.usersPagination) {
+        this.dom.usersPagination.style.display = "none";
+      }
     } else {
       this.dom.usersTable.innerHTML = rows.join("");
+      this.renderUsersPagination(totalUsers, totalPages, startIndex + 1, endIndex);
+      
+      // Bind checkbox events
+      this.dom.usersTable.querySelectorAll('input[type="checkbox"][data-user-id]').forEach(checkbox => {
+        checkbox.addEventListener("change", (e) => {
+          const userId = checkbox.dataset.userId;
+          if (e.target.checked) {
+            this.selectedUsers.add(userId);
+          } else {
+            this.selectedUsers.delete(userId);
+          }
+          this.updateBulkActionsUI();
+          // Update select all checkbox
+          if (this.dom.usersSelectAll) {
+            const allChecked = Array.from(this.dom.usersTable.querySelectorAll('input[type="checkbox"][data-user-id]')).every(cb => cb.checked);
+            this.dom.usersSelectAll.checked = allChecked;
+          }
+        });
+      });
     }
 
     this.dom.usersTable
@@ -1682,6 +1924,85 @@ class AdminDashboardApp {
           setTimeout(() => btn.classList.remove("copied"), 1000);
         });
       });
+  }
+
+  renderUsersPagination(totalUsers, totalPages, startIndex, endIndex) {
+    if (!this.dom.usersPagination) return;
+
+    // Show pagination if there are multiple pages
+    if (totalPages <= 1) {
+      this.dom.usersPagination.style.display = "none";
+      return;
+    }
+
+    this.dom.usersPagination.style.display = "flex";
+
+    // Update info text
+    if (this.dom.usersPaginationInfo) {
+      this.dom.usersPaginationInfo.textContent = `Showing ${startIndex}-${endIndex} of ${totalUsers}`;
+    }
+
+    // Update prev/next buttons
+    if (this.dom.usersPaginationPrev) {
+      this.dom.usersPaginationPrev.disabled = this.usersCurrentPage === 1;
+    }
+    if (this.dom.usersPaginationNext) {
+      this.dom.usersPaginationNext.disabled = this.usersCurrentPage >= totalPages;
+    }
+
+    // Render page numbers
+    if (this.dom.usersPaginationPages) {
+      const pages = [];
+      const maxVisiblePages = 7; // Show up to 7 page numbers
+      let startPage = Math.max(1, this.usersCurrentPage - Math.floor(maxVisiblePages / 2));
+      let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+      // Adjust start if we're near the end
+      if (endPage - startPage < maxVisiblePages - 1) {
+        startPage = Math.max(1, endPage - maxVisiblePages + 1);
+      }
+
+      // Add first page and ellipsis if needed
+      if (startPage > 1) {
+        pages.push(`<button class="pagination-page-btn" data-page="1">1</button>`);
+        if (startPage > 2) {
+          pages.push(`<span class="pagination-ellipsis">…</span>`);
+        }
+      }
+
+      // Add page numbers
+      for (let i = startPage; i <= endPage; i++) {
+        const isActive = i === this.usersCurrentPage;
+        pages.push(
+          `<button class="pagination-page-btn ${isActive ? "active" : ""}" data-page="${i}">${i}</button>`
+        );
+      }
+
+      // Add last page and ellipsis if needed
+      if (endPage < totalPages) {
+        if (endPage < totalPages - 1) {
+          pages.push(`<span class="pagination-ellipsis">…</span>`);
+        }
+        pages.push(`<button class="pagination-page-btn" data-page="${totalPages}">${totalPages}</button>`);
+      }
+
+      this.dom.usersPaginationPages.innerHTML = pages.join("");
+
+      // Add click handlers for page buttons
+      this.dom.usersPaginationPages
+        .querySelectorAll(".pagination-page-btn")
+        .forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const page = parseInt(btn.dataset.page);
+            if (page && page !== this.usersCurrentPage) {
+              this.usersCurrentPage = page;
+              this.renderUsersTable();
+              // Scroll to top of table
+              this.dom.usersTable?.closest(".table-wrapper")?.scrollIntoView({ behavior: "smooth", block: "start" });
+            }
+          });
+        });
+    }
   }
 
   renderPaymentsTable() {
@@ -1749,25 +2070,31 @@ class AdminDashboardApp {
     const rangeMs = DATE_RANGES[overviewRange] || DATE_RANGES.week;
     const threshold = Date.now() - rangeMs;
 
+    // Users metrics - show total and new in range
     const totalUsers = users.length;
+    const usersInRange = users.filter((user) => (user.createdAt?.getTime() || 0) >= threshold);
+    const newUsers = usersInRange.length;
     const proUsers = users.filter((user) => user.plan === "pro").length;
-    const newUsers = users.filter((user) => (user.createdAt?.getTime() || 0) >= threshold).length;
+    const proUsersInRange = usersInRange.filter((user) => user.plan === "pro").length;
     const proShare = totalUsers ? Math.round((proUsers / totalUsers) * 100) : 0;
 
-    const specsTotal = Array.from(this.store.specs.values()).length;
+    // Specs metrics - show specs in range, not total
     const specsInRange = Array.from(this.store.specs.values()).filter(
       (spec) => (spec.createdAt?.getTime() || 0) >= threshold
     ).length;
+    const specsTotal = Array.from(this.store.specs.values()).length;
 
-    const revenueTotal = this.store.purchases.reduce(
-      (sum, purchase) => sum + (purchase.total || 0),
-      0
-    );
+    // Revenue metrics - show revenue in range, not total
     const revenueRange = this.store.getPurchases(overviewRange).reduce(
       (sum, purchase) => sum + (purchase.total || 0),
       0
     );
+    const revenueTotal = this.store.purchases.reduce(
+      (sum, purchase) => sum + (purchase.total || 0),
+      0
+    );
 
+    // Update display - show range-based data in main metrics
     if (this.dom.metrics.totalUsers) {
       this.dom.metrics.totalUsers.textContent = utils.formatNumber(totalUsers);
     }
@@ -1775,22 +2102,27 @@ class AdminDashboardApp {
       this.dom.metrics.newUsers.textContent = `New: ${utils.formatNumber(newUsers)}`;
     }
     if (this.dom.metrics.proUsers) {
-      this.dom.metrics.proUsers.textContent = utils.formatNumber(proUsers);
+      this.dom.metrics.proUsers.textContent = utils.formatNumber(proUsersInRange);
     }
     if (this.dom.metrics.proShare) {
-      this.dom.metrics.proShare.textContent = `${proShare || 0}%`;
+      const proShareInRange = newUsers ? Math.round((proUsersInRange / newUsers) * 100) : 0;
+      this.dom.metrics.proShare.textContent = `${proShareInRange || 0}%`;
     }
     if (this.dom.metrics.specsTotal) {
-      this.dom.metrics.specsTotal.textContent = utils.formatNumber(specsTotal);
+      // Show specs in range as the main metric
+      this.dom.metrics.specsTotal.textContent = utils.formatNumber(specsInRange);
     }
     if (this.dom.metrics.specsRange) {
-      this.dom.metrics.specsRange.textContent = `Range: ${utils.formatNumber(specsInRange)}`;
+      // Show total specs in the range label
+      this.dom.metrics.specsRange.textContent = `Total: ${utils.formatNumber(specsTotal)}`;
     }
     if (this.dom.metrics.revenueTotal) {
-      this.dom.metrics.revenueTotal.textContent = utils.formatCurrency(revenueTotal);
+      // Show revenue in range as the main metric
+      this.dom.metrics.revenueTotal.textContent = utils.formatCurrency(revenueRange);
     }
     if (this.dom.metrics.revenueRange) {
-      this.dom.metrics.revenueRange.textContent = `Range: ${utils.formatCurrency(revenueRange)}`;
+      // Show total revenue in the range label
+      this.dom.metrics.revenueRange.textContent = `Total: ${utils.formatCurrency(revenueTotal)}`;
     }
 
     this.renderActivityFeed();
@@ -1884,6 +2216,48 @@ class AdminDashboardApp {
       this.charts.revenueTrend.data.datasets[0].data = revenueValues;
       this.charts.revenueTrend.update();
     }
+
+    // Users growth chart - cumulative users over time
+    const usersByDay = new Map();
+    users.forEach((user) => {
+      if (user.createdAt) {
+        const date = user.createdAt.toISOString().slice(0, 10);
+        usersByDay.set(date, (usersByDay.get(date) || 0) + 1);
+      }
+    });
+    const usersLabels = Array.from(usersByDay.keys()).sort();
+    // Calculate cumulative values
+    let cumulativeUsers = 0;
+    const usersValues = usersLabels.map((label) => {
+      cumulativeUsers += usersByDay.get(label);
+      return cumulativeUsers;
+    });
+    if (this.charts.usersGrowth) {
+      this.charts.usersGrowth.data.labels = usersLabels;
+      this.charts.usersGrowth.data.datasets[0].data = usersValues;
+      this.charts.usersGrowth.update();
+    }
+
+    // Specs growth chart - cumulative specs over time
+    const specsByDayCumulative = new Map();
+    Array.from(this.store.specs.values()).forEach((spec) => {
+      if (spec.createdAt) {
+        const date = spec.createdAt.toISOString().slice(0, 10);
+        specsByDayCumulative.set(date, (specsByDayCumulative.get(date) || 0) + 1);
+      }
+    });
+    const specsLabelsCumulative = Array.from(specsByDayCumulative.keys()).sort();
+    // Calculate cumulative values
+    let cumulativeSpecs = 0;
+    const specsValuesCumulative = specsLabelsCumulative.map((label) => {
+      cumulativeSpecs += specsByDayCumulative.get(label);
+      return cumulativeSpecs;
+    });
+    if (this.charts.specsGrowth) {
+      this.charts.specsGrowth.data.labels = specsLabelsCumulative;
+      this.charts.specsGrowth.data.datasets[0].data = specsValuesCumulative;
+      this.charts.specsGrowth.update();
+    }
   }
 
   updateStatistics() {
@@ -1933,6 +2307,198 @@ class AdminDashboardApp {
       const element = utils.dom(`[data-stats-detail="${key}"]`);
       if (element) element.textContent = value;
     });
+
+    // Update growth charts based on selected range
+    this.updateGrowthCharts(startTimestamp, endTimestamp, rangeKey);
+  }
+
+  updateGrowthCharts(startTimestamp, endTimestamp, rangeKey) {
+    const users = this.store.getUsersSorted();
+    const specs = Array.from(this.store.specs.values());
+
+    // Filter data by range
+    const usersInRange = users.filter((user) => {
+      const createdAt = user.createdAt?.getTime() || 0;
+      return createdAt >= startTimestamp && createdAt <= endTimestamp;
+    });
+
+    const specsInRange = specs.filter((spec) => {
+      const createdAt = spec.createdAt?.getTime() || 0;
+      return createdAt >= startTimestamp && createdAt <= endTimestamp;
+    });
+
+    // Group by time period based on range
+    let groupByFunction;
+    let formatLabel;
+    
+    if (rangeKey === "day") {
+      groupByFunction = (date) => date.toISOString().slice(0, 10);
+      formatLabel = (dateStr) => {
+        const d = new Date(dateStr);
+        return `${d.getDate()}/${d.getMonth() + 1}`;
+      };
+    } else if (rangeKey === "week") {
+      groupByFunction = (date) => {
+        const weekStart = new Date(date);
+        weekStart.setDate(date.getDate() - date.getDay());
+        return weekStart.toISOString().slice(0, 10);
+      };
+      formatLabel = (dateStr) => {
+        const d = new Date(dateStr);
+        return `Week ${Math.ceil((d.getDate()) / 7)}/${d.getMonth() + 1}`;
+      };
+    } else {
+      // month
+      groupByFunction = (date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      formatLabel = (dateStr) => {
+        const [year, month] = dateStr.split('-');
+        return `${month}/${year.slice(2)}`;
+      };
+    }
+
+    // Users growth chart
+    const usersByPeriod = new Map();
+    usersInRange.forEach((user) => {
+      if (user.createdAt) {
+        const period = groupByFunction(user.createdAt);
+        usersByPeriod.set(period, (usersByPeriod.get(period) || 0) + 1);
+      }
+    });
+    const usersPeriodLabels = Array.from(usersByPeriod.keys()).sort();
+    let cumulativeUsers = 0;
+    const usersPeriodValues = usersPeriodLabels.map((label) => {
+      cumulativeUsers += usersByPeriod.get(label);
+      return cumulativeUsers;
+    });
+    if (this.charts.usersGrowth) {
+      this.charts.usersGrowth.data.labels = usersPeriodLabels.map(formatLabel);
+      this.charts.usersGrowth.data.datasets[0].data = usersPeriodValues;
+      this.charts.usersGrowth.update();
+    }
+
+    // Specs growth chart
+    const specsByPeriod = new Map();
+    specsInRange.forEach((spec) => {
+      if (spec.createdAt) {
+        const period = groupByFunction(spec.createdAt);
+        specsByPeriod.set(period, (specsByPeriod.get(period) || 0) + 1);
+      }
+    });
+    const specsPeriodLabels = Array.from(specsByPeriod.keys()).sort();
+    let cumulativeSpecs = 0;
+    const specsPeriodValues = specsPeriodLabels.map((label) => {
+      cumulativeSpecs += specsByPeriod.get(label);
+      return cumulativeSpecs;
+    });
+    if (this.charts.specsGrowth) {
+      this.charts.specsGrowth.data.labels = specsPeriodLabels.map(formatLabel);
+      this.charts.specsGrowth.data.datasets[0].data = specsPeriodValues;
+      this.charts.specsGrowth.update();
+    }
+
+    // Update Conversion Funnel
+    this.updateConversionFunnel();
+
+    // Update Retention Metrics
+    this.updateRetentionMetrics();
+  }
+
+  updateConversionFunnel() {
+    if (!this.dom.conversionFunnel) return;
+
+    const users = this.store.getUsersSorted();
+    const totalUsers = users.length;
+    const proUsers = users.filter(u => u.plan === "pro").length;
+    const purchases = this.store.purchases;
+    const totalPurchases = purchases.length;
+
+    // Calculate conversion rates
+    const visitors = totalUsers * 3; // Estimate visitors (3x users)
+    const signups = totalUsers;
+    const proConversions = proUsers;
+    const purchaseConversions = totalPurchases;
+
+    const stages = [
+      { label: "Visitors", value: visitors, percentage: 100 },
+      { label: "Signups", value: signups, percentage: (signups / visitors) * 100 },
+      { label: "Pro Users", value: proConversions, percentage: (proConversions / signups) * 100 },
+      { label: "Purchases", value: purchaseConversions, percentage: (purchaseConversions / signups) * 100 }
+    ];
+
+    const maxValue = Math.max(...stages.map(s => s.value));
+
+    const html = stages.map(stage => {
+      const width = (stage.value / maxValue) * 100;
+      return `
+        <div class="funnel-stage">
+          <div class="funnel-stage-label">${stage.label}</div>
+          <div class="funnel-stage-bar">
+            <div class="funnel-stage-fill" style="width: ${width}%">${utils.formatNumber(stage.value)}</div>
+          </div>
+          <div class="funnel-stage-value">${utils.formatNumber(stage.value)}</div>
+          <div class="funnel-stage-percentage">${stage.percentage.toFixed(1)}%</div>
+        </div>
+      `;
+    }).join("");
+
+    this.dom.conversionFunnel.innerHTML = html;
+  }
+
+  updateRetentionMetrics() {
+    if (!this.dom.retentionMetrics) return;
+
+    const users = this.store.getUsersSorted();
+    const totalUsers = users.length;
+    const now = Date.now();
+    const oneDayAgo = now - (24 * 60 * 60 * 1000);
+    const sevenDaysAgo = now - (7 * 24 * 60 * 60 * 1000);
+    const thirtyDaysAgo = now - (30 * 24 * 60 * 60 * 1000);
+
+    // Calculate DAU (Daily Active Users)
+    const dau = users.filter(u => u.lastActive && u.lastActive.getTime() >= oneDayAgo).length;
+
+    // Calculate MAU (Monthly Active Users)
+    const mau = users.filter(u => u.lastActive && u.lastActive.getTime() >= thirtyDaysAgo).length;
+
+    // Calculate Retention Rate (users active in last 7 days / users created in last 30 days)
+    const usersCreatedLast30Days = users.filter(u => u.createdAt && u.createdAt.getTime() >= thirtyDaysAgo).length;
+    const usersActiveLast7Days = users.filter(u => u.lastActive && u.lastActive.getTime() >= sevenDaysAgo).length;
+    const retentionRate = usersCreatedLast30Days > 0 
+      ? (usersActiveLast7Days / usersCreatedLast30Days) * 100 
+      : 0;
+
+    // Calculate Churn Rate (users inactive for 30+ days / total users)
+    const inactiveUsers = users.filter(u => !u.lastActive || u.lastActive.getTime() < thirtyDaysAgo).length;
+    const churnRate = totalUsers > 0 ? (inactiveUsers / totalUsers) * 100 : 0;
+
+    const html = `
+      <div class="retention-card">
+        <h4>DAU</h4>
+        <div class="retention-value">${utils.formatNumber(dau)}</div>
+        <div class="retention-change">Daily Active Users</div>
+      </div>
+      <div class="retention-card">
+        <h4>MAU</h4>
+        <div class="retention-value">${utils.formatNumber(mau)}</div>
+        <div class="retention-change">Monthly Active Users</div>
+      </div>
+      <div class="retention-card">
+        <h4>Retention Rate</h4>
+        <div class="retention-value">${retentionRate.toFixed(1)}%</div>
+        <div class="retention-change ${retentionRate >= 50 ? "positive" : "negative"}">
+          ${usersActiveLast7Days} / ${usersCreatedLast30Days} users
+        </div>
+      </div>
+      <div class="retention-card">
+        <h4>Churn Rate</h4>
+        <div class="retention-value">${churnRate.toFixed(1)}%</div>
+        <div class="retention-change ${churnRate < 10 ? "positive" : "negative"}">
+          ${inactiveUsers} inactive users
+        </div>
+      </div>
+    `;
+
+    this.dom.retentionMetrics.innerHTML = html;
   }
 
   async exportUsersCsv() {
@@ -1950,6 +2516,19 @@ class AdminDashboardApp {
     ];
     const rows = this.store.getUsersSorted().map((user) => {
       const entitlement = this.store.getEntitlement(user.id);
+      
+      // Calculate credits: check entitlement first, then fallback to free_specs_remaining
+      let credits = "";
+      if (entitlement?.unlimited) {
+        credits = "Unlimited";
+      } else if (entitlement?.specCredits != null) {
+        credits = entitlement.specCredits;
+      } else if (user.freeSpecsRemaining != null) {
+        credits = user.freeSpecsRemaining;
+      } else {
+        credits = 0;
+      }
+      
       return [
         user.id,
         user.email,
@@ -1958,7 +2537,7 @@ class AdminDashboardApp {
         utils.formatDate(user.createdAt),
         utils.formatDate(user.lastActive),
         this.store.getSpecCount(user.id),
-        entitlement?.specCredits ?? "",
+        credits,
         entitlement?.unlimited ? "yes" : "no",
         user.emailVerified ? "yes" : "no"
       ]
@@ -2797,6 +3376,422 @@ class AdminDashboardApp {
       }
       this.apiHealthCheckInProgress = false;
     }
+  }
+
+  // Quick Actions
+  openQuickAction(action) {
+    const modal = this.dom.quickActions.modal;
+    const title = this.dom.quickActions.modalTitle;
+    const body = this.dom.quickActions.modalBody;
+    
+    if (!modal || !title || !body) return;
+
+    const actions = {
+      "add-credits": {
+        title: "Add Credits to User",
+        content: `
+          <form id="quick-action-form" class="quick-action-form">
+            <div class="form-group">
+              <label for="quick-user-id">User ID or Email</label>
+              <input type="text" id="quick-user-id" required placeholder="Enter user ID or email">
+            </div>
+            <div class="form-group">
+              <label for="quick-credits-amount">Amount</label>
+              <input type="number" id="quick-credits-amount" required min="1" placeholder="Number of credits">
+            </div>
+            <div class="form-group">
+              <label for="quick-credits-reason">Reason</label>
+              <textarea id="quick-credits-reason" rows="3" placeholder="Reason for adding credits"></textarea>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="primary">Add Credits</button>
+              <button type="button" class="secondary" data-modal-dismiss>Cancel</button>
+            </div>
+          </form>
+        `
+      },
+      "change-plan": {
+        title: "Change User Plan",
+        content: `
+          <form id="quick-action-form" class="quick-action-form">
+            <div class="form-group">
+              <label for="quick-user-id-plan">User ID or Email</label>
+              <input type="text" id="quick-user-id-plan" required placeholder="Enter user ID or email">
+            </div>
+            <div class="form-group">
+              <label for="quick-plan-select">New Plan</label>
+              <select id="quick-plan-select" required>
+                <option value="free">Free</option>
+                <option value="pro">Pro</option>
+              </select>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="primary">Change Plan</button>
+              <button type="button" class="secondary" data-modal-dismiss>Cancel</button>
+            </div>
+          </form>
+        `
+      },
+      "reset-password": {
+        title: "Reset User Password",
+        content: `
+          <form id="quick-action-form" class="quick-action-form">
+            <div class="form-group">
+              <label for="quick-user-id-password">User ID or Email</label>
+              <input type="text" id="quick-user-id-password" required placeholder="Enter user ID or email">
+            </div>
+            <div class="form-group">
+              <p class="form-hint">A password reset email will be sent to the user.</p>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="primary">Send Reset Email</button>
+              <button type="button" class="secondary" data-modal-dismiss>Cancel</button>
+            </div>
+          </form>
+        `
+      },
+      "toggle-user": {
+        title: "Disable/Enable User",
+        content: `
+          <form id="quick-action-form" class="quick-action-form">
+            <div class="form-group">
+              <label for="quick-user-id-toggle">User ID or Email</label>
+              <input type="text" id="quick-user-id-toggle" required placeholder="Enter user ID or email">
+            </div>
+            <div class="form-group">
+              <label for="quick-user-action">Action</label>
+              <select id="quick-user-action" required>
+                <option value="disable">Disable User</option>
+                <option value="enable">Enable User</option>
+              </select>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="primary">Apply</button>
+              <button type="button" class="secondary" data-modal-dismiss>Cancel</button>
+            </div>
+          </form>
+        `
+      }
+    };
+
+    const actionData = actions[action];
+    if (!actionData) return;
+
+    title.textContent = actionData.title;
+    body.innerHTML = actionData.content;
+    modal.classList.remove("hidden");
+
+    // Bind form submit
+    const form = body.querySelector("#quick-action-form");
+    if (form) {
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        this.handleQuickAction(action, form);
+      });
+    }
+  }
+
+  async handleQuickAction(action, form) {
+    try {
+      const token = await auth.currentUser?.getIdToken();
+      if (!token) throw new Error("Not authenticated");
+
+      const apiBaseUrl = typeof window.getApiBaseUrl === "function"
+        ? window.getApiBaseUrl()
+        : "https://specifys-ai.onrender.com";
+
+      let response;
+      const userId = form.querySelector("input[type='text']")?.value;
+
+      switch (action) {
+        case "add-credits":
+          const amount = parseInt(form.querySelector("#quick-credits-amount")?.value);
+          const reason = form.querySelector("#quick-credits-reason")?.value || "Admin manual grant";
+          response = await fetch(`${apiBaseUrl}/api/admin/users/${userId}/credits`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`
+            },
+            body: JSON.stringify({ amount, reason })
+          });
+          break;
+        case "change-plan":
+          const plan = form.querySelector("#quick-plan-select")?.value;
+          response = await fetch(`${apiBaseUrl}/api/admin/users/${userId}/plan`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`
+            },
+            body: JSON.stringify({ plan })
+          });
+          break;
+        case "reset-password":
+          response = await fetch(`${apiBaseUrl}/api/admin/users/${userId}/reset-password`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`
+            }
+          });
+          break;
+        case "toggle-user":
+          const userAction = form.querySelector("#quick-user-action")?.value;
+          response = await fetch(`${apiBaseUrl}/api/admin/users/${userId}/toggle`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`
+            },
+            body: JSON.stringify({ disabled: userAction === "disable" })
+          });
+          break;
+      }
+
+      if (response?.ok) {
+        alert("Action completed successfully!");
+        this.dom.quickActions.modal?.classList.add("hidden");
+        this.refreshAllData();
+      } else {
+        const error = await response?.json();
+        alert(`Error: ${error?.error || error?.message || "Failed to complete action"}`);
+      }
+    } catch (error) {
+      console.error("Quick action error:", error);
+      alert(`Error: ${error.message}`);
+    }
+  }
+
+  // Advanced Filters
+  toggleSelectAllUsers(checked) {
+    const checkboxes = this.dom.usersTable?.querySelectorAll('input[type="checkbox"][data-user-id]');
+    checkboxes?.forEach((checkbox) => {
+      checkbox.checked = checked;
+      const userId = checkbox.dataset.userId;
+      if (checked) {
+        this.selectedUsers.add(userId);
+      } else {
+        this.selectedUsers.delete(userId);
+      }
+    });
+    this.updateBulkActionsUI();
+  }
+
+  updateBulkActionsUI() {
+    const count = this.selectedUsers.size;
+    if (this.dom.bulkSelectedCount) {
+      this.dom.bulkSelectedCount.textContent = count;
+    }
+    if (this.dom.bulkActionsBtn) {
+      this.dom.bulkActionsBtn.style.display = count > 0 ? "inline-flex" : "none";
+    }
+  }
+
+  // Alerts
+  async loadAlerts() {
+    try {
+      const token = await auth.currentUser?.getIdToken();
+      if (!token) return;
+
+      const apiBaseUrl = typeof window.getApiBaseUrl === "function"
+        ? window.getApiBaseUrl()
+        : "https://specifys-ai.onrender.com";
+
+      // Load errors from errorLogs collection
+      const errorsResponse = await fetch(`${apiBaseUrl}/api/admin/errors`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (errorsResponse.ok) {
+        const data = await errorsResponse.json();
+        this.alerts = (data.errors || []).map(err => ({
+          id: err.id,
+          type: "error",
+          severity: err.frequency > 10 ? "critical" : err.frequency > 5 ? "warning" : "info",
+          title: err.errorType || "Error",
+          description: err.errorMessage,
+          timestamp: err.lastOccurrence?.toDate?.() || new Date(),
+          frequency: err.frequency
+        }));
+      }
+
+      // Add user alerts (inactive users, etc.)
+      const users = this.store.getUsersSorted();
+      const now = Date.now();
+      const thirtyDaysAgo = now - (30 * 24 * 60 * 60 * 1000);
+
+      users.forEach(user => {
+        if (user.disabled) {
+          this.alerts.push({
+            id: `user-disabled-${user.id}`,
+            type: "user",
+            severity: "warning",
+            title: "Disabled User",
+            description: `User ${user.email || user.id} is disabled`,
+            timestamp: user.lastActive || user.createdAt,
+            userId: user.id
+          });
+        } else if (user.lastActive && user.lastActive.getTime() < thirtyDaysAgo) {
+          this.alerts.push({
+            id: `user-inactive-${user.id}`,
+            type: "user",
+            severity: "info",
+            title: "Inactive User",
+            description: `User ${user.email || user.id} hasn't been active for 30+ days`,
+            timestamp: user.lastActive,
+            userId: user.id
+          });
+        }
+      });
+
+      this.renderAlerts();
+    } catch (error) {
+      console.error("Failed to load alerts:", error);
+    }
+  }
+
+  renderAlerts() {
+    if (!this.dom.alertsList) return;
+
+    const severityFilter = this.dom.alertsSeverityFilter?.value || "all";
+    const filtered = severityFilter === "all"
+      ? this.alerts
+      : this.alerts.filter(a => a.severity === severityFilter);
+
+    if (!filtered.length) {
+      this.dom.alertsList.innerHTML = '<div class="alerts-placeholder">No alerts found.</div>';
+      return;
+    }
+
+    const html = filtered.map(alert => `
+      <div class="alert-item ${alert.severity}">
+        <div class="alert-icon">
+          <i class="fas fa-${alert.severity === "critical" ? "exclamation-triangle" : alert.severity === "warning" ? "exclamation-circle" : "info-circle"}"></i>
+        </div>
+        <div class="alert-content">
+          <div class="alert-title">${alert.title}</div>
+          <div class="alert-description">${alert.description}</div>
+          <div class="alert-meta">
+            <span>${utils.formatRelative(alert.timestamp)}</span>
+            ${alert.frequency ? `<span>Occurred ${alert.frequency} times</span>` : ""}
+          </div>
+        </div>
+        <div class="alert-actions">
+          ${alert.userId ? `<button class="alert-action-btn" data-user-id="${alert.userId}">View User</button>` : ""}
+        </div>
+      </div>
+    `).join("");
+
+    this.dom.alertsList.innerHTML = html;
+
+    // Bind view user buttons
+    this.dom.alertsList.querySelectorAll('[data-user-id]').forEach(btn => {
+      btn.addEventListener("click", () => {
+        const userId = btn.dataset.userId;
+        this.showUserActivity(userId);
+      });
+    });
+  }
+
+  markAllAlertsRead() {
+    this.alerts = [];
+    this.renderAlerts();
+  }
+
+  // User Activity Timeline
+  async showUserActivity(userId) {
+    if (!this.dom.userActivityModal) return;
+
+    this.dom.userActivityTitle.textContent = `Activity Timeline - ${userId}`;
+    this.dom.userActivityTimeline.innerHTML = '<div class="modal-placeholder">Loading...</div>';
+    this.dom.userActivityModal.classList.remove("hidden");
+
+    try {
+      const user = this.store.getUser(userId);
+      const specs = Array.from(this.store.specs.values()).filter(s => s.userId === userId);
+      const purchases = this.store.purchases.filter(p => p.userId === userId);
+      const activities = this.store.activity.filter(a => a.meta?.userId === userId);
+
+      const timelineItems = [
+        ...specs.map(spec => ({
+          type: "spec",
+          title: `Spec Created: ${spec.title || "Untitled"}`,
+          description: `Created at ${utils.formatDate(spec.createdAt)}`,
+          timestamp: spec.createdAt
+        })),
+        ...purchases.map(purchase => ({
+          type: "payment",
+          title: `Purchase: ${purchase.productName || "Unknown"}`,
+          description: `Amount: $${purchase.total || 0}`,
+          timestamp: purchase.createdAt
+        })),
+        ...activities.map(activity => ({
+          type: activity.type,
+          title: activity.title,
+          description: activity.description,
+          timestamp: activity.timestamp
+        }))
+      ].sort((a, b) => (b.timestamp?.getTime() || 0) - (a.timestamp?.getTime() || 0));
+
+      const html = timelineItems.length
+        ? `<div class="timeline">${timelineItems.map(item => `
+          <div class="timeline-item ${item.type}">
+            <div class="timeline-item-header">
+              <div class="timeline-item-title">${item.title}</div>
+              <div class="timeline-item-time">${utils.formatRelative(item.timestamp)}</div>
+            </div>
+            <div class="timeline-item-description">${item.description}</div>
+          </div>
+        `).join("")}</div>`
+        : '<div class="modal-placeholder">No activity found for this user.</div>';
+
+      this.dom.userActivityTimeline.innerHTML = html;
+    } catch (error) {
+      console.error("Failed to load user activity:", error);
+      this.dom.userActivityTimeline.innerHTML = '<div class="modal-placeholder">Error loading activity.</div>';
+    }
+  }
+
+  // Performance Metrics
+  async updatePerformanceMetrics() {
+    try {
+      const token = await auth.currentUser?.getIdToken();
+      if (!token) return;
+
+      const apiBaseUrl = typeof window.getApiBaseUrl === "function"
+        ? window.getApiBaseUrl()
+        : "https://specifys-ai.onrender.com";
+
+      const range = this.dom.performanceRange?.value || "day";
+      const response = await fetch(`${apiBaseUrl}/api/admin/performance?range=${range}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (this.dom.performanceMetrics.apiResponse) {
+          this.dom.performanceMetrics.apiResponse.textContent = `${(data.avgResponseTime || 0).toFixed(0)}ms`;
+        }
+        if (this.dom.performanceMetrics.errorRate) {
+          this.dom.performanceMetrics.errorRate.textContent = `${(data.errorRate || 0).toFixed(2)}%`;
+        }
+        if (this.dom.performanceMetrics.connections) {
+          this.dom.performanceMetrics.connections.textContent = data.activeConnections || 0;
+        }
+        if (this.dom.performanceMetrics.uptime) {
+          this.dom.performanceMetrics.uptime.textContent = `${(data.uptime || 100).toFixed(2)}%`;
+        }
+      }
+    } catch (error) {
+      console.error("Failed to update performance metrics:", error);
+    }
+  }
+
+  // Export PDF
+  async exportUsersPdf() {
+    // For now, just show a message - PDF generation would require a library like jsPDF
+    alert("PDF export feature coming soon. Please use CSV export for now.");
   }
 }
 

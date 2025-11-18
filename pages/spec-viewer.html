@@ -217,6 +217,131 @@
 
 
     
+    <!-- Side Menu - Fixed Position -->
+    <aside class="side-menu" id="sideMenu">
+        <!-- User Section -->
+        <div class="side-menu-user">
+            <div class="side-menu-user-avatar" id="side-menu-user-avatar">
+                <span id="side-menu-user-initial">👤</span>
+            </div>
+            <span class="side-menu-user-name" id="side-menu-user-name">User</span>
+        </div>
+        
+        <div class="side-menu-divider"></div>
+        
+        <!-- Search Box -->
+        <div class="side-menu-search">
+            <input type="text" class="side-menu-search-input" id="side-menu-search-input" placeholder="Search..." oninput="filterMenuItems(this.value)">
+            <i class="fa fa-search side-menu-search-icon"></i>
+        </div>
+        
+        <div class="side-menu-divider"></div>
+        
+        <!-- Main Navigation -->
+        <nav class="side-menu-nav">
+            <div class="side-menu-item" data-tab="overview">
+                <button class="side-menu-button active" onclick="showTab('overview')" id="overviewTab">
+                    <i class="fa fa-book"></i>
+                    <span class="side-menu-text">Overview</span>
+                    <span class="side-menu-expand-sub" onclick="event.stopPropagation(); toggleSubmenu('overview')" title="Toggle subsections">
+                        <i class="fa fa-chevron-down"></i>
+                    </span>
+                </button>
+                <div class="side-menu-submenu" id="submenu-overview"></div>
+            </div>
+            
+            <div class="side-menu-item" data-tab="technical">
+                <button class="side-menu-button" onclick="showTab('technical')" id="technicalTab" disabled>
+                    <i class="fa fa-cog"></i>
+                    <span class="side-menu-notification-dot" id="technicalNotification" style="display: none;"></span>
+                    <span class="side-menu-text">Technical</span>
+                    <span class="side-menu-expand-sub" onclick="event.stopPropagation(); toggleSubmenu('technical')" title="Toggle subsections">
+                        <i class="fa fa-chevron-down"></i>
+                    </span>
+                </button>
+                <div class="side-menu-submenu" id="submenu-technical"></div>
+            </div>
+            
+            <div class="side-menu-item" data-tab="market">
+                <button class="side-menu-button" onclick="showTab('market')" id="marketTab" disabled>
+                    <i class="fa fa-bar-chart"></i>
+                    <span class="side-menu-notification-dot" id="marketNotification" style="display: none;"></span>
+                    <span class="side-menu-text">Market Research</span>
+                    <span class="side-menu-expand-sub" onclick="event.stopPropagation(); toggleSubmenu('market')" title="Toggle subsections">
+                        <i class="fa fa-chevron-down"></i>
+                    </span>
+                </button>
+                <div class="side-menu-submenu" id="submenu-market"></div>
+            </div>
+            
+            <div class="side-menu-item" data-tab="design">
+                <button class="side-menu-button" onclick="showTab('design')" id="designTab" disabled>
+                    <i class="fa fa-paint-brush"></i>
+                    <span class="side-menu-notification-dot" id="designNotification" style="display: none;"></span>
+                    <span class="side-menu-text">Design & Branding</span>
+                    <span class="side-menu-expand-sub" onclick="event.stopPropagation(); toggleSubmenu('design')" title="Toggle subsections">
+                        <i class="fa fa-chevron-down"></i>
+                    </span>
+                </button>
+                <div class="side-menu-submenu" id="submenu-design"></div>
+            </div>
+            
+            <div class="side-menu-item" data-tab="diagrams">
+                <button class="side-menu-button" onclick="showTab('diagrams')" id="diagramsTab" disabled>
+                    <i class="fa fa-sitemap"></i>
+                    <span class="side-menu-notification-dot" id="diagramsNotification" style="display: none;"></span>
+                    <span class="side-menu-text">Diagrams</span>
+                    <span class="side-menu-expand-sub" onclick="event.stopPropagation(); toggleSubmenu('diagrams')" title="Toggle subsections">
+                        <i class="fa fa-chevron-down"></i>
+                    </span>
+                </button>
+                <div class="side-menu-submenu" id="submenu-diagrams"></div>
+            </div>
+            
+            <div class="side-menu-item" data-tab="prompts">
+                <button class="side-menu-button" onclick="showTab('prompts')" id="promptsTab" disabled>
+                    <i class="fa fa-terminal"></i>
+                    <span class="side-menu-notification-dot" id="promptsNotification" style="display: none;"></span>
+                    <span class="side-menu-text">Prompts</span>
+                    <span class="side-menu-expand-sub" onclick="event.stopPropagation(); toggleSubmenu('prompts')" title="Toggle subsections">
+                        <i class="fa fa-chevron-down"></i>
+                    </span>
+                </button>
+                <div class="side-menu-submenu" id="submenu-prompts"></div>
+            </div>
+            
+            <div class="side-menu-item" data-tab="chat">
+                <button class="side-menu-button" onclick="showTab('chat')" id="chatTab" disabled>
+                    <i class="fa fa-comments"></i>
+                    <span class="side-menu-notification-dot" id="chatNotification" style="display: none;"></span>
+                    <span class="side-menu-text">AI Chat</span>
+                </button>
+            </div>
+            
+            <div class="side-menu-item" data-tab="mockup">
+                <button class="side-menu-button" onclick="showTab('mockup')" id="mockupTab" disabled>
+                    <i class="fa fa-desktop"></i>
+                    <span class="side-menu-notification-dot" id="mockupNotification" style="display: none;"></span>
+                    <span class="side-menu-text">Mockup</span>
+                </button>
+            </div>
+            
+            <div class="side-menu-item" data-tab="export">
+                <button class="side-menu-button" onclick="showTab('export')" id="exportTab">
+                    <i class="fa fa-download"></i>
+                    <span class="side-menu-text">Export</span>
+                </button>
+            </div>
+            
+            <div class="side-menu-item" data-tab="raw" style="display: none;">
+                <button class="side-menu-button" onclick="showTab('raw')" id="rawTab">
+                    <i class="fa fa-code"></i>
+                    <span class="side-menu-text">Raw Data</span>
+                </button>
+            </div>
+        </nav>
+    </aside>
+
     <!-- Main Content -->
     <main id="main-content" class="main-content">
     
@@ -230,35 +355,6 @@
     </div>
     
 <div class="container">
-    <div class="tabs">
-        <button class="tab-button active" onclick="showTab('overview')" id="overviewTab">
-            <i class="fa fa-book"></i> Overview
-        </button>
-        <button class="tab-button" onclick="showTab('technical')" id="technicalTab" disabled>
-            <i class="fa fa-cog"></i> Technical
-        </button>
-        <button class="tab-button" onclick="showTab('market')" id="marketTab" disabled>
-            <i class="fa fa-bar-chart"></i> Market Research
-        </button>
-        <button class="tab-button" onclick="showTab('design')" id="designTab" disabled>
-            <i class="fa fa-paint-brush"></i> Design & Branding
-        </button>
-        <button class="tab-button" onclick="showTab('diagrams')" id="diagramsTab" disabled>
-            <i class="fa fa-sitemap"></i> Diagrams
-        </button>
-        <button class="tab-button" onclick="showTab('prompts')" id="promptsTab" disabled>
-            <i class="fa fa-terminal"></i> Prompts
-        </button>
-        <button class="tab-button" onclick="showTab('chat')" id="chatTab" disabled>
-            <i class="fa fa-comments"></i> AI Chat
-        </button>
-        <button class="tab-button" onclick="showTab('export')" id="exportTab">
-            <i class="fa fa-download"></i> Export
-        </button>
-        <button class="tab-button" onclick="showTab('raw')" id="rawTab" style="display: none;">
-            <i class="fa fa-code"></i> Raw Data
-        </button>
-    </div>
 
     <div class="content">
         <div id="loading" class="loading">
@@ -358,6 +454,34 @@
                         <h3><i class="fa fa-lock"></i> Prompts</h3>
                         <p>Please approve the Overview and generate Technical & Design specifications first to create development prompts.</p>
                     </div>
+                </div>
+            </div>
+            
+            <div id="mockup-content" class="tab-content" style="display: none;">
+                <div class="content-header">
+                    <h2><i class="fa fa-desktop"></i> Frontend Mockups</h2>
+                    <button id="retryMockupBtn" class="btn btn-secondary retry-btn" onclick="retryMockup()" style="display: none;">
+                        <i class="fa fa-refresh"></i> Retry
+                    </button>
+                </div>
+                <div id="mockup-data" class="content-body">
+                    <div id="mockup-generate-section" style="display: none;">
+                        <div style="text-align: center; padding: 40px 20px;">
+                            <i class="fa fa-desktop" style="font-size: 64px; color: #FF6B35; margin-bottom: 20px;"></i>
+                            <h3 style="margin-bottom: 10px;">Create Frontend Mockups</h3>
+                            <p style="color: #666; margin-bottom: 30px;">Generate interactive HTML+CSS mockups based on your specifications</p>
+                            <div style="margin-bottom: 20px;">
+                                <label style="display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer;">
+                                    <input type="checkbox" id="useMockDataCheckbox" style="width: 18px; height: 18px; cursor: pointer;">
+                                    <span style="font-size: 14px; color: #333;">Use mock data (fill with realistic sample data)</span>
+                                </label>
+                            </div>
+                            <button id="generateMockupBtn" class="btn btn-primary" onclick="generateMockupSpec()" style="padding: 12px 32px; font-size: 16px;">
+                                <i class="fa fa-magic"></i> Create Mockups
+                            </button>
+                        </div>
+                    </div>
+                    <div id="mockup-viewer-section" style="display: none;"></div>
                 </div>
             </div>
             
@@ -556,6 +680,11 @@
                         </div>
                         
                         <div class="raw-section">
+                            <h3><i class="fa fa-desktop"></i> Mockups Raw</h3>
+                            <pre id="raw-mockup" class="raw-display"></pre>
+                        </div>
+                        
+                        <div class="raw-section">
                             <h3><i class="fa fa-sitemap"></i> Diagrams Raw</h3>
                             <pre id="raw-diagrams" class="raw-display"></pre>
                         </div>
@@ -628,6 +757,9 @@
 let currentSpecData = null;
 let currentTab = 'overview';
 let isLoading = false;
+
+// Worker endpoints configuration
+const MOCKUPS_WORKER_URL = 'https://mockup.shalom-cohen-111.workers.dev/generate';
 
 // OpenAI Storage helper function
 async function triggerOpenAIUploadForSpec(specId) {
@@ -1027,8 +1159,12 @@ function displaySpec(data) {
         setTabStatus('technicalTab', data.status?.technical === 'ready' ? 'success' : 'pending');
         setTabStatus('marketTab', data.status?.market === 'ready' ? 'success' : 'pending');
     updateStatus('design', data.status?.design || 'pending');
+    updateStatus('mockup', data.status?.mockup || 'pending');
     updateDiagramsStatus(data.diagrams?.generated ? 'ready' : 'pending');
     updateStorageStatus(); // Add storage status update
+    
+    // Update all notification dots
+    updateAllNotificationDots();
     
     // Display content for each tab
 
@@ -1036,6 +1172,7 @@ function displaySpec(data) {
     displayTechnical(data.technical);
     displayMarket(data.market);
     displayDesign(data.design);
+    displayMockup(data.mockups);
     displayDiagramsFromData(data);
     displayPromptsFromData(data);
     displayRaw(data);
@@ -1054,6 +1191,8 @@ function displaySpec(data) {
         }
         if (data.status?.design === 'ready') {
             document.getElementById('designTab').disabled = false;
+            // Enable mockup tab when design is ready
+            document.getElementById('mockupTab').disabled = false;
         }
         
         // Enable diagrams only if both technical and market are ready
@@ -1086,6 +1225,11 @@ function displaySpec(data) {
     // Show overview tab by default
     showTab('overview');
     
+    // Initialize all subsections after content is loaded
+    setTimeout(() => {
+        initializeAllSubsections();
+    }, 500);
+    
     // Spec is already saved to Firebase from processing page
 }
 
@@ -1106,6 +1250,13 @@ function displayOverview(overview) {
     // Format and display
     const formattedContent = formatTextContent(overview);
     container.innerHTML = formattedContent;
+    
+    // Update subsections after content is loaded
+    setTimeout(() => {
+        if (currentTab === 'overview') {
+            updateSubsections('overview');
+        }
+    }, 100);
     
     // Calculate and display complexity score
     const complexityScore = calculateComplexityScore(overview);
@@ -1242,7 +1393,9 @@ function renderComplexityScore(score) {
         <div class="complexity-score-section">
             <div class="complexity-header">
                 <h3><i class="fa fa-chart-line"></i> Complexity Score</h3>
-                <div class="total-score ${getColorClass(score.total)}">${score.total}/100</div>
+                <div class="total-score-wrapper">
+                    <div class="total-score ${getColorClass(score.total)}" data-tooltip="Complexity Score indicates the technical complexity of the project. Higher score (70-100) = High complexity (more complex architecture, integrations, features). Lower score (0-40) = Low complexity (simpler project, easier to build). Medium score (41-69) = Moderate complexity.">${score.total}/100</div>
+                </div>
             </div>
             
             <div class="complexity-metrics">
@@ -1301,6 +1454,13 @@ function displayTechnical(technical) {
     const formattedContent = formatTextContent(technical);
     container.innerHTML = formattedContent;
     
+    // Update subsections after content is loaded
+    setTimeout(() => {
+        if (currentTab === 'technical') {
+            updateSubsections('technical');
+        }
+    }, 100);
+    
     // Update raw data
     document.getElementById('raw-technical').textContent = JSON.stringify(technical, null, 2);
     
@@ -1328,6 +1488,13 @@ function displayMarket(market) {
     // Format the market content
     const formattedContent = formatTextContent(market);
     container.innerHTML = formattedContent;
+    
+    // Update subsections after content is loaded
+    setTimeout(() => {
+        if (currentTab === 'market') {
+            updateSubsections('market');
+        }
+    }, 100);
     
     // Update raw data
     document.getElementById('raw-market').textContent = JSON.stringify(market, null, 2);
@@ -1358,6 +1525,13 @@ function displayDesign(design) {
 
     // Format the remaining design content (which includes Visual Style Guide with Color Palette)
     const formattedContent = formatTextContent(design);
+    
+    // Update subsections after content is loaded
+    setTimeout(() => {
+        if (currentTab === 'design') {
+            updateSubsections('design');
+        }
+    }, 100);
 
     // Build Preview buttons HTML to insert within Visual Style Guide
     let previewButtonsHTML = '';
@@ -1705,6 +1879,7 @@ function displayRaw(data) {
     document.getElementById('raw-technical').textContent = data.technical ? JSON.stringify(data.technical, null, 2) : 'No technical data available';
     document.getElementById('raw-market').textContent = data.market ? JSON.stringify(data.market, null, 2) : 'No market data available';
     document.getElementById('raw-design').textContent = data.design ? JSON.stringify(data.design, null, 2) : 'No design data available';
+    document.getElementById('raw-mockup').textContent = data.mockups ? JSON.stringify(data.mockups, null, 2) : 'No mockups data available';
     document.getElementById('raw-diagrams').textContent = data.diagrams ? JSON.stringify(data.diagrams, null, 2) : 'No diagrams data available';
     document.getElementById('raw-prompts').textContent = data.prompts ? JSON.stringify(data.prompts, null, 2) : 'No prompts data available';
     
@@ -3806,6 +3981,83 @@ function updateStatus(type, status) {
         element.className = `status-value ${status}`;
 
     }
+    // Update notification dot based on status
+    updateNotificationDot(type, status);
+}
+
+// Get viewed tabs for current spec
+function getViewedTabs() {
+    if (!currentSpecData || !currentSpecData.id) return new Set();
+    const key = `viewedTabs_${currentSpecData.id}`;
+    const viewed = localStorage.getItem(key);
+    return viewed ? new Set(JSON.parse(viewed)) : new Set();
+}
+
+// Mark tab as viewed
+function markTabAsViewed(type) {
+    if (!currentSpecData || !currentSpecData.id) return;
+    const key = `viewedTabs_${currentSpecData.id}`;
+    const viewed = getViewedTabs();
+    viewed.add(type);
+    localStorage.setItem(key, JSON.stringify(Array.from(viewed)));
+}
+
+// Update notification dot visibility based on status
+function updateNotificationDot(type, status) {
+    const notificationDot = document.getElementById(`${type}Notification`);
+    if (!notificationDot) return;
+    
+    // Show notification dot when status is "ready" and tab is not currently active
+    const tabButton = document.getElementById(`${type}Tab`);
+    const isActive = tabButton && tabButton.classList.contains('active');
+    
+    // Also check for mockup status (which uses 'mockup' key)
+    let actualStatus = status;
+    if (type === 'mockup' && currentSpecData && currentSpecData.status) {
+        actualStatus = currentSpecData.status.mockup || status;
+    }
+    
+    // Check if tab was already viewed (except for chat which is always a one-time notification)
+    const viewedTabs = getViewedTabs();
+    const wasViewed = viewedTabs.has(type);
+    
+    // For chat, always show notification if status is ready and not active (one-time notification)
+    // For other tabs, only show if not viewed yet
+    if (type === 'chat') {
+        if (actualStatus === 'ready' && !isActive) {
+            notificationDot.style.display = 'block';
+        } else {
+            notificationDot.style.display = 'none';
+        }
+    } else {
+        // For other tabs, show only if ready, not active, and not viewed yet
+        if (actualStatus === 'ready' && !isActive && !wasViewed) {
+            notificationDot.style.display = 'block';
+        } else {
+            notificationDot.style.display = 'none';
+        }
+    }
+}
+
+// Update all notification dots based on current spec data
+function updateAllNotificationDots() {
+    if (!currentSpecData || !currentSpecData.status) return;
+    
+    const statusMap = {
+        'technical': currentSpecData.status.technical,
+        'market': currentSpecData.status.market,
+        'design': currentSpecData.status.design,
+        'diagrams': currentSpecData.status.diagrams,
+        'mockup': currentSpecData.status.mockup,
+        'chat': currentSpecData.status.chat,
+        'prompts': currentSpecData.status.prompts
+    };
+    
+    Object.keys(statusMap).forEach(type => {
+        if (statusMap[type]) {
+            updateNotificationDot(type, statusMap[type]);
+        }
+    });
 }
 
 function updateTabLoadingState(type, isLoading) {
@@ -3856,12 +4108,25 @@ function showTab(tabName) {
     });
     
     // Remove active class from all buttons
-    document.querySelectorAll('.tab-button').forEach(btn => {
+    document.querySelectorAll('.side-menu-button').forEach(btn => {
         btn.classList.remove('active');
     });
     
     // Show selected tab content
-    document.getElementById(`${tabName}-content`).style.display = 'block';
+    const tabContent = document.getElementById(`${tabName}-content`);
+    if (tabContent) {
+        tabContent.style.display = 'block';
+        
+        // Scroll to top of the tab content
+        setTimeout(() => {
+            const contentHeader = tabContent.querySelector('.content-header');
+            if (contentHeader) {
+                contentHeader.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else {
+                tabContent.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }, 100);
+    }
     
     // Add active class to selected button
     const tabButton = document.getElementById(`${tabName}Tab`);
@@ -3869,8 +4134,223 @@ function showTab(tabName) {
         tabButton.classList.add('active');
     }
     
+    // Hide notification dot for active tab and mark as viewed (except chat which is one-time)
+    const notificationDot = document.getElementById(`${tabName}Notification`);
+    if (notificationDot) {
+        notificationDot.style.display = 'none';
+    }
+    
+    // Mark tab as viewed (except chat - it's a one-time notification)
+    if (tabName !== 'chat') {
+        markTabAsViewed(tabName);
+    }
+    
+    // Update subsections for the active tab (but don't close other submenus)
+    updateSubsections(tabName);
+    
     currentTab = tabName;
 }
+
+// Update subsections in side menu based on active tab
+function updateSubsections(tabName) {
+    const submenuContainer = document.getElementById(`submenu-${tabName}`);
+    if (!submenuContainer) return;
+    
+    // If submenu already has content, don't overwrite it (preserve expanded state)
+    if (submenuContainer.innerHTML.trim() !== '') {
+        return;
+    }
+    
+    const tabContent = document.getElementById(`${tabName}-content`);
+    if (!tabContent) {
+        submenuContainer.innerHTML = '';
+        // Hide expand button if no subsections
+        const expandBtn = document.querySelector(`[data-tab="${tabName}"] .side-menu-expand-sub`);
+        if (expandBtn) {
+            expandBtn.style.display = 'none';
+        }
+        return;
+    }
+    
+    // Find all content sections with h3 headings
+    const sections = tabContent.querySelectorAll('.content-section h3');
+    if (sections.length === 0) {
+        submenuContainer.innerHTML = '';
+        // Hide expand button if no subsections
+        const expandBtn = document.querySelector(`[data-tab="${tabName}"] .side-menu-expand-sub`);
+        if (expandBtn) {
+            expandBtn.style.display = 'none';
+        }
+        return;
+    }
+    
+    // Show expand button if there are subsections
+    const expandBtn = document.querySelector(`[data-tab="${tabName}"] .side-menu-expand-sub`);
+    if (expandBtn) {
+        expandBtn.style.display = '';
+    }
+    
+    // Create subsections list
+    let html = '';
+    sections.forEach((section, index) => {
+        const sectionText = section.textContent.trim();
+        const sectionId = `subsection-${tabName}-${index}`;
+        
+        // Add id to section for scrolling
+        const sectionElement = section.closest('.content-section');
+        if (sectionElement && !sectionElement.id) {
+            sectionElement.id = sectionId;
+        }
+        
+        // Remove icon from text if exists
+        const cleanText = sectionText.replace(/^[^\s]+\s/, '');
+        
+        html += `
+            <div class="subsection-item" onclick="scrollToSection('${sectionId}')">
+                <span>${cleanText}</span>
+            </div>
+        `;
+    });
+    
+    submenuContainer.innerHTML = html;
+}
+
+// Initialize all subsections when page loads
+function initializeAllSubsections() {
+    const tabs = ['overview', 'technical', 'market', 'design', 'diagrams', 'prompts'];
+    tabs.forEach(tabName => {
+        const tabContent = document.getElementById(`${tabName}-content`);
+        if (tabContent) {
+            updateSubsections(tabName);
+        }
+    });
+}
+
+// Toggle submenu
+window.toggleSubmenu = function(tabName) {
+    const submenu = document.getElementById(`submenu-${tabName}`);
+    if (submenu) {
+        submenu.classList.toggle('expanded');
+    }
+};
+
+// Filter menu items based on search
+window.filterMenuItems = function(searchTerm) {
+    const searchLower = searchTerm.toLowerCase().trim();
+    const menuItems = document.querySelectorAll('.side-menu-item');
+    const submenuItems = document.querySelectorAll('.subsection-item');
+    
+    if (!searchTerm || searchTerm.trim() === '') {
+        // Show all items
+        menuItems.forEach(item => {
+            item.style.display = '';
+        });
+        submenuItems.forEach(item => {
+            item.style.display = '';
+        });
+        return;
+    }
+    
+    // Filter main menu items
+    menuItems.forEach(item => {
+        const button = item.querySelector('.side-menu-button');
+        const buttonText = button ? button.textContent.toLowerCase() : '';
+        const submenu = item.querySelector('.side-menu-submenu');
+        let hasMatch = false;
+        
+        // Check if main item matches
+        if (buttonText.includes(searchLower)) {
+            hasMatch = true;
+        }
+        
+        // Check if any subsection matches
+        if (submenu) {
+            const subsections = submenu.querySelectorAll('.subsection-item');
+            let hasSubsectionMatch = false;
+            
+            subsections.forEach(subsection => {
+                const subsectionText = subsection.textContent.toLowerCase();
+                if (subsectionText.includes(searchLower)) {
+                    hasSubsectionMatch = true;
+                    subsection.style.display = '';
+                    hasMatch = true;
+                } else {
+                    subsection.style.display = 'none';
+                }
+            });
+            
+            // Expand submenu if there's a match
+            if (hasSubsectionMatch) {
+                submenu.classList.add('expanded');
+            }
+        }
+        
+        // Show/hide main item
+        if (hasMatch) {
+            item.style.display = '';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+};
+
+// Scroll to section
+window.scrollToSection = function(sectionId) {
+    // First, make sure the correct tab is shown
+    const section = document.getElementById(sectionId);
+    if (!section) {
+        console.warn('Section not found:', sectionId);
+        return;
+    }
+    
+    // Find which tab content contains this section
+    const tabContent = section.closest('.tab-content');
+    if (tabContent) {
+        // Show the tab content
+        document.querySelectorAll('.tab-content').forEach(tab => {
+            tab.style.display = 'none';
+        });
+        tabContent.style.display = 'block';
+        
+        // Update active tab button
+        const tabName = tabContent.id.replace('-content', '');
+        document.querySelectorAll('.side-menu-button').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        const tabButton = document.getElementById(`${tabName}Tab`);
+        if (tabButton) {
+            tabButton.classList.add('active');
+        }
+        
+        // Update currentTab
+        currentTab = tabName;
+    }
+    
+    // Scroll to section - center it in the viewport
+    setTimeout(() => {
+        // Wait for tab content to be visible
+        const sectionRect = section.getBoundingClientRect();
+        const absoluteElementTop = sectionRect.top + window.pageYOffset;
+        const viewportHeight = window.innerHeight;
+        const sectionHeight = sectionRect.height;
+        const middle = absoluteElementTop - (viewportHeight / 2) + (sectionHeight / 2);
+        
+        window.scrollTo({
+            top: Math.max(0, middle),
+            behavior: 'smooth'
+        });
+        
+        // Highlight the subsection briefly
+        const subsectionItems = document.querySelectorAll('.subsection-item');
+        subsectionItems.forEach(item => {
+            item.classList.remove('active');
+            if (item.getAttribute('onclick') && item.getAttribute('onclick').includes(sectionId)) {
+                item.classList.add('active');
+                setTimeout(() => item.classList.remove('active'), 2000);
+            }
+        });
+    }, 200);
+};
 
 // Functions for tab loading states
 function setTabLoading(tabId, isLoading = true) {
@@ -5037,6 +5517,427 @@ async function retryDesign() {
     }
 }
 
+// ---------- Mockup Functions ----------
+function displayMockup(mockupData) {
+    const container = document.getElementById('mockup-data');
+    const generateSection = document.getElementById('mockup-generate-section');
+    const viewerSection = document.getElementById('mockup-viewer-section');
+    
+    if (!mockupData || !mockupData.mockups || mockupData.mockups.length === 0) {
+        // Check if design is ready
+        if (currentSpecData && currentSpecData.design && currentSpecData.status && currentSpecData.status.design === 'ready') {
+            // Design is ready, show generate section
+            generateSection.style.display = 'block';
+            viewerSection.style.display = 'none';
+        } else {
+            // Design not ready, show locked message
+            container.innerHTML = '<div class="locked-tab-message"><h3><i class="fa fa-lock"></i> Frontend Mockups</h3><p>Please approve the Overview and generate Design specification first to create mockups.</p></div>';
+            generateSection.style.display = 'none';
+            viewerSection.style.display = 'none';
+        }
+        return;
+    }
+    
+    // Hide generate section, show viewer
+    generateSection.style.display = 'none';
+    viewerSection.style.display = 'block';
+    
+    const mockups = mockupData.mockups;
+    let currentIndex = 0;
+    
+    // Build viewer HTML
+    let viewerHTML = `
+        <div class="mockup-viewer-container" style="display: flex; flex-direction: column; height: 100%;">
+            <!-- Screens List -->
+            <div class="mockup-screens-list" style="display: flex; gap: 10px; padding: 15px; background: #f5f5f5; border-bottom: 2px solid #ddd; overflow-x: auto; flex-wrap: wrap;">
+    `;
+    
+    mockups.forEach((mockup, index) => {
+        viewerHTML += `
+            <button class="mockup-screen-btn ${index === 0 ? 'active' : ''}" 
+                    onclick="switchMockupScreen(${index})" 
+                    data-index="${index}"
+                    style="padding: 10px 20px; border: 2px solid ${index === 0 ? '#FF6B35' : '#ddd'}; 
+                           background: ${index === 0 ? '#FF6B35' : 'white'}; 
+                           color: ${index === 0 ? 'white' : '#333'}; 
+                           border-radius: 8px; cursor: pointer; 
+                           font-size: 14px; font-weight: ${index === 0 ? '600' : '400'};
+                           transition: all 0.3s ease; white-space: nowrap;">
+                <i class="fa fa-${mockup.deviceType === 'mobile' ? 'mobile' : mockup.deviceType === 'web' ? 'desktop' : 'desktop'}"></i> ${mockup.name}
+            </button>
+        `;
+    });
+    
+    viewerHTML += `
+            </div>
+            
+            <!-- Controls Bar -->
+            <div class="mockup-controls" style="display: flex; align-items: center; justify-content: space-between; padding: 15px; background: white; border-bottom: 1px solid #ddd;">
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <button onclick="prevMockupScreen()" 
+                            class="btn btn-secondary" 
+                            style="padding: 8px 16px;">
+                        <i class="fa fa-chevron-left"></i> Prev
+                    </button>
+                    <span style="font-weight: 600; color: #333;">
+                        <span id="current-screen-index">1</span> / ${mockups.length}
+                    </span>
+                    <button onclick="nextMockupScreen()" 
+                            class="btn btn-secondary" 
+                            style="padding: 8px 16px;">
+                        Next <i class="fa fa-chevron-right"></i>
+                    </button>
+                </div>
+                
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <div class="device-selector" style="display: flex; gap: 5px; background: #f5f5f5; padding: 5px; border-radius: 6px;">
+                        <button onclick="setMockupDevice('desktop')" 
+                                class="device-btn active" 
+                                data-device="desktop"
+                                style="padding: 6px 12px; border: none; background: #FF6B35; color: white; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                            <i class="fa fa-desktop"></i> Desktop
+                        </button>
+                        <button onclick="setMockupDevice('tablet')" 
+                                class="device-btn" 
+                                data-device="tablet"
+                                style="padding: 6px 12px; border: none; background: transparent; color: #666; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                            <i class="fa fa-tablet"></i> Tablet
+                        </button>
+                        <button onclick="setMockupDevice('mobile')" 
+                                class="device-btn" 
+                                data-device="mobile"
+                                style="padding: 6px 12px; border: none; background: transparent; color: #666; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                            <i class="fa fa-mobile"></i> Mobile
+                        </button>
+                    </div>
+                    <button onclick="viewMockupCode()" class="btn btn-secondary" style="padding: 8px 16px;">
+                        <i class="fa fa-code"></i> View Code
+                    </button>
+                    <button onclick="downloadMockup()" class="btn btn-secondary" style="padding: 8px 16px;">
+                        <i class="fa fa-download"></i> Download
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Preview Area -->
+            <div class="mockup-preview-area" style="flex: 1; overflow: auto; padding: 20px; background: #f0f0f0; display: flex; justify-content: center; align-items: flex-start; min-height: 600px;">
+                <div id="mockup-preview-container" style="background: white; box-shadow: 0 4px 20px rgba(0,0,0,0.1); border-radius: 8px; overflow: hidden; transition: all 0.3s ease; width: 100%; max-width: 1920px;">
+                    <iframe id="mockup-iframe" 
+                            sandbox="allow-scripts allow-same-origin" 
+                            style="width: 100%; min-height: 600px; border: none; display: block;"></iframe>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    viewerSection.innerHTML = viewerHTML;
+    
+    // Store mockups globally
+    window.currentMockups = mockups;
+    window.currentMockupIndex = 0;
+    window.currentMockupDevice = 'desktop';
+    
+    // Load first mockup
+    loadMockupScreen(0, 'desktop');
+}
+
+function switchMockupScreen(index) {
+    window.currentMockupIndex = index;
+    loadMockupScreen(index, window.currentMockupDevice);
+    
+    // Update active button
+    document.querySelectorAll('.mockup-screen-btn').forEach((btn, i) => {
+        if (i === index) {
+            btn.classList.add('active');
+            btn.style.background = '#FF6B35';
+            btn.style.color = 'white';
+            btn.style.borderColor = '#FF6B35';
+            btn.style.fontWeight = '600';
+        } else {
+            btn.classList.remove('active');
+            btn.style.background = 'white';
+            btn.style.color = '#333';
+            btn.style.borderColor = '#ddd';
+            btn.style.fontWeight = '400';
+        }
+    });
+    
+    // Update index display
+    document.getElementById('current-screen-index').textContent = index + 1;
+}
+
+function prevMockupScreen() {
+    if (!window.currentMockups) return;
+    const newIndex = window.currentMockupIndex > 0 ? window.currentMockupIndex - 1 : window.currentMockups.length - 1;
+    switchMockupScreen(newIndex);
+}
+
+function nextMockupScreen() {
+    if (!window.currentMockups) return;
+    const newIndex = window.currentMockupIndex < window.currentMockups.length - 1 ? window.currentMockupIndex + 1 : 0;
+    switchMockupScreen(newIndex);
+}
+
+function setMockupDevice(device) {
+    window.currentMockupDevice = device;
+    loadMockupScreen(window.currentMockupIndex, device);
+    
+    // Update active device button
+    document.querySelectorAll('.device-btn').forEach(btn => {
+        if (btn.dataset.device === device) {
+            btn.classList.add('active');
+            btn.style.background = '#FF6B35';
+            btn.style.color = 'white';
+        } else {
+            btn.classList.remove('active');
+            btn.style.background = 'transparent';
+            btn.style.color = '#666';
+        }
+    });
+    
+    // Update container width
+    const container = document.getElementById('mockup-preview-container');
+    if (device === 'desktop') {
+        container.style.width = '100%';
+        container.style.maxWidth = '1920px';
+    } else if (device === 'tablet') {
+        container.style.width = '768px';
+        container.style.maxWidth = '768px';
+    } else {
+        container.style.width = '375px';
+        container.style.maxWidth = '375px';
+    }
+}
+
+function loadMockupScreen(index, device) {
+    if (!window.currentMockups || !window.currentMockups[index]) return;
+    
+    const mockup = window.currentMockups[index];
+    const iframe = document.getElementById('mockup-iframe');
+    
+    if (!iframe) return;
+    
+    // Create blob URL from HTML
+    const blob = new Blob([mockup.html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    iframe.src = url;
+    
+    // Set container width based on device
+    const container = document.getElementById('mockup-preview-container');
+    if (!container) return;
+    
+    if (device === 'desktop') {
+        container.style.width = '100%';
+        container.style.maxWidth = '1920px';
+    } else if (device === 'tablet') {
+        container.style.width = '768px';
+        container.style.maxWidth = '768px';
+    } else {
+        container.style.width = '375px';
+        container.style.maxWidth = '375px';
+    }
+    
+    // Update iframe height after load
+    iframe.onload = function() {
+        try {
+            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+            const height = Math.max(iframeDoc.body.scrollHeight, iframeDoc.body.offsetHeight, 600);
+            iframe.style.height = height + 'px';
+        } catch (e) {
+            // Cross-origin or other error, use default
+            iframe.style.height = '600px';
+        }
+    };
+}
+
+function viewMockupCode() {
+    if (!window.currentMockups || !window.currentMockups[window.currentMockupIndex]) return;
+    
+    const mockup = window.currentMockups[window.currentMockupIndex];
+    const codeModal = document.getElementById('mockup-code-modal') || createCodeModal();
+    
+    const codeContent = document.getElementById('mockup-code-content');
+    codeContent.textContent = mockup.html;
+    
+    codeModal.style.display = 'flex';
+}
+
+function createCodeModal() {
+    const modal = document.createElement('div');
+    modal.id = 'mockup-code-modal';
+    modal.style.cssText = 'display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center;';
+    
+    modal.innerHTML = `
+        <div style="background: white; width: 90%; max-width: 1200px; height: 90%; border-radius: 8px; display: flex; flex-direction: column;">
+            <div style="padding: 20px; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="margin: 0;">Mockup Code - ${window.currentMockups[window.currentMockupIndex].name}</h3>
+                <button onclick="closeMockupCodeModal()" style="background: #f0f0f0; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">
+                    <i class="fa fa-times"></i> Close
+                </button>
+            </div>
+            <pre id="mockup-code-content" style="flex: 1; overflow: auto; padding: 20px; margin: 0; background: #f5f5f5; font-family: 'Courier New', monospace; font-size: 12px; white-space: pre-wrap; word-wrap: break-word;"></pre>
+            <div style="padding: 15px; border-top: 1px solid #ddd; display: flex; gap: 10px;">
+                <button onclick="copyMockupCode()" class="btn btn-primary" style="padding: 8px 16px;">
+                    <i class="fa fa-copy"></i> Copy Code
+                </button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    return modal;
+}
+
+function closeMockupCodeModal() {
+    const modal = document.getElementById('mockup-code-modal');
+    if (modal) modal.style.display = 'none';
+}
+
+function copyMockupCode() {
+    const codeContent = document.getElementById('mockup-code-content');
+    navigator.clipboard.writeText(codeContent.textContent).then(() => {
+        showNotification('Code copied to clipboard!', 'success');
+    }).catch(() => {
+        showNotification('Failed to copy code', 'error');
+    });
+}
+
+function downloadMockup() {
+    if (!window.currentMockups || !window.currentMockups[window.currentMockupIndex]) return;
+    
+    const mockup = window.currentMockups[window.currentMockupIndex];
+    const blob = new Blob([mockup.html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${mockup.id || 'mockup'}-${mockup.name.replace(/\s+/g, '-').toLowerCase()}.html`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    showNotification('Mockup downloaded!', 'success');
+}
+
+async function generateMockupSpec() {
+    if (!currentSpecData) {
+        showNotification('No specification data available', 'error');
+        return;
+    }
+    
+    if (!currentSpecData.design || currentSpecData.status?.design !== 'ready') {
+        showNotification('Please generate Design specification first', 'error');
+        return;
+    }
+    
+    const useMockData = document.getElementById('useMockDataCheckbox').checked;
+    const generateBtn = document.getElementById('generateMockupBtn');
+    
+    // Disable button and show loading
+    generateBtn.disabled = true;
+    generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating Mockups...';
+    updateTabLoadingState('mockup', true);
+    
+    const container = document.getElementById('mockup-data');
+    container.innerHTML = `
+        <div style="text-align: center; padding: 40px 20px;">
+            <div class="spinner" style="margin: 0 auto 20px;"></div>
+            <h3>Generating Mockups...</h3>
+            <p style="color: #666;">This may take 1-3 minutes. Please wait...</p>
+        </div>
+    `;
+    
+    try {
+        const response = await fetch(MOCKUPS_WORKER_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                overview: currentSpecData.overview,
+                design: currentSpecData.design,
+                technical: currentSpecData.technical || null,
+                useMockData: useMockData
+            })
+        });
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error?.message || 'Failed to generate mockups');
+        }
+        
+        const mockupData = await response.json();
+        
+        // Update Firebase
+        const user = firebase.auth().currentUser;
+        if (user && currentSpecData) {
+            await firebase.firestore().collection('specs').doc(currentSpecData.id).update({
+                mockups: mockupData,
+                'status.mockup': 'ready',
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        }
+        
+        // Update local data
+        currentSpecData.mockups = mockupData;
+        if (!currentSpecData.status) currentSpecData.status = {};
+        currentSpecData.status.mockup = 'ready';
+        
+        // Update localStorage backup
+        localStorage.setItem(`specBackup_${currentSpecData.id}`, JSON.stringify(currentSpecData));
+        
+        // Update UI
+        updateStatus('mockup', 'ready');
+        updateTabLoadingState('mockup', false);
+        displayMockup(mockupData);
+        
+        // Mark tab as generated
+        const mockupTab = document.getElementById('mockupTab');
+        if (mockupTab) {
+            mockupTab.classList.add('generated');
+            mockupTab.disabled = false;
+        }
+        
+        showNotification('Mockups generated successfully!', 'success');
+        
+    } catch (error) {
+        console.error('Error generating mockups:', error);
+        container.innerHTML = `
+            <div class="locked-tab-message">
+                <h3><i class="fa fa-exclamation-triangle"></i> Error Generating Mockups</h3>
+                <p>${error.message}</p>
+                <button onclick="generateMockupSpec()" class="btn btn-primary" style="margin-top: 15px;">
+                    <i class="fa fa-refresh"></i> Try Again
+                </button>
+            </div>
+        `;
+        document.getElementById('retryMockupBtn').style.display = 'inline-block';
+        updateTabLoadingState('mockup', false);
+        showNotification(`Failed to generate mockups: ${error.message}`, 'error');
+    } finally {
+        generateBtn.disabled = false;
+        generateBtn.innerHTML = '<i class="fa fa-magic"></i> Create Mockups';
+    }
+}
+
+async function retryMockup() {
+    document.getElementById('retryMockupBtn').disabled = true;
+    document.getElementById('retryMockupBtn').textContent = '⏳ Retrying...';
+    
+    updateTabLoadingState('mockup', true);
+    
+    try {
+        await generateMockupSpec();
+        document.getElementById('retryMockupBtn').style.display = 'none';
+    } catch (error) {
+        document.getElementById('retryMockupBtn').disabled = false;
+        document.getElementById('retryMockupBtn').textContent = 'Retry';
+        showNotification(`Failed to generate mockups: ${error.message}`, 'error');
+    } finally {
+        updateTabLoadingState('mockup', false);
+    }
+}
+
 function showLoading() {
     document.getElementById('loading').style.display = 'block';
     document.getElementById('error').style.display = 'none';
@@ -5585,7 +6486,10 @@ function displayDiagrams(diagramsArray) {
         const header = document.createElement('div');
         header.className = 'diagram-header';
         header.innerHTML = `
-            <h3>${diagram.title}</h3>
+            <div style="flex: 1;">
+                <h3>${escapeHtml(diagram.title)}</h3>
+                ${diagram.description ? `<p class="diagram-description" style="color: #666; font-size: 14px; line-height: 1.6; margin-top: 8px; margin-bottom: 0;">${escapeHtml(diagram.description)}</p>` : ''}
+            </div>
             <div class="diagram-controls">
                 <button onclick="openFullscreen('${diagram.id}')" class="btn-icon" title="Fullscreen">
                     <i class="fa fa-expand"></i>
@@ -6325,16 +7229,9 @@ function updateDiagramsStatus(status) {
     if (!authButtons) return;
     
     if (user) {
-      // User is logged in
-      const displayName = user.displayName || user.email.split('@')[0];
-      const firstLetter = displayName.charAt(0).toUpperCase();
-      
-      authButtons.innerHTML = `
-        <a href="/pages/profile.html" class="user-info" style="text-decoration: none;">
-          <div class="user-avatar">${firstLetter}</div>
-          <span>${displayName}</span>
-        </a>
-      `;
+      // User is logged in - username is now in side menu, so hide from header
+      authButtons.innerHTML = '';
+      updateSideMenuUser(user);
     } else {
       // User is not logged in
       authButtons.innerHTML = `
@@ -6374,10 +7271,51 @@ function updateDiagramsStatus(status) {
   // Listen to auth state changes
   auth.onAuthStateChanged((user) => {
     updateAuthUI(user);
+    updateSideMenuUser(user);
   });
+  
+  // Update side menu user info
+  function updateSideMenuUser(user) {
+    const sideMenuUserAvatar = document.getElementById('side-menu-user-avatar');
+    const sideMenuUserInitial = document.getElementById('side-menu-user-initial');
+    const sideMenuUserName = document.getElementById('side-menu-user-name');
+    
+    if (user && sideMenuUserAvatar && sideMenuUserInitial && sideMenuUserName) {
+      const displayName = user.displayName || user.email.split('@')[0];
+      const firstLetter = displayName.charAt(0).toUpperCase();
+      
+      sideMenuUserInitial.textContent = firstLetter;
+      sideMenuUserName.textContent = displayName;
+      
+      // Make user section clickable to go to profile
+      const userSection = sideMenuUserAvatar.closest('.side-menu-user');
+      if (userSection) {
+        userSection.style.cursor = 'pointer';
+        userSection.onclick = () => window.location.href = '/pages/profile.html';
+      }
+    }
+  }
 
   // Initialize auth buttons with default state
   document.addEventListener('DOMContentLoaded', function() {
+    // Handle side menu hover to adjust container margin
+    const sideMenu = document.getElementById('sideMenu');
+    const container = document.querySelector('.container');
+    
+    if (sideMenu && container) {
+      sideMenu.addEventListener('mouseenter', () => {
+        container.style.marginLeft = '300px';
+      });
+      
+      sideMenu.addEventListener('mouseleave', () => {
+        container.style.marginLeft = '80px';
+        // Close all submenus when menu collapses
+        document.querySelectorAll('.side-menu-submenu').forEach(submenu => {
+          submenu.classList.remove('expanded');
+        });
+      });
+    }
+    
     const authButtons = document.getElementById('auth-buttons');
     if (authButtons && !authButtons.innerHTML.trim()) {
       authButtons.innerHTML = `

@@ -57,6 +57,7 @@ const chatRoutes = require('./server/chat-routes');
 const adminRoutes = require('./server/admin-routes');
 const lemonRoutes = require('./server/lemon-routes');
 const creditsRoutes = require('./server/credits-routes');
+const healthRoutes = require('./server/health-routes');
 const { securityHeaders, rateLimiters, requireAdmin } = require('./server/security');
 
 const app = express();
@@ -265,6 +266,9 @@ app.get('/api/admin/error-summary', requireAdmin, async (req, res) => {
 
 // Admin routes (with admin verification) - must be after specific routes
 app.use('/api/admin', adminRoutes);
+
+// Health check routes
+app.use('/api/health', healthRoutes);
 
 // Basic route for server status
 app.get('/api/status', (req, res) => {
@@ -585,7 +589,7 @@ Return ONLY valid Mermaid code, nothing else.`;
 const VERSION = '1.2.6-admin-routes-2025-11-07-' + Date.now();
 
 // Start the server
-app.listen(port, () => {
+const server = app.listen(port, () => {
   console.log('='.repeat(60));
   console.log('🚀 SERVER STARTED SUCCESSFULLY');
   console.log('='.repeat(60));
@@ -601,6 +605,66 @@ app.listen(port, () => {
   console.log('📝 Logging enabled for all API requests');
   console.log('📊 Detailed logs for /api/generate-spec endpoint');
   console.log('='.repeat(60));
+
+  // Keep-alive mechanism: ping health endpoint every 30 minutes to prevent Render from sleeping
+  const KEEP_ALIVE_INTERVAL = 30 * 60 * 1000; // 30 minutes in milliseconds
+  // Use external URL if available (for Render), otherwise fallback to localhost
+  const baseUrl = process.env.RENDER_EXTERNAL_URL 
+    ? process.env.RENDER_EXTERNAL_URL 
+    : (process.env.RENDER_URL ? `https://${process.env.RENDER_URL}` : `http://localhost:${port}`);
+  
+  const keepAlive = async () => {
+    try {
+      const healthUrl = `${baseUrl}/api/health`;
+      
+      // Create abort controller for timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      
+      const response = await fetch(healthUrl, {
+        method: 'GET',
+        headers: {
+          'User-Agent': 'Specifys-KeepAlive/1.0',
+          'Connection': 'keep-alive'
+        },
+        signal: controller.signal
+      });
+      
+      clearTimeout(timeoutId);
+      
+      if (response.ok) {
+        const data = await response.json().catch(() => ({}));
+        console.log(`[KeepAlive] ✅ Health check successful at ${new Date().toISOString()} - Status: ${data.status || 'OK'}`);
+      } else {
+        console.warn(`[KeepAlive] ⚠️ Health check returned status ${response.status}`);
+      }
+    } catch (error) {
+      // Don't log timeout errors as errors - they're expected if server is busy
+      if (error.name === 'AbortError' || error.message.includes('aborted')) {
+        console.log(`[KeepAlive] ⏱️ Health check timeout (server may be busy)`);
+      } else {
+        console.error(`[KeepAlive] ❌ Health check failed:`, error.message);
+      }
+    }
+  };
+
+  // Start keep-alive immediately, then every 30 minutes
+  console.log(`[KeepAlive] 🔄 Starting keep-alive mechanism (every ${KEEP_ALIVE_INTERVAL / 60000} minutes)`);
+  console.log(`[KeepAlive] 📍 Using base URL: ${baseUrl}`);
+  console.log(`[KeepAlive] 💡 This prevents Render from sleeping by keeping the server active`);
+  keepAlive(); // Run immediately
+  const keepAliveInterval = setInterval(keepAlive, KEEP_ALIVE_INTERVAL);
+
+  // Cleanup on server shutdown
+  process.on('SIGTERM', () => {
+    console.log('[KeepAlive] 🛑 Stopping keep-alive mechanism');
+    clearInterval(keepAliveInterval);
+  });
+
+  process.on('SIGINT', () => {
+    console.log('[KeepAlive] 🛑 Stopping keep-alive mechanism');
+    clearInterval(keepAliveInterval);
+  });
 }).on('error', (err) => {
   console.error('='.repeat(60));
   console.error('❌ FAILED TO START SERVER');

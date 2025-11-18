@@ -28,6 +28,7 @@ export default {
 
       if (url.pathname === "/generate") return cors(await handleGenerate(request, env));
       if (url.pathname === "/fix-diagram") return cors(await handleFixDiagram(request, env));
+      if (url.pathname === "/generate-mockups") return cors(await handleGenerateMockups(request, env));
 
       return cors(json({ error: { code: "NOT_FOUND", message: "Unknown route" } }, 404));
     } catch (e) {
@@ -469,6 +470,171 @@ async function handleFixDiagram(request, env) {
       diagramId,
       correctedCode: result.correctedCode,
       correlationId
+    });
+  } catch (e) {
+    return json({ error: { code: "SERVER_ERROR", message: String(e) }, correlationId }, 500);
+  }
+}
+
+// ---------- /generate-mockups handler ----------
+async function handleGenerateMockups(request, env) {
+  const correlationId = cryptoRandomId();
+  try {
+    const { overview, design, technical, useMockData = false } = await request.json();
+
+    if (!overview || !design) {
+      return json({
+        error: { code: "BAD_REQUEST", message: "Expected { overview, design, technical (optional), useMockData (optional) }" },
+        correlationId
+      }, 400);
+    }
+
+    // Step 1: Analyze specification and identify screens
+    const analyzePrompt = {
+      system: "You are a frontend architecture expert. Analyze application specifications to identify all screens and pages.",
+      developer: "Return ONLY valid JSON with a 'screens' array. Each screen object must have: id (string), name (string), description (string), deviceType (string: 'web', 'mobile', or 'both'), order (number).",
+      user: `Analyze this application specification and identify all screens/pages that need mockups:
+
+OVERVIEW:
+${typeof overview === 'object' ? JSON.stringify(overview, null, 2) : overview}
+
+DESIGN:
+${typeof design === 'object' ? JSON.stringify(design, null, 2) : design}
+
+${technical ? `TECHNICAL:\n${typeof technical === 'object' ? JSON.stringify(technical, null, 2) : technical}` : ''}
+
+Return a JSON object with this structure:
+{
+  "screens": [
+    {
+      "id": "home-page",
+      "name": "Home Page",
+      "description": "Main landing page with hero section and navigation",
+      "deviceType": "web",
+      "order": 1
+    }
+  ]
+}
+
+Identify 5-8 key screens based on the user journey and screen descriptions.`
+    };
+
+    let screensData;
+    try {
+      screensData = await callLLM(env, analyzePrompt);
+      if (!screensData.screens || !Array.isArray(screensData.screens)) {
+        throw new Error("Invalid screens data structure");
+      }
+    } catch (e) {
+      return json({
+        error: { code: "ANALYSIS_FAILED", message: `Failed to analyze screens: ${String(e)}` },
+        correlationId
+      }, 500);
+    }
+
+    // Step 2: Generate HTML+CSS for each screen
+    const mockups = [];
+    const screens = screensData.screens.sort((a, b) => (a.order || 0) - (b.order || 0));
+
+    for (let i = 0; i < screens.length; i++) {
+      const screen = screens[i];
+      
+      // Extract design system from design spec
+      let designSystem = "";
+      try {
+        const designObj = typeof design === 'string' ? JSON.parse(design) : design;
+        if (designObj.design?.visualStyleGuide) {
+          designSystem = JSON.stringify(designObj.design.visualStyleGuide, null, 2);
+        } else if (designObj.visualStyleGuide) {
+          designSystem = JSON.stringify(designObj.visualStyleGuide, null, 2);
+        }
+      } catch (e) {
+        // Fallback: use design as string
+        designSystem = typeof design === 'string' ? design : JSON.stringify(design);
+      }
+
+      const mockupPrompt = {
+        system: "You are an expert frontend developer creating high-quality, production-ready HTML+CSS mockups. Create complete, standalone HTML pages that are visually stunning, modern, and match the design system perfectly.",
+        developer: "Return ONLY valid HTML (no markdown, no code fences, no explanations). The HTML must be complete and standalone with embedded CSS in <style> tag. Include basic JavaScript for interactivity if needed.",
+        user: `Create a high-quality HTML+CSS mockup for this screen:
+
+SCREEN: ${screen.name}
+DESCRIPTION: ${screen.description}
+DEVICE TYPE: ${screen.deviceType}
+
+APPLICATION OVERVIEW:
+${typeof overview === 'object' ? JSON.stringify(overview, null, 2) : overview}
+
+DESIGN SYSTEM:
+${designSystem}
+
+${technical ? `TECHNICAL CONTEXT:\n${typeof technical === 'object' ? JSON.stringify(technical, null, 2) : technical}` : ''}
+
+${useMockData ? `IMPORTANT: Include realistic mock data in the mockup:
+- Use realistic names, emails, dates, numbers
+- Add sample content that demonstrates functionality
+- Show example data in tables, lists, cards
+- Make it look like a real, working application` : `IMPORTANT: Use placeholder content (e.g., "Sample Text", "Example Data")`}
+
+REQUIREMENTS:
+1. Create a complete, standalone HTML5 document
+2. Embed all CSS in <style> tag (no external files)
+3. Use the exact colors, typography, and design elements from the design system
+4. Make it responsive (mobile-first approach)
+5. Include modern UI elements: cards, buttons, forms, navigation
+6. Add hover effects and basic interactivity with JavaScript
+7. Use semantic HTML5 elements
+8. Ensure the design is polished and professional
+9. ${useMockData ? 'Fill with realistic mock data' : 'Use placeholder text'}
+10. Complete any missing information intelligently based on context
+
+Return ONLY the HTML code, nothing else.`
+      };
+
+      try {
+        const htmlResponse = await callLLM(env, mockupPrompt);
+        
+        // Extract HTML from response (handle different response formats)
+        let html = "";
+        if (typeof htmlResponse === 'string') {
+          html = htmlResponse;
+        } else if (htmlResponse.html) {
+          html = htmlResponse.html;
+        } else if (htmlResponse.content) {
+          html = htmlResponse.content;
+        } else {
+          html = JSON.stringify(htmlResponse);
+        }
+
+        // Clean up HTML (remove markdown code fences if present)
+        html = html.replace(/^```html\s*/i, "").replace(/```$/i, "").trim();
+        html = html.replace(/^```\s*/i, "").replace(/```$/i, "").trim();
+
+        mockups.push({
+          id: screen.id || `screen-${i + 1}`,
+          name: screen.name,
+          description: screen.description,
+          html: html,
+          deviceType: screen.deviceType || "both",
+          order: screen.order || i + 1,
+          interactive: true
+        });
+      } catch (e) {
+        console.error(`Failed to generate mockup for ${screen.name}:`, e);
+        // Continue with other screens even if one fails
+      }
+    }
+
+    // Return mockups with metadata
+    return json({
+      mockups,
+      meta: {
+        version: SCHEMA_VERSION,
+        generatedAt: nowISO(),
+        totalScreens: mockups.length,
+        useMockData,
+        correlationId
+      }
     });
   } catch (e) {
     return json({ error: { code: "SERVER_ERROR", message: String(e) }, correlationId }, 500);

@@ -54,6 +54,14 @@
           <span class="icon"><i class="fas fa-chart-pie"></i></span>
           Statistics
         </button>
+        <button class="nav-link" data-target="alerts-section">
+          <span class="icon"><i class="fas fa-bell"></i></span>
+          Alerts
+        </button>
+        <button class="nav-link" data-target="performance-section">
+          <span class="icon"><i class="fas fa-tachometer-alt"></i></span>
+          Performance
+        </button>
       </nav>
 
       <div class="sidebar-footer">
@@ -194,6 +202,30 @@
                 </div>
               </div>
             </div>
+
+            <div class="panel quick-actions">
+              <div class="panel-header">
+                <h3>Quick Actions</h3>
+              </div>
+              <div class="quick-actions-grid">
+                <button class="quick-action-btn" id="quick-action-add-credits" type="button">
+                  <i class="fas fa-coins"></i>
+                  <span>Add Credits</span>
+                </button>
+                <button class="quick-action-btn" id="quick-action-change-plan" type="button">
+                  <i class="fas fa-user-tag"></i>
+                  <span>Change Plan</span>
+                </button>
+                <button class="quick-action-btn" id="quick-action-reset-password" type="button">
+                  <i class="fas fa-key"></i>
+                  <span>Reset Password</span>
+                </button>
+                <button class="quick-action-btn" id="quick-action-toggle-user" type="button">
+                  <i class="fas fa-user-slash"></i>
+                  <span>Disable/Enable User</span>
+                </button>
+              </div>
+            </div>
                         </div>
         </section>
 
@@ -210,9 +242,24 @@
                 <option value="pro">Pro</option>
                 <option value="free">Free</option>
                     </select>
+              <select id="users-status-filter" aria-label="Filter by status">
+                <option value="all">All statuses</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+                    </select>
+              <input type="date" id="users-date-from" aria-label="Created from date" placeholder="From date">
+              <input type="date" id="users-date-to" aria-label="Created to date" placeholder="To date">
               <button class="action-btn" id="export-users-btn" type="button">
                 <i class="fas fa-file-export"></i>
                 Export CSV
+              </button>
+              <button class="action-btn" id="export-users-pdf-btn" type="button">
+                <i class="fas fa-file-pdf"></i>
+                Export PDF
+              </button>
+              <button class="action-btn" id="bulk-actions-btn" type="button" style="display: none;">
+                <i class="fas fa-tasks"></i>
+                Bulk Actions (<span id="bulk-selected-count">0</span>)
               </button>
                 </div>
           </header>
@@ -221,6 +268,7 @@
             <table class="data-table" id="users-table">
                 <thead>
                     <tr>
+                  <th scope="col"><input type="checkbox" id="users-select-all" aria-label="Select all users"></th>
                   <th scope="col">User</th>
                   <th scope="col">Created</th>
                   <th scope="col">Plan</th>
@@ -232,10 +280,25 @@
                 </thead>
               <tbody>
                             <tr>
-                  <td colspan="7" class="table-empty">Loading users…</td>
+                  <td colspan="8" class="table-empty">Loading users…</td>
                             </tr>
                 </tbody>
             </table>
+                </div>
+                
+                <div class="pagination-wrapper" id="users-pagination" style="display: none;">
+                  <div class="pagination-info">
+                    <span id="users-pagination-info">Showing 0-0 of 0</span>
+                  </div>
+                  <div class="pagination-controls">
+                    <button class="pagination-btn" id="users-pagination-prev" disabled>
+                      <i class="fas fa-chevron-left"></i> Previous
+                    </button>
+                    <div class="pagination-pages" id="users-pagination-pages"></div>
+                    <button class="pagination-btn" id="users-pagination-next" disabled>
+                      Next <i class="fas fa-chevron-right"></i>
+                    </button>
+                  </div>
                 </div>
         </section>
 
@@ -413,6 +476,18 @@
           <div class="chart-grid">
             <section class="chart-panel">
               <header>
+                <h3>Conversion Funnel</h3>
+              </header>
+              <div class="funnel-chart" id="conversion-funnel"></div>
+            </section>
+            <section class="chart-panel">
+              <header>
+                <h3>Retention Metrics</h3>
+              </header>
+              <div class="retention-grid" id="retention-metrics"></div>
+            </section>
+            <section class="chart-panel">
+              <header>
                 <h3>Users by plan</h3>
               </header>
               <canvas id="users-plan-chart" height="180" aria-label="Users by plan"></canvas>
@@ -429,7 +504,98 @@
               </header>
               <canvas id="revenue-trend-chart" height="180" aria-label="Revenue trend"></canvas>
             </section>
+            <section class="chart-panel">
+              <header>
+                <h3>Users growth</h3>
+              </header>
+              <canvas id="users-growth-chart" height="180" aria-label="Users growth over time"></canvas>
+            </section>
+            <section class="chart-panel">
+              <header>
+                <h3>Specs creation trend</h3>
+              </header>
+              <canvas id="specs-growth-chart" height="180" aria-label="Specs creation trend"></canvas>
+            </section>
                         </div>
+        </section>
+
+        <section class="dashboard-section" id="alerts-section">
+          <header class="section-header">
+            <div>
+              <h2>Alerts & Notifications</h2>
+              <p>Critical issues and user attention needed.</p>
+            </div>
+            <div class="section-controls">
+              <select id="alerts-severity-filter" aria-label="Filter by severity">
+                <option value="all">All severities</option>
+                <option value="critical">Critical</option>
+                <option value="warning">Warning</option>
+                <option value="info">Info</option>
+              </select>
+              <button class="action-btn" id="mark-all-read-btn" type="button">
+                <i class="fas fa-check-double"></i>
+                Mark all as read
+              </button>
+            </div>
+          </header>
+
+          <div class="alerts-list" id="alerts-list">
+            <div class="alerts-placeholder">Loading alerts…</div>
+          </div>
+        </section>
+
+        <section class="dashboard-section" id="performance-section">
+          <header class="section-header">
+            <div>
+              <h2>Performance Dashboard</h2>
+              <p>Server performance and API response times.</p>
+            </div>
+            <div class="section-controls">
+              <select id="performance-range" aria-label="Performance range">
+                <option value="hour">Last hour</option>
+                <option value="day" selected>Last 24 hours</option>
+                <option value="week">Last 7 days</option>
+              </select>
+            </div>
+          </header>
+
+          <div class="performance-metrics">
+            <article class="metric-card">
+              <h3>API Response Time</h3>
+              <p class="metric-value" data-perf="api-response">—</p>
+              <span class="metric-sub" data-perf-detail="api-response">Average</span>
+            </article>
+            <article class="metric-card">
+              <h3>Error Rate</h3>
+              <p class="metric-value" data-perf="error-rate">—</p>
+              <span class="metric-sub" data-perf-detail="error-rate">Last 24h</span>
+            </article>
+            <article class="metric-card">
+              <h3>Active Connections</h3>
+              <p class="metric-value" data-perf="connections">—</p>
+              <span class="metric-sub" data-perf-detail="connections">Current</span>
+            </article>
+            <article class="metric-card">
+              <h3>Uptime</h3>
+              <p class="metric-value" data-perf="uptime">—</p>
+              <span class="metric-sub" data-perf-detail="uptime">Last 30 days</span>
+            </article>
+          </div>
+
+          <div class="chart-grid">
+            <section class="chart-panel">
+              <header>
+                <h3>API Response Time Trend</h3>
+              </header>
+              <canvas id="api-response-chart" height="180" aria-label="API response time trend"></canvas>
+            </section>
+            <section class="chart-panel">
+              <header>
+                <h3>Error Rate Over Time</h3>
+              </header>
+              <canvas id="error-rate-chart" height="180" aria-label="Error rate over time"></canvas>
+            </section>
+          </div>
         </section>
       </main>
                     </div>
@@ -525,6 +691,67 @@
                         </div>
                         </div>
                         </div>
+
+  <!-- Quick Actions Modal -->
+  <div class="modal hidden" id="quick-actions-modal" role="dialog" aria-modal="true">
+    <div class="modal-backdrop" data-modal-dismiss></div>
+    <div class="modal-content">
+      <header class="modal-header">
+        <h2 id="quick-actions-title">Quick Action</h2>
+        <button class="close-btn" data-modal-dismiss type="button" aria-label="Close">
+          <i class="fas fa-times"></i>
+        </button>
+      </header>
+      <div class="modal-body" id="quick-actions-body">
+        <!-- Content will be dynamically inserted -->
+      </div>
+    </div>
+  </div>
+
+  <!-- User Activity Timeline Modal -->
+  <div class="modal hidden" id="user-activity-modal" role="dialog" aria-modal="true">
+    <div class="modal-backdrop" data-modal-dismiss></div>
+    <div class="modal-content large">
+      <header class="modal-header">
+        <h2 id="user-activity-title">User Activity Timeline</h2>
+        <button class="close-btn" data-modal-dismiss type="button" aria-label="Close">
+          <i class="fas fa-times"></i>
+        </button>
+      </header>
+      <div class="modal-body">
+        <div id="user-activity-timeline">
+          <div class="modal-placeholder">Loading activity timeline…</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bulk Actions Modal -->
+  <div class="modal hidden" id="bulk-actions-modal" role="dialog" aria-modal="true">
+    <div class="modal-backdrop" data-modal-dismiss></div>
+    <div class="modal-content">
+      <header class="modal-header">
+        <h2>Bulk Actions</h2>
+        <button class="close-btn" data-modal-dismiss type="button" aria-label="Close">
+          <i class="fas fa-times"></i>
+        </button>
+      </header>
+      <div class="modal-body">
+        <p id="bulk-actions-info">0 users selected</p>
+        <div class="bulk-actions-options">
+          <button class="action-btn" id="bulk-add-credits" type="button">
+            <i class="fas fa-coins"></i> Add Credits
+          </button>
+          <button class="action-btn" id="bulk-change-plan" type="button">
+            <i class="fas fa-user-tag"></i> Change Plan
+          </button>
+          <button class="action-btn critical" id="bulk-disable-users" type="button">
+            <i class="fas fa-user-slash"></i> Disable Users
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script type="module" src="/assets/js/admin-dashboard.js"></script>
 </body>

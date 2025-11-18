@@ -942,9 +942,9 @@
                     <div class="no-specs">
                         <div class="no-specs-icon"><i class="fas fa-folder-open"></i></div>
                         <h4>Your workspace is empty</h4>
-                        <p>Create your first app or specification to get started!</p>
-                        <button class="btn" onclick="showCreateAppModal()">
-                            Create New App
+                        <p>Create your first specification to get started!</p>
+                        <button class="btn" onclick="goToCreateSpec()">
+                            Create New Specification
                         </button>
                     </div>
                 `;
@@ -1691,10 +1691,7 @@
                     <div class="no-specs">
                         <div class="no-specs-icon"><i class="fas fa-mobile-alt"></i></div>
                         <h4>No apps yet</h4>
-                        <p>Create your first app to get started!</p>
-                        <button class="btn" onclick="showCreateAppModal()">
-                            Create New App
-                        </button>
+                        <p>No apps available.</p>
                     </div>
                 `;
                 return;
@@ -2020,7 +2017,7 @@
         const createAppBtn = document.getElementById('create-app-btn');
         if (createAppBtn) {
             createAppBtn.addEventListener('click', () => {
-                showCreateAppModal();
+                goToCreateSpec();
             });
         }
 
@@ -2030,61 +2027,6 @@
             window.location.href = '/index.html?autoStart=true';
         };
 
-        window.showCreateAppModal = function() {
-            // Create modal HTML
-            const modalHTML = `
-                <div id="createAppModal" class="modal-overlay">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h3>Create New App</h3>
-                            <button class="modal-close" onclick="closeCreateAppModal()">&times;</button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="form-group">
-                                <label for="appNameInput">App Name *</label>
-                                <input type="text" id="appNameInput" placeholder="Enter app name..." required>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button class="btn btn-secondary" onclick="closeCreateAppModal()">Cancel</button>
-                            <button class="btn btn-primary" onclick="submitCreateApp()">Create App</button>
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            // Add modal to body
-            document.body.insertAdjacentHTML('beforeend', modalHTML);
-            
-            // Focus on input
-            setTimeout(() => {
-                document.getElementById('appNameInput').focus();
-            }, 100);
-        };
-
-        window.closeCreateAppModal = function() {
-            const modal = document.getElementById('createAppModal');
-            if (modal) {
-                modal.remove();
-            }
-        };
-
-        window.submitCreateApp = function() {
-            const appNameInput = document.getElementById('appNameInput');
-            const appName = appNameInput.value.trim();
-            
-            if (!appName) {
-                appNameInput.style.borderColor = '#ff4444';
-                appNameInput.focus();
-                return;
-            }
-            
-            // Close modal
-            closeCreateAppModal();
-            
-            // Create app
-            createNewApp(appName, '', 0);
-        };
 
         window.editAppCard = async function(appId) {
             const app = userApps.find(a => a.id === appId);
