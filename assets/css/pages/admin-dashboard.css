@@ -274,6 +274,20 @@ body {
   color: var(--admin-text);
     font-size: 0.95rem;
   transition: transform 0.15s ease, border-color 0.2s ease, background 0.2s ease;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.action-btn.home-btn {
+  border-color: rgba(255, 107, 53, 0.3);
+  background: rgba(255, 107, 53, 0.1);
+  color: var(--admin-accent-strong);
+}
+
+.action-btn.home-btn:hover {
+  border-color: var(--admin-accent);
+  background: rgba(255, 107, 53, 0.15);
+  color: var(--admin-accent-strong);
 }
 
 .action-btn .hint {
@@ -1557,6 +1571,10 @@ body {
   border: 1px solid var(--admin-border);
   border-radius: 18px;
   padding: 18px;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  min-height: 0;
+  position: relative;
 }
 
 .chart-panel header {
@@ -1565,6 +1583,38 @@ body {
   font-size: 0.95rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
+}
+
+.chart-panel canvas {
+  max-height: 250px !important;
+  height: 250px !important;
+  width: 100% !important;
+  display: block;
+}
+
+/* Wrapper for canvas if it's inside a div */
+.chart-panel > div:not(header) {
+  position: relative;
+  height: 250px;
+  min-height: 250px;
+  max-height: 250px;
+  overflow: hidden;
+}
+
+.chart-panel > div:not(header) canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100% !important;
+  height: 100% !important;
+  max-height: 100% !important;
+}
+
+/* Direct canvas children */
+.chart-panel > canvas {
+  position: relative;
+  height: 250px !important;
+  max-height: 250px !important;
 }
 
 .global-search {
@@ -2161,7 +2211,14 @@ body {
   }
 
   .chart-panel canvas {
-    max-height: 200px;
+    max-height: 200px !important;
+    height: 200px !important;
+  }
+
+  .chart-panel > div:not(header) {
+    height: 200px !important;
+    min-height: 200px !important;
+    max-height: 200px !important;
   }
 
   /* Mobile pagination */

@@ -925,6 +925,7 @@ class AdminDashboardApp {
     this.isActivityPaused = false;
     this.autoRefreshTimer = null;
     this.nextAutoRefreshAt = null;
+    this.lastManualRefresh = null; // Track last manual refresh time
     this.syncInProgress = false;
     this.charts = {
       usersPlan: null,
@@ -1274,11 +1275,12 @@ class AdminDashboardApp {
     this.updateConnectionState("pending", "Connecting…");
     this.initializeCharts();
     await this.subscribeToSources();
+    // Initialize auto refresh timer (will schedule for 24h from now if no manual refresh)
     this.updateAutoRefreshTimer();
     await this.fetchUserSyncStatus();
     this.loadAlerts();
     this.updatePerformanceMetrics();
-    // Set up periodic updates
+    // Set up periodic updates for alerts and performance
     setInterval(() => {
       this.loadAlerts();
       this.updatePerformanceMetrics();
@@ -2952,22 +2954,68 @@ class AdminDashboardApp {
   async refreshAllData(reason = "manual") {
     console.info(`Refreshing dashboard data (${reason})`);
     this.updateConnectionState("pending", "Refreshing data…");
+    
+    // Track manual refresh time
+    if (reason === "manual" || reason === "manual-user-sync") {
+      this.lastManualRefresh = Date.now();
+    }
+    
     await this.subscribeToSources();
     this.updateAutoRefreshTimer();
   }
 
   updateAutoRefreshTimer() {
+    // Clear existing timer
     if (this.autoRefreshTimer) {
-      clearInterval(this.autoRefreshTimer);
+      clearTimeout(this.autoRefreshTimer);
+      this.autoRefreshTimer = null;
     }
-    const next = new Date(Date.now() + 24 * 60 * 60 * 1000);
-    this.nextAutoRefreshAt = next;
+
+    // Calculate next refresh time
+    const now = Date.now();
+    const twentyFourHours = 24 * 60 * 60 * 1000;
+    
+    // If there was a manual refresh in the last 24 hours, schedule auto refresh for 24h after that
+    let nextRefreshTime;
+    if (this.lastManualRefresh && (now - this.lastManualRefresh) < twentyFourHours) {
+      // Schedule auto refresh 24 hours after last manual refresh
+      nextRefreshTime = this.lastManualRefresh + twentyFourHours;
+    } else {
+      // No recent manual refresh, schedule for 24 hours from now
+      nextRefreshTime = now + twentyFourHours;
+    }
+    
+    this.nextAutoRefreshAt = new Date(nextRefreshTime);
+    
+    // Update UI
     if (this.dom.autoRefreshNext) {
-      this.dom.autoRefreshNext.textContent = `Scheduled at ${utils.formatDate(next)}`;
+      const timeUntilRefresh = nextRefreshTime - now;
+      if (timeUntilRefresh > 0) {
+        const hours = Math.floor(timeUntilRefresh / (60 * 60 * 1000));
+        const minutes = Math.floor((timeUntilRefresh % (60 * 60 * 1000)) / (60 * 1000));
+        this.dom.autoRefreshNext.textContent = `Scheduled in ${hours}h ${minutes}m`;
+      } else {
+        this.dom.autoRefreshNext.textContent = `Scheduled at ${utils.formatDate(this.nextAutoRefreshAt)}`;
+      }
     }
-    this.autoRefreshTimer = setInterval(() => {
+    
+    // Set up auto refresh timer
+    const timeUntilRefresh = nextRefreshTime - now;
+    if (timeUntilRefresh > 0) {
+      this.autoRefreshTimer = setTimeout(() => {
+        // Only auto refresh if no manual refresh happened in the meantime
+        const timeSinceLastManual = this.lastManualRefresh ? (Date.now() - this.lastManualRefresh) : Infinity;
+        if (timeSinceLastManual >= twentyFourHours) {
+          this.refreshAllData("auto");
+        } else {
+          // Manual refresh happened, reschedule
+          this.updateAutoRefreshTimer();
+        }
+      }, timeUntilRefresh);
+    } else {
+      // Time already passed, refresh immediately
       this.refreshAllData("auto");
-    }, 24 * 60 * 60 * 1000);
+    }
   }
 
   async getAuthToken(forceRefresh = false) {
@@ -3481,6 +3529,29 @@ class AdminDashboardApp {
     body.innerHTML = actionData.content;
     modal.classList.remove("hidden");
 
+    // Setup modal dismiss handlers
+    const closeModal = () => modal.classList.add("hidden");
+    
+    // Close button (X)
+    const closeBtn = modal.querySelector(".close-btn");
+    if (closeBtn) {
+      // Remove old listeners and add new one
+      const newCloseBtn = closeBtn.cloneNode(true);
+      closeBtn.parentNode.replaceChild(newCloseBtn, closeBtn);
+      newCloseBtn.addEventListener("click", closeModal);
+    }
+
+    // Dismiss buttons (Cancel)
+    modal.querySelectorAll("[data-modal-dismiss]").forEach((btn) => {
+      btn.addEventListener("click", closeModal);
+    });
+
+    // Backdrop click
+    const backdrop = modal.querySelector(".modal-backdrop");
+    if (backdrop) {
+      backdrop.addEventListener("click", closeModal);
+    }
+
     // Bind form submit
     const form = body.querySelector("#quick-action-form");
     if (form) {
@@ -3551,10 +3622,12 @@ class AdminDashboardApp {
 
       if (response?.ok) {
         alert("Action completed successfully!");
-        this.dom.quickActions.modal?.classList.add("hidden");
+        if (this.dom.quickActions.modal) {
+          this.dom.quickActions.modal.classList.add("hidden");
+        }
         this.refreshAllData();
       } else {
-        const error = await response?.json();
+        const error = await response?.json().catch(() => ({}));
         alert(`Error: ${error?.error || error?.message || "Failed to complete action"}`);
       }
     } catch (error) {
