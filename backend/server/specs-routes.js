@@ -4,6 +4,89 @@ const { db, admin, auth } = require('./firebase-admin');
 const OpenAIStorageService = require('./openai-storage-service');
 const creditsService = require('./credits-service');
 
+/**
+ * Function to send spec ready notification email
+ */
+async function sendSpecReadyEmail(userEmail, specTitle, specId, baseUrl) {
+  try {
+    // Check if email configuration is available
+    const emailUser = process.env.EMAIL_USER;
+    const emailPassword = process.env.EMAIL_APP_PASSWORD;
+    
+    if (!emailUser || !emailPassword) {
+      console.log('⚠️  Email configuration not found - skipping spec ready notification');
+      return { success: false, reason: 'Email not configured' };
+    }
+    
+    if (!userEmail) {
+      console.log('⚠️  User email not provided - skipping spec ready notification');
+      return { success: false, reason: 'User email missing' };
+    }
+    
+    // Use Nodemailer to send email
+    const nodemailer = require('nodemailer');
+    
+    const transporter = nodemailer.createTransporter({
+      service: 'gmail',
+      auth: {
+        user: emailUser,
+        pass: emailPassword
+      }
+    });
+    
+    // Generate spec link
+    const specLink = `${baseUrl}/pages/spec-viewer.html?id=${specId}`;
+    
+    const mailOptions = {
+      from: `"Specifys.ai" <${emailUser}>`,
+      to: userEmail,
+      subject: `Your specification "${specTitle}" is ready!`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
+            <h1 style="color: white; margin: 0; font-size: 28px;">🎉 Your Specification is Ready!</h1>
+          </div>
+          
+          <div style="background: #ffffff; padding: 40px; border-radius: 0 0 10px 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+            <p style="color: #333; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
+              Hello! 👋
+            </p>
+            
+            <p style="color: #555; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
+              Your specification <strong>"${specTitle}"</strong> is ready! You can always access it to view and upgrade it.
+            </p>
+            
+            <div style="text-align: center; margin: 40px 0;">
+              <a href="${specLink}" 
+                 style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 40px; text-decoration: none; border-radius: 5px; font-size: 16px; font-weight: bold; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">
+                View Your Specification
+              </a>
+            </div>
+            
+            <p style="color: #888; font-size: 14px; line-height: 1.6; margin: 30px 0 0 0; padding-top: 20px; border-top: 1px solid #eee;">
+              If the button doesn't work, copy and paste this link into your browser:<br>
+              <a href="${specLink}" style="color: #667eea; word-break: break-all;">${specLink}</a>
+            </p>
+          </div>
+          
+          <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
+            <p>This email was sent by Specifys.ai</p>
+          </div>
+        </div>
+      `
+    };
+    
+    const info = await transporter.sendMail(mailOptions);
+    console.log('✅ Spec ready notification email sent successfully to:', userEmail);
+    return { success: true, messageId: info.messageId };
+    
+  } catch (error) {
+    console.error('❌ Error sending spec ready notification email:', error);
+    // Don't fail the entire request if email fails
+    return { success: false, error: error.message };
+  }
+}
+
 const openaiStorage = process.env.OPENAI_API_KEY 
   ? new OpenAIStorageService(process.env.OPENAI_API_KEY)
   : null;
@@ -194,6 +277,90 @@ router.post('/:id/upload-to-openai', verifyFirebaseToken, async (req, res) => {
             error: 'Failed to upload spec to OpenAI',
             details: error.message,
             requestId
+        });
+    }
+});
+
+/**
+ * Send spec ready notification email
+ * POST /api/specs/:id/send-ready-notification
+ */
+router.post('/:id/send-ready-notification', verifyFirebaseToken, async (req, res) => {
+    try {
+        const specId = req.params.id;
+        const userId = req.user.uid;
+        
+        // Get spec from Firestore
+        const specDoc = await db.collection('specs').doc(specId).get();
+        
+        if (!specDoc.exists) {
+            return res.status(404).json({ error: 'Specification not found' });
+        }
+        
+        const specData = specDoc.data();
+        
+        // Verify ownership
+        if (specData.userId !== userId) {
+            return res.status(403).json({ error: 'Unauthorized' });
+        }
+        
+        // Check if overview is ready
+        if (specData.status?.overview !== 'ready') {
+            return res.status(400).json({ 
+                error: 'Specification overview is not ready yet',
+                status: specData.status?.overview 
+            });
+        }
+        
+        // Check if email was already sent (optional - to prevent duplicate emails)
+        if (specData.emailNotificationSent) {
+            return res.json({ 
+                success: true, 
+                message: 'Email notification already sent',
+                alreadySent: true 
+            });
+        }
+        
+        // Get user email from Firebase Auth
+        const userRecord = await auth.getUser(userId);
+        const userEmail = userRecord.email;
+        
+        if (!userEmail) {
+            return res.status(400).json({ error: 'User email not found' });
+        }
+        
+        // Get base URL from request or use default
+        const baseUrl = req.headers.origin || process.env.BASE_URL || 'https://specifys.ai';
+        
+        // Send email
+        const emailResult = await sendSpecReadyEmail(
+            userEmail,
+            specData.title || 'App Specification',
+            specId,
+            baseUrl
+        );
+        
+        if (emailResult.success) {
+            // Mark email as sent in Firestore
+            await db.collection('specs').doc(specId).update({
+                emailNotificationSent: true,
+                emailNotificationSentAt: admin.firestore.FieldValue.serverTimestamp()
+            });
+        }
+        
+        res.json({
+            success: emailResult.success,
+            message: emailResult.success 
+                ? 'Email notification sent successfully' 
+                : 'Failed to send email notification',
+            details: emailResult
+        });
+        
+    } catch (error) {
+        console.error('Error sending spec ready notification:', error);
+        res.status(500).json({ 
+            error: 'Failed to send notification',
+            details: error.message
         });
     }
 });

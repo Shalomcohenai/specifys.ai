@@ -823,6 +823,40 @@ async function triggerOpenAIUploadForSpec(specId) {
     }
 }
 
+// Function to send spec ready notification email
+async function sendSpecReadyNotification(specId) {
+    try {
+        const user = firebase.auth().currentUser;
+        if (!user) {
+            return; // User not authenticated, skip notification
+        }
+        
+        const token = await user.getIdToken();
+        const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai.onrender.com';
+        
+        const response = await fetch(`${apiBaseUrl}/api/specs/${specId}/send-ready-notification`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.error || 'Failed to send notification');
+        }
+        
+        const result = await response.json();
+        if (result.success) {
+            console.log('✅ Spec ready notification sent successfully');
+        }
+    } catch (error) {
+        // Silently fail - don't interrupt user experience
+        console.log('Failed to send spec ready notification:', error);
+    }
+}
+
 // Diagrams variables
 let diagramsData = [];
 let currentZoom = 1;
@@ -1212,6 +1246,14 @@ function displaySpec(data) {
     
     // Update export checkboxes based on available sections
     updateExportCheckboxes();
+    
+    // Send email notification if overview is ready and email hasn't been sent yet
+    if (data.status?.overview === 'ready' && !data.emailNotificationSent) {
+        sendSpecReadyNotification(data.id).catch(err => {
+            // Silently fail - don't interrupt user experience
+            console.log('Failed to send spec ready notification:', err);
+        });
+    }
     
     // Handle approval state
     if (data.overviewApproved) {
