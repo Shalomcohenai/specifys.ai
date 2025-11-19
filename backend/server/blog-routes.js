@@ -76,7 +76,7 @@ async function updateFileInGitHub(filePath, content, message, sha = null, branch
         throw new Error('GITHUB_TOKEN is not configured. Please set it in environment variables.');
     }
 
-    const targetBranch = branch || GITHUB_CONFIG.branch;
+    const targetBranch = branch || 'main';
     const endpoint = `/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${filePath}`;
     
     const data = {
@@ -99,7 +99,7 @@ async function updateFileInGitHub(filePath, content, message, sha = null, branch
 
 // Helper: Delete file from GitHub
 async function deleteFileFromGitHub(filePath, message, branch = null) {
-    const targetBranch = branch || GITHUB_CONFIG.branch;
+    const targetBranch = branch || 'main';
     const file = await getFileFromGitHub(filePath, targetBranch);
     if (!file) {
         throw new Error('File not found');
@@ -193,11 +193,8 @@ async function publishPostToGitHub(postData) {
         throw new Error('GITHUB_TOKEN is not configured. Please set it in environment variables.');
     }
 
-    // Validate branch
-    const targetBranch = branch || GITHUB_CONFIG.branch;
-    if (!targetBranch) {
-        throw new Error('Branch is required for publishing.');
-    }
+    // Always use main branch
+    const targetBranch = 'main';
 
     // Create filename
     const slugSource = providedSlug || title;
@@ -333,12 +330,8 @@ async function createPost(req, res, next) {
             return next(createError('Description must be 160 characters or less', ERROR_CODES.INVALID_INPUT, 400));
         }
 
-        // Validate branch if provided
-        const targetBranch = branch && branch.trim() ? branch.trim() : GITHUB_CONFIG.branch;
-        if (!targetBranch) {
-            logger.warn({ requestId }, '[blog-routes] Branch is required');
-            return next(createError('Branch is required', ERROR_CODES.MISSING_REQUIRED_FIELD, 400));
-        }
+        // Always use main branch
+        const targetBranch = 'main';
 
         const normalizedSlug = slugify((slug && slug.trim()) || title);
         if (!normalizedSlug) {
@@ -449,7 +442,7 @@ async function updatePost(req, res, next) {
         } = req.body;
 
         const requestId = req.requestId || `blog-update-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-        const targetBranch = branch || GITHUB_CONFIG.branch;
+        const targetBranch = 'main';
         logger.info({ requestId, filename, branch: targetBranch }, '[blog-routes] Updating blog post');
         
         if (!filename || !title || !description || !date || !content) {
@@ -608,8 +601,8 @@ async function deletePost(req, res, next) {
         const requestId = req.requestId || `blog-delete-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
         logger.info({ requestId }, '[blog-routes] Deleting blog post');
         
-        const { filename, branch } = req.body;
-        const targetBranch = branch || GITHUB_CONFIG.branch;
+        const { filename } = req.body;
+        const targetBranch = 'main';
 
         if (!filename) {
             logger.warn({ requestId }, '[blog-routes] Filename is required');
