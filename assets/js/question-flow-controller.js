@@ -33,20 +33,52 @@ class QuestionFlowController {
     const computerBtn = document.getElementById('computerBtn');
     
     if (phoneBtn) {
-      phoneBtn.addEventListener('click', () => {
+      // Remove any existing listeners by cloning the element
+      const newPhoneBtn = phoneBtn.cloneNode(true);
+      // Preserve all attributes
+      Array.from(phoneBtn.attributes).forEach(attr => {
+        newPhoneBtn.setAttribute(attr.name, attr.value);
+      });
+      phoneBtn.parentNode.replaceChild(newPhoneBtn, phoneBtn);
+      
+      // Update view element reference
+      this.view.elements.phoneBtn = newPhoneBtn;
+      
+      newPhoneBtn.addEventListener('click', () => {
         const currentState = this.state.getSelectedPlatforms();
         const newState = !currentState.mobile;
         this.state.setPlatform('mobile', newState);
-        phoneBtn.classList.toggle('selected', newState);
+        newPhoneBtn.classList.toggle('selected', newState);
+        
+        // Also sync with old state for compatibility
+        if (typeof selectedPlatforms !== 'undefined') {
+          selectedPlatforms.mobile = newState;
+        }
       });
     }
     
     if (computerBtn) {
-      computerBtn.addEventListener('click', () => {
+      // Remove any existing listeners by cloning the element
+      const newComputerBtn = computerBtn.cloneNode(true);
+      // Preserve all attributes
+      Array.from(computerBtn.attributes).forEach(attr => {
+        newComputerBtn.setAttribute(attr.name, attr.value);
+      });
+      computerBtn.parentNode.replaceChild(newComputerBtn, computerBtn);
+      
+      // Update view element reference
+      this.view.elements.computerBtn = newComputerBtn;
+      
+      newComputerBtn.addEventListener('click', () => {
         const currentState = this.state.getSelectedPlatforms();
         const newState = !currentState.web;
         this.state.setPlatform('web', newState);
-        computerBtn.classList.toggle('selected', newState);
+        newComputerBtn.classList.toggle('selected', newState);
+        
+        // Also sync with old state for compatibility
+        if (typeof selectedPlatforms !== 'undefined') {
+          selectedPlatforms.web = newState;
+        }
       });
     }
   }
@@ -85,10 +117,25 @@ class QuestionFlowController {
   setupProgressDotHandlers() {
     const dots = Array.from(this.view.elements.progressDots || []);
     dots.forEach((dot, index) => {
-      dot.addEventListener('click', () => {
+      // Remove any existing listeners by cloning the element
+      const newDot = dot.cloneNode(true);
+      // Preserve all attributes
+      Array.from(dot.attributes).forEach(attr => {
+        newDot.setAttribute(attr.name, attr.value);
+      });
+      dot.parentNode.replaceChild(newDot, dot);
+      
+      newDot.addEventListener('click', () => {
+        // Don't jump if already on this question
+        if (index === this.state.getCurrentQuestionIndex()) {
+          return;
+        }
         this.jumpToQuestion(index);
       });
     });
+    
+    // Re-initialize elements to get new references
+    this.view.initializeElements();
   }
   
   // Mode management
@@ -188,12 +235,11 @@ class QuestionFlowController {
   }
   
   jumpToQuestion(questionIndex) {
-    // Save current answer before jumping
+    // Save current answer before jumping (save even if empty - question 3 is optional)
     const currentIndex = this.state.getCurrentQuestionIndex();
     const currentValue = this.view.getCurrentInputValue();
-    if (currentValue.trim()) {
-      this.state.setAnswer(currentIndex, currentValue.trim());
-    }
+    // Always save the answer, even if empty (for question 3)
+    this.state.setAnswer(currentIndex, currentValue.trim());
     
     // Jump to new question
     this.state.setCurrentQuestionIndex(questionIndex);
@@ -217,12 +263,11 @@ class QuestionFlowController {
   
   // Next/Generate button handler
   handleNextOrGenerate() {
-    // Save current answer
+    // Save current answer (save even if empty - question 3 is optional)
     const currentIndex = this.state.getCurrentQuestionIndex();
     const currentValue = this.view.getCurrentInputValue();
-    if (currentValue.trim()) {
-      this.state.setAnswer(currentIndex, currentValue.trim());
-    }
+    // Always save the answer, even if empty (for question 3)
+    this.state.setAnswer(currentIndex, currentValue.trim());
     
     const isLastQuestion = this.state.isLastQuestion();
     
@@ -285,6 +330,16 @@ class QuestionFlowController {
     // Reset state
     this.state.reset();
     
+    // Sync platform selection from old state if available
+    if (typeof selectedPlatforms !== 'undefined') {
+      if (selectedPlatforms.mobile) {
+        this.state.setPlatform('mobile', true);
+      }
+      if (selectedPlatforms.web) {
+        this.state.setPlatform('web', true);
+      }
+    }
+    
     // Set mode (this will trigger handleModeChange)
     this.state.setMode(mode);
     
@@ -320,6 +375,10 @@ class QuestionFlowController {
           window.setupTypingModeToggle();
         }, 100);
       }
+      // Setup platform handlers after a delay to ensure elements exist
+      setTimeout(() => {
+        this.setupPlatformHandlers();
+      }, 150);
     }
   }
   
@@ -333,6 +392,16 @@ class QuestionFlowController {
     } else {
       // Reset to first question if no answers
       this.state.setCurrentQuestionIndex(0);
+    }
+    
+    // Sync platform selection from old state if available
+    if (typeof selectedPlatforms !== 'undefined') {
+      if (selectedPlatforms.mobile) {
+        this.state.setPlatform('mobile', true);
+      }
+      if (selectedPlatforms.web) {
+        this.state.setPlatform('web', true);
+      }
     }
     
     // Update toggles immediately before switching
@@ -353,11 +422,17 @@ class QuestionFlowController {
   
   // Switch from typing to voice
   switchToVoice() {
-    // Save current answer
+    // Save current answer (save even if empty - question 3 is optional)
     const currentIndex = this.state.getCurrentQuestionIndex();
     const currentValue = this.view.getCurrentInputValue();
-    if (currentValue.trim()) {
-      this.state.setAnswer(currentIndex, currentValue.trim());
+    // Always save the answer, even if empty (for question 3)
+    this.state.setAnswer(currentIndex, currentValue.trim());
+    
+    // Sync platform selection to old state for compatibility
+    const platforms = this.state.getSelectedPlatforms();
+    if (typeof selectedPlatforms !== 'undefined') {
+      selectedPlatforms.mobile = platforms.mobile;
+      selectedPlatforms.web = platforms.web;
     }
     
     // Prepare answers for voice mode
@@ -377,23 +452,27 @@ class QuestionFlowController {
   
   // Generate specification
   async generateSpecification() {
-    // Final save of current answer
+    // Final save of current answer (save even if empty - question 3 is optional)
     const currentIndex = this.state.getCurrentQuestionIndex();
     const currentValue = this.view.getCurrentInputValue();
-    if (currentValue.trim()) {
-      this.state.setAnswer(currentIndex, currentValue.trim());
-    }
+    // Always save the answer, even if empty (for question 3)
+    this.state.setAnswer(currentIndex, currentValue.trim());
     
-    // Validate all answers
+    // Validate all answers (only first 2 questions are required)
     const validation = this.state.validateAnswers();
     if (!validation.valid) {
       this.view.markUnansweredErrors(this.state.getAllAnswers());
-      alert('Please answer all required questions before generating the specification.');
+      alert('Please answer the first two questions before generating the specification.');
       return;
     }
     
     // Set answers for generateSpecification function
-    const answers = this.state.getAllAnswers();
+    // Ensure we always have 3 answers (question 3 can be empty)
+    let answers = this.state.getAllAnswers();
+    // Pad answers array to ensure it has 3 elements (question 3 is optional)
+    while (answers.length < 3) {
+      answers.push('');
+    }
     if (typeof window !== 'undefined') {
       // Clear any previous live brief answers
       delete window.liveBriefAnswers;

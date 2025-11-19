@@ -958,6 +958,19 @@ class LiveBriefModal {
       return;
     }
     
+    // Validate platform selection before proceeding
+    let platforms = { mobile: false, web: false };
+    if (window.questionFlowState) {
+      platforms = window.questionFlowState.getSelectedPlatforms();
+    } else if (typeof window.selectedPlatforms !== 'undefined') {
+      platforms = window.selectedPlatforms;
+    }
+    
+    if (!platforms.mobile && !platforms.web) {
+      this.showError('Please select at least one platform (Mobile or Web) before generating.');
+      return;
+    }
+    
     // Show loading state
     const useThisBtn = document.getElementById('useThisBtn');
     const originalText = useThisBtn.textContent;
@@ -986,7 +999,12 @@ class LiveBriefModal {
       if (typeof window !== 'undefined') {
         // Set on window for access from index.js
         window.liveBriefAnswers = answers;
-        window.liveBriefSelectedPlatforms = window.selectedPlatforms || { mobile: false, web: false };
+        // Get platform selection from state if available, otherwise use old variable or default
+        if (window.questionFlowState) {
+          window.liveBriefSelectedPlatforms = window.questionFlowState.getSelectedPlatforms();
+        } else {
+          window.liveBriefSelectedPlatforms = platforms;
+        }
       }
       
       // Close modal

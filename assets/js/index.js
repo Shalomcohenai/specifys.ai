@@ -795,15 +795,21 @@ function setupModernInput() {
   });
   
   document.querySelectorAll('.control-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
+    btn.addEventListener('click', function(e) {
       const id = this.getAttribute('id');
       
+      // If new controller exists, skip platform button handling (controller handles it)
+      if ((id === 'phoneBtn' || id === 'computerBtn') && window.questionFlowController) {
+        // Let the controller handle it - don't do anything here
+        return;
+      }
+      
       if (id === 'phoneBtn') {
-        // Toggle mobile selection
+        // Toggle mobile selection (old code - only if controller doesn't exist)
         selectedPlatforms.mobile = !selectedPlatforms.mobile;
         this.classList.toggle('selected');
       } else if (id === 'computerBtn') {
-        // Toggle web selection
+        // Toggle web selection (old code - only if controller doesn't exist)
         selectedPlatforms.web = !selectedPlatforms.web;
         this.classList.toggle('selected');
       } else if (id === 'microphoneBtn') {
@@ -859,23 +865,25 @@ function setupModernInput() {
     });
   }
   
-  // Add click events for progress dots
-  const progressDots = document.querySelectorAll('.progress-dot');
-  progressDots.forEach((dot, index) => {
-    dot.addEventListener('click', function() {
-      // Allow jumping to any dot
-      if (index === currentQuestionIndex) return; // Already on this question
-      
-      // Save current answer before jumping
-      const textarea = document.getElementById('mainInput');
-      const currentAnswer = textarea ? textarea.value.trim() : '';
-      if (currentAnswer) {
-        answers[currentQuestionIndex] = currentAnswer;
-      }
-      
-      jumpToQuestion(index);
+  // Add click events for progress dots (only if new controller doesn't exist)
+  if (!window.questionFlowController) {
+    const progressDots = document.querySelectorAll('.progress-dot');
+    progressDots.forEach((dot, index) => {
+      dot.addEventListener('click', function() {
+        // Allow jumping to any dot
+        if (index === currentQuestionIndex) return; // Already on this question
+        
+        // Save current answer before jumping
+        const textarea = document.getElementById('mainInput');
+        const currentAnswer = textarea ? textarea.value.trim() : '';
+        if (currentAnswer) {
+          answers[currentQuestionIndex] = currentAnswer;
+        }
+        
+        jumpToQuestion(index);
+      });
     });
-  });
+  }
 }
 
 // ===== LIGHTBULB TIPS FUNCTIONALITY =====
@@ -1011,10 +1019,16 @@ async function generateSpecification() {
     }
     
     // Check if answers exist and are valid (support both 3 and 4 answers for compatibility)
-    if (!answers || (answers.length !== 3 && answers.length !== 4)) {
+    // Question 3 is optional, so we need at least 2 answers (questions 1 and 2)
+    if (!answers || answers.length < 2) {
       hideLoadingOverlay();
-      alert('Error: Invalid answers provided. Please provide answers to all required questions.');
+      alert('Error: Please provide answers to the first two questions before generating the specification.');
       return;
+    }
+    
+    // Ensure we have 3 answers (pad with empty string for question 3 if needed)
+    while (answers.length < 3) {
+      answers.push('');
     }
     
     // Check if user is authenticated
