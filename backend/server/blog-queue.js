@@ -113,6 +113,17 @@ async function addToQueue(postData) {
  * @returns {Promise<Object>} Result
  */
 async function processQueueItem(item, publishFunction) {
+  // If already processing, add to queue and return
+  if (blogQueue.processing) {
+    console.log(`[Blog Queue] Already processing, adding item ${item.id} to queue`);
+    // Make sure item is in the queue
+    const existsInQueue = blogQueue.items.some((queued) => queued.id === item.id);
+    if (!existsInQueue) {
+      blogQueue.items.push(item);
+    }
+    return;
+  }
+
   try {
     blogQueue.processing = true;
 
@@ -134,7 +145,9 @@ async function processQueueItem(item, publishFunction) {
     }
 
     // Publish the post
+    console.log(`[Blog Queue] Starting to publish post: ${item.postData?.title || item.id}`);
     const result = await publishFunction(item.postData);
+    console.log(`[Blog Queue] Successfully published post: ${item.postData?.title || item.id}`);
 
     // Mark as completed
     item.status = QUEUE_STATUS.COMPLETED;
@@ -142,6 +155,7 @@ async function processQueueItem(item, publishFunction) {
     item.completedAt = new Date();
     blogQueue.currentItem = null;
     await updateQueueItemInFirestore(item);
+    console.log(`[Blog Queue] Marked item ${item.id} as completed`);
 
     // Process next item in queue
     if (blogQueue.items.length > 0) {
@@ -155,11 +169,13 @@ async function processQueueItem(item, publishFunction) {
 
     return result;
   } catch (error) {
+    console.error(`[Blog Queue] Error processing item ${item.id}:`, error);
     item.status = QUEUE_STATUS.FAILED;
-    item.error = error.message;
+    item.error = error.message || String(error);
     item.completedAt = new Date();
     blogQueue.currentItem = null;
     await updateQueueItemInFirestore(item);
+    console.log(`[Blog Queue] Marked item ${item.id} as failed: ${item.error}`);
     
     // Process next item even if this one failed
     if (blogQueue.items.length > 0) {

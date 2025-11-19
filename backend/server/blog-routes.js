@@ -92,7 +92,13 @@ async function updateFileInGitHub(filePath, content, message, sha = null, branch
     try {
         return await githubRequest(endpoint, 'PUT', data);
     } catch (error) {
-        console.error('Error uploading file to GitHub:', error);
+        console.error('[Blog Post] Error uploading file to GitHub:', error);
+        console.error('[Blog Post] Error details:', {
+            filePath,
+            branch: targetBranch,
+            message: error.message,
+            status: error.message?.match(/\d{3}/)?.[0] || 'unknown'
+        });
         throw new Error(`Failed to upload file to GitHub: ${error.message}`);
     }
 }
@@ -210,6 +216,7 @@ async function publishPostToGitHub(postData) {
     // Check if file already exists
     const existingFile = await getFileFromGitHub(filePath, targetBranch);
     if (existingFile) {
+        console.log(`[Blog Post] File already exists: ${filename}, skipping...`);
         throw new Error(`A post with this title and date already exists: ${filename}`);
     }
 
@@ -356,15 +363,16 @@ async function createPost(req, res, next) {
             branch: targetBranch
         });
 
-        // Process the queue item asynchronously (only if not already processing)
-        const { getQueueStatus } = require('./blog-queue');
-        const queueStatus = getQueueStatus();
-        
-        if (!queueStatus.processing) {
-            processQueueItem(queueItem, publishPostToGitHub).catch(error => {
-                console.error('Error processing queue item:', error);
-            });
-        }
+        // Process the queue item asynchronously
+        // Always process - the queue system handles sequential processing internally
+        processQueueItem(queueItem, publishPostToGitHub).catch(error => {
+            console.error('[Blog Routes] Error processing queue item:', error);
+            logger.error({ 
+                requestId, 
+                queueId: queueItem.id,
+                error: { message: error.message, stack: error.stack } 
+            }, '[blog-routes] Error processing queue item');
+        });
 
         res.json({
             success: true,
