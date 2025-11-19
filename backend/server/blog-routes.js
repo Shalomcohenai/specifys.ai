@@ -49,16 +49,37 @@ async function githubRequest(endpoint, method = 'GET', data = null) {
     return response.json();
 }
 
+// Helper: Get list of branches from GitHub
+async function getBranchesFromGitHub() {
+    // Validate GitHub token
+    if (!GITHUB_CONFIG.token) {
+        throw new Error('GITHUB_TOKEN is not configured. Please set it in environment variables.');
+    }
+
+    try {
+        const endpoint = `/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/branches`;
+        const branches = await githubRequest(endpoint);
+        return branches.map(branch => ({
+            name: branch.name,
+            protected: branch.protected || false
+        }));
+    } catch (error) {
+        console.error('Error fetching branches from GitHub:', error);
+        throw new Error(`Failed to fetch branches: ${error.message}`);
+    }
+}
+
 // Helper: Get file from GitHub
-async function getFileFromGitHub(filePath) {
+async function getFileFromGitHub(filePath, branch = null) {
     // Validate GitHub token
     if (!GITHUB_CONFIG.token) {
         console.warn('GITHUB_TOKEN is not configured. Cannot check if file exists.');
         return null;
     }
 
+    const targetBranch = branch || GITHUB_CONFIG.branch;
     try {
-        const endpoint = `/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${filePath}?ref=${GITHUB_CONFIG.branch}`;
+        const endpoint = `/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${filePath}?ref=${targetBranch}`;
         return await githubRequest(endpoint);
     } catch (error) {
         if (error.message.includes('404')) {
@@ -69,18 +90,19 @@ async function getFileFromGitHub(filePath) {
 }
 
 // Helper: Create or update file in GitHub
-async function updateFileInGitHub(filePath, content, message, sha = null) {
+async function updateFileInGitHub(filePath, content, message, sha = null, branch = null) {
     // Validate GitHub token
     if (!GITHUB_CONFIG.token) {
         throw new Error('GITHUB_TOKEN is not configured. Please set it in environment variables.');
     }
 
+    const targetBranch = branch || GITHUB_CONFIG.branch;
     const endpoint = `/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${filePath}`;
     
     const data = {
         message,
         content: Buffer.from(content).toString('base64'),
-        branch: GITHUB_CONFIG.branch
+        branch: targetBranch
     };
 
     if (sha) {
@@ -96,8 +118,9 @@ async function updateFileInGitHub(filePath, content, message, sha = null) {
 }
 
 // Helper: Delete file from GitHub
-async function deleteFileFromGitHub(filePath, message) {
-    const file = await getFileFromGitHub(filePath);
+async function deleteFileFromGitHub(filePath, message, branch = null) {
+    const targetBranch = branch || GITHUB_CONFIG.branch;
+    const file = await getFileFromGitHub(filePath, targetBranch);
     if (!file) {
         throw new Error('File not found');
     }
@@ -107,7 +130,7 @@ async function deleteFileFromGitHub(filePath, message) {
     const data = {
         message,
         sha: file.sha,
-        branch: GITHUB_CONFIG.branch
+        branch: targetBranch
     };
 
     return await githubRequest(endpoint, 'DELETE', data);
@@ -181,12 +204,19 @@ async function publishPostToGitHub(postData) {
         content,
         slug: providedSlug,
         seoTitle,
-        seoDescription
+        seoDescription,
+        branch
     } = postData;
 
     // Validate GitHub token
     if (!GITHUB_CONFIG.token) {
         throw new Error('GITHUB_TOKEN is not configured. Please set it in environment variables.');
+    }
+
+    // Validate branch
+    const targetBranch = branch || GITHUB_CONFIG.branch;
+    if (!targetBranch) {
+        throw new Error('Branch is required for publishing.');
     }
 
     // Create filename
@@ -198,10 +228,10 @@ async function publishPostToGitHub(postData) {
     const filename = `${date}-${slug}.md`;
     const filePath = `_posts/${filename}`;
 
-    console.log(`[Blog Post] Publishing: ${filename}`);
+    console.log(`[Blog Post] Publishing: ${filename} to branch: ${targetBranch}`);
 
     // Check if file already exists
-    const existingFile = await getFileFromGitHub(filePath);
+    const existingFile = await getFileFromGitHub(filePath, targetBranch);
     if (existingFile) {
         throw new Error(`A post with this title and date already exists: ${filename}`);
     }
@@ -223,16 +253,17 @@ async function publishPostToGitHub(postData) {
 
     // Upload to GitHub
     const commitMessage = `Add blog post: ${title}`;
-    const result = await updateFileInGitHub(filePath, markdownContent, commitMessage);
+    const result = await updateFileInGitHub(filePath, markdownContent, commitMessage, null, targetBranch);
 
-    console.log(`[Blog Post] Successfully published: ${filename}`);
+    console.log(`[Blog Post] Successfully published: ${filename} to branch: ${targetBranch}`);
     console.log(`[Blog Post] GitHub commit: ${result.commit?.sha || 'N/A'}`);
 
     return {
         filename,
         url: `https://specifys-ai.com/blog/${slug}.html`,
         slug,
-        commitSha: result.commit?.sha
+        commitSha: result.commit?.sha,
+        branch: targetBranch
     };
 }
 
@@ -298,11 +329,12 @@ async function createPost(req, res, next) {
             content,
             slug,
             seoTitle,
-            seoDescription
+            seoDescription,
+            branch
         } = req.body;
 
         const requestId = req.requestId || `blog-create-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-        logger.info({ requestId }, '[blog-routes] Creating blog post');
+        logger.info({ requestId, branch }, '[blog-routes] Creating blog post');
         
         // Validate required fields
         if (!title || !description || !date || !content) {
@@ -319,6 +351,13 @@ async function createPost(req, res, next) {
         if (description.length > 160) {
             logger.warn({ requestId, descriptionLength: description.length }, '[blog-routes] Description too long');
             return next(createError('Description must be 160 characters or less', ERROR_CODES.INVALID_INPUT, 400));
+        }
+
+        // Validate branch if provided
+        const targetBranch = branch && branch.trim() ? branch.trim() : GITHUB_CONFIG.branch;
+        if (!targetBranch) {
+            logger.warn({ requestId }, '[blog-routes] Branch is required');
+            return next(createError('Branch is required', ERROR_CODES.MISSING_REQUIRED_FIELD, 400));
         }
 
         const normalizedSlug = slugify((slug && slug.trim()) || title);
@@ -340,7 +379,8 @@ async function createPost(req, res, next) {
             seoDescription:
                 typeof seoDescription === 'string' && seoDescription.trim()
                     ? seoDescription.trim()
-                    : null
+                    : null,
+            branch: targetBranch
         });
 
         // Process the queue item asynchronously (only if not already processing)
@@ -376,7 +416,8 @@ async function createPost(req, res, next) {
 // Route: Get single post details
 async function getPost(req, res, next) {
     const requestId = req.requestId || `blog-get-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    logger.info({ requestId }, '[blog-routes] Getting blog post');
+    const branch = req.query.branch || GITHUB_CONFIG.branch;
+    logger.info({ requestId, branch }, '[blog-routes] Getting blog post');
     
     try {
         const { filename } = req.query;
@@ -386,9 +427,9 @@ async function getPost(req, res, next) {
         }
 
         const filePath = `_posts/${filename}`;
-        const file = await getFileFromGitHub(filePath);
+        const file = await getFileFromGitHub(filePath, branch);
         if (!file || !file.content) {
-            logger.warn({ requestId, filename }, '[blog-routes] Post not found');
+            logger.warn({ requestId, filename, branch }, '[blog-routes] Post not found');
             return next(createError('Post not found', ERROR_CODES.RESOURCE_NOT_FOUND, 404));
         }
 
@@ -423,11 +464,13 @@ async function updatePost(req, res, next) {
             content,
             slug,
             seoTitle,
-            seoDescription
+            seoDescription,
+            branch
         } = req.body;
 
         const requestId = req.requestId || `blog-update-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-        logger.info({ requestId, filename }, '[blog-routes] Updating blog post');
+        const targetBranch = branch || GITHUB_CONFIG.branch;
+        logger.info({ requestId, filename, branch: targetBranch }, '[blog-routes] Updating blog post');
         
         if (!filename || !title || !description || !date || !content) {
             logger.warn({ requestId }, '[blog-routes] Missing required fields');
@@ -459,9 +502,9 @@ async function updatePost(req, res, next) {
         }
 
         const filePath = `_posts/${filename}`;
-        const existingFile = await getFileFromGitHub(filePath);
+        const existingFile = await getFileFromGitHub(filePath, targetBranch);
         if (!existingFile) {
-            logger.warn({ requestId, filename }, '[blog-routes] Post not found');
+            logger.warn({ requestId, filename, branch: targetBranch }, '[blog-routes] Post not found');
             return next(createError('Post not found', ERROR_CODES.RESOURCE_NOT_FOUND, 404));
         }
 
@@ -484,7 +527,8 @@ async function updatePost(req, res, next) {
             filePath,
             markdownContent,
             `Update blog post: ${title}`,
-            existingFile.sha
+            existingFile.sha,
+            targetBranch
         );
 
         logger.info({ requestId, filename }, '[blog-routes] UPDATE post - Success');
@@ -503,11 +547,12 @@ async function updatePost(req, res, next) {
 // Route: List all blog posts
 async function listPosts(req, res, next) {
     const requestId = req.requestId || `blog-list-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    logger.info({ requestId }, '[blog-routes] Listing blog posts');
+    const branch = req.query.branch || GITHUB_CONFIG.branch;
+    logger.info({ requestId, branch }, '[blog-routes] Listing blog posts');
     
     try {
         // Get all files from _posts directory
-        const endpoint = `/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/_posts?ref=${GITHUB_CONFIG.branch}`;
+        const endpoint = `/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/_posts?ref=${branch}`;
         const files = await githubRequest(endpoint);
 
         // Filter only markdown files and extract metadata
@@ -535,7 +580,7 @@ async function listPosts(req, res, next) {
         const recentPosts = await Promise.all(
             posts.map(async (post) => {
                 try {
-                    const fileData = await getFileFromGitHub(`_posts/${post.filename}`);
+                    const fileData = await getFileFromGitHub(`_posts/${post.filename}`, branch);
                     const content = Buffer.from(fileData.content, 'base64').toString('utf-8');
                     
                     // Parse front matter
@@ -583,7 +628,8 @@ async function deletePost(req, res, next) {
         const requestId = req.requestId || `blog-delete-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
         logger.info({ requestId }, '[blog-routes] Deleting blog post');
         
-        const { filename } = req.body;
+        const { filename, branch } = req.body;
+        const targetBranch = branch || GITHUB_CONFIG.branch;
 
         if (!filename) {
             logger.warn({ requestId }, '[blog-routes] Filename is required');
@@ -593,7 +639,7 @@ async function deletePost(req, res, next) {
         const filePath = `_posts/${filename}`;
         const commitMessage = `Delete blog post: ${filename}`;
 
-        await deleteFileFromGitHub(filePath, commitMessage);
+        await deleteFileFromGitHub(filePath, commitMessage, targetBranch);
 
         // Note: Sitemap will be auto-updated by Jekyll build
         // await removeFromSitemap(filename);
@@ -708,12 +754,32 @@ async function getQueueStatusRoute(req, res, next) {
     }
 }
 
+// Route: Get available branches
+async function getBranches(req, res, next) {
+    const requestId = req.requestId || `blog-branches-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    logger.info({ requestId }, '[blog-routes] Getting available branches');
+    
+    try {
+        const branches = await getBranchesFromGitHub();
+        logger.info({ requestId, branchCount: branches.length }, '[blog-routes] GET branches - Success');
+        res.json({
+            success: true,
+            branches,
+            defaultBranch: GITHUB_CONFIG.branch
+        });
+    } catch (error) {
+        logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[blog-routes] GET branches - Error');
+        next(createError(error.message || 'Failed to get branches', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500));
+    }
+}
+
 module.exports = {
     createPost,
     listPosts,
     getPost,
     updatePost,
     deletePost,
-    getQueueStatus: getQueueStatusRoute
+    getQueueStatus: getQueueStatusRoute,
+    getBranches
 };
 

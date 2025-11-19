@@ -393,6 +393,13 @@
                 <input id="blog-date" name="date" type="date" required>
                             </div>
                             <div class="form-group">
+                <label for="blog-branch">Target branch</label>
+                <select id="blog-branch" name="branch" required>
+                  <option value="">Loading branches...</option>
+                </select>
+                <small class="field-hint">Select the GitHub branch to publish to</small>
+                        </div>
+                            <div class="form-group">
                 <label for="blog-slug">Slug</label>
                 <input id="blog-slug" name="slug" type="text" maxlength="140" placeholder="Auto-generated from title if left blank">
                 <small class="field-hint">Letters, numbers, and hyphens only.</small>

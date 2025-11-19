@@ -335,6 +335,7 @@ app.get('/api/blog/get-post', requireAdmin, blogRoutes.getPost);
 app.post('/api/blog/update-post', requireAdmin, blogRoutes.updatePost);
 app.post('/api/blog/delete-post', requireAdmin, blogRoutes.deletePost);
 app.get('/api/blog/queue-status', requireAdmin, blogRoutes.getQueueStatus);
+app.get('/api/blog/branches', requireAdmin, blogRoutes.getBranches);
 
 // Admin routes (must be after specific admin endpoints, with rate limiting)
 // Enhanced logging for route mounting
