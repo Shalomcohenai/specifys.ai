@@ -12,6 +12,45 @@ const GITHUB_CONFIG = {
     token: process.env.GITHUB_TOKEN || '' // GitHub Personal Access Token (use environment variable)
 };
 
+// Helper: Check GitHub Pages deployment status
+async function checkGitHubPagesStatus() {
+    try {
+        if (!GITHUB_CONFIG.token) {
+            return { error: 'GITHUB_TOKEN not configured' };
+        }
+        
+        // Check GitHub Pages build status via API
+        const endpoint = `/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/pages`;
+        const pagesInfo = await githubRequest(endpoint);
+        
+        // Get latest deployment
+        const deploymentsEndpoint = `/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/pages/builds/latest`;
+        let latestBuild = null;
+        try {
+            latestBuild = await githubRequest(deploymentsEndpoint);
+        } catch (error) {
+            // If latest build endpoint fails, pages might not be set up yet
+            console.warn('[Blog Post] Could not fetch latest GitHub Pages build:', error.message);
+        }
+        
+        return {
+            enabled: pagesInfo.status === 'built' || pagesInfo.status === 'building',
+            status: pagesInfo.status,
+            url: pagesInfo.html_url,
+            source: pagesInfo.source,
+            latestBuild: latestBuild ? {
+                status: latestBuild.status,
+                url: latestBuild.url,
+                createdAt: latestBuild.created_at,
+                updatedAt: latestBuild.updated_at
+            } : null
+        };
+    } catch (error) {
+        console.error('[Blog Post] Error checking GitHub Pages status:', error);
+        return { error: error.message };
+    }
+}
+
 // Helper: Slugify text for URL-friendly filenames
 function slugify(text) {
     return text
@@ -247,6 +286,19 @@ async function publishPostToGitHub(postData) {
 
     console.log(`[Blog Post] Successfully published: ${filename} to branch: ${targetBranch}`);
     console.log(`[Blog Post] GitHub commit: ${result.commit?.sha || 'N/A'}`);
+    console.log(`[Blog Post] GitHub commit URL: https://github.com/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/commit/${result.commit?.sha || 'N/A'}`);
+    
+    // Verify the file was actually created by checking it exists
+    try {
+        const verifyFile = await getFileFromGitHub(filePath, targetBranch);
+        if (verifyFile) {
+            console.log(`[Blog Post] ✅ Verified: File exists in GitHub at ${filePath}`);
+        } else {
+            console.warn(`[Blog Post] ⚠️ Warning: File verification failed - file may not exist yet`);
+        }
+    } catch (verifyError) {
+        console.error(`[Blog Post] ⚠️ Error verifying file existence:`, verifyError.message);
+    }
 
     // Generate URL based on Jekyll permalink format: /:year/:month/:day/:title/
     const dateParts = date.split('-');
@@ -255,12 +307,31 @@ async function publishPostToGitHub(postData) {
     const day = dateParts[2];
     const postUrl = `https://specifys-ai.com/${year}/${month}/${day}/${slug}/`;
     
+    // Check GitHub Pages deployment status
+    const pagesStatus = await checkGitHubPagesStatus();
+    if (pagesStatus.error) {
+        console.warn(`[Blog Post] ⚠️ Could not check GitHub Pages status: ${pagesStatus.error}`);
+    } else {
+        console.log(`[Blog Post] 📦 GitHub Pages Status: ${pagesStatus.status || 'unknown'}`);
+        if (pagesStatus.latestBuild) {
+            console.log(`[Blog Post] 📦 Latest Build Status: ${pagesStatus.latestBuild.status}`);
+            console.log(`[Blog Post] 📦 Latest Build Updated: ${pagesStatus.latestBuild.updatedAt}`);
+        }
+    }
+    
+    // Log deployment note
+    console.log(`[Blog Post] 📝 Note: GitHub Pages deployment typically takes 1-10 minutes after commit`);
+    console.log(`[Blog Post] 📝 Check deployment status at: https://github.com/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/settings/pages`);
+    console.log(`[Blog Post] 📝 Post will be available at: ${postUrl}`);
+    
     return {
         filename,
         url: postUrl,
         slug,
         commitSha: result.commit?.sha,
-        branch: targetBranch
+        branch: targetBranch,
+        commitUrl: `https://github.com/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/commit/${result.commit?.sha || ''}`,
+        deploymentNote: 'GitHub Pages deployment typically takes 1-10 minutes. Check deployment status in repository settings.'
     };
 }
 
