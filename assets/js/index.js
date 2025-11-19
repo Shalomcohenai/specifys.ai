@@ -175,22 +175,54 @@ function isUserAuthenticated() {
 function handleStartButtonClick() {
   trackStartNowClick();
   
+  // Log button click
+  if (window.appLogger) {
+    window.appLogger.logUserAction('StartButtonClicked', {
+      page: 'homepage'
+    });
+  }
+  
   // Check if user is authenticated
   if (!isUserAuthenticated()) {
+    // Log authentication required
+    if (window.appLogger) {
+      window.appLogger.logUserAction('AuthRequired', {
+        action: 'start_planning',
+        redirectTo: '/pages/auth.html'
+      });
+    }
+    
     // Show alert and redirect to auth page
     alert('You must be logged in to create a specification. Please sign in or register first.');
     window.location.href = '/pages/auth.html';
     return;
   }
   
+  // Log feature usage
+  if (window.appLogger) {
+    const user = firebase.auth().currentUser;
+    window.appLogger.logFeatureUsage('AppPlanningStarted', {
+      userId: user ? user.uid : null,
+      mode: 'typing'
+    });
+  }
+  
   // Use new Question Flow Controller
   if (window.questionFlowController) {
     try {
       window.questionFlowController.start('typing').catch(error => {
+        // Log error
+        if (window.appLogger) {
+          window.appLogger.logError(error, { context: 'questionFlowController.start' });
+        }
         // Fallback to old flow if controller fails
         proceedWithAppPlanning();
       });
     } catch (error) {
+      // Log error
+      if (window.appLogger) {
+        window.appLogger.logError(error, { context: 'questionFlowController.start (catch)' });
+      }
       // Fallback to old flow if controller fails
       proceedWithAppPlanning();
     }

@@ -216,6 +216,45 @@ app.post('/api/admin/css-crash-logs', async (req, res, next) => {
   }
 });
 
+// General application logs endpoint - POST to receive logs
+app.post('/api/logs', async (req, res, next) => {
+  try {
+    const { logType, message, data, pageInfo } = req.body;
+
+    if (!logType || !message) {
+      return next(createError('logType and message are required', ERROR_CODES.VALIDATION_ERROR, 400));
+    }
+
+    // Log to server console
+    const logData = {
+      timestamp: new Date().toISOString(),
+      logType,
+      message,
+      data: data || {},
+      pageInfo: pageInfo || {},
+      ip: req.ip || req.connection.remoteAddress,
+      userAgent: req.get('user-agent')
+    };
+
+    // Use appropriate log level based on logType
+    if (logType.includes('error') || logType.includes('Error')) {
+      logger.error(logData, `[CLIENT LOG] ${message}`);
+    } else if (logType.includes('warn') || logType.includes('Warning')) {
+      logger.warn(logData, `[CLIENT LOG] ${message}`);
+    } else {
+      logger.info(logData, `[CLIENT LOG] ${message}`);
+    }
+
+    res.json({
+      success: true,
+      message: 'Log saved'
+    });
+  } catch (error) {
+    logger.error({ error: error.message, stack: error.stack }, 'Error saving application log');
+    next(createError('Failed to save log', ERROR_CODES.DATABASE_ERROR, 500));
+  }
+});
+
 // CSS crash logs endpoint - GET to retrieve logs
 app.get('/api/admin/css-crash-logs', requireAdmin, async (req, res, next) => {
   try {

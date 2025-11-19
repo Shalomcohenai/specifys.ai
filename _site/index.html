@@ -53,6 +53,9 @@
     <!-- API Configuration -->
     <script src="/assets/js/config.js"></script>
     
+    <!-- Application Logger -->
+    <script src="/assets/js/app-logger.js"></script>
+    
     <!-- CSS Monitoring Script -->
     <script src="/assets/js/css-monitor.js"></script>
     
@@ -910,15 +913,36 @@
     auth.signOut()
       .then(() => {
         // Logged out successfully
+        if (window.appLogger) {
+          window.appLogger.logUserAction('LogoutSuccess', {});
+        }
       })
       .catch(error => {
         // Error logging out
+        if (window.appLogger) {
+          window.appLogger.logError(error, { action: 'logout' });
+        }
       });
   };
 
   // Listen to auth state changes
   auth.onAuthStateChanged((user) => {
     updateAuthUI(user);
+    
+    // Log authentication state changes
+    if (window.appLogger) {
+      if (user) {
+        window.appLogger.logAuthEvent('LoggedIn', user.uid);
+        window.appLogger.logUserAction('UserLoggedIn', {
+          userId: user.uid,
+          email: user.email,
+          displayName: user.displayName
+        });
+      } else {
+        window.appLogger.logAuthEvent('LoggedOut', null);
+        window.appLogger.logUserAction('UserLoggedOut', {});
+      }
+    }
   });
 
   // Initialize auth buttons with default state
@@ -1003,6 +1027,7 @@
       (function() {
         const ACCESS_CODE = '1997';
         const STORAGE_KEY = 'site_access_granted';
+        let attemptCount = 0;
         
         // Check if access was already granted
         const hasAccess = sessionStorage.getItem(STORAGE_KEY) === 'true';
@@ -1019,12 +1044,27 @@
           modal.style.display = 'none';
           if (mainContent) mainContent.style.display = 'block';
           if (header) header.style.display = 'flex';
+          
+          // Log successful access
+          if (window.appLogger) {
+            window.appLogger.logAccessCodeAttempt(true, attemptCount + 1);
+            window.appLogger.logUserAction('AccessGranted', {
+              method: 'access_code',
+              attemptCount: attemptCount + 1
+            });
+          }
         }
         
         function denyAccess() {
+          attemptCount++;
           errorMsg.style.display = 'block';
           input.value = '';
           input.focus();
+          
+          // Log failed attempt
+          if (window.appLogger) {
+            window.appLogger.logAccessCodeAttempt(false, attemptCount);
+          }
         }
         
         function checkAccess() {
@@ -1038,6 +1078,13 @@
         
         // Initialize
         if (!hasAccess) {
+          // Log that access modal was shown
+          if (window.appLogger) {
+            window.appLogger.log('AccessModalShown', 'Access code modal displayed', {
+              hasPreviousAccess: false
+            });
+          }
+          
           // Hide main content until access is granted
           if (mainContent) mainContent.style.display = 'none';
           if (header) header.style.display = 'none';
@@ -1062,7 +1109,12 @@
             });
           }
         } else {
-          // Access already granted
+          // Access already granted - log this
+          if (window.appLogger) {
+            window.appLogger.log('AccessGrantedFromStorage', 'Access granted from session storage', {
+              hasPreviousAccess: true
+            });
+          }
           modal.style.display = 'none';
         }
       })();
