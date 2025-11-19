@@ -1018,6 +1018,8 @@ class AdminDashboardApp {
       metrics: {
         totalUsers: utils.dom('[data-metric="users-total"]'),
         newUsers: utils.dom('[data-kpi="users-new"]'),
+        liveUsers: utils.dom('[data-metric="users-live"]'),
+        liveUsersTime: utils.dom('[data-kpi="users-live-time"]'),
         proUsers: utils.dom('[data-metric="users-pro"]'),
         proShare: utils.dom('[data-kpi="users-pro-share"]'),
         specsTotal: utils.dom('[data-metric="specs-total"]'),
@@ -2095,6 +2097,15 @@ class AdminDashboardApp {
     const proUsersInRange = usersInRange.filter((user) => user.plan === "pro").length;
     const proShare = totalUsers ? Math.round((proUsers / totalUsers) * 100) : 0;
 
+    // Live users - users active in last 15 minutes
+    const LIVE_THRESHOLD_MS = 15 * 60 * 1000; // 15 minutes
+    const liveThreshold = Date.now() - LIVE_THRESHOLD_MS;
+    const liveUsers = users.filter((user) => {
+      if (!user.lastActive) return false;
+      const lastActiveTime = user.lastActive?.getTime() || 0;
+      return lastActiveTime >= liveThreshold;
+    }).length;
+
     // Specs metrics - show specs in range, not total
     const specsInRange = Array.from(this.store.specs.values()).filter(
       (spec) => (spec.createdAt?.getTime() || 0) >= threshold
@@ -2117,6 +2128,12 @@ class AdminDashboardApp {
     }
     if (this.dom.metrics.newUsers) {
       this.dom.metrics.newUsers.textContent = `New: ${utils.formatNumber(newUsers)}`;
+    }
+    if (this.dom.metrics.liveUsers) {
+      this.dom.metrics.liveUsers.textContent = utils.formatNumber(liveUsers);
+    }
+    if (this.dom.metrics.liveUsersTime) {
+      this.dom.metrics.liveUsersTime.textContent = "Last 15 min";
     }
     if (this.dom.metrics.proUsers) {
       this.dom.metrics.proUsers.textContent = utils.formatNumber(proUsersInRange);
