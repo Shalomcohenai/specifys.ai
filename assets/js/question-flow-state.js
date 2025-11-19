@@ -4,7 +4,7 @@
 class QuestionFlowState {
   constructor() {
     // Current mode: 'voice' | 'typing'
-    this.mode = 'voice';
+    this.mode = 'typing';
     
     // Question state
     this.currentQuestionIndex = 0;

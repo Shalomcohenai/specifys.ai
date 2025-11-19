@@ -299,31 +299,83 @@ async function requireAdmin(req, res, next) {
   const { createError, ERROR_CODES } = require('./error-handler');
   const { logger } = require('./logger');
   
+  logger.info({
+    method: req.method,
+    path: req.path,
+    originalUrl: req.originalUrl,
+    baseUrl: req.baseUrl,
+    url: req.url,
+    hasAuthHeader: !!req.headers.authorization,
+    authHeaderLength: req.headers.authorization ? req.headers.authorization.length : 0,
+    authHeaderPrefix: req.headers.authorization ? req.headers.authorization.substring(0, 20) + '...' : 'none',
+    ip: req.ip || req.connection.remoteAddress,
+    userAgent: req.get('user-agent'),
+    timestamp: new Date().toISOString()
+  }, '[security] 🔐 requireAdmin middleware - Starting authentication check');
+  
   try {
     const authHeader = req.headers.authorization;
     
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      logger.warn({ path: req.path }, '[security] Admin authentication required - no token');
+      logger.warn({ 
+        path: req.path,
+        originalUrl: req.originalUrl,
+        method: req.method,
+        hasAuthHeader: !!authHeader,
+        authHeaderValue: authHeader ? authHeader.substring(0, 30) + '...' : 'none',
+        ip: req.ip || req.connection.remoteAddress
+      }, '[security] ⚠️ Admin authentication required - no valid token');
       return next(createError('Authentication required', ERROR_CODES.UNAUTHORIZED, 401, {
         message: 'Admin access requires valid authentication token'
       }));
     }
 
     const idToken = authHeader.split('Bearer ')[1];
+    logger.debug({
+      tokenLength: idToken.length,
+      tokenPrefix: idToken.substring(0, 20) + '...',
+      path: req.path
+    }, '[security] 🔑 Extracted token, verifying with Firebase...');
     
     // Import Firebase Admin dynamically to avoid circular dependency
     const { auth } = require('./firebase-admin');
     const decodedToken = await auth.verifyIdToken(idToken);
     
+    logger.info({
+      userId: decodedToken.uid,
+      email: decodedToken.email,
+      emailVerified: decodedToken.email_verified,
+      authTime: decodedToken.auth_time,
+      exp: decodedToken.exp,
+      iat: decodedToken.iat,
+      path: req.path
+    }, '[security] ✅ Token verified successfully - checking admin status');
+    
     // Check if user is admin using centralized config
-    if (!isAdminEmail(decodedToken.email)) {
-      logger.warn({ path: req.path, email: decodedToken.email }, '[security] Admin access denied');
+    const isAdmin = isAdminEmail(decodedToken.email);
+    logger.debug({
+      email: decodedToken.email,
+      isAdmin,
+      path: req.path
+    }, `[security] ${isAdmin ? '✅' : '❌'} Admin check result`);
+    
+    if (!isAdmin) {
+      logger.warn({ 
+        path: req.path, 
+        email: decodedToken.email,
+        userId: decodedToken.uid,
+        ip: req.ip || req.connection.remoteAddress
+      }, '[security] 🚫 Admin access denied - user is not admin');
       return next(createError('Forbidden', ERROR_CODES.FORBIDDEN, 403, {
         message: 'Admin access required'
       }));
     }
     
-    logger.debug({ userId: decodedToken.uid, email: decodedToken.email, path: req.path }, '[security] Admin authenticated');
+    logger.info({ 
+      userId: decodedToken.uid, 
+      email: decodedToken.email, 
+      path: req.path 
+    }, '[security] ✅ Admin authenticated successfully');
     req.adminUser = decodedToken;
 
     next();

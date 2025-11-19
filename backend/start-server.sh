@@ -34,5 +34,5 @@ echo "Press Ctrl+C to stop the server"
 echo ""
 
 # Start server and log output
-node server.js 2>&1 | tee server.log
+node server/server.js 2>&1 | tee server.log
 

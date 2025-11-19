@@ -62,6 +62,10 @@
           <span class="icon"><i class="fas fa-tachometer-alt"></i></span>
           Performance
         </button>
+        <button class="nav-link" data-target="contact-section">
+          <span class="icon"><i class="fas fa-envelope"></i></span>
+          Contact Submissions
+        </button>
       </nav>
 
       <div class="sidebar-footer">
@@ -599,6 +603,63 @@
               </header>
               <canvas id="error-rate-chart" height="180" aria-label="Error rate over time"></canvas>
             </section>
+          </div>
+        </section>
+
+        <section class="dashboard-section" id="contact-section">
+          <header class="section-header">
+            <div>
+              <h2>Contact Submissions</h2>
+              <p>View and manage contact form submissions from users.</p>
+            </div>
+            <div class="section-controls">
+              <select id="contact-status-filter" aria-label="Filter by status">
+                <option value="all">All statuses</option>
+                <option value="new">New</option>
+                <option value="read">Read</option>
+                <option value="replied">Replied</option>
+                <option value="archived">Archived</option>
+              </select>
+              <input type="search" id="contact-search" placeholder="Search by email or message" aria-label="Search contacts">
+              <button class="action-btn" id="export-contacts-btn" type="button">
+                <i class="fas fa-file-export"></i>
+                Export CSV
+              </button>
+            </div>
+          </header>
+
+          <div class="table-wrapper">
+            <table class="data-table" id="contact-table">
+              <thead>
+                <tr>
+                  <th scope="col">Date</th>
+                  <th scope="col">Email</th>
+                  <th scope="col">User</th>
+                  <th scope="col">Message</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td colspan="6" class="table-empty">Loading contact submissions…</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="pagination-wrapper" id="contact-pagination" style="display: none;">
+            <div class="pagination-info">
+              <span id="contact-pagination-info">Showing 0-0 of 0</span>
+            </div>
+            <div class="pagination-controls">
+              <button class="pagination-btn" id="contact-pagination-prev" disabled>
+                <i class="fas fa-chevron-left"></i> Previous
+              </button>
+              <button class="pagination-btn" id="contact-pagination-next" disabled>
+                Next <i class="fas fa-chevron-right"></i>
+              </button>
+            </div>
           </div>
         </section>
       </main>

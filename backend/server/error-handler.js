@@ -48,21 +48,37 @@ const ERROR_CODES = {
 function errorHandler(err, req, res, next) {
   const requestId = req.requestId || `req-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   
-  // Log the error
+  // Enhanced error logging
   logger.error({
     type: 'error_handler',
     requestId,
     method: req.method,
     path: req.path,
+    originalUrl: req.originalUrl,
+    baseUrl: req.baseUrl,
+    url: req.url,
+    query: req.query,
+    params: req.params,
     error: {
       name: err.name,
       message: err.message,
       stack: process.env.NODE_ENV === 'development' ? err.stack : undefined,
-      code: err.code || err.errorCode
+      code: err.code || err.errorCode,
+      statusCode: err.statusCode || err.status,
+      details: err.details
     },
+    errorType: err.name,
+    errorMessage: err.message,
+    errorCode: err.errorCode || err.code,
+    httpStatusCode: err.statusCode || err.status || 500,
     ip: req.ip || req.connection.remoteAddress,
-    userAgent: req.get('user-agent')
-  }, `Error handling request: ${req.method} ${req.path}`);
+    userAgent: req.get('user-agent'),
+    origin: req.get('origin'),
+    hasAuthHeader: !!req.headers.authorization,
+    adminEmail: req.adminUser?.email,
+    adminUserId: req.adminUser?.uid,
+    timestamp: new Date().toISOString()
+  }, `[error-handler] ❌ Error handling request: ${req.method} ${req.originalUrl} - ${err.message} (${err.statusCode || err.status || 500})`);
 
   // Determine status code
   let statusCode = err.statusCode || err.status || 500;

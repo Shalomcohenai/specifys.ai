@@ -186,7 +186,7 @@ function handleStartButtonClick() {
   // Use new Question Flow Controller
   if (window.questionFlowController) {
     try {
-      window.questionFlowController.start('voice').catch(error => {
+      window.questionFlowController.start('typing').catch(error => {
         // Fallback to old flow if controller fails
         proceedWithAppPlanning();
       });

@@ -225,6 +225,7 @@ class DashboardDataStore {
     this.activity = [];
     this.manualActivity = [];
     this.blogQueue = [];
+    this.contactSubmissions = [];
   }
 
   reset() {
@@ -236,6 +237,7 @@ class DashboardDataStore {
     this.activity = [];
     this.manualActivity = [];
     this.blogQueue = [];
+    this.contactSubmissions = [];
   }
 
   upsertUser(id, data) {
@@ -1059,7 +1061,11 @@ class AdminDashboardApp {
         errorRate: utils.dom('[data-perf="error-rate"]'),
         connections: utils.dom('[data-perf="connections"]'),
         uptime: utils.dom('[data-perf="uptime"]')
-      }
+      },
+      contactTable: utils.dom("#contact-table tbody"),
+      contactStatusFilter: utils.dom("#contact-status-filter"),
+      contactSearch: utils.dom("#contact-search"),
+      exportContacts: utils.dom("#export-contacts-btn")
     };
 
     if (this.dom.blogFields.date && !this.dom.blogFields.date.value) {
@@ -1119,6 +1125,10 @@ class AdminDashboardApp {
           if (section.id === target) {
             section.classList.add("active");
             section.scrollIntoView({ behavior: "smooth", block: "start" });
+            // Load contact submissions when contact section is opened
+            if (target === "contact-section") {
+              this.loadContactSubmissions();
+            }
           } else {
             section.classList.remove("active");
           }
@@ -1148,6 +1158,11 @@ class AdminDashboardApp {
       this.usersCurrentPage = 1; // Reset to first page on filter change
       this.renderUsersTable();
     });
+    this.dom.contactStatusFilter?.addEventListener("change", () => this.loadContactSubmissions());
+    this.dom.contactSearch?.addEventListener("input", utils.debounce(() => {
+      this.renderContactTable();
+    }, 300));
+    this.dom.exportContacts?.addEventListener("click", () => this.exportContactsCsv());
     this.dom.usersStatusFilter?.addEventListener("change", () => {
       this.usersCurrentPage = 1;
       this.renderUsersTable();
@@ -3865,6 +3880,188 @@ class AdminDashboardApp {
   async exportUsersPdf() {
     // For now, just show a message - PDF generation would require a library like jsPDF
     alert("PDF export feature coming soon. Please use CSV export for now.");
+  }
+
+  // Contact Submissions
+  async loadContactSubmissions() {
+    try {
+      const token = await auth.currentUser?.getIdToken();
+      if (!token) return;
+
+      const apiBaseUrl = typeof window.getApiBaseUrl === "function"
+        ? window.getApiBaseUrl()
+        : "https://specifys-ai.onrender.com";
+
+      const status = this.dom.contactStatusFilter?.value || "all";
+      const url = `${apiBaseUrl}/api/admin/contact-submissions?status=${status}&limit=100`;
+      
+      const response = await fetch(url, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to load contact submissions: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      if (data.success) {
+        this.store.contactSubmissions = data.submissions.map(sub => ({
+          ...sub,
+          createdAt: utils.toDate(sub.createdAt) || utils.toDate(sub.timestamp) || new Date()
+        }));
+        this.renderContactTable();
+      }
+    } catch (error) {
+      console.error("Failed to load contact submissions:", error);
+      if (this.dom.contactTable) {
+        this.dom.contactTable.innerHTML = `<tr><td colspan="6" class="table-empty">Error loading contact submissions.</td></tr>`;
+      }
+    }
+  }
+
+  renderContactTable() {
+    if (!this.dom.contactTable) return;
+    
+    const searchTerm = this.dom.contactSearch?.value.trim().toLowerCase() || "";
+    const submissions = this.store.contactSubmissions || [];
+    
+    let filtered = submissions;
+    if (searchTerm) {
+      filtered = submissions.filter(sub => 
+        sub.email?.toLowerCase().includes(searchTerm) ||
+        sub.message?.toLowerCase().includes(searchTerm) ||
+        sub.userName?.toLowerCase().includes(searchTerm)
+      );
+    }
+
+    if (!filtered.length) {
+      this.dom.contactTable.innerHTML = `<tr><td colspan="6" class="table-empty">No contact submissions found.</td></tr>`;
+      return;
+    }
+
+    const rows = filtered.map(sub => {
+      const date = utils.formatDate(sub.createdAt);
+      const messagePreview = sub.message?.length > 100 
+        ? sub.message.substring(0, 100) + "..." 
+        : sub.message || "";
+      const statusClass = `status-${sub.status || 'new'}`;
+      const statusLabel = (sub.status || 'new').charAt(0).toUpperCase() + (sub.status || 'new').slice(1);
+      
+      return `
+        <tr>
+          <td>${date}</td>
+          <td>${sub.email || "—"}</td>
+          <td>${sub.userName || sub.userId || "—"}</td>
+          <td>
+            <div class="message-preview" title="${sub.message || ''}">
+              ${messagePreview}
+            </div>
+          </td>
+          <td>
+            <select class="status-select ${statusClass}" data-id="${sub.id}" data-current="${sub.status || 'new'}">
+              <option value="new" ${sub.status === 'new' ? 'selected' : ''}>New</option>
+              <option value="read" ${sub.status === 'read' ? 'selected' : ''}>Read</option>
+              <option value="replied" ${sub.status === 'replied' ? 'selected' : ''}>Replied</option>
+              <option value="archived" ${sub.status === 'archived' ? 'selected' : ''}>Archived</option>
+            </select>
+          </td>
+          <td>
+            <button class="action-btn small" onclick="window.adminDashboard.viewContactMessage('${sub.id}')" title="View full message">
+              <i class="fas fa-eye"></i>
+            </button>
+          </td>
+        </tr>
+      `;
+    }).join("");
+
+    this.dom.contactTable.innerHTML = rows;
+
+    // Add event listeners for status changes
+    this.dom.contactTable.querySelectorAll('.status-select').forEach(select => {
+      select.addEventListener('change', async (e) => {
+        const id = e.target.dataset.id;
+        const newStatus = e.target.value;
+        const oldStatus = e.target.dataset.current;
+        
+        if (newStatus === oldStatus) return;
+        
+        try {
+          await this.updateContactStatus(id, newStatus);
+          e.target.dataset.current = newStatus;
+          e.target.className = `status-select status-${newStatus}`;
+        } catch (error) {
+          console.error("Failed to update status:", error);
+          e.target.value = oldStatus;
+          alert("Failed to update status. Please try again.");
+        }
+      });
+    });
+  }
+
+  async updateContactStatus(id, status) {
+    const token = await auth.currentUser?.getIdToken();
+    if (!token) throw new Error("Not authenticated");
+
+    const apiBaseUrl = typeof window.getApiBaseUrl === "function"
+      ? window.getApiBaseUrl()
+      : "https://specifys-ai.onrender.com";
+
+    const response = await fetch(`${apiBaseUrl}/api/admin/contact-submissions/${id}/status`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ status })
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || "Failed to update status");
+    }
+
+    // Update local store
+    const submission = this.store.contactSubmissions.find(s => s.id === id);
+    if (submission) {
+      submission.status = status;
+    }
+  }
+
+  viewContactMessage(id) {
+    const submission = this.store.contactSubmissions.find(s => s.id === id);
+    if (!submission) return;
+    
+    alert(`Contact Message\n\nFrom: ${submission.email || "Unknown"}\nUser: ${submission.userName || submission.userId || "Guest"}\nDate: ${utils.formatDate(submission.createdAt)}\n\nMessage:\n${submission.message || "No message"}`);
+  }
+
+  async exportContactsCsv() {
+    const submissions = this.store.contactSubmissions || [];
+    if (!submissions.length) {
+      alert("No contact submissions to export.");
+      return;
+    }
+
+    const headers = ["Date", "Email", "User", "Message", "Status"];
+    const rows = submissions.map(sub => [
+      utils.formatDate(sub.createdAt),
+      sub.email || "",
+      sub.userName || sub.userId || "",
+      `"${(sub.message || "").replace(/"/g, '""')}"`,
+      sub.status || "new"
+    ]);
+
+    const csv = [
+      headers.join(","),
+      ...rows.map(row => row.join(","))
+    ].join("\n");
+
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `contact-submissions-${new Date().toISOString().split("T")[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
   }
 }
 

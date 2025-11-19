@@ -1,3 +1,4 @@
+const path = require('path');
 const express = require('express');
 // Use built-in fetch for Node.js 18+ or fallback to node-fetch
 let fetch;
@@ -12,22 +13,143 @@ const dotenv = require('dotenv');
 const config = require('./config');
 const blogRoutes = require('./blog-routes');
 const adminRoutes = require('./admin-routes');
+const lemonRoutes = require('./lemon-routes');
+const creditsRoutes = require('./credits-routes');
+const healthRoutes = require('./health-routes');
 const { requireAdmin, securityHeaders, rateLimiters } = require('./security');
 const { logError, getErrorLogs, getErrorSummary } = require('./error-logger');
 const { logCSCCrash, getCSCCrashLogs, getCSCCrashSummary } = require('./css-crash-logger');
 const { errorHandler, notFoundHandler, createError, ERROR_CODES } = require('./error-handler');
 const { logger, logRequest, logResponse } = require('./logger');
+const { syncAllUsers } = require('./user-management');
 
-dotenv.config();
+// Load environment variables BEFORE importing route modules
+// Try backend/.env first (preferred), then project root .env, then server/.env
+const backendEnvPath = path.join(__dirname, '..', '.env');
+const rootEnvPath = path.join(__dirname, '..', '..', '.env');
+const serverEnvPath = path.join(__dirname, '.env');
+let loadedEnvPath = null;
+
+logger.info({
+  type: 'env_loading_start',
+  paths: {
+    backend: backendEnvPath,
+    root: rootEnvPath,
+    server: serverEnvPath
+  }
+}, '[UNIFIED SERVER] 🔍 Loading environment variables...');
+
+if (dotenv.config({ path: backendEnvPath }).parsed) {
+  loadedEnvPath = backendEnvPath;
+  logger.info({ type: 'env_loaded', path: loadedEnvPath }, '[UNIFIED SERVER] ✅ Environment variables loaded from backend/.env');
+} else if (dotenv.config({ path: rootEnvPath }).parsed) {
+  loadedEnvPath = rootEnvPath;
+  logger.info({ type: 'env_loaded', path: loadedEnvPath }, '[UNIFIED SERVER] ✅ Environment variables loaded from project root .env');
+} else if (dotenv.config({ path: serverEnvPath }).parsed) {
+  loadedEnvPath = serverEnvPath;
+  logger.info({ type: 'env_loaded', path: loadedEnvPath }, '[UNIFIED SERVER] ✅ Environment variables loaded from server/.env');
+} else {
+  // Final fallback to default lookup (CWD)
+  dotenv.config();
+  logger.warn({ type: 'env_fallback' }, '[UNIFIED SERVER] ⚠️ Using default environment variable lookup (CWD)');
+}
+
+// Clear require cache for development
+delete require.cache[require.resolve('./chat-routes')];
+delete require.cache[require.resolve('./openai-storage-service')];
 
 const app = express();
 const port = config.port;
 
+logger.info({
+  type: 'server_init',
+  port,
+  configPort: config.port,
+  nodeEnv: process.env.NODE_ENV || 'development'
+}, '[UNIFIED SERVER] 🚀 Initializing unified server...');
+
+// Trust proxy for rate limiting behind reverse proxy (Render, etc.)
+// Trust only first proxy (Render) to avoid rate limit bypass warnings
+app.set('trust proxy', 1);
+logger.info({ type: 'trust_proxy_set' }, '[UNIFIED SERVER] ✅ Trust proxy enabled (for Render reverse proxy)');
+
 // Apply security headers (must be before other middleware)
 app.use(securityHeaders);
+logger.info({ type: 'security_headers_applied' }, '[UNIFIED SERVER] ✅ Security headers applied');
 
-// Middleware to parse JSON bodies
+// CORS middleware to allow requests from your frontend
+// Must be before routes and rate limiting
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:4000',
+  'http://localhost:8080',
+  'http://localhost:10000',
+  'http://127.0.0.1:3000',
+  'http://127.0.0.1:4000',
+  'https://specifys-ai.com',
+  'https://www.specifys-ai.com',
+  'https://specifys-ai.onrender.com',
+  process.env.RENDER_URL ? `https://${process.env.RENDER_URL}` : null
+].filter(Boolean);
+
+logger.info({ 
+  type: 'cors_setup',
+  allowedOriginsCount: allowedOrigins.length,
+  allowedOrigins: allowedOrigins.slice(0, 5) // Log first 5 for brevity
+}, '[UNIFIED SERVER] 📌 Setting up CORS middleware...');
+
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  
+  // Log CORS decisions for API routes (but not too verbose)
+  if (req.path.startsWith('/api/') && req.method !== 'OPTIONS') {
+    if (origin && allowedOrigins.includes(origin)) {
+      logger.debug({ type: 'cors_allowed', origin, path: req.path }, '[UNIFIED SERVER] ✅ CORS: Allowed origin');
+    } else if (origin) {
+      logger.warn({ type: 'cors_blocked', origin, path: req.path }, '[UNIFIED SERVER] ⚠️ CORS: Origin not in allowed list');
+    }
+  }
+  
+  if (allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+  }
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Bearer');
+  res.header('Access-Control-Expose-Headers', 'Authorization');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Max-Age', '86400'); // 24 hours
+  
+  // Handle preflight requests
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+  next();
+});
+logger.info({ type: 'cors_applied' }, '[UNIFIED SERVER] ✅ CORS middleware applied');
+
+// Lemon Squeezy routes must be registered BEFORE express.json() and rate limiting
+// to allow webhook endpoint to access raw body for signature verification
+// and to avoid rate limiting issues
+logger.info({ type: 'route_mount', path: '/api/lemon', route: 'lemonRoutes' }, '[UNIFIED SERVER] 📌 Mounting Lemon Squeezy routes');
+app.use('/api/lemon', lemonRoutes);
+logger.info({ type: 'route_mounted', path: '/api/lemon' }, '[UNIFIED SERVER] ✅ Lemon Squeezy routes mounted');
+
+// Apply rate limiting (after lemon routes so they're excluded)
+logger.info({ type: 'rate_limiting_setup' }, '[UNIFIED SERVER] 📌 Setting up rate limiting...');
+app.use('/api/', (req, res, next) => {
+  // Skip rate limiting for lemon routes (already handled above)
+  if (req.path.startsWith('/lemon')) {
+    return next();
+  }
+  rateLimiters.general(req, res, next);
+});
+app.use('/api/auth/', rateLimiters.auth);
+app.use('/api/feedback', rateLimiters.feedback);
+logger.info({ type: 'rate_limiting_applied' }, '[UNIFIED SERVER] ✅ Rate limiting applied');
+
+// Middleware to parse JSON bodies (registered after lemon routes)
 app.use(express.json());
+logger.info({ type: 'json_parser_applied' }, '[UNIFIED SERVER] ✅ JSON body parser applied');
 
 // Request logging middleware (using structured logger)
 app.use((req, res, next) => {
@@ -53,45 +175,6 @@ app.use((req, res, next) => {
   next();
 });
 
-// CORS middleware to allow requests from your frontend
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  
-  // LOGGING: Log incoming origin for debugging
-  if (req.path.startsWith('/api/')) {
-    console.log(`[CORS] Request from origin: ${origin || 'none (same-origin)'}`);
-    console.log(`[CORS] Allowed origins:`, config.allowedOrigins);
-  }
-  
-  // Check if origin is in allowed list
-  if (origin && config.allowedOrigins.includes(origin)) {
-    // LOGGING: Origin is allowed
-    if (req.path.startsWith('/api/')) {
-      console.log(`[CORS] ✅ Allowed origin: ${origin}`);
-    }
-    res.header('Access-Control-Allow-Origin', origin);
-  } else {
-    // LOGGING: Using fallback (origin not in list or no origin)
-    if (req.path.startsWith('/api/')) {
-      if (origin) {
-        console.warn(`[CORS] ⚠️  Origin not in allowed list: ${origin} - using fallback '*'`);
-      } else {
-        console.log(`[CORS] ℹ️  No origin header (same-origin request) - using fallback '*'`);
-      }
-    }
-    res.header('Access-Control-Allow-Origin', '*'); // Fallback for development
-  }
-  
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  
-  // Handle preflight requests
-  if (req.method === 'OPTIONS') {
-    res.sendStatus(200);
-  } else {
-    next();
-  }
-});
 
 // Admin error logs endpoint
 app.get('/api/admin/error-logs', requireAdmin, async (req, res, next) => {
@@ -183,14 +266,147 @@ app.get('/api/admin/error-summary', requireAdmin, async (req, res, next) => {
   }
 });
 
-// Blog management endpoints
+// User routes for user management (must be before static files)
+logger.info({ type: 'route_mount', path: '/api/users', route: 'userRoutes' }, '[UNIFIED SERVER] 📌 Mounting user routes');
+const userRoutes = require('./user-routes');
+app.use('/api/users', userRoutes);
+logger.info({ type: 'route_mounted', path: '/api/users' }, '[UNIFIED SERVER] ✅ User routes mounted');
+
+// Specs routes for spec management
+logger.info({ type: 'route_mount', path: '/api/specs', route: 'specsRoutes' }, '[UNIFIED SERVER] 📌 Mounting specs routes');
+const specsRoutes = require('./specs-routes');
+app.use('/api/specs', specsRoutes);
+logger.info({ type: 'route_mounted', path: '/api/specs' }, '[UNIFIED SERVER] ✅ Specs routes mounted');
+
+// Credits routes for credit management
+logger.info({ type: 'route_mount', path: '/api/credits', route: 'creditsRoutes' }, '[UNIFIED SERVER] 📌 Mounting credits routes');
+app.use('/api/credits', creditsRoutes);
+logger.info({ type: 'route_mounted', path: '/api/credits' }, '[UNIFIED SERVER] ✅ Credits routes mounted');
+
+// Chat routes for AI chat functionality
+logger.info({ type: 'route_mount', path: '/api/chat', route: 'chatRoutes' }, '[UNIFIED SERVER] 📌 Mounting chat routes');
+const chatRoutes = require('./chat-routes');
+app.use('/api/chat', chatRoutes);
+logger.info({ type: 'route_mounted', path: '/api/chat' }, '[UNIFIED SERVER] ✅ Chat routes mounted');
+
+// Blog routes (must be before static files to avoid conflicts)
 app.post('/api/blog/create-post', requireAdmin, blogRoutes.createPost);
 app.get('/api/blog/list-posts', requireAdmin, blogRoutes.listPosts);
+app.get('/api/blog/get-post', requireAdmin, blogRoutes.getPost);
+app.post('/api/blog/update-post', requireAdmin, blogRoutes.updatePost);
 app.post('/api/blog/delete-post', requireAdmin, blogRoutes.deletePost);
 app.get('/api/blog/queue-status', requireAdmin, blogRoutes.getQueueStatus);
 
 // Admin routes (must be after specific admin endpoints, with rate limiting)
-app.use('/api/admin', rateLimiters.admin, adminRoutes);
+// Enhanced logging for route mounting
+logger.info({
+  timestamp: new Date().toISOString(),
+  action: 'mounting_admin_routes',
+  path: '/api/admin',
+  hasRateLimiter: true,
+  hasAdminRoutes: !!adminRoutes,
+  adminRoutesType: typeof adminRoutes,
+  adminRoutesStackLength: adminRoutes?.stack?.length || 0
+}, '[server] 🔵 Mounting admin routes at /api/admin');
+
+// Log all registered routes before mounting
+if (adminRoutes && adminRoutes.stack) {
+  logger.info('[server] 📋 Admin routes to be mounted:');
+  adminRoutes.stack.forEach((layer, index) => {
+    if (layer.route) {
+      const methods = Object.keys(layer.route.methods).join(', ').toUpperCase();
+      logger.info(`[server]   ${index + 1}. ${methods} ${layer.route.path}`);
+    } else if (layer.name === 'router') {
+      logger.info(`[server]   ${index + 1}. [Router middleware: ${layer.regexp}]`);
+    }
+  });
+}
+
+// Enhanced logging middleware for all admin requests
+app.use('/api/admin', (req, res, next) => {
+  const requestId = req.requestId || `admin-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  req.requestId = requestId;
+  
+  logger.info({
+    requestId,
+    type: 'admin_request_start',
+    method: req.method,
+    path: req.path,
+    originalUrl: req.originalUrl,
+    baseUrl: req.baseUrl,
+    url: req.url,
+    query: req.query,
+    params: req.params,
+    hasBody: !!req.body,
+    bodySize: req.body ? JSON.stringify(req.body).length : 0,
+    bodyKeys: req.body ? Object.keys(req.body) : [],
+    ip: req.ip || req.connection.remoteAddress,
+    userAgent: req.get('user-agent'),
+    origin: req.get('origin'),
+    referer: req.get('referer'),
+    hasAuthHeader: !!req.headers.authorization,
+    authHeaderLength: req.headers.authorization ? req.headers.authorization.length : 0,
+    authHeaderPrefix: req.headers.authorization ? req.headers.authorization.substring(0, 20) + '...' : 'none',
+    contentType: req.get('content-type'),
+    accept: req.get('accept'),
+    timestamp: new Date().toISOString()
+  }, `[server] 🔵 Admin request received: ${req.method} ${req.originalUrl}`);
+  
+  // Log response when it finishes
+  const startTime = Date.now();
+  res.on('finish', () => {
+    const duration = Date.now() - startTime;
+    logger.info({
+      requestId,
+      type: 'admin_request_end',
+      method: req.method,
+      path: req.path,
+      originalUrl: req.originalUrl,
+      statusCode: res.statusCode,
+      statusMessage: res.statusMessage,
+      duration: `${duration}ms`,
+      timestamp: new Date().toISOString()
+    }, `[server] ${res.statusCode >= 500 ? '❌' : res.statusCode >= 400 ? '⚠️' : '✅'} Admin request completed: ${req.method} ${req.originalUrl} - ${res.statusCode} (${duration}ms)`);
+  });
+  
+  next();
+}, rateLimiters.admin, adminRoutes);
+
+// Health check routes
+logger.info({ type: 'route_mount', path: '/api/health', route: 'healthRoutes' }, '[UNIFIED SERVER] 📌 Mounting health check routes');
+app.use('/api/health', healthRoutes);
+logger.info({ type: 'route_mounted', path: '/api/health' }, '[UNIFIED SERVER] ✅ Health check routes mounted');
+
+// Basic route for server status
+logger.info({ type: 'route_register', method: 'GET', path: '/api/status' }, '[UNIFIED SERVER] 📌 Registering server status endpoint');
+app.get('/api/status', (req, res) => {
+  res.status(200).json({ message: 'Server is running' });
+});
+logger.info({ type: 'route_registered', method: 'GET', path: '/api/status' }, '[UNIFIED SERVER] ✅ Server status endpoint registered');
+
+// Endpoint to sync users from Firebase Auth to Firestore (admin only)
+logger.info({ type: 'route_register', method: 'POST', path: '/api/sync-users' }, '[UNIFIED SERVER] 📌 Registering user sync endpoint');
+app.post('/api/sync-users', requireAdmin, async (req, res, next) => {
+  try {
+    const options = req.body && typeof req.body === 'object' ? req.body : {};
+    const dryRun = options.dryRun === true;
+    const summary = await syncAllUsers({
+      ensureEntitlements: options.ensureEntitlements !== false,
+      includeDataCollections: options.includeDataCollections !== false,
+      dryRun,
+      recordResult: !dryRun
+    });
+
+    res.json({
+      success: true,
+      dryRun,
+      summary
+    });
+  } catch (error) {
+    logger.error({ error: error.message, stack: error.stack }, 'Error syncing users');
+    next(createError('Failed to sync users', ERROR_CODES.DATABASE_ERROR, 500));
+  }
+});
 
 // Feedback endpoint (with rate limiting)
 app.post('/api/feedback', rateLimiters.feedback, async (req, res, next) => {
@@ -211,6 +427,43 @@ app.post('/api/feedback', rateLimiters.feedback, async (req, res, next) => {
   } catch (error) {
     logger.error({ error: error.message, stack: error.stack }, 'Error processing feedback');
     next(createError('Failed to process feedback', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500));
+  }
+});
+
+// Contact Us endpoint (with rate limiting)
+app.post('/api/contact', rateLimiters.feedback, async (req, res, next) => {
+  const { email, message, userId, userName, timestamp } = req.body;
+
+  if (!email || !message) {
+    return next(createError('Email and message are required', ERROR_CODES.MISSING_REQUIRED_FIELD, 400));
+  }
+
+  try {
+    const { db, admin } = require('./firebase-admin');
+    
+    // Save contact form submission to Firebase
+    const contactDoc = {
+      email: email.trim(),
+      message: message.trim(),
+      userId: userId || null,
+      userName: userName || null,
+      status: 'new',
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      timestamp: timestamp || new Date().toISOString()
+    };
+    
+    await db.collection('contactSubmissions').add(contactDoc);
+    
+    logger.info({ 
+      email, 
+      userId, 
+      hasMessage: !!message 
+    }, 'Contact form submission saved to Firebase');
+    
+    res.json({ success: true, message: 'Contact form submitted successfully' });
+  } catch (error) {
+    logger.error({ error: error.message, stack: error.stack }, 'Error processing contact form');
+    next(createError('Failed to process contact form', ERROR_CODES.DATABASE_ERROR, 500));
   }
 });
 
@@ -573,44 +826,99 @@ Return ONLY valid Mermaid code, nothing else.`;
   }
 });
 
-// Import and mount chat routes
-const chatRoutes = require('./chat-routes');
-app.use('/api/chat', chatRoutes);
-
-// Import and mount user routes
-const userRoutes = require('./user-routes');
-app.use('/api/users', userRoutes);
-
-// Import and mount specs routes
-const specsRoutes = require('./specs-routes');
-app.use('/api/specs', specsRoutes);
-
 // Import and mount stats routes
+logger.info({ type: 'route_mount', path: '/api/stats', route: 'statsRoutes' }, '[UNIFIED SERVER] 📌 Mounting stats routes');
 const statsRoutes = require('./stats-routes');
 app.use('/api/stats', statsRoutes);
+logger.info({ type: 'route_mounted', path: '/api/stats' }, '[UNIFIED SERVER] ✅ Stats routes mounted');
 
 // Live Brief routes
+logger.info({ type: 'route_mount', path: '/api/live-brief', route: 'liveBriefRoutes' }, '[UNIFIED SERVER] 📌 Mounting live brief routes');
 const liveBriefRoutes = require('./live-brief-routes');
 app.use('/api/live-brief', liveBriefRoutes);
+logger.info({ type: 'route_mounted', path: '/api/live-brief' }, '[UNIFIED SERVER] ✅ Live brief routes mounted');
 
-// Note: Admin endpoints are defined above (lines 97-184)
+// Serve static files from the parent directory (main site)
+// Must be after API routes to avoid conflicts
+const staticRootPath = path.join(__dirname, '..', '..');
+const blogStaticPath = path.join(__dirname, '..', '..', '_site', 'blog');
+const postsStaticPath = path.join(__dirname, '..', '..', '_site', '2025');
+
+logger.info({
+  type: 'static_files_setup',
+  paths: {
+    root: staticRootPath,
+    blog: blogStaticPath,
+    posts: postsStaticPath
+  }
+}, '[UNIFIED SERVER] 📌 Setting up static file serving...');
+
+app.use(express.static(staticRootPath));
+logger.info({ type: 'static_mounted', path: '/', directory: staticRootPath }, '[UNIFIED SERVER] ✅ Root static files mounted');
+
+// Serve blog files from _site/blog directory
+app.use('/blog', express.static(blogStaticPath));
+logger.info({ type: 'static_mounted', path: '/blog', directory: blogStaticPath }, '[UNIFIED SERVER] ✅ Blog static files mounted');
+
+// Serve blog posts from _site/2025 directory structure
+app.use('/2025', express.static(postsStaticPath));
+logger.info({ type: 'static_mounted', path: '/2025', directory: postsStaticPath }, '[UNIFIED SERVER] ✅ Blog posts static files mounted');
+
+// Note: Admin endpoints are defined above
 
 // 404 handler - must be after all routes
+logger.info({ type: 'middleware_mount', middleware: 'notFoundHandler' }, '[UNIFIED SERVER] 📌 Mounting 404 handler');
 app.use(notFoundHandler);
+logger.info({ type: 'middleware_mounted', middleware: 'notFoundHandler' }, '[UNIFIED SERVER] ✅ 404 handler mounted');
 
 // Error handler - must be last middleware
+logger.info({ type: 'middleware_mount', middleware: 'errorHandler' }, '[UNIFIED SERVER] 📌 Mounting error handler');
 app.use(errorHandler);
+logger.info({ type: 'middleware_mounted', middleware: 'errorHandler' }, '[UNIFIED SERVER] ✅ Error handler mounted');
 
-app.listen(port, () => {
+// Add version logging
+const VERSION = '2.0.0-unified-server-' + Date.now();
+
+// Start the server
+const server = app.listen(port, () => {
+  // Log comprehensive server startup summary
   logger.info({
     type: 'server_start',
     port,
+    version: VERSION,
     nodeVersion: process.version,
     environment: process.env.NODE_ENV || 'development',
     openaiConfigured: !!process.env.OPENAI_API_KEY,
     emailConfigured: !!(process.env.EMAIL_USER && process.env.EMAIL_APP_PASSWORD),
-    googleSheetsConfigured: !!process.env.GOOGLE_SHEETS_WEBHOOK_URL
-  }, '🚀 SERVER STARTED SUCCESSFULLY (server/server.js)');
+    googleSheetsConfigured: !!process.env.GOOGLE_SHEETS_WEBHOOK_URL,
+    renderUrl: process.env.RENDER_URL || 'N/A',
+    unifiedServer: true,
+    routesMounted: {
+      lemon: true,
+      credits: true,
+      health: true,
+      users: true,
+      specs: true,
+      chat: true,
+      stats: true,
+      liveBrief: true,
+      admin: true,
+      blog: true
+    },
+    staticFilesServing: {
+      root: true,
+      blog: true,
+      posts: true
+    },
+    middleware: {
+      securityHeaders: true,
+      cors: true,
+      rateLimiting: true,
+      jsonParser: true,
+      requestLogging: true,
+      errorHandling: true
+    }
+  }, '[UNIFIED SERVER] 🚀 SERVER STARTED SUCCESSFULLY - All routes and middleware loaded');
   
   // Also log to console for visibility
   console.log('='.repeat(60));
@@ -618,10 +926,12 @@ app.listen(port, () => {
   console.log('='.repeat(60));
   console.log(`📅 Timestamp: ${new Date().toISOString()}`);
   console.log(`🌐 Port: ${port}`);
+  console.log(`📦 Version: ${VERSION}`);
   console.log(`🖥️  Node.js: ${process.version}`);
   console.log(`📁 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🔧 OpenAI API Key: ${process.env.OPENAI_API_KEY ? '✅ Configured' : '❌ Not configured'}`);
   console.log(`☁️  Cloudflare Worker: https://spspec.shalom-cohen-111.workers.dev/generate`);
+  console.log(`📍 Render URL: ${process.env.RENDER_URL || 'N/A'}`);
   console.log('='.repeat(60));
   console.log('📝 Structured logging enabled (Pino)');
   console.log('📊 Error handling enabled');
@@ -639,6 +949,77 @@ app.listen(port, () => {
   } else {
     logger.info({ type: 'config_check' }, '✅ Google Sheets webhook URL configured');
   }
+
+  // Keep-alive mechanism: ping health endpoint every 30 minutes to prevent Render from sleeping
+  const KEEP_ALIVE_INTERVAL = 30 * 60 * 1000; // 30 minutes in milliseconds
+  // Use external URL if available (for Render), otherwise fallback to localhost
+  const baseUrl = process.env.RENDER_EXTERNAL_URL 
+    ? process.env.RENDER_EXTERNAL_URL 
+    : (process.env.RENDER_URL ? `https://${process.env.RENDER_URL}` : `http://localhost:${port}`);
+  
+  const keepAlive = async () => {
+    try {
+      const healthUrl = `${baseUrl}/api/health`;
+      
+      // Create abort controller for timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      
+      const response = await fetch(healthUrl, {
+        method: 'GET',
+        headers: {
+          'User-Agent': 'Specifys-KeepAlive/1.0',
+          'Connection': 'keep-alive'
+        },
+        signal: controller.signal
+      });
+      
+      clearTimeout(timeoutId);
+      
+      if (response.ok) {
+        const data = await response.json().catch(() => ({}));
+        logger.info({ type: 'keep_alive', status: data.status || 'OK' }, `✅ Health check successful`);
+      } else {
+        logger.warn({ type: 'keep_alive', status: response.status }, `⚠️ Health check returned status ${response.status}`);
+      }
+    } catch (error) {
+      // Don't log timeout errors as errors - they're expected if server is busy
+      if (error.name === 'AbortError' || error.message.includes('aborted')) {
+        logger.debug({ type: 'keep_alive' }, `⏱️ Health check timeout (server may be busy)`);
+      } else {
+        logger.error({ type: 'keep_alive', error: error.message }, `❌ Health check failed`);
+      }
+    }
+  };
+
+  // Start keep-alive immediately, then every 30 minutes
+  logger.info({ 
+    type: 'keep_alive_start',
+    interval: `${KEEP_ALIVE_INTERVAL / 60000} minutes`,
+    baseUrl,
+    healthUrl: `${baseUrl}/api/health`
+  }, `[UNIFIED SERVER] 🔄 Starting keep-alive mechanism (every ${KEEP_ALIVE_INTERVAL / 60000} minutes)`);
+  logger.info({
+    type: 'keep_alive_config',
+    intervalMs: KEEP_ALIVE_INTERVAL,
+    timeoutMs: 10000,
+    baseUrl,
+    healthEndpoint: '/api/health'
+  }, '[UNIFIED SERVER] 📋 Keep-alive configuration');
+  keepAlive(); // Run immediately
+  const keepAliveInterval = setInterval(keepAlive, KEEP_ALIVE_INTERVAL);
+  logger.info({ type: 'keep_alive_active' }, '[UNIFIED SERVER] ✅ Keep-alive mechanism active');
+
+  // Cleanup on server shutdown
+  process.on('SIGTERM', () => {
+    logger.info({ type: 'keep_alive_stop' }, '🛑 Stopping keep-alive mechanism');
+    clearInterval(keepAliveInterval);
+  });
+
+  process.on('SIGINT', () => {
+    logger.info({ type: 'keep_alive_stop' }, '🛑 Stopping keep-alive mechanism');
+    clearInterval(keepAliveInterval);
+  });
 }).on('error', (err) => {
   logger.error({
     type: 'server_start_error',

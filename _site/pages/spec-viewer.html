@@ -333,7 +333,7 @@
                 <button class="side-menu-button" onclick="showTab('mockup')" id="mockupTab" disabled>
                     <i class="fa fa-desktop"></i>
                     <span class="side-menu-notification-dot" id="mockupNotification" style="display: none;"></span>
-                    <span class="side-menu-text">Mockup</span>
+                    <span class="side-menu-text">Mockup <span class="pro-badge">(Pro)</span></span>
                 </button>
             </div>
             
@@ -909,6 +909,8 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Update edit button based on PRO access
             updateEditButton();
+            // Update mockup tab based on PRO access
+            updateMockupTab();
         } else {
             showError('User must be authenticated to view specifications');
         }
@@ -1271,8 +1273,12 @@ function displaySpec(data) {
         }
         if (data.status?.design === 'ready') {
             document.getElementById('designTab').disabled = false;
-            // Enable mockup tab when design is ready
-            document.getElementById('mockupTab').disabled = false;
+            // Enable mockup tab when design is ready (only for PRO users)
+            checkProAccess().then(hasProAccess => {
+                if (hasProAccess) {
+                    document.getElementById('mockupTab').disabled = false;
+                }
+            });
         }
         
         // Enable diagrams only if both technical and market are ready
@@ -1354,6 +1360,8 @@ function displayOverview(overview) {
     
     // Update edit button based on PRO access
     updateEditButton();
+    // Update mockup tab based on PRO access
+    updateMockupTab();
 }
 
 function calculateComplexityScore(overview) {
@@ -4479,7 +4487,16 @@ function updateStorageStatus() {
     }
 }
 
-function showTab(tabName) {
+async function showTab(tabName) {
+    // Check PRO access for mockup tab
+    if (tabName === 'mockup') {
+        const hasProAccess = await checkProAccess();
+        if (!hasProAccess) {
+            showNotification('Mockup feature is available for PRO users only. Please upgrade to PRO to access mockups.', 'error');
+            return;
+        }
+    }
+    
     // Hide all tab contents
     document.querySelectorAll('.tab-content').forEach(tab => {
         tab.style.display = 'none';
@@ -4820,6 +4837,21 @@ async function updateEditButton() {
         editBtn.onclick = null;
         editBtn.title = 'Editing is available for PRO users only';
     }
+}
+
+// Update mockup tab based on PRO access
+async function updateMockupTab() {
+    const mockupTab = document.getElementById('mockupTab');
+    if (!mockupTab) return;
+    
+    const hasProAccess = await checkProAccess();
+    
+    if (!hasProAccess) {
+        // Non-PRO user - keep tab disabled and show Pro badge
+        mockupTab.disabled = true;
+        mockupTab.title = 'Mockup feature is available for PRO users only';
+    }
+    // If user has Pro access, tab will be enabled when design is ready (existing logic)
 }
 
 function toggleEditMode() {
@@ -6275,6 +6307,13 @@ let mockupBatchManager = {
 };
 
 async function generateMockupSpec() {
+    // Check PRO access first
+    const hasProAccess = await checkProAccess();
+    if (!hasProAccess) {
+        showNotification('Mockup feature is available for PRO users only. Please upgrade to PRO to generate mockups.', 'error');
+        return;
+    }
+    
     if (!currentSpecData) {
         showNotification('No specification data available', 'error');
         return;
@@ -6415,11 +6454,15 @@ async function generateMockupSpec() {
         updateTabLoadingState('mockup', false);
         displayMockup(finalMockupData);
         
-        // Mark tab as generated
+        // Mark tab as generated (only enable for PRO users)
         const mockupTab = document.getElementById('mockupTab');
         if (mockupTab) {
             mockupTab.classList.add('generated');
-            mockupTab.disabled = false;
+            checkProAccess().then(hasProAccess => {
+                if (hasProAccess) {
+                    mockupTab.disabled = false;
+                }
+            });
         }
         
         const successMsg = mockupBatchManager.failedScreens.length > 0
@@ -7755,7 +7798,7 @@ function updateDiagramsStatus(status) {
     </div>
   </div>
   <div class="footer-copyright">
-    © 2025 specifys.ai. All rights reserved. <span class="footer-version">v1.2.4</span>
+    © 2025 specifys.ai. All rights reserved.
   </div>
 </footer>
 

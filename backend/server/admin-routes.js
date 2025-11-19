@@ -6,13 +6,52 @@ const { syncAllUsers, getLastUserSyncReport } = require('./user-management');
 const { createError, ERROR_CODES } = require('./error-handler');
 const { logger } = require('./logger');
 
+// Debug: Log all route registrations
+logger.info('[admin-routes] Initializing admin routes...');
+
+// Enhanced logging helper for all admin routes
+const logRouteCall = (req, routeName) => {
+  const requestId = req.requestId || `admin-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  logger.info({
+    requestId,
+    route: routeName,
+    method: req.method,
+    path: req.path,
+    originalUrl: req.originalUrl,
+    baseUrl: req.baseUrl,
+    url: req.url,
+    query: req.query,
+    params: req.params,
+    hasBody: !!req.body,
+    bodyKeys: req.body ? Object.keys(req.body) : [],
+    bodySize: req.body ? JSON.stringify(req.body).length : 0,
+    ip: req.ip || req.connection.remoteAddress,
+    userAgent: req.get('user-agent'),
+    origin: req.get('origin'),
+    hasAuthHeader: !!req.headers.authorization,
+    authHeaderLength: req.headers.authorization ? req.headers.authorization.length : 0,
+    authHeaderPrefix: req.headers.authorization ? req.headers.authorization.substring(0, 20) + '...' : 'none',
+    timestamp: new Date().toISOString()
+  }, `[admin-routes] 🔵 Route called: ${routeName} - ${req.method} ${req.originalUrl}`);
+  return requestId;
+};
+
 /**
  * Verify user has admin access
  * GET /api/admin/verify
  */
 router.get('/verify', requireAdmin, async (req, res, next) => {
-  const requestId = req.requestId || `admin-verify-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-  logger.info({ requestId, adminEmail: req.adminUser?.email }, '[admin-routes] GET /verify - Verifying admin access');
+  const requestId = logRouteCall(req, 'GET /verify');
+  logger.info({ 
+    requestId, 
+    adminEmail: req.adminUser?.email,
+    adminUserId: req.adminUser?.uid,
+    method: req.method,
+    path: req.path,
+    originalUrl: req.originalUrl,
+    baseUrl: req.baseUrl,
+    url: req.url
+  }, '[admin-routes] GET /verify - Route handler called - Verifying admin access');
   
   try {
     res.json({ 
@@ -31,8 +70,12 @@ router.get('/verify', requireAdmin, async (req, res, next) => {
  * GET /api/admin/users
  */
 router.get('/users', requireAdmin, async (req, res, next) => {
-  const requestId = req.requestId || `admin-users-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-  logger.info({ requestId }, '[admin-routes] GET /users - Fetching all users');
+  const requestId = logRouteCall(req, 'GET /users');
+  logger.info({ 
+    requestId,
+    adminEmail: req.adminUser?.email,
+    adminUserId: req.adminUser?.uid
+  }, '[admin-routes] GET /users - Fetching all users');
   
   try {
     const usersSnapshot = await db.collection('users').get();
@@ -53,8 +96,13 @@ router.get('/users', requireAdmin, async (req, res, next) => {
  * POST /api/admin/users/sync
  */
 router.post('/users/sync', requireAdmin, async (req, res, next) => {
-  const requestId = req.requestId || `admin-sync-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-  logger.info({ requestId }, '[admin-routes] POST /users/sync - Starting user sync');
+  const requestId = logRouteCall(req, 'POST /users/sync');
+  logger.info({ 
+    requestId,
+    adminEmail: req.adminUser?.email,
+    adminUserId: req.adminUser?.uid,
+    options: req.body
+  }, '[admin-routes] POST /users/sync - Starting user sync');
   
   try {
     const options = req.body && typeof req.body === 'object' ? req.body : {};
@@ -84,8 +132,13 @@ router.post('/users/sync', requireAdmin, async (req, res, next) => {
  * GET /api/admin/users/sync-status
  */
 router.get('/users/sync-status', requireAdmin, async (req, res, next) => {
-  const requestId = req.requestId || `admin-sync-status-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-  logger.info({ requestId }, '[admin-routes] GET /users/sync-status - Fetching sync status');
+  const requestId = logRouteCall(req, 'GET /users/sync-status');
+  logger.info({ 
+    requestId,
+    adminEmail: req.adminUser?.email,
+    adminUserId: req.adminUser?.uid,
+    query: req.query
+  }, '[admin-routes] GET /users/sync-status - Fetching sync status');
   
   try {
     const cached = getLastUserSyncReport();
@@ -122,8 +175,12 @@ router.get('/users/sync-status', requireAdmin, async (req, res, next) => {
  * GET /api/admin/specs
  */
 router.get('/specs', requireAdmin, async (req, res, next) => {
-  const requestId = req.requestId || `admin-specs-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-  logger.info({ requestId }, '[admin-routes] GET /specs - Fetching all specs');
+  const requestId = logRouteCall(req, 'GET /specs');
+  logger.info({ 
+    requestId,
+    adminEmail: req.adminUser?.email,
+    adminUserId: req.adminUser?.uid
+  }, '[admin-routes] GET /specs - Fetching all specs');
   
   try {
     const specsSnapshot = await db.collection('specs').get();
@@ -144,8 +201,12 @@ router.get('/specs', requireAdmin, async (req, res, next) => {
  * GET /api/admin/market-research
  */
 router.get('/market-research', requireAdmin, async (req, res, next) => {
-  const requestId = req.requestId || `admin-market-research-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-  logger.info({ requestId }, '[admin-routes] GET /market-research - Fetching market research');
+  const requestId = logRouteCall(req, 'GET /market-research');
+  logger.info({ 
+    requestId,
+    adminEmail: req.adminUser?.email,
+    adminUserId: req.adminUser?.uid
+  }, '[admin-routes] GET /market-research - Fetching market research');
   
   try {
     const researchSnapshot = await db.collection('marketResearch').get();
@@ -166,9 +227,17 @@ router.get('/market-research', requireAdmin, async (req, res, next) => {
  * POST /api/admin/users/:userId/credits
  */
 router.post('/users/:userId/credits', requireAdmin, async (req, res, next) => {
-  const requestId = req.requestId || `admin-credits-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  const requestId = logRouteCall(req, 'POST /users/:userId/credits');
   const { userId } = req.params;
-  logger.info({ requestId, userId }, '[admin-routes] POST /users/:userId/credits - Adding credits');
+  logger.info({ 
+    requestId, 
+    userId,
+    adminEmail: req.adminUser?.email,
+    adminUserId: req.adminUser?.uid,
+    credits: req.body.credits,
+    amount: req.body.amount,
+    reason: req.body.reason
+  }, '[admin-routes] POST /users/:userId/credits - Adding credits');
   
   try {
     const { amount, reason } = req.body;
@@ -197,9 +266,15 @@ router.post('/users/:userId/credits', requireAdmin, async (req, res, next) => {
  * PUT /api/admin/users/:userId/plan
  */
 router.put('/users/:userId/plan', requireAdmin, async (req, res, next) => {
-  const requestId = req.requestId || `admin-plan-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  const requestId = logRouteCall(req, 'PUT /users/:userId/plan');
   const { userId } = req.params;
-  logger.info({ requestId, userId }, '[admin-routes] PUT /users/:userId/plan - Changing user plan');
+  logger.info({ 
+    requestId, 
+    userId,
+    adminEmail: req.adminUser?.email,
+    adminUserId: req.adminUser?.uid,
+    plan: req.body.plan
+  }, '[admin-routes] PUT /users/:userId/plan - Changing user plan');
   
   try {
     const { plan } = req.body;
@@ -240,9 +315,14 @@ router.put('/users/:userId/plan', requireAdmin, async (req, res, next) => {
  * POST /api/admin/users/:userId/reset-password
  */
 router.post('/users/:userId/reset-password', requireAdmin, async (req, res, next) => {
-  const requestId = req.requestId || `admin-reset-password-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  const requestId = logRouteCall(req, 'POST /users/:userId/reset-password');
   const { userId } = req.params;
-  logger.info({ requestId, userId }, '[admin-routes] POST /users/:userId/reset-password - Resetting password');
+  logger.info({ 
+    requestId, 
+    userId,
+    adminEmail: req.adminUser?.email,
+    adminUserId: req.adminUser?.uid
+  }, '[admin-routes] POST /users/:userId/reset-password - Resetting password');
   
   try {
     const userRecord = await admin.auth().getUser(userId);
@@ -269,9 +349,15 @@ router.post('/users/:userId/reset-password', requireAdmin, async (req, res, next
  * PUT /api/admin/users/:userId/toggle
  */
 router.put('/users/:userId/toggle', requireAdmin, async (req, res, next) => {
-  const requestId = req.requestId || `admin-toggle-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  const requestId = logRouteCall(req, 'PUT /users/:userId/toggle');
   const { userId } = req.params;
-  logger.info({ requestId, userId }, '[admin-routes] PUT /users/:userId/toggle - Toggling user status');
+  logger.info({ 
+    requestId, 
+    userId,
+    adminEmail: req.adminUser?.email,
+    adminUserId: req.adminUser?.uid,
+    disabled: req.body.disabled
+  }, '[admin-routes] PUT /users/:userId/toggle - Toggling user status');
   
   try {
     const { disabled } = req.body;
@@ -298,8 +384,17 @@ router.put('/users/:userId/toggle', requireAdmin, async (req, res, next) => {
  * GET /api/admin/errors
  */
 router.get('/errors', requireAdmin, async (req, res, next) => {
-  const requestId = req.requestId || `admin-errors-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-  logger.info({ requestId }, '[admin-routes] GET /errors - Fetching error logs');
+  const requestId = logRouteCall(req, 'GET /errors');
+  logger.info({ 
+    requestId, 
+    method: req.method,
+    path: req.path,
+    originalUrl: req.originalUrl,
+    baseUrl: req.baseUrl,
+    url: req.url,
+    adminEmail: req.adminUser?.email,
+    adminUserId: req.adminUser?.uid
+  }, '[admin-routes] GET /errors - Route handler called - Fetching error logs');
   
   try {
     const errorsSnapshot = await db.collection('errorLogs')
@@ -327,8 +422,19 @@ router.get('/errors', requireAdmin, async (req, res, next) => {
  * GET /api/admin/performance
  */
 router.get('/performance', requireAdmin, async (req, res, next) => {
-  const requestId = req.requestId || `admin-performance-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-  logger.info({ requestId }, '[admin-routes] GET /performance - Fetching performance metrics');
+  const requestId = logRouteCall(req, 'GET /performance');
+  logger.info({ 
+    requestId,
+    method: req.method,
+    path: req.path,
+    originalUrl: req.originalUrl,
+    baseUrl: req.baseUrl,
+    url: req.url,
+    query: req.query,
+    range: req.query.range,
+    adminEmail: req.adminUser?.email,
+    adminUserId: req.adminUser?.uid
+  }, '[admin-routes] GET /performance - Route handler called - Fetching performance metrics');
   
   try {
     // This is a placeholder - in production you'd track actual metrics
@@ -348,6 +454,90 @@ router.get('/performance', requireAdmin, async (req, res, next) => {
     next(createError('Failed to fetch performance', ERROR_CODES.INTERNAL_ERROR, 500, {
       details: error.message
     }));
+  }
+});
+
+/**
+ * Get all contact submissions (admin only)
+ * GET /api/admin/contact-submissions
+ */
+router.get('/contact-submissions', requireAdmin, async (req, res, next) => {
+  const requestId = logRouteCall(req, 'GET /contact-submissions');
+  logger.info({ 
+    requestId,
+    adminEmail: req.adminUser?.email,
+    adminUserId: req.adminUser?.uid
+  }, '[admin-routes] GET /contact-submissions - Fetching contact submissions');
+  
+  try {
+    let query = db.collection('contactSubmissions').orderBy('createdAt', 'desc');
+    
+    // Apply status filter if provided
+    if (req.query.status && req.query.status !== 'all') {
+      query = query.where('status', '==', req.query.status);
+    }
+    
+    // Limit results
+    const limitCount = parseInt(req.query.limit) || 100;
+    query = query.limit(limitCount);
+    
+    const snapshot = await query.get();
+    const submissions = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+    
+    logger.info({ requestId, count: submissions.length }, '[admin-routes] GET /contact-submissions - Success');
+    res.json({ success: true, submissions });
+  } catch (error) {
+    logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[admin-routes] GET /contact-submissions - Error');
+    next(createError('Failed to fetch contact submissions', ERROR_CODES.DATABASE_ERROR, 500));
+  }
+});
+
+/**
+ * Update contact submission status (admin only)
+ * PUT /api/admin/contact-submissions/:id/status
+ */
+router.put('/contact-submissions/:id/status', requireAdmin, async (req, res, next) => {
+  const requestId = logRouteCall(req, 'PUT /contact-submissions/:id/status');
+  const { id } = req.params;
+  const { status } = req.body;
+  
+  logger.info({ 
+    requestId,
+    id,
+    status,
+    adminEmail: req.adminUser?.email,
+    adminUserId: req.adminUser?.uid
+  }, '[admin-routes] PUT /contact-submissions/:id/status - Updating contact submission status');
+  
+  try {
+    const validStatuses = ['new', 'read', 'replied', 'archived'];
+    if (!status || !validStatuses.includes(status)) {
+      return next(createError('Invalid status', ERROR_CODES.INVALID_INPUT, 400));
+    }
+    
+    const submissionRef = db.collection('contactSubmissions').doc(id);
+    await submissionRef.update({
+      status,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp()
+    });
+    
+    logger.info({ requestId, id, status }, '[admin-routes] PUT /contact-submissions/:id/status - Success');
+    res.json({ success: true, id, status });
+  } catch (error) {
+    logger.error({ requestId, id, error: { message: error.message, stack: error.stack } }, '[admin-routes] PUT /contact-submissions/:id/status - Error');
+    next(createError('Failed to update contact submission status', ERROR_CODES.DATABASE_ERROR, 500));
+  }
+});
+
+// Debug: Log all registered routes
+logger.info('[admin-routes] Admin routes initialized. Registered routes:');
+router.stack.forEach((layer) => {
+  if (layer.route) {
+    const methods = Object.keys(layer.route.methods).join(', ').toUpperCase();
+    logger.info(`[admin-routes]   ${methods} ${layer.route.path}`);
   }
 });
 
