@@ -119,9 +119,13 @@
 /* Page Intro Section */
 .page-intro-section {
     max-width: 1400px;
-    margin: 80px auto 0;
+    margin-top: 80px;
+    margin-bottom: 0;
+    margin-left: 90px; /* 60px menu (closed) + 30px spacing */
+    margin-right: auto;
     padding: 40px 20px 30px;
     text-align: center;
+    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .page-title {
@@ -152,6 +156,7 @@
     
     .page-intro-section {
         margin-top: 70px;
+        margin-left: 0 !important;
         padding: 30px 20px 20px;
     }
     
@@ -176,6 +181,7 @@
     
     .page-intro-section {
         margin-top: 60px;
+        margin-left: 0 !important;
         padding: 25px 15px 15px;
     }
     
@@ -193,7 +199,7 @@
 .container {
     max-width: 1400px;
     margin: 0 auto;
-    margin-left: 80px;
+    margin-left: 90px; /* 60px menu (closed) + 30px spacing */
     margin-top: 0px;
     padding: 20px;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;

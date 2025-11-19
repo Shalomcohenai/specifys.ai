@@ -8045,17 +8045,30 @@ function updateDiagramsStatus(status) {
 
   // Initialize auth buttons with default state
   document.addEventListener('DOMContentLoaded', function() {
-    // Handle side menu hover to adjust container margin
+    // Handle side menu hover to adjust content margins
     const sideMenu = document.getElementById('sideMenu');
     const container = document.querySelector('.container');
+    const pageIntroSection = document.querySelector('.page-intro-section');
     
-    if (sideMenu && container) {
+    if (sideMenu) {
+      // Menu expanded (hover) - 280px menu + 20px spacing = 300px
       sideMenu.addEventListener('mouseenter', () => {
-        container.style.marginLeft = '300px';
+        if (container) {
+          container.style.marginLeft = '300px';
+        }
+        if (pageIntroSection) {
+          pageIntroSection.style.marginLeft = '300px';
+        }
       });
       
+      // Menu collapsed (closed) - 60px menu + 30px spacing = 90px
       sideMenu.addEventListener('mouseleave', () => {
-        container.style.marginLeft = '80px';
+        if (container) {
+          container.style.marginLeft = '90px';
+        }
+        if (pageIntroSection) {
+          pageIntroSection.style.marginLeft = '90px';
+        }
         // Close all submenus when menu collapses
         document.querySelectorAll('.side-menu-submenu').forEach(submenu => {
           submenu.classList.remove('expanded');
