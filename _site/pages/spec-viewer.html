@@ -1297,6 +1297,12 @@ function displaySpec(data) {
             document.getElementById('generatePromptsBtn').style.display = hasPrompts ? 'none' : 'inline-block';
         }
         
+        // Refresh tabs menu to ensure all tabs are properly enabled
+        // This is especially important when loading a spec that already has Design ready
+        if (data.status?.design === 'ready') {
+            refreshTabsAfterDesignReady();
+        }
+        
         hideApproveButton();
     } else {
         showApproveButton();
@@ -4854,6 +4860,62 @@ async function updateMockupTab() {
     // If user has Pro access, tab will be enabled when design is ready (existing logic)
 }
 
+// Refresh tabs menu after Design spec is ready - enables Prompts tab if conditions are met
+function refreshTabsAfterDesignReady() {
+    if (!currentSpecData) return;
+    
+    // Check if overview is approved
+    if (!currentSpecData.overviewApproved) {
+        return;
+    }
+    
+    // Enable Design tab if ready
+    if (currentSpecData.status?.design === 'ready') {
+        const designTab = document.getElementById('designTab');
+        if (designTab) {
+            designTab.disabled = false;
+        }
+        
+        // Enable mockup tab when design is ready (only for PRO users)
+        checkProAccess().then(hasProAccess => {
+            if (hasProAccess) {
+                const mockupTab = document.getElementById('mockupTab');
+                if (mockupTab) {
+                    mockupTab.disabled = false;
+                }
+            }
+        });
+    }
+    
+    // Enable Prompts tab only if both technical and design are ready
+    if (currentSpecData.status?.technical === 'ready' && currentSpecData.status?.design === 'ready') {
+        const promptsTab = document.getElementById('promptsTab');
+        if (promptsTab) {
+            promptsTab.disabled = false;
+            // Show Generate button only if no prompts yet
+            const hasPrompts = !!(currentSpecData.prompts && currentSpecData.prompts.generated);
+            const generatePromptsBtn = document.getElementById('generatePromptsBtn');
+            if (generatePromptsBtn) {
+                generatePromptsBtn.style.display = hasPrompts ? 'none' : 'inline-block';
+            }
+        }
+    }
+    
+    // Enable Diagrams tab if both technical and market are ready
+    if (currentSpecData.status?.technical === 'ready' && currentSpecData.status?.market === 'ready') {
+        const diagramsTab = document.getElementById('diagramsTab');
+        if (diagramsTab) {
+            diagramsTab.disabled = false;
+            // Show Generate only if no diagrams yet
+            const hasDiagrams = !!(currentSpecData.diagrams && Array.isArray(currentSpecData.diagrams.diagrams) && currentSpecData.diagrams.diagrams.length > 0);
+            const generateDiagramsBtn = document.getElementById('generateDiagramsBtn');
+            if (generateDiagramsBtn) {
+                generateDiagramsBtn.style.display = hasDiagrams ? 'none' : 'inline-block';
+            }
+        }
+    }
+}
+
 function toggleEditMode() {
     // Check PRO access before allowing edit
     if (!userHasProAccess) {
@@ -5379,6 +5441,8 @@ async function approveOverview() {
         if (designContent !== 'error') {
             updateExportCheckboxes();
             showNotification('Design specification created successfully', 'success');
+            // Refresh tabs menu to enable Prompts tab if conditions are met
+            refreshTabsAfterDesignReady();
         }
         
         if (user && currentSpecData && currentSpecData.id) {
@@ -5926,6 +5990,9 @@ async function retryDesign() {
             updateTabLoadingState('design', false);
             displayDesign(designContent);
             document.getElementById('retryDesignBtn').style.display = 'none';
+            
+            // Refresh tabs menu to enable Prompts tab if conditions are met
+            refreshTabsAfterDesignReady();
             
             showNotification('Design specification generated successfully!', 'success');
 
@@ -7978,17 +8045,30 @@ function updateDiagramsStatus(status) {
 
   // Initialize auth buttons with default state
   document.addEventListener('DOMContentLoaded', function() {
-    // Handle side menu hover to adjust container margin
+    // Handle side menu hover to adjust content margins
     const sideMenu = document.getElementById('sideMenu');
     const container = document.querySelector('.container');
+    const pageIntroSection = document.querySelector('.page-intro-section');
     
-    if (sideMenu && container) {
+    if (sideMenu) {
+      // Menu expanded (hover) - 280px menu + 20px spacing = 300px
       sideMenu.addEventListener('mouseenter', () => {
-        container.style.marginLeft = '300px';
+        if (container) {
+          container.style.marginLeft = '300px';
+        }
+        if (pageIntroSection) {
+          pageIntroSection.style.marginLeft = '300px';
+        }
       });
       
+      // Menu collapsed (closed) - 60px menu + 30px spacing = 90px
       sideMenu.addEventListener('mouseleave', () => {
-        container.style.marginLeft = '80px';
+        if (container) {
+          container.style.marginLeft = '90px';
+        }
+        if (pageIntroSection) {
+          pageIntroSection.style.marginLeft = '90px';
+        }
         // Close all submenus when menu collapses
         document.querySelectorAll('.side-menu-submenu').forEach(submenu => {
           submenu.classList.remove('expanded');

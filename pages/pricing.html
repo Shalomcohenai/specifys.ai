@@ -1247,7 +1247,7 @@ function startLoadingTextRotation(button) {
         }
         messageIndex = (messageIndex + 1) % loadingMessages.length;
         updateButtonLoadingText(button, loadingMessages[messageIndex]);
-    }, 3000); // Change message every 3 seconds
+    }, 6000); // Change message every 6 seconds
     
     // Store interval ID on button for cleanup
     button.dataset.loadingInterval = interval;

@@ -993,8 +993,10 @@
     <script>
       var vantaInstance = null;
       var retryCount = 0;
-      var maxRetries = 30; // Maximum 3 seconds of retries (30 * 100ms)
+      var maxRetries = 50; // Maximum 5 seconds of retries (50 * 100ms)
       var resizeTimeout = null;
+      var vantaStartTime = null;
+      var fadeInTimeout = null;
       
       function ensureHeroSectionDimensions() {
         var heroSection = document.querySelector('.hero-section');
@@ -1018,6 +1020,19 @@
         }
         
         return height >= 200 && width >= 200;
+      }
+      
+      function showVantaWithFadeIn() {
+        var vantaElement = document.getElementById('vanta-net');
+        if (vantaElement) {
+          // Calculate remaining time to reach 3 seconds total
+          var elapsed = Date.now() - vantaStartTime;
+          var remaining = Math.max(0, 3000 - elapsed);
+          
+          fadeInTimeout = setTimeout(function() {
+            vantaElement.classList.add('visible');
+          }, remaining);
+        }
       }
       
       function startVantaNet() {
@@ -1067,6 +1082,11 @@
               }
             }
             
+            // Record start time for fade-in calculation
+            if (!vantaStartTime) {
+              vantaStartTime = Date.now();
+            }
+            
             // All checks passed, start Vanta.NET
             try {
               vantaInstance = VANTA.NET({
@@ -1089,7 +1109,12 @@
               if (vantaInstance && typeof vantaInstance.resize === 'function') {
                 setTimeout(function() {
                   vantaInstance.resize();
+                  // Show with fade-in after resize is complete
+                  showVantaWithFadeIn();
                 }, 100);
+              } else {
+                // If resize is not available, show after a short delay
+                showVantaWithFadeIn();
               }
             } catch (e) {
               console.error('Vanta.NET initialization error:', e);
@@ -1125,41 +1150,16 @@
         var prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         if (isMobile || prefersReduced) return;
         
-        // Wait for DOM to be fully loaded and window to be ready
+        // Start immediately when DOM is ready (don't wait for window.load)
         function initVanta() {
-          // Wait for window load to ensure all resources are loaded
           if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', function() {
-              // Wait for layout to be calculated
-              window.addEventListener('load', function() {
-                setTimeout(function() {
-                  if ('requestIdleCallback' in window) {
-                    requestIdleCallback(startVantaNet, { timeout: 3000 });
-                  } else {
-                    setTimeout(startVantaNet, 500);
-                  }
-                }, 200);
-              });
-            });
-          } else if (document.readyState === 'interactive') {
-            window.addEventListener('load', function() {
-              setTimeout(function() {
-                if ('requestIdleCallback' in window) {
-                  requestIdleCallback(startVantaNet, { timeout: 3000 });
-                } else {
-                  setTimeout(startVantaNet, 500);
-                }
-              }, 200);
+              // Start immediately after DOM is ready
+              setTimeout(startVantaNet, 100);
             });
           } else {
-            // Already loaded
-            setTimeout(function() {
-              if ('requestIdleCallback' in window) {
-                requestIdleCallback(startVantaNet, { timeout: 3000 });
-              } else {
-                setTimeout(startVantaNet, 500);
-              }
-            }, 200);
+            // DOM already ready, start immediately
+            setTimeout(startVantaNet, 100);
           }
         }
         
@@ -1173,9 +1173,26 @@
     <!-- Access Code Verification Script -->
     <script>
       (function() {
+        // ===== CONFIGURATION =====
+        // Set to true to enable the access code modal (site under maintenance)
+        // Set to false to disable the modal and allow normal site access
+        const ENABLE_ACCESS_CODE_MODAL = false;
+        
         const ACCESS_CODE = '1997';
         const STORAGE_KEY = 'site_access_granted';
         let attemptCount = 0;
+        
+        // If modal is disabled, show content normally and exit
+        if (!ENABLE_ACCESS_CODE_MODAL) {
+          const modal = document.getElementById('accessCodeModal');
+          const mainContent = document.getElementById('main-content');
+          const header = document.querySelector('header');
+          
+          if (modal) modal.style.display = 'none';
+          if (mainContent) mainContent.style.display = 'block';
+          if (header) header.style.display = 'flex';
+          return;
+        }
         
         // Check if access was already granted
         const hasAccess = sessionStorage.getItem(STORAGE_KEY) === 'true';

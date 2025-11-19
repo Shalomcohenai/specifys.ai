@@ -296,7 +296,7 @@ router.post('/subscription/cancel', express.json(), verifyFirebaseToken, async (
       ? process.env.LEMON_MODE.toLowerCase()
       : (process.env.LEMON_TEST_MODE === 'true' ? 'test' : 'live');
     const storeId = process.env.LEMON_SQUEEZY_STORE_ID || null;
-    requestId = `cancel_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+    // Note: requestId is already defined above, don't override it
 
     console.log('[LEMON][CANCEL] Start resolver', {
       requestId,

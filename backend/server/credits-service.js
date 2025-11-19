@@ -28,7 +28,9 @@ async function grantCredits(userId, amount, source, metadata = {}) {
   const requestId = `grant-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   const startTime = Date.now();
   
+  console.log(`[CREDITS] [${requestId}] ========== GRANT CREDITS CALLED ==========`);
   console.log(`[CREDITS] [${requestId}] Grant credits: userId=${userId}, amount=${amount}, source=${source}`);
+  console.log(`[CREDITS] [${requestId}] Metadata:`, JSON.stringify(metadata));
   
   try {
     // Validate inputs

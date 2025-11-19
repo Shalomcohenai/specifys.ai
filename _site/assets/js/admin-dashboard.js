@@ -1000,6 +1000,7 @@ class AdminDashboardApp {
       blogFields: {
         title: utils.dom("#blog-title"),
         date: utils.dom("#blog-date"),
+        branch: utils.dom("#blog-branch"),
         slug: utils.dom("#blog-slug"),
         seoTitle: utils.dom("#blog-seo-title"),
         seoDescription: utils.dom("#blog-seo-description"),
@@ -1018,6 +1019,8 @@ class AdminDashboardApp {
       metrics: {
         totalUsers: utils.dom('[data-metric="users-total"]'),
         newUsers: utils.dom('[data-kpi="users-new"]'),
+        liveUsers: utils.dom('[data-metric="users-live"]'),
+        liveUsersTime: utils.dom('[data-kpi="users-live-time"]'),
         proUsers: utils.dom('[data-metric="users-pro"]'),
         proShare: utils.dom('[data-kpi="users-pro-share"]'),
         specsTotal: utils.dom('[data-metric="specs-total"]'),
@@ -1678,6 +1681,16 @@ class AdminDashboardApp {
         this.markSourceError("blogQueue", error);
       }
     }
+
+    // Load available branches for blog publishing
+    try {
+      await this.loadBlogBranches();
+    } catch (error) {
+      console.warn("Failed to load blog branches", error);
+      if (this.dom.blogFields.branch) {
+        this.dom.blogFields.branch.innerHTML = '<option value="">Failed to load branches</option>';
+      }
+    }
   }
 
   updateAllSources(state) {
@@ -2095,6 +2108,15 @@ class AdminDashboardApp {
     const proUsersInRange = usersInRange.filter((user) => user.plan === "pro").length;
     const proShare = totalUsers ? Math.round((proUsers / totalUsers) * 100) : 0;
 
+    // Live users - users active in last 15 minutes
+    const LIVE_THRESHOLD_MS = 15 * 60 * 1000; // 15 minutes
+    const liveThreshold = Date.now() - LIVE_THRESHOLD_MS;
+    const liveUsers = users.filter((user) => {
+      if (!user.lastActive) return false;
+      const lastActiveTime = user.lastActive?.getTime() || 0;
+      return lastActiveTime >= liveThreshold;
+    }).length;
+
     // Specs metrics - show specs in range, not total
     const specsInRange = Array.from(this.store.specs.values()).filter(
       (spec) => (spec.createdAt?.getTime() || 0) >= threshold
@@ -2117,6 +2139,12 @@ class AdminDashboardApp {
     }
     if (this.dom.metrics.newUsers) {
       this.dom.metrics.newUsers.textContent = `New: ${utils.formatNumber(newUsers)}`;
+    }
+    if (this.dom.metrics.liveUsers) {
+      this.dom.metrics.liveUsers.textContent = utils.formatNumber(liveUsers);
+    }
+    if (this.dom.metrics.liveUsersTime) {
+      this.dom.metrics.liveUsersTime.textContent = "Last 15 min";
     }
     if (this.dom.metrics.proUsers) {
       this.dom.metrics.proUsers.textContent = utils.formatNumber(proUsersInRange);
@@ -2585,6 +2613,7 @@ class AdminDashboardApp {
     const slugInput = this.dom.blogFields.slug?.value.trim() ?? "";
     const seoTitle = this.dom.blogFields.seoTitle?.value.trim() ?? "";
     const seoDescription = this.dom.blogFields.seoDescription?.value.trim() ?? "";
+    const branch = this.dom.blogFields.branch?.value.trim() ?? "";
     const dateValue = this.dom.blogFields.date?.value || utils.now().toISOString().slice(0, 10);
 
     const tags = rawTags
@@ -2601,6 +2630,9 @@ class AdminDashboardApp {
       slug: slugInput ? utils.sanitizeSlug(slugInput) : utils.sanitizeSlug(title)
     };
 
+    if (branch) {
+      payload.branch = branch;
+    }
     if (seoTitle) {
       payload.seoTitle = seoTitle;
     }
@@ -2837,6 +2869,83 @@ class AdminDashboardApp {
         status: error.status,
         stack: error.stack
       });
+      throw error;
+    }
+  }
+
+  async loadBlogBranches() {
+    if (!this.dom.blogFields.branch) return;
+    
+    try {
+      const token = await this.getAuthToken();
+      const apiBaseUrl = typeof window.getApiBaseUrl === "function"
+        ? window.getApiBaseUrl()
+        : "https://specifys-ai.onrender.com";
+      const requestUrl = `${apiBaseUrl}/api/blog/branches`;
+      
+      const makeRequest = async (idToken) => {
+        return fetch(requestUrl, {
+          headers: {
+            Authorization: `Bearer ${idToken}`
+          }
+        });
+      };
+
+      let response = await makeRequest(token);
+      if (response.status === 401) {
+        console.info("[BlogBranches] Token rejected, attempting refresh…");
+        const refreshedToken = await this.getAuthToken(true);
+        if (!refreshedToken) {
+          throw new Error("Unable to refresh authentication token.");
+        }
+        response = await makeRequest(refreshedToken);
+      }
+
+      const text = await response.text();
+      let result = null;
+      try {
+        result = text ? JSON.parse(text) : null;
+      } catch (parseError) {
+        console.warn("Non-JSON response when loading branches", parseError, text);
+      }
+
+      if (!response.ok || !(result && result.success)) {
+        throw new Error(result?.error || `Failed to load branches (HTTP ${response.status})`);
+      }
+
+      const branches = Array.isArray(result.branches) ? result.branches : [];
+      const defaultBranch = result.defaultBranch || "with-store";
+      
+      // Clear existing options
+      this.dom.blogFields.branch.innerHTML = "";
+      
+      // Add default option if exists
+      if (defaultBranch && branches.some(b => b.name === defaultBranch)) {
+        const defaultOption = document.createElement("option");
+        defaultOption.value = defaultBranch;
+        defaultOption.textContent = `${defaultBranch} (default)`;
+        defaultOption.selected = true;
+        this.dom.blogFields.branch.appendChild(defaultOption);
+      }
+      
+      // Add all branches
+      branches.forEach(branch => {
+        if (branch.name !== defaultBranch) {
+          const option = document.createElement("option");
+          option.value = branch.name;
+          option.textContent = branch.name + (branch.protected ? " (protected)" : "");
+          this.dom.blogFields.branch.appendChild(option);
+        }
+      });
+
+      if (branches.length === 0) {
+        this.dom.blogFields.branch.innerHTML = '<option value="">No branches available</option>';
+      }
+    } catch (error) {
+      console.error("[BlogBranches] Failed to load branches", error);
+      if (this.dom.blogFields.branch) {
+        this.dom.blogFields.branch.innerHTML = `<option value="">Error: ${error.message}</option>`;
+      }
       throw error;
     }
   }

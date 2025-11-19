@@ -565,14 +565,19 @@
         function showPrivacyPolicyError() {
             if (!privacyPolicyGroup || !privacyPolicyError) return;
 
-            // Restart animation if already applied
+            // Force reflow to restart animation
             privacyPolicyGroup.classList.remove('has-error');
-            // eslint-disable-next-line no-unused-expressions
-            privacyPolicyGroup.offsetWidth;
+            void privacyPolicyGroup.offsetWidth; // Force reflow
+            
+            // Add error class to trigger animation
             privacyPolicyGroup.classList.add('has-error');
 
+            // Show error message
             privacyPolicyError.textContent = 'Please agree to the privacy policy before continuing.';
             privacyPolicyError.classList.add('visible');
+            
+            // Scroll to checkbox if needed (for better UX)
+            privacyPolicyGroup.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
 
         function hidePrivacyPolicyError() {
