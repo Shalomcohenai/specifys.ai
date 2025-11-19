@@ -774,7 +774,6 @@ module.exports = {
     getPost,
     updatePost,
     deletePost,
-    getQueueStatus: getQueueStatusRoute,
-    getBranches
+    getQueueStatus: getQueueStatusRoute
 };
 
