@@ -991,9 +991,40 @@
     
     <!-- Vanta.NET Animation (conditional, throttled) -->
     <script>
+      var vantaInstance = null;
+      var retryCount = 0;
+      var maxRetries = 20; // Maximum 2 seconds of retries (20 * 100ms)
+      
       function startVantaNet() {
         try {
-          VANTA.NET({
+          // Wait for DOM to be fully ready and hero section to have dimensions
+          var vantaElement = document.getElementById('vanta-net');
+          var heroSection = document.querySelector('.hero-section');
+          
+          if (!vantaElement || !heroSection) {
+            // Retry if elements aren't ready yet
+            if (retryCount < maxRetries) {
+              retryCount++;
+              setTimeout(startVantaNet, 100);
+            }
+            return;
+          }
+          
+          // Ensure hero section has computed height
+          var heroHeight = heroSection.offsetHeight || heroSection.getBoundingClientRect().height;
+          var heroWidth = heroSection.offsetWidth || heroSection.getBoundingClientRect().width;
+          
+          if (heroHeight < 200 || heroWidth < 200) {
+            // Wait a bit more if dimensions aren't ready
+            if (retryCount < maxRetries) {
+              retryCount++;
+              setTimeout(startVantaNet, 100);
+            }
+            return;
+          }
+          
+          // All checks passed, start Vanta.NET
+          vantaInstance = VANTA.NET({
             el: "#vanta-net",
             mouseControls: true,
             touchControls: true,
@@ -1008,16 +1039,37 @@
             maxDistance: 31.00,
             spacing: 18.00
           });
-        } catch (e) { }
+        } catch (e) { 
+          console.error('Vanta.NET error:', e);
+        }
       }
+      
       (function(){
         var isMobile = /Mobi|Android/i.test(navigator.userAgent);
         var prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         if (isMobile || prefersReduced) return;
-        if ('requestIdleCallback' in window) {
-          requestIdleCallback(startVantaNet, { timeout: 2000 });
+        
+        // Wait for DOM to be fully loaded
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', function() {
+            // Small delay to ensure layout is calculated
+            setTimeout(function() {
+              if ('requestIdleCallback' in window) {
+                requestIdleCallback(startVantaNet, { timeout: 2000 });
+              } else {
+                setTimeout(startVantaNet, 300);
+              }
+            }, 100);
+          });
         } else {
-          setTimeout(startVantaNet, 1500);
+          // DOM already loaded, wait a bit for layout
+          setTimeout(function() {
+            if ('requestIdleCallback' in window) {
+              requestIdleCallback(startVantaNet, { timeout: 2000 });
+            } else {
+              setTimeout(startVantaNet, 300);
+            }
+          }, 100);
         }
       })();
     </script>

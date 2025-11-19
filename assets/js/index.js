@@ -730,13 +730,13 @@ function setupModernInput() {
   updateCharacterLimit();
   
   sendBtn.addEventListener('click', function() {
-    // Platform validation check
-    if (!selectedPlatforms.mobile && !selectedPlatforms.web) {
+    // Platform validation check - only for question 1 (index 0)
+    if (currentQuestionIndex === 0 && !selectedPlatforms.mobile && !selectedPlatforms.web) {
       triggerPlatformHint();
       return;
     }
     
-    // If on last question and trying to generate, check first 3 answers
+    // If on last question and trying to generate, check first 2 answers (question 3 is optional)
     const isLastQuestion = currentQuestionIndex === questions.length - 1;
     if (isLastQuestion) {
       // Save current answer if exists
