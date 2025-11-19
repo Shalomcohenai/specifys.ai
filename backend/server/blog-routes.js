@@ -135,8 +135,14 @@ function createPostMarkdown(data) {
     }
     const tags = tagsArray.map(t => `"${t}"`).join(', ');
     const slug = data.slug ? slugify(data.slug) : slugify(data.title);
-    const canonicalUrl = `https://specifys-ai.com/blog/${slug}.html`;
-    const blogUrl = `/blog/${slug}.html`;
+    
+    // Generate URL based on Jekyll permalink format: /:year/:month/:day/:title/
+    const dateParts = data.date.split('-');
+    const year = dateParts[0];
+    const month = dateParts[1];
+    const day = dateParts[2];
+    const canonicalUrl = `https://specifys-ai.com/${year}/${month}/${day}/${slug}/`;
+    const blogUrl = `/${year}/${month}/${day}/${slug}/`;
 
     // Escape quotes and special characters in title and description for YAML
     const escapeYaml = (str) => {
@@ -242,9 +248,16 @@ async function publishPostToGitHub(postData) {
     console.log(`[Blog Post] Successfully published: ${filename} to branch: ${targetBranch}`);
     console.log(`[Blog Post] GitHub commit: ${result.commit?.sha || 'N/A'}`);
 
+    // Generate URL based on Jekyll permalink format: /:year/:month/:day/:title/
+    const dateParts = date.split('-');
+    const year = dateParts[0];
+    const month = dateParts[1];
+    const day = dateParts[2];
+    const postUrl = `https://specifys-ai.com/${year}/${month}/${day}/${slug}/`;
+    
     return {
         filename,
-        url: `https://specifys-ai.com/blog/${slug}.html`,
+        url: postUrl,
         slug,
         commitSha: result.commit?.sha,
         branch: targetBranch
