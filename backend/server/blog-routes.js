@@ -57,7 +57,7 @@ async function getFileFromGitHub(filePath, branch = null) {
         return null;
     }
 
-    const targetBranch = branch || GITHUB_CONFIG.branch;
+    const targetBranch = branch || 'main';
     try {
         const endpoint = `/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${filePath}?ref=${targetBranch}`;
         return await githubRequest(endpoint);
@@ -389,7 +389,7 @@ async function createPost(req, res, next) {
 // Route: Get single post details
 async function getPost(req, res, next) {
     const requestId = req.requestId || `blog-get-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    const branch = req.query.branch || GITHUB_CONFIG.branch;
+    const branch = 'main';
     logger.info({ requestId, branch }, '[blog-routes] Getting blog post');
     
     try {
@@ -520,7 +520,7 @@ async function updatePost(req, res, next) {
 // Route: List all blog posts
 async function listPosts(req, res, next) {
     const requestId = req.requestId || `blog-list-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    const branch = req.query.branch || GITHUB_CONFIG.branch;
+    const branch = 'main';
     logger.info({ requestId, branch }, '[blog-routes] Listing blog posts');
     
     try {
