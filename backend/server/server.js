@@ -334,7 +334,6 @@ app.get('/api/blog/list-posts', requireAdmin, blogRoutes.listPosts);
 app.get('/api/blog/get-post', requireAdmin, blogRoutes.getPost);
 app.post('/api/blog/update-post', requireAdmin, blogRoutes.updatePost);
 app.post('/api/blog/delete-post', requireAdmin, blogRoutes.deletePost);
-app.get('/api/blog/queue-status', requireAdmin, blogRoutes.getQueueStatus);
 
 // Admin routes (must be after specific admin endpoints, with rate limiting)
 // Enhanced logging for route mounting
@@ -976,16 +975,6 @@ const server = app.listen(port, () => {
   console.log('📊 Error handling enabled');
   console.log('='.repeat(60));
   
-  // Resume stuck blog queue items on startup
-  setTimeout(() => {
-    if (blogRoutes.resumeStuckItems && blogRoutes.publishPostToGitHub) {
-      console.log('[Blog Queue] Resuming stuck items on startup...');
-      blogRoutes.resumeStuckItems(blogRoutes.publishPostToGitHub).catch(error => {
-        console.error('[Blog Queue] Error resuming stuck items:', error);
-        logger.error({ error: { message: error.message, stack: error.stack } }, '[Blog Queue] Error resuming stuck items on startup');
-      });
-    }
-  }, 5000); // Wait 5 seconds after server start to ensure Firebase is initialized
   
   // Check configuration
   if (!process.env.EMAIL_USER || !process.env.EMAIL_APP_PASSWORD) {
