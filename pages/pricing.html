@@ -166,6 +166,8 @@
                             <li><i class="fas fa-check-circle"></i> <span>1 Specification</span></li>
                             <li><i class="fas fa-check-circle"></i> <span>Full Spec Details</span></li>
                             <li><i class="fas fa-check-circle"></i> <span>Tools Map Access</span></li>
+                            <li><i class="fas fa-check-circle"></i> <span>Full Prompts Export for App Building</span></li>
+                            <li><i class="fas fa-check-circle"></i> <span>Export Specifications</span></li>
                             <li><i class="fas fa-times-circle" style="color: #dee2e6;"></i> <span style="opacity: 0.6;">Edit Specifications</span></li>
                         </ul>
                     </div>
@@ -176,7 +178,10 @@
                             <span class="period">one-time</span>
                         </div>
                         <button class="btn btn-primary" data-product-key="single_spec" onclick="purchaseSpec(event, 'single_spec')">
-                            Buy Now
+                            <span class="btn-content">
+                                <span class="btn-text">Buy Now</span>
+                                <span class="btn-spinner"></span>
+                            </span>
                         </button>
                     </div>
                 </div>
@@ -193,6 +198,8 @@
                             <li><i class="fas fa-check-circle"></i> <span>3 Specifications</span></li>
                             <li><i class="fas fa-check-circle"></i> <span>Full Spec Details</span></li>
                             <li><i class="fas fa-check-circle"></i> <span>Tools Map Access</span></li>
+                            <li><i class="fas fa-check-circle"></i> <span>Full Prompts Export for App Building</span></li>
+                            <li><i class="fas fa-check-circle"></i> <span>Export Specifications</span></li>
                             <li><i class="fas fa-times-circle" style="color: #dee2e6;"></i> <span style="opacity: 0.6;">Edit Specifications</span></li>
                         </ul>
                     </div>
@@ -203,7 +210,10 @@
                             <span class="period">one-time</span>
                         </div>
                         <button class="btn btn-primary highlight" data-product-key="three_pack" onclick="purchaseSpec(event, 'three_pack')">
-                            Buy Now
+                            <span class="btn-content">
+                                <span class="btn-text">Buy Now</span>
+                                <span class="btn-spinner"></span>
+                            </span>
                         </button>
                     </div>
                 </div>
@@ -229,6 +239,9 @@
                                 <li><i class="fas fa-check-circle"></i> <span>Unlimited Specifications</span></li>
                                 <li><i class="fas fa-check-circle"></i> <span>Edit & Customize Specs</span></li>
                                 <li><i class="fas fa-check-circle"></i> <span>All Tools & Features</span></li>
+                                <li><i class="fas fa-check-circle"></i> <span>Full Prompts Export for App Building</span></li>
+                                <li><i class="fas fa-check-circle"></i> <span>Export Specifications</span></li>
+                                <li><i class="fas fa-check-circle"></i> <span>Mockup Generation</span></li>
                                 <li><i class="fas fa-check-circle"></i> <span>Priority Support</span></li>
                             </ul>
                         </div>
@@ -239,7 +252,10 @@
                                 <span class="period">per month</span>
                             </div>
                             <button class="btn btn-primary" data-product-key="pro_monthly" onclick="purchaseSpec(event, 'pro_monthly')">
-                                Subscribe Now
+                                <span class="btn-content">
+                                    <span class="btn-text">Subscribe Now</span>
+                                    <span class="btn-spinner"></span>
+                                </span>
                             </button>
                         </div>
                     </div>
@@ -251,6 +267,9 @@
                                 <li><i class="fas fa-check-circle"></i> <span>Unlimited Specifications</span></li>
                                 <li><i class="fas fa-check-circle"></i> <span>Edit & Customize Specs</span></li>
                                 <li><i class="fas fa-check-circle"></i> <span>All Tools & Features</span></li>
+                                <li><i class="fas fa-check-circle"></i> <span>Full Prompts Export for App Building</span></li>
+                                <li><i class="fas fa-check-circle"></i> <span>Export Specifications</span></li>
+                                <li><i class="fas fa-check-circle"></i> <span>Mockup Generation</span></li>
                                 <li><i class="fas fa-check-circle"></i> <span>Priority Support</span></li>
                                 <li><i class="fas fa-check-circle"></i> <span>17% Savings</span></li>
                             </ul>
@@ -263,7 +282,10 @@
                             </div>
                             <div class="savings-badge">Save $58.30/year</div>
                             <button class="btn btn-primary" data-product-key="pro_yearly" onclick="purchaseSpec(event, 'pro_yearly')">
-                                Subscribe Now
+                                <span class="btn-content">
+                                    <span class="btn-text">Subscribe Now</span>
+                                    <span class="btn-spinner"></span>
+                                </span>
                             </button>
                         </div>
                     </div>
@@ -654,6 +676,41 @@
     color: white;
 }
 
+/* Loading state styles */
+.btn.loading {
+    position: relative;
+    pointer-events: none;
+    opacity: 0.9;
+}
+
+.btn.loading .btn-spinner {
+    display: inline-block;
+}
+
+.btn-spinner {
+    display: none;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    flex-shrink: 0;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.btn-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
 .pricing-card.pack .btn-primary.highlight:hover {
     background: linear-gradient(135deg, #FF8551 0%, #FF6B35 100%);
     transform: translateY(-2px);
@@ -866,12 +923,18 @@ const productButtons = Array.from(document.querySelectorAll('button[data-product
 
 productButtons.forEach((btn) => {
     if (!btn.dataset.originalLabel) {
-        btn.dataset.originalLabel = btn.textContent.trim();
+        const btnText = btn.querySelector('.btn-text');
+        btn.dataset.originalLabel = btnText ? btnText.textContent.trim() : btn.textContent.trim();
     }
 });
 
 function setProductButtonsDisabled(disabled) {
     productButtons.forEach((btn) => {
+        // Don't modify buttons that are currently loading
+        if (btn.classList.contains('loading')) {
+            return;
+        }
+        
         btn.disabled = disabled;
         if (disabled) {
             btn.style.opacity = '0.5';
@@ -1033,8 +1096,17 @@ async function openCheckoutOverlay(checkoutUrl, handlers = {}) {
         console.error('Error loading Lemon Squeezy SDK:', error);
     });
 
-    const { onSuccess } = handlers;
+    const { onSuccess, onOpen } = handlers;
     let opened = false;
+    let openNotified = false;
+
+    // Call onOpen callback when checkout window opens (only once)
+    const notifyOpen = () => {
+        if (typeof onOpen === 'function' && !openNotified) {
+            openNotified = true;
+            onOpen();
+        }
+    };
 
     if (typeof window.createLemonSqueezyCheckout === 'function') {
         try {
@@ -1044,11 +1116,15 @@ async function openCheckoutOverlay(checkoutUrl, handlers = {}) {
                     if (typeof onSuccess === 'function') {
                         onSuccess();
                     }
+                },
+                onCheckoutOpen: () => {
+                    notifyOpen();
                 }
             });
             if (checkout && typeof checkout.open === 'function') {
                 checkout.open();
-                opened = true;
+                // Notify immediately for overlay method
+                setTimeout(() => notifyOpen(), 100);
             }
         } catch (error) {
             console.error('createLemonSqueezyCheckout error:', error);
@@ -1059,6 +1135,9 @@ async function openCheckoutOverlay(checkoutUrl, handlers = {}) {
         try {
             window.LemonSqueezy.Setup({
                 eventHandler: (eventName) => {
+                    if (eventName === 'Checkout.Opened') {
+                        notifyOpen();
+                    }
                     if (eventName === 'Checkout.Success' && typeof onSuccess === 'function') {
                         onSuccess();
                     }
@@ -1066,7 +1145,8 @@ async function openCheckoutOverlay(checkoutUrl, handlers = {}) {
             });
             if (window.LemonSqueezy.Url && typeof window.LemonSqueezy.Url.Open === 'function') {
                 window.LemonSqueezy.Url.Open(checkoutUrl);
-                opened = true;
+                // Notify after a short delay for URL.Open method
+                setTimeout(() => notifyOpen(), 300);
             }
         } catch (error) {
             console.error('LemonSqueezy.Setup error:', error);
@@ -1081,23 +1161,112 @@ async function openCheckoutOverlay(checkoutUrl, handlers = {}) {
         );
 
         if (popup) {
-            opened = true;
-            const interval = setInterval(() => {
-                if (popup.closed) {
-                    clearInterval(interval);
-                    if (typeof onSuccess === 'function') {
-                        onSuccess();
+            // Check if popup opened successfully
+            const checkPopup = setInterval(() => {
+                try {
+                    if (popup.closed) {
+                        clearInterval(checkPopup);
+                        if (typeof onSuccess === 'function') {
+                            onSuccess();
+                        }
+                    } else if (popup.document && popup.document.readyState === 'complete') {
+                        // Popup loaded successfully
+                        clearInterval(checkPopup);
+                        notifyOpen();
+                        
+                        // Monitor for popup close
+                        const closeInterval = setInterval(() => {
+                            if (popup.closed) {
+                                clearInterval(closeInterval);
+                                if (typeof onSuccess === 'function') {
+                                    onSuccess();
+                                }
+                            }
+                        }, 1000);
+                        setTimeout(() => clearInterval(closeInterval), 5 * 60 * 1000);
                     }
+                } catch (e) {
+                    // Cross-origin or other error, assume opened
+                    clearInterval(checkPopup);
+                    notifyOpen();
                 }
-            }, 1000);
-            setTimeout(() => clearInterval(interval), 5 * 60 * 1000);
+            }, 100);
+            
+            setTimeout(() => {
+                clearInterval(checkPopup);
+                notifyOpen();
+            }, 2000);
         } else {
             window.open(checkoutUrl, '_blank');
-            opened = true;
+            notifyOpen();
         }
     }
 
     return opened;
+}
+
+function setButtonLoading(button, isLoading) {
+    if (!button) return;
+    
+    const btnText = button.querySelector('.btn-text');
+    if (!btnText) return;
+    
+    if (isLoading) {
+        button.disabled = true;
+        button.classList.add('loading');
+        button.style.cursor = 'wait';
+    } else {
+        button.disabled = false;
+        button.classList.remove('loading');
+        button.style.cursor = '';
+    }
+}
+
+function updateButtonLoadingText(button, text) {
+    if (!button) return;
+    const btnText = button.querySelector('.btn-text');
+    if (btnText) {
+        btnText.textContent = text;
+    }
+}
+
+function startLoadingTextRotation(button) {
+    const loadingMessages = [
+        'Initializing checkout...',
+        'Connecting to payment system...',
+        'Preparing your order...',
+        'Almost ready...',
+        'Setting up checkout...'
+    ];
+    
+    let messageIndex = 0;
+    const interval = setInterval(() => {
+        if (!button.classList.contains('loading')) {
+            clearInterval(interval);
+            return;
+        }
+        messageIndex = (messageIndex + 1) % loadingMessages.length;
+        updateButtonLoadingText(button, loadingMessages[messageIndex]);
+    }, 3000); // Change message every 3 seconds
+    
+    // Store interval ID on button for cleanup
+    button.dataset.loadingInterval = interval;
+    
+    // Set initial message
+    updateButtonLoadingText(button, loadingMessages[0]);
+}
+
+function stopLoadingTextRotation(button) {
+    if (button && button.dataset.loadingInterval) {
+        clearInterval(parseInt(button.dataset.loadingInterval));
+        delete button.dataset.loadingInterval;
+    }
+}
+
+function restoreButtonText(button) {
+    if (!button) return;
+    const originalLabel = button.dataset.originalLabel || 'Buy Now';
+    updateButtonLoadingText(button, originalLabel);
 }
 
 async function purchaseSpec(evt, productKey) {
@@ -1106,6 +1275,15 @@ async function purchaseSpec(evt, productKey) {
     if (triggerButton && triggerButton.disabled) {
         return;
     }
+
+    // Store original button text if not already stored
+    if (!triggerButton.dataset.originalLabel) {
+        const btnText = triggerButton.querySelector('.btn-text');
+        triggerButton.dataset.originalLabel = btnText ? btnText.textContent.trim() : triggerButton.textContent.trim();
+    }
+
+    // Flag to track if checkout window opened (to prevent double cleanup)
+    let checkoutOpened = false;
 
     try {
         hidePricingAlert();
@@ -1119,20 +1297,22 @@ async function purchaseSpec(evt, productKey) {
 
         trackCTA(`Purchase ${productKey}`, 'pricing_page');
 
+        // Start loading state with spinner and rotating messages
+        setButtonLoading(triggerButton, true);
+        startLoadingTextRotation(triggerButton);
+
         const productsConfig = await getLemonProductsConfig();
         const product = productsConfig?.products?.[productKey];
 
         if (!product) {
+            stopLoadingTextRotation(triggerButton);
+            setButtonLoading(triggerButton, false);
+            restoreButtonText(triggerButton);
             showPricingAlert('Selected product is not available. Please try again later.', 'error');
             return;
         }
 
         const token = await user.getIdToken();
-
-        if (triggerButton) {
-            triggerButton.disabled = true;
-            triggerButton.classList.add('loading');
-        }
 
         const response = await fetch(`${API_BASE_URL}/lemon/checkout`, {
             method: 'POST',
@@ -1157,18 +1337,38 @@ async function purchaseSpec(evt, productKey) {
             throw new Error('Checkout URL missing from server response');
         }
 
+        // Stop loading rotation and update text before opening checkout
+        stopLoadingTextRotation(triggerButton);
+        updateButtonLoadingText(triggerButton, 'Opening checkout...');
+
         await openCheckoutOverlay(data.checkoutUrl, {
+            onOpen: () => {
+                // Checkout window opened - stop loading and restore button
+                checkoutOpened = true;
+                stopLoadingTextRotation(triggerButton);
+                setButtonLoading(triggerButton, false);
+                restoreButtonText(triggerButton);
+            },
             onSuccess: () => {
                 showPricingAlert('Purchase successful! You will be redirected shortly.', 'success');
             }
         });
     } catch (error) {
         console.error('Checkout error:', error);
+        if (!checkoutOpened) {
+            stopLoadingTextRotation(triggerButton);
+            setButtonLoading(triggerButton, false);
+            restoreButtonText(triggerButton);
+        }
         showPricingAlert(error.message || 'Error initiating purchase. Please try again.', 'error');
     } finally {
-        if (triggerButton) {
-            triggerButton.classList.remove('loading');
+        // Only clean up if checkout didn't open (to avoid double cleanup)
+        if (!checkoutOpened) {
+            stopLoadingTextRotation(triggerButton);
+            setButtonLoading(triggerButton, false);
+            restoreButtonText(triggerButton);
         }
+        
         const currentUser = (typeof firebase !== 'undefined' && typeof firebase.auth === 'function')
             ? firebase.auth().currentUser
             : null;
