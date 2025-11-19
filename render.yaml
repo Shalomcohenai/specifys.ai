@@ -8,5 +8,15 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+  
+  - type: web
+    name: specifys-store
+    env: node
+    buildCommand: npm install
+    startCommand: npm start
+    rootDirectory: backend/public
+    envVars:
+      - key: NODE_ENV
+        value: production
 
 
