@@ -437,8 +437,7 @@ async function updatePost(req, res, next) {
             content,
             slug,
             seoTitle,
-            seoDescription,
-            branch
+            seoDescription
         } = req.body;
 
         const requestId = req.requestId || `blog-update-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
