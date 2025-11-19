@@ -251,7 +251,15 @@ router.post('/users/:userId/credits', requireAdmin, async (req, res, next) => {
     logger.debug({ requestId, userId, amount, reason }, '[admin-routes] Granting credits');
     const result = await grantCredits(userId, amount, 'admin', { reason: reason || 'Admin manual grant' });
 
-    logger.info({ requestId, userId, amount }, '[admin-routes] POST /users/:userId/credits - Success');
+    logger.info({ 
+      requestId, 
+      userId, 
+      amount, 
+      creditsAdded: result.creditsAdded,
+      remaining: result.remaining,
+      alreadyProcessed: result.alreadyProcessed || false,
+      transactionId: result.transactionId
+    }, '[admin-routes] POST /users/:userId/credits - Success');
     res.json({ success: true, ...result });
   } catch (error) {
     logger.error({ requestId, userId, error: { message: error.message, stack: error.stack } }, '[admin-routes] POST /users/:userId/credits - Error');

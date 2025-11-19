@@ -61,17 +61,30 @@ async function grantCredits(userId, amount, source, metadata = {}) {
     if (existingTransactionDoc.exists) {
       console.log(`[CREDITS] [${requestId}] Transaction already processed: ${transactionId}`);
       const existing = existingTransactionDoc.data();
+      
+      // Verify entitlements were actually updated by checking current state
+      const entitlementsDoc = await db.collection(ENTITLEMENTS_COLLECTION).doc(userId).get();
+      const currentCredits = entitlementsDoc.exists 
+        ? (entitlementsDoc.data().spec_credits || 0)
+        : 0;
+      
+      console.log(`[CREDITS] [${requestId}] Already processed - current credits: ${currentCredits}, transaction amount: ${existing.amount}`);
+      
       return {
         success: true,
         alreadyProcessed: true,
         transactionId: transactionId,
         creditsAdded: existing.amount,
-        remaining: existing.metadata?.remaining || null
+        remaining: currentCredits, // Return actual current credits, not stale metadata
+        previousCredits: existing.metadata?.previousCredits || null
       };
     }
     
     // Use Firestore transaction for atomic credit grant
     const result = await db.runTransaction(async (transaction) => {
+      // Get entitlements document reference (needed for both checks)
+      const entitlementsRef = db.collection(ENTITLEMENTS_COLLECTION).doc(userId);
+      
       // Double-check idempotency inside transaction using document ID
       // Use transactionId as document ID to ensure uniqueness
       const transactionDocRef = db.collection(TRANSACTIONS_COLLECTION).doc(transactionId);
@@ -79,17 +92,23 @@ async function grantCredits(userId, amount, source, metadata = {}) {
       
       if (existingTransactionDoc.exists) {
         const existing = existingTransactionDoc.data();
+        // Get current entitlements to verify
+        const currentEntitlementsDoc = await transaction.get(entitlementsRef);
+        const currentCredits = currentEntitlementsDoc.exists
+          ? (currentEntitlementsDoc.data().spec_credits || 0)
+          : 0;
+        
         return {
           success: true,
           alreadyProcessed: true,
           transactionId: transactionId,
           creditsAdded: existing.amount,
-          remaining: existing.metadata?.remaining || null
+          remaining: currentCredits, // Return actual current credits
+          previousCredits: existing.metadata?.previousCredits || null
         };
       }
       
       // Get entitlements document
-      const entitlementsRef = db.collection(ENTITLEMENTS_COLLECTION).doc(userId);
       const entitlementsDoc = await transaction.get(entitlementsRef);
       
       const entitlements = entitlementsDoc.exists
@@ -151,11 +170,27 @@ async function grantCredits(userId, amount, source, metadata = {}) {
       };
     });
     
+    // Verify the transaction actually updated the entitlements
+    const verifyEntitlementsDoc = await db.collection(ENTITLEMENTS_COLLECTION).doc(userId).get();
+    const actualCredits = verifyEntitlementsDoc.exists
+      ? (verifyEntitlementsDoc.data().spec_credits || 0)
+      : 0;
+    
     const totalTime = Date.now() - startTime;
     console.log(`[CREDITS] [${requestId}] ✅ Credits granted successfully in ${totalTime}ms`);
     console.log(`[CREDITS] [${requestId}] Details: ${JSON.stringify(result)}`);
+    console.log(`[CREDITS] [${requestId}] Verification - Expected: ${result.remaining}, Actual: ${actualCredits}`);
     
-    return result;
+    // If there's a mismatch, log a warning but don't fail (transaction was committed)
+    if (result.remaining !== actualCredits && !result.alreadyProcessed) {
+      console.warn(`[CREDITS] [${requestId}] ⚠️ Credit mismatch detected! Expected ${result.remaining} but found ${actualCredits}`);
+    }
+    
+    // Return actual credits in the response
+    return {
+      ...result,
+      remaining: actualCredits // Ensure we return the actual current credits
+    };
   } catch (error) {
     const totalTime = Date.now() - startTime;
     console.error(`[CREDITS] [${requestId}] ❌ Error granting credits (${totalTime}ms):`, error);
