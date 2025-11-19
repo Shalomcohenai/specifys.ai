@@ -976,6 +976,17 @@ const server = app.listen(port, () => {
   console.log('📊 Error handling enabled');
   console.log('='.repeat(60));
   
+  // Resume stuck blog queue items on startup
+  setTimeout(() => {
+    if (blogRoutes.resumeStuckItems && blogRoutes.publishPostToGitHub) {
+      console.log('[Blog Queue] Resuming stuck items on startup...');
+      blogRoutes.resumeStuckItems(blogRoutes.publishPostToGitHub).catch(error => {
+        console.error('[Blog Queue] Error resuming stuck items:', error);
+        logger.error({ error: { message: error.message, stack: error.stack } }, '[Blog Queue] Error resuming stuck items on startup');
+      });
+    }
+  }, 5000); // Wait 5 seconds after server start to ensure Firebase is initialized
+  
   // Check configuration
   if (!process.env.EMAIL_USER || !process.env.EMAIL_APP_PASSWORD) {
     logger.warn({ type: 'config_check' }, '⚠️  Email configuration not found (EMAIL_USER, EMAIL_APP_PASSWORD)');

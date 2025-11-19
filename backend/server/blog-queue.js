@@ -300,6 +300,72 @@ async function clearOldQueueItems() {
   }
 }
 
+/**
+ * Resume processing stuck items on startup
+ * This handles cases where the server restarted while processing items
+ */
+async function resumeStuckItems(publishFunction) {
+  try {
+    console.log('[Blog Queue] Checking for stuck items in Firestore...');
+    
+    // Find items that are stuck in PROCESSING (older than 5 minutes)
+    const fiveMinutesAgo = new Date();
+    fiveMinutesAgo.setMinutes(fiveMinutesAgo.getMinutes() - 5);
+    
+    const stuckProcessingSnapshot = await db.collection('blogQueue')
+      .where('status', '==', QUEUE_STATUS.PROCESSING)
+      .where('startedAt', '<', fiveMinutesAgo)
+      .get();
+    
+    // Reset stuck PROCESSING items to PENDING
+    const batch = db.batch();
+    stuckProcessingSnapshot.docs.forEach(doc => {
+      batch.update(doc.ref, {
+        status: QUEUE_STATUS.PENDING,
+        startedAt: null,
+        error: 'Reset due to server restart'
+      });
+      console.log(`[Blog Queue] Reset stuck item ${doc.id} from PROCESSING to PENDING`);
+    });
+    
+    if (stuckProcessingSnapshot.size > 0) {
+      await batch.commit();
+    }
+    
+    // Get all PENDING items
+    const pendingSnapshot = await db.collection('blogQueue')
+      .where('status', '==', QUEUE_STATUS.PENDING)
+      .orderBy('createdAt', 'asc')
+      .limit(10)
+      .get();
+    
+    console.log(`[Blog Queue] Found ${pendingSnapshot.size} pending items to process`);
+    
+    // Process pending items
+    for (const doc of pendingSnapshot.docs) {
+      const itemData = doc.data();
+      const queueItem = {
+        id: doc.id,
+        ...itemData,
+        createdAt: itemData.createdAt?.toDate ? itemData.createdAt.toDate() : itemData.createdAt,
+        startedAt: itemData.startedAt?.toDate ? itemData.startedAt.toDate() : itemData.startedAt,
+        completedAt: itemData.completedAt?.toDate ? itemData.completedAt.toDate() : itemData.completedAt
+      };
+      
+      // Add to in-memory queue
+      blogQueue.items.push(queueItem);
+      
+      // Process the item
+      processQueueItem(queueItem, publishFunction).catch(error => {
+        console.error(`[Blog Queue] Error resuming item ${queueItem.id}:`, error);
+      });
+    }
+    
+  } catch (error) {
+    console.error('[Blog Queue] Error resuming stuck items:', error);
+  }
+}
+
 // Clear old items on startup
 setTimeout(() => clearOldQueueItems(), 60000); // Run after 1 minute
 
@@ -308,6 +374,7 @@ module.exports = {
   processQueueItem,
   getQueueStatus,
   getQueueItems,
+  resumeStuckItems,
   QUEUE_STATUS
 };
 

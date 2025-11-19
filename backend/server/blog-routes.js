@@ -183,7 +183,7 @@ ${data.content}
 }
 
 // Import blog queue system
-const { addToQueue, processQueueItem, getQueueStatus, getQueueItems, QUEUE_STATUS } = require('./blog-queue');
+const { addToQueue, processQueueItem, getQueueStatus, getQueueItems, resumeStuckItems, QUEUE_STATUS } = require('./blog-queue');
 
 // Internal function to actually publish a post
 async function publishPostToGitHub(postData) {
@@ -774,6 +774,8 @@ module.exports = {
     getPost,
     updatePost,
     deletePost,
-    getQueueStatus: getQueueStatusRoute
+    getQueueStatus: getQueueStatusRoute,
+    publishPostToGitHub,
+    resumeStuckItems
 };
 
