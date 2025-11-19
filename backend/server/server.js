@@ -336,6 +336,7 @@ app.post('/api/blog/update-post', requireAdmin, blogRoutes.updatePost);
 app.post('/api/blog/delete-post', requireAdmin, blogRoutes.deletePost);
 app.get('/api/blog/queue-status', requireAdmin, blogRoutes.getQueueStatus);
 app.get('/api/blog/branches', requireAdmin, blogRoutes.getBranches);
+logger.info({ type: 'route_mounted', path: '/api/blog/branches' }, '[UNIFIED SERVER] ✅ Blog branches route mounted');
 
 // Admin routes (must be after specific admin endpoints, with rate limiting)
 // Enhanced logging for route mounting
