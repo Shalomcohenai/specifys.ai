@@ -198,22 +198,38 @@ async function updateQueueItemInFirestore(item) {
   try {
     const updateData = {
       status: item.status,
-      startedAt: item.startedAt,
-      completedAt: item.completedAt,
-      error: item.error,
-      result: item.result
+      error: item.error || null,
+      result: item.result || null
     };
 
     if (item.startedAt) {
       updateData.startedAt = item.startedAt;
+    } else {
+      updateData.startedAt = null;
     }
+    
     if (item.completedAt) {
       updateData.completedAt = item.completedAt;
+    } else {
+      updateData.completedAt = null;
     }
 
     await db.collection('blogQueue').doc(item.id).update(updateData);
+    console.log(`[Blog Queue] Updated item ${item.id} in Firestore: status=${item.status}`);
   } catch (error) {
-    console.error('Error updating queue item in Firestore:', error);
+    console.error(`[Blog Queue] Error updating queue item ${item.id} in Firestore:`, error);
+    // Try to set instead of update if update fails
+    try {
+      await db.collection('blogQueue').doc(item.id).set({
+        ...item,
+        createdAt: item.createdAt || new Date(),
+        startedAt: item.startedAt || null,
+        completedAt: item.completedAt || null
+      }, { merge: true });
+      console.log(`[Blog Queue] Set item ${item.id} in Firestore as fallback`);
+    } catch (setError) {
+      console.error(`[Blog Queue] Failed to set item ${item.id} in Firestore:`, setError);
+    }
   }
 }
 
