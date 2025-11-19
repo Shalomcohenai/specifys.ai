@@ -2914,7 +2914,7 @@ class AdminDashboardApp {
       }
 
       const branches = Array.isArray(result.branches) ? result.branches : [];
-      const defaultBranch = result.defaultBranch || "with-store";
+      const defaultBranch = result.defaultBranch || "main";
       
       // Clear existing options
       this.dom.blogFields.branch.innerHTML = "";

@@ -8,7 +8,7 @@ const { logger } = require('./logger');
 const GITHUB_CONFIG = {
     owner: 'Shalomcohenai',
     repo: 'specifys.ai',
-    branch: 'with-store',
+    branch: 'main',
     token: process.env.GITHUB_TOKEN || '' // GitHub Personal Access Token (use environment variable)
 };
 
