@@ -207,6 +207,23 @@
 
 
 <body>
+    <!-- Access Code Modal -->
+    <div class="access-code-modal" id="accessCodeModal">
+        <div class="access-code-content">
+            <div class="access-code-header">
+                <h3>🔒 Access Required</h3>
+            </div>
+            <div class="access-code-body">
+                <p>The site is under maintenance. Please enter the access code to continue.</p>
+                <input type="text" id="accessCodeInput" class="access-code-input" placeholder="Enter access code" maxlength="10" autocomplete="off">
+                <div class="access-code-error" id="accessCodeError" style="display: none;">Incorrect code. Please try again.</div>
+            </div>
+            <div class="access-code-actions">
+                <button class="access-code-btn" id="accessCodeSubmit">Enter</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Header -->
 <header class="thematic-header" role="banner">
     <div class="header-center">
@@ -977,6 +994,76 @@
           requestIdleCallback(startVantaNet, { timeout: 2000 });
         } else {
           setTimeout(startVantaNet, 1500);
+        }
+      })();
+    </script>
+
+    <!-- Access Code Verification Script -->
+    <script>
+      (function() {
+        const ACCESS_CODE = '1997';
+        const STORAGE_KEY = 'site_access_granted';
+        
+        // Check if access was already granted
+        const hasAccess = sessionStorage.getItem(STORAGE_KEY) === 'true';
+        
+        const modal = document.getElementById('accessCodeModal');
+        const input = document.getElementById('accessCodeInput');
+        const submitBtn = document.getElementById('accessCodeSubmit');
+        const errorMsg = document.getElementById('accessCodeError');
+        const mainContent = document.getElementById('main-content');
+        const header = document.querySelector('header');
+        
+        function grantAccess() {
+          sessionStorage.setItem(STORAGE_KEY, 'true');
+          modal.style.display = 'none';
+          if (mainContent) mainContent.style.display = 'block';
+          if (header) header.style.display = 'flex';
+        }
+        
+        function denyAccess() {
+          errorMsg.style.display = 'block';
+          input.value = '';
+          input.focus();
+        }
+        
+        function checkAccess() {
+          const enteredCode = input.value.trim();
+          if (enteredCode === ACCESS_CODE) {
+            grantAccess();
+          } else {
+            denyAccess();
+          }
+        }
+        
+        // Initialize
+        if (!hasAccess) {
+          // Hide main content until access is granted
+          if (mainContent) mainContent.style.display = 'none';
+          if (header) header.style.display = 'none';
+          modal.style.display = 'flex';
+          
+          // Focus input
+          setTimeout(() => {
+            if (input) input.focus();
+          }, 100);
+          
+          // Submit button click
+          if (submitBtn) {
+            submitBtn.addEventListener('click', checkAccess);
+          }
+          
+          // Enter key press
+          if (input) {
+            input.addEventListener('keypress', function(e) {
+              if (e.key === 'Enter') {
+                checkAccess();
+              }
+            });
+          }
+        } else {
+          // Access already granted
+          modal.style.display = 'none';
         }
       })();
     </script>
