@@ -555,12 +555,19 @@ async function listPosts(req, res, next) {
                 const match = file.name.match(/^(\d{4}-\d{2}-\d{2})-(.+)\.md$/);
                 if (match) {
                     const [, date, slug] = match;
+                    // Generate URL based on Jekyll permalink format: /:year/:month/:day/:title/
+                    const dateParts = date.split('-');
+                    const year = dateParts[0];
+                    const month = dateParts[1];
+                    const day = dateParts[2];
+                    const postUrl = `https://specifys-ai.com/${year}/${month}/${day}/${slug}/`;
+                    
                     return {
                         filename: file.name,
                         date,
                         slug,
                         title: slug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
-                        url: `https://specifys-ai.com/blog/${slug}.html`,
+                        url: postUrl,
                         sha: file.sha
                     };
                 }
@@ -662,8 +669,12 @@ async function updateSitemap(date, slug, title) {
 
         const sitemapContent = Buffer.from(sitemapFile.content, 'base64').toString('utf-8');
 
-        // Create new post entry
-        const postUrl = `https://specifys-ai.com/blog/${slug}.html`;
+        // Create new post entry - Generate URL based on Jekyll permalink format: /:year/:month/:day/:title/
+        const dateParts = date.split('-');
+        const year = dateParts[0];
+        const month = dateParts[1];
+        const day = dateParts[2];
+        const postUrl = `https://specifys-ai.com/${year}/${month}/${day}/${slug}/`;
         const lastmod = new Date().toISOString().split('T')[0];
         
         const newEntry = `
@@ -695,7 +706,17 @@ async function updateSitemap(date, slug, title) {
 async function removeFromSitemap(filename) {
     try {
         const slug = filename.replace(/^\d{4}-\d{2}-\d{2}-/, '').replace(/\.md$/, '');
-        const postUrl = `https://specifys-ai.com/blog/${slug}.html`;
+        // Extract date from filename and generate URL based on Jekyll permalink format: /:year/:month/:day/:title/
+        const dateMatch = filename.match(/^(\d{4}-\d{2}-\d{2})-/);
+        if (!dateMatch) {
+            return; // Invalid filename format
+        }
+        const date = dateMatch[1];
+        const dateParts = date.split('-');
+        const year = dateParts[0];
+        const month = dateParts[1];
+        const day = dateParts[2];
+        const postUrl = `https://specifys-ai.com/${year}/${month}/${day}/${slug}/`;
 
         // Get current sitemap
         const sitemapFile = await getFileFromGitHub('sitemap.xml');
