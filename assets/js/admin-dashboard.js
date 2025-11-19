@@ -665,9 +665,9 @@ class GlobalSearch {
       });
   }
 
-  async fetchBlogPost(filename) {
-    if (!filename) {
-      throw new Error("Filename is required to load the post.");
+  async fetchBlogPost(id) {
+    if (!id) {
+      throw new Error("Post ID is required to load the post.");
     }
     let token = await this.getAuthToken();
     if (!token) {
@@ -678,7 +678,7 @@ class GlobalSearch {
     const apiBaseUrl = typeof window.getApiBaseUrl === "function"
       ? window.getApiBaseUrl()
       : "https://specifys-ai.onrender.com";
-    const requestUrl = `${apiBaseUrl}/api/blog/get-post?filename=${encodeURIComponent(filename)}`;
+    const requestUrl = `${apiBaseUrl}/api/blog/get-post?id=${encodeURIComponent(id)}`;
 
     const makeRequest = async (idToken) => {
       return fetch(requestUrl, {
