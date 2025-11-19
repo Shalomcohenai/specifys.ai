@@ -1000,7 +1000,6 @@ class AdminDashboardApp {
       blogFields: {
         title: utils.dom("#blog-title"),
         date: utils.dom("#blog-date"),
-        branch: utils.dom("#blog-branch"),
         slug: utils.dom("#blog-slug"),
         seoTitle: utils.dom("#blog-seo-title"),
         seoDescription: utils.dom("#blog-seo-description"),
@@ -1679,16 +1678,6 @@ class AdminDashboardApp {
       } else {
         console.warn("Blog queue unavailable", error);
         this.markSourceError("blogQueue", error);
-      }
-    }
-
-    // Load available branches for blog publishing
-    try {
-      await this.loadBlogBranches();
-    } catch (error) {
-      console.warn("Failed to load blog branches", error);
-      if (this.dom.blogFields.branch) {
-        this.dom.blogFields.branch.innerHTML = '<option value="">Failed to load branches</option>';
       }
     }
   }
@@ -2613,7 +2602,6 @@ class AdminDashboardApp {
     const slugInput = this.dom.blogFields.slug?.value.trim() ?? "";
     const seoTitle = this.dom.blogFields.seoTitle?.value.trim() ?? "";
     const seoDescription = this.dom.blogFields.seoDescription?.value.trim() ?? "";
-    const branch = this.dom.blogFields.branch?.value.trim() ?? "";
     const dateValue = this.dom.blogFields.date?.value || utils.now().toISOString().slice(0, 10);
 
     const tags = rawTags
@@ -2627,12 +2615,10 @@ class AdminDashboardApp {
       content,
       tags,
       date: dateValue,
-      slug: slugInput ? utils.sanitizeSlug(slugInput) : utils.sanitizeSlug(title)
+      slug: slugInput ? utils.sanitizeSlug(slugInput) : utils.sanitizeSlug(title),
+      branch: "main"
     };
 
-    if (branch) {
-      payload.branch = branch;
-    }
     if (seoTitle) {
       payload.seoTitle = seoTitle;
     }
@@ -2869,83 +2855,6 @@ class AdminDashboardApp {
         status: error.status,
         stack: error.stack
       });
-      throw error;
-    }
-  }
-
-  async loadBlogBranches() {
-    if (!this.dom.blogFields.branch) return;
-    
-    try {
-      const token = await this.getAuthToken();
-      const apiBaseUrl = typeof window.getApiBaseUrl === "function"
-        ? window.getApiBaseUrl()
-        : "https://specifys-ai.onrender.com";
-      const requestUrl = `${apiBaseUrl}/api/blog/branches`;
-      
-      const makeRequest = async (idToken) => {
-        return fetch(requestUrl, {
-          headers: {
-            Authorization: `Bearer ${idToken}`
-          }
-        });
-      };
-
-      let response = await makeRequest(token);
-      if (response.status === 401) {
-        console.info("[BlogBranches] Token rejected, attempting refresh…");
-        const refreshedToken = await this.getAuthToken(true);
-        if (!refreshedToken) {
-          throw new Error("Unable to refresh authentication token.");
-        }
-        response = await makeRequest(refreshedToken);
-      }
-
-      const text = await response.text();
-      let result = null;
-      try {
-        result = text ? JSON.parse(text) : null;
-      } catch (parseError) {
-        console.warn("Non-JSON response when loading branches", parseError, text);
-      }
-
-      if (!response.ok || !(result && result.success)) {
-        throw new Error(result?.error || `Failed to load branches (HTTP ${response.status})`);
-      }
-
-      const branches = Array.isArray(result.branches) ? result.branches : [];
-      const defaultBranch = result.defaultBranch || "main";
-      
-      // Clear existing options
-      this.dom.blogFields.branch.innerHTML = "";
-      
-      // Add default option if exists
-      if (defaultBranch && branches.some(b => b.name === defaultBranch)) {
-        const defaultOption = document.createElement("option");
-        defaultOption.value = defaultBranch;
-        defaultOption.textContent = `${defaultBranch} (default)`;
-        defaultOption.selected = true;
-        this.dom.blogFields.branch.appendChild(defaultOption);
-      }
-      
-      // Add all branches
-      branches.forEach(branch => {
-        if (branch.name !== defaultBranch) {
-          const option = document.createElement("option");
-          option.value = branch.name;
-          option.textContent = branch.name + (branch.protected ? " (protected)" : "");
-          this.dom.blogFields.branch.appendChild(option);
-        }
-      });
-
-      if (branches.length === 0) {
-        this.dom.blogFields.branch.innerHTML = '<option value="">No branches available</option>';
-      }
-    } catch (error) {
-      console.error("[BlogBranches] Failed to load branches", error);
-      if (this.dom.blogFields.branch) {
-        this.dom.blogFields.branch.innerHTML = `<option value="">Error: ${error.message}</option>`;
-      }
       throw error;
     }
   }

@@ -49,26 +49,6 @@ async function githubRequest(endpoint, method = 'GET', data = null) {
     return response.json();
 }
 
-// Helper: Get list of branches from GitHub
-async function getBranchesFromGitHub() {
-    // Validate GitHub token
-    if (!GITHUB_CONFIG.token) {
-        throw new Error('GITHUB_TOKEN is not configured. Please set it in environment variables.');
-    }
-
-    try {
-        const endpoint = `/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/branches`;
-        const branches = await githubRequest(endpoint);
-        return branches.map(branch => ({
-            name: branch.name,
-            protected: branch.protected || false
-        }));
-    } catch (error) {
-        console.error('Error fetching branches from GitHub:', error);
-        throw new Error(`Failed to fetch branches: ${error.message}`);
-    }
-}
-
 // Helper: Get file from GitHub
 async function getFileFromGitHub(filePath, branch = null) {
     // Validate GitHub token
@@ -751,25 +731,6 @@ async function getQueueStatusRoute(req, res, next) {
         const requestId = req.requestId || `blog-queue-status-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
         logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[blog-routes] GET queue status - Error');
         next(createError(error.message || 'Failed to get queue status', ERROR_CODES.DATABASE_ERROR, 500));
-    }
-}
-
-// Route: Get available branches
-async function getBranches(req, res, next) {
-    const requestId = req.requestId || `blog-branches-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    logger.info({ requestId }, '[blog-routes] Getting available branches');
-    
-    try {
-        const branches = await getBranchesFromGitHub();
-        logger.info({ requestId, branchCount: branches.length }, '[blog-routes] GET branches - Success');
-        res.json({
-            success: true,
-            branches,
-            defaultBranch: GITHUB_CONFIG.branch
-        });
-    } catch (error) {
-        logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[blog-routes] GET branches - Error');
-        next(createError(error.message || 'Failed to get branches', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500));
     }
 }
 
