@@ -665,9 +665,9 @@ class GlobalSearch {
       });
   }
 
-  async fetchBlogPost(filename) {
-    if (!filename) {
-      throw new Error("Filename is required to load the post.");
+  async fetchBlogPost(id) {
+    if (!id) {
+      throw new Error("Post ID is required to load the post.");
     }
     let token = await this.getAuthToken();
     if (!token) {
@@ -678,7 +678,7 @@ class GlobalSearch {
     const apiBaseUrl = typeof window.getApiBaseUrl === "function"
       ? window.getApiBaseUrl()
       : "https://specifys-ai.onrender.com";
-    const requestUrl = `${apiBaseUrl}/api/blog/get-post?filename=${encodeURIComponent(filename)}`;
+    const requestUrl = `${apiBaseUrl}/api/blog/get-post?id=${encodeURIComponent(id)}`;
 
     const makeRequest = async (idToken) => {
       return fetch(requestUrl, {
@@ -719,17 +719,17 @@ class GlobalSearch {
     return result.post;
   }
 
-  async enterBlogEditMode(filename) {
-    if (!filename) return;
+  async enterBlogEditMode(id) {
+    if (!id) return;
     try {
-      if (this.editingPost?.filename !== filename) {
+      if (this.editingPost?.id !== id) {
         this.exitBlogEditMode();
       }
       this.setBlogFeedback("Loading post for editing…", "success");
-      const post = await this.fetchBlogPost(filename);
+      const post = await this.fetchBlogPost(id);
 
       this.editingPost = {
-        filename,
+        id: post.id,
         date: post.date,
         slug: post.slug
       };
@@ -769,7 +769,7 @@ class GlobalSearch {
         this.blogSubmitButton.innerHTML = '<i class="fas fa-save"></i> Save changes';
       }
 
-      this.setBlogFeedback(`Editing ${filename}`, "success");
+      this.setBlogFeedback(`Editing ${post.title}`, "success");
       this.dom.blogForm?.scrollIntoView({ behavior: "smooth", block: "start" });
     } catch (error) {
       console.error("[BlogEdit] Failed to load post", {
@@ -2631,8 +2631,8 @@ class AdminDashboardApp {
       return;
     }
 
-    if (isEditing && this.editingPost?.filename) {
-      payload.filename = this.editingPost.filename;
+    if (isEditing && this.editingPost?.id) {
+      payload.id = this.editingPost.id;
       payload.date = this.editingPost.date || payload.date;
       payload.slug = this.editingPost.slug || payload.slug;
     }
@@ -2785,7 +2785,7 @@ class AdminDashboardApp {
     try {
       let token = await this.getAuthToken();
       if (!token) {
-        const authError = new Error("Authentication required to refresh the blog queue.");
+        const authError = new Error("Authentication required to refresh blog posts.");
         authError.status = 401;
         throw authError;
       }
@@ -2793,7 +2793,7 @@ class AdminDashboardApp {
       const apiBaseUrl = typeof window.getApiBaseUrl === "function"
         ? window.getApiBaseUrl()
         : "https://specifys-ai.onrender.com";
-      const requestUrl = `${apiBaseUrl}/api/blog/queue-status`;
+      const requestUrl = `${apiBaseUrl}/api/blog/list-posts`;
       const makeRequest = async (idToken) => {
         return fetch(requestUrl, {
           headers: {
@@ -2804,7 +2804,7 @@ class AdminDashboardApp {
 
       let response = await makeRequest(token);
       if (response.status === 401) {
-        console.info("[BlogQueue] Token rejected, attempting refresh…");
+        console.info("[BlogPosts] Token rejected, attempting refresh…");
         token = await this.getAuthToken(true);
         if (!token) {
           const refreshError = new Error("Unable to refresh authentication token.");
@@ -2819,10 +2819,10 @@ class AdminDashboardApp {
       try {
         result = text ? JSON.parse(text) : null;
       } catch (parseError) {
-        console.warn("Non-JSON response when loading blog queue", parseError, text);
+        console.warn("Non-JSON response when loading blog posts", parseError, text);
       }
       if (!response.ok || !(result && result.success)) {
-        console.warn("[BlogQueue] Request failed", {
+        console.warn("[BlogPosts] Request failed", {
           url: requestUrl,
           status: response.status,
           statusText: response.statusText,
@@ -2830,27 +2830,35 @@ class AdminDashboardApp {
         });
         const message =
           result?.error ||
-          `Failed to load blog queue (HTTP ${response.status} ${response.statusText})`;
+          `Failed to load blog posts (HTTP ${response.status} ${response.statusText})`;
         const error = new Error(message);
         error.status = response.status;
         throw error;
       }
-      const items = Array.isArray(result.items) ? result.items : [];
+      const posts = Array.isArray(result.posts) ? result.posts : [];
       this.store.setBlogQueue(
-        items.map((item) => ({
-          ...item,
-          createdAt: utils.toDate(item.createdAt),
-          startedAt: utils.toDate(item.startedAt),
-          completedAt: utils.toDate(item.completedAt)
+        posts.map((post) => ({
+          id: post.id,
+          title: post.title,
+          description: post.description,
+          date: post.date,
+          author: post.author,
+          tags: post.tags,
+          slug: post.slug,
+          url: post.url,
+          published: post.published,
+          status: post.published ? 'completed' : 'pending',
+          createdAt: utils.toDate(post.createdAt),
+          updatedAt: utils.toDate(post.updatedAt)
         }))
       );
       this.renderBlogQueue();
       return result;
-        } catch (error) {
+    } catch (error) {
       if (!silent) {
-        this.setBlogFeedback(error.message || "Failed to refresh blog queue.", "error");
+        this.setBlogFeedback(error.message || "Failed to refresh blog posts.", "error");
       }
-      console.error("[BlogQueue] Failed to refresh blog queue", {
+      console.error("[BlogPosts] Failed to refresh blog posts", {
         message: error.message,
         status: error.status,
         stack: error.stack
@@ -2890,13 +2898,13 @@ class AdminDashboardApp {
             }
             <div class="queue-actions">
               ${
-                item.result?.url
-                  ? `<a href="${item.result.url}" target="_blank" rel="noopener">View post</a>`
+                item.url
+                  ? `<a href="${item.url}" target="_blank" rel="noopener">View post</a>`
                   : ""
               }
               ${
-                item.status === "completed" && item.result?.filename
-                  ? `<button class="queue-edit-btn" data-filename="${item.result.filename}"><i class="fas fa-edit"></i> Edit</button>`
+                item.id
+                  ? `<button class="queue-edit-btn" data-id="${item.id}"><i class="fas fa-edit"></i> Edit</button>`
                   : ""
               }
             </div>
@@ -2910,9 +2918,9 @@ class AdminDashboardApp {
       .querySelectorAll(".queue-edit-btn")
       .forEach((btn) => {
         btn.addEventListener("click", () => {
-          const filename = btn.dataset.filename;
-          if (filename) {
-            this.enterBlogEditMode(filename);
+          const id = btn.dataset.id;
+          if (id) {
+            this.enterBlogEditMode(id);
           }
         });
       });
