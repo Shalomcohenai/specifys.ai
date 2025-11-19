@@ -992,11 +992,18 @@ const server = app.listen(port, () => {
   // Keep-alive mechanism: ping health endpoint every 30 minutes to prevent Render from sleeping
   const KEEP_ALIVE_INTERVAL = 30 * 60 * 1000; // 30 minutes in milliseconds
   // Use external URL if available (for Render), otherwise fallback to localhost
+  // Prefer RENDER_EXTERNAL_URL (set automatically by Render) over RENDER_URL
   const baseUrl = process.env.RENDER_EXTERNAL_URL 
     ? process.env.RENDER_EXTERNAL_URL 
     : (process.env.RENDER_URL ? `https://${process.env.RENDER_URL}` : `http://localhost:${port}`);
   
   const keepAlive = async () => {
+    // Skip keep-alive if baseUrl is localhost (development) or if it's pointing to wrong service
+    if (baseUrl.includes('localhost') || baseUrl.includes('127.0.0.1')) {
+      logger.debug({ type: 'keep_alive', baseUrl }, `⏭️ Skipping keep-alive (localhost)`);
+      return;
+    }
+    
     try {
       const healthUrl = `${baseUrl}/api/health`;
       
@@ -1019,14 +1026,24 @@ const server = app.listen(port, () => {
         const data = await response.json().catch(() => ({}));
         logger.info({ type: 'keep_alive', status: data.status || 'OK' }, `✅ Health check successful`);
       } else {
-        logger.warn({ type: 'keep_alive', status: response.status }, `⚠️ Health check returned status ${response.status}`);
+        // Only warn if it's not a 404 (which might mean wrong URL configured)
+        if (response.status === 404) {
+          logger.debug({ type: 'keep_alive', status: response.status, baseUrl }, `⚠️ Health check returned 404 - check RENDER_EXTERNAL_URL configuration`);
+        } else {
+          logger.warn({ type: 'keep_alive', status: response.status }, `⚠️ Health check returned status ${response.status}`);
+        }
       }
     } catch (error) {
       // Don't log timeout errors as errors - they're expected if server is busy
       if (error.name === 'AbortError' || error.message.includes('aborted')) {
         logger.debug({ type: 'keep_alive' }, `⏱️ Health check timeout (server may be busy)`);
       } else {
-        logger.error({ type: 'keep_alive', error: error.message }, `❌ Health check failed`);
+        // Don't log as error if it's a network error (might be wrong URL)
+        if (error.message.includes('ENOTFOUND') || error.message.includes('getaddrinfo')) {
+          logger.debug({ type: 'keep_alive', error: error.message, baseUrl }, `⚠️ Health check failed - check RENDER_EXTERNAL_URL configuration`);
+        } else {
+          logger.error({ type: 'keep_alive', error: error.message }, `❌ Health check failed`);
+        }
       }
     }
   };
