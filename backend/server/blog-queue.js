@@ -308,31 +308,42 @@ async function resumeStuckItems(publishFunction) {
   try {
     console.log('[Blog Queue] Checking for stuck items in Firestore...');
     
-    // Find items that are stuck in PROCESSING (older than 5 minutes)
+    // Find items that are stuck in PROCESSING
+    // Get all PROCESSING items and check their startedAt manually (to avoid index issues)
+    const processingSnapshot = await db.collection('blogQueue')
+      .where('status', '==', QUEUE_STATUS.PROCESSING)
+      .get();
+    
     const fiveMinutesAgo = new Date();
     fiveMinutesAgo.setMinutes(fiveMinutesAgo.getMinutes() - 5);
     
-    const stuckProcessingSnapshot = await db.collection('blogQueue')
-      .where('status', '==', QUEUE_STATUS.PROCESSING)
-      .where('startedAt', '<', fiveMinutesAgo)
-      .get();
-    
     // Reset stuck PROCESSING items to PENDING
     const batch = db.batch();
-    stuckProcessingSnapshot.docs.forEach(doc => {
-      batch.update(doc.ref, {
-        status: QUEUE_STATUS.PENDING,
-        startedAt: null,
-        error: 'Reset due to server restart'
-      });
-      console.log(`[Blog Queue] Reset stuck item ${doc.id} from PROCESSING to PENDING`);
+    let resetCount = 0;
+    
+    processingSnapshot.docs.forEach(doc => {
+      const itemData = doc.data();
+      const startedAt = itemData.startedAt?.toDate ? itemData.startedAt.toDate() : 
+                       (itemData.startedAt instanceof Date ? itemData.startedAt : null);
+      
+      // If startedAt is null or older than 5 minutes, reset to PENDING
+      if (!startedAt || startedAt < fiveMinutesAgo) {
+        batch.update(doc.ref, {
+          status: QUEUE_STATUS.PENDING,
+          startedAt: null,
+          error: 'Reset due to server restart or timeout'
+        });
+        console.log(`[Blog Queue] Reset stuck item ${doc.id} from PROCESSING to PENDING`);
+        resetCount++;
+      }
     });
     
-    if (stuckProcessingSnapshot.size > 0) {
+    if (resetCount > 0) {
       await batch.commit();
+      console.log(`[Blog Queue] Reset ${resetCount} stuck items from PROCESSING to PENDING`);
     }
     
-    // Get all PENDING items
+    // Get all PENDING items (including reset ones)
     const pendingSnapshot = await db.collection('blogQueue')
       .where('status', '==', QUEUE_STATUS.PENDING)
       .orderBy('createdAt', 'asc')
@@ -341,7 +352,7 @@ async function resumeStuckItems(publishFunction) {
     
     console.log(`[Blog Queue] Found ${pendingSnapshot.size} pending items to process`);
     
-    // Process pending items
+    // Process pending items sequentially
     for (const doc of pendingSnapshot.docs) {
       const itemData = doc.data();
       const queueItem = {
@@ -352,17 +363,27 @@ async function resumeStuckItems(publishFunction) {
         completedAt: itemData.completedAt?.toDate ? itemData.completedAt.toDate() : itemData.completedAt
       };
       
-      // Add to in-memory queue
-      blogQueue.items.push(queueItem);
-      
-      // Process the item
+      // Don't add to in-memory queue - processQueueItem will handle it
+      // Process the item (this will add it to queue if already processing)
       processQueueItem(queueItem, publishFunction).catch(error => {
         console.error(`[Blog Queue] Error resuming item ${queueItem.id}:`, error);
       });
+      
+      // Small delay between items to avoid overwhelming GitHub API
+      await new Promise(resolve => setTimeout(resolve, 1000));
     }
+    
+    console.log(`[Blog Queue] Finished resuming ${pendingSnapshot.size} items`);
     
   } catch (error) {
     console.error('[Blog Queue] Error resuming stuck items:', error);
+    // Log more details for debugging
+    if (error.code) {
+      console.error('[Blog Queue] Firestore error code:', error.code);
+    }
+    if (error.message) {
+      console.error('[Blog Queue] Error message:', error.message);
+    }
   }
 }
 
