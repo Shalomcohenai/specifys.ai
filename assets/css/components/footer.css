@@ -27,17 +27,41 @@ footer {
   flex-wrap: wrap;
 }
 
-.footer-links a {
+.footer-links a,
+.footer-links button {
   color: var(--text-color);
   text-decoration: none !important;
   font-size: 0.85rem;
   font-weight: var(--font-weight-medium);
   transition: color var(--transition-normal);
   font-family: var(--font-family-primary);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
 }
 
-.footer-links a:hover {
+.footer-links a:hover,
+.footer-links button:hover {
   color: var(--primary-color);
+  text-decoration: none !important;
+}
+
+.contact-us-link {
+  color: var(--text-color) !important;
+  text-decoration: none !important;
+  font-size: 0.85rem;
+  font-weight: var(--font-weight-medium);
+  transition: color var(--transition-normal);
+  font-family: var(--font-family-primary);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.contact-us-link:hover {
+  color: var(--primary-color) !important;
   text-decoration: none !important;
 }
 
@@ -81,28 +105,6 @@ footer {
   margin-top: 1rem;
 }
 
-.footer-contact {
-  margin-top: 0.5rem;
-}
-
-.contact-us-btn {
-  background: transparent;
-  border: 1px solid var(--text-color);
-  color: var(--text-color);
-  padding: 8px 16px;
-  border-radius: 4px;
-  font-size: 0.85rem;
-  font-weight: var(--font-weight-medium);
-  font-family: var(--font-family-primary);
-  cursor: pointer;
-  transition: all var(--transition-normal);
-}
-
-.contact-us-btn:hover {
-  background: var(--primary-color);
-  border-color: var(--primary-color);
-  color: white;
-}
 
 /* Contact Us Modal */
 .contact-modal-overlay {
