@@ -4144,7 +4144,7 @@ class AdminDashboardApp {
     if (filteredSpecs.length === 0) {
       container.innerHTML = `
         <tr>
-          <td colspan="8" class="table-empty">No specs found for selected criteria.</td>
+          <td colspan="12" class="table-empty">No specs found for selected criteria.</td>
         </tr>
       `;
       this.updateSpecUsageSummary({
@@ -4153,6 +4153,9 @@ class AdminDashboardApp {
         overviewTechnicalMarket: 0,
         withDiagrams: 0,
         withDesign: 0,
+        withPrompts: 0,
+        withMockups: 0,
+        withAiChat: 0,
         total: 0
       });
       return;
@@ -4165,6 +4168,7 @@ class AdminDashboardApp {
     // Render table rows
     const rows = filteredSpecs.map((spec) => {
       const user = this.store.getUser(spec.userId);
+      const entitlement = this.store.getEntitlement(spec.userId);
       const specData = spec.metadata || {};
       const status = specData.status || {};
       
@@ -4174,6 +4178,28 @@ class AdminDashboardApp {
       const hasMarket = !!(specData.market && status.market === "ready");
       const hasDesign = !!(specData.design && status.design === "ready");
       const hasDiagrams = !!(specData.diagrams?.generated === true);
+      const hasPrompts = !!(specData.prompts && (
+        Array.isArray(specData.prompts) ? specData.prompts.length > 0 :
+        typeof specData.prompts === 'object' ? Object.keys(specData.prompts).length > 0 :
+        false
+      ));
+      const hasMockups = !!(specData.mockups && (
+        Array.isArray(specData.mockups) ? specData.mockups.length > 0 :
+        typeof specData.mockups === 'object' ? Object.keys(specData.mockups || {}).length > 0 :
+        false
+      ));
+      const hasAiChat = !!(specData.openaiAssistantId || specData.chatThreadId || specData.openaiFileId);
+      const hasExport = false; // Export is not tracked, but we can check if user has exported based on other indicators
+      
+      // Check user type
+      const isPro = !!(entitlement?.unlimited || user?.plan === 'pro');
+      const hasCredits = !!(entitlement?.specCredits && entitlement.specCredits > 0);
+      
+      // Build user info with badges
+      let userInfo = user?.email || user?.displayName || spec.userId || "Unknown";
+      const badges = [];
+      if (isPro) badges.push('<span class="user-badge pro-badge" title="Pro User">Pro</span>');
+      if (hasCredits) badges.push('<span class="user-badge credits-badge" title="Has Purchased Credits">Credits</span>');
       
       return `
         <tr class="spec-usage-row">
@@ -4181,7 +4207,10 @@ class AdminDashboardApp {
             <strong>${spec.title || "Untitled Spec"}</strong>
           </td>
           <td>
-            <span class="user-info">${user?.email || user?.displayName || spec.userId || "Unknown"}</span>
+            <div class="user-info-cell">
+              <span class="user-info">${userInfo}</span>
+              ${badges.length > 0 ? `<div class="user-badges">${badges.join('')}</div>` : ''}
+            </div>
           </td>
           <td>
             <span class="date-info">${utils.formatDate(spec.createdAt)}</span>
@@ -4211,6 +4240,26 @@ class AdminDashboardApp {
               <i class="fas fa-${hasDiagrams ? "check-circle" : "circle"}"></i>
             </span>
           </td>
+          <td class="feature-cell">
+            <span class="feature-indicator ${hasPrompts ? "active" : ""}" title="Prompts">
+              <i class="fas fa-${hasPrompts ? "check-circle" : "circle"}"></i>
+            </span>
+          </td>
+          <td class="feature-cell">
+            <span class="feature-indicator ${hasMockups ? "active" : ""}" title="Mockups">
+              <i class="fas fa-${hasMockups ? "check-circle" : "circle"}"></i>
+            </span>
+          </td>
+          <td class="feature-cell">
+            <span class="feature-indicator ${hasAiChat ? "active" : ""}" title="AI Chat">
+              <i class="fas fa-${hasAiChat ? "check-circle" : "circle"}"></i>
+            </span>
+          </td>
+          <td class="feature-cell">
+            <span class="feature-indicator ${hasExport ? "active" : ""}" title="Export">
+              <i class="fas fa-${hasExport ? "check-circle" : "circle"}"></i>
+            </span>
+          </td>
         </tr>
       `;
     }).join("");
@@ -4225,6 +4274,9 @@ class AdminDashboardApp {
       overviewTechnicalMarket: 0,
       withDiagrams: 0,
       withDesign: 0,
+      withPrompts: 0,
+      withMockups: 0,
+      withAiChat: 0,
       total: specs.length
     };
 
@@ -4237,6 +4289,17 @@ class AdminDashboardApp {
       const hasMarket = !!(specData.market && status.market === "ready");
       const hasDesign = !!(specData.design && status.design === "ready");
       const hasDiagrams = !!(specData.diagrams?.generated === true);
+      const hasPrompts = !!(specData.prompts && (
+        Array.isArray(specData.prompts) ? specData.prompts.length > 0 :
+        typeof specData.prompts === 'object' ? Object.keys(specData.prompts).length > 0 :
+        false
+      ));
+      const hasMockups = !!(specData.mockups && (
+        Array.isArray(specData.mockups) ? specData.mockups.length > 0 :
+        typeof specData.mockups === 'object' ? Object.keys(specData.mockups || {}).length > 0 :
+        false
+      ));
+      const hasAiChat = !!(specData.openaiAssistantId || specData.chatThreadId || specData.openaiFileId);
 
       if (hasOverview && !hasTechnical && !hasMarket) {
         stats.overviewOnly++;
@@ -4253,6 +4316,15 @@ class AdminDashboardApp {
       if (hasDesign) {
         stats.withDesign++;
       }
+      if (hasPrompts) {
+        stats.withPrompts++;
+      }
+      if (hasMockups) {
+        stats.withMockups++;
+      }
+      if (hasAiChat) {
+        stats.withAiChat++;
+      }
     });
 
     return stats;
@@ -4266,12 +4338,18 @@ class AdminDashboardApp {
     const overviewTechnicalMarket = this.dom.specUsageSummary.querySelector('[data-metric="overview-technical-market"]');
     const withDiagrams = this.dom.specUsageSummary.querySelector('[data-metric="with-diagrams"]');
     const withDesign = this.dom.specUsageSummary.querySelector('[data-metric="with-design"]');
+    const withPrompts = this.dom.specUsageSummary.querySelector('[data-metric="with-prompts"]');
+    const withMockups = this.dom.specUsageSummary.querySelector('[data-metric="with-mockups"]');
+    const withAiChat = this.dom.specUsageSummary.querySelector('[data-metric="with-aichat"]');
 
     if (overviewOnly) overviewOnly.textContent = utils.formatNumber(stats.overviewOnly || 0);
     if (overviewTechnical) overviewTechnical.textContent = utils.formatNumber(stats.overviewTechnical || 0);
     if (overviewTechnicalMarket) overviewTechnicalMarket.textContent = utils.formatNumber(stats.overviewTechnicalMarket || 0);
     if (withDiagrams) withDiagrams.textContent = utils.formatNumber(stats.withDiagrams || 0);
     if (withDesign) withDesign.textContent = utils.formatNumber(stats.withDesign || 0);
+    if (withPrompts) withPrompts.textContent = utils.formatNumber(stats.withPrompts || 0);
+    if (withMockups) withMockups.textContent = utils.formatNumber(stats.withMockups || 0);
+    if (withAiChat) withAiChat.textContent = utils.formatNumber(stats.withAiChat || 0);
   }
 }
 

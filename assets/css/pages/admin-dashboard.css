@@ -2305,9 +2305,41 @@ body {
   vertical-align: middle;
 }
 
+.user-info-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
 .spec-usage-row .user-info {
   color: var(--admin-text);
   font-size: 0.875rem;
+}
+
+.user-badges {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.user-badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.pro-badge {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.credits-badge {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
 }
 
 .spec-usage-row .date-info {
