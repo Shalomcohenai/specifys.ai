@@ -1099,6 +1099,7 @@ async function openCheckoutOverlay(checkoutUrl, handlers = {}) {
     const { onSuccess, onOpen } = handlers;
     let opened = false;
     let openNotified = false;
+    let overlayMethodUsed = false;
 
     // Call onOpen callback when checkout window opens (only once)
     const notifyOpen = () => {
@@ -1108,99 +1109,98 @@ async function openCheckoutOverlay(checkoutUrl, handlers = {}) {
         }
     };
 
+    // Method 2: Try LemonSqueezy.Url.Open (also overlay - fallback)
+    function tryNextOverlayMethod() {
+        if (opened || overlayMethodUsed) return; // Already opened via overlay
+        
+        if (window.LemonSqueezy && typeof window.LemonSqueezy.Setup === 'function') {
+            try {
+                let successDetected = false;
+                
+                window.LemonSqueezy.Setup({
+                    eventHandler: (eventName) => {
+                        if (eventName === 'Checkout.Opened') {
+                            opened = true;
+                            overlayMethodUsed = true;
+                            notifyOpen();
+                        }
+                        if (eventName === 'Checkout.Success' && typeof onSuccess === 'function') {
+                            // Only call onSuccess for actual successful checkout
+                            successDetected = true;
+                            onSuccess();
+                        }
+                        if (eventName === 'Checkout.Closed' && !successDetected) {
+                            // Checkout closed without success - don't call onSuccess
+                            console.log('Checkout closed without purchase');
+                        }
+                    }
+                });
+                
+                if (window.LemonSqueezy.Url && typeof window.LemonSqueezy.Url.Open === 'function') {
+                    window.LemonSqueezy.Url.Open(checkoutUrl);
+                    // Check if it opened after a delay
+                    setTimeout(() => {
+                        if (!opened) {
+                            // URL.Open didn't work either - overlay methods failed
+                            console.warn('Overlay methods failed, checkout may not open');
+                        }
+                    }, 500);
+                    return; // Exit if URL.Open is used
+                }
+            } catch (error) {
+                console.error('LemonSqueezy.Setup error:', error);
+            }
+        }
+    }
+
+    // Method 1: Try createLemonSqueezyCheckout (overlay - preferred)
     if (typeof window.createLemonSqueezyCheckout === 'function') {
         try {
             const checkout = window.createLemonSqueezyCheckout({
                 url: checkoutUrl,
                 onCheckoutSuccess: () => {
+                    // Only call onSuccess for actual successful checkout
                     if (typeof onSuccess === 'function') {
                         onSuccess();
                     }
                 },
                 onCheckoutOpen: () => {
+                    opened = true;
+                    overlayMethodUsed = true;
                     notifyOpen();
+                },
+                onCheckoutClose: () => {
+                    // Checkout closed without purchase - don't call onSuccess
+                    console.log('Checkout overlay closed without purchase');
                 }
             });
             if (checkout && typeof checkout.open === 'function') {
                 checkout.open();
-                // Notify immediately for overlay method
-                setTimeout(() => notifyOpen(), 100);
+                // Give it a moment to open, then check if it succeeded
+                setTimeout(() => {
+                    if (!opened && !overlayMethodUsed) {
+                        // Overlay didn't open, try next method
+                        tryNextOverlayMethod();
+                    }
+                }, 500);
+                // Don't return here - wait to see if overlay opens
+                // If it opens, onCheckoutOpen will set opened=true
+            } else {
+                // checkout.open not available, try next method
+                tryNextOverlayMethod();
             }
         } catch (error) {
             console.error('createLemonSqueezyCheckout error:', error);
+            // On error, try next method
+            tryNextOverlayMethod();
         }
+    } else {
+        // createLemonSqueezyCheckout not available, try next method
+        tryNextOverlayMethod();
     }
 
-    if (!opened && window.LemonSqueezy && typeof window.LemonSqueezy.Setup === 'function') {
-        try {
-            window.LemonSqueezy.Setup({
-                eventHandler: (eventName) => {
-                    if (eventName === 'Checkout.Opened') {
-                        notifyOpen();
-                    }
-                    if (eventName === 'Checkout.Success' && typeof onSuccess === 'function') {
-                        onSuccess();
-                    }
-                }
-            });
-            if (window.LemonSqueezy.Url && typeof window.LemonSqueezy.Url.Open === 'function') {
-                window.LemonSqueezy.Url.Open(checkoutUrl);
-                // Notify after a short delay for URL.Open method
-                setTimeout(() => notifyOpen(), 300);
-            }
-        } catch (error) {
-            console.error('LemonSqueezy.Setup error:', error);
-        }
-    }
-
-    if (!opened) {
-        const popup = window.open(
-            checkoutUrl,
-            'lemon-checkout',
-            'width=600,height=700,scrollbars=yes,resizable=yes,centerscreen=yes'
-        );
-
-        if (popup) {
-            // Check if popup opened successfully
-            const checkPopup = setInterval(() => {
-                try {
-                    if (popup.closed) {
-                        clearInterval(checkPopup);
-                        if (typeof onSuccess === 'function') {
-                            onSuccess();
-                        }
-                    } else if (popup.document && popup.document.readyState === 'complete') {
-                        // Popup loaded successfully
-                        clearInterval(checkPopup);
-                        notifyOpen();
-                        
-                        // Monitor for popup close
-                        const closeInterval = setInterval(() => {
-                            if (popup.closed) {
-                                clearInterval(closeInterval);
-                                if (typeof onSuccess === 'function') {
-                                    onSuccess();
-                                }
-                            }
-                        }, 1000);
-                        setTimeout(() => clearInterval(closeInterval), 5 * 60 * 1000);
-                    }
-                } catch (e) {
-                    // Cross-origin or other error, assume opened
-                    clearInterval(checkPopup);
-                    notifyOpen();
-                }
-            }, 100);
-            
-            setTimeout(() => {
-                clearInterval(checkPopup);
-                notifyOpen();
-            }, 2000);
-        } else {
-            window.open(checkoutUrl, '_blank');
-            notifyOpen();
-        }
-    }
+    // Note: Removed window.open fallback to prevent opening external popup
+    // Only overlay methods are used to keep checkout within the site
 
     return opened;
 }
