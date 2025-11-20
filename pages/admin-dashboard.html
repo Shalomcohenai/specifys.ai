@@ -54,6 +54,10 @@
           <span class="icon"><i class="fas fa-chart-pie"></i></span>
           Statistics
         </button>
+        <button class="nav-link" data-target="spec-usage-section">
+          <span class="icon"><i class="fas fa-list-check"></i></span>
+          Spec Usage
+        </button>
         <button class="nav-link" data-target="alerts-section">
           <span class="icon"><i class="fas fa-bell"></i></span>
           Alerts
@@ -530,6 +534,72 @@
               <canvas id="specs-growth-chart" height="180" aria-label="Specs creation trend"></canvas>
             </section>
                         </div>
+        </section>
+
+        <section class="dashboard-section" id="spec-usage-section">
+          <header class="section-header">
+            <div>
+              <h2>Spec Usage Analytics</h2>
+              <p>Track which features users utilize for each spec.</p>
+            </div>
+            <div class="section-controls">
+              <select id="spec-usage-range" aria-label="Filter by date range">
+                <option value="all">All time</option>
+                <option value="week" selected>Last 7 days</option>
+                <option value="month">Last 30 days</option>
+              </select>
+              <input type="search" id="spec-usage-search" placeholder="Search by spec title or user" aria-label="Search specs">
+            </div>
+          </header>
+
+          <!-- Summary Statistics -->
+          <div class="spec-usage-summary" id="spec-usage-summary">
+            <div class="summary-cards">
+              <article class="summary-card">
+                <h3>Overview Only</h3>
+                <p class="summary-value" data-metric="overview-only">—</p>
+              </article>
+              <article class="summary-card">
+                <h3>Overview + Technical</h3>
+                <p class="summary-value" data-metric="overview-technical">—</p>
+              </article>
+              <article class="summary-card">
+                <h3>Overview + Technical + Market</h3>
+                <p class="summary-value" data-metric="overview-technical-market">—</p>
+              </article>
+              <article class="summary-card">
+                <h3>With Diagrams</h3>
+                <p class="summary-value" data-metric="with-diagrams">—</p>
+              </article>
+              <article class="summary-card">
+                <h3>With Design</h3>
+                <p class="summary-value" data-metric="with-design">—</p>
+              </article>
+            </div>
+          </div>
+
+          <!-- Specs Table -->
+          <div class="table-wrapper">
+            <table class="data-table" id="spec-usage-table">
+              <thead>
+                <tr>
+                  <th scope="col">Spec</th>
+                  <th scope="col">User</th>
+                  <th scope="col">Created</th>
+                  <th scope="col" class="feature-column">Overview</th>
+                  <th scope="col" class="feature-column">Technical</th>
+                  <th scope="col" class="feature-column">Market</th>
+                  <th scope="col" class="feature-column">Design</th>
+                  <th scope="col" class="feature-column">Diagrams</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td colspan="8" class="table-empty">Loading specs usage data…</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </section>
 
         <section class="dashboard-section" id="alerts-section">

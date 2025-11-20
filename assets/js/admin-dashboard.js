@@ -1067,7 +1067,11 @@ class AdminDashboardApp {
       contactTable: utils.dom("#contact-table tbody"),
       contactStatusFilter: utils.dom("#contact-status-filter"),
       contactSearch: utils.dom("#contact-search"),
-      exportContacts: utils.dom("#export-contacts-btn")
+      exportContacts: utils.dom("#export-contacts-btn"),
+      specUsageRange: utils.dom("#spec-usage-range"),
+      specUsageSearch: utils.dom("#spec-usage-search"),
+      specUsageTable: utils.dom("#spec-usage-table tbody"),
+      specUsageSummary: utils.dom("#spec-usage-summary")
     };
 
     if (this.dom.blogFields.date && !this.dom.blogFields.date.value) {
@@ -1131,6 +1135,10 @@ class AdminDashboardApp {
             if (target === "contact-section") {
               this.loadContactSubmissions();
             }
+            // Render spec usage when spec usage section is opened
+            if (target === "spec-usage-section") {
+              this.renderSpecUsageAnalytics();
+            }
           } else {
             section.classList.remove("active");
           }
@@ -1165,6 +1173,10 @@ class AdminDashboardApp {
       this.renderContactTable();
     }, 300));
     this.dom.exportContacts?.addEventListener("click", () => this.exportContactsCsv());
+    this.dom.specUsageRange?.addEventListener("change", () => this.renderSpecUsageAnalytics());
+    this.dom.specUsageSearch?.addEventListener("input", utils.debounce(() => {
+      this.renderSpecUsageAnalytics();
+    }, 300));
     this.dom.usersStatusFilter?.addEventListener("change", () => {
       this.usersCurrentPage = 1;
       this.renderUsersTable();
@@ -1562,6 +1574,10 @@ class AdminDashboardApp {
           this.renderLogs();
           this.updateStatistics();
           this.rebuildSearchIndex();
+          // Render spec usage if section is active
+          if (this.dom.specUsageTable?.closest('.dashboard-section.active')) {
+            this.renderSpecUsageAnalytics();
+          }
         },
         (error) => {
           console.error("Specs listener error", error);
@@ -4088,6 +4104,174 @@ class AdminDashboardApp {
     a.download = `contact-submissions-${new Date().toISOString().split("T")[0]}.csv`;
     a.click();
     URL.revokeObjectURL(url);
+  }
+
+  renderSpecUsageAnalytics() {
+    const container = this.dom.specUsageTable;
+    if (!container) return;
+
+    const range = this.dom.specUsageRange?.value || "all";
+    const searchTerm = (this.dom.specUsageSearch?.value || "").toLowerCase().trim();
+    const allSpecs = Array.from(this.store.specs.values());
+    
+    // Filter by date range
+    let filteredSpecs = allSpecs;
+    if (range !== "all") {
+      const threshold = Date.now() - DATE_RANGES[range];
+      filteredSpecs = allSpecs.filter(
+        (spec) => (spec.createdAt?.getTime() || 0) >= threshold
+      );
+    }
+
+    // Filter by search term
+    if (searchTerm) {
+      filteredSpecs = filteredSpecs.filter((spec) => {
+        const user = this.store.getUser(spec.userId);
+        const specTitle = (spec.title || "").toLowerCase();
+        const userEmail = (user?.email || "").toLowerCase();
+        const userName = (user?.displayName || "").toLowerCase();
+        return specTitle.includes(searchTerm) || 
+               userEmail.includes(searchTerm) || 
+               userName.includes(searchTerm);
+      });
+    }
+
+    // Sort chronologically (newest first)
+    filteredSpecs.sort(
+      (a, b) => (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0)
+    );
+
+    if (filteredSpecs.length === 0) {
+      container.innerHTML = `
+        <tr>
+          <td colspan="8" class="table-empty">No specs found for selected criteria.</td>
+        </tr>
+      `;
+      this.updateSpecUsageSummary({
+        overviewOnly: 0,
+        overviewTechnical: 0,
+        overviewTechnicalMarket: 0,
+        withDiagrams: 0,
+        withDesign: 0,
+        total: 0
+      });
+      return;
+    }
+
+    // Calculate statistics
+    const stats = this.calculateSpecUsageStats(filteredSpecs);
+    this.updateSpecUsageSummary(stats);
+
+    // Render table rows
+    const rows = filteredSpecs.map((spec) => {
+      const user = this.store.getUser(spec.userId);
+      const specData = spec.metadata || {};
+      const status = specData.status || {};
+      
+      // Check which features are available
+      const hasOverview = !!(specData.overview && status.overview === "ready");
+      const hasTechnical = !!(specData.technical && status.technical === "ready");
+      const hasMarket = !!(specData.market && status.market === "ready");
+      const hasDesign = !!(specData.design && status.design === "ready");
+      const hasDiagrams = !!(specData.diagrams?.generated === true);
+      
+      return `
+        <tr class="spec-usage-row">
+          <td>
+            <strong>${spec.title || "Untitled Spec"}</strong>
+          </td>
+          <td>
+            <span class="user-info">${user?.email || user?.displayName || spec.userId || "Unknown"}</span>
+          </td>
+          <td>
+            <span class="date-info">${utils.formatDate(spec.createdAt)}</span>
+          </td>
+          <td class="feature-cell">
+            <span class="feature-indicator ${hasOverview ? "active" : ""}" title="Overview">
+              <i class="fas fa-${hasOverview ? "check-circle" : "circle"}"></i>
+            </span>
+          </td>
+          <td class="feature-cell">
+            <span class="feature-indicator ${hasTechnical ? "active" : ""}" title="Technical">
+              <i class="fas fa-${hasTechnical ? "check-circle" : "circle"}"></i>
+            </span>
+          </td>
+          <td class="feature-cell">
+            <span class="feature-indicator ${hasMarket ? "active" : ""}" title="Market">
+              <i class="fas fa-${hasMarket ? "check-circle" : "circle"}"></i>
+            </span>
+          </td>
+          <td class="feature-cell">
+            <span class="feature-indicator ${hasDesign ? "active" : ""}" title="Design">
+              <i class="fas fa-${hasDesign ? "check-circle" : "circle"}"></i>
+            </span>
+          </td>
+          <td class="feature-cell">
+            <span class="feature-indicator ${hasDiagrams ? "active" : ""}" title="Diagrams">
+              <i class="fas fa-${hasDiagrams ? "check-circle" : "circle"}"></i>
+            </span>
+          </td>
+        </tr>
+      `;
+    }).join("");
+
+    container.innerHTML = rows;
+  }
+
+  calculateSpecUsageStats(specs) {
+    const stats = {
+      overviewOnly: 0,
+      overviewTechnical: 0,
+      overviewTechnicalMarket: 0,
+      withDiagrams: 0,
+      withDesign: 0,
+      total: specs.length
+    };
+
+    specs.forEach((spec) => {
+      const specData = spec.metadata || {};
+      const status = specData.status || {};
+      
+      const hasOverview = !!(specData.overview && status.overview === "ready");
+      const hasTechnical = !!(specData.technical && status.technical === "ready");
+      const hasMarket = !!(specData.market && status.market === "ready");
+      const hasDesign = !!(specData.design && status.design === "ready");
+      const hasDiagrams = !!(specData.diagrams?.generated === true);
+
+      if (hasOverview && !hasTechnical && !hasMarket) {
+        stats.overviewOnly++;
+      }
+      if (hasOverview && hasTechnical && !hasMarket) {
+        stats.overviewTechnical++;
+      }
+      if (hasOverview && hasTechnical && hasMarket) {
+        stats.overviewTechnicalMarket++;
+      }
+      if (hasDiagrams) {
+        stats.withDiagrams++;
+      }
+      if (hasDesign) {
+        stats.withDesign++;
+      }
+    });
+
+    return stats;
+  }
+
+  updateSpecUsageSummary(stats) {
+    if (!this.dom.specUsageSummary) return;
+    
+    const overviewOnly = this.dom.specUsageSummary.querySelector('[data-metric="overview-only"]');
+    const overviewTechnical = this.dom.specUsageSummary.querySelector('[data-metric="overview-technical"]');
+    const overviewTechnicalMarket = this.dom.specUsageSummary.querySelector('[data-metric="overview-technical-market"]');
+    const withDiagrams = this.dom.specUsageSummary.querySelector('[data-metric="with-diagrams"]');
+    const withDesign = this.dom.specUsageSummary.querySelector('[data-metric="with-design"]');
+
+    if (overviewOnly) overviewOnly.textContent = utils.formatNumber(stats.overviewOnly || 0);
+    if (overviewTechnical) overviewTechnical.textContent = utils.formatNumber(stats.overviewTechnical || 0);
+    if (overviewTechnicalMarket) overviewTechnicalMarket.textContent = utils.formatNumber(stats.overviewTechnicalMarket || 0);
+    if (withDiagrams) withDiagrams.textContent = utils.formatNumber(stats.withDiagrams || 0);
+    if (withDesign) withDesign.textContent = utils.formatNumber(stats.withDesign || 0);
   }
 }
 
