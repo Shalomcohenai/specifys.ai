@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Why? - Specifys.ai</title>
+    <link rel="stylesheet" href="/assets/css/main.css">
+    <link rel="stylesheet" href="/assets/css/pages/why.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="thematic-header" role="banner">
+        <div class="header-center">
+            <div class="logo">
+                <a href="/" aria-label="Specifys.ai homepage">
+                    <span class="logo-text">Specifys<span class="logo-dot">.</span>AI</span>
+                </a>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="auth-buttons" id="auth-buttons">
+                <button class="auth-btn" onclick="window.location.href='/pages/auth.html'">Log in/Sign up</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="why-page">
+        <!-- Section 1: Title -->
+        <section class="why-section" data-section="0">
+            <h1 class="section-title">Why?</h1>
+            <p class="section-subtitle">Because you can't build a business with a single prompt.</p>
+            <div class="content-layout">
+                <div class="content-image">
+                    <div class="vibe-coding-logos">
+                        <div class="logo-item"><div class="logo-placeholder">Base44</div></div>
+                        <div class="logo-item"><div class="logo-placeholder">Lovable</div></div>
+                        <div class="logo-item"><div class="logo-placeholder">v0</div></div>
+                        <div class="logo-item"><div class="logo-placeholder">Cursor</div></div>
+                        <div class="logo-item"><div class="logo-placeholder">Claude</div></div>
+                        <div class="logo-item"><div class="logo-placeholder">GPT</div></div>
+                    </div>
+                </div>
+                <div class="content-text">
+                    <div class="section-container">
+                        <div class="story-section">
+                            <h2 class="story-title">The Story Behind Specifys.ai</h2>
+                            <p class="section-text">I built Specifys.ai out of personal frustration.</p>
+                            <p class="section-text">I noticed a recurring problem: tools jump straight into coding - before really understanding the full scope of the idea.</p>
+                            <p class="section-text">That's when I realized what was missing: a planning phase. A way to describe the app, the user flow, the features, and the logic - before writing any code.</p>
+                        </div>
+                        <div class="cta-container">
+                            <a href="/" class="btn btn-primary">Start Planning</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: The Problem -->
+        <section class="why-section prompt-section" data-section="1">
+            <h2 class="section-title">The Promise That Falls Short</h2>
+            <p class="section-subtitle">Every platform promises one prompt, but reality is different.</p>
+            <div class="prompt-animation-container" id="promptAnimationContainer">
+                <!-- Credit counters and prompts will be generated dynamically -->
+            </div>
+            <div class="content-text-centered">
+                <div class="section-container">
+                    <p class="section-text">But here's what actually happens: You spend hours, sometimes days, tweaking prompts, fixing errors, and trying to get the AI to understand what you really want.</p>
+                    <p class="section-text">The code comes out messy. Features don't connect. And when you want to add something new, everything breaks.</p>
+                    <div class="cta-container">
+                        <a href="/" class="btn btn-primary">Start Planning</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: The Right Way -->
+        <section class="why-section" data-section="2">
+            <h2 class="section-title">The Right Way to Build</h2>
+            <p class="section-subtitle">Start with foundations, then build the structure.</p>
+            <div class="content-layout">
+                <div class="content-image">
+                    <div class="planning-visual">
+                        <div class="mermaid-diagram">
+                            <pre class="mermaid">
+graph TD
+    A[Data Structures] --> B[Functions]
+    B --> C[Logic Flow]
+    C --> D[UI Layout]
+                            </pre>
+                        </div>
+                        <div class="variables-table">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Variable</th>
+                                        <th>Type</th>
+                                        <th>Purpose</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td>users</td><td>Array</td><td>Store user data</td></tr>
+                                    <tr><td>products</td><td>Array</td><td>Store product info</td></tr>
+                                    <tr><td>currentUser</td><td>Object</td><td>Active user session</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="content-text">
+                    <div class="section-container">
+                        <p class="section-text">Real development doesn't start with code. It starts with foundations.</p>
+                        <p class="section-text">First, you define your data structures - arrays, variables, the core information your app needs.</p>
+                        <p class="section-text">Then, you map out your functions - what each piece does, how they connect, the logic that makes everything work.</p>
+                        <p class="section-text">Only after that foundation is solid do you build the layout - the UI that users actually see.</p>
+                        <div class="cta-container">
+                            <a href="/" class="btn btn-primary">Start Planning</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Where Specifys.ai Steps In -->
+        <section class="why-section" data-section="3">
+            <h2 class="section-title">Where Specifys.ai Steps In</h2>
+            <p class="section-subtitle">Specifys.ai doesn't generate code. It generates a plan.</p>
+            <div class="content-layout">
+                <div class="content-image">
+                    <div class="questions-box-preview">
+                        <div class="questions-header-preview">
+                            <div class="current-question-preview">Describe your application</div>
+                            <div class="mode-toggle-preview">
+                                <span class="mode-label-preview">Voice</span>
+                                <div class="toggle-switch-preview"></div>
+                                <span class="mode-label-preview active">Typing</span>
+                            </div>
+                        </div>
+                        <div class="question-detail-preview">
+                            Describe the main idea of your application - including core features, target audience, and the problem it solves
+                        </div>
+                        <div class="input-container-preview">
+                            <div class="input-instruction-preview">Type your answer here...</div>
+                            <div class="input-area-preview">
+                                <textarea class="input-textarea-preview" placeholder="Start typing..."></textarea>
+                            </div>
+                            <div class="input-controls-preview">
+                                <button class="send-btn-preview">Send</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="content-text">
+                    <div class="section-container">
+                        <p class="section-text">We ask the right questions - about your users, your features, your data, your logic. We help you think through the foundation before you write a single line of code.</p>
+                        <p class="section-text">The result? A clear specification that guides your development. A blueprint that makes sense. A plan you can actually build on.</p>
+                        <div class="cta-container">
+                            <a href="/" class="btn btn-primary">Start Planning</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: How It Works -->
+        <section class="why-section" data-section="4">
+            <h2 class="section-title">How It Works</h2>
+            <p class="section-subtitle">Answer questions, get a comprehensive specification.</p>
+            <div class="content-layout reverse">
+                <div class="content-image">
+                    <div class="process-flow">
+                        <div class="process-step">
+                            <div class="process-icon"><i class="fas fa-edit"></i></div>
+                            <h4>Questions</h4>
+                        </div>
+                        <div class="process-arrow"><i class="fas fa-arrow-right"></i></div>
+                        <div class="process-step">
+                            <div class="process-icon"><i class="fas fa-file-alt"></i></div>
+                            <h4>Specification</h4>
+                        </div>
+                        <div class="process-arrow"><i class="fas fa-arrow-right"></i></div>
+                        <div class="process-step">
+                            <div class="process-icon"><i class="fas fa-rocket"></i></div>
+                            <h4>Application</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="content-text">
+                    <div class="section-container">
+                        <p class="section-text">Our AI analyzes your answers and generates a comprehensive specification - organized, structured, ready to guide development.</p>
+                        <p class="section-text">You review, refine, and approve. Then you take that spec to any coding tool, any developer, any platform. They know exactly what to build.</p>
+                        <div class="cta-container">
+                            <a href="/" class="btn btn-primary">Start Planning</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 6: What You Get -->
+        <section class="why-section" data-section="5">
+            <h2 class="section-title">What You Get</h2>
+            <p class="section-subtitle">A complete specification across all areas of your app.</p>
+            <div class="spec-cards-showcase-orange">
+                    <div class="spec-card-square-orange">
+                        <div class="spec-icon-orange">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <div class="spec-content-orange">
+                            <h3>Overview</h3>
+                            <p>Your app's story - Summary, Audience, Proposition, Features Overview, Journey Summary, Statement, User Flow, Descriptions</p>
+                        </div>
+                    </div>
+                    <div class="spec-card-square-orange">
+                        <div class="spec-icon-orange">
+                            <i class="fas fa-cog"></i>
+                        </div>
+                        <div class="spec-content-orange">
+                            <h3>Technical</h3>
+                            <p>The foundation - Tech Stack, Data Structures, API Endpoints, Functions. The blueprint that makes everything work.</p>
+                        </div>
+                    </div>
+                    <div class="spec-card-square-orange">
+                        <div class="spec-icon-orange">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="spec-content-orange">
+                            <h3>Market Research</h3>
+                            <p>Your competitive landscape - Competitors, Market Analysis, Opportunities. Who else is doing this, what gaps exist.</p>
+                        </div>
+                    </div>
+                    <div class="spec-card-square-orange">
+                        <div class="spec-icon-orange">
+                            <i class="fas fa-paint-brush"></i>
+                        </div>
+                        <div class="spec-content-orange">
+                            <h3>Design & Branding</h3>
+                            <p>Visual identity - Colors, Typography, Style Guidelines. The look and feel that matches your vision.</p>
+                        </div>
+                    </div>
+                    <div class="spec-card-square-orange">
+                        <div class="spec-icon-orange">
+                            <i class="fas fa-sitemap"></i>
+                        </div>
+                        <div class="spec-content-orange">
+                            <h3>Diagrams</h3>
+                            <p>Visual maps - User Flows, System Architecture, Relationships. See how everything connects.</p>
+                        </div>
+                    </div>
+                    <div class="spec-card-square-orange">
+                        <div class="spec-icon-orange">
+                            <i class="fas fa-terminal"></i>
+                        </div>
+                        <div class="spec-content-orange">
+                            <h3>Prompts</h3>
+                            <p>Ready-to-use prompts for coding tools. Take your spec and turn it into code with the right instructions.</p>
+                        </div>
+                    </div>
+                    <div class="spec-card-square-orange">
+                        <div class="spec-icon-orange">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="spec-content-orange">
+                            <h3>AI Chat</h3>
+                            <p>Interactive AI assistant to refine your specification. Ask questions, get clarifications, improve your plan.</p>
+                        </div>
+                    </div>
+                    <div class="spec-card-square-orange">
+                        <div class="spec-icon-orange">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <div class="spec-content-orange">
+                            <h3>Export & Share</h3>
+                            <p>Export your specification in multiple formats. Share with your team, developers, or stakeholders.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="cta-container" style="text-align: center; margin-top: 40px;">
+                    <a href="/" class="btn btn-primary">Start Planning</a>
+                </div>
+        </section>
+
+        <!-- Section 7: CTA -->
+        <section class="why-section cta-section" data-section="6">
+            <h2 class="section-title">Start Building the Right Way</h2>
+            <p class="section-subtitle">Stop jumping into code. Start with a plan.</p>
+            <div class="cta-container-centered">
+                <a href="/" class="btn btn-primary">Start Planning</a>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="/pages/how.html">How It Works</a>
+                <a href="/pages/about.html">About Us</a>
+                <a href="/pages/why.html">Why?</a>
+                <a href="/blog/">Blog</a>
+            </div>
+        </div>
+        <div class="footer-copyright">© 2025 specifys.ai. All rights reserved.</div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+    <script>
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#FF6B35',
+                primaryTextColor: '#333',
+                primaryBorderColor: '#FF6B35',
+                lineColor: '#333',
+                secondaryColor: '#f5f5f5',
+                tertiaryColor: '#fff'
+            }
+        });
+    </script>
+    <script src="/assets/js/why.js"></script>
+</body>
+</html>
+

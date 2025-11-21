@@ -166,6 +166,14 @@
   max-width: 900px;
   margin-left: auto;
   margin-right: auto;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+.hero-main-title.fade-in {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .hero-button-container {
@@ -275,6 +283,14 @@
   line-height: 1.6;
   margin: 0;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.8s ease-out 0.2s, transform 0.8s ease-out 0.2s;
+}
+
+.hero-description-text.fade-in {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .hero-subtitle {
@@ -372,13 +388,17 @@
   transform: translate(-50%, -50%);
   font-size: 3rem;
   color: #cccccc !important;
-  opacity: 1 !important;
+  opacity: 0 !important;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 10;
   pointer-events: none;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.spec-card-square .spec-icon.fade-in {
+  opacity: 1 !important;
   animation: floatUpDown 4s ease-in-out infinite;
 }
 
@@ -1002,7 +1022,41 @@
   font-size: clamp(2rem, 5vw, 3rem);
   font-weight: 700;
   color: #333;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.section h2.revealed {
+  opacity: 1;
+  transform: translateY(0);
   margin-bottom: 1.5rem;
+}
+
+/* Fade in effect for section content */
+.section > p,
+.section .tools-showcase,
+.section .stats-list,
+.section .pricing-grid-home,
+.section .benefits-container,
+.section .use-cases-list,
+.section .faq-list,
+.section .testimonials-container {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s ease 0.3s, transform 0.8s ease 0.3s;
+}
+
+.section.revealed > p,
+.section.revealed .tools-showcase,
+.section.revealed .stats-list,
+.section.revealed .pricing-grid-home,
+.section.revealed .benefits-container,
+.section.revealed .use-cases-list,
+.section.revealed .faq-list,
+.section.revealed .testimonials-container {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .section p {

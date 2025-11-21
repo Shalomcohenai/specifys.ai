@@ -1678,7 +1678,85 @@ document.addEventListener('DOMContentLoaded', function() {
       closeRegistrationModal();
     }
   });
+  
+  // Fade-in animation for hero title, description, and icons
+  function initHeroFadeIn() {
+    const heroTitle = document.querySelector('.hero-main-title');
+    const heroDescription = document.querySelector('.hero-description-text');
+    const specIcons = document.querySelectorAll('.spec-card-square .spec-icon');
+    
+    // Fade in title after 0.3s
+    if (heroTitle) {
+      setTimeout(() => {
+        heroTitle.classList.add('fade-in');
+      }, 300);
+    }
+    
+    // Fade in description after 0.5s
+    if (heroDescription) {
+      setTimeout(() => {
+        heroDescription.classList.add('fade-in');
+      }, 500);
+    }
+    
+    // Fade in icons with staggered delay (starting after 0.7s)
+    specIcons.forEach((icon, index) => {
+      setTimeout(() => {
+        icon.classList.add('fade-in');
+      }, 700 + (index * 100)); // Each icon appears 100ms after the previous one
+    });
+  }
+  
+  // Initialize fade-in animation
+  initHeroFadeIn();
+  
+  // Initialize scroll reveal for section titles
+  initSectionTitlesFadeIn();
 });
+
+// Scroll reveal for section titles and content
+function initSectionTitlesFadeIn() {
+  const titleObserverOptions = {
+    root: null,
+    rootMargin: '100px 0px -200px 0px',
+    threshold: 0.1
+  };
+
+  const titleObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('revealed');
+      }
+    });
+  }, titleObserverOptions);
+
+  // Observer for section content - reveals after title
+  const contentObserverOptions = {
+    root: null,
+    rootMargin: '50px 0px -100px 0px',
+    threshold: 0.2
+  };
+
+  const contentObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('revealed');
+      }
+    });
+  }, contentObserverOptions);
+
+  // Observe all h2 titles in sections
+  const sectionTitles = document.querySelectorAll('.section h2');
+  sectionTitles.forEach(function(title) {
+    titleObserver.observe(title);
+  });
+
+  // Observe all sections for content reveal
+  const sections = document.querySelectorAll('.section');
+  sections.forEach(function(section) {
+    contentObserver.observe(section);
+  });
+}
 
 function triggerPlatformHint() {
   const phoneBtn = document.getElementById('phoneBtn');

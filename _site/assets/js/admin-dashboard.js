@@ -1067,7 +1067,11 @@ class AdminDashboardApp {
       contactTable: utils.dom("#contact-table tbody"),
       contactStatusFilter: utils.dom("#contact-status-filter"),
       contactSearch: utils.dom("#contact-search"),
-      exportContacts: utils.dom("#export-contacts-btn")
+      exportContacts: utils.dom("#export-contacts-btn"),
+      specUsageRange: utils.dom("#spec-usage-range"),
+      specUsageSearch: utils.dom("#spec-usage-search"),
+      specUsageTable: utils.dom("#spec-usage-table tbody"),
+      specUsageSummary: utils.dom("#spec-usage-summary")
     };
 
     if (this.dom.blogFields.date && !this.dom.blogFields.date.value) {
@@ -1131,6 +1135,10 @@ class AdminDashboardApp {
             if (target === "contact-section") {
               this.loadContactSubmissions();
             }
+            // Render spec usage when spec usage section is opened
+            if (target === "spec-usage-section") {
+              this.renderSpecUsageAnalytics();
+            }
           } else {
             section.classList.remove("active");
           }
@@ -1165,6 +1173,10 @@ class AdminDashboardApp {
       this.renderContactTable();
     }, 300));
     this.dom.exportContacts?.addEventListener("click", () => this.exportContactsCsv());
+    this.dom.specUsageRange?.addEventListener("change", () => this.renderSpecUsageAnalytics());
+    this.dom.specUsageSearch?.addEventListener("input", utils.debounce(() => {
+      this.renderSpecUsageAnalytics();
+    }, 300));
     this.dom.usersStatusFilter?.addEventListener("change", () => {
       this.usersCurrentPage = 1;
       this.renderUsersTable();
@@ -1562,6 +1574,10 @@ class AdminDashboardApp {
           this.renderLogs();
           this.updateStatistics();
           this.rebuildSearchIndex();
+          // Render spec usage if section is active
+          if (this.dom.specUsageTable?.closest('.dashboard-section.active')) {
+            this.renderSpecUsageAnalytics();
+          }
         },
         (error) => {
           console.error("Specs listener error", error);
@@ -4088,6 +4104,252 @@ class AdminDashboardApp {
     a.download = `contact-submissions-${new Date().toISOString().split("T")[0]}.csv`;
     a.click();
     URL.revokeObjectURL(url);
+  }
+
+  renderSpecUsageAnalytics() {
+    const container = this.dom.specUsageTable;
+    if (!container) return;
+
+    const range = this.dom.specUsageRange?.value || "all";
+    const searchTerm = (this.dom.specUsageSearch?.value || "").toLowerCase().trim();
+    const allSpecs = Array.from(this.store.specs.values());
+    
+    // Filter by date range
+    let filteredSpecs = allSpecs;
+    if (range !== "all") {
+      const threshold = Date.now() - DATE_RANGES[range];
+      filteredSpecs = allSpecs.filter(
+        (spec) => (spec.createdAt?.getTime() || 0) >= threshold
+      );
+    }
+
+    // Filter by search term
+    if (searchTerm) {
+      filteredSpecs = filteredSpecs.filter((spec) => {
+        const user = this.store.getUser(spec.userId);
+        const specTitle = (spec.title || "").toLowerCase();
+        const userEmail = (user?.email || "").toLowerCase();
+        const userName = (user?.displayName || "").toLowerCase();
+        return specTitle.includes(searchTerm) || 
+               userEmail.includes(searchTerm) || 
+               userName.includes(searchTerm);
+      });
+    }
+
+    // Sort chronologically (newest first)
+    filteredSpecs.sort(
+      (a, b) => (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0)
+    );
+
+    if (filteredSpecs.length === 0) {
+      container.innerHTML = `
+        <tr>
+          <td colspan="12" class="table-empty">No specs found for selected criteria.</td>
+        </tr>
+      `;
+      this.updateSpecUsageSummary({
+        overviewOnly: 0,
+        overviewTechnical: 0,
+        overviewTechnicalMarket: 0,
+        withDiagrams: 0,
+        withDesign: 0,
+        withPrompts: 0,
+        withMockups: 0,
+        withAiChat: 0,
+        total: 0
+      });
+      return;
+    }
+
+    // Calculate statistics
+    const stats = this.calculateSpecUsageStats(filteredSpecs);
+    this.updateSpecUsageSummary(stats);
+
+    // Render table rows
+    const rows = filteredSpecs.map((spec) => {
+      const user = this.store.getUser(spec.userId);
+      const entitlement = this.store.getEntitlement(spec.userId);
+      const specData = spec.metadata || {};
+      const status = specData.status || {};
+      
+      // Check which features are available
+      const hasOverview = !!(specData.overview && status.overview === "ready");
+      const hasTechnical = !!(specData.technical && status.technical === "ready");
+      const hasMarket = !!(specData.market && status.market === "ready");
+      const hasDesign = !!(specData.design && status.design === "ready");
+      const hasDiagrams = !!(specData.diagrams?.generated === true);
+      const hasPrompts = !!(specData.prompts && (
+        Array.isArray(specData.prompts) ? specData.prompts.length > 0 :
+        typeof specData.prompts === 'object' ? Object.keys(specData.prompts).length > 0 :
+        false
+      ));
+      const hasMockups = !!(specData.mockups && (
+        Array.isArray(specData.mockups) ? specData.mockups.length > 0 :
+        typeof specData.mockups === 'object' ? Object.keys(specData.mockups || {}).length > 0 :
+        false
+      ));
+      const hasAiChat = !!(specData.openaiAssistantId || specData.chatThreadId || specData.openaiFileId);
+      const hasExport = false; // Export is not tracked, but we can check if user has exported based on other indicators
+      
+      // Check user type
+      const isPro = !!(entitlement?.unlimited || user?.plan === 'pro');
+      const hasCredits = !!(entitlement?.specCredits && entitlement.specCredits > 0);
+      
+      // Build user info with badges
+      let userInfo = user?.email || user?.displayName || spec.userId || "Unknown";
+      const badges = [];
+      if (isPro) badges.push('<span class="user-badge pro-badge" title="Pro User">Pro</span>');
+      if (hasCredits) badges.push('<span class="user-badge credits-badge" title="Has Purchased Credits">Credits</span>');
+      
+      return `
+        <tr class="spec-usage-row">
+          <td>
+            <strong>${spec.title || "Untitled Spec"}</strong>
+          </td>
+          <td>
+            <div class="user-info-cell">
+              <span class="user-info">${userInfo}</span>
+              ${badges.length > 0 ? `<div class="user-badges">${badges.join('')}</div>` : ''}
+            </div>
+          </td>
+          <td>
+            <span class="date-info">${utils.formatDate(spec.createdAt)}</span>
+          </td>
+          <td class="feature-cell">
+            <span class="feature-indicator ${hasOverview ? "active" : ""}" title="Overview">
+              <i class="fas fa-${hasOverview ? "check-circle" : "circle"}"></i>
+            </span>
+          </td>
+          <td class="feature-cell">
+            <span class="feature-indicator ${hasTechnical ? "active" : ""}" title="Technical">
+              <i class="fas fa-${hasTechnical ? "check-circle" : "circle"}"></i>
+            </span>
+          </td>
+          <td class="feature-cell">
+            <span class="feature-indicator ${hasMarket ? "active" : ""}" title="Market">
+              <i class="fas fa-${hasMarket ? "check-circle" : "circle"}"></i>
+            </span>
+          </td>
+          <td class="feature-cell">
+            <span class="feature-indicator ${hasDesign ? "active" : ""}" title="Design">
+              <i class="fas fa-${hasDesign ? "check-circle" : "circle"}"></i>
+            </span>
+          </td>
+          <td class="feature-cell">
+            <span class="feature-indicator ${hasDiagrams ? "active" : ""}" title="Diagrams">
+              <i class="fas fa-${hasDiagrams ? "check-circle" : "circle"}"></i>
+            </span>
+          </td>
+          <td class="feature-cell">
+            <span class="feature-indicator ${hasPrompts ? "active" : ""}" title="Prompts">
+              <i class="fas fa-${hasPrompts ? "check-circle" : "circle"}"></i>
+            </span>
+          </td>
+          <td class="feature-cell">
+            <span class="feature-indicator ${hasMockups ? "active" : ""}" title="Mockups">
+              <i class="fas fa-${hasMockups ? "check-circle" : "circle"}"></i>
+            </span>
+          </td>
+          <td class="feature-cell">
+            <span class="feature-indicator ${hasAiChat ? "active" : ""}" title="AI Chat">
+              <i class="fas fa-${hasAiChat ? "check-circle" : "circle"}"></i>
+            </span>
+          </td>
+          <td class="feature-cell">
+            <span class="feature-indicator ${hasExport ? "active" : ""}" title="Export">
+              <i class="fas fa-${hasExport ? "check-circle" : "circle"}"></i>
+            </span>
+          </td>
+        </tr>
+      `;
+    }).join("");
+
+    container.innerHTML = rows;
+  }
+
+  calculateSpecUsageStats(specs) {
+    const stats = {
+      overviewOnly: 0,
+      overviewTechnical: 0,
+      overviewTechnicalMarket: 0,
+      withDiagrams: 0,
+      withDesign: 0,
+      withPrompts: 0,
+      withMockups: 0,
+      withAiChat: 0,
+      total: specs.length
+    };
+
+    specs.forEach((spec) => {
+      const specData = spec.metadata || {};
+      const status = specData.status || {};
+      
+      const hasOverview = !!(specData.overview && status.overview === "ready");
+      const hasTechnical = !!(specData.technical && status.technical === "ready");
+      const hasMarket = !!(specData.market && status.market === "ready");
+      const hasDesign = !!(specData.design && status.design === "ready");
+      const hasDiagrams = !!(specData.diagrams?.generated === true);
+      const hasPrompts = !!(specData.prompts && (
+        Array.isArray(specData.prompts) ? specData.prompts.length > 0 :
+        typeof specData.prompts === 'object' ? Object.keys(specData.prompts).length > 0 :
+        false
+      ));
+      const hasMockups = !!(specData.mockups && (
+        Array.isArray(specData.mockups) ? specData.mockups.length > 0 :
+        typeof specData.mockups === 'object' ? Object.keys(specData.mockups || {}).length > 0 :
+        false
+      ));
+      const hasAiChat = !!(specData.openaiAssistantId || specData.chatThreadId || specData.openaiFileId);
+
+      if (hasOverview && !hasTechnical && !hasMarket) {
+        stats.overviewOnly++;
+      }
+      if (hasOverview && hasTechnical && !hasMarket) {
+        stats.overviewTechnical++;
+      }
+      if (hasOverview && hasTechnical && hasMarket) {
+        stats.overviewTechnicalMarket++;
+      }
+      if (hasDiagrams) {
+        stats.withDiagrams++;
+      }
+      if (hasDesign) {
+        stats.withDesign++;
+      }
+      if (hasPrompts) {
+        stats.withPrompts++;
+      }
+      if (hasMockups) {
+        stats.withMockups++;
+      }
+      if (hasAiChat) {
+        stats.withAiChat++;
+      }
+    });
+
+    return stats;
+  }
+
+  updateSpecUsageSummary(stats) {
+    if (!this.dom.specUsageSummary) return;
+    
+    const overviewOnly = this.dom.specUsageSummary.querySelector('[data-metric="overview-only"]');
+    const overviewTechnical = this.dom.specUsageSummary.querySelector('[data-metric="overview-technical"]');
+    const overviewTechnicalMarket = this.dom.specUsageSummary.querySelector('[data-metric="overview-technical-market"]');
+    const withDiagrams = this.dom.specUsageSummary.querySelector('[data-metric="with-diagrams"]');
+    const withDesign = this.dom.specUsageSummary.querySelector('[data-metric="with-design"]');
+    const withPrompts = this.dom.specUsageSummary.querySelector('[data-metric="with-prompts"]');
+    const withMockups = this.dom.specUsageSummary.querySelector('[data-metric="with-mockups"]');
+    const withAiChat = this.dom.specUsageSummary.querySelector('[data-metric="with-aichat"]');
+
+    if (overviewOnly) overviewOnly.textContent = utils.formatNumber(stats.overviewOnly || 0);
+    if (overviewTechnical) overviewTechnical.textContent = utils.formatNumber(stats.overviewTechnical || 0);
+    if (overviewTechnicalMarket) overviewTechnicalMarket.textContent = utils.formatNumber(stats.overviewTechnicalMarket || 0);
+    if (withDiagrams) withDiagrams.textContent = utils.formatNumber(stats.withDiagrams || 0);
+    if (withDesign) withDesign.textContent = utils.formatNumber(stats.withDesign || 0);
+    if (withPrompts) withPrompts.textContent = utils.formatNumber(stats.withPrompts || 0);
+    if (withMockups) withMockups.textContent = utils.formatNumber(stats.withMockups || 0);
+    if (withAiChat) withAiChat.textContent = utils.formatNumber(stats.withAiChat || 0);
   }
 }
 

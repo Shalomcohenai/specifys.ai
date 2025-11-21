@@ -44,6 +44,14 @@
     <link rel="stylesheet" href="/assets/css/main.css">
     <link rel="stylesheet" href="/assets/css/pages/index.css">
     <link rel="stylesheet" href="/assets/css/components/live-brief-modal.css">
+    <link rel="stylesheet" href="/assets/css/pages/why.css">
+    <style>
+      /* Override why.css colors for index page - make titles dark gray like other headings */
+      .why-section .section-title,
+      .why-section .section-subtitle {
+        color: #333 !important;
+      }
+    </style>
     
     
     
@@ -439,6 +447,108 @@
             <div class="hero-bottom-links">
                 <a href="/pages/demo-spec.html" class="bottom-link">Demo</a>
                 <a href="/pages/pricing.html" class="bottom-link">Pricing</a>
+                <a href="/pages/why.html" class="bottom-link">Why</a>
+            </div>
+        </section>
+
+        <!-- Why Sections from why.html -->
+        <!-- Section 1: The Promise That Falls Short -->
+        <section class="why-section prompt-section" data-section="1">
+            <h2 class="section-title">The Promise That Falls Short</h2>
+            <p class="section-subtitle">Every platform promises one prompt, but reality is different.</p>
+            <div class="prompt-animation-container" id="promptAnimationContainer">
+                <!-- Credit counters and prompts will be generated dynamically -->
+            </div>
+            <div class="content-text-centered">
+                <div class="section-container">
+                    <p class="section-text">But here's what actually happens: You spend hours, sometimes days, tweaking prompts, fixing errors, and trying to get the AI to understand what you really want.</p>
+                    <p class="section-text">The code comes out messy. Features don't connect. And when you want to add something new, everything breaks.</p>
+                    <div class="cta-container">
+                        <a href="/" class="btn btn-primary">Start Planning</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: The Right Way to Build -->
+        <section class="why-section" data-section="2">
+            <h2 class="section-title">The Right Way to Build</h2>
+            <p class="section-subtitle">Start with foundations, then build the structure.</p>
+            <div class="content-layout">
+                <div class="content-image">
+                    <div class="planning-visual">
+                        <div class="mermaid-diagram">
+                            <pre class="mermaid">
+graph TD
+    A[Data Structures] --> B[Functions]
+    B --> C[Logic Flow]
+    C --> D[UI Layout]
+                            </pre>
+                        </div>
+                        <div class="variables-table">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Variable</th>
+                                        <th>Type</th>
+                                        <th>Purpose</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td>users</td><td>Array</td><td>Store user data</td></tr>
+                                    <tr><td>products</td><td>Array</td><td>Store product info</td></tr>
+                                    <tr><td>currentUser</td><td>Object</td><td>Active user session</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="content-text">
+                    <div class="section-container">
+                        <p class="section-text">Real development doesn't start with code. It starts with foundations.</p>
+                        <p class="section-text">First, you define your data structures - arrays, variables, the core information your app needs.</p>
+                        <p class="section-text">Then, you map out your functions - what each piece does, how they connect, the logic that makes everything work.</p>
+                        <p class="section-text">Only after that foundation is solid do you build the layout - the UI that users actually see.</p>
+                        <div class="cta-container">
+                            <a href="/" class="btn btn-primary">Start Planning</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: How It Works -->
+        <section class="why-section" data-section="4">
+            <h2 class="section-title">How It Works</h2>
+            <p class="section-subtitle">Answer questions, get a comprehensive specification.</p>
+            <div class="content-layout reverse">
+                <div class="content-image">
+                    <div class="process-flow">
+                        <div class="process-step">
+                            <div class="process-icon"><i class="fas fa-edit"></i></div>
+                            <h4>Questions</h4>
+                        </div>
+                        <div class="process-arrow"><i class="fas fa-arrow-right"></i></div>
+                        <div class="process-step">
+                            <div class="process-icon"><i class="fas fa-file-alt"></i></div>
+                            <h4>Specification</h4>
+                        </div>
+                        <div class="process-arrow"><i class="fas fa-arrow-right"></i></div>
+                        <div class="process-step">
+                            <div class="process-icon"><i class="fas fa-rocket"></i></div>
+                            <h4>Application</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="content-text">
+                    <div class="section-container">
+                        <p class="section-text">Our AI analyzes your answers and generates a comprehensive specification - organized, structured, ready to guide development.</p>
+                        <p class="section-text">You review, refine, and approve. Then you take that spec to any coding tool, any developer, any platform. They know exactly what to build.</p>
+                        <div class="cta-container">
+                            <a href="/" class="btn btn-primary">Start Planning</a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -1025,9 +1135,9 @@
       function showVantaWithFadeIn() {
         var vantaElement = document.getElementById('vanta-net');
         if (vantaElement) {
-          // Calculate remaining time to reach 3 seconds total
+          // Calculate remaining time to reach 1 second total
           var elapsed = Date.now() - vantaStartTime;
-          var remaining = Math.max(0, 3000 - elapsed);
+          var remaining = Math.max(0, 1000 - elapsed);
           
           fadeInTimeout = setTimeout(function() {
             vantaElement.classList.add('visible');
@@ -1284,6 +1394,15 @@
         }
       })();
     </script>
+    
+    <!-- Mermaid.js for diagrams -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+      mermaid.initialize({ startOnLoad: true, theme: 'default' });
+    </script>
+    
+    <!-- Why Page JavaScript for sections -->
+    <script src="/assets/js/why.js"></script>
     
 </body>
 </html>

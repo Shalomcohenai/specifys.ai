@@ -329,6 +329,9 @@ app.use('/api/chat', chatRoutes);
 logger.info({ type: 'route_mounted', path: '/api/chat' }, '[UNIFIED SERVER] ✅ Chat routes mounted');
 
 // Blog routes (must be before static files to avoid conflicts)
+// Public route - no authentication required (returns only published posts)
+app.get('/api/blog/public/posts', blogRoutes.listPosts);
+// Admin routes - require authentication
 app.post('/api/blog/create-post', requireAdmin, blogRoutes.createPost);
 app.get('/api/blog/list-posts', requireAdmin, blogRoutes.listPosts);
 app.get('/api/blog/get-post', requireAdmin, blogRoutes.getPost);
@@ -891,12 +894,30 @@ logger.info({
   }
 }, '[UNIFIED SERVER] 📌 Setting up static file serving...');
 
+// IMPORTANT: Explicit route for /blog/ must come BEFORE express.static(staticRootPath)
+// Otherwise staticRootPath will serve blog/index.html (source) instead of _site/blog/index.html (built)
+app.get('/blog/', (req, res) => {
+  const indexPath = path.join(blogStaticPath, 'index.html');
+  const resolvedPath = path.resolve(indexPath);
+  logger.info({ type: 'blog_request', path: '/blog/', resolvedPath }, '[UNIFIED SERVER] 📝 Serving blog index.html');
+  res.sendFile(resolvedPath, (err) => {
+    if (err) {
+      logger.error({ type: 'file_error', path: '/blog/', error: err.message, resolvedPath }, '[UNIFIED SERVER] ❌ Error serving blog index.html');
+      res.status(404).send('Blog page not found');
+    } else {
+      logger.info({ type: 'blog_served', path: '/blog/' }, '[UNIFIED SERVER] ✅ Blog index.html served successfully');
+    }
+  });
+});
+
+// Serve blog static files (CSS, JS, etc.) from _site/blog directory
+// Note: Using /blog/assets to avoid conflict with /blog/ route
+app.use('/blog/assets', express.static(path.join(blogStaticPath, 'assets')));
+logger.info({ type: 'static_mounted', path: '/blog/assets', directory: path.join(blogStaticPath, 'assets') }, '[UNIFIED SERVER] ✅ Blog assets mounted');
+
+// Serve root static files AFTER blog routes to avoid conflicts
 app.use(express.static(staticRootPath));
 logger.info({ type: 'static_mounted', path: '/', directory: staticRootPath }, '[UNIFIED SERVER] ✅ Root static files mounted');
-
-// Serve blog files from _site/blog directory
-app.use('/blog', express.static(blogStaticPath));
-logger.info({ type: 'static_mounted', path: '/blog', directory: blogStaticPath }, '[UNIFIED SERVER] ✅ Blog static files mounted');
 
 // Serve blog posts from _site/2025 directory structure
 app.use('/2025', express.static(postsStaticPath));
