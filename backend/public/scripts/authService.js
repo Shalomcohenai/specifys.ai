@@ -23,9 +23,9 @@ async function createUserDocument(user) {
     const existingUserSnapshot = await getDoc(userRef);
 
     const userData = {
-      email: user.email,
-      displayName: user.displayName || user.email.split('@')[0],
-      emailVerified: user.emailVerified,
+      email: user.email || null,
+      displayName: user.displayName || (user.email ? user.email.split('@')[0] : `User ${user.uid.substring(0, 8)}`),
+      emailVerified: user.emailVerified || false,
       createdAt: serverTimestamp(),
       lastActive: serverTimestamp(),
       newsletterSubscription: false,
@@ -57,7 +57,13 @@ async function createUserDocument(user) {
       { merge: true }
     );
   } catch (error) {
-    // Don't throw - this shouldn't prevent login/registration
+    // Log error but don't throw - this shouldn't prevent login/registration
+    console.error('[createUserDocument] Failed to create/update user document:', {
+      uid: user?.uid,
+      email: user?.email,
+      error: error.message,
+      stack: error.stack
+    });
   }
 }
 

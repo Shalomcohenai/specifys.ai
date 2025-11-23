@@ -1901,7 +1901,7 @@ class AdminDashboardApp {
             <input type="checkbox" data-user-id="${user.id}" ${isSelected ? "checked" : ""}>
           </td>
           <td>
-            <div>${user.displayName || user.email || user.id || "Unknown"}</div>
+            <div>${user.email || user.displayName || user.id || "Unknown"}</div>
             <div class="meta-text">${user.email || user.id || "No email"}</div>
           </td>
           <td>${utils.formatDate(user.createdAt)}</td>
@@ -2213,8 +2213,8 @@ class AdminDashboardApp {
     }
     const html = filtered.slice(0, 20).map((event) => {
       const user = event.meta?.userId ? this.store.getUser(event.meta.userId) : null;
-      const userLabel = event.meta?.email || event.meta?.userEmail || user?.email || (event.meta?.userId ? event.meta.userId : "");
-      const nameLabel = event.meta?.userName || user?.displayName || (event.meta?.userId ? event.meta.userId : "Unknown user");
+      const userLabel = event.meta?.email || event.meta?.userEmail || user?.email || event.meta?.userId || "";
+      const nameLabel = event.meta?.userName || user?.displayName || user?.email || event.meta?.userId || "Unknown user";
       const badge = userLabel ? `<span class="activity-badge">${userLabel}</span>` : "";
       const icon = this.getActivityIcon(event.type);
       return `
@@ -3000,7 +3000,7 @@ class AdminDashboardApp {
     const panel = this.dom.activityDetail;
     if (!panel.root) return;
     const user = event.meta?.userId ? this.store.getUser(event.meta.userId) : null;
-    const name = event.meta?.userName || user?.displayName || event.meta?.userId || "Unknown user";
+    const name = event.meta?.userName || user?.displayName || user?.email || event.meta?.userId || "Unknown user";
     const email = event.meta?.email || event.meta?.userEmail || user?.email || event.meta?.userId || "Not provided";
     panel.title.textContent = event.title;
     panel.name.textContent = name;
