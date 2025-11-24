@@ -389,9 +389,9 @@ router.get('/comprehensive', async (req, res) => {
 });
 
 /**
- * Test health check - simulates actual spec generation flow: Backend → Worker → OpenAI
+ * Test health check - checks health through dedicated healthcheck Worker: Backend → healthcheck Worker → OpenAI
  * GET /api/health/test-spec
- * This endpoint goes through the exact same flow as /api/generate-spec to test the real pipeline
+ * This endpoint uses the dedicated healthcheck Worker to verify OpenAI connectivity
  */
 router.get('/test-spec', async (req, res) => {
     const requestId = req.requestId || `health-test-spec-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
@@ -409,30 +409,18 @@ router.get('/test-spec', async (req, res) => {
         // Step 1: Backend is already running (if we got here, backend is OK)
         // result.backend is already set to 'ok'
 
-        // Step 2: Test the actual spec generation flow with minimal payload
-        // This uses the same endpoint and Worker as real spec generation
-        const workerUrl = 'https://spspec.shalom-cohen-111.workers.dev/generate';
-        
-        // Minimal test payload - similar to real spec generation but with simple "ping" request
-        const workerPayload = {
-            stage: 'overview',
-            locale: 'en-US',
-            prompt: {
-                system: 'You are an expert application specification generator.',
-                developer: 'Return ONLY valid JSON. Top-level key MUST be overview. This is a health check - return a minimal valid response.',
-                user: 'ping'
-            }
-        };
+        // Step 2: Check the dedicated health check Worker
+        // This uses the healthcheck Worker which goes through the same OpenAI API check
+        const workerUrl = 'https://healthcheck.shalom-cohen-111.workers.dev/health';
 
         try {
             const workerStart = Date.now();
             const workerResponse = await fetch(workerUrl, {
-                method: 'POST',
+                method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(workerPayload),
-                signal: AbortSignal.timeout(15000) // 15 second timeout (same as real spec generation)
+                signal: AbortSignal.timeout(12000) // 12 second timeout (10s for OpenAI + 2s buffer)
             });
 
             const workerResponseTime = Date.now() - workerStart;
@@ -440,17 +428,20 @@ router.get('/test-spec', async (req, res) => {
             if (workerResponse.ok) {
                 const workerData = await workerResponse.json();
                 
-                // Worker successfully connected and got response from OpenAI
-                result.cloudflare = 'ok';
-                result.openai = 'ok';
+                // Worker should return: { cloudflare: "ok", openai: "ok" } or error variants
+                result.cloudflare = workerData.cloudflare || 'ok';
+                result.openai = workerData.openai || 'unknown';
                 result.workerResponseTime = `${workerResponseTime}ms`;
                 
-                // Check if we got a valid response structure
-                if (workerData.overview || workerData.specification || workerData.meta) {
-                    result.message = 'Successfully generated test spec';
-                } else if (workerData.error) {
-                    result.openai = 'error';
-                    result.error = workerData.error.message || 'Worker returned error';
+                // If worker reported an error, include it
+                if (workerData.error) {
+                    result.error = workerData.error;
+                }
+                if (workerData.responseTime) {
+                    result.openaiResponseTime = workerData.responseTime;
+                }
+                if (workerData.model) {
+                    result.model = workerData.model;
                 }
             } else {
                 result.cloudflare = 'error';
