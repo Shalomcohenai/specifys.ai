@@ -1,22 +1,7 @@
 /* Main CSS - Specifys.ai */
-/* Main file that combines all CSS files */
-
-/* Font Awesome 4.7 import removed; using FA 6.5 via index.html */
-
-/* Import core styles */
-@import url('./core/variables.css');
-@import url('./core/fonts.css');
-@import url('./core/reset.css');
-@import url('./core/typography.css');
-@import url('./core/base.css');
-
-/* Import components */
-@import url('./components/buttons.css');
-@import url('./components/header.css');
-@import url('./components/footer.css');
-@import url('./components/icons.css');
-@import url('./components/mermaid.css');
-@import url('./components/tables.css');
+/* Additional styles and utilities */
+/* Note: Core styles are now loaded via <link> tags in head.html for parallel loading */
+/* @import statements removed for performance - styles are loaded directly via <link> tags */
 
 /* Font Awesome Icon Styles */
 .fa {

@@ -19,7 +19,7 @@
     
     
     
-    <link rel="canonical" href="http://localhost:4000/2025/01/19/ai-coding-assistants-2025/">
+    <link rel="canonical" href="http://0.0.0.0:4000/2025/01/19/ai-coding-assistants-2025/">
     
     
     <!-- Open Graph -->
@@ -27,8 +27,8 @@
     <meta property="og:title" content="AI Coding Assistants for 2025: Top Tools for Developers">
     <meta property="og:description" content="By 2025, AI coding assistants have matured into comprehensive tools that span the entire software development lifecycle (SDLC), from ideation to deployment and maintenance. Platforms like Qodo and Cursor not only generate code but also provide intelligent debugging...">
     <meta property="og:type" content="article">
-    <meta property="og:url" content="http://localhost:4000/2025/01/19/ai-coding-assistants-2025/">
-    <meta property="og:image" content="http://localhost:4000/assets/images/og-image.png">
+    <meta property="og:url" content="http://0.0.0.0:4000/2025/01/19/ai-coding-assistants-2025/">
+    <meta property="og:image" content="http://0.0.0.0:4000/assets/images/og-image.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:locale" content="en_US">
@@ -44,15 +44,35 @@
     <meta name="twitter:creator" content="@specifysai">
     <meta name="twitter:title" content="AI Coding Assistants for 2025: Top Tools for Developers">
     <meta name="twitter:description" content="By 2025, AI coding assistants have matured into comprehensive tools that span the entire software development lifecycle (SDLC), from ideation to deployment and maintenance. Platforms like Qodo and Cursor not only generate code but also provide intelligent debugging...">
-    <meta name="twitter:image" content="http://localhost:4000/assets/images/og-image.png">
+    <meta name="twitter:image" content="http://0.0.0.0:4000/assets/images/og-image.png">
     
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="manifest" href="/site.webmanifest">
     
-    <!-- CSS -->
-    <link rel="stylesheet" href="/assets/css/bundles/critical.css">
+    <!-- CSS - Loaded in parallel instead of @import for better performance -->
+    <!-- Core styles (must be in order) -->
+    <link rel="stylesheet" href="/assets/css/core/variables.css">
+    <link rel="stylesheet" href="/assets/css/core/fonts.css">
+    <link rel="stylesheet" href="/assets/css/core/reset.css">
+    <link rel="stylesheet" href="/assets/css/core/typography.css">
+    <link rel="stylesheet" href="/assets/css/core/base.css">
+    
+    <!-- Critical components (above the fold) -->
+    <link rel="stylesheet" href="/assets/css/components/header.css">
+    <link rel="stylesheet" href="/assets/css/components/buttons.css">
+    
+    <!-- Non-critical components (below the fold) -->
+    <link rel="stylesheet" href="/assets/css/components/footer.css">
+    <link rel="stylesheet" href="/assets/css/components/icons.css">
+    <link rel="stylesheet" href="/assets/css/components/mermaid.css">
+    <link rel="stylesheet" href="/assets/css/components/tables.css">
+    
+    <!-- Main CSS (contains additional styles and utilities) - Keep for backward compatibility -->
     <link rel="stylesheet" href="/assets/css/main.css">
+    
+    <!-- Legacy bundles (kept for backward compatibility, will be removed after testing) -->
+    <link rel="stylesheet" href="/assets/css/bundles/critical.css">
     
     
       
@@ -89,7 +109,6 @@
   gtag('js', new Date());
   gtag('config', 'G-RWBT69JCM7');
 </script>
-
 
     <script>
 // Central Analytics Event Tracking System for Specifys.ai
@@ -415,7 +434,7 @@ document.addEventListener('DOMContentLoaded', function() {
       "dateModified": "2025-01-19T00:00:00-05:00",
       "mainEntityOfPage": {
         "@type": "WebPage",
-        "@id": "http://localhost:4000/2025/01/19/ai-coding-assistants-2025/"
+        "@id": "http://0.0.0.0:4000/2025/01/19/ai-coding-assistants-2025/"
       }
     }
   ]
