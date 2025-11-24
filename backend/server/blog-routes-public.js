@@ -29,12 +29,19 @@ async function listPublishedPosts(req, res, next) {
                 const published = postData.published;
                 
                 // Filter: only include completed and published posts
-                if (status !== 'completed' || published !== true) {
+                // Check both strict boolean true and string "true" for published field
+                const isPublished = published === true || published === 'true' || published === 1;
+                const isCompleted = status === 'completed';
+                
+                if (!isCompleted || !isPublished) {
                     logger.debug({ 
                         requestId, 
                         docId: doc.id, 
                         status, 
                         published, 
+                        publishedType: typeof published,
+                        isPublished,
+                        isCompleted,
                         hasPostData: !!data.postData,
                         postDataKeys: data.postData ? Object.keys(data.postData) : []
                     }, '[blog-routes-public] Filtered out post');
