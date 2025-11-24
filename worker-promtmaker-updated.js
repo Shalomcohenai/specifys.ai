@@ -22,6 +22,13 @@ export default {
         return cors(await handleSelfTest(env), origin);
       }
 
+      // Health check endpoint - lightweight ping to OpenAI
+      if (url.pathname === "/health") {
+        if (request.method === "GET" || request.method === "POST") {
+          return cors(await handleHealthCheck(request, env), origin);
+        }
+      }
+
       // Only POST for main endpoint
       if (request.method !== "POST") {
         return cors(json({ error: { code: "METHOD_NOT_ALLOWED", message: "Use POST" } }, 405), origin);
@@ -576,6 +583,67 @@ async function handleFixDiagram(request, env) {
     });
   } catch (e) {
     return json({ error: { code: "SERVER_ERROR", message: String(e) }, correlationId }, 500);
+  }
+}
+
+// ---------- /health handler (structured health check) ----------
+async function handleHealthCheck(request, env) {
+  try {
+    // Check if OpenAI API key is configured
+    if (!env.OPENAI_API_KEY) {
+      return json({
+        cloudflare: "ok",
+        openai: "error",
+        error: "OPENAI_API_KEY not configured"
+      }, 500);
+    }
+
+    // Send minimal ping request to OpenAI
+    const startTime = Date.now();
+    const probe = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        authorization: `Bearer ${env.OPENAI_API_KEY}`,
+        "content-type": "application/json"
+      },
+      body: JSON.stringify({
+        model: MODEL,
+        messages: [{ role: "user", content: "ping" }],
+        max_tokens: 10,
+        temperature: 0
+      }),
+      signal: AbortSignal.timeout(10000) // 10 second timeout
+    });
+
+    const responseTime = Date.now() - startTime;
+
+    if (probe.ok) {
+      // OpenAI is working
+      return json({
+        cloudflare: "ok",
+        openai: "ok",
+        responseTime: `${responseTime}ms`
+      }, 200);
+    } else {
+      // OpenAI returned an error
+      const errorText = await probe.text();
+      return json({
+        cloudflare: "ok",
+        openai: "error",
+        error: `OpenAI API returned status ${probe.status}: ${errorText.substring(0, 200)}`,
+        httpStatus: probe.status
+      }, 200); // Return 200 because Cloudflare is OK, just OpenAI has issues
+    }
+  } catch (e) {
+    // Network error or timeout
+    const errorMessage = e.message || String(e);
+    return json({
+      cloudflare: "ok",
+      openai: "error",
+      error: errorMessage.includes("timeout") 
+        ? "OpenAI API timeout (10s exceeded)"
+        : `OpenAI API connection failed: ${errorMessage}`
+    }, 200); // Return 200 because Cloudflare is OK
   }
 }
 

@@ -3525,62 +3525,121 @@ class AdminDashboardApp {
       // Update UI
       if (button) {
         button.disabled = true;
-        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking...';
       }
       if (responseText) {
-        responseText.value = "Sending request to API...";
+        responseText.value = "Checking system health...\n\nTesting: Backend → Cloudflare Worker → OpenAI";
+        responseText.style.color = '';
+        responseText.style.backgroundColor = '';
       }
 
       const apiBaseUrl = typeof window.getApiBaseUrl === "function"
         ? window.getApiBaseUrl()
         : "https://specifys-ai.onrender.com";
 
-      // Sample answers (like on home page)
-      const sampleAnswers = [
-        "A task management app for teams",
-        "Users create projects, add tasks, assign them to team members, and track progress",
-        "Project managers and team members aged 25-45 working in tech companies",
-        "Needs to integrate with Slack and support real-time updates"
-      ];
-
-      // Build prompt like on home page (using PROMPTS.overview if available, otherwise simple format)
-      let prompt;
-      if (typeof window.PROMPTS !== 'undefined' && window.PROMPTS.overview) {
-        prompt = window.PROMPTS.overview(sampleAnswers);
-      } else {
-        // Simple prompt format
-        prompt = `App Description: ${sampleAnswers[0]}\nUser Workflow: ${sampleAnswers[1]}\nAdditional Details: ${sampleAnswers[2]}\nNote: Target Audience information should be inferred from the app description and workflow provided above.`;
-      }
-
-      // Send to API (like home page does)
-      const response = await fetch(`${apiBaseUrl}/api/generate-spec`, {
-        method: "POST",
+      // Call the full health check endpoint
+      const response = await fetch(`${apiBaseUrl}/api/health/full`, {
+        method: "GET",
         headers: {
           "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          userInput: prompt
-        })
+        }
       });
 
       // Get response
       const responseData = await response.json();
       
-      // Display response in textarea (raw JSON)
+      // Format the response message
+      let statusMessage = '';
+      let isHealthy = false;
+
+      if (responseData.status === 'healthy' && 
+          responseData.backend === 'ok' && 
+          responseData.cloudflare === 'ok' && 
+          responseData.openai === 'ok') {
+        // All systems operational
+        isHealthy = true;
+        statusMessage = `✅ ALL SYSTEMS OPERATIONAL\n\n`;
+        statusMessage += `Backend: ${responseData.backend.toUpperCase()}\n`;
+        statusMessage += `Cloudflare Worker: ${responseData.cloudflare.toUpperCase()}\n`;
+        statusMessage += `OpenAI API: ${responseData.openai.toUpperCase()}\n`;
+        if (responseData.totalResponseTime) {
+          statusMessage += `\nTotal Response Time: ${responseData.totalResponseTime}`;
+        }
+        if (responseData.openaiResponseTime) {
+          statusMessage += `\nOpenAI Response Time: ${responseData.openaiResponseTime}`;
+        }
+        statusMessage += `\n\nTimestamp: ${responseData.timestamp || new Date().toISOString()}`;
+      } else {
+        // System error detected
+        isHealthy = false;
+        statusMessage = `❌ SYSTEM ERROR DETECTED\n\n`;
+        statusMessage += `Backend: ${responseData.backend?.toUpperCase() || 'UNKNOWN'}\n`;
+        statusMessage += `Cloudflare Worker: ${responseData.cloudflare?.toUpperCase() || 'UNKNOWN'}\n`;
+        statusMessage += `OpenAI API: ${responseData.openai?.toUpperCase() || 'UNKNOWN'}\n`;
+        
+        if (responseData.error) {
+          statusMessage += `\n⚠️ ERROR DETAILS:\n${responseData.error}\n`;
+        }
+        
+        statusMessage += `\nTimestamp: ${responseData.timestamp || new Date().toISOString()}`;
+        statusMessage += `\n\nFull Response:\n${JSON.stringify(responseData, null, 2)}`;
+      }
+      
+      // Display response in textarea with color coding
       if (responseText) {
-        responseText.value = JSON.stringify(responseData, null, 2);
+        responseText.value = statusMessage;
+        if (isHealthy) {
+          responseText.style.color = '#10b981';
+          responseText.style.backgroundColor = '#ecfdf5';
+        } else {
+          responseText.style.color = '#ef4444';
+          responseText.style.backgroundColor = '#fef2f2';
+        }
+      }
+
+      // Update button with result
+      if (button) {
+        if (isHealthy) {
+          button.innerHTML = '<i class="fas fa-check-circle"></i> System Healthy';
+          button.classList.remove('error');
+          button.classList.add('success');
+          setTimeout(() => {
+            button.classList.remove('success');
+            button.innerHTML = originalLabel || '<i class="fas fa-heartbeat"></i> Check System Health';
+          }, 3000);
+        } else {
+          button.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Error Detected';
+          button.classList.remove('success');
+          button.classList.add('error');
+        }
       }
 
     } catch (error) {
-      // Display error in textarea
+      // Network error or other exception
+      const errorMessage = `❌ CONNECTION ERROR\n\n`;
+      const errorDetails = `Failed to connect to health check endpoint.\n\n`;
+      const errorInfo = `Error: ${error.message}\n\n`;
+      const stackTrace = error.stack ? `Stack:\n${error.stack}` : '';
+      
       if (responseText) {
-        responseText.value = `Error: ${error.message}\n\n${error.stack || ''}`;
+        responseText.value = errorMessage + errorDetails + errorInfo + stackTrace;
+        responseText.style.color = '#ef4444';
+        responseText.style.backgroundColor = '#fef2f2';
       }
+      
+      if (button) {
+        button.innerHTML = '<i class="fas fa-times-circle"></i> Connection Failed';
+        button.classList.remove('success');
+        button.classList.add('error');
+      }
+      
       console.error("[AdminDashboard] API health check failed", error);
     } finally {
-      if (button) {
+      if (button && !button.classList.contains('success') && !button.classList.contains('error')) {
         button.disabled = false;
-        button.innerHTML = originalLabel || '<i class="fas fa-paper-plane"></i> Test API with Sample Data';
+        button.innerHTML = originalLabel || '<i class="fas fa-heartbeat"></i> Check System Health';
+      } else if (button && (button.classList.contains('success') || button.classList.contains('error'))) {
+        button.disabled = false;
       }
       this.apiHealthCheckInProgress = false;
     }

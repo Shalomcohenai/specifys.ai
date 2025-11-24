@@ -725,6 +725,29 @@ body {
   align-self: flex-start;
 }
 
+/* Health check button states */
+.action-btn.success {
+  border-color: rgba(24, 180, 125, 0.4);
+  background: rgba(24, 180, 125, 0.15);
+  color: var(--admin-success);
+}
+
+.action-btn.success:hover {
+  border-color: var(--admin-success);
+  background: rgba(24, 180, 125, 0.2);
+}
+
+.action-btn.error {
+  border-color: rgba(220, 53, 69, 0.4);
+  background: rgba(220, 53, 69, 0.15);
+  color: var(--admin-critical);
+}
+
+.action-btn.error:hover {
+  border-color: var(--admin-critical);
+  background: rgba(220, 53, 69, 0.2);
+}
+
 .health-check-note {
   font-size: 0.85rem;
   color: var(--admin-text-muted);

@@ -389,6 +389,100 @@ router.get('/comprehensive', async (req, res) => {
 });
 
 /**
+ * Full health check - checks entire path: Backend → Cloudflare Worker → OpenAI
+ * GET /api/health/full
+ */
+router.get('/full', async (req, res) => {
+    const requestId = req.requestId || `health-full-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const startTime = Date.now();
+    logger.debug({ requestId }, '[health-routes] GET /full - Full health check');
+    
+    const result = {
+        backend: 'ok',
+        cloudflare: 'unknown',
+        openai: 'unknown',
+        timestamp: new Date().toISOString()
+    };
+
+    try {
+        // Step 1: Backend is already running (if we got here, backend is OK)
+        // result.backend is already set to 'ok'
+
+        // Step 2: Check Cloudflare Worker health endpoint
+        const workerUrl = 'https://spspec.shalom-cohen-111.workers.dev/health';
+        
+        try {
+            const workerStart = Date.now();
+            const workerResponse = await fetch(workerUrl, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                signal: AbortSignal.timeout(12000) // 12 second timeout (10s for OpenAI + 2s buffer)
+            });
+
+            const workerResponseTime = Date.now() - workerStart;
+
+            if (workerResponse.ok) {
+                const workerData = await workerResponse.json();
+                
+                // Worker should return: { cloudflare: "ok", openai: "ok" } or error variants
+                result.cloudflare = workerData.cloudflare || 'ok';
+                result.openai = workerData.openai || 'unknown';
+                result.workerResponseTime = `${workerResponseTime}ms`;
+                
+                // If worker reported an error, include it
+                if (workerData.error) {
+                    result.error = workerData.error;
+                }
+                if (workerData.responseTime) {
+                    result.openaiResponseTime = workerData.responseTime;
+                }
+            } else {
+                result.cloudflare = 'error';
+                result.openai = 'unknown';
+                result.error = `Cloudflare Worker returned HTTP ${workerResponse.status}`;
+                logger.warn({ requestId, httpStatus: workerResponse.status }, '[health-routes] GET /full - Worker unhealthy');
+            }
+        } catch (workerError) {
+            result.cloudflare = 'error';
+            result.openai = 'unknown';
+            result.error = workerError.message || 'Failed to connect to Cloudflare Worker';
+            logger.error({ requestId, error: { message: workerError.message } }, '[health-routes] GET /full - Worker connection failed');
+        }
+
+        // Determine overall status
+        const overallStatus = (result.backend === 'ok' && result.cloudflare === 'ok' && result.openai === 'ok') 
+            ? 'healthy' 
+            : 'unhealthy';
+
+        const totalTime = Date.now() - startTime;
+        result.totalResponseTime = `${totalTime}ms`;
+
+        const statusCode = overallStatus === 'healthy' ? 200 : 503;
+        logger.debug({ requestId, overallStatus, result }, '[health-routes] GET /full - Completed');
+
+        res.status(statusCode).json({
+            status: overallStatus,
+            ...result
+        });
+        
+    } catch (error) {
+        const totalTime = Date.now() - startTime;
+        logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[health-routes] GET /full - Unexpected error');
+        
+        result.backend = 'error';
+        result.error = error.message;
+        result.totalResponseTime = `${totalTime}ms`;
+        
+        res.status(500).json({
+            status: 'unhealthy',
+            ...result
+        });
+    }
+});
+
+/**
  * Recent errors check
  * GET /api/health/errors
  * 
