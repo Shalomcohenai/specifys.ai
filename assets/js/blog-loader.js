@@ -12,13 +12,17 @@
 
     try {
       // Fetch published posts from public API (no auth required)
+      console.log('[Blog Loader] Fetching posts from:', `${API_BASE_URL}/api/blog/public/posts?limit=50`);
       const response = await fetch(`${API_BASE_URL}/api/blog/public/posts?limit=50`);
       
       if (!response.ok) {
-        throw new Error(`Failed to load posts: ${response.status}`);
+        const errorText = await response.text();
+        console.error('[Blog Loader] API Error:', response.status, errorText);
+        throw new Error(`Failed to load posts: ${response.status} - ${errorText}`);
       }
 
       const data = await response.json();
+      console.log('[Blog Loader] Received data:', { success: data.success, postsCount: data.posts?.length || 0, total: data.total });
       const posts = data.posts || [];
 
       if (posts.length === 0) {

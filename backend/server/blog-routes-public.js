@@ -16,16 +16,32 @@ async function listPublishedPosts(req, res, next) {
         // Fetch all posts from blogQueue and filter in memory
         // This avoids needing a Firestore index for the status field
         const snapshot = await db.collection(BLOG_COLLECTION).get();
+        
+        logger.info({ requestId, totalDocs: snapshot.docs.length }, '[blog-routes-public] Fetched all documents from blogQueue');
 
         let posts = snapshot.docs
             .map(doc => {
                 const data = doc.data();
                 const postData = data.postData || data;
                 
+                // Debug logging
+                const status = data.status;
+                const published = postData.published;
+                
                 // Filter: only include completed and published posts
-                if (data.status !== 'completed' || postData.published !== true) {
+                if (status !== 'completed' || published !== true) {
+                    logger.debug({ 
+                        requestId, 
+                        docId: doc.id, 
+                        status, 
+                        published, 
+                        hasPostData: !!data.postData,
+                        postDataKeys: data.postData ? Object.keys(data.postData) : []
+                    }, '[blog-routes-public] Filtered out post');
                     return null;
                 }
+                
+                logger.debug({ requestId, docId: doc.id, title: postData.title }, '[blog-routes-public] Including post');
                 return {
                     id: doc.id,
                     title: postData.title,
@@ -45,6 +61,8 @@ async function listPublishedPosts(req, res, next) {
             })
             .filter(post => post !== null); // Remove null entries
 
+        logger.info({ requestId, postsAfterFilter: posts.length }, '[blog-routes-public] Posts after filtering');
+
         // Sort by date descending (newest first)
         posts.sort((a, b) => {
             const dateA = new Date(a.date || 0);
@@ -55,7 +73,7 @@ async function listPublishedPosts(req, res, next) {
         // Apply limit after sorting
         posts = posts.slice(0, parseInt(limit));
 
-        logger.info({ requestId, count: posts.length }, '[blog-routes-public] GET list - Success');
+        logger.info({ requestId, count: posts.length, samplePosts: posts.slice(0, 3).map(p => ({ id: p.id, title: p.title, published: p.published })) }, '[blog-routes-public] GET list - Success');
 
         res.json({
             success: true,
