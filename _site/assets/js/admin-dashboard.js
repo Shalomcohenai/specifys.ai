@@ -535,13 +535,13 @@ class GlobalSearch {
 
     for (const user of this.store.getUsersSorted()) {
       if (
-        user.email.toLowerCase().includes(term) ||
+        (user.email && user.email.toLowerCase().includes(term)) ||
         (user.displayName && user.displayName.toLowerCase().includes(term))
       ) {
         userResults.push({
           id: user.id,
-          title: user.displayName || user.email,
-          subtitle: `${user.email} • Plan: ${user.plan}`,
+          title: user.displayName || user.email || user.id || "Unknown",
+          subtitle: `${user.email || user.id || "No email"} • Plan: ${user.plan}`,
           action: () => {
             const navButton = document.querySelector(
               '[data-target="users-section"]'
@@ -550,7 +550,7 @@ class GlobalSearch {
             const searchInput = document.getElementById("users-search");
             if (searchInput) {
               searchInput.focus();
-              searchInput.value = user.email;
+              searchInput.value = user.email || user.id || "";
               searchInput.dispatchEvent(new Event("input"));
             }
             this.close();
@@ -1558,12 +1558,19 @@ class AdminDashboardApp {
             } else {
               const spec = this.store.upsertSpec(change.doc.id, change.doc.data());
               if (change.type === "added") {
+                const user = this.store.getUser(spec.userId);
                 this.store.recordActivity({
                   type: "spec",
                   title: `Spec created · ${spec.title}`,
-                  description: this.store.getUser(spec.userId)?.email || spec.userId || "",
+                  description: user?.email || spec.userId || "",
                   timestamp: spec.createdAt,
-                  meta: { userId: spec.userId, specId: spec.id }
+                  meta: { 
+                    userId: spec.userId, 
+                    specId: spec.id,
+                    userName: user?.displayName,
+                    email: user?.email,
+                    userEmail: user?.email
+                  }
                 });
               }
             }
@@ -1606,12 +1613,19 @@ class AdminDashboardApp {
             } else {
               const purchase = this.store.upsertPurchase(change.doc.id, change.doc.data());
               if (change.type === "added") {
+                const user = this.store.getUser(purchase.userId);
                 this.store.recordActivity({
                   type: purchase.productType === "subscription" ? "subscription" : "payment",
                   title: `${purchase.productName}`,
                   description: `${utils.formatCurrency(purchase.total, purchase.currency)} • ${purchase.email || purchase.userId || "Unknown user"}`,
                   timestamp: purchase.createdAt,
-                  meta: { userId: purchase.userId, purchaseId: purchase.id }
+                  meta: { 
+                    userId: purchase.userId, 
+                    purchaseId: purchase.id,
+                    userName: user?.displayName,
+                    email: purchase.email || user?.email,
+                    userEmail: purchase.email || user?.email
+                  }
                 });
               }
             }
@@ -1813,7 +1827,7 @@ class AdminDashboardApp {
     // First, filter users
     for (const user of this.store.getUsersSorted()) {
       if (searchTerm) {
-        const haystack = `${user.email} ${user.displayName}`.toLowerCase();
+        const haystack = [user.email, user.displayName, user.id].filter(Boolean).join(" ").toLowerCase();
         if (!haystack.includes(searchTerm)) continue;
       }
       if (planFilter !== "all" && user.plan !== planFilter) continue;
@@ -1887,8 +1901,8 @@ class AdminDashboardApp {
             <input type="checkbox" data-user-id="${user.id}" ${isSelected ? "checked" : ""}>
           </td>
           <td>
-            <div>${user.displayName || user.email}</div>
-            <div class="meta-text">${user.email}</div>
+            <div>${user.email || user.displayName || user.id || "Unknown"}</div>
+            <div class="meta-text">${user.email || user.id || "No email"}</div>
           </td>
           <td>${utils.formatDate(user.createdAt)}</td>
           <td>${planBadge}</td>
@@ -1900,9 +1914,9 @@ class AdminDashboardApp {
               <button class="table-action-btn" data-action="view-specs" data-user-id="${user.id}">
                 <i class="fas fa-file-alt"></i> View specs
               </button>
-              <button class="table-action-btn" data-action="copy-email" data-email="${user.email}">
+              ${user.email ? `<button class="table-action-btn" data-action="copy-email" data-email="${user.email}">
                 <i class="fas fa-copy"></i> Copy email
-              </button>
+              </button>` : ""}
             </div>
           </td>
         </tr>
@@ -2198,8 +2212,9 @@ class AdminDashboardApp {
       return;
     }
     const html = filtered.slice(0, 20).map((event) => {
-      const userLabel = event.meta?.email || event.meta?.userEmail || this.store.getUser(event.meta?.userId)?.email;
-      const nameLabel = event.meta?.userName || this.store.getUser(event.meta?.userId)?.displayName;
+      const user = event.meta?.userId ? this.store.getUser(event.meta.userId) : null;
+      const userLabel = event.meta?.email || event.meta?.userEmail || user?.email || event.meta?.userId || "";
+      const nameLabel = event.meta?.userName || user?.displayName || user?.email || event.meta?.userId || "Unknown user";
       const badge = userLabel ? `<span class="activity-badge">${userLabel}</span>` : "";
       const icon = this.getActivityIcon(event.type);
       return `
@@ -2984,9 +2999,9 @@ class AdminDashboardApp {
   showActivityDetail(event) {
     const panel = this.dom.activityDetail;
     if (!panel.root) return;
-    const user = this.store.getUser(event.meta?.userId);
-    const name = event.meta?.userName || user?.displayName || "Unknown user";
-    const email = event.meta?.email || event.meta?.userEmail || user?.email || "Not provided";
+    const user = event.meta?.userId ? this.store.getUser(event.meta.userId) : null;
+    const name = event.meta?.userName || user?.displayName || user?.email || event.meta?.userId || "Unknown user";
+    const email = event.meta?.email || event.meta?.userEmail || user?.email || event.meta?.userId || "Not provided";
     panel.title.textContent = event.title;
     panel.name.textContent = name;
     panel.email.textContent = email;
