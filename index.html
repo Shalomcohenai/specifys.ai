@@ -63,13 +63,13 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <!-- API Configuration -->
-    <script src="/assets/js/config.js"></script>
+    <script defer src="/assets/js/config.js"></script>
     
     <!-- Application Logger -->
-    <script src="/assets/js/app-logger.js"></script>
+    <script defer src="/assets/js/app-logger.js"></script>
     
     <!-- CSS Monitoring Script -->
-    <script src="/assets/js/css-monitor.js"></script>
+    <script defer src="/assets/js/css-monitor.js"></script>
     
     <!-- Fonts - Optimized: Only Montserrat and Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1082,202 +1082,253 @@ graph TD
 <script src="/assets/js/credits-display.js"></script>
 
     
-    <!-- Vanta.NET -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.net.min.js"></script>
-    
     <!-- Prompts Data (for API calls) - must load before index.js -->
-    <script src="/tools/prompts.js"></script>
+    <script defer src="/tools/prompts.js"></script>
     
     <!-- Paywall Script -->
-    <script src="/assets/js/paywall.js"></script>
+    <script defer src="/assets/js/paywall.js"></script>
     
     <!-- Question Flow Architecture - must load first -->
-    <script src="/assets/js/question-flow-state.js"></script>
-    <script src="/assets/js/question-flow-view.js"></script>
-    <script src="/assets/js/question-flow-controller.js"></script>
+    <script defer src="/assets/js/question-flow-state.js"></script>
+    <script defer src="/assets/js/question-flow-view.js"></script>
+    <script defer src="/assets/js/question-flow-controller.js"></script>
     
-    <!-- Live Brief Modal Script - must load before index.js (no defer to ensure it loads first) -->
-    <script src="/assets/js/live-brief-modal.js"></script>
+    <!-- Live Brief Modal Script - must load before index.js -->
+    <script defer src="/assets/js/live-brief-modal.js"></script>
     
     <!-- Index Page JavaScript -->
     <script defer src="/assets/js/index.js"></script>
     
-    <!-- Vanta.NET Animation (conditional, throttled) -->
+    <!-- Vanta.NET Animation - Loaded asynchronously after page load to avoid blocking -->
     <script>
-      var vantaInstance = null;
-      var retryCount = 0;
-      var maxRetries = 50; // Maximum 5 seconds of retries (50 * 100ms)
-      var resizeTimeout = null;
-      var vantaStartTime = null;
-      var fadeInTimeout = null;
-      
-      function ensureHeroSectionDimensions() {
-        var heroSection = document.querySelector('.hero-section');
-        if (!heroSection) return false;
-        
-        // Force layout recalculation
-        var height = heroSection.offsetHeight;
-        var width = heroSection.offsetWidth;
-        
-        // Also check computed style
-        var computedStyle = window.getComputedStyle(heroSection);
-        var minHeight = parseInt(computedStyle.minHeight) || 0;
-        
-        // Ensure we have valid dimensions
-        if (height < 200 || width < 200) {
-          // Try to force height calculation
-          if (minHeight > 0 && height < minHeight) {
-            heroSection.style.height = minHeight + 'px';
-            height = heroSection.offsetHeight;
-          }
-        }
-        
-        return height >= 200 && width >= 200;
-      }
-      
-      function showVantaWithFadeIn() {
-        var vantaElement = document.getElementById('vanta-net');
-        if (vantaElement) {
-          // Calculate remaining time to reach 1 second total
-          var elapsed = Date.now() - vantaStartTime;
-          var remaining = Math.max(0, 1000 - elapsed);
-          
-          fadeInTimeout = setTimeout(function() {
-            vantaElement.classList.add('visible');
-          }, remaining);
-        }
-      }
-      
-      function startVantaNet() {
-        try {
-          // Wait for DOM to be fully ready and hero section to have dimensions
-          var vantaElement = document.getElementById('vanta-net');
-          var heroSection = document.querySelector('.hero-section');
-          
-          if (!vantaElement || !heroSection) {
-            // Retry if elements aren't ready yet
-            if (retryCount < maxRetries) {
-              retryCount++;
-              setTimeout(startVantaNet, 100);
-            }
-            return;
-          }
-          
-          // Ensure hero section has computed dimensions
-          if (!ensureHeroSectionDimensions()) {
-            // Wait a bit more if dimensions aren't ready
-            if (retryCount < maxRetries) {
-              retryCount++;
-              setTimeout(startVantaNet, 100);
-            }
-            return;
-          }
-          
-          // Get final dimensions
-          var heroHeight = heroSection.offsetHeight;
-          var heroWidth = heroSection.offsetWidth;
-          
-          // Ensure vanta element has explicit dimensions
-          vantaElement.style.width = heroWidth + 'px';
-          vantaElement.style.height = heroHeight + 'px';
-          
-          // Small delay to ensure styles are applied
-          setTimeout(function() {
-            // Double-check dimensions before starting
-            var finalHeight = heroSection.offsetHeight;
-            var finalWidth = heroSection.offsetWidth;
-            
-            if (finalHeight < 200 || finalWidth < 200) {
-              if (retryCount < maxRetries) {
-                retryCount++;
-                setTimeout(startVantaNet, 100);
-                return;
-              }
-            }
-            
-            // Record start time for fade-in calculation
-            if (!vantaStartTime) {
-              vantaStartTime = Date.now();
-            }
-            
-            // All checks passed, start Vanta.NET
-            try {
-              vantaInstance = VANTA.NET({
-                el: "#vanta-net",
-                mouseControls: true,
-                touchControls: true,
-                gyroControls: false,
-                minHeight: 200.00,
-                minWidth: 200.00,
-                scale: 1.00,
-                scaleMobile: 1.00,
-                color: 0xf5f5f5,
-                backgroundColor: 0x333333,
-                points: 6.00,
-                maxDistance: 31.00,
-                spacing: 18.00
-              });
-              
-              // Force resize after initialization to ensure proper sizing
-              if (vantaInstance && typeof vantaInstance.resize === 'function') {
-                setTimeout(function() {
-                  vantaInstance.resize();
-                  // Show with fade-in after resize is complete
-                  showVantaWithFadeIn();
-                }, 100);
-              } else {
-                // If resize is not available, show after a short delay
-                showVantaWithFadeIn();
-              }
-            } catch (e) {
-              console.error('Vanta.NET initialization error:', e);
-            }
-          }, 50);
-        } catch (e) { 
-          console.error('Vanta.NET error:', e);
-        }
-      }
-      
-      // Handle window resize
-      function handleResize() {
-        if (resizeTimeout) {
-          clearTimeout(resizeTimeout);
-        }
-        resizeTimeout = setTimeout(function() {
-          if (vantaInstance && typeof vantaInstance.resize === 'function') {
-            var heroSection = document.querySelector('.hero-section');
-            var vantaElement = document.getElementById('vanta-net');
-            if (heroSection && vantaElement) {
-              var heroHeight = heroSection.offsetHeight;
-              var heroWidth = heroSection.offsetWidth;
-              vantaElement.style.width = heroWidth + 'px';
-              vantaElement.style.height = heroHeight + 'px';
-              vantaInstance.resize();
-            }
-          }
-        }, 250);
-      }
-      
       (function(){
+        'use strict';
+        
+        // Check if we should load Vanta at all (skip on mobile/reduced motion)
         var isMobile = /Mobi|Android/i.test(navigator.userAgent);
         var prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        if (isMobile || prefersReduced) return;
         
-        // Start immediately when DOM is ready (don't wait for window.load)
-        function initVanta() {
-          if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', function() {
-              // Start immediately after DOM is ready
-              setTimeout(startVantaNet, 100);
-            });
-          } else {
-            // DOM already ready, start immediately
-            setTimeout(startVantaNet, 100);
+        if (isMobile || prefersReduced) {
+          // Don't load Vanta on mobile or if user prefers reduced motion
+          return;
+        }
+        
+        // Variables for Vanta instance
+        var vantaInstance = null;
+        var retryCount = 0;
+        var maxRetries = 20; // Reduced from 50 - faster timeout
+        var resizeTimeout = null;
+        var vantaStartTime = null;
+        var fadeInTimeout = null;
+        var scriptsLoaded = false;
+        
+        function ensureHeroSectionDimensions() {
+          var heroSection = document.querySelector('.hero-section');
+          if (!heroSection) return false;
+          
+          var height = heroSection.offsetHeight;
+          var width = heroSection.offsetWidth;
+          var computedStyle = window.getComputedStyle(heroSection);
+          var minHeight = parseInt(computedStyle.minHeight) || 0;
+          
+          if (height < 200 || width < 200) {
+            if (minHeight > 0 && height < minHeight) {
+              heroSection.style.height = minHeight + 'px';
+              height = heroSection.offsetHeight;
+            }
+          }
+          
+          return height >= 200 && width >= 200;
+        }
+        
+        function showVantaWithFadeIn() {
+          var vantaElement = document.getElementById('vanta-net');
+          if (vantaElement) {
+            var elapsed = Date.now() - vantaStartTime;
+            var remaining = Math.max(0, 1000 - elapsed);
+            
+            fadeInTimeout = setTimeout(function() {
+              vantaElement.classList.add('visible');
+            }, remaining);
           }
         }
         
-        initVanta();
+        function startVantaNet() {
+          if (!scriptsLoaded) {
+            // Scripts not loaded yet, retry
+            if (retryCount < maxRetries) {
+              retryCount++;
+              setTimeout(startVantaNet, 200);
+            }
+            return;
+          }
+          
+          try {
+            var vantaElement = document.getElementById('vanta-net');
+            var heroSection = document.querySelector('.hero-section');
+            
+            if (!vantaElement || !heroSection) {
+              if (retryCount < maxRetries) {
+                retryCount++;
+                setTimeout(startVantaNet, 200);
+              }
+              return;
+            }
+            
+            if (!ensureHeroSectionDimensions()) {
+              if (retryCount < maxRetries) {
+                retryCount++;
+                setTimeout(startVantaNet, 200);
+              }
+              return;
+            }
+            
+            var heroHeight = heroSection.offsetHeight;
+            var heroWidth = heroSection.offsetWidth;
+            
+            vantaElement.style.width = heroWidth + 'px';
+            vantaElement.style.height = heroHeight + 'px';
+            
+            setTimeout(function() {
+              var finalHeight = heroSection.offsetHeight;
+              var finalWidth = heroSection.offsetWidth;
+              
+              if (finalHeight < 200 || finalWidth < 200) {
+                if (retryCount < maxRetries) {
+                  retryCount++;
+                  setTimeout(startVantaNet, 200);
+                }
+                return;
+              }
+              
+              if (!vantaStartTime) {
+                vantaStartTime = Date.now();
+              }
+              
+              try {
+                if (typeof VANTA !== 'undefined' && VANTA.NET) {
+                  vantaInstance = VANTA.NET({
+                    el: "#vanta-net",
+                    mouseControls: true,
+                    touchControls: true,
+                    gyroControls: false,
+                    minHeight: 200.00,
+                    minWidth: 200.00,
+                    scale: 1.00,
+                    scaleMobile: 1.00,
+                    color: 0xf5f5f5,
+                    backgroundColor: 0x333333,
+                    points: 6.00,
+                    maxDistance: 31.00,
+                    spacing: 18.00
+                  });
+                  
+                  if (vantaInstance && typeof vantaInstance.resize === 'function') {
+                    setTimeout(function() {
+                      vantaInstance.resize();
+                      showVantaWithFadeIn();
+                    }, 100);
+                  } else {
+                    showVantaWithFadeIn();
+                  }
+                }
+              } catch (e) {
+                console.error('Vanta.NET initialization error:', e);
+              }
+            }, 50);
+          } catch (e) { 
+            console.error('Vanta.NET error:', e);
+          }
+        }
+        
+        function handleResize() {
+          if (resizeTimeout) {
+            clearTimeout(resizeTimeout);
+          }
+          resizeTimeout = setTimeout(function() {
+            if (vantaInstance && typeof vantaInstance.resize === 'function') {
+              var heroSection = document.querySelector('.hero-section');
+              var vantaElement = document.getElementById('vanta-net');
+              if (heroSection && vantaElement) {
+                var heroHeight = heroSection.offsetHeight;
+                var heroWidth = heroSection.offsetWidth;
+                vantaElement.style.width = heroWidth + 'px';
+                vantaElement.style.height = heroHeight + 'px';
+                vantaInstance.resize();
+              }
+            }
+          }, 250);
+        }
+        
+        // Load Vanta scripts asynchronously AFTER page load
+        function loadVantaScripts() {
+          return new Promise(function(resolve, reject) {
+            // Load Three.js first
+            var threeScript = document.createElement('script');
+            threeScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js';
+            threeScript.async = true;
+            threeScript.crossOrigin = 'anonymous';
+            
+            threeScript.onload = function() {
+              // Three.js loaded, now load Vanta
+              var vantaScript = document.createElement('script');
+              vantaScript.src = 'https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.net.min.js';
+              vantaScript.async = true;
+              vantaScript.crossOrigin = 'anonymous';
+              
+              vantaScript.onload = function() {
+                scriptsLoaded = true;
+                resolve();
+              };
+              
+              vantaScript.onerror = function() {
+                console.warn('Vanta.NET failed to load, continuing without animation');
+                reject(new Error('Vanta script failed to load'));
+              };
+              
+              document.head.appendChild(vantaScript);
+            };
+            
+            threeScript.onerror = function() {
+              console.warn('Three.js failed to load, Vanta.NET will not work');
+              reject(new Error('Three.js script failed to load'));
+            };
+            
+            document.head.appendChild(threeScript);
+          });
+        }
+        
+        // Initialize Vanta after page is fully loaded AND after hero animations complete
+        // Wait 1 second after page load to ensure hero title/description animations finish first
+        function initVantaAfterDelay() {
+          var pageLoadTime = Date.now();
+          
+          function startLoadingVanta() {
+            var elapsed = Date.now() - pageLoadTime;
+            var remaining = Math.max(0, 1000 - elapsed); // Wait at least 1 second
+            
+            setTimeout(function() {
+              loadVantaScripts().then(function() {
+                setTimeout(startVantaNet, 100);
+              }).catch(function() {
+                // Scripts failed to load, continue without Vanta
+              });
+            }, remaining);
+          }
+          
+          if (document.readyState === 'complete') {
+            // Page already loaded, start delay timer now
+            startLoadingVanta();
+          } else {
+            // Wait for page to load first, then start delay timer
+            window.addEventListener('load', function() {
+              pageLoadTime = Date.now(); // Reset timer when page actually loads
+              startLoadingVanta();
+            });
+          }
+        }
+        
+        initVantaAfterDelay();
         
         // Add resize listener
         window.addEventListener('resize', handleResize);
