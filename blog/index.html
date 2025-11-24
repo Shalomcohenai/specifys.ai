@@ -10,22 +10,13 @@ extra_css:
 <div class="content-box">
   <h1>Our Blog</h1>
   
-  <div class="gallery-grid">
-    {% for post in site.posts %}
-    <div class="article-preview">
-      <h2 class="article-title">
-        <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
-      </h2>
-      <div class="article-date">
-        {{ post.date | date: "%B %d, %Y" }}
-      </div>
-      {% if post.excerpt %}
-      <div class="article-intro">
-        {{ post.excerpt | strip_html | truncatewords: 30 }}
-      </div>
-      {% endif %}
-      <a href="{{ post.url | relative_url }}" class="read-more-btn" onclick="trackButtonClick('Read Article', 'Blog', 'article_preview', {'article_title': '{{ post.title }}'})">Read More</a>
+  <div class="gallery-grid" id="blog-posts-container">
+    <!-- Posts will be loaded dynamically from Firebase via blog-loader.js -->
+    <div class="loading-placeholder" style="text-align: center; padding: 40px;">
+      <p style="color: #666;">Loading blog posts...</p>
     </div>
-    {% endfor %}
   </div>
 </div>
+
+<!-- Load blog posts from Firebase API -->
+<script src="{{ '/assets/js/blog-loader.js' | relative_url }}"></script>

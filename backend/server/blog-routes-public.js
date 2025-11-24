@@ -113,9 +113,9 @@ async function getPublishedPost(req, res, next) {
             const data = doc.data();
             const postData = data.postData || data;
             // Filter: completed status, published, and matching slug
-            return data.status === 'completed' 
-                && postData.published === true 
-                && postData.slug === slug;
+            const isPublished = postData.published === true || postData.published === 'true' || postData.published === 1;
+            const isCompleted = data.status === 'completed';
+            return isCompleted && isPublished && postData.slug === slug;
         });
         
         if (!matchingDoc) {
