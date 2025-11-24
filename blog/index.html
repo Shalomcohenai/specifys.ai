@@ -11,7 +11,12 @@ extra_css:
   <h1>Our Blog</h1>
   
   <div class="gallery-grid">
-    <!-- Legacy Jekyll posts (old system - don't modify) -->
+    <!-- New Firebase posts (new system - loaded dynamically, appear first) -->
+    <div id="blog-posts-container">
+      <!-- New posts will be loaded here via blog-loader.js -->
+    </div>
+    
+    <!-- Legacy Jekyll posts (old system - don't modify, appear after new posts) -->
     {% for post in site.posts %}
     <div class="article-preview">
       <h2 class="article-title">
@@ -28,11 +33,6 @@ extra_css:
       <a href="{{ post.url | relative_url }}" class="read-more-btn" onclick="trackButtonClick('Read Article', 'Blog', 'article_preview', {'article_title': '{{ post.title }}'})">Read More</a>
     </div>
     {% endfor %}
-    
-    <!-- New Firebase posts (new system - loaded dynamically) -->
-    <div id="blog-posts-container">
-      <!-- New posts will be loaded here via blog-loader.js -->
-    </div>
   </div>
 </div>
 
