@@ -1036,6 +1036,7 @@ class AdminDashboardApp {
       },
       apiHealth: {
         checkButton: utils.dom("#api-health-check-btn"),
+        copyButton: utils.dom("#api-health-copy-btn"),
         responseText: utils.dom("#api-response-text")
       },
       quickActions: {
@@ -1158,6 +1159,7 @@ class AdminDashboardApp {
     this.dom.manualRefresh?.addEventListener("click", () => this.refreshAllData("manual"));
     this.dom.syncUsersButton?.addEventListener("click", () => this.syncUsersManually());
     this.dom.apiHealth.checkButton?.addEventListener("click", () => this.performApiHealthCheck());
+    this.dom.apiHealth.copyButton?.addEventListener("click", () => this.copyHealthCheckLogs());
     this.dom.signOut?.addEventListener("click", async () => {
       try {
         await signOut(auth);
@@ -3642,6 +3644,68 @@ class AdminDashboardApp {
         button.disabled = false;
       }
       this.apiHealthCheckInProgress = false;
+    }
+  }
+
+  // Copy health check logs to clipboard
+  async copyHealthCheckLogs() {
+    const responseText = this.dom.apiHealth.responseText;
+    const copyButton = this.dom.apiHealth.copyButton;
+    
+    if (!responseText || !responseText.value || responseText.value.trim() === '') {
+      // No content to copy
+      if (copyButton) {
+        const originalText = copyButton.innerHTML;
+        copyButton.innerHTML = '<i class="fas fa-exclamation-circle"></i> No logs to copy';
+        setTimeout(() => {
+          copyButton.innerHTML = originalText;
+        }, 2000);
+      }
+      return;
+    }
+
+    try {
+      // Copy to clipboard
+      await navigator.clipboard.writeText(responseText.value);
+      
+      // Visual feedback
+      if (copyButton) {
+        const originalText = copyButton.innerHTML;
+        copyButton.innerHTML = '<i class="fas fa-check"></i> Copied!';
+        copyButton.classList.add('success');
+        setTimeout(() => {
+          copyButton.innerHTML = originalText;
+          copyButton.classList.remove('success');
+        }, 2000);
+      }
+    } catch (error) {
+      // Fallback for older browsers
+      try {
+        responseText.select();
+        responseText.setSelectionRange(0, 99999); // For mobile devices
+        document.execCommand('copy');
+        
+        if (copyButton) {
+          const originalText = copyButton.innerHTML;
+          copyButton.innerHTML = '<i class="fas fa-check"></i> Copied!';
+          copyButton.classList.add('success');
+          setTimeout(() => {
+            copyButton.innerHTML = originalText;
+            copyButton.classList.remove('success');
+          }, 2000);
+        }
+      } catch (fallbackError) {
+        console.error('[AdminDashboard] Failed to copy logs:', fallbackError);
+        if (copyButton) {
+          const originalText = copyButton.innerHTML;
+          copyButton.innerHTML = '<i class="fas fa-times"></i> Copy failed';
+          copyButton.classList.add('error');
+          setTimeout(() => {
+            copyButton.innerHTML = originalText;
+            copyButton.classList.remove('error');
+          }, 2000);
+        }
+      }
     }
   }
 

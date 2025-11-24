@@ -630,6 +630,27 @@ body {
 
 .api-response-box {
   width: 100%;
+  display: grid;
+  gap: 8px;
+}
+
+.api-response-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.api-response-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--admin-text-muted);
+}
+
+.api-response-header .action-btn.small {
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  gap: 6px;
 }
 
 .api-response-box textarea {
