@@ -3,7 +3,7 @@ const { db } = require('./firebase-admin');
 const { createError, ERROR_CODES } = require('./error-handler');
 const { logger } = require('./logger');
 
-const BLOG_COLLECTION = 'blogPosts';
+const BLOG_COLLECTION = 'blogQueue';
 
 // Public route: List published blog posts (no auth required)
 async function listPublishedPosts(req, res, next) {
@@ -13,31 +13,38 @@ async function listPublishedPosts(req, res, next) {
     try {
         const { limit = 50 } = req.query;
         
-        // Only get published posts
-        // Fetch all published posts and sort in memory (avoids Firestore index requirement)
+        // Only get published posts from blogQueue that are completed
+        // Fetch all completed posts and filter by published status
         const snapshot = await db.collection(BLOG_COLLECTION)
-            .where('published', '==', true)
+            .where('status', '==', 'completed')
             .get();
 
-        let posts = snapshot.docs.map(doc => {
-            const data = doc.data();
-            return {
-                id: doc.id,
-                title: data.title,
-                description: data.description,
-                content: data.content,
-                date: data.date,
-                author: data.author,
-                tags: data.tags,
-                slug: data.slug,
-                url: data.url,
-                published: data.published,
-                seoTitle: data.seoTitle,
-                seoDescription: data.seoDescription,
-                createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : data.createdAt,
-                updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate() : data.updatedAt
-            };
-        });
+        let posts = snapshot.docs
+            .map(doc => {
+                const data = doc.data();
+                const postData = data.postData || data;
+                // Only include published posts
+                if (postData.published !== true) {
+                    return null;
+                }
+                return {
+                    id: doc.id,
+                    title: postData.title,
+                    description: postData.description,
+                    content: postData.content,
+                    date: postData.date,
+                    author: postData.author,
+                    tags: postData.tags,
+                    slug: postData.slug,
+                    url: postData.url,
+                    published: postData.published,
+                    seoTitle: postData.seoTitle,
+                    seoDescription: postData.seoDescription,
+                    createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : data.createdAt,
+                    updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate() : data.updatedAt
+                };
+            })
+            .filter(post => post !== null); // Remove null entries
 
         // Sort by date descending (newest first)
         posts.sort((a, b) => {
@@ -75,32 +82,38 @@ async function getPublishedPost(req, res, next) {
             return next(createError('Slug is required', ERROR_CODES.MISSING_REQUIRED_FIELD, 400));
         }
 
+        // Search in blogQueue for completed posts with matching slug
         const snapshot = await db.collection(BLOG_COLLECTION)
-            .where('slug', '==', slug)
-            .where('published', '==', true)
-            .limit(1)
+            .where('status', '==', 'completed')
             .get();
         
-        if (snapshot.empty) {
+        const matchingDoc = snapshot.docs.find(doc => {
+            const data = doc.data();
+            const postData = data.postData || data;
+            return postData.slug === slug && postData.published === true;
+        });
+        
+        if (!matchingDoc) {
             return next(createError('Post not found', ERROR_CODES.RESOURCE_NOT_FOUND, 404));
         }
 
-        const doc = snapshot.docs[0];
+        const doc = matchingDoc;
         const data = doc.data();
+        const postDataObj = data.postData || data;
 
         const postData = {
             id: doc.id,
-            title: data.title,
-            description: data.description,
-            content: data.content,
-            date: data.date,
-            author: data.author,
-            tags: data.tags,
-            slug: data.slug,
-            url: data.url,
-            published: data.published,
-            seoTitle: data.seoTitle,
-            seoDescription: data.seoDescription,
+            title: postDataObj.title,
+            description: postDataObj.description,
+            content: postDataObj.content,
+            date: postDataObj.date,
+            author: postDataObj.author,
+            tags: postDataObj.tags,
+            slug: postDataObj.slug,
+            url: postDataObj.url,
+            published: postDataObj.published,
+            seoTitle: postDataObj.seoTitle,
+            seoDescription: postDataObj.seoDescription,
             createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : data.createdAt,
             updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate() : data.updatedAt
         };

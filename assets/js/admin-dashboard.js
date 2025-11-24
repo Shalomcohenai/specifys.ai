@@ -2949,18 +2949,22 @@ class AdminDashboardApp {
         throw error;
       }
       const posts = Array.isArray(result.posts) ? result.posts : [];
+      // Posts from API are already extracted from blogQueue structure
+      // Map them to the format expected by setBlogQueue
       this.store.setBlogQueue(
         posts.map((post) => ({
           id: post.id,
-          title: post.title,
-          description: post.description,
-          date: post.date,
-          author: post.author,
-          tags: post.tags,
-          slug: post.slug,
-          url: post.url,
-          published: post.published,
-          status: post.published ? 'completed' : 'pending',
+          postData: {
+            title: post.title,
+            description: post.description,
+            date: post.date,
+            author: post.author,
+            tags: post.tags,
+            slug: post.slug,
+            url: post.url,
+            published: post.published
+          },
+          status: post.status || (post.published ? 'completed' : 'pending'),
           createdAt: utils.toDate(post.createdAt),
           updatedAt: utils.toDate(post.updatedAt)
         }))
@@ -2997,9 +3001,11 @@ class AdminDashboardApp {
         ]
           .filter(Boolean)
           .join(" · ");
+        const title = item.postData?.title || item.title || "Untitled post";
+        const url = item.postData?.url || item.url;
         return `
           <li class="queue-item ${statusClass}">
-            <div class="queue-title">${item.title}</div>
+            <div class="queue-title">${title}</div>
             <div class="queue-meta">
               <span>${meta}</span>
               <span class="queue-status">${item.status}</span>
@@ -3011,8 +3017,8 @@ class AdminDashboardApp {
             }
             <div class="queue-actions">
               ${
-                item.url
-                  ? `<a href="${item.url}" target="_blank" rel="noopener">View post</a>`
+                url
+                  ? `<a href="${url}" target="_blank" rel="noopener">View post</a>`
                   : ""
               }
               ${

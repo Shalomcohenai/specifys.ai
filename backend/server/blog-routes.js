@@ -4,7 +4,7 @@ const { createError, ERROR_CODES } = require('./error-handler');
 const { logger } = require('./logger');
 
 // Collection name for blog posts
-const BLOG_COLLECTION = 'blogPosts';
+const BLOG_COLLECTION = 'blogQueue';
 
 // Helper: Slugify text for URL-friendly slugs
 function slugify(text) {
@@ -67,17 +67,19 @@ async function createPost(req, res, next) {
             return next(createError('Unable to generate slug from title', ERROR_CODES.INVALID_INPUT, 400));
         }
 
-        // Check if slug already exists
-        const existingPost = await db.collection(BLOG_COLLECTION)
-            .where('slug', '==', postSlug)
-            .limit(1)
-            .get();
+        // Check if slug already exists in blogQueue (check postData.slug)
+        const snapshot = await db.collection(BLOG_COLLECTION).get();
+        const existingPost = snapshot.docs.find(doc => {
+            const data = doc.data();
+            const postData = data.postData || data;
+            return postData.slug === postSlug;
+        });
 
-        if (!existingPost.empty) {
+        if (existingPost) {
             return next(createError('A post with this slug already exists', ERROR_CODES.DUPLICATE_RESOURCE, 409));
         }
 
-        // Create post document
+        // Create post data (will be stored in postData field)
         const postData = {
             title: title.trim(),
             description: description ? description.trim() : '',
@@ -88,9 +90,7 @@ async function createPost(req, res, next) {
             slug: postSlug,
             seoTitle: seoTitle ? seoTitle.trim() : null,
             seoDescription: seoDescription ? seoDescription.trim() : null,
-            published: true,
-            createdAt: new Date(),
-            updatedAt: new Date()
+            published: true
         };
 
         // Generate URL based on Jekyll permalink format: /:year/:month/:day/:title/
@@ -100,8 +100,16 @@ async function createPost(req, res, next) {
         const day = dateParts[2];
         postData.url = `https://specifys-ai.com/${year}/${month}/${day}/${postSlug}/`;
 
-        // Save to Firestore
-        const docRef = await db.collection(BLOG_COLLECTION).add(postData);
+        // Create queue document with postData and status
+        const queueDocument = {
+            postData: postData,
+            status: 'completed', // Mark as completed so it appears in blog
+            createdAt: new Date(),
+            updatedAt: new Date()
+        };
+
+        // Save to Firestore blogQueue collection
+        const docRef = await db.collection(BLOG_COLLECTION).add(queueDocument);
         
         logger.info({ requestId, postId: docRef.id, slug: postSlug }, '[blog-routes] POST created - Success');
         
@@ -110,7 +118,8 @@ async function createPost(req, res, next) {
             message: 'Blog post created successfully',
             post: {
                 id: docRef.id,
-                ...postData
+                ...postData,
+                status: 'completed'
             }
         });
 
@@ -133,24 +142,44 @@ async function listPosts(req, res, next) {
     try {
         const { limit = 50, published = true } = req.query;
         
-        let query = db.collection(BLOG_COLLECTION);
-        
-        if (published === 'true' || published === true) {
-            query = query.where('published', '==', true);
-        }
+        // Get all completed posts from blogQueue
+        let query = db.collection(BLOG_COLLECTION)
+            .where('status', '==', 'completed');
         
         const snapshot = await query
-            .orderBy('date', 'desc')
-            .orderBy('createdAt', 'desc')
             .limit(parseInt(limit))
             .get();
 
-        const posts = snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data(),
-            createdAt: doc.data().createdAt?.toDate ? doc.data().createdAt.toDate() : doc.data().createdAt,
-            updatedAt: doc.data().updatedAt?.toDate ? doc.data().updatedAt.toDate() : doc.data().updatedAt
-        }));
+        const posts = snapshot.docs
+            .map(doc => {
+                const data = doc.data();
+                // Extract postData from queue structure
+                const postData = data.postData || data;
+                return {
+                    id: doc.id,
+                    ...postData,
+                    status: data.status || 'completed',
+                    createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : data.createdAt,
+                    updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate() : data.updatedAt
+                };
+            })
+            .filter(post => {
+                // Only return posts that are published and completed
+                if (published === 'true' || published === true) {
+                    return post.published === true && post.status === 'completed';
+                }
+                return true;
+            })
+            .sort((a, b) => {
+                // Sort by date descending (newest first)
+                const dateA = new Date(a.date || 0);
+                const dateB = new Date(b.date || 0);
+                if (dateB - dateA !== 0) return dateB - dateA;
+                // If dates are equal, sort by createdAt
+                const createdA = a.createdAt?.getTime() || 0;
+                const createdB = b.createdAt?.getTime() || 0;
+                return createdB - createdA;
+            });
 
         logger.info({ requestId, count: posts.length }, '[blog-routes] GET list - Success');
 
@@ -179,16 +208,22 @@ async function getPost(req, res, next) {
         if (id) {
             doc = await db.collection(BLOG_COLLECTION).doc(id).get();
         } else if (slug) {
+            // Search in blogQueue - need to get all and filter by slug in postData
             const snapshot = await db.collection(BLOG_COLLECTION)
-                .where('slug', '==', slug)
-                .limit(1)
+                .where('status', '==', 'completed')
                 .get();
             
-            if (snapshot.empty) {
+            const matchingDoc = snapshot.docs.find(d => {
+                const data = d.data();
+                const postData = data.postData || data;
+                return postData.slug === slug;
+            });
+            
+            if (!matchingDoc) {
                 return next(createError('Post not found', ERROR_CODES.RESOURCE_NOT_FOUND, 404));
             }
             
-            doc = snapshot.docs[0];
+            doc = matchingDoc;
         } else {
             return next(createError('Either id or slug is required', ERROR_CODES.MISSING_REQUIRED_FIELD, 400));
         }
@@ -197,18 +232,21 @@ async function getPost(req, res, next) {
             return next(createError('Post not found', ERROR_CODES.RESOURCE_NOT_FOUND, 404));
         }
 
-        const postData = {
+        const data = doc.data();
+        const postData = data.postData || data;
+        const result = {
             id: doc.id,
-            ...doc.data(),
-            createdAt: doc.data().createdAt?.toDate ? doc.data().createdAt.toDate() : doc.data().createdAt,
-            updatedAt: doc.data().updatedAt?.toDate ? doc.data().updatedAt.toDate() : doc.data().updatedAt
+            ...postData,
+            status: data.status || 'completed',
+            createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : data.createdAt,
+            updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate() : data.updatedAt
         };
 
         logger.info({ requestId, postId: doc.id }, '[blog-routes] GET post - Success');
         
         res.json({
             success: true,
-            post: postData
+            post: result
         });
 
     } catch (error) {
@@ -238,6 +276,7 @@ async function updatePost(req, res, next) {
         }
 
         const existingData = doc.data();
+        const existingPostData = existingData.postData || existingData;
         const {
             title,
             description,
@@ -251,69 +290,84 @@ async function updatePost(req, res, next) {
             published
         } = req.body;
 
-        // Build update data
-        const updateData = {
-            updatedAt: new Date()
-        };
-
-        if (title !== undefined) updateData.title = title.trim();
-        if (description !== undefined) updateData.description = description ? description.trim() : '';
-        if (content !== undefined) updateData.content = content.trim();
+        // Build update data for postData
+        const postDataUpdate = {};
+        if (title !== undefined) postDataUpdate.title = title.trim();
+        if (description !== undefined) postDataUpdate.description = description ? description.trim() : '';
+        if (content !== undefined) postDataUpdate.content = content.trim();
         if (date !== undefined) {
             if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
                 return next(createError('Date must be in YYYY-MM-DD format', ERROR_CODES.INVALID_INPUT, 400));
             }
-            updateData.date = date;
+            postDataUpdate.date = date;
         }
-        if (author !== undefined) updateData.author = author;
+        if (author !== undefined) postDataUpdate.author = author;
         if (tags !== undefined) {
-            updateData.tags = Array.isArray(tags) ? tags : (tags ? tags.split(',').map(t => t.trim()).filter(Boolean) : []);
+            postDataUpdate.tags = Array.isArray(tags) ? tags : (tags ? tags.split(',').map(t => t.trim()).filter(Boolean) : []);
         }
-        if (published !== undefined) updateData.published = published === true || published === 'true';
+        if (published !== undefined) postDataUpdate.published = published === true || published === 'true';
 
         // Handle slug change
-        let newSlug = existingData.slug;
-        if (slug !== undefined && slug !== existingData.slug) {
+        let newSlug = existingPostData.slug;
+        if (slug !== undefined && slug !== existingPostData.slug) {
             newSlug = slugify(slug);
             if (!newSlug) {
                 return next(createError('Invalid slug', ERROR_CODES.INVALID_INPUT, 400));
             }
             
             // Check if new slug already exists
-            const slugCheck = await db.collection(BLOG_COLLECTION)
-                .where('slug', '==', newSlug)
-                .limit(1)
-                .get();
+            const snapshot = await db.collection(BLOG_COLLECTION).get();
+            const slugExists = snapshot.docs.find(doc => {
+                if (doc.id === postId) return false;
+                const data = doc.data();
+                const postData = data.postData || data;
+                return postData.slug === newSlug;
+            });
             
-            if (!slugCheck.empty && slugCheck.docs[0].id !== postId) {
+            if (slugExists) {
                 return next(createError('A post with this slug already exists', ERROR_CODES.DUPLICATE_RESOURCE, 409));
             }
             
-            updateData.slug = newSlug;
+            postDataUpdate.slug = newSlug;
         }
 
-        if (seoTitle !== undefined) updateData.seoTitle = seoTitle ? seoTitle.trim() : null;
-        if (seoDescription !== undefined) updateData.seoDescription = seoDescription ? seoDescription.trim() : null;
+        if (seoTitle !== undefined) postDataUpdate.seoTitle = seoTitle ? seoTitle.trim() : null;
+        if (seoDescription !== undefined) postDataUpdate.seoDescription = seoDescription ? seoDescription.trim() : null;
 
         // Recalculate URL if date or slug changed
-        const finalDate = updateData.date || existingData.date;
-        const finalSlug = updateData.slug || existingData.slug;
+        const finalDate = postDataUpdate.date || existingPostData.date;
+        const finalSlug = postDataUpdate.slug || existingPostData.slug;
         const dateParts = finalDate.split('-');
-        updateData.url = `https://specifys-ai.com/${dateParts[0]}/${dateParts[1]}/${dateParts[2]}/${finalSlug}/`;
+        postDataUpdate.url = `https://specifys-ai.com/${dateParts[0]}/${dateParts[1]}/${dateParts[2]}/${finalSlug}/`;
 
         // Validate description length if provided
-        if (updateData.description && updateData.description.length > 160) {
+        if (postDataUpdate.description && postDataUpdate.description.length > 160) {
             return next(createError('Description must be 160 characters or less', ERROR_CODES.INVALID_INPUT, 400));
         }
+
+        // Merge with existing postData
+        const updatedPostData = {
+            ...existingPostData,
+            ...postDataUpdate
+        };
+
+        // Update the document
+        const updateData = {
+            postData: updatedPostData,
+            updatedAt: new Date()
+        };
 
         await docRef.update(updateData);
 
         const updatedDoc = await docRef.get();
+        const updatedDocData = updatedDoc.data();
+        const finalPostData = updatedDocData.postData || updatedDocData;
         const updatedData = {
             id: updatedDoc.id,
-            ...updatedDoc.data(),
-            createdAt: updatedDoc.data().createdAt?.toDate ? updatedDoc.data().createdAt.toDate() : updatedDoc.data().createdAt,
-            updatedAt: updatedDoc.data().updatedAt?.toDate ? updatedDoc.data().updatedAt.toDate() : updatedDoc.data().updatedAt
+            ...finalPostData,
+            status: updatedDocData.status || 'completed',
+            createdAt: updatedDocData.createdAt?.toDate ? updatedDocData.createdAt.toDate() : updatedDocData.createdAt,
+            updatedAt: updatedDocData.updatedAt?.toDate ? updatedDocData.updatedAt.toDate() : updatedDocData.updatedAt
         };
 
         logger.info({ requestId, postId }, '[blog-routes] POST update - Success');

@@ -12,6 +12,7 @@ if (typeof globalThis.fetch === 'function') {
 const dotenv = require('dotenv');
 const config = require('./config');
 const blogRoutes = require('./blog-routes');
+const blogRoutesPublic = require('./blog-routes-public');
 const adminRoutes = require('./admin-routes');
 const lemonRoutes = require('./lemon-routes');
 const creditsRoutes = require('./credits-routes');
@@ -329,8 +330,9 @@ app.use('/api/chat', chatRoutes);
 logger.info({ type: 'route_mounted', path: '/api/chat' }, '[UNIFIED SERVER] ✅ Chat routes mounted');
 
 // Blog routes (must be before static files to avoid conflicts)
-// Public route - no authentication required (returns only published posts)
-app.get('/api/blog/public/posts', blogRoutes.listPosts);
+// Public routes - no authentication required (returns only published posts)
+app.get('/api/blog/public/posts', blogRoutesPublic.listPublishedPosts);
+app.get('/api/blog/public/post', blogRoutesPublic.getPublishedPost);
 // Admin routes - require authentication
 app.post('/api/blog/create-post', requireAdmin, blogRoutes.createPost);
 app.get('/api/blog/list-posts', requireAdmin, blogRoutes.listPosts);
