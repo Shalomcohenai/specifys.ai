@@ -52,9 +52,29 @@
     <link rel="icon" type="image/x-icon" href="{{ '/favicon.ico' | relative_url }}">
     <link rel="manifest" href="{{ '/site.webmanifest' | relative_url }}">
     
-    <!-- CSS -->
-    <link rel="stylesheet" href="{{ '/assets/css/bundles/critical.css' | relative_url }}">
+    <!-- CSS - Loaded in parallel instead of @import for better performance -->
+    <!-- Core styles (must be in order) -->
+    <link rel="stylesheet" href="{{ '/assets/css/core/variables.css' | relative_url }}">
+    <link rel="stylesheet" href="{{ '/assets/css/core/fonts.css' | relative_url }}">
+    <link rel="stylesheet" href="{{ '/assets/css/core/reset.css' | relative_url }}">
+    <link rel="stylesheet" href="{{ '/assets/css/core/typography.css' | relative_url }}">
+    <link rel="stylesheet" href="{{ '/assets/css/core/base.css' | relative_url }}">
+    
+    <!-- Critical components (above the fold) -->
+    <link rel="stylesheet" href="{{ '/assets/css/components/header.css' | relative_url }}">
+    <link rel="stylesheet" href="{{ '/assets/css/components/buttons.css' | relative_url }}">
+    
+    <!-- Non-critical components (below the fold) -->
+    <link rel="stylesheet" href="{{ '/assets/css/components/footer.css' | relative_url }}">
+    <link rel="stylesheet" href="{{ '/assets/css/components/icons.css' | relative_url }}">
+    <link rel="stylesheet" href="{{ '/assets/css/components/mermaid.css' | relative_url }}">
+    <link rel="stylesheet" href="{{ '/assets/css/components/tables.css' | relative_url }}">
+    
+    <!-- Main CSS (contains additional styles and utilities) - Keep for backward compatibility -->
     <link rel="stylesheet" href="{{ '/assets/css/main.css' | relative_url }}">
+    
+    <!-- Legacy bundles (kept for backward compatibility, will be removed after testing) -->
+    <link rel="stylesheet" href="{{ '/assets/css/bundles/critical.css' | relative_url }}">
     {% if page.extra_css %}
       {% for css in page.extra_css %}
         <link rel="stylesheet" href="{{ css | relative_url }}">

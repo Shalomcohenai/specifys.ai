@@ -139,19 +139,28 @@
     }
 
     try {
-      const token = await user.getIdToken();
-      const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai.onrender.com';
-      const response = await fetch(`${apiBaseUrl}/api/specs/entitlements`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
+      // Use entitlements cache if available (performance optimization)
+      let data;
+      if (typeof window.getEntitlements === 'function') {
+        // Use cached entitlements (reduces API calls and CORS preflight overhead)
+        data = await window.getEntitlements(false);
+      } else {
+        // Fallback to direct API call if cache is not available
+        const token = await user.getIdToken();
+        const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai.onrender.com';
+        const response = await fetch(`${apiBaseUrl}/api/specs/entitlements`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch entitlements');
         }
-      });
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch entitlements');
+        data = await response.json();
       }
-
-      const data = await response.json();
+      
       const entitlements = data?.entitlements || {};
       const userData = data?.user || null;
       

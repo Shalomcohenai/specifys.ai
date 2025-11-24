@@ -8,7 +8,7 @@
 
   let entitlementsCache = null;
   let cacheTimestamp = null;
-  const CACHE_DURATION = 30000; // 30 seconds
+  const CACHE_DURATION = 300000; // 5 minutes (increased from 30 seconds for better performance)
 
   async function getEntitlements(forceRefresh = false) {
     if (typeof firebase === 'undefined' || !firebase.auth) {

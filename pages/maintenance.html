@@ -9,7 +9,23 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
-    <!-- CSS -->
+    <!-- CSS - Loaded in parallel instead of @import for better performance -->
+    <!-- Core styles (must be in order) -->
+    <link rel="stylesheet" href="/assets/css/core/variables.css">
+    <link rel="stylesheet" href="/assets/css/core/fonts.css">
+    <link rel="stylesheet" href="/assets/css/core/reset.css">
+    <link rel="stylesheet" href="/assets/css/core/typography.css">
+    <link rel="stylesheet" href="/assets/css/core/base.css">
+    
+    <!-- Components -->
+    <link rel="stylesheet" href="/assets/css/components/buttons.css">
+    <link rel="stylesheet" href="/assets/css/components/header.css">
+    <link rel="stylesheet" href="/assets/css/components/footer.css">
+    <link rel="stylesheet" href="/assets/css/components/icons.css">
+    <link rel="stylesheet" href="/assets/css/components/mermaid.css">
+    <link rel="stylesheet" href="/assets/css/components/tables.css">
+    
+    <!-- Main CSS (contains additional styles and utilities) -->
     <link rel="stylesheet" href="/assets/css/main.css">
     
     <style>
