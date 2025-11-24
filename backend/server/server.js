@@ -13,6 +13,7 @@ const dotenv = require('dotenv');
 const config = require('./config');
 const blogRoutes = require('./blog-routes');
 const blogRoutesPublic = require('./blog-routes-public');
+const articlesRoutes = require('./articles-routes');
 const adminRoutes = require('./admin-routes');
 const lemonRoutes = require('./lemon-routes');
 const creditsRoutes = require('./credits-routes');
@@ -347,6 +348,17 @@ app.get('/api/blog/list-posts', requireAdmin, blogRoutes.listPosts);
 app.get('/api/blog/get-post', requireAdmin, blogRoutes.getPost);
 app.post('/api/blog/update-post', requireAdmin, blogRoutes.updatePost);
 app.post('/api/blog/delete-post', requireAdmin, blogRoutes.deletePost);
+
+// Articles routes
+logger.info({ type: 'route_mount', path: '/api/articles', route: 'articlesRoutes' }, '[UNIFIED SERVER] 📌 Mounting articles routes');
+app.post('/api/articles/generate', requireAdmin, articlesRoutes.generateArticle);
+app.get('/api/articles/list', articlesRoutes.listArticles);
+app.get('/api/articles/featured', articlesRoutes.getFeaturedArticles);
+app.get('/api/articles/:slug', articlesRoutes.getArticleBySlug);
+app.post('/api/articles/:slug/view', articlesRoutes.incrementViewCount);
+app.put('/api/articles/:id', requireAdmin, articlesRoutes.updateArticle);
+app.delete('/api/articles/:id', requireAdmin, articlesRoutes.deleteArticle);
+logger.info({ type: 'route_mounted', path: '/api/articles' }, '[UNIFIED SERVER] ✅ Articles routes mounted');
 
 // Admin routes (must be after specific admin endpoints, with rate limiting)
 // Enhanced logging for route mounting

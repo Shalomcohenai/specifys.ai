@@ -39,6 +39,7 @@
   <link rel="stylesheet" href="/assets/css/main.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" referrerpolicy="no-referrer">
   <link rel="stylesheet" href="/assets/css/pages/admin-dashboard.css">
+  <link rel="stylesheet" href="/assets/css/pages/articles-manager.css">
 </head>
 <body>
   <div class="admin-shell" id="admin-shell">
@@ -68,6 +69,10 @@
         <button class="nav-link" data-target="blog-section">
           <span class="icon"><i class="fas fa-newspaper"></i></span>
           Blog
+        </button>
+        <button class="nav-link" data-target="articles-section">
+          <span class="icon"><i class="fas fa-file-alt"></i></span>
+          Articles
         </button>
         <button class="nav-link" data-target="stats-section">
           <span class="icon"><i class="fas fa-chart-pie"></i></span>
@@ -478,6 +483,70 @@
               </ul>
                         </div>
                     </div>
+        </section>
+
+        <section class="dashboard-section" id="articles-section">
+          <header class="section-header">
+            <div>
+              <h2>Articles Management</h2>
+              <p>Generate and manage SEO-optimized articles.</p>
+            </div>
+          </header>
+          <div class="articles-management-section">
+            <div class="articles-form-container">
+              <form class="articles-form" id="articles-form">
+                <div class="form-group">
+                  <label for="article-topic">Article Topic</label>
+                  <input id="article-topic" name="topic" type="text" required placeholder="Enter a topic for the article..." autocomplete="off">
+                  <small class="field-hint">Enter a short topic sentence. The AI will generate a complete article based on this topic.</small>
+                </div>
+                <div class="form-actions">
+                  <button class="primary" type="submit" id="generate-article-btn">
+                    <i class="fas fa-magic"></i>
+                    Generate Article
+                  </button>
+                </div>
+                <div class="form-feedback" id="articles-feedback" role="status" aria-live="polite"></div>
+              </form>
+            </div>
+            
+            <div class="articles-table-container">
+              <div class="panel-header">
+                <h3>Articles</h3>
+                <div class="articles-controls">
+                  <input type="search" id="articles-search" placeholder="Search articles..." aria-label="Search articles">
+                  <select id="articles-status-filter" aria-label="Filter by status">
+                    <option value="all">All statuses</option>
+                    <option value="published">Published</option>
+                    <option value="generating">Generating</option>
+                    <option value="draft">Draft</option>
+                  </select>
+                  <button class="panel-action" id="refresh-articles-btn" type="button">
+                    <i class="fas fa-sync-alt"></i>
+                    Refresh
+                  </button>
+                </div>
+              </div>
+              <div class="table-wrapper">
+                <table class="data-table" id="articles-table">
+                  <thead>
+                    <tr>
+                      <th scope="col">Title</th>
+                      <th scope="col">Status</th>
+                      <th scope="col">Created</th>
+                      <th scope="col">Views</th>
+                      <th scope="col">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td colspan="5" class="table-empty">Loading articles…</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
         </section>
 
         <section class="dashboard-section" id="stats-section">
@@ -940,6 +1009,7 @@
   </div>
 
   <script type="module" src="/assets/js/admin-dashboard.js"></script>
+  <script type="module" src="/assets/js/articles-manager.js"></script>
 </body>
 </html>
 

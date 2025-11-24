@@ -1,0 +1,70 @@
+---
+layout: default
+title: Articles - Specifys.ai
+description: Explore our collection of SEO-optimized articles on AI-driven development, vibe coding, and software innovation.
+---
+
+<div class="articles-page">
+  <!-- Hero Section -->
+  <section class="articles-hero">
+    <div class="container">
+      <h1>Specifys Articles</h1>
+      <p class="hero-subtitle">Discover insights on AI-driven development, vibe coding, and the future of software</p>
+    </div>
+  </section>
+
+  <!-- Featured Carousel -->
+  <section class="articles-featured">
+    <div class="container">
+      <h2 class="section-title">Featured Articles</h2>
+      <div class="carousel-container">
+        <div class="carousel-wrapper" id="featured-carousel">
+          <div class="carousel-track" id="carousel-track">
+            <!-- Featured articles will be loaded here -->
+            <div class="carousel-placeholder">Loading featured articles...</div>
+          </div>
+        </div>
+        <div class="carousel-controls">
+          <button class="carousel-btn prev" id="carousel-prev" aria-label="Previous article">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          <button class="carousel-btn next" id="carousel-next" aria-label="Next article">
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+        <div class="carousel-indicators" id="carousel-indicators"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Latest Articles Grid -->
+  <section class="articles-latest">
+    <div class="container">
+      <h2 class="section-title">Latest Articles</h2>
+      <div class="articles-grid" id="articles-grid">
+        <!-- Articles will be loaded here -->
+        <div class="loading-placeholder">Loading articles...</div>
+      </div>
+      
+      <!-- Pagination -->
+      <div class="pagination-wrapper" id="pagination-wrapper" style="display: none;">
+        <div class="pagination-info">
+          <span id="pagination-info">Showing 0-0 of 0</span>
+        </div>
+        <div class="pagination-controls">
+          <button class="pagination-btn" id="pagination-prev" disabled>
+            <i class="fas fa-chevron-left"></i> Previous
+          </button>
+          <div class="pagination-pages" id="pagination-pages"></div>
+          <button class="pagination-btn" id="pagination-next" disabled>
+            Next <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<link rel="stylesheet" href="/assets/css/pages/articles.css">
+<script type="module" src="/assets/js/articles.js"></script>
+
