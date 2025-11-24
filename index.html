@@ -1298,37 +1298,67 @@ graph TD
           });
         }
         
-        // Initialize Vanta after page is fully loaded AND after hero animations complete
-        // Wait 1 second after page load to ensure hero title/description animations finish first
-        function initVantaAfterDelay() {
-          var pageLoadTime = Date.now();
+        // Optimized loading: Start loading scripts early (after DOMContentLoaded)
+        // but delay Vanta animation start until hero animations complete (~1.5s)
+        function initVantaOptimized() {
+          var scriptsLoadingStarted = false;
+          var domReadyTime = null;
+          var scriptsReadyTime = null;
           
-          function startLoadingVanta() {
-            var elapsed = Date.now() - pageLoadTime;
-            var remaining = Math.max(0, 1000 - elapsed); // Wait at least 1 second
+          // Start loading scripts as early as possible (after DOM is ready)
+          function startLoadingScriptsEarly() {
+            if (scriptsLoadingStarted) return;
+            scriptsLoadingStarted = true;
+            domReadyTime = Date.now();
+            
+            // Load scripts in background (async, non-blocking)
+            loadVantaScripts().then(function() {
+              scriptsReadyTime = Date.now();
+              // Scripts loaded, now check if we should start Vanta
+              checkAndStartVanta();
+            }).catch(function() {
+              // Scripts failed to load, continue without Vanta
+            });
+          }
+          
+          // Start Vanta animation after hero animations complete AND scripts are loaded
+          function checkAndStartVanta() {
+            if (!scriptsLoaded || !scriptsReadyTime) {
+              // Scripts not ready yet
+              return;
+            }
+            
+            // Hero animations take ~1.5 seconds to complete
+            // (title starts at 300ms + 800ms animation = 1100ms,
+            //  icons start at 700ms + 800ms animation = 1500ms)
+            var elapsed = Date.now() - domReadyTime;
+            var minDelay = 1500; // Wait for hero animations to complete
+            var remaining = Math.max(0, minDelay - elapsed);
             
             setTimeout(function() {
-              loadVantaScripts().then(function() {
-                setTimeout(startVantaNet, 100);
-              }).catch(function() {
-                // Scripts failed to load, continue without Vanta
-              });
+              startVantaNet();
             }, remaining);
           }
           
-          if (document.readyState === 'complete') {
-            // Page already loaded, start delay timer now
-            startLoadingVanta();
-          } else {
-            // Wait for page to load first, then start delay timer
-            window.addEventListener('load', function() {
-              pageLoadTime = Date.now(); // Reset timer when page actually loads
-              startLoadingVanta();
+          // Start loading scripts as soon as DOM is ready
+          if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+              startLoadingScriptsEarly();
+              // Also set a fallback timer in case scripts load very fast
+              setTimeout(function() {
+                checkAndStartVanta();
+              }, 1600); // 1.5s + small buffer
             });
+          } else {
+            // DOM already ready
+            startLoadingScriptsEarly();
+            setTimeout(function() {
+              checkAndStartVanta();
+            }, 1600); // 1.5s + small buffer
           }
         }
         
-        initVantaAfterDelay();
+        initVantaOptimized();
         
         // Add resize listener
         window.addEventListener('resize', handleResize);
