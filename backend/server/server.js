@@ -912,6 +912,52 @@ app.get('/blog/', (req, res) => {
   });
 });
 
+// Dynamic route for new Firebase blog posts (format: /YYYY/MM/DD/slug/)
+// This must come BEFORE static file serving to catch dynamic post URLs
+app.get('/:year(\\d{4})/:month(\\d{2})/:day(\\d{2})/:slug/', async (req, res, next) => {
+  const { year, month, day, slug } = req.params;
+  const requestId = `dynamic-post-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  
+  logger.info({ requestId, year, month, day, slug }, '[UNIFIED SERVER] 📝 Checking for dynamic blog post');
+  
+  try {
+    // Check if post exists in Firebase
+    const { db } = require('./firebase-admin');
+    const BLOG_COLLECTION = 'blogQueue';
+    const snapshot = await db.collection(BLOG_COLLECTION).get();
+    
+    const matchingDoc = snapshot.docs.find(doc => {
+      const data = doc.data();
+      const postData = data.postData || data;
+      const isPublished = postData.published === true || postData.published === 'true' || postData.published === 1;
+      const isCompleted = data.status === 'completed';
+      return isCompleted && isPublished && postData.slug === slug;
+    });
+    
+    if (matchingDoc) {
+      // Post exists in Firebase - serve dynamic post page
+      const dynamicPostPath = path.join(staticRootPath, '_site', 'pages', 'dynamic-post.html');
+      const resolvedPath = path.resolve(dynamicPostPath);
+      logger.info({ requestId, resolvedPath }, '[UNIFIED SERVER] ✅ Serving dynamic post page');
+      res.sendFile(resolvedPath, (err) => {
+        if (err) {
+          logger.error({ requestId, error: err.message, resolvedPath }, '[UNIFIED SERVER] ❌ Error serving dynamic post page');
+          next(); // Fall through to static file serving (maybe it's a legacy Jekyll post)
+        } else {
+          logger.info({ requestId }, '[UNIFIED SERVER] ✅ Dynamic post page served successfully');
+        }
+      });
+    } else {
+      // Post doesn't exist in Firebase - fall through to static file serving (maybe it's a legacy Jekyll post)
+      logger.debug({ requestId, slug }, '[UNIFIED SERVER] Post not found in Firebase, falling through to static files');
+      next();
+    }
+  } catch (error) {
+    logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[UNIFIED SERVER] ❌ Error checking for dynamic post');
+    next(); // Fall through to static file serving on error
+  }
+});
+
 // Serve blog static files (CSS, JS, etc.) from _site/blog directory
 // Note: Using /blog/assets to avoid conflict with /blog/ route
 app.use('/blog/assets', express.static(path.join(blogStaticPath, 'assets')));

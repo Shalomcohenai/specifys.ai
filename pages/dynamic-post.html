@@ -1,0 +1,78 @@
+---
+layout: default
+title: "Blog Post - Specifys.ai"
+description: "Loading blog post..."
+permalink: /dynamic-post/
+extra_css:
+  - /assets/css/pages/post.css
+extra_js:
+  - /assets/js/post-loader.js
+---
+
+<!-- Reading Progress Bar -->
+<div class="reading-progress-bar" id="reading-progress"></div>
+
+<!-- Breadcrumbs -->
+<nav class="breadcrumbs" aria-label="Breadcrumb">
+    <a href="/">Home</a>
+    <span class="separator">/</span>
+    <a href="/blog/">Blog</a>
+    <span class="separator">/</span>
+    <span class="current">Loading...</span>
+</nav>
+
+<article class="post-content">
+    <header class="post-header">
+        <h1 class="post-title">Loading...</h1>
+        <div class="post-meta">
+            <div class="meta-item">
+                <i class="far fa-calendar-alt"></i>
+                <time class="post-date">Loading...</time>
+            </div>
+        </div>
+    </header>
+    
+    <div class="post-body" id="post-body">
+        <div style="text-align: center; padding: 40px;">
+            <p>Loading post...</p>
+        </div>
+    </div>
+    
+    <footer class="post-footer">
+        <!-- Share Buttons -->
+        <div class="share-section">
+            <h4>Share this article</h4>
+            <div class="share-buttons">
+                <a href="#" class="share-btn twitter" onclick="shareOnTwitter(event)" aria-label="Share on Twitter">
+                    <i class="fab fa-twitter"></i>
+                </a>
+                <a href="#" class="share-btn linkedin" onclick="shareOnLinkedIn(event)" aria-label="Share on LinkedIn">
+                    <i class="fab fa-linkedin-in"></i>
+                </a>
+                <a href="#" class="share-btn facebook" onclick="shareOnFacebook(event)" aria-label="Share on Facebook">
+                    <i class="fab fa-facebook-f"></i>
+                </a>
+                <a href="#" class="share-btn copy" onclick="copyLink(event)" aria-label="Copy link">
+                    <i class="fas fa-link"></i>
+                </a>
+            </div>
+        </div>
+        
+        <div class="post-tags-footer">
+            <!-- Tags will be loaded dynamically -->
+        </div>
+        
+        <div class="back-to-blog">
+            <a href="/blog/" class="back-to-blog-btn">
+                <i class="fas fa-arrow-left"></i>
+                <span>Back to All Articles</span>
+            </a>
+        </div>
+    </footer>
+</article>
+
+<!-- Back to Top Button -->
+<button class="back-to-top" id="back-to-top" aria-label="Back to top">
+    <i class="fas fa-arrow-up"></i>
+</button>
+
