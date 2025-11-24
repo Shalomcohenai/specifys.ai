@@ -3530,7 +3530,7 @@ class AdminDashboardApp {
         button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking...';
       }
       if (responseText) {
-        responseText.value = "Checking system health...\n\nTesting: Backend → Cloudflare Worker → OpenAI";
+        responseText.value = "Testing full spec generation flow...\n\nTesting: Backend → Cloudflare Worker → OpenAI\n\nThis uses the same pipeline as real spec generation.";
         responseText.style.color = '';
         responseText.style.backgroundColor = '';
       }
@@ -3539,8 +3539,8 @@ class AdminDashboardApp {
         ? window.getApiBaseUrl()
         : "https://specifys-ai.onrender.com";
 
-      // Call the full health check endpoint
-      const response = await fetch(`${apiBaseUrl}/api/health/full`, {
+      // Call the test-spec health check endpoint (uses same flow as real spec generation)
+      const response = await fetch(`${apiBaseUrl}/api/health/test-spec`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json"

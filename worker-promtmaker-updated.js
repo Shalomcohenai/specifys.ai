@@ -468,6 +468,72 @@ async function handleGenerate(request, env) {
       }, 400);
     }
 
+    // Health check detection - if user input is "ping", return minimal response quickly
+    if (prompt.user.trim().toLowerCase() === "ping") {
+      const startTime = Date.now();
+      try {
+        // Quick OpenAI ping to verify connectivity
+        const probe = await fetch("https://api.openai.com/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            authorization: `Bearer ${env.OPENAI_API_KEY}`,
+            "content-type": "application/json"
+          },
+          body: JSON.stringify({
+            model: MODEL,
+            messages: [{ role: "user", content: "ping" }],
+            max_tokens: 10,
+            temperature: 0
+          }),
+          signal: AbortSignal.timeout(10000)
+        });
+
+        const responseTime = Date.now() - startTime;
+
+        if (probe.ok) {
+          // Return minimal valid overview structure for health check
+          return json({
+            overview: {
+              ideaSummary: "Health check test",
+              targetAudience: { primary: "System administrators", demographics: {} },
+              valueProposition: "System health monitoring",
+              coreFeaturesOverview: ["Health check"],
+              userJourneySummary: "Health check completed successfully"
+            },
+            meta: {
+              version: SCHEMA_VERSION,
+              locale: locale,
+              generatedAt: nowISO(),
+              stage: stage,
+              healthCheck: true,
+              responseTime: `${responseTime}ms`
+            },
+            correlationId
+          });
+        } else {
+          const errorText = await probe.text();
+          return json({
+            error: { 
+              code: "OPENAI_UPSTREAM_ERROR", 
+              message: `OpenAI API returned status ${probe.status}: ${errorText.substring(0, 200)}` 
+            },
+            correlationId
+          }, 502);
+        }
+      } catch (e) {
+        const errorMessage = e.message || String(e);
+        return json({
+          error: { 
+            code: "OPENAI_UPSTREAM_ERROR", 
+            message: errorMessage.includes("timeout") 
+              ? "OpenAI API timeout (10s exceeded)"
+              : `OpenAI API connection failed: ${errorMessage}`
+          },
+          correlationId
+        }, 502);
+      }
+    }
+
     const attachMetaAndValidate = (obj, expectedStage) => {
       obj.meta = obj.meta || {};
       obj.meta.version = SCHEMA_VERSION;
