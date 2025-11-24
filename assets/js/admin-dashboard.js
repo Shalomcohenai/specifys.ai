@@ -764,6 +764,9 @@ class GlobalSearch {
       if (this.dom.blogFields.seoDescription) {
         this.dom.blogFields.seoDescription.value = post.seoDescription || "";
       }
+      if (this.dom.blogFields.author) {
+        this.dom.blogFields.author.value = post.author || "specifys.ai Team";
+      }
 
       if (this.blogSubmitButton) {
         this.blogSubmitButton.innerHTML = '<i class="fas fa-save"></i> Save changes';
@@ -800,6 +803,9 @@ class GlobalSearch {
       this.dom.blogForm.reset();
       if (this.dom.blogFields.date) {
         this.dom.blogFields.date.value = utils.now().toISOString().slice(0, 10);
+      }
+      if (this.dom.blogFields.author) {
+        this.dom.blogFields.author.value = "specifys.ai Team";
       }
       if (this.dom.blogFields.descriptionCount) {
         this.dom.blogFields.descriptionCount.textContent = "0 / 160";
@@ -1006,6 +1012,7 @@ class AdminDashboardApp {
         description: utils.dom("#blog-description"),
         content: utils.dom("#blog-content"),
         tags: utils.dom("#blog-tags"),
+        author: utils.dom("#blog-author"),
         descriptionCount: utils.dom("#blog-description-count")
       },
       blogFeedback: utils.dom("#blog-feedback"),
@@ -2624,8 +2631,15 @@ class AdminDashboardApp {
   }
 
   async handleBlogSubmit() {
-    if (!this.dom.blogForm) return;
+    if (!this.dom.blogForm) {
+      console.error("[BlogPublish] Form not found");
+      return;
+    }
+    
+    console.log("[BlogPublish] Starting blog post submission...");
     const isEditing = Boolean(this.editingPost);
+    console.log("[BlogPublish] Mode:", isEditing ? "editing" : "creating");
+    
     const title = this.dom.blogFields.title?.value.trim() ?? "";
     const description = this.dom.blogFields.description?.value.trim() ?? "";
     const content = this.dom.blogFields.content?.value.trim() ?? "";
@@ -2633,7 +2647,26 @@ class AdminDashboardApp {
     const slugInput = this.dom.blogFields.slug?.value.trim() ?? "";
     const seoTitle = this.dom.blogFields.seoTitle?.value.trim() ?? "";
     const seoDescription = this.dom.blogFields.seoDescription?.value.trim() ?? "";
+    const author = (this.dom.blogFields.author?.value || "specifys.ai Team").trim();
     const dateValue = this.dom.blogFields.date?.value || utils.now().toISOString().slice(0, 10);
+
+    console.log("[BlogPublish] Form data collected:", {
+      title: title ? `${title.substring(0, 50)}...` : "(empty)",
+      description: description ? `${description.substring(0, 30)}...` : "(empty)",
+      content: content ? `${content.substring(0, 30)}...` : "(empty)",
+      author,
+      date: dateValue,
+      hasSlug: !!slugInput,
+      tagsCount: rawTags.split(",").filter(t => t.trim()).length
+    });
+
+    // Beta: Only title is required
+    if (!title) {
+      const errorMsg = "Title is required.";
+      console.error("[BlogPublish] Validation failed:", errorMsg);
+      this.setBlogFeedback(errorMsg, "error");
+      return;
+    }
 
     const tags = rawTags
       .split(",")
@@ -2642,12 +2675,12 @@ class AdminDashboardApp {
 
     const payload = {
       title,
-      description,
-      content,
+      description: description || "No description",
+      content: content || "No content",
       tags,
       date: dateValue,
-      slug: slugInput ? utils.sanitizeSlug(slugInput) : utils.sanitizeSlug(title),
-      branch: "main"
+      author,
+      slug: slugInput ? utils.sanitizeSlug(slugInput) : utils.sanitizeSlug(title)
     };
 
     if (seoTitle) {
@@ -2657,10 +2690,11 @@ class AdminDashboardApp {
       payload.seoDescription = seoDescription;
     }
 
-    if (!payload.title || !payload.description || !payload.content) {
-      this.setBlogFeedback("Please fill in the required fields.", "error");
-      return;
-    }
+    console.log("[BlogPublish] Payload prepared:", {
+      ...payload,
+      content: payload.content ? `${payload.content.substring(0, 50)}...` : "(empty)",
+      description: payload.description ? `${payload.description.substring(0, 30)}...` : "(empty)"
+    });
 
     if (isEditing && this.editingPost?.id) {
       payload.id = this.editingPost.id;
@@ -2674,16 +2708,28 @@ class AdminDashboardApp {
       button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving…';
       button.disabled = true;
     }
+    
     try {
+      console.log("[BlogPublish] Getting auth token...");
       const token = await this.getAuthToken();
+      if (!token) {
+        throw new Error("Failed to get authentication token. Please sign in again.");
+      }
+      console.log("[BlogPublish] Auth token obtained");
+      
       const apiBaseUrl = typeof window.getApiBaseUrl === "function"
         ? window.getApiBaseUrl()
         : "https://specifys-ai.onrender.com";
       const requestUrl = isEditing
         ? `${apiBaseUrl}/api/blog/update-post`
         : `${apiBaseUrl}/api/blog/create-post`;
+      
+      console.log("[BlogPublish] API URL:", requestUrl);
+      console.log("[BlogPublish] Sending request...");
+      
       const makeRequest = async (idToken) => {
-        return fetch(requestUrl, {
+        console.log("[BlogPublish] Making fetch request with token:", idToken ? `${idToken.substring(0, 20)}...` : "none");
+        const response = await fetch(requestUrl, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -2691,36 +2737,65 @@ class AdminDashboardApp {
           },
           body: JSON.stringify(payload)
         });
+        console.log("[BlogPublish] Response received:", {
+          status: response.status,
+          statusText: response.statusText,
+          headers: Object.fromEntries(response.headers.entries())
+        });
+        return response;
       };
 
       let response = await makeRequest(token);
       if (response.status === 401) {
-        console.info("[BlogPublish] Token rejected, attempting refresh…");
+        console.warn("[BlogPublish] Token rejected (401), attempting refresh…");
         const refreshedToken = await this.getAuthToken(true);
         if (!refreshedToken) {
-          throw new Error("Unable to refresh authentication token.");
+          throw new Error("Unable to refresh authentication token. Please sign in again.");
         }
+        console.log("[BlogPublish] Retrying with refreshed token...");
         response = await makeRequest(refreshedToken);
       }
+      
       const text = await response.text();
+      console.log("[BlogPublish] Response text:", text ? `${text.substring(0, 200)}...` : "(empty)");
+      
       let result = null;
       try {
         result = text ? JSON.parse(text) : null;
+        console.log("[BlogPublish] Parsed response:", result);
       } catch (parseError) {
-        console.warn("Non-JSON response from blog endpoint", parseError, text);
+        console.error("[BlogPublish] Failed to parse JSON response:", {
+          error: parseError.message,
+          text: text.substring(0, 500)
+        });
+        throw new Error(`Server returned invalid response: ${response.status} ${response.statusText}`);
       }
-      if (!response.ok || !(result && result.success)) {
-        console.warn("[BlogPublish] Request failed", {
+      
+      if (!response.ok) {
+        console.error("[BlogPublish] Request failed:", {
           url: requestUrl,
           status: response.status,
           statusText: response.statusText,
-          result
+          result,
+          payload: { ...payload, content: payload.content ? `${payload.content.substring(0, 50)}...` : "(empty)" }
         });
         const message =
           result?.error ||
-          `Failed to ${isEditing ? "update" : "queue"} blog post (HTTP ${response.status} ${response.statusText})`;
+          `Failed to ${isEditing ? "update" : "create"} blog post (HTTP ${response.status} ${response.statusText})`;
         throw new Error(message);
       }
+      
+      if (!(result && result.success)) {
+        console.error("[BlogPublish] Response indicates failure:", {
+          result,
+          success: result?.success,
+          error: result?.error
+        });
+        const message = result?.error || `Failed to ${isEditing ? "update" : "create"} blog post`;
+        throw new Error(message);
+      }
+      
+      console.log("[BlogPublish] Success! Post created/updated:", result.post?.id || "unknown");
       if (isEditing) {
         this.setBlogFeedback("Post updated successfully.", "success");
         this.exitBlogEditMode({ resetForm: true });
@@ -2728,7 +2803,8 @@ class AdminDashboardApp {
           console.warn("Blog queue refresh failed after update", queueError)
         );
       } else {
-        this.setBlogFeedback("Post added to queue successfully.", "success");
+        console.log("[BlogPublish] Post created successfully, resetting form...");
+        this.setBlogFeedback("✅ Post created successfully!", "success");
         this.dom.blogForm.reset();
         if (this.dom.blogFields.date) {
           this.dom.blogFields.date.value = utils.now().toISOString().slice(0, 10);
@@ -2736,21 +2812,27 @@ class AdminDashboardApp {
         if (this.dom.blogFields.slug) {
           delete this.dom.blogFields.slug.dataset.manual;
         }
+        if (this.dom.blogFields.author) {
+          this.dom.blogFields.author.value = "specifys.ai Team";
+        }
         if (this.dom.blogFields.descriptionCount) {
           this.dom.blogFields.descriptionCount.textContent = "0 / 160";
         }
         try {
           await this.refreshBlogQueue({ silent: true });
         } catch (queueError) {
-          console.warn("Blog queue refresh failed after publish", queueError);
+          console.warn("[BlogPublish] Blog queue refresh failed after publish", queueError);
         }
       }
     } catch (error) {
-      console.error("[BlogPublish] Blog save failed", {
+      console.error("[BlogPublish] ❌ Blog save failed", {
         message: error.message,
-        stack: error.stack
+        stack: error.stack,
+        name: error.name,
+        cause: error.cause
       });
-      this.setBlogFeedback(error.message || `Failed to ${isEditing ? "update" : "publish"} blog post.`, "error");
+      const errorDetails = error.message || `Failed to ${isEditing ? "update" : "create"} blog post.`;
+      this.setBlogFeedback(`❌ Error: ${errorDetails}`, "error");
     } finally {
       if (button) {
         button.innerHTML = originalText;
