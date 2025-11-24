@@ -13,9 +13,6 @@
     <meta property="og:site_name" content="Specifys.ai">
     <meta property="og:type" content="website">
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
-  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <link rel="manifest" href="/site.webmanifest">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -212,15 +209,22 @@
 
             <div class="panel api-health-check">
               <div class="panel-header">
-                <h3>API Health Check</h3>
+                <h3>System Health Check</h3>
               </div>
               <div class="health-check-simple">
                 <button class="action-btn" id="api-health-check-btn" type="button">
-                  <i class="fas fa-paper-plane"></i>
-                  Test API with Sample Data
+                  <i class="fas fa-heartbeat"></i>
+                  Check System Health
                 </button>
                 <div class="api-response-box">
-                  <textarea id="api-response-text" readonly placeholder="API response will appear here..."></textarea>
+                  <div class="api-response-header">
+                    <span class="api-response-label">Health Check Results</span>
+                    <button class="action-btn small" id="api-health-copy-btn" type="button" title="Copy logs">
+                      <i class="fas fa-copy"></i>
+                      Copy Logs
+                    </button>
+                  </div>
+                  <textarea id="api-response-text" readonly placeholder="Health check results will appear here..."></textarea>
                 </div>
               </div>
             </div>
