@@ -142,19 +142,21 @@ async function listPosts(req, res, next) {
     try {
         const { limit = 50, published = true } = req.query;
         
-        // Get all completed posts from blogQueue
-        let query = db.collection(BLOG_COLLECTION)
-            .where('status', '==', 'completed');
-        
-        const snapshot = await query
-            .limit(parseInt(limit))
-            .get();
+        // Fetch all posts from blogQueue and filter in memory
+        // This avoids needing a Firestore index for the status field
+        const snapshot = await db.collection(BLOG_COLLECTION).get();
 
-        const posts = snapshot.docs
+        let posts = snapshot.docs
             .map(doc => {
                 const data = doc.data();
                 // Extract postData from queue structure
                 const postData = data.postData || data;
+                
+                // Filter: only include completed posts
+                if (data.status !== 'completed') {
+                    return null;
+                }
+                
                 return {
                     id: doc.id,
                     ...postData,
@@ -164,6 +166,9 @@ async function listPosts(req, res, next) {
                 };
             })
             .filter(post => {
+                // Remove null entries first
+                if (post === null) return false;
+                
                 // Only return posts that are published and completed
                 if (published === 'true' || published === true) {
                     return post.published === true && post.status === 'completed';
@@ -208,15 +213,14 @@ async function getPost(req, res, next) {
         if (id) {
             doc = await db.collection(BLOG_COLLECTION).doc(id).get();
         } else if (slug) {
-            // Search in blogQueue - need to get all and filter by slug in postData
-            const snapshot = await db.collection(BLOG_COLLECTION)
-                .where('status', '==', 'completed')
-                .get();
+            // Search in blogQueue - fetch all and filter in memory (avoids needing Firestore index)
+            const snapshot = await db.collection(BLOG_COLLECTION).get();
             
             const matchingDoc = snapshot.docs.find(d => {
                 const data = d.data();
                 const postData = data.postData || data;
-                return postData.slug === slug;
+                // Filter: completed status and matching slug
+                return data.status === 'completed' && postData.slug === slug;
             });
             
             if (!matchingDoc) {

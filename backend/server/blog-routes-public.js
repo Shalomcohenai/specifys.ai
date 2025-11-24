@@ -13,18 +13,17 @@ async function listPublishedPosts(req, res, next) {
     try {
         const { limit = 50 } = req.query;
         
-        // Only get published posts from blogQueue that are completed
-        // Fetch all completed posts and filter by published status
-        const snapshot = await db.collection(BLOG_COLLECTION)
-            .where('status', '==', 'completed')
-            .get();
+        // Fetch all posts from blogQueue and filter in memory
+        // This avoids needing a Firestore index for the status field
+        const snapshot = await db.collection(BLOG_COLLECTION).get();
 
         let posts = snapshot.docs
             .map(doc => {
                 const data = doc.data();
                 const postData = data.postData || data;
-                // Only include published posts
-                if (postData.published !== true) {
+                
+                // Filter: only include completed and published posts
+                if (data.status !== 'completed' || postData.published !== true) {
                     return null;
                 }
                 return {
@@ -82,15 +81,16 @@ async function getPublishedPost(req, res, next) {
             return next(createError('Slug is required', ERROR_CODES.MISSING_REQUIRED_FIELD, 400));
         }
 
-        // Search in blogQueue for completed posts with matching slug
-        const snapshot = await db.collection(BLOG_COLLECTION)
-            .where('status', '==', 'completed')
-            .get();
+        // Fetch all posts and filter in memory (avoids needing Firestore index)
+        const snapshot = await db.collection(BLOG_COLLECTION).get();
         
         const matchingDoc = snapshot.docs.find(doc => {
             const data = doc.data();
             const postData = data.postData || data;
-            return postData.slug === slug && postData.published === true;
+            // Filter: completed status, published, and matching slug
+            return data.status === 'completed' 
+                && postData.published === true 
+                && postData.slug === slug;
         });
         
         if (!matchingDoc) {
