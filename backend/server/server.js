@@ -160,16 +160,24 @@ app.use((req, res, next) => {
   // Store requestId in request object for use in route handlers
   req.requestId = requestId;
   
-  // Log request start (only for API routes)
-  if (req.path.startsWith('/api/')) {
+  // Skip logging for health checks and other routine checks
+  const skipLoggingPaths = ['/api/health', '/api/status'];
+  const shouldSkipLogging = skipLoggingPaths.some(path => req.path.startsWith(path));
+  
+  // Log request start (only for API routes, skip health checks)
+  if (req.path.startsWith('/api/') && !shouldSkipLogging) {
     logRequest(req, requestId);
   }
   
-  // Log response when it finishes
+  // Log response when it finishes (only errors and non-routine paths)
   res.on('finish', () => {
     const duration = Date.now() - startTime;
-    if (req.path.startsWith('/api/')) {
-      logResponse(req, res, requestId, duration);
+    // Only log errors (4xx, 5xx) or non-routine paths
+    if (req.path.startsWith('/api/') && !shouldSkipLogging) {
+      // Only log if it's an error or if it's not a routine endpoint
+      if (res.statusCode >= 400) {
+        logResponse(req, res, requestId, duration);
+      }
     }
   });
   
@@ -1100,7 +1108,8 @@ const server = app.listen(port, () => {
       
       if (response.ok) {
         const data = await response.json().catch(() => ({}));
-        logger.info({ type: 'keep_alive', status: data.status || 'OK' }, `✅ Health check successful`);
+        // Don't log successful health checks - they're too frequent
+        // logger.debug({ type: 'keep_alive', status: data.status || 'OK' }, `✅ Health check successful`);
       } else {
         // Only warn if it's not a 404 (which might mean wrong URL configured)
         if (response.status === 404) {

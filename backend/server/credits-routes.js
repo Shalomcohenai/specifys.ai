@@ -219,13 +219,13 @@ router.get('/transactions', verifyFirebaseToken, async (req, res, next) => {
  */
 router.get('/entitlements', verifyFirebaseToken, async (req, res, next) => {
   const requestId = req.requestId || `credits-entitlements-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-  logger.info({ requestId, userId: req.user?.uid }, '[credits-routes] GET /entitlements - Fetching entitlements');
+  // Don't log routine entitlements requests - too frequent
   
   try {
     const userId = req.user.uid;
     const result = await creditsService.getEntitlements(userId);
 
-    logger.info({ requestId, userId }, '[credits-routes] GET /entitlements - Success');
+    // Only log errors, not successful requests
     res.json(result);
   } catch (error) {
     logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[credits-routes] GET /entitlements - Error');
