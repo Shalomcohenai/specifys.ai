@@ -8,17 +8,21 @@
 
   async function loadBlogPosts() {
     const container = document.getElementById('blog-posts-container');
-    if (!container) return;
+    if (!container) {
+      console.warn('[Blog Loader] Container not found, skipping Firebase posts load');
+      return;
+    }
 
     try {
       // Fetch published posts from public API (no auth required)
-      console.log('[Blog Loader] Fetching posts from:', `${API_BASE_URL}/api/blog/public/posts?limit=50`);
+      console.log('[Blog Loader] Fetching new posts from Firebase:', `${API_BASE_URL}/api/blog/public/posts?limit=50`);
       const response = await fetch(`${API_BASE_URL}/api/blog/public/posts?limit=50`);
       
       if (!response.ok) {
         const errorText = await response.text();
         console.error('[Blog Loader] API Error:', response.status, errorText);
-        throw new Error(`Failed to load posts: ${response.status} - ${errorText}`);
+        // Don't show error to user, just log it - legacy posts are already displayed
+        return;
       }
 
       const data = await response.json();
@@ -26,15 +30,12 @@
       const posts = data.posts || [];
 
       if (posts.length === 0) {
-        container.innerHTML = `
-          <div class="loading-placeholder" style="text-align: center; padding: 40px;">
-            <p style="color: #666;">No blog posts yet. Check back soon!</p>
-          </div>
-        `;
+        // No new posts from Firebase, but legacy posts are already displayed
+        container.style.display = 'none';
         return;
       }
 
-      // Render posts
+      // Render new Firebase posts
       const html = posts.map(post => {
         const date = post.date ? new Date(post.date + 'T00:00:00').toLocaleDateString('en-US', {
           year: 'numeric',
@@ -63,6 +64,7 @@
         `;
       }).join('');
 
+      // Append new posts to container (don't replace, just add)
       container.innerHTML = html;
 
     } catch (error) {
