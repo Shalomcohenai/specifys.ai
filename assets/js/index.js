@@ -1679,11 +1679,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
   
-  // Fade-in animation for hero title, description, and icons
+  // Fade-in animation for hero title, description, icons, and button
   function initHeroFadeIn() {
     const heroTitle = document.querySelector('.hero-main-title');
     const heroDescription = document.querySelector('.hero-description-text');
     const specIcons = document.querySelectorAll('.spec-card-square .spec-icon');
+    const startButton = document.querySelector('.hero-cta-button-new');
     
     // Fade in title after 0.3s
     if (heroTitle) {
@@ -1705,6 +1706,13 @@ document.addEventListener('DOMContentLoaded', function() {
         icon.classList.add('fade-in');
       }, 700 + (index * 100)); // Each icon appears 100ms after the previous one
     });
+    
+    // Fade in Start button last, before Vanta (~1.1s - after icons start appearing)
+    if (startButton) {
+      setTimeout(() => {
+        startButton.classList.add('fade-in');
+      }, 1100); // Appears after icons start, before Vanta
+    }
   }
   
   // Initialize fade-in animation

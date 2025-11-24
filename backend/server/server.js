@@ -914,8 +914,15 @@ app.get('/blog/', (req, res) => {
 
 // Dynamic route for new Firebase blog posts (format: /YYYY/MM/DD/slug/)
 // This must come BEFORE static file serving to catch dynamic post URLs
-app.get('/:year(\\d{4})/:month(\\d{2})/:day(\\d{2})/:slug/', async (req, res, next) => {
+app.get('/:year/:month/:day/:slug/', async (req, res, next) => {
   const { year, month, day, slug } = req.params;
+  
+  // Validate format: year must be 4 digits, month and day must be 2 digits
+  if (!/^\d{4}$/.test(year) || !/^\d{2}$/.test(month) || !/^\d{2}$/.test(day)) {
+    // Format doesn't match blog post pattern, fall through to static file serving
+    return next();
+  }
+  
   const requestId = `dynamic-post-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   
   logger.info({ requestId, year, month, day, slug }, '[UNIFIED SERVER] 📝 Checking for dynamic blog post');

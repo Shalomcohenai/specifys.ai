@@ -499,6 +499,12 @@ document.addEventListener('DOMContentLoaded', function() {
   <h1>Our Blog</h1>
   
   <div class="gallery-grid">
+    <!-- New Firebase posts (new system - loaded dynamically, appear first) -->
+    <div id="blog-posts-container">
+      <!-- New posts will be loaded here via blog-loader.js -->
+    </div>
+    
+    <!-- Legacy Jekyll posts (old system - don't modify, appear after new posts) -->
     
     <div class="article-preview">
       <h2 class="article-title">
@@ -1267,6 +1273,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
   </div>
 </div>
+
+<!-- Load new blog posts from Firebase API -->
+<script src="/assets/js/blog-loader.js"></script>
 
     </main>
     

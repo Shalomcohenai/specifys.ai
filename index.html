@@ -1298,18 +1298,26 @@ graph TD
           });
         }
         
-        // Optimized loading: Start loading scripts early (after DOMContentLoaded)
-        // but delay Vanta animation start until hero animations complete (~1.5s)
+        // Ultra-optimized loading: Start loading scripts IMMEDIATELY (as soon as head exists)
+        // but delay Vanta animation start until hero animations + button fade-in complete (~1.2s)
         function initVantaOptimized() {
           var scriptsLoadingStarted = false;
-          var domReadyTime = null;
+          var scriptStartTime = Date.now();
           var scriptsReadyTime = null;
           
-          // Start loading scripts as early as possible (after DOM is ready)
+          // Start loading scripts IMMEDIATELY if head exists, otherwise wait for it
           function startLoadingScriptsEarly() {
             if (scriptsLoadingStarted) return;
+            
+            // Check if head exists
+            if (!document.head) {
+              // Head doesn't exist yet, wait a bit and retry
+              setTimeout(startLoadingScriptsEarly, 10);
+              return;
+            }
+            
             scriptsLoadingStarted = true;
-            domReadyTime = Date.now();
+            scriptStartTime = Date.now();
             
             // Load scripts in background (async, non-blocking)
             loadVantaScripts().then(function() {
@@ -1321,18 +1329,18 @@ graph TD
             });
           }
           
-          // Start Vanta animation after hero animations complete AND scripts are loaded
+          // Start Vanta animation after hero animations + button fade-in complete
           function checkAndStartVanta() {
             if (!scriptsLoaded || !scriptsReadyTime) {
-              // Scripts not ready yet
+              // Scripts not ready yet, retry
+              setTimeout(checkAndStartVanta, 50);
               return;
             }
             
-            // Hero animations take ~1.5 seconds to complete
-            // (title starts at 300ms + 800ms animation = 1100ms,
-            //  icons start at 700ms + 800ms animation = 1500ms)
-            var elapsed = Date.now() - domReadyTime;
-            var minDelay = 1500; // Wait for hero animations to complete
+            // Hero animations + button fade-in take ~1.2 seconds to complete
+            // (title: 300ms + 800ms = 1100ms, button: ~1200ms)
+            var elapsed = Date.now() - scriptStartTime;
+            var minDelay = 1200; // Wait for hero animations + button to complete
             var remaining = Math.max(0, minDelay - elapsed);
             
             setTimeout(function() {
@@ -1340,24 +1348,25 @@ graph TD
             }, remaining);
           }
           
-          // Start loading scripts as soon as DOM is ready
-          if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', function() {
-              startLoadingScriptsEarly();
-              // Also set a fallback timer in case scripts load very fast
-              setTimeout(function() {
-                checkAndStartVanta();
-              }, 1600); // 1.5s + small buffer
-            });
-          } else {
-            // DOM already ready
+          // Start loading scripts IMMEDIATELY (as soon as head exists)
+          if (document.head) {
             startLoadingScriptsEarly();
-            setTimeout(function() {
-              checkAndStartVanta();
-            }, 1600); // 1.5s + small buffer
+          } else {
+            // Head doesn't exist yet, wait for it
+            if (document.readyState === 'loading') {
+              document.addEventListener('DOMContentLoaded', startLoadingScriptsEarly);
+            } else {
+              startLoadingScriptsEarly();
+            }
           }
+          
+          // Fallback timer to start Vanta even if scripts load very fast
+          setTimeout(function() {
+            checkAndStartVanta();
+          }, 1300); // 1.2s + small buffer
         }
         
+        // Start loading scripts IMMEDIATELY (don't wait for anything)
         initVantaOptimized();
         
         // Add resize listener
