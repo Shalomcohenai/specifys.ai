@@ -28,7 +28,7 @@ async function sendSpecReadyEmail(userEmail, specTitle, specId, baseUrl) {
     // Use Nodemailer to send email
     const nodemailer = require('nodemailer');
     
-    const transporter = nodemailer.createTransporter({
+    const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
         user: emailUser,
