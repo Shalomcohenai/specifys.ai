@@ -55,7 +55,6 @@ exclude:
   - create-post.bat
   - config/
   - backup-*
-  - sitemap.xml
 
 # Include files
 include:
