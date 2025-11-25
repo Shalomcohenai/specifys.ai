@@ -157,5 +157,17 @@ service cloud.firestore {
       allow read: if isAdmin();
       allow write: if false;
     }
+
+    // Academy categories collection - public read, admin write
+    match /academy_categories/{categoryId} {
+      allow read: if true; // Anyone can read categories
+      allow create, update, delete: if isAdmin(); // Only admins can write
+    }
+
+    // Academy guides collection - public read, admin write
+    match /academy_guides/{guideId} {
+      allow read: if true; // Anyone can read guides
+      allow create, update, delete: if isAdmin(); // Only admins can write
+    }
   }
 }

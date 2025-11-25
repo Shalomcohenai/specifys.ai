@@ -1,0 +1,92 @@
+---
+layout: default
+title: Academy - Specifys.ai
+description: Learn how modern apps work without writing code. Explore guides on security, app structure, and more.
+permalink: /academy.html
+---
+
+<main class="academy-page" itemscope itemtype="https://schema.org/CollectionPage">
+  <!-- Hero Section -->
+  <section class="academy-hero">
+    <div class="container">
+      <h1 itemprop="name">Specifys Academy</h1>
+      <p class="hero-subtitle" itemprop="description">Learn how modern apps work without writing code</p>
+    </div>
+  </section>
+
+  <!-- Search Section -->
+  <section class="academy-search">
+    <div class="container">
+      <div class="search-wrapper">
+        <i class="fas fa-search search-icon"></i>
+        <input type="search" id="academy-search-input" class="search-input" placeholder="Search guides and topics..." autocomplete="off">
+        <button class="search-clear" id="search-clear" style="display: none;" aria-label="Clear search">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="search-results-info" id="search-results-info" style="display: none;"></div>
+    </div>
+  </section>
+
+  <!-- Categories Grid -->
+  <section class="academy-categories" aria-label="Learning Categories">
+    <div class="container">
+      <h2 class="section-title">Browse by Category</h2>
+      <div class="categories-grid" id="categories-grid" role="list">
+        <div class="loading-placeholder">Loading categories...</div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- Points Display Button -->
+<button class="academy-points-btn" id="academy-points-btn" aria-label="View your Academy points">
+  <i class="fas fa-trophy"></i>
+  <span id="points-btn-text">Points</span>
+</button>
+
+<!-- Points Modal -->
+<div class="points-modal" id="points-modal" style="display: none;">
+  <div class="points-modal-backdrop" id="points-modal-backdrop"></div>
+  <div class="points-modal-content">
+    <div class="points-modal-header">
+      <h2>Your Academy Progress</h2>
+      <button class="points-modal-close" id="points-modal-close" aria-label="Close">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="points-modal-body">
+      <div class="points-summary">
+        <div class="points-display">
+          <div class="points-value" id="points-value">0</div>
+          <div class="points-label">Total Points</div>
+        </div>
+        <div class="points-level" id="points-level">
+          <span class="level-badge beginner">Beginner</span>
+        </div>
+      </div>
+      <div class="points-progress">
+        <div class="progress-bar">
+          <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+        </div>
+        <div class="progress-info">
+          <span id="progress-current">0</span> / <span id="progress-next">100</span> points to next level
+        </div>
+      </div>
+      <div class="points-stats">
+        <div class="stat-item">
+          <div class="stat-value" id="completed-guides-count">0</div>
+          <div class="stat-label">Guides Completed</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" id="correct-answers-count">0</div>
+          <div class="stat-label">Correct Answers</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<link rel="stylesheet" href="/assets/css/pages/academy.css">
+<script type="module" src="/assets/js/academy.js"></script>
+

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>New Category · Academy Admin</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/core/variables.css">
+  <link rel="stylesheet" href="/assets/css/core/fonts.css">
+  <link rel="stylesheet" href="/assets/css/core/reset.css">
+  <link rel="stylesheet" href="/assets/css/core/typography.css">
+  <link rel="stylesheet" href="/assets/css/core/base.css">
+  <link rel="stylesheet" href="/assets/css/components/buttons.css">
+  <link rel="stylesheet" href="/assets/css/main.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" referrerpolicy="no-referrer">
+  <link rel="stylesheet" href="/assets/css/pages/admin-dashboard.css">
+</head>
+<body>
+  <div class="admin-shell">
+    <aside class="admin-sidebar">
+      <div class="sidebar-brand">
+        <span class="brand-name">Specifys<span class="accent">.</span>AI</span>
+        <span class="brand-subtitle">Admin</span>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="/pages/admin-dashboard.html" class="nav-link">
+          <span class="icon"><i class="fas fa-chart-line"></i></span>
+          Dashboard
+        </a>
+        <a href="/pages/admin/academy/index.html" class="nav-link active">
+          <span class="icon"><i class="fas fa-graduation-cap"></i></span>
+          Academy
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <a class="home-link" href="/">
+          <i class="fas fa-arrow-left"></i>
+          Back to site
+        </a>
+      </div>
+    </aside>
+
+    <div class="admin-main">
+      <header class="admin-topbar">
+        <div class="topbar-left">
+          <div class="page-title">
+            <h1>New Category</h1>
+            <p>Add a new category to the Academy</p>
+          </div>
+        </div>
+        <div class="topbar-actions">
+          <a href="/pages/admin/academy/index.html" class="action-btn">
+            <i class="fas fa-arrow-left"></i>
+            Back
+          </a>
+        </div>
+      </header>
+
+      <main class="admin-content">
+        <section class="dashboard-section active">
+          <form id="category-form" class="admin-form">
+            <div class="form-group">
+              <label for="category-title">Title *</label>
+              <input type="text" id="category-title" name="title" required maxlength="100">
+            </div>
+
+            <div class="form-group">
+              <label for="category-icon">Icon (FontAwesome class name) *</label>
+              <input type="text" id="category-icon" name="icon" required placeholder="e.g., lock, layers, book">
+              <small class="field-hint">Enter FontAwesome icon name without "fa-" prefix</small>
+            </div>
+
+            <div class="form-group">
+              <label for="category-description">Description *</label>
+              <textarea id="category-description" name="description" rows="4" required maxlength="500"></textarea>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="action-btn primary">
+                <i class="fas fa-save"></i>
+                Create Category
+              </button>
+              <a href="/pages/admin/academy/index.html" class="action-btn secondary">
+                Cancel
+              </a>
+            </div>
+
+            <div class="form-feedback" id="form-feedback" role="status" aria-live="polite"></div>
+          </form>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script type="module" src="/assets/js/admin-academy.js"></script>
+</body>
+</html>
+

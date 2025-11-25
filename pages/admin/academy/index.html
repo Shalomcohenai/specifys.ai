@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>Academy Admin · Specifys.ai</title>
+  <meta name="description" content="Manage Academy categories and guides">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="canonical" href="https://specifys-ai.com/pages/admin/academy/index.html">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="manifest" href="/site.webmanifest">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/assets/css/core/variables.css">
+  <link rel="stylesheet" href="/assets/css/core/fonts.css">
+  <link rel="stylesheet" href="/assets/css/core/reset.css">
+  <link rel="stylesheet" href="/assets/css/core/typography.css">
+  <link rel="stylesheet" href="/assets/css/core/base.css">
+  <link rel="stylesheet" href="/assets/css/components/buttons.css">
+  <link rel="stylesheet" href="/assets/css/components/tables.css">
+  <link rel="stylesheet" href="/assets/css/main.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" referrerpolicy="no-referrer">
+  <link rel="stylesheet" href="/assets/css/pages/admin-dashboard.css">
+</head>
+<body>
+  <div class="admin-shell" id="admin-shell">
+    <aside class="admin-sidebar" aria-label="Admin navigation">
+      <div class="sidebar-brand">
+        <span class="brand-name">Specifys<span class="accent">.</span>AI</span>
+        <span class="brand-subtitle">Admin</span>
+      </div>
+
+      <nav class="sidebar-nav" id="sidebar-nav">
+        <a href="/pages/admin-dashboard.html" class="nav-link">
+          <span class="icon"><i class="fas fa-chart-line"></i></span>
+          Dashboard
+        </a>
+        <a href="/pages/admin/academy/index.html" class="nav-link active">
+          <span class="icon"><i class="fas fa-graduation-cap"></i></span>
+          Academy
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <a class="home-link" href="/">
+          <i class="fas fa-arrow-left"></i>
+          Back to site
+        </a>
+      </div>
+    </aside>
+
+    <div class="admin-main">
+      <header class="admin-topbar">
+        <div class="topbar-left">
+          <div class="page-title">
+            <h1>Academy Management</h1>
+            <p>Manage categories and guides</p>
+          </div>
+        </div>
+        <div class="topbar-actions">
+          <a href="/" class="action-btn home-btn" title="Back to homepage">
+            <i class="fas fa-home"></i>
+            Home
+          </a>
+          <button class="action-btn critical" id="sign-out-btn" type="button">
+            <i class="fas fa-sign-out-alt"></i>
+            Sign out
+          </button>
+        </div>
+      </header>
+
+      <main class="admin-content" id="admin-content">
+        <section class="dashboard-section active" id="academy-section">
+          <header class="section-header">
+            <div>
+              <h2>Academy Content</h2>
+              <p>Manage categories and guides for the Academy section.</p>
+            </div>
+            <div class="section-controls">
+              <a href="/pages/admin/academy/new-category.html" class="action-btn">
+                <i class="fas fa-plus"></i>
+                Add Category
+              </a>
+              <a href="/pages/admin/academy/new-guide.html" class="action-btn">
+                <i class="fas fa-plus"></i>
+                Add Guide
+              </a>
+            </div>
+          </header>
+
+          <!-- Categories -->
+          <div class="academy-admin-section">
+            <h3>Categories</h3>
+            <div class="table-wrapper">
+              <table class="data-table" id="categories-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Icon</th>
+                    <th scope="col">Title</th>
+                    <th scope="col">Description</th>
+                    <th scope="col">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td colspan="4" class="table-empty">Loading categories...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Guides -->
+          <div class="academy-admin-section" style="margin-top: 3rem;">
+            <h3>Guides</h3>
+            <div class="table-wrapper">
+              <table class="data-table" id="guides-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Title</th>
+                    <th scope="col">Category</th>
+                    <th scope="col">Level</th>
+                    <th scope="col">Questions</th>
+                    <th scope="col">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td colspan="5" class="table-empty">Loading guides...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script type="module" src="/assets/js/admin-academy.js"></script>
+</body>
+</html>
+

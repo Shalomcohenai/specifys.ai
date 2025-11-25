@@ -1,0 +1,125 @@
+---
+layout: default
+title: Academy Category - Specifys.ai
+description: Explore guides in this category
+permalink: /academy/category.html
+---
+
+<main class="academy-page" itemscope itemtype="https://schema.org/CollectionPage">
+  <!-- Category Header -->
+  <section class="academy-category-header">
+    <div class="container">
+      <a href="/academy.html" class="back-link" aria-label="Back to Academy">
+        <i class="fas fa-arrow-left" aria-hidden="true"></i> Back to Academy
+      </a>
+      <h1 id="category-title" itemprop="name">Loading...</h1>
+      <p id="category-description" class="category-description" itemprop="description"></p>
+    </div>
+  </section>
+
+  <!-- Search Section -->
+  <section class="academy-search">
+    <div class="container">
+      <div class="search-wrapper">
+        <i class="fas fa-search search-icon"></i>
+        <input type="search" id="academy-search-input" class="search-input" placeholder="Search guides in this category..." autocomplete="off">
+        <button class="search-clear" id="search-clear" style="display: none;" aria-label="Clear search">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="search-results-info" id="search-results-info" style="display: none;"></div>
+    </div>
+  </section>
+
+  <!-- Guides List -->
+  <section class="academy-guides-list">
+    <div class="container">
+      <div class="guides-header">
+        <h2 class="section-title">Guides</h2>
+        <div class="filters-container">
+          <div class="filter-group">
+            <label class="filter-label">Filter by Level:</label>
+            <div class="level-filters" id="level-filters">
+              <button class="filter-btn active" data-filter-type="level" data-value="all">
+                All Levels
+              </button>
+              <button class="filter-btn" data-filter-type="level" data-value="Beginner">
+                Beginner
+              </button>
+              <button class="filter-btn" data-filter-type="level" data-value="Intermediate">
+                Intermediate
+              </button>
+              <button class="filter-btn" data-filter-type="level" data-value="Advanced">
+                Advanced
+              </button>
+            </div>
+          </div>
+          <div class="filter-group">
+            <label class="filter-label">Filter by Topic:</label>
+            <div class="topic-filters" id="topic-filters">
+              <button class="filter-btn active" data-filter-type="topic" data-value="all">
+                All Topics
+              </button>
+              <!-- Topic buttons will be generated dynamically -->
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="guides-grid" id="guides-grid" role="list">
+        <div class="loading-placeholder">Loading guides...</div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- Points Display Button -->
+<button class="academy-points-btn" id="academy-points-btn" aria-label="View your Academy points">
+  <i class="fas fa-trophy"></i>
+  <span id="points-btn-text">Points</span>
+</button>
+
+<!-- Points Modal -->
+<div class="points-modal" id="points-modal" style="display: none;">
+  <div class="points-modal-backdrop" id="points-modal-backdrop"></div>
+  <div class="points-modal-content">
+    <div class="points-modal-header">
+      <h2>Your Academy Progress</h2>
+      <button class="points-modal-close" id="points-modal-close" aria-label="Close">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="points-modal-body">
+      <div class="points-summary">
+        <div class="points-display">
+          <div class="points-value" id="points-value">0</div>
+          <div class="points-label">Total Points</div>
+        </div>
+        <div class="points-level" id="points-level">
+          <span class="level-badge beginner">Beginner</span>
+        </div>
+      </div>
+      <div class="points-progress">
+        <div class="progress-bar">
+          <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+        </div>
+        <div class="progress-info">
+          <span id="progress-current">0</span> / <span id="progress-next">100</span> points to next level
+        </div>
+      </div>
+      <div class="points-stats">
+        <div class="stat-item">
+          <div class="stat-value" id="completed-guides-count">0</div>
+          <div class="stat-label">Guides Completed</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" id="correct-answers-count">0</div>
+          <div class="stat-label">Correct Answers</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<link rel="stylesheet" href="/assets/css/pages/academy.css">
+<script type="module" src="/assets/js/academy.js"></script>
+

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>Edit Guide · Academy Admin</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/core/variables.css">
+  <link rel="stylesheet" href="/assets/css/core/fonts.css">
+  <link rel="stylesheet" href="/assets/css/core/reset.css">
+  <link rel="stylesheet" href="/assets/css/core/typography.css">
+  <link rel="stylesheet" href="/assets/css/core/base.css">
+  <link rel="stylesheet" href="/assets/css/components/buttons.css">
+  <link rel="stylesheet" href="/assets/css/main.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" referrerpolicy="no-referrer">
+  <link rel="stylesheet" href="/assets/css/pages/admin-dashboard.css">
+</head>
+<body>
+  <div class="admin-shell">
+    <aside class="admin-sidebar">
+      <div class="sidebar-brand">
+        <span class="brand-name">Specifys<span class="accent">.</span>AI</span>
+        <span class="brand-subtitle">Admin</span>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="/pages/admin-dashboard.html" class="nav-link">
+          <span class="icon"><i class="fas fa-chart-line"></i></span>
+          Dashboard
+        </a>
+        <a href="/pages/admin/academy/index.html" class="nav-link active">
+          <span class="icon"><i class="fas fa-graduation-cap"></i></span>
+          Academy
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <a class="home-link" href="/">
+          <i class="fas fa-arrow-left"></i>
+          Back to site
+        </a>
+      </div>
+    </aside>
+
+    <div class="admin-main">
+      <header class="admin-topbar">
+        <div class="topbar-left">
+          <div class="page-title">
+            <h1>Edit Guide</h1>
+            <p>Edit an existing guide</p>
+          </div>
+        </div>
+        <div class="topbar-actions">
+          <a href="/pages/admin/academy/index.html" class="action-btn">
+            <i class="fas fa-arrow-left"></i>
+            Back
+          </a>
+        </div>
+      </header>
+
+      <main class="admin-content">
+        <section class="dashboard-section active">
+          <div id="loading-placeholder" class="loading-placeholder">Loading guide...</div>
+          <form id="guide-form" class="admin-form" style="display: none;">
+            <input type="hidden" id="guide-id" name="guideId">
+
+            <div class="form-group">
+              <label for="guide-category">Category *</label>
+              <select id="guide-category" name="category" required>
+                <option value="">Loading categories...</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="guide-title">Title *</label>
+              <input type="text" id="guide-title" name="title" required maxlength="200">
+            </div>
+
+            <div class="form-group">
+              <label for="guide-level">Level *</label>
+              <select id="guide-level" name="level" required>
+                <option value="Beginner">Beginner</option>
+                <option value="Intermediate">Intermediate</option>
+                <option value="Advanced">Advanced</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="guide-what-you-learn">What You'll Learn (one per line) *</label>
+              <textarea id="guide-what-you-learn" name="whatYouLearn" rows="5" required></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="guide-content">Content (HTML) *</label>
+              <textarea id="guide-content" name="content" rows="15" required></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="guide-summary">Summary *</label>
+              <textarea id="guide-summary" name="summary" rows="3" required maxlength="500"></textarea>
+            </div>
+
+            <!-- Question 1 -->
+            <div class="question-form-block">
+              <h3>Question 1</h3>
+              <div class="form-group">
+                <label for="q1-question">Question *</label>
+                <input type="text" id="q1-question" name="q1-question" required>
+              </div>
+              <div class="form-group">
+                <label>Answers *</label>
+                <input type="text" id="q1-answer0" placeholder="Answer 1" required>
+                <input type="text" id="q1-answer1" placeholder="Answer 2" required>
+                <input type="text" id="q1-answer2" placeholder="Answer 3" required>
+                <input type="text" id="q1-answer3" placeholder="Answer 4" required>
+              </div>
+              <div class="form-group">
+                <label for="q1-correct">Correct Answer Index (0-3) *</label>
+                <input type="number" id="q1-correct" name="q1-correct" min="0" max="3" required>
+              </div>
+            </div>
+
+            <!-- Question 2 -->
+            <div class="question-form-block">
+              <h3>Question 2</h3>
+              <div class="form-group">
+                <label for="q2-question">Question *</label>
+                <input type="text" id="q2-question" name="q2-question" required>
+              </div>
+              <div class="form-group">
+                <label>Answers *</label>
+                <input type="text" id="q2-answer0" placeholder="Answer 1" required>
+                <input type="text" id="q2-answer1" placeholder="Answer 2" required>
+                <input type="text" id="q2-answer2" placeholder="Answer 3" required>
+                <input type="text" id="q2-answer3" placeholder="Answer 4" required>
+              </div>
+              <div class="form-group">
+                <label for="q2-correct">Correct Answer Index (0-3) *</label>
+                <input type="number" id="q2-correct" name="q2-correct" min="0" max="3" required>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="action-btn primary">
+                <i class="fas fa-save"></i>
+                Update Guide
+              </button>
+              <a href="/pages/admin/academy/index.html" class="action-btn secondary">
+                Cancel
+              </a>
+            </div>
+
+            <div class="form-feedback" id="form-feedback" role="status" aria-live="polite"></div>
+          </form>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script type="module" src="/assets/js/admin-academy.js"></script>
+</body>
+</html>
+
