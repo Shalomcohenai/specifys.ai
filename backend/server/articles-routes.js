@@ -2,6 +2,7 @@
 const { db, admin } = require('./firebase-admin');
 const { createError, ERROR_CODES } = require('./error-handler');
 const { logger } = require('./logger');
+const { generateAndSaveSitemap } = require('./sitemap-generator');
 
 // Use built-in fetch for Node.js 18+ or fallback to node-fetch
 let fetch;
@@ -236,6 +237,13 @@ async function generateArticle(req, res, next) {
         // Fetch updated document
         const updatedDoc = await docRef.get();
         const finalData = updatedDoc.data();
+        
+        // Update sitemap if article was published
+        if (finalData.status === 'published') {
+            generateAndSaveSitemap().catch(err => {
+                logger.warn({ requestId, error: err.message }, '[articles-routes] Failed to update sitemap (non-critical)');
+            });
+        }
         
         res.json({
             success: true,
@@ -501,6 +509,15 @@ async function updateArticle(req, res, next) {
         const updatedDoc = await docRef.get();
         const finalData = updatedDoc.data();
         
+        // Update sitemap if status changed to published
+        const wasPublished = doc.data().status === 'published';
+        const isNowPublished = finalData.status === 'published';
+        if (!wasPublished && isNowPublished) {
+            generateAndSaveSitemap().catch(err => {
+                logger.warn({ requestId, error: err.message }, '[articles-routes] Failed to update sitemap (non-critical)');
+            });
+        }
+        
         logger.info({ requestId, articleId: id }, '[articles-routes] PUT update - Success');
         
         res.json({
@@ -540,7 +557,15 @@ async function deleteArticle(req, res, next) {
             return next(createError('Article not found', ERROR_CODES.RESOURCE_NOT_FOUND, 404));
         }
         
+        const articleData = doc.data();
         await docRef.delete();
+        
+        // Update sitemap if deleted article was published
+        if (articleData.status === 'published') {
+            generateAndSaveSitemap().catch(err => {
+                logger.warn({ requestId, error: err.message }, '[articles-routes] Failed to update sitemap (non-critical)');
+            });
+        }
         
         logger.info({ requestId, articleId: id }, '[articles-routes] DELETE article - Success');
         
