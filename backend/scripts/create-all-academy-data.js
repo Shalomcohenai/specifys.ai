@@ -25,7 +25,7 @@ const categories = [
   },
   {
     title: 'App Structure',
-    icon: 'layers',
+    icon: 'project-diagram',
     description: 'Understand how an AI-generated app is built behind the scenes.',
     guides: [
       { title: 'Frontend vs Backend', level: 'Beginner' },
@@ -85,7 +85,7 @@ const categories = [
   },
   {
     title: 'AI Feature Development',
-    icon: 'robot',
+    icon: 'microchip',
     description: 'Learn how to work with AI to build features effectively.',
     guides: [
       { title: 'How AI Creates Code', level: 'Beginner' },

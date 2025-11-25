@@ -3,9 +3,17 @@ PORT=3001
 
 # Firebase Configuration
 FIREBASE_PROJECT_ID=specify-ai
-FIREBASE_SERVICE_ACCOUNT_KEY_FILE=firebase-service-account.json
 FIREBASE_STORAGE_BUCKET=specify-ai.appspot.com
 FIREBASE_API_KEY=AIzaSyB9hr0IWM4EREzkKDxBxYoYinV6LJXWXV4
+
+# Firebase Service Account (choose ONE of the following methods):
+# Method 1: Use environment variable (recommended for production/Render)
+# Copy the entire JSON content from firebase-service-account.json and paste it here as a single line:
+# FIREBASE_SERVICE_ACCOUNT_KEY={"type":"service_account","project_id":"...","private_key":"...","client_email":"..."}
+
+# Method 2: Use file path (for local development)
+# Place firebase-service-account.json in the backend/ directory and uncomment:
+# FIREBASE_SERVICE_ACCOUNT_KEY_FILE=firebase-service-account.json
 
 # Lemon Squeezy Configuration
 LEMON_SQUEEZY_API_KEY=your_lemon_squeezy_api_key_here

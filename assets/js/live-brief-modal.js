@@ -827,13 +827,8 @@ class LiveBriefModal {
     }
     
     try {
-      // Use localhost in development, production URL otherwise
-      const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-      // Server runs on port 10000 by default (from config.js)
-      const serverPort = '10000';
-      const apiBaseUrl = isLocalhost 
-        ? `http://${window.location.hostname}:${serverPort}`
-        : (window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai.onrender.com');
+      // Always use Render backend URL
+      const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai.onrender.com';
       
       const response = await fetch(`${apiBaseUrl}/api/live-brief/transcribe`, {
         method: 'POST',
@@ -1029,13 +1024,8 @@ class LiveBriefModal {
   }
 
   async convertToAnswers() {
-    // Use localhost in development, production URL otherwise
-    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    // Server runs on port 10000 by default (from config.js)
-    const serverPort = '10000';
-    const apiBaseUrl = isLocalhost 
-      ? `http://${window.location.hostname}:${serverPort}`
-      : (window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai.onrender.com');
+    // Always use Render backend URL
+    const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai.onrender.com';
     
     const response = await fetch(`${apiBaseUrl}/api/live-brief/convert-to-answers`, {
       method: 'POST',

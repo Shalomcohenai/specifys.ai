@@ -103,7 +103,7 @@ class AdminAcademy {
         ...doc.data()
       }));
     } catch (error) {
-      console.error('Error loading categories:', error);
+      // Error loading categories
     }
   }
 
@@ -117,7 +117,7 @@ class AdminAcademy {
         ...doc.data()
       }));
     } catch (error) {
-      console.error('Error loading guides:', error);
+      // Error loading guides
     }
   }
 
@@ -200,7 +200,7 @@ class AdminAcademy {
           window.location.href = '/pages/admin/academy/index.html';
         }, 1500);
       } catch (error) {
-        console.error('Error creating category:', error);
+        // Error creating category
         feedback.innerHTML = `<div style="color: red;">Error: ${error.message}</div>`;
       }
     });
@@ -226,7 +226,7 @@ class AdminAcademy {
           window.location.href = '/pages/admin/academy/index.html';
         }, 1500);
       } catch (error) {
-        console.error('Error creating guide:', error);
+        // Error creating guide
         feedback.innerHTML = `<div style="color: red;">Error: ${error.message}</div>`;
       }
     });
@@ -273,12 +273,12 @@ class AdminAcademy {
             window.location.href = '/pages/admin/academy/index.html';
           }, 1500);
         } catch (error) {
-          console.error('Error updating guide:', error);
+          // Error updating guide
           feedback.innerHTML = `<div style="color: red;">Error: ${error.message}</div>`;
         }
       });
     } catch (error) {
-      console.error('Error loading guide:', error);
+      // Error loading guide
       alert('Error loading guide');
       window.location.href = '/pages/admin/academy/index.html';
     }
@@ -376,7 +376,7 @@ class AdminAcademy {
       await this.loadCategories();
       this.renderCategories();
     } catch (error) {
-      console.error('Error deleting category:', error);
+      // Error deleting category
       alert('Error deleting category: ' + error.message);
     }
   }
@@ -391,7 +391,7 @@ class AdminAcademy {
       await this.loadGuides();
       this.renderGuides();
     } catch (error) {
-      console.error('Error deleting guide:', error);
+      // Error deleting guide
       alert('Error deleting guide: ' + error.message);
     }
   }

@@ -44,10 +44,8 @@ class ArticlesPage {
 
     // Get API base URL
     getApiBaseUrl() {
-        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-            return 'http://localhost:10000';
-        }
-        return 'https://specifys-ai.onrender.com';
+        // Always use Render backend URL
+        return window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai.onrender.com';
     }
 
     // Load featured articles for carousel
@@ -73,7 +71,7 @@ class ArticlesPage {
                 carouselTrack.innerHTML = '<div class="carousel-placeholder">No featured articles available</div>';
             }
         } catch (error) {
-            console.error('Error loading featured articles:', error);
+            // Error loading featured articles
             carouselTrack.innerHTML = '<div class="carousel-placeholder">Error loading featured articles</div>';
         }
     }
@@ -218,7 +216,7 @@ class ArticlesPage {
                 throw new Error(result.error || result.message || 'Failed to load articles');
             }
         } catch (error) {
-            console.error('Error loading articles:', error);
+            // Error loading articles
             articlesGrid.innerHTML = `<div class="loading-placeholder error">Error loading articles: ${error.message}</div>`;
         }
     }

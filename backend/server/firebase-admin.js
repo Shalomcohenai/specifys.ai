@@ -1,7 +1,23 @@
 const admin = require('firebase-admin');
-require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
+const dotenv = require('dotenv');
+
+// Load environment variables - try multiple paths
+const backendEnvPath = path.join(__dirname, '..', '.env');
+const rootEnvPath = path.join(__dirname, '..', '..', '.env');
+const serverEnvPath = path.join(__dirname, '.env');
+
+if (fs.existsSync(backendEnvPath)) {
+    dotenv.config({ path: backendEnvPath });
+} else if (fs.existsSync(rootEnvPath)) {
+    dotenv.config({ path: rootEnvPath });
+} else if (fs.existsSync(serverEnvPath)) {
+    dotenv.config({ path: serverEnvPath });
+} else {
+    // Fallback to default lookup
+    dotenv.config();
+}
 
 // Initialize Firebase Admin SDK
 let app;
@@ -44,7 +60,15 @@ try {
     }
     
 } catch (error) {
-
+    console.error('[firebase-admin] Error initializing Firebase Admin SDK:', error.message);
+    console.error('[firebase-admin] Error stack:', error.stack);
+    // Log what we tried to use
+    if (process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
+        console.error('[firebase-admin] FIREBASE_SERVICE_ACCOUNT_KEY exists but failed to initialize');
+    } else {
+        console.error('[firebase-admin] FIREBASE_SERVICE_ACCOUNT_KEY not found in environment');
+    }
+    // Don't throw here - let the app start and handle errors at runtime
 }
 
 const db = admin.firestore();

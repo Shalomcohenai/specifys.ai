@@ -6,20 +6,12 @@ permalink: /academy/guide.html
 ---
 
 <main class="academy-page">
-  <!-- Guide Header -->
-  <header class="academy-guide-header">
+  <!-- Guide Title -->
+  <div class="guide-title-container">
     <div class="container">
-      <nav aria-label="Breadcrumb">
-        <a href="#" id="back-to-category-link" class="back-link" aria-label="Back to Category">
-          <i class="fas fa-arrow-left" aria-hidden="true"></i> Back to Category
-        </a>
-      </nav>
-      <div class="guide-meta">
-        <span id="guide-level" class="level-badge" aria-label="Difficulty level">Beginner</span>
-        <h1 id="guide-title" itemprop="headline">Loading guide...</h1>
-      </div>
+      <h1 id="guide-title" class="guide-title-centered" itemprop="headline">Loading guide...</h1>
     </div>
-  </header>
+  </div>
 
   <!-- Guide Content -->
   <article class="academy-guide-content" itemscope itemtype="https://schema.org/Article">
@@ -46,6 +38,9 @@ permalink: /academy/guide.html
         <section class="guide-questions" id="questions-section" aria-label="Knowledge Check">
           <h2>Test Your Knowledge</h2>
           <div id="questions-container" role="group"></div>
+          <div id="questions-actions" class="questions-actions" style="display: none;">
+            <!-- Buttons will be added here by JavaScript -->
+          </div>
           <div id="login-prompt" class="login-prompt" style="display: none;">
             <p><i class="fas fa-lock" aria-hidden="true"></i> Sign in to answer questions and earn points!</p>
             <a href="/pages/auth.html" class="btn-primary">Sign In</a>

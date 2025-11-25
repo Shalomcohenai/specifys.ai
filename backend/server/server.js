@@ -356,6 +356,7 @@ app.get('/api/articles/list', articlesRoutes.listArticles);
 app.get('/api/articles/featured', articlesRoutes.getFeaturedArticles);
 app.get('/api/articles/:slug', articlesRoutes.getArticleBySlug);
 app.post('/api/articles/:slug/view', articlesRoutes.incrementViewCount);
+app.get('/sitemap.xml', articlesRoutes.generateSitemap);
 app.put('/api/articles/:id', requireAdmin, articlesRoutes.updateArticle);
 app.delete('/api/articles/:id', requireAdmin, articlesRoutes.deleteArticle);
 logger.info({ type: 'route_mounted', path: '/api/articles' }, '[UNIFIED SERVER] ✅ Articles routes mounted');
@@ -989,6 +990,29 @@ app.get('/:year/:month/:day/:slug/', async (req, res, next) => {
 // Note: Using /blog/assets to avoid conflict with /blog/ route
 app.use('/blog/assets', express.static(path.join(blogStaticPath, 'assets')));
 logger.info({ type: 'static_mounted', path: '/blog/assets', directory: path.join(blogStaticPath, 'assets') }, '[UNIFIED SERVER] ✅ Blog assets mounted');
+
+// Handle /pages/articles.html route - serve from _site/pages/articles.html (Jekyll permalink)
+app.get('/pages/articles.html', (req, res) => {
+  const articlesPath = path.join(staticRootPath, '_site', 'pages', 'articles.html');
+  const resolvedPath = path.resolve(articlesPath);
+  logger.info({ type: 'articles_request', path: '/pages/articles.html', resolvedPath }, '[UNIFIED SERVER] 📝 Serving articles.html');
+  res.sendFile(resolvedPath, (err) => {
+    if (err) {
+      logger.error({ type: 'file_error', path: '/pages/articles.html', error: err.message, resolvedPath }, '[UNIFIED SERVER] ❌ Error serving articles.html');
+      // Fallback: try to serve from source pages directory
+      const fallbackPath = path.join(staticRootPath, 'pages', 'articles.html');
+      const fallbackResolvedPath = path.resolve(fallbackPath);
+      res.sendFile(fallbackResolvedPath, (fallbackErr) => {
+        if (fallbackErr) {
+          logger.error({ type: 'file_error', path: '/pages/articles.html', error: fallbackErr.message, fallbackResolvedPath }, '[UNIFIED SERVER] ❌ Error serving articles.html from fallback path');
+          res.status(404).send('Articles page not found');
+        }
+      });
+    } else {
+      logger.info({ type: 'articles_served', path: '/pages/articles.html' }, '[UNIFIED SERVER] ✅ Articles.html served successfully');
+    }
+  });
+});
 
 // Serve root static files AFTER blog routes to avoid conflicts
 app.use(express.static(staticRootPath));

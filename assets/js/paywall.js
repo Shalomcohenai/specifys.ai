@@ -6,9 +6,8 @@
 (function() {
   'use strict';
 
-  const STORE_API_BASE_URL = window.location.hostname === 'localhost'
-    ? 'https://specifys-ai-store.onrender.com/api'
-    : 'https://specifys-ai-store.onrender.com/api';
+  // Always use Render backend URL
+  const STORE_API_BASE_URL = 'https://specifys-ai-store.onrender.com/api';
 
   let lemonConfigPromise = null;
   let lemonSdkPromise = null;

@@ -132,7 +132,7 @@ class ArticlesManager {
                 throw new Error(result.error || result.message || 'Failed to generate article');
             }
         } catch (error) {
-            console.error('Error generating article:', error);
+            // Error generating article
             this.setFeedback(`Error: ${error.message}`, 'error');
         } finally {
             submitBtn.innerHTML = originalText;
@@ -150,11 +150,38 @@ class ArticlesManager {
             const apiBaseUrl = this.getApiBaseUrl();
             const response = await fetch(`${apiBaseUrl}/api/articles/list?status=all&limit=100`);
 
+            // Handle non-OK responses
             if (!response.ok) {
-                throw new Error(`HTTP ${response.status}`);
+                let errorMessage = `Server error (${response.status})`;
+                
+                // Try to parse error response
+                try {
+                    const contentType = response.headers.get('content-type');
+                    if (contentType && contentType.includes('application/json')) {
+                        const errorData = await response.json();
+                        errorMessage = errorData.error || errorData.message || errorMessage;
+                    } else {
+                        const errorText = await response.text();
+                        if (errorText) {
+                            errorMessage = errorText.length > 100 ? `${errorText.substring(0, 100)}...` : errorText;
+                        }
+                    }
+                } catch (parseError) {
+                    // If we can't parse the error, use the status code message
+                    // Could not parse error response
+                }
+                
+                throw new Error(errorMessage);
             }
 
-            const result = await response.json();
+            // Parse successful response
+            let result;
+            try {
+                result = await response.json();
+            } catch (parseError) {
+                // Failed to parse response as JSON
+                throw new Error('Invalid response from server');
+            }
 
             if (result.success) {
                 this.articles = result.articles || [];
@@ -163,8 +190,42 @@ class ArticlesManager {
                 throw new Error(result.error || result.message || 'Failed to load articles');
             }
         } catch (error) {
-            console.error('Error loading articles:', error);
-            this.tableBody.innerHTML = `<tr><td colspan="5" class="table-empty" style="color: #ff6b6b;">Error loading articles: ${error.message}</td></tr>`;
+            // Error loading articles
+            
+            // Display user-friendly error message with retry option
+            const errorMessage = error.message || 'Unknown error occurred';
+            const isNetworkError = error.message.includes('Failed to fetch') || error.message.includes('NetworkError');
+            const isServerError = error.message.includes('500') || error.message.includes('Server error');
+            
+            let displayMessage = 'Unable to load articles. ';
+            if (isNetworkError) {
+                displayMessage += 'Please check your internet connection.';
+            } else if (isServerError) {
+                displayMessage += 'The server encountered an error. Please try again later.';
+            } else {
+                displayMessage += errorMessage;
+            }
+            
+            this.tableBody.innerHTML = `
+                <tr>
+                    <td colspan="5" class="table-empty" style="color: #ff6b6b; padding: 20px;">
+                        <div style="margin-bottom: 10px;">${this.escapeHTML(displayMessage)}</div>
+                        <button 
+                            onclick="articlesManager.loadArticles()" 
+                            style="padding: 8px 16px; background: #4a90e2; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;"
+                            onmouseover="this.style.background='#357abd'"
+                            onmouseout="this.style.background='#4a90e2'"
+                        >
+                            <i class="fas fa-redo"></i> Retry
+                        </button>
+                    </td>
+                </tr>
+            `;
+            
+            // Also show feedback if available
+            if (this.feedback) {
+                this.setFeedback(displayMessage, 'error');
+            }
         }
     }
 
@@ -278,7 +339,7 @@ class ArticlesManager {
                 throw new Error(result.error || result.message || 'Failed to update article');
             }
         } catch (error) {
-            console.error('Error updating article:', error);
+            // Error updating article
             this.setFeedback(`Error: ${error.message}`, 'error');
         }
     }
@@ -315,7 +376,7 @@ class ArticlesManager {
                 throw new Error(result.error || result.message || 'Failed to delete article');
             }
         } catch (error) {
-            console.error('Error deleting article:', error);
+            // Error deleting article
             this.setFeedback(`Error: ${error.message}`, 'error');
         }
     }
@@ -341,11 +402,8 @@ class ArticlesManager {
         if (window.getApiBaseUrl) {
             return window.getApiBaseUrl();
         }
-        // Try to detect from current location
-        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-            return 'http://localhost:10000';
-        }
-        return 'https://specifys-ai.onrender.com';
+        // Always use Render backend URL
+        return window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai.onrender.com';
     }
 
     // Get auth token
@@ -370,7 +428,7 @@ class ArticlesManager {
                 }
             }
         } catch (e) {
-            console.warn('Failed to get auth token:', e);
+            // Failed to get auth token
         }
 
         throw new Error('Not authenticated. Please sign in.');

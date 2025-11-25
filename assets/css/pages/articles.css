@@ -14,7 +14,7 @@
 .articles-hero {
     background: linear-gradient(135deg, #ff6f61 0%, #f57c00 100%);
     color: white;
-    padding: 4rem 0;
+    padding: 6rem 0 4rem 0;
     text-align: center;
 }
 
@@ -23,6 +23,7 @@
     font-weight: 700;
     margin-bottom: 1rem;
     font-family: 'Montserrat', 'Inter', sans-serif;
+    color: white;
 }
 
 .hero-subtitle {
@@ -31,6 +32,7 @@
     max-width: 600px;
     margin: 0 auto;
     font-weight: 400;
+    color: white;
 }
 
 /* Section Title */
@@ -52,6 +54,7 @@
     position: relative;
     max-width: 1000px;
     margin: 0 auto;
+    padding: 0 3rem;
 }
 
 .carousel-wrapper {
@@ -78,7 +81,7 @@
 .carousel-slide-content {
     position: relative;
     background: white;
-    padding: 3rem;
+    padding: 3rem 4rem;
     min-height: 400px;
     display: flex;
     flex-direction: column;
@@ -471,6 +474,10 @@
         font-size: 1.5rem;
     }
 
+    .carousel-container {
+        padding: 0 1.5rem;
+    }
+
     .carousel-slide-content {
         padding: 2rem 1.5rem;
         min-height: 300px;
@@ -497,6 +504,10 @@
 
 @media (max-width: 480px) {
     .container {
+        padding: 0 1rem;
+    }
+
+    .carousel-container {
         padding: 0 1rem;
     }
 

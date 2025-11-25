@@ -55,3 +55,7 @@
 # App dashboard redirect to 404
 /pages/app-dashboard.html* /pages/404.html 301
 
+# Articles redirects
+/pages/article.html /article.html 301
+/pages/articles.html /articles.html 301
+

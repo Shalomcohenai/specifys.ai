@@ -27,10 +27,8 @@ class ArticlePage {
 
     // Get API base URL
     getApiBaseUrl() {
-        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-            return 'http://localhost:10000';
-        }
-        return 'https://specifys-ai.onrender.com';
+        // Always use Render backend URL
+        return window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai.onrender.com';
     }
 
     // Load article from API
@@ -62,9 +60,191 @@ class ArticlePage {
                 throw new Error(result.error || result.message || 'Failed to load article');
             }
         } catch (error) {
-            console.error('Error loading article:', error);
+            // Error loading article
             this.showError(error.message);
         }
+    }
+
+    // Update SEO meta tags
+    updateSEOTags(article) {
+        const baseUrl = window.location.origin;
+        const articleUrl = `${baseUrl}/article.html?slug=${article.slug}`;
+        const articleTitle = article.seo_title || article.title || article.short_title || 'Article';
+        const articleDescription = article.description_160 || article.teaser_90 || '';
+        const articleImage = `${baseUrl}/assets/images/og-image.png`; // Default OG image
+        const publishedDate = article.publishedAt || article.createdAt;
+        const tags = article.tags || [];
+
+        // Update page title
+        document.title = `${articleTitle} - Specifys.ai`;
+
+        // Update or create meta description
+        let metaDesc = document.querySelector('meta[name="description"]');
+        if (!metaDesc) {
+            metaDesc = document.createElement('meta');
+            metaDesc.setAttribute('name', 'description');
+            document.head.appendChild(metaDesc);
+        }
+        metaDesc.setAttribute('content', articleDescription);
+
+        // Update or create meta keywords
+        let metaKeywords = document.querySelector('meta[name="keywords"]');
+        if (!metaKeywords) {
+            metaKeywords = document.createElement('meta');
+            metaKeywords.setAttribute('name', 'keywords');
+            document.head.appendChild(metaKeywords);
+        }
+        const keywordsContent = tags.length > 0 
+            ? tags.join(', ') + ', AI development tools, vibe coding, software innovation'
+            : 'AI development tools, vibe coding, software innovation';
+        metaKeywords.setAttribute('content', keywordsContent);
+
+        // Update or create canonical URL
+        let canonical = document.querySelector('link[rel="canonical"]');
+        if (!canonical) {
+            canonical = document.createElement('link');
+            canonical.setAttribute('rel', 'canonical');
+            document.head.appendChild(canonical);
+        }
+        canonical.setAttribute('href', articleUrl);
+
+        // Open Graph tags
+        const ogTags = {
+            'og:title': articleTitle,
+            'og:description': articleDescription,
+            'og:type': 'article',
+            'og:url': articleUrl,
+            'og:image': articleImage,
+            'og:site_name': 'Specifys.ai',
+            'og:locale': 'en_US'
+        };
+
+        if (publishedDate) {
+            const dateObj = publishedDate instanceof Date ? publishedDate : 
+                          (publishedDate.toDate ? publishedDate.toDate() : new Date(publishedDate));
+            if (!isNaN(dateObj.getTime())) {
+                ogTags['article:published_time'] = dateObj.toISOString();
+                ogTags['article:modified_time'] = dateObj.toISOString();
+            }
+        }
+
+        ogTags['article:author'] = 'Specifys.ai';
+
+        // Update or create Open Graph tags
+        Object.keys(ogTags).forEach(key => {
+            let ogTag = document.querySelector(`meta[property="${key}"]`);
+            if (!ogTag) {
+                ogTag = document.createElement('meta');
+                ogTag.setAttribute('property', key);
+                document.head.appendChild(ogTag);
+            }
+            ogTag.setAttribute('content', ogTags[key]);
+        });
+
+        // Add article:tag tags (multiple tags are allowed, each gets its own meta tag)
+        if (tags.length > 0) {
+            // Remove existing article:tag tags first
+            const existingTags = document.querySelectorAll('meta[property="article:tag"]');
+            existingTags.forEach(tag => tag.remove());
+            
+            // Add new article:tag tags
+            tags.forEach((tag) => {
+                const tagMeta = document.createElement('meta');
+                tagMeta.setAttribute('property', 'article:tag');
+                tagMeta.setAttribute('content', tag);
+                document.head.appendChild(tagMeta);
+            });
+        }
+
+        // Twitter Card tags
+        const twitterTags = {
+            'twitter:card': 'summary_large_image',
+            'twitter:site': '@specifysai',
+            'twitter:creator': '@specifysai',
+            'twitter:title': articleTitle,
+            'twitter:description': articleDescription,
+            'twitter:image': articleImage
+        };
+
+        // Update or create Twitter Card tags
+        Object.keys(twitterTags).forEach(key => {
+            let twitterTag = document.querySelector(`meta[name="${key}"]`);
+            if (!twitterTag) {
+                twitterTag = document.createElement('meta');
+                twitterTag.setAttribute('name', key);
+                document.head.appendChild(twitterTag);
+            }
+            twitterTag.setAttribute('content', twitterTags[key]);
+        });
+
+        // Add Structured Data (JSON-LD)
+        this.addStructuredData(article, articleUrl, publishedDate);
+    }
+
+    // Add Structured Data (JSON-LD) for SEO
+    addStructuredData(article, articleUrl, publishedDate) {
+        // Remove existing article structured data if any
+        const existingScript = document.querySelector('script[type="application/ld+json"][data-article-seo]');
+        if (existingScript) {
+            existingScript.remove();
+        }
+
+        const articleTitle = article.seo_title || article.title || article.short_title || 'Article';
+        const articleDescription = article.description_160 || article.teaser_90 || '';
+        const tags = article.tags || [];
+
+        let datePublished = null;
+        let dateModified = null;
+        
+        if (publishedDate) {
+            const dateObj = publishedDate instanceof Date ? publishedDate : 
+                          (publishedDate.toDate ? publishedDate.toDate() : new Date(publishedDate));
+            if (!isNaN(dateObj.getTime())) {
+                datePublished = dateObj.toISOString();
+                dateModified = dateObj.toISOString();
+            }
+        }
+
+        const structuredData = {
+            "@context": "https://schema.org",
+            "@type": "Article",
+            "headline": articleTitle,
+            "description": articleDescription,
+            "url": articleUrl,
+            "author": {
+                "@type": "Organization",
+                "name": "Specifys.ai",
+                "url": "https://specifys-ai.com"
+            },
+            "publisher": {
+                "@type": "Organization",
+                "name": "Specifys.ai",
+                "logo": {
+                    "@type": "ImageObject",
+                    "url": "https://specifys-ai.com/favicon.ico"
+                }
+            },
+            "mainEntityOfPage": {
+                "@type": "WebPage",
+                "@id": articleUrl
+            }
+        };
+
+        if (datePublished) {
+            structuredData.datePublished = datePublished;
+        }
+        if (dateModified) {
+            structuredData.dateModified = dateModified;
+        }
+        if (tags.length > 0) {
+            structuredData.keywords = tags.join(', ');
+        }
+
+        const script = document.createElement('script');
+        script.setAttribute('type', 'application/ld+json');
+        script.setAttribute('data-article-seo', 'true');
+        script.textContent = JSON.stringify(structuredData);
+        document.head.appendChild(script);
     }
 
     // Render article
@@ -72,14 +252,8 @@ class ArticlePage {
         const articleContent = document.getElementById('article-content');
         if (!articleContent) return;
 
-        // Update page title
-        document.title = `${article.title || article.short_title || 'Article'} - Specifys.ai`;
-        
-        // Update meta description
-        const metaDesc = document.querySelector('meta[name="description"]');
-        if (metaDesc && article.description_160) {
-            metaDesc.content = article.description_160;
-        }
+        // Update SEO tags first
+        this.updateSEOTags(article);
 
         const date = this.formatDate(article.publishedAt || article.createdAt);
         const views = article.views || 0;
@@ -94,7 +268,7 @@ class ArticlePage {
                 const module = await import('https://cdn.jsdelivr.net/npm/marked@11.2.0/lib/marked.esm.js');
                 markedLib = module.marked || module.default || null;
             } catch (e) {
-                console.warn('Failed to load marked.js:', e);
+                // Failed to load marked.js
             }
         }
 
@@ -110,7 +284,7 @@ class ArticlePage {
                     contentHtml = `<pre>${this.escapeHTML(article.content_markdown)}</pre>`;
                 }
             } catch (e) {
-                console.error('Error parsing markdown:', e);
+                // Error parsing markdown
                 contentHtml = `<pre>${this.escapeHTML(article.content_markdown)}</pre>`;
             }
         } else if (article.content_markdown) {
@@ -121,8 +295,14 @@ class ArticlePage {
         articleContent.innerHTML = `
             <header class="article-header">
                 <div class="article-meta">
-                    <span class="article-date">${date}</span>
-                    ${views > 0 ? `<span class="article-views"><i class="fas fa-eye"></i> ${views}</span>` : ''}
+                    <div class="article-meta-left">
+                        <span class="article-date">${date}</span>
+                        ${views > 0 ? `<span class="article-views"><i class="fas fa-eye"></i> ${views}</span>` : ''}
+                    </div>
+                    <a href="/articles.html" class="back-to-articles-btn">
+                        <i class="fas fa-arrow-left"></i>
+                        <span>Back to Articles</span>
+                    </a>
                 </div>
                 ${article.tags && article.tags.length > 0 ? `
                     <div class="article-tags">
@@ -159,7 +339,7 @@ class ArticlePage {
             // Don't wait for response or show errors - view tracking is non-critical
         } catch (error) {
             // Silently fail - view tracking is not critical
-            console.debug('View count update failed:', error);
+            // View count update failed
         }
     }
 
@@ -194,8 +374,7 @@ class ArticlePage {
                 }
             }
         } catch (error) {
-            console.error('Error loading related articles:', error);
-            // Don't show error - related articles are optional
+            // Error loading related articles - optional feature
         }
     }
 

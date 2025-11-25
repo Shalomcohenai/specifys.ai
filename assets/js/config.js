@@ -66,7 +66,7 @@ window.getApiBaseUrl = function() {
                 return baseUrl;
             }
         } catch (e) {
-            console.warn('Error accessing API_CONFIG.baseUrl:', e);
+            // Error accessing API_CONFIG.baseUrl
         }
     }
     

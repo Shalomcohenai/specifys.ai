@@ -9,22 +9,12 @@ permalink: /academy.html
   <!-- Hero Section -->
   <section class="academy-hero">
     <div class="container">
-      <h1 itemprop="name">Specifys Academy</h1>
-      <p class="hero-subtitle" itemprop="description">Learn how modern apps work without writing code</p>
-    </div>
-  </section>
-
-  <!-- Search Section -->
-  <section class="academy-search">
-    <div class="container">
-      <div class="search-wrapper">
-        <i class="fas fa-search search-icon"></i>
-        <input type="search" id="academy-search-input" class="search-input" placeholder="Search guides and topics..." autocomplete="off">
-        <button class="search-clear" id="search-clear" style="display: none;" aria-label="Clear search">
-          <i class="fas fa-times"></i>
-        </button>
+      <div class="hero-header">
+        <div class="hero-title-section">
+          <h1 itemprop="name">Specifys Academy</h1>
+          <p class="hero-subtitle" itemprop="description">Learn how modern apps work without writing code</p>
+        </div>
       </div>
-      <div class="search-results-info" id="search-results-info" style="display: none;"></div>
     </div>
   </section>
 
@@ -44,6 +34,34 @@ permalink: /academy.html
   <i class="fas fa-trophy"></i>
   <span id="points-btn-text">Points</span>
 </button>
+
+<!-- Welcome Modal -->
+<div class="welcome-modal" id="welcome-modal" style="display: none;">
+  <div class="welcome-modal-backdrop" id="welcome-modal-backdrop"></div>
+  <div class="welcome-modal-content">
+    <div class="welcome-modal-header">
+      <h2>Welcome to Specifys Academy</h2>
+      <button class="welcome-modal-close" id="welcome-modal-close" aria-label="Close">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="welcome-modal-body">
+      <div class="welcome-icon">
+        <i class="fas fa-graduation-cap"></i>
+      </div>
+      <h3>Learn How Modern Apps Work</h3>
+      <p>Specifys Academy is designed to help you understand how modern applications are built and work, without needing to write code yourself.</p>
+      <p>Whether you're a product manager, designer, entrepreneur, or simply curious about technology, our guides will help you:</p>
+      <ul class="welcome-features">
+        <li><i class="fas fa-check-circle"></i> Understand app architecture and structure</li>
+        <li><i class="fas fa-check-circle"></i> Learn about security, APIs, databases, and more</li>
+        <li><i class="fas fa-check-circle"></i> Communicate better with developers and AI tools</li>
+        <li><i class="fas fa-check-circle"></i> Make informed decisions about your projects</li>
+      </ul>
+      <button class="welcome-modal-btn" id="welcome-modal-btn">Get Started</button>
+    </div>
+  </div>
+</div>
 
 <!-- Points Modal -->
 <div class="points-modal" id="points-modal" style="display: none;">

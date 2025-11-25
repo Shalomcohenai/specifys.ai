@@ -36,6 +36,9 @@ class AcademyApp {
         // Setup points display
         this.setupPointsDisplay();
 
+        // Setup welcome modal
+        this.setupWelcomeModal();
+
         // Determine which page we're on and load appropriate content
         const path = window.location.pathname;
         if (path.includes('/academy/category.html')) {
@@ -78,6 +81,34 @@ class AcademyApp {
 
         if (modalBackdrop) modalBackdrop.addEventListener('click', closeModal);
         if (modalClose) modalClose.addEventListener('click', closeModal);
+    }
+
+    setupWelcomeModal() {
+        const welcomeModal = document.getElementById('welcome-modal');
+        const welcomeModalBackdrop = document.getElementById('welcome-modal-backdrop');
+        const welcomeModalClose = document.getElementById('welcome-modal-close');
+        const welcomeModalBtn = document.getElementById('welcome-modal-btn');
+        
+        if (!welcomeModal) return;
+
+        // Check if user has seen the welcome modal before
+        const hasSeenWelcome = localStorage.getItem('academy-welcome-seen');
+        const path = window.location.pathname;
+        const isMainPage = !path.includes('/academy/category.html') && !path.includes('/academy/guide.html');
+
+        // Show welcome modal only on main page and if not seen before
+        if (isMainPage && !hasSeenWelcome) {
+            welcomeModal.style.display = 'flex';
+        }
+
+        const closeWelcomeModal = () => {
+            welcomeModal.style.display = 'none';
+            localStorage.setItem('academy-welcome-seen', 'true');
+        };
+
+        if (welcomeModalBackdrop) welcomeModalBackdrop.addEventListener('click', closeWelcomeModal);
+        if (welcomeModalClose) welcomeModalClose.addEventListener('click', closeWelcomeModal);
+        if (welcomeModalBtn) welcomeModalBtn.addEventListener('click', closeWelcomeModal);
     }
 
     updatePointsButton() {
@@ -191,7 +222,7 @@ class AcademyApp {
             // Update points button
             this.updatePointsButton();
         } catch (error) {
-            console.error('Error loading user progress:', error);
+            // Error loading user progress
             this.userProgress = {
                 points: 0,
                 completedGuides: [],
@@ -225,13 +256,10 @@ class AcademyApp {
             // Update SEO for main page
             this.updateMainPageSEO(this.allCategories, this.allGuides);
 
-            // Setup search
-            this.setupSearch();
-
             // Render categories
             this.renderCategories(this.allCategories);
         } catch (error) {
-            console.error('Error loading categories:', error);
+            // Error loading categories
             grid.innerHTML = '<div class="loading-placeholder">Error loading categories. Please try again later.</div>';
         }
     }
@@ -425,14 +453,24 @@ class AcademyApp {
             // Render guides
             this.renderGuides(this.allGuides);
         } catch (error) {
-            console.error('Error loading category:', error);
+            // Error loading category
             document.getElementById('guides-grid').innerHTML = '<div class="loading-placeholder">Error loading guides. Please try again later.</div>';
         }
     }
 
     setupTopicFilters() {
         const topicFiltersContainer = document.getElementById('topic-filters');
-        if (!topicFiltersContainer) return;
+        const topicFilterToggle = document.getElementById('topic-filter-toggle');
+        const topicFiltersCollapsible = document.getElementById('topic-filters-collapsible');
+        
+        if (!topicFiltersContainer || !topicFilterToggle || !topicFiltersCollapsible) return;
+
+        // Setup toggle button
+        topicFilterToggle.addEventListener('click', () => {
+            const isExpanded = topicFilterToggle.getAttribute('aria-expanded') === 'true';
+            topicFilterToggle.setAttribute('aria-expanded', !isExpanded);
+            topicFiltersCollapsible.style.display = isExpanded ? 'none' : 'block';
+        });
 
         // Get unique guide titles (topics)
         const topics = [...new Set(this.allGuides.map(guide => guide.title))].sort();
@@ -466,22 +504,29 @@ class AcademyApp {
                 // Update filter
                 this.currentFilters.topic = btn.dataset.value;
                 this.applyFilters();
+                
+                // Optionally close the collapsible after selection
+                // topicFilterToggle.setAttribute('aria-expanded', 'false');
+                // topicFiltersCollapsible.style.display = 'none';
             });
+        });
+
+        // Close when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!topicFilterToggle.contains(e.target) && !topicFiltersCollapsible.contains(e.target)) {
+                topicFilterToggle.setAttribute('aria-expanded', 'false');
+                topicFiltersCollapsible.style.display = 'none';
+            }
         });
     }
 
     setupLevelFilters() {
-        const levelFilterButtons = document.querySelectorAll('[data-filter-type="level"]');
-        levelFilterButtons.forEach(btn => {
-            btn.addEventListener('click', () => {
-                // Update active state for level filters
-                levelFilterButtons.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
+        const levelSelect = document.getElementById('level-select');
+        if (!levelSelect) return;
 
-                // Update filter
-                this.currentFilters.level = btn.dataset.value;
-                this.applyFilters();
-            });
+        levelSelect.addEventListener('change', (e) => {
+            this.currentFilters.level = e.target.value;
+            this.applyFilters();
         });
     }
 
@@ -571,16 +616,10 @@ class AcademyApp {
 
             // Update page content
             document.getElementById('guide-title').textContent = guide.title;
-            const levelClass = guide.level ? guide.level.toLowerCase() : 'beginner';
-            const levelBadge = document.getElementById('guide-level');
-            levelBadge.textContent = guide.level || 'Beginner';
-            levelBadge.className = `level-badge ${levelClass}`;
-
-            // Back link
-            if (category) {
-                const backLink = document.getElementById('back-to-category-link');
-                backLink.href = `/academy/category.html?category=${guide.category}`;
-            }
+            
+            // Store category for use in questions section
+            this.currentGuideCategory = category;
+            this.currentGuideCategoryId = guide.category;
 
             // What You'll Learn
             const learnList = document.getElementById('what-you-learn-list');
@@ -606,7 +645,7 @@ class AcademyApp {
             this.setupQuestions(guide);
 
         } catch (error) {
-            console.error('Error loading guide:', error);
+            // Error loading guide
             document.getElementById('guide-body').innerHTML = '<div class="loading-placeholder">Error loading guide. Please try again later.</div>';
         }
     }
@@ -656,12 +695,26 @@ class AcademyApp {
             </div>
         `).join('');
 
+        // Add buttons container
+        const questionsActions = document.getElementById('questions-actions');
+        questionsActions.style.display = 'flex';
+        questionsActions.innerHTML = '';
+        
         // Add submit button
         const submitBtn = document.createElement('button');
         submitBtn.className = 'submit-questions-btn';
         submitBtn.textContent = 'Submit Answers';
         submitBtn.addEventListener('click', () => this.submitAnswers(guide));
-        questionsContainer.appendChild(submitBtn);
+        questionsActions.appendChild(submitBtn);
+        
+        // Add back to category button
+        if (this.currentGuideCategoryId) {
+            const backBtn = document.createElement('a');
+            backBtn.className = 'back-to-category-btn';
+            backBtn.href = `/academy/category.html?category=${this.currentGuideCategoryId}`;
+            backBtn.innerHTML = '<i class="fas fa-arrow-left" aria-hidden="true"></i> Back to Category';
+            questionsActions.appendChild(backBtn);
+        }
     }
 
     async submitAnswers(guide) {
@@ -747,7 +800,7 @@ class AcademyApp {
             this.showQuestionResults(guide, updatedAnswers[guide.id], userAnswers);
 
         } catch (error) {
-            console.error('Error submitting answers:', error);
+            // Error submitting answers
             alert('Error submitting answers. Please try again.');
         }
     }

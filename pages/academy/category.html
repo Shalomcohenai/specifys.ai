@@ -12,20 +12,20 @@ permalink: /academy/category.html
       <a href="/academy.html" class="back-link" aria-label="Back to Academy">
         <i class="fas fa-arrow-left" aria-hidden="true"></i> Back to Academy
       </a>
-      <h1 id="category-title" itemprop="name">Loading...</h1>
-      <p id="category-description" class="category-description" itemprop="description"></p>
-    </div>
-  </section>
-
-  <!-- Search Section -->
-  <section class="academy-search">
-    <div class="container">
-      <div class="search-wrapper">
-        <i class="fas fa-search search-icon"></i>
-        <input type="search" id="academy-search-input" class="search-input" placeholder="Search guides in this category..." autocomplete="off">
-        <button class="search-clear" id="search-clear" style="display: none;" aria-label="Clear search">
-          <i class="fas fa-times"></i>
-        </button>
+      <div class="category-header-content">
+        <div class="category-title-section">
+          <h1 id="category-title" itemprop="name">Loading...</h1>
+          <p id="category-description" class="category-description" itemprop="description"></p>
+        </div>
+        <div class="category-search-section">
+          <div class="search-wrapper">
+            <i class="fas fa-search search-icon"></i>
+            <input type="search" id="academy-search-input" class="search-input" placeholder="Search guides in this category..." autocomplete="off">
+            <button class="search-clear" id="search-clear" style="display: none;" aria-label="Clear search">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
       </div>
       <div class="search-results-info" id="search-results-info" style="display: none;"></div>
     </div>
@@ -37,30 +37,27 @@ permalink: /academy/category.html
       <div class="guides-header">
         <h2 class="section-title">Guides</h2>
         <div class="filters-container">
-          <div class="filter-group">
-            <label class="filter-label">Filter by Level:</label>
-            <div class="level-filters" id="level-filters">
-              <button class="filter-btn active" data-filter-type="level" data-value="all">
-                All Levels
-              </button>
-              <button class="filter-btn" data-filter-type="level" data-value="Beginner">
-                Beginner
-              </button>
-              <button class="filter-btn" data-filter-type="level" data-value="Intermediate">
-                Intermediate
-              </button>
-              <button class="filter-btn" data-filter-type="level" data-value="Advanced">
-                Advanced
-              </button>
-            </div>
+          <div class="filter-group level-filter-group">
+            <label class="filter-label" for="level-select">Level:</label>
+            <select id="level-select" class="level-select" name="level">
+              <option value="all">All Levels</option>
+              <option value="Beginner">Beginner</option>
+              <option value="Intermediate">Intermediate</option>
+              <option value="Advanced">Advanced</option>
+            </select>
           </div>
-          <div class="filter-group">
-            <label class="filter-label">Filter by Topic:</label>
-            <div class="topic-filters" id="topic-filters">
-              <button class="filter-btn active" data-filter-type="topic" data-value="all">
-                All Topics
-              </button>
-              <!-- Topic buttons will be generated dynamically -->
+          <div class="filter-group topic-filter-group">
+            <button class="filter-toggle-btn" id="topic-filter-toggle" aria-expanded="false">
+              <span>Filter by Topic</span>
+              <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="topic-filters-collapsible" id="topic-filters-collapsible" style="display: none;">
+              <div class="topic-filters" id="topic-filters">
+                <button class="filter-btn active" data-filter-type="topic" data-value="all">
+                  All Topics
+                </button>
+                <!-- Topic buttons will be generated dynamically -->
+              </div>
             </div>
           </div>
         </div>

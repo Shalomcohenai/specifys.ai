@@ -31,7 +31,7 @@ defaults:
 # Plugins (GitHub Pages compatible)
 plugins:
   - jekyll-redirect-from
-  - jekyll-sitemap
+  # jekyll-sitemap disabled - using dynamic sitemap from backend server
   - jekyll-feed
 
 # Exclude files from processing
@@ -55,6 +55,7 @@ exclude:
   - create-post.bat
   - config/
   - backup-*
+  - sitemap.xml
 
 # Include files
 include:

@@ -137,9 +137,9 @@
     <script>
       document.addEventListener('DOMContentLoaded', function() {
         window.LibraryLoader.loadLibraries(['mermaid', 'marked']).then(function() {
-          console.log('Libraries loaded for spec viewer');
+          // Libraries loaded for spec viewer
         }).catch(function(error) {
-          console.error('Failed to load required libraries:', error);
+          // Failed to load required libraries
         });
       });
     </script>
@@ -868,11 +868,11 @@ async function sendSpecReadyNotification(specId) {
         
         const result = await response.json();
         if (result.success) {
-            console.log('✅ Spec ready notification sent successfully');
+            // Spec ready notification sent successfully
         }
     } catch (error) {
         // Silently fail - don't interrupt user experience
-        console.log('Failed to send spec ready notification:', error);
+        // Failed to send spec ready notification
     }
 }
 
@@ -1272,7 +1272,7 @@ function displaySpec(data) {
     if (data.status?.overview === 'ready' && !data.emailNotificationSent) {
         sendSpecReadyNotification(data.id).catch(err => {
             // Silently fail - don't interrupt user experience
-            console.log('Failed to send spec ready notification:', err);
+            // Failed to send spec ready notification
         });
     }
     
@@ -1697,7 +1697,7 @@ async function generateMindMap() {
             throw new Error('Invalid mind map data received - no mindMap field');
         }
         
-        console.log('Mind map result from worker:', result);
+        // Mind map result from worker
         
         // Display the mind map
         await displayMindMap(result.mindMap);
@@ -1716,7 +1716,7 @@ async function generateMindMap() {
         showNotification('Mind map generated successfully!', 'success');
         
     } catch (error) {
-        console.error('Error generating mind map:', error);
+        // Error generating mind map
         container.innerHTML = `<div class="locked-tab-message"><h3><i class="fa fa-exclamation-triangle"></i> Error Generating Mind Map</h3><p>${error.message || 'There was an error generating the mind map. Please try again.'}</p></div>`;
         generateBtn.disabled = false;
         generateBtn.innerHTML = '<i class="fa fa-magic"></i> Generate Mind Map';
@@ -1886,7 +1886,7 @@ async function displayMindMap(data) {
         
         // Convert data format if needed
         let drawflowData;
-        console.log('Data received:', data);
+        // Data received
         
         if (!data) {
             throw new Error('No data received from worker');
@@ -1897,20 +1897,20 @@ async function displayMindMap(data) {
             drawflowData = data;
         } else if (data.nodeData) {
             // Convert from MindElixir format to Drawflow
-            console.log('Converting MindElixir format to Drawflow...');
+            // Converting MindElixir format to Drawflow
             drawflowData = convertToDrawflow(data);
         } else {
             throw new Error(`Unknown data format. Expected drawflow or nodeData structure. Got: ${JSON.stringify(Object.keys(data))}`);
         }
         
-        console.log('Drawflow data to import:', drawflowData);
+        // Drawflow data to import
         
         // Import the data
         drawflowInstance.import(drawflowData);
         
-        console.log('Mind Map initialized successfully with Drawflow');
+        // Mind Map initialized successfully with Drawflow
     } catch (error) {
-        console.error('Error initializing Drawflow:', error);
+        // Error initializing Drawflow
         container.innerHTML = `<div class="locked-tab-message"><h3><i class="fa fa-exclamation-triangle"></i> Error Displaying Mind Map</h3><p>Failed to initialize flow diagram viewer: ${error.message}</p><p>Please refresh the page and try again.</p></div>`;
     }
 }
@@ -4724,7 +4724,7 @@ window.scrollToSection = function(sectionId) {
     // First, make sure the correct tab is shown
     const section = document.getElementById(sectionId);
     if (!section) {
-        console.warn('Section not found:', sectionId);
+        // Section not found
         return;
     }
     
@@ -6074,7 +6074,7 @@ function displayMockup(mockupData) {
     }
     
     if (!generateSection || !viewerSection) {
-        console.error('Failed to create mockup sections');
+        // Failed to create mockup sections
         return;
     }
     
@@ -6489,7 +6489,7 @@ async function generateMockupSpec() {
                 });
             } else {
                 mockupBatchManager.failedScreens.push(screen);
-                console.warn(`Failed to generate mockup for screen: ${screen.name}`);
+                // Failed to generate mockup for screen
             }
             
             // Small delay between requests to avoid rate limiting
@@ -6557,7 +6557,7 @@ async function generateMockupSpec() {
         showNotification(successMsg, mockupBatchManager.failedScreens.length > 0 ? 'warning' : 'success');
         
     } catch (error) {
-        console.error('Error generating mockups:', error);
+        // Error generating mockups
         container.innerHTML = `
             <div class="locked-tab-message">
                 <h3><i class="fa fa-exclamation-triangle"></i> Error Generating Mockups</h3>
@@ -6608,7 +6608,7 @@ async function generateSingleMockupWithRetry(screen, maxRetries = 3) {
             return data.mockup;
             
         } catch (error) {
-            console.warn(`Attempt ${attempt}/${maxRetries} failed for screen ${screen.name}:`, error);
+            // Attempt failed for screen
             
             if (attempt === maxRetries) {
                 // Last attempt failed
@@ -7176,7 +7176,7 @@ async function generatePrompts() {
                 // Update export checkboxes when prompts are ready
                 updateExportCheckboxes();
             } catch (error) {
-                console.error('Failed to save prompts to Firebase:', error);
+                // Failed to save prompts to Firebase
             }
         }
         
@@ -7192,7 +7192,7 @@ async function generatePrompts() {
         showNotification('Prompts generated successfully!', 'success');
         
     } catch (error) {
-        console.error('Error generating prompts:', error);
+        // Error generating prompts
         showNotification(`Failed to generate prompts: ${error.message}`, 'error');
         
         const container = document.getElementById('prompts-data');
@@ -7420,7 +7420,7 @@ function copyPromptToClipboard() {
     navigator.clipboard.writeText(window.fullPromptText).then(() => {
         showNotification('Prompt copied to clipboard!', 'success');
     }).catch(err => {
-        console.error('Failed to copy:', err);
+        // Failed to copy
         showNotification('Failed to copy prompt', 'error');
     });
 }
@@ -7864,6 +7864,8 @@ function updateDiagramsStatus(status) {
       <a href="/pages/how.html" aria-label="Learn how specifys.ai works">How It Works</a>
       <a href="/pages/about.html" aria-label="Learn more about specifys.ai">About Us</a>
       <a href="/blog/" aria-label="Visit our blog">Blog</a>
+      <a href="/pages/articles.html" aria-label="Browse our articles">Articles</a>
+      <a href="/academy.html" aria-label="Visit Specifys Academy">Academy</a>
       <a href="/tools/map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
       <a href="/pages/ToolPicker.html" aria-label="Use our Tool Finder">Tool Finder</a>
     </div>
@@ -7947,7 +7949,7 @@ function updateDiagramsStatus(status) {
                             return baseUrl;
                         }
                     } catch (e) {
-                        console.warn('Error accessing API_CONFIG.baseUrl:', e);
+                        // Error accessing API_CONFIG.baseUrl
                     }
                 }
                 
@@ -9046,7 +9048,7 @@ async function renderMermaidToSVG(mermaidCode, diagramId) {
         const { svg } = await mermaid.render(uniqueId, mermaidCode);
         return svg;
     } catch (error) {
-        console.error('Error rendering Mermaid diagram:', error);
+        // Error rendering Mermaid diagram
         // Fallback: return code block
         return `<pre class="code-block"><code>${escapeHtml(mermaidCode)}</code></pre>`;
     }
@@ -9192,7 +9194,7 @@ async function generateExport() {
         }, 1000);
         
     } catch (error) {
-        console.error('Error generating export:', error);
+        // Error generating export
         showNotification('Error generating export: ' + error.message, 'error');
         progressContainer.style.display = 'none';
         generateBtn.disabled = false;
@@ -9617,7 +9619,7 @@ async function generateJiraExport() {
         }, 1000);
         
     } catch (error) {
-        console.error('Error generating Jira export:', error);
+        // Error generating Jira export
         showNotification('Error generating Jira export: ' + error.message, 'error');
         progressContainer.style.display = 'none';
         generateBtn.disabled = false;

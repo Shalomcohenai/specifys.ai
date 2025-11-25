@@ -42,6 +42,49 @@ function validateArticleData(data) {
     return true;
 }
 
+// Helper: Safely convert Firestore Timestamp to Date
+function convertTimestamp(timestamp) {
+    if (!timestamp) return null;
+    
+    // If it's already a Date, return it
+    if (timestamp instanceof Date) {
+        return timestamp;
+    }
+    
+    // If it's a Firestore Timestamp (has toDate method)
+    if (timestamp && typeof timestamp.toDate === 'function') {
+        try {
+            return timestamp.toDate();
+        } catch (e) {
+            logger.warn({ error: e.message }, '[articles-routes] Error converting timestamp with toDate()');
+            return null;
+        }
+    }
+    
+    // If it's a Firestore Timestamp object (has seconds property)
+    if (timestamp && typeof timestamp === 'object' && timestamp.seconds !== undefined) {
+        try {
+            return new Date(timestamp.seconds * 1000 + (timestamp.nanoseconds || 0) / 1000000);
+        } catch (e) {
+            logger.warn({ error: e.message }, '[articles-routes] Error converting timestamp from seconds');
+            return null;
+        }
+    }
+    
+    // If it's a number (milliseconds), convert to Date
+    if (typeof timestamp === 'number') {
+        return new Date(timestamp);
+    }
+    
+    // If it's a string, try to parse it
+    if (typeof timestamp === 'string') {
+        const parsed = Date.parse(timestamp);
+        return isNaN(parsed) ? null : new Date(parsed);
+    }
+    
+    return null;
+}
+
 // Helper: Format article data for Firebase
 function formatArticleForFirebase(workerResponse, topic) {
     const articleSlug = slugify(workerResponse.title);
@@ -200,9 +243,9 @@ async function generateArticle(req, res, next) {
             article: {
                 id: updatedDoc.id,
                 ...finalData,
-                createdAt: finalData.createdAt?.toDate ? finalData.createdAt.toDate() : finalData.createdAt,
-                publishedAt: finalData.publishedAt?.toDate ? finalData.publishedAt.toDate() : finalData.publishedAt,
-                updatedAt: finalData.updatedAt?.toDate ? finalData.updatedAt.toDate() : finalData.updatedAt
+                createdAt: convertTimestamp(finalData.createdAt),
+                publishedAt: convertTimestamp(finalData.publishedAt),
+                updatedAt: convertTimestamp(finalData.updatedAt)
             }
         });
         
@@ -227,26 +270,39 @@ async function listArticles(req, res, next) {
         
         let articles = snapshot.docs
             .map(doc => {
-                const data = doc.data();
-                
-                // Filter by status if specified
-                if (status !== 'all' && data.status !== status) {
+                try {
+                    const data = doc.data();
+                    
+                    // Filter by status if specified
+                    if (status !== 'all' && data.status !== status) {
+                        return null;
+                    }
+                    
+                    // Safely convert timestamps
+                    const createdAt = convertTimestamp(data.createdAt);
+                    const publishedAt = convertTimestamp(data.publishedAt);
+                    const updatedAt = convertTimestamp(data.updatedAt);
+                    
+                    return {
+                        id: doc.id,
+                        ...data,
+                        createdAt,
+                        publishedAt,
+                        updatedAt
+                    };
+                } catch (docError) {
+                    // Log error for this specific document but don't fail the entire request
+                    logger.warn({ requestId, docId: doc.id, error: docError.message }, '[articles-routes] Error processing document, skipping');
                     return null;
                 }
-                
-                return {
-                    id: doc.id,
-                    ...data,
-                    createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : data.createdAt,
-                    publishedAt: data.publishedAt?.toDate ? data.publishedAt.toDate() : data.publishedAt,
-                    updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate() : data.updatedAt
-                };
             })
             .filter(article => article !== null)
             .sort((a, b) => {
                 // Sort by publishedAt descending (newest first), fallback to createdAt
-                const dateA = a.publishedAt?.getTime() || a.createdAt?.getTime() || 0;
-                const dateB = b.publishedAt?.getTime() || b.createdAt?.getTime() || 0;
+                const dateA = (a.publishedAt && a.publishedAt instanceof Date) ? a.publishedAt.getTime() : 
+                             (a.createdAt && a.createdAt instanceof Date) ? a.createdAt.getTime() : 0;
+                const dateB = (b.publishedAt && b.publishedAt instanceof Date) ? b.publishedAt.getTime() : 
+                             (b.createdAt && b.createdAt instanceof Date) ? b.createdAt.getTime() : 0;
                 return dateB - dateA;
             });
         
@@ -288,20 +344,31 @@ async function getFeaturedArticles(req, res, next) {
         
         let articles = snapshot.docs
             .map(doc => {
-                const data = doc.data();
-                
-                // Only include published articles
-                if (data.status !== 'published') {
+                try {
+                    const data = doc.data();
+                    
+                    // Only include published articles
+                    if (data.status !== 'published') {
+                        return null;
+                    }
+                    
+                    // Safely convert timestamps
+                    const createdAt = convertTimestamp(data.createdAt);
+                    const publishedAt = convertTimestamp(data.publishedAt);
+                    const updatedAt = convertTimestamp(data.updatedAt);
+                    
+                    return {
+                        id: doc.id,
+                        ...data,
+                        createdAt,
+                        publishedAt,
+                        updatedAt
+                    };
+                } catch (docError) {
+                    // Log error for this specific document but don't fail the entire request
+                    logger.warn({ requestId, docId: doc.id, error: docError.message }, '[articles-routes] Error processing document in featured, skipping');
                     return null;
                 }
-                
-                return {
-                    id: doc.id,
-                    ...data,
-                    createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : data.createdAt,
-                    publishedAt: data.publishedAt?.toDate ? data.publishedAt.toDate() : data.publishedAt,
-                    updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate() : data.updatedAt
-                };
             })
             .filter(article => article !== null)
             .sort((a, b) => {
@@ -309,8 +376,10 @@ async function getFeaturedArticles(req, res, next) {
                 if (b.views !== a.views) {
                     return (b.views || 0) - (a.views || 0);
                 }
-                const dateA = a.publishedAt?.getTime() || a.createdAt?.getTime() || 0;
-                const dateB = b.publishedAt?.getTime() || b.createdAt?.getTime() || 0;
+                const dateA = (a.publishedAt && a.publishedAt instanceof Date) ? a.publishedAt.getTime() : 
+                             (a.createdAt && a.createdAt instanceof Date) ? a.createdAt.getTime() : 0;
+                const dateB = (b.publishedAt && b.publishedAt instanceof Date) ? b.publishedAt.getTime() : 
+                             (b.createdAt && b.createdAt instanceof Date) ? b.createdAt.getTime() : 0;
                 return dateB - dateA;
             })
             .slice(0, limit);
@@ -356,9 +425,9 @@ async function getArticleBySlug(req, res, next) {
         const result = {
             id: matchingDoc.id,
             ...data,
-            createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : data.createdAt,
-            publishedAt: data.publishedAt?.toDate ? data.publishedAt.toDate() : data.publishedAt,
-            updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate() : data.updatedAt
+            createdAt: convertTimestamp(data.createdAt),
+            publishedAt: convertTimestamp(data.publishedAt),
+            updatedAt: convertTimestamp(data.updatedAt)
         };
         
         logger.info({ requestId, articleId: matchingDoc.id }, '[articles-routes] GET article - Success');
@@ -440,9 +509,9 @@ async function updateArticle(req, res, next) {
             article: {
                 id: updatedDoc.id,
                 ...finalData,
-                createdAt: finalData.createdAt?.toDate ? finalData.createdAt.toDate() : finalData.createdAt,
-                publishedAt: finalData.publishedAt?.toDate ? finalData.publishedAt.toDate() : finalData.publishedAt,
-                updatedAt: finalData.updatedAt?.toDate ? finalData.updatedAt.toDate() : finalData.updatedAt
+                createdAt: convertTimestamp(finalData.createdAt),
+                publishedAt: convertTimestamp(finalData.publishedAt),
+                updatedAt: convertTimestamp(finalData.updatedAt)
             }
         });
         
@@ -522,6 +591,133 @@ async function incrementViewCount(req, res, next) {
     }
 }
 
+// Route: Generate dynamic sitemap.xml
+async function generateSitemap(req, res, next) {
+    const requestId = req.requestId || `sitemap-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    logger.info({ requestId }, '[articles-routes] Generating sitemap.xml');
+    
+    try {
+        const baseUrl = process.env.SITE_URL || 'https://specifys-ai.com';
+        const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+        
+        // Static URLs that should always be in sitemap
+        const staticUrls = [
+            { loc: `${baseUrl}/`, priority: '1.0', changefreq: 'weekly' },
+            { loc: `${baseUrl}/blog/`, priority: '0.9', changefreq: 'weekly' },
+            { loc: `${baseUrl}/articles.html`, priority: '0.9', changefreq: 'weekly' },
+            { loc: `${baseUrl}/academy.html`, priority: '0.9', changefreq: 'weekly' },
+            { loc: `${baseUrl}/pages/about.html`, priority: '0.8', changefreq: 'monthly' },
+            { loc: `${baseUrl}/pages/how.html`, priority: '0.8', changefreq: 'monthly' },
+            { loc: `${baseUrl}/pages/ToolPicker.html`, priority: '0.8', changefreq: 'monthly' },
+            { loc: `${baseUrl}/pages/pricing.html`, priority: '0.8', changefreq: 'monthly' },
+            { loc: `${baseUrl}/pages/why.html`, priority: '0.8', changefreq: 'monthly' },
+            { loc: `${baseUrl}/pages/auth.html`, priority: '0.7', changefreq: 'monthly' },
+            { loc: `${baseUrl}/pages/profile.html`, priority: '0.7', changefreq: 'weekly' },
+            { loc: `${baseUrl}/pages/demo-spec.html`, priority: '0.6', changefreq: 'monthly' },
+            { loc: `${baseUrl}/pages/spec-viewer.html`, priority: '0.85', changefreq: 'weekly' },
+            { loc: `${baseUrl}/tools/map/vibe-coding-tools-map.html`, priority: '0.95', changefreq: 'weekly' }
+        ];
+        
+        // Get all published articles
+        const articlesSnapshot = await db.collection(ARTICLES_COLLECTION)
+            .where('status', '==', 'published')
+            .get();
+        
+        const articleUrls = articlesSnapshot.docs.map(doc => {
+            const data = doc.data();
+            const publishedAt = convertTimestamp(data.publishedAt || data.createdAt);
+            const lastmod = publishedAt ? publishedAt.toISOString().split('T')[0] : today;
+            
+            return {
+                loc: `${baseUrl}/article.html?slug=${data.slug}`,
+                lastmod: lastmod,
+                changefreq: 'monthly',
+                priority: '0.8'
+            };
+        });
+        
+        // Get all academy categories
+        const categoriesSnapshot = await db.collection('academy_categories').get();
+        const categoryUrls = categoriesSnapshot.docs.map(doc => {
+            const data = doc.data();
+            const createdAt = convertTimestamp(data.createdAt);
+            const lastmod = createdAt ? createdAt.toISOString().split('T')[0] : today;
+            
+            return {
+                loc: `${baseUrl}/academy/category.html?category=${doc.id}`,
+                lastmod: lastmod,
+                changefreq: 'weekly',
+                priority: '0.85'
+            };
+        });
+        
+        // Get all academy guides
+        const guidesSnapshot = await db.collection('academy_guides').get();
+        const guideUrls = guidesSnapshot.docs.map(doc => {
+            const data = doc.data();
+            const createdAt = convertTimestamp(data.createdAt);
+            const lastmod = createdAt ? createdAt.toISOString().split('T')[0] : today;
+            
+            return {
+                loc: `${baseUrl}/academy/guide.html?guide=${doc.id}`,
+                lastmod: lastmod,
+                changefreq: 'monthly',
+                priority: '0.8'
+            };
+        });
+        
+        // Combine static and dynamic URLs
+        const allUrls = [...staticUrls, ...articleUrls, ...categoryUrls, ...guideUrls];
+        
+        // Generate XML
+        let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
+        xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
+        
+        allUrls.forEach(url => {
+            xml += '  <url>\n';
+            xml += `    <loc>${escapeXml(url.loc)}</loc>\n`;
+            if (url.lastmod) {
+                xml += `    <lastmod>${url.lastmod}</lastmod>\n`;
+            }
+            xml += `    <changefreq>${url.changefreq || 'monthly'}</changefreq>\n`;
+            xml += `    <priority>${url.priority || '0.8'}</priority>\n`;
+            xml += '  </url>\n';
+        });
+        
+        xml += '</urlset>';
+        
+        logger.info({ 
+            requestId, 
+            urlCount: allUrls.length, 
+            articleCount: articleUrls.length,
+            categoryCount: categoryUrls.length,
+            guideCount: guideUrls.length,
+            staticCount: staticUrls.length
+        }, '[articles-routes] Sitemap generated successfully');
+        
+        res.set('Content-Type', 'application/xml');
+        res.send(xml);
+        
+    } catch (error) {
+        logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[articles-routes] Sitemap generation error');
+        next(createError(error.message || 'Failed to generate sitemap', ERROR_CODES.DATABASE_ERROR, 500));
+    }
+}
+
+// Helper: Escape XML special characters
+function escapeXml(unsafe) {
+    return unsafe.replace(/[<>&'"]/g, function (c) {
+        switch (c) {
+            case '<': return '&lt;';
+            case '>': return '&gt;';
+            case '&': return '&amp;';
+            case '\'': return '&apos;';
+            case '"': return '&quot;';
+        }
+    });
+}
+
+
 module.exports = {
     generateArticle,
     listArticles,
@@ -529,6 +725,7 @@ module.exports = {
     getArticleBySlug,
     updateArticle,
     deleteArticle,
-    incrementViewCount
+    incrementViewCount,
+    generateSitemap
 };
 
