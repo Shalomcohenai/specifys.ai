@@ -299,7 +299,7 @@ class ArticlePage {
                         <span class="article-date">${date}</span>
                         ${views > 0 ? `<span class="article-views"><i class="fas fa-eye"></i> ${views}</span>` : ''}
                     </div>
-                    <a href="/articles.html" class="back-to-articles-btn">
+                    <a href="/pages/articles.html" class="back-to-articles-btn">
                         <i class="fas fa-arrow-left"></i>
                         <span>Back to Articles</span>
                     </a>
@@ -412,7 +412,7 @@ class ArticlePage {
                 <div class="article-error">
                     <h2>Error Loading Article</h2>
                     <p>${this.escapeHTML(message)}</p>
-                    <a href="/articles.html" class="btn-back">Back to Articles</a>
+                    <a href="/pages/articles.html" class="btn-back">Back to Articles</a>
                 </div>
             `;
         }
