@@ -66,10 +66,6 @@
           <span class="icon"><i class="fas fa-stream"></i></span>
           Live Logs
         </button>
-        <button class="nav-link" data-target="blog-section">
-          <span class="icon"><i class="fas fa-newspaper"></i></span>
-          Blog
-        </button>
         <button class="nav-link" data-target="articles-section">
           <span class="icon"><i class="fas fa-file-alt"></i></span>
           Articles
@@ -186,6 +182,16 @@
               <h3>Revenue</h3>
               <p class="metric-value" data-metric="revenue-total">—</p>
               <span class="metric-sub" data-kpi="revenue-range">Range: —</span>
+            </article>
+            <article class="metric-card">
+              <h3>Articles read</h3>
+              <p class="metric-value" data-metric="articles-read">—</p>
+              <span class="metric-sub" data-kpi="articles-read-range">Range: —</span>
+            </article>
+            <article class="metric-card">
+              <h3>Guides read</h3>
+              <p class="metric-value" data-metric="guides-read">—</p>
+              <span class="metric-sub" data-kpi="guides-read-range">Range: —</span>
             </article>
         </div>
 
@@ -411,82 +417,6 @@
           <div class="logs-stream" id="logs-stream">
             <div class="logs-placeholder">Waiting for log events…</div>
                             </div>
-        </section>
-
-        <section class="dashboard-section" id="blog-section">
-          <header class="section-header">
-            <div>
-              <h2>Blog Publishing</h2>
-              <p>Create and queue new posts for specifys.ai/blog.</p>
-                            </div>
-          </header>
-
-          <div class="blog-grid">
-            <form class="blog-form" id="blog-form">
-              <div class="form-group">
-                <label for="blog-title">Title</label>
-                <input id="blog-title" name="title" type="text" required maxlength="120" autocomplete="off">
-                            </div>
-              <div class="form-group">
-                <label for="blog-date">Publish date</label>
-                <input id="blog-date" name="date" type="date" required>
-                            </div>
-                            <div class="form-group">
-                <label for="blog-slug">Slug</label>
-                <input id="blog-slug" name="slug" type="text" maxlength="140" placeholder="Auto-generated from title if left blank">
-                <small class="field-hint">Letters, numbers, and hyphens only.</small>
-                        </div>
-              <div class="form-group">
-                <label for="blog-seo-title">SEO title</label>
-                <input id="blog-seo-title" name="seoTitle" type="text" maxlength="140" placeholder="Optional – defaults to title">
-                    </div>
-                            <div class="form-group">
-                <label for="blog-seo-description">SEO description</label>
-                <textarea id="blog-seo-description" name="seoDescription" rows="2" maxlength="160" placeholder="Optional – defaults to description"></textarea>
-                            </div>
-                            <div class="form-group">
-                <label for="blog-description">Description</label>
-                <textarea id="blog-description" name="description" rows="3" maxlength="160"></textarea>
-                <small id="blog-description-count">0 / 160</small>
-                            </div>
-                            <div class="form-group">
-                <label for="blog-content">Content (Markdown)</label>
-                <textarea id="blog-content" name="content" rows="10"></textarea>
-                            </div>
-                            <div class="form-group">
-                <label for="blog-tags">Tags</label>
-                <input id="blog-tags" name="tags" type="text" placeholder="ai, product, planning">
-                            </div>
-                            <div class="form-group">
-                <label for="blog-author">Author</label>
-                <input id="blog-author" name="author" type="text" placeholder="specifys.ai Team" value="specifys.ai Team">
-                            </div>
-                            <div class="form-actions">
-                <button class="primary" type="submit">
-                  <i class="fas fa-paper-plane"></i>
-                  Publish to queue
-                                </button>
-                <button class="secondary" id="blog-preview-btn" type="button">
-                  <i class="fas fa-eye"></i>
-                  Preview
-                                </button>
-                            </div>
-              <div class="form-feedback" id="blog-feedback" role="status" aria-live="polite"></div>
-                        </form>
-
-            <div class="blog-status">
-              <div class="panel-header">
-                <h3>Publishing queue</h3>
-                <button class="panel-action" id="refresh-queue-btn" type="button">
-                  <i class="fas fa-sync-alt"></i>
-                  Refresh
-                </button>
-                            </div>
-              <ul class="queue-list" id="blog-queue-list">
-                <li class="queue-placeholder">Queue is loading…</li>
-              </ul>
-                        </div>
-                    </div>
         </section>
 
         <section class="dashboard-section" id="articles-section">
@@ -734,6 +664,10 @@
                 <option value="warning">Warning</option>
                 <option value="info">Info</option>
               </select>
+              <button class="action-btn" id="copy-all-emails-btn" type="button">
+                <i class="fas fa-copy"></i>
+                Copy All Emails
+              </button>
               <button class="action-btn" id="mark-all-read-btn" type="button">
                 <i class="fas fa-check-double"></i>
                 Mark all as read
@@ -741,8 +675,25 @@
             </div>
           </header>
 
-          <div class="alerts-list" id="alerts-list">
-            <div class="alerts-placeholder">Loading alerts…</div>
+          <div class="alerts-container">
+            <div class="alerts-list" id="alerts-list">
+              <div class="alerts-placeholder">Loading alerts…</div>
+            </div>
+            
+            <div class="pagination-wrapper" id="alerts-pagination" style="display: none;">
+              <div class="pagination-info">
+                <span id="alerts-pagination-info">Showing 0-0 of 0</span>
+              </div>
+              <div class="pagination-controls">
+                <button class="pagination-btn" id="alerts-pagination-prev" disabled>
+                  <i class="fas fa-chevron-left"></i> Previous
+                </button>
+                <div class="pagination-pages" id="alerts-pagination-pages"></div>
+                <button class="pagination-btn" id="alerts-pagination-next" disabled>
+                  Next <i class="fas fa-chevron-right"></i>
+                </button>
+              </div>
+            </div>
           </div>
         </section>
 

@@ -950,6 +950,11 @@ class AdminDashboardApp {
     this.usersPerPage = 25; // Number of users per page
     this.selectedUsers = new Set(); // For bulk actions
     this.alerts = [];
+    this.alertsCurrentPage = 1;
+    this.alertsPerPage = 5;
+    this.articlesViews = 0;
+    this.academyVisits = 0;
+    this.specsInitialLoad = true; // Track if this is the first load of specs
     this.performanceData = {
       apiResponseTimes: [],
       errorRates: [],
@@ -1032,7 +1037,11 @@ class AdminDashboardApp {
         specsTotal: utils.dom('[data-metric="specs-total"]'),
         specsRange: utils.dom('[data-kpi="specs-range"]'),
         revenueTotal: utils.dom('[data-metric="revenue-total"]'),
-        revenueRange: utils.dom('[data-kpi="revenue-range"]')
+        revenueRange: utils.dom('[data-kpi="revenue-range"]'),
+        articlesRead: utils.dom('[data-metric="articles-read"]'),
+        articlesReadRange: utils.dom('[data-kpi="articles-read-range"]'),
+        guidesRead: utils.dom('[data-metric="guides-read"]'),
+        guidesReadRange: utils.dom('[data-kpi="guides-read-range"]')
       },
       apiHealth: {
         checkButton: utils.dom("#api-health-check-btn"),
@@ -1061,6 +1070,12 @@ class AdminDashboardApp {
       bulkDisableUsers: utils.dom("#bulk-disable-users"),
       alertsList: utils.dom("#alerts-list"),
       alertsSeverityFilter: utils.dom("#alerts-severity-filter"),
+      copyAllEmailsBtn: utils.dom("#copy-all-emails-btn"),
+      alertsPagination: utils.dom("#alerts-pagination"),
+      alertsPaginationInfo: utils.dom("#alerts-pagination-info"),
+      alertsPaginationPrev: utils.dom("#alerts-pagination-prev"),
+      alertsPaginationNext: utils.dom("#alerts-pagination-next"),
+      alertsPaginationPages: utils.dom("#alerts-pagination-pages"),
       markAllReadBtn: utils.dom("#mark-all-read-btn"),
       userActivityModal: utils.dom("#user-activity-modal"),
       userActivityTitle: utils.dom("#user-activity-title"),
@@ -1210,8 +1225,25 @@ class AdminDashboardApp {
     this.dom.quickActions.changePlan?.addEventListener("click", () => this.openQuickAction("change-plan"));
     this.dom.quickActions.resetPassword?.addEventListener("click", () => this.openQuickAction("reset-password"));
     this.dom.quickActions.toggleUser?.addEventListener("click", () => this.openQuickAction("toggle-user"));
-    this.dom.alertsSeverityFilter?.addEventListener("change", () => this.renderAlerts());
+    this.dom.alertsSeverityFilter?.addEventListener("change", () => {
+      this.alertsCurrentPage = 1;
+      this.renderAlerts();
+    });
+    this.dom.copyAllEmailsBtn?.addEventListener("click", () => this.copyAllEmails());
     this.dom.markAllReadBtn?.addEventListener("click", () => this.markAllAlertsRead());
+    this.dom.alertsPaginationPrev?.addEventListener("click", () => {
+      if (this.alertsCurrentPage > 1) {
+        this.alertsCurrentPage--;
+        this.renderAlerts();
+      }
+    });
+    this.dom.alertsPaginationNext?.addEventListener("click", () => {
+      const totalPages = Math.ceil(this.getFilteredAlerts().length / this.alertsPerPage);
+      if (this.alertsCurrentPage < totalPages) {
+        this.alertsCurrentPage++;
+        this.renderAlerts();
+      }
+    });
     this.dom.performanceRange?.addEventListener("change", () => this.updatePerformanceMetrics());
     this.dom.usersPaginationPrev?.addEventListener("click", () => {
       if (this.usersCurrentPage > 1) {
@@ -1464,6 +1496,7 @@ class AdminDashboardApp {
   async subscribeToSources() {
     this.unsubscribeAll();
     this.store.reset();
+    this.specsInitialLoad = true; // Reset for reconnection
     this.updateAllSources("pending");
 
     let usersInitialLoad = true;
@@ -1561,12 +1594,17 @@ class AdminDashboardApp {
       const unsubSpecs = onSnapshot(
         specsQuery,
         (snapshot) => {
-          snapshot.docChanges().forEach((change) => {
-            if (change.type === "removed") {
-              this.store.removeSpec(change.doc.id);
-            } else {
-              const spec = this.store.upsertSpec(change.doc.id, change.doc.data());
-              if (change.type === "added") {
+          const isInitialLoad = this.specsInitialLoad;
+          this.specsInitialLoad = false;
+          
+          // For initial load, process all docs to add activity for recent specs
+          if (isInitialLoad) {
+            const last24Hours = Date.now() - DATE_RANGES.day;
+            snapshot.docs.forEach((docSnap) => {
+              const data = docSnap.data();
+              const spec = this.store.upsertSpec(docSnap.id, data);
+              // Only add to activity if created in last 24 hours
+              if (spec.createdAt && spec.createdAt.getTime() >= last24Hours) {
                 const user = this.store.getUser(spec.userId);
                 this.store.recordActivity({
                   type: "spec",
@@ -1582,11 +1620,38 @@ class AdminDashboardApp {
                   }
                 });
               }
-            }
-          });
+            });
+          } else {
+            // For subsequent updates, only process changes
+            snapshot.docChanges().forEach((change) => {
+              if (change.type === "removed") {
+                this.store.removeSpec(change.doc.id);
+              } else {
+                const spec = this.store.upsertSpec(change.doc.id, change.doc.data());
+                if (change.type === "added") {
+                  const user = this.store.getUser(spec.userId);
+                  this.store.recordActivity({
+                    type: "spec",
+                    title: `Spec created · ${spec.title}`,
+                    description: user?.email || spec.userId || "",
+                    timestamp: spec.createdAt,
+                    meta: { 
+                      userId: spec.userId, 
+                      specId: spec.id,
+                      userName: user?.displayName,
+                      email: user?.email,
+                      userEmail: user?.email
+                    }
+                  });
+                }
+              }
+            });
+          }
+          
           this.markSourceReady("specs");
           this.renderUsersTable();
           this.updateOverview();
+          this.renderActivityFeed(); // Make sure to refresh activity feed
           this.renderLogs();
           this.updateStatistics();
           this.rebuildSearchIndex();
@@ -2198,8 +2263,71 @@ class AdminDashboardApp {
       this.dom.metrics.revenueRange.textContent = `Total: ${utils.formatCurrency(revenueTotal)}`;
     }
 
+    // Load articles and academy stats
+    this.loadContentStats(overviewRange);
+
     this.renderActivityFeed();
     this.updateCharts();
+  }
+
+  async loadContentStats(range) {
+    try {
+      const apiBaseUrl = this.getApiBaseUrl();
+      
+      // Load articles views
+      try {
+        const articlesResponse = await fetch(`${apiBaseUrl}/api/articles/list?status=all&limit=1000`);
+        if (articlesResponse.ok) {
+          const articlesData = await articlesResponse.json();
+          if (articlesData.success && articlesData.articles) {
+            const totalViews = articlesData.articles.reduce((sum, article) => sum + (article.views || 0), 0);
+            const rangeMs = DATE_RANGES[range] || DATE_RANGES.week;
+            const threshold = Date.now() - rangeMs;
+            const viewsInRange = articlesData.articles
+              .filter(article => {
+                const viewDate = article.publishedAt || article.createdAt;
+                return viewDate && new Date(viewDate).getTime() >= threshold;
+              })
+              .reduce((sum, article) => sum + (article.views || 0), 0);
+            
+            this.articlesViews = totalViews;
+            
+            if (this.dom.metrics.articlesRead) {
+              this.dom.metrics.articlesRead.textContent = utils.formatNumber(viewsInRange);
+            }
+            if (this.dom.metrics.articlesReadRange) {
+              this.dom.metrics.articlesReadRange.textContent = `Total: ${utils.formatNumber(totalViews)}`;
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Failed to load articles stats:", error);
+        if (this.dom.metrics.articlesRead) {
+          this.dom.metrics.articlesRead.textContent = "—";
+        }
+        if (this.dom.metrics.articlesReadRange) {
+          this.dom.metrics.articlesReadRange.textContent = "—";
+        }
+      }
+
+      // Load academy visits (placeholder - will need API endpoint)
+      // For now, set to 0 or fetch from analytics if available
+      if (this.dom.metrics.guidesRead) {
+        this.dom.metrics.guidesRead.textContent = "—";
+      }
+      if (this.dom.metrics.guidesReadRange) {
+        this.dom.metrics.guidesReadRange.textContent = "—";
+      }
+    } catch (error) {
+      console.error("Failed to load content stats:", error);
+    }
+  }
+
+  getApiBaseUrl() {
+    if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+      return "http://localhost:3000";
+    }
+    return "https://api.specifys-ai.com";
   }
 
   renderActivityFeed() {
@@ -4007,37 +4135,56 @@ class AdminDashboardApp {
     }
   }
 
+  getFilteredAlerts() {
+    const severityFilter = this.dom.alertsSeverityFilter?.value || "all";
+    return severityFilter === "all"
+      ? this.alerts
+      : this.alerts.filter(a => a.severity === severityFilter);
+  }
+
   renderAlerts() {
     if (!this.dom.alertsList) return;
 
-    const severityFilter = this.dom.alertsSeverityFilter?.value || "all";
-    const filtered = severityFilter === "all"
-      ? this.alerts
-      : this.alerts.filter(a => a.severity === severityFilter);
+    const filtered = this.getFilteredAlerts();
 
     if (!filtered.length) {
       this.dom.alertsList.innerHTML = '<div class="alerts-placeholder">No alerts found.</div>';
+      if (this.dom.alertsPagination) {
+        this.dom.alertsPagination.style.display = "none";
+      }
       return;
     }
 
-    const html = filtered.map(alert => `
-      <div class="alert-item ${alert.severity}">
-        <div class="alert-icon">
-          <i class="fas fa-${alert.severity === "critical" ? "exclamation-triangle" : alert.severity === "warning" ? "exclamation-circle" : "info-circle"}"></i>
-        </div>
-        <div class="alert-content">
-          <div class="alert-title">${alert.title}</div>
-          <div class="alert-description">${alert.description}</div>
-          <div class="alert-meta">
-            <span>${utils.formatRelative(alert.timestamp)}</span>
-            ${alert.frequency ? `<span>Occurred ${alert.frequency} times</span>` : ""}
+    // Pagination
+    const totalPages = Math.ceil(filtered.length / this.alertsPerPage);
+    const startIndex = (this.alertsCurrentPage - 1) * this.alertsPerPage;
+    const endIndex = startIndex + this.alertsPerPage;
+    const paginatedAlerts = filtered.slice(startIndex, endIndex);
+
+    const html = paginatedAlerts.map(alert => {
+      const user = alert.userId ? this.store.getUser(alert.userId) : null;
+      const userEmail = user?.email || alert.userEmail || "";
+      
+      return `
+        <div class="alert-item alert-item-compact ${alert.severity}">
+          <div class="alert-icon">
+            <i class="fas fa-${alert.severity === "critical" ? "exclamation-triangle" : alert.severity === "warning" ? "exclamation-circle" : "info-circle"}"></i>
+          </div>
+          <div class="alert-content">
+            <div class="alert-title">${alert.title}</div>
+            <div class="alert-description">${alert.description}</div>
+            <div class="alert-meta">
+              <span>${utils.formatRelative(alert.timestamp)}</span>
+              ${userEmail ? `<span class="alert-email">${userEmail}</span>` : ""}
+              ${alert.frequency ? `<span>Occurred ${alert.frequency} times</span>` : ""}
+            </div>
+          </div>
+          <div class="alert-actions">
+            ${alert.userId ? `<button class="alert-action-btn" data-user-id="${alert.userId}">View User</button>` : ""}
           </div>
         </div>
-        <div class="alert-actions">
-          ${alert.userId ? `<button class="alert-action-btn" data-user-id="${alert.userId}">View User</button>` : ""}
-        </div>
-      </div>
-    `).join("");
+      `;
+    }).join("");
 
     this.dom.alertsList.innerHTML = html;
 
@@ -4047,6 +4194,89 @@ class AdminDashboardApp {
         const userId = btn.dataset.userId;
         this.showUserActivity(userId);
       });
+    });
+
+    // Update pagination
+    if (this.dom.alertsPagination) {
+      if (totalPages > 1) {
+        this.dom.alertsPagination.style.display = "flex";
+        
+        // Update pagination info
+        if (this.dom.alertsPaginationInfo) {
+          const start = startIndex + 1;
+          const end = Math.min(endIndex, filtered.length);
+          this.dom.alertsPaginationInfo.textContent = `Showing ${start}-${end} of ${filtered.length}`;
+        }
+
+        // Update prev/next buttons
+        if (this.dom.alertsPaginationPrev) {
+          this.dom.alertsPaginationPrev.disabled = this.alertsCurrentPage === 1;
+        }
+        if (this.dom.alertsPaginationNext) {
+          this.dom.alertsPaginationNext.disabled = this.alertsCurrentPage === totalPages;
+        }
+
+        // Update page numbers
+        if (this.dom.alertsPaginationPages) {
+          let pagesHtml = "";
+          for (let i = 1; i <= totalPages; i++) {
+            const isActive = i === this.alertsCurrentPage;
+            pagesHtml += `<button class="pagination-page ${isActive ? "active" : ""}" data-page="${i}">${i}</button>`;
+          }
+          this.dom.alertsPaginationPages.innerHTML = pagesHtml;
+
+          // Bind page number clicks
+          this.dom.alertsPaginationPages.querySelectorAll(".pagination-page").forEach(btn => {
+            btn.addEventListener("click", () => {
+              this.alertsCurrentPage = parseInt(btn.dataset.page);
+              this.renderAlerts();
+            });
+          });
+        }
+      } else {
+        this.dom.alertsPagination.style.display = "none";
+      }
+    }
+  }
+
+  copyAllEmails() {
+    const filtered = this.getFilteredAlerts();
+    const emails = new Set();
+    
+    filtered.forEach(alert => {
+      if (alert.userId) {
+        const user = this.store.getUser(alert.userId);
+        if (user?.email) {
+          emails.add(user.email);
+        }
+      }
+      if (alert.userEmail) {
+        emails.add(alert.userEmail);
+      }
+    });
+
+    const emailList = Array.from(emails).join(", ");
+    
+    if (!emailList) {
+      alert("No emails found in alerts.");
+      return;
+    }
+
+    // Copy to clipboard
+    navigator.clipboard.writeText(emailList).then(() => {
+      // Show feedback
+      const btn = this.dom.copyAllEmailsBtn;
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+      btn.style.color = "var(--color-success, #28a745)";
+      
+      setTimeout(() => {
+        btn.innerHTML = originalText;
+        btn.style.color = "";
+      }, 2000);
+    }).catch(err => {
+      console.error("Failed to copy emails:", err);
+      alert("Failed to copy emails. Please try again.");
     });
   }
 

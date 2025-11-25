@@ -1176,6 +1176,79 @@ body {
   color: var(--admin-text-muted);
 }
 
+/* Compact alerts */
+.alerts-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.alert-item-compact {
+  padding: 10px 12px;
+  font-size: 0.9rem;
+}
+
+.alert-item-compact .alert-icon {
+  width: 20px;
+  height: 20px;
+  font-size: 0.85rem;
+}
+
+.alert-item-compact .alert-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.alert-item-compact .alert-description {
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.alert-item-compact .alert-meta {
+  font-size: 0.8rem;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.alert-email {
+  color: var(--admin-accent);
+  font-weight: 500;
+}
+
+.alert-item-compact .alert-actions {
+  flex-shrink: 0;
+}
+
+.alert-item-compact .alert-action-btn {
+  padding: 4px 10px;
+  font-size: 0.8rem;
+}
+
+.pagination-page {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--admin-border);
+  background: var(--admin-surface);
+  color: var(--admin-text-muted);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 36px;
+  text-align: center;
+}
+
+.pagination-page:hover {
+  border-color: var(--admin-accent);
+  color: var(--admin-accent-strong);
+}
+
+.pagination-page.active {
+  background: rgba(255, 107, 53, 0.18);
+  border-color: rgba(255, 107, 53, 0.35);
+  color: var(--admin-accent-strong);
+  font-weight: 600;
+}
+
 /* Performance Metrics */
 .performance-metrics {
   display: grid;
