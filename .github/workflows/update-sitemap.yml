@@ -46,15 +46,22 @@ jobs:
             echo "⚠️ Warning: FIREBASE_SERVICE_ACCOUNT_KEY secret not set. Skipping sitemap generation."
             exit 0
           fi
-          mkdir -p backend/server
-          echo "$FIREBASE_SERVICE_ACCOUNT_KEY" > backend/server/firebase-service-account.json
+          mkdir -p backend
+          # Write the JSON key to file (firebase-admin.js looks for it in backend/ directory)
+          echo "$FIREBASE_SERVICE_ACCOUNT_KEY" > backend/firebase-service-account.json
+          # Verify the file was created correctly
+          if [ ! -f backend/firebase-service-account.json ]; then
+            echo "❌ Error: Failed to create firebase-service-account.json"
+            exit 1
+          fi
+          echo "✅ Firebase credentials file created"
 
       - name: Generate sitemap
         env:
           FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
           SITE_URL: https://specifys-ai.com
         run: |
-          if [ ! -f backend/server/firebase-service-account.json ]; then
+          if [ ! -f backend/firebase-service-account.json ]; then
             echo "⚠️ Firebase credentials not available. Skipping sitemap generation."
             exit 0
           fi
@@ -72,7 +79,7 @@ jobs:
       - name: Cleanup Firebase credentials
         if: always()
         run: |
-          rm -f backend/server/firebase-service-account.json
+          rm -f backend/firebase-service-account.json
 
       - name: Commit and push changes
         if: steps.verify-changed-files.outputs.changed == 'true'
