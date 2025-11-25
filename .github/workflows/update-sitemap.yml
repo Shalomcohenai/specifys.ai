@@ -26,6 +26,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
+          persist-credentials: true
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -37,12 +38,26 @@ jobs:
           cd backend
           npm install
 
-      - name: Generate sitemap
+      - name: Setup Firebase credentials
         env:
           FIREBASE_SERVICE_ACCOUNT_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}
+        run: |
+          if [ -z "$FIREBASE_SERVICE_ACCOUNT_KEY" ]; then
+            echo "⚠️ Warning: FIREBASE_SERVICE_ACCOUNT_KEY secret not set. Skipping sitemap generation."
+            exit 0
+          fi
+          mkdir -p backend/server
+          echo "$FIREBASE_SERVICE_ACCOUNT_KEY" > backend/server/firebase-service-account.json
+
+      - name: Generate sitemap
+        env:
           FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
           SITE_URL: https://specifys-ai.com
         run: |
+          if [ ! -f backend/server/firebase-service-account.json ]; then
+            echo "⚠️ Firebase credentials not available. Skipping sitemap generation."
+            exit 0
+          fi
           node backend/scripts/generate-sitemap.js
 
       - name: Check for changes
@@ -53,6 +68,11 @@ jobs:
           else
             echo "changed=false" >> $GITHUB_OUTPUT
           fi
+
+      - name: Cleanup Firebase credentials
+        if: always()
+        run: |
+          rm -f backend/server/firebase-service-account.json
 
       - name: Commit and push changes
         if: steps.verify-changed-files.outputs.changed == 'true'
