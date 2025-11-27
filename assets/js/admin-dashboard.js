@@ -2324,10 +2324,12 @@ class AdminDashboardApp {
   }
 
   getApiBaseUrl() {
-    if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
-      return "http://localhost:3000";
+    // Use the global getApiBaseUrl function from config.js if available
+    if (typeof window.getApiBaseUrl === "function") {
+      return window.getApiBaseUrl();
     }
-    return "https://api.specifys-ai.com";
+    // Fallback to Render URL (same as config.js)
+    return "https://specifys-ai.onrender.com";
   }
 
   renderActivityFeed() {
