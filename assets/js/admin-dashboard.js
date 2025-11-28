@@ -215,6 +215,623 @@ const utils = {
   }
 };
 
+/**
+ * DataAggregator - Central data store for all Firebase data
+ * Manages all Firebase subscriptions and provides single source of truth
+ */
+class DataAggregator {
+  constructor(db) {
+    this.db = db;
+    this.unsubscribeFns = [];
+    
+    // Central aggregated data store
+    this.aggregatedData = {
+      users: new Map(),
+      entitlements: new Map(),
+      specs: new Map(),
+      specsByUser: new Map(),
+      purchases: [],
+      activityLogs: [],
+      academyVisits: []
+    };
+    
+    // Unified activity events (generated from all sources)
+    this.activityEvents = [];
+    
+    // Content stats
+    this.contentStats = {
+      articlesViews: 0,
+      guidesReads: 0,
+      articlesViewsInRange: 0,
+      guidesReadsInRange: 0
+    };
+    
+    // Callbacks for data changes
+    this.onDataChangeCallbacks = [];
+    
+    // Track initial loads
+    this.initialLoads = {
+      users: true,
+      specs: true,
+      purchases: true
+    };
+  }
+  
+  /**
+   * Register callback for data changes
+   */
+  onDataChange(callback) {
+    if (typeof callback === 'function') {
+      this.onDataChangeCallbacks.push(callback);
+    }
+  }
+  
+  /**
+   * Notify all callbacks of data changes
+   */
+  notifyDataChange(source) {
+    this.onDataChangeCallbacks.forEach(callback => {
+      try {
+        callback(this.aggregatedData, source);
+      } catch (error) {
+        console.error(`Error in data change callback:`, error);
+      }
+    });
+  }
+  
+  /**
+   * Normalize user data
+   */
+  normalizeUser(id, data) {
+    return {
+      id,
+      email: data.email || "",
+      displayName: data.displayName || data.email || "",
+      plan: (data.plan || "free").toLowerCase(),
+      createdAt: utils.toDate(data.createdAt) || utils.toDate(data.creationTime),
+      lastActive: utils.toDate(data.lastActive),
+      newsletterSubscription: Boolean(data.newsletterSubscription),
+      disabled: Boolean(data.disabled),
+      emailVerified: Boolean(data.emailVerified),
+      freeSpecsRemaining: typeof data.free_specs_remaining === "number" ? data.free_specs_remaining : null,
+      metadata: data
+    };
+  }
+  
+  /**
+   * Normalize spec data
+   */
+  normalizeSpec(id, data) {
+    return {
+      id,
+      userId: data.userId || data.uid || null,
+      title: data.title || "Untitled spec",
+      createdAt: utils.toDate(data.createdAt),
+      updatedAt: utils.toDate(data.updatedAt),
+      content: data.content || "",
+      metadata: data
+    };
+  }
+  
+  /**
+   * Normalize purchase data
+   */
+  normalizePurchase(id, data) {
+    return {
+      id,
+      createdAt: utils.toDate(data.createdAt),
+      total: utils.normalizeCurrency(data.total, data),
+      currency: data.currency || "USD",
+      userId: data.userId || null,
+      email: data.email || "",
+      productName: data.productName || data.product_key || "Purchase",
+      productType: data.productType || "one_time",
+      status: data.status || "paid",
+      subscriptionId: data.subscriptionId || null,
+      metadata: data
+    };
+  }
+  
+  /**
+   * Create activity event from data change
+   */
+  createActivityEvent(type, data, user = null) {
+    const event = {
+      id: `${type}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      type,
+      timestamp: data.createdAt || utils.now(),
+      meta: {}
+    };
+    
+    switch (type) {
+      case 'user':
+        event.title = `New user · ${data.displayName || data.email || data.id}`;
+        event.description = data.email || data.displayName || data.id;
+        event.meta = {
+          userId: data.id,
+          email: data.email,
+          userEmail: data.email,
+          userName: data.displayName,
+          plan: data.plan
+        };
+        break;
+      case 'spec':
+        event.title = `Spec created · ${data.title}`;
+        event.description = user?.email || data.userId || "";
+        event.meta = {
+          userId: data.userId,
+          specId: data.id,
+          userName: user?.displayName,
+          email: user?.email,
+          userEmail: user?.email
+        };
+        break;
+      case 'payment':
+      case 'subscription':
+        event.title = `${data.productName}`;
+        event.description = `${utils.formatCurrency(data.total, data.currency)} • ${data.email || data.userId || "Unknown user"}`;
+        event.meta = {
+          userId: data.userId,
+          purchaseId: data.id,
+          userName: user?.displayName,
+          email: data.email || user?.email,
+          userEmail: data.email || user?.email
+        };
+        break;
+    }
+    
+    return event;
+  }
+  
+  /**
+   * Subscribe to users collection
+   */
+  subscribeToUsers() {
+    try {
+      const unsubUsers = onSnapshot(
+        collection(this.db, COLLECTIONS.USERS),
+        (snapshot) => {
+          snapshot.docChanges().forEach((change) => {
+            if (change.type === "removed") {
+              this.aggregatedData.users.delete(change.doc.id);
+            } else {
+              const user = this.normalizeUser(change.doc.id, change.doc.data());
+              this.aggregatedData.users.set(change.doc.id, user);
+              
+              // Create activity event for new users (not on initial load)
+              if (!this.initialLoads.users && change.type === "added") {
+                const event = this.createActivityEvent('user', user);
+                this.activityEvents.unshift(event);
+                this.activityEvents = utils.clampArray(this.activityEvents, MAX_ACTIVITY_EVENTS);
+              }
+            }
+          });
+          
+          this.initialLoads.users = false;
+          this.notifyDataChange('users');
+        },
+        (error) => {
+          console.error("Users listener error", error);
+          this.notifyDataChange('users-error');
+        }
+      );
+      
+      this.unsubscribeFns.push(unsubUsers);
+      return unsubUsers;
+    } catch (error) {
+      console.error("Failed to subscribe to users", error);
+      throw error;
+    }
+  }
+  
+  /**
+   * Subscribe to entitlements collection
+   */
+  subscribeToEntitlements() {
+    try {
+      const unsubEntitlements = onSnapshot(
+        collection(this.db, COLLECTIONS.ENTITLEMENTS),
+        (snapshot) => {
+          snapshot.docChanges().forEach((change) => {
+            if (change.type === "removed") {
+              this.aggregatedData.entitlements.delete(change.doc.id);
+            } else {
+              const normalized = {
+                userId: change.doc.id,
+                specCredits: typeof change.doc.data().spec_credits === "number" ? change.doc.data().spec_credits : null,
+                unlimited: Boolean(change.doc.data().unlimited),
+                canEdit: Boolean(change.doc.data().can_edit),
+                updatedAt: utils.toDate(change.doc.data().updated_at),
+                metadata: change.doc.data()
+              };
+              this.aggregatedData.entitlements.set(change.doc.id, normalized);
+            }
+          });
+          this.notifyDataChange('entitlements');
+        },
+        (error) => {
+          console.error("Entitlements listener error", error);
+          this.notifyDataChange('entitlements-error');
+        }
+      );
+      
+      this.unsubscribeFns.push(unsubEntitlements);
+      return unsubEntitlements;
+    } catch (error) {
+      console.error("Failed to subscribe to entitlements", error);
+      throw error;
+    }
+  }
+  
+  /**
+   * Subscribe to specs collection
+   */
+  subscribeToSpecs() {
+    try {
+      const specsQuery = query(
+        collection(this.db, COLLECTIONS.SPECS),
+        orderBy("createdAt", "desc"),
+        limit(MAX_SPEC_CACHE)
+      );
+      
+      const unsubSpecs = onSnapshot(
+        specsQuery,
+        (snapshot) => {
+          const isInitialLoad = this.initialLoads.specs;
+          this.initialLoads.specs = false;
+          
+          if (isInitialLoad) {
+            // On initial load, process all docs and create activity for recent specs
+            const last24Hours = Date.now() - DATE_RANGES.day;
+            snapshot.docs.forEach((docSnap) => {
+              const data = docSnap.data();
+              const spec = this.normalizeSpec(docSnap.id, data);
+              this.aggregatedData.specs.set(docSnap.id, spec);
+              
+              // Update specsByUser map
+              if (spec.userId) {
+                const list = this.aggregatedData.specsByUser.get(spec.userId) || [];
+                const index = list.findIndex((s) => s.id === spec.id);
+                if (index >= 0) {
+                  list[index] = spec;
+                } else {
+                  list.push(spec);
+                }
+                list.sort((a, b) => (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0));
+                this.aggregatedData.specsByUser.set(spec.userId, utils.clampArray(list, MAX_SPEC_CACHE));
+              }
+              
+              // Create activity event for specs created in last 24 hours
+              if (spec.createdAt && spec.createdAt.getTime() >= last24Hours) {
+                const user = this.aggregatedData.users.get(spec.userId);
+                const event = this.createActivityEvent('spec', spec, user);
+                this.activityEvents.unshift(event);
+              }
+            });
+          } else {
+            // For subsequent updates, only process changes
+            snapshot.docChanges().forEach((change) => {
+              if (change.type === "removed") {
+                const existing = this.aggregatedData.specs.get(change.doc.id);
+                if (existing) {
+                  this.aggregatedData.specs.delete(change.doc.id);
+                  if (existing.userId) {
+                    const list = this.aggregatedData.specsByUser.get(existing.userId) || [];
+                    this.aggregatedData.specsByUser.set(
+                      existing.userId,
+                      list.filter((s) => s.id !== change.doc.id)
+                    );
+                  }
+                }
+              } else {
+                const spec = this.normalizeSpec(change.doc.id, change.doc.data());
+                const previous = this.aggregatedData.specs.get(spec.id);
+                
+                // Update specsByUser map
+                if (previous && previous.userId && previous.userId !== spec.userId) {
+                  const prevList = this.aggregatedData.specsByUser.get(previous.userId);
+                  if (prevList) {
+                    this.aggregatedData.specsByUser.set(
+                      previous.userId,
+                      prevList.filter((s) => s.id !== spec.id)
+                    );
+                  }
+                }
+                
+                this.aggregatedData.specs.set(spec.id, spec);
+                if (spec.userId) {
+                  const list = this.aggregatedData.specsByUser.get(spec.userId) || [];
+                  const index = list.findIndex((s) => s.id === spec.id);
+                  if (index >= 0) {
+                    list[index] = spec;
+                  } else {
+                    list.push(spec);
+                  }
+                  list.sort((a, b) => (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0));
+                  this.aggregatedData.specsByUser.set(spec.userId, utils.clampArray(list, MAX_SPEC_CACHE));
+                }
+                
+                // Create activity event for new specs
+                if (change.type === "added") {
+                  const user = this.aggregatedData.users.get(spec.userId);
+                  const event = this.createActivityEvent('spec', spec, user);
+                  this.activityEvents.unshift(event);
+                  this.activityEvents = utils.clampArray(this.activityEvents, MAX_ACTIVITY_EVENTS);
+                }
+              }
+            });
+          }
+          
+          this.notifyDataChange('specs');
+        },
+        (error) => {
+          console.error("Specs listener error", error);
+          this.notifyDataChange('specs-error');
+        }
+      );
+      
+      this.unsubscribeFns.push(unsubSpecs);
+      return unsubSpecs;
+    } catch (error) {
+      console.error("Failed to subscribe to specs", error);
+      throw error;
+    }
+  }
+  
+  /**
+   * Subscribe to purchases collection
+   */
+  subscribeToPurchases() {
+    try {
+      const purchasesQuery = query(
+        collection(this.db, COLLECTIONS.PURCHASES),
+        orderBy("createdAt", "desc"),
+        limit(MAX_PURCHASES)
+      );
+      
+      const unsubPurchases = onSnapshot(
+        purchasesQuery,
+        (snapshot) => {
+          snapshot.docChanges().forEach((change) => {
+            if (change.type === "removed") {
+              this.aggregatedData.purchases = this.aggregatedData.purchases.filter(
+                (p) => p.id !== change.doc.id
+              );
+            } else {
+              const purchase = this.normalizePurchase(change.doc.id, change.doc.data());
+              const index = this.aggregatedData.purchases.findIndex((p) => p.id === purchase.id);
+              
+              if (index >= 0) {
+                this.aggregatedData.purchases[index] = purchase;
+              } else {
+                this.aggregatedData.purchases.unshift(purchase);
+              }
+              
+              // Sort purchases
+              this.aggregatedData.purchases.sort(
+                (a, b) => (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0)
+              );
+              this.aggregatedData.purchases = utils.clampArray(this.aggregatedData.purchases, MAX_PURCHASES);
+              
+              // Create activity event for new purchases
+              if (change.type === "added" && !this.initialLoads.purchases) {
+                const user = this.aggregatedData.users.get(purchase.userId);
+                const eventType = purchase.productType === "subscription" ? "subscription" : "payment";
+                const event = this.createActivityEvent(eventType, purchase, user);
+                this.activityEvents.unshift(event);
+                this.activityEvents = utils.clampArray(this.activityEvents, MAX_ACTIVITY_EVENTS);
+              }
+            }
+          });
+          
+          this.initialLoads.purchases = false;
+          this.notifyDataChange('purchases');
+        },
+        (error) => {
+          console.error("Purchases listener error", error);
+          this.notifyDataChange('purchases-error');
+        }
+      );
+      
+      this.unsubscribeFns.push(unsubPurchases);
+      return unsubPurchases;
+    } catch (error) {
+      console.error("Failed to subscribe to purchases", error);
+      throw error;
+    }
+  }
+  
+  /**
+   * Subscribe to activity logs collection
+   */
+  subscribeToActivityLogs() {
+    try {
+      const activityQuery = query(
+        collection(this.db, COLLECTIONS.ACTIVITY_LOGS),
+        orderBy("timestamp", "desc"),
+        limit(MAX_ACTIVITY_EVENTS)
+      );
+      
+      const unsubActivity = onSnapshot(
+        activityQuery,
+        (snapshot) => {
+          const events = snapshot.docs.map((docSnap) => {
+            const data = docSnap.data();
+            return {
+              id: docSnap.id,
+              type: data.type || "system",
+              title: data.title || data.event || "Activity",
+              description: data.description || data.message || "",
+              timestamp: utils.toDate(data.timestamp),
+              meta: data
+            };
+          });
+          
+          this.aggregatedData.activityLogs = events;
+          
+          // Merge activity logs with generated events
+          this.updateActivityEvents();
+          
+          this.notifyDataChange('activityLogs');
+        },
+        (error) => {
+          if (error?.code === "permission-denied") {
+            console.info("Activity logs access restricted for current user.");
+            this.notifyDataChange('activityLogs-restricted');
+          } else {
+            console.warn("Activity logs listener error", error);
+            this.notifyDataChange('activityLogs-error');
+          }
+        }
+      );
+      
+      this.unsubscribeFns.push(unsubActivity);
+      return unsubActivity;
+    } catch (error) {
+      if (error?.code === "permission-denied") {
+        console.info("Activity logs collection restricted for current user.");
+        this.notifyDataChange('activityLogs-restricted');
+      } else {
+        console.warn("Activity logs collection unavailable", error);
+        this.notifyDataChange('activityLogs-error');
+      }
+      return null;
+    }
+  }
+  
+  /**
+   * Update unified activity events by merging generated events with activity logs
+   */
+  updateActivityEvents() {
+    const combined = [...this.activityEvents, ...this.aggregatedData.activityLogs];
+    combined.sort((a, b) => (b.timestamp?.getTime() || 0) - (a.timestamp?.getTime() || 0));
+    this.activityEvents = utils.clampArray(combined, MAX_ACTIVITY_EVENTS);
+  }
+  
+  /**
+   * Subscribe to academy visits (if collection exists)
+   */
+  subscribeToAcademyVisits() {
+    try {
+      const academyQuery = query(
+        collection(this.db, 'academy_visits'),
+        orderBy("timestamp", "desc"),
+        limit(1000)
+      );
+      
+      const unsubAcademy = onSnapshot(
+        academyQuery,
+        (snapshot) => {
+          this.aggregatedData.academyVisits = snapshot.docs.map((docSnap) => {
+            const data = docSnap.data();
+            return {
+              id: docSnap.id,
+              guideId: data.guideId || null,
+              guideTitle: data.guideTitle || null,
+              userId: data.userId || null,
+              timestamp: utils.toDate(data.timestamp),
+              metadata: data
+            };
+          });
+          
+          this.notifyDataChange('academyVisits');
+        },
+        (error) => {
+          // Academy visits collection might not exist, that's OK
+          console.debug("Academy visits collection not available:", error?.code);
+          this.notifyDataChange('academyVisits-unavailable');
+        }
+      );
+      
+      this.unsubscribeFns.push(unsubAcademy);
+      return unsubAcademy;
+    } catch (error) {
+      // Academy visits collection might not exist, that's OK
+      console.debug("Academy visits collection not available");
+      return null;
+    }
+  }
+  
+  /**
+   * Initialize all subscriptions
+   */
+  subscribeAll() {
+    this.subscribeToUsers();
+    this.subscribeToEntitlements();
+    this.subscribeToSpecs();
+    this.subscribeToPurchases();
+    this.subscribeToActivityLogs();
+    this.subscribeToAcademyVisits();
+  }
+  
+  /**
+   * Unsubscribe from all listeners
+   */
+  unsubscribeAll() {
+    this.unsubscribeFns.forEach((unsub) => {
+      try {
+        unsub();
+      } catch (error) {
+        console.error("Error unsubscribing:", error);
+      }
+    });
+    this.unsubscribeFns = [];
+  }
+  
+  /**
+   * Reset all data
+   */
+  reset() {
+    this.aggregatedData.users.clear();
+    this.aggregatedData.entitlements.clear();
+    this.aggregatedData.specs.clear();
+    this.aggregatedData.specsByUser.clear();
+    this.aggregatedData.purchases = [];
+    this.aggregatedData.activityLogs = [];
+    this.aggregatedData.academyVisits = [];
+    this.activityEvents = [];
+    this.initialLoads = {
+      users: true,
+      specs: true,
+      purchases: true
+    };
+  }
+  
+  /**
+   * Get user by ID
+   */
+  getUser(userId) {
+    return this.aggregatedData.users.get(userId) || null;
+  }
+  
+  /**
+   * Get all users sorted by creation date
+   */
+  getUsersSorted() {
+    return Array.from(this.aggregatedData.users.values()).sort(
+      (a, b) => (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0)
+    );
+  }
+  
+  /**
+   * Get purchases filtered by range
+   */
+  getPurchases(range) {
+    if (!range || range === "all") return this.aggregatedData.purchases;
+    const threshold = Date.now() - DATE_RANGES[range];
+    return this.aggregatedData.purchases.filter(
+      (purchase) => (purchase.createdAt?.getTime() || 0) >= threshold
+    );
+  }
+  
+  /**
+   * Get unified activity events
+   */
+  getActivityEvents() {
+    return this.activityEvents;
+  }
+}
+
 class DashboardDataStore {
   constructor() {
     this.users = new Map();
@@ -456,6 +1073,151 @@ class DashboardDataStore {
     const combined = [...this.manualActivity, ...this.activity];
     combined.sort((a, b) => (b.timestamp?.getTime() || 0) - (a.timestamp?.getTime() || 0));
     return utils.clampArray(combined, MAX_ACTIVITY_EVENTS);
+  }
+}
+
+/**
+ * MetricsCalculator - Calculates all dashboard metrics from aggregated data
+ * Single source of truth for all metric calculations
+ */
+class MetricsCalculator {
+  constructor(dataAggregator) {
+    this.dataAggregator = dataAggregator;
+  }
+  
+  /**
+   * Calculate all overview metrics for a given date range
+   */
+  calculateOverviewMetrics(range = 'week') {
+    const threshold = Date.now() - (DATE_RANGES[range] || DATE_RANGES.week);
+    const aggregatedData = this.dataAggregator.aggregatedData;
+    
+    // Get all users
+    const users = this.dataAggregator.getUsersSorted();
+    const totalUsers = users.length;
+    
+    // Users in range
+    const usersInRange = users.filter(
+      (user) => (user.createdAt?.getTime() || 0) >= threshold
+    );
+    const newUsers = usersInRange.length;
+    
+    // Pro users
+    const proUsers = users.filter((user) => user.plan === "pro").length;
+    const proUsersInRange = usersInRange.filter((user) => user.plan === "pro").length;
+    const proShare = totalUsers ? Math.round((proUsers / totalUsers) * 100) : 0;
+    const proShareInRange = newUsers ? Math.round((proUsersInRange / newUsers) * 100) : 0;
+    
+    // Live users (active in last 15 minutes)
+    const LIVE_THRESHOLD_MS = 15 * 60 * 1000;
+    const liveThreshold = Date.now() - LIVE_THRESHOLD_MS;
+    const liveUsers = users.filter((user) => {
+      if (!user.lastActive) return false;
+      const lastActiveTime = user.lastActive?.getTime() || 0;
+      return lastActiveTime >= liveThreshold;
+    }).length;
+    
+    // Specs metrics
+    const specs = Array.from(aggregatedData.specs.values());
+    const specsInRange = specs.filter(
+      (spec) => (spec.createdAt?.getTime() || 0) >= threshold
+    ).length;
+    const specsTotal = specs.length;
+    
+    // Revenue metrics
+    const purchases = this.dataAggregator.getPurchases(range);
+    const revenueRange = purchases.reduce(
+      (sum, purchase) => sum + (purchase.total || 0),
+      0
+    );
+    const revenueTotal = aggregatedData.purchases.reduce(
+      (sum, purchase) => sum + (purchase.total || 0),
+      0
+    );
+    
+    return {
+      totalUsers,
+      newUsers,
+      liveUsers,
+      proUsers: proUsersInRange,
+      proShare: proShareInRange,
+      specsInRange,
+      specsTotal,
+      revenueRange,
+      revenueTotal
+    };
+  }
+  
+  /**
+   * Calculate activity feed events (unified from all sources)
+   */
+  calculateActivityFeed(filter = 'all') {
+    const events = this.dataAggregator.getActivityEvents();
+    
+    if (filter === 'all') {
+      return events;
+    }
+    
+    return events.filter((event) => {
+      if (filter === "payment") {
+        return event.type === "payment" || event.type === "subscription";
+      }
+      if (filter === "user") {
+        return event.type === "user" || event.type === "auth";
+      }
+      return event.type === filter;
+    });
+  }
+  
+  /**
+   * Calculate content stats (articles views and guides reads)
+   */
+  async calculateContentStats(range = 'week', apiBaseUrl) {
+    const threshold = Date.now() - (DATE_RANGES[range] || DATE_RANGES.week);
+    const stats = {
+      articlesViews: 0,
+      articlesViewsInRange: 0,
+      guidesReads: 0,
+      guidesReadsInRange: 0
+    };
+    
+    // Load articles views from API
+    try {
+      const articlesResponse = await fetch(`${apiBaseUrl}/api/articles/list?status=all&limit=1000`);
+      if (articlesResponse.ok) {
+        const articlesData = await articlesResponse.json();
+        if (articlesData.success && articlesData.articles) {
+          const totalViews = articlesData.articles.reduce(
+            (sum, article) => sum + (article.views || 0),
+            0
+          );
+          
+          const viewsInRange = articlesData.articles
+            .filter((article) => {
+              const viewDate = article.publishedAt || article.createdAt;
+              return viewDate && new Date(viewDate).getTime() >= threshold;
+            })
+            .reduce((sum, article) => sum + (article.views || 0), 0);
+          
+          stats.articlesViews = totalViews;
+          stats.articlesViewsInRange = viewsInRange;
+        }
+      }
+    } catch (error) {
+      console.error("Failed to load articles stats:", error);
+    }
+    
+    // Load guides reads from Firebase academy_visits collection
+    const academyVisits = this.dataAggregator.aggregatedData.academyVisits || [];
+    const totalGuidesReads = academyVisits.length;
+    const guidesReadsInRange = academyVisits.filter(
+      (visit) => (visit.timestamp?.getTime() || 0) >= threshold
+    ).length;
+    
+    stats.guidesReads = totalGuidesReads;
+    stats.guidesReadsInRange = guidesReadsInRange;
+    
+    return stats;
   }
 }
 
@@ -928,7 +1690,13 @@ class SpecViewerModal {
 
 class AdminDashboardApp {
   constructor() {
+    // New centralized architecture
+    this.dataAggregator = new DataAggregator(db);
+    this.metricsCalculator = new MetricsCalculator(this.dataAggregator);
+    
+    // Keep DashboardDataStore for backward compatibility
     this.store = new DashboardDataStore();
+    
     this.unsubscribeFns = [];
     this.isActivityPaused = false;
     this.autoRefreshTimer = null;
@@ -960,6 +1728,99 @@ class AdminDashboardApp {
       errorRates: [],
       connections: 0,
       uptime: 100
+    };
+    
+    // Setup data change callbacks
+    this.dataAggregator.onDataChange((aggregatedData, source) => {
+      // Sync DashboardDataStore with DataAggregator for backward compatibility
+      this.syncStoreWithAggregator();
+      
+      // Mark source as ready
+      if (source === 'users') {
+        this.markSourceReady('users');
+        this.renderUsersTable();
+        this.rebuildSearchIndex();
+        this.updateOverview();
+        this.renderActivityFeed();
+      }
+      if (source === 'entitlements') {
+        this.markSourceReady('entitlements');
+        this.renderUsersTable();
+      }
+      if (source === 'specs') {
+        this.markSourceReady('specs');
+        this.renderUsersTable();
+        this.rebuildSearchIndex();
+        this.updateOverview();
+        this.renderActivityFeed();
+        this.renderLogs();
+        this.updateStatistics();
+        if (this.dom.specUsageTable?.closest('.dashboard-section.active')) {
+          this.renderSpecUsageAnalytics();
+        }
+      }
+      if (source === 'purchases') {
+        this.markSourceReady('purchases');
+        this.renderPaymentsTable();
+        this.updateOverview();
+        this.renderLogs();
+        this.updateStatistics();
+        this.rebuildSearchIndex();
+      }
+      if (source === 'activityLogs') {
+        this.markSourceReady('activityLogs');
+        this.renderLogs();
+        this.renderActivityFeed();
+      }
+      if (source === 'activityLogs-restricted') {
+        this.markSourceRestricted('activityLogs', 'Requires elevated Firebase permissions.');
+      }
+      if (source === 'activityLogs-error') {
+        this.markSourceError('activityLogs');
+      }
+      if (source === 'academyVisits') {
+        this.updateOverview();
+      }
+      if (source === 'academyVisits-unavailable') {
+        // Academy visits collection doesn't exist - that's OK, just don't show data
+      }
+    });
+
+    // Sync DashboardDataStore with DataAggregator for backward compatibility
+    this.syncStoreWithAggregator = () => {
+      const agg = this.dataAggregator.aggregatedData;
+      
+      // Sync users
+      this.store.users.clear();
+      agg.users.forEach((user, id) => {
+        this.store.users.set(id, user);
+      });
+      
+      // Sync entitlements
+      this.store.entitlements.clear();
+      agg.entitlements.forEach((entitlement, id) => {
+        this.store.entitlements.set(id, entitlement);
+      });
+      
+      // Sync specs
+      this.store.specs.clear();
+      this.store.specsByUser.clear();
+      agg.specs.forEach((spec, id) => {
+        this.store.specs.set(id, spec);
+      });
+      agg.specsByUser.forEach((specs, userId) => {
+        this.store.specsByUser.set(userId, specs);
+      });
+      
+      // Sync purchases
+      this.store.purchases = [...agg.purchases];
+      
+      // Sync activity logs
+      this.store.activity = [...agg.activityLogs];
+      
+      // Sync manual activity (from unified activity events)
+      this.store.manualActivity = this.dataAggregator.getActivityEvents()
+        .filter(event => !agg.activityLogs.find(log => log.id === event.id));
     };
 
     this.dom = {
@@ -1494,278 +2355,22 @@ class AdminDashboardApp {
   }
 
   async subscribeToSources() {
-    this.unsubscribeAll();
+    // Use new DataAggregator instead of old Firebase listeners
+    this.dataAggregator.unsubscribeAll();
+    this.dataAggregator.reset();
     this.store.reset();
     this.specsInitialLoad = true; // Reset for reconnection
     this.updateAllSources("pending");
 
-    let usersInitialLoad = true;
-
-    // Users
+    // Subscribe to all data sources via DataAggregator
     try {
-      const unsubUsers = onSnapshot(
-        collection(db, COLLECTIONS.USERS),
-        (snapshot) => {
-          snapshot.docChanges().forEach((change) => {
-            if (change.type === "removed") {
-              this.store.removeUser(change.doc.id);
-            } else {
-              const user = this.store.upsertUser(change.doc.id, change.doc.data());
-              if (!usersInitialLoad && change.type === "added") {
-                console.debug("[Users] New user detected", {
-                  id: change.doc.id,
-                  email: user.email,
-                  createdAt: user.createdAt?.toISOString?.() || user.createdAt,
-                  plan: user.plan
-                });
-                this.store.recordActivity({
-                  type: "user",
-                  title: `New user · ${user.displayName || user.email || change.doc.id}`,
-                  description: user.email || user.displayName || change.doc.id,
-                  timestamp: user.createdAt || utils.now(),
-                  meta: {
-                    userId: change.doc.id,
-                    email: user.email,
-                    userEmail: user.email,
-                    userName: user.displayName,
-                    plan: user.plan
-                  }
-                });
-                // Immediately render activity feed to show new user event
-                this.renderActivityFeed();
-              }
-            }
-          });
-          console.debug("[Users] Snapshot applied", {
-            total: this.store.users.size,
-            changes: snapshot.docChanges().length,
-            initialLoad: usersInitialLoad
-          });
-          this.markSourceReady("users");
-          this.renderUsersTable();
-          this.updateOverview();
-          this.rebuildSearchIndex();
-          usersInitialLoad = false;
-        },
-        (error) => {
-          console.error("Users listener error", error);
-          this.markSourceError("users", error);
-        }
-      );
-      this.unsubscribeFns.push(unsubUsers);
-        } catch (error) {
-      console.error("Failed to subscribe to users", error);
-      this.markSourceError("users", error);
-    }
-
-    // Entitlements
-    try {
-      const unsubEntitlements = onSnapshot(
-        collection(db, COLLECTIONS.ENTITLEMENTS),
-        (snapshot) => {
-          snapshot.docChanges().forEach((change) => {
-            if (change.type === "removed") {
-              this.store.removeEntitlement(change.doc.id);
-            } else {
-              this.store.upsertEntitlement(change.doc.id, change.doc.data());
-            }
-          });
-          this.markSourceReady("entitlements");
-          this.renderUsersTable();
-        },
-        (error) => {
-          console.error("Entitlements listener error", error);
-          this.markSourceError("entitlements", error);
-        }
-      );
-      this.unsubscribeFns.push(unsubEntitlements);
-        } catch (error) {
-      console.error("Failed to subscribe to entitlements", error);
-      this.markSourceError("entitlements", error);
-    }
-
-    // Specs
-    try {
-      const specsQuery = query(
-        collection(db, COLLECTIONS.SPECS),
-        orderBy("createdAt", "desc"),
-        limit(MAX_SPEC_CACHE)
-      );
-      const unsubSpecs = onSnapshot(
-        specsQuery,
-        (snapshot) => {
-          const isInitialLoad = this.specsInitialLoad;
-          this.specsInitialLoad = false;
-          
-          // For initial load, process all docs to add activity for recent specs
-          if (isInitialLoad) {
-            const last24Hours = Date.now() - DATE_RANGES.day;
-            snapshot.docs.forEach((docSnap) => {
-              const data = docSnap.data();
-              const spec = this.store.upsertSpec(docSnap.id, data);
-              // Only add to activity if created in last 24 hours
-              if (spec.createdAt && spec.createdAt.getTime() >= last24Hours) {
-                const user = this.store.getUser(spec.userId);
-                this.store.recordActivity({
-                  type: "spec",
-                  title: `Spec created · ${spec.title}`,
-                  description: user?.email || spec.userId || "",
-                  timestamp: spec.createdAt,
-                  meta: { 
-                    userId: spec.userId, 
-                    specId: spec.id,
-                    userName: user?.displayName,
-                    email: user?.email,
-                    userEmail: user?.email
-                  }
-                });
-              }
-            });
-          } else {
-            // For subsequent updates, only process changes
-            snapshot.docChanges().forEach((change) => {
-              if (change.type === "removed") {
-                this.store.removeSpec(change.doc.id);
-              } else {
-                const spec = this.store.upsertSpec(change.doc.id, change.doc.data());
-                if (change.type === "added") {
-                  const user = this.store.getUser(spec.userId);
-                  this.store.recordActivity({
-                    type: "spec",
-                    title: `Spec created · ${spec.title}`,
-                    description: user?.email || spec.userId || "",
-                    timestamp: spec.createdAt,
-                    meta: { 
-                      userId: spec.userId, 
-                      specId: spec.id,
-                      userName: user?.displayName,
-                      email: user?.email,
-                      userEmail: user?.email
-                    }
-                  });
-                }
-              }
-            });
-          }
-          
-          this.markSourceReady("specs");
-          this.renderUsersTable();
-          this.updateOverview();
-          this.renderActivityFeed(); // Make sure to refresh activity feed
-          this.renderLogs();
-          this.updateStatistics();
-          this.rebuildSearchIndex();
-          // Render spec usage if section is active
-          if (this.dom.specUsageTable?.closest('.dashboard-section.active')) {
-            this.renderSpecUsageAnalytics();
-          }
-        },
-        (error) => {
-          console.error("Specs listener error", error);
-          this.markSourceError("specs", error);
-        }
-      );
-      this.unsubscribeFns.push(unsubSpecs);
+      this.dataAggregator.subscribeAll();
+      
+      // Mark sources as ready when data arrives (handled by callbacks in constructor)
+      // The callbacks will handle marking sources ready and updating UI
+      
     } catch (error) {
-      console.error("Failed to subscribe to specs", error);
-      this.markSourceError("specs", error);
-    }
-
-    // Purchases
-    try {
-      const purchasesQuery = query(
-        collection(db, COLLECTIONS.PURCHASES),
-        orderBy("createdAt", "desc"),
-        limit(MAX_PURCHASES)
-      );
-      const unsubPurchases = onSnapshot(
-        purchasesQuery,
-        (snapshot) => {
-          snapshot.docChanges().forEach((change) => {
-            if (change.type === "removed") {
-              this.store.removePurchase(change.doc.id);
-            } else {
-              const purchase = this.store.upsertPurchase(change.doc.id, change.doc.data());
-              if (change.type === "added") {
-                const user = this.store.getUser(purchase.userId);
-                this.store.recordActivity({
-                  type: purchase.productType === "subscription" ? "subscription" : "payment",
-                  title: `${purchase.productName}`,
-                  description: `${utils.formatCurrency(purchase.total, purchase.currency)} • ${purchase.email || purchase.userId || "Unknown user"}`,
-                  timestamp: purchase.createdAt,
-                  meta: { 
-                    userId: purchase.userId, 
-                    purchaseId: purchase.id,
-                    userName: user?.displayName,
-                    email: purchase.email || user?.email,
-                    userEmail: purchase.email || user?.email
-                  }
-                });
-              }
-            }
-          });
-          this.markSourceReady("purchases");
-          this.renderPaymentsTable();
-          this.updateOverview();
-          this.renderLogs();
-          this.updateStatistics();
-          this.rebuildSearchIndex();
-        },
-        (error) => {
-          console.error("Purchases listener error", error);
-          this.markSourceError("purchases", error);
-        }
-      );
-      this.unsubscribeFns.push(unsubPurchases);
-    } catch (error) {
-      console.error("Failed to subscribe to purchases", error);
-      this.markSourceError("purchases", error);
-    }
-
-    // Activity logs (optional)
-    try {
-      const activityQuery = query(
-        collection(db, COLLECTIONS.ACTIVITY_LOGS),
-        orderBy("timestamp", "desc"),
-        limit(MAX_ACTIVITY_EVENTS)
-      );
-      const unsubActivity = onSnapshot(
-        activityQuery,
-        (snapshot) => {
-          const events = snapshot.docs.map((docSnap) => {
-            const data = docSnap.data();
-            return {
-              id: docSnap.id,
-              type: data.type || "system",
-              title: data.title || data.event || "Activity",
-              description: data.description || data.message || "",
-              timestamp: utils.toDate(data.timestamp),
-              meta: data
-            };
-        });
-          this.store.setActivity(events);
-          this.markSourceReady("activityLogs");
-          this.renderLogs();
-        },
-        (error) => {
-          if (error?.code === "permission-denied") {
-            console.info("Activity logs access restricted for current user.");
-            this.markSourceRestricted("activityLogs", "Requires elevated Firebase permissions.");
-          } else {
-            console.warn("Activity logs listener error", error);
-            this.markSourceError("activityLogs", error);
-          }
-        }
-      );
-      this.unsubscribeFns.push(unsubActivity);
-    } catch (error) {
-      if (error?.code === "permission-denied") {
-        console.info("Activity logs collection restricted for current user.");
-        this.markSourceRestricted("activityLogs", "Requires elevated Firebase permissions.");
-      } else {
-        console.warn("Activity logs collection unavailable", error);
-        this.markSourceError("activityLogs", error);
-      }
+      console.error("Failed to subscribe to data sources", error);
     }
 
     // Blog queue (via API)
@@ -2187,139 +2792,92 @@ class AdminDashboardApp {
     }
   }
 
-  updateOverview() {
-    const users = this.store.getUsersSorted();
+  async updateOverview() {
     const overviewRange = this.dom.overviewRange?.value ?? "week";
-    const rangeMs = DATE_RANGES[overviewRange] || DATE_RANGES.week;
-    const threshold = Date.now() - rangeMs;
-
-    // Users metrics - show total and new in range
-    const totalUsers = users.length;
-    const usersInRange = users.filter((user) => (user.createdAt?.getTime() || 0) >= threshold);
-    const newUsers = usersInRange.length;
-    const proUsers = users.filter((user) => user.plan === "pro").length;
-    const proUsersInRange = usersInRange.filter((user) => user.plan === "pro").length;
-    const proShare = totalUsers ? Math.round((proUsers / totalUsers) * 100) : 0;
-
-    // Live users - users active in last 15 minutes
-    const LIVE_THRESHOLD_MS = 15 * 60 * 1000; // 15 minutes
-    const liveThreshold = Date.now() - LIVE_THRESHOLD_MS;
-    const liveUsers = users.filter((user) => {
-      if (!user.lastActive) return false;
-      const lastActiveTime = user.lastActive?.getTime() || 0;
-      return lastActiveTime >= liveThreshold;
-    }).length;
-
-    // Specs metrics - show specs in range, not total
-    const specsInRange = Array.from(this.store.specs.values()).filter(
-      (spec) => (spec.createdAt?.getTime() || 0) >= threshold
-    ).length;
-    const specsTotal = Array.from(this.store.specs.values()).length;
-
-    // Revenue metrics - show revenue in range, not total
-    const revenueRange = this.store.getPurchases(overviewRange).reduce(
-      (sum, purchase) => sum + (purchase.total || 0),
-      0
-    );
-    const revenueTotal = this.store.purchases.reduce(
-      (sum, purchase) => sum + (purchase.total || 0),
-      0
-    );
-
+    
+    // Use MetricsCalculator for all calculations - single source of truth
+    const metrics = this.metricsCalculator.calculateOverviewMetrics(overviewRange);
+    
     // Update display - show range-based data in main metrics
     if (this.dom.metrics.totalUsers) {
-      this.dom.metrics.totalUsers.textContent = utils.formatNumber(totalUsers);
+      this.dom.metrics.totalUsers.textContent = utils.formatNumber(metrics.totalUsers);
     }
     if (this.dom.metrics.newUsers) {
-      this.dom.metrics.newUsers.textContent = `New: ${utils.formatNumber(newUsers)}`;
+      this.dom.metrics.newUsers.textContent = `New: ${utils.formatNumber(metrics.newUsers)}`;
     }
     if (this.dom.metrics.liveUsers) {
-      this.dom.metrics.liveUsers.textContent = utils.formatNumber(liveUsers);
+      this.dom.metrics.liveUsers.textContent = utils.formatNumber(metrics.liveUsers);
     }
     if (this.dom.metrics.liveUsersTime) {
       this.dom.metrics.liveUsersTime.textContent = "Last 15 min";
     }
     if (this.dom.metrics.proUsers) {
-      this.dom.metrics.proUsers.textContent = utils.formatNumber(proUsersInRange);
+      this.dom.metrics.proUsers.textContent = utils.formatNumber(metrics.proUsers);
     }
     if (this.dom.metrics.proShare) {
-      const proShareInRange = newUsers ? Math.round((proUsersInRange / newUsers) * 100) : 0;
-      this.dom.metrics.proShare.textContent = `${proShareInRange || 0}%`;
+      this.dom.metrics.proShare.textContent = `${metrics.proShare || 0}%`;
     }
     if (this.dom.metrics.specsTotal) {
       // Show specs in range as the main metric
-      this.dom.metrics.specsTotal.textContent = utils.formatNumber(specsInRange);
+      this.dom.metrics.specsTotal.textContent = utils.formatNumber(metrics.specsInRange);
     }
     if (this.dom.metrics.specsRange) {
       // Show total specs in the range label
-      this.dom.metrics.specsRange.textContent = `Total: ${utils.formatNumber(specsTotal)}`;
+      this.dom.metrics.specsRange.textContent = `Total: ${utils.formatNumber(metrics.specsTotal)}`;
     }
     if (this.dom.metrics.revenueTotal) {
       // Show revenue in range as the main metric
-      this.dom.metrics.revenueTotal.textContent = utils.formatCurrency(revenueRange);
+      this.dom.metrics.revenueTotal.textContent = utils.formatCurrency(metrics.revenueRange);
     }
     if (this.dom.metrics.revenueRange) {
       // Show total revenue in the range label
-      this.dom.metrics.revenueRange.textContent = `Total: ${utils.formatCurrency(revenueTotal)}`;
+      this.dom.metrics.revenueRange.textContent = `Total: ${utils.formatCurrency(metrics.revenueTotal)}`;
     }
 
-    // Load articles and academy stats
-    this.loadContentStats(overviewRange);
+    // Load articles and academy stats using MetricsCalculator
+    const apiBaseUrl = this.getApiBaseUrl();
+    const contentStats = await this.metricsCalculator.calculateContentStats(overviewRange, apiBaseUrl);
+    
+    // Update articles views
+    if (this.dom.metrics.articlesRead) {
+      this.dom.metrics.articlesRead.textContent = utils.formatNumber(contentStats.articlesViewsInRange);
+    }
+    if (this.dom.metrics.articlesReadRange) {
+      this.dom.metrics.articlesReadRange.textContent = `Total: ${utils.formatNumber(contentStats.articlesViews)}`;
+    }
+    
+    // Update guides reads
+    if (this.dom.metrics.guidesRead) {
+      this.dom.metrics.guidesRead.textContent = utils.formatNumber(contentStats.guidesReadsInRange);
+    }
+    if (this.dom.metrics.guidesReadRange) {
+      this.dom.metrics.guidesReadRange.textContent = `Total: ${utils.formatNumber(contentStats.guidesReads)}`;
+    }
 
     this.renderActivityFeed();
     this.updateCharts();
   }
 
+  // Deprecated: Use MetricsCalculator.calculateContentStats() instead
+  // Kept for backward compatibility
   async loadContentStats(range) {
-    try {
-      const apiBaseUrl = this.getApiBaseUrl();
-      
-      // Load articles views
-      try {
-        const articlesResponse = await fetch(`${apiBaseUrl}/api/articles/list?status=all&limit=1000`);
-        if (articlesResponse.ok) {
-          const articlesData = await articlesResponse.json();
-          if (articlesData.success && articlesData.articles) {
-            const totalViews = articlesData.articles.reduce((sum, article) => sum + (article.views || 0), 0);
-            const rangeMs = DATE_RANGES[range] || DATE_RANGES.week;
-            const threshold = Date.now() - rangeMs;
-            const viewsInRange = articlesData.articles
-              .filter(article => {
-                const viewDate = article.publishedAt || article.createdAt;
-                return viewDate && new Date(viewDate).getTime() >= threshold;
-              })
-              .reduce((sum, article) => sum + (article.views || 0), 0);
-            
-            this.articlesViews = totalViews;
-            
-            if (this.dom.metrics.articlesRead) {
-              this.dom.metrics.articlesRead.textContent = utils.formatNumber(viewsInRange);
-            }
-            if (this.dom.metrics.articlesReadRange) {
-              this.dom.metrics.articlesReadRange.textContent = `Total: ${utils.formatNumber(totalViews)}`;
-            }
-          }
-        }
-      } catch (error) {
-        console.error("Failed to load articles stats:", error);
-        if (this.dom.metrics.articlesRead) {
-          this.dom.metrics.articlesRead.textContent = "—";
-        }
-        if (this.dom.metrics.articlesReadRange) {
-          this.dom.metrics.articlesReadRange.textContent = "—";
-        }
-      }
-
-      // Load academy visits (placeholder - will need API endpoint)
-      // For now, set to 0 or fetch from analytics if available
-      if (this.dom.metrics.guidesRead) {
-        this.dom.metrics.guidesRead.textContent = "—";
-      }
-      if (this.dom.metrics.guidesReadRange) {
-        this.dom.metrics.guidesReadRange.textContent = "—";
-      }
-    } catch (error) {
-      console.error("Failed to load content stats:", error);
+    const apiBaseUrl = this.getApiBaseUrl();
+    const contentStats = await this.metricsCalculator.calculateContentStats(range, apiBaseUrl);
+    
+    // Update articles views
+    if (this.dom.metrics.articlesRead) {
+      this.dom.metrics.articlesRead.textContent = utils.formatNumber(contentStats.articlesViewsInRange);
+    }
+    if (this.dom.metrics.articlesReadRange) {
+      this.dom.metrics.articlesReadRange.textContent = `Total: ${utils.formatNumber(contentStats.articlesViews)}`;
+    }
+    
+    // Update guides reads
+    if (this.dom.metrics.guidesRead) {
+      this.dom.metrics.guidesRead.textContent = utils.formatNumber(contentStats.guidesReadsInRange);
+    }
+    if (this.dom.metrics.guidesReadRange) {
+      this.dom.metrics.guidesReadRange.textContent = `Total: ${utils.formatNumber(contentStats.guidesReads)}`;
     }
   }
 
@@ -2334,23 +2892,17 @@ class AdminDashboardApp {
 
   renderActivityFeed() {
     if (!this.dom.activityFeed) return;
-    const events = this.store.getActivityMerged();
+    
+    // Use MetricsCalculator for unified activity feed - same source as Live Overview
+    const filter = this.activeActivityFilter || "all";
+    const events = this.metricsCalculator.calculateActivityFeed(filter);
+    
     if (!events.length) {
       this.dom.activityFeed.innerHTML = `<li class="activity-placeholder">Waiting for events…</li>`;
-                return;
-            }
-    const filter = this.activeActivityFilter || "all";
-    const filtered = events.filter((event) => {
-      if (filter === "all") return true;
-      if (filter === "payment") return event.type === "payment" || event.type === "subscription";
-      if (filter === "user") return event.type === "user" || event.type === "auth";
-      return event.type === filter;
-    });
-    if (!filtered.length) {
-      this.dom.activityFeed.innerHTML = `<li class="activity-placeholder">No activity in this category.</li>`;
       return;
     }
-    const html = filtered.slice(0, 20).map((event) => {
+    
+    const html = events.slice(0, 20).map((event) => {
       const user = event.meta?.userId ? this.store.getUser(event.meta.userId) : null;
       const userLabel = event.meta?.email || event.meta?.userEmail || user?.email || event.meta?.userId || "";
       const nameLabel = event.meta?.userName || user?.displayName || user?.email || event.meta?.userId || "Unknown user";
@@ -3323,8 +3875,17 @@ class AdminDashboardApp {
   }
 
   unsubscribeAll() {
+    // Use DataAggregator's unsubscribeAll for Firebase listeners
+    this.dataAggregator.unsubscribeAll();
+    // Keep old unsubscribeFns for blog queue and other API-based subscriptions
     this.unsubscribeFns.forEach((fn) => {
-      if (typeof fn === "function") fn();
+      if (typeof fn === "function") {
+        try {
+          fn();
+        } catch (error) {
+          console.error("Error unsubscribing:", error);
+        }
+      }
     });
     this.unsubscribeFns = [];
   }
