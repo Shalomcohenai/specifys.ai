@@ -236,7 +236,7 @@ class DataAggregator {
     };
     
     // Unified activity events (generated from all sources)
-    this.activityEvents = [];
+    this.activityEvents = this.loadActivityEventsFromStorage();
     
     // Content stats
     this.contentStats = {
@@ -255,6 +255,49 @@ class DataAggregator {
       specs: true,
       purchases: true
     };
+    
+    // Track if events were generated from existing data
+    this._eventsGenerated = false;
+  }
+  
+  /**
+   * Load activity events from localStorage
+   */
+  loadActivityEventsFromStorage() {
+    try {
+      const stored = localStorage.getItem('admin-activity-events');
+      if (stored) {
+        const events = JSON.parse(stored);
+        // Convert timestamp strings back to Date objects
+        return events.map(event => ({
+          ...event,
+          timestamp: event.timestamp ? new Date(event.timestamp) : utils.now()
+        })).filter(event => {
+          // Only keep events from last 7 days
+          const sevenDaysAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
+          return event.timestamp && event.timestamp.getTime() >= sevenDaysAgo;
+        });
+      }
+    } catch (error) {
+      console.warn("Failed to load activity events from storage:", error);
+    }
+    return [];
+  }
+  
+  /**
+   * Save activity events to localStorage
+   */
+  saveActivityEventsToStorage() {
+    try {
+      // Convert Date objects to ISO strings for storage
+      const eventsToStore = this.activityEvents.map(event => ({
+        ...event,
+        timestamp: event.timestamp ? event.timestamp.toISOString() : new Date().toISOString()
+      }));
+      localStorage.setItem('admin-activity-events', JSON.stringify(eventsToStore));
+    } catch (error) {
+      console.warn("Failed to save activity events to storage:", error);
+    }
   }
   
   /**
@@ -270,6 +313,16 @@ class DataAggregator {
    * Notify all callbacks of data changes
    */
   notifyDataChange(source) {
+    // Check if initial loads are complete and generate events from existing data
+    if (this.initialLoads.users === false && 
+        this.initialLoads.specs === false && 
+        this.initialLoads.purchases === false &&
+        !this._eventsGenerated) {
+      // Generate events from existing data once all initial loads are complete
+      this.generateEventsFromExistingData();
+      this._eventsGenerated = true;
+    }
+    
     this.onDataChangeCallbacks.forEach(callback => {
       try {
         callback(this.aggregatedData, source);
@@ -403,6 +456,7 @@ class DataAggregator {
                 const event = this.createActivityEvent('user', user);
                 this.activityEvents.unshift(event);
                 this.activityEvents = utils.clampArray(this.activityEvents, MAX_ACTIVITY_EVENTS);
+                this.saveActivityEventsToStorage();
               }
             }
           });
@@ -506,6 +560,8 @@ class DataAggregator {
                 const user = this.aggregatedData.users.get(spec.userId);
                 const event = this.createActivityEvent('spec', spec, user);
                 this.activityEvents.unshift(event);
+                this.activityEvents = utils.clampArray(this.activityEvents, MAX_ACTIVITY_EVENTS);
+                this.saveActivityEventsToStorage();
               }
             });
           } else {
@@ -557,6 +613,7 @@ class DataAggregator {
                   const event = this.createActivityEvent('spec', spec, user);
                   this.activityEvents.unshift(event);
                   this.activityEvents = utils.clampArray(this.activityEvents, MAX_ACTIVITY_EVENTS);
+                  this.saveActivityEventsToStorage();
                 }
               }
             });
@@ -620,6 +677,7 @@ class DataAggregator {
                 const event = this.createActivityEvent(eventType, purchase, user);
                 this.activityEvents.unshift(event);
                 this.activityEvents = utils.clampArray(this.activityEvents, MAX_ACTIVITY_EVENTS);
+                this.saveActivityEventsToStorage();
               }
             }
           });
@@ -700,12 +758,75 @@ class DataAggregator {
   }
   
   /**
+   * Generate activity events from existing data (for initial load)
+   * Creates events from users, specs, and purchases created in the last 7 days
+   */
+  generateEventsFromExistingData() {
+    const sevenDaysAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
+    const existingEventIds = new Set(this.activityEvents.map(e => e.id));
+    const newEvents = [];
+    
+    // Generate events from users created in last 7 days
+    const users = Array.from(this.aggregatedData.users.values());
+    users.forEach(user => {
+      if (user.createdAt && user.createdAt.getTime() >= sevenDaysAgo) {
+        const eventId = `user-${user.id}`;
+        if (!existingEventIds.has(eventId)) {
+          const event = this.createActivityEvent('user', user);
+          event.id = eventId; // Use stable ID to avoid duplicates
+          newEvents.push(event);
+          existingEventIds.add(eventId);
+        }
+      }
+    });
+    
+    // Generate events from specs created in last 7 days
+    const specs = Array.from(this.aggregatedData.specs.values());
+    specs.forEach(spec => {
+      if (spec.createdAt && spec.createdAt.getTime() >= sevenDaysAgo) {
+        const eventId = `spec-${spec.id}`;
+        if (!existingEventIds.has(eventId)) {
+          const user = this.aggregatedData.users.get(spec.userId);
+          const event = this.createActivityEvent('spec', spec, user);
+          event.id = eventId; // Use stable ID to avoid duplicates
+          newEvents.push(event);
+          existingEventIds.add(eventId);
+        }
+      }
+    });
+    
+    // Generate events from purchases created in last 7 days
+    this.aggregatedData.purchases.forEach(purchase => {
+      if (purchase.createdAt && purchase.createdAt.getTime() >= sevenDaysAgo) {
+        const eventId = `purchase-${purchase.id}`;
+        if (!existingEventIds.has(eventId)) {
+          const user = this.aggregatedData.users.get(purchase.userId);
+          const eventType = purchase.productType === "subscription" ? "subscription" : "payment";
+          const event = this.createActivityEvent(eventType, purchase, user);
+          event.id = eventId; // Use stable ID to avoid duplicates
+          newEvents.push(event);
+          existingEventIds.add(eventId);
+        }
+      }
+    });
+    
+    // Add new events to the beginning of the array
+    if (newEvents.length > 0) {
+      this.activityEvents.unshift(...newEvents);
+      this.activityEvents = utils.clampArray(this.activityEvents, MAX_ACTIVITY_EVENTS);
+      this.saveActivityEventsToStorage();
+    }
+  }
+  
+  /**
    * Update unified activity events by merging generated events with activity logs
    */
   updateActivityEvents() {
     const combined = [...this.activityEvents, ...this.aggregatedData.activityLogs];
     combined.sort((a, b) => (b.timestamp?.getTime() || 0) - (a.timestamp?.getTime() || 0));
     this.activityEvents = utils.clampArray(combined, MAX_ACTIVITY_EVENTS);
+    // Save to localStorage for persistence across page refreshes
+    this.saveActivityEventsToStorage();
   }
   
   /**
@@ -795,6 +916,13 @@ class DataAggregator {
       specs: true,
       purchases: true
     };
+    this._eventsGenerated = false;
+    // Clear localStorage as well
+    try {
+      localStorage.removeItem('admin-activity-events');
+    } catch (error) {
+      console.warn("Failed to clear activity events from storage:", error);
+    }
   }
   
   /**
