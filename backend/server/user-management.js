@@ -148,9 +148,15 @@ async function ensureEntitlementDocument(uid, overrides = {}) {
     const snapshot = await entitlementsRef.get();
     const isNew = !snapshot.exists;
 
+    // Check if user document exists to determine if this is a new user
+    const userRef = db.collection('users').doc(uid);
+    const userSnapshot = await userRef.get();
+    const isNewUser = !userSnapshot.exists;
+
     const defaultData = {
         userId: uid,
-        spec_credits: 0,
+        // Give new users 1 free credit, existing users get 0 (they may have free_specs_remaining)
+        spec_credits: (isNew && isNewUser) ? 1 : 0,
         unlimited: false,
         can_edit: false
     };

@@ -170,6 +170,18 @@ const rateLimiters = {
     },
     standardHeaders: true,
     legacyHeaders: false
+  }),
+  // Rate limiting for credit consumption (prevent abuse)
+  creditConsumption: rateLimit({
+    windowMs: 60 * 1000, // 1 minute
+    max: 5, // limit each IP to 5 requests per minute
+    message: {
+      error: 'Too many credit consumption requests from this IP, please try again later.',
+      retryAfter: '1 minute'
+    },
+    standardHeaders: true,
+    legacyHeaders: false,
+    skipSuccessfulRequests: false, // Count all requests, even successful ones
   })
 };
 

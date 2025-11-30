@@ -41,10 +41,10 @@ async function createTestUser(email) {
         
         console.log('✅ User document created in Firestore');
         
-        // Create entitlements document
+        // Create entitlements document - give new test user 1 free credit
         await db.collection('entitlements').doc(userRecord.uid).set({
             userId: userRecord.uid,
-            spec_credits: 0,
+            spec_credits: 1,
             unlimited: false,
             can_edit: false,
             updated_at: new Date()

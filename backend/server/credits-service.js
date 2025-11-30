@@ -435,9 +435,20 @@ async function consumeCredit(userId, specId) {
       throw new Error('Invalid userId');
     }
     
-    if (!specId || typeof specId !== 'string') {
+    if (!specId || typeof specId !== 'string' || specId.trim().length === 0) {
       throw new Error('Invalid specId');
     }
+    
+    // Validate specId format (should be a valid Firestore document ID)
+    // Firestore document IDs can be up to 1500 bytes, alphanumeric with some special chars
+    if (specId.length > 1500) {
+      throw new Error('specId is too long');
+    }
+    
+    // Note: We don't verify spec exists here because:
+    // 1. The spec might be created after credit consumption (tempSpecId pattern)
+    // 2. We verify inside transaction that user doesn't already have a spec
+    // 3. The transaction ID includes specId, so duplicate specIds are prevented
     
     // Generate transaction ID
     const transactionId = generateTransactionId('consume', specId, userId);
@@ -476,18 +487,43 @@ async function consumeCredit(userId, specId) {
         };
       }
       
+      // Check if user already has a spec (only one spec per user allowed)
+      const specsQuery = db.collection('specs').where('userId', '==', userId).limit(1);
+      const existingSpecsSnapshot = await transaction.get(specsQuery);
+      
+      if (!existingSpecsSnapshot.empty) {
+        const existingSpecId = existingSpecsSnapshot.docs[0].id;
+        console.log(`[CREDITS] [${requestId}] User ${userId} already has a spec: ${existingSpecId}`);
+        throw new Error('User already has a spec. Only one spec per user is allowed.');
+      }
+      
+      // Get user document first to check if this is a new user
+      const userRef = db.collection(USERS_COLLECTION).doc(userId);
+      const userDoc = await transaction.get(userRef);
+      const isNewUser = !userDoc.exists;
+      
       // Get entitlements document
       const entitlementsRef = db.collection(ENTITLEMENTS_COLLECTION).doc(userId);
       const entitlementsDoc = await transaction.get(entitlementsRef);
       
+      // If entitlements don't exist, create them with appropriate credits
+      // New users get 1 credit, existing users get 0 (they may have free_specs_remaining)
       const entitlements = entitlementsDoc.exists
         ? entitlementsDoc.data()
         : {
             userId: userId,
-            spec_credits: 0,
+            spec_credits: isNewUser ? 1 : 0,
             unlimited: false,
             can_edit: false
           };
+      
+      // Create entitlements document if it doesn't exist
+      if (!entitlementsDoc.exists) {
+        transaction.set(entitlementsRef, {
+          ...entitlements,
+          updated_at: admin.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+      }
       
       // Check if user has unlimited access (Pro subscription)
       if (entitlements.unlimited) {
@@ -555,10 +591,7 @@ async function consumeCredit(userId, specId) {
         };
       }
       
-      // Check free specs from users collection
-      const userRef = db.collection(USERS_COLLECTION).doc(userId);
-      const userDoc = await transaction.get(userRef);
-
+      // Check free specs from users collection (userDoc already fetched above)
       const userData = userDoc.exists ? userDoc.data() || {} : {};
       let previousFreeCredits;
 
@@ -625,6 +658,10 @@ async function consumeCredit(userId, specId) {
       throw new Error('Insufficient credits');
     }
     
+    if (error.message === 'User already has a spec. Only one spec per user is allowed.') {
+      throw new Error('User already has a spec. Only one spec per user is allowed.');
+    }
+    
     throw error;
   }
 }
@@ -641,7 +678,7 @@ async function refundCredit(userId, amount, reason, originalTransactionId = null
   const requestId = `refund-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   const startTime = Date.now();
   
-  console.log(`[CREDITS] [${requestId}] Refund credit: userId=${userId}, amount=${amount}, reason=${reason}`);
+  console.log(`[CREDITS] [${requestId}] Refund credit: userId=${userId}, amount=${amount}, reason=${reason}, originalTransactionId=${originalTransactionId}`);
   
   try {
     // Validate inputs
@@ -653,10 +690,55 @@ async function refundCredit(userId, amount, reason, originalTransactionId = null
       throw new Error('Amount must be a positive integer');
     }
     
+    if (!reason || typeof reason !== 'string' || reason.trim().length === 0) {
+      throw new Error('Reason is required and must be a non-empty string');
+    }
+    
     // Prevent overflow - max credits per refund
     const MAX_CREDITS_PER_REFUND = 1000;
     if (amount > MAX_CREDITS_PER_REFUND) {
       throw new Error(`Amount exceeds maximum allowed (${MAX_CREDITS_PER_REFUND})`);
+    }
+    
+    // If originalTransactionId is provided, verify it exists and belongs to the user
+    if (originalTransactionId) {
+      const originalTransactionDoc = await db.collection(TRANSACTIONS_COLLECTION).doc(originalTransactionId).get();
+      
+      if (!originalTransactionDoc.exists) {
+        throw new Error(`Original transaction ${originalTransactionId} not found`);
+      }
+      
+      const originalTransaction = originalTransactionDoc.data();
+      
+      // Verify the transaction belongs to this user
+      if (originalTransaction.userId !== userId) {
+        throw new Error('Original transaction does not belong to this user');
+      }
+      
+      // Verify it's a consume transaction (can only refund consumed credits)
+      if (originalTransaction.type !== 'consume') {
+        throw new Error(`Cannot refund transaction of type ${originalTransaction.type}. Only consume transactions can be refunded.`);
+      }
+      
+      // Check if this transaction was already refunded
+      const refundQuery = await db.collection(TRANSACTIONS_COLLECTION)
+        .where('metadata.originalTransactionId', '==', originalTransactionId)
+        .where('type', '==', 'refund')
+        .limit(1)
+        .get();
+      
+      if (!refundQuery.empty) {
+        const existingRefund = refundQuery.docs[0].data();
+        throw new Error(`Transaction ${originalTransactionId} was already refunded (refund transaction: ${refundQuery.docs[0].id})`);
+      }
+      
+      // Verify refund amount doesn't exceed original amount
+      const originalAmount = Math.abs(originalTransaction.amount || 0);
+      if (amount > originalAmount) {
+        throw new Error(`Refund amount (${amount}) cannot exceed original transaction amount (${originalAmount})`);
+      }
+      
+      console.log(`[CREDITS] [${requestId}] Verified original transaction: ${originalTransactionId}, original amount: ${originalAmount}`);
     }
     
     // Generate transaction ID
@@ -779,21 +861,33 @@ async function refundCredit(userId, amount, reason, originalTransactionId = null
  */
 async function getEntitlements(userId) {
   try {
-    // Get entitlements document
-    const entitlementsDoc = await db.collection(ENTITLEMENTS_COLLECTION).doc(userId).get();
-    const entitlements = entitlementsDoc.exists
-      ? entitlementsDoc.data()
-      : {
-          userId: userId,
-          spec_credits: 0,
-          unlimited: false,
-          can_edit: false,
-          preserved_credits: 0
-        };
-    
-    // Get user document
+    // Get user document first to check if this is a new user
     const userRef = db.collection(USERS_COLLECTION).doc(userId);
     const userDoc = await userRef.get();
+    const isNewUser = !userDoc.exists;
+    
+    // Get entitlements document
+    const entitlementsRef = db.collection(ENTITLEMENTS_COLLECTION).doc(userId);
+    const entitlementsDoc = await entitlementsRef.get();
+    
+    let entitlements;
+    let shouldCreateEntitlements = false;
+    
+    if (!entitlementsDoc.exists) {
+      // Entitlements don't exist - create them
+      // Give new users 1 free credit, existing users get 0 (they may have free_specs_remaining)
+      entitlements = {
+        userId: userId,
+        spec_credits: isNewUser ? 1 : 0,
+        unlimited: false,
+        can_edit: false,
+        preserved_credits: 0
+      };
+      shouldCreateEntitlements = true;
+    } else {
+      entitlements = entitlementsDoc.data();
+    }
+    
     let user = null;
 
     if (!userDoc.exists) {
@@ -817,6 +911,14 @@ async function getEntitlements(userId) {
         data.free_specs_remaining = 1;
       }
       user = data;
+    }
+    
+    // Create entitlements document if it doesn't exist
+    if (shouldCreateEntitlements) {
+      await entitlementsRef.set({
+        ...entitlements,
+        updated_at: admin.firestore.FieldValue.serverTimestamp()
+      }, { merge: true });
     }
 
     return {

@@ -5,6 +5,7 @@ const OpenAIStorageService = require('./openai-storage-service');
 const creditsService = require('./credits-service');
 const { createError, ERROR_CODES } = require('./error-handler');
 const { logger } = require('./logger');
+const { rateLimiters } = require('./security');
 
 /**
  * Function to send spec ready notification email
@@ -139,8 +140,9 @@ router.get('/entitlements', verifyFirebaseToken, async (req, res, next) => {
  * POST /api/specs/consume-credit
  * Body: { specId: string }
  * Note: Uses credits-service for atomic credit consumption with validation
+ * Rate limited to prevent abuse
  */
-router.post('/consume-credit', verifyFirebaseToken, async (req, res, next) => {
+router.post('/consume-credit', rateLimiters.creditConsumption, verifyFirebaseToken, async (req, res, next) => {
     try {
         const userId = req.user.uid;
         const { specId } = req.body;
@@ -159,6 +161,19 @@ router.post('/consume-credit', verifyFirebaseToken, async (req, res, next) => {
         if (error.message === 'Insufficient credits') {
             return next(createError('Insufficient credits', ERROR_CODES.INSUFFICIENT_PERMISSIONS, 403, {
                 message: 'You do not have enough credits to create a spec'
+            }));
+        }
+        
+        if (error.message === 'User already has a spec. Only one spec per user is allowed.') {
+            return next(createError('User already has a spec', ERROR_CODES.INSUFFICIENT_PERMISSIONS, 403, {
+                message: 'You already have a spec. Only one spec per user is allowed. Please edit your existing spec instead.'
+            }));
+        }
+        
+        // Handle spec validation errors
+        if (error.message.includes('does not exist') || error.message.includes('does not belong')) {
+            return next(createError('Invalid spec', ERROR_CODES.INVALID_INPUT, 400, {
+                message: error.message
             }));
         }
 

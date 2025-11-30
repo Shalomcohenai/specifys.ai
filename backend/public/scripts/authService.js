@@ -45,17 +45,26 @@ async function createUserDocument(user) {
     
     // Also create entitlements document if doesn't exist
     const entitlementsRef = doc(db, 'entitlements', user.uid);
-    await setDoc(
-      entitlementsRef,
-      {
-        userId: user.uid,
-        spec_credits: 0,
-        unlimited: false,
-        can_edit: false,
-        updated_at: serverTimestamp()
-      },
-      { merge: true }
-    );
+    const existingEntitlementsSnapshot = await getDoc(entitlementsRef);
+    
+    // Give new users 1 free credit
+    const isNewUser = !existingUserSnapshot.exists();
+    const entitlementsData = {
+      userId: user.uid,
+      unlimited: false,
+      can_edit: false,
+      updated_at: serverTimestamp()
+    };
+    
+    // Only set spec_credits if entitlements don't exist
+    // New users get 1 credit, existing users without entitlements get 0 
+    // (they may have free_specs_remaining or should get credits through other means)
+    if (!existingEntitlementsSnapshot.exists()) {
+      entitlementsData.spec_credits = isNewUser ? 1 : 0;
+    }
+    // If entitlements exist, merge will preserve existing spec_credits
+    
+    await setDoc(entitlementsRef, entitlementsData, { merge: true });
   } catch (error) {
     // Log error but don't throw - this shouldn't prevent login/registration
     console.error('[createUserDocument] Failed to create/update user document:', {
