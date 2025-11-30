@@ -630,8 +630,23 @@
         // Run first check after page is loaded (avoid interfering with initial load)
         setTimeout(doCheck, 1000);
         
-        // Then run periodically
-        setInterval(doCheck, CONFIG.checkInterval);
+        // Then run periodically - only in development or on visibility change in production
+        const isDevelopment = window.location.hostname === 'localhost' || 
+                              window.location.hostname === '127.0.0.1' ||
+                              window.location.hostname.includes('.local') ||
+                              document.querySelector('script[src*="livereload"]');
+        
+        if (isDevelopment) {
+            // Development: run periodic checks as before
+            setInterval(doCheck, CONFIG.checkInterval);
+        } else {
+            // Production: only check when tab becomes visible
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'visible') {
+                    setTimeout(doCheck, 5000);
+                }
+            });
+        }
     }
 
     /**

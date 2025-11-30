@@ -51,33 +51,64 @@
       });
   };
 
-  // Listen to auth state changes
-  auth.onAuthStateChanged(async (user) => {
-    updateAuthUI(user);
-
-    // Ensure user document exists in Firestore when user signs in
-    if (user) {
-      try {
-        const token = await user.getIdToken();
-        const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : (window.API_BASE_URL || 'https://specifys-ai.onrender.com');
-        const response = await fetch(`${apiBaseUrl}/api/users/ensure`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
-
-        if (response.ok) {
-          console.log('✅ User document ensured in Firestore');
-        } else {
-          console.warn('⚠️ Failed to ensure user document:', await response.text());
-        }
-      } catch (error) {
-        console.warn('⚠️ Error ensuring user document:', error);
-      }
+  // Listen to auth state changes (only after Firebase is initialized)
+  function setupAuthListener() {
+    if (typeof auth === 'undefined' && typeof window.auth !== 'undefined') {
+      window.auth = window.auth;
     }
-  });
+    
+    if (typeof auth === 'undefined') {
+      setTimeout(setupAuthListener, 100);
+      return;
+    }
+    
+    auth.onAuthStateChanged(async (user) => {
+      updateAuthUI(user);
+
+      // Ensure user document exists (deferred and only when visible)
+      if (user && document.visibilityState === 'visible') {
+        if ('requestIdleCallback' in window) {
+          requestIdleCallback(async () => {
+            await ensureUserDocument(user);
+          }, { timeout: 3000 });
+        } else {
+          setTimeout(async () => {
+            await ensureUserDocument(user);
+          }, 3000);
+        }
+      }
+    });
+  }
+  
+  async function ensureUserDocument(user) {
+    try {
+      const token = await user.getIdToken();
+      const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : (window.API_BASE_URL || 'https://specifys-ai.onrender.com');
+      const response = await fetch(`${apiBaseUrl}/api/users/ensure`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        console.log('✅ User document ensured in Firestore');
+      } else {
+        console.warn('⚠️ Failed to ensure user document:', await response.text());
+      }
+    } catch (error) {
+      console.warn('⚠️ Error ensuring user document:', error);
+    }
+  }
+
+  // Wait for Firebase to be ready
+  if (typeof firebase !== 'undefined' && firebase.auth) {
+    // Firebase already loaded, wait a bit for initialization
+    setTimeout(setupAuthListener, 100);
+  } else {
+    window.addEventListener('firebase-ready', setupAuthListener);
+  }
 
   // Initialize auth buttons with default state
   document.addEventListener('DOMContentLoaded', function() {

@@ -221,6 +221,18 @@
 
   let refreshInterval = null;
   let activeUserId = null;
+  let pollingStarted = false;
+
+  function startCreditsPolling() {
+    if (pollingStarted || refreshInterval) return;
+    pollingStarted = true;
+    
+    refreshInterval = setInterval(() => {
+      if (document.visibilityState === 'visible' && activeUserId) {
+        updateCreditsDisplay();
+      }
+    }, 60000); // Increase to 60 seconds
+  }
 
   function init() {
     waitForFirebase().then(() => {
@@ -229,6 +241,7 @@
         if (refreshInterval) {
           clearInterval(refreshInterval);
           refreshInterval = null;
+          pollingStarted = false;
         }
         
         if (user) {
@@ -239,8 +252,20 @@
           } else {
             applyCreditsState(LOADING_STATE);
           }
-          updateCreditsDisplay();
-          refreshInterval = setInterval(updateCreditsDisplay, 30000);
+          updateCreditsDisplay(); // Initial load
+          
+          // Start polling only after user interaction or visibility change
+          document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible' && activeUserId) {
+              updateCreditsDisplay();
+              startCreditsPolling();
+            }
+          }, { once: true });
+          
+          // Start polling on first user interaction
+          ['click', 'scroll', 'touchstart'].forEach(event => {
+            document.addEventListener(event, startCreditsPolling, { once: true });
+          });
         } else {
           activeUserId = null;
           const creditsDisplay = document.getElementById('credits-display');

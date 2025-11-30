@@ -74,8 +74,9 @@
     
     
     
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Font Awesome - Loaded asynchronously -->
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"></noscript>
     
     <!-- API Configuration -->
     <script defer src="/assets/js/config.js"></script>
@@ -989,10 +990,59 @@ graph TD
     measurementId: "G-4YR9LK63MR"
   };
 
-  // Initialize Firebase
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db = firebase.firestore();
+  // Defer Firebase initialization until page is interactive
+  function initFirebase() {
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    
+    // Make auth and db available globally
+    window.auth = auth;
+    window.db = db;
+    
+    // Trigger event for other scripts that depend on Firebase
+    window.dispatchEvent(new Event('firebase-ready'));
+    
+    // Auth state listener (deferred)
+    auth.onAuthStateChanged((user) => {
+      if (typeof updateAuthUI === 'function') {
+        updateAuthUI(user);
+      }
+      
+      // Ensure user document (only when tab is visible)
+      if (user && document.visibilityState === 'visible') {
+        ensureUserDocument(user).catch(() => {
+          // Silently fail - non-critical
+        });
+      }
+    });
+  }
+  
+  async function ensureUserDocument(user) {
+    try {
+      const token = await user.getIdToken();
+      const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai.onrender.com';
+      const response = await fetch(`${apiBaseUrl}/api/users/ensure`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      if (response.ok) {
+        console.log('✅ User document ensured');
+      }
+    } catch (error) {
+      // Silently fail
+    }
+  }
+
+  // Initialize Firebase after page is interactive
+  if ('requestIdleCallback' in window) {
+    requestIdleCallback(initFirebase, { timeout: 2000 });
+  } else {
+    setTimeout(initFirebase, 2000);
+  }
 </script>
 
 
@@ -1041,40 +1091,58 @@ graph TD
     if (typeof trackAuthEvent !== 'undefined') {
       trackAuthEvent('logout', 'email');
     }
-    auth.signOut()
-      .then(() => {
-        // Logged out successfully
-        if (window.appLogger) {
-          window.appLogger.logUserAction('LogoutSuccess', {});
-        }
-      })
-      .catch(error => {
-        // Error logging out
-        if (window.appLogger) {
-          window.appLogger.logError(error, { action: 'logout' });
-        }
-      });
+    const authInstance = window.auth || (typeof auth !== 'undefined' ? auth : null);
+    if (authInstance) {
+      authInstance.signOut()
+        .then(() => {
+          // Logged out successfully
+          if (window.appLogger) {
+            window.appLogger.logUserAction('LogoutSuccess', {});
+          }
+        })
+        .catch(error => {
+          // Error logging out
+          if (window.appLogger) {
+            window.appLogger.logError(error, { action: 'logout' });
+          }
+        });
+    }
   };
 
-  // Listen to auth state changes
-  auth.onAuthStateChanged((user) => {
-    updateAuthUI(user);
-    
-    // Log authentication state changes
-    if (window.appLogger) {
-      if (user) {
-        window.appLogger.logAuthEvent('LoggedIn', user.uid);
-        window.appLogger.logUserAction('UserLoggedIn', {
-          userId: user.uid,
-          email: user.email,
-          displayName: user.displayName
-        });
-      } else {
-        window.appLogger.logAuthEvent('LoggedOut', null);
-        window.appLogger.logUserAction('UserLoggedOut', {});
-      }
+  // Listen to auth state changes (only after Firebase is initialized)
+  function setupAuthListener() {
+    const authInstance = window.auth || (typeof auth !== 'undefined' ? auth : null);
+    if (!authInstance) {
+      setTimeout(setupAuthListener, 100);
+      return;
     }
-  });
+    
+    authInstance.onAuthStateChanged((user) => {
+      updateAuthUI(user);
+      
+      // Log authentication state changes
+      if (window.appLogger) {
+        if (user) {
+          window.appLogger.logAuthEvent('LoggedIn', user.uid);
+          window.appLogger.logUserAction('UserLoggedIn', {
+            userId: user.uid,
+            email: user.email,
+            displayName: user.displayName
+          });
+        } else {
+          window.appLogger.logAuthEvent('LoggedOut', null);
+          window.appLogger.logUserAction('UserLoggedOut', {});
+        }
+      }
+    });
+  }
+
+  // Wait for Firebase to be ready
+  if (typeof firebase !== 'undefined' && firebase.auth) {
+    window.addEventListener('firebase-ready', setupAuthListener);
+  } else {
+    setTimeout(setupAuthListener, 500);
+  }
 
   // Initialize auth buttons with default state
   document.addEventListener('DOMContentLoaded', function() {
@@ -1315,76 +1383,53 @@ graph TD
           });
         }
         
-        // Ultra-optimized loading: Start loading scripts IMMEDIATELY (as soon as head exists)
-        // but delay Vanta animation start until hero animations + button fade-in complete (~1.2s)
-        function initVantaOptimized() {
-          var scriptsLoadingStarted = false;
-          var scriptStartTime = Date.now();
-          var scriptsReadyTime = null;
+        // Load Vanta only when hero section is visible or after user interaction
+        var vantaLoaded = false;
+        
+        function loadVantaOnDemand() {
+          if (vantaLoaded) return;
+          vantaLoaded = true;
           
-          // Start loading scripts IMMEDIATELY if head exists, otherwise wait for it
-          function startLoadingScriptsEarly() {
-            if (scriptsLoadingStarted) return;
-            
-            // Check if head exists
-            if (!document.head) {
-              // Head doesn't exist yet, wait a bit and retry
-              setTimeout(startLoadingScriptsEarly, 10);
-              return;
-            }
-            
-            scriptsLoadingStarted = true;
-            scriptStartTime = Date.now();
-            
-            // Load scripts in background (async, non-blocking)
-            loadVantaScripts().then(function() {
-              scriptsReadyTime = Date.now();
-              // Scripts loaded, now check if we should start Vanta
-              checkAndStartVanta();
-            }).catch(function() {
-              // Scripts failed to load, continue without Vanta
-            });
-          }
-          
-          // Start Vanta animation after hero animations + button fade-in complete
-          function checkAndStartVanta() {
-            if (!scriptsLoaded || !scriptsReadyTime) {
-              // Scripts not ready yet, retry
-              setTimeout(checkAndStartVanta, 50);
-              return;
-            }
-            
-            // Hero animations + button fade-in take ~1.2 seconds to complete
-            // (title: 300ms + 800ms = 1100ms, button: ~1200ms)
-            var elapsed = Date.now() - scriptStartTime;
-            var minDelay = 1200; // Wait for hero animations + button to complete
-            var remaining = Math.max(0, minDelay - elapsed);
-            
+          loadVantaScripts().then(function() {
             setTimeout(function() {
               startVantaNet();
-            }, remaining);
-          }
-          
-          // Start loading scripts IMMEDIATELY (as soon as head exists)
-          if (document.head) {
-            startLoadingScriptsEarly();
-          } else {
-            // Head doesn't exist yet, wait for it
-            if (document.readyState === 'loading') {
-              document.addEventListener('DOMContentLoaded', startLoadingScriptsEarly);
-            } else {
-              startLoadingScriptsEarly();
-            }
-          }
-          
-          // Fallback timer to start Vanta even if scripts load very fast
-          setTimeout(function() {
-            checkAndStartVanta();
-          }, 1300); // 1.2s + small buffer
+            }, 500);
+          }).catch(function() {
+            console.warn('Vanta failed to load');
+          });
         }
         
-        // Start loading scripts IMMEDIATELY (don't wait for anything)
-        initVantaOptimized();
+        // Load when hero section is visible
+        var heroSection = document.querySelector('.hero-section');
+        if (heroSection) {
+          var observer = new IntersectionObserver(function(entries) {
+            if (entries[0].isIntersecting) {
+              loadVantaOnDemand();
+              observer.disconnect();
+            }
+          }, { threshold: 0.1 });
+          
+          observer.observe(heroSection);
+        }
+        
+        // Fallback: Load after 5 seconds if user hasn't scrolled
+        setTimeout(function() {
+          if (!vantaLoaded && document.visibilityState === 'visible') {
+            loadVantaOnDemand();
+          }
+        }, 5000);
+        
+        // Also load on user interaction
+        var interactionEvents = ['click', 'scroll', 'touchstart', 'keydown'];
+        var interactionHappened = false;
+        interactionEvents.forEach(function(event) {
+          document.addEventListener(event, function() {
+            if (!interactionHappened && heroSection) {
+              interactionHappened = true;
+              loadVantaOnDemand();
+            }
+          }, { once: true });
+        });
         
         // Add resize listener
         window.addEventListener('resize', handleResize);
@@ -1506,10 +1551,27 @@ graph TD
       })();
     </script>
     
-    <!-- Mermaid.js for diagrams -->
+    <!-- Mermaid.js for diagrams - Initialize only when diagrams are visible -->
     <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
     <script>
-      mermaid.initialize({ startOnLoad: true, theme: 'default' });
+      (function initMermaidOnVisible() {
+        const mermaidElements = document.querySelectorAll('.mermaid, pre.mermaid');
+        if (mermaidElements.length === 0) return;
+        
+        let mermaidInitialized = false;
+        
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting && !mermaidInitialized) {
+              mermaidInitialized = true;
+              mermaid.initialize({ startOnLoad: false, theme: 'default' });
+              mermaid.run();
+            }
+          });
+        }, { rootMargin: '50px' });
+        
+        mermaidElements.forEach(el => observer.observe(el));
+      })();
     </script>
     
     <!-- Why Page JavaScript for sections -->

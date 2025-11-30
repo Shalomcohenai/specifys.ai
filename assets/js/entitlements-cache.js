@@ -100,13 +100,27 @@
     return freeSpecs > 0;
   }
 
+  let entitlementsInitialized = false;
+
   function init() {
     if (typeof firebase !== 'undefined' && firebase.auth) {
       firebase.auth().onAuthStateChanged((user) => {
         if (!user) {
+          entitlementsInitialized = false;
           clearCache();
-        } else {
-          getEntitlements(true);
+        } else if (!entitlementsInitialized) {
+          entitlementsInitialized = true;
+          
+          // Defer until idle or after 2 seconds
+          if ('requestIdleCallback' in window) {
+            requestIdleCallback(() => {
+              getEntitlements(true);
+            }, { timeout: 2000 });
+          } else {
+            setTimeout(() => {
+              getEntitlements(true);
+            }, 2000);
+          }
         }
       });
     }

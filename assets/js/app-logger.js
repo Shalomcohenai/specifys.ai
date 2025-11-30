@@ -157,11 +157,19 @@
     logFeatureUsage
   };
 
-  // Log page load when script loads
+  // Log page load when script loads - deferred until page is interactive
+  function deferredLogPageLoad() {
+    if ('requestIdleCallback' in window) {
+      requestIdleCallback(logPageLoad, { timeout: 5000 });
+    } else {
+      setTimeout(logPageLoad, 5000);
+    }
+  }
+  
   if (document.readyState === 'complete') {
-    logPageLoad();
+    deferredLogPageLoad();
   } else {
-    window.addEventListener('load', logPageLoad);
+    window.addEventListener('load', deferredLogPageLoad);
   }
 
   // Log unhandled errors

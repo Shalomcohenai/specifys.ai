@@ -1182,7 +1182,12 @@ async function generateSpecification() {
 
       if (!consumeResponse.ok) {
         const errorData = await consumeResponse.json();
-        throw new Error(errorData.message || 'Failed to consume credit');
+        const errorMessage = errorData.message || errorData.error || 'Failed to consume credit';
+        // Check if user already has a spec
+        if (errorMessage.includes('already has a spec') || errorMessage.includes('Only one spec per user')) {
+          throw new Error('You already have a spec. Only one spec per user is allowed. Please edit your existing spec instead.');
+        }
+        throw new Error(errorMessage);
       }
       
       const consumeResult = await consumeResponse.json();
@@ -1635,28 +1640,54 @@ document.addEventListener('DOMContentLoaded', function() {
     testimonialsObserver.observe(testimonialsGallery);
   }
   
-  // Load dynamic stats from Firebase
-  // Wait a bit for Firebase to initialize
-  setTimeout(() => {
-    loadDynamicStats().then(() => {
-      // Intersection Observer for animations
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            const counter = entry.target.querySelector('.stat-number');
-            if (counter) {
-              const target = parseInt(counter.dataset.target);
-              animateCounter(counter, target);
-              observer.unobserve(entry.target);
-            }
-          }
+  // Load dynamic stats - deferred until page is interactive
+  function loadStatsWhenIdle() {
+    if ('requestIdleCallback' in window) {
+      requestIdleCallback(() => {
+        loadDynamicStats().then(() => {
+          // Intersection Observer for animations
+          const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+              if (entry.isIntersecting) {
+                const counter = entry.target.querySelector('.stat-number');
+                if (counter) {
+                  const target = parseInt(counter.dataset.target);
+                  animateCounter(counter, target);
+                  observer.unobserve(entry.target);
+                }
+              }
+            });
+          });
+          
+          const statsItems = document.querySelectorAll('.stat-item');
+          statsItems.forEach(item => observer.observe(item));
         });
-      });
-      
-      const statsItems = document.querySelectorAll('.stat-item');
-      statsItems.forEach(item => observer.observe(item));
-    });
-  }, 500); // Wait 500ms for Firebase to load
+      }, { timeout: 3000 });
+    } else {
+      setTimeout(() => {
+        loadDynamicStats().then(() => {
+          // Intersection Observer for animations
+          const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+              if (entry.isIntersecting) {
+                const counter = entry.target.querySelector('.stat-number');
+                if (counter) {
+                  const target = parseInt(counter.dataset.target);
+                  animateCounter(counter, target);
+                  observer.unobserve(entry.target);
+                }
+              }
+            });
+          });
+          
+          const statsItems = document.querySelectorAll('.stat-item');
+          statsItems.forEach(item => observer.observe(item));
+        });
+      }, 3000);
+    }
+  }
+  
+  loadStatsWhenIdle();
   
   const toolsSection = document.querySelector('.tools-showcase');
   if (toolsSection) {
