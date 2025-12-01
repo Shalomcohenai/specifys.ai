@@ -500,19 +500,31 @@ async function consumeCredit(userId, specId) {
       // Get user document first to check if this is a new user
       const userRef = db.collection(USERS_COLLECTION).doc(userId);
       const userDoc = await transaction.get(userRef);
-      const isNewUser = !userDoc.exists;
       
       // Get entitlements document
       const entitlementsRef = db.collection(ENTITLEMENTS_COLLECTION).doc(userId);
       const entitlementsDoc = await transaction.get(entitlementsRef);
       
-      // If entitlements don't exist, create them with 0 credits
+      // If entitlements don't exist, check if this is a new user
+      let isNewUserCheck = false;
+      if (!userDoc.exists) {
+        isNewUserCheck = true;
+      } else {
+        const userData = userDoc.data();
+        if (userData.createdAt) {
+          const createdAt = userData.createdAt.toDate ? userData.createdAt.toDate() : new Date(userData.createdAt);
+          const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+          isNewUserCheck = createdAt > fiveMinutesAgo;
+        }
+      }
+      
       // Credits are only given during registration in auth.html
+      // But if this is a new user and entitlements don't exist, give 1 credit as fallback
       const entitlements = entitlementsDoc.exists
         ? entitlementsDoc.data()
         : {
             userId: userId,
-            spec_credits: 0,
+            spec_credits: isNewUserCheck ? 1 : 0,
             unlimited: false,
             can_edit: false
           };
@@ -874,11 +886,24 @@ async function getEntitlements(userId) {
     let shouldCreateEntitlements = false;
     
     if (!entitlementsDoc.exists) {
-      // Entitlements don't exist - create with 0 credits
+      // Entitlements don't exist - check if this is a new user
+      let isNewUserCheck = false;
+      if (!userDoc.exists) {
+        isNewUserCheck = true;
+      } else {
+        const userData = userDoc.data();
+        if (userData.createdAt) {
+          const createdAt = userData.createdAt.toDate ? userData.createdAt.toDate() : new Date(userData.createdAt);
+          const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+          isNewUserCheck = createdAt > fiveMinutesAgo;
+        }
+      }
+      
       // Credits are only given during registration in auth.html
+      // But if this is a new user and entitlements don't exist, give 1 credit as fallback
       entitlements = {
         userId: userId,
-        spec_credits: 0,
+        spec_credits: isNewUserCheck ? 1 : 0,
         unlimited: false,
         can_edit: false,
         preserved_credits: 0

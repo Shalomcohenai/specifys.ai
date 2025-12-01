@@ -476,13 +476,15 @@
                     updated_at: serverTimestamp()
                 };
                 
-                // Only set spec_credits if entitlements don't exist
-                // New users get 1 credit, existing users without entitlements get 0 
-                // (they may have free_specs_remaining or should get credits through other means)
-                if (!existingEntitlementsSnapshot.exists()) {
-                    entitlementsData.spec_credits = isNewUser ? 1 : 0;
+                // For new users, ALWAYS set spec_credits to 1 (even if entitlements exist from race condition)
+                // This ensures new users get their credit even if ensureEntitlementDocument ran first
+                if (isNewUser) {
+                    entitlementsData.spec_credits = 1;
+                } else if (!existingEntitlementsSnapshot.exists()) {
+                    // Existing user without entitlements gets 0
+                    entitlementsData.spec_credits = 0;
                 }
-                // If entitlements exist, merge will preserve existing spec_credits
+                // If entitlements exist for existing user, merge will preserve existing spec_credits
                 
                 await setDoc(entitlementsRef, entitlementsData, { merge: true });
 

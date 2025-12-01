@@ -178,11 +178,28 @@ async function ensureEntitlementDocument(uid, overrides = {}) {
         };
     }
 
-    // Entitlements don't exist - create with 0 credits
+    // Entitlements don't exist - check if this is a new user
+    // Check if user was created recently (within last 5 minutes) to determine if it's a new user
+    const userRef = db.collection('users').doc(uid);
+    const userSnapshot = await userRef.get();
+    
+    let isNewUser = false;
+    if (!userSnapshot.exists) {
+        isNewUser = true;
+    } else {
+        const userData = userSnapshot.data();
+        if (userData.createdAt) {
+            const createdAt = userData.createdAt.toDate ? userData.createdAt.toDate() : new Date(userData.createdAt);
+            const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+            isNewUser = createdAt > fiveMinutesAgo;
+        }
+    }
+    
     // Credits are only given during registration in auth.html
+    // But if this is a new user and entitlements don't exist, give 1 credit as fallback
     const defaultData = {
         userId: uid,
-        spec_credits: 0,
+        spec_credits: isNewUser ? 1 : 0,
         unlimited: false,
         can_edit: false
     };
