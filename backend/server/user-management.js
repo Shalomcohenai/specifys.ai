@@ -148,20 +148,46 @@ async function ensureEntitlementDocument(uid, overrides = {}) {
     const snapshot = await entitlementsRef.get();
     const isNew = !snapshot.exists;
 
-    // Check if user document exists to determine if this is a new user
-    const userRef = db.collection('users').doc(uid);
-    const userSnapshot = await userRef.get();
-    const isNewUser = !userSnapshot.exists;
+    // If entitlements already exist, don't modify spec_credits unless explicitly overridden
+    if (!isNew) {
+        const existingData = snapshot.data();
+        const dataToWrite = { ...overrides };
+        
+        // Don't modify spec_credits if it's not in overrides and entitlements already exist
+        if (!('spec_credits' in overrides)) {
+            // Preserve existing spec_credits
+            delete dataToWrite.spec_credits;
+        }
+        
+        Object.keys(dataToWrite).forEach((key) => {
+            if (dataToWrite[key] === undefined) {
+                delete dataToWrite[key];
+            }
+        });
 
+        if (Object.keys(dataToWrite).length > 0) {
+            dataToWrite.updated_at = admin.firestore.FieldValue.serverTimestamp();
+            await entitlementsRef.set(dataToWrite, { merge: true });
+        }
+
+        return {
+            created: false,
+            updated: Object.keys(dataToWrite).length > 0,
+            unchanged: Object.keys(dataToWrite).length === 0,
+            data: { ...existingData, ...dataToWrite }
+        };
+    }
+
+    // Entitlements don't exist - create with 0 credits
+    // Credits are only given during registration in auth.html
     const defaultData = {
         userId: uid,
-        // Give new users 1 free credit, existing users get 0 (they may have free_specs_remaining)
-        spec_credits: (isNew && isNewUser) ? 1 : 0,
+        spec_credits: 0,
         unlimited: false,
         can_edit: false
     };
 
-    const dataToWrite = isNew ? { ...defaultData, ...overrides } : { ...overrides };
+    const dataToWrite = { ...defaultData, ...overrides };
 
     Object.keys(dataToWrite).forEach((key) => {
         if (dataToWrite[key] === undefined) {
@@ -169,20 +195,14 @@ async function ensureEntitlementDocument(uid, overrides = {}) {
         }
     });
 
-    const shouldWrite = isNew || Object.keys(dataToWrite).length > 0;
-
-    if (shouldWrite) {
-        dataToWrite.updated_at = admin.firestore.FieldValue.serverTimestamp();
-        await entitlementsRef.set(dataToWrite, { merge: true });
-    }
-
-    const mergedData = snapshot.exists ? { ...snapshot.data(), ...dataToWrite } : { ...defaultData, ...overrides };
+    dataToWrite.updated_at = admin.firestore.FieldValue.serverTimestamp();
+    await entitlementsRef.set(dataToWrite, { merge: true });
 
     return {
-        created: isNew,
-        updated: !isNew && shouldWrite,
-        unchanged: !isNew && !shouldWrite,
-        data: mergedData
+        created: true,
+        updated: false,
+        unchanged: false,
+        data: dataToWrite
     };
 }
 

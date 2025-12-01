@@ -506,13 +506,13 @@ async function consumeCredit(userId, specId) {
       const entitlementsRef = db.collection(ENTITLEMENTS_COLLECTION).doc(userId);
       const entitlementsDoc = await transaction.get(entitlementsRef);
       
-      // If entitlements don't exist, create them with appropriate credits
-      // New users get 1 credit, existing users get 0 (they may have free_specs_remaining)
+      // If entitlements don't exist, create them with 0 credits
+      // Credits are only given during registration in auth.html
       const entitlements = entitlementsDoc.exists
         ? entitlementsDoc.data()
         : {
             userId: userId,
-            spec_credits: isNewUser ? 1 : 0,
+            spec_credits: 0,
             unlimited: false,
             can_edit: false
           };
@@ -874,11 +874,11 @@ async function getEntitlements(userId) {
     let shouldCreateEntitlements = false;
     
     if (!entitlementsDoc.exists) {
-      // Entitlements don't exist - create them
-      // Give new users 1 free credit, existing users get 0 (they may have free_specs_remaining)
+      // Entitlements don't exist - create with 0 credits
+      // Credits are only given during registration in auth.html
       entitlements = {
         userId: userId,
-        spec_credits: isNewUser ? 1 : 0,
+        spec_credits: 0,
         unlimited: false,
         can_edit: false,
         preserved_credits: 0

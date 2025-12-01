@@ -65,17 +65,12 @@
     auth.onAuthStateChanged(async (user) => {
       updateAuthUI(user);
 
-      // Ensure user document exists (deferred and only when visible)
+      // Ensure user document exists immediately for new users
       if (user && document.visibilityState === 'visible') {
-        if ('requestIdleCallback' in window) {
-          requestIdleCallback(async () => {
-            await ensureUserDocument(user);
-          }, { timeout: 3000 });
-        } else {
-          setTimeout(async () => {
-            await ensureUserDocument(user);
-          }, 3000);
-        }
+        // Run immediately to ensure credits are available for new users
+        ensureUserDocument(user).catch(error => {
+          console.warn('⚠️ Error ensuring user document:', error);
+        });
       }
     });
   }
@@ -93,7 +88,23 @@
       });
 
       if (response.ok) {
-        console.log('✅ User document ensured in Firestore');
+        const result = await response.json();
+        console.log('✅ User document ensured in Firestore', result);
+        
+        // If entitlements were created or updated, trigger credits refresh
+        if (result.entitlements && (result.entitlements.created || result.entitlements.updated)) {
+          // Clear entitlements cache if it exists
+          if (typeof window.clearEntitlementsCache === 'function') {
+            window.clearEntitlementsCache();
+          }
+          
+          // Update credits display after a short delay to ensure Firestore is updated
+          if (typeof window.updateCreditsDisplay === 'function') {
+            setTimeout(() => {
+              window.updateCreditsDisplay({ showLoading: true });
+            }, 500);
+          }
+        }
       } else {
         console.warn('⚠️ Failed to ensure user document:', await response.text());
       }
