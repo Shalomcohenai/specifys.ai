@@ -226,7 +226,7 @@
                     <!-- Privacy Policy Checkbox -->
                     <div class="checkbox-group" id="privacy-policy-group">
                         <label class="checkbox-label">
-                            <input type="checkbox" id="privacy-policy-agreement" required>
+                            <input type="checkbox" id="privacy-policy-agreement" required checked>
                             <span class="checkmark"></span>
                             I have read and agree to the <a href="#" class="privacy-link" onclick="openPrivacyModal(); return false;"> privacy policy</a>
                         </label>
@@ -504,6 +504,15 @@
             
             // Clear messages
             hideMessages();
+            
+            // Ensure privacy policy checkbox is checked when switching to register tab
+            if (tab === 'register') {
+                const privacyCheckbox = document.getElementById('privacy-policy-agreement');
+                if (privacyCheckbox && !privacyCheckbox.checked) {
+                    privacyCheckbox.checked = true;
+                    hidePrivacyPolicyError();
+                }
+            }
         }
 
         // Show/hide messages
@@ -977,6 +986,22 @@
         } else {
             // DOM already loaded
             initAnimation();
+        }
+        
+        // Ensure privacy policy checkbox is checked on page load
+        function ensurePrivacyCheckboxChecked() {
+            const privacyCheckbox = document.getElementById('privacy-policy-agreement');
+            if (privacyCheckbox && !privacyCheckbox.checked) {
+                privacyCheckbox.checked = true;
+                hidePrivacyPolicyError();
+            }
+        }
+        
+        // Run on DOM ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', ensurePrivacyCheckboxChecked);
+        } else {
+            ensurePrivacyCheckboxChecked();
         }
     </script>
 
