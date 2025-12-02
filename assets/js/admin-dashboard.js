@@ -1290,7 +1290,7 @@ class MetricsCalculator {
     
     // Load guides views from Firestore academy_guides collection
     try {
-      const guidesSnapshot = await getDocs(collection(this.db, 'academy_guides'));
+      const guidesSnapshot = await getDocs(collection(db, 'academy_guides'));
       const guides = guidesSnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
