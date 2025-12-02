@@ -60,7 +60,7 @@
             try {
               window.LemonSqueezy = window.createLemonSqueezy();
             } catch (error) {
-              console.warn('Failed to initialize LemonSqueezy object:', error);
+              // Failed to initialize LemonSqueezy object
             }
           }
 
@@ -84,7 +84,7 @@
 
   async function openCheckoutOverlay(checkoutUrl, { onSuccess } = {}) {
     await loadLemonSqueezySDK().catch((error) => {
-      console.error('Error loading Lemon Squeezy SDK:', error);
+      // Error loading Lemon Squeezy SDK
     });
 
     let opened = false;
@@ -104,7 +104,7 @@
           opened = true;
         }
       } catch (error) {
-        console.error('createLemonSqueezyCheckout error:', error);
+        // createLemonSqueezyCheckout error
       }
     }
 
@@ -122,7 +122,7 @@
           opened = true;
         }
       } catch (error) {
-        console.error('LemonSqueezy.Setup error:', error);
+        // LemonSqueezy.Setup error
       }
     }
 
@@ -215,7 +215,7 @@
         }
       });
     } catch (error) {
-      console.error('Checkout error:', error);
+      // Checkout error
       if (typeof onError === 'function') {
         onError(error.message || 'Error initiating purchase. Please try again.');
       }
@@ -311,7 +311,7 @@
         }
       };
     } catch (error) {
-      console.error('Error checking entitlement:', error);
+      // Error checking entitlement
       return {
         hasAccess: false,
         entitlements: null,

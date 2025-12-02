@@ -63,7 +63,7 @@ class LiveBriefModal {
     // Check if heroSection exists (parent of heroContent)
     const heroSection = document.querySelector('.hero-section');
     if (!heroSection) {
-      console.error('LiveBriefModal: hero-section not found, cannot create container');
+      // hero-section not found, cannot create container
       return;
     }
     // Create container structure (not a modal, but inline content)
@@ -122,7 +122,7 @@ class LiveBriefModal {
     this.summaryText = document.getElementById('liveBriefSummary');
     
     if (!this.modal) {
-      console.error('LiveBriefModal: Failed to create container - element not found after insertion');
+      // Failed to create container - element not found after insertion
     }
   }
 
@@ -219,7 +219,7 @@ class LiveBriefModal {
         } else {
           // If stopped, resume recording
           this.startRecording().catch(error => {
-            console.error('Error resuming recording:', error);
+            // Error resuming recording
             this.showError('Failed to resume recording. Please check your permissions.');
           });
         }
@@ -288,7 +288,7 @@ class LiveBriefModal {
       try {
         await this.startRecording();
       } catch (error) {
-        console.error('Error starting recording:', error);
+        // Error starting recording
         // If permission denied, fallback to 3-questions modal
         if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
           this.close();
@@ -363,7 +363,7 @@ class LiveBriefModal {
       this.modal.style.setProperty('z-index', '10', 'important');
       this.modal.style.setProperty('transition', 'none', 'important');
     } else {
-      console.error('LiveBriefModal: Container still not found after creation!');
+      // Container still not found after creation
       return;
     }
     
@@ -393,7 +393,7 @@ class LiveBriefModal {
       try {
         await this.startRecording();
       } catch (error) {
-        console.error('Error starting recording:', error);
+        // Error starting recording
         // If permission denied, fallback to 3-questions modal
         if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
           this.close();
@@ -525,7 +525,7 @@ class LiveBriefModal {
       // Check if Web Speech API is available
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (!SpeechRecognition) {
-        console.error('LiveBriefModal: Web Speech API not supported');
+        // Web Speech API not supported
         throw new Error('Web Speech API is not supported in this browser');
       }
       
@@ -633,7 +633,7 @@ class LiveBriefModal {
         }
         
         // Only log actual errors (not "no-speech")
-        console.error('Speech recognition error:', event.error);
+        // Speech recognition error
         
         if (event.error === 'not-allowed') {
           this.showError('Microphone permission denied');
@@ -660,7 +660,7 @@ class LiveBriefModal {
       this.startSummaryPolling();
       
     } catch (error) {
-      console.error('Error accessing microphone:', error);
+      // Error accessing microphone
       throw error;
     }
   }
@@ -864,7 +864,7 @@ class LiveBriefModal {
       if (this.consecutiveErrors >= this.maxConsecutiveErrors) {
         this.serverAvailable = false;
         // Only log once when server becomes unavailable (not every time)
-        console.warn('LiveBriefModal: Summary server unavailable, continuing without summary. Transcript will still be displayed.');
+        // Summary server unavailable, continuing without summary
         // Stop polling
         if (this.summaryPollInterval) {
           clearInterval(this.summaryPollInterval);
@@ -1011,12 +1011,12 @@ class LiveBriefModal {
       } else if (typeof generateSpecification === 'function') {
         generateSpecification();
       } else {
-        console.error('generateSpecification function not found');
+        // generateSpecification function not found
         this.showError('Error: Could not generate specification.');
       }
       
     } catch (error) {
-      console.error('Error converting to answers:', error);
+      // Error converting to answers
       this.showError('Failed to process your brief. Please try again.');
       useThisBtn.textContent = originalText;
       useThisBtn.disabled = false;
@@ -1172,7 +1172,7 @@ class LiveBriefModal {
 // Export for use in other files
 if (typeof window !== 'undefined') {
   window.LiveBriefModal = LiveBriefModal;
-  console.log('✅ LiveBriefModal class exported to window');
+  // LiveBriefModal class exported to window
 } else {
-  console.error('❌ window is undefined, cannot export LiveBriefModal');
+  // window is undefined, cannot export LiveBriefModal
 }

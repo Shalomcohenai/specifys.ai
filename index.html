@@ -1030,7 +1030,7 @@ graph TD
         }
       });
       if (response.ok) {
-        console.log('✅ User document ensured');
+        // User document ensured
       }
     } catch (error) {
       // Silently fail
@@ -1318,11 +1318,11 @@ graph TD
                   }
                 }
               } catch (e) {
-                console.error('Vanta.NET initialization error:', e);
+                // Vanta.NET initialization error
               }
             }, 50);
           } catch (e) { 
-            console.error('Vanta.NET error:', e);
+            // Vanta.NET error
           }
         }
         
@@ -1367,7 +1367,6 @@ graph TD
               };
               
               vantaScript.onerror = function() {
-                console.warn('Vanta.NET failed to load, continuing without animation');
                 reject(new Error('Vanta script failed to load'));
               };
               
@@ -1375,7 +1374,6 @@ graph TD
             };
             
             threeScript.onerror = function() {
-              console.warn('Three.js failed to load, Vanta.NET will not work');
               reject(new Error('Three.js script failed to load'));
             };
             
@@ -1395,7 +1393,7 @@ graph TD
               startVantaNet();
             }, 500);
           }).catch(function() {
-            console.warn('Vanta failed to load');
+            // Vanta failed to load
           });
         }
         

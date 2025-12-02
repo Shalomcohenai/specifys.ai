@@ -584,7 +584,7 @@
         async function createUserDocumentInProfile(user) {
             // Prevent concurrent calls for the same user
             if (isCreatingUserDocument && lastCreatedUserUid === user.uid) {
-                console.log('User document creation already in progress for user:', user.uid);
+                // User document creation already in progress
                 return;
             }
 
@@ -619,7 +619,7 @@
                 // Note: entitlements document is managed by backend only
                 // Frontend cannot write to entitlements collection per security rules
             } catch (error) {
-                console.error('Error creating user document:', error);
+                // Error creating user document
                 // Don't throw - allow the page to continue loading even if document creation fails
             } finally {
                 isCreatingUserDocument = false;
@@ -654,7 +654,7 @@
                 
                 // Create/update user document in Firestore (non-blocking)
                 createUserDocumentInProfile(user).catch(error => {
-                    console.error('Failed to create user document:', error);
+                    // Failed to create user document
                 });
                 
                 updateProfileInfo(user);
@@ -1355,7 +1355,7 @@
                     currentUserProfileDoc = userSnap.exists() ? userSnap.data() : {};
                 }
             } catch (error) {
-                console.error('Failed to load entitlements', error);
+                // Failed to load entitlements
                 currentEntitlements = null;
                 currentSubscription = null;
                 if (!currentUserProfileDoc) {
@@ -1596,7 +1596,7 @@
                     setSubscriptionMessage('Subscription cancelled successfully. Unlimited specifications have ended and further charges are stopped.' + requestSuffix, 'success');
                 }
             } catch (error) {
-                console.error('Failed to cancel subscription:', error);
+                // Failed to cancel subscription
                 setSubscriptionMessage(error.message || 'Failed to cancel subscription. Please try again later.', 'error');
                 if (cancelBtn) {
                     cancelBtn.disabled = false;

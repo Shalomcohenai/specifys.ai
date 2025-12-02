@@ -2,7 +2,6 @@
 
 class AcademyApp {
     constructor() {
-        console.log('[Academy] AcademyApp constructor called');
         this.currentUser = null;
         this.userProgress = null;
         this.allGuides = [];
@@ -10,31 +9,22 @@ class AcademyApp {
     }
 
     init() {
-        console.log('[Academy] init() called, document.readyState:', document.readyState);
         // Wait for DOM and Firebase
         if (document.readyState === 'loading') {
-            console.log('[Academy] Waiting for DOMContentLoaded');
             document.addEventListener('DOMContentLoaded', () => {
-                console.log('[Academy] DOMContentLoaded fired');
                 this.setup();
             });
         } else {
-            console.log('[Academy] DOM already ready, calling setup()');
             this.setup();
         }
     }
 
     async setup() {
-        console.log('[Academy] setup() called');
-        
         // Wait for Firebase to be available
-        console.log('[Academy] Waiting for Firebase...');
         await this.waitForFirebase();
-        console.log('[Academy] Firebase is ready');
         
         // Setup auth listener
         firebase.auth().onAuthStateChanged((user) => {
-            console.log('[Academy] Auth state changed:', user ? 'User logged in' : 'User logged out');
             this.currentUser = user;
             if (user) {
                 this.loadUserProgress(user.uid);
@@ -53,16 +43,12 @@ class AcademyApp {
 
         // Determine which page we're on and load appropriate content
         const path = window.location.pathname;
-        console.log('[Academy] Current path:', path);
         
         if (path.includes('/academy/category.html')) {
-            console.log('[Academy] Loading category page');
             this.loadCategoryPage();
         } else if (path.includes('/academy/guide.html')) {
-            console.log('[Academy] Loading guide page');
             this.loadGuidePage();
         } else {
-            console.log('[Academy] Loading main page');
             this.loadMainPage();
         }
     }
@@ -202,29 +188,27 @@ class AcademyApp {
     waitForFirebase() {
         return new Promise((resolve, reject) => {
             if (typeof firebase !== 'undefined' && firebase.firestore) {
-                console.log('[Academy] Firebase is already available');
                 // Configure Firestore settings
                 try {
                     const firestoreSettings = {
                         cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED
                     };
                     firebase.firestore().settings(firestoreSettings);
-                    console.log('[Academy] Firestore settings configured');
                 } catch (settingsError) {
-                    console.warn('[Academy] Could not configure Firestore settings:', settingsError);
+                    // Could not configure Firestore settings
                 }
                 resolve();
                 return;
             }
             
-            console.log('[Academy] Waiting for Firebase to be available...');
+            // Waiting for Firebase to be available
             let attempts = 0;
             const maxAttempts = 50; // 5 seconds max wait
             
             const checkInterval = setInterval(() => {
                 attempts++;
                 if (typeof firebase !== 'undefined' && firebase.firestore) {
-                    console.log('[Academy] Firebase is now available after', attempts * 100, 'ms');
+                    // Firebase is now available
                     clearInterval(checkInterval);
                     // Configure Firestore settings
                     try {
@@ -232,14 +216,14 @@ class AcademyApp {
                             cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED
                         };
                         firebase.firestore().settings(firestoreSettings);
-                        console.log('[Academy] Firestore settings configured');
+                        // Firestore settings configured
                     } catch (settingsError) {
-                        console.warn('[Academy] Could not configure Firestore settings:', settingsError);
+                        // Could not configure Firestore settings
                     }
                     resolve();
                 } else if (attempts >= maxAttempts) {
                     clearInterval(checkInterval);
-                    console.error('[Academy] Firebase failed to load after', maxAttempts * 100, 'ms');
+                    // Firebase failed to load
                     reject(new Error('Firebase initialization timeout'));
                 }
             }, 100);
@@ -630,37 +614,26 @@ class AcademyApp {
 
     // Guide Page - Load Guide Content
     async loadGuidePage() {
-        console.log('[Academy] loadGuidePage called');
         const urlParams = new URLSearchParams(window.location.search);
         const guideId = urlParams.get('guide');
 
         if (!guideId) {
-            console.warn('[Academy] No guide ID in URL, redirecting to academy.html');
             window.location.href = '/academy.html';
             return;
         }
 
-        console.log('[Academy] Loading guide:', guideId);
-
         try {
             // Check if Firebase is available
             if (typeof firebase === 'undefined' || !firebase.firestore) {
-                console.error('[Academy] Firebase not available!');
+                // Firebase not available
                 document.getElementById('guide-body').innerHTML = '<div class="loading-placeholder">Error: Firebase not initialized. Please refresh the page.</div>';
                 return;
             }
 
-            console.log('[Academy] Firebase is available, loading guide from Firestore');
-            
             // Load guide with timeout and better error handling
             const firestore = firebase.firestore();
-            console.log('[Academy] Firestore instance:', firestore ? 'available' : 'not available');
-            
             const guidesCollection = firestore.collection('academy_guides');
-            console.log('[Academy] Guides collection reference:', guidesCollection ? 'created' : 'failed');
-            
             const guideDocRef = guidesCollection.doc(guideId);
-            console.log('[Academy] Guide document reference created for ID:', guideId);
             
             // Load guide with timeout
             const loadPromise = guideDocRef.get();
@@ -670,19 +643,14 @@ class AcademyApp {
             
             const guideDoc = await Promise.race([loadPromise, timeoutPromise]);
 
-            console.log('[Academy] Guide document loaded:', guideDoc.exists);
-
             if (!guideDoc.exists) {
-                console.warn('[Academy] Guide not found, redirecting to academy.html');
                 window.location.href = '/academy.html';
                 return;
             }
 
             const guide = { id: guideDoc.id, ...guideDoc.data() };
-            console.log('[Academy] Guide loaded successfully:', guide.title);
 
             // Track guide visit
-            console.log('[Academy] Calling trackGuideVisit');
             this.trackGuideVisit(guideId, guide.title);
 
             // Load category for back link
@@ -728,13 +696,6 @@ class AcademyApp {
 
         } catch (error) {
             // Error loading guide
-            console.error('[Academy] Error loading guide:', error);
-            console.error('[Academy] Error details:', {
-                message: error.message,
-                code: error.code,
-                stack: error.stack,
-                guideId: guideId
-            });
             document.getElementById('guide-body').innerHTML = `<div class="loading-placeholder">Error loading guide: ${error.message}. Please try again later.</div>`;
         }
     }
@@ -1266,18 +1227,15 @@ class AcademyApp {
             // Don't wait for response or show errors - view tracking is non-critical
         } catch (error) {
             // Silently fail - view tracking is not critical
-            console.debug('[Academy] View count update failed:', error);
+            // View count update failed
         }
     }
 }
 
 // Initialize Academy App
-console.log('[Academy] Script loaded, initializing AcademyApp...');
 try {
     new AcademyApp();
-    console.log('[Academy] AcademyApp initialized successfully');
 } catch (error) {
-    console.error('[Academy] Failed to initialize AcademyApp:', error);
-    console.error('[Academy] Error stack:', error.stack);
+    // Failed to initialize AcademyApp
 }
 

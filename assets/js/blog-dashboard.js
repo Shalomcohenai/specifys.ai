@@ -145,22 +145,17 @@ class BlogDashboardApp {
 
       // Check if user email is in admin list
       const email = user.email?.toLowerCase();
-      console.log("[BlogDashboard] Checking access for email:", email);
-      console.log("[BlogDashboard] Admin emails:", Array.from(ADMIN_EMAILS));
-      console.log("[BlogDashboard] Is admin?", ADMIN_EMAILS.has(email));
       
       // Also check if email matches any admin email (case-insensitive)
       const isAdmin = email && ADMIN_EMAILS.has(email);
       
       if (!isAdmin) {
-        console.warn("[BlogDashboard] Access denied for:", email);
-        console.warn("[BlogDashboard] Available admin emails:", Array.from(ADMIN_EMAILS));
+        // Access denied
         alert(`Access denied. Admin privileges required.\n\nYour email: ${email}\nAdmin emails: ${Array.from(ADMIN_EMAILS).join(', ')}`);
         this.redirectToLogin();
         return;
       }
 
-      console.log("[BlogDashboard] Access granted for:", email);
       this.updateConnectionStatus(true);
       this.init();
     });
@@ -224,7 +219,7 @@ class BlogDashboardApp {
           await signOut(auth);
           this.redirectToLogin();
         } catch (error) {
-          console.error("Sign out error:", error);
+          // Sign out error
         }
       });
     }
@@ -338,7 +333,6 @@ class BlogDashboardApp {
       if (!user) return null;
       return await user.getIdToken(forceRefresh);
     } catch (error) {
-      console.error("Error getting auth token:", error);
       return null;
     }
   }
@@ -390,7 +384,6 @@ class BlogDashboardApp {
         this.dom.sidebarLastSync.textContent = utils.formatRelative(utils.now());
       }
     } catch (error) {
-      console.error("Error loading posts:", error);
       this.updateTopbarStatus(`Error: ${error.message}`);
       if (this.dom.postsList) {
         this.dom.postsList.innerHTML = `<div class="loading-placeholder">Error loading posts: ${error.message}</div>`;
@@ -518,7 +511,6 @@ class BlogDashboardApp {
         createBtn.click();
       }
     } catch (error) {
-      console.error("Error loading post for editing:", error);
       this.setBlogFeedback(`Error loading post: ${error.message}`, "error");
     }
   }
@@ -599,7 +591,7 @@ class BlogDashboardApp {
       this.setBlogFeedback("Post deleted successfully", "success");
       await this.loadPosts();
     } catch (error) {
-      console.error("Error deleting post:", error);
+      // Error deleting post
       this.setBlogFeedback(`Error deleting post: ${error.message}`, "error");
     }
   }
@@ -692,7 +684,7 @@ class BlogDashboardApp {
       try {
         result = text ? JSON.parse(text) : null;
       } catch (parseError) {
-        console.warn("Non-JSON response from blog endpoint", parseError, text);
+        // Non-JSON response from blog endpoint
       }
 
       if (!response.ok || !(result && result.success)) {
@@ -723,7 +715,7 @@ class BlogDashboardApp {
 
       await this.loadPosts();
     } catch (error) {
-      console.error("Blog save failed:", error);
+      // Blog save failed
       this.setBlogFeedback(error.message || `Failed to ${isEditing ? "update" : "create"} blog post`, "error");
     } finally {
       if (button) {
@@ -751,7 +743,7 @@ class BlogDashboardApp {
         const module = await import("https://cdn.jsdelivr.net/npm/marked@11.2.0/lib/marked.esm.js");
         MarkedLib = module.marked ?? module.default ?? null;
       } catch (error) {
-        console.error("Failed to load marked", error);
+        // Failed to load marked
       }
     }
 
@@ -803,7 +795,7 @@ class BlogDashboardApp {
         </div>
       `;
     } catch (error) {
-      console.error("Error loading errors:", error);
+      // Error loading errors
       this.dom.errorsList.innerHTML = `<div class="loading-placeholder">Error loading errors: ${error.message}</div>`;
     }
   }

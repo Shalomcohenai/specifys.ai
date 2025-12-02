@@ -1043,7 +1043,7 @@ function getLemonProductsConfig() {
                 return response.json();
             })
             .catch((error) => {
-                console.error('Error loading lemon products config:', error);
+                // Error loading lemon products config
                 throw error;
             });
     }
@@ -1085,7 +1085,7 @@ function loadLemonSqueezySDK() {
                     try {
                         window.LemonSqueezy = window.createLemonSqueezy();
                     } catch (error) {
-                        console.warn('Failed to initialize LemonSqueezy object:', error);
+                        // Failed to initialize LemonSqueezy object
                     }
                 }
 
@@ -1109,7 +1109,7 @@ function loadLemonSqueezySDK() {
 
 async function openCheckoutOverlay(checkoutUrl, handlers = {}) {
     await loadLemonSqueezySDK().catch((error) => {
-        console.error('Error loading Lemon Squeezy SDK:', error);
+        // Error loading Lemon Squeezy SDK
     });
 
     const { onSuccess, onOpen } = handlers;
@@ -1147,7 +1147,6 @@ async function openCheckoutOverlay(checkoutUrl, handlers = {}) {
                         }
                         if (eventName === 'Checkout.Closed' && !successDetected) {
                             // Checkout closed without success - don't call onSuccess
-                            console.log('Checkout closed without purchase');
                         }
                     }
                 });
@@ -1158,13 +1157,12 @@ async function openCheckoutOverlay(checkoutUrl, handlers = {}) {
                     setTimeout(() => {
                         if (!opened) {
                             // URL.Open didn't work either - overlay methods failed
-                            console.warn('Overlay methods failed, checkout may not open');
                         }
                     }, 500);
                     return; // Exit if URL.Open is used
                 }
             } catch (error) {
-                console.error('LemonSqueezy.Setup error:', error);
+                // LemonSqueezy.Setup error
             }
         }
     }
@@ -1187,7 +1185,7 @@ async function openCheckoutOverlay(checkoutUrl, handlers = {}) {
                 },
                 onCheckoutClose: () => {
                     // Checkout closed without purchase - don't call onSuccess
-                    console.log('Checkout overlay closed without purchase');
+                    // Checkout overlay closed without purchase
                 }
             });
             if (checkout && typeof checkout.open === 'function') {
@@ -1206,7 +1204,7 @@ async function openCheckoutOverlay(checkoutUrl, handlers = {}) {
                 tryNextOverlayMethod();
             }
         } catch (error) {
-            console.error('createLemonSqueezyCheckout error:', error);
+            // createLemonSqueezyCheckout error
             // On error, try next method
             tryNextOverlayMethod();
         }
@@ -1370,7 +1368,7 @@ async function purchaseSpec(evt, productKey) {
             }
         });
     } catch (error) {
-        console.error('Checkout error:', error);
+        // Checkout error
         if (!checkoutOpened) {
             stopLoadingTextRotation(triggerButton);
             setButtonLoading(triggerButton, false);
