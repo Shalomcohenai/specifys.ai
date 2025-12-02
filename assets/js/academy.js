@@ -200,15 +200,47 @@ class AcademyApp {
     }
 
     waitForFirebase() {
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
             if (typeof firebase !== 'undefined' && firebase.firestore) {
+                console.log('[Academy] Firebase is already available');
+                // Configure Firestore settings
+                try {
+                    const firestoreSettings = {
+                        cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED
+                    };
+                    firebase.firestore().settings(firestoreSettings);
+                    console.log('[Academy] Firestore settings configured');
+                } catch (settingsError) {
+                    console.warn('[Academy] Could not configure Firestore settings:', settingsError);
+                }
                 resolve();
                 return;
             }
+            
+            console.log('[Academy] Waiting for Firebase to be available...');
+            let attempts = 0;
+            const maxAttempts = 50; // 5 seconds max wait
+            
             const checkInterval = setInterval(() => {
+                attempts++;
                 if (typeof firebase !== 'undefined' && firebase.firestore) {
+                    console.log('[Academy] Firebase is now available after', attempts * 100, 'ms');
                     clearInterval(checkInterval);
+                    // Configure Firestore settings
+                    try {
+                        const firestoreSettings = {
+                            cacheSizeBytes: firebase.firestore.CACHE_SIZE_UNLIMITED
+                        };
+                        firebase.firestore().settings(firestoreSettings);
+                        console.log('[Academy] Firestore settings configured');
+                    } catch (settingsError) {
+                        console.warn('[Academy] Could not configure Firestore settings:', settingsError);
+                    }
                     resolve();
+                } else if (attempts >= maxAttempts) {
+                    clearInterval(checkInterval);
+                    console.error('[Academy] Firebase failed to load after', maxAttempts * 100, 'ms');
+                    reject(new Error('Firebase initialization timeout'));
                 }
             }, 100);
         });
@@ -620,11 +652,23 @@ class AcademyApp {
 
             console.log('[Academy] Firebase is available, loading guide from Firestore');
             
-            // Load guide
-            const guideDoc = await firebase.firestore()
-                .collection('academy_guides')
-                .doc(guideId)
-                .get();
+            // Load guide with timeout and better error handling
+            const firestore = firebase.firestore();
+            console.log('[Academy] Firestore instance:', firestore ? 'available' : 'not available');
+            
+            const guidesCollection = firestore.collection('academy_guides');
+            console.log('[Academy] Guides collection reference:', guidesCollection ? 'created' : 'failed');
+            
+            const guideDocRef = guidesCollection.doc(guideId);
+            console.log('[Academy] Guide document reference created for ID:', guideId);
+            
+            // Load guide with timeout
+            const loadPromise = guideDocRef.get();
+            const timeoutPromise = new Promise((_, reject) => 
+                setTimeout(() => reject(new Error('Firestore request timeout after 10 seconds')), 10000)
+            );
+            
+            const guideDoc = await Promise.race([loadPromise, timeoutPromise]);
 
             console.log('[Academy] Guide document loaded:', guideDoc.exists);
 
