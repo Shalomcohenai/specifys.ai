@@ -1616,9 +1616,7 @@ class GlobalSearch {
       this.setBlogFeedback(`Editing ${post.title}`, "success");
       this.dom.blogForm?.scrollIntoView({ behavior: "smooth", block: "start" });
     } catch (error) {
-      // [BlogEdit] Failed to load post
-        stack: error.stack
-      });
+      console.error('[BlogEdit] Failed to load post:', error);
       this.setBlogFeedback(error.message || "Failed to load post for editing.", "error");
       this.exitBlogEditMode();
     }

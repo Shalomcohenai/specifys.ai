@@ -408,14 +408,18 @@ class ArticlesManager {
 
     // Get auth token
     async getAuthToken() {
-        // Try to get token from Firebase Auth (admin-dashboard.js uses Firebase Auth)
+        // Try to get token from admin-dashboard instance
         try {
-            // Check if auth is available from admin-dashboard.js
-            // admin-dashboard.js exports auth as a const, so we need to access it via window or import
-            if (typeof auth !== 'undefined' && auth && auth.currentUser) {
-                return await auth.currentUser.getIdToken();
+            if (window.adminDashboard && typeof window.adminDashboard.getAuthToken === 'function') {
+                const token = await window.adminDashboard.getAuthToken();
+                if (token) return token;
             }
-            
+        } catch (e) {
+            // Failed to get token from adminDashboard
+        }
+
+        // Try to get token from Firebase Auth directly
+        try {
             // Try to import Firebase Auth
             const { getAuth } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js');
             const { getApps } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js');
