@@ -169,5 +169,12 @@ service cloud.firestore {
       allow read: if true; // Anyone can read guides
       allow create, update, delete: if isAdmin(); // Only admins can write
     }
+
+    // Academy visits collection - users can create, admins can read
+    match /academy_visits/{visitId} {
+      allow read: if isAdmin(); // Only admins can read visits
+      allow create: if true; // Anyone can create visits (including anonymous users)
+      allow update, delete: if isAdmin(); // Only admins can update/delete
+    }
   }
 }

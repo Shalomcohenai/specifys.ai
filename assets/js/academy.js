@@ -603,6 +603,9 @@ class AcademyApp {
 
             const guide = { id: guideDoc.id, ...guideDoc.data() };
 
+            // Track guide visit
+            this.trackGuideVisit(guideId, guide.title);
+
             // Load category for back link
             const categoryDoc = await firebase.firestore()
                 .collection('academy_categories')
@@ -1163,6 +1166,26 @@ class AcademyApp {
         const div = document.createElement('div');
         div.textContent = str;
         return div.innerHTML;
+    }
+
+    // Track guide visit to Firebase for analytics
+    async trackGuideVisit(guideId, guideTitle) {
+        try {
+            const user = firebase.auth().currentUser;
+            const visitData = {
+                guideId: guideId,
+                guideTitle: guideTitle || 'Unknown Guide',
+                userId: user ? user.uid : null,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            await firebase.firestore()
+                .collection('academy_visits')
+                .add(visitData);
+        } catch (error) {
+            // Silently fail - visit tracking is not critical
+            console.debug('Failed to track guide visit:', error);
+        }
     }
 }
 
