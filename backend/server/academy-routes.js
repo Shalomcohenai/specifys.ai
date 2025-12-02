@@ -54,4 +54,6 @@ async function incrementViewCount(req, res, next) {
 
 router.post('/guides/:guideId/view', incrementViewCount);
 
-module.exports = router;
+module.exports = {
+  incrementViewCount
+};
