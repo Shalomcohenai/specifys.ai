@@ -1298,14 +1298,9 @@ class MetricsCalculator {
       
       const totalViews = guides.reduce((sum, guide) => sum + (guide.views || 0), 0);
       
-      const viewsInRange = guides
-        .filter((guide) => {
-          const createdDate = guide.createdAt || guide.timestamp;
-          if (!createdDate) return false;
-          const date = createdDate.toDate ? createdDate.toDate() : new Date(createdDate);
-          return date.getTime() >= threshold;
-        })
-        .reduce((sum, guide) => sum + (guide.views || 0), 0);
+      // Since we don't track view dates (only total count), we show all views
+      // This matches the behavior of articles which also don't track per-view timestamps
+      const viewsInRange = totalViews;
       
       stats.guidesViews = totalViews;
       stats.guidesViewsInRange = viewsInRange;
