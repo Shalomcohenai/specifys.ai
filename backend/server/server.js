@@ -14,6 +14,7 @@ const config = require('./config');
 const blogRoutes = require('./blog-routes');
 const blogRoutesPublic = require('./blog-routes-public');
 const articlesRoutes = require('./articles-routes');
+const academyRoutes = require('./academy-routes');
 const adminRoutes = require('./admin-routes');
 const lemonRoutes = require('./lemon-routes');
 const creditsRoutes = require('./credits-routes');
@@ -360,6 +361,11 @@ app.get('/sitemap.xml', articlesRoutes.generateSitemap);
 app.put('/api/articles/:id', requireAdmin, articlesRoutes.updateArticle);
 app.delete('/api/articles/:id', requireAdmin, articlesRoutes.deleteArticle);
 logger.info({ type: 'route_mounted', path: '/api/articles' }, '[UNIFIED SERVER] ✅ Articles routes mounted');
+
+// Academy routes
+logger.info({ type: 'route_mount', path: '/api/academy', route: 'academyRoutes' }, '[UNIFIED SERVER] 📌 Mounting academy routes');
+app.post('/api/academy/guides/:guideId/view', academyRoutes.incrementViewCount);
+logger.info({ type: 'route_mounted', path: '/api/academy' }, '[UNIFIED SERVER] ✅ Academy routes mounted');
 
 // Admin routes (must be after specific admin endpoints, with rate limiting)
 // Enhanced logging for route mounting

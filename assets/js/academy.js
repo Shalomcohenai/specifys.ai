@@ -1254,67 +1254,19 @@ class AcademyApp {
         return div.innerHTML;
     }
 
-    // Track guide visit to Firebase for analytics
+    // Track guide visit via API (increment views count)
     async trackGuideVisit(guideId, guideTitle) {
-        // Check if Firebase is available
-        if (typeof firebase === 'undefined' || !firebase.firestore) {
-            console.warn('[Academy] Firebase not available for visit tracking');
-            return;
-        }
+        if (!guideId) return;
 
-        const user = firebase.auth().currentUser;
-        const visitData = {
-            guideId: guideId,
-            guideTitle: guideTitle || 'Unknown Guide',
-            userId: user ? user.uid : null,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        };
-
-        console.log('[Academy] Tracking guide visit:', { guideId, guideTitle, userId: visitData.userId });
-        
         try {
-            // Try to write to Firestore with timeout
-            const firestore = firebase.firestore();
-            const visitsCollection = firestore.collection('academy_visits');
-            
-            // Use Promise.race to add timeout
-            const writePromise = visitsCollection.add(visitData);
-            const timeoutPromise = new Promise((_, reject) => 
-                setTimeout(() => reject(new Error('Firestore write timeout after 5 seconds')), 5000)
-            );
-            
-            const docRef = await Promise.race([writePromise, timeoutPromise]);
-            
-            console.log('[Academy] Guide visit tracked successfully:', docRef.id);
-        } catch (error) {
-            // Log error for debugging but don't break the page
-            console.error('[Academy] Failed to track guide visit:', error);
-            console.error('[Academy] Error details:', {
-                message: error.message,
-                code: error.code,
-                name: error.name,
-                guideId: guideId,
-                guideTitle: guideTitle
+            const apiBaseUrl = typeof getApiBaseUrl === 'function' ? getApiBaseUrl() : (window.API_BASE_URL || 'https://specifys-ai.onrender.com');
+            await fetch(`${apiBaseUrl}/api/academy/guides/${guideId}/view`, {
+                method: 'POST'
             });
-            
-            // Try alternative: use set() with auto-generated ID
-            if (error.code === 'unavailable' || error.code === 'deadline-exceeded' || error.message.includes('timeout') || error.message.includes('failed')) {
-                console.log('[Academy] Attempting fallback: using set() with auto-generated ID');
-                try {
-                    const firestore = firebase.firestore();
-                    const docRef = firestore.collection('academy_visits').doc();
-                    await docRef.set({
-                        guideId: visitData.guideId,
-                        guideTitle: visitData.guideTitle,
-                        userId: visitData.userId,
-                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                    console.log('[Academy] Guide visit tracked successfully (fallback method):', docRef.id);
-                } catch (fallbackError) {
-                    console.error('[Academy] Fallback method also failed:', fallbackError);
-                    console.error('[Academy] This is a non-critical error - the page will continue to work');
-                }
-            }
+            // Don't wait for response or show errors - view tracking is non-critical
+        } catch (error) {
+            // Silently fail - view tracking is not critical
+            console.debug('[Academy] View count update failed:', error);
         }
     }
 }

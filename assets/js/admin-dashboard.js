@@ -232,7 +232,6 @@ class DataAggregator {
       specsByUser: new Map(),
       purchases: [],
       activityLogs: [],
-      academyVisits: []
     };
     
     // Unified activity events (generated from all sources)
@@ -241,9 +240,9 @@ class DataAggregator {
     // Content stats
     this.contentStats = {
       articlesViews: 0,
-      guidesReads: 0,
+      guidesViews: 0,
       articlesViewsInRange: 0,
-      guidesReadsInRange: 0
+      guidesViewsInRange: 0
     };
     
     // Callbacks for data changes
@@ -830,54 +829,6 @@ class DataAggregator {
   }
   
   /**
-   * Subscribe to academy visits (if collection exists)
-   */
-  subscribeToAcademyVisits() {
-    try {
-      const academyQuery = query(
-        collection(this.db, 'academy_visits'),
-        orderBy("timestamp", "desc"),
-        limit(1000)
-      );
-      
-      const unsubAcademy = onSnapshot(
-        academyQuery,
-        (snapshot) => {
-          this.aggregatedData.academyVisits = snapshot.docs.map((docSnap) => {
-            const data = docSnap.data();
-            return {
-              id: docSnap.id,
-              guideId: data.guideId || null,
-              guideTitle: data.guideTitle || null,
-              userId: data.userId || null,
-              timestamp: utils.toDate(data.timestamp),
-              metadata: data
-            };
-          });
-          
-          console.log(`[AdminDashboard] Loaded ${this.aggregatedData.academyVisits.length} academy visits`);
-          this.notifyDataChange('academyVisits');
-        },
-        (error) => {
-          // Academy visits collection might not exist, that's OK
-          console.warn("[AdminDashboard] Academy visits collection not available:", error?.code, error?.message);
-          if (error?.code === 'failed-precondition') {
-            console.warn("[AdminDashboard] Index may be missing for academy_visits. Please create index for timestamp field.");
-          }
-          this.notifyDataChange('academyVisits-unavailable');
-        }
-      );
-      
-      this.unsubscribeFns.push(unsubAcademy);
-      return unsubAcademy;
-    } catch (error) {
-      // Academy visits collection might not exist, that's OK
-      console.debug("Academy visits collection not available");
-      return null;
-    }
-  }
-  
-  /**
    * Initialize all subscriptions
    */
   subscribeAll() {
@@ -886,7 +837,6 @@ class DataAggregator {
     this.subscribeToSpecs();
     this.subscribeToPurchases();
     this.subscribeToActivityLogs();
-    this.subscribeToAcademyVisits();
   }
   
   /**
@@ -913,7 +863,6 @@ class DataAggregator {
     this.aggregatedData.specsByUser.clear();
     this.aggregatedData.purchases = [];
     this.aggregatedData.activityLogs = [];
-    this.aggregatedData.academyVisits = [];
     this.activityEvents = [];
     this.initialLoads = {
       users: true,
@@ -1302,15 +1251,15 @@ class MetricsCalculator {
   }
   
   /**
-   * Calculate content stats (articles views and guides reads)
+   * Calculate content stats (articles views and guides views)
    */
   async calculateContentStats(range = 'week', apiBaseUrl) {
     const threshold = Date.now() - (DATE_RANGES[range] || DATE_RANGES.week);
     const stats = {
       articlesViews: 0,
       articlesViewsInRange: 0,
-      guidesReads: 0,
-      guidesReadsInRange: 0
+      guidesViews: 0,
+      guidesViewsInRange: 0
     };
     
     // Load articles views from API
@@ -1339,15 +1288,30 @@ class MetricsCalculator {
       console.error("Failed to load articles stats:", error);
     }
     
-    // Load guides reads from Firebase academy_visits collection
-    const academyVisits = this.dataAggregator.aggregatedData.academyVisits || [];
-    const totalGuidesReads = academyVisits.length;
-    const guidesReadsInRange = academyVisits.filter(
-      (visit) => (visit.timestamp?.getTime() || 0) >= threshold
-    ).length;
-    
-    stats.guidesReads = totalGuidesReads;
-    stats.guidesReadsInRange = guidesReadsInRange;
+    // Load guides views from Firestore academy_guides collection
+    try {
+      const guidesSnapshot = await getDocs(collection(this.db, 'academy_guides'));
+      const guides = guidesSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      
+      const totalViews = guides.reduce((sum, guide) => sum + (guide.views || 0), 0);
+      
+      const viewsInRange = guides
+        .filter((guide) => {
+          const createdDate = guide.createdAt || guide.timestamp;
+          if (!createdDate) return false;
+          const date = createdDate.toDate ? createdDate.toDate() : new Date(createdDate);
+          return date.getTime() >= threshold;
+        })
+        .reduce((sum, guide) => sum + (guide.views || 0), 0);
+      
+      stats.guidesViews = totalViews;
+      stats.guidesViewsInRange = viewsInRange;
+    } catch (error) {
+      console.error("Failed to load guides stats:", error);
+    }
     
     return stats;
   }
@@ -1853,7 +1817,6 @@ class AdminDashboardApp {
     this.alertsCurrentPage = 1;
     this.alertsPerPage = 5;
     this.articlesViews = 0;
-    this.academyVisits = 0;
     this.specsInitialLoad = true; // Track if this is the first load of specs
     this.performanceData = {
       apiResponseTimes: [],
@@ -1909,12 +1872,6 @@ class AdminDashboardApp {
       }
       if (source === 'activityLogs-error') {
         this.markSourceError('activityLogs');
-      }
-      if (source === 'academyVisits') {
-        this.updateOverview();
-      }
-      if (source === 'academyVisits-unavailable') {
-        // Academy visits collection doesn't exist - that's OK, just don't show data
       }
     });
 
@@ -2978,12 +2935,12 @@ class AdminDashboardApp {
       this.dom.metrics.articlesReadRange.textContent = `Total: ${utils.formatNumber(contentStats.articlesViews)}`;
     }
     
-    // Update guides reads
+    // Update guides views
     if (this.dom.metrics.guidesRead) {
-      this.dom.metrics.guidesRead.textContent = utils.formatNumber(contentStats.guidesReadsInRange);
+      this.dom.metrics.guidesRead.textContent = utils.formatNumber(contentStats.guidesViewsInRange);
     }
     if (this.dom.metrics.guidesReadRange) {
-      this.dom.metrics.guidesReadRange.textContent = `Total: ${utils.formatNumber(contentStats.guidesReads)}`;
+      this.dom.metrics.guidesReadRange.textContent = `Total: ${utils.formatNumber(contentStats.guidesViews)}`;
     }
 
     this.renderActivityFeed();
@@ -3006,10 +2963,10 @@ class AdminDashboardApp {
     
     // Update guides reads
     if (this.dom.metrics.guidesRead) {
-      this.dom.metrics.guidesRead.textContent = utils.formatNumber(contentStats.guidesReadsInRange);
+      this.dom.metrics.guidesRead.textContent = utils.formatNumber(contentStats.guidesViewsInRange);
     }
     if (this.dom.metrics.guidesReadRange) {
-      this.dom.metrics.guidesReadRange.textContent = `Total: ${utils.formatNumber(contentStats.guidesReads)}`;
+      this.dom.metrics.guidesReadRange.textContent = `Total: ${utils.formatNumber(contentStats.guidesViews)}`;
     }
   }
 

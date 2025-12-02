@@ -125,13 +125,6 @@
         { "fieldPath": "category", "order": "ASCENDING" },
         { "fieldPath": "title", "order": "ASCENDING" }
       ]
-    },
-    {
-      "collectionGroup": "academy_visits",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "timestamp", "order": "DESCENDING" }
-      ]
     }
   ],
   "fieldOverrides": []
