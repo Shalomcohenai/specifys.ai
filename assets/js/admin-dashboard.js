@@ -855,11 +855,15 @@ class DataAggregator {
             };
           });
           
+          console.log(`[AdminDashboard] Loaded ${this.aggregatedData.academyVisits.length} academy visits`);
           this.notifyDataChange('academyVisits');
         },
         (error) => {
           // Academy visits collection might not exist, that's OK
-          console.debug("Academy visits collection not available:", error?.code);
+          console.warn("[AdminDashboard] Academy visits collection not available:", error?.code, error?.message);
+          if (error?.code === 'failed-precondition') {
+            console.warn("[AdminDashboard] Index may be missing for academy_visits. Please create index for timestamp field.");
+          }
           this.notifyDataChange('academyVisits-unavailable');
         }
       );

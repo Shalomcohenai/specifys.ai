@@ -89,6 +89,7 @@ class AdminAcademy {
   async setupDashboardPage() {
     await this.loadCategories();
     await this.loadGuides();
+    await this.loadGuideVisits();
     this.renderCategories();
     this.renderGuides();
   }
@@ -114,10 +115,37 @@ class AdminAcademy {
       );
       this.guides = snapshot.docs.map(doc => ({
         id: doc.id,
-        ...doc.data()
+        ...doc.data(),
+        visitCount: 0 // Initialize visit count
       }));
     } catch (error) {
-      // Error loading guides
+      console.error('Error loading guides:', error);
+    }
+  }
+
+  async loadGuideVisits() {
+    try {
+      const visitsSnapshot = await getDocs(collection(db, 'academy_visits'));
+      const visitsByGuide = {};
+      
+      visitsSnapshot.docs.forEach(doc => {
+        const visit = doc.data();
+        const guideId = visit.guideId;
+        if (guideId) {
+          visitsByGuide[guideId] = (visitsByGuide[guideId] || 0) + 1;
+        }
+      });
+
+      // Update visit counts for each guide
+      this.guides.forEach(guide => {
+        guide.visitCount = visitsByGuide[guide.id] || 0;
+      });
+    } catch (error) {
+      console.error('Error loading guide visits:', error);
+      // If visits collection doesn't exist or error, set all to 0
+      this.guides.forEach(guide => {
+        guide.visitCount = 0;
+      });
     }
   }
 
@@ -149,19 +177,21 @@ class AdminAcademy {
     if (!tbody) return;
 
     if (this.guides.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="5" class="table-empty">No guides yet. Create one to get started.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="6" class="table-empty">No guides yet. Create one to get started.</td></tr>';
       return;
     }
 
     tbody.innerHTML = this.guides.map(guide => {
       const category = this.categories.find(c => c.id === guide.category);
       const questionCount = guide.questions ? guide.questions.length : 0;
+      const visitCount = guide.visitCount || 0;
       return `
         <tr>
           <td>${this.escapeHTML(guide.title)}</td>
           <td>${category ? this.escapeHTML(category.title) : 'Unknown'}</td>
           <td><span class="level-badge ${(guide.level || 'beginner').toLowerCase()}">${guide.level || 'Beginner'}</span></td>
           <td>${questionCount}</td>
+          <td><span class="visit-count">${visitCount}</span></td>
           <td>
             <a href="/pages/admin/academy/edit-guide.html?guide=${guide.id}" class="action-btn small">
               <i class="fas fa-edit"></i> Edit

@@ -1171,6 +1171,12 @@ class AcademyApp {
     // Track guide visit to Firebase for analytics
     async trackGuideVisit(guideId, guideTitle) {
         try {
+            // Check if Firebase is available
+            if (typeof firebase === 'undefined' || !firebase.firestore) {
+                console.warn('[Academy] Firebase not available for visit tracking');
+                return;
+            }
+
             const user = firebase.auth().currentUser;
             const visitData = {
                 guideId: guideId,
@@ -1179,12 +1185,22 @@ class AcademyApp {
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             };
 
-            await firebase.firestore()
+            console.log('[Academy] Tracking guide visit:', { guideId, guideTitle, userId: visitData.userId });
+            
+            const docRef = await firebase.firestore()
                 .collection('academy_visits')
                 .add(visitData);
+            
+            console.log('[Academy] Guide visit tracked successfully:', docRef.id);
         } catch (error) {
-            // Silently fail - visit tracking is not critical
-            console.debug('Failed to track guide visit:', error);
+            // Log error for debugging but don't break the page
+            console.error('[Academy] Failed to track guide visit:', error);
+            console.error('[Academy] Error details:', {
+                message: error.message,
+                code: error.code,
+                guideId: guideId,
+                guideTitle: guideTitle
+            });
         }
     }
 }
