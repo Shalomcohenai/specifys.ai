@@ -18,6 +18,41 @@ const ARTICLES_COLLECTION = 'articles';
 // Worker URL
 const WORKER_URL = 'https://articles.shalom-cohen-111.workers.dev/';
 
+// Article generation prompt
+const articleGenerationPrompt = {
+    system: `You are a no-BS dev-tools writer in 2025. 
+
+Your readers are senior developers and indie hackers who hate fluff, love concrete examples, benchmarks, prompts, before/after code, and real numbers. 
+
+Write like swyx, levelsio or addy osmani – short sentences, zero corporate speak, maximum value per word.`,
+
+    developer: `Return ONLY a valid JSON object with this exact structure:
+
+{
+  "title": "Clickbait-but-honest title, 55-70 chars, primary keyword first",
+  "seo_title": "SEO title, 50-60 chars, keyword front-loaded",
+  "short_title": "Short punchy title for previews, 35-50 chars",
+  "teaser_90": "Exactly 90 characters teaser that makes people click",
+  "description_160": "Meta description exactly 160 characters, includes main keyword + promise",
+  "content_markdown": "Full article in clean Markdown. Requirements:
+    • 800-1200 words max (brevity = respect)
+    • H2/H3 only, no fluff intros
+    • First H2 must appear in first 100 words
+    • Every section has at least one real code block, prompt example, or screenshot-worthy result
+    • Include exact prompts used
+    • Before/after comparisons when relevant
+    • Real numbers (time saved, tokens used, success rate)
+    • Zero philosophical rambling
+    • Ends with 'TL;DR' section + actionable next steps
+    • Tone: direct, slightly sarcastic when something sucks",
+  "tags": ["array", "of", "5-8", "hyper-specific", "2025-relevant", "tags"]
+}`,
+
+    user: (topic) => `Write a 2025-style, zero-fluff, example-heavy article about: ${topic}
+
+Target audience: developers who already know what vibe coding is and just want the new hotness, benchmarks, and copy-paste prompts.`
+};
+
 // Helper: Slugify text for URL-friendly slugs
 function slugify(text) {
     return text
@@ -137,13 +172,23 @@ async function generateArticle(req, res, next) {
         try {
             logger.info({ requestId, workerUrl: WORKER_URL }, '[articles-routes] Calling Cloudflare Worker');
             
+            // Prepare prompt with topic
+            const prompt = {
+                system: articleGenerationPrompt.system,
+                developer: articleGenerationPrompt.developer,
+                user: articleGenerationPrompt.user(topic.trim())
+            };
+            
             const workerRequestStart = Date.now();
             const fetchResponse = await fetch(WORKER_URL, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ topic: topic.trim() })
+                body: JSON.stringify({ 
+                    topic: topic.trim(),
+                    prompt: prompt
+                })
             });
             
             const workerRequestTime = Date.now() - workerRequestStart;
