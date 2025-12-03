@@ -19,7 +19,7 @@
     
     
     
-    <link rel="canonical" href="http://localhost:4000/2025/10/09/windsurf-and-pearai-the-rise-of-agentic-ides/">
+    <link rel="canonical" href="http://0.0.0.0:4000/2025/10/09/windsurf-and-pearai-the-rise-of-agentic-ides/">
     
     
     <!-- Open Graph -->
@@ -27,8 +27,8 @@
     <meta property="og:title" content="Windsurf and PearAI: The Rise of Agentic IDEs">
     <meta property="og:description" content="Two emerging tools, Windsurf and PearAI, redefine what an IDE can be — autonomous, reasoning, and deeply conversational.">
     <meta property="og:type" content="article">
-    <meta property="og:url" content="http://localhost:4000/2025/10/09/windsurf-and-pearai-the-rise-of-agentic-ides/">
-    <meta property="og:image" content="http://localhost:4000/assets/images/og-image.png">
+    <meta property="og:url" content="http://0.0.0.0:4000/2025/10/09/windsurf-and-pearai-the-rise-of-agentic-ides/">
+    <meta property="og:image" content="http://0.0.0.0:4000/assets/images/og-image.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:locale" content="en_US">
@@ -44,7 +44,7 @@
     <meta name="twitter:creator" content="@specifysai">
     <meta name="twitter:title" content="Windsurf and PearAI: The Rise of Agentic IDEs">
     <meta name="twitter:description" content="Two emerging tools, Windsurf and PearAI, redefine what an IDE can be — autonomous, reasoning, and deeply conversational.">
-    <meta name="twitter:image" content="http://localhost:4000/assets/images/og-image.png">
+    <meta name="twitter:image" content="http://0.0.0.0:4000/assets/images/og-image.png">
     
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
@@ -80,8 +80,9 @@
       
     
     
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Font Awesome - Loaded asynchronously -->
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"></noscript>
     
     <!-- JavaScript - Core utilities loaded before core bundle -->
     <script src="/assets/js/config.js"></script>
@@ -434,7 +435,7 @@ document.addEventListener('DOMContentLoaded', function() {
       "dateModified": "2025-10-09T00:00:00-04:00",
       "mainEntityOfPage": {
         "@type": "WebPage",
-        "@id": "http://localhost:4000/2025/10/09/windsurf-and-pearai-the-rise-of-agentic-ides/"
+        "@id": "http://0.0.0.0:4000/2025/10/09/windsurf-and-pearai-the-rise-of-agentic-ides/"
       }
     }
   ]
@@ -893,33 +894,64 @@ In the coming years, Agentic IDEs may become the new default — where every pro
       });
   };
 
-  // Listen to auth state changes
-  auth.onAuthStateChanged(async (user) => {
-    updateAuthUI(user);
-
-    // Ensure user document exists in Firestore when user signs in
-    if (user) {
-      try {
-        const token = await user.getIdToken();
-        const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : (window.API_BASE_URL || 'https://specifys-ai.onrender.com');
-        const response = await fetch(`${apiBaseUrl}/api/users/ensure`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
-
-        if (response.ok) {
-          console.log('✅ User document ensured in Firestore');
-        } else {
-          console.warn('⚠️ Failed to ensure user document:', await response.text());
-        }
-      } catch (error) {
-        console.warn('⚠️ Error ensuring user document:', error);
-      }
+  // Listen to auth state changes (only after Firebase is initialized)
+  function setupAuthListener() {
+    if (typeof auth === 'undefined' && typeof window.auth !== 'undefined') {
+      window.auth = window.auth;
     }
-  });
+    
+    if (typeof auth === 'undefined') {
+      setTimeout(setupAuthListener, 100);
+      return;
+    }
+    
+    auth.onAuthStateChanged(async (user) => {
+      updateAuthUI(user);
+
+      // Ensure user document exists (deferred and only when visible)
+      if (user && document.visibilityState === 'visible') {
+        if ('requestIdleCallback' in window) {
+          requestIdleCallback(async () => {
+            await ensureUserDocument(user);
+          }, { timeout: 3000 });
+        } else {
+          setTimeout(async () => {
+            await ensureUserDocument(user);
+          }, 3000);
+        }
+      }
+    });
+  }
+  
+  async function ensureUserDocument(user) {
+    try {
+      const token = await user.getIdToken();
+      const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : (window.API_BASE_URL || 'https://specifys-ai.onrender.com');
+      const response = await fetch(`${apiBaseUrl}/api/users/ensure`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        console.log('✅ User document ensured in Firestore');
+      } else {
+        console.warn('⚠️ Failed to ensure user document:', await response.text());
+      }
+    } catch (error) {
+      console.warn('⚠️ Error ensuring user document:', error);
+    }
+  }
+
+  // Wait for Firebase to be ready
+  if (typeof firebase !== 'undefined' && firebase.auth) {
+    // Firebase already loaded, wait a bit for initialization
+    setTimeout(setupAuthListener, 100);
+  } else {
+    window.addEventListener('firebase-ready', setupAuthListener);
+  }
 
   // Initialize auth buttons with default state
   document.addEventListener('DOMContentLoaded', function() {

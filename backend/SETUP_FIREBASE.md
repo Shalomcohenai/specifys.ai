@@ -49,3 +49,4 @@ curl http://localhost:10000/api/health
 - הקובץ `.env` כבר ב-`.gitignore` אז הוא בטוח
 - ב-Render, השתמש תמיד במשתנה סביבה `FIREBASE_SERVICE_ACCOUNT_KEY`
 
+
