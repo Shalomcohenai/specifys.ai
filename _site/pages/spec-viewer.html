@@ -2179,35 +2179,9 @@ function parseDesignData(designContent) {
     return result;
 }
 
-function getTypographyStyle(value) {
-    const parts = value.split(',').map(p => p.trim());
-    let style = '';
-    
-    parts.forEach(part => {
-        if (part.includes('px')) {
-            style += `font-size: ${part}; `;
-        } else if (part.toLowerCase() === 'bold') {
-            style += 'font-weight: bold; ';
-        } else if (part.toLowerCase() === 'italic') {
-            style += 'font-style: italic; ';
-        } else if (part.toLowerCase() === 'regular') {
-            style += 'font-weight: normal; ';
-        } else {
-            style += `font-family: ${part}; `;
-        }
-    });
-    
-    return style;
-}
+// REMOVED: getTypographyStyle() - Function was never called/used
 
-function copyToClipboard(text) {
-    navigator.clipboard.writeText(text).then(() => {
-        showNotification(`Copied ${text} to clipboard!`, 'success');
-    }).catch(err => {
-
-        showNotification('Failed to copy to clipboard', 'error');
-    });
-}
+// REMOVED: copyToClipboard() - Function was never called/used
 
 function openVisualizer(type) {
     const modal = document.getElementById('color-visualizer-modal');
@@ -2452,12 +2426,7 @@ function formatTextContent(content) {
     }
 }
 
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
-
+// REMOVED: Duplicate escapeHtml() - Using the one defined later in the file
 function formatJSONContent(jsonData) {
     let html = '';
     
@@ -7405,12 +7374,7 @@ function displayPrompts(promptsData) {
     }
 }
 
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
-
+// REMOVED: Duplicate escapeHtml() - Using the one defined later in the file
 function copyPromptToClipboard() {
     if (!window.fullPromptText) {
         showNotification('No prompt text available', 'error');

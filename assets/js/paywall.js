@@ -209,6 +209,26 @@
 
       await openCheckoutOverlay(data.checkoutUrl, {
         onSuccess: () => {
+          // Clear cache to force refresh
+          if (typeof window.clearEntitlementsCache === 'function') {
+            window.clearEntitlementsCache();
+          }
+          
+          // Update credits display immediately
+          if (typeof window.updateCreditsDisplay === 'function') {
+            window.updateCreditsDisplay({ showLoading: true, forceRefresh: true });
+            
+            // Retry after 2 seconds to allow webhook to process
+            setTimeout(() => {
+              window.updateCreditsDisplay({ forceRefresh: true });
+            }, 2000);
+            
+            // One more retry after 5 seconds (webhook might be delayed)
+            setTimeout(() => {
+              window.updateCreditsDisplay({ forceRefresh: true });
+            }, 5000);
+          }
+          
           if (typeof onSuccess === 'function') {
             onSuccess(productKey, data);
           }

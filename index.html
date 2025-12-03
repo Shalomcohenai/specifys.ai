@@ -1018,22 +1018,39 @@ graph TD
     });
   }
   
-  async function ensureUserDocument(user) {
+  async function ensureUserDocument(user, retryCount = 0) {
+    const MAX_RETRIES = 3;
+    const RETRY_DELAYS = [500, 1000, 2000]; // ms
+    
     try {
       const token = await user.getIdToken();
       const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai.onrender.com';
-      const response = await fetch(`${apiBaseUrl}/api/users/ensure`, {
+      
+      // Use /initialize endpoint for better atomicity
+      const response = await fetch(`${apiBaseUrl}/api/users/initialize`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
-        }
+        },
+        body: JSON.stringify({})
       });
+      
       if (response.ok) {
-        // User document ensured
+        // User documents initialized
+        return await response.json();
+      } else {
+        throw new Error(`HTTP ${response.status}`);
       }
     } catch (error) {
-      // Silently fail
+      // Retry on failure
+      if (retryCount < MAX_RETRIES) {
+        const delay = RETRY_DELAYS[retryCount] || 2000;
+        await new Promise(resolve => setTimeout(resolve, delay));
+        return ensureUserDocument(user, retryCount + 1);
+      }
+      // Silently fail after max retries (non-critical)
+      console.warn('Failed to ensure user document after retries:', error);
     }
   }
 

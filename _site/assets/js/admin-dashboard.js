@@ -232,18 +232,17 @@ class DataAggregator {
       specsByUser: new Map(),
       purchases: [],
       activityLogs: [],
-      academyVisits: []
     };
     
     // Unified activity events (generated from all sources)
-    this.activityEvents = [];
+    this.activityEvents = this.loadActivityEventsFromStorage();
     
     // Content stats
     this.contentStats = {
       articlesViews: 0,
-      guidesReads: 0,
+      guidesViews: 0,
       articlesViewsInRange: 0,
-      guidesReadsInRange: 0
+      guidesViewsInRange: 0
     };
     
     // Callbacks for data changes
@@ -255,6 +254,49 @@ class DataAggregator {
       specs: true,
       purchases: true
     };
+    
+    // Track if events were generated from existing data
+    this._eventsGenerated = false;
+  }
+  
+  /**
+   * Load activity events from localStorage
+   */
+  loadActivityEventsFromStorage() {
+    try {
+      const stored = localStorage.getItem('admin-activity-events');
+      if (stored) {
+        const events = JSON.parse(stored);
+        // Convert timestamp strings back to Date objects
+        return events.map(event => ({
+          ...event,
+          timestamp: event.timestamp ? new Date(event.timestamp) : utils.now()
+        })).filter(event => {
+          // Only keep events from last 7 days
+          const sevenDaysAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
+          return event.timestamp && event.timestamp.getTime() >= sevenDaysAgo;
+        });
+      }
+    } catch (error) {
+      // Failed to load activity events from storage
+    }
+    return [];
+  }
+  
+  /**
+   * Save activity events to localStorage
+   */
+  saveActivityEventsToStorage() {
+    try {
+      // Convert Date objects to ISO strings for storage
+      const eventsToStore = this.activityEvents.map(event => ({
+        ...event,
+        timestamp: event.timestamp ? event.timestamp.toISOString() : new Date().toISOString()
+      }));
+      localStorage.setItem('admin-activity-events', JSON.stringify(eventsToStore));
+    } catch (error) {
+      // Failed to save activity events to storage
+    }
   }
   
   /**
@@ -270,11 +312,21 @@ class DataAggregator {
    * Notify all callbacks of data changes
    */
   notifyDataChange(source) {
+    // Check if initial loads are complete and generate events from existing data
+    if (this.initialLoads.users === false && 
+        this.initialLoads.specs === false && 
+        this.initialLoads.purchases === false &&
+        !this._eventsGenerated) {
+      // Generate events from existing data once all initial loads are complete
+      this.generateEventsFromExistingData();
+      this._eventsGenerated = true;
+    }
+    
     this.onDataChangeCallbacks.forEach(callback => {
       try {
         callback(this.aggregatedData, source);
       } catch (error) {
-        console.error(`Error in data change callback:`, error);
+        // Error in data change callback
       }
     });
   }
@@ -403,6 +455,7 @@ class DataAggregator {
                 const event = this.createActivityEvent('user', user);
                 this.activityEvents.unshift(event);
                 this.activityEvents = utils.clampArray(this.activityEvents, MAX_ACTIVITY_EVENTS);
+                this.saveActivityEventsToStorage();
               }
             }
           });
@@ -411,7 +464,6 @@ class DataAggregator {
           this.notifyDataChange('users');
         },
         (error) => {
-          console.error("Users listener error", error);
           this.notifyDataChange('users-error');
         }
       );
@@ -419,7 +471,6 @@ class DataAggregator {
       this.unsubscribeFns.push(unsubUsers);
       return unsubUsers;
     } catch (error) {
-      console.error("Failed to subscribe to users", error);
       throw error;
     }
   }
@@ -450,7 +501,6 @@ class DataAggregator {
           this.notifyDataChange('entitlements');
         },
         (error) => {
-          console.error("Entitlements listener error", error);
           this.notifyDataChange('entitlements-error');
         }
       );
@@ -458,7 +508,6 @@ class DataAggregator {
       this.unsubscribeFns.push(unsubEntitlements);
       return unsubEntitlements;
     } catch (error) {
-      console.error("Failed to subscribe to entitlements", error);
       throw error;
     }
   }
@@ -506,6 +555,8 @@ class DataAggregator {
                 const user = this.aggregatedData.users.get(spec.userId);
                 const event = this.createActivityEvent('spec', spec, user);
                 this.activityEvents.unshift(event);
+                this.activityEvents = utils.clampArray(this.activityEvents, MAX_ACTIVITY_EVENTS);
+                this.saveActivityEventsToStorage();
               }
             });
           } else {
@@ -557,6 +608,7 @@ class DataAggregator {
                   const event = this.createActivityEvent('spec', spec, user);
                   this.activityEvents.unshift(event);
                   this.activityEvents = utils.clampArray(this.activityEvents, MAX_ACTIVITY_EVENTS);
+                  this.saveActivityEventsToStorage();
                 }
               }
             });
@@ -565,7 +617,6 @@ class DataAggregator {
           this.notifyDataChange('specs');
         },
         (error) => {
-          console.error("Specs listener error", error);
           this.notifyDataChange('specs-error');
         }
       );
@@ -573,7 +624,6 @@ class DataAggregator {
       this.unsubscribeFns.push(unsubSpecs);
       return unsubSpecs;
     } catch (error) {
-      console.error("Failed to subscribe to specs", error);
       throw error;
     }
   }
@@ -620,6 +670,7 @@ class DataAggregator {
                 const event = this.createActivityEvent(eventType, purchase, user);
                 this.activityEvents.unshift(event);
                 this.activityEvents = utils.clampArray(this.activityEvents, MAX_ACTIVITY_EVENTS);
+                this.saveActivityEventsToStorage();
               }
             }
           });
@@ -628,7 +679,6 @@ class DataAggregator {
           this.notifyDataChange('purchases');
         },
         (error) => {
-          console.error("Purchases listener error", error);
           this.notifyDataChange('purchases-error');
         }
       );
@@ -636,7 +686,6 @@ class DataAggregator {
       this.unsubscribeFns.push(unsubPurchases);
       return unsubPurchases;
     } catch (error) {
-      console.error("Failed to subscribe to purchases", error);
       throw error;
     }
   }
@@ -676,10 +725,8 @@ class DataAggregator {
         },
         (error) => {
           if (error?.code === "permission-denied") {
-            console.info("Activity logs access restricted for current user.");
             this.notifyDataChange('activityLogs-restricted');
           } else {
-            console.warn("Activity logs listener error", error);
             this.notifyDataChange('activityLogs-error');
           }
         }
@@ -689,13 +736,72 @@ class DataAggregator {
       return unsubActivity;
     } catch (error) {
       if (error?.code === "permission-denied") {
-        console.info("Activity logs collection restricted for current user.");
         this.notifyDataChange('activityLogs-restricted');
       } else {
-        console.warn("Activity logs collection unavailable", error);
         this.notifyDataChange('activityLogs-error');
       }
       return null;
+    }
+  }
+  
+  /**
+   * Generate activity events from existing data (for initial load)
+   * Creates events from users, specs, and purchases created in the last 7 days
+   */
+  generateEventsFromExistingData() {
+    const sevenDaysAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
+    const existingEventIds = new Set(this.activityEvents.map(e => e.id));
+    const newEvents = [];
+    
+    // Generate events from users created in last 7 days
+    const users = Array.from(this.aggregatedData.users.values());
+    users.forEach(user => {
+      if (user.createdAt && user.createdAt.getTime() >= sevenDaysAgo) {
+        const eventId = `user-${user.id}`;
+        if (!existingEventIds.has(eventId)) {
+          const event = this.createActivityEvent('user', user);
+          event.id = eventId; // Use stable ID to avoid duplicates
+          newEvents.push(event);
+          existingEventIds.add(eventId);
+        }
+      }
+    });
+    
+    // Generate events from specs created in last 7 days
+    const specs = Array.from(this.aggregatedData.specs.values());
+    specs.forEach(spec => {
+      if (spec.createdAt && spec.createdAt.getTime() >= sevenDaysAgo) {
+        const eventId = `spec-${spec.id}`;
+        if (!existingEventIds.has(eventId)) {
+          const user = this.aggregatedData.users.get(spec.userId);
+          const event = this.createActivityEvent('spec', spec, user);
+          event.id = eventId; // Use stable ID to avoid duplicates
+          newEvents.push(event);
+          existingEventIds.add(eventId);
+        }
+      }
+    });
+    
+    // Generate events from purchases created in last 7 days
+    this.aggregatedData.purchases.forEach(purchase => {
+      if (purchase.createdAt && purchase.createdAt.getTime() >= sevenDaysAgo) {
+        const eventId = `purchase-${purchase.id}`;
+        if (!existingEventIds.has(eventId)) {
+          const user = this.aggregatedData.users.get(purchase.userId);
+          const eventType = purchase.productType === "subscription" ? "subscription" : "payment";
+          const event = this.createActivityEvent(eventType, purchase, user);
+          event.id = eventId; // Use stable ID to avoid duplicates
+          newEvents.push(event);
+          existingEventIds.add(eventId);
+        }
+      }
+    });
+    
+    // Add new events to the beginning of the array
+    if (newEvents.length > 0) {
+      this.activityEvents.unshift(...newEvents);
+      this.activityEvents = utils.clampArray(this.activityEvents, MAX_ACTIVITY_EVENTS);
+      this.saveActivityEventsToStorage();
     }
   }
   
@@ -706,50 +812,8 @@ class DataAggregator {
     const combined = [...this.activityEvents, ...this.aggregatedData.activityLogs];
     combined.sort((a, b) => (b.timestamp?.getTime() || 0) - (a.timestamp?.getTime() || 0));
     this.activityEvents = utils.clampArray(combined, MAX_ACTIVITY_EVENTS);
-  }
-  
-  /**
-   * Subscribe to academy visits (if collection exists)
-   */
-  subscribeToAcademyVisits() {
-    try {
-      const academyQuery = query(
-        collection(this.db, 'academy_visits'),
-        orderBy("timestamp", "desc"),
-        limit(1000)
-      );
-      
-      const unsubAcademy = onSnapshot(
-        academyQuery,
-        (snapshot) => {
-          this.aggregatedData.academyVisits = snapshot.docs.map((docSnap) => {
-            const data = docSnap.data();
-            return {
-              id: docSnap.id,
-              guideId: data.guideId || null,
-              guideTitle: data.guideTitle || null,
-              userId: data.userId || null,
-              timestamp: utils.toDate(data.timestamp),
-              metadata: data
-            };
-          });
-          
-          this.notifyDataChange('academyVisits');
-        },
-        (error) => {
-          // Academy visits collection might not exist, that's OK
-          console.debug("Academy visits collection not available:", error?.code);
-          this.notifyDataChange('academyVisits-unavailable');
-        }
-      );
-      
-      this.unsubscribeFns.push(unsubAcademy);
-      return unsubAcademy;
-    } catch (error) {
-      // Academy visits collection might not exist, that's OK
-      console.debug("Academy visits collection not available");
-      return null;
-    }
+    // Save to localStorage for persistence across page refreshes
+    this.saveActivityEventsToStorage();
   }
   
   /**
@@ -761,7 +825,6 @@ class DataAggregator {
     this.subscribeToSpecs();
     this.subscribeToPurchases();
     this.subscribeToActivityLogs();
-    this.subscribeToAcademyVisits();
   }
   
   /**
@@ -772,7 +835,7 @@ class DataAggregator {
       try {
         unsub();
       } catch (error) {
-        console.error("Error unsubscribing:", error);
+        // Error unsubscribing
       }
     });
     this.unsubscribeFns = [];
@@ -788,13 +851,19 @@ class DataAggregator {
     this.aggregatedData.specsByUser.clear();
     this.aggregatedData.purchases = [];
     this.aggregatedData.activityLogs = [];
-    this.aggregatedData.academyVisits = [];
     this.activityEvents = [];
     this.initialLoads = {
       users: true,
       specs: true,
       purchases: true
     };
+    this._eventsGenerated = false;
+    // Clear localStorage as well
+    try {
+      localStorage.removeItem('admin-activity-events');
+    } catch (error) {
+      // Failed to clear activity events from storage
+    }
   }
   
   /**
@@ -1170,15 +1239,15 @@ class MetricsCalculator {
   }
   
   /**
-   * Calculate content stats (articles views and guides reads)
+   * Calculate content stats (articles views and guides views)
    */
   async calculateContentStats(range = 'week', apiBaseUrl) {
     const threshold = Date.now() - (DATE_RANGES[range] || DATE_RANGES.week);
     const stats = {
       articlesViews: 0,
       articlesViewsInRange: 0,
-      guidesReads: 0,
-      guidesReadsInRange: 0
+      guidesViews: 0,
+      guidesViewsInRange: 0
     };
     
     // Load articles views from API
@@ -1204,18 +1273,28 @@ class MetricsCalculator {
         }
       }
     } catch (error) {
-      console.error("Failed to load articles stats:", error);
+      // Failed to load articles stats
     }
     
-    // Load guides reads from Firebase academy_visits collection
-    const academyVisits = this.dataAggregator.aggregatedData.academyVisits || [];
-    const totalGuidesReads = academyVisits.length;
-    const guidesReadsInRange = academyVisits.filter(
-      (visit) => (visit.timestamp?.getTime() || 0) >= threshold
-    ).length;
-    
-    stats.guidesReads = totalGuidesReads;
-    stats.guidesReadsInRange = guidesReadsInRange;
+    // Load guides views from Firestore academy_guides collection
+    try {
+      const guidesSnapshot = await getDocs(collection(db, 'academy_guides'));
+      const guides = guidesSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      
+      const totalViews = guides.reduce((sum, guide) => sum + (guide.views || 0), 0);
+      
+      // Since we don't track view dates (only total count), we show all views
+      // This matches the behavior of articles which also don't track per-view timestamps
+      const viewsInRange = totalViews;
+      
+      stats.guidesViews = totalViews;
+      stats.guidesViewsInRange = viewsInRange;
+    } catch (error) {
+      // Failed to load guides stats
+    }
     
     return stats;
   }
@@ -1466,7 +1545,7 @@ class GlobalSearch {
     try {
       result = text ? JSON.parse(text) : null;
     } catch (parseError) {
-      console.warn("Non-JSON response when loading blog post", parseError, text);
+      // Non-JSON response when loading blog post
     }
 
     if (!response.ok || !(result && result.success && result.post)) {
@@ -1537,10 +1616,7 @@ class GlobalSearch {
       this.setBlogFeedback(`Editing ${post.title}`, "success");
       this.dom.blogForm?.scrollIntoView({ behavior: "smooth", block: "start" });
     } catch (error) {
-      console.error("[BlogEdit] Failed to load post", {
-        message: error.message,
-        stack: error.stack
-      });
+      console.error('[BlogEdit] Failed to load post:', error);
       this.setBlogFeedback(error.message || "Failed to load post for editing.", "error");
       this.exitBlogEditMode();
     }
@@ -1630,7 +1706,7 @@ class SpecViewerModal {
         this.store.upsertSpec(docSnap.id, docSnap.data());
       });
     } catch (error) {
-      console.error("Failed to preload specs", error);
+      // Failed to preload specs
     }
   }
 
@@ -1721,7 +1797,6 @@ class AdminDashboardApp {
     this.alertsCurrentPage = 1;
     this.alertsPerPage = 5;
     this.articlesViews = 0;
-    this.academyVisits = 0;
     this.specsInitialLoad = true; // Track if this is the first load of specs
     this.performanceData = {
       apiResponseTimes: [],
@@ -1777,12 +1852,6 @@ class AdminDashboardApp {
       }
       if (source === 'activityLogs-error') {
         this.markSourceError('activityLogs');
-      }
-      if (source === 'academyVisits') {
-        this.updateOverview();
-      }
-      if (source === 'academyVisits-unavailable') {
-        // Academy visits collection doesn't exist - that's OK, just don't show data
       }
     });
 
@@ -2040,7 +2109,7 @@ class AdminDashboardApp {
       try {
         await signOut(auth);
       } catch (error) {
-        console.error("Error signing out", error);
+        // Error signing out
       }
     });
     this.dom.overviewRange?.addEventListener("change", () => this.updateOverview());
@@ -2221,8 +2290,7 @@ class AdminDashboardApp {
   initializeCharts() {
     const ChartConstructor = ChartLib || window.Chart;
     if (!ChartConstructor) {
-      console.warn("Chart.js not available. Skipping chart initialization.");
-            return;
+      return;
         }
 
     const defaultOptions = {
@@ -2370,7 +2438,7 @@ class AdminDashboardApp {
       // The callbacks will handle marking sources ready and updating UI
       
     } catch (error) {
-      console.error("Failed to subscribe to data sources", error);
+      // Failed to subscribe to data sources
     }
 
     // Blog queue (via API)
@@ -2379,13 +2447,10 @@ class AdminDashboardApp {
       this.markSourceReady("blogQueue");
         } catch (error) {
       if (error?.status === 403) {
-        console.info("Blog queue access restricted for current user.");
         this.markSourceRestricted("blogQueue", "Requires blog queue privileges.");
       } else if (error?.status === 401) {
-        console.info("Blog queue requires authentication.");
         this.markSourceError("blogQueue", "Authentication required.");
       } else {
-        console.warn("Blog queue unavailable", error);
         this.markSourceError("blogQueue", error);
       }
     }
@@ -2408,7 +2473,7 @@ class AdminDashboardApp {
     this.sourceState[key] = "error";
     this.renderSourceStates();
     if (error) {
-      console.error(`Source ${key} error`, error);
+      // Source error
     }
     this.updateConnectionStatus();
   }
@@ -2846,12 +2911,12 @@ class AdminDashboardApp {
       this.dom.metrics.articlesReadRange.textContent = `Total: ${utils.formatNumber(contentStats.articlesViews)}`;
     }
     
-    // Update guides reads
+    // Update guides views
     if (this.dom.metrics.guidesRead) {
-      this.dom.metrics.guidesRead.textContent = utils.formatNumber(contentStats.guidesReadsInRange);
+      this.dom.metrics.guidesRead.textContent = utils.formatNumber(contentStats.guidesViewsInRange);
     }
     if (this.dom.metrics.guidesReadRange) {
-      this.dom.metrics.guidesReadRange.textContent = `Total: ${utils.formatNumber(contentStats.guidesReads)}`;
+      this.dom.metrics.guidesReadRange.textContent = `Total: ${utils.formatNumber(contentStats.guidesViews)}`;
     }
 
     this.renderActivityFeed();
@@ -2874,10 +2939,10 @@ class AdminDashboardApp {
     
     // Update guides reads
     if (this.dom.metrics.guidesRead) {
-      this.dom.metrics.guidesRead.textContent = utils.formatNumber(contentStats.guidesReadsInRange);
+      this.dom.metrics.guidesRead.textContent = utils.formatNumber(contentStats.guidesViewsInRange);
     }
     if (this.dom.metrics.guidesReadRange) {
-      this.dom.metrics.guidesReadRange.textContent = `Total: ${utils.formatNumber(contentStats.guidesReads)}`;
+      this.dom.metrics.guidesReadRange.textContent = `Total: ${utils.formatNumber(contentStats.guidesViews)}`;
     }
   }
 
@@ -3316,13 +3381,10 @@ class AdminDashboardApp {
 
   async handleBlogSubmit() {
     if (!this.dom.blogForm) {
-      console.error("[BlogPublish] Form not found");
       return;
     }
     
-    console.log("[BlogPublish] Starting blog post submission...");
     const isEditing = Boolean(this.editingPost);
-    console.log("[BlogPublish] Mode:", isEditing ? "editing" : "creating");
     
     const title = this.dom.blogFields.title?.value.trim() ?? "";
     const description = this.dom.blogFields.description?.value.trim() ?? "";
@@ -3334,20 +3396,9 @@ class AdminDashboardApp {
     const author = (this.dom.blogFields.author?.value || "specifys.ai Team").trim();
     const dateValue = this.dom.blogFields.date?.value || utils.now().toISOString().slice(0, 10);
 
-    console.log("[BlogPublish] Form data collected:", {
-      title: title ? `${title.substring(0, 50)}...` : "(empty)",
-      description: description ? `${description.substring(0, 30)}...` : "(empty)",
-      content: content ? `${content.substring(0, 30)}...` : "(empty)",
-      author,
-      date: dateValue,
-      hasSlug: !!slugInput,
-      tagsCount: rawTags.split(",").filter(t => t.trim()).length
-    });
-
     // Beta: Only title is required
     if (!title) {
       const errorMsg = "Title is required.";
-      console.error("[BlogPublish] Validation failed:", errorMsg);
       this.setBlogFeedback(errorMsg, "error");
       return;
     }
@@ -3374,11 +3425,6 @@ class AdminDashboardApp {
       payload.seoDescription = seoDescription;
     }
 
-    console.log("[BlogPublish] Payload prepared:", {
-      ...payload,
-      content: payload.content ? `${payload.content.substring(0, 50)}...` : "(empty)",
-      description: payload.description ? `${payload.description.substring(0, 30)}...` : "(empty)"
-    });
 
     if (isEditing && this.editingPost?.id) {
       payload.id = this.editingPost.id;
@@ -3394,12 +3440,10 @@ class AdminDashboardApp {
     }
     
     try {
-      console.log("[BlogPublish] Getting auth token...");
       const token = await this.getAuthToken();
       if (!token) {
         throw new Error("Failed to get authentication token. Please sign in again.");
       }
-      console.log("[BlogPublish] Auth token obtained");
       
       const apiBaseUrl = typeof window.getApiBaseUrl === "function"
         ? window.getApiBaseUrl()
@@ -3408,11 +3452,7 @@ class AdminDashboardApp {
         ? `${apiBaseUrl}/api/blog/update-post`
         : `${apiBaseUrl}/api/blog/create-post`;
       
-      console.log("[BlogPublish] API URL:", requestUrl);
-      console.log("[BlogPublish] Sending request...");
-      
       const makeRequest = async (idToken) => {
-        console.log("[BlogPublish] Making fetch request with token:", idToken ? `${idToken.substring(0, 20)}...` : "none");
         const response = await fetch(requestUrl, {
           method: "POST",
           headers: {
@@ -3421,48 +3461,28 @@ class AdminDashboardApp {
           },
           body: JSON.stringify(payload)
         });
-        console.log("[BlogPublish] Response received:", {
-          status: response.status,
-          statusText: response.statusText,
-          headers: Object.fromEntries(response.headers.entries())
-        });
         return response;
       };
 
       let response = await makeRequest(token);
       if (response.status === 401) {
-        console.warn("[BlogPublish] Token rejected (401), attempting refresh…");
         const refreshedToken = await this.getAuthToken(true);
         if (!refreshedToken) {
           throw new Error("Unable to refresh authentication token. Please sign in again.");
         }
-        console.log("[BlogPublish] Retrying with refreshed token...");
         response = await makeRequest(refreshedToken);
       }
       
       const text = await response.text();
-      console.log("[BlogPublish] Response text:", text ? `${text.substring(0, 200)}...` : "(empty)");
       
       let result = null;
       try {
         result = text ? JSON.parse(text) : null;
-        console.log("[BlogPublish] Parsed response:", result);
       } catch (parseError) {
-        console.error("[BlogPublish] Failed to parse JSON response:", {
-          error: parseError.message,
-          text: text.substring(0, 500)
-        });
         throw new Error(`Server returned invalid response: ${response.status} ${response.statusText}`);
       }
       
       if (!response.ok) {
-        console.error("[BlogPublish] Request failed:", {
-          url: requestUrl,
-          status: response.status,
-          statusText: response.statusText,
-          result,
-          payload: { ...payload, content: payload.content ? `${payload.content.substring(0, 50)}...` : "(empty)" }
-        });
         const message =
           result?.error ||
           `Failed to ${isEditing ? "update" : "create"} blog post (HTTP ${response.status} ${response.statusText})`;
@@ -3470,24 +3490,14 @@ class AdminDashboardApp {
       }
       
       if (!(result && result.success)) {
-        console.error("[BlogPublish] Response indicates failure:", {
-          result,
-          success: result?.success,
-          error: result?.error
-        });
         const message = result?.error || `Failed to ${isEditing ? "update" : "create"} blog post`;
         throw new Error(message);
       }
-      
-      console.log("[BlogPublish] Success! Post created/updated:", result.post?.id || "unknown");
       if (isEditing) {
         this.setBlogFeedback("Post updated successfully.", "success");
         this.exitBlogEditMode({ resetForm: true });
-        await this.refreshBlogQueue({ silent: true }).catch((queueError) =>
-          console.warn("Blog queue refresh failed after update", queueError)
-        );
+        await this.refreshBlogQueue({ silent: true }).catch(() => {});
       } else {
-        console.log("[BlogPublish] Post created successfully, resetting form...");
         this.setBlogFeedback("✅ Post created successfully!", "success");
         this.dom.blogForm.reset();
         if (this.dom.blogFields.date) {
@@ -3505,16 +3515,10 @@ class AdminDashboardApp {
         try {
           await this.refreshBlogQueue({ silent: true });
         } catch (queueError) {
-          console.warn("[BlogPublish] Blog queue refresh failed after publish", queueError);
+          // Blog queue refresh failed
         }
       }
     } catch (error) {
-      console.error("[BlogPublish] ❌ Blog save failed", {
-        message: error.message,
-        stack: error.stack,
-        name: error.name,
-        cause: error.cause
-      });
       const errorDetails = error.message || `Failed to ${isEditing ? "update" : "create"} blog post.`;
       this.setBlogFeedback(`❌ Error: ${errorDetails}`, "error");
     } finally {
@@ -3541,7 +3545,7 @@ class AdminDashboardApp {
         const module = await import("https://cdn.jsdelivr.net/npm/marked@11.2.0/lib/marked.esm.js");
         MarkedLib = module.marked ?? module.default ?? null;
       } catch (error) {
-        console.error("Failed to load marked", error);
+        // Failed to load marked
       }
     }
     let renderedContent;
@@ -3601,7 +3605,7 @@ class AdminDashboardApp {
 
       let response = await makeRequest(token);
       if (response.status === 401) {
-        console.info("[BlogPosts] Token rejected, attempting refresh…");
+        // Token rejected, attempting refresh
         token = await this.getAuthToken(true);
         if (!token) {
           const refreshError = new Error("Unable to refresh authentication token.");
@@ -3616,15 +3620,10 @@ class AdminDashboardApp {
       try {
         result = text ? JSON.parse(text) : null;
       } catch (parseError) {
-        console.warn("Non-JSON response when loading blog posts", parseError, text);
+        // Non-JSON response when loading blog posts
       }
       if (!response.ok || !(result && result.success)) {
-        console.warn("[BlogPosts] Request failed", {
-          url: requestUrl,
-          status: response.status,
-          statusText: response.statusText,
-          result
-        });
+        // Request failed
         const message =
           result?.error ||
           `Failed to load blog posts (HTTP ${response.status} ${response.statusText})`;
@@ -3659,11 +3658,7 @@ class AdminDashboardApp {
       if (!silent) {
         this.setBlogFeedback(error.message || "Failed to refresh blog posts.", "error");
       }
-      console.error("[BlogPosts] Failed to refresh blog posts", {
-        message: error.message,
-        status: error.status,
-        stack: error.stack
-      });
+      // Failed to refresh blog posts
       throw error;
     }
   }
@@ -3796,7 +3791,6 @@ class AdminDashboardApp {
   }
 
   async refreshAllData(reason = "manual") {
-    console.info(`Refreshing dashboard data (${reason})`);
     this.updateConnectionState("pending", "Refreshing data…");
     
     // Track manual refresh time
@@ -3869,7 +3863,6 @@ class AdminDashboardApp {
       const token = await user.getIdToken(forceRefresh);
       return token;
     } catch (error) {
-      console.error("Failed to get auth token", error);
       return null;
     }
   }
@@ -3883,7 +3876,7 @@ class AdminDashboardApp {
         try {
           fn();
         } catch (error) {
-          console.error("Error unsubscribing:", error);
+          // Error unsubscribing
         }
       }
     });
@@ -3913,7 +3906,7 @@ class AdminDashboardApp {
       try {
         const textResponse = response.clone();
         const text = await textResponse.text();
-        console.warn('[AdminDashboard] Failed to parse JSON response:', text.substring(0, 200));
+        // Failed to parse JSON response
         return null;
       } catch (textError) {
         return null;
@@ -4061,14 +4054,14 @@ class AdminDashboardApp {
 
       if (!result) {
         result = await this.fetchSyncStatusLegacy(token, apiBaseUrl);
-        console.warn("[AdminDashboard] Fallback to legacy /api/sync-users for sync status");
+        // Fallback to legacy /api/sync-users for sync status
       }
 
       const { text, variant } = this.buildSyncSummaryDisplay(result.summary, result.cached);
       this.updateSyncSummary(text, variant);
     } catch (error) {
       this.updateSyncSummary(`Unable to load sync status: ${error.message || error}`, "error");
-      console.error("[AdminDashboard] Failed to fetch user sync status", error);
+      // Failed to fetch user sync status
     }
   }
 
@@ -4180,7 +4173,7 @@ class AdminDashboardApp {
 
       if (!result) {
         result = await this.syncUsersLegacy(token, apiBaseUrl);
-        console.warn("[AdminDashboard] Fallback to legacy /api/sync-users for manual sync");
+        // Fallback to legacy /api/sync-users for manual sync
       }
 
       const summary = result.summary || {};
@@ -4192,7 +4185,7 @@ class AdminDashboardApp {
       await this.refreshAllData("manual-user-sync");
     } catch (error) {
       this.updateSyncSummary(`User sync failed: ${error.message || error}`, "error");
-      console.error("[AdminDashboard] Manual user sync failed", error);
+      // Manual user sync failed
     } finally {
       if (button) {
         button.disabled = false;
@@ -4326,7 +4319,7 @@ class AdminDashboardApp {
         button.classList.add('error');
       }
       
-      console.error("[AdminDashboard] API health check failed", error);
+      // API health check failed
     } finally {
       if (button && !button.classList.contains('success') && !button.classList.contains('error')) {
         button.disabled = false;
@@ -4386,7 +4379,7 @@ class AdminDashboardApp {
           }, 2000);
         }
       } catch (fallbackError) {
-        console.error('[AdminDashboard] Failed to copy logs:', fallbackError);
+        // Failed to copy logs
         if (copyButton) {
           const originalText = copyButton.innerHTML;
           copyButton.innerHTML = '<i class="fas fa-times"></i> Copy failed';
@@ -4605,7 +4598,7 @@ class AdminDashboardApp {
         alert(`Error: ${error?.error || error?.message || "Failed to complete action"}`);
       }
     } catch (error) {
-      console.error("Quick action error:", error);
+      // Quick action error
       alert(`Error: ${error.message}`);
     }
   }
@@ -4694,7 +4687,7 @@ class AdminDashboardApp {
 
       this.renderAlerts();
     } catch (error) {
-      console.error("Failed to load alerts:", error);
+      // Failed to load alerts
     }
   }
 
@@ -4838,7 +4831,7 @@ class AdminDashboardApp {
         btn.style.color = "";
       }, 2000);
     }).catch(err => {
-      console.error("Failed to copy emails:", err);
+      // Failed to copy emails
       alert("Failed to copy emails. Please try again.");
     });
   }
@@ -4897,7 +4890,7 @@ class AdminDashboardApp {
 
       this.dom.userActivityTimeline.innerHTML = html;
     } catch (error) {
-      console.error("Failed to load user activity:", error);
+      // Failed to load user activity
       this.dom.userActivityTimeline.innerHTML = '<div class="modal-placeholder">Error loading activity.</div>';
     }
   }
@@ -4933,7 +4926,7 @@ class AdminDashboardApp {
         }
       }
     } catch (error) {
-      console.error("Failed to update performance metrics:", error);
+      // Failed to update performance metrics
     }
   }
 
@@ -4973,7 +4966,7 @@ class AdminDashboardApp {
         this.renderContactTable();
       }
     } catch (error) {
-      console.error("Failed to load contact submissions:", error);
+      // Failed to load contact submissions
       if (this.dom.contactTable) {
         this.dom.contactTable.innerHTML = `<tr><td colspan="6" class="table-empty">Error loading contact submissions.</td></tr>`;
       }
@@ -5051,7 +5044,7 @@ class AdminDashboardApp {
           e.target.dataset.current = newStatus;
           e.target.className = `status-select status-${newStatus}`;
         } catch (error) {
-          console.error("Failed to update status:", error);
+          // Failed to update status
           e.target.value = oldStatus;
           alert("Failed to update status. Please try again.");
         }
@@ -5377,7 +5370,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     await loadExternalScript("https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js");
     ChartLib = window.Chart || null;
   } catch (error) {
-    console.warn("Chart.js failed to load. Statistics charts will be disabled.", error);
+    // Chart.js failed to load
   }
   window.adminDashboard = new AdminDashboardApp();
 });

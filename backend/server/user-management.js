@@ -61,83 +61,106 @@ async function getUserByUid(uid) {
 }
 
 /**
- * Create or update user document in Firestore
+ * Initialize user documents (users + entitlements) in a single transaction
+ * This ensures atomicity and prevents race conditions
  */
-async function createOrUpdateUserDocument(uid, userData = {}) {
+async function initializeUser(uid, userDataOverrides = {}) {
     try {
-        const userDocRef = db.collection('users').doc(uid);
-        const existingSnapshot = await userDocRef.get();
-        const existingData = existingSnapshot.exists ? existingSnapshot.data() : null;
-
         const authUser = await getUserByUid(uid);
         const nowIso = new Date().toISOString();
-
-        const docToWrite = {
-            email: authUser.email,
-            displayName: authUser.displayName || (authUser.email ? authUser.email.split('@')[0] : ''),
-            emailVerified: authUser.emailVerified,
-            disabled: authUser.disabled,
-            lastActive: authUser.lastSignInTime || existingData?.lastActive || nowIso,
-            ...userData
-        };
-
-        if (!existingSnapshot.exists) {
-            docToWrite.createdAt = authUser.creationTime || nowIso;
-            if (docToWrite.plan === undefined) {
-                docToWrite.plan = 'free';
+        
+        return await db.runTransaction(async (transaction) => {
+            const userRef = db.collection('users').doc(uid);
+            const entitlementsRef = db.collection('entitlements').doc(uid);
+            
+            // Get both documents in parallel
+            const [userDoc, entitlementsDoc] = await Promise.all([
+                transaction.get(userRef),
+                transaction.get(entitlementsRef)
+            ]);
+            
+            const userExists = userDoc.exists;
+            const entitlementsExist = entitlementsDoc.exists;
+            
+            // If both exist, return early (idempotency)
+            if (userExists && entitlementsExist) {
+                return {
+                    created: false,
+                    updated: false,
+                    unchanged: true,
+                    user: userDoc.data(),
+                    entitlements: entitlementsDoc.data()
+                };
             }
-            if (typeof docToWrite.free_specs_remaining !== 'number') {
-                docToWrite.free_specs_remaining = 1;
-            }
-        } else {
-            docToWrite.createdAt = existingData?.createdAt || authUser.creationTime || nowIso;
-        }
-
-        Object.keys(docToWrite).forEach((key) => {
-            if (docToWrite[key] === undefined) {
-                delete docToWrite[key];
-            }
-        });
-
-        if (Object.keys(docToWrite).length === 0) {
-            return {
-                user: existingData,
-                created: false,
-                updated: false,
-                unchanged: true,
-                changes: {}
+            
+            // Prepare user document
+            const existingUserData = userExists ? userDoc.data() : null;
+            const userDocToWrite = {
+                email: authUser.email,
+                displayName: authUser.displayName || (authUser.email ? authUser.email.split('@')[0] : ''),
+                emailVerified: authUser.emailVerified,
+                disabled: authUser.disabled,
+                lastActive: authUser.lastSignInTime || existingUserData?.lastActive || nowIso,
+                ...userDataOverrides
             };
-        }
-
-        await userDocRef.set(docToWrite, { merge: true });
-
-        const mergedData = { ...(existingData || {}), ...docToWrite };
-        const changes = {};
-
-        if (existingData) {
-            for (const key of Object.keys(docToWrite)) {
-                const before = existingData[key];
-                const after = mergedData[key];
-                if (JSON.stringify(before) !== JSON.stringify(after)) {
-                    changes[key] = {
-                        before: before ?? null,
-                        after
-                    };
+            
+            if (!userExists) {
+                userDocToWrite.createdAt = authUser.creationTime || nowIso;
+                if (userDocToWrite.plan === undefined) {
+                    userDocToWrite.plan = 'free';
                 }
+                if (typeof userDocToWrite.free_specs_remaining !== 'number') {
+                    userDocToWrite.free_specs_remaining = 1;
+                }
+            } else {
+                userDocToWrite.createdAt = existingUserData?.createdAt || authUser.creationTime || nowIso;
             }
-        }
-
-        const created = !existingSnapshot.exists;
-        const updated = existingSnapshot.exists && Object.keys(changes).length > 0;
-        const unchanged = existingSnapshot.exists && !updated;
-
-        return {
-            user: mergedData,
-            created,
-            updated,
-            unchanged,
-            changes
-        };
+            
+            // Remove undefined values
+            Object.keys(userDocToWrite).forEach((key) => {
+                if (userDocToWrite[key] === undefined) {
+                    delete userDocToWrite[key];
+                }
+            });
+            
+            // Prepare entitlements document
+            const entitlementsDocToWrite = {
+                userId: uid,
+                unlimited: false,
+                can_edit: false,
+                updated_at: admin.firestore.FieldValue.serverTimestamp()
+            };
+            
+            // Only set spec_credits if entitlements don't exist
+            if (!entitlementsExist) {
+                // New user gets 1 credit, existing user without entitlements gets 0
+                entitlementsDocToWrite.spec_credits = !userExists ? 1 : 0;
+            }
+            
+            // Write both documents in the same transaction
+            if (!userExists) {
+                transaction.set(userRef, userDocToWrite);
+            } else if (Object.keys(userDocToWrite).length > 0) {
+                transaction.update(userRef, userDocToWrite);
+            }
+            
+            if (!entitlementsExist) {
+                transaction.set(entitlementsRef, entitlementsDocToWrite);
+            }
+            
+            // Get final entitlements data
+            const finalEntitlements = entitlementsExist 
+                ? entitlementsDoc.data() 
+                : entitlementsDocToWrite;
+            
+            return {
+                created: !userExists || !entitlementsExist,
+                updated: userExists && entitlementsExist && Object.keys(userDocToWrite).length > 0,
+                unchanged: userExists && entitlementsExist && Object.keys(userDocToWrite).length === 0,
+                user: { ...(existingUserData || {}), ...userDocToWrite },
+                entitlements: finalEntitlements
+            };
+        });
     } catch (error) {
         throw error;
     }
@@ -255,33 +278,50 @@ async function syncAllUsers(options = {}) {
         };
 
         if (!dryRun) {
-            for (const user of authUsers) {
-                try {
-                    const docResult = await createOrUpdateUserDocument(user.uid);
-                    if (docResult.created) {
-                        summary.created += 1;
-                    } else if (docResult.updated) {
-                        summary.updated += 1;
-                    } else {
-                        summary.unchanged += 1;
-                    }
+            // Process users in batches for better performance
+            const BATCH_SIZE = 50; // Process 50 users at a time
+            const batches = [];
+            for (let i = 0; i < authUsers.length; i += BATCH_SIZE) {
+                batches.push(authUsers.slice(i, i + BATCH_SIZE));
+            }
 
-                    if (shouldEnsureEntitlements) {
-                        const entitlementResult = await ensureEntitlementDocument(user.uid);
-                        if (entitlementResult.created) {
-                            summary.entitlementsCreated += 1;
-                        } else if (entitlementResult.updated) {
-                            summary.entitlementsUpdated += 1;
+            for (const batch of batches) {
+                // Process batch in parallel
+                await Promise.all(batch.map(async (user) => {
+                    try {
+                        // Use initializeUser for atomicity (creates both users and entitlements)
+                        const result = await initializeUser(user.uid);
+                        
+                        if (result.created) {
+                            summary.created += 1;
+                            // Check if entitlements were created (they should be if user was created)
+                            if (result.entitlements) {
+                                summary.entitlementsCreated += 1;
+                            }
+                        } else if (result.updated) {
+                            summary.updated += 1;
+                        } else {
+                            summary.unchanged += 1;
                         }
+
+                        // If entitlements weren't created by initializeUser, ensure them
+                        if (shouldEnsureEntitlements && !result.entitlements) {
+                            const entitlementResult = await ensureEntitlementDocument(user.uid);
+                            if (entitlementResult.created) {
+                                summary.entitlementsCreated += 1;
+                            } else if (entitlementResult.updated) {
+                                summary.entitlementsUpdated += 1;
+                            }
+                        }
+                    } catch (error) {
+                        summary.errors += 1;
+                        summary.errorDetails.push({
+                            uid: user.uid,
+                            email: user.email || null,
+                            message: error.message
+                        });
                     }
-                } catch (error) {
-                    summary.errors += 1;
-                    summary.errorDetails.push({
-                        uid: user.uid,
-                        email: user.email || null,
-                        message: error.message
-                    });
-                }
+                }));
             }
         }
 
@@ -519,8 +559,8 @@ async function deleteUser(uid) {
 module.exports = {
     getAllUsers,
     getUserByUid,
-    createOrUpdateUserDocument,
     ensureEntitlementDocument,
+    initializeUser,
     syncAllUsers,
     getUserStats,
     getLastUserSyncReport,

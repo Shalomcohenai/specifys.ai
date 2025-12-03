@@ -226,7 +226,7 @@
                     <!-- Privacy Policy Checkbox -->
                     <div class="checkbox-group" id="privacy-policy-group">
                         <label class="checkbox-label">
-                            <input type="checkbox" id="privacy-policy-agreement" required>
+                            <input type="checkbox" id="privacy-policy-agreement" required checked>
                             <span class="checkmark"></span>
                             I have read and agree to the <a href="#" class="privacy-link" onclick="openPrivacyModal(); return false;"> privacy policy</a>
                         </label>
@@ -465,16 +465,31 @@
                 
                 // Also create entitlements document if doesn't exist
                 const entitlementsRef = doc(db, 'entitlements', user.uid);
-                await setDoc(entitlementsRef, {
+                const existingEntitlementsSnapshot = await getDoc(entitlementsRef);
+                
+                // Give new users 1 free credit
+                const isNewUser = !existingUserSnapshot.exists();
+                const entitlementsData = {
                     userId: user.uid,
-                    spec_credits: 0,
                     unlimited: false,
                     can_edit: false,
                     updated_at: serverTimestamp()
-                }, { merge: true });
+                };
+                
+                // For new users, ALWAYS set spec_credits to 1 (even if entitlements exist from race condition)
+                // This ensures new users get their credit even if ensureEntitlementDocument ran first
+                if (isNewUser) {
+                    entitlementsData.spec_credits = 1;
+                } else if (!existingEntitlementsSnapshot.exists()) {
+                    // Existing user without entitlements gets 0
+                    entitlementsData.spec_credits = 0;
+                }
+                // If entitlements exist for existing user, merge will preserve existing spec_credits
+                
+                await setDoc(entitlementsRef, entitlementsData, { merge: true });
 
             } catch (error) {
-                console.error('Error creating user document:', error);
+                // Error creating user document
                 throw error; // Re-throw to be caught by calling function
             }
         }
@@ -491,6 +506,15 @@
             
             // Clear messages
             hideMessages();
+            
+            // Ensure privacy policy checkbox is checked when switching to register tab
+            if (tab === 'register') {
+                const privacyCheckbox = document.getElementById('privacy-policy-agreement');
+                if (privacyCheckbox && !privacyCheckbox.checked) {
+                    privacyCheckbox.checked = true;
+                    hidePrivacyPolicyError();
+                }
+            }
         }
 
         // Show/hide messages
@@ -964,6 +988,22 @@
         } else {
             // DOM already loaded
             initAnimation();
+        }
+        
+        // Ensure privacy policy checkbox is checked on page load
+        function ensurePrivacyCheckboxChecked() {
+            const privacyCheckbox = document.getElementById('privacy-policy-agreement');
+            if (privacyCheckbox && !privacyCheckbox.checked) {
+                privacyCheckbox.checked = true;
+                hidePrivacyPolicyError();
+            }
+        }
+        
+        // Run on DOM ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', ensurePrivacyCheckboxChecked);
+        } else {
+            ensurePrivacyCheckboxChecked();
         }
     </script>
 

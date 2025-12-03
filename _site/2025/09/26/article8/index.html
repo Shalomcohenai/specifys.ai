@@ -19,7 +19,7 @@
     
     
     
-    <link rel="canonical" href="http://localhost:4000/2025/09/26/article8/">
+    <link rel="canonical" href="http://0.0.0.0:4000/2025/09/26/article8/">
     
     
     <!-- Open Graph -->
@@ -27,8 +27,8 @@
     <meta property="og:title" content="Mastering the Vibe: Key Trends and Keywords Shaping AI Programming in 2025">
     <meta property="og:description" content="The rise of vibe coding in 2025 is transforming development into an AI-driven, intuitive process. Explore the top keywords and trends shaping this new era...">
     <meta property="og:type" content="article">
-    <meta property="og:url" content="http://localhost:4000/2025/09/26/article8/">
-    <meta property="og:image" content="http://localhost:4000/assets/images/og-image.png">
+    <meta property="og:url" content="http://0.0.0.0:4000/2025/09/26/article8/">
+    <meta property="og:image" content="http://0.0.0.0:4000/assets/images/og-image.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:locale" content="en_US">
@@ -44,7 +44,7 @@
     <meta name="twitter:creator" content="@specifysai">
     <meta name="twitter:title" content="Mastering the Vibe: Key Trends and Keywords Shaping AI Programming in 2025">
     <meta name="twitter:description" content="The rise of vibe coding in 2025 is transforming development into an AI-driven, intuitive process. Explore the top keywords and trends shaping this new era...">
-    <meta name="twitter:image" content="http://localhost:4000/assets/images/og-image.png">
+    <meta name="twitter:image" content="http://0.0.0.0:4000/assets/images/og-image.png">
     
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
@@ -435,7 +435,7 @@ document.addEventListener('DOMContentLoaded', function() {
       "dateModified": "2025-09-26T00:00:00-04:00",
       "mainEntityOfPage": {
         "@type": "WebPage",
-        "@id": "http://localhost:4000/2025/09/26/article8/"
+        "@id": "http://0.0.0.0:4000/2025/09/26/article8/"
       }
     }
   ]
@@ -939,17 +939,12 @@ document.addEventListener('DOMContentLoaded', function() {
     auth.onAuthStateChanged(async (user) => {
       updateAuthUI(user);
 
-      // Ensure user document exists (deferred and only when visible)
+      // Ensure user document exists immediately for new users
       if (user && document.visibilityState === 'visible') {
-        if ('requestIdleCallback' in window) {
-          requestIdleCallback(async () => {
-            await ensureUserDocument(user);
-          }, { timeout: 3000 });
-        } else {
-          setTimeout(async () => {
-            await ensureUserDocument(user);
-          }, 3000);
-        }
+        // Run immediately to ensure credits are available for new users
+        ensureUserDocument(user).catch(error => {
+          console.warn('⚠️ Error ensuring user document:', error);
+        });
       }
     });
   }
@@ -967,7 +962,23 @@ document.addEventListener('DOMContentLoaded', function() {
       });
 
       if (response.ok) {
-        console.log('✅ User document ensured in Firestore');
+        const result = await response.json();
+        console.log('✅ User document ensured in Firestore', result);
+        
+        // If entitlements were created or updated, trigger credits refresh
+        if (result.entitlements && (result.entitlements.created || result.entitlements.updated)) {
+          // Clear entitlements cache if it exists
+          if (typeof window.clearEntitlementsCache === 'function') {
+            window.clearEntitlementsCache();
+          }
+          
+          // Update credits display after a short delay to ensure Firestore is updated
+          if (typeof window.updateCreditsDisplay === 'function') {
+            setTimeout(() => {
+              window.updateCreditsDisplay({ showLoading: true });
+            }, 500);
+          }
+        }
       } else {
         console.warn('⚠️ Failed to ensure user document:', await response.text());
       }

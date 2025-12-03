@@ -1,4 +1,5 @@
 const FormData = require('form-data');
+const { logger } = require('./logger');
 
 class OpenAIStorageService {
   constructor(apiKey) {
@@ -33,18 +34,7 @@ class OpenAIStorageService {
     const requestId = `upload-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     const startTime = Date.now();
     
-    console.log(`[${requestId}] ===== uploadSpec START =====`);
-    console.log(`[${requestId}] Timestamp: ${new Date().toISOString()}`);
-    console.log(`[${requestId}] Spec ID: ${specId}`);
-    console.log(`[${requestId}] Spec Data:`, {
-      hasTitle: !!specData.title,
-      hasOverview: !!specData.overview,
-      hasTechnical: !!specData.technical,
-      hasMarket: !!specData.market,
-      hasDesign: !!specData.design,
-      overviewLength: specData.overview?.length || 0,
-      technicalLength: specData.technical?.length || 0
-    });
+    logger.debug({ requestId, specId }, '[openai-storage] uploadSpec - Starting');
     
     try {
       // Extract ONLY the relevant spec content (filter out metadata)
@@ -59,7 +49,7 @@ class OpenAIStorageService {
       
       const content = JSON.stringify(cleanedData, null, 2);
       const contentLength = content.length;
-      console.log(`[${requestId}] 📝 Prepared cleaned data, length: ${contentLength} bytes`);
+      logger.debug({ requestId, specId, contentLength }, '[openai-storage] uploadSpec - Prepared cleaned data');
       
       const formData = new FormData();
       
@@ -68,10 +58,6 @@ class OpenAIStorageService {
         contentType: 'application/json'
       });
       formData.append('purpose', 'assistants');
-      
-      console.log(`[${requestId}] 📤 Preparing FormData upload to OpenAI Files API`);
-      console.log(`[${requestId}] OpenAI URL: ${this.baseURL}/files`);
-      console.log(`[${requestId}] FormData: filename=spec-${specId}.json, purpose=assistants`);
       
       // Use node-fetch for FormData uploads (globalThis.fetch doesn't support form-data package properly)
       const uploadStart = Date.now();
@@ -87,59 +73,30 @@ class OpenAIStorageService {
       });
       
       const uploadTime = Date.now() - uploadStart;
-      console.log(`[${requestId}] ⏱️  OpenAI upload request took ${uploadTime}ms`);
-      console.log(`[${requestId}] 📥 Response Status: ${response.status} ${response.statusText}`);
-      console.log(`[${requestId}] Response Headers:`, {
-        'content-type': response.headers.get('content-type'),
-        'content-length': response.headers.get('content-length')
-      });
+      logger.debug({ requestId, specId, uploadTime, status: response.status }, '[openai-storage] uploadSpec - Upload request completed');
       
       if (!response.ok) {
         let errorText;
         try {
           errorText = await response.text();
-          console.error(`[${requestId}] ❌ OpenAI upload failed:`, {
-            status: response.status,
-            statusText: response.statusText,
-            error: errorText
-          });
         } catch (textError) {
           errorText = `HTTP ${response.status}: ${response.statusText}`;
-          console.error(`[${requestId}] ❌ Failed to read error response:`, textError.message);
         }
         
         const totalTime = Date.now() - startTime;
-        console.error(`[${requestId}] ===== uploadSpec FAILED (${totalTime}ms) =====`);
+        logger.error({ requestId, specId, status: response.status, error: errorText, duration: `${totalTime}ms` }, '[openai-storage] uploadSpec - Failed');
         throw new Error(`OpenAI upload failed: ${errorText}`);
       }
       
-      const parseStart = Date.now();
       const result = await response.json();
-      const parseTime = Date.now() - parseStart;
-      
-      console.log(`[${requestId}] ✅ Successfully parsed OpenAI response (${parseTime}ms)`);
-      console.log(`[${requestId}] Response Data:`, {
-        id: result.id,
-        object: result.object,
-        bytes: result.bytes,
-        created_at: result.created_at,
-        filename: result.filename,
-        purpose: result.purpose
-      });
       
       const totalTime = Date.now() - startTime;
-      console.log(`[${requestId}] ✅ uploadSpec SUCCESS - File ID: ${result.id} (${totalTime}ms total)`);
-      console.log(`[${requestId}] ===== uploadSpec COMPLETE =====`);
+      logger.info({ requestId, specId, fileId: result.id, duration: `${totalTime}ms` }, '[openai-storage] uploadSpec - Success');
 
       return result.id;
     } catch (error) {
       const totalTime = Date.now() - startTime;
-      console.error(`[${requestId}] ❌ ERROR in uploadSpec (${totalTime}ms):`, {
-        message: error.message,
-        stack: error.stack,
-        name: error.name
-      });
-      console.error(`[${requestId}] ===== uploadSpec ERROR =====`);
+      logger.error({ requestId, specId, error: { message: error.message, stack: error.stack, name: error.name }, duration: `${totalTime}ms` }, '[openai-storage] uploadSpec - Error');
       throw error;
     }
   }
@@ -231,14 +188,9 @@ class OpenAIStorageService {
     const requestId = `create-assistant-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     const startTime = Date.now();
     
-    console.log(`[${requestId}] ===== createAssistant START =====`);
-    console.log(`[${requestId}] Timestamp: ${new Date().toISOString()}`);
-    console.log(`[${requestId}] Spec ID: ${specId}`);
-    console.log(`[${requestId}] File ID: ${fileId}`);
+    logger.debug({ requestId, specId, fileId }, '[openai-storage] createAssistant - Starting');
     
     try {
-      console.log(`[${requestId}] 📤 Step 1: Creating assistant with OpenAI API`);
-      console.log(`[${requestId}] OpenAI URL: ${this.baseURL}/assistants`);
       
       const createStart = Date.now();
       const response = await this._fetch(`${this.baseURL}/assistants`, {
@@ -276,40 +228,23 @@ Always reference specific parts of the spec when relevant.`,
       });
       
       const createTime = Date.now() - createStart;
-      console.log(`[${requestId}] ⏱️  Assistant creation request took ${createTime}ms`);
-      console.log(`[${requestId}] 📥 Response Status: ${response.status} ${response.statusText}`);
+      logger.debug({ requestId, specId, createTime, status: response.status }, '[openai-storage] createAssistant - Creation request completed');
       
       if (!response.ok) {
         let errorText;
         try {
           errorText = await response.text();
-          console.error(`[${requestId}] ❌ Failed to create assistant:`, {
-            status: response.status,
-            statusText: response.statusText,
-            error: errorText
-          });
         } catch (textError) {
           errorText = `HTTP ${response.status}: ${response.statusText}`;
-          console.error(`[${requestId}] ❌ Failed to read error response:`, textError.message);
         }
         
         const totalTime = Date.now() - startTime;
-        console.error(`[${requestId}] ===== createAssistant FAILED (${totalTime}ms) =====`);
+        logger.error({ requestId, specId, status: response.status, error: errorText, duration: `${totalTime}ms` }, '[openai-storage] createAssistant - Failed');
         throw new Error(`Failed to create assistant: ${errorText}`);
       }
       
       const assistant = await response.json();
-      console.log(`[${requestId}] ✅ Assistant created successfully:`, {
-        id: assistant.id,
-        name: assistant.name,
-        model: assistant.model,
-        created_at: assistant.created_at
-      });
-      
-      // Now add the file to the assistant
-      console.log(`[${requestId}] 📤 Step 2: Creating vector store for file`);
-      console.log(`[${requestId}] OpenAI URL: ${this.baseURL}/vector_stores`);
-      console.log(`[${requestId}] Vector Store Name: Spec Vector Store - ${specId}`);
+      logger.debug({ requestId, specId, assistantId: assistant.id }, '[openai-storage] createAssistant - Assistant created, creating vector store');
       
       const vectorStoreStart = Date.now();
       const fileSearchResponse = await this._fetch(`${this.baseURL}/vector_stores`, {
@@ -326,53 +261,34 @@ Always reference specific parts of the spec when relevant.`,
       });
       
       const vectorStoreTime = Date.now() - vectorStoreStart;
-      console.log(`[${requestId}] ⏱️  Vector store creation request took ${vectorStoreTime}ms`);
-      console.log(`[${requestId}] 📥 Response Status: ${fileSearchResponse.status} ${fileSearchResponse.statusText}`);
+      logger.debug({ requestId, specId, vectorStoreTime, status: fileSearchResponse.status }, '[openai-storage] createAssistant - Vector store creation request completed');
       
       if (!fileSearchResponse.ok) {
         let errorText;
         try {
           errorText = await fileSearchResponse.text();
-          console.error(`[${requestId}] ⚠️  Failed to create vector store:`, {
-            status: fileSearchResponse.status,
-            statusText: fileSearchResponse.statusText,
-            error: errorText
-          });
-          console.log(`[${requestId}] ⚠️  Returning assistant without vector store`);
         } catch (textError) {
-          console.error(`[${requestId}] ⚠️  Failed to read error response:`, textError.message);
+          errorText = `HTTP ${fileSearchResponse.status}: ${fileSearchResponse.statusText}`;
         }
 
         const totalTime = Date.now() - startTime;
-        console.log(`[${requestId}] ⚠️  createAssistant COMPLETE (without vector store) (${totalTime}ms)`);
-        console.log(`[${requestId}] ===== createAssistant COMPLETE =====`);
+        logger.warn({ requestId, specId, status: fileSearchResponse.status, error: errorText, duration: `${totalTime}ms` }, '[openai-storage] createAssistant - Completed without vector store');
         return assistant;
       }
       
       const vectorStore = await fileSearchResponse.json();
-      console.log(`[${requestId}] ✅ Vector store created successfully:`, {
-        id: vectorStore.id,
-        name: vectorStore.name,
-        file_counts: vectorStore.file_counts,
-        status: vectorStore.status
-      });
+      logger.debug({ requestId, specId, vectorStoreId: vectorStore.id, status: vectorStore.status }, '[openai-storage] createAssistant - Vector store created, waiting for ready');
       
       // Wait for vector store to be ready
-      console.log(`[${requestId}] ⏳ Step 3: Waiting for vector store to be ready`);
       const waitStart = Date.now();
       const isReady = await this.waitForVectorStoreReady(vectorStore.id);
       const waitTime = Date.now() - waitStart;
-      console.log(`[${requestId}] ⏱️  Vector store ready check took ${waitTime}ms`);
       
       if (!isReady) {
-        console.warn(`[${requestId}] ⚠️  Vector store not ready after waiting, but continuing`);
+        logger.warn({ requestId, specId, waitTime }, '[openai-storage] createAssistant - Vector store not ready after waiting, continuing');
       } else {
-        console.log(`[${requestId}] ✅ Vector store is ready`);
+        logger.debug({ requestId, specId, waitTime }, '[openai-storage] createAssistant - Vector store is ready');
       }
-      
-      // Update assistant with vector store
-      console.log(`[${requestId}] 📤 Step 4: Updating assistant with vector store`);
-      console.log(`[${requestId}] OpenAI URL: ${this.baseURL}/assistants/${assistant.id}`);
       
       const updateStart = Date.now();
       const updateResponse = await this._fetch(`${this.baseURL}/assistants/${assistant.id}`, {
@@ -392,47 +308,30 @@ Always reference specific parts of the spec when relevant.`,
       });
       
       const updateTime = Date.now() - updateStart;
-      console.log(`[${requestId}] ⏱️  Assistant update request took ${updateTime}ms`);
-      console.log(`[${requestId}] 📥 Response Status: ${updateResponse.status} ${updateResponse.statusText}`);
+      logger.debug({ requestId, specId, updateTime, status: updateResponse.status }, '[openai-storage] createAssistant - Update request completed');
       
       if (!updateResponse.ok) {
         let errorText;
         try {
           errorText = await updateResponse.text();
-          console.error(`[${requestId}] ❌ Failed to update assistant with vector store:`, {
-            status: updateResponse.status,
-            statusText: updateResponse.statusText,
-            error: errorText
-          });
         } catch (textError) {
           errorText = `HTTP ${updateResponse.status}: ${updateResponse.statusText}`;
-          console.error(`[${requestId}] ❌ Failed to read error response:`, textError.message);
         }
 
         const totalTime = Date.now() - startTime;
-        console.error(`[${requestId}] ===== createAssistant FAILED (${totalTime}ms) =====`);
+        logger.error({ requestId, specId, status: updateResponse.status, error: errorText, duration: `${totalTime}ms` }, '[openai-storage] createAssistant - Failed to update');
         throw new Error(`Failed to update assistant with vector store: ${errorText}`);
       }
       
       const updatedAssistant = await updateResponse.json();
-      console.log(`[${requestId}] ✅ Assistant updated successfully with vector store:`, {
-        id: updatedAssistant.id,
-        vectorStoreIds: updatedAssistant.tool_resources?.file_search?.vector_store_ids || []
-      });
       
       const totalTime = Date.now() - startTime;
-      console.log(`[${requestId}] ✅ createAssistant SUCCESS (${totalTime}ms total)`);
-      console.log(`[${requestId}] ===== createAssistant COMPLETE =====`);
+      logger.info({ requestId, specId, assistantId: updatedAssistant.id, vectorStoreIds: updatedAssistant.tool_resources?.file_search?.vector_store_ids || [], duration: `${totalTime}ms` }, '[openai-storage] createAssistant - Success');
       
       return updatedAssistant;
     } catch (error) {
       const totalTime = Date.now() - startTime;
-      console.error(`[${requestId}] ❌ ERROR in createAssistant (${totalTime}ms):`, {
-        message: error.message,
-        stack: error.stack,
-        name: error.name
-      });
-      console.error(`[${requestId}] ===== createAssistant ERROR =====`);
+      logger.error({ requestId, specId, error: { message: error.message, stack: error.stack, name: error.name }, duration: `${totalTime}ms` }, '[openai-storage] createAssistant - Error');
       throw error;
     }
   }

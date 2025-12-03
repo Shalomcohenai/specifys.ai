@@ -6,6 +6,9 @@ const creditsService = require('./credits-service');
 const { createError, ERROR_CODES } = require('./error-handler');
 const { logger } = require('./logger');
 const { rateLimiters } = require('./security');
+const specGenerationService = require('./spec-generation-service');
+const specQueue = require('./spec-queue');
+const specEvents = require('./spec-events');
 
 /**
  * Function to send spec ready notification email
@@ -373,6 +376,196 @@ router.post('/:id/send-ready-notification', verifyFirebaseToken, async (req, res
         }));
     }
 });
+
+/**
+ * Generate all specs in parallel (Technical, Market, Design)
+ * POST /api/specs/:id/generate-all
+ * Body: { overview: string, answers: Array }
+ * Returns: 202 Accepted immediately, processes in background
+ */
+router.post('/:id/generate-all', verifyFirebaseToken, async (req, res, next) => {
+    const requestId = req.requestId || `generate-all-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const startTime = Date.now();
+
+    logger.info({ requestId, specId: req.params.id }, '[specs-routes] POST /generate-all - Starting parallel generation');
+
+    try {
+        const specId = req.params.id;
+        const userId = req.user.uid;
+        const { overview, answers } = req.body;
+
+        if (!overview) {
+            return next(createError('overview is required', ERROR_CODES.MISSING_REQUIRED_FIELD, 400, { requestId }));
+        }
+
+        if (!Array.isArray(answers) || answers.length === 0) {
+            return next(createError('answers array is required', ERROR_CODES.MISSING_REQUIRED_FIELD, 400, { requestId }));
+        }
+
+        // Verify spec ownership
+        const specDoc = await db.collection('specs').doc(specId).get();
+        
+        if (!specDoc.exists) {
+            logger.error({ requestId, specId }, 'Spec not found');
+            return next(createError('Specification not found', ERROR_CODES.RESOURCE_NOT_FOUND, 404, { requestId }));
+        }
+
+        const specData = specDoc.data();
+        
+        if (specData.userId !== userId) {
+            logger.warn({ requestId, userId, specId }, 'Unauthorized: User does not own spec');
+            return next(createError('Unauthorized', ERROR_CODES.FORBIDDEN, 403, { requestId }));
+        }
+
+        // Update status to generating
+        await db.collection('specs').doc(specId).update({
+            'status.technical': 'generating',
+            'status.market': 'generating',
+            'status.design': 'generating',
+            updatedAt: admin.firestore.FieldValue.serverTimestamp()
+        });
+
+        // Add to queue for processing
+        const job = await specQueue.add(specId, overview, answers);
+
+        // Set up event listeners for this spec
+        const updateListener = (event) => {
+            if (event.specId === specId) {
+                // Update Firestore on each stage completion
+                const updateData = {
+                    [`status.${event.stage}`]: event.status,
+                    updatedAt: admin.firestore.FieldValue.serverTimestamp()
+                };
+
+                if (event.status === 'ready' && event.content) {
+                    updateData[event.stage] = event.content;
+                }
+
+                db.collection('specs').doc(specId).update(updateData).catch(err => {
+                    logger.error({ requestId, specId, stage: event.stage, error: err.message }, 'Failed to update spec in Firestore');
+                });
+            }
+        };
+
+        const completeListener = async (event) => {
+            if (event.specId === specId) {
+                // Remove listeners
+                specEvents.removeListener('spec.update', updateListener);
+                specEvents.removeListener('spec.complete', completeListener);
+                specEvents.removeListener('spec.error', errorListener);
+
+                // Trigger OpenAI upload (non-blocking)
+                if (openaiStorage) {
+                    triggerOpenAIUploadForSpec(specId).catch(err => {
+                        logger.warn({ requestId, specId, error: err.message }, 'Failed to trigger OpenAI upload');
+                    });
+                }
+            }
+        };
+
+        const errorListener = (event) => {
+            if (event.specId === specId) {
+                logger.error({ requestId, specId, stage: event.stage, error: event.error }, 'Spec generation error');
+            }
+        };
+
+        specEvents.on('spec.update', updateListener);
+        specEvents.on('spec.complete', completeListener);
+        specEvents.on('spec.error', errorListener);
+
+        const totalTime = Date.now() - startTime;
+        logger.info({ requestId, specId, duration: `${totalTime}ms` }, '[specs-routes] POST /generate-all - Job queued');
+
+        // Return 202 Accepted - processing in background
+        res.status(202).json({
+            success: true,
+            message: 'Spec generation started',
+            specId: specId,
+            jobId: job.id,
+            status: job.status,
+            requestId
+        });
+
+    } catch (error) {
+        const totalTime = Date.now() - startTime;
+        logger.error({
+            requestId,
+            specId: req.params.id,
+            error: {
+                message: error.message,
+                stack: error.stack,
+                name: error.name
+            },
+            duration: `${totalTime}ms`
+        }, '[specs-routes] POST /generate-all - Error');
+        next(createError('Failed to start spec generation', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, {
+            details: error.message,
+            requestId
+        }));
+    }
+});
+
+/**
+ * Get generation job status
+ * GET /api/specs/:id/generation-status
+ */
+router.get('/:id/generation-status', verifyFirebaseToken, async (req, res, next) => {
+    try {
+        const specId = req.params.id;
+        const userId = req.user.uid;
+
+        // Verify spec ownership
+        const specDoc = await db.collection('specs').doc(specId).get();
+        
+        if (!specDoc.exists) {
+            return next(createError('Specification not found', ERROR_CODES.RESOURCE_NOT_FOUND, 404));
+        }
+
+        const specData = specDoc.data();
+        
+        if (specData.userId !== userId) {
+            return next(createError('Unauthorized', ERROR_CODES.FORBIDDEN, 403));
+        }
+
+        // Get job status from queue
+        const job = specQueue.getJob(specId);
+
+        res.json({
+            success: true,
+            specId: specId,
+            job: job || null,
+            queueStatus: specQueue.getStatus()
+        });
+
+    } catch (error) {
+        logger.error({ error: error.message, specId: req.params.id }, 'Error getting generation status');
+        next(createError('Failed to get generation status', ERROR_CODES.DATABASE_ERROR, 500, {
+            details: error.message
+        }));
+    }
+});
+
+// Helper function to trigger OpenAI upload
+async function triggerOpenAIUploadForSpec(specId) {
+    try {
+        const specDoc = await db.collection('specs').doc(specId).get();
+        if (!specDoc.exists) return;
+
+        const specData = specDoc.data();
+        if (specData.openaiFileId) return; // Already uploaded
+
+        if (openaiStorage) {
+            const fileId = await openaiStorage.uploadSpec(specId, specData);
+            await db.collection('specs').doc(specId).update({
+                openaiFileId: fileId,
+                openaiUploadTimestamp: admin.firestore.FieldValue.serverTimestamp()
+            });
+        }
+    } catch (error) {
+        // Non-blocking, just log
+        logger.warn({ specId, error: error.message }, 'Failed to upload spec to OpenAI');
+    }
+}
 
 module.exports = router;
 

@@ -13,61 +13,43 @@ import { doc, setDoc, serverTimestamp, getDoc } from "https://www.gstatic.com/fi
 const googleProvider = new GoogleAuthProvider();
 
 /**
- * Create or update user document in Firestore
+ * Initialize user documents (users + entitlements) via API
+ * Uses Firestore Transaction for atomicity
  * @param {User} user - Firebase User object
+ * @param {number} retryCount - Current retry attempt
  */
-async function createUserDocument(user) {
+async function createUserDocument(user, retryCount = 0) {
+  const MAX_RETRIES = 3;
+  const RETRY_DELAYS = [500, 1000, 2000]; // ms
+  
   try {
+    const token = await user.getIdToken();
+    const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai.onrender.com';
     
-    const userRef = doc(db, 'users', user.uid);
-    const existingUserSnapshot = await getDoc(userRef);
+    const response = await fetch(`${apiBaseUrl}/api/users/initialize`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({})
+    });
 
-    const userData = {
-      email: user.email || null,
-      displayName: user.displayName || (user.email ? user.email.split('@')[0] : `User ${user.uid.substring(0, 8)}`),
-      emailVerified: user.emailVerified || false,
-      createdAt: serverTimestamp(),
-      lastActive: serverTimestamp(),
-      newsletterSubscription: false,
-      plan: 'free'
-    };
-
-    if (!existingUserSnapshot.exists()) {
-      userData.free_specs_remaining = 1;
-    } else {
-      const currentFreeSpecs = existingUserSnapshot.data()?.free_specs_remaining;
-      if (typeof currentFreeSpecs !== 'number') {
-        userData.free_specs_remaining = 1;
-      }
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || `HTTP ${response.status}`);
     }
 
-    await setDoc(userRef, userData, { merge: true }); // merge: true will update existing or create new
-    
-    // Also create entitlements document if doesn't exist
-    const entitlementsRef = doc(db, 'entitlements', user.uid);
-    const existingEntitlementsSnapshot = await getDoc(entitlementsRef);
-    
-    // Give new users 1 free credit
-    const isNewUser = !existingUserSnapshot.exists();
-    const entitlementsData = {
-      userId: user.uid,
-      unlimited: false,
-      can_edit: false,
-      updated_at: serverTimestamp()
-    };
-    
-    // Only set spec_credits if entitlements don't exist
-    // New users get 1 credit, existing users without entitlements get 0 
-    // (they may have free_specs_remaining or should get credits through other means)
-    if (!existingEntitlementsSnapshot.exists()) {
-      entitlementsData.spec_credits = isNewUser ? 1 : 0;
-    }
-    // If entitlements exist, merge will preserve existing spec_credits
-    
-    await setDoc(entitlementsRef, entitlementsData, { merge: true });
+    return await response.json();
   } catch (error) {
+    // Retry on failure
+    if (retryCount < MAX_RETRIES) {
+      const delay = RETRY_DELAYS[retryCount] || 2000;
+      await new Promise(resolve => setTimeout(resolve, delay));
+      return createUserDocument(user, retryCount + 1);
+    }
     // Log error but don't throw - this shouldn't prevent login/registration
-    console.error('[createUserDocument] Failed to create/update user document:', {
+    console.error('[createUserDocument] Failed to initialize user documents after retries:', {
       uid: user?.uid,
       email: user?.email,
       error: error.message,

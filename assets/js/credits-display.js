@@ -13,11 +13,11 @@
   // Wait for Firebase to be available
   function waitForFirebase() {
     return new Promise((resolve) => {
-      if (typeof firebase !== 'undefined' && firebase.auth) {
+      if (typeof firebase !== 'undefined' && firebase.auth && firebase.firestore) {
         resolve();
       } else {
         const checkInterval = setInterval(() => {
-          if (typeof firebase !== 'undefined' && firebase.auth) {
+          if (typeof firebase !== 'undefined' && firebase.auth && firebase.firestore) {
             clearInterval(checkInterval);
             resolve();
           }
@@ -120,6 +120,9 @@
 
   /**
    * Update credits display in header
+   * @param {Object} options - Options for update
+   * @param {boolean} options.showLoading - Show loading state
+   * @param {boolean} options.forceRefresh - Force refresh from API (ignore cache)
    */
   async function updateCreditsDisplay(options = {}) {
     await waitForFirebase();
@@ -141,7 +144,7 @@
     try {
       // Use entitlements cache if available (performance optimization)
       let data;
-      if (typeof window.getEntitlements === 'function') {
+      if (typeof window.getEntitlements === 'function' && !options.forceRefresh) {
         // Use cached entitlements (reduces API calls and CORS preflight overhead)
         data = await window.getEntitlements(false);
       } else {
@@ -219,29 +222,189 @@
     }
   }
 
-  let refreshInterval = null;
   let activeUserId = null;
-  let pollingStarted = false;
+  let entitlementsUnsubscribe = null;
+  let userUnsubscribe = null;
 
-  function startCreditsPolling() {
-    if (pollingStarted || refreshInterval) return;
-    pollingStarted = true;
-    
-    refreshInterval = setInterval(() => {
-      if (document.visibilityState === 'visible' && activeUserId) {
-        updateCreditsDisplay();
+  /**
+   * Check if user is new (created within last 5 minutes)
+   */
+  async function checkIfNewUser(userId) {
+    try {
+      await waitForFirebase();
+      if (!firebase.firestore) return false;
+      const userDoc = await firebase.firestore().collection('users').doc(userId).get();
+      if (!userDoc.exists) return true;
+      const createdAt = userDoc.data()?.createdAt;
+      if (createdAt) {
+        const created = createdAt.toDate ? createdAt.toDate() : new Date(createdAt);
+        return (Date.now() - created.getTime()) < 5 * 60 * 1000; // 5 minutes
       }
-    }, 60000); // Increase to 60 seconds
+      return false;
+    } catch (error) {
+      console.warn('Error checking if new user:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Update UI from entitlements and user data
+   */
+  function updateUIFromData(entitlements, userData) {
+    let creditsState = null;
+    
+    if (entitlements?.unlimited) {
+      creditsState = {
+        text: 'Plan: Pro',
+        title: 'Unlimited specifications - Pro plan',
+        variant: 'unlimited'
+      };
+    } else if (typeof entitlements?.spec_credits === 'number' && entitlements.spec_credits > 0) {
+      creditsState = {
+        text: `Credits: ${entitlements.spec_credits}`,
+        title: `${entitlements.spec_credits} specification credit${entitlements.spec_credits !== 1 ? 's' : ''}`,
+        variant: 'credits'
+      };
+    } else {
+      const freeSpecs = typeof userData?.free_specs_remaining === 'number'
+        ? Math.max(0, userData.free_specs_remaining)
+        : 1;
+      
+      if (freeSpecs > 0) {
+        creditsState = {
+          text: `Credits: ${freeSpecs}`,
+          title: `${freeSpecs} free specification${freeSpecs !== 1 ? 's' : ''} remaining`,
+          variant: 'credits'
+        };
+      } else {
+        creditsState = {
+          text: 'Credits: 0',
+          title: 'No specification credits remaining',
+          variant: 'credits'
+        };
+      }
+    }
+
+    if (creditsState && activeUserId) {
+      applyCreditsState(creditsState);
+      saveCreditsState(activeUserId, creditsState);
+    }
+  }
+
+  /**
+   * Initialize Firestore listeners for real-time updates
+   */
+  async function initCreditsListeners(userId) {
+    await waitForFirebase();
+    if (!firebase.firestore) {
+      console.warn('Firestore not available for credits listeners');
+      return;
+    }
+
+    // Clean up existing listeners
+    if (entitlementsUnsubscribe) {
+      entitlementsUnsubscribe();
+      entitlementsUnsubscribe = null;
+    }
+    if (userUnsubscribe) {
+      userUnsubscribe();
+      userUnsubscribe = null;
+    }
+
+    // Listen to entitlements collection
+    const entitlementsRef = firebase.firestore()
+      .collection('entitlements')
+      .doc(userId);
+    
+    entitlementsUnsubscribe = entitlementsRef.onSnapshot(
+      (snapshot) => {
+        const entitlements = snapshot.exists ? snapshot.data() : {};
+        
+        // Get user data to combine with entitlements
+        firebase.firestore()
+          .collection('users')
+          .doc(userId)
+          .get()
+          .then((userSnap) => {
+            const userData = userSnap.exists ? userSnap.data() : {};
+            updateUIFromData(entitlements, userData);
+          })
+          .catch((error) => {
+            console.warn('Error fetching user data for credits display:', error);
+            updateUIFromData(entitlements, null);
+          });
+      },
+      (error) => {
+        console.warn('Error in entitlements listener:', error);
+      }
+    );
+
+    // Listen to users collection (for free_specs_remaining)
+    const userRef = firebase.firestore()
+      .collection('users')
+      .doc(userId);
+    
+    userUnsubscribe = userRef.onSnapshot(
+      (snapshot) => {
+        const userData = snapshot.exists ? snapshot.data() : {};
+        
+        // Get entitlements to combine with user data
+        firebase.firestore()
+          .collection('entitlements')
+          .doc(userId)
+          .get()
+          .then((entSnap) => {
+            const entitlements = entSnap.exists ? entSnap.data() : {};
+            updateUIFromData(entitlements, userData);
+          })
+          .catch((error) => {
+            console.warn('Error fetching entitlements for credits display:', error);
+            updateUIFromData({}, userData);
+          });
+      },
+      (error) => {
+        console.warn('Error in user listener:', error);
+      }
+    );
+  }
+
+  /**
+   * Update credits display with retry mechanism for new users
+   */
+  async function updateCreditsDisplayWithRetry(options = {}, retryCount = 0) {
+    const MAX_RETRIES = 3;
+    const RETRY_DELAYS = [1000, 2000, 3000]; // ms
+    
+    try {
+      await updateCreditsDisplay(options);
+    } catch (error) {
+      // If this is a new user or fetch failed, retry
+      if (retryCount < MAX_RETRIES) {
+        const isNewUser = await checkIfNewUser(activeUserId);
+        if (isNewUser || error.message.includes('Failed to fetch')) {
+          const delay = RETRY_DELAYS[retryCount] || 3000;
+          setTimeout(() => {
+            updateCreditsDisplayWithRetry(options, retryCount + 1);
+          }, delay);
+          return;
+        }
+      }
+      // Re-throw if not retrying
+      throw error;
+    }
   }
 
   function init() {
-    waitForFirebase().then(() => {
-      firebase.auth().onAuthStateChanged((user) => {
-        // Clear existing interval if any
-        if (refreshInterval) {
-          clearInterval(refreshInterval);
-          refreshInterval = null;
-          pollingStarted = false;
+    waitForFirebase().then(async () => {
+      firebase.auth().onAuthStateChanged(async (user) => {
+        // Clean up existing listeners
+        if (entitlementsUnsubscribe) {
+          entitlementsUnsubscribe();
+          entitlementsUnsubscribe = null;
+        }
+        if (userUnsubscribe) {
+          userUnsubscribe();
+          userUnsubscribe = null;
         }
         
         if (user) {
@@ -252,19 +415,20 @@
           } else {
             applyCreditsState(LOADING_STATE);
           }
-          updateCreditsDisplay(); // Initial load
           
-          // Start polling only after user interaction or visibility change
-          document.addEventListener('visibilitychange', () => {
-            if (document.visibilityState === 'visible' && activeUserId) {
-              updateCreditsDisplay();
-              startCreditsPolling();
-            }
-          }, { once: true });
+          // Check if new user - wait a bit for documents to be created
+          const isNewUser = await checkIfNewUser(user.uid);
+          if (isNewUser) {
+            // Wait 1.5 seconds for documents to be created
+            await new Promise(resolve => setTimeout(resolve, 1500));
+          }
           
-          // Start polling on first user interaction
-          ['click', 'scroll', 'touchstart'].forEach(event => {
-            document.addEventListener(event, startCreditsPolling, { once: true });
+          // Initial load with retry
+          updateCreditsDisplayWithRetry();
+          
+          // Initialize Firestore listeners for real-time updates
+          initCreditsListeners(user.uid).catch((error) => {
+            console.warn('Error initializing credits listeners:', error);
           });
         } else {
           activeUserId = null;
@@ -302,15 +466,29 @@
         } else {
           applyCreditsState(LOADING_STATE);
         }
-        updateCreditsDisplay();
+        
+        // Check if new user - wait a bit for documents to be created
+        checkIfNewUser(user.uid).then(async (isNew) => {
+          if (isNew) {
+            await new Promise(resolve => setTimeout(resolve, 1500));
+          }
+          updateCreditsDisplayWithRetry();
+          initCreditsListeners(user.uid).catch((error) => {
+            console.warn('Error initializing credits listeners:', error);
+          });
+        });
       }
     });
     
-    // Clean up interval on page unload
+    // Clean up listeners on page unload
     window.addEventListener('beforeunload', () => {
-      if (refreshInterval) {
-        clearInterval(refreshInterval);
-        refreshInterval = null;
+      if (entitlementsUnsubscribe) {
+        entitlementsUnsubscribe();
+        entitlementsUnsubscribe = null;
+      }
+      if (userUnsubscribe) {
+        userUnsubscribe();
+        userUnsubscribe = null;
       }
     });
   }
