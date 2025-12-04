@@ -1,0 +1,11 @@
+{
+  "name": "@specifys/api-client",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "src/index.js",
+  "description": "Centralized API client for Specifys.ai",
+  "author": "Specifys.ai",
+  "license": "ISC"
+}
+
+

@@ -40,19 +40,7 @@
     }
 
     try {
-      const token = await user.getIdToken();
-      const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai.onrender.com';
-      const response = await fetch(`${apiBaseUrl}/api/specs/entitlements`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch entitlements');
-      }
-
-      const data = await response.json();
+      const data = await window.api.get('/api/specs/entitlements');
       
       entitlementsCache = data;
       cacheTimestamp = now;

@@ -1252,10 +1252,8 @@ class MetricsCalculator {
     
     // Load articles views from API
     try {
-      const articlesResponse = await fetch(`${apiBaseUrl}/api/articles/list?status=all&limit=1000`);
-      if (articlesResponse.ok) {
-        const articlesData = await articlesResponse.json();
-        if (articlesData.success && articlesData.articles) {
+      const articlesData = await window.api.get('/api/articles/list?status=all&limit=1000');
+      if (articlesData && articlesData.success && articlesData.articles) {
           const totalViews = articlesData.articles.reduce(
             (sum, article) => sum + (article.views || 0),
             0
@@ -1516,48 +1514,29 @@ class GlobalSearch {
       authError.status = 401;
       throw authError;
     }
-    const apiBaseUrl = typeof window.getApiBaseUrl === "function"
-      ? window.getApiBaseUrl()
-      : "https://specifys-ai.onrender.com";
-    const requestUrl = `${apiBaseUrl}/api/blog/get-post?id=${encodeURIComponent(id)}`;
-
-    const makeRequest = async (idToken) => {
-      return fetch(requestUrl, {
-        headers: {
-          Authorization: `Bearer ${idToken}`
-        }
-      });
-    };
-
-    let response = await makeRequest(token);
-    if (response.status === 401) {
-      token = await this.getAuthToken(true);
-      if (!token) {
-        const refreshError = new Error("Unable to refresh authentication token.");
-        refreshError.status = 401;
-        throw refreshError;
-      }
-      response = await makeRequest(token);
-    }
-
-    const text = await response.text();
-    let result = null;
     try {
-      result = text ? JSON.parse(text) : null;
-    } catch (parseError) {
-      // Non-JSON response when loading blog post
-    }
-
-    if (!response.ok || !(result && result.success && result.post)) {
-      const message =
-        result?.error ||
-        `Failed to load blog post (HTTP ${response.status} ${response.statusText})`;
-      const error = new Error(message);
-      error.status = response.status;
+      const result = await window.api.get(`/api/blog/get-post?id=${encodeURIComponent(id)}`);
+      if (!result || !result.success || !result.post) {
+        throw new Error(result?.error || 'Failed to load blog post');
+      }
+      return result.post;
+    } catch (error) {
+      if (error.status === 401) {
+        // Try refreshing token and retry once
+        token = await this.getAuthToken(true);
+        if (!token) {
+          const refreshError = new Error("Unable to refresh authentication token.");
+          refreshError.status = 401;
+          throw refreshError;
+        }
+        const result = await window.api.get(`/api/blog/get-post?id=${encodeURIComponent(id)}`);
+        if (!result || !result.success || !result.post) {
+          throw new Error(result?.error || 'Failed to load blog post');
+        }
+        return result.post;
+      }
       throw error;
     }
-
-    return result.post;
   }
 
   async enterBlogEditMode(id) {
@@ -3452,47 +3431,14 @@ class AdminDashboardApp {
         ? `${apiBaseUrl}/api/blog/update-post`
         : `${apiBaseUrl}/api/blog/create-post`;
       
-      const makeRequest = async (idToken) => {
-        const response = await fetch(requestUrl, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${idToken}`
-          },
-          body: JSON.stringify(payload)
-        });
-        return response;
-      };
-
-      let response = await makeRequest(token);
-      if (response.status === 401) {
-        const refreshedToken = await this.getAuthToken(true);
-        if (!refreshedToken) {
-          throw new Error("Unable to refresh authentication token. Please sign in again.");
-        }
-        response = await makeRequest(refreshedToken);
-      }
-      
-      const text = await response.text();
-      
-      let result = null;
       try {
-        result = text ? JSON.parse(text) : null;
-      } catch (parseError) {
-        throw new Error(`Server returned invalid response: ${response.status} ${response.statusText}`);
-      }
-      
-      if (!response.ok) {
-        const message =
-          result?.error ||
-          `Failed to ${isEditing ? "update" : "create"} blog post (HTTP ${response.status} ${response.statusText})`;
-        throw new Error(message);
-      }
-      
-      if (!(result && result.success)) {
-        const message = result?.error || `Failed to ${isEditing ? "update" : "create"} blog post`;
-        throw new Error(message);
-      }
+        const endpoint = isEditing ? '/api/blog/update-post' : '/api/blog/create-post';
+        const result = await window.api.post(endpoint, payload);
+        
+        if (!result || !result.success) {
+          const message = result?.error || `Failed to ${isEditing ? "update" : "create"} blog post`;
+          throw new Error(message);
+        }
       if (isEditing) {
         this.setBlogFeedback("Post updated successfully.", "success");
         this.exitBlogEditMode({ resetForm: true });
@@ -3595,42 +3541,13 @@ class AdminDashboardApp {
         ? window.getApiBaseUrl()
         : "https://specifys-ai.onrender.com";
       const requestUrl = `${apiBaseUrl}/api/blog/list-posts`;
-      const makeRequest = async (idToken) => {
-        return fetch(requestUrl, {
-          headers: {
-            Authorization: `Bearer ${idToken}`
-          }
-        });
-      };
-
-      let response = await makeRequest(token);
-      if (response.status === 401) {
-        // Token rejected, attempting refresh
-        token = await this.getAuthToken(true);
-        if (!token) {
-          const refreshError = new Error("Unable to refresh authentication token.");
-          refreshError.status = 401;
-          throw refreshError;
-        }
-        response = await makeRequest(token);
-      }
-
-      const text = await response.text();
-      let result = null;
       try {
-        result = text ? JSON.parse(text) : null;
-      } catch (parseError) {
-        // Non-JSON response when loading blog posts
-      }
-      if (!response.ok || !(result && result.success)) {
-        // Request failed
-        const message =
-          result?.error ||
-          `Failed to load blog posts (HTTP ${response.status} ${response.statusText})`;
-        const error = new Error(message);
-        error.status = response.status;
-        throw error;
-      }
+        const result = await window.api.get('/api/blog/list-posts');
+        if (!result || !result.success) {
+          // Request failed
+          const message = result?.error || 'Failed to load blog posts';
+          throw new Error(message);
+        }
       const posts = Array.isArray(result.posts) ? result.posts : [];
       // Posts from API are already extracted from blogQueue structure
       // Map them to the format expected by setBlogQueue
@@ -3957,52 +3874,26 @@ class AdminDashboardApp {
   }
 
   async fetchSyncStatusPrimary(token, apiBaseUrl) {
-    const response = await fetch(`${apiBaseUrl}/api/admin/users/sync-status`, {
-      headers: {
-        Authorization: `Bearer ${token}`
+    try {
+      const payload = await window.api.get('/api/admin/users/sync-status');
+      return {
+        summary: payload.summary || {},
+        cached: Boolean(payload.cached)
+      };
+    } catch (error) {
+      if (error.status === 404) {
+        return null;
       }
-    });
-
-    if (response.status === 404) {
-      return null;
-    }
-
-    const payload = await this.parseJsonSafely(response);
-
-    if (!response.ok || !payload?.success) {
-      const message = payload?.error || payload?.details || `HTTP ${response.status}`;
-      const error = new Error(message);
-      error.status = response.status;
       throw error;
     }
-
-    return {
-      summary: payload.summary || {},
-      cached: Boolean(payload.cached)
-    };
   }
 
   async fetchSyncStatusLegacy(token, apiBaseUrl) {
-    const response = await fetch(`${apiBaseUrl}/api/sync-users`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify({
-        dryRun: true,
-        ensureEntitlements: true,
-        includeDataCollections: true
-      })
+    const payload = await window.api.post('/api/sync-users', {
+      dryRun: true,
+      ensureEntitlements: true,
+      includeDataCollections: true
     });
-
-    if (!response.ok) {
-      const payload = await this.parseJsonSafely(response);
-      const message = payload?.error || payload?.details || `HTTP ${response.status}`;
-      const error = new Error(message);
-      error.status = response.status;
-      throw error;
-    }
 
     const payload = await this.parseJsonSafely(response);
     
@@ -4066,7 +3957,7 @@ class AdminDashboardApp {
   }
 
   async syncUsersPrimary(token, apiBaseUrl) {
-    const response = await fetch(`${apiBaseUrl}/api/admin/users/sync`, {
+      const payload = await window.api.post('/api/admin/users/sync', {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -4094,28 +3985,11 @@ class AdminDashboardApp {
   }
 
   async syncUsersLegacy(token, apiBaseUrl) {
-    const response = await fetch(`${apiBaseUrl}/api/sync-users`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify({
-        dryRun: false,
-        ensureEntitlements: true,
-        includeDataCollections: true
-      })
+    const payload = await window.api.post('/api/sync-users', {
+      dryRun: false,
+      ensureEntitlements: true,
+      includeDataCollections: true
     });
-
-    if (!response.ok) {
-      const payload = await this.parseJsonSafely(response);
-      const message = payload?.error || payload?.details || `HTTP ${response.status}`;
-      const error = new Error(message);
-      error.status = response.status;
-      throw error;
-    }
-
-    const payload = await this.parseJsonSafely(response);
     
     if (!payload) {
       throw new Error('Invalid response format: server returned non-JSON response');
@@ -4224,15 +4098,7 @@ class AdminDashboardApp {
         : "https://specifys-ai.onrender.com";
 
       // Call the test-spec health check endpoint (uses same flow as real spec generation)
-      const response = await fetch(`${apiBaseUrl}/api/health/test-spec`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json"
-        }
-      });
-
-      // Get response
-      const responseData = await response.json();
+      const responseData = await window.api.get('/api/health/test-spec');
       
       // Format the response message
       let statusMessage = '';
@@ -4545,45 +4411,18 @@ class AdminDashboardApp {
         case "add-credits":
           const amount = parseInt(form.querySelector("#quick-credits-amount")?.value);
           const reason = form.querySelector("#quick-credits-reason")?.value || "Admin manual grant";
-          response = await fetch(`${apiBaseUrl}/api/admin/users/${userId}/credits`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`
-            },
-            body: JSON.stringify({ amount, reason })
-          });
+          response = await window.api.post(`/api/admin/users/${userId}/credits`, { amount, reason });
           break;
         case "change-plan":
           const plan = form.querySelector("#quick-plan-select")?.value;
-          response = await fetch(`${apiBaseUrl}/api/admin/users/${userId}/plan`, {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`
-            },
-            body: JSON.stringify({ plan })
-          });
+          response = await window.api.put(`/api/admin/users/${userId}/plan`, { plan });
           break;
         case "reset-password":
-          response = await fetch(`${apiBaseUrl}/api/admin/users/${userId}/reset-password`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`
-            }
-          });
+          response = await window.api.post(`/api/admin/users/${userId}/reset-password`);
           break;
         case "toggle-user":
           const userAction = form.querySelector("#quick-user-action")?.value;
-          response = await fetch(`${apiBaseUrl}/api/admin/users/${userId}/toggle`, {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`
-            },
-            body: JSON.stringify({ disabled: userAction === "disable" })
-          });
+          response = await window.api.put(`/api/admin/users/${userId}/toggle`, { disabled: userAction === "disable" });
           break;
       }
 
@@ -4639,12 +4478,8 @@ class AdminDashboardApp {
         : "https://specifys-ai.onrender.com";
 
       // Load errors from errorLogs collection
-      const errorsResponse = await fetch(`${apiBaseUrl}/api/admin/errors`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-
-      if (errorsResponse.ok) {
-        const data = await errorsResponse.json();
+      const data = await window.api.get('/api/admin/errors');
+      if (data) {
         this.alerts = (data.errors || []).map(err => ({
           id: err.id,
           type: "error",
@@ -4906,12 +4741,8 @@ class AdminDashboardApp {
         : "https://specifys-ai.onrender.com";
 
       const range = this.dom.performanceRange?.value || "day";
-      const response = await fetch(`${apiBaseUrl}/api/admin/performance?range=${range}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
+      const data = await window.api.get(`/api/admin/performance?range=${range}`);
+      if (data) {
         if (this.dom.performanceMetrics.apiResponse) {
           this.dom.performanceMetrics.apiResponse.textContent = `${(data.avgResponseTime || 0).toFixed(0)}ms`;
         }
@@ -4949,15 +4780,7 @@ class AdminDashboardApp {
       const status = this.dom.contactStatusFilter?.value || "all";
       const url = `${apiBaseUrl}/api/admin/contact-submissions?status=${status}&limit=100`;
       
-      const response = await fetch(url, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to load contact submissions: ${response.statusText}`);
-      }
-
-      const data = await response.json();
+      const data = await window.api.get(`/api/admin/contact-submissions?status=${status}&limit=100`);
       if (data.success) {
         this.store.contactSubmissions = data.submissions.map(sub => ({
           ...sub,
@@ -5060,18 +4883,10 @@ class AdminDashboardApp {
       ? window.getApiBaseUrl()
       : "https://specifys-ai.onrender.com";
 
-    const response = await fetch(`${apiBaseUrl}/api/admin/contact-submissions/${id}/status`, {
-      method: "PUT",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ status })
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || "Failed to update status");
+    const result = await window.api.put(`/api/admin/contact-submissions/${id}/status`, { status });
+    
+    if (!result || !result.success) {
+      throw new Error(result?.error || "Failed to update status");
     }
 
     // Update local store

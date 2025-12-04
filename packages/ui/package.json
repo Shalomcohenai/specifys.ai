@@ -1,0 +1,15 @@
+{
+  "name": "@specifys/ui",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "src/index.js",
+  "description": "UI components for Specifys.ai",
+  "author": "Specifys.ai",
+  "license": "ISC",
+  "exports": {
+    "./components/base": "./src/components/base.js",
+    "./components/Modal": "./src/components/Modal.js"
+  }
+}
+
+

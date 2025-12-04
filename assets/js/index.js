@@ -2,35 +2,78 @@
 // Optimized and cleaned up version
 
 // ===== MODAL FUNCTIONS =====
+// Initialize modals using Modal component
+let welcomeModalInstance = null;
+let registrationModalInstance = null;
+
+function initModals() {
+  // Wait for Modal class to be available
+  if (typeof window.Modal !== 'undefined') {
+    const welcomeModalEl = document.getElementById('welcomeModal');
+    const registrationModalEl = document.getElementById('registrationModal');
+    
+    if (welcomeModalEl && !welcomeModalInstance) {
+      welcomeModalInstance = new window.Modal(welcomeModalEl);
+    }
+    
+    if (registrationModalEl && !registrationModalInstance) {
+      registrationModalInstance = new window.Modal(registrationModalEl);
+    }
+  } else {
+    // Retry after a short delay if Modal not loaded yet
+    setTimeout(initModals, 100);
+  }
+}
+
 function showWelcomeModal() {
-  const modal = document.getElementById('welcomeModal');
-  if (modal) {
-    modal.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
+  if (welcomeModalInstance) {
+    welcomeModalInstance.open();
+  } else {
+    // Fallback to old method if Modal not initialized
+    const modal = document.getElementById('welcomeModal');
+    if (modal) {
+      modal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
   }
 }
 
 function closeWelcomeModal() {
-  const modal = document.getElementById('welcomeModal');
-  if (modal) {
-    modal.style.display = 'none';
-    document.body.style.overflow = 'auto';
+  if (welcomeModalInstance) {
+    welcomeModalInstance.close();
+  } else {
+    // Fallback to old method if Modal not initialized
+    const modal = document.getElementById('welcomeModal');
+    if (modal) {
+      modal.style.display = 'none';
+      document.body.style.overflow = 'auto';
+    }
   }
 }
 
 function showRegistrationModal() {
-  const modal = document.getElementById('registrationModal');
-  if (modal) {
-    modal.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
+  if (registrationModalInstance) {
+    registrationModalInstance.open();
+  } else {
+    // Fallback to old method if Modal not initialized
+    const modal = document.getElementById('registrationModal');
+    if (modal) {
+      modal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
   }
 }
 
 function closeRegistrationModal() {
-  const modal = document.getElementById('registrationModal');
-  if (modal) {
-    modal.style.display = 'none';
-    document.body.style.overflow = 'auto';
+  if (registrationModalInstance) {
+    registrationModalInstance.close();
+  } else {
+    // Fallback to old method if Modal not initialized
+    const modal = document.getElementById('registrationModal');
+    if (modal) {
+      modal.style.display = 'none';
+      document.body.style.overflow = 'auto';
+    }
   }
 }
 
@@ -1039,11 +1082,19 @@ async function generateSpecification() {
       return;
     }
     
+    // Update store with loading state
+    if (window.store) {
+      window.store.set('loading', true);
+    }
+    
     // Check credits before generating spec
     if (typeof checkEntitlement !== 'undefined') {
       const entitlementCheck = await checkEntitlement();
       if (!entitlementCheck.hasAccess) {
         hideLoadingOverlay();
+        if (window.store) {
+          window.store.set('loading', false);
+        }
         const paywallPayload = entitlementCheck.paywallData || {
           reason: 'insufficient_credits',
           message: 'You have no remaining spec credits'
@@ -1078,34 +1129,23 @@ async function generateSpecification() {
     
     const enhancedPrompt = `${prompt}\n\n${platformText}`;
     
-    // Generate specification using the legacy API endpoint
-    const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai.onrender.com';
-    
-    const response = await fetch(`${apiBaseUrl}/api/generate-spec`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
+    // Generate specification using API Client
+    let data;
+    try {
+      data = await window.api.post('/api/generate-spec', {
         userInput: enhancedPrompt
-      })
-    });
-    
-    if (!response.ok) {
-      if (response.status === 403) {
+      });
+    } catch (error) {
+      // Handle 403 (paywall) errors
+      if (error.status === 403) {
         hideLoadingOverlay();
         let paywallPayload;
-        try {
-          const cloned = response.clone();
-          const payload = await cloned.json();
-          paywallPayload = payload?.paywallData || {
-            reason: payload?.error || 'insufficient_credits',
-            message: payload?.message || payload?.details || 'You have no remaining spec credits'
+        if (error.data) {
+          paywallPayload = error.data?.paywallData || {
+            reason: error.data?.error || 'insufficient_credits',
+            message: error.data?.message || error.data?.details || 'You have no remaining spec credits'
           };
-        } catch (parseError) {
-          // Unable to parse 403 payload
-        }
-        if (!paywallPayload) {
+        } else {
           paywallPayload = {
             reason: 'insufficient_credits',
             message: 'You have no remaining spec credits'
@@ -1122,41 +1162,27 @@ async function generateSpecification() {
         }
         return;
       }
-      let errorMessage = 'Failed to generate specification';
-      let errorDetails = null;
-      let serverRequestId = null;
-      
-      try {
-        const errorData = await response.json();
-        errorDetails = errorData;
-        serverRequestId = errorData.requestId;
-        // Build comprehensive error message
-        errorMessage = errorData.details || errorData.error || errorMessage;
+      // Handle other errors
+      let errorMessage = error.message || 'Failed to generate specification';
+      if (error.data) {
+        const errorData = error.data;
+        if (errorData.requestId) {
+          errorMessage += ` [Server Request ID: ${errorData.requestId}]`;
+        }
         if (errorData.errorType) {
           errorMessage += ` (${errorData.errorType})`;
         }
-        if (serverRequestId) {
-          errorMessage += ` [Server Request ID: ${serverRequestId}]`;
-        }
-      } catch (parseError) {
-        // If response is not JSON, try to get text
-        try {
-          const errorText = await response.text();
-          errorDetails = { text: errorText };
-          errorMessage = errorText || `HTTP ${response.status}: ${response.statusText}`;
-        } catch (textError) {
-          errorMessage = `HTTP ${response.status}: ${response.statusText}`;
-          errorDetails = { parseError: textError.message };
-        }
       }
-      
       throw new Error(errorMessage);
     }
-
-    const data = await response.json();
     
     // Extract overview content from the response
     const overviewContent = data.specification || 'No overview generated';
+    
+    // Update store with loading state
+    if (window.store) {
+      window.store.set('loading', false);
+    }
     
     // Consume credit BEFORE saving to Firebase
     // If save fails, we'll refund the credit
@@ -1164,39 +1190,25 @@ async function generateSpecification() {
     let consumeTransactionId = null;
     
     try {
-      const token = await user.getIdToken();
-      const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai.onrender.com';
-      
       // First, create a temporary spec ID for credit consumption
       // We'll update it with the real spec ID after saving
       const tempSpecId = `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
       
-      const consumeResponse = await fetch(`${apiBaseUrl}/api/specs/consume-credit`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ specId: tempSpecId })
+      const consumeResult = await window.api.post('/api/specs/consume-credit', {
+        specId: tempSpecId
       });
-
-      if (!consumeResponse.ok) {
-        const errorData = await consumeResponse.json();
-        const errorMessage = errorData.message || errorData.error || 'Failed to consume credit';
-        // Check if user already has a spec
-        if (errorMessage.includes('already has a spec') || errorMessage.includes('Only one spec per user')) {
-          throw new Error('You already have a spec. Only one spec per user is allowed. Please edit your existing spec instead.');
-        }
-        throw new Error(errorMessage);
-      }
       
-      const consumeResult = await consumeResponse.json();
       creditConsumed = true;
       consumeTransactionId = consumeResult.transactionId || tempSpecId;
       
     } catch (creditError) {
       hideLoadingOverlay();
-      throw new Error(`Failed to consume credit: ${creditError.message}`);
+      let errorMessage = creditError.message || 'Failed to consume credit';
+      // Check if user already has a spec
+      if (errorMessage.includes('already has a spec') || errorMessage.includes('Only one spec per user')) {
+        errorMessage = 'You already have a spec. Only one spec per user is allowed. Please edit your existing spec instead.';
+      }
+      throw new Error(`Failed to consume credit: ${errorMessage}`);
     }
     
     // Save to Firebase and redirect
@@ -1207,25 +1219,11 @@ async function generateSpecification() {
       // Refund credit if save failed
       if (creditConsumed) {
         try {
-          const token = await user.getIdToken();
-          const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai.onrender.com';
-          
-          const refundResponse = await fetch(`${apiBaseUrl}/api/credits/refund`, {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              amount: 1,
-              reason: 'Spec creation failed - save to Firebase failed',
-              originalTransactionId: consumeTransactionId
-            })
+          await window.api.post('/api/credits/refund', {
+            amount: 1,
+            reason: 'Spec creation failed - save to Firebase failed',
+            originalTransactionId: consumeTransactionId
           });
-          
-          if (!refundResponse.ok) {
-            await refundResponse.json();
-          }
         } catch (refundError) {
           // Error refunding credit - the main error is the save failure
         }
@@ -1235,12 +1233,29 @@ async function generateSpecification() {
       throw new Error(`Failed to save specification: ${saveError.message}`);
     }
     
+    // Update store with new spec
+    if (window.store) {
+      window.store.set('currentSpec', { id: firebaseId, overview: overviewContent });
+      // Refresh specs list if needed
+      const currentSpecs = window.store.get('specs') || [];
+      window.store.set('specs', [...currentSpecs, { id: firebaseId, overview: overviewContent }]);
+    }
+    
     // Refresh credits display and clear cache
     if (typeof window.clearEntitlementsCache !== 'undefined') {
       window.clearEntitlementsCache();
     }
     if (typeof window.updateCreditsDisplay !== 'undefined') {
       window.updateCreditsDisplay();
+    }
+    
+    // Update store with credits (will be updated by credits-display.js)
+    if (window.store) {
+      window.store.subscribe((newState, prevState) => {
+        if (newState.credits !== prevState.credits) {
+          // Credits updated
+        }
+      }, ['credits']);
     }
     
     // Trigger OpenAI upload (non-blocking)
@@ -1374,54 +1389,16 @@ async function triggerOpenAIUpload(specId) {
       return;
     }
     
-    const token = await user.getIdToken();
-    const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai.onrender.com';
-    const uploadUrl = `${apiBaseUrl}/api/specs/${specId}/upload-to-openai`;
+    await window.api.post(`/api/specs/${specId}/upload-to-openai`);
     
-    const response = await fetch(uploadUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      }
-    });
-    
-    if (!response.ok) {
-      let errorDetails = null;
-      try {
-        const error = await response.json();
-        errorDetails = {
-          status: response.status,
-          statusText: response.statusText,
-          error: error.error || 'Upload failed',
-          details: error.details || null,
-          requestId: error.requestId || null
-        };
-        throw new Error(error.error || 'Upload failed');
-      } catch (parseError) {
-        // If response is not JSON, try to get text
-        try {
-          const errorText = await response.text();
-          errorDetails = {
-            status: response.status,
-            statusText: response.statusText,
-            errorText: errorText.substring(0, 500)
-          };
-          throw new Error(`Upload failed: HTTP ${response.status} ${response.statusText}`);
-        } catch (textError) {
-          errorDetails = {
-            status: response.status,
-            statusText: response.statusText,
-            parseError: textError.message
-          };
-          throw new Error(`Upload failed: HTTP ${response.status} ${response.statusText}`);
-        }
-      }
-    }
-    
-    await response.json();
+    // Upload successful - no need to do anything else
+    return;
   } catch (error) {
     // Note: This is non-critical, so we don't throw - upload happens in background
+    // Log error for debugging if needed
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      console.warn('[triggerOpenAIUpload] Background upload failed:', error);
+    }
   }
 }
 

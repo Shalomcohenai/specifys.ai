@@ -151,17 +151,7 @@
         // Fallback to direct API call if cache is not available
         const token = await user.getIdToken();
         const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai.onrender.com';
-        const response = await fetch(`${apiBaseUrl}/api/specs/entitlements`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch entitlements');
-        }
-
-        data = await response.json();
+        data = await window.api.get('/api/specs/entitlements');
       }
       
       const entitlements = data?.entitlements || {};
@@ -203,6 +193,16 @@
       if (creditsState) {
         applyCreditsState(creditsState);
         saveCreditsState(userId, creditsState);
+        
+        // Update store with credits
+        if (window.store) {
+          const credits = entitlements?.unlimited 
+            ? 'unlimited' 
+            : entitlements?.spec_credits || userData?.free_specs_remaining || 0;
+          window.store.set('credits', credits);
+          window.store.set('entitlements', entitlements);
+          window.store.set('user', userData);
+        }
       }
     } catch (error) {
       console.warn('Error updating credits display:', error);

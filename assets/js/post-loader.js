@@ -26,18 +26,16 @@
     }
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/blog/public/post?slug=${encodeURIComponent(slug)}`);
-      
-      if (!response.ok) {
-        if (response.status === 404) {
+      const data = await window.api.get(`/api/blog/public/post?slug=${encodeURIComponent(slug)}`).catch((error) => {
+        if (error.status === 404) {
           showError('Post not found');
         } else {
-          throw new Error(`Failed to load post: ${response.status}`);
+          throw new Error(`Failed to load post: ${error.status || 'Unknown error'}`);
         }
-        return;
-      }
-
-      const data = await response.json();
+        return null;
+      });
+      
+      if (!data) return;
       const post = data.post;
 
       if (!post) {

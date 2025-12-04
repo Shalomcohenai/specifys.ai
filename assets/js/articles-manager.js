@@ -102,23 +102,7 @@ class ArticlesManager {
         submitBtn.disabled = true;
 
         try {
-            const apiBaseUrl = this.getApiBaseUrl();
-            const token = await this.getAuthToken();
-
-            const response = await fetch(`${apiBaseUrl}/api/articles/generate`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ topic })
-            });
-
-            const result = await response.json();
-
-            if (!response.ok) {
-                throw new Error(result.error || result.message || `HTTP ${response.status}`);
-            }
+            const result = await window.api.post('/api/articles/generate', { topic });
 
             if (result.success) {
                 this.setFeedback('Article generated successfully!', 'success');
@@ -147,36 +131,10 @@ class ArticlesManager {
         this.tableBody.innerHTML = '<tr><td colspan="5" class="table-empty">Loading articles…</td></tr>';
 
         try {
-            const apiBaseUrl = this.getApiBaseUrl();
-            const response = await fetch(`${apiBaseUrl}/api/articles/list?status=all&limit=100`);
-
-            // Handle non-OK responses
-            if (!response.ok) {
-                let errorMessage = `Server error (${response.status})`;
-                
-                // Try to parse error response
-                try {
-                    const contentType = response.headers.get('content-type');
-                    if (contentType && contentType.includes('application/json')) {
-                        const errorData = await response.json();
-                        errorMessage = errorData.error || errorData.message || errorMessage;
-                    } else {
-                        const errorText = await response.text();
-                        if (errorText) {
-                            errorMessage = errorText.length > 100 ? `${errorText.substring(0, 100)}...` : errorText;
-                        }
-                    }
-                } catch (parseError) {
-                    // If we can't parse the error, use the status code message
-                    // Could not parse error response
-                }
-                
-                throw new Error(errorMessage);
-            }
-
             // Parse successful response
             let result;
             try {
+                result = await window.api.get('/api/articles/list?status=all&limit=100');
                 result = await response.json();
             } catch (parseError) {
                 // Failed to parse response as JSON
@@ -318,19 +276,7 @@ class ArticlesManager {
         const newStatus = article.status === 'published' ? 'draft' : 'published';
         
         try {
-            const apiBaseUrl = this.getApiBaseUrl();
-            const token = await this.getAuthToken();
-
-            const response = await fetch(`${apiBaseUrl}/api/articles/${id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ status: newStatus })
-            });
-
-            const result = await response.json();
+            const result = await window.api.put(`/api/articles/${id}`, { status: newStatus });
 
             if (result.success) {
                 this.setFeedback(`Article status updated to ${newStatus}`, 'success');
@@ -357,17 +303,7 @@ class ArticlesManager {
         }
 
         try {
-            const apiBaseUrl = this.getApiBaseUrl();
-            const token = await this.getAuthToken();
-
-            const response = await fetch(`${apiBaseUrl}/api/articles/${id}`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-
-            const result = await response.json();
+            const result = await window.api.delete(`/api/articles/${id}`);
 
             if (result.success) {
                 this.setFeedback('Article deleted successfully', 'success');

@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
 import legacy from '@vitejs/plugin-legacy';
 import path from 'path';
+import { resolve } from 'path';
 
 export default defineConfig({
   plugins: [
@@ -26,6 +27,7 @@ export default defineConfig({
         // CSS bundles
         'critical': path.resolve(__dirname, 'assets/css/bundles/critical.css'),
         'main': path.resolve(__dirname, 'assets/css/main.css'),
+        'tailwind': path.resolve(__dirname, 'assets/css/tailwind-base.css'),
         
         // JS bundles
         'core': path.resolve(__dirname, 'assets/js/bundles/core.js'),
@@ -64,6 +66,13 @@ export default defineConfig({
   server: {
     port: 5173,
     strictPort: false,
+  },
+  resolve: {
+    alias: {
+      '@specifys/api-client': resolve(__dirname, 'packages/api-client/src'),
+      '@specifys/ui': resolve(__dirname, 'packages/ui/src'),
+      '@specifys/design-system': resolve(__dirname, 'packages/design-system/tokens'),
+    },
   },
 });
 

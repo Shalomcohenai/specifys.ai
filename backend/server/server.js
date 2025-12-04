@@ -447,6 +447,12 @@ logger.info({ type: 'route_mount', path: '/api/health', route: 'healthRoutes' },
 app.use('/api/health', healthRoutes);
 logger.info({ type: 'route_mounted', path: '/api/health' }, '[UNIFIED SERVER] ✅ Health check routes mounted');
 
+// API Documentation routes (Swagger/OpenAPI)
+logger.info({ type: 'route_mount', path: '/api-docs', route: 'apiDocsRoutes' }, '[UNIFIED SERVER] 📌 Mounting API documentation routes');
+const apiDocsRoutes = require('./api-docs-routes');
+app.use('/api-docs', apiDocsRoutes);
+logger.info({ type: 'route_mounted', path: '/api-docs' }, '[UNIFIED SERVER] ✅ API documentation routes mounted');
+
 // Basic route for server status
 logger.info({ type: 'route_register', method: 'GET', path: '/api/status' }, '[UNIFIED SERVER] 📌 Registering server status endpoint');
 app.get('/api/status', (req, res) => {

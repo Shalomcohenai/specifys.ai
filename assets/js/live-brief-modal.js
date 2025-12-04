@@ -830,22 +830,10 @@ class LiveBriefModal {
       // Always use Render backend URL
       const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai.onrender.com';
       
-      const response = await fetch(`${apiBaseUrl}/api/live-brief/transcribe`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          sessionId: this.sessionId,
-          fullTranscript: this.fullTranscript
-        })
+      const data = await window.api.post('/api/live-brief/transcribe', {
+        sessionId: this.sessionId,
+        fullTranscript: this.fullTranscript
       });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
-      }
-      
-      const data = await response.json();
       
       // Reset error counter on success
       this.consecutiveErrors = 0;
@@ -1027,23 +1015,11 @@ class LiveBriefModal {
     // Always use Render backend URL
     const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai.onrender.com';
     
-    const response = await fetch(`${apiBaseUrl}/api/live-brief/convert-to-answers`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        summary: this.summary || '',
-        fullTranscript: this.fullTranscript || ''
-      })
+    const data = await window.api.post('/api/live-brief/convert-to-answers', {
+      summary: this.summary || '',
+      fullTranscript: this.fullTranscript || ''
     });
     
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error || `HTTP ${response.status}`);
-    }
-    
-    const data = await response.json();
     return data.answers;
   }
 

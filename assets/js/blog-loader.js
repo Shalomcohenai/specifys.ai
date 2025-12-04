@@ -16,16 +16,13 @@
     try {
       // Fetch published posts from public API (no auth required)
       console.log('[Blog Loader] Fetching new posts from Firebase:', `${API_BASE_URL}/api/blog/public/posts?limit=50`);
-      const response = await fetch(`${API_BASE_URL}/api/blog/public/posts?limit=50`);
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('[Blog Loader] API Error:', response.status, errorText);
+      const data = await window.api.get('/api/blog/public/posts?limit=50').catch((error) => {
+        console.error('[Blog Loader] API Error:', error);
         // Don't show error to user, just log it - legacy posts are already displayed
-        return;
-      }
-
-      const data = await response.json();
+        return null;
+      });
+      
+      if (!data) return;
       console.log('[Blog Loader] Received data:', { success: data.success, postsCount: data.posts?.length || 0, total: data.total });
       const posts = data.posts || [];
 

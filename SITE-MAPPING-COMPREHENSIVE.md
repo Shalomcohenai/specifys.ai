@@ -175,7 +175,12 @@
    - `generatePrompts()` - יצירת פרומפטים
 
 9. **Chat**:
-   - פונקציות Chat מובנות בדף
+   - `initializeChat()` - אתחול Chat (עם retry mechanism)
+   - `sendChatMessage()` - שליחת הודעה (עם optimistic updates, retry mechanism)
+   - `retryChatOperation()` - Retry mechanism ב-frontend
+   - `addChatMessage()` - הוספת הודעה ל-UI
+   - `showChatLoading()` / `hideChatLoading()` - מצבי טעינה
+   - `saveChatHistory()` / `loadChatHistory()` - שמירה/טעינה מ-localStorage
 
 10. **Firebase Operations**:
     - `saveSpecToFirebase(user, specData)` - שמירה ל-Firebase
@@ -424,12 +429,83 @@
 
 ---
 
-### 3. מערכת יצירת מפרטים (Spec Generation System)
+### 3. מערכת Chat (Chat System)
+
+#### Backend Files:
+- `backend/server/chat-routes.js` - API routes (משתמש ב-Chat Service)
+- `backend/server/chat-service.js` - Service מרכזי לניהול Chat (חדש)
+- `backend/server/retry-handler.js` - Retry mechanism מרכזי (חדש)
+- `backend/server/openai-storage-service.js` - ניהול OpenAI Storage (לוגים משופרים)
+
+#### API Endpoints:
+- `POST /api/chat/init` - אתחול Chat session
+- `POST /api/chat/message` - שליחת הודעה ל-AI
+- `POST /api/chat/diagrams/generate` - יצירת דיאגרמות
+- `POST /api/chat/diagrams/repair` - תיקון דיאגרמות שבורות
+- `POST /api/chat/demo` - Chat פומבי לדמו
+
+#### Frontend Files:
+- `pages/spec-viewer.html` - פונקציות Chat מובנות (עם retry mechanism, optimistic updates)
+
+#### Firestore Collections:
+- `specs` - מפרטים (מכיל `openaiFileId`, `openaiAssistantId`)
+
+#### Flow:
+1. **אתחול Chat**:
+   - משתמש לוחץ על טאב Chat
+   - `initializeChat()` ב-`spec-viewer.html` קורא ל-`POST /api/chat/init`
+   - `ChatService.ensureSpecReadyForChat()` מבטיח שהמפרט מועלה ל-OpenAI
+   - `ChatService.getOrCreateAssistant()` יוצר/מקבל Assistant עם Vector Store
+   - `ChatService.createThread()` יוצר Thread חדש
+   - Frontend מקבל `threadId` ו-`assistantId`
+   - טעינת היסטוריית Chat מ-localStorage
+
+2. **שליחת הודעה**:
+   - משתמש שולח הודעה
+   - Optimistic update: הודעת המשתמש מוצגת מיד
+   - `sendChatMessage()` ב-`spec-viewer.html` קורא ל-`POST /api/chat/message`
+   - Backend משתמש ב-`retryWithBackoff()` לשליחת הודעה
+   - אם Assistant מקולקל → `ChatService.handleAssistantError()` יוצר Assistant חדש
+   - תגובת AI מוחזרת ומוצגת ב-UI
+   - שמירה ל-localStorage
+
+3. **יצירת דיאגרמות**:
+   - משתמש מבקש ליצור דיאגרמות
+   - `POST /api/chat/diagrams/generate`
+   - Backend משתמש ב-`ChatService.ensureSpecReadyForChat()`
+   - `retryWithBackoff()` ליצירת דיאגרמות
+   - אם Assistant מקולקל → יצירה מחדש אוטומטית
+   - דיאגרמות מוחזרות ומוצגות
+
+4. **תיקון דיאגרמות**:
+   - משתמש מבקש לתקן דיאגרמה שבורה
+   - `POST /api/chat/diagrams/repair`
+   - Backend משתמש ב-`retryWithBackoff()`
+   - דיאגרמה מתוקנת מוחזרת
+
+#### מאפיינים טכניים:
+- **Chat Service מרכזי**: איחוד כל הלוגיקה הכפולה (הפחתה של ~40% בקוד)
+- **Retry Mechanism**: Retry עם exponential backoff לכל הפעולות
+- **Caching**: In-memory cache של Assistant IDs ו-Thread IDs
+- **Error Handling**: טיפול אוטומטי בשגיאות Assistant (recreation)
+- **Optimistic Updates**: הודעות משתמש מוצגות מיד (Frontend)
+- **Error Recovery**: ניסיון אוטומטי להתחבר מחדש (Frontend)
+- **Idempotency**: כל פעולה עם retry mechanism
+- **Atomicity**: Firestore Transactions למניעת race conditions
+
+#### Dependencies:
+- OpenAI Storage Service (Assistants API)
+- Firebase/Firestore
+- Retry Handler
+
+---
+
+### 4. מערכת יצירת מפרטים (Spec Generation System)
 
 #### Backend Files:
 - `backend/server/specs-routes.js` - API routes
 - `backend/server/server.js` - `/api/generate-spec` endpoint
-- `backend/server/openai-storage-service.js` - ניהול OpenAI Storage
+- `backend/server/openai-storage-service.js` - ניהול OpenAI Storage (לוגים משופרים)
 
 #### API Endpoints:
 - `POST /api/generate-spec` - יצירת Overview
@@ -722,7 +798,7 @@
 
 ---
 
-*עודכן: 2025-01-20*
+*עודכן: 2025-01-21*
 
 ---
 
@@ -745,4 +821,13 @@
 - ✅ שיפור `syncAllUsers()` עם batch processing (50 משתמשים במקביל)
 - ✅ מחיקת `userAuth.js` (לא היה בשימוש)
 - ✅ איחוד כל הקריאות דרך API אחד במקום יצירה ישירה ב-Firestore
+
+### מערכת Chat (2025-01-20):
+- ✅ יצירת `retry-handler.js` - Retry mechanism מרכזי עם exponential backoff
+- ✅ יצירת `chat-service.js` - Service מרכזי לניהול Chat (איחוד קוד כפול)
+- ✅ עדכון `chat-routes.js` - כל ה-endpoints משתמשים ב-Chat Service (הפחתה של ~40% בקוד)
+- ✅ ניקוי לוגים - החלפת console.log ב-logger ב-`openai-storage-service.js` (פונקציות עיקריות)
+- ✅ שיפור Frontend - הוספת retry mechanism, optimistic updates, error recovery ב-`spec-viewer.html`
+- ✅ Caching - In-memory cache של Assistant IDs ו-Thread IDs
+- ✅ טיפול בשגיאות משופר - Assistant recreation אוטומטי, retry mechanism לכל הפעולות
 

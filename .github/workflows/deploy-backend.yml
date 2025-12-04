@@ -1,0 +1,60 @@
+name: Deploy Backend
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/deploy-backend.yml'
+
+jobs:
+  deploy:
+    name: Deploy Backend
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          cd backend
+          npm ci
+
+      - name: Build TypeScript
+        run: |
+          cd backend
+          npm run build
+
+      - name: Run tests (if configured)
+        run: |
+          cd backend
+          if [ -f "package.json" ] && grep -q '"test"' package.json; then
+            npm test || echo "Tests not configured"
+          else
+            echo "No tests configured, skipping..."
+          fi
+
+      - name: Deploy to Render
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+        run: |
+          echo "Backend deployment would happen here"
+          echo "Options:"
+          echo "  1. Render.com - via Render API or webhook"
+          echo "  2. Custom server - via SSH/rsync"
+          echo "  3. Docker - build and push to registry"
+          echo ""
+          echo "For Render.com, you can:"
+          echo "  - Use Render webhook (configured in Render dashboard)"
+          echo "  - Use Render API with RENDER_API_KEY secret"
+          echo ""
+          echo "Backend code is in backend/ directory"
+

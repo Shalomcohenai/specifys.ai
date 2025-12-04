@@ -3,13 +3,21 @@
   "version": "1.2.4",
   "type": "module",
   "main": "index.html",
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
     "dev": "cd server && npm run dev",
     "build:vite": "vite build",
     "dev:vite": "vite",
-    "build:all": "npm run build:vite && bundle exec jekyll build"
+    "build:all": "npm run build:vite && bundle exec jekyll build",
+    "build:css": "sass assets/css/main.scss assets/css/main-compiled.css --style=expanded",
+    "build:css:min": "sass assets/css/main.scss assets/css/main-compiled.css --style=compressed",
+    "watch:css": "sass --watch assets/css/main.scss:assets/css/main-compiled.css",
+    "build:packages": "npm run build --workspaces --if-present",
+    "build:monorepo": "npm run build:packages && npm run build:css && npm run build:vite"
   },
   "keywords": [
     "specifys",
@@ -30,13 +38,15 @@
     "node-fetch": "^3.3.2"
   },
   "devDependencies": {
-    "vite": "^5.4.8",
-    "vite-plugin-static-copy": "^1.0.4",
+    "@fullhuman/postcss-purgecss": "^6.0.0",
     "@vitejs/plugin-legacy": "^5.4.0",
-    "postcss": "^8.4.47",
     "autoprefixer": "^10.4.20",
     "cssnano": "^7.0.6",
+    "postcss": "^8.4.47",
     "postcss-import": "^16.1.0",
-    "@fullhuman/postcss-purgecss": "^6.0.0"
+    "sass": "^1.94.2",
+    "tailwindcss": "^3.4.1",
+    "vite": "^5.4.8",
+    "vite-plugin-static-copy": "^1.0.4"
   }
 }

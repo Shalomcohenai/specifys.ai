@@ -1220,10 +1220,7 @@ class AcademyApp {
         if (!guideId) return;
 
         try {
-            const apiBaseUrl = typeof getApiBaseUrl === 'function' ? getApiBaseUrl() : (window.API_BASE_URL || 'https://specifys-ai.onrender.com');
-            await fetch(`${apiBaseUrl}/api/academy/guides/${guideId}/view`, {
-                method: 'POST'
-            });
+            await window.api.post(`/api/academy/guides/${guideId}/view`).catch(() => {});
             // Don't wait for response or show errors - view tracking is non-critical
         } catch (error) {
             // Silently fail - view tracking is not critical

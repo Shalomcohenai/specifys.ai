@@ -1,0 +1,73 @@
+// ============================================
+// Main SCSS Entry Point - Specifys.ai
+// ============================================
+// This file imports all CSS files in the correct order
+// Compile this to main.css for production use
+
+// ============================================
+// Core styles (must be in order)
+// ============================================
+@import 'core/variables';
+@import 'core/fonts';
+@import 'core/reset';
+@import 'core/typography';
+@import 'core/base';
+
+// ============================================
+// Tailwind CSS Base Styles
+// ============================================
+// Tailwind is integrated here to work alongside existing SCSS
+// The tailwind-base.css file will be processed by PostCSS
+// For now, we'll import it as a regular CSS file
+// In production, Tailwind will be processed separately and included in head.html
+
+// ============================================
+// Components
+// ============================================
+@import 'components/buttons';
+@import 'components/header';
+@import 'components/footer';
+@import 'components/icons';
+@import 'components/mermaid';
+@import 'components/tables';
+@import 'components/live-brief-modal';
+
+// ============================================
+// Main CSS (additional styles and utilities)
+// ============================================
+// Note: main.css contains additional styles, but we'll import it as a separate file
+// to maintain compatibility. In the future, we can merge these styles into components.
+
+// ============================================
+// Pages (alphabetical order)
+// ============================================
+@import 'pages/about';
+@import 'pages/academy';
+@import 'pages/admin-dashboard';
+@import 'pages/app-dashboard';
+@import 'pages/article';
+@import 'pages/articles';
+@import 'pages/articles-manager';
+@import 'pages/auth';
+@import 'pages/blog-manager';
+@import 'pages/demo';
+@import 'pages/how';
+@import 'pages/index';
+@import 'pages/post';
+@import 'pages/profile';
+@import 'pages/research';
+@import 'pages/result';
+@import 'pages/result-market';
+@import 'pages/result-novice';
+@import 'pages/spec';
+@import 'pages/spec-viewer';
+@import 'pages/test-system';
+@import 'pages/ToolPicker';
+@import 'pages/vibe-coding-tools-map';
+@import 'pages/why';
+
+// ============================================
+// Blog
+// ============================================
+@import '../blog';
+

@@ -1,0 +1,65 @@
+name: Deploy Frontend
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'assets/**'
+      - 'pages/**'
+      - '_includes/**'
+      - '_layouts/**'
+      - '_config.yml'
+      - 'index.html'
+      - '.github/workflows/deploy-frontend.yml'
+
+jobs:
+  deploy:
+    name: Deploy Frontend
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Jekyll dependencies
+        run: bundle install
+
+      - name: Build CSS
+        run: npm run build:css:min
+
+      - name: Build with Vite
+        run: npm run build:vite
+        continue-on-error: true
+
+      - name: Build Jekyll site
+        run: bundle exec jekyll build
+
+      - name: Deploy to production
+        run: |
+          echo "Frontend deployment would happen here"
+          echo "This could be:"
+          echo "  - GitHub Pages"
+          echo "  - Netlify"
+          echo "  - Vercel"
+          echo "  - Custom server via SSH/rsync"
+          echo ""
+          echo "Build output is in _site/ directory"
+          ls -la _site/ | head -20
+
+

@@ -41,29 +41,8 @@
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="manifest" href="/site.webmanifest">
     
-    <!-- CSS - Loaded in parallel instead of @import for better performance -->
-    <!-- Core styles (must be in order) -->
-    <link rel="stylesheet" href="/assets/css/core/variables.css">
-    <link rel="stylesheet" href="/assets/css/core/fonts.css">
-    <link rel="stylesheet" href="/assets/css/core/reset.css">
-    <link rel="stylesheet" href="/assets/css/core/typography.css">
-    <link rel="stylesheet" href="/assets/css/core/base.css">
-    
-    <!-- Components -->
-    <link rel="stylesheet" href="/assets/css/components/buttons.css">
-    <link rel="stylesheet" href="/assets/css/components/header.css">
-    <link rel="stylesheet" href="/assets/css/components/footer.css">
-    <link rel="stylesheet" href="/assets/css/components/icons.css">
-    <link rel="stylesheet" href="/assets/css/components/mermaid.css">
-    <link rel="stylesheet" href="/assets/css/components/tables.css">
-    
-    <!-- Main CSS (contains additional styles and utilities) -->
-    <link rel="stylesheet" href="/assets/css/main.css">
-    
-    <!-- Page-specific CSS -->
-    <link rel="stylesheet" href="/assets/css/pages/index.css">
-    <link rel="stylesheet" href="/assets/css/components/live-brief-modal.css">
-    <link rel="stylesheet" href="/assets/css/pages/why.css">
+    <!-- CSS - Unified compiled CSS file -->
+    <link rel="stylesheet" href="/assets/css/main-compiled.css">
     <style>
       /* Override why.css colors for index page - make titles dark gray like other headings */
       .why-section .section-title,
@@ -80,6 +59,16 @@
     
     <!-- API Configuration -->
     <script defer src="/assets/js/config.js"></script>
+    
+    <!-- API Client (must load after config.js) -->
+    <script defer src="/assets/js/api-client.js"></script>
+    
+    <!-- Components (must load before page-specific JS) -->
+    <script type="module" src="/assets/js/components/base.js"></script>
+    <script type="module" src="/assets/js/components/Modal.js"></script>
+    
+    <!-- State Management -->
+    <script defer src="/assets/js/store.js"></script>
     
     <!-- Application Logger -->
     <script defer src="/assets/js/app-logger.js"></script>

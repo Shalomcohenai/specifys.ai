@@ -1,0 +1,16 @@
+{
+  "name": "@specifys/design-system",
+  "version": "1.0.0",
+  "description": "Design tokens and system for Specifys.ai",
+  "author": "Specifys.ai",
+  "license": "ISC",
+  "main": "tokens/index.js",
+  "exports": {
+    "./tokens": "./tokens/index.js",
+    "./colors": "./tokens/colors.js",
+    "./spacing": "./tokens/spacing.js",
+    "./typography": "./tokens/typography.js"
+  }
+}
+
+

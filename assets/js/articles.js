@@ -54,14 +54,7 @@ class ArticlesPage {
         if (!carouselTrack) return;
 
         try {
-            const apiBaseUrl = this.getApiBaseUrl();
-            const response = await fetch(`${apiBaseUrl}/api/articles/featured?limit=5`);
-
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}`);
-            }
-
-            const result = await response.json();
+            const result = await window.api.get('/api/articles/featured?limit=5');
 
             if (result.success && result.articles && result.articles.length > 0) {
                 this.featuredArticles = result.articles;
@@ -198,14 +191,7 @@ class ArticlesPage {
         articlesGrid.innerHTML = '<div class="loading-placeholder">Loading articles...</div>';
 
         try {
-            const apiBaseUrl = this.getApiBaseUrl();
-            const response = await fetch(`${apiBaseUrl}/api/articles/list?page=${page}&limit=${this.pageSize}&status=published`);
-
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}`);
-            }
-
-            const result = await response.json();
+            const result = await window.api.get(`/api/articles/list?page=${page}&limit=${this.pageSize}&status=published`);
 
             if (result.success) {
                 this.allArticles = result.articles || [];

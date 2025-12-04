@@ -144,18 +144,12 @@
         }
       }
       
-      const response = await fetch('/api/contact', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-          message,
-          userId,
-          userName,
-          timestamp: new Date().toISOString()
-        })
+      const result = await window.api.post('/api/contact', {
+        email,
+        message,
+        userId,
+        userName,
+        timestamp: new Date().toISOString()
       });
       
       const data = await response.json();

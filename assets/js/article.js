@@ -39,17 +39,7 @@ class ArticlePage {
         articleContent.innerHTML = '<div class="article-loading"><p>Loading article...</p></div>';
 
         try {
-            const apiBaseUrl = this.getApiBaseUrl();
-            const response = await fetch(`${apiBaseUrl}/api/articles/${this.slug}`);
-
-            if (!response.ok) {
-                if (response.status === 404) {
-                    throw new Error('Article not found');
-                }
-                throw new Error(`HTTP ${response.status}`);
-            }
-
-            const result = await response.json();
+            const result = await window.api.get(`/api/articles/${this.slug}`);
 
             if (result.success && result.article) {
                 this.article = result.article;
@@ -332,10 +322,7 @@ class ArticlePage {
         if (!this.slug) return;
 
         try {
-            const apiBaseUrl = this.getApiBaseUrl();
-            await fetch(`${apiBaseUrl}/api/articles/${this.slug}/view`, {
-                method: 'POST'
-            });
+            await window.api.post(`/api/articles/${this.slug}/view`).catch(() => {});
             // Don't wait for response or show errors - view tracking is non-critical
         } catch (error) {
             // Silently fail - view tracking is not critical
@@ -353,14 +340,7 @@ class ArticlePage {
         if (!relatedSection || !relatedGrid) return;
 
         try {
-            const apiBaseUrl = this.getApiBaseUrl();
-            const response = await fetch(`${apiBaseUrl}/api/articles/list?status=published&limit=4`);
-
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}`);
-            }
-
-            const result = await response.json();
+            const result = await window.api.get('/api/articles/list?status=published&limit=4');
 
             if (result.success && result.articles) {
                 // Filter out current article and get up to 3 related articles
