@@ -906,7 +906,9 @@ Return ONLY valid Mermaid code, nothing else.`;
 
 // Import and mount stats routes
 logger.info({ type: 'route_mount', path: '/api/stats', route: 'statsRoutes' }, '[UNIFIED SERVER] 📌 Mounting stats routes');
-const statsRoutes = require('./stats-routes');
+// const statsRoutes = require('./stats-routes'); // OLD - keep for rollback
+const statsRoutesTS = require('../dist/routes/stats-routes'); // NEW - TypeScript compiled
+const statsRoutes = statsRoutesTS.default || statsRoutesTS; // Handle ES6 default export
 app.use('/api/stats', statsRoutes);
 logger.info({ type: 'route_mounted', path: '/api/stats' }, '[UNIFIED SERVER] ✅ Stats routes mounted');
 
