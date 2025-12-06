@@ -59,6 +59,8 @@
     
     <!-- Main CSS (contains additional styles and utilities) -->
     <link rel="stylesheet" href="/assets/css/main.css">
+    <!-- Tailwind CSS - Processed via PostCSS -->
+    <link rel="stylesheet" href="/assets/css/tailwind-base-compiled.css">
     
     <!-- Page-specific CSS -->
     <link rel="stylesheet" href="/assets/css/pages/spec-viewer.css">
@@ -5369,271 +5371,6 @@ async function generateTechnicalSpec(retryCount = 0, maxRetries = 2) {
     // Use reference if spec has ID, otherwise fallback to full content
     const firstParam = currentSpecData.id ? currentSpecData.id : currentSpecData.overview;
     let prompt = PROMPTS.technical(firstParam, currentSpecData.answers);
-            document.getElementById('mindmapTab').disabled = false;
-            
-            // If Market is also ready, enable Diagrams tab
-            if (currentSpecData.status.market === 'ready') {
-                document.getElementById('diagramsTab').disabled = false;
-                const hasDiagrams = !!(currentSpecData.diagrams && Array.isArray(currentSpecData.diagrams.diagrams) && currentSpecData.diagrams.diagrams.length > 0);
-                document.getElementById('generateDiagramsBtn').style.display = hasDiagrams ? 'none' : 'inline-block';
-            }
-        }
-        
-        displayTechnical(technicalContent);
-        
-        // Update export checkboxes when technical section is ready
-        if (technicalContent !== 'error') {
-            updateExportCheckboxes();
-            showNotification('Technical specification created successfully', 'success');
-        }
-        
-        if (user && currentSpecData && currentSpecData.id) {
-            try {
-                // Check content size before updating
-                const sizeCheck = checkContentSize(technicalContent, 'Technical');
-                
-                if (sizeCheck.tooLarge) {
-
-                    showNotification(`Technical spec too large (${sizeCheck.sizeInMB}MB). Saved locally only.`, 'warning');
-                } else {
-                    const contentPreview = technicalContent.substring(0, 200) + (technicalContent.length > 200 ? '...' : '');
-
-
-
-
-
-
-                    
-                    await firebase.firestore().collection('specs').doc(currentSpecData.id).update({
-                        technical: technicalContent,
-                        'status.technical': currentSpecData.status.technical,
-                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                    
-
-                    
-                    // Reset chat since new content added to spec
-                    autoResetChatOnSpecUpdate();
-                    
-                    // Trigger OpenAI upload (non-blocking)
-                    triggerOpenAIUploadForSpec(currentSpecData.id).catch(err => {
-
-                    });
-                }
-            } catch (error) {
-
-
-                showNotification('Failed to save technical spec to database. Saved locally.', 'error');
-            }
-        }
-        
-        // Update local data and status for Market and Design
-        currentSpecData.market = marketContent;
-        currentSpecData.status.market = marketContent === 'error' ? "error" : "ready";
-        updateStatus('market', currentSpecData.status.market);
-        updateTabLoadingState('market', false);
-        
-        // Enable Market tab when ready
-        if (marketContent !== 'error') {
-            document.getElementById('marketTab').disabled = false;
-            
-            // If Technical is also ready, enable Diagrams tab
-            if (currentSpecData.status.technical === 'ready') {
-                document.getElementById('diagramsTab').disabled = false;
-                const hasDiagrams = !!(currentSpecData.diagrams && Array.isArray(currentSpecData.diagrams.diagrams) && currentSpecData.diagrams.diagrams.length > 0);
-                document.getElementById('generateDiagramsBtn').style.display = hasDiagrams ? 'none' : 'inline-block';
-            }
-        }
-        
-        displayMarket(marketContent);
-        
-        // Update export checkboxes when market section is ready
-        if (marketContent !== 'error') {
-            updateExportCheckboxes();
-            showNotification('Market research completed successfully', 'success');
-        }
-        
-        if (user && currentSpecData && currentSpecData.id) {
-            try {
-                // Check content size before updating
-                const sizeCheck = checkContentSize(marketContent, 'Market');
-                
-                if (sizeCheck.tooLarge) {
-
-                    showNotification(`Market research too large (${sizeCheck.sizeInMB}MB). Saved locally only.`, 'warning');
-                } else {
-                    const contentPreview = marketContent.substring(0, 200) + (marketContent.length > 200 ? '...' : '');
-
-
-
-
-
-
-                    
-                    await firebase.firestore().collection('specs').doc(currentSpecData.id).update({
-                        market: marketContent,
-                        'status.market': currentSpecData.status.market,
-                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                    
-
-                    
-                    // Reset chat since new content added to spec
-                    autoResetChatOnSpecUpdate();
-                    
-                    // Trigger OpenAI upload (non-blocking)
-                    triggerOpenAIUploadForSpec(currentSpecData.id).catch(err => {
-
-                    });
-                }
-            } catch (error) {
-
-
-                showNotification('Failed to save market research to database. Saved locally.', 'error');
-            }
-        }
-        
-        // Update UI and Firebase for Design (already extracted from results)
-        currentSpecData.design = designContent;
-        currentSpecData.status.design = designContent === 'error' ? "error" : "ready";
-        updateStatus('design', currentSpecData.status.design);
-        updateTabLoadingState('design', false);
-        
-        // Enable Design tab when ready
-        if (designContent !== 'error') {
-            document.getElementById('designTab').disabled = false;
-        }
-        
-        displayDesign(designContent);
-        
-        // Update export checkboxes when design section is ready
-        if (designContent !== 'error') {
-            updateExportCheckboxes();
-            showNotification('Design specification created successfully', 'success');
-            // Refresh tabs menu to enable Prompts tab if conditions are met
-            refreshTabsAfterDesignReady();
-        }
-        
-        if (user && currentSpecData && currentSpecData.id) {
-            try {
-                // Check content size before updating
-                const sizeCheck = checkContentSize(designContent, 'Design');
-                
-                if (sizeCheck.tooLarge) {
-
-                    showNotification(`Design spec too large (${sizeCheck.sizeInMB}MB). Saved locally only.`, 'warning');
-                } else {
-                    const contentPreview = designContent.substring(0, 200) + (designContent.length > 200 ? '...' : '');
-
-
-
-
-
-
-                    
-                    await firebase.firestore().collection('specs').doc(currentSpecData.id).update({
-                        design: designContent,
-                        'status.design': currentSpecData.status.design,
-                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                    
-
-                    
-                    // Reset chat since new content added to spec
-                    autoResetChatOnSpecUpdate();
-                    
-                    // Trigger OpenAI upload (non-blocking)
-                    triggerOpenAIUploadForSpec(currentSpecData.id).catch(err => {
-
-                    });
-                }
-            } catch (error) {
-
-
-                showNotification('Failed to save design spec to database. Saved locally.', 'error');
-            }
-        }
-        
-        // Update localStorage (for both authenticated and unauthenticated users)
-        localStorage.setItem('generatedOverviewContent', currentSpecData.overview);
-        localStorage.setItem('generatedTechnicalContent', technicalContent);
-        localStorage.setItem('generatedMarketContent', marketContent);
-        localStorage.setItem('generatedDesignContent', designContent);
-        if (currentSpecData.id) {
-            localStorage.setItem(`specBackup_${currentSpecData.id}`, JSON.stringify(currentSpecData));
-        }
-        
-        hideApproveButton();
-        
-        // Enable Diagrams tab only if both technical and market are ready
-        if (currentSpecData.status.technical === 'ready' && currentSpecData.status.market === 'ready') {
-            document.getElementById('diagramsTab').disabled = false;
-            const hasDiagrams = !!(currentSpecData.diagrams && Array.isArray(currentSpecData.diagrams.diagrams) && currentSpecData.diagrams.diagrams.length > 0);
-            document.getElementById('generateDiagramsBtn').style.display = hasDiagrams ? 'none' : 'inline-block';
-        }
-        
-        // Show summary notification using SpecErrorHandler
-        if (window.SpecErrorHandler) {
-            window.SpecErrorHandler.handleGenerationErrors(results, {
-                displayStage: (stage, content) => {
-                    // Already displayed above
-                },
-                displayError: (stage, errorInfo) => {
-                    // Already displayed above
-                },
-                showNotification: (message, type) => {
-                    showNotification(message, type);
-                }
-            });
-        } else {
-            // Fallback if SpecErrorHandler not available
-            const successCount = [technicalContent, marketContent, designContent].filter(c => c !== 'error').length;
-            if (successCount === 3) {
-                showNotification('All specifications generated successfully!', 'success');
-            } else {
-                showNotification(`${successCount} specification(s) generated successfully, ${3 - successCount} failed. You can retry the failed ones.`, 'warning');
-            }
-        }
-        
-
-        
-    } catch (error) {
-
-
-
-        
-        // Show error notification
-        showNotification(`Error generating specifications: ${error.message}`, 'error');
-        
-        // Update status to error
-        updateStatus('technical', 'error');
-        updateStatus('market', 'error');
-        updateStatus('design', 'error');
-        
-        // Remove loading animations
-        updateTabLoadingState('technical', false);
-        updateTabLoadingState('market', false);
-        updateTabLoadingState('design', false);
-        
-        displayTechnical('error');
-        displayMarket('error');
-        displayDesign('error');
-        
-        hideApproveButton();
-        
-    } finally {
-        isLoading = false;
-        const approveBtn = document.getElementById('approveBtn');
-        approveBtn.disabled = false;
-        approveBtn.innerHTML = '<i class="fa fa-check"></i> Approve Overview';
-    }
-}
-
-async function generateTechnicalSpec(retryCount = 0, maxRetries = 2) {
-    
-    // Use reference if spec has ID, otherwise fallback to full content
-    const firstParam = currentSpecData.id ? currentSpecData.id : currentSpecData.overview;
-    let prompt = PROMPTS.technical(firstParam, currentSpecData.answers);
     
     // If using reference (specId), replace it with actual overview content
     if (currentSpecData.id && currentSpecData.overview) {
@@ -7992,7 +7729,11 @@ function updateDiagramsStatus(status) {
     <!-- Firebase SDK & Auth -->
     
     <!-- API Configuration - Must load before all API calls -->
+    <!-- API Configuration -->
     <script src="/assets/js/config.js"></script>
+    
+    <!-- API Client (must load after config.js) -->
+    <script defer src="/assets/js/api-client.js"></script>
     
     <!-- Helper function to get API base URL -->
     <script>
@@ -8980,15 +8721,37 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Update showTab to handle chat initialization
-const originalShowTab = showTab;
-showTab = function(tabName) {
-    originalShowTab(tabName);
+// Update showTab to handle chat initialization (must run after showTab is defined)
+if (typeof showTab !== 'undefined') {
+    const originalShowTab = showTab;
+    showTab = function(tabName) {
+        originalShowTab(tabName);
+        
+        if (tabName === 'chat' && !chatInitialized && currentSpecData) {
+            initializeChat();
+        }
+    };
+} else {
+    // If showTab not defined yet, wait for it
+    const checkShowTab = setInterval(() => {
+        if (typeof showTab !== 'undefined') {
+            clearInterval(checkShowTab);
+            const originalShowTab = showTab;
+            showTab = function(tabName) {
+                originalShowTab(tabName);
+                
+                if (tabName === 'chat' && !chatInitialized && currentSpecData) {
+                    initializeChat();
+                }
+            };
+        }
+    }, 100);
     
-    if (tabName === 'chat' && !chatInitialized && currentSpecData) {
-        initializeChat();
-    }
-};
+    // Timeout after 5 seconds
+    setTimeout(() => {
+        clearInterval(checkShowTab);
+    }, 5000);
+}
 
 // ===== EXPORT FUNCTIONALITY =====
 

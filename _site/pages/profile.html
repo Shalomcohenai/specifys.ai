@@ -59,6 +59,8 @@
     
     <!-- Main CSS (contains additional styles and utilities) -->
     <link rel="stylesheet" href="/assets/css/main.css">
+    <!-- Tailwind CSS - Processed via PostCSS -->
+    <link rel="stylesheet" href="/assets/css/tailwind-base-compiled.css">
     
     <!-- Page-specific CSS -->
     <link rel="stylesheet" href="/assets/css/pages/profile.css">
@@ -580,8 +582,9 @@
         let isCreatingUserDocument = false;
         let lastCreatedUserUid = null;
 
-        // Create user document in Firestore
-        async function createUserDocumentInProfile(user) {
+        // Initialize user documents (users + entitlements) via API
+        // Uses Firestore Transaction for atomicity
+        async function createUserDocumentInProfile(user, retryCount = 0) {
             // Prevent concurrent calls for the same user
             if (isCreatingUserDocument && lastCreatedUserUid === user.uid) {
                 // User document creation already in progress
@@ -591,36 +594,37 @@
             isCreatingUserDocument = true;
             lastCreatedUserUid = user.uid;
 
+            const MAX_RETRIES = 3;
+            const RETRY_DELAYS = [500, 1000, 2000]; // ms
+
             try {
-                const userRef = doc(db, 'users', user.uid);
-                const existingUserSnapshot = await getDoc(userRef);
+                const token = await user.getIdToken();
+                const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai.onrender.com';
+                
+                const response = await fetch(`${apiBaseUrl}/api/users/initialize`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({})
+                });
 
-                const userData = {
-                    email: user.email,
-                    displayName: user.displayName || user.email.split('@')[0],
-                    emailVerified: user.emailVerified,
-                    createdAt: serverTimestamp(),
-                    lastActive: serverTimestamp(),
-                    newsletterSubscription: false,
-                    plan: 'free'
-                };
-
-                if (!existingUserSnapshot.exists()) {
-                    userData.free_specs_remaining = 1;
-                } else {
-                    const currentFreeSpecs = existingUserSnapshot.data()?.free_specs_remaining;
-                    if (typeof currentFreeSpecs !== 'number') {
-                        userData.free_specs_remaining = 1;
-                    }
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.error || `HTTP ${response.status}`);
                 }
 
-                await setDoc(userRef, userData, { merge: true });
-                
-                // Note: entitlements document is managed by backend only
-                // Frontend cannot write to entitlements collection per security rules
+                return await response.json();
             } catch (error) {
-                // Error creating user document
+                // Retry on failure
+                if (retryCount < MAX_RETRIES) {
+                    const delay = RETRY_DELAYS[retryCount] || 2000;
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    return createUserDocumentInProfile(user, retryCount + 1);
+                }
                 // Don't throw - allow the page to continue loading even if document creation fails
+                console.warn('Failed to initialize user documents after retries:', error);
             } finally {
                 isCreatingUserDocument = false;
             }

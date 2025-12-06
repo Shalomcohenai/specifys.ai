@@ -55,7 +55,7 @@
     <!-- CSS - Unified compiled CSS file -->
     <link rel="stylesheet" href="{{ '/assets/css/main-compiled.css' | relative_url }}">
     <!-- Tailwind CSS - Processed via PostCSS -->
-    <link rel="stylesheet" href="{{ '/assets/css/tailwind-base.css' | relative_url }}">
+    <link rel="stylesheet" href="{{ '/assets/css/tailwind-base-compiled.css' | relative_url }}">
     {% if page.extra_css %}
       {% for css in page.extra_css %}
         <link rel="stylesheet" href="{{ css | relative_url }}">
@@ -72,10 +72,31 @@
     <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"></noscript>
     
     <!-- JavaScript - Core utilities loaded before core bundle -->
-    <script src="{{ '/assets/js/config.js' | relative_url }}"></script>
-    <script src="{{ '/assets/js/css-monitor.js' | relative_url }}"></script>
+    <script defer src="{{ '/assets/js/config.js' | relative_url }}"></script>
+    
+    <!-- API Client (must load after config.js) -->
+    <script defer src="{{ '/assets/js/api-client.js' | relative_url }}"></script>
+    
+    <!-- Components (must load before page-specific JS) -->
+    <script type="module" src="{{ '/assets/js/components/base.js' | relative_url }}"></script>
+    <script type="module" src="{{ '/assets/js/components/Modal.js' | relative_url }}"></script>
+    
+    <!-- State Management -->
+    <script defer src="{{ '/assets/js/store.js' | relative_url }}"></script>
+    
+    <!-- Application Logger -->
+    <script defer src="{{ '/assets/js/app-logger.js' | relative_url }}"></script>
+    
+    <!-- CSS Monitoring Script -->
+    <script defer src="{{ '/assets/js/css-monitor.js' | relative_url }}"></script>
+    
+    <!-- Security Utils -->
     <script type="module" src="{{ '/assets/js/security-utils.js' | relative_url }}"></script>
+    
+    <!-- Core Bundle (if exists) -->
+    {% if site.data.bundles.core %}
     <script src="{{ '/assets/js/bundles/core.js' | relative_url }}"></script>
+    {% endif %}
     
     <!-- Fonts - Optimized: Only Montserrat and Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">

@@ -1,8 +1,8 @@
 /* Tailwind CSS Base Styles */
-/* This file imports Tailwind's base, components, and utilities */
-/* It will be integrated with the existing SCSS structure */
+/* This file imports Tailwind's components and utilities */
+/* Base/reset is disabled to avoid conflicts with existing reset.css */
+/* Preflight is disabled in tailwind.config.js */
 
-@tailwind base;
 @tailwind components;
 @tailwind utilities;
 

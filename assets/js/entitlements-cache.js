@@ -40,6 +40,31 @@
     }
 
     try {
+      // Wait for api-client to be loaded
+      if (typeof window.api === 'undefined') {
+        await new Promise((resolve) => {
+          const checkInterval = setInterval(() => {
+            if (typeof window.api !== 'undefined') {
+              clearInterval(checkInterval);
+              resolve();
+            }
+          }, 100);
+          
+          // Timeout after 5 seconds
+          setTimeout(() => {
+            clearInterval(checkInterval);
+            if (typeof window.api === 'undefined') {
+              console.warn('API client not loaded after timeout');
+            }
+            resolve();
+          }, 5000);
+        });
+      }
+      
+      if (typeof window.api === 'undefined' || !window.api.get) {
+        throw new Error('API client not available');
+      }
+      
       const data = await window.api.get('/api/specs/entitlements');
       
       entitlementsCache = data;

@@ -41,29 +41,10 @@
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="manifest" href="/site.webmanifest">
     
-    <!-- CSS - Loaded in parallel instead of @import for better performance -->
-    <!-- Core styles (must be in order) -->
-    <link rel="stylesheet" href="/assets/css/core/variables.css">
-    <link rel="stylesheet" href="/assets/css/core/fonts.css">
-    <link rel="stylesheet" href="/assets/css/core/reset.css">
-    <link rel="stylesheet" href="/assets/css/core/typography.css">
-    <link rel="stylesheet" href="/assets/css/core/base.css">
-    
-    <!-- Components -->
-    <link rel="stylesheet" href="/assets/css/components/buttons.css">
-    <link rel="stylesheet" href="/assets/css/components/header.css">
-    <link rel="stylesheet" href="/assets/css/components/footer.css">
-    <link rel="stylesheet" href="/assets/css/components/icons.css">
-    <link rel="stylesheet" href="/assets/css/components/mermaid.css">
-    <link rel="stylesheet" href="/assets/css/components/tables.css">
-    
-    <!-- Main CSS (contains additional styles and utilities) -->
-    <link rel="stylesheet" href="/assets/css/main.css">
-    
-    <!-- Page-specific CSS -->
-    <link rel="stylesheet" href="/assets/css/pages/index.css">
-    <link rel="stylesheet" href="/assets/css/components/live-brief-modal.css">
-    <link rel="stylesheet" href="/assets/css/pages/why.css">
+    <!-- CSS - Unified compiled CSS file -->
+    <link rel="stylesheet" href="/assets/css/main-compiled.css">
+    <!-- Tailwind CSS - Processed via PostCSS -->
+    <link rel="stylesheet" href="/assets/css/tailwind-base-compiled.css">
     <style>
       /* Override why.css colors for index page - make titles dark gray like other headings */
       .why-section .section-title,
@@ -80,6 +61,16 @@
     
     <!-- API Configuration -->
     <script defer src="/assets/js/config.js"></script>
+    
+    <!-- API Client (must load after config.js) -->
+    <script defer src="/assets/js/api-client.js"></script>
+    
+    <!-- Components (must load before page-specific JS) -->
+    <script type="module" src="/assets/js/components/base.js"></script>
+    <script type="module" src="/assets/js/components/Modal.js"></script>
+    
+    <!-- State Management -->
+    <script defer src="/assets/js/store.js"></script>
     
     <!-- Application Logger -->
     <script defer src="/assets/js/app-logger.js"></script>
@@ -1018,22 +1009,39 @@ graph TD
     });
   }
   
-  async function ensureUserDocument(user) {
+  async function ensureUserDocument(user, retryCount = 0) {
+    const MAX_RETRIES = 3;
+    const RETRY_DELAYS = [500, 1000, 2000]; // ms
+    
     try {
       const token = await user.getIdToken();
       const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai.onrender.com';
-      const response = await fetch(`${apiBaseUrl}/api/users/ensure`, {
+      
+      // Use /initialize endpoint for better atomicity
+      const response = await fetch(`${apiBaseUrl}/api/users/initialize`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
-        }
+        },
+        body: JSON.stringify({})
       });
+      
       if (response.ok) {
-        // User document ensured
+        // User documents initialized
+        return await response.json();
+      } else {
+        throw new Error(`HTTP ${response.status}`);
       }
     } catch (error) {
-      // Silently fail
+      // Retry on failure
+      if (retryCount < MAX_RETRIES) {
+        const delay = RETRY_DELAYS[retryCount] || 2000;
+        await new Promise(resolve => setTimeout(resolve, delay));
+        return ensureUserDocument(user, retryCount + 1);
+      }
+      // Silently fail after max retries (non-critical)
+      console.warn('Failed to ensure user document after retries:', error);
     }
   }
 

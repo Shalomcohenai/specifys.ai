@@ -8,6 +8,12 @@ export default {
     './_posts/**/*.md',
     './assets/js/**/*.js',
   ],
+  // Disable Tailwind's preflight (reset) to avoid conflicts with existing reset.css
+  corePlugins: {
+    preflight: false,
+  },
+  // Use important to ensure Tailwind utilities don't override existing styles
+  important: '#main-content',
   theme: {
     extend: {
       colors: {

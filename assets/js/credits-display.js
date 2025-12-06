@@ -10,18 +10,53 @@
   const STORAGE_TTL = 1000 * 60 * 60 * 24; // 24 hours
   const CREDIT_CLASSES = ['unlimited', 'free', 'loading'];
 
-  // Wait for Firebase to be available
+  // Wait for Firebase to be available and initialized
   function waitForFirebase() {
     return new Promise((resolve) => {
-      if (typeof firebase !== 'undefined' && firebase.auth && firebase.firestore) {
+      // Check if Firebase is loaded and initialized
+      const checkFirebase = () => {
+        if (typeof firebase !== 'undefined' && 
+            firebase.apps && 
+            firebase.apps.length > 0 && 
+            firebase.auth && 
+            firebase.firestore) {
+          return true;
+        }
+        // Also check if window.auth exists (set by initFirebase)
+        if (window.auth && window.db) {
+          return true;
+        }
+        return false;
+      };
+
+      if (checkFirebase()) {
         resolve();
       } else {
+        // Listen for firebase-ready event
+        const readyHandler = () => {
+          window.removeEventListener('firebase-ready', readyHandler);
+          resolve();
+        };
+        window.addEventListener('firebase-ready', readyHandler);
+
+        // Also poll as fallback
         const checkInterval = setInterval(() => {
-          if (typeof firebase !== 'undefined' && firebase.auth && firebase.firestore) {
+          if (checkFirebase()) {
             clearInterval(checkInterval);
+            window.removeEventListener('firebase-ready', readyHandler);
             resolve();
           }
         }, 100);
+
+        // Timeout after 10 seconds
+        setTimeout(() => {
+          clearInterval(checkInterval);
+          window.removeEventListener('firebase-ready', readyHandler);
+          if (!checkFirebase()) {
+            console.warn('Firebase initialization timeout in credits-display.js');
+          }
+          resolve(); // Resolve anyway to prevent hanging
+        }, 10000);
       }
     });
   }
@@ -126,8 +161,9 @@
    */
   async function updateCreditsDisplay(options = {}) {
     await waitForFirebase();
-    
-    const user = firebase.auth().currentUser;
+    const auth = window.auth || (firebase && firebase.auth ? firebase.auth() : null);
+    if (!auth) return null;
+    const user = auth.currentUser;
     if (!user) {
       const creditsDisplay = document.getElementById('credits-display');
       if (creditsDisplay) {
@@ -232,8 +268,9 @@
   async function checkIfNewUser(userId) {
     try {
       await waitForFirebase();
-      if (!firebase.firestore) return false;
-      const userDoc = await firebase.firestore().collection('users').doc(userId).get();
+      const db = window.db || (firebase && firebase.firestore ? firebase.firestore() : null);
+      if (!db) return false;
+      const userDoc = await db.collection('users').doc(userId).get();
       if (!userDoc.exists) return true;
       const createdAt = userDoc.data()?.createdAt;
       if (createdAt) {
@@ -296,7 +333,8 @@
    */
   async function initCreditsListeners(userId) {
     await waitForFirebase();
-    if (!firebase.firestore) {
+    const db = window.db || (firebase && firebase.firestore ? firebase.firestore() : null);
+    if (!db) {
       console.warn('Firestore not available for credits listeners');
       return;
     }
@@ -312,7 +350,7 @@
     }
 
     // Listen to entitlements collection
-    const entitlementsRef = firebase.firestore()
+    const entitlementsRef = db
       .collection('entitlements')
       .doc(userId);
     
@@ -321,7 +359,7 @@
         const entitlements = snapshot.exists ? snapshot.data() : {};
         
         // Get user data to combine with entitlements
-        firebase.firestore()
+        db
           .collection('users')
           .doc(userId)
           .get()
@@ -340,7 +378,7 @@
     );
 
     // Listen to users collection (for free_specs_remaining)
-    const userRef = firebase.firestore()
+    const userRef = db
       .collection('users')
       .doc(userId);
     
@@ -349,7 +387,7 @@
         const userData = snapshot.exists ? snapshot.data() : {};
         
         // Get entitlements to combine with user data
-        firebase.firestore()
+        db
           .collection('entitlements')
           .doc(userId)
           .get()
@@ -439,11 +477,13 @@
         }
       });
 
-      firebase.auth().onIdTokenChanged((user) => {
-        if (user && user.uid === activeUserId) {
-          updateCreditsDisplay();
-        }
-      });
+      if (auth) {
+        auth.onIdTokenChanged((user) => {
+          if (user && user.uid === activeUserId) {
+            updateCreditsDisplay();
+          }
+        });
+      }
 
       document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'visible' && activeUserId) {
@@ -457,7 +497,7 @@
         }
       });
 
-      const user = firebase.auth().currentUser;
+      const user = auth ? auth.currentUser : null;
       if (user) {
         activeUserId = user.uid;
         const storedState = getStoredCreditsState(user.uid);

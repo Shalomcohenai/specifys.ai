@@ -19,7 +19,7 @@
     
     
     
-    <link rel="canonical" href="http://0.0.0.0:4000/2025/01/19/vibe-coding-game-development/">
+    <link rel="canonical" href="http://localhost:4000/2025/01/19/vibe-coding-game-development/">
     
     
     <!-- Open Graph -->
@@ -27,8 +27,8 @@
     <meta property="og:title" content="Vibe Coding in Game Development: AI-Powered Creativity in 2025">
     <meta property="og:description" content="Vibe coding has revolutionized game development in 2025, enabling creators to build immersive experiences through descriptive prompts rather than exhaustive coding. As evidenced by events like the Gamedev.js Jam, which saw over 1,000 entries using AI tools...">
     <meta property="og:type" content="article">
-    <meta property="og:url" content="http://0.0.0.0:4000/2025/01/19/vibe-coding-game-development/">
-    <meta property="og:image" content="http://0.0.0.0:4000/assets/images/og-image.png">
+    <meta property="og:url" content="http://localhost:4000/2025/01/19/vibe-coding-game-development/">
+    <meta property="og:image" content="http://localhost:4000/assets/images/og-image.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:locale" content="en_US">
@@ -44,35 +44,16 @@
     <meta name="twitter:creator" content="@specifysai">
     <meta name="twitter:title" content="Vibe Coding in Game Development: AI-Powered Creativity in 2025">
     <meta name="twitter:description" content="Vibe coding has revolutionized game development in 2025, enabling creators to build immersive experiences through descriptive prompts rather than exhaustive coding. As evidenced by events like the Gamedev.js Jam, which saw over 1,000 entries using AI tools...">
-    <meta name="twitter:image" content="http://0.0.0.0:4000/assets/images/og-image.png">
+    <meta name="twitter:image" content="http://localhost:4000/assets/images/og-image.png">
     
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="manifest" href="/site.webmanifest">
     
-    <!-- CSS - Loaded in parallel instead of @import for better performance -->
-    <!-- Core styles (must be in order) -->
-    <link rel="stylesheet" href="/assets/css/core/variables.css">
-    <link rel="stylesheet" href="/assets/css/core/fonts.css">
-    <link rel="stylesheet" href="/assets/css/core/reset.css">
-    <link rel="stylesheet" href="/assets/css/core/typography.css">
-    <link rel="stylesheet" href="/assets/css/core/base.css">
-    
-    <!-- Critical components (above the fold) -->
-    <link rel="stylesheet" href="/assets/css/components/header.css">
-    <link rel="stylesheet" href="/assets/css/components/buttons.css">
-    
-    <!-- Non-critical components (below the fold) -->
-    <link rel="stylesheet" href="/assets/css/components/footer.css">
-    <link rel="stylesheet" href="/assets/css/components/icons.css">
-    <link rel="stylesheet" href="/assets/css/components/mermaid.css">
-    <link rel="stylesheet" href="/assets/css/components/tables.css">
-    
-    <!-- Main CSS (contains additional styles and utilities) - Keep for backward compatibility -->
-    <link rel="stylesheet" href="/assets/css/main.css">
-    
-    <!-- Legacy bundles (kept for backward compatibility, will be removed after testing) -->
-    <link rel="stylesheet" href="/assets/css/bundles/critical.css">
+    <!-- CSS - Unified compiled CSS file -->
+    <link rel="stylesheet" href="/assets/css/main-compiled.css">
+    <!-- Tailwind CSS - Processed via PostCSS -->
+    <link rel="stylesheet" href="/assets/css/tailwind-base-compiled.css">
     
     
       
@@ -85,10 +66,29 @@
     <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"></noscript>
     
     <!-- JavaScript - Core utilities loaded before core bundle -->
-    <script src="/assets/js/config.js"></script>
-    <script src="/assets/js/css-monitor.js"></script>
+    <script defer src="/assets/js/config.js"></script>
+    
+    <!-- API Client (must load after config.js) -->
+    <script defer src="/assets/js/api-client.js"></script>
+    
+    <!-- Components (must load before page-specific JS) -->
+    <script type="module" src="/assets/js/components/base.js"></script>
+    <script type="module" src="/assets/js/components/Modal.js"></script>
+    
+    <!-- State Management -->
+    <script defer src="/assets/js/store.js"></script>
+    
+    <!-- Application Logger -->
+    <script defer src="/assets/js/app-logger.js"></script>
+    
+    <!-- CSS Monitoring Script -->
+    <script defer src="/assets/js/css-monitor.js"></script>
+    
+    <!-- Security Utils -->
     <script type="module" src="/assets/js/security-utils.js"></script>
-    <script src="/assets/js/bundles/core.js"></script>
+    
+    <!-- Core Bundle (if exists) -->
+    
     
     <!-- Fonts - Optimized: Only Montserrat and Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -435,7 +435,7 @@ document.addEventListener('DOMContentLoaded', function() {
       "dateModified": "2025-01-19T00:00:00-05:00",
       "mainEntityOfPage": {
         "@type": "WebPage",
-        "@id": "http://0.0.0.0:4000/2025/01/19/vibe-coding-game-development/"
+        "@id": "http://localhost:4000/2025/01/19/vibe-coding-game-development/"
       }
     }
   ]
@@ -1358,24 +1358,28 @@ AI-Generated Events:
     });
   }
   
-  async function ensureUserDocument(user) {
+  async function ensureUserDocument(user, retryCount = 0) {
+    const MAX_RETRIES = 3;
+    const RETRY_DELAYS = [500, 1000, 2000]; // ms
+    
     try {
       const token = await user.getIdToken();
       const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : (window.API_BASE_URL || 'https://specifys-ai.onrender.com');
-      const response = await fetch(`${apiBaseUrl}/api/users/ensure`, {
+      const response = await fetch(`${apiBaseUrl}/api/users/initialize`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
-        }
+        },
+        body: JSON.stringify({})
       });
 
       if (response.ok) {
         const result = await response.json();
-        console.log('✅ User document ensured in Firestore', result);
+        console.log('✅ User documents initialized in Firestore', result);
         
         // If entitlements were created or updated, trigger credits refresh
-        if (result.entitlements && (result.entitlements.created || result.entitlements.updated)) {
+        if (result.entitlements && (result.created || result.updated)) {
           // Clear entitlements cache if it exists
           if (typeof window.clearEntitlementsCache === 'function') {
             window.clearEntitlementsCache();
@@ -1389,10 +1393,16 @@ AI-Generated Events:
           }
         }
       } else {
-        console.warn('⚠️ Failed to ensure user document:', await response.text());
+        throw new Error(`HTTP ${response.status}`);
       }
     } catch (error) {
-      console.warn('⚠️ Error ensuring user document:', error);
+      // Retry on failure
+      if (retryCount < MAX_RETRIES) {
+        const delay = RETRY_DELAYS[retryCount] || 2000;
+        await new Promise(resolve => setTimeout(resolve, delay));
+        return ensureUserDocument(user, retryCount + 1);
+      }
+      console.warn('⚠️ Error initializing user documents after retries:', error);
     }
   }
 

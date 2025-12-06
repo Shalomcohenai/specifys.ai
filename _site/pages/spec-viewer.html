@@ -59,6 +59,8 @@
     
     <!-- Main CSS (contains additional styles and utilities) -->
     <link rel="stylesheet" href="/assets/css/main.css">
+    <!-- Tailwind CSS - Processed via PostCSS -->
+    <link rel="stylesheet" href="/assets/css/tailwind-base-compiled.css">
     
     <!-- Page-specific CSS -->
     <link rel="stylesheet" href="/assets/css/pages/spec-viewer.css">
@@ -803,6 +805,10 @@
 
 <script src="/tools/prompts.js"></script>
 <script src="/assets/js/mermaid.js"></script>
+<!-- Spec Generation System - New Architecture -->
+<script src="/assets/js/spec-cache.js"></script>
+<script src="/assets/js/spec-error-handler.js"></script>
+<script src="/assets/js/spec-events.js"></script>
 <script>
 let currentSpecData = null;
 let currentTab = 'overview';
@@ -5242,298 +5248,125 @@ async function approveOverview() {
         updateTabLoadingState('market', true);
         updateTabLoadingState('design', true);
         
-        // Generate technical, market, and design specs sequentially
+        // Start parallel generation via backend API
+        const token = await user.getIdToken();
+        const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai.onrender.com';
+        const response = await fetch(`${apiBaseUrl}/api/specs/${currentSpecData.id}/generate-all`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                overviewContent: currentSpecData.overview,
+                answers: currentSpecData.answers
+            })
+        });
 
-        
-        // Generate Technical Spec first
-
-        let technicalContent;
-        try {
-            technicalContent = await generateTechnicalSpec();
-
-        } catch (error) {
-
-            technicalContent = 'error';
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to start parallel generation');
         }
-        
-        // Update UI and Firebase for Technical
-        currentSpecData.technical = technicalContent;
-        currentSpecData.status.technical = technicalContent === 'error' ? "error" : "ready";
-        updateStatus('technical', currentSpecData.status.technical);
-        updateTabLoadingState('technical', false);
-        
-        // Enable Technical tab when ready
-        if (technicalContent !== 'error') {
-            document.getElementById('technicalTab').disabled = false;
-            // Enable Mind Map tab when technical is ready
-            document.getElementById('mindmapTab').disabled = false;
-            
-            // If Market is also ready, enable Diagrams tab
-            if (currentSpecData.status.market === 'ready') {
+
+        const generationStatus = await response.json();
+        showNotification(generationStatus.message, 'info');
+
+        // Use Firestore listeners for real-time updates
+        window.SpecEvents.listenForSpecUpdates(currentSpecData.id, (updatedSpecData) => {
+            currentSpecData = { ...currentSpecData, ...updatedSpecData };
+            displaySpec(currentSpecData); // Re-render the entire spec viewer
+            // Update UI based on individual stage statuses
+            updateTabLoadingState('technical', updatedSpecData.status?.technical === 'generating');
+            updateTabLoadingState('market', updatedSpecData.status?.market === 'generating');
+            updateTabLoadingState('design', updatedSpecData.status?.design === 'generating');
+
+            if (updatedSpecData.status?.technical === 'ready') {
+                document.getElementById('technicalTab').disabled = false;
+                document.getElementById('mindmapTab').disabled = false;
+            }
+            if (updatedSpecData.status?.market === 'ready') {
+                document.getElementById('marketTab').disabled = false;
+            }
+            if (updatedSpecData.status?.design === 'ready') {
+                document.getElementById('designTab').disabled = false;
+                refreshTabsAfterDesignReady();
+            }
+            if (updatedSpecData.status?.technical === 'ready' && updatedSpecData.status?.market === 'ready') {
                 document.getElementById('diagramsTab').disabled = false;
-                const hasDiagrams = !!(currentSpecData.diagrams && Array.isArray(currentSpecData.diagrams.diagrams) && currentSpecData.diagrams.diagrams.length > 0);
+                const hasDiagrams = !!(updatedSpecData.diagrams && Array.isArray(updatedSpecData.diagrams.diagrams) && updatedSpecData.diagrams.diagrams.length > 0);
                 document.getElementById('generateDiagramsBtn').style.display = hasDiagrams ? 'none' : 'inline-block';
             }
-        }
-        
-        displayTechnical(technicalContent);
-        
-        // Update export checkboxes when technical section is ready
-        if (technicalContent !== 'error') {
-            updateExportCheckboxes();
-            showNotification('Technical specification created successfully', 'success');
-        }
-        
-        if (user && currentSpecData && currentSpecData.id) {
-            try {
-                // Check content size before updating
-                const sizeCheck = checkContentSize(technicalContent, 'Technical');
-                
-                if (sizeCheck.tooLarge) {
 
-                    showNotification(`Technical spec too large (${sizeCheck.sizeInMB}MB). Saved locally only.`, 'warning');
+            // Check if all are ready or errored to show final notification
+            const allDone = ['technical', 'market', 'design'].every(stage =>
+                updatedSpecData.status?.[stage] === 'ready' || updatedSpecData.status?.[stage] === 'error'
+            );
+
+            if (allDone) {
+                const allSuccessful = ['technical', 'market', 'design'].every(stage =>
+                    updatedSpecData.status?.[stage] === 'ready'
+                );
+                if (allSuccessful) {
+                    showNotification('All specifications generated successfully!', 'success');
                 } else {
-                    const contentPreview = technicalContent.substring(0, 200) + (technicalContent.length > 200 ? '...' : '');
-
-
-
-
-
-
-                    
-                    await firebase.firestore().collection('specs').doc(currentSpecData.id).update({
-                        technical: technicalContent,
-                        'status.technical': currentSpecData.status.technical,
-                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                    
-
-                    
-                    // Reset chat since new content added to spec
-                    autoResetChatOnSpecUpdate();
-                    
-                    // Trigger OpenAI upload (non-blocking)
-                    triggerOpenAIUploadForSpec(currentSpecData.id).catch(err => {
-
-                    });
+                    showNotification('Some specifications failed to generate. You can retry using the retry buttons.', 'error');
                 }
-            } catch (error) {
-
-
-                showNotification('Failed to save technical spec to database. Saved locally.', 'error');
+                hideApproveButton();
+                isLoading = false;
+                approveBtn.disabled = false;
+                approveBtn.innerHTML = '<i class="fa fa-check"></i> Approve Overview';
             }
-        }
+        });
         
-        // Generate Market Spec second
-
-        let marketContent;
-        try {
-            marketContent = await generateMarketSpec();
-
-        } catch (error) {
-
-            marketContent = 'error';
-        }
-        
-        // Update UI and Firebase for Market
-        currentSpecData.market = marketContent;
-        currentSpecData.status.market = marketContent === 'error' ? "error" : "ready";
-        updateStatus('market', currentSpecData.status.market);
-        updateTabLoadingState('market', false);
-        
-        // Enable Market tab when ready
-        if (marketContent !== 'error') {
-            document.getElementById('marketTab').disabled = false;
-            
-            // If Technical is also ready, enable Diagrams tab
-            if (currentSpecData.status.technical === 'ready') {
-                document.getElementById('diagramsTab').disabled = false;
-                const hasDiagrams = !!(currentSpecData.diagrams && Array.isArray(currentSpecData.diagrams.diagrams) && currentSpecData.diagrams.diagrams.length > 0);
-                document.getElementById('generateDiagramsBtn').style.display = hasDiagrams ? 'none' : 'inline-block';
-            }
-        }
-        
-        displayMarket(marketContent);
-        
-        // Update export checkboxes when market section is ready
-        if (marketContent !== 'error') {
-            updateExportCheckboxes();
-            showNotification('Market research completed successfully', 'success');
-        }
-        
-        if (user && currentSpecData && currentSpecData.id) {
-            try {
-                // Check content size before updating
-                const sizeCheck = checkContentSize(marketContent, 'Market');
-                
-                if (sizeCheck.tooLarge) {
-
-                    showNotification(`Market research too large (${sizeCheck.sizeInMB}MB). Saved locally only.`, 'warning');
-                } else {
-                    const contentPreview = marketContent.substring(0, 200) + (marketContent.length > 200 ? '...' : '');
-
-
-
-
-
-
-                    
-                    await firebase.firestore().collection('specs').doc(currentSpecData.id).update({
-                        market: marketContent,
-                        'status.market': currentSpecData.status.market,
-                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                    
-
-                    
-                    // Reset chat since new content added to spec
-                    autoResetChatOnSpecUpdate();
-                    
-                    // Trigger OpenAI upload (non-blocking)
-                    triggerOpenAIUploadForSpec(currentSpecData.id).catch(err => {
-
-                    });
-                }
-            } catch (error) {
-
-
-                showNotification('Failed to save market research to database. Saved locally.', 'error');
-            }
-        }
-        
-        // Generate Design Spec third
-
-        let designContent;
-        try {
-            designContent = await generateDesignSpec();
-
-        } catch (error) {
-
-            designContent = 'error';
-        }
-        
-        // Update UI and Firebase for Design
-        currentSpecData.design = designContent;
-        currentSpecData.status.design = designContent === 'error' ? "error" : "ready";
-        updateStatus('design', currentSpecData.status.design);
-        updateTabLoadingState('design', false);
-        
-        // Enable Design tab when ready
-        if (designContent !== 'error') {
-            document.getElementById('designTab').disabled = false;
-        }
-        
-        displayDesign(designContent);
-        
-        // Update export checkboxes when design section is ready
-        if (designContent !== 'error') {
-            updateExportCheckboxes();
-            showNotification('Design specification created successfully', 'success');
-            // Refresh tabs menu to enable Prompts tab if conditions are met
-            refreshTabsAfterDesignReady();
-        }
-        
-        if (user && currentSpecData && currentSpecData.id) {
-            try {
-                // Check content size before updating
-                const sizeCheck = checkContentSize(designContent, 'Design');
-                
-                if (sizeCheck.tooLarge) {
-
-                    showNotification(`Design spec too large (${sizeCheck.sizeInMB}MB). Saved locally only.`, 'warning');
-                } else {
-                    const contentPreview = designContent.substring(0, 200) + (designContent.length > 200 ? '...' : '');
-
-
-
-
-
-
-                    
-                    await firebase.firestore().collection('specs').doc(currentSpecData.id).update({
-                        design: designContent,
-                        'status.design': currentSpecData.status.design,
-                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                    
-
-                    
-                    // Reset chat since new content added to spec
-                    autoResetChatOnSpecUpdate();
-                    
-                    // Trigger OpenAI upload (non-blocking)
-                    triggerOpenAIUploadForSpec(currentSpecData.id).catch(err => {
-
-                    });
-                }
-            } catch (error) {
-
-
-                showNotification('Failed to save design spec to database. Saved locally.', 'error');
-            }
-        }
-        
-        // Update localStorage (for both authenticated and unauthenticated users)
-        localStorage.setItem('generatedOverviewContent', currentSpecData.overview);
-        localStorage.setItem('generatedTechnicalContent', technicalContent);
-        localStorage.setItem('generatedMarketContent', marketContent);
-        localStorage.setItem('generatedDesignContent', designContent);
-        if (currentSpecData.id) {
-            localStorage.setItem(`specBackup_${currentSpecData.id}`, JSON.stringify(currentSpecData));
-        }
-        
-        hideApproveButton();
-        
-        // Enable Diagrams tab only if both technical and market are ready
-        if (currentSpecData.status.technical === 'ready' && currentSpecData.status.market === 'ready') {
-            document.getElementById('diagramsTab').disabled = false;
-            const hasDiagrams = !!(currentSpecData.diagrams && Array.isArray(currentSpecData.diagrams.diagrams) && currentSpecData.diagrams.diagrams.length > 0);
-            document.getElementById('generateDiagramsBtn').style.display = hasDiagrams ? 'none' : 'inline-block';
-        }
-        
-        // Show success message
-        if (technicalContent !== 'error' && marketContent !== 'error' && designContent !== 'error') {
-            showNotification('All specifications generated successfully!', 'success');
-        } else {
-            showNotification('Some specifications failed to generate. You can retry using the retry buttons.', 'error');
-        }
-        
-
+        return; // Exit early - listeners will handle updates
         
     } catch (error) {
-
-
-
-        
-        // Show error notification
-        showNotification(`Error generating specifications: ${error.message}`, 'error');
-        
-        // Update status to error
+        showNotification(`Error initiating specification generation: ${error.message}`, 'error');
         updateStatus('technical', 'error');
         updateStatus('market', 'error');
         updateStatus('design', 'error');
-        
-        // Remove loading animations
         updateTabLoadingState('technical', false);
         updateTabLoadingState('market', false);
         updateTabLoadingState('design', false);
-        
         displayTechnical('error');
         displayMarket('error');
         displayDesign('error');
-        
         hideApproveButton();
-        
-    } finally {
         isLoading = false;
         const approveBtn = document.getElementById('approveBtn');
-        approveBtn.disabled = false;
-        approveBtn.innerHTML = '<i class="fa fa-check"></i> Approve Overview';
+        if (approveBtn) {
+            approveBtn.disabled = false;
+            approveBtn.innerHTML = '<i class="fa fa-check"></i> Approve Overview';
+        }
+    }
+}
+
+async function triggerOpenAIUploadForSpec(specId) {
+    try {
+        const user = firebase.auth().currentUser;
+        if (!user) {
+            return;
+        }
+        
+        const token = await user.getIdToken();
+        const response = await fetch(`${getApiBaseUrl()}/api/specs/${specId}/upload-to-openai`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Upload failed');
+        }
+    } catch (error) {
+        // Silently fail - don't interrupt user experience
     }
 }
 
 async function generateTechnicalSpec(retryCount = 0, maxRetries = 2) {
-
     
     // Use reference if spec has ID, otherwise fallback to full content
     const firstParam = currentSpecData.id ? currentSpecData.id : currentSpecData.overview;
@@ -7896,7 +7729,11 @@ function updateDiagramsStatus(status) {
     <!-- Firebase SDK & Auth -->
     
     <!-- API Configuration - Must load before all API calls -->
+    <!-- API Configuration -->
     <script src="/assets/js/config.js"></script>
+    
+    <!-- API Client (must load after config.js) -->
+    <script defer src="/assets/js/api-client.js"></script>
     
     <!-- Helper function to get API base URL -->
     <script>
@@ -8393,6 +8230,25 @@ function enableChatTab() {
 /**
  * Initialize chat when tab is opened
  */
+/**
+ * Retry a chat operation with exponential backoff
+ */
+async function retryChatOperation(operation, maxRetries = 3, initialDelay = 1000) {
+    let lastError;
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+        try {
+            return await operation();
+        } catch (error) {
+            lastError = error;
+            if (attempt < maxRetries) {
+                const delay = initialDelay * Math.pow(2, attempt);
+                await new Promise(resolve => setTimeout(resolve, delay));
+            }
+        }
+    }
+    throw lastError;
+}
+
 async function initializeChat() {
     if (chatInitialized) {
         return; // Already initialized
@@ -8410,32 +8266,35 @@ async function initializeChat() {
         }
         
         const token = await user.getIdToken();
-        const response = await fetch(`${getApiBaseUrl()}/api/chat/init`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                specId: currentSpecData.id
-            })
+        const response = await retryChatOperation(async () => {
+            const res = await fetch(`${getApiBaseUrl()}/api/chat/init`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    specId: currentSpecData.id
+                })
+            });
+            
+            if (!res.ok) {
+                const error = await res.json();
+                throw new Error(error.error || 'Failed to initialize chat');
+            }
+            
+            return await res.json();
         });
         
-        if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.error || 'Failed to initialize chat');
-        }
-        
-        const data = await response.json();
-        chatThreadId = data.threadId;
-        chatAssistantId = data.assistantId;
+        chatThreadId = response.threadId;
+        chatAssistantId = response.assistantId;
         chatInitialized = true;
         
         // Load history from localStorage
         loadChatHistory();
         
     } catch (error) {
-
+        console.error('[Chat] Failed to initialize chat:', error);
         showNotification('Failed to initialize chat: ' + error.message, 'error');
     }
 }
@@ -8453,7 +8312,7 @@ async function sendChatMessage() {
         await initializeChat();
     }
     
-    // Add user message to UI
+    // Optimistic update: Add user message to UI immediately
     addChatMessage('user', message);
     input.value = '';
     
@@ -8468,35 +8327,45 @@ async function sendChatMessage() {
         const user = firebase.auth().currentUser;
         const token = await user.getIdToken();
         
-        const response = await fetch(`${getApiBaseUrl()}/api/chat/message`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                specId: currentSpecData.id,
-                threadId: chatThreadId,
-                assistantId: chatAssistantId,
-                message: message
-            })
-        });
-        
-        if (!response.ok) {
-            let errorMessage = 'Failed to send message';
-            try {
-                const errorData = await response.json();
-                errorMessage = errorData.error || errorData.details || errorMessage;
-                if (errorData.details) {
-                    errorMessage += ': ' + errorData.details;
+        const data = await retryChatOperation(async () => {
+            const response = await fetch(`${getApiBaseUrl()}/api/chat/message`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    specId: currentSpecData.id,
+                    threadId: chatThreadId,
+                    assistantId: chatAssistantId,
+                    message: message
+                })
+            });
+            
+            if (!response.ok) {
+                let errorMessage = 'Failed to send message';
+                try {
+                    const errorData = await response.json();
+                    errorMessage = errorData.error || errorData.details || errorMessage;
+                    if (errorData.details) {
+                        errorMessage += ': ' + errorData.details;
+                    }
+                } catch (e) {
+                    errorMessage = `Server error (${response.status})`;
                 }
-            } catch (e) {
-                errorMessage = `Server error (${response.status})`;
+                throw new Error(errorMessage);
             }
-            throw new Error(errorMessage);
-        }
+            
+            return await response.json();
+        }, 2, 1000);
         
-        const data = await response.json();
+        // Update thread/assistant IDs if they changed (e.g., after assistant recreation)
+        if (data.threadId && data.threadId !== chatThreadId) {
+            chatThreadId = data.threadId;
+        }
+        if (data.assistantId && data.assistantId !== chatAssistantId) {
+            chatAssistantId = data.assistantId;
+        }
         
         // Add assistant response to UI
         addChatMessage('assistant', data.response);
@@ -8508,8 +8377,16 @@ async function sendChatMessage() {
         hideChatLoading();
         
     } catch (error) {
-
-        showNotification('Failed to send message: ' + error.message, 'error');
+        console.error('[Chat] Failed to send message:', error);
+        
+        // Error recovery: Try to reinitialize chat if it might be a connection issue
+        if (error.message.includes('Failed to initialize') || error.message.includes('Unauthorized')) {
+            chatInitialized = false;
+            showNotification('Connection issue. Please try again.', 'error');
+        } else {
+            showNotification('Failed to send message: ' + error.message, 'error');
+        }
+        
         hideChatLoading();
     }
 }
@@ -8844,15 +8721,37 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Update showTab to handle chat initialization
-const originalShowTab = showTab;
-showTab = function(tabName) {
-    originalShowTab(tabName);
+// Update showTab to handle chat initialization (must run after showTab is defined)
+if (typeof showTab !== 'undefined') {
+    const originalShowTab = showTab;
+    showTab = function(tabName) {
+        originalShowTab(tabName);
+        
+        if (tabName === 'chat' && !chatInitialized && currentSpecData) {
+            initializeChat();
+        }
+    };
+} else {
+    // If showTab not defined yet, wait for it
+    const checkShowTab = setInterval(() => {
+        if (typeof showTab !== 'undefined') {
+            clearInterval(checkShowTab);
+            const originalShowTab = showTab;
+            showTab = function(tabName) {
+                originalShowTab(tabName);
+                
+                if (tabName === 'chat' && !chatInitialized && currentSpecData) {
+                    initializeChat();
+                }
+            };
+        }
+    }, 100);
     
-    if (tabName === 'chat' && !chatInitialized && currentSpecData) {
-        initializeChat();
-    }
-};
+    // Timeout after 5 seconds
+    setTimeout(() => {
+        clearInterval(checkShowTab);
+    }, 5000);
+}
 
 // ===== EXPORT FUNCTIONALITY =====
 
