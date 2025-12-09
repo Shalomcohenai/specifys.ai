@@ -65,3 +65,8 @@ module.exports = new SpecEventEmitter();
 
 
 
+<<<<<<< Updated upstream
+=======
+
+
+>>>>>>> Stashed changes
