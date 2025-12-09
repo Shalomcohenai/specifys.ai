@@ -40,6 +40,10 @@
     <link rel="stylesheet" href="/assets/css/main-compiled.css">
     <!-- Tailwind CSS - Processed via PostCSS -->
     <link rel="stylesheet" href="/assets/css/tailwind-base-compiled.css">
+    <!-- Display Utilities -->
+    <link rel="stylesheet" href="/assets/css/utilities/display.css">
+    <!-- Text Utilities -->
+    <link rel="stylesheet" href="/assets/css/utilities/text.css">
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -126,11 +130,11 @@
                     </p>
                 </div>
                 <h1>Legacy Specification</h1>
-                <p style="display: none;">Loading legacy specification...</p>
+                <p class="hidden">Loading legacy specification...</p>
             </div>
             
             <!-- Mode Selector - Hidden -->
-            <div class="mode-selector" style="display: none;"></div>
+            <div class="mode-selector hidden"></div>
             
             <div class="demo-modes">
                 <!-- Specification Mode -->
@@ -153,7 +157,7 @@
                 </div>
                 
                 <!-- Market Research Mode - Hidden -->
-                <div class="mode-section research" id="researchSection" style="display: none;">
+                <div class="mode-section research hidden" id="researchSection">
                     <div class="mode-header">
                         <div class="mode-icon research">
                             <i class="fas fa-chart-line"></i>
@@ -173,7 +177,7 @@
             </div>
             
             <!-- Comparison Section - Hidden -->
-            <div class="comparison-section" style="display: none;"></div>
+            <div class="comparison-section hidden"></div>
         </div>
     </main>
 
@@ -328,7 +332,7 @@
                 const firstLetter = displayName.charAt(0).toUpperCase();
                 
                 authButtons.innerHTML = `
-                    <a href="/pages/profile.html" class="user-info" style="text-decoration: none;">
+                    <a href="/pages/profile.html" class="user-info no-underline">
                         <div class="user-avatar">${firstLetter}</div>
                         <span>${displayName}</span>
                     </a>

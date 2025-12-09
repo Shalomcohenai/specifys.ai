@@ -1,0 +1,15 @@
+/* ============================================
+   Mermaid Component - Specifys.ai
+   ============================================
+   Styles for Mermaid diagrams and error handling
+   This file extends the base mermaid styles from main-compiled.css
+*/
+
+/* Hide Mermaid error logo/footer - target specific error elements only */
+/* Using higher specificity to override default mermaid error display */
+svg .mermaid-error,
+svg[aria-describedby*="error"],
+svg + div[class*="error"],
+.mermaid-error-message {
+  display: none;
+}

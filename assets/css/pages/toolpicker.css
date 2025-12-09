@@ -1,0 +1,20 @@
+/* ============================================
+   ToolPicker Page Specific Styles - Specifys.ai
+   ============================================
+   Styles specific to the ToolPicker.html page
+*/
+
+.impact-section {
+  margin: 4rem 0;
+}
+
+.impact-title {
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.impact-description {
+  text-align: center;
+  color: var(--text-secondary);
+  margin-bottom: 2rem;
+}

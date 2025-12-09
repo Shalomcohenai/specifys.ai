@@ -1,0 +1,49 @@
+/* ============================================
+   Display Utilities - Specifys.ai
+   ============================================
+   Utility classes for display properties
+   Used to replace inline styles like style="display: none;"
+*/
+
+/* Hide element */
+.hidden {
+  display: none;
+}
+
+/* Show as block */
+.visible {
+  display: block;
+}
+
+/* Show as flex */
+.flex {
+  display: flex;
+}
+
+/* Show as inline-flex */
+.inline-flex {
+  display: inline-flex;
+}
+
+/* Show as grid */
+.grid {
+  display: grid;
+}
+
+/* Hide visually but keep for screen readers */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Text decoration utilities */
+.no-underline {
+  text-decoration: none;
+}

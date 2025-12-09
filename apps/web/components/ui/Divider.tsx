@@ -16,3 +16,4 @@ export function Divider({ className, orientation = 'horizontal' }: DividerProps)
     />
   );
 }
+

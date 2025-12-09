@@ -45,13 +45,10 @@
     <link rel="stylesheet" href="/assets/css/main-compiled.css">
     <!-- Tailwind CSS - Processed via PostCSS -->
     <link rel="stylesheet" href="/assets/css/tailwind-base-compiled.css">
-    <style>
-      /* Override why.css colors for index page - make titles dark gray like other headings */
-      .why-section .section-title,
-      .why-section .section-subtitle {
-        color: #333 !important;
-      }
-    </style>
+    <!-- Display Utilities -->
+    <link rel="stylesheet" href="/assets/css/utilities/display.css">
+    <!-- Index Page Specific Styles -->
+    <link rel="stylesheet" href="/assets/css/pages/index.css">
     
     
     
@@ -238,7 +235,7 @@
             <div class="access-code-body">
                 <p>The site is under maintenance. Please enter the access code to continue.</p>
                 <input type="text" id="accessCodeInput" class="access-code-input" placeholder="Enter access code" maxlength="10" autocomplete="off">
-                <div class="access-code-error" id="accessCodeError" style="display: none;">Incorrect code. Please try again.</div>
+                <div class="access-code-error hidden" id="accessCodeError">Incorrect code. Please try again.</div>
             </div>
             <div class="access-code-actions">
                 <button class="access-code-btn" id="accessCodeSubmit">Enter</button>
@@ -256,7 +253,7 @@
         </div>
     </div>
     <div class="header-right">
-        <div class="credits-display" id="credits-display" style="display: none;">
+        <div class="credits-display hidden" id="credits-display">
             <div class="credits-container">
                 <span id="credits-text">Credits: 0</span>
             </div>
@@ -350,7 +347,7 @@
             </div>
             
             <!-- Questions Display -->
-            <div class="questions-display" id="questionsDisplay" style="display: none;">
+            <div class="questions-display hidden" id="questionsDisplay">
                 <div class="questions-header">
                     <div class="current-question" id="currentQuestion">
                         Describe your application
@@ -370,7 +367,7 @@
             </div>
             
             <!-- Loading Overlay -->
-            <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+            <div class="loading-overlay hidden" id="loadingOverlay">
                 <div class="loading-content">
                     <div class="loading-spinner"></div>
                     <div class="loading-text">Generating Your Specification</div>
@@ -379,7 +376,7 @@
             </div>
             
             <!-- Modern Input Container -->
-            <div class="modern-input-container" id="modernInputContainer" style="display: none;">
+            <div class="modern-input-container hidden" id="modernInputContainer">
                 <div class="input-instruction">
                     Start typing, press Enter for next question, press Backspace for previous question
                 </div>
@@ -398,7 +395,7 @@
                 
                 <div class="input-controls">
                     <div class="left-controls">
-                        <button class="control-btn" title="Microphone" id="microphoneBtn" style="display: none;">
+                        <button class="control-btn hidden" title="Microphone" id="microphoneBtn">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
                                 <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
@@ -863,7 +860,7 @@ graph TD
 
     <!-- Modals -->
     <!-- Registration Required Modal -->
-<div id="registrationModal" class="welcome-modal" style="display: none;">
+<div id="registrationModal" class="welcome-modal hidden">
   <div class="welcome-content">
     <div class="welcome-header">
       <h3>🔐 Registration Required</h3>
@@ -1067,7 +1064,7 @@ graph TD
       const firstLetter = displayName.charAt(0).toUpperCase();
       
       authButtons.innerHTML = `
-        <a href="/pages/profile.html" class="user-info" style="text-decoration: none;">
+        <a href="/pages/profile.html" class="user-info no-underline">
           <div class="user-avatar">${firstLetter}</div>
           <span>${displayName}</span>
         </a>

@@ -1,0 +1,10 @@
+/* ============================================
+   Auth Page Specific Styles - Specifys.ai
+   ============================================
+   Styles specific to the auth.html page
+*/
+
+.loading-text {
+  font-size: 16px;
+  color: #333;
+}

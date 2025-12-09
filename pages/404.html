@@ -18,6 +18,10 @@
     <link rel="stylesheet" href="/assets/css/main-compiled.css">
     <!-- Tailwind CSS - Processed via PostCSS -->
     <link rel="stylesheet" href="/assets/css/tailwind-base-compiled.css">
+    <!-- Display Utilities -->
+    <link rel="stylesheet" href="/assets/css/utilities/display.css">
+    <!-- Text Utilities -->
+    <link rel="stylesheet" href="/assets/css/utilities/text.css">
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -31,92 +35,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="dns-prefetch" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <style>
-        body {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .main-content {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .error-404-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 2rem;
-        }
-        
-        .error-404-code {
-            font-size: 8rem;
-            font-weight: 700;
-            color: #FF6B35;
-            margin-bottom: 1rem;
-            font-family: 'Montserrat', sans-serif;
-        }
-        
-        .error-404-title {
-            font-size: 2.5rem;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 1rem;
-            font-family: 'Montserrat', sans-serif;
-        }
-        
-        .error-404-message {
-            font-size: 1.2rem;
-            color: #666;
-            margin-bottom: 2rem;
-            max-width: 600px;
-            font-family: 'Inter', sans-serif;
-            line-height: 1.6;
-        }
-        
-        .error-404-actions {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-        
-        .btn-home {
-            background: #FF6B35;
-            color: white;
-            padding: 1rem 2rem;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
-        }
-        
-        .btn-home:hover {
-            background: #FF8551;
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(255, 107, 53, 0.3);
-        }
-        
-        @media (max-width: 768px) {
-            .error-404-code {
-                font-size: 5rem;
-            }
-            
-            .error-404-title {
-                font-size: 1.8rem;
-            }
-            
-            .error-404-message {
-                font-size: 1rem;
-            }
-        }
-    </style>
+    <!-- 404 Page Specific Styles -->
+    <link rel="stylesheet" href="/assets/css/pages/404.css">
     
     <!-- API Configuration - MUST load before other scripts -->
     <script src="/assets/js/config.js"></script>
@@ -135,7 +55,7 @@
             </div>
         </div>
         <div class="header-right">
-            <div class="credits-display" id="credits-display" style="display: none;">
+            <div class="credits-display hidden" id="credits-display">
                 <div class="credits-container">
                     <span id="credits-text">Credits: 0</span>
                 </div>
@@ -225,7 +145,7 @@
                 const firstLetter = displayName.charAt(0).toUpperCase();
                 
                 authButtons.innerHTML = `
-                    <a href="/pages/profile.html" class="user-info" style="text-decoration: none;">
+                    <a href="/pages/profile.html" class="user-info no-underline">
                         <div class="user-avatar">${firstLetter}</div>
                         <span>${displayName}</span>
                     </a>

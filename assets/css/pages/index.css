@@ -1,0 +1,21 @@
+/* ============================================
+   Index Page Specific Styles - Specifys.ai
+   ============================================
+   Styles specific to the homepage (index.html)
+   These override default styles for the index page only
+*/
+
+/* Override why-section colors for index page */
+/* Using higher specificity instead of !important */
+/* The original style used !important, so we need high specificity */
+/* Target all .why-section elements on the index page */
+.why-section .section-title,
+.why-section .section-subtitle {
+  color: #333;
+}
+
+/* Also target .section elements that might have these classes */
+.section .section-title,
+.section .section-subtitle {
+  color: #333;
+}

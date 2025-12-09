@@ -1,0 +1,56 @@
+/* ============================================
+   Profile Page Specific Styles - Specifys.ai
+   ============================================
+   Styles specific to the profile.html page
+*/
+
+.workspace-controls {
+  margin-bottom: 20px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.search-input {
+  flex: 1;
+  min-width: 250px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.sort-select {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  background: white;
+  cursor: pointer;
+}
+
+.pagination-container {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.subscription-note-row {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.subscription-note-text {
+  font-size: 0.9rem;
+  color: #888;
+  line-height: 1.5;
+}
+
+.upgrade-btn {
+  max-width: 220px;
+}
+
+.spec-link-plain {
+  cursor: default;
+  text-decoration: none;
+}

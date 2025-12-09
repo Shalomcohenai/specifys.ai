@@ -1,0 +1,15 @@
+/* ============================================
+   Academy Pages Specific Styles - Specifys.ai
+   ============================================
+   Styles specific to Academy pages
+*/
+
+.admin-section-spaced {
+  margin-top: 3rem;
+}
+
+/* Progress fill - width is set dynamically by JavaScript */
+.progress-fill {
+  /* width is set inline by JS for dynamic progress */
+  /* This is acceptable as it's a dynamic value */
+}

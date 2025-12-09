@@ -30,3 +30,4 @@ export function SocialIcons({ icons, className }: SocialIconsProps) {
     </div>
   );
 }
+

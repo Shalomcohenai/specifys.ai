@@ -1,0 +1,89 @@
+/* ============================================
+   404 Page Specific Styles - Specifys.ai
+   ============================================
+   Styles specific to the 404.html page
+*/
+
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.error-404-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+}
+
+.error-404-code {
+  font-size: 8rem;
+  font-weight: 700;
+  color: #FF6B35;
+  margin-bottom: 1rem;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.error-404-title {
+  font-size: 2.5rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 1rem;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.error-404-message {
+  font-size: 1.2rem;
+  color: #666;
+  margin-bottom: 2rem;
+  max-width: 600px;
+  font-family: 'Inter', sans-serif;
+  line-height: 1.6;
+}
+
+.error-404-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.btn-home {
+  background: #FF6B35;
+  color: white;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+}
+
+.btn-home:hover {
+  background: #FF8551;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(255, 107, 53, 0.3);
+}
+
+@media (max-width: 768px) {
+  .error-404-code {
+    font-size: 5rem;
+  }
+  
+  .error-404-title {
+    font-size: 1.8rem;
+  }
+  
+  .error-404-message {
+    font-size: 1rem;
+  }
+}

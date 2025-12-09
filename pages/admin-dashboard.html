@@ -23,6 +23,10 @@
   <link rel="stylesheet" href="/assets/css/main-compiled.css">
   <!-- Tailwind CSS - Processed via PostCSS -->
   <link rel="stylesheet" href="/assets/css/tailwind-base-compiled.css">
+  <!-- Display Utilities -->
+  <link rel="stylesheet" href="/assets/css/utilities/display.css">
+  <!-- Text Utilities -->
+  <link rel="stylesheet" href="/assets/css/utilities/text.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" referrerpolicy="no-referrer">
 </head>
 <body>
@@ -299,7 +303,7 @@
                 <i class="fas fa-file-pdf"></i>
                 Export PDF
               </button>
-              <button class="action-btn" id="bulk-actions-btn" type="button" style="display: none;">
+              <button class="action-btn hidden" id="bulk-actions-btn" type="button">
                 <i class="fas fa-tasks"></i>
                 Bulk Actions (<span id="bulk-selected-count">0</span>)
               </button>
@@ -328,7 +332,7 @@
             </table>
                 </div>
                 
-                <div class="pagination-wrapper" id="users-pagination" style="display: none;">
+                <div class="pagination-wrapper hidden" id="users-pagination">
                   <div class="pagination-info">
                     <span id="users-pagination-info">Showing 0-0 of 0</span>
                   </div>
@@ -664,7 +668,7 @@
               <div class="alerts-placeholder">Loading alerts…</div>
             </div>
             
-            <div class="pagination-wrapper" id="alerts-pagination" style="display: none;">
+            <div class="pagination-wrapper hidden" id="alerts-pagination">
               <div class="pagination-info">
                 <span id="alerts-pagination-info">Showing 0-0 of 0</span>
               </div>
@@ -777,7 +781,7 @@
             </table>
           </div>
 
-          <div class="pagination-wrapper" id="contact-pagination" style="display: none;">
+          <div class="pagination-wrapper hidden" id="contact-pagination">
             <div class="pagination-info">
               <span id="contact-pagination-info">Showing 0-0 of 0</span>
             </div>

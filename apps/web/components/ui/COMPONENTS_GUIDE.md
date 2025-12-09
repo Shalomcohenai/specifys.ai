@@ -336,3 +336,4 @@ import { Container, SectionHeader, InfoCard } from '@/components/ui';
 3. **פונט**: כל הטקסטים משתמשים בפונט sans-serif מודרני
 4. **Hover States**: כל הכפתורים הופכים כתום יותר בהיר ב-hover
 5. **מודולריות**: כל קומפוננטה עצמאית וניתנת לשימוש חוזר
+

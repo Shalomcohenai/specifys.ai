@@ -45,6 +45,12 @@
     <link rel="stylesheet" href="/assets/css/main-compiled.css">
     <!-- Tailwind CSS - Processed via PostCSS -->
     <link rel="stylesheet" href="/assets/css/tailwind-base-compiled.css">
+    <!-- Display Utilities -->
+    <link rel="stylesheet" href="/assets/css/utilities/display.css">
+    <!-- Text Utilities -->
+    <link rel="stylesheet" href="/assets/css/utilities/text.css">
+    <!-- ToolPicker Page Specific Styles -->
+    <link rel="stylesheet" href="/assets/css/pages/toolpicker.css">
       
     
     
@@ -212,9 +218,9 @@
 </div>
 
 <!-- Stats Section -->
-<div class="section" style="margin: 4rem 0;">
-  <h2 style="text-align: center; margin-bottom: 0.5rem;">Our Impact</h2>
-  <p style="text-align: center; color: var(--text-secondary); margin-bottom: 2rem;">Join thousands who've planned apps with Specifys.ai!</p>
+<div class="section impact-section">
+  <h2 class="impact-title">Our Impact</h2>
+  <p class="impact-description">Join thousands who've planned apps with Specifys.ai!</p>
   <div class="stats-list">
     <div class="stat-item">
       <div class="stat-number" data-target="0" data-stats-type="tools">0+</div>
@@ -523,7 +529,7 @@
       const firstLetter = displayName.charAt(0).toUpperCase();
       
       authButtons.innerHTML = `
-        <a href="/pages/profile.html" class="user-info" style="text-decoration: none;">
+        <a href="/pages/profile.html" class="user-info no-underline">
           <div class="user-avatar">${firstLetter}</div>
           <span>${displayName}</span>
         </a>
