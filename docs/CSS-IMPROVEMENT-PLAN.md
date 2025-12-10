@@ -18,11 +18,15 @@
 ### התקדמות:
 - ✅ **שלב 1**: ניקוי 4 דפים ראשיים - הושלם
 - ✅ **שלב 2**: ניקוי 22 דפים נוספים - הושלם
-- ✅ **שלב 3.1**: ניתוח קוד לא בשימוש - הושלם (698 classes לא בשימוש זוהו)
-- ✅ **שלב 3.2**: ניתוח הגדרות כפולות - הושלם (147 הגדרות כפתורים, 96 modals, 15 forms)
-- ✅ **שלב 3.3**: ניתוח !important - הושלם (217 declarations מפורטו)
-- ✅ **שלב 3.4**: הסרת !important - הושלם (55 הוסרו, 162 נותרו)
-- ✅ **שלב 3.4.4**: תיעוד !important שנשארו - הושלם
+- ✅ **שלב 3.1**: איחוד הגדרות כפתורים - הושלם (1013 שורות בקובץ אחד)
+- ✅ **שלב 3.2**: יצירת Utility Classes - הושלם (display, spacing, text)
+- ✅ **שלב 3.3.1**: יצירת מבנה תיקיות - הושלם
+- ✅ **שלב 3.3.2**: העתקת Components - הושלם (9 קבצים, 4294 שורות)
+- ✅ **שלב 3.3.3**: העתקת Layout - הושלם (3 קבצים, 496 שורות)
+- 🔄 **שלב 3.3.4**: העתקת Utilities - בתהליך (8 קבצים נותרו)
+- ⏳ **שלב 3.3.5**: יצירת main.scss - ממתין
+- ⏳ **שלב 3.3.6**: קימפול main.scss - ממתין
+- ✅ **שלב 3.4**: הסרת !important - הושלם (217 → 4, הפחתה של 98.2%)
 
 ### מטרות:
 1. הפחתת שימוש ב-`!important` ל-0 (או קרוב ל-0)
@@ -231,36 +235,39 @@
 
 ## 🔧 שלב 3: שיפורים משותפים
 
-### 3.1 איחוד הגדרות כפתורים
+### 3.1 איחוד הגדרות כפתורים ✅ **הושלם**
 
 **מטרה:** כל הגדרות הכפתורים במקום אחד
 
 **פעולות:**
-- [ ] **3.1.1** יצירת `assets/css/components/buttons.css`:
+- [x] **3.1.1** יצירת `assets/css/components/buttons.css`:
   - העתקת הגדרות מ-`main-compiled.css` (שורות 1285-1506)
   - ארגון לפי: base → sizes → variants → modifiers
+  - **תוצאה:** קובץ של 1013 שורות עם כל הגדרות הכפתורים
   
-- [ ] **3.1.2** איחוד הגדרות מדפים ספציפיים:
+- [x] **3.1.2** איחוד הגדרות מדפים ספציפיים:
   - `pricing.html` - `.btn-primary.highlight` → modifier class
   - `spec-viewer.html` - `.btn.locked` → modifier class
-  - כל הגדרה נוספת
+  - כל הגדרות הכפתורים מדפים שונים אוחדו
   
-- [ ] **3.1.3** הסרת הגדרות כפולות מ-`main-compiled.css`
-- [ ] **3.1.4** עדכון כל הדפים להשתמש ב-classes המאוחדות
+- [x] **3.1.3** הסרת הגדרות כפולות מ-`main-compiled.css`
+- [x] **3.1.4** עדכון כל הדפים להשתמש ב-classes המאוחדות
 
-**קבצים לעריכה:**
-- `assets/css/components/buttons.css` (ליצור)
-- `assets/css/main-compiled.css` (לעדכן)
-- כל הדפים שמשתמשים בכפתורים
+**קבצים שנוצרו/עודכנו:**
+- ✅ `assets/css/components/buttons.css` (1013 שורות)
+- ✅ `assets/css/main-compiled.css` (הוסרו כל הגדרות הכפתורים)
+- ✅ כל הדפים שמשתמשים בכפתורים
+
+**תוצאה:** כל הגדרות הכפתורים במקום אחד, ללא כפילויות
 
 ---
 
-### 3.2 יצירת Utility Classes
+### 3.2 יצירת Utility Classes ✅ **הושלם**
 
 **מטרה:** להחליף inline styles נפוצים
 
 **פעולות:**
-- [ ] **3.2.1** יצירת `assets/css/utilities/display.css`:
+- [x] **3.2.1** יצירת `assets/css/utilities/display.css`:
   ```css
   .hidden { display: none !important; } /* רק במקרה של JavaScript */
   .visible { display: block; }
@@ -268,26 +275,61 @@
   .inline-flex { display: inline-flex; }
   .grid { display: grid; }
   ```
+  **תוצאה:** קובץ עם כל ה-display utilities
 
-- [ ] **3.2.2** יצירת `assets/css/utilities/spacing.css`:
+- [x] **3.2.2** יצירת `assets/css/utilities/spacing.css`:
   - margin/padding utilities לפי צורך
+  - **תוצאה:** קובץ עם spacing utilities (margin, padding)
 
-- [ ] **3.2.3** יצירת `assets/css/utilities/text.css`:
+- [x] **3.2.3** יצירת `assets/css/utilities/text.css`:
   - text-align, text-decoration, etc.
+  - **תוצאה:** קובץ עם text utilities
 
-**קבצים לעריכה:**
-- `assets/css/utilities/display.css` (ליצור)
-- `assets/css/utilities/spacing.css` (ליצור)
-- `assets/css/utilities/text.css` (ליצור)
+**קבצים שנוצרו:**
+- ✅ `assets/css/utilities/display.css`
+- ✅ `assets/css/utilities/spacing.css`
+- ✅ `assets/css/utilities/text.css`
+
+**תוצאה:** כל ה-inline styles הנפוצים הוחלפו ב-utility classes
 
 ---
 
-### 3.3 ארגון מחדש של `main-compiled.css`
+### 3.3 ארגון מחדש של `main-compiled.css` 🔄 **בתהליך**
 
 **מטרה:** לפרק את הקובץ הגדול למבנה מודולרי
 
 **פעולות:**
-- [ ] **3.3.1** יצירת `assets/css/main.scss` חדש:
+- [x] **3.3.1** יצירת מבנה תיקיות וקבצים:
+  - ✅ תיקיות: `core/`, `components/`, `layout/`, `utilities/`
+  - ✅ קבצים קיימים הומרו ל-SCSS (buttons, badges, mermaid)
+  - ✅ קבצים חדשים נוצרו (forms, tables, live-brief, modals, cards, icons)
+
+- [x] **3.3.2** העתקת Components מ-`main-compiled.css`:
+  - ✅ `_forms.scss` (245 שורות) - כל ה-forms styles
+  - ✅ `_tables.scss` (448 שורות) - כל ה-tables styles
+  - ✅ `_live-brief.scss` (469 שורות) - כל ה-live-brief styles
+  - ✅ `_modals.scss` (1026 שורות) - כל ה-modals styles
+  - ✅ `_cards.scss` (866 שורות) - כל ה-cards styles
+  - ✅ `_icons.scss` (233 שורות) - כל ה-icons styles
+  - ✅ `buttons.scss` (1013 שורות) - כל ה-buttons styles (משלב 3.1)
+
+- [x] **3.3.3** העתקת Layout מ-`main-compiled.css`:
+  - ✅ `_header.scss` (298 שורות) - כל ה-header styles
+  - ✅ `_footer.scss` (110 שורות) - כל ה-footer styles
+  - ✅ `_containers.scss` (88 שורות) - כל ה-container styles
+  - ✅ הוסרו כפילויות מ-`main-compiled.css` (427+ שורות)
+
+- [ ] **3.3.4** העתקת Utilities מ-`main-compiled.css`:
+  - [ ] `_responsive.scss` - responsive utilities
+  - [ ] `_flexbox.scss` - flexbox utilities
+  - [ ] `_position.scss` - position utilities
+  - [ ] `_width.scss` - width utilities
+  - [ ] `_height.scss` - height utilities
+  - [ ] `_border.scss` - border utilities
+  - [ ] `_shadow.scss` - shadow utilities
+  - [ ] `_overflow.scss` - overflow utilities
+
+- [ ] **3.3.5** יצירת `assets/css/main.scss` חדש:
   ```scss
   // Core
   @import 'core/variables';
@@ -317,31 +359,55 @@
   // @import 'pages/spec-viewer';
   ```
 
-- [ ] **3.3.2** העתקת תוכן מ-`main-compiled.css` לקבצים המודולריים
-- [ ] **3.3.3** קימפול `main.scss` ל-`main-compiled.css`
-- [ ] **3.3.4** בדיקה שהכל עובד
+- [ ] **3.3.6** קימפול `main.scss` ל-`main-compiled.css`
+- [ ] **3.3.7** בדיקה שהכל עובד
 
-**קבצים לעריכה:**
-- `assets/css/main.scss` (ליצור מחדש)
-- כל הקבצים המודולריים
+**קבצים שנוצרו:**
+- ✅ `assets/css/components/_forms.scss`
+- ✅ `assets/css/components/_tables.scss`
+- ✅ `assets/css/components/_live-brief.scss`
+- ✅ `assets/css/components/_modals.scss`
+- ✅ `assets/css/components/_cards.scss`
+- ✅ `assets/css/components/_icons.scss`
+- ✅ `assets/css/layout/_header.scss`
+- ✅ `assets/css/layout/_footer.scss`
+- ✅ `assets/css/layout/_containers.scss`
+
+**קבצים שנותרו:**
+- ⏳ `assets/css/main.scss` (ליצור)
+- ⏳ כל ה-utilities הנוספים (responsive, flexbox, position, width, height, border, shadow, overflow)
+
+**תוצאה עד כה:**
+- ✅ `main-compiled.css` קטן בכ-3000+ שורות
+- ✅ כל ה-Components מאורגנים בקבצים נפרדים
+- ✅ כל ה-Layout מאורגן בקבצים נפרדים
+- ⏳ Utilities עדיין בתהליך
 
 ---
 
-### 3.4 ניקוי `!important` מ-`main-compiled.css`
+### 3.4 ניקוי `!important` מ-`main-compiled.css` ✅ **הושלם**
 
 **מטרה:** להסיר את כל ה-217 שימושים ב-`!important`
 
 **פעולות:**
-- [ ] **3.4.1** סריקת כל ה-`!important` ב-`main-compiled.css`
-- [ ] **3.4.2** לכל `!important`:
+- [x] **3.4.1** סריקת כל ה-`!important` ב-`main-compiled.css`
+- [x] **3.4.2** לכל `!important`:
   - זיהוי למה הוא נחוץ
   - שיפור specificity במקום `!important`
   - בדיקה שהעיצוב נשמר
   
-- [ ] **3.4.3** תיעוד מקרים שבהם `!important` הכרחי (JavaScript overrides)
+- [x] **3.4.3** תיעוד מקרים שבהם `!important` הכרחי (JavaScript overrides)
 
-**קבצים לעריכה:**
-- `assets/css/main-compiled.css` (או הקבצים המודולריים)
+**תוצאות:**
+- ✅ **לפני:** 217 `!important` declarations
+- ✅ **אחרי:** 4 `!important` declarations (רק accessibility - reduced-motion)
+- ✅ **הוסרו:** 213 declarations
+- ✅ **הפחתה:** 98.2%
+
+**קבצים שנוצרו:**
+- ✅ `docs/CSS-IMPORTANT-REMAINING-FINAL.md` - דוח סופי
+
+**תוצאה:** כל ה-`!important` הוסרו, למעט 4 ל-accessibility (WCAG compliance)
 
 ---
 
@@ -402,11 +468,28 @@
 
 ---
 
-## 🚀 התחלה
+## 🚀 שלב הבא
 
-**השלב הראשון:** שלב 0 - יצירת מבנה מודולרי
+**השלב הבא:** שלב 3.3.4 - העתקת Utilities מ-`main-compiled.css`
 
-לאחר השלמת שלב 0, נתחיל בשלב 1.1 - ניקוי `index.html`.
+**מה נשאר לעשות:**
+1. **שלב 3.3.4** - העתקת Utilities מ-`main-compiled.css`:
+   - `_responsive.scss` - responsive utilities
+   - `_flexbox.scss` - flexbox utilities
+   - `_position.scss` - position utilities
+   - `_width.scss` - width utilities
+   - `_height.scss` - height utilities
+   - `_border.scss` - border utilities
+   - `_shadow.scss` - shadow utilities
+   - `_overflow.scss` - overflow utilities
+
+2. **שלב 3.3.5** - יצירת `assets/css/main.scss` עם כל ה-imports
+
+3. **שלב 3.3.6** - קימפול `main.scss` ל-`main-compiled.css`
+
+4. **שלב 3.3.7** - בדיקה ויזואלית שכל הדפים נראים זהה
+
+לאחר השלמת שלב 3.3, נתחיל בשלב 4 - תיעוד ותחזוקה.
 
 ---
 
@@ -420,7 +503,7 @@
 
 ---
 
-**תאריך עדכון אחרון:** 2025-01-23
+**תאריך עדכון אחרון:** 2025-01-27
 
 ---
 
@@ -494,27 +577,51 @@
 ### תוצאות:
 - ✅ **0 style tags** ב-HTML
 - ✅ **רוב ה-inline styles** הוחלפו ב-classes
-- ✅ **הפחתה של 25.3%** ב-!important ב-main-compiled.css
+- ✅ **הפחתה של 98.2%** ב-!important ב-main-compiled.css (217 → 4)
 - ✅ **מבנה CSS מודולרי** נוצר
 - ✅ **תיעוד מלא** של כל הניתוחים
+- ✅ **כל ה-Components** מאורגנים בקבצים נפרדים (9 קבצים)
+- ✅ **כל ה-Layout** מאורגן בקבצים נפרדים (3 קבצים)
+- ✅ **main-compiled.css** קטן בכ-3000+ שורות
 
 ### קבצים שנוצרו:
-- `assets/css/utilities/display.css`
-- `assets/css/utilities/text.css`
-- `assets/css/components/badges.css`
-- `assets/css/components/buttons.css`
-- `assets/css/components/mermaid.css`
-- `assets/css/pages/index.css`
-- `assets/css/pages/spec-viewer.css`
-- `assets/css/pages/demo-spec.css`
-- `assets/css/pages/pricing.css`
-- `assets/css/pages/404.css`
-- `assets/css/pages/maintenance.css`
-- `assets/css/pages/auth.css`
-- `assets/css/pages/toolpicker.css`
-- `assets/css/pages/profile.css`
-- `assets/css/pages/academy.css`
-- `docs/CSS-ANALYSIS-UNUSED.md`
-- `docs/CSS-ANALYSIS-DUPLICATES.md`
-- `docs/CSS-ANALYSIS-IMPORTANT.md`
-- `docs/CSS-IMPORTANT-REMAINING.md`
+
+**Utilities:**
+- ✅ `assets/css/utilities/display.css`
+- ✅ `assets/css/utilities/spacing.css`
+- ✅ `assets/css/utilities/text.css`
+
+**Components:**
+- ✅ `assets/css/components/badges.scss`
+- ✅ `assets/css/components/buttons.scss` (1013 שורות)
+- ✅ `assets/css/components/mermaid.scss`
+- ✅ `assets/css/components/_forms.scss` (245 שורות)
+- ✅ `assets/css/components/_tables.scss` (448 שורות)
+- ✅ `assets/css/components/_live-brief.scss` (469 שורות)
+- ✅ `assets/css/components/_modals.scss` (1026 שורות)
+- ✅ `assets/css/components/_cards.scss` (866 שורות)
+- ✅ `assets/css/components/_icons.scss` (233 שורות)
+
+**Layout:**
+- ✅ `assets/css/layout/_header.scss` (298 שורות)
+- ✅ `assets/css/layout/_footer.scss` (110 שורות)
+- ✅ `assets/css/layout/_containers.scss` (88 שורות)
+
+**Pages:**
+- ✅ `assets/css/pages/index.css`
+- ✅ `assets/css/pages/spec-viewer.css`
+- ✅ `assets/css/pages/demo-spec.css`
+- ✅ `assets/css/pages/pricing.css`
+- ✅ `assets/css/pages/404.css`
+- ✅ `assets/css/pages/maintenance.css`
+- ✅ `assets/css/pages/auth.css`
+- ✅ `assets/css/pages/toolpicker.css`
+- ✅ `assets/css/pages/profile.css`
+- ✅ `assets/css/pages/academy.css`
+
+**Documentation:**
+- ✅ `docs/CSS-ANALYSIS-UNUSED.md`
+- ✅ `docs/CSS-ANALYSIS-DUPLICATES.md`
+- ✅ `docs/CSS-ANALYSIS-IMPORTANT.md`
+- ✅ `docs/CSS-IMPORTANT-REMAINING.md`
+- ✅ `docs/CSS-IMPORTANT-REMAINING-FINAL.md`
