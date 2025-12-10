@@ -68,6 +68,45 @@
       ]
     },
     {
+      "collectionGroup": "article_views",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "viewedAt", "order": "DESCENDING" },
+        { "fieldPath": "articleId", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "guide_views",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "viewedAt", "order": "DESCENDING" },
+        { "fieldPath": "guideId", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "analytics_events",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "timestamp", "order": "DESCENDING" },
+        { "fieldPath": "type", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "page_views",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "viewedAt", "order": "DESCENDING" },
+        { "fieldPath": "page", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "users",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "appMilestones",
       "queryScope": "COLLECTION",
       "fields": [

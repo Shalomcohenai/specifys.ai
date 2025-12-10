@@ -56,10 +56,14 @@
     <link rel="stylesheet" href="{{ '/assets/css/main-compiled.css' | relative_url }}">
     <!-- Tailwind CSS - Processed via PostCSS -->
     <link rel="stylesheet" href="{{ '/assets/css/tailwind-base-compiled.css' | relative_url }}">
+    <!-- Components -->
+    <link rel="stylesheet" href="{{ '/assets/css/components/buttons.css' | relative_url }}">
     <!-- Display Utilities -->
     <link rel="stylesheet" href="{{ '/assets/css/utilities/display.css' | relative_url }}">
     <!-- Text Utilities -->
     <link rel="stylesheet" href="{{ '/assets/css/utilities/text.css' | relative_url }}">
+    <!-- Spacing Utilities -->
+    <link rel="stylesheet" href="{{ '/assets/css/utilities/spacing.css' | relative_url }}">
     {% if page.extra_css %}
       {% for css in page.extra_css %}
         <link rel="stylesheet" href="{{ css | relative_url }}">

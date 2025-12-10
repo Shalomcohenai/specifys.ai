@@ -297,57 +297,9 @@
 
 /* Pricing-specific button styles */
 /* These override base button styles for pricing page */
-.pricing-page .btn-primary {
-  background: #FF6B35;
-  color: white;
-  border-color: #FF6B35;
-}
-
-.pricing-page .btn-primary:hover {
-  background: #FF8551;
-  border-color: #FF8551;
-}
-
-.pricing-page .btn-primary.highlight {
-  background: #FF6B35;
-  border-color: #FF6B35;
-  color: white;
-}
-
-.pricing-page .btn-primary.highlight:hover {
-  background: #FF8551;
-  border-color: #FF8551;
-  color: white;
-}
-
-.pricing-card.pack .btn-primary.highlight {
-  background: linear-gradient(135deg, #FF6B35 0%, #FF8551 100%);
-  border-color: transparent;
-  color: white;
-}
-
-.pricing-card.pack .btn-primary.highlight:hover {
-  background: linear-gradient(135deg, #FF8551 0%, #FF6B35 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(255, 107, 53, 0.3);
-}
-
-.pricing-page .btn-secondary {
-  background: transparent;
-  color: #333;
-  border-color: #e9ecef;
-}
-
-.pricing-page .btn-secondary:hover {
-  background: #f5f5f5;
-}
-
-/* Loading state styles */
-.btn.loading {
-  position: relative;
-  pointer-events: none;
-  opacity: 0.9;
-}
+/* Button styles moved to assets/css/components/buttons.css */
+/* Pricing page specific button overrides are now in buttons.css */
+/* Loading state styles moved to buttons.css */
 
 .btn.loading .btn-spinner {
   display: inline-block;

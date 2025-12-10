@@ -66,5 +66,17 @@ permalink: /pages/articles.html
   </section>
 </div>
 
+<!-- Analytics Tracker -->
+<script src="/assets/js/analytics-tracker.js"></script>
+<script>
+  // Track articles list page view
+  document.addEventListener('DOMContentLoaded', () => {
+    if (typeof window.analyticsTracker !== 'undefined') {
+      window.analyticsTracker.trackPageView('articles_list', {
+        timestamp: new Date().toISOString()
+      });
+    }
+  });
+</script>
 <script type="module" src="/assets/js/articles.js"></script>
 

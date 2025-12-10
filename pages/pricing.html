@@ -71,6 +71,8 @@
     
     <!-- API Configuration - MUST load before other scripts -->
     <script src="/assets/js/config.js"></script>
+    <!-- Analytics Tracker -->
+    <script src="/assets/js/analytics-tracker.js"></script>
     
     <!-- Structured Data (JSON-LD) for SEO -->
     <script type="application/ld+json">
@@ -731,6 +733,17 @@ async function purchaseSpec(evt, productKey) {
         }
 
         trackCTA(`Purchase ${productKey}`, 'pricing_page');
+        
+        // Track Buy Now button click
+        if (typeof window.analyticsTracker !== 'undefined') {
+            window.analyticsTracker.trackButtonClick(`buy_now_${productKey}`, {
+                productKey,
+                location: 'pricing_page'
+            });
+            window.analyticsTracker.trackFunnelStep('buy_now_click', user.uid, {
+                productKey
+            });
+        }
 
         // Start loading state with spinner and rotating messages
         setButtonLoading(triggerButton, true);
@@ -783,9 +796,23 @@ async function purchaseSpec(evt, productKey) {
                 stopLoadingTextRotation(triggerButton);
                 setButtonLoading(triggerButton, false);
                 restoreButtonText(triggerButton);
+                
+                // Track checkout initiation
+                if (typeof window.analyticsTracker !== 'undefined') {
+                    window.analyticsTracker.trackFunnelStep('checkout_initiated', user.uid, {
+                        productKey
+                    });
+                }
             },
             onSuccess: () => {
                 showPricingAlert('Purchase successful! You will be redirected shortly.', 'success');
+                
+                // Track checkout success
+                if (typeof window.analyticsTracker !== 'undefined') {
+                    window.analyticsTracker.trackFunnelStep('checkout_success', user.uid, {
+                        productKey
+                    });
+                }
             }
         });
     } catch (error) {
@@ -876,12 +903,26 @@ document.addEventListener('DOMContentLoaded', () => {
     handleCheckoutRedirect();
     setProductButtonsDisabled(true);
     
+    // Track page view
+    if (typeof window.analyticsTracker !== 'undefined') {
+        window.analyticsTracker.trackPageView('pricing', {
+            timestamp: new Date().toISOString()
+        });
+    } else if (typeof trackPageView !== 'undefined') {
+        trackPageView('pricing');
+    }
+    
     // Wake up the server immediately when page loads
     wakeUpServer();
 
     if (typeof firebase !== 'undefined') {
         firebase.auth().onAuthStateChanged((user) => {
             updateProductButtonsForUser(user);
+            
+            // Track funnel step: pricing page view
+            if (user && typeof window.analyticsTracker !== 'undefined') {
+                window.analyticsTracker.trackFunnelStep('pricing_view', user.uid);
+            }
         });
     }
 });

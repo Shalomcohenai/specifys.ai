@@ -105,5 +105,17 @@ permalink: /academy.html
   </div>
 </div>
 
+<!-- Analytics Tracker -->
+<script src="/assets/js/analytics-tracker.js"></script>
+<script>
+  // Track academy main page view
+  document.addEventListener('DOMContentLoaded', () => {
+    if (typeof window.analyticsTracker !== 'undefined') {
+      window.analyticsTracker.trackPageView('academy', {
+        timestamp: new Date().toISOString()
+      });
+    }
+  });
+</script>
 <script type="module" src="/assets/js/academy.js"></script>
 

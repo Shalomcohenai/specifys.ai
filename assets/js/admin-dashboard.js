@@ -443,24 +443,49 @@ class DataAggregator {
       const unsubUsers = onSnapshot(
         collection(this.db, COLLECTIONS.USERS),
         (snapshot) => {
-          snapshot.docChanges().forEach((change) => {
-            if (change.type === "removed") {
-              this.aggregatedData.users.delete(change.doc.id);
-            } else {
-              const user = this.normalizeUser(change.doc.id, change.doc.data());
-              this.aggregatedData.users.set(change.doc.id, user);
-              
-              // Create activity event for new users (not on initial load)
-              if (!this.initialLoads.users && change.type === "added") {
-                const event = this.createActivityEvent('user', user);
-                this.activityEvents.unshift(event);
-                this.activityEvents = utils.clampArray(this.activityEvents, MAX_ACTIVITY_EVENTS);
-                this.saveActivityEventsToStorage();
-              }
-            }
-          });
-          
+          const isInitialLoad = this.initialLoads.users;
           this.initialLoads.users = false;
+          
+          if (isInitialLoad) {
+            // On initial load, process all docs and create activity for recent users (30 days)
+            const last30Days = Date.now() - (30 * 24 * 60 * 60 * 1000);
+            snapshot.docs.forEach((docSnap) => {
+              const user = this.normalizeUser(docSnap.id, docSnap.data());
+              this.aggregatedData.users.set(docSnap.id, user);
+              
+              // Create activity event for users created in last 30 days
+              if (user.createdAt && user.createdAt.getTime() >= last30Days) {
+                const eventId = `user-${user.id}`;
+                const existingEventIds = new Set(this.activityEvents.map(e => e.id));
+                if (!existingEventIds.has(eventId)) {
+                  const event = this.createActivityEvent('user', user);
+                  event.id = eventId; // Use stable ID to avoid duplicates
+                  this.activityEvents.unshift(event);
+                  this.activityEvents = utils.clampArray(this.activityEvents, MAX_ACTIVITY_EVENTS);
+                  this.saveActivityEventsToStorage();
+                }
+              }
+            });
+          } else {
+            // For subsequent updates, only process changes
+            snapshot.docChanges().forEach((change) => {
+              if (change.type === "removed") {
+                this.aggregatedData.users.delete(change.doc.id);
+              } else {
+                const user = this.normalizeUser(change.doc.id, change.doc.data());
+                this.aggregatedData.users.set(change.doc.id, user);
+                
+                // Create activity event for new users
+                if (change.type === "added") {
+                  const event = this.createActivityEvent('user', user);
+                  this.activityEvents.unshift(event);
+                  this.activityEvents = utils.clampArray(this.activityEvents, MAX_ACTIVITY_EVENTS);
+                  this.saveActivityEventsToStorage();
+                }
+              }
+            });
+          }
+          
           this.notifyDataChange('users');
         },
         (error) => {
@@ -530,8 +555,8 @@ class DataAggregator {
           this.initialLoads.specs = false;
           
           if (isInitialLoad) {
-            // On initial load, process all docs and create activity for recent specs
-            const last24Hours = Date.now() - DATE_RANGES.day;
+            // On initial load, process all docs and create activity for recent specs (30 days)
+            const last30Days = Date.now() - (30 * 24 * 60 * 60 * 1000);
             snapshot.docs.forEach((docSnap) => {
               const data = docSnap.data();
               const spec = this.normalizeSpec(docSnap.id, data);
@@ -550,13 +575,18 @@ class DataAggregator {
                 this.aggregatedData.specsByUser.set(spec.userId, utils.clampArray(list, MAX_SPEC_CACHE));
               }
               
-              // Create activity event for specs created in last 24 hours
-              if (spec.createdAt && spec.createdAt.getTime() >= last24Hours) {
-                const user = this.aggregatedData.users.get(spec.userId);
-                const event = this.createActivityEvent('spec', spec, user);
-                this.activityEvents.unshift(event);
-                this.activityEvents = utils.clampArray(this.activityEvents, MAX_ACTIVITY_EVENTS);
-                this.saveActivityEventsToStorage();
+              // Create activity event for specs created in last 30 days
+              if (spec.createdAt && spec.createdAt.getTime() >= last30Days) {
+                const eventId = `spec-${spec.id}`;
+                const existingEventIds = new Set(this.activityEvents.map(e => e.id));
+                if (!existingEventIds.has(eventId)) {
+                  const user = this.aggregatedData.users.get(spec.userId);
+                  const event = this.createActivityEvent('spec', spec, user);
+                  event.id = eventId; // Use stable ID to avoid duplicates
+                  this.activityEvents.unshift(event);
+                  this.activityEvents = utils.clampArray(this.activityEvents, MAX_ACTIVITY_EVENTS);
+                  this.saveActivityEventsToStorage();
+                }
               }
             });
           } else {
@@ -749,14 +779,19 @@ class DataAggregator {
    * Creates events from users, specs, and purchases created in the last 7 days
    */
   generateEventsFromExistingData() {
-    const sevenDaysAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
+    // Only generate events if all initial loads are complete
+    if (this.initialLoads.users || this.initialLoads.specs || this.initialLoads.purchases) {
+      return; // Wait for all data to load
+    }
+    
+    const thirtyDaysAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
     const existingEventIds = new Set(this.activityEvents.map(e => e.id));
     const newEvents = [];
     
-    // Generate events from users created in last 7 days
+    // Generate events from users created in last 30 days
     const users = Array.from(this.aggregatedData.users.values());
     users.forEach(user => {
-      if (user.createdAt && user.createdAt.getTime() >= sevenDaysAgo) {
+      if (user.createdAt && user.createdAt.getTime() >= thirtyDaysAgo) {
         const eventId = `user-${user.id}`;
         if (!existingEventIds.has(eventId)) {
           const event = this.createActivityEvent('user', user);
@@ -767,10 +802,10 @@ class DataAggregator {
       }
     });
     
-    // Generate events from specs created in last 7 days
+    // Generate events from specs created in last 30 days
     const specs = Array.from(this.aggregatedData.specs.values());
     specs.forEach(spec => {
-      if (spec.createdAt && spec.createdAt.getTime() >= sevenDaysAgo) {
+      if (spec.createdAt && spec.createdAt.getTime() >= thirtyDaysAgo) {
         const eventId = `spec-${spec.id}`;
         if (!existingEventIds.has(eventId)) {
           const user = this.aggregatedData.users.get(spec.userId);
@@ -782,9 +817,9 @@ class DataAggregator {
       }
     });
     
-    // Generate events from purchases created in last 7 days
+    // Generate events from purchases created in last 30 days
     this.aggregatedData.purchases.forEach(purchase => {
-      if (purchase.createdAt && purchase.createdAt.getTime() >= sevenDaysAgo) {
+      if (purchase.createdAt && purchase.createdAt.getTime() >= thirtyDaysAgo) {
         const eventId = `purchase-${purchase.id}`;
         if (!existingEventIds.has(eventId)) {
           const user = this.aggregatedData.users.get(purchase.userId);
@@ -1240,9 +1275,9 @@ class MetricsCalculator {
   
   /**
    * Calculate content stats (articles views and guides views)
+   * Now uses analytics API to get views by actual view date, not publication date
    */
   async calculateContentStats(range = 'week', apiBaseUrl) {
-    const threshold = Date.now() - (DATE_RANGES[range] || DATE_RANGES.week);
     const stats = {
       articlesViews: 0,
       articlesViewsInRange: 0,
@@ -1250,48 +1285,51 @@ class MetricsCalculator {
       guidesViewsInRange: 0
     };
     
-    // Load articles views from API
+    // Load content stats from analytics API
     try {
-      const articlesData = await window.api.get('/api/articles/list?status=all&limit=1000');
-      if (articlesData && articlesData.success && articlesData.articles) {
+      if (window.api) {
+        const response = await window.api.get(`/api/analytics/content-stats?range=${range}`);
+        if (response && response.success && response.stats) {
+          stats.articlesViews = response.stats.articlesViews || 0;
+          stats.articlesViewsInRange = response.stats.articlesViewsInRange || 0;
+          stats.guidesViews = response.stats.guidesViews || 0;
+          stats.guidesViewsInRange = response.stats.guidesViewsInRange || 0;
+          return stats; // Return early if successful
+        }
+      }
+    } catch (error) {
+      // Fallback to old method if analytics API fails
+      console.warn('[MetricsCalculator] Failed to load content stats from analytics API, using fallback:', error);
+      
+      // Fallback: Load articles views from API (backward compatibility)
+      try {
+        const articlesData = await window.api.get('/api/articles/list?status=all&limit=1000');
+        if (articlesData && articlesData.success && articlesData.articles) {
           const totalViews = articlesData.articles.reduce(
             (sum, article) => sum + (article.views || 0),
             0
           );
-          
-          const viewsInRange = articlesData.articles
-            .filter((article) => {
-              const viewDate = article.publishedAt || article.createdAt;
-              return viewDate && new Date(viewDate).getTime() >= threshold;
-            })
-            .reduce((sum, article) => sum + (article.views || 0), 0);
-          
           stats.articlesViews = totalViews;
-          stats.articlesViewsInRange = viewsInRange;
+          stats.articlesViewsInRange = totalViews; // Fallback: show all views
         }
+      } catch (error) {
+        // Failed to load articles stats
       }
-    } catch (error) {
-      // Failed to load articles stats
-    }
-    
-    // Load guides views from Firestore academy_guides collection
-    try {
-      const guidesSnapshot = await getDocs(collection(db, 'academy_guides'));
-      const guides = guidesSnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
       
-      const totalViews = guides.reduce((sum, guide) => sum + (guide.views || 0), 0);
-      
-      // Since we don't track view dates (only total count), we show all views
-      // This matches the behavior of articles which also don't track per-view timestamps
-      const viewsInRange = totalViews;
-      
-      stats.guidesViews = totalViews;
-      stats.guidesViewsInRange = viewsInRange;
-    } catch (error) {
-      // Failed to load guides stats
+      // Fallback: Load guides views from Firestore
+      try {
+        const guidesSnapshot = await getDocs(collection(db, 'academy_guides'));
+        const guides = guidesSnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        
+        const totalViews = guides.reduce((sum, guide) => sum + (guide.views || 0), 0);
+        stats.guidesViews = totalViews;
+        stats.guidesViewsInRange = totalViews; // Fallback: show all views
+      } catch (error) {
+        // Failed to load guides stats
+      }
     }
     
     return stats;
@@ -1832,6 +1870,14 @@ class AdminDashboardApp {
       if (source === 'activityLogs-error') {
         this.markSourceError('activityLogs');
       }
+      
+      // Update funnel and content analytics when data changes
+      if (this.dom.funnelVisualization?.closest('.dashboard-section.active')) {
+        this.loadFunnelData();
+      }
+      if (this.dom.topArticlesList?.closest('.dashboard-section.active')) {
+        this.loadContentAnalytics();
+      }
     });
 
     // Sync DashboardDataStore with DataAggregator for backward compatibility
@@ -1911,6 +1957,15 @@ class AdminDashboardApp {
       usersPaginationPages: utils.dom("#users-pagination-pages"),
       conversionFunnel: utils.dom("#conversion-funnel"),
       retentionMetrics: utils.dom("#retention-metrics"),
+      funnelVisualization: utils.dom("#funnel-visualization"),
+      funnelMetrics: utils.dom("#funnel-metrics"),
+      funnelRange: utils.dom("#funnel-range"),
+      topArticlesList: utils.dom("#top-articles-list"),
+      topGuidesList: utils.dom("#top-guides-list"),
+      topArticlesSubtitle: utils.dom("#top-articles-subtitle"),
+      topGuidesSubtitle: utils.dom("#top-guides-subtitle"),
+      contentRange: utils.dom("#content-range"),
+      contentType: utils.dom("#content-type"),
       paymentsSearch: utils.dom("#payments-search"),
       paymentsRange: utils.dom("#payments-range"),
       paymentsTable: utils.dom("#payments-table tbody"),
@@ -1937,20 +1992,23 @@ class AdminDashboardApp {
       statsStartDate: utils.dom("#stats-start-date"),
       statsEndDate: utils.dom("#stats-end-date"),
       metrics: {
-        totalUsers: utils.dom('[data-metric="users-total"]'),
-        newUsers: utils.dom('[data-kpi="users-new"]'),
-        liveUsers: utils.dom('[data-metric="users-live"]'),
-        liveUsersTime: utils.dom('[data-kpi="users-live-time"]'),
-        proUsers: utils.dom('[data-metric="users-pro"]'),
-        proShare: utils.dom('[data-kpi="users-pro-share"]'),
-        specsTotal: utils.dom('[data-metric="specs-total"]'),
-        specsRange: utils.dom('[data-kpi="specs-range"]'),
-        revenueTotal: utils.dom('[data-metric="revenue-total"]'),
-        revenueRange: utils.dom('[data-kpi="revenue-range"]'),
-        articlesRead: utils.dom('[data-metric="articles-read"]'),
-        articlesReadRange: utils.dom('[data-kpi="articles-read-range"]'),
-        guidesRead: utils.dom('[data-metric="guides-read"]'),
-        guidesReadRange: utils.dom('[data-kpi="guides-read-range"]')
+        // Chart canvases for metric cards
+        usersTotalChart: utils.dom('[data-metric="users-total"]'),
+        usersLiveChart: utils.dom('[data-metric="users-live"]'),
+        usersProChart: utils.dom('[data-metric="users-pro"]'),
+        specsTotalChart: utils.dom('[data-metric="specs-total"]'),
+        revenueTotalChart: utils.dom('[data-metric="revenue-total"]'),
+        articlesReadChart: utils.dom('[data-metric="articles-read"]'),
+        guidesReadChart: utils.dom('[data-metric="guides-read"]')
+      },
+      metricCharts: {
+        usersTotal: null,
+        usersLive: null,
+        usersPro: null,
+        specsTotal: null,
+        revenueTotal: null,
+        articlesRead: null,
+        guidesRead: null
       },
       apiHealth: {
         checkButton: utils.dom("#api-health-check-btn"),
@@ -1990,6 +2048,14 @@ class AdminDashboardApp {
       userActivityTitle: utils.dom("#user-activity-title"),
       userActivityTimeline: utils.dom("#user-activity-timeline"),
       performanceRange: utils.dom("#performance-range"),
+      updateButtons: {
+        funnel: utils.dom("#funnel-update-btn"),
+        contentAnalytics: utils.dom("#content-analytics-update-btn"),
+        alerts: utils.dom("#alerts-update-btn"),
+        performance: utils.dom("#performance-update-btn"),
+        specUsage: utils.dom("#spec-usage-update-btn"),
+        contact: utils.dom("#contact-update-btn")
+      },
       performanceMetrics: {
         apiResponse: utils.dom('[data-perf="api-response"]'),
         errorRate: utils.dom('[data-perf="error-rate"]'),
@@ -2067,16 +2133,126 @@ class AdminDashboardApp {
             if (target === "contact-section") {
               this.loadContactSubmissions();
             }
-            // Render spec usage when spec usage section is opened
-            if (target === "spec-usage-section") {
-              this.renderSpecUsageAnalytics();
-            }
+            // Don't auto-load data when sections are opened - user must click Update button
+            // This prevents unnecessary API calls
           } else {
             section.classList.remove("active");
           }
         });
       });
     });
+    
+    // Add scroll spy to update active nav button based on scroll position
+    this.setupScrollSpy();
+    
+    // Setup Update button handlers for manual data loading
+    this.setupUpdateButtons();
+  }
+  
+  /**
+   * Setup Update button handlers for sections that require manual refresh
+   */
+  setupUpdateButtons() {
+    // Funnel section
+    if (this.dom.updateButtons.funnel) {
+      this.dom.updateButtons.funnel.addEventListener('click', () => {
+        this.loadFunnelData();
+      });
+    }
+    
+    // Content Analytics section
+    if (this.dom.updateButtons.contentAnalytics) {
+      this.dom.updateButtons.contentAnalytics.addEventListener('click', () => {
+        this.loadContentAnalytics();
+      });
+    }
+    
+    // Alerts section
+    if (this.dom.updateButtons.alerts) {
+      this.dom.updateButtons.alerts.addEventListener('click', () => {
+        this.loadAlerts();
+      });
+    }
+    
+    // Performance section
+    if (this.dom.updateButtons.performance) {
+      this.dom.updateButtons.performance.addEventListener('click', () => {
+        this.updatePerformanceMetrics();
+      });
+    }
+    
+    // Spec Usage section
+    if (this.dom.updateButtons.specUsage) {
+      this.dom.updateButtons.specUsage.addEventListener('click', () => {
+        this.renderSpecUsageAnalytics();
+      });
+    }
+    
+    // Contact section
+    if (this.dom.updateButtons.contact) {
+      this.dom.updateButtons.contact.addEventListener('click', () => {
+        this.loadContactSubmissions();
+      });
+    }
+  }
+
+  /**
+   * Setup scroll spy to update active navigation button based on visible section
+   */
+  setupScrollSpy() {
+    let scrollTimeout;
+    const handleScroll = () => {
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        this.updateActiveNavFromScroll();
+      }, 100);
+    };
+    
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    // Also check on initial load
+    setTimeout(() => this.updateActiveNavFromScroll(), 500);
+  }
+
+  /**
+   * Update active navigation button based on which section is currently visible
+   */
+  updateActiveNavFromScroll() {
+    const sections = Array.from(this.dom.sections);
+    const scrollPosition = window.scrollY + 200; // Offset for better UX
+    
+    // Find the section that is currently most visible
+    let activeSection = null;
+    let maxVisibility = 0;
+    
+    sections.forEach(section => {
+      const rect = section.getBoundingClientRect();
+      const sectionTop = rect.top + window.scrollY;
+      const sectionBottom = sectionTop + rect.height;
+      
+      // Calculate how much of the section is visible
+      const visibleTop = Math.max(scrollPosition, sectionTop);
+      const visibleBottom = Math.min(scrollPosition + window.innerHeight, sectionBottom);
+      const visibleHeight = Math.max(0, visibleBottom - visibleTop);
+      const visibility = visibleHeight / rect.height;
+      
+      if (visibility > maxVisibility && scrollPosition >= sectionTop - 100) {
+        maxVisibility = visibility;
+        activeSection = section;
+      }
+    });
+    
+    // Update active nav button
+    if (activeSection) {
+      const targetId = activeSection.id;
+      this.dom.navButtons.forEach((btn) => {
+        const btnTarget = btn.dataset.target;
+        if (btnTarget === targetId) {
+          btn.classList.add("active");
+        } else {
+          btn.classList.remove("active");
+        }
+      });
+    }
   }
 
   bindInteractions() {
@@ -2110,6 +2286,9 @@ class AdminDashboardApp {
     this.dom.specUsageSearch?.addEventListener("input", utils.debounce(() => {
       this.renderSpecUsageAnalytics();
     }, 300));
+    this.dom.funnelRange?.addEventListener("change", () => this.loadFunnelData());
+    this.dom.contentRange?.addEventListener("change", () => this.loadContentAnalytics());
+    this.dom.contentType?.addEventListener("change", () => this.loadContentAnalytics());
     this.dom.usersStatusFilter?.addEventListener("change", () => {
       this.usersCurrentPage = 1;
       this.renderUsersTable();
@@ -2257,20 +2436,18 @@ class AdminDashboardApp {
     // Initialize auto refresh timer (will schedule for 24h from now if no manual refresh)
     this.updateAutoRefreshTimer();
     await this.fetchUserSyncStatus();
-    this.loadAlerts();
-    this.updatePerformanceMetrics();
-    // Set up periodic updates for alerts and performance
-    setInterval(() => {
-      this.loadAlerts();
-      this.updatePerformanceMetrics();
-    }, 60000); // Update every minute
+    // Don't auto-load alerts and performance - user must click Update button
+    // This prevents unnecessary API calls and reduces server load
   }
 
   initializeCharts() {
     const ChartConstructor = ChartLib || window.Chart;
     if (!ChartConstructor) {
       return;
-        }
+    }
+
+    // Initialize metric cards charts (7-day column charts) first
+    this.initializeMetricCharts();
 
     const defaultOptions = {
       responsive: true,
@@ -2384,8 +2561,8 @@ class AdminDashboardApp {
             {
               label: "Specs",
               data: [],
-              borderColor: "#18b47d",
-              backgroundColor: "rgba(24, 180, 125, 0.2)",
+              borderColor: "#7f8dff",
+              backgroundColor: "rgba(127,141,255,0.2)",
               tension: 0.3,
               fill: true
             }
@@ -2399,6 +2576,212 @@ class AdminDashboardApp {
         }
       });
     }
+  }
+
+  /**
+   * Initialize metric cards charts (7-day column charts)
+   */
+  initializeMetricCharts() {
+    const ChartConstructor = ChartLib || window.Chart;
+    if (!ChartConstructor) {
+      return;
+    }
+
+    const chartOptions = {
+      type: 'bar',
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            padding: 8,
+            titleFont: { size: 12 },
+            bodyFont: { size: 11 },
+            cornerRadius: 4
+          }
+        },
+        scales: {
+          x: {
+            display: true,
+            grid: { display: false },
+            ticks: {
+              font: { size: 10 },
+              color: '#6b7280',
+              maxRotation: 0,
+              autoSkip: false
+            }
+          },
+          y: {
+            display: true,
+            beginAtZero: true,
+            grid: {
+              color: 'rgba(0, 0, 0, 0.05)',
+              drawBorder: false
+            },
+            ticks: {
+              font: { size: 10 },
+              color: '#6b7280',
+              precision: 0,
+              stepSize: 1
+            }
+          }
+        }
+      }
+    };
+
+    // Initialize all metric charts with empty data (will be populated in updateOverview)
+    const metrics = [
+      { metric: 'users-total', key: 'usersTotal' },
+      { metric: 'users-live', key: 'usersLive' },
+      { metric: 'users-pro', key: 'usersPro' },
+      { metric: 'specs-total', key: 'specsTotal' },
+      { metric: 'revenue-total', key: 'revenueTotal' },
+      { metric: 'articles-read', key: 'articlesRead' },
+      { metric: 'guides-read', key: 'guidesRead' }
+    ];
+    metrics.forEach(({ metric, key }) => {
+      const canvas = document.querySelector(`[data-metric="${metric}"]`);
+      if (canvas) {
+        this.dom.metricCharts[key] = new ChartConstructor(canvas, {
+          ...chartOptions,
+          data: {
+            labels: this.getLast7DaysLabels(),
+            datasets: [{
+              label: metric,
+              data: new Array(7).fill(0),
+              backgroundColor: this.getMetricColor(metric),
+              borderRadius: 4,
+              borderSkipped: false
+            }]
+          }
+        });
+      }
+    });
+  }
+
+  /**
+   * Get labels for last 7 days
+   */
+  getLast7DaysLabels() {
+    const labels = [];
+    const today = new Date();
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date(today);
+      date.setDate(date.getDate() - i);
+      const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
+      const dayNum = date.getDate();
+      labels.push(`${dayName} ${dayNum}`);
+    }
+    return labels;
+  }
+
+  /**
+   * Get color for metric chart
+   */
+  getMetricColor(metric) {
+    const colors = {
+      'users-total': 'rgba(59, 130, 246, 0.8)',
+      'users-live': 'rgba(16, 185, 129, 0.8)',
+      'users-pro': 'rgba(139, 92, 246, 0.8)',
+      'specs-total': 'rgba(245, 158, 11, 0.8)',
+      'revenue-total': 'rgba(34, 197, 94, 0.8)',
+      'articles-read': 'rgba(239, 68, 68, 0.8)',
+      'guides-read': 'rgba(6, 182, 212, 0.8)'
+    };
+    return colors[metric] || 'rgba(107, 114, 128, 0.8)';
+  }
+
+  /**
+   * Calculate daily data for last 7 days
+   */
+  calculateDailyData(dataArray, dateField = 'createdAt', valueField = null) {
+    const dailyData = new Array(7).fill(0);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    dataArray.forEach(item => {
+      const itemDate = item[dateField];
+      if (!itemDate) return;
+      
+      const date = new Date(itemDate);
+      date.setHours(0, 0, 0, 0);
+      const daysAgo = Math.floor((today - date) / (1000 * 60 * 60 * 24));
+      
+      if (daysAgo >= 0 && daysAgo < 7) {
+        const value = valueField ? (item[valueField] || 0) : 1;
+        dailyData[6 - daysAgo] += value;
+      }
+    });
+    
+    return dailyData;
+  }
+
+  /**
+   * Calculate daily users data
+   */
+  calculateDailyUsers() {
+    const users = Array.from(this.store.users.values());
+    return this.calculateDailyData(users, 'createdAt');
+  }
+
+  /**
+   * Calculate daily specs data
+   */
+  calculateDailySpecs() {
+    const specs = Array.from(this.store.specs.values());
+    return this.calculateDailyData(specs, 'createdAt');
+  }
+
+  /**
+   * Calculate daily revenue data
+   */
+  calculateDailyRevenue() {
+    const purchases = this.store.purchases || [];
+    return this.calculateDailyData(purchases, 'createdAt', 'total');
+  }
+
+  /**
+   * Calculate daily articles views (from analytics API)
+   */
+  async calculateDailyArticlesViews() {
+    try {
+      if (!window.api) {
+        console.warn('[AdminDashboard] window.api not available, using fallback');
+        return new Array(7).fill(0);
+      }
+      const response = await window.api.get('/api/analytics/content-stats?range=week');
+      if (response && response.success) {
+        // For now, return evenly distributed data (will be enhanced with actual daily breakdown)
+        const total = response.stats.articlesViewsInRange || 0;
+        return new Array(7).fill(Math.floor(total / 7));
+      }
+    } catch (error) {
+      console.warn('[AdminDashboard] Failed to load daily articles views:', error);
+    }
+    return new Array(7).fill(0);
+  }
+
+  /**
+   * Calculate daily guides views (from analytics API)
+   */
+  async calculateDailyGuidesViews() {
+    try {
+      if (!window.api) {
+        console.warn('[AdminDashboard] window.api not available, using fallback');
+        return new Array(7).fill(0);
+      }
+      const response = await window.api.get('/api/analytics/content-stats?range=week');
+      if (response && response.success) {
+        // For now, return evenly distributed data (will be enhanced with actual daily breakdown)
+        const total = response.stats.guidesViewsInRange || 0;
+        return new Array(7).fill(Math.floor(total / 7));
+      }
+    } catch (error) {
+      console.warn('[AdminDashboard] Failed to load daily guides views:', error);
+    }
+    return new Array(7).fill(0);
   }
 
   async subscribeToSources() {
@@ -2839,67 +3222,57 @@ class AdminDashboardApp {
   async updateOverview() {
     const overviewRange = this.dom.overviewRange?.value ?? "week";
     
-    // Use MetricsCalculator for all calculations - single source of truth
-    const metrics = this.metricsCalculator.calculateOverviewMetrics(overviewRange);
+    // Calculate daily data for last 7 days
+    const dailyUsers = this.calculateDailyUsers();
+    const dailySpecs = this.calculateDailySpecs();
+    const dailyRevenue = this.calculateDailyRevenue();
+    const dailyArticles = await this.calculateDailyArticlesViews();
+    const dailyGuides = await this.calculateDailyGuidesViews();
     
-    // Update display - show range-based data in main metrics
-    if (this.dom.metrics.totalUsers) {
-      this.dom.metrics.totalUsers.textContent = utils.formatNumber(metrics.totalUsers);
-    }
-    if (this.dom.metrics.newUsers) {
-      this.dom.metrics.newUsers.textContent = `New: ${utils.formatNumber(metrics.newUsers)}`;
-    }
-    if (this.dom.metrics.liveUsers) {
-      this.dom.metrics.liveUsers.textContent = utils.formatNumber(metrics.liveUsers);
-    }
-    if (this.dom.metrics.liveUsersTime) {
-      this.dom.metrics.liveUsersTime.textContent = "Last 15 min";
-    }
-    if (this.dom.metrics.proUsers) {
-      this.dom.metrics.proUsers.textContent = utils.formatNumber(metrics.proUsers);
-    }
-    if (this.dom.metrics.proShare) {
-      this.dom.metrics.proShare.textContent = `${metrics.proShare || 0}%`;
-    }
-    if (this.dom.metrics.specsTotal) {
-      // Show specs in range as the main metric
-      this.dom.metrics.specsTotal.textContent = utils.formatNumber(metrics.specsInRange);
-    }
-    if (this.dom.metrics.specsRange) {
-      // Show total specs in the range label
-      this.dom.metrics.specsRange.textContent = `Total: ${utils.formatNumber(metrics.specsTotal)}`;
-    }
-    if (this.dom.metrics.revenueTotal) {
-      // Show revenue in range as the main metric
-      this.dom.metrics.revenueTotal.textContent = utils.formatCurrency(metrics.revenueRange);
-    }
-    if (this.dom.metrics.revenueRange) {
-      // Show total revenue in the range label
-      this.dom.metrics.revenueRange.textContent = `Total: ${utils.formatCurrency(metrics.revenueTotal)}`;
-    }
-
-    // Load articles and academy stats using MetricsCalculator
-    const apiBaseUrl = this.getApiBaseUrl();
-    const contentStats = await this.metricsCalculator.calculateContentStats(overviewRange, apiBaseUrl);
+    // Calculate pro users daily (users with pro plan created each day)
+    const users = Array.from(this.store.users.values());
+    const dailyProUsers = new Array(7).fill(0);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
     
-    // Update articles views
-    if (this.dom.metrics.articlesRead) {
-      this.dom.metrics.articlesRead.textContent = utils.formatNumber(contentStats.articlesViewsInRange);
-    }
-    if (this.dom.metrics.articlesReadRange) {
-      this.dom.metrics.articlesReadRange.textContent = `Total: ${utils.formatNumber(contentStats.articlesViews)}`;
-    }
+    users.forEach(user => {
+      if (user.plan === 'pro' && user.createdAt) {
+        const date = new Date(user.createdAt);
+        date.setHours(0, 0, 0, 0);
+        const daysAgo = Math.floor((today - date) / (1000 * 60 * 60 * 24));
+        if (daysAgo >= 0 && daysAgo < 7) {
+          dailyProUsers[6 - daysAgo]++;
+        }
+      }
+    });
     
-    // Update guides views
-    if (this.dom.metrics.guidesRead) {
-      this.dom.metrics.guidesRead.textContent = utils.formatNumber(contentStats.guidesViewsInRange);
-    }
-    if (this.dom.metrics.guidesReadRange) {
-      this.dom.metrics.guidesReadRange.textContent = `Total: ${utils.formatNumber(contentStats.guidesViews)}`;
-    }
+    // Calculate live users (active in last 15 min) - simplified to show current count
+    const liveUsersCount = this.metricsCalculator.calculateOverviewMetrics(overviewRange).liveUsers;
+    const dailyLiveUsers = new Array(7).fill(0);
+    dailyLiveUsers[6] = liveUsersCount; // Show current live users in today's column
+    
+    // Update metric charts
+    this.updateMetricChart('usersTotal', dailyUsers);
+    this.updateMetricChart('usersLive', dailyLiveUsers);
+    this.updateMetricChart('usersPro', dailyProUsers);
+    this.updateMetricChart('specsTotal', dailySpecs);
+    this.updateMetricChart('revenueTotal', dailyRevenue);
+    this.updateMetricChart('articlesRead', dailyArticles);
+    this.updateMetricChart('guidesRead', dailyGuides);
 
     this.renderActivityFeed();
     this.updateCharts();
+  }
+
+  /**
+   * Update a metric chart with new data
+   */
+  updateMetricChart(chartKey, data) {
+    const chart = this.dom.metricCharts[chartKey];
+    if (chart && Array.isArray(data)) {
+      chart.data.datasets[0].data = data;
+      chart.update('none'); // Update without animation for better performance
+    }
   }
 
   // Deprecated: Use MetricsCalculator.calculateContentStats() instead
@@ -3439,30 +3812,35 @@ class AdminDashboardApp {
           const message = result?.error || `Failed to ${isEditing ? "update" : "create"} blog post`;
           throw new Error(message);
         }
-      if (isEditing) {
-        this.setBlogFeedback("Post updated successfully.", "success");
-        this.exitBlogEditMode({ resetForm: true });
-        await this.refreshBlogQueue({ silent: true }).catch(() => {});
-      } else {
-        this.setBlogFeedback("✅ Post created successfully!", "success");
-        this.dom.blogForm.reset();
-        if (this.dom.blogFields.date) {
-          this.dom.blogFields.date.value = utils.now().toISOString().slice(0, 10);
+        
+        if (isEditing) {
+          this.setBlogFeedback("Post updated successfully.", "success");
+          this.exitBlogEditMode({ resetForm: true });
+          await this.refreshBlogQueue({ silent: true }).catch(() => {});
+        } else {
+          this.setBlogFeedback("✅ Post created successfully!", "success");
+          this.dom.blogForm.reset();
+          if (this.dom.blogFields.date) {
+            this.dom.blogFields.date.value = utils.now().toISOString().slice(0, 10);
+          }
+          if (this.dom.blogFields.slug) {
+            delete this.dom.blogFields.slug.dataset.manual;
+          }
+          if (this.dom.blogFields.author) {
+            this.dom.blogFields.author.value = "specifys.ai Team";
+          }
+          if (this.dom.blogFields.descriptionCount) {
+            this.dom.blogFields.descriptionCount.textContent = "0 / 160";
+          }
+          try {
+            await this.refreshBlogQueue({ silent: true });
+          } catch (queueError) {
+            // Blog queue refresh failed
+          }
         }
-        if (this.dom.blogFields.slug) {
-          delete this.dom.blogFields.slug.dataset.manual;
-        }
-        if (this.dom.blogFields.author) {
-          this.dom.blogFields.author.value = "specifys.ai Team";
-        }
-        if (this.dom.blogFields.descriptionCount) {
-          this.dom.blogFields.descriptionCount.textContent = "0 / 160";
-        }
-        try {
-          await this.refreshBlogQueue({ silent: true });
-        } catch (queueError) {
-          // Blog queue refresh failed
-        }
+      } catch (innerError) {
+        // Re-throw to outer catch block
+        throw innerError;
       }
     } catch (error) {
       const errorDetails = error.message || `Failed to ${isEditing ? "update" : "create"} blog post.`;
@@ -3548,29 +3926,34 @@ class AdminDashboardApp {
           const message = result?.error || 'Failed to load blog posts';
           throw new Error(message);
         }
-      const posts = Array.isArray(result.posts) ? result.posts : [];
-      // Posts from API are already extracted from blogQueue structure
-      // Map them to the format expected by setBlogQueue
-      this.store.setBlogQueue(
-        posts.map((post) => ({
-          id: post.id,
-          postData: {
-            title: post.title,
-            description: post.description,
-            date: post.date,
-            author: post.author,
-            tags: post.tags,
-            slug: post.slug,
-            url: post.url,
-            published: post.published
-          },
-          status: post.status || (post.published ? 'completed' : 'pending'),
-          createdAt: utils.toDate(post.createdAt),
-          updatedAt: utils.toDate(post.updatedAt)
-        }))
-      );
-      this.renderBlogQueue();
-      return result;
+        
+        const posts = Array.isArray(result.posts) ? result.posts : [];
+        // Posts from API are already extracted from blogQueue structure
+        // Map them to the format expected by setBlogQueue
+        this.store.setBlogQueue(
+          posts.map((post) => ({
+            id: post.id,
+            postData: {
+              title: post.title,
+              description: post.description,
+              date: post.date,
+              author: post.author,
+              tags: post.tags,
+              slug: post.slug,
+              url: post.url,
+              published: post.published
+            },
+            status: post.status || (post.published ? 'completed' : 'pending'),
+            createdAt: utils.toDate(post.createdAt),
+            updatedAt: utils.toDate(post.updatedAt)
+          }))
+        );
+        this.renderBlogQueue();
+        return result;
+      } catch (innerError) {
+        // Re-throw to outer catch block
+        throw innerError;
+      }
     } catch (error) {
       if (!silent) {
         this.setBlogFeedback(error.message || "Failed to refresh blog posts.", "error");
@@ -3894,8 +4277,6 @@ class AdminDashboardApp {
       ensureEntitlements: true,
       includeDataCollections: true
     });
-
-    const payload = await this.parseJsonSafely(response);
     
     if (!payload) {
       throw new Error('Invalid response format: server returned non-JSON response');
@@ -3957,7 +4338,7 @@ class AdminDashboardApp {
   }
 
   async syncUsersPrimary(token, apiBaseUrl) {
-      const payload = await window.api.post('/api/admin/users/sync', {
+    const payload = await window.api.post('/api/admin/users/sync', {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -3966,16 +4347,14 @@ class AdminDashboardApp {
       body: JSON.stringify({})
     });
 
-    if (response.status === 404) {
+    if (payload && payload.status === 404) {
       return null;
     }
 
-    const payload = await this.parseJsonSafely(response);
-
-    if (!response.ok || !payload?.success) {
-      const message = payload?.error || payload?.details || `HTTP ${response.status}`;
+    if (!payload || !payload.success) {
+      const message = payload?.error || payload?.details || 'Sync failed';
       const error = new Error(message);
-      error.status = response.status;
+      error.status = payload?.status || 500;
       throw error;
     }
 
@@ -4469,6 +4848,14 @@ class AdminDashboardApp {
 
   // Alerts
   async loadAlerts() {
+    const updateBtn = this.dom.updateButtons.alerts;
+    
+    // Show loading state
+    if (updateBtn) {
+      updateBtn.classList.add('loading');
+      updateBtn.disabled = true;
+    }
+    
     try {
       const token = await auth.currentUser?.getIdToken();
       if (!token) return;
@@ -4523,6 +4910,12 @@ class AdminDashboardApp {
       this.renderAlerts();
     } catch (error) {
       // Failed to load alerts
+    } finally {
+      // Remove loading state
+      if (updateBtn) {
+        updateBtn.classList.remove('loading');
+        updateBtn.disabled = false;
+      }
     }
   }
 
@@ -4732,6 +5125,14 @@ class AdminDashboardApp {
 
   // Performance Metrics
   async updatePerformanceMetrics() {
+    const updateBtn = this.dom.updateButtons.performance;
+    
+    // Show loading state
+    if (updateBtn) {
+      updateBtn.classList.add('loading');
+      updateBtn.disabled = true;
+    }
+    
     try {
       const token = await auth.currentUser?.getIdToken();
       if (!token) return;
@@ -4758,6 +5159,12 @@ class AdminDashboardApp {
       }
     } catch (error) {
       // Failed to update performance metrics
+    } finally {
+      // Remove loading state
+      if (updateBtn) {
+        updateBtn.classList.remove('loading');
+        updateBtn.disabled = false;
+      }
     }
   }
 
@@ -4769,6 +5176,14 @@ class AdminDashboardApp {
 
   // Contact Submissions
   async loadContactSubmissions() {
+    const updateBtn = this.dom.updateButtons.contact;
+    
+    // Show loading state
+    if (updateBtn) {
+      updateBtn.classList.add('loading');
+      updateBtn.disabled = true;
+    }
+    
     try {
       const token = await auth.currentUser?.getIdToken();
       if (!token) return;
@@ -4792,6 +5207,12 @@ class AdminDashboardApp {
       // Failed to load contact submissions
       if (this.dom.contactTable) {
         this.dom.contactTable.innerHTML = `<tr><td colspan="6" class="table-empty">Error loading contact submissions.</td></tr>`;
+      }
+    } finally {
+      // Remove loading state
+      if (updateBtn) {
+        updateBtn.classList.remove('loading');
+        updateBtn.disabled = false;
       }
     }
   }
@@ -4936,6 +5357,14 @@ class AdminDashboardApp {
   renderSpecUsageAnalytics() {
     const container = this.dom.specUsageTable;
     if (!container) return;
+    
+    const updateBtn = this.dom.updateButtons.specUsage;
+    
+    // Show loading state
+    if (updateBtn) {
+      updateBtn.classList.add('loading');
+      updateBtn.disabled = true;
+    }
 
     const range = this.dom.specUsageRange?.value || "all";
     const searchTerm = (this.dom.specUsageSearch?.value || "").toLowerCase().trim();
@@ -5177,6 +5606,286 @@ class AdminDashboardApp {
     if (withPrompts) withPrompts.textContent = utils.formatNumber(stats.withPrompts || 0);
     if (withMockups) withMockups.textContent = utils.formatNumber(stats.withMockups || 0);
     if (withAiChat) withAiChat.textContent = utils.formatNumber(stats.withAiChat || 0);
+    
+    // Remove loading state
+    const updateBtn = this.dom.updateButtons.specUsage;
+    if (updateBtn) {
+      updateBtn.classList.remove('loading');
+      updateBtn.disabled = false;
+    }
+  }
+
+  /**
+   * Load and render funnel analysis data
+   */
+  async loadFunnelData() {
+    if (!this.dom.funnelVisualization || !this.dom.funnelMetrics) return;
+    
+    const range = this.dom.funnelRange?.value || 'week';
+    
+    try {
+      if (!window.api) {
+        console.error('[AdminDashboard] window.api is not available. Make sure api-client.js is loaded.');
+        this.dom.funnelVisualization.innerHTML = '<div class="funnel-placeholder">API client not loaded</div>';
+        return;
+      }
+      const response = await window.api.get(`/api/analytics/funnel?range=${range}`);
+      
+      if (response && response.success && response.funnel) {
+        this.renderFunnelVisualization(response.funnel, response.conversions);
+      } else {
+        this.dom.funnelVisualization.innerHTML = '<div class="funnel-placeholder">No funnel data available</div>';
+        this.dom.funnelMetrics.innerHTML = '<div class="funnel-metrics-placeholder">No conversion data available</div>';
+      }
+    } catch (error) {
+      console.error('[AdminDashboard] Failed to load funnel data:', error);
+      this.dom.funnelVisualization.innerHTML = '<div class="funnel-placeholder">Error loading funnel data</div>';
+      this.dom.funnelMetrics.innerHTML = '<div class="funnel-metrics-placeholder">Error loading conversion data</div>';
+    } finally {
+      // Remove loading state
+      const btn = this.dom.updateButtons.funnel;
+      if (btn) {
+        btn.classList.remove('loading');
+        btn.disabled = false;
+      }
+    }
+  }
+
+  /**
+   * Render funnel visualization
+   */
+  renderFunnelVisualization(funnel, conversions) {
+    if (!this.dom.funnelVisualization) return;
+    
+    const steps = [
+      { label: 'Visitors', value: funnel.visitors, color: '#3b82f6' },
+      { label: 'Signups', value: funnel.signups, color: '#10b981' },
+      { label: 'Pricing Views', value: funnel.pricingViews, color: '#f59e0b' },
+      { label: 'Buy Now Clicks', value: funnel.buyNowClicks, color: '#ef4444' },
+      { label: 'Checkout Initiated', value: funnel.checkoutInitiated, color: '#8b5cf6' },
+      { label: 'Purchases', value: funnel.purchases, color: '#06b6d4' }
+    ];
+    
+    const maxValue = Math.max(...steps.map(s => s.value), 1);
+    
+    const funnelHtml = `
+      <div class="funnel-steps">
+        ${steps.map((step, index) => {
+          const width = maxValue > 0 ? (step.value / maxValue * 100) : 0;
+          const conversion = index > 0 ? ((step.value / steps[index - 1].value) * 100).toFixed(1) : '100.0';
+          return `
+            <div class="funnel-step" style="--step-width: ${width}%">
+              <div class="funnel-step-bar" style="background-color: ${step.color}; width: ${width}%">
+                <span class="funnel-step-label">${step.label}</span>
+                <span class="funnel-step-value">${utils.formatNumber(step.value)}</span>
+              </div>
+              ${index > 0 ? `<div class="funnel-conversion">${conversion}% conversion</div>` : ''}
+            </div>
+          `;
+        }).join('')}
+      </div>
+    `;
+    
+    this.dom.funnelVisualization.innerHTML = funnelHtml;
+    
+    // Render conversion metrics
+    if (this.dom.funnelMetrics) {
+      const metricsHtml = `
+        <div class="funnel-metrics-grid">
+          <div class="funnel-metric">
+            <span class="metric-label">Visitors → Signups</span>
+            <span class="metric-value">${conversions.visitorsToSignups}%</span>
+          </div>
+          <div class="funnel-metric">
+            <span class="metric-label">Signups → Pricing</span>
+            <span class="metric-value">${conversions.signupsToPricing}%</span>
+          </div>
+          <div class="funnel-metric">
+            <span class="metric-label">Pricing → Buy Now</span>
+            <span class="metric-value">${conversions.pricingToBuyNow}%</span>
+          </div>
+          <div class="funnel-metric">
+            <span class="metric-label">Buy Now → Checkout</span>
+            <span class="metric-value">${conversions.buyNowToCheckout}%</span>
+          </div>
+          <div class="funnel-metric">
+            <span class="metric-label">Checkout → Purchase</span>
+            <span class="metric-value">${conversions.checkoutToPurchase}%</span>
+          </div>
+          <div class="funnel-metric highlight">
+            <span class="metric-label">Overall Conversion</span>
+            <span class="metric-value">${conversions.overallConversion}%</span>
+          </div>
+        </div>
+      `;
+      this.dom.funnelMetrics.innerHTML = metricsHtml;
+    }
+  }
+
+  /**
+   * Load and render content analytics (top articles and guides)
+   */
+  async loadContentAnalytics() {
+    const updateBtn = this.dom.updateButtons.contentAnalytics;
+    
+    // Show loading state
+    if (updateBtn) {
+      updateBtn.classList.add('loading');
+      updateBtn.disabled = true;
+    }
+    
+    const range = this.dom.contentRange?.value || 'week';
+    const contentType = this.dom.contentType?.value || 'both';
+    
+    try {
+      // Load top articles
+      if (contentType === 'both' || contentType === 'articles') {
+        await this.loadTopArticles(range);
+      } else if (this.dom.topArticlesList) {
+        this.dom.topArticlesList.innerHTML = '<div class="content-placeholder">Hidden</div>';
+      }
+      
+      // Load top guides
+      if (contentType === 'both' || contentType === 'guides') {
+        await this.loadTopGuides(range);
+      } else if (this.dom.topGuidesList) {
+        this.dom.topGuidesList.innerHTML = '<div class="content-placeholder">Hidden</div>';
+      }
+    } catch (error) {
+      console.error('[AdminDashboard] Failed to load content analytics:', error);
+    } finally {
+      // Remove loading state
+      if (updateBtn) {
+        updateBtn.classList.remove('loading');
+        updateBtn.disabled = false;
+      }
+    }
+  }
+
+  /**
+   * Load top articles
+   */
+  async loadTopArticles(range) {
+    if (!this.dom.topArticlesList) return;
+    
+    try {
+      if (!window.api) {
+        console.error('[AdminDashboard] window.api is not available. Make sure api-client.js is loaded.');
+        this.dom.topArticlesList.innerHTML = '<div class="content-placeholder">API client not loaded</div>';
+        return;
+      }
+      const response = await window.api.get(`/api/analytics/top-articles?range=${range}&limit=10`);
+      
+      if (response && response.success && response.articles) {
+        this.renderTopArticles(response.articles);
+        if (this.dom.topArticlesSubtitle) {
+          this.dom.topArticlesSubtitle.textContent = `Top ${response.articles.length} by views (${range})`;
+        }
+      } else {
+        this.dom.topArticlesList.innerHTML = '<div class="content-placeholder">No articles data available</div>';
+      }
+    } catch (error) {
+      console.error('[AdminDashboard] Failed to load top articles:', error);
+      this.dom.topArticlesList.innerHTML = '<div class="content-placeholder">Error loading articles</div>';
+    }
+  }
+
+  /**
+   * Render top articles list
+   */
+  renderTopArticles(articles) {
+    if (!this.dom.topArticlesList) return;
+    
+    if (articles.length === 0) {
+      this.dom.topArticlesList.innerHTML = '<div class="content-placeholder">No articles found</div>';
+      return;
+    }
+    
+    const html = articles.map((article, index) => `
+      <div class="top-content-item">
+        <div class="content-rank">#${index + 1}</div>
+        <div class="content-info">
+          <h4 class="content-title">${article.title || 'Untitled'}</h4>
+          <div class="content-meta">
+            <span class="content-views">
+              <i class="fas fa-eye"></i>
+              ${utils.formatNumber(article.views)} views
+            </span>
+            ${article.totalViews ? `<span class="content-total">Total: ${utils.formatNumber(article.totalViews)}</span>` : ''}
+          </div>
+        </div>
+        <div class="content-actions">
+          <a href="/article.html?slug=${article.slug}" target="_blank" class="action-link" title="View article">
+            <i class="fas fa-external-link-alt"></i>
+          </a>
+        </div>
+      </div>
+    `).join('');
+    
+    this.dom.topArticlesList.innerHTML = html;
+  }
+
+  /**
+   * Load top guides
+   */
+  async loadTopGuides(range) {
+    if (!this.dom.topGuidesList) return;
+    
+    try {
+      if (!window.api) {
+        console.error('[AdminDashboard] window.api is not available. Make sure api-client.js is loaded.');
+        this.dom.topGuidesList.innerHTML = '<div class="content-placeholder">API client not loaded</div>';
+        return;
+      }
+      const response = await window.api.get(`/api/analytics/top-guides?range=${range}&limit=10`);
+      
+      if (response && response.success && response.guides) {
+        this.renderTopGuides(response.guides);
+        if (this.dom.topGuidesSubtitle) {
+          this.dom.topGuidesSubtitle.textContent = `Top ${response.guides.length} by views (${range})`;
+        }
+      } else {
+        this.dom.topGuidesList.innerHTML = '<div class="content-placeholder">No guides data available</div>';
+      }
+    } catch (error) {
+      console.error('[AdminDashboard] Failed to load top guides:', error);
+      this.dom.topGuidesList.innerHTML = '<div class="content-placeholder">Error loading guides</div>';
+    }
+  }
+
+  /**
+   * Render top guides list
+   */
+  renderTopGuides(guides) {
+    if (!this.dom.topGuidesList) return;
+    
+    if (guides.length === 0) {
+      this.dom.topGuidesList.innerHTML = '<div class="content-placeholder">No guides found</div>';
+      return;
+    }
+    
+    const html = guides.map((guide, index) => `
+      <div class="top-content-item">
+        <div class="content-rank">#${index + 1}</div>
+        <div class="content-info">
+          <h4 class="content-title">${guide.title || 'Untitled'}</h4>
+          <div class="content-meta">
+            <span class="content-views">
+              <i class="fas fa-eye"></i>
+              ${utils.formatNumber(guide.views)} views
+            </span>
+            ${guide.totalViews ? `<span class="content-total">Total: ${utils.formatNumber(guide.totalViews)}</span>` : ''}
+          </div>
+        </div>
+        <div class="content-actions">
+          <a href="/pages/academy/guide.html?id=${guide.id}" target="_blank" class="action-link" title="View guide">
+            <i class="fas fa-external-link-alt"></i>
+          </a>
+        </div>
+      </div>
+    `).join('');
+    
+    this.dom.topGuidesList.innerHTML = html;
   }
 }
 

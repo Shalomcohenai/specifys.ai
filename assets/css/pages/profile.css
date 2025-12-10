@@ -54,3 +54,138 @@
   cursor: default;
   text-decoration: none;
 }
+
+/* Profile Header Styles - Using higher specificity instead of !important */
+body .profile-header {
+  background: #2a2a2a;
+  border: 2px solid #444;
+}
+
+body .avatar-placeholder {
+  background: #555;
+  color: white;
+  border: 2px solid #666;
+}
+
+body .profile-info h2 {
+  color: white;
+}
+
+body .profile-info p {
+  color: #ccc;
+}
+
+body .stat-number {
+  color: white;
+}
+
+body .stat-label {
+  color: #bbb;
+}
+
+/* Profile Buttons - Using higher specificity */
+body .logout-btn-small {
+  background: #dc3545;
+  border: none;
+  color: white;
+}
+
+body .logout-btn-small:hover {
+  background: #c82333;
+}
+
+body .personal-info-btn {
+  background: #28a745;
+  border: none;
+  color: white;
+}
+
+body .personal-info-btn:hover {
+  background: #218838;
+}
+
+/* Panel Styles */
+body .panel-header h2 {
+  color: white;
+}
+
+body .info-section h3 {
+  color: #bbb;
+}
+
+body .panel-action-btn:hover {
+  color: white;
+}
+
+body #upgrade-row .panel-action-btn {
+  color: white;
+}
+
+body #upgrade-row .panel-action-btn:hover {
+  color: white;
+}
+
+/* Progress Item Icons - Using higher specificity */
+body .progress-item.ready i,
+body .progress-item.ready i.fa {
+  color: #FF6B35;
+}
+
+body .progress-item.in-progress i,
+body .progress-item.in-progress i.fa {
+  color: #ffc107;
+}
+
+body .progress-item.pending i,
+body .progress-item.pending i.fa {
+  color: #6c757d;
+}
+
+body .progress-item.not-started i,
+body .progress-item.not-started i.fa {
+  color: #dc3545;
+}
+
+/* Button icon styles moved to assets/css/components/buttons.css */
+/* .btn-icon.linked and .btn-icon i.fa.fa-edit are now in buttons.css */
+
+body .panel-action-btn:hover {
+  color: white;
+}
+
+/* Mobile responsive overrides */
+@media (max-width: 768px) {
+  body .profile-info h2 {
+    color: white;
+  }
+  
+  body .profile-info p {
+    color: #ccc;
+  }
+  
+  body .stat-number {
+    color: white;
+  }
+  
+  body .stat-label {
+    color: #bbb;
+  }
+}
+
+@media (max-width: 480px) {
+  body .profile-info h2 {
+    color: white;
+  }
+  
+  body .profile-info p {
+    color: #ccc;
+  }
+  
+  body .stat-number {
+    color: white;
+  }
+  
+  body .stat-label {
+    color: #bbb;
+  }
+}

@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const { auth } = require('./firebase-admin');
+const { auth, db } = require('./firebase-admin');
 const { ensureEntitlementDocument, initializeUser } = require('./user-management');
 const { createError, ERROR_CODES } = require('./error-handler');
 const { logger } = require('./logger');
+const { recordEvent } = require('./analytics-service');
 
 /**
  * Middleware to verify Firebase ID token
@@ -55,6 +56,20 @@ router.post('/initialize', verifyFirebaseToken, async (req, res, next) => {
               : 'User documents already up to date';
 
         logger.info({ requestId, userId, message: statusMessage }, '[user-routes] POST /initialize - Success');
+        
+        // Track user creation/signup for analytics (only for new users)
+        if (result.created) {
+            try {
+                await recordEvent('user_created', userId, 'user', userId, {
+                    email: result.user?.email || req.user?.email,
+                    method: 'email' // Could be enhanced to detect Google OAuth
+                });
+            } catch (analyticsError) {
+                // Don't fail the request if analytics fails
+                logger.warn({ requestId, error: analyticsError.message }, '[user-routes] Failed to record user creation event');
+            }
+        }
+        
         res.json({
             success: true,
             message: statusMessage,

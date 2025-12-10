@@ -323,6 +323,16 @@ class ArticlePage {
 
         try {
             await window.api.post(`/api/articles/${this.slug}/view`).catch(() => {});
+            
+            // Also track with analytics tracker if available
+            if (typeof window.analyticsTracker !== 'undefined' && this.article) {
+                window.analyticsTracker.trackPageView(`article_${this.slug}`, {
+                    articleId: this.article.id,
+                    articleTitle: this.article.title,
+                    slug: this.slug,
+                    timestamp: new Date().toISOString()
+                });
+            }
             // Don't wait for response or show errors - view tracking is non-critical
         } catch (error) {
             // Silently fail - view tracking is not critical

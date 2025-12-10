@@ -58,21 +58,8 @@ body {
   justify-content: center;
 }
 
-.btn-home {
-  background: #FF6B35;
-  color: white;
-  padding: 1rem 2rem;
-  border-radius: 8px;
-  text-decoration: none;
-  font-weight: 600;
-  transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
-}
-
-.btn-home:hover {
-  background: #FF8551;
-  transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(255, 107, 53, 0.3);
-}
+/* Button styles moved to assets/css/components/buttons.css */
+/* .btn-home styles are now in buttons.css */
 
 @media (max-width: 768px) {
   .error-404-code {

@@ -21,6 +21,8 @@
 
   <!-- CSS - Unified compiled CSS file -->
   <link rel="stylesheet" href="/assets/css/main-compiled.css">
+  <!-- Admin Dashboard New Styles -->
+  <link rel="stylesheet" href="/assets/css/admin-dashboard-new.css">
   <!-- Tailwind CSS - Processed via PostCSS -->
   <link rel="stylesheet" href="/assets/css/tailwind-base-compiled.css">
   <!-- Display Utilities -->
@@ -65,6 +67,14 @@
         <button class="nav-link" data-target="stats-section">
           <span class="icon"><i class="fas fa-chart-pie"></i></span>
           Statistics
+        </button>
+        <button class="nav-link" data-target="funnel-section">
+          <span class="icon"><i class="fas fa-filter"></i></span>
+          Funnel Analysis
+        </button>
+        <button class="nav-link" data-target="content-analytics-section">
+          <span class="icon"><i class="fas fa-newspaper"></i></span>
+          Content Analytics
         </button>
         <button class="nav-link" data-target="spec-usage-section">
           <span class="icon"><i class="fas fa-list-check"></i></span>
@@ -148,38 +158,31 @@
           <div class="metrics-grid" id="overview-metrics">
             <article class="metric-card">
               <h3>Total users</h3>
-              <p class="metric-value" data-metric="users-total">—</p>
-              <span class="metric-sub" data-kpi="users-new">New: —</span>
+              <canvas class="metric-chart" data-metric="users-total" height="120"></canvas>
             </article>
             <article class="metric-card">
               <h3>Live users</h3>
-              <p class="metric-value" data-metric="users-live">—</p>
-              <span class="metric-sub" data-kpi="users-live-time">Last 15 min</span>
+              <canvas class="metric-chart" data-metric="users-live" height="120"></canvas>
             </article>
             <article class="metric-card">
               <h3>Pro users</h3>
-              <p class="metric-value" data-metric="users-pro">—</p>
-              <span class="metric-sub" data-kpi="users-pro-share">—%</span>
+              <canvas class="metric-chart" data-metric="users-pro" height="120"></canvas>
             </article>
             <article class="metric-card">
               <h3>Specs created</h3>
-              <p class="metric-value" data-metric="specs-total">—</p>
-              <span class="metric-sub" data-kpi="specs-range">Range: —</span>
+              <canvas class="metric-chart" data-metric="specs-total" height="120"></canvas>
             </article>
             <article class="metric-card">
               <h3>Revenue</h3>
-              <p class="metric-value" data-metric="revenue-total">—</p>
-              <span class="metric-sub" data-kpi="revenue-range">Range: —</span>
+              <canvas class="metric-chart" data-metric="revenue-total" height="120"></canvas>
             </article>
             <article class="metric-card">
               <h3>Articles read</h3>
-              <p class="metric-value" data-metric="articles-read">—</p>
-              <span class="metric-sub" data-kpi="articles-read-range">Range: —</span>
+              <canvas class="metric-chart" data-metric="articles-read" height="120"></canvas>
             </article>
             <article class="metric-card">
               <h3>Guides views</h3>
-              <p class="metric-value" data-metric="guides-read">—</p>
-              <span class="metric-sub" data-kpi="guides-read-range">Range: —</span>
+              <canvas class="metric-chart" data-metric="guides-read" height="120"></canvas>
             </article>
         </div>
 
@@ -557,6 +560,83 @@
                         </div>
         </section>
 
+        <section class="dashboard-section" id="funnel-section">
+          <header class="section-header">
+            <div>
+              <h2>Conversion Funnel</h2>
+              <p>Track user journey from visitors to purchases.</p>
+            </div>
+            <div class="section-controls">
+              <button class="action-btn update-btn" id="funnel-update-btn" type="button" title="Update data">
+                <i class="fas fa-sync-alt"></i>
+                Update
+              </button>
+              <select id="funnel-range" aria-label="Funnel range">
+                <option value="day">Last 24 hours</option>
+                <option value="week" selected>Last 7 days</option>
+                <option value="month">Last 30 days</option>
+                <option value="all">All time</option>
+              </select>
+            </div>
+          </header>
+
+          <div class="funnel-container">
+            <div class="funnel-visualization" id="funnel-visualization">
+              <div class="funnel-placeholder">Loading funnel data…</div>
+            </div>
+            <div class="funnel-metrics" id="funnel-metrics">
+              <div class="funnel-metrics-placeholder">Loading conversion rates…</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="dashboard-section" id="content-analytics-section">
+          <header class="section-header">
+            <div>
+              <h2>Content Analytics</h2>
+              <p>Top performing articles and academy guides.</p>
+            </div>
+            <div class="section-controls">
+              <button class="action-btn update-btn" id="content-analytics-update-btn" type="button" title="Update data">
+                <i class="fas fa-sync-alt"></i>
+                Update
+              </button>
+              <select id="content-range" aria-label="Content range">
+                <option value="day">Last 24 hours</option>
+                <option value="week" selected>Last 7 days</option>
+                <option value="month">Last 30 days</option>
+                <option value="all">All time</option>
+              </select>
+              <select id="content-type" aria-label="Content type">
+                <option value="both">Articles & Guides</option>
+                <option value="articles">Articles Only</option>
+                <option value="guides">Guides Only</option>
+              </select>
+            </div>
+          </header>
+
+          <div class="content-analytics-grid">
+            <div class="content-panel">
+              <div class="panel-header">
+                <h3>Top Articles</h3>
+                <span class="panel-subtitle" id="top-articles-subtitle">By views</span>
+              </div>
+              <div class="top-content-list" id="top-articles-list">
+                <div class="content-placeholder">Loading top articles…</div>
+              </div>
+            </div>
+            <div class="content-panel">
+              <div class="panel-header">
+                <h3>Top Academy Guides</h3>
+                <span class="panel-subtitle" id="top-guides-subtitle">By views</span>
+              </div>
+              <div class="top-content-list" id="top-guides-list">
+                <div class="content-placeholder">Loading top guides…</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <section class="dashboard-section" id="spec-usage-section">
           <header class="section-header">
             <div>
@@ -564,6 +644,10 @@
               <p>Track which features users utilize for each spec.</p>
             </div>
             <div class="section-controls">
+              <button class="action-btn update-btn" id="spec-usage-update-btn" type="button" title="Update data">
+                <i class="fas fa-sync-alt"></i>
+                Update
+              </button>
               <select id="spec-usage-range" aria-label="Filter by date range">
                 <option value="all">All time</option>
                 <option value="week" selected>Last 7 days</option>
@@ -646,6 +730,10 @@
               <p>Critical issues and user attention needed.</p>
             </div>
             <div class="section-controls">
+              <button class="action-btn update-btn" id="alerts-update-btn" type="button" title="Update data">
+                <i class="fas fa-sync-alt"></i>
+                Update
+              </button>
               <select id="alerts-severity-filter" aria-label="Filter by severity">
                 <option value="all">All severities</option>
                 <option value="critical">Critical</option>
@@ -692,6 +780,10 @@
               <p>Server performance and API response times.</p>
             </div>
             <div class="section-controls">
+              <button class="action-btn update-btn" id="performance-update-btn" type="button" title="Update data">
+                <i class="fas fa-sync-alt"></i>
+                Update
+              </button>
               <select id="performance-range" aria-label="Performance range">
                 <option value="hour">Last hour</option>
                 <option value="day" selected>Last 24 hours</option>
@@ -746,6 +838,10 @@
               <p>View and manage contact form submissions from users.</p>
             </div>
             <div class="section-controls">
+              <button class="action-btn update-btn" id="contact-update-btn" type="button" title="Update data">
+                <i class="fas fa-sync-alt"></i>
+                Update
+              </button>
               <select id="contact-status-filter" aria-label="Filter by status">
                 <option value="all">All statuses</option>
                 <option value="new">New</option>
@@ -952,6 +1048,7 @@
   </div>
 
   <script src="/assets/js/config.js"></script>
+  <script src="/assets/js/api-client.js"></script>
   <script type="module" src="/assets/js/admin-dashboard.js"></script>
   <script type="module" src="/assets/js/articles-manager.js"></script>
 </body>

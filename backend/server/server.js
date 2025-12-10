@@ -16,6 +16,7 @@ const blogRoutesPublic = require('./blog-routes-public');
 const articlesRoutes = require('./articles-routes');
 const academyRoutes = require('./academy-routes');
 const adminRoutes = require('./admin-routes');
+const analyticsRoutes = require('./analytics-routes');
 const lemonRoutes = require('./lemon-routes');
 const creditsRoutes = require('./credits-routes');
 // const healthRoutes = require('./health-routes'); // OLD - keep for rollback
@@ -368,6 +369,11 @@ logger.info({ type: 'route_mounted', path: '/api/articles' }, '[UNIFIED SERVER] 
 logger.info({ type: 'route_mount', path: '/api/academy', route: 'academyRoutes' }, '[UNIFIED SERVER] 📌 Mounting academy routes');
 app.post('/api/academy/guides/:guideId/view', academyRoutes.incrementViewCount);
 logger.info({ type: 'route_mounted', path: '/api/academy' }, '[UNIFIED SERVER] ✅ Academy routes mounted');
+
+// Analytics routes - public endpoints for tracking, admin-only for viewing data
+logger.info({ type: 'route_mount', path: '/api/analytics', route: 'analyticsRoutes' }, '[UNIFIED SERVER] 📌 Mounting analytics routes');
+app.use('/api/analytics', analyticsRoutes); // Routes handle their own auth requirements
+logger.info({ type: 'route_mounted', path: '/api/analytics' }, '[UNIFIED SERVER] ✅ Analytics routes mounted');
 
 // Admin routes (must be after specific admin endpoints, with rate limiting)
 // Enhanced logging for route mounting

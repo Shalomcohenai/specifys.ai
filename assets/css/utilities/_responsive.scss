@@ -1,0 +1,81 @@
+// ============================================
+// Responsive Utilities - Specifys.ai
+// ============================================
+
+@media (max-width: 768px) {
+  .container {
+    padding: 0 8px;
+  }
+  .container-fluid {
+    padding: 0 8px;
+  }
+  .content-box {
+    margin: 8px;
+    padding: 12px;
+    margin-top: 64px; /* Space for mobile header */
+    border-radius: 8px;
+  }
+  .d-md-none {
+    display: none;
+  }
+  .d-md-block {
+    display: block;
+  }
+  .d-md-flex {
+    display: flex;
+  }
+  .flex-md-column {
+    flex-direction: column;
+  }
+  .flex-md-row {
+    flex-direction: row;
+  }
+  .text-md-center {
+    text-align: center;
+  }
+  .text-md-left {
+    text-align: left;
+  }
+  .text-md-right {
+    text-align: right;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0 4px;
+  }
+  .container-fluid {
+    padding: 0 4px;
+  }
+  .content-box {
+    margin: 4px;
+    padding: 8px;
+    margin-top: 56px; /* Space for mobile header */
+    border-radius: 6px;
+  }
+  .d-sm-none {
+    display: none;
+  }
+  .d-sm-block {
+    display: block;
+  }
+  .d-sm-flex {
+    display: flex;
+  }
+  .flex-sm-column {
+    flex-direction: column;
+  }
+  .flex-sm-row {
+    flex-direction: row;
+  }
+  .text-sm-center {
+    text-align: center;
+  }
+  .text-sm-left {
+    text-align: left;
+  }
+  .text-sm-right {
+    text-align: right;
+  }
+}

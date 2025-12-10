@@ -1,0 +1,110 @@
+// ============================================
+// Footer - Specifys.ai
+// ============================================
+// Based on about.html page
+
+footer {
+  padding: 20px 10px;
+  text-align: center;
+  width: 100%;
+  color: var(--text-color);
+  flex-shrink: 0;
+  background: var(--bg-primary);
+  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.footer-content {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.footer-links {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.footer-links a,
+.footer-links button {
+  color: var(--text-color);
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: var(--font-weight-medium);
+  transition: color var(--transition-normal);
+  font-family: var(--font-family-primary);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.footer-links a:hover,
+.footer-links button:hover {
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
+.contact-us-link {
+  color: var(--text-color);
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: var(--font-weight-medium);
+  transition: color var(--transition-normal);
+  font-family: var(--font-family-primary);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.contact-us-link:hover {
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
+.footer-divider {
+  color: var(--text-color);
+  font-size: 1.2rem;
+  font-weight: 300;
+}
+
+.footer-social {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.footer-social a {
+  color: var(--text-color);
+  text-decoration: none;
+  font-size: 1.2rem;
+  transition: color var(--transition-normal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+}
+
+.footer-social a:hover {
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
+.footer-social a i {
+  margin: 0;
+}
+
+.footer-copyright {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-top: 1rem;
+}
+
+/* Note: Contact modal styles moved to assets/css/components/_modals.scss */

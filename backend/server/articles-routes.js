@@ -3,6 +3,7 @@ const { db, admin } = require('./firebase-admin');
 const { createError, ERROR_CODES } = require('./error-handler');
 const { logger } = require('./logger');
 const { generateAndSaveSitemap } = require('./sitemap-generator');
+const { recordArticleView } = require('./analytics-service');
 
 // Use built-in fetch for Node.js 18+ or fallback to node-fetch
 let fetch;
@@ -638,17 +639,36 @@ async function incrementViewCount(req, res, next) {
         }
         
         // Find article by slug
-        const snapshot = await db.collection(ARTICLES_COLLECTION).get();
-        const matchingDoc = snapshot.docs.find(doc => doc.data().slug === slug);
+        const snapshot = await db.collection(ARTICLES_COLLECTION).where('slug', '==', slug).limit(1).get();
         
-        if (!matchingDoc) {
+        if (snapshot.empty) {
             return next(createError('Article not found', ERROR_CODES.RESOURCE_NOT_FOUND, 404));
         }
         
-        // Increment views atomically
-        await matchingDoc.ref.update({
-            views: admin.firestore.FieldValue.increment(1)
-        });
+        const matchingDoc = snapshot.docs[0];
+        const articleData = matchingDoc.data();
+        const articleId = matchingDoc.id;
+        
+        // Get user ID if authenticated (from token if available)
+        let userId = null;
+        try {
+            const authHeader = req.headers.authorization;
+            if (authHeader && authHeader.startsWith('Bearer ')) {
+                const { auth } = require('./firebase-admin');
+                const idToken = authHeader.split('Bearer ')[1];
+                const decodedToken = await auth.verifyIdToken(idToken).catch(() => null);
+                if (decodedToken) userId = decodedToken.uid;
+            }
+        } catch (error) {
+            // Ignore auth errors - view tracking works without auth
+        }
+        
+        const ip = req.ip || req.connection?.remoteAddress || null;
+        
+        // Record view with timestamp using analytics service
+        await recordArticleView(articleId, slug, userId, ip);
+        
+        logger.info({ requestId, articleId, slug, userId }, '[articles-routes] POST view - Success');
         
         res.json({
             success: true,

@@ -1221,6 +1221,15 @@ class AcademyApp {
 
         try {
             await window.api.post(`/api/academy/guides/${guideId}/view`).catch(() => {});
+            
+            // Also track with analytics tracker if available
+            if (typeof window.analyticsTracker !== 'undefined') {
+                window.analyticsTracker.trackPageView(`academy_guide_${guideId}`, {
+                    guideId,
+                    guideTitle,
+                    timestamp: new Date().toISOString()
+                });
+            }
             // Don't wait for response or show errors - view tracking is non-critical
         } catch (error) {
             // Silently fail - view tracking is not critical

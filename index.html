@@ -123,6 +123,18 @@
 </script>
 
     <!-- Analytics Events functions are available via includes/analytics-events.html -->
+    <!-- Analytics Tracker -->
+    <script src="/assets/js/analytics-tracker.js"></script>
+    <script>
+      // Track homepage view
+      document.addEventListener('DOMContentLoaded', () => {
+        if (typeof window.analyticsTracker !== 'undefined') {
+          window.analyticsTracker.trackPageView('homepage', {
+            timestamp: new Date().toISOString()
+          });
+        }
+      });
+    </script>
 
     <!-- Structured Data (JSON-LD) for SEO -->
 <script type="application/ld+json">

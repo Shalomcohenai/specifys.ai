@@ -3,6 +3,7 @@ const { db } = require('./firebase-admin');
 const { createError, ERROR_CODES } = require('./error-handler');
 const { logger } = require('./logger');
 const admin = require('firebase-admin');
+const { recordGuideView } = require('./analytics-service');
 
 const router = express.Router();
 
@@ -31,12 +32,26 @@ async function incrementViewCount(req, res, next) {
       return next(createError('Guide not found', ERROR_CODES.RESOURCE_NOT_FOUND, 404));
     }
     
-    // Increment views atomically
-    await guideRef.update({
-      views: admin.firestore.FieldValue.increment(1)
-    });
+    // Get user ID if authenticated (from token if available)
+    let userId = null;
+    try {
+        const authHeader = req.headers.authorization;
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+            const { auth } = require('./firebase-admin');
+            const idToken = authHeader.split('Bearer ')[1];
+            const decodedToken = await auth.verifyIdToken(idToken).catch(() => null);
+            if (decodedToken) userId = decodedToken.uid;
+        }
+    } catch (error) {
+        // Ignore auth errors - view tracking works without auth
+    }
     
-    logger.info({ requestId, guideId }, '[academy-routes] POST /guides/:guideId/view - Success');
+    const ip = req.ip || req.connection?.remoteAddress || null;
+    
+    // Record view with timestamp using analytics service
+    await recordGuideView(guideId, userId, ip);
+    
+    logger.info({ requestId, guideId, userId }, '[academy-routes] POST /guides/:guideId/view - Success');
     
     res.json({
       success: true,
