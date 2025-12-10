@@ -45,9 +45,16 @@
     <link rel="stylesheet" href="/assets/css/main-compiled.css">
     <!-- Tailwind CSS - Processed via PostCSS -->
     <link rel="stylesheet" href="/assets/css/tailwind-base-compiled.css">
-      
-    
-    
+    <!-- Components -->
+    <link rel="stylesheet" href="/assets/css/components/buttons.css">
+    <!-- Display Utilities -->
+    <link rel="stylesheet" href="/assets/css/utilities/display.css">
+    <!-- Text Utilities -->
+    <link rel="stylesheet" href="/assets/css/utilities/text.css">
+    <!-- Spacing Utilities -->
+    <link rel="stylesheet" href="/assets/css/utilities/spacing.css">
+    <!-- Profile Page Specific Styles -->
+    <link rel="stylesheet" href="/assets/css/pages/profile.css">
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -272,7 +279,7 @@
                     <button class="personal-info-btn" onclick="openPersonalInfoPanel()" title="Personal Information">
                         <i class="fas fa-user-circle"></i> Personal Info
                     </button>
-                    <button class="admin-dashboard-btn" id="admin-dashboard-btn" style="display: none;" onclick="window.location.href='/pages/admin-dashboard.html'" title="Admin Dashboard">
+                    <button class="admin-dashboard-btn hidden" id="admin-dashboard-btn" onclick="window.location.href='/pages/admin-dashboard.html'" title="Admin Dashboard">
                         <i class="fas fa-user-shield"></i> Admin Dashboard
                     </button>
                     <button class="logout-btn-small" onclick="logout()" title="Sign Out">
@@ -313,9 +320,9 @@
             </div>
 
             <!-- Search and Sort -->
-            <div class="workspace-controls" style="margin-bottom: 20px; display: flex; gap: 12px; flex-wrap: wrap;">
-                <input type="text" id="workspace-search" placeholder="Search workspace items..." class="search-input" style="flex: 1; min-width: 250px; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;">
-                <select id="workspace-sort" class="sort-select" style="padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; background: white; cursor: pointer;">
+            <div class="workspace-controls">
+                <input type="text" id="workspace-search" placeholder="Search workspace items..." class="search-input">
+                <select id="workspace-sort" class="sort-select">
                     <option value="newest">Newest First</option>
                     <option value="oldest">Oldest First</option>
                     <option value="a-z">A-Z</option>
@@ -328,7 +335,7 @@
             </div>
 
             <!-- Pagination -->
-            <div id="workspace-pagination" class="pagination-container" style="display: none; margin-top: 20px; text-align: center;">
+            <div id="workspace-pagination" class="pagination-container hidden">
                 <button class="pagination-btn" id="prev-page" disabled>
                     <i class="fas fa-chevron-left"></i> Previous
                 </button>
@@ -412,11 +419,11 @@
                                 <span id="info-plan" class="plan-badge">Loading...</span>
                             </div>
                         </div>
-                        <div class="info-row" id="renewal-row" style="display: none;">
+                        <div class="info-row hidden" id="renewal-row">
                             <label>Renewal Date</label>
                             <div class="info-value" id="info-renewal-date">-</div>
                         </div>
-                        <div class="info-row" id="cost-row" style="display: none;">
+                        <div class="info-row hidden" id="cost-row">
                             <label>Renewal Cost</label>
                             <div class="info-value" id="info-renewal-cost">-</div>
                         </div>
@@ -424,14 +431,14 @@
                             <label>Status</label>
                             <div class="info-value"><span id="info-status" class="status-badge">Loading...</span></div>
                         </div>
-                        <div class="info-row" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
-                            <div id="subscription-note" class="info-value" style="font-size: 0.9rem; color: #888; line-height: 1.5;">
+                        <div class="info-row subscription-note-row">
+                            <div id="subscription-note" class="info-value subscription-note-text">
                                 Checking your subscription details...
                             </div>
                         </div>
-                        <div class="info-row" id="upgrade-row" style="display: none;">
+                        <div class="info-row hidden" id="upgrade-row">
                             <div class="info-value">
-                                <a href="/pages/pricing.html" class="panel-action-btn" style="max-width: 220px;">Upgrade</a>
+                                <a href="/pages/pricing.html" class="panel-action-btn upgrade-btn">Upgrade</a>
                             </div>
                         </div>
                     </div>
@@ -450,10 +457,10 @@
                 <div class="info-section">
                     <h3>Manage Subscription</h3>
                     <div class="info-card">
-                        <button class="panel-action-btn cancel-btn" id="cancelSubBtn" onclick="startCancelSubscription()" style="display: none;">
+                        <button class="panel-action-btn cancel-btn hidden" id="cancelSubBtn" onclick="startCancelSubscription()">
                             <i class="fas fa-times-circle"></i> Cancel Subscription
                         </button>
-                        <div id="subscription-cancel-confirmation" class="subscription-confirmation" style="display: none;">
+                        <div id="subscription-cancel-confirmation" class="subscription-confirmation hidden">
                             <p class="subscription-confirmation-text">
                                 Cancelling will stop any future auto-renewals and your access to unlimited specifications will end after the current billing period.
                             </p>
@@ -474,7 +481,7 @@
     </div>
 
     <!-- Edit Display Name Modal -->
-    <div id="editNameModal" class="modal-overlay" style="display: none;">
+    <div id="editNameModal" class="modal-overlay hidden">
         <div class="modal-content">
             <div class="modal-header">
                 <h3>Edit Display Name</h3>
@@ -1721,7 +1728,7 @@
                     <div class="app-card" data-app-id="${app.id}">
                         <div class="app-card-header">
                             <h4 class="app-card-title">
-                                <span class="spec-link" style="cursor: default; text-decoration: none;">${app.name}</span>
+                                <span class="spec-link spec-link-plain">${app.name}</span>
                             </h4>
                             <div class="app-card-actions">
                                 <button class="btn-icon" onclick="editAppCard('${app.id}')" title="Edit">
@@ -1888,7 +1895,7 @@
                     <div class="app-card" data-app-id="${app.id}">
                         <div class="app-card-header">
                             <h4 class="app-card-title">
-                                <span class="spec-link" style="cursor: default; text-decoration: none;">${app.name}</span>
+                                <span class="spec-link spec-link-plain">${app.name}</span>
                             </h4>
                             <div class="app-card-actions">
                                 <button class="btn-icon" onclick="editAppCard('${app.id}')" title="Edit">
@@ -2380,7 +2387,7 @@
                 const firstLetter = displayName.charAt(0).toUpperCase();
                 
                 authButtons.innerHTML = `
-                    <a href="/pages/profile.html" class="user-info" style="text-decoration: none;">
+                    <a href="/pages/profile.html" class="user-info no-underline">
                         <div class="user-avatar">${firstLetter}</div>
                         <span>${displayName}</span>
                     </a>

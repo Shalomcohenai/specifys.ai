@@ -55,11 +55,32 @@ exclude:
   - create-post.bat
   - config/
   - backup-*
+  - assets/css/main.scss
 
 # Include files
 include:
   - _redirects
   - tools/
+  - blog/  # Blog directory must be explicitly included
+  # CSS files - must be explicitly listed (Jekyll doesn't support wildcards)
+  - assets/css/main-compiled.css
+  - assets/css/tailwind-base-compiled.css
+  - assets/css/components/badges.css
+  - assets/css/components/buttons.css
+  - assets/css/components/mermaid.css
+  - assets/css/utilities/display.css
+  - assets/css/utilities/spacing.css
+  - assets/css/utilities/text.css
+  - assets/css/pages/404.css
+  - assets/css/pages/academy.css
+  - assets/css/pages/auth.css
+  - assets/css/pages/demo-spec.css
+  - assets/css/pages/index.css
+  - assets/css/pages/maintenance.css
+  - assets/css/pages/pricing.css
+  - assets/css/pages/profile.css
+  - assets/css/pages/spec-viewer.css
+  - assets/css/pages/toolpicker.css
 
 # Sass settings
 sass:

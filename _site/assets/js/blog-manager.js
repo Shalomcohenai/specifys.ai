@@ -163,17 +163,8 @@ class BlogManager {
         submitBtn.disabled = true;
 
         try {
-            // Send to backend
-            const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai.onrender.com';
-            const response = await fetch(`${apiBaseUrl}/api/blog/create-post`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(formData)
-            });
-
-            const result = await response.json();
+            // Send to backend using API Client
+            const result = await window.api.post('/api/blog/create-post', formData);
 
             if (result.success) {
                 this.showMessage('Post published successfully! It will appear on your blog shortly.', 'success');
@@ -184,8 +175,7 @@ class BlogManager {
                 throw new Error(result.error || 'Failed to publish post');
             }
         } catch (error) {
-
-            this.showMessage(`Error: ${error.message}`, 'error');
+            this.showMessage(`Error: ${error.message || error.data?.error || 'Failed to publish post'}`, 'error');
         } finally {
             submitBtn.innerHTML = originalText;
             submitBtn.disabled = false;
@@ -294,16 +284,7 @@ class BlogManager {
         }
 
         try {
-            const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai.onrender.com';
-            const response = await fetch(`${apiBaseUrl}/api/blog/delete-post`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ filename })
-            });
-
-            const result = await response.json();
+            const result = await window.api.post('/api/blog/delete-post', { filename });
 
             if (result.success) {
                 this.showMessage('Post deleted successfully', 'success');
@@ -312,8 +293,7 @@ class BlogManager {
                 throw new Error(result.error || 'Failed to delete post');
             }
         } catch (error) {
-
-            this.showMessage(`Error: ${error.message}`, 'error');
+            this.showMessage(`Error: ${error.message || error.data?.error || 'Failed to delete post'}`, 'error');
         }
     }
 

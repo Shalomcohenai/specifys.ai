@@ -156,14 +156,8 @@ export function logSecurityEvent(event, details = {}) {
   
   // Send to server for monitoring (if endpoint exists)
   if (window.SECURITY_MONITORING_ENABLED) {
-    fetch('/api/security/log', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(securityLog)
-    }).catch(err => {
-
+    window.api.post('/api/security/log', securityLog).catch(() => {
+      // Silently fail - security logging is non-critical
     });
   }
 }

@@ -45,9 +45,16 @@
     <link rel="stylesheet" href="/assets/css/main-compiled.css">
     <!-- Tailwind CSS - Processed via PostCSS -->
     <link rel="stylesheet" href="/assets/css/tailwind-base-compiled.css">
-      
-    
-    
+    <!-- Components -->
+    <link rel="stylesheet" href="/assets/css/components/buttons.css">
+    <!-- Display Utilities -->
+    <link rel="stylesheet" href="/assets/css/utilities/display.css">
+    <!-- Text Utilities -->
+    <link rel="stylesheet" href="/assets/css/utilities/text.css">
+    <!-- Spacing Utilities -->
+    <link rel="stylesheet" href="/assets/css/utilities/spacing.css">
+    <!-- Auth Page Specific Styles -->
+    <link rel="stylesheet" href="/assets/css/pages/auth.css">
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -164,8 +171,8 @@
                     <button class="auth-tab" onclick="switchTab('register')">Register</button>
                 </div>
 
-                <div id="error-message" class="error-message" style="display: none;"></div>
-                <div id="success-message" class="success-message" style="display: none;"></div>
+                <div id="error-message" class="error-message hidden"></div>
+                <div id="success-message" class="success-message hidden"></div>
 
                 <!-- Login Form -->
                 <form id="login-form" class="auth-form active">
@@ -378,7 +385,7 @@
                     const loadingDiv = document.createElement('div');
                     loadingDiv.id = 'redirect-loading';
                     loadingDiv.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); z-index: 10000; text-align: center;';
-                    loadingDiv.innerHTML = '<div style="font-size: 16px; color: #333;">Completing sign in...</div>';
+                    loadingDiv.innerHTML = '<div class="loading-text">Completing sign in...</div>';
                     document.body.appendChild(loadingDiv);
                     
 
@@ -832,7 +839,7 @@
                 const firstLetter = displayName.charAt(0).toUpperCase();
                 
                 authButtons.innerHTML = `
-                    <a href="profile.html" class="user-info" style="text-decoration: none;">
+                    <a href="profile.html" class="user-info no-underline">
                         <div class="user-avatar">${firstLetter}</div>
                         <span>${displayName}</span>
                     </a>

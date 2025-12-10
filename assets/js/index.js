@@ -1732,6 +1732,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Scroll reveal for section titles and content
 function initSectionTitlesFadeIn() {
+  // Fallback: reveal all titles and subtitles after a short delay if IntersectionObserver is not available
+  const revealAllFallback = function() {
+    setTimeout(function() {
+      const allTitles = document.querySelectorAll('.section-title, .section-subtitle, .section-container, .content-layout, .content-text');
+      allTitles.forEach(function(element) {
+        element.classList.add('revealed');
+      });
+    }, 500);
+  };
+
+  // Check if IntersectionObserver is available
+  if (typeof IntersectionObserver === 'undefined') {
+    revealAllFallback();
+    return;
+  }
+
   const titleObserverOptions = {
     root: null,
     rootMargin: '100px 0px -200px 0px',
@@ -1761,17 +1777,56 @@ function initSectionTitlesFadeIn() {
     });
   }, contentObserverOptions);
 
-  // Observe all h2 titles in sections
-  const sectionTitles = document.querySelectorAll('.section h2');
+  // Observe all section titles and subtitles
+  const sectionTitles = document.querySelectorAll('.section-title, .section-subtitle');
+  if (sectionTitles.length === 0) {
+    // If no elements found, use fallback
+    revealAllFallback();
+    return;
+  }
+  
   sectionTitles.forEach(function(title) {
     titleObserver.observe(title);
   });
 
-  // Observe all sections for content reveal
-  const sections = document.querySelectorAll('.section');
-  sections.forEach(function(section) {
+  // Observe all section containers and content layouts for content reveal
+  const sectionContainers = document.querySelectorAll('.section-container, .content-layout, .content-text, .content-image, .section');
+  sectionContainers.forEach(function(container) {
+    contentObserver.observe(container);
+  });
+  
+  // Also observe .content-layout specifically - it needs revealed class for children to show
+  const contentLayouts = document.querySelectorAll('.content-layout');
+  contentLayouts.forEach(function(layout) {
+    contentObserver.observe(layout);
+  });
+  
+  // Observe .section elements in .extra-sections - they need revealed class
+  const extraSections = document.querySelectorAll('.extra-sections .section');
+  extraSections.forEach(function(section) {
     contentObserver.observe(section);
   });
+
+  // Fallback: if after 2 seconds no elements were revealed, reveal them all
+  setTimeout(function() {
+    const unrevealed = document.querySelectorAll('.section-title:not(.revealed), .section-subtitle:not(.revealed), .section-container:not(.revealed), .content-layout:not(.revealed), .content-image:not(.revealed), .content-text:not(.revealed), .content-text-centered:not(.revealed)');
+    if (unrevealed.length > 0) {
+      unrevealed.forEach(function(element) {
+        element.classList.add('revealed');
+      });
+    }
+  }, 2000);
+  
+  // Additional fallback: reveal all content after 3 seconds to ensure everything shows
+  setTimeout(function() {
+    document.querySelectorAll('.section-title, .section-subtitle, .section-container, .content-layout, .content-image, .content-text, .content-text-centered, .section, .extra-sections .section').forEach(function(element) {
+      element.classList.add('revealed');
+    });
+    // Also reveal h2 inside .section
+    document.querySelectorAll('.section h2').forEach(function(h2) {
+      h2.classList.add('revealed');
+    });
+  }, 3000);
 }
 
 function triggerPlatformHint() {
