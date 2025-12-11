@@ -1,209 +1,23 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-    <meta name="theme-color" content="#FF6B35">
-    <title>404 - Page Not Found - Specifys.ai</title>
-    <meta name="description" content="The page you requested does not exist">
-    <meta name="keywords" content="404, not found">
-    <meta name="author" content="Specifys.ai">
-    <meta name="robots" content="noindex, nofollow">
-    
-    <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <link rel="manifest" href="/site.webmanifest">
-    
-    <!-- CSS - Unified compiled CSS file -->
-    <link rel="stylesheet" href="/assets/css/main-compiled.css">
-    <!-- Tailwind CSS - Processed via PostCSS -->
-    <link rel="stylesheet" href="/assets/css/tailwind-base-compiled.css">
-    <!-- Components -->
-    <link rel="stylesheet" href="/assets/css/components/buttons.css">
-    <!-- Display Utilities -->
-    <link rel="stylesheet" href="/assets/css/utilities/display.css">
-    <!-- Text Utilities -->
-    <link rel="stylesheet" href="/assets/css/utilities/text.css">
-    <!-- Spacing Utilities -->
-    <link rel="stylesheet" href="/assets/css/utilities/spacing.css">
-    
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    
-    <!-- CSS Monitoring Script -->
-    <script src="/assets/js/css-monitor.js"></script>
-    
-    <!-- Fonts -->
-    <!-- Fonts - Optimized: Only Montserrat and Inter -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- 404 Page Specific Styles -->
-    <link rel="stylesheet" href="/assets/css/pages/404.css">
-    
-    <!-- API Configuration - MUST load before other scripts -->
-    <script src="/assets/js/config.js"></script>
-    
-    <!-- Entitlements Cache -->
-    <script src="/assets/js/entitlements-cache.js"></script>
-</head>
-<body>
-    <!-- Header -->
-    <header class="thematic-header" role="banner">
-        <div class="header-center">
-            <div class="logo">
-                <a href="/" aria-label="Specifys.ai homepage">
-                    <span class="logo-text">Specifys<span class="logo-dot">.</span>AI</span>
-                </a>
-            </div>
-        </div>
-        <div class="header-right">
-            <div class="credits-display hidden" id="credits-display">
-                <div class="credits-container">
-                    <span id="credits-text">Credits: 0</span>
-                </div>
-            </div>
-            <div class="auth-buttons" id="auth-buttons">
-                <!-- Will be populated by auth system -->
-            </div>
-        </div>
-    </header>
-    
-    <!-- Credits Display Script -->
-    <script src="/assets/js/credits-display.js"></script>
-    
-    <!-- Main Content -->
-    <main class="main-content">
-        <div class="error-404-container">
-            <div class="error-404-code">404</div>
-            <h1 class="error-404-title">Page Not Found</h1>
-            <p class="error-404-message">
-                Looks like the page you requested left for a coffee break... ☕<br>
-                Maybe it decided to build an AI app instead of being found? 😉
-            </p>
-            <div class="error-404-actions">
-                <a href="/" class="btn-home">Back to Homepage</a>
-            </div>
-        </div>
-    </main>
-    
-    <!-- Footer -->
-    <footer>
-        <div class="footer-content">
-            <div class="footer-links">
-                <a href="/pages/how.html" aria-label="Learn how specifys.ai works">How It Works</a>
-                <a href="/pages/about.html" aria-label="Learn more about specifys.ai">About Us</a>
-                <a href="/blog/" aria-label="Visit our blog">Blog</a>
-                <a href="/pages/articles.html" aria-label="Browse our articles">Articles</a>
-                <a href="/academy.html" aria-label="Visit Specifys Academy">Academy</a>
-                <a href="/tools/map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
-                <a href="/pages/ToolPicker.html" aria-label="Use our Tool Finder">Tool Finder</a>
-            </div>
-            <span class="footer-divider">|</span>
-            <div class="footer-social">
-                <a href="https://www.linkedin.com/company/specifys-ai/" target="_blank" aria-label="Follow us on LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-                <a href="https://www.facebook.com/profile.php?id=61576402600129&locale=he_IL" target="_blank" aria-label="Follow us on Facebook"><i class="fab fa-facebook-f"></i></a>
-                <a href="mailto:specifysai@gmail.com" aria-label="Send us an email"><i class="fas fa-envelope"></i></a>
-                <a href="https://www.producthunt.com/products/specifys-ai" target="_blank" aria-label="Check us out on Product Hunt"><i class="fab fa-product-hunt"></i></a>
-            </div>
-        </div>
-        <div class="footer-copyright">
-            © 2025 specifys.ai. All rights reserved.
-        </div>
-    </footer>
-    
-    <!-- Firebase SDK & Auth -->
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+---
+layout: default
+title: "404 - Page Not Found"
+description: "The page you requested does not exist"
+permalink: /pages/404.html
+robots: noindex, nofollow
+extra_css:
+  - /assets/css/pages/404.css
+extra_js:
+  - /assets/js/entitlements-cache.js
+---
 
-    <script>
-        // Firebase Configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyB9hr0IWM4EREzkKDxBxYoYinV6LJXWXV4",
-            authDomain: "specify-ai.firebaseapp.com",
-            projectId: "specify-ai",
-            storageBucket: "specify-ai.firebasestorage.app",
-            messagingSenderId: "734278787482",
-            appId: "1:734278787482:web:0e312fb6f197e849695a23",
-            measurementId: "G-4YR9LK63MR"
-        };
-
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-    </script>
-
-    <script>
-        // Auth UI functions
-        function updateAuthUI(user) {
-            const authButtons = document.getElementById('auth-buttons');
-            if (!authButtons) return;
-            
-            if (user) {
-                // User is logged in
-                const displayName = user.displayName || user.email.split('@')[0];
-                const firstLetter = displayName.charAt(0).toUpperCase();
-                
-                authButtons.innerHTML = `
-                    <a href="/pages/profile.html" class="user-info no-underline">
-                        <div class="user-avatar">${firstLetter}</div>
-                        <span>${displayName}</span>
-                    </a>
-                `;
-            } else {
-                // User is not logged in
-                authButtons.innerHTML = `
-                    <button class="auth-btn" onclick="showLoginModal()">Log in/Sign up</button>
-                `;
-            }
-        }
-
-        // Global auth functions
-        window.showLoginModal = function() {
-            window.location.href = '/pages/auth.html';
-        };
-
-        window.showRegisterModal = function() {
-            window.location.href = '/pages/auth.html';
-        };
-
-        window.logout = function() {
-            auth.signOut()
-                .then(() => {
-
-                })
-                .catch(error => {
-
-                });
-        };
-
-        // Listen to auth state changes
-        auth.onAuthStateChanged((user) => {
-            updateAuthUI(user);
-        });
-
-        // Initialize auth buttons with default state
-        document.addEventListener('DOMContentLoaded', function() {
-            const authButtons = document.getElementById('auth-buttons');
-            if (authButtons && !authButtons.innerHTML.trim()) {
-                authButtons.innerHTML = `
-                    <button class="auth-btn login-btn">Log in/Sign up</button>
-                `;
-                
-                const loginBtn = authButtons.querySelector('.login-btn');
-                if (loginBtn) {
-                    loginBtn.addEventListener('click', function(event) {
-                        event.stopPropagation();
-                        window.location.href = '/pages/auth.html';
-                    });
-                }
-            }
-        });
-    </script>
-</body>
-</html>
-
+<div class="error-404-container">
+    <div class="error-404-code">404</div>
+    <h1 class="error-404-title">Page Not Found</h1>
+    <p class="error-404-message">
+        Looks like the page you requested left for a coffee break... ☕<br>
+        Maybe it decided to build an AI app instead of being found? 😉
+    </p>
+    <div class="error-404-actions">
+        <a href="/" class="btn-home">Back to Homepage</a>
+    </div>
+</div>

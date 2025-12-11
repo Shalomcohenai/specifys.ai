@@ -1,583 +1,342 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-    <meta name="theme-color" content="#000000">
-    <title>Specifys.AI - Plan Your App Smarter - Specifys.ai</title>
-    <meta name="description" content="Plan your dream app for free with smart AI tools, including Vibe Coding Tools Map and Tool Finder.">
-    <meta name="keywords" content="AI development tools, app specification generator, no-code platform, AI-powered planning, vibe coding, AI app builder, specification generator, market research tool, app planning tool, development tools, AI tools">
-    <meta name="author" content="Specifys.ai">
-    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
-    
-    <!-- Content Security Policy - Removed to fix Google Analytics/Ads issues -->
-    
-    <!-- Canonical URL -->
-    
-    <link rel="canonical" href="https://specifys-ai.com/">
-    
-    
-    <!-- Open Graph -->
-    <meta property="og:site_name" content="Specifys.ai">
-    <meta property="og:title" content="Specifys.AI - Plan Your App Smarter">
-    <meta property="og:description" content="Plan your dream app for free with smart AI tools, including Vibe Coding Tools Map and Tool Finder.">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://specifys-ai.com/">
-    <meta property="og:image" content="https://specifys-ai.com/assets/images/og-image.png">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
-    <meta property="og:locale" content="en_US">
-    
-    
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:site" content="@specifysai">
-    <meta name="twitter:creator" content="@specifysai">
-    <meta name="twitter:title" content="Specifys.AI - Plan Your App Smarter">
-    <meta name="twitter:description" content="Plan your dream app for free with smart AI tools, including Vibe Coding Tools Map and Tool Finder.">
-    <meta name="twitter:image" content="https://specifys-ai.com/assets/images/og-image.png">
-    
-    <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <link rel="manifest" href="/site.webmanifest">
-    
-    <!-- CSS - Unified compiled CSS file -->
-    <link rel="stylesheet" href="/assets/css/main-compiled.css">
-    <!-- Tailwind CSS - Processed via PostCSS -->
-    <link rel="stylesheet" href="/assets/css/tailwind-base-compiled.css">
-    <!-- Display Utilities -->
-    <link rel="stylesheet" href="/assets/css/utilities/display.css">
-    <!-- Index Page Specific Styles -->
-    <link rel="stylesheet" href="/assets/css/pages/index.css">
-    <!-- Index Page Process Flow Styles (How It Works) -->
-    <link rel="stylesheet" href="/assets/css/pages/index-process-flow.css">
-    <!-- Index Page Why Sections Styles (The Promise / The Right Way) -->
-    <link rel="stylesheet" href="/assets/css/pages/index-why-sections.css">
-    
-    
-    
-    <!-- Font Awesome - Loaded asynchronously -->
-    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"></noscript>
-    
-    <!-- API Configuration -->
-    <script defer src="/assets/js/config.js"></script>
-    
-    <!-- API Client (must load after config.js) -->
-    <script defer src="/assets/js/api-client.js"></script>
-    
-    <!-- Components (must load before page-specific JS) -->
-    <script type="module" src="/assets/js/components/base.js"></script>
-    <script type="module" src="/assets/js/components/Modal.js"></script>
-    
-    <!-- State Management -->
-    <script defer src="/assets/js/store.js"></script>
-    
-    <!-- Application Logger -->
-    <script defer src="/assets/js/app-logger.js"></script>
-    
-    <!-- CSS Monitoring Script -->
-    <script defer src="/assets/js/css-monitor.js"></script>
-    
-    <!-- Fonts - Optimized: Only Montserrat and Inter -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Removed heavy libraries on homepage: Mermaid, Marked, Highlight.js, jsPDF -->
-    
-    <!-- Remove livereload script to prevent infinite reload loops -->
-    <script>
-        (function() {
-            function removeLiveReload() {
-                const livereloadScripts = document.querySelectorAll('script[src*="livereload"], script[src*="35729"]');
-                livereloadScripts.forEach(function(script) {
-                    script.remove();
-                });
-            }
-            removeLiveReload();
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', removeLiveReload);
-            }
-            setTimeout(removeLiveReload, 100);
-            setTimeout(removeLiveReload, 500);
-            
-            const observer = new MutationObserver(function(mutations) {
-                mutations.forEach(function(mutation) {
-                    mutation.addedNodes.forEach(function(node) {
-                        if (node.nodeType === 1 && node.tagName === 'SCRIPT' && node.src && (node.src.includes('livereload') || node.src.includes('35729'))) {
-                            node.remove();
-                        }
-                    });
-                });
-            });
-            observer.observe(document.head, { childList: true, subtree: true });
-            if (document.body) observer.observe(document.body, { childList: true, subtree: true });
-        })();
-    </script>
-    
-    <!-- Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-RWBT69JCM7"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-RWBT69JCM7');
-</script>
+---
+layout: default
+title: "Specifys.AI - Plan Your App Smarter"
+description: "Plan your dream app for free with smart AI tools, including Vibe Coding Tools Map and Tool Finder."
+permalink: /
+extra_css:
+  - /assets/css/pages/index.css
+  - /assets/css/pages/index-process-flow.css
+  - /assets/css/pages/index-why-sections.css
+extra_js:
+  - /assets/js/analytics-tracker.js
+  - /tools/prompts.js
+  - /assets/js/paywall.js
+  - /assets/js/question-flow-state.js
+  - /assets/js/question-flow-view.js
+  - /assets/js/question-flow-controller.js
+  - /assets/js/live-brief-modal.js
+  - /assets/js/index.js
+  - https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js
+  - /assets/js/index-mermaid.js
+  - /assets/js/why.js
+  - /assets/js/index-vanta.js
+  - /assets/js/index-access-code.js
+  - /assets/js/credits-display.js
+---
 
-    <!-- Analytics Events functions are available via includes/analytics-events.html -->
-    <!-- Analytics Tracker -->
-    <script src="/assets/js/analytics-tracker.js"></script>
-    <script>
-      // Track homepage view
-      document.addEventListener('DOMContentLoaded', () => {
-        if (typeof window.analyticsTracker !== 'undefined') {
-          window.analyticsTracker.trackPageView('homepage', {
-            timestamp: new Date().toISOString()
-          });
-        }
-      });
-    </script>
+<!-- Access Code Modal -->
+<div class="access-code-modal" id="accessCodeModal">
+    <div class="access-code-content">
+        <div class="access-code-header">
+            <h3>🔒 Access Required</h3>
+        </div>
+        <div class="access-code-body">
+            <p>The site is under maintenance. Please enter the access code to continue.</p>
+            <input type="text" id="accessCodeInput" class="access-code-input" placeholder="Enter access code" maxlength="10" autocomplete="off">
+            <div class="access-code-error hidden" id="accessCodeError">Incorrect code. Please try again.</div>
+        </div>
+        <div class="access-code-actions">
+            <button class="access-code-btn" id="accessCodeSubmit">Enter</button>
+        </div>
+    </div>
+</div>
 
-    <!-- Structured Data (JSON-LD) for SEO -->
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "Organization",
-      "name": "Specifys.ai",
-      "url": "https://specifys-ai.com",
-      "logo": "https://specifys-ai.com/favicon.ico",
-      "description": "AI-powered app planning and specification generation platform",
-      "sameAs": [
-        "https://www.linkedin.com/company/specifys-ai/"
-      ],
-      "contactPoint": {
-        "@type": "ContactPoint",
-        "email": "specifysai@gmail.com",
-        "contactType": "Customer Service"
-      }
-    },
-    {
-      "@type": "WebSite",
-      "name": "Specifys.ai",
-      "url": "https://specifys-ai.com",
-      "description": "Plan your app smarter with AI-driven insights and tools",
-      "potentialAction": {
-        "@type": "SearchAction",
-        "target": "https://specifys-ai.com/pages/ToolPicker.html?q={search_term_string}",
-        "query-input": "required name=search_term_string"
-      }
-    },
-    {
-      "@type": "SoftwareApplication",
-      "name": "Specifys.ai",
-      "applicationCategory": "DevelopmentApplication",
-      "operatingSystem": "Web",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "USD"
-      },
-      "aggregateRating": {
-        "@type": "AggregateRating",
-        "ratingValue": "4.8",
-        "ratingCount": "250"
-      },
-      "description": "AI-powered app planning platform with specification generator, market research tools, and vibe coding tools map"
-    },
-    {
-      "@type": "FAQPage",
-      "mainEntity": [
-        {
-          "@type": "Question",
-          "name": "What's Specifys.ai all about?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Specifys.ai is a complete AI-powered app planning ecosystem. Create specs, discover tools, manage projects—all free."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Do I need to create an account?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Creating an account is optional but recommended! It allows you to save your specs and manage projects."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Is it really 100% free?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Yes! All features are completely free. No hidden fees, no premium tiers."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "What is the Vibe Coding Tools Map?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Our curated collection of AI-driven development tools, organized by category."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "How does the Tool Finder work?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Our AI analyzes your project needs and suggests the most suitable tools."
-          }
-        }
-      ]
-    }
-  ]
-}
-</script>
-
-
-</head>
-
-
-<body>
-    <!-- Access Code Modal -->
-    <div class="access-code-modal" id="accessCodeModal">
-        <div class="access-code-content">
-            <div class="access-code-header">
-                <h3>🔒 Access Required</h3>
+<!-- Hero Section -->
+<section class="hero-section">
+    <div id="vanta-net"></div>
+    
+    <!-- Hero Content -->
+    <div class="hero-content" id="heroContent">
+        <h1 class="hero-main-title">Build faster with AI-driven insights</h1>
+        
+            <div class="hero-description">
+                <p class="hero-description-text">Transform your idea into a complete specification with AI-powered insights.</p>
             </div>
-            <div class="access-code-body">
-                <p>The site is under maintenance. Please enter the access code to continue.</p>
-                <input type="text" id="accessCodeInput" class="access-code-input" placeholder="Enter access code" maxlength="10" autocomplete="off">
-                <div class="access-code-error hidden" id="accessCodeError">Incorrect code. Please try again.</div>
+        
+        <div class="hero-button-container">
+            <button class="hero-cta-button-new" id="startButton">
+                <svg class="svgIcon" viewBox="0 0 512 512" height="1em" xmlns="http://www.w3.org/2000/svg">
+                    <path class="bell" d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zm50.7-186.9L162.4 380.6c-19.4 7.5-38.5-11.6-31-31l55.5-144.3c3.3-8.5 9.9-15.1 18.4-18.4l144.3-55.5c19.4-7.5 38.5 11.6 31 31L325.1 306.7c-3.2 8.5-9.9 15.1-18.4 18.4zM288 256a32 32 0 1 0 -64 0 32 32 0 1 0 64 0z" fill="white"/>
+                </svg>
+                Start
+            </button>
+        </div>
+        
+        <!-- Spec Cards Showcase -->
+        <div class="spec-cards-showcase" id="specCardsShowcase">
+            <div class="spec-card-square" data-spec="overview">
+                <div class="spec-icon">
+                    <i class="fa fa-file-alt"></i>
+                </div>
+                <div class="spec-content">
+                    <h3>Overview</h3>
+                    <p>Comprehensive app information including idea summary and core features</p>
+                </div>
             </div>
-            <div class="access-code-actions">
-                <button class="access-code-btn" id="accessCodeSubmit">Enter</button>
+            <div class="spec-card-square" data-spec="technical">
+                <div class="spec-icon">
+                    <i class="fa fa-code"></i>
+                </div>
+                <div class="spec-content">
+                    <h3>Technical</h3>
+                    <p>Technical specifications including tech stack and API endpoints</p>
+                </div>
+            </div>
+            <div class="spec-card-square" data-spec="market">
+                <div class="spec-icon">
+                    <i class="fa fa-chart-line"></i>
+                </div>
+                <div class="spec-content">
+                    <h3>Market Research</h3>
+                    <p>Market analysis including competitors and monetization strategies</p>
+                </div>
+            </div>
+            <div class="spec-card-square" data-spec="design">
+                <div class="spec-icon">
+                    <i class="fa fa-palette"></i>
+                </div>
+                <div class="spec-content">
+                    <h3>Design & Branding</h3>
+                    <p>Visual design guidelines including color schemes and typography</p>
+                </div>
+            </div>
+            <div class="spec-card-square" data-spec="diagrams">
+                <div class="spec-icon">
+                    <i class="fa fa-project-diagram"></i>
+                </div>
+                <div class="spec-content">
+                    <h3>Diagrams</h3>
+                    <p>Visual diagrams including architecture and user flow charts</p>
+                </div>
+            </div>
+            <div class="spec-card-square" data-spec="ai-chat">
+                <div class="spec-icon">
+                    <i class="fa fa-robot"></i>
+                </div>
+                <div class="spec-content">
+                    <h3>AI Chat</h3>
+                    <p>Interactive AI assistant to refine your specification</p>
+                </div>
             </div>
         </div>
     </div>
-
-    <!-- Header -->
-<header class="thematic-header" role="banner">
-    <div class="header-center">
-        <div class="logo">
-            <a href="/" aria-label="Specifys.ai homepage">
-                <span class="logo-text">Specifys<span class="logo-dot">.</span>AI</span>
-            </a>
+    
+    <!-- Questions Display -->
+    <div class="questions-display hidden" id="questionsDisplay">
+        <div class="questions-header">
+            <div class="current-question" id="currentQuestion">
+                Describe your application
+            </div>
+            <div class="mode-toggle-container typing-mode-toggle">
+                <span class="mode-label" data-mode="voice">Voice</span>
+                <label class="mode-toggle-switch">
+                    <input type="checkbox" id="typingModeToggleSwitch" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+                <span class="mode-label active" data-mode="typing">Typing</span>
+            </div>
+        </div>
+        <div class="question-detail" id="currentQuestionDetail">
+            Describe the main idea of your application - including core features, target audience, and the problem it solves
         </div>
     </div>
-    <div class="header-right">
-        <div class="credits-display hidden" id="credits-display">
-            <div class="credits-container">
-                <span id="credits-text">Credits: 0</span>
-            </div>
-        </div>
-        <div class="auth-buttons" id="auth-buttons">
-            <!-- Will be populated by auth system -->
+    
+    <!-- Loading Overlay -->
+    <div class="loading-overlay hidden" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Generating Your Specification</div>
+            <div class="loading-subtext">This may take a few moments...</div>
         </div>
     </div>
-    </header>
+    
+    <!-- Modern Input Container -->
+    <div class="modern-input-container hidden" id="modernInputContainer">
+        <div class="input-instruction">
+            Start typing, press Enter for next question, press Backspace for previous question
+        </div>
+        
+        <div class="input-area">
+            <textarea 
+                class="main-input" 
+                id="mainInput"
+                placeholder="Write your answer here..."
+                rows="1"
+            ></textarea>
+            <div class="character-count-container">
+                <span class="character-count" id="characterCount">0 / 900</span>
+            </div>
+        </div>
+        
+        <div class="input-controls">
+            <div class="left-controls">
+                <button class="control-btn hidden" title="Microphone" id="microphoneBtn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                        <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                        <line x1="12" y1="19" x2="12" y2="23"></line>
+                        <line x1="8" y1="23" x2="16" y2="23"></line>
+                    </svg>
+                </button>
+                <button class="control-btn" title="Lightbulb" id="lightbulbBtn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z"/>
+                    </svg>
+                </button>
+                
+                <div class="separator"></div>
+                
+                <button class="control-btn" id="phoneBtn" data-tooltip="Click for mobile app">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+                        <line x1="12" y1="18" x2="12.01" y2="18"></line>
+                    </svg>
+                </button>
+                
+                <button class="control-btn" id="computerBtn" data-tooltip="Click for web app">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                        <line x1="8" y1="21" x2="16" y2="21"></line>
+                        <line x1="12" y1="17" x2="12" y2="21"></line>
+                    </svg>
+                </button>
+                
+                <div class="separator"></div>
+                
+                
+            </div>
+            
+            <div class="progress-dots">
+                <div class="progress-dot" data-question="0" title="Question 1"></div>
+                <div class="progress-dot" data-question="1" title="Question 2"></div>
+                <div class="progress-dot" data-question="2" title="Question 3"></div>
+            </div>
+            
+            <button class="send-btn" id="sendBtn">
+                <span class="send-text">Next</span>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" height="20" width="20" class="send-arrow">
+                    <path stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m-7-7l7 7-7 7"></path>
+                </svg>
+            </button>
+        </div>
+        
+        <!-- Lightbulb Tooltip -->
+        <div class="lightbulb-tooltip" id="lightbulbTooltip">
+            <div class="tooltip-content"></div>
+        </div>
+    </div>
+    
+    <!-- Bottom Links -->
+    <div class="hero-bottom-links">
+        <a href="/pages/demo-spec.html" class="bottom-link">Demo</a>
+        <a href="/pages/pricing.html" class="bottom-link">Pricing</a>
+        <a href="/pages/why.html" class="bottom-link">Why</a>
+    </div>
+</section>
 
-    <!-- Main Content -->
-    <main id="main-content" class="main-content">
-        <!-- Hero Section -->
-        <section class="hero-section">
-            <div id="vanta-net"></div>
-            
-            <!-- Hero Content -->
-            <div class="hero-content" id="heroContent">
-                <h1 class="hero-main-title">Build faster with AI-driven insights</h1>
-                
-                    <div class="hero-description">
-                        <p class="hero-description-text">Transform your idea into a complete specification with AI-powered insights.</p>
-                    </div>
-                
-                <div class="hero-button-container">
-                    <button class="hero-cta-button-new" id="startButton">
-                        <svg class="svgIcon" viewBox="0 0 512 512" height="1em" xmlns="http://www.w3.org/2000/svg">
-                            <path class="bell" d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zm50.7-186.9L162.4 380.6c-19.4 7.5-38.5-11.6-31-31l55.5-144.3c3.3-8.5 9.9-15.1 18.4-18.4l144.3-55.5c19.4-7.5 38.5 11.6 31 31L325.1 306.7c-3.2 8.5-9.9 15.1-18.4 18.4zM288 256a32 32 0 1 0 -64 0 32 32 0 1 0 64 0z" fill="white"/>
-                        </svg>
-                        Start
-                    </button>
-                </div>
-                
-                <!-- Spec Cards Showcase -->
-                <div class="spec-cards-showcase" id="specCardsShowcase">
-                    <div class="spec-card-square" data-spec="overview">
-                        <div class="spec-icon">
-                            <i class="fa fa-file-alt"></i>
-                        </div>
-                        <div class="spec-content">
-                            <h3>Overview</h3>
-                            <p>Comprehensive app information including idea summary and core features</p>
-                        </div>
-                    </div>
-                    <div class="spec-card-square" data-spec="technical">
-                        <div class="spec-icon">
-                            <i class="fa fa-code"></i>
-                        </div>
-                        <div class="spec-content">
-                            <h3>Technical</h3>
-                            <p>Technical specifications including tech stack and API endpoints</p>
-                        </div>
-                    </div>
-                    <div class="spec-card-square" data-spec="market">
-                        <div class="spec-icon">
-                            <i class="fa fa-chart-line"></i>
-                        </div>
-                        <div class="spec-content">
-                            <h3>Market Research</h3>
-                            <p>Market analysis including competitors and monetization strategies</p>
-                        </div>
-                    </div>
-                    <div class="spec-card-square" data-spec="design">
-                        <div class="spec-icon">
-                            <i class="fa fa-palette"></i>
-                        </div>
-                        <div class="spec-content">
-                            <h3>Design & Branding</h3>
-                            <p>Visual design guidelines including color schemes and typography</p>
-                        </div>
-                    </div>
-                    <div class="spec-card-square" data-spec="diagrams">
-                        <div class="spec-icon">
-                            <i class="fa fa-project-diagram"></i>
-                        </div>
-                        <div class="spec-content">
-                            <h3>Diagrams</h3>
-                            <p>Visual diagrams including architecture and user flow charts</p>
-                        </div>
-                    </div>
-                    <div class="spec-card-square" data-spec="ai-chat">
-                        <div class="spec-icon">
-                            <i class="fa fa-robot"></i>
-                        </div>
-                        <div class="spec-content">
-                            <h3>AI Chat</h3>
-                            <p>Interactive AI assistant to refine your specification</p>
-                        </div>
-                    </div>
-                </div>
+<!-- Why Sections from why.html -->
+<!-- Section 1: The Promise That Falls Short -->
+<section class="why-section prompt-section" data-section="1">
+    <h2 class="section-title">The Promise That Falls Short</h2>
+    <p class="section-subtitle">Every platform promises one prompt, but reality is different.</p>
+    <div class="prompt-animation-container" id="promptAnimationContainer">
+        <!-- Credit counters and prompts will be generated dynamically -->
+    </div>
+    <div class="content-text-centered">
+        <div class="section-container">
+            <p class="section-text">But here's what actually happens: You spend hours, sometimes days, tweaking prompts, fixing errors, and trying to get the AI to understand what you really want.</p>
+            <p class="section-text">The code comes out messy. Features don't connect. And when you want to add something new, everything breaks.</p>
+            <div class="cta-container">
+                <a href="/" class="btn btn-primary">Start Planning</a>
             </div>
-            
-            <!-- Questions Display -->
-            <div class="questions-display hidden" id="questionsDisplay">
-                <div class="questions-header">
-                    <div class="current-question" id="currentQuestion">
-                        Describe your application
-                    </div>
-                    <div class="mode-toggle-container typing-mode-toggle">
-                        <span class="mode-label" data-mode="voice">Voice</span>
-                        <label class="mode-toggle-switch">
-                            <input type="checkbox" id="typingModeToggleSwitch" checked>
-                            <span class="toggle-slider"></span>
-                        </label>
-                        <span class="mode-label active" data-mode="typing">Typing</span>
-                    </div>
-                </div>
-                <div class="question-detail" id="currentQuestionDetail">
-                    Describe the main idea of your application - including core features, target audience, and the problem it solves
-                </div>
-            </div>
-            
-            <!-- Loading Overlay -->
-            <div class="loading-overlay hidden" id="loadingOverlay">
-                <div class="loading-content">
-                    <div class="loading-spinner"></div>
-                    <div class="loading-text">Generating Your Specification</div>
-                    <div class="loading-subtext">This may take a few moments...</div>
-                </div>
-            </div>
-            
-            <!-- Modern Input Container -->
-            <div class="modern-input-container hidden" id="modernInputContainer">
-                <div class="input-instruction">
-                    Start typing, press Enter for next question, press Backspace for previous question
-                </div>
-                
-                <div class="input-area">
-                    <textarea 
-                        class="main-input" 
-                        id="mainInput"
-                        placeholder="Write your answer here..."
-                        rows="1"
-                    ></textarea>
-                    <div class="character-count-container">
-                        <span class="character-count" id="characterCount">0 / 900</span>
-                    </div>
-                </div>
-                
-                <div class="input-controls">
-                    <div class="left-controls">
-                        <button class="control-btn hidden" title="Microphone" id="microphoneBtn">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
-                                <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-                                <line x1="12" y1="19" x2="12" y2="23"></line>
-                                <line x1="8" y1="23" x2="16" y2="23"></line>
-                            </svg>
-                        </button>
-                        <button class="control-btn" title="Lightbulb" id="lightbulbBtn">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z"/>
-                            </svg>
-                        </button>
-                        
-                        <div class="separator"></div>
-                        
-                        <button class="control-btn" id="phoneBtn" data-tooltip="Click for mobile app">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
-                                <line x1="12" y1="18" x2="12.01" y2="18"></line>
-                            </svg>
-                        </button>
-                        
-                        <button class="control-btn" id="computerBtn" data-tooltip="Click for web app">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
-                                <line x1="8" y1="21" x2="16" y2="21"></line>
-                                <line x1="12" y1="17" x2="12" y2="21"></line>
-                            </svg>
-                        </button>
-                        
-                        <div class="separator"></div>
-                        
-                        
-                    </div>
-                    
-                    <div class="progress-dots">
-                        <div class="progress-dot" data-question="0" title="Question 1"></div>
-                        <div class="progress-dot" data-question="1" title="Question 2"></div>
-                        <div class="progress-dot" data-question="2" title="Question 3"></div>
-                    </div>
-                    
-                    <button class="send-btn" id="sendBtn">
-                        <span class="send-text">Next</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" height="20" width="20" class="send-arrow">
-                            <path stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m-7-7l7 7-7 7"></path>
-                        </svg>
-                    </button>
-                </div>
-                
-                <!-- Lightbulb Tooltip -->
-                <div class="lightbulb-tooltip" id="lightbulbTooltip">
-                    <div class="tooltip-content"></div>
-                </div>
-            </div>
-            
-            <!-- Bottom Links -->
-            <div class="hero-bottom-links">
-                <a href="/pages/demo-spec.html" class="bottom-link">Demo</a>
-                <a href="/pages/pricing.html" class="bottom-link">Pricing</a>
-                <a href="/pages/why.html" class="bottom-link">Why</a>
-            </div>
-        </section>
+        </div>
+    </div>
+</section>
 
-        <!-- Why Sections from why.html -->
-        <!-- Section 1: The Promise That Falls Short -->
-        <section class="why-section prompt-section" data-section="1">
-            <h2 class="section-title">The Promise That Falls Short</h2>
-            <p class="section-subtitle">Every platform promises one prompt, but reality is different.</p>
-            <div class="prompt-animation-container" id="promptAnimationContainer">
-                <!-- Credit counters and prompts will be generated dynamically -->
-            </div>
-            <div class="content-text-centered">
-                <div class="section-container">
-                    <p class="section-text">But here's what actually happens: You spend hours, sometimes days, tweaking prompts, fixing errors, and trying to get the AI to understand what you really want.</p>
-                    <p class="section-text">The code comes out messy. Features don't connect. And when you want to add something new, everything breaks.</p>
-                    <div class="cta-container">
-                        <a href="/" class="btn btn-primary">Start Planning</a>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Section 2: The Right Way to Build -->
-        <section class="why-section" data-section="2">
-            <h2 class="section-title">The Right Way to Build</h2>
-            <p class="section-subtitle">Start with foundations, then build the structure.</p>
-            <div class="content-layout">
-                <div class="content-image">
-                    <div class="planning-visual">
-                        <div class="mermaid-diagram">
-                            <pre class="mermaid">
+<!-- Section 2: The Right Way to Build -->
+<section class="why-section" data-section="2">
+    <h2 class="section-title">The Right Way to Build</h2>
+    <p class="section-subtitle">Start with foundations, then build the structure.</p>
+    <div class="content-layout">
+        <div class="content-image">
+            <div class="planning-visual">
+                <div class="mermaid-diagram">
+                    <pre class="mermaid">
 graph TD
     A[Data Structures] --> B[Functions]
     B --> C[Logic Flow]
     C --> D[UI Layout]
-                            </pre>
-                        </div>
-                        <div class="variables-table">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Variable</th>
-                                        <th>Type</th>
-                                        <th>Purpose</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr><td>users</td><td>Array</td><td>Store user data</td></tr>
-                                    <tr><td>products</td><td>Array</td><td>Store product info</td></tr>
-                                    <tr><td>currentUser</td><td>Object</td><td>Active user session</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+                    </pre>
                 </div>
-                <div class="content-text">
-                    <div class="section-container">
-                        <p class="section-text">Real development doesn't start with code. It starts with foundations.</p>
-                        <p class="section-text">First, you define your data structures - arrays, variables, the core information your app needs.</p>
-                        <p class="section-text">Then, you map out your functions - what each piece does, how they connect, the logic that makes everything work.</p>
-                        <p class="section-text">Only after that foundation is solid do you build the layout - the UI that users actually see.</p>
-                        <div class="cta-container">
-                            <a href="/" class="btn btn-primary">Start Planning</a>
-                        </div>
-                    </div>
+                <div class="variables-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Variable</th>
+                                <th>Type</th>
+                                <th>Purpose</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>users</td><td>Array</td><td>Store user data</td></tr>
+                            <tr><td>products</td><td>Array</td><td>Store product info</td></tr>
+                            <tr><td>currentUser</td><td>Object</td><td>Active user session</td></tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
-        </section>
-
-        <!-- Section 3: How It Works -->
-        <section class="why-section" data-section="4">
-            <h2 class="section-title">How It Works</h2>
-            <p class="section-subtitle">Answer questions, get a comprehensive specification.</p>
-            <div class="content-layout reverse">
-                <div class="content-image">
-                    <div class="process-flow">
-                        <div class="process-step">
-                            <div class="process-icon"><i class="fas fa-edit"></i></div>
-                            <h4>Questions</h4>
-                        </div>
-                        <div class="process-arrow"><i class="fas fa-arrow-right"></i></div>
-                        <div class="process-step">
-                            <div class="process-icon"><i class="fas fa-file-alt"></i></div>
-                            <h4>Specification</h4>
-                        </div>
-                        <div class="process-arrow"><i class="fas fa-arrow-right"></i></div>
-                        <div class="process-step">
-                            <div class="process-icon"><i class="fas fa-rocket"></i></div>
-                            <h4>Application</h4>
-                        </div>
-                    </div>
-                </div>
-                <div class="content-text">
-                    <div class="section-container">
-                        <p class="section-text">Our AI analyzes your answers and generates a comprehensive specification - organized, structured, ready to guide development.</p>
-                        <p class="section-text">You review, refine, and approve. Then you take that spec to any coding tool, any developer, any platform. They know exactly what to build.</p>
-                        <div class="cta-container">
-                            <a href="/" class="btn btn-primary">Start Planning</a>
-                        </div>
-                    </div>
+        </div>
+        <div class="content-text">
+            <div class="section-container">
+                <p class="section-text">Real development doesn't start with code. It starts with foundations.</p>
+                <p class="section-text">First, you define your data structures - arrays, variables, the core information your app needs.</p>
+                <p class="section-text">Then, you map out your functions - what each piece does, how they connect, the logic that makes everything work.</p>
+                <p class="section-text">Only after that foundation is solid do you build the layout - the UI that users actually see.</p>
+                <div class="cta-container">
+                    <a href="/" class="btn btn-primary">Start Planning</a>
                 </div>
             </div>
-        </section>
+        </div>
+    </div>
+</section>
 
-        <!-- Content Sections -->
-        <div class="extra-sections">
+<!-- Section 3: How It Works -->
+<section class="why-section" data-section="4">
+    <h2 class="section-title">How It Works</h2>
+    <p class="section-subtitle">Answer questions, get a comprehensive specification.</p>
+    <div class="content-layout reverse">
+        <div class="content-image">
+            <div class="process-flow">
+                <div class="process-step">
+                    <div class="process-icon"><i class="fas fa-edit"></i></div>
+                    <h4>Questions</h4>
+                </div>
+                <div class="process-arrow"><i class="fas fa-arrow-right"></i></div>
+                <div class="process-step">
+                    <div class="process-icon"><i class="fas fa-file-alt"></i></div>
+                    <h4>Specification</h4>
+                </div>
+                <div class="process-arrow"><i class="fas fa-arrow-right"></i></div>
+                <div class="process-step">
+                    <div class="process-icon"><i class="fas fa-rocket"></i></div>
+                    <h4>Application</h4>
+                </div>
+            </div>
+        </div>
+        <div class="content-text">
+            <div class="section-container">
+                <p class="section-text">Our AI analyzes your answers and generates a comprehensive specification - organized, structured, ready to guide development.</p>
+                <p class="section-text">You review, refine, and approve. Then you take that spec to any coding tool, any developer, any platform. They know exactly what to build.</p>
+                <div class="cta-container">
+                    <a href="/" class="btn btn-primary">Start Planning</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Content Sections -->
+<div class="extra-sections">
   <!-- Tools Section -->
   <div class="section" style="--section-index: 0;">
     <h2>Discover Our Tools</h2>
@@ -871,11 +630,11 @@ graph TD
       </div>
     </div>
     <p>Ready to join them? <a href="/" class="cta-button" onclick="trackCTA('Start Planning Free', 'testimonials_section')">Start Planning Free</a></p>
-        </div>
-    </main>
+  </div>
+</div>
 
-    <!-- Modals -->
-    <!-- Registration Required Modal -->
+<!-- Modals -->
+<!-- Registration Required Modal -->
 <div id="registrationModal" class="welcome-modal hidden">
   <div class="welcome-content">
     <div class="welcome-header">
@@ -910,691 +669,3 @@ graph TD
     </div>
   </div>
 </div>
-    
-    <!-- Footer -->
-<footer>
-  <div class="footer-content">
-    <div class="footer-links">
-      <a href="/pages/how.html" aria-label="Learn how specifys.ai works">How It Works</a>
-      <a href="/pages/about.html" aria-label="Learn more about specifys.ai">About Us</a>
-      <a href="/blog/" aria-label="Visit our blog">Blog</a>
-      <a href="/pages/articles.html" aria-label="Browse our articles">Articles</a>
-      <a href="/academy.html" aria-label="Visit Specifys Academy">Academy</a>
-      <a href="/tools/map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
-      <a href="/pages/ToolPicker.html" aria-label="Use our Tool Finder">Tool Finder</a>
-    </div>
-    <span class="footer-divider">|</span>
-    <div class="footer-social">
-      <a href="https://www.linkedin.com/company/specifys-ai/" target="_blank" aria-label="Follow us on LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-      <a href="https://www.facebook.com/profile.php?id=61576402600129&locale=he_IL" target="_blank" aria-label="Follow us on Facebook"><i class="fab fa-facebook-f"></i></a>
-      <a href="mailto:specifysai@gmail.com" aria-label="Send us an email"><i class="fas fa-envelope"></i></a>
-      <a href="https://www.producthunt.com/products/specifys-ai" target="_blank" aria-label="Check us out on Product Hunt"><i class="fab fa-product-hunt"></i></a>
-    </div>
-  </div>
-  <div class="footer-copyright">
-    © 2025 specifys.ai. All rights reserved.
-  </div>
-</footer>
-
-    
-    <!-- Scroll to top button -->
-<button class="icon-btn scroll-to-top" id="scrollToTop" aria-label="Scroll">
-  <i class="fas fa-arrow-up"></i>
-</button>
-
-<script>
-  // Scroll button functionality
-  document.addEventListener('DOMContentLoaded', function() {
-    const scrollBtn = document.getElementById('scrollToTop');
-    
-    if (scrollBtn) {
-      // Handle click - scroll to top or bottom based on current state
-      scrollBtn.addEventListener("click", () => {
-        if (window.scrollY > 300) {
-          // If scrolled down, go to top
-          window.scrollTo({ top: 0, behavior: "smooth" });
-        } else {
-          // If at top, scroll to bottom
-          window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
-        }
-      });
-      
-      // Rotate button based on scroll position
-      window.addEventListener("scroll", () => {
-        if (window.scrollY > 300) {
-          scrollBtn.classList.add("scrolled-down");
-          scrollBtn.setAttribute("aria-label", "Scroll to top");
-        } else {
-          scrollBtn.classList.remove("scrolled-down");
-          scrollBtn.setAttribute("aria-label", "Scroll to bottom");
-        }
-      });
-    }
-  });
-</script>
-
-
-    
-    <!-- Firebase SDK & Auth -->
-    
-    <!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-
-<script>
-  // Firebase Configuration
-  const firebaseConfig = {
-    apiKey: "AIzaSyB9hr0IWM4EREzkKDxBxYoYinV6LJXWXV4",
-    authDomain: "specify-ai.firebaseapp.com",
-    projectId: "specify-ai",
-    storageBucket: "specify-ai.firebasestorage.app",
-    messagingSenderId: "734278787482",
-    appId: "1:734278787482:web:0e312fb6f197e849695a23",
-    measurementId: "G-4YR9LK63MR"
-  };
-
-  // Defer Firebase initialization until page is interactive
-  function initFirebase() {
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-    
-    // Make auth and db available globally
-    window.auth = auth;
-    window.db = db;
-    
-    // Trigger event for other scripts that depend on Firebase
-    window.dispatchEvent(new Event('firebase-ready'));
-    
-    // Auth state listener (deferred)
-    auth.onAuthStateChanged((user) => {
-      if (typeof updateAuthUI === 'function') {
-        updateAuthUI(user);
-      }
-      
-      // Ensure user document (only when tab is visible)
-      if (user && document.visibilityState === 'visible') {
-        ensureUserDocument(user).catch(() => {
-          // Silently fail - non-critical
-        });
-      }
-    });
-  }
-  
-  async function ensureUserDocument(user, retryCount = 0) {
-    const MAX_RETRIES = 3;
-    const RETRY_DELAYS = [500, 1000, 2000]; // ms
-    
-    try {
-      const token = await user.getIdToken();
-      const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai.onrender.com';
-      
-      // Use /initialize endpoint for better atomicity
-      const response = await fetch(`${apiBaseUrl}/api/users/initialize`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({})
-      });
-      
-      if (response.ok) {
-        // User documents initialized
-        return await response.json();
-      } else {
-        throw new Error(`HTTP ${response.status}`);
-      }
-    } catch (error) {
-      // Retry on failure
-      if (retryCount < MAX_RETRIES) {
-        const delay = RETRY_DELAYS[retryCount] || 2000;
-        await new Promise(resolve => setTimeout(resolve, delay));
-        return ensureUserDocument(user, retryCount + 1);
-      }
-      // Silently fail after max retries (non-critical)
-      console.warn('Failed to ensure user document after retries:', error);
-    }
-  }
-
-  // Initialize Firebase after page is interactive
-  if ('requestIdleCallback' in window) {
-    requestIdleCallback(initFirebase, { timeout: 2000 });
-  } else {
-    setTimeout(initFirebase, 2000);
-  }
-</script>
-
-
-    <!-- Firebase Auth -->
-    <script>
-  // Auth UI functions
-  function updateAuthUI(user) {
-    const authButtons = document.getElementById('auth-buttons');
-    if (!authButtons) return;
-    
-    if (user) {
-      // User is logged in
-      const displayName = user.displayName || user.email.split('@')[0];
-      const firstLetter = displayName.charAt(0).toUpperCase();
-      
-      authButtons.innerHTML = `
-        <a href="/pages/profile.html" class="user-info no-underline">
-          <div class="user-avatar">${firstLetter}</div>
-          <span>${displayName}</span>
-        </a>
-      `;
-    } else {
-      // User is not logged in
-      authButtons.innerHTML = `
-        <button class="auth-btn" onclick="showLoginModal()">Log in/Sign up</button>
-      `;
-    }
-  }
-
-  // Global auth functions
-  window.showLoginModal = function() {
-    if (typeof trackButtonClick !== 'undefined') {
-      trackButtonClick('Show Login', 'Authentication', 'header');
-    }
-    window.location.href = '/pages/auth.html';
-  };
-
-  window.showRegisterModal = function() {
-    if (typeof trackButtonClick !== 'undefined') {
-      trackButtonClick('Show Register', 'Authentication', 'header');
-    }
-    window.location.href = '/pages/auth.html';
-  };
-
-  window.logout = function() {
-    if (typeof trackAuthEvent !== 'undefined') {
-      trackAuthEvent('logout', 'email');
-    }
-    const authInstance = window.auth || (typeof auth !== 'undefined' ? auth : null);
-    if (authInstance) {
-      authInstance.signOut()
-        .then(() => {
-          // Logged out successfully
-          if (window.appLogger) {
-            window.appLogger.logUserAction('LogoutSuccess', {});
-          }
-        })
-        .catch(error => {
-          // Error logging out
-          if (window.appLogger) {
-            window.appLogger.logError(error, { action: 'logout' });
-          }
-        });
-    }
-  };
-
-  // Listen to auth state changes (only after Firebase is initialized)
-  function setupAuthListener() {
-    const authInstance = window.auth || (typeof auth !== 'undefined' ? auth : null);
-    if (!authInstance) {
-      setTimeout(setupAuthListener, 100);
-      return;
-    }
-    
-    authInstance.onAuthStateChanged((user) => {
-      updateAuthUI(user);
-      
-      // Log authentication state changes
-      if (window.appLogger) {
-        if (user) {
-          window.appLogger.logAuthEvent('LoggedIn', user.uid);
-          window.appLogger.logUserAction('UserLoggedIn', {
-            userId: user.uid,
-            email: user.email,
-            displayName: user.displayName
-          });
-        } else {
-          window.appLogger.logAuthEvent('LoggedOut', null);
-          window.appLogger.logUserAction('UserLoggedOut', {});
-        }
-      }
-    });
-  }
-
-  // Wait for Firebase to be ready
-  if (typeof firebase !== 'undefined' && firebase.auth) {
-    window.addEventListener('firebase-ready', setupAuthListener);
-  } else {
-    setTimeout(setupAuthListener, 500);
-  }
-
-  // Initialize auth buttons with default state
-  document.addEventListener('DOMContentLoaded', function() {
-    const authButtons = document.getElementById('auth-buttons');
-    if (authButtons && !authButtons.innerHTML.trim()) {
-      authButtons.innerHTML = `
-        <button class="auth-btn login-btn">Log in/Sign up</button>
-      `;
-      
-      const loginBtn = authButtons.querySelector('.login-btn');
-      if (loginBtn) {
-        loginBtn.addEventListener('click', function(event) {
-          event.stopPropagation();
-          window.location.href = '/pages/auth.html';
-        });
-      }
-    }
-  });
-</script>
-
-<!-- Credits Display Script -->
-<script src="/assets/js/credits-display.js"></script>
-
-    
-    <!-- Prompts Data (for API calls) - must load before index.js -->
-    <script defer src="/tools/prompts.js"></script>
-    
-    <!-- Paywall Script -->
-    <script defer src="/assets/js/paywall.js"></script>
-    
-    <!-- Question Flow Architecture - must load first -->
-    <script defer src="/assets/js/question-flow-state.js"></script>
-    <script defer src="/assets/js/question-flow-view.js"></script>
-    <script defer src="/assets/js/question-flow-controller.js"></script>
-    
-    <!-- Live Brief Modal Script - must load before index.js -->
-    <script defer src="/assets/js/live-brief-modal.js"></script>
-    
-    <!-- Index Page JavaScript -->
-    <script defer src="/assets/js/index.js"></script>
-    
-    <!-- Vanta.NET Animation - Loaded asynchronously after page load to avoid blocking -->
-    <script>
-      (function(){
-        'use strict';
-        
-        // Check if we should load Vanta at all (skip on mobile/reduced motion)
-        var isMobile = /Mobi|Android/i.test(navigator.userAgent);
-        var prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        
-        if (isMobile || prefersReduced) {
-          // Don't load Vanta on mobile or if user prefers reduced motion
-          return;
-        }
-        
-        // Variables for Vanta instance
-        var vantaInstance = null;
-        var retryCount = 0;
-        var maxRetries = 20; // Reduced from 50 - faster timeout
-        var resizeTimeout = null;
-        var vantaStartTime = null;
-        var fadeInTimeout = null;
-        var scriptsLoaded = false;
-        
-        function ensureHeroSectionDimensions() {
-          var heroSection = document.querySelector('.hero-section');
-          if (!heroSection) return false;
-          
-          var height = heroSection.offsetHeight;
-          var width = heroSection.offsetWidth;
-          var computedStyle = window.getComputedStyle(heroSection);
-          var minHeight = parseInt(computedStyle.minHeight) || 0;
-          
-          if (height < 200 || width < 200) {
-            if (minHeight > 0 && height < minHeight) {
-              heroSection.style.height = minHeight + 'px';
-              height = heroSection.offsetHeight;
-            }
-          }
-          
-          return height >= 200 && width >= 200;
-        }
-        
-        function showVantaWithFadeIn() {
-          var vantaElement = document.getElementById('vanta-net');
-          if (vantaElement) {
-            var elapsed = Date.now() - vantaStartTime;
-            var remaining = Math.max(0, 1000 - elapsed);
-            
-            fadeInTimeout = setTimeout(function() {
-              vantaElement.classList.add('visible');
-            }, remaining);
-          }
-        }
-        
-        function startVantaNet() {
-          if (!scriptsLoaded) {
-            // Scripts not loaded yet, retry
-            if (retryCount < maxRetries) {
-              retryCount++;
-              setTimeout(startVantaNet, 200);
-            }
-            return;
-          }
-          
-          try {
-            var vantaElement = document.getElementById('vanta-net');
-            var heroSection = document.querySelector('.hero-section');
-            
-            if (!vantaElement || !heroSection) {
-              if (retryCount < maxRetries) {
-                retryCount++;
-                setTimeout(startVantaNet, 200);
-              }
-              return;
-            }
-            
-            if (!ensureHeroSectionDimensions()) {
-              if (retryCount < maxRetries) {
-                retryCount++;
-                setTimeout(startVantaNet, 200);
-              }
-              return;
-            }
-            
-            var heroHeight = heroSection.offsetHeight;
-            var heroWidth = heroSection.offsetWidth;
-            
-            vantaElement.style.width = heroWidth + 'px';
-            vantaElement.style.height = heroHeight + 'px';
-            
-            setTimeout(function() {
-              var finalHeight = heroSection.offsetHeight;
-              var finalWidth = heroSection.offsetWidth;
-              
-              if (finalHeight < 200 || finalWidth < 200) {
-                if (retryCount < maxRetries) {
-                  retryCount++;
-                  setTimeout(startVantaNet, 200);
-                }
-                return;
-              }
-              
-              if (!vantaStartTime) {
-                vantaStartTime = Date.now();
-              }
-              
-              try {
-                if (typeof VANTA !== 'undefined' && VANTA.NET) {
-                  vantaInstance = VANTA.NET({
-                    el: "#vanta-net",
-                    mouseControls: true,
-                    touchControls: true,
-                    gyroControls: false,
-                    minHeight: 200.00,
-                    minWidth: 200.00,
-                    scale: 1.00,
-                    scaleMobile: 1.00,
-                    color: 0xf5f5f5,
-                    backgroundColor: 0x333333,
-                    points: 6.00,
-                    maxDistance: 31.00,
-                    spacing: 18.00
-                  });
-                  
-                  if (vantaInstance && typeof vantaInstance.resize === 'function') {
-                    setTimeout(function() {
-                      vantaInstance.resize();
-                      showVantaWithFadeIn();
-                    }, 100);
-                  } else {
-                    showVantaWithFadeIn();
-                  }
-                }
-              } catch (e) {
-                // Vanta.NET initialization error
-              }
-            }, 50);
-          } catch (e) { 
-            // Vanta.NET error
-          }
-        }
-        
-        function handleResize() {
-          if (resizeTimeout) {
-            clearTimeout(resizeTimeout);
-          }
-          resizeTimeout = setTimeout(function() {
-            if (vantaInstance && typeof vantaInstance.resize === 'function') {
-              var heroSection = document.querySelector('.hero-section');
-              var vantaElement = document.getElementById('vanta-net');
-              if (heroSection && vantaElement) {
-                var heroHeight = heroSection.offsetHeight;
-                var heroWidth = heroSection.offsetWidth;
-                vantaElement.style.width = heroWidth + 'px';
-                vantaElement.style.height = heroHeight + 'px';
-                vantaInstance.resize();
-              }
-            }
-          }, 250);
-        }
-        
-        // Load Vanta scripts asynchronously AFTER page load
-        function loadVantaScripts() {
-          return new Promise(function(resolve, reject) {
-            // Load Three.js first
-            var threeScript = document.createElement('script');
-            threeScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js';
-            threeScript.async = true;
-            threeScript.crossOrigin = 'anonymous';
-            
-            threeScript.onload = function() {
-              // Three.js loaded, now load Vanta
-              var vantaScript = document.createElement('script');
-              vantaScript.src = 'https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.net.min.js';
-              vantaScript.async = true;
-              vantaScript.crossOrigin = 'anonymous';
-              
-              vantaScript.onload = function() {
-                scriptsLoaded = true;
-                resolve();
-              };
-              
-              vantaScript.onerror = function() {
-                reject(new Error('Vanta script failed to load'));
-              };
-              
-              document.head.appendChild(vantaScript);
-            };
-            
-            threeScript.onerror = function() {
-              reject(new Error('Three.js script failed to load'));
-            };
-            
-            document.head.appendChild(threeScript);
-          });
-        }
-        
-        // Load Vanta only when hero section is visible or after user interaction
-        var vantaLoaded = false;
-        
-        function loadVantaOnDemand() {
-          if (vantaLoaded) return;
-          vantaLoaded = true;
-          
-          loadVantaScripts().then(function() {
-            setTimeout(function() {
-              startVantaNet();
-            }, 500);
-          }).catch(function() {
-            // Vanta failed to load
-          });
-        }
-        
-        // Load when hero section is visible
-        var heroSection = document.querySelector('.hero-section');
-        if (heroSection) {
-          var observer = new IntersectionObserver(function(entries) {
-            if (entries[0].isIntersecting) {
-              loadVantaOnDemand();
-              observer.disconnect();
-            }
-          }, { threshold: 0.1 });
-          
-          observer.observe(heroSection);
-        }
-        
-        // Fallback: Load after 5 seconds if user hasn't scrolled
-        setTimeout(function() {
-          if (!vantaLoaded && document.visibilityState === 'visible') {
-            loadVantaOnDemand();
-          }
-        }, 5000);
-        
-        // Also load on user interaction
-        var interactionEvents = ['click', 'scroll', 'touchstart', 'keydown'];
-        var interactionHappened = false;
-        interactionEvents.forEach(function(event) {
-          document.addEventListener(event, function() {
-            if (!interactionHappened && heroSection) {
-              interactionHappened = true;
-              loadVantaOnDemand();
-            }
-          }, { once: true });
-        });
-        
-        // Add resize listener
-        window.addEventListener('resize', handleResize);
-      })();
-    </script>
-
-    <!-- Access Code Verification Script -->
-    <script>
-      (function() {
-        // ===== CONFIGURATION =====
-        // Set to true to enable the access code modal (site under maintenance)
-        // Set to false to disable the modal and allow normal site access
-        const ENABLE_ACCESS_CODE_MODAL = false;
-        
-        const ACCESS_CODE = '1997';
-        const STORAGE_KEY = 'site_access_granted';
-        let attemptCount = 0;
-        
-        // If modal is disabled, show content normally and exit
-        if (!ENABLE_ACCESS_CODE_MODAL) {
-          const modal = document.getElementById('accessCodeModal');
-          const mainContent = document.getElementById('main-content');
-          const header = document.querySelector('header');
-          
-          if (modal) modal.style.display = 'none';
-          if (mainContent) mainContent.style.display = 'block';
-          if (header) header.style.display = 'flex';
-          return;
-        }
-        
-        // Check if access was already granted
-        const hasAccess = sessionStorage.getItem(STORAGE_KEY) === 'true';
-        
-        const modal = document.getElementById('accessCodeModal');
-        const input = document.getElementById('accessCodeInput');
-        const submitBtn = document.getElementById('accessCodeSubmit');
-        const errorMsg = document.getElementById('accessCodeError');
-        const mainContent = document.getElementById('main-content');
-        const header = document.querySelector('header');
-        
-        function grantAccess() {
-          sessionStorage.setItem(STORAGE_KEY, 'true');
-          modal.style.display = 'none';
-          if (mainContent) mainContent.style.display = 'block';
-          if (header) header.style.display = 'flex';
-          
-          // Log successful access
-          if (window.appLogger) {
-            window.appLogger.logAccessCodeAttempt(true, attemptCount + 1);
-            window.appLogger.logUserAction('AccessGranted', {
-              method: 'access_code',
-              attemptCount: attemptCount + 1
-            });
-          }
-        }
-        
-        function denyAccess() {
-          attemptCount++;
-          errorMsg.style.display = 'block';
-          input.value = '';
-          input.focus();
-          
-          // Log failed attempt
-          if (window.appLogger) {
-            window.appLogger.logAccessCodeAttempt(false, attemptCount);
-          }
-        }
-        
-        function checkAccess() {
-          const enteredCode = input.value.trim();
-          if (enteredCode === ACCESS_CODE) {
-            grantAccess();
-          } else {
-            denyAccess();
-          }
-        }
-        
-        // Initialize
-        if (!hasAccess) {
-          // Log that access modal was shown
-          if (window.appLogger) {
-            window.appLogger.log('AccessModalShown', 'Access code modal displayed', {
-              hasPreviousAccess: false
-            });
-          }
-          
-          // Hide main content until access is granted
-          if (mainContent) mainContent.style.display = 'none';
-          if (header) header.style.display = 'none';
-          modal.style.display = 'flex';
-          
-          // Focus input
-          setTimeout(() => {
-            if (input) input.focus();
-          }, 100);
-          
-          // Submit button click
-          if (submitBtn) {
-            submitBtn.addEventListener('click', checkAccess);
-          }
-          
-          // Enter key press
-          if (input) {
-            input.addEventListener('keypress', function(e) {
-              if (e.key === 'Enter') {
-                checkAccess();
-              }
-            });
-          }
-        } else {
-          // Access already granted - log this
-          if (window.appLogger) {
-            window.appLogger.log('AccessGrantedFromStorage', 'Access granted from session storage', {
-              hasPreviousAccess: true
-            });
-          }
-          modal.style.display = 'none';
-        }
-      })();
-    </script>
-    
-    <!-- Mermaid.js for diagrams - Initialize only when diagrams are visible -->
-    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
-    <script>
-      (function initMermaidOnVisible() {
-        const mermaidElements = document.querySelectorAll('.mermaid, pre.mermaid');
-        if (mermaidElements.length === 0) return;
-        
-        let mermaidInitialized = false;
-        
-        const observer = new IntersectionObserver((entries) => {
-          entries.forEach(entry => {
-            if (entry.isIntersecting && !mermaidInitialized) {
-              mermaidInitialized = true;
-              mermaid.initialize({ startOnLoad: false, theme: 'default' });
-              mermaid.run();
-            }
-          });
-        }, { rootMargin: '50px' });
-        
-        mermaidElements.forEach(el => observer.observe(el));
-      })();
-    </script>
-    
-    <!-- Why Page JavaScript for sections -->
-    <script src="/assets/js/why.js"></script>
-    
-</body>
-</html>

@@ -1,0 +1,32 @@
+/* ============================================
+   Legacy Viewer Page Specific Styles - Specifys.ai
+   ============================================
+   Styles specific to the legacy-viewer.html page
+*/
+
+.legacy-banner {
+    background: linear-gradient(135deg, #ff9800, #f57c00);
+    color: white;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.legacy-banner h2 {
+    margin: 0 0 10px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.3rem;
+}
+
+.legacy-banner p {
+    margin: 0;
+    font-size: 0.95rem;
+    opacity: 0.95;
+}
+
+.comparison-section {
+    display: none;
+}

@@ -1,0 +1,2376 @@
+// Profile page JavaScript - Firebase v9+ module
+// Import Firebase SDK
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { 
+            createUserWithEmailAndPassword, 
+            signInWithEmailAndPassword, 
+            signOut, 
+            onAuthStateChanged,
+            GoogleAuthProvider,
+            signInWithPopup,
+            getAuth,
+            updateProfile
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { 
+            collection, 
+            addDoc, 
+            getDocs, 
+            query, 
+            where, 
+            orderBy,
+            serverTimestamp,
+            getFirestore,
+            deleteDoc,
+            doc,
+            setDoc,
+            getDoc
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyB9hr0IWM4EREzkKDxBxYoYinV6LJXWXV4",
+    authDomain: "specify-ai.firebaseapp.com",
+    projectId: "specify-ai",
+    storageBucket: "specify-ai.firebasestorage.app",
+            messagingSenderId: "734278787482",
+            appId: "1:734278787482:web:0e312fb6f197e849695a23",
+            measurementId: "G-4YR9LK63MR"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const googleProvider = new GoogleAuthProvider();
+
+        // Prevent concurrent user document creation
+        let isCreatingUserDocument = false;
+        let lastCreatedUserUid = null;
+
+        // Initialize user documents (users + entitlements) via API
+        // Uses Firestore Transaction for atomicity
+        async function createUserDocumentInProfile(user, retryCount = 0) {
+            // Prevent concurrent calls for the same user
+            if (isCreatingUserDocument && lastCreatedUserUid === user.uid) {
+                // User document creation already in progress
+                return;
+            }
+
+            isCreatingUserDocument = true;
+            lastCreatedUserUid = user.uid;
+
+            const MAX_RETRIES = 3;
+            const RETRY_DELAYS = [500, 1000, 2000]; // ms
+
+            try {
+                const token = await user.getIdToken();
+                const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai.onrender.com';
+                
+                const response = await fetch(`${apiBaseUrl}/api/users/initialize`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({})
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.error || `HTTP ${response.status}`);
+                }
+
+                return await response.json();
+            } catch (error) {
+                // Retry on failure
+                if (retryCount < MAX_RETRIES) {
+                    const delay = RETRY_DELAYS[retryCount] || 2000;
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    return createUserDocumentInProfile(user, retryCount + 1);
+                }
+                // Don't throw - allow the page to continue loading even if document creation fails
+                console.warn('Failed to initialize user documents after retries:', error);
+            } finally {
+                isCreatingUserDocument = false;
+            }
+        }
+
+        let currentUser = null;
+        let userSpecs = [];
+        let userApps = [];
+        let userSavedTools = [];
+        let userMarketResearch = [];
+        let currentEntitlements = null;
+        let currentUserProfileDoc = null;
+        let currentSubscription = null;
+        
+        // Pagination variables
+        let workspaceItems = [];
+        let currentPage = 1;
+        const itemsPerPage = 6;
+        let filteredItems = [];
+        
+        // Prevent multiple event listeners and debouncing
+        let eventListenersSetup = false;
+        let updateTimeout;
+
+        // Auth state change handler
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                currentEntitlements = null;
+                currentUserProfileDoc = null;
+                
+                // Create/update user document in Firestore (non-blocking)
+                createUserDocumentInProfile(user).catch(error => {
+                    // Failed to create user document
+                });
+                
+                updateProfileInfo(user);
+                loadWorkspace();
+                loadUserSavedTools();
+                loadEntitlements().catch((error) => {
+                });
+                updateAuthUI(user);
+            } else {
+                // Redirect to login if not authenticated
+                window.location.href = '../index.html';
+            }
+        });
+
+        // Update profile information
+        function updateProfileInfo(user) {
+            const userName = document.getElementById('user-name');
+            const userEmail = document.getElementById('user-email');
+            const avatarInitial = document.getElementById('avatar-initial');
+
+            if (userName) {
+                userName.textContent = user.displayName || user.email.split('@')[0];
+            }
+            
+            if (userEmail) {
+                userEmail.textContent = user.email;
+            }
+            
+            if (avatarInitial) {
+                if (user.displayName) {
+                    avatarInitial.textContent = user.displayName.charAt(0).toUpperCase();
+                } else {
+                    avatarInitial.textContent = user.email.charAt(0).toUpperCase();
+                }
+            }
+            
+            // Check admin access and show/hide admin dashboard button
+            checkAdminAccess(user);
+        }
+
+        // Load workspace data (apps + specs + research)
+        async function loadWorkspace() {
+            if (!currentUser) return;
+            
+            try {
+
+                workspaceItems = [];
+                
+                // Load Apps
+                const appsQuery = query(
+                    collection(db, 'apps'),
+                    where('userId', '==', currentUser.uid),
+                    orderBy('createdAt', 'desc')
+                );
+                const appsSnapshot = await getDocs(appsQuery);
+                appsSnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    workspaceItems.push({
+                        id: doc.id,
+                        type: 'app',
+                        title: data.name,
+                        description: data.description,
+                        createdAt: data.createdAt,
+                        updatedAt: data.updatedAt,
+                        status: data.status,
+                        viewUrl: `404.html`
+                    });
+                });
+                
+                // Load ALL Specs (both new and old)
+                const specsQuery = query(
+                    collection(db, 'specs'),
+                    where('userId', '==', currentUser.uid),
+                    orderBy('createdAt', 'desc')
+                );
+                const specsSnapshot = await getDocs(specsQuery);
+
+                specsSnapshot.forEach((doc) => {
+                    const data = doc.data();
+
+                    
+                    // Determine if it's a new spec (from spec-viewer) or old spec
+                    const isNewSpec = data.technical !== undefined || data.market !== undefined;
+                    const isMarketResearch = data.mode === 'market';
+                    
+                    if (isMarketResearch) {
+                        // Old market research
+                        workspaceItems.push({
+                            id: doc.id,
+                            type: 'research',
+                            title: data.title,
+                            createdAt: data.createdAt,
+                            viewUrl: `legacy-viewer.html?id=${doc.id}`
+                        });
+                    } else if (isNewSpec) {
+                        // New spec from spec-viewer
+                        workspaceItems.push({
+                            id: doc.id,
+                            type: 'new-spec',
+                            title: data.title,
+                            description: data.overview ? data.overview.substring(0, 100) + '...' : 'Complete specification with technical details',
+                            overview: data.overview,
+                            technical: data.technical,
+                            market: data.market,
+                            createdAt: data.createdAt,
+                            updatedAt: data.updatedAt,
+                            status: data.status,
+                            design: data.design,
+                            diagrams: data.diagrams,
+                            overviewApproved: data.overviewApproved,
+                            chatInitialized: data.chatInitialized,
+                            viewUrl: `spec-viewer.html?id=${doc.id}`
+                        });
+                    } else {
+                        // Old spec
+                        workspaceItems.push({
+                            id: doc.id,
+                            type: 'old-spec',
+                            title: data.title,
+                            description: 'Legacy specification document',
+                            createdAt: data.createdAt,
+                            updatedAt: data.updatedAt,
+                            viewUrl: `legacy-viewer.html?id=${doc.id}`
+                        });
+                    }
+                });
+                
+                // Load Market Research from dedicated collection
+                const researchQuery = query(
+                    collection(db, 'marketResearch'),
+                    where('userId', '==', currentUser.uid)
+                );
+                const researchSnapshot = await getDocs(researchQuery);
+                researchSnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    workspaceItems.push({
+                        id: doc.id,
+                        type: 'research',
+                        title: data.title,
+                        description: 'Market research and analysis',
+                        createdAt: data.createdAt,
+                        updatedAt: data.updatedAt,
+                        viewUrl: `legacy-viewer.html?id=${doc.id}`
+                    });
+                });
+                
+                // Sort by creation date (newest first)
+                workspaceItems.sort((a, b) => {
+                    const dateA = a.createdAt?.toDate?.() || new Date(a.createdAt);
+                    const dateB = b.createdAt?.toDate?.() || new Date(b.createdAt);
+                    return dateB - dateA;
+                });
+                
+                // Update stats - count specs (new-spec + old-spec)
+                const specsCount = workspaceItems.filter(item => 
+                    item.type === 'new-spec' || item.type === 'old-spec'
+                ).length;
+                document.getElementById('specs-count').textContent = specsCount;
+                
+                // Reset pagination and apply initial sorting
+                currentPage = 1;
+                filteredItems = [...workspaceItems];
+                applySorting(); // Apply initial sorting
+                renderWorkspace(filteredItems);
+                setupPagination();
+                setupSearch();
+                
+            } catch (error) {
+
+
+
+
+                
+                document.getElementById('workspace-container').innerHTML = 
+                    '<div class="error">Error loading workspace: ' + error.message + '</div>';
+            }
+        }
+
+        // Pagination setup
+        function setupPagination() {
+            const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
+            const paginationContainer = document.getElementById('workspace-pagination');
+            const prevBtn = document.getElementById('prev-page');
+            const nextBtn = document.getElementById('next-page');
+            const paginationInfo = document.getElementById('pagination-info');
+            
+            if (totalPages <= 1) {
+                paginationContainer.style.display = 'none';
+                return;
+            }
+            
+            paginationContainer.style.display = 'flex';
+            paginationInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+            
+            prevBtn.disabled = currentPage === 1;
+            nextBtn.disabled = currentPage === totalPages;
+            
+            prevBtn.onclick = () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderWorkspace(filteredItems);
+                    setupPagination();
+                }
+            };
+            
+            nextBtn.onclick = () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderWorkspace(filteredItems);
+                    setupPagination();
+                }
+            };
+        }
+        
+        // Search and Sort setup
+        function setupSearch() {
+            const searchInput = document.getElementById('workspace-search');
+            const sortSelect = document.getElementById('workspace-sort');
+            
+            if (searchInput) {
+                searchInput.oninput = (e) => {
+                    const searchTerm = e.target.value.toLowerCase();
+                    
+                    if (searchTerm === '') {
+                        filteredItems = [...workspaceItems];
+                    } else {
+                        filteredItems = workspaceItems.filter(item => {
+                            const title = item.title?.toLowerCase() || '';
+                            const description = item.description?.toLowerCase() || '';
+                            return title.includes(searchTerm) || description.includes(searchTerm);
+                        });
+                    }
+                    
+                    // Apply sorting to filtered items
+                    applySorting();
+                    
+                    currentPage = 1;
+                    renderWorkspace(filteredItems);
+                    setupPagination();
+                };
+            }
+            
+            if (sortSelect) {
+                sortSelect.onchange = () => {
+                    applySorting();
+                    currentPage = 1;
+                    renderWorkspace(filteredItems);
+                    setupPagination();
+                };
+            }
+        }
+        
+        // Apply sorting to filtered items
+        function applySorting() {
+            const sortSelect = document.getElementById('workspace-sort');
+            if (!sortSelect) return;
+            
+            const sortOrder = sortSelect.value;
+            
+            filteredItems.sort((a, b) => {
+                switch(sortOrder) {
+                    case 'newest':
+                        const dateA = a.createdAt?.toDate?.() || new Date(a.createdAt);
+                        const dateB = b.createdAt?.toDate?.() || new Date(b.createdAt);
+                        return dateB - dateA;
+                    
+                    case 'oldest':
+                        const dateA_old = a.createdAt?.toDate?.() || new Date(a.createdAt);
+                        const dateB_old = b.createdAt?.toDate?.() || new Date(b.createdAt);
+                        return dateA_old - dateB_old;
+                    
+                    case 'a-z':
+                        const titleA = (a.title || '').toLowerCase();
+                        const titleB = (b.title || '').toLowerCase();
+                        return titleA.localeCompare(titleB);
+                    
+                    case 'z-a':
+                        const titleA_z = (a.title || '').toLowerCase();
+                        const titleB_z = (b.title || '').toLowerCase();
+                        return titleB_z.localeCompare(titleA_z);
+                    
+                    default:
+                        return 0;
+                }
+            });
+        }
+
+        // Render workspace items
+        function renderWorkspace(items) {
+            const workspaceContainer = document.getElementById('workspace-container');
+            
+            if (items.length === 0) {
+                workspaceContainer.innerHTML = `
+                    <div class="no-specs">
+                        <div class="no-specs-icon"><i class="fas fa-folder-open"></i></div>
+                        <h4>Your workspace is empty</h4>
+                        <p>Create your first specification to get started!</p>
+                        <button class="btn" onclick="goToCreateSpec()">
+                            Create New Specification
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Paginate items
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const paginatedItems = items.slice(startIndex, endIndex);
+            
+            workspaceContainer.innerHTML = paginatedItems.map(item => {
+                const date = new Date(item.createdAt?.toDate?.() || item.createdAt).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                });
+                
+                
+                // Determine progress based on item type
+                let progressItems = [];
+                
+                if (item.type === 'app') {
+                    progressItems = [
+                        { name: 'Planning', status: 'ready' },
+                        { name: 'Design', status: 'in-progress' },
+                        { name: 'Development', status: 'pending' },
+                        { name: 'Testing', status: 'not-started' },
+                        { name: 'Launch', status: 'not-started' }
+                    ];
+                } else if (item.type === 'new-spec') {
+                    // For spec-viewer specs, check actual content exists
+                    const status = item.status || {};
+                    
+                    // Check if overview exists and is not empty
+                    let hasOverview = false;
+                    if (item.overview !== undefined && item.overview !== null && item.overview !== '') {
+                        if (Array.isArray(item.overview)) {
+                            hasOverview = item.overview.length > 0;
+                        } else if (typeof item.overview === 'object') {
+                            hasOverview = Object.keys(item.overview).length > 0;
+                        } else if (typeof item.overview === 'string') {
+                            hasOverview = item.overview.trim() !== '';
+                        } else {
+                            hasOverview = true;
+                        }
+                    }
+                    const overviewStatus = hasOverview ? 'ready' : 'pending';
+                    
+                    // Check if technical exists and is not empty
+                    let hasTechnical = false;
+                    if (item.technical !== undefined && item.technical !== null && item.technical !== '') {
+                        if (Array.isArray(item.technical)) {
+                            hasTechnical = item.technical.length > 0;
+                        } else if (typeof item.technical === 'object') {
+                            hasTechnical = Object.keys(item.technical).length > 0;
+                        } else if (typeof item.technical === 'string') {
+                            hasTechnical = item.technical.trim() !== '';
+                        } else {
+                            hasTechnical = true;
+                        }
+                    }
+                    const technicalStatus = hasTechnical ? 'ready' : 'pending';
+                    
+                    // Check if market exists and is not empty
+                    let hasMarket = false;
+                    if (item.market !== undefined && item.market !== null && item.market !== '') {
+                        if (Array.isArray(item.market)) {
+                            hasMarket = item.market.length > 0;
+                        } else if (typeof item.market === 'object') {
+                            hasMarket = Object.keys(item.market).length > 0;
+                        } else if (typeof item.market === 'string') {
+                            hasMarket = item.market.trim() !== '';
+                        } else {
+                            hasMarket = true;
+                        }
+                    }
+                    const marketStatus = hasMarket ? 'ready' : 'pending';
+                    
+                    // Check if design exists and is not empty
+                    let hasDesign = false;
+                    if (item.design !== undefined && item.design !== null && item.design !== '') {
+                        if (Array.isArray(item.design)) {
+                            hasDesign = item.design.length > 0;
+                        } else if (typeof item.design === 'object') {
+                            hasDesign = Object.keys(item.design).length > 0;
+                        } else if (typeof item.design === 'string') {
+                            hasDesign = item.design.trim() !== '';
+                        } else {
+                            hasDesign = true;
+                        }
+                    }
+                    const designStatus = hasDesign ? 'ready' : (status.design || 'pending');
+                    
+                    // Check if diagrams exist and are valid
+                    let hasDiagrams = false;
+                    if (item.diagrams !== undefined && item.diagrams !== null) {
+                        if (item.diagrams.generated === true) {
+                            if (item.diagrams.diagrams) {
+                                if (Array.isArray(item.diagrams.diagrams)) {
+                                    hasDiagrams = item.diagrams.diagrams.length > 0;
+                                } else if (typeof item.diagrams.diagrams === 'object') {
+                                    hasDiagrams = Object.keys(item.diagrams.diagrams).length > 0;
+                                } else if (typeof item.diagrams.diagrams === 'string') {
+                                    hasDiagrams = item.diagrams.diagrams.trim() !== '';
+                                } else {
+                                    hasDiagrams = true;
+                                }
+                            }
+                        }
+                    }
+                    const diagramsStatus = hasDiagrams ? 'ready' : (status.diagrams || 'pending');
+                    
+                    // Check if AI Chat is available (enabled when overview is approved)
+                    const chatAvailable = item.overviewApproved === true || item.chatInitialized === true;
+                    const chatStatus = chatAvailable ? 'ready' : 'pending';
+                    
+                    progressItems = [
+                        { name: 'Overview', status: overviewStatus },
+                        { name: 'Technical', status: technicalStatus },
+                        { name: 'Market', status: marketStatus },
+                        { name: 'Design', status: designStatus },
+                        { name: 'Diagrams', status: diagramsStatus },
+                        { name: 'AI Chat', status: chatStatus }
+                    ];
+                } else {
+                    // For old specs and research
+                    progressItems = [
+                        { name: 'Analysis', status: 'ready' },
+                        { name: 'Research', status: 'ready' },
+                        { name: 'Documentation', status: 'in-progress' },
+                        { name: 'Diagrams', status: 'pending' }
+                    ];
+                }
+                
+                const progressHTML = progressItems.map(progress => `
+                    <div class="progress-item ${progress.status}" data-tooltip="${getTooltipText(progress.status)}">
+                        ${getStatusIcon(progress.status)}
+                        <span>${progress.name}</span>
+                    </div>
+                `).join('');
+                
+                return `
+                    <div class="workspace-item ${item.type}" data-item-id="${item.id}" data-item-type="${item.type}" data-tooltip="${getItemTooltip(item)}">
+                        <button class="workspace-delete-btn" onclick="deleteWorkspaceItem('${item.id}', '${item.type}')" title="Delete this item">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        <div class="workspace-item-header">
+                            <h4 class="workspace-item-title">${item.title}</h4>
+                            <p class="workspace-item-description">${getItemDescription(item)}</p>
+                        </div>
+                        
+                        <div class="workspace-progress">
+                            <div class="workspace-progress-title">Progress:</div>
+                            <div class="progress-items">
+                                ${progressHTML}
+                            </div>
+                        </div>
+                        
+                        <div class="workspace-item-footer">
+                            <div class="workspace-item-dates">
+                                <small>Created: ${date}</small>
+                            </div>
+                            <a href="${item.viewUrl}" class="workspace-view-btn">
+                                View Project →
+                            </a>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Helper function to get tooltip text
+        function getTooltipText(status) {
+            switch(status) {
+                case 'ready': return 'Completed and ready';
+                case 'in-progress': return 'Currently in progress';
+                case 'pending': return 'Waiting to start';
+                case 'not-started': return 'Not yet started';
+                default: return 'Unknown status';
+            }
+        }
+
+        // Helper function to get item tooltip
+        function getItemTooltip(item) {
+            if (item.type === 'app') {
+                return 'Mobile application project - Click to view dashboard';
+            } else if (item.type === 'new-spec') {
+                return 'Complete specification with technical details - Click to view';
+            } else if (item.type === 'old-spec') {
+                return 'Legacy specification document - Click to view';
+            } else if (item.type === 'research') {
+                return 'Market research and analysis - Click to view';
+            }
+            return 'Project documentation - Click to view';
+        }
+
+        // Helper function to get status icon
+        function getStatusIcon(status) {
+            switch(status) {
+                case 'ready': return '<i class="fas fa-check-circle"></i>';
+                case 'in-progress': return '<i class="fas fa-clock"></i>';
+                case 'pending': return '<i class="fas fa-circle"></i>';
+                case 'not-started': return '<i class="fas fa-times-circle"></i>';
+                default: return '<i class="fas fa-circle"></i>';
+            }
+        }
+
+        // Helper function to get item description
+        function getItemDescription(item) {
+            // Don't use item.description if it looks like JSON, prefer extracting from overview
+            if (item.description && !item.description.startsWith('{')) {
+                return item.description;
+            }
+            
+            if (item.type === 'app') {
+                return item.description || 'Mobile application project';
+            } else if (item.type === 'new-spec') {
+                // Extract description from overview JSON
+                if (item.overview) {
+                    try {
+                        const overviewData = typeof item.overview === 'string' ? JSON.parse(item.overview) : item.overview;
+                        
+                        // The structure is nested: { overview: { ideaSummary: "..." } }
+                        if (overviewData.overview && overviewData.overview.ideaSummary) {
+                            const text = overviewData.overview.ideaSummary;
+                            return text.substring(0, 120) + (text.length > 120 ? '...' : '');
+                        }
+                        
+                        // Fallback for direct structure
+                        if (overviewData.ideaSummary) {
+                            const text = overviewData.ideaSummary;
+                            return text.substring(0, 120) + (text.length > 120 ? '...' : '');
+                        }
+                    } catch (e) {
+                        // If JSON parsing fails, try to extract text using regex
+                        try {
+                            // Try to find ideaSummary in the text
+                            const match = item.overview.match(/"ideaSummary":"([^"]+)"/);
+                            if (match && match[1]) {
+                                const text = match[1].replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+                                return text.substring(0, 120) + (text.length > 120 ? '...' : '');
+                            }
+                            
+                            // Fallback: remove JSON structure and clean
+                            let cleanText = item.overview;
+                            // Remove the prefix if exists
+                            if (cleanText.includes('"ideaSummary":"')) {
+                                cleanText = cleanText.substring(cleanText.indexOf('"ideaSummary":"') + 16);
+                                cleanText = cleanText.substring(0, cleanText.indexOf('"'));
+                                cleanText = cleanText.replace(/\\"/g, '"');
+                                return cleanText.substring(0, 120) + (cleanText.length > 120 ? '...' : '');
+                            }
+                        } catch (e2) {
+                            return 'Complete specification with technical details';
+                        }
+                    }
+                }
+                return 'Complete specification with technical details';
+            } else if (item.type === 'old-spec') {
+                return 'Legacy specification document';
+            } else if (item.type === 'research') {
+                return 'Market research and analysis';
+            }
+            return 'Project documentation';
+        }
+
+        // Load user apps
+        async function loadUserApps() {
+            if (!currentUser) return;
+            
+            try {
+                const q = query(
+                    collection(db, 'apps'),
+                    where('userId', '==', currentUser.uid),
+                    orderBy('createdAt', 'desc')
+                );
+                
+                const querySnapshot = await getDocs(q);
+                userApps = [];
+                
+                querySnapshot.forEach((doc) => {
+                    const appData = {
+                        id: doc.id,
+                        ...doc.data()
+                    };
+                    userApps.push(appData);
+                });
+                
+                document.getElementById('apps-count').textContent = userApps.length;
+                renderApps();
+                
+                // Update button appearance after loading apps
+                setTimeout(updateLinkButtonAppearance, 200);
+            } catch (error) {
+
+                document.getElementById('apps-container').innerHTML = '<div class="error">Error loading apps</div>';
+            }
+        }
+
+        // Load user specs
+        async function loadUserSpecs() {
+            if (!currentUser) return;
+            
+            try {
+
+                
+                const q = query(
+                    collection(db, 'specs'),
+                    where('userId', '==', currentUser.uid),
+                    orderBy('createdAt', 'desc')
+                );
+                
+                const querySnapshot = await getDocs(q);
+                userSpecs = [];
+                
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+
+                    userSpecs.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+                
+
+                
+                document.getElementById('specs-count').textContent = userSpecs.length;
+                renderSpecs();
+                setTimeout(updateLinkButtonAppearance, 100);
+            } catch (error) {
+
+
+
+
+                
+                // If the error is about missing index, provide helpful message
+                let errorMessage = error.message;
+                if (error.code === 'failed-precondition' || error.message.includes('index')) {
+                    errorMessage = 'Missing database index. Please contact support.';
+
+                }
+                
+                document.getElementById('specs-container').innerHTML = '<div class="error">Error loading specifications: ' + errorMessage + '</div>';
+            }
+        }
+
+        // Load user saved tools
+        async function loadUserSavedTools() {
+            if (!currentUser) return;
+            
+            try {
+                const q = query(
+                    collection(db, 'userTools', currentUser.uid, 'savedTools'),
+                    orderBy('addedAt', 'desc')
+                );
+                
+                const querySnapshot = await getDocs(q);
+                userSavedTools = [];
+                
+                querySnapshot.forEach((doc) => {
+                    userSavedTools.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+                
+                document.getElementById('saved-tools-count').textContent = userSavedTools.length;
+                renderSavedTools(userSavedTools);
+            } catch (error) {
+
+                document.getElementById('tools-container').innerHTML = '<div class="error">Error loading saved tools</div>';
+            }
+        }
+
+        async function loadEntitlements(forceRefresh = false) {
+            if (!currentUser) return null;
+
+            if (currentEntitlements && currentUserProfileDoc && !forceRefresh) {
+                updateEntitlementUI();
+                return currentEntitlements;
+            }
+
+            try {
+                // Load entitlements
+                const entRef = doc(db, 'entitlements', currentUser.uid);
+                const entSnap = await getDoc(entRef);
+                currentEntitlements = entSnap.exists() ? entSnap.data() : null;
+
+                // Load subscription
+                const subscriptionRef = doc(db, 'subscriptions', currentUser.uid);
+                const subscriptionSnap = await getDoc(subscriptionRef);
+                currentSubscription = subscriptionSnap.exists() ? subscriptionSnap.data() : null;
+
+                // Load user document (needed for free_specs_remaining)
+                if (!currentUserProfileDoc || forceRefresh) {
+                    const userRef = doc(db, 'users', currentUser.uid);
+                    const userSnap = await getDoc(userRef);
+                    currentUserProfileDoc = userSnap.exists() ? userSnap.data() : {};
+                }
+            } catch (error) {
+                // Failed to load entitlements
+                currentEntitlements = null;
+                currentSubscription = null;
+                if (!currentUserProfileDoc) {
+                    currentUserProfileDoc = {};
+                }
+            }
+
+            updateEntitlementUI();
+            return currentEntitlements;
+        }
+
+        function setSubscriptionMessage(text = '', type = null) {
+            const messageEl = document.getElementById('subscription-message');
+            if (!messageEl) return;
+            messageEl.textContent = text || '';
+            messageEl.classList.remove('warning', 'success', 'error', 'info');
+            if (type) {
+                messageEl.classList.add(type);
+            }
+        }
+
+        function resetCancellationUI() {
+            const confirmationEl = document.getElementById('subscription-cancel-confirmation');
+            if (confirmationEl) {
+                confirmationEl.style.display = 'none';
+            }
+            const confirmBtn = document.getElementById('confirmCancelBtn');
+            if (confirmBtn) {
+                confirmBtn.disabled = false;
+                confirmBtn.textContent = 'Confirm Cancellation';
+            }
+            const cancelBtn = document.getElementById('cancelSubBtn');
+            if (cancelBtn) {
+                cancelBtn.disabled = false;
+                cancelBtn.textContent = 'Cancel Subscription';
+            }
+        }
+
+        function updateEntitlementUI({ entitlements, userData, subscription } = {}) {
+            const ent = entitlements ?? currentEntitlements ?? {};
+            const user = userData ?? currentUserProfileDoc ?? {};
+            const sub = subscription ?? currentSubscription ?? {};
+            const unlimited = !!ent.unlimited;
+            let credits = 0;
+
+            // Same logic as header: check unlimited first, then spec_credits, then free_specs_remaining with fallback to 1
+            if (!unlimited) {
+                if (typeof ent.spec_credits === 'number' && ent.spec_credits > 0) {
+                    credits = ent.spec_credits;
+                } else {
+                    // Use free_specs_remaining with fallback to 1 (same as header)
+                    const freeSpecs = typeof user?.free_specs_remaining === 'number'
+                        ? Math.max(0, user.free_specs_remaining)
+                        : 1;
+                    credits = freeSpecs;
+                }
+
+                // Ensure credits is a valid number
+                if (!Number.isFinite(credits) || credits < 0) {
+                    credits = 0;
+                }
+            }
+
+            const planLabel = unlimited ? 'Pro' : (user.plan ? user.plan.charAt(0).toUpperCase() + user.plan.slice(1) : 'Free');
+
+            const specsRemainingEl = document.getElementById('specs-remaining-count');
+            if (specsRemainingEl) {
+                specsRemainingEl.textContent = unlimited ? '∞' : credits;
+            }
+
+            const infoPlanEl = document.getElementById('info-plan');
+            if (infoPlanEl) {
+                infoPlanEl.textContent = planLabel;
+            }
+
+            const statusEl = document.getElementById('info-status');
+            if (statusEl) {
+                statusEl.textContent = unlimited ? 'Active' : 'Free tier';
+                statusEl.className = `status-badge ${unlimited ? 'active' : 'free'}`;
+            }
+
+            const infoSpecsEl = document.getElementById('info-specs');
+            if (infoSpecsEl) {
+                if (unlimited) {
+                    infoSpecsEl.textContent = 'Unlimited specifications available';
+                } else if (credits === 0) {
+                    infoSpecsEl.textContent = 'No specification credits available';
+                } else {
+                    infoSpecsEl.textContent = `${credits} specification ${credits === 1 ? 'credit' : 'credits'} available`;
+                }
+            }
+
+            const noteEl = document.getElementById('subscription-note');
+            if (noteEl) {
+                if (unlimited) {
+                    noteEl.textContent = 'Your Pro subscription currently provides unlimited specifications.';
+                } else if (sub && sub.status === 'cancelled' && sub.cancel_mode === 'period_end') {
+                    noteEl.textContent = 'Your subscription cancellation is scheduled. You will retain access until the end of the current period.';
+                } else if (credits === 0) {
+                    noteEl.textContent = 'You currently have no specification credits. Visit the pricing page to purchase additional credits when you are ready.';
+                } else {
+                    noteEl.textContent = 'You have specification credits available. You can purchase additional credits from the pricing page whenever you need more.';
+                }
+            }
+
+            const upgradeRowEl = document.getElementById('upgrade-row');
+            if (upgradeRowEl) {
+                if (!unlimited && credits === 0) {
+                    upgradeRowEl.style.display = 'block';
+                } else {
+                    upgradeRowEl.style.display = 'none';
+                }
+            }
+
+            const cancelBtn = document.getElementById('cancelSubBtn');
+            const confirmationEl = document.getElementById('subscription-cancel-confirmation');
+
+            resetCancellationUI();
+            setSubscriptionMessage('', null);
+
+            if (cancelBtn) {
+                if (unlimited && sub && sub.status !== 'cancelled') {
+                    cancelBtn.style.display = 'block';
+                    cancelBtn.disabled = false;
+                    if (confirmationEl) {
+                        confirmationEl.style.display = 'none';
+                    }
+                } else {
+                    cancelBtn.style.display = 'none';
+                    if (confirmationEl) {
+                        confirmationEl.style.display = 'none';
+                    }
+                }
+            }
+
+            if (sub && sub.status === 'cancelled') {
+                if (sub.cancel_mode === 'period_end') {
+                    setSubscriptionMessage('Subscription cancellation scheduled. You will retain Pro features until the end of the current billing period and no additional renewals will be created.', 'info');
+                } else {
+                    setSubscriptionMessage('Subscription cancelled. Unlimited specifications are no longer available and future renewals have been stopped.', 'success');
+                }
+            }
+        }
+
+        window.startCancelSubscription = function() {
+            if (!currentUser) return;
+            if (!currentSubscription || currentSubscription.status === 'cancelled') {
+                setSubscriptionMessage('No active subscription to cancel.', 'warning');
+                return;
+            }
+
+            const confirmationEl = document.getElementById('subscription-cancel-confirmation');
+            if (confirmationEl) {
+                confirmationEl.style.display = 'block';
+            }
+
+            setSubscriptionMessage('Cancelling will stop future charges and unlimited specifications will end after this billing period, as described by Lemon Squeezy’s subscription lifecycle.', 'warning');
+        };
+
+        window.keepSubscription = function() {
+            resetCancellationUI();
+            setSubscriptionMessage('', null);
+        };
+
+        window.confirmCancelSubscription = async function() {
+            if (!currentUser) return;
+            if (!currentSubscription || currentSubscription.status === 'cancelled') {
+                setSubscriptionMessage('No active subscription to cancel.', 'warning');
+                resetCancellationUI();
+                return;
+            }
+
+            const cancelBtn = document.getElementById('cancelSubBtn');
+            const confirmBtn = document.getElementById('confirmCancelBtn');
+            let cancellationSucceeded = false;
+
+            try {
+                if (cancelBtn) {
+                    cancelBtn.disabled = true;
+                }
+                if (confirmBtn) {
+                    confirmBtn.disabled = true;
+                    confirmBtn.textContent = 'Cancelling…';
+                }
+                setSubscriptionMessage('Processing cancellation…', 'info');
+
+                const token = await currentUser.getIdToken();
+                const response = await fetch('https://specifys-ai-store.onrender.com/api/lemon/subscription/cancel', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({})
+                });
+
+                const data = await response.json().catch(() => ({}));
+                if (!response.ok) {
+                    const message = data.details || data.error || 'Unable to cancel subscription. Please verify your billing configuration (Test/Live) and try again.';
+                    const requestSuffix = data.requestId ? ` (Reference ID: ${data.requestId})` : '';
+                    setSubscriptionMessage(`${message}${requestSuffix}`, 'error');
+                    if (cancelBtn) {
+                        cancelBtn.disabled = false;
+                    }
+                    if (confirmBtn) {
+                        confirmBtn.disabled = false;
+                        confirmBtn.textContent = 'Confirm Cancellation';
+                    }
+                    return;
+                }
+
+                if (!data.success) {
+                    const message = data.details || data.error || 'Unable to cancel subscription. Please try again.';
+                    const requestSuffix = data.requestId ? ` (Reference ID: ${data.requestId})` : '';
+                    setSubscriptionMessage(`${message}${requestSuffix}`, 'error');
+                    if (cancelBtn) {
+                        cancelBtn.disabled = false;
+                    }
+                    if (confirmBtn) {
+                        confirmBtn.disabled = false;
+                        confirmBtn.textContent = 'Confirm Cancellation';
+                    }
+                    return;
+                }
+
+                cancellationSucceeded = true;
+                await loadEntitlements(true);
+
+                if (typeof window.updateCreditsDisplay === 'function') {
+                    window.updateCreditsDisplay();
+                }
+
+                const mode = data.cancellationMode || 'immediate';
+                const requestSuffix = data.requestId ? ` (Reference ID: ${data.requestId})` : '';
+                if (mode === 'period_end') {
+                    setSubscriptionMessage('Subscription cancellation scheduled. You will retain Pro features until the end of the current billing period and no additional renewals will be created.' + requestSuffix, 'success');
+                } else {
+                    setSubscriptionMessage('Subscription cancelled successfully. Unlimited specifications have ended and further charges are stopped.' + requestSuffix, 'success');
+                }
+            } catch (error) {
+                // Failed to cancel subscription
+                setSubscriptionMessage(error.message || 'Failed to cancel subscription. Please try again later.', 'error');
+                if (cancelBtn) {
+                    cancelBtn.disabled = false;
+                }
+            } finally {
+                if (confirmBtn) {
+                    confirmBtn.disabled = false;
+                    confirmBtn.textContent = 'Confirm Cancellation';
+                }
+                if (cancellationSucceeded) {
+                    resetCancellationUI();
+                }
+            }
+        };
+
+        async function loadSpecsRemaining() {
+            await loadEntitlements();
+        }
+
+        // Load user market research
+        async function loadUserMarketResearch() {
+            if (!currentUser) return;
+            
+            try {
+                // Load from marketResearch collection (new)
+                const q1 = query(
+                    collection(db, 'marketResearch'),
+                    where('userId', '==', currentUser.uid)
+                );
+                
+                const querySnapshot1 = await getDocs(q1);
+                userMarketResearch = [];
+                
+                querySnapshot1.forEach((doc) => {
+                    userMarketResearch.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+                
+                // Load from specs collection with mode: "market" (old)
+                const q2 = query(
+                    collection(db, 'specs'),
+                    where('userId', '==', currentUser.uid),
+                    where('mode', '==', 'market')
+                );
+                
+                const querySnapshot2 = await getDocs(q2);
+                
+                querySnapshot2.forEach((doc) => {
+                    userMarketResearch.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+                
+                // Sort by creation date
+                userMarketResearch.sort((a, b) => {
+                    const dateA = a.createdAt?.toDate?.() || a.createdAt;
+                    const dateB = b.createdAt?.toDate?.() || b.createdAt;
+                    return new Date(dateB) - new Date(dateA);
+                });
+                
+                document.getElementById('research-count').textContent = userMarketResearch.length;
+                renderMarketResearch();
+                setTimeout(updateLinkButtonAppearance, 100);
+            } catch (error) {
+
+                document.getElementById('research-count').textContent = '0';
+            }
+        }
+
+        // Render saved tools in grid layout
+        function renderSavedTools(tools) {
+            const toolsContainer = document.getElementById('tools-container');
+            
+            if (tools.length === 0) {
+                toolsContainer.innerHTML = `
+                    <div class="no-specs">
+                        <div class="no-specs-icon"><i class="fas fa-wrench"></i></div>
+                        <h4>No saved tools yet</h4>
+                        <p>Add tools from the Tools Map to see them here!</p>
+                        <a href="../tools/map/vibe-coding-tools-map.html" class="btn">Explore Tools Map</a>
+                    </div>
+                `;
+                return;
+            }
+
+            toolsContainer.innerHTML = tools.map(tool => `
+                <div class="app-card" data-tool-id="${tool.id}">
+                    <div class="app-card-header">
+                        <h4 class="app-card-title">
+                            <span class="spec-link">${tool.name || 'Unknown Tool'}</span>
+                        </h4>
+                        <div class="app-card-actions">
+                            <button class="btn-icon" onclick="removeSavedTool('${tool.id}')" title="Remove from saved tools">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                            ${tool.link && tool.link !== '#' ? `<button class="btn-icon" onclick="window.open('${tool.link}', '_blank')" title="Visit tool website"><i class="fas fa-external-link-alt"></i></button>` : ''}
+                        </div>
+                    </div>
+                    <div class="app-card-content">
+                        <div class="app-stats-minimal">
+                            <div class="app-stat-minimal">
+                                <i class="fas fa-wrench"></i>
+                                <span>Tool</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="app-card-footer">
+                        <small>Saved: ${new Date(tool.addedAt).toLocaleDateString()}</small>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Render apps in grid layout
+        function renderApps() {
+            const appsContainer = document.getElementById('apps-container');
+            
+            if (userApps.length === 0) {
+                appsContainer.innerHTML = `
+                    <div class="no-specs">
+                        <div class="no-specs-icon"><i class="fas fa-mobile-alt"></i></div>
+                        <h4>No apps yet</h4>
+                        <p>No apps available.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            appsContainer.innerHTML = userApps.map(app => {
+                const specsCount = app.linkedSpecs ? app.linkedSpecs.length : 0;
+                const researchCount = app.linkedResearch ? app.linkedResearch.length : 0;
+                
+                return `
+                    <div class="app-card" data-app-id="${app.id}">
+                        <div class="app-card-header">
+                            <h4 class="app-card-title">
+                                <span class="spec-link spec-link-plain">${app.name}</span>
+                            </h4>
+                            <div class="app-card-actions">
+                                <button class="btn-icon" onclick="editAppCard('${app.id}')" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn-icon" onclick="deleteAppCard('${app.id}')" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="app-card-content">
+                            
+                            <!-- App Statistics - Simplified -->
+                            <div class="app-stats-minimal">
+                                <div class="app-stat-minimal">
+                                    <i class="fas fa-dollar-sign"></i>
+                                    <span>${specsCount} Specs</span>
+                                </div>
+                                <div class="app-stat-minimal">
+                                    <i class="fas fa-search"></i>
+                                    <span>${researchCount} Research</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="app-card-footer">
+                            <small>Created: ${new Date(app.createdAt?.toDate?.() || app.createdAt).toLocaleDateString('en-US')}</small>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Render specs in grid layout
+        function renderSpecs() {
+            const specsContainer = document.getElementById('specs-container');
+            
+            if (userSpecs.length === 0) {
+                specsContainer.innerHTML = `
+                    <div class="no-specs">
+                        <div class="no-specs-icon"><i class="fas fa-dollar-sign"></i></div>
+                        <h4>No specifications yet</h4>
+                        <p>Create your first specification to get started!</p>
+                        <button class="btn" onclick="window.location.href='../index.html'">
+                            Create New Specification
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+            
+            specsContainer.innerHTML = userSpecs.map(spec => `
+                <div class="app-card" data-spec-id="${spec.id}">
+                    <div class="app-card-header">
+                        <h4 class="app-card-title">
+                            <a href="legacy-viewer.html?id=${spec.id}" class="spec-link">${spec.title}</a>
+                        </h4>
+                        <div class="app-card-actions">
+                            <button class="btn-icon link-spec-btn" data-spec-id="${spec.id}" title="Link to App">
+                                <i class="fas fa-link"></i>
+                            </button>
+                            <button class="btn-icon" onclick="editSpecCard('${spec.id}')" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn-icon" onclick="deleteSpecCard('${spec.id}')" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="app-card-content">
+                        <div class="app-stats-minimal">
+                            <div class="app-stat-minimal">
+                                <i class="fas fa-dollar-sign"></i>
+                                <span>Specification</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="app-card-footer">
+                        <small>Created: ${new Date(spec.createdAt?.toDate?.() || spec.createdAt).toLocaleDateString('en-US')}</small>
+                    </div>
+                </div>
+            `).join('');
+            
+            // Update link button appearance after rendering specs
+            setTimeout(updateLinkButtonAppearance, 50);
+        }
+
+        // Render market research in grid layout
+        function renderMarketResearch() {
+            const researchContainer = document.getElementById('research-container');
+            
+            if (userMarketResearch.length === 0) {
+                researchContainer.innerHTML = `
+                    <div class="no-specs">
+                        <div class="no-specs-icon"><i class="fas fa-search"></i></div>
+                        <h4>No market research yet</h4>
+                        <p>Create your first market research to get started!</p>
+                        <button class="btn" onclick="window.location.href='processing-market.html'">
+                            Create New Market Research
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+            
+            researchContainer.innerHTML = userMarketResearch.map(research => `
+                <div class="app-card" data-research-id="${research.id}">
+                    <div class="app-card-header">
+                        <h4 class="app-card-title">
+                            <a href="legacy-viewer.html?id=${research.id}" class="spec-link">${research.title}</a>
+                        </h4>
+                        <div class="app-card-actions">
+                            <button class="btn-icon link-research-btn" data-research-id="${research.id}" title="Link to App">
+                                <i class="fas fa-link"></i>
+                            </button>
+                            <button class="btn-icon" onclick="editResearchCard('${research.id}')" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn-icon" onclick="deleteResearchCard('${research.id}')" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="app-card-content">
+                        <div class="app-stats-minimal">
+                            <div class="app-stat-minimal">
+                                <i class="fas fa-search"></i>
+                                <span>Market Research</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="app-card-footer">
+                        <small>Created: ${new Date(research.createdAt?.toDate?.() || research.createdAt).toLocaleDateString('en-US')}</small>
+                    </div>
+                </div>
+            `).join('');
+            
+            // Update link button appearance after rendering market research
+            setTimeout(updateLinkButtonAppearance, 50);
+        }
+
+        // Search functionality for apps - removed as requested
+
+        // Search functionality for tabbed content
+        // Search functionality for tabbed content - removed as requested
+
+        // Sort functionality for apps - removed as requested
+
+        // Sort functionality for tabbed content
+        // Sort functionality for tabbed content - removed as requested
+
+        function renderFilteredApps(apps) {
+            const appsContainer = document.getElementById('apps-container');
+            
+            if (apps.length === 0) {
+                appsContainer.innerHTML = '<div class="no-results">No apps found</div>';
+                return;
+            }
+            
+            appsContainer.innerHTML = apps.map(app => {
+                const specsCount = app.linkedSpecs ? app.linkedSpecs.length : 0;
+                const researchCount = app.linkedResearch ? app.linkedResearch.length : 0;
+                
+                return `
+                    <div class="app-card" data-app-id="${app.id}">
+                        <div class="app-card-header">
+                            <h4 class="app-card-title">
+                                <span class="spec-link spec-link-plain">${app.name}</span>
+                            </h4>
+                            <div class="app-card-actions">
+                                <button class="btn-icon" onclick="editAppCard('${app.id}')" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn-icon" onclick="deleteAppCard('${app.id}')" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="app-card-content">
+                            
+                            <!-- App Statistics - Simplified -->
+                            <div class="app-stats-minimal">
+                                <div class="app-stat-minimal">
+                                    <i class="fas fa-dollar-sign"></i>
+                                    <span>${specsCount} Specs</span>
+                                </div>
+                                <div class="app-stat-minimal">
+                                    <i class="fas fa-search"></i>
+                                    <span>${researchCount} Research</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="app-card-footer">
+                            <small>Created: ${new Date(app.createdAt?.toDate?.() || app.createdAt).toLocaleDateString('en-US')}</small>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderFilteredSpecs(specs) {
+            const specsContainer = document.getElementById('specs-container');
+            
+            if (specs.length === 0) {
+                specsContainer.innerHTML = '<div class="no-results">No specifications found</div>';
+                return;
+            }
+            
+            specsContainer.innerHTML = specs.map(spec => `
+                <div class="spec-card" data-spec-id="${spec.id}">
+                    <div class="spec-card-header">
+                        <h4 class="spec-card-title">
+                            <a href="legacy-viewer.html?id=${spec.id}" class="spec-link">${spec.title}</a>
+                        </h4>
+                        <div class="spec-card-actions">
+                            <button class="btn-icon link-spec-btn" data-spec-id="${spec.id}" title="Link to App">
+                                <i class="fas fa-link"></i>
+                            </button>
+                            <button class="btn-icon" onclick="editSpecCard('${spec.id}')" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn-icon" onclick="deleteSpecCard('${spec.id}')" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="spec-card-content">
+                        <!-- Mode badge removed as requested -->
+                    </div>
+                    <div class="spec-card-footer">
+                        <small>Created: ${new Date(spec.createdAt?.toDate?.() || spec.createdAt).toLocaleDateString('en-US')}</small>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderFilteredResearch(research) {
+            const researchContainer = document.getElementById('research-container');
+            
+            if (research.length === 0) {
+                researchContainer.innerHTML = '<div class="no-results">No market research found</div>';
+                return;
+            }
+            
+            researchContainer.innerHTML = research.map(research => `
+                <div class="spec-card" data-research-id="${research.id}">
+                    <div class="spec-card-header">
+                        <h4 class="spec-card-title">
+                            <a href="legacy-viewer.html?id=${research.id}" class="spec-link">${research.title}</a>
+                        </h4>
+                        <div class="spec-card-actions">
+                            <button class="btn-icon link-research-btn" data-research-id="${research.id}" title="Link to App">
+                                <i class="fas fa-link"></i>
+                            </button>
+                            <button class="btn-icon" onclick="editResearchCard('${research.id}')" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn-icon" onclick="deleteResearchCard('${research.id}')" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="spec-card-content">
+                        <!-- Research content preview -->
+                    </div>
+                    <div class="spec-card-footer">
+                        <small>Created: ${new Date(research.createdAt?.toDate?.() || research.createdAt).toLocaleDateString('en-US')}</small>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderFilteredTools(tools) {
+            const toolsContainer = document.getElementById('tools-container');
+            
+            if (tools.length === 0) {
+                toolsContainer.innerHTML = '<div class="no-results">No tools found</div>';
+                return;
+            }
+
+            toolsContainer.innerHTML = tools.map(tool => `
+                <div class="app-card" data-tool-id="${tool.id}">
+                    <div class="app-card-header">
+                        <h4 class="app-card-title">
+                            <span class="spec-link">${tool.name || 'Unknown Tool'}</span>
+                        </h4>
+                        <div class="app-card-actions">
+                            <button class="btn-icon" onclick="removeSavedTool('${tool.id}')" title="Remove from saved tools">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                            ${tool.link && tool.link !== '#' ? `<button class="btn-icon" onclick="window.open('${tool.link}', '_blank')" title="Visit tool website"><i class="fas fa-external-link-alt"></i></button>` : ''}
+                        </div>
+                    </div>
+                    <div class="app-card-content">
+                        <div class="app-stats-minimal">
+                            <div class="app-stat-minimal">
+                                <i class="fas fa-wrench"></i>
+                                <span>Tool</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="app-card-footer">
+                        <small>Saved: ${new Date(tool.addedAt).toLocaleDateString()}</small>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Create app button (optional - already uses onclick in HTML)
+        const createAppBtn = document.getElementById('create-app-btn');
+        if (createAppBtn) {
+            createAppBtn.addEventListener('click', () => {
+                goToCreateSpec();
+            });
+        }
+
+        // Global functions for app actions
+        // Navigate to create spec (with auto-start)
+        window.goToCreateSpec = function() {
+            window.location.href = '/index.html?autoStart=true';
+        };
+
+
+        window.editAppCard = async function(appId) {
+            const app = userApps.find(a => a.id === appId);
+            if (!app) return;
+            
+            const newName = prompt('Edit app name:', app.name);
+            if (newName === null || newName.trim() === '') return;
+            
+            try {
+                const { doc, setDoc } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+                const appRef = doc(db, 'apps', appId);
+                await setDoc(appRef, {
+                    name: newName.trim(),
+                    updatedAt: new Date().toISOString()
+                }, { merge: true });
+                
+                // Update local data
+                app.name = newName.trim();
+                app.updatedAt = new Date().toISOString();
+                
+                // Refresh the display
+                renderApps();
+            } catch (error) {
+
+                alert("Failed to update app. Please try again.");
+            }
+        };
+
+        window.deleteAppCard = async function(appId) {
+            if (!confirm('Are you sure you want to delete this app? This action cannot be undone.')) {
+                return;
+            }
+            
+            try {
+                const { doc, deleteDoc } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+                const appRef = doc(db, 'apps', appId);
+                await deleteDoc(appRef);
+                
+                // Remove from local data
+                userApps = userApps.filter(app => app.id !== appId);
+                
+                // Refresh the display
+                renderApps();
+            } catch (error) {
+
+                alert("Failed to delete app. Please try again.");
+            }
+        };
+
+        window.openAppDashboard = function(appId) {
+            window.location.href = `404.html`;
+        };
+
+        // Global functions for spec actions
+        window.editSpecCard = async function(specId) {
+            const spec = userSpecs.find(s => s.id === specId);
+            if (!spec) {
+                alert('Specification not found');
+                return;
+            }
+            
+            const newTitle = prompt('Edit title:', spec.title);
+            if (newTitle === null || newTitle.trim() === '') return;
+            
+            try {
+                // Update in Firestore
+                const specRef = doc(db, 'specs', specId);
+                await setDoc(specRef, {
+                    title: newTitle.trim(),
+                    updatedAt: new Date().toISOString()
+                }, { merge: true });
+                
+                // Update local data
+                const specIndex = userSpecs.findIndex(s => s.id === specId);
+                if (specIndex !== -1) {
+                    userSpecs[specIndex].title = newTitle.trim();
+                }
+                
+                // Re-render specs
+                renderSpecs();
+                
+                // Update link button appearance after re-render
+                setTimeout(updateLinkButtonAppearance, 100);
+                
+                showSuccess('Specification title updated successfully!');
+                
+            } catch (error) {
+
+                showError('Failed to update specification title');
+            }
+        };
+
+        window.deleteSpecCard = function(specId) {
+            if (!confirm('Are you sure you want to delete this specification?')) {
+                return;
+            }
+            
+            try {
+                // Remove from DOM - find and remove the spec card element
+                const specCard = document.querySelector(`[data-spec-id="${specId}"]`);
+                if (specCard) {
+                    specCard.remove();
+                }
+                
+                // Remove from local userSpecs array
+                const specIndex = userSpecs.findIndex(spec => spec.id === specId);
+                if (specIndex !== -1) {
+                    userSpecs.splice(specIndex, 1);
+                }
+                
+                // Show success message
+                alert('Specification removed successfully from interface');
+                
+            } catch (error) {
+
+                alert('Error removing specification from interface');
+            }
+        };
+
+        // Delete workspace item (spec/app/research) from database
+        window.deleteWorkspaceItem = async function(itemId, itemType) {
+            if (!confirm('Are you sure you want to delete this item? This action cannot be undone.')) {
+                return;
+            }
+            
+            try {
+                // Determine collection and reference based on item type
+                let docRef;
+                
+                if (itemType === 'app') {
+                    docRef = doc(db, 'apps', itemId);
+                } else if (itemType === 'new-spec' || itemType === 'old-spec') {
+                    docRef = doc(db, 'specs', itemId);
+                } else if (itemType === 'research') {
+                    docRef = doc(db, 'marketResearch', itemId);
+                } else {
+                    alert('Unknown item type');
+                    return;
+                }
+                
+                // Delete from Firestore
+                await deleteDoc(docRef);
+                
+                // Reload workspace to reflect changes
+                loadWorkspace();
+                
+                // Show success message
+                showSuccess('Item deleted successfully!');
+                
+            } catch (error) {
+
+                showError('Failed to delete item. Please try again.');
+            }
+        };
+
+        // Global functions for research actions
+        window.editResearchCard = async function(researchId) {
+            const research = userMarketResearch.find(r => r.id === researchId);
+            if (!research) {
+                alert('Market research not found');
+                return;
+            }
+            
+            const newTitle = prompt('Edit title:', research.title);
+            if (newTitle === null || newTitle.trim() === '') return;
+            
+            try {
+                // Update in Firestore
+                const researchRef = doc(db, 'marketResearch', researchId);
+                await setDoc(researchRef, {
+                    title: newTitle.trim(),
+                    updatedAt: new Date().toISOString()
+                }, { merge: true });
+                
+                // Update local data
+                const researchIndex = userMarketResearch.findIndex(r => r.id === researchId);
+                if (researchIndex !== -1) {
+                    userMarketResearch[researchIndex].title = newTitle.trim();
+                }
+                
+                // Re-render market research
+                renderMarketResearch();
+                
+                // Update link button appearance after re-render
+                setTimeout(updateLinkButtonAppearance, 100);
+                
+
+                showSuccess('Market research title updated successfully!');
+                
+            } catch (error) {
+
+                showError('Failed to update market research title');
+            }
+        };
+
+        window.deleteResearchCard = function(researchId) {
+            if (!confirm('Are you sure you want to delete this market research?')) {
+                return;
+            }
+            
+            // Here you would delete the research from Firestore
+            alert('Delete functionality will be added soon');
+        };
+
+        // Create new app function
+        async function createNewApp(name, description, budget) {
+            if (!currentUser) return;
+            
+            try {
+                const appData = {
+                    name: name,
+                    description: description,
+                    status: 'Planning',
+                    budget: budget,
+                    spent: 0,
+                    userId: currentUser.uid,
+                    createdAt: serverTimestamp(),
+                    linkedSpecs: [],
+                    linkedResearch: [],
+                    linkedTools: []
+                };
+                
+                await addDoc(collection(db, 'apps'), appData);
+                loadUserApps(); // Reload the apps list
+                showSuccess('App created successfully!');
+            } catch (error) {
+
+                showError('Failed to create app');
+            }
+        }
+
+        // Global function for removing saved tool
+        window.removeSavedTool = async function(toolId) {
+            if (!confirm('Are you sure you want to remove this tool from your saved list?')) {
+                return;
+            }
+            
+            try {
+                await deleteDoc(doc(db, 'userTools', currentUser.uid, 'savedTools', toolId));
+                loadUserSavedTools(); // Reload the list
+                showSuccess('Tool removed from saved list');
+            } catch (error) {
+
+                showError('Failed to remove tool from saved list');
+            }
+        };
+
+        // Utility functions
+        function showSuccess(message) {
+            // Create a temporary success notification
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: #28a745;
+                color: white;
+                padding: 12px 20px;
+                border-radius: 6px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                z-index: 10000;
+                font-size: 14px;
+                font-weight: 500;
+                animation: slideUp 0.3s ease-out;
+            `;
+            notification.textContent = message;
+            
+            // Add animation styles
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideUp {
+                    from { transform: translateX(-50%) translateY(100%); opacity: 0; }
+                    to { transform: translateX(-50%) translateY(0); opacity: 1; }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            document.body.appendChild(notification);
+            
+            // Remove after 3 seconds
+            setTimeout(() => {
+                notification.remove();
+                style.remove();
+            }, 3000);
+        }
+
+        function showError(message) {
+            // Create a temporary error notification
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: #dc3545;
+                color: white;
+                padding: 12px 20px;
+                border-radius: 6px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                z-index: 10000;
+                font-size: 14px;
+                font-weight: 500;
+                animation: slideUp 0.3s ease-out;
+            `;
+            notification.textContent = message;
+            
+            // Add animation styles
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideUp {
+                    from { transform: translateX(-50%) translateY(100%); opacity: 0; }
+                    to { transform: translateX(-50%) translateY(0); opacity: 1; }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            document.body.appendChild(notification);
+            
+            // Remove after 5 seconds
+            setTimeout(() => {
+                notification.remove();
+                style.remove();
+            }, 5000);
+        }
+
+        // Auth UI functions
+        function updateAuthUI(user) {
+            const authButtons = document.getElementById('auth-buttons');
+            if (!authButtons) return;
+            
+            if (user) {
+                // User is logged in
+                const displayName = user.displayName || user.email.split('@')[0];
+                const firstLetter = displayName.charAt(0).toUpperCase();
+                
+                authButtons.innerHTML = `
+                    <a href="/pages/profile.html" class="user-info no-underline">
+                        <div class="user-avatar">${firstLetter}</div>
+                        <span>${displayName}</span>
+                    </a>
+                `;
+                
+                // Check if user is admin and show/hide admin dashboard button
+                checkAdminAccess(user);
+            } else {
+                // User is not logged in
+                authButtons.innerHTML = `
+                    <button class="auth-btn" onclick="showLoginModal()">Log in/Sign up</button>
+                `;
+            }
+            
+            // Update mobile auth UI if function exists
+            if (window.updateMobileAuthUI) {
+                window.updateMobileAuthUI(user);
+            }
+        }
+        
+        // Check admin access based on email
+        function checkAdminAccess(user) {
+            // Define admin emails - add your specific admin email here
+            const adminEmails = [
+                'specifysai@gmail.com',
+                'admin@specifys.ai',
+                'shalom@specifys.ai'
+                // Add more admin emails as needed
+            ];
+            
+            const isAdmin = adminEmails.includes(user.email.toLowerCase());
+            
+            // Show/hide admin dashboard button in profile
+            const adminDashboardBtn = document.getElementById('admin-dashboard-btn');
+            if (adminDashboardBtn) {
+                if (isAdmin) {
+                    adminDashboardBtn.style.display = 'block';
+                } else {
+                    adminDashboardBtn.style.display = 'none';
+                }
+            }
+            
+            // Also check for admin-section if exists (for backward compatibility)
+            const adminSection = document.querySelector('.admin-section');
+            if (adminSection) {
+                if (isAdmin) {
+                    adminSection.style.display = 'block';
+                } else {
+                    adminSection.style.display = 'none';
+                }
+            }
+        }
+
+        // Global auth functions
+        window.showLoginModal = function() {
+            const email = prompt('Email:');
+            if (!email) return;
+            
+            const password = prompt('Password:');
+            if (!password) return;
+            
+            signInWithEmailAndPassword(auth, email, password)
+                .then(async (userCredential) => {
+                    await createUserDocumentInProfile(userCredential.user);
+                    alert('Logged in successfully!');
+                })
+                .catch(error => {
+                    alert('Login error: ' + error.message);
+                });
+        };
+
+        window.showRegisterModal = function() {
+            const email = prompt('Email:');
+            if (!email) return;
+            
+            const password = prompt('Password (at least 6 characters):');
+            if (!password) return;
+            
+            if (password.length < 6) {
+                alert('Password must be at least 6 characters');
+                return;
+            }
+            
+            createUserWithEmailAndPassword(auth, email, password)
+                .then(async (userCredential) => {
+                    await createUserDocumentInProfile(userCredential.user);
+                    alert('Registered successfully!');
+                })
+                .catch(error => {
+                    alert('Registration error: ' + error.message);
+                });
+        };
+
+        // Logout function
+        window.logout = function() {
+            signOut(auth)
+                .then(() => {
+
+                    // Redirect to home page after successful logout
+                    window.location.href = '../index.html';
+                })
+                .catch(error => {
+
+                    alert('Logout error: ' + error.message);
+                });
+        };
+
+
+        // Global function for linking spec to app
+        window.linkSpecToApp = function(specId) {
+
+
+            
+            if (!userApps || userApps.length === 0) {
+                alert('No apps available to link to. Please create an app first.');
+                return;
+            }
+            
+            showLinkModal('specs', specId, 'Specifications');
+        };
+
+        // Global function for linking research to app
+        window.linkResearchToApp = function(researchId) {
+
+
+            
+            if (!userApps || userApps.length === 0) {
+                alert('No apps available to link to. Please create an app first.');
+                return;
+            }
+            
+            showLinkModal('marketResearch', researchId, 'Market Research');
+        };
+
+        // Show modal for linking items to apps
+        async function showLinkModal(collection, itemId, itemType) {
+            if (!userApps || userApps.length === 0) {
+                alert('You need to create an app first before linking specifications or research.');
+                return;
+            }
+
+            // Get current item data to show current title
+            let currentItem = null;
+            try {
+                if (collection === 'specs') {
+                    currentItem = userSpecs.find(spec => spec.id === itemId);
+                } else if (collection === 'marketResearch') {
+                    currentItem = userMarketResearch.find(research => research.id === itemId);
+                }
+            } catch (error) {
+
+            }
+
+            const currentTitle = currentItem ? currentItem.title : '';
+
+            // Create modal HTML with title editing
+            const modalHTML = `
+                <div id="linkModal" class="modal-overlay">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3>Link ${itemType} to App</h3>
+                            <button class="modal-close" onclick="closeLinkModal()">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label>Select App:</label>
+                                <select id="appSelect" class="form-control">
+                                    ${userApps.map(app => `<option value="${app.id}">${app.name}</option>`).join('')}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Edit Title (optional):</label>
+                                <input type="text" id="itemTitle" class="form-control" value="${currentTitle}" placeholder="Enter new title or keep current">
+                                <small class="form-text text-muted">This will update the title in both your profile and the app dashboard</small>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-secondary" onclick="closeLinkModal()">Cancel</button>
+                            <button class="btn btn-primary" onclick="submitLink('${collection}', '${itemId}')">Link to App</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Add modal to body
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+        }
+
+        window.closeLinkModal = function() {
+            const modal = document.getElementById('linkModal');
+            if (modal) {
+                modal.remove();
+            }
+        };
+
+        window.submitLink = async function(collection, itemId) {
+            const appSelect = document.getElementById('appSelect');
+            const titleInput = document.getElementById('itemTitle');
+            const appId = appSelect.value;
+            const newTitle = titleInput.value.trim();
+            
+            if (!appId) {
+                alert('Please select an app');
+                return;
+            }
+
+            try {
+                // Update title if changed
+                if (newTitle && newTitle !== '') {
+                    const itemRef = doc(db, collection, itemId);
+                    await setDoc(itemRef, {
+                        title: newTitle,
+                        updatedAt: new Date().toISOString()
+                    }, { merge: true });
+                    
+                    // Update local data
+                    if (collection === 'specs') {
+                        const specIndex = userSpecs.findIndex(spec => spec.id === itemId);
+                        if (specIndex !== -1) {
+                            userSpecs[specIndex].title = newTitle;
+                        }
+                    } else if (collection === 'marketResearch') {
+                        const researchIndex = userMarketResearch.findIndex(research => research.id === itemId);
+                        if (researchIndex !== -1) {
+                            userMarketResearch[researchIndex].title = newTitle;
+                        }
+                    }
+                }
+                
+                // Update the app document to include the linked item
+                const appRef = doc(db, 'apps', appId);
+                const appDoc = await getDoc(appRef);
+                
+                if (appDoc.exists()) {
+                    const appData = appDoc.data();
+                    const linkedField = collection === 'specs' ? 'linkedSpecs' : 'linkedResearch';
+                    const linkedItems = appData[linkedField] || [];
+                    
+                    if (!linkedItems.includes(itemId)) {
+                        linkedItems.push(itemId);
+                        
+                        await setDoc(appRef, {
+                            ...appData,
+                            [linkedField]: linkedItems
+                        }, { merge: true });
+                        
+                        const itemType = collection === 'specs' ? 'Specification' : 'Market Research';
+                        const titleMessage = newTitle ? ` with updated title "${newTitle}"` : '';
+                        showSuccess(`${itemType}${titleMessage} linked to app successfully!`);
+                        
+                        // Refresh the UI
+                        if (collection === 'specs') {
+                            renderSpecs();
+                        } else {
+                            renderMarketResearch();
+                        }
+                        
+                        // Update local userApps data and button appearance
+                        if (userApps) {
+                            const appIndex = userApps.findIndex(app => app.id === appId);
+                            if (appIndex !== -1) {
+                                const linkedField = collection === 'specs' ? 'linkedSpecs' : 'linkedResearch';
+                                if (!userApps[appIndex][linkedField]) {
+                                    userApps[appIndex][linkedField] = [];
+                                }
+                                if (!userApps[appIndex][linkedField].includes(itemId)) {
+                                    userApps[appIndex][linkedField].push(itemId);
+                                }
+                            }
+                        }
+                        setTimeout(updateLinkButtonAppearance, 100);
+                        
+                        closeLinkModal();
+                    } else {
+                        alert('This item is already linked to the selected app');
+                    }
+                }
+            } catch (error) {
+
+                showError('Failed to link item to app');
+            }
+        };
+
+        // Profile Tab Management Function
+        window.switchProfileTab = function(tabName) {
+
+            
+            // Update tab buttons
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+
+            // Update tab panes
+            document.querySelectorAll('.tab-pane').forEach(pane => {
+                pane.classList.remove('active');
+            });
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+            
+
+        };
+
+        // Event listeners for link buttons (using event delegation)
+        // Wait for DOM to be ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', setupLinkEventListeners);
+        } else {
+            setupLinkEventListeners();
+        }
+
+        function setupLinkEventListeners() {
+            if (eventListenersSetup) return;
+            
+
+            document.addEventListener('click', function(event) {
+                // Handle spec link buttons
+                const specButton = event.target.closest('.link-spec-btn');
+                if (specButton) {
+                    const specId = specButton.getAttribute('data-spec-id');
+                    if (specId) {
+
+                        window.linkSpecToApp(specId);
+                    }
+                    return;
+                }
+                
+                // Handle research link buttons
+                const researchButton = event.target.closest('.link-research-btn');
+                if (researchButton) {
+                    const researchId = researchButton.getAttribute('data-research-id');
+                    if (researchId) {
+
+                        window.linkResearchToApp(researchId);
+                    }
+                    return;
+                }
+            });
+            
+            eventListenersSetup = true;
+        }
+
+        // Function to check if item is linked to any app
+        function isItemLinkedToApp(itemId, type) {
+            if (!userApps || userApps.length === 0) {
+
+                return false;
+            }
+            
+            const isLinked = userApps.some(app => {
+                const linkedItems = type === 'spec' ? app.linkedSpecs : app.linkedResearch;
+                const hasItem = linkedItems && linkedItems.includes(itemId);
+
+                return hasItem;
+            });
+            
+
+            return isLinked;
+        }
+
+        // Debounced function to update link button appearance
+        function updateLinkButtonAppearance() {
+            clearTimeout(updateTimeout);
+            updateTimeout = setTimeout(() => {
+
+
+                
+                // Update spec link buttons
+                const specButtons = document.querySelectorAll('.link-spec-btn');
+
+                
+                specButtons.forEach(button => {
+                    const specId = button.getAttribute('data-spec-id');
+                    const isLinked = isItemLinkedToApp(specId, 'spec');
+
+                    
+                    if (isLinked) {
+                        button.classList.add('linked');
+                        button.title = 'Already linked to app';
+
+                    } else {
+                        button.classList.remove('linked');
+                        button.title = 'Link to App';
+
+                    }
+                });
+
+                // Update research link buttons
+                const researchButtons = document.querySelectorAll('.link-research-btn');
+
+                
+                researchButtons.forEach(button => {
+                    const researchId = button.getAttribute('data-research-id');
+                    const isLinked = isItemLinkedToApp(researchId, 'research');
+
+                    
+                    if (isLinked) {
+                        button.classList.add('linked');
+                        button.title = 'Already linked to app';
+
+                    } else {
+                        button.classList.remove('linked');
+                        button.title = 'Link to App';
+
+                    }
+                });
+            }, 100);
+        }
+
+        // Personal Info Panel Functions
+        window.openPersonalInfoPanel = function() {
+            const panel = document.getElementById('personalInfoPanel');
+            if (panel) {
+                panel.classList.add('active');
+                loadPersonalInfo();
+            }
+        };
+
+        window.closePersonalInfoPanel = function() {
+            const panel = document.getElementById('personalInfoPanel');
+            if (panel) {
+                panel.classList.remove('active');
+            }
+        };
+
+        async function loadPersonalInfo() {
+            if (!currentUser) return;
+
+            try {
+                // Load user data
+                const userRef = doc(db, 'users', currentUser.uid);
+                const userDoc = await getDoc(userRef);
+                
+                // Update display name
+                const displayName = currentUser.displayName || currentUser.email.split('@')[0];
+                document.getElementById('info-display-name').textContent = displayName;
+
+                // Update email
+                document.getElementById('info-email').textContent = currentUser.email;
+
+                // Update account created
+                const createdAt = currentUser.metadata?.creationTime || new Date();
+                document.getElementById('info-created').textContent = new Date(createdAt).toLocaleDateString('en-US', { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                });
+
+                currentUserProfileDoc = userDoc.exists() ? userDoc.data() : {};
+
+                document.getElementById('renewal-row').style.display = 'none';
+                document.getElementById('cost-row').style.display = 'none';
+                document.getElementById('cancelSubBtn').style.display = 'none';
+
+                await loadEntitlements(true);
+                updateEntitlementUI();
+
+            } catch (error) {
+
+            }
+        }
+
+
+
+        window.editDisplayName = function() {
+            const modal = document.getElementById('editNameModal');
+            const input = document.getElementById('editDisplayNameInput');
+            const displayName = document.getElementById('info-display-name').textContent;
+            
+            input.value = displayName;
+            modal.style.display = 'flex';
+            setTimeout(() => input.focus(), 100);
+        };
+
+        window.closeEditNameModal = function() {
+            document.getElementById('editNameModal').style.display = 'none';
+        };
+
+        window.saveDisplayName = async function() {
+            const newName = document.getElementById('editDisplayNameInput').value.trim();
+            if (!newName) {
+                alert('Please enter a display name');
+                return;
+            }
+
+            try {
+                // Update in Firestore
+                const userRef = doc(db, 'users', currentUser.uid);
+                await setDoc(userRef, {
+                    displayName: newName
+                }, { merge: true });
+
+                // Update in Firebase Auth
+                const auth = getAuth();
+                await updateProfile(auth.currentUser, { displayName: newName });
+
+                // Update UI
+                document.getElementById('info-display-name').textContent = newName;
+                document.getElementById('user-name').textContent = newName;
+                closeEditNameModal();
+                showSuccess('Display name updated successfully!');
+
+            } catch (error) {
+
+                alert('Failed to update display name');
+            }
+        };
+
+
+

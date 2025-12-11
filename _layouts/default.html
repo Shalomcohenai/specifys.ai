@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 {% include head.html %}
-<body>
+<body{% if page.page_class %} class="{{ page.page_class }}"{% endif %}>
     <!-- Header -->
     {% include header.html %}
     
@@ -31,6 +31,17 @@
     {% if layout.extra_js %}
       {% for js in layout.extra_js %}
         <script src="{{ js | relative_url }}"></script>
+      {% endfor %}
+    {% endif %}
+    <!-- Custom JavaScript Modules -->
+    {% if page.custom_js_modules %}
+      {% for js in page.custom_js_modules %}
+        <script type="module" src="{{ js | relative_url }}"></script>
+      {% endfor %}
+    {% endif %}
+    {% if layout.custom_js_modules %}
+      {% for js in layout.custom_js_modules %}
+        <script type="module" src="{{ js | relative_url }}"></script>
       {% endfor %}
     {% endif %}
 </body>
