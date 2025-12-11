@@ -20,6 +20,7 @@
     <link rel="stylesheet" href="/assets/css/tailwind-base-compiled.css">
     <!-- Components -->
     <link rel="stylesheet" href="/assets/css/components/buttons.css">
+    <link rel="stylesheet" href="/assets/css/components/mermaid.css">
     <!-- Display Utilities -->
     <link rel="stylesheet" href="/assets/css/utilities/display.css">
     <!-- Text Utilities -->
@@ -73,6 +74,450 @@
       gtag('config', 'G-RWBT69JCM7');
     </script>
 </head>
+
+<body class="demo-spec-page">
+    <!-- Header -->
+    <header class="thematic-header" role="banner">
+        <div class="header-center">
+            <div class="logo">
+                <a href="/" aria-label="Specifys.ai homepage">
+                    <span class="logo-text">Specifys<span class="logo-dot">.</span>AI</span>
+                </a>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="credits-display" id="credits-display" style="display: none;">
+                <div class="credits-container">
+                    <span id="credits-text">Credits: 0</span>
+                </div>
+            </div>
+            <div class="auth-buttons" id="auth-buttons">
+                <!-- Will be populated by auth system -->
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main id="main-content" class="main-content">
+        <div class="demo-container">
+            <div class="demo-header">
+                <h1>Live Demo – Answer Four Quick Questions, Get a Complete App Specification</h1>
+                <p>Explore the exact specification Specifys.ai delivers after just four light questions—switch tabs to view every section of the finished document.</p>
+            </div>
+            
+            <div class="spec-tabs" id="specTabs">
+                <button class="spec-tab active" data-tab="overview">Overview</button>
+                <button class="spec-tab" data-tab="technical">Technical</button>
+                <button class="spec-tab" data-tab="market">Market Research</button>
+                <button class="spec-tab" data-tab="design">Design</button>
+                <button class="spec-tab" data-tab="diagrams">Diagrams</button>
+                <button class="spec-tab" data-tab="prompts">Prompts</button>
+                <button class="spec-tab" data-tab="chat">Chat with AI</button>
+                <button class="spec-tab" data-tab="export">Export</button>
+            </div>
+            
+            <div id="overview" class="spec-content active"></div>
+            <div id="technical" class="spec-content"></div>
+            <div id="market" class="spec-content"></div>
+            <div id="design" class="spec-content"></div>
+            <div id="diagrams" class="spec-content"></div>
+            <div id="prompts" class="spec-content"></div>
+            <div id="chat" class="spec-content"></div>
+            <div id="export" class="spec-content"></div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="/pages/how.html" aria-label="Learn how specifys.ai works">How It Works</a>
+                <a href="/pages/about.html" aria-label="Learn more about specifys.ai">About Us</a>
+                <a href="/blog/" aria-label="Visit our blog">Blog</a>
+                <a href="/pages/articles.html" aria-label="Browse our articles">Articles</a>
+                <a href="/academy.html" aria-label="Visit Specifys Academy">Academy</a>
+                <a href="/tools/map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
+                <a href="/pages/ToolPicker.html" aria-label="Use our Tool Finder">Tool Finder</a>
+            </div>
+            <span class="footer-divider">|</span>
+            <div class="footer-social">
+                <a href="https://www.linkedin.com/company/specifys-ai/" target="_blank" aria-label="Follow us on LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                <a href="https://www.facebook.com/profile.php?id=61576402600129&locale=he_IL" target="_blank" aria-label="Follow us on Facebook"><i class="fab fa-facebook-f"></i></a>
+                <a href="mailto:specifysai@gmail.com" aria-label="Send us an email"><i class="fas fa-envelope"></i></a>
+                <a href="https://www.producthunt.com/products/specifys-ai" target="_blank" aria-label="Check us out on Product Hunt"><i class="fab fa-product-hunt"></i></a>
+            </div>
+        </div>
+        <div class="footer-copyright">
+            © 2025 specifys.ai. All rights reserved.
+        </div>
+    </footer>
+
+    <!-- Scroll to top button -->
+    <button class="icon-btn scroll-to-top" id="scrollToTop" aria-label="Scroll">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <script>
+        // Unified DOMContentLoaded handler to prevent duplicate loading
+        document.addEventListener('DOMContentLoaded', function() {
+
+            
+            // Scroll to top button handler
+            const scrollBtn = document.getElementById('scrollToTop');
+            if (scrollBtn) {
+                scrollBtn.addEventListener("click", () => {
+                    if (window.scrollY > 300) {
+                        window.scrollTo({ top: 0, behavior: "smooth" });
+                    } else {
+                        window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+                    }
+                });
+                
+                window.addEventListener("scroll", () => {
+                    if (window.scrollY > 300) {
+                        scrollBtn.classList.add("scrolled-down");
+                        scrollBtn.setAttribute("aria-label", "Scroll to top");
+                    } else {
+                        scrollBtn.classList.remove("scrolled-down");
+                        scrollBtn.setAttribute("aria-label", "Scroll to bottom");
+                    }
+                });
+            }
+            
+            // Check for required elements
+
+
+
+
+
+
+
+            
+            // Load spec content will be called after loadSpec function is defined
+            
+            // Initialize auth buttons with default state
+            const authButtons = document.getElementById('auth-buttons');
+            if (authButtons && !authButtons.innerHTML.trim()) {
+                authButtons.innerHTML = `
+                    <button class="auth-btn" onclick="window.location.href='/pages/auth.html'">Log in/Sign up</button>
+                `;
+            }
+            
+            // Initialize tab handlers
+
+            const tabs = document.querySelectorAll('.spec-tab');
+            const contents = document.querySelectorAll('.spec-content');
+
+            
+            // Log all tabs
+            tabs.forEach((tab, idx) => {
+                const tabName = tab.getAttribute('data-tab');
+
+            });
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const target = this.getAttribute('data-tab');
+
+                    
+                    // toggle active tab
+                    tabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+
+                    
+                    // toggle content
+                    contents.forEach(c => c.classList.remove('active'));
+                    const targetEl = document.getElementById(target);
+
+                    
+                    if (targetEl) {
+                        targetEl.classList.add('active');
+
+                        
+                        // Log content visibility
+                        const isVisible = window.getComputedStyle(targetEl).display !== 'none';
+
+                    } else {
+
+                    }
+                    
+                    if (target === 'diagrams') {
+
+                        // Initialize diagrams when tab is clicked
+                        setTimeout(() => {
+
+                            try {
+                                if (!targetEl) {
+
+                                    return;
+                                }
+                                
+                                // Remove data-processed attribute if it exists (from previous attempts)
+                                const allMermaidElements = targetEl.querySelectorAll('.mermaid');
+
+                                
+                                // Filter out elements that already have SVG (already rendered)
+                                const mermaidElements = Array.from(allMermaidElements).filter(el => {
+                                    const hasSVG = el.querySelector('svg');
+                                    const hasDataProcessed = el.hasAttribute('data-processed');
+
+                                    return !hasSVG;
+                                });
+                                
+
+                                
+                                if (mermaidElements.length > 0) {
+
+                                    
+                                    // Remove data-processed attributes to allow re-init
+                                    mermaidElements.forEach(el => {
+                                        el.removeAttribute('data-processed');
+                                    });
+                                    
+                                    // Initialize Mermaid once with proper config
+                                    mermaid.initialize({ 
+                                        startOnLoad: false, 
+                                        theme: 'default',
+                                        securityLevel: 'loose',
+                                        themeVariables: { primaryColor: '#6366F1' },
+                                        flowchart: {
+                                            useMaxWidth: true,
+                                            htmlLabels: true
+                                        }
+                                    });
+                                    
+                                    // Process each diagram individually with better error handling
+                                    // Initialize diagrams one by one with delay to prevent conflicts
+                                    mermaidElements.forEach((element, idx) => {
+                                        setTimeout(() => {
+
+                                            try {
+                                                // Get original mermaid code
+                                                const originalCode = element.textContent.trim();
+                                                if (!originalCode) {
+
+                                                    return;
+                                                }
+                                                
+                                                // Double check it hasn't been rendered already
+                                                if (element.querySelector('svg')) {
+
+                                                    return;
+                                                }
+                                                
+                                                mermaid.run({
+                                                    nodes: [element],
+                                                    suppressErrors: true
+                                                }).catch(err => {
+
+                                                    element.innerHTML = '<div style="color: red; padding: 20px; text-align: center;">Error rendering diagram. Please refresh the page.</div>';
+                                                });
+                                                
+                                            } catch (err) {
+
+                                                element.innerHTML = '<div style="color: red; padding: 20px; text-align: center;">Error rendering diagram.</div>';
+                                            }
+                                        }, idx * 200);
+                                    });
+                                    
+
+                                } else {
+
+                                }
+                                
+                                // Check if there are any elements without SVGs after initialization
+                                setTimeout(() => {
+                                    const remaining = Array.from(targetEl.querySelectorAll('.mermaid')).filter(el => !el.querySelector('svg'));
+                                    if (remaining.length > 0) {
+
+                                    }
+                                }, 2000);
+                                
+                            } catch (e) {
+
+                            }
+                        }, 200);
+                    }
+                }, { capture: true });
+            });
+        });
+    </script>
+
+    <!-- Firebase SDK & Auth - Must load before credits-display.js -->
+    {% include firebase-init.html %}
+    <script>
+        // Make auth and db available globally for demo-spec.js
+        let auth, db;
+        if (typeof firebase !== 'undefined' && firebase.auth) {
+            auth = firebase.auth();
+            db = firebase.firestore();
+        } else {
+            console.error('Firebase SDK failed to load');
+        }
+
+        // Initialize Mermaid
+        mermaid.initialize({ 
+            startOnLoad: false,
+            theme: 'default'
+        });
+
+        // Demo specification data - comprehensive hardcoded spec (3x detailed)
+        const demoSpecData = {
+            title: "Taskify Pro - Smart Task Management Platform",
+            overview: {
+                applicationSummary: {
+                    paragraphs: [
+                        "Taskify Pro is an intelligent, AI-powered task management platform that revolutionizes productivity for modern professionals and teams. Unlike traditional to-do applications that simply list tasks, Taskify Pro serves as a comprehensive productivity intelligence system that learns, adapts, and optimizes workflows in real-time. The platform represents the culmination of over 10,000 hours of user research, design thinking, and technological innovation, addressing the fundamental challenges that professionals face in today's fast-paced, multi-project work environment.",
+                        "The platform specifically targets busy professionals, team managers, entrepreneurs, executives, and creative individuals who regularly juggle 10-50 concurrent tasks across multiple projects. These users experience common pain points: constant context switching that reduces cognitive efficiency, unclear priority management leading to missed critical deadlines, lack of visibility into actual time expenditure, coordination challenges when managing distributed teams, and the overwhelming sense of always playing catch-up despite working long hours.",
+                        "Built with enterprise-grade technology and security standards, Taskify Pro delivers enterprise-level capabilities in an accessible, consumer-friendly package. The platform offers seamless cross-platform synchronization across Web, iOS, Android, Windows, macOS, and Linux environments with offline-first architecture ensuring uninterrupted access. Real-time collaboration features include live cursors, activity streams, instant notifications, conflict resolution algorithms, and intelligent permission systems that scale from individual users to enterprises with thousands of team members.",
+                        "What truly distinguishes Taskify Pro is its proprietary AI-powered decision engine that transcends simple task tracking. The system understands not just what you're doing, but why it matters, when it's optimal to execute, and how it fits into your broader productivity patterns. The AI analyzes historical work patterns, energy levels throughout the day, meeting schedules, project dependencies, and even factors like commute times and work-life balance preferences to suggest the most impactful work at the optimal times.",
+                        "The platform integrates deeply with over 50+ productivity tools and services including Slack, GitHub, Google Calendar, Microsoft Teams, Zoom, Notion, Jira, Trello, Asana, Gmail, Outlook, Salesforce, and many others. These aren't superficial integrations - they provide bi-directional sync, context-aware task creation from emails and messages, automatic calendar conflict resolution, and intelligent data aggregation that creates a unified productivity ecosystem without forcing users to abandon their existing workflows.",
+                        "Taskify Pro goes beyond task management to provide comprehensive productivity analytics and coaching. The platform tracks time expenditure patterns, identifies bottlenecks in workflows, measures productivity metrics, provides weekly insights reports, suggests workflow optimizations, and even warns users about signs of burnout or inefficient task distribution. This data-driven approach helps users understand their work habits deeply and continuously improve their productivity systems.",
+                        "Security and privacy are foundational to the platform. Taskify Pro implements end-to-end encryption for all task data, offers on-premise deployment options for enterprises with strict compliance requirements, provides granular permission systems, audit logs for all actions, data residency controls, and exceeds SOC 2, GDPR, and HIPAA compliance standards. Individual users can trust that their personal productivity data remains private, while enterprises can confidently deploy the platform across their entire organization."
+                    ]
+                },
+                coreFeatures: [
+                    "AI-powered task prioritization that analyzes deadlines, importance scores, dependencies, and your personal productivity patterns to suggest the optimal order of tasks",
+                    "Smart calendar integration with automatic deadline reminders that learn your meeting cadence and suggest blocks of focused work time",
+                    "Collaborative boards for team projects with real-time updates, live cursors, activity streams, and smart conflict resolution for multi-user editing",
+                    "Intelligent task suggestions based on past work patterns, time of day energy levels, and predictive analytics that understand when you do your best work",
+                    "Customizable workflows and automation rules that eliminate repetitive task management with triggers, conditions, and multi-step actions",
+                    "Advanced time tracking with automatic categorization and productivity analytics that show you where your time actually goes",
+                    "Cross-platform synchronization (Web, iOS, Android, Desktop) with offline-first architecture ensuring you're never without access to your tasks",
+                    "Natural language processing for task creation - just type 'call John about the project tomorrow at 3pm' and it creates the task with all metadata",
+                    "Smart template library with hundreds of project templates for common workflows like software development, marketing campaigns, event planning, and more",
+                    "Integration with 50+ productivity tools including Slack, GitHub, Google Calendar, Microsoft Teams, Zoom, Notion, Jira, Trello, Asana, and more with bi-directional sync",
+                    "AI-powered email integration that automatically creates tasks from emails based on content analysis and sender importance",
+                    "Personal productivity coach that provides weekly insights, identifies time drains, and suggests improvements to your workflow",
+                    "Energy-based scheduling that matches high-energy tasks to your peak performance hours based on historical data",
+                    "Context-aware task grouping that automatically organizes related tasks and suggests batch processing opportunities",
+                    "Advanced reporting and analytics dashboard showing completion rates, time estimates vs actual, team velocity, and productivity trends over time"
+                ],
+                uniqueValueProposition: "Taskify Pro is the only task management platform that uses advanced AI to genuinely understand your work style, energy patterns, and cognitive load. It doesn't just organize your tasks - it acts as a productivity partner that proactively suggests the most impactful work at optimal times, helps you avoid burnout through intelligent task distribution, and learns from your successes to continuously improve your workflow. While competitors focus on features, Taskify Pro focuses on outcomes: helping you accomplish more meaningful work in less time while maintaining mental clarity and work-life balance.",
+                targetAudience: {
+                    primary: "Busy professionals (age 28-50), team managers, executives, and high-achieving individuals in tech, consulting, finance, creative agencies, and service industries who regularly manage 10+ concurrent projects and need to stay organized without adding management overhead",
+                    characteristics: "Tech-savvy early adopters who value efficiency and automation, overwhelmed by task overload and context switching, strategic thinkers who appreciate data-driven insights, professionals who seek work-life balance",
+                    painPoints: [
+                        "Task overload leading to constant stress and missed deadlines",
+                        "Inability to determine what actually matters vs. what feels urgent",
+                        "Team coordination challenges causing communication gaps and duplicate work",
+                        "Context switching between multiple projects leading to reduced productivity",
+                        "No visibility into where time is actually spent",
+                        "Difficulty maintaining work-life balance with boundaries"
+                    ]
+                },
+                problemStatement: "Modern professionals and teams are drowning in tasks. Traditional to-do lists fail to help users identify what truly matters, leading to missed deadlines, constant stress, and decreased productivity. There's no intelligent system that adapts to individual work patterns.",
+                businessModel: "Taskify Pro operates on a freemium SaaS (Software-as-a-Service) model with three primary revenue streams: subscription plans for individuals and teams, enterprise licenses with custom deployment options, and strategic partnerships with productivity tool ecosystems. The free tier provides basic task management for individual users while paid tiers unlock advanced AI features, unlimited projects, team collaboration, and enterprise-grade security. Enterprise customers receive white-label options, SSO integration, dedicated support, SLA guarantees, and on-premise deployment for organizations with strict compliance requirements.",
+                competitiveAdvantage: "Taskify Pro's competitive advantage lies in its proprietary AI decision engine that learns and adapts to individual work patterns. Unlike competitors who provide static task lists or simple rule-based automation, Taskify Pro uses advanced machine learning to understand context, predict bottlenecks, optimize task distribution, and continuously improve user productivity. The platform's energy-based scheduling, predictive analytics, and comprehensive integration ecosystem create a moat that cannot be easily replicated by feature-focused competitors.",
+                successMetrics: {
+                    userEngagement: "Daily active users spend average of 35 minutes in platform, complete 85% of high-priority tasks on time, reduce task overload by 40% within first month",
+                    productivityImprovement: "Users report 28% increase in meaningful work accomplished, 35% reduction in context switching, and 50% decrease in missed deadlines",
+                    businessMetrics: "Target 50,000 paying users in Year 1, $5M ARR by Year 2, 90% net revenue retention rate, enterprise segment representing 60% of revenue by Year 3"
+                }
+            },
+            technical: {
+                technologyStackHighlights: [
+                    {
+                        title: "Frontend Layer",
+                        icon: "fa-laptop",
+                        description: "Taskify Pro delivers a responsive productivity workspace that keeps live boards, AI insights, and analytics dashboards synchronized across every client.",
+                        points: [
+                            "Component-driven UI mirrors the same hierarchy users see in the Overview and Analytics sections, turning product specs into living interfaces.",
+                            "Offline-first caching guarantees that mobile professionals can triage tasks during flights and sync automatically once reconnected.",
+                            "Accessibility patterns keep power features—live collaboration cursors, AI prompts, weekly reports—usable for every persona highlighted in the spec."
+                        ]
+                    },
+                    {
+                        title: "Backend Services",
+                        icon: "fa-cogs",
+                        description: "Domain-driven services coordinate the AI decision engine, collaboration logic, and notification flows described throughout the specification.",
+                        points: [
+                            "Task, analytics, and coaching services each expose APIs that map directly to the core features and success metrics promised to users.",
+                            "Event queues keep AI prioritization and burnout alerts responsive even when collaboration surges during team sprints.",
+                            "Shared contracts across services ensure every touchpoint—from email ingestion to weekly summaries—uses consistent business language."
+                        ]
+                    },
+                    {
+                        title: "API Gateway & Routing",
+                        icon: "fa-sitemap",
+                        description: "The gateway provides a single entry point for web, mobile, and partner integrations, enforcing policies that uphold the product promises in this spec.",
+                        points: [
+                            "Context-aware routing prioritizes real-time channels so shared boards and presence indicators stay instantaneous.",
+                            "Version pinning allows gradual rollout of new AI behaviors without disrupting existing enterprise workflows.",
+                            "Centralized documentation matches the detailed API list below, giving customer teams one canonical contract."
+                        ]
+                    },
+                    {
+                        title: "Authentication & Authorization",
+                        icon: "fa-lock",
+                        description: "Identity controls reflect Taskify Pro's dual audience—individual creators and regulated enterprises—ensuring the right access for every scenario.",
+                        points: [
+                            "Flexible sign-in options support fast onboarding for busy professionals while honoring enterprise SSO requirements.",
+                            "Multi-factor enforcement protects sensitive actions highlighted in collaboration and AI coaching flows.",
+                            "Granular RBAC mirrors the spec's team structures—owners, admins, members, viewers—with auditable history for compliance."
+                        ]
+                    },
+                    {
+                        title: "Data Layer",
+                        icon: "fa-database",
+                        description: "Purpose-built stores capture the rich telemetry, timelines, and insights that power Taskify Pro's coaching narrative.",
+                        points: [
+                            "PostgreSQL anchors the mission-critical entities the spec references—tasks, projects, permissions, billing tiers.",
+                            "Document storage preserves evolving productivity signals that feed the personal coaching and energy modeling features.",
+                            "Search and time-series engines fuel the instant lookup, timeline analytics, and trend charts showcased in the overview."
+                        ]
+                    },
+                    {
+                        title: "DevOps & Infrastructure",
+                        icon: "fa-wrench",
+                        description: "Infrastructure automation guarantees that every environment—from staging AI experiments to production—matches the reliability promises in this spec.",
+                        points: [
+                            "Immutable builds keep AI models, coaching jobs, and notification services reproducible across regions.",
+                            "Infrastructure-as-code captures networking, secrets, and monitoring so enterprise customers can review and trust the stack.",
+                            "Autoscaling policies ensure collaboration features stay responsive during product launches and onboarding waves."
+                        ]
+                    },
+                    {
+                        title: "CI/CD Pipeline",
+                        icon: "fa-code-fork",
+                        description: "Continuous delivery lets the product team ship AI improvements and workflow tweaks at the cadence implied by the roadmap.",
+                        points: [
+                            "Automated quality gates protect critical promises like conflict-free collaboration and accurate insights.",
+                            "Preview environments render the full spec—dashboards, AI suggestions, pricing flows—so stakeholders can validate narratives quickly.",
+                            "Progressive delivery keeps availability high while experimenting with new coaching or analytics models."
+                        ]
+                    },
+                    {
+                        title: "Observability & Monitoring",
+                        icon: "fa-eye",
+                        description: "Observability couples technical telemetry with business KPIs to validate the success metrics outlined earlier in the spec.",
+                        points: [
+                            "Productivity KPIs—on-time completion, focus sessions, AI adoption—flow into dashboards alongside system health.",
+                            "Error tracking links regressions directly to releases, safeguarding the seamless collaboration experience users expect.",
+                            "Distributed traces tie together AI inference, notification delivery, and UI rendering to diagnose issues end-to-end."
+                        ]
+                    },
+                    {
+                        title: "Security Controls",
+                        icon: "fa-shield",
+                        description: "Layered security upholds the compliance guarantees and data-residency commitments promised to enterprise buyers.",
+                        points: [
+                            "Always-on encryption and secure session management protect the sensitive productivity data Taskify Pro aggregates.",
+                            "Managed secrets, key rotation, and tamper-proof logs underpin the audit trails cited in the business model.",
+                            "Continuous compliance checks keep SOC 2, GDPR, and HIPAA assertions current for large customer deals."
+                        ]
+                    },
+                    {
+                        title: "Scalability & Performance Engineering",
+                        icon: "fa-rocket",
+                        description: "Performance work guarantees that solo creators and global enterprises both experience the fast, calm workflows described in the overview.",
+                        points: [
+                            "Horizontal scaling absorbs collaboration spikes during team war rooms without delaying AI recommendations.",
+                            "Global caching keeps weekly insights, dashboards, and templates responsive for remote teams.",
+                            "Resilience drills validate that burn-down charts, reminders, and alerts remain available even during infrastructure incidents."
+                        ]
+                    }
+                ],
                 techStack: {
                     frontend: {
                         framework: "React 18 (Latest stable) - Component-based UI library with hooks, context API, and concurrent rendering features",
@@ -2236,49 +2681,7 @@ Please build this application following best practices, ensuring scalability, se
             `;
         }
 
-        // Auth UI functions
-        function updateAuthUI(user) {
-            const authButtons = document.getElementById('auth-buttons');
-            if (!authButtons) return;
-            
-            if (user) {
-                // User is logged in
-                const displayName = user.displayName || user.email.split('@')[0];
-                const firstLetter = displayName.charAt(0).toUpperCase();
-                
-                authButtons.innerHTML = `
-                    <a href="/pages/profile.html" class="user-info" style="text-decoration: none;">
-                        <div class="user-avatar">${firstLetter}</div>
-                        <span>${displayName}</span>
-                    </a>
-                `;
-            } else {
-                // User is not logged in
-                authButtons.innerHTML = `
-                    <button class="auth-btn" onclick="window.location.href='/pages/auth.html'">Log in/Sign up</button>
-                `;
-            }
-        }
-
-        // Global auth functions
-        window.showLoginModal = function() {
-            window.location.href = '/pages/auth.html';
-        };
-
-        window.logout = function() {
-            auth.signOut()
-                .then(() => {
-
-                })
-                .catch(error => {
-
-                });
-        };
-
-        // Listen to auth state changes
-        auth.onAuthStateChanged((user) => {
-            updateAuthUI(user);
-        });
+        // Auth UI is handled by firebase-auth.html include
 
         // Load spec content after page is ready
         if (document.readyState === 'loading') {
@@ -2289,8 +2692,8 @@ Please build this application following best practices, ensuring scalability, se
         }
     </script>
     
-    <!-- Credits Display Script -->
-    <script src="/assets/js/credits-display.js"></script>
+    <!-- Credits Display Script - Must load after Firebase -->
+    <script defer src="/assets/js/credits-display.js"></script>
 </body>
 </html>
 

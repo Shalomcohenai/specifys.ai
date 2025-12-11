@@ -4,6 +4,7 @@
    Utility classes for text properties
    Used to replace inline styles like style="text-align: center;"
 */
+
 /* Text alignment */
 .text-center {
   text-align: center;
@@ -74,5 +75,3 @@
   text-align: center;
   margin-top: 40px;
 }
-
-/*# sourceMappingURL=text.css.map */

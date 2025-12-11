@@ -1,0 +1,3324 @@
+/* ============================================
+   Admin Dashboard Page Styles - Specifys.ai
+   ============================================
+   Styles specific to the admin-dashboard.html page
+   Using CSS Variables and higher specificity instead of !important
+*/
+
+/* Admin CSS Variables */
+:root {
+  --admin-bg: #f7f9fc;
+  --admin-sidebar: #ffffff;
+  --admin-surface: #ffffff;
+  --admin-surface-alt: #f9fbff;
+  --admin-border: #e5e7eb;
+  --admin-border-light: #f0f2f8;
+  --admin-text: #1f2937;
+  --admin-text-muted: #6b7280;
+  --admin-accent: #ff6b35;
+  --admin-accent-strong: #e85a26;
+  --admin-critical: #dc3545;
+  --admin-success: #18b47d;
+  --admin-warning: #f39c3d;
+  --admin-muted-bg: rgba(31, 41, 55, 0.05);
+  --admin-hover-bg: rgba(255, 107, 53, 0.12);
+  --admin-card-radius: 18px;
+  --admin-spacing: clamp(16px, 1.6vw, 24px);
+  --admin-font: 'Inter', 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --admin-scrollbar: #c7ccd6;
+  --admin-scrollbar-track: #eef2f8;
+}
+
+/* Body styles for admin dashboard - using higher specificity */
+body:has(.admin-shell),
+body:has(#admin-shell) {
+  margin: 0;
+  padding: 0;
+  background: var(--admin-bg);
+  color: var(--admin-text);
+  font-family: var(--admin-font);
+  line-height: 1.45;
+  overflow-x: hidden;
+  direction: ltr;
+  text-align: left;
+}
+
+/* Admin Shell Layout - using higher specificity */
+.admin-shell,
+#admin-shell {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  min-height: 100vh;
+  background: var(--admin-bg);
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Override any utility classes that might interfere */
+.admin-shell.flex,
+.admin-shell.grid,
+#admin-shell.flex,
+#admin-shell.grid {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+}
+
+/* Ensure admin-shell is always grid, even with utility classes */
+div.admin-shell.flex,
+div.admin-shell.grid,
+div#admin-shell.flex,
+div#admin-shell.grid {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+}
+
+/* Admin Sidebar - using higher specificity */
+.admin-shell .admin-sidebar,
+.admin-shell aside.admin-sidebar,
+#admin-shell .admin-sidebar,
+#admin-shell aside.admin-sidebar {
+  background: var(--admin-sidebar);
+  border-right: 1px solid var(--admin-border);
+  display: flex;
+  flex-direction: column;
+  padding: var(--admin-spacing);
+  gap: var(--admin-spacing);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  box-shadow: 4px 0 18px rgba(15, 23, 42, 0.05);
+  overflow-y: auto;
+  overflow-x: hidden;
+  width: 280px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on sidebar */
+.admin-shell .admin-sidebar.flex,
+.admin-shell .admin-sidebar.grid,
+#admin-shell .admin-sidebar.flex,
+#admin-shell .admin-sidebar.grid {
+  display: flex;
+  flex-direction: column;
+}
+
+aside.admin-shell .admin-sidebar.flex,
+aside.admin-shell .admin-sidebar.grid,
+aside#admin-shell .admin-sidebar.flex,
+aside#admin-shell .admin-sidebar.grid,
+.admin-shell aside.admin-sidebar.flex,
+.admin-shell aside.admin-sidebar.grid,
+#admin-shell aside.admin-sidebar.flex,
+#admin-shell aside.admin-sidebar.grid {
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-shell .sidebar-brand,
+.admin-shell div.sidebar-brand,
+#admin-shell .sidebar-brand,
+#admin-shell div.sidebar-brand {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: var(--admin-text);
+  box-sizing: border-box;
+}
+
+/* Override utility classes on sidebar-brand */
+.admin-shell .sidebar-brand.flex,
+.admin-shell .sidebar-brand.grid,
+#admin-shell .sidebar-brand.flex,
+#admin-shell .sidebar-brand.grid {
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-shell .brand-name {
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.admin-shell .brand-name .accent {
+  color: var(--primary-color);
+}
+
+.admin-shell .brand-subtitle {
+  font-size: 0.92rem;
+  color: var(--admin-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.admin-shell .sidebar-nav,
+.admin-shell nav.sidebar-nav,
+#admin-shell .sidebar-nav,
+#admin-shell nav.sidebar-nav {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: 1fr;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on sidebar-nav */
+.admin-shell .sidebar-nav.flex,
+.admin-shell .sidebar-nav.grid,
+#admin-shell .sidebar-nav.flex,
+#admin-shell .sidebar-nav.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+.admin-shell .sidebar-nav .nav-link,
+.admin-shell .sidebar-nav button.nav-link,
+.admin-shell .sidebar-nav a.nav-link,
+#admin-shell .sidebar-nav .nav-link,
+#admin-shell .sidebar-nav button.nav-link,
+#admin-shell .sidebar-nav a.nav-link {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  color: var(--admin-text-muted);
+  font-size: 0.98rem;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  text-align: left;
+  text-decoration: none;
+  width: 100%;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on nav-link */
+.admin-shell .nav-link.flex,
+.admin-shell .nav-link.grid,
+#admin-shell .nav-link.flex,
+#admin-shell .nav-link.grid {
+  display: flex;
+  flex-direction: row;
+}
+
+.admin-shell .sidebar-nav .nav-link .icon {
+  width: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9ca3af;
+  flex-shrink: 0;
+}
+
+.admin-shell .sidebar-nav .nav-link > span:not(.icon) {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.admin-shell .sidebar-nav .nav-link:hover,
+.admin-shell .sidebar-nav .nav-link:focus-visible {
+  background: rgba(255, 107, 53, 0.12);
+  color: var(--admin-accent-strong);
+  border-color: rgba(255, 107, 53, 0.25);
+  outline: none;
+}
+
+.admin-shell .sidebar-nav .nav-link:hover .icon,
+.admin-shell .sidebar-nav .nav-link:focus-visible .icon {
+  color: var(--admin-accent-strong);
+}
+
+.admin-shell .sidebar-nav .nav-link.active {
+  background: rgba(255, 107, 53, 0.18);
+  color: var(--admin-accent-strong);
+  border-color: rgba(255, 107, 53, 0.35);
+}
+
+.admin-shell .sidebar-nav .nav-link.active .icon {
+  color: var(--admin-accent-strong);
+}
+
+.admin-shell .sidebar-footer,
+.admin-shell div.sidebar-footer,
+#admin-shell .sidebar-footer,
+#admin-shell div.sidebar-footer {
+  margin-top: auto;
+  padding-top: var(--admin-spacing);
+  border-top: 1px solid var(--admin-border);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: var(--admin-text-muted);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on sidebar-footer */
+.admin-shell .sidebar-footer.flex,
+.admin-shell .sidebar-footer.grid,
+#admin-shell .sidebar-footer.flex,
+#admin-shell .sidebar-footer.grid {
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-shell .sidebar-footer .home-link {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  margin-top: 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 107, 53, 0.3);
+  color: var(--primary-color);
+  background: rgba(255, 107, 53, 0.08);
+  text-decoration: none;
+  font-weight: 600;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  width: 100%;
+  white-space: nowrap;
+  justify-content: flex-start;
+}
+
+.admin-shell .sidebar-footer .home-link:hover,
+.admin-shell .sidebar-footer .home-link:focus-visible {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(255, 107, 53, 0.18);
+}
+
+.admin-shell .connection-indicator,
+.admin-shell div.connection-indicator,
+#admin-shell .connection-indicator,
+#admin-shell div.connection-indicator {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on connection-indicator */
+.admin-shell .connection-indicator.flex,
+.admin-shell .connection-indicator.grid,
+#admin-shell .connection-indicator.flex,
+#admin-shell .connection-indicator.grid {
+  display: flex;
+  flex-direction: row;
+}
+
+.admin-shell .connection-indicator .dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #d1d5db;
+  position: relative;
+}
+
+.admin-shell .connection-indicator .dot.status-online {
+  background: var(--admin-success);
+  box-shadow: 0 0 8px rgba(65, 211, 158, 0.6);
+}
+
+.admin-shell .connection-indicator .dot.status-offline {
+  background: var(--admin-critical);
+  box-shadow: 0 0 8px rgba(255, 107, 107, 0.5);
+}
+
+.admin-shell .connection-indicator .dot.status-pending {
+  background: var(--admin-warning);
+  box-shadow: 0 0 8px rgba(255, 179, 71, 0.4);
+}
+
+.admin-shell .connection-indicator .label {
+  font-size: 0.92rem;
+  color: var(--admin-text-muted);
+  white-space: nowrap;
+}
+
+.admin-shell .sync-label {
+  font-size: 0.85rem;
+  color: var(--admin-text-muted);
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+
+/* Admin Main Content */
+.admin-shell .admin-main,
+.admin-shell div.admin-main,
+#admin-shell .admin-main,
+#admin-shell div.admin-main {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: #f7f9fc;
+  flex: 1;
+  overflow-x: hidden;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on main */
+.admin-shell .admin-main.flex,
+.admin-shell .admin-main.grid,
+#admin-shell .admin-main.flex,
+#admin-shell .admin-main.grid {
+  display: flex;
+  flex-direction: column;
+}
+
+div.admin-shell .admin-main.flex,
+div.admin-shell .admin-main.grid,
+div#admin-shell .admin-main.flex,
+div#admin-shell .admin-main.grid,
+.admin-shell div.admin-main.flex,
+.admin-shell div.admin-main.grid,
+#admin-shell div.admin-main.flex,
+#admin-shell div.admin-main.grid {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Admin Topbar - using higher specificity */
+.admin-shell .admin-topbar,
+.admin-shell header.admin-topbar,
+#admin-shell .admin-topbar,
+#admin-shell header.admin-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: rgba(255, 255, 255, 0.97);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--admin-border);
+  padding: var(--admin-spacing);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--admin-spacing);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+  flex-wrap: nowrap;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on topbar */
+.admin-shell .admin-topbar.flex,
+.admin-shell .admin-topbar.grid,
+#admin-shell .admin-topbar.flex,
+#admin-shell .admin-topbar.grid {
+  display: flex;
+  flex-direction: row;
+}
+
+header.admin-shell .admin-topbar.flex,
+header.admin-shell .admin-topbar.grid,
+header#admin-shell .admin-topbar.flex,
+header#admin-shell .admin-topbar.grid,
+.admin-shell header.admin-topbar.flex,
+.admin-shell header.admin-topbar.grid,
+#admin-shell header.admin-topbar.flex,
+#admin-shell header.admin-topbar.grid {
+  display: flex;
+  flex-direction: row;
+}
+
+.admin-shell .admin-topbar .topbar-left,
+.admin-shell .admin-topbar div.topbar-left,
+#admin-shell .admin-topbar .topbar-left,
+#admin-shell .admin-topbar div.topbar-left {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on topbar-left */
+.admin-shell .topbar-left.flex,
+.admin-shell .topbar-left.grid,
+#admin-shell .topbar-left.flex,
+#admin-shell .topbar-left.grid {
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-shell .admin-topbar .page-title {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.admin-shell .admin-topbar .page-title h1 {
+  font-size: clamp(1.6rem, 2vw, 2rem);
+  margin: 0;
+  padding: 0;
+  font-weight: 700;
+  color: var(--admin-text);
+}
+
+.admin-shell .admin-topbar .page-title p {
+  color: var(--admin-text-muted);
+  font-size: 0.98rem;
+  margin: 0;
+  padding: 0;
+}
+
+.admin-shell .admin-topbar .topbar-status {
+  color: var(--admin-text-muted);
+  font-size: 0.95rem;
+}
+
+.admin-shell .admin-topbar .topbar-actions,
+.admin-shell .admin-topbar div.topbar-actions,
+#admin-shell .admin-topbar .topbar-actions,
+#admin-shell .admin-topbar div.topbar-actions {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+  flex-wrap: nowrap;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on topbar-actions */
+.admin-shell .topbar-actions.flex,
+.admin-shell .topbar-actions.grid,
+#admin-shell .topbar-actions.flex,
+#admin-shell .topbar-actions.grid {
+  display: flex;
+  flex-direction: row;
+}
+
+div.admin-shell .topbar-actions.flex,
+div.admin-shell .topbar-actions.grid,
+div#admin-shell .topbar-actions.flex,
+div#admin-shell .topbar-actions.grid,
+.admin-shell div.topbar-actions.flex,
+.admin-shell div.topbar-actions.grid,
+#admin-shell div.topbar-actions.flex,
+#admin-shell div.topbar-actions.grid {
+  display: flex;
+  flex-direction: row;
+}
+
+.admin-shell .admin-topbar .topbar-actions .action-btn,
+.admin-shell .admin-topbar .topbar-actions a.action-btn,
+.admin-shell .admin-topbar .topbar-actions button.action-btn,
+#admin-shell .admin-topbar .topbar-actions .action-btn,
+#admin-shell .admin-topbar .topbar-actions a.action-btn,
+#admin-shell .admin-topbar .topbar-actions button.action-btn {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--admin-border);
+  background: var(--admin-surface);
+  color: var(--admin-text);
+  font-size: 0.95rem;
+  transition: transform 0.15s ease, border-color 0.2s ease, background 0.2s ease;
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+/* Override utility classes on action-btn */
+.admin-shell .action-btn.flex,
+.admin-shell .action-btn.grid,
+#admin-shell .action-btn.flex,
+#admin-shell .action-btn.grid {
+  display: inline-flex;
+  flex-direction: row;
+}
+
+a.admin-shell .action-btn.flex,
+a.admin-shell .action-btn.grid,
+button.admin-shell .action-btn.flex,
+button.admin-shell .action-btn.grid,
+.admin-shell a.action-btn.flex,
+.admin-shell a.action-btn.grid,
+.admin-shell button.action-btn.flex,
+.admin-shell button.action-btn.grid,
+#admin-shell a.action-btn.flex,
+#admin-shell a.action-btn.grid,
+#admin-shell button.action-btn.flex,
+#admin-shell button.action-btn.grid {
+  display: inline-flex;
+  flex-direction: row;
+}
+
+.admin-shell .admin-topbar .topbar-actions .action-btn.home-btn {
+  border-color: rgba(255, 107, 53, 0.3);
+  background: rgba(255, 107, 53, 0.1);
+  color: var(--admin-accent-strong);
+}
+
+.admin-shell .admin-topbar .topbar-actions .action-btn.home-btn:hover {
+  border-color: var(--admin-accent);
+  background: rgba(255, 107, 53, 0.15);
+  color: var(--admin-accent-strong);
+}
+
+.admin-shell .admin-topbar .topbar-actions .action-btn .hint {
+  font-size: 0.8rem;
+  color: var(--admin-text-muted);
+}
+
+.admin-shell .admin-topbar .topbar-actions .action-btn:hover,
+.admin-shell .admin-topbar .topbar-actions .action-btn:focus-visible {
+  border-color: rgba(255, 107, 53, 0.5);
+  transform: translateY(-1px);
+  background: rgba(255, 107, 53, 0.08);
+  outline: none;
+}
+
+.admin-shell .admin-topbar .topbar-actions .action-btn.critical {
+  border-color: rgba(255, 107, 107, 0.35);
+  background: rgba(255, 107, 107, 0.12);
+}
+
+/* Admin Content */
+.admin-shell .admin-content,
+.admin-shell main.admin-content,
+#admin-shell .admin-content,
+#admin-shell main.admin-content {
+  flex: 1;
+  padding: calc(var(--admin-spacing) * 1.2);
+  padding-bottom: calc(var(--admin-spacing) * 2.5);
+  display: grid;
+  gap: clamp(18px, 2vw, 28px);
+  grid-auto-rows: minmax(min-content, auto);
+  box-sizing: border-box;
+}
+
+/* Override utility classes on admin-content */
+.admin-shell .admin-content.flex,
+.admin-shell .admin-content.grid,
+#admin-shell .admin-content.flex,
+#admin-shell .admin-content.grid {
+  display: grid;
+}
+
+/* Dashboard Section */
+.admin-shell .dashboard-section,
+.admin-shell section.dashboard-section,
+#admin-shell .dashboard-section,
+#admin-shell section.dashboard-section {
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-card-radius);
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.05);
+  padding: clamp(4px, 0.6vw, 8px) 0;
+  display: grid;
+  gap: clamp(16px, 1.8vw, 24px);
+  box-sizing: border-box;
+}
+
+/* Override utility classes on dashboard-section */
+.admin-shell .dashboard-section.flex,
+.admin-shell .dashboard-section.grid,
+#admin-shell .dashboard-section.flex,
+#admin-shell .dashboard-section.grid {
+  display: grid;
+}
+
+.admin-shell .dashboard-section.active {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.admin-shell .dashboard-section:not(.active) {
+  display: none;
+}
+
+/* Ensure hidden utility class works correctly within admin-shell */
+.admin-shell .hidden,
+#admin-shell .hidden {
+  display: none;
+}
+
+/* But override for elements that should be visible when active */
+.admin-shell .dashboard-section.active.hidden,
+#admin-shell .dashboard-section.active.hidden {
+  display: grid;
+}
+
+/* Section Header */
+.admin-shell .section-header,
+.admin-shell header.section-header,
+#admin-shell .section-header,
+#admin-shell header.section-header {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 var(--admin-spacing);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on section-header */
+.admin-shell .section-header.flex,
+.admin-shell .section-header.grid,
+#admin-shell .section-header.flex,
+#admin-shell .section-header.grid {
+  display: flex;
+  flex-direction: row;
+}
+
+.admin-shell .section-header > div:first-child {
+  flex: 1;
+  min-width: 0;
+}
+
+.admin-shell .section-header h2 {
+  font-size: clamp(1.1rem, 2.2vw, 1.4rem);
+  margin: 0 0 6px 0;
+  padding: 0;
+  font-weight: 600;
+  color: var(--admin-text);
+}
+
+.admin-shell .section-header p {
+  color: var(--admin-text-muted);
+  font-size: 0.95rem;
+  margin: 0;
+  padding: 0;
+}
+
+.admin-shell .section-header .section-controls,
+.admin-shell .section-header div.section-controls,
+#admin-shell .section-header .section-controls,
+#admin-shell .section-header div.section-controls {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on section-controls */
+.admin-shell .section-controls.flex,
+.admin-shell .section-controls.grid,
+#admin-shell .section-controls.flex,
+#admin-shell .section-controls.grid {
+  display: flex;
+  flex-direction: row;
+}
+
+.admin-shell .section-controls input[type=search],
+.admin-shell .section-controls select,
+.admin-shell .section-controls input[type=date] {
+  background: var(--admin-surface-alt);
+  border: 1px solid var(--admin-border);
+  border-radius: 12px;
+  padding: 10px 14px;
+  color: var(--admin-text);
+  font-size: 0.95rem;
+  min-width: 160px;
+  font-family: inherit;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+.admin-shell .section-controls select {
+  cursor: pointer;
+  appearance: auto;
+  -webkit-appearance: menulist;
+  -moz-appearance: menulist;
+}
+
+.admin-shell .section-controls input[type=search]::placeholder {
+  color: var(--admin-text-muted);
+}
+
+/* Metrics Grid */
+.admin-shell .metrics-grid,
+.admin-shell div.metrics-grid,
+.admin-shell .stats-panels,
+.admin-shell div.stats-panels,
+#admin-shell .metrics-grid,
+#admin-shell div.metrics-grid,
+#admin-shell .stats-panels,
+#admin-shell div.stats-panels {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  padding: 0 var(--admin-spacing);
+  width: 100%;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on metrics-grid */
+.admin-shell .metrics-grid.flex,
+.admin-shell .stats-panels.flex,
+#admin-shell .metrics-grid.flex,
+#admin-shell .stats-panels.flex {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.admin-shell .metrics-grid > *,
+.admin-shell .stats-panels > * {
+  min-width: 0;
+}
+
+.admin-shell .metric-card,
+.admin-shell .stats-card {
+  background: var(--admin-surface-alt);
+  border: 1px solid var(--admin-border);
+  border-radius: 18px;
+  padding: 18px;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 12px;
+  width: 100%;
+  min-width: 0;
+}
+
+.admin-shell .metric-card h3,
+.admin-shell .stats-card h3 {
+  color: var(--admin-text-muted);
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 0;
+  padding: 0;
+  font-weight: 600;
+}
+
+.admin-shell .metric-value {
+  font-size: clamp(1.6rem, 2vw, 2rem);
+  font-weight: 600;
+}
+
+.admin-shell .metric-sub {
+  font-size: 0.9rem;
+  color: var(--admin-text-muted);
+}
+
+.admin-shell .metric-chart {
+  width: 100%;
+  height: 120px;
+  max-height: 120px;
+  min-height: 120px;
+  display: block;
+}
+
+/* Overview Panels */
+.admin-shell .overview-panels,
+.admin-shell div.overview-panels,
+#admin-shell .overview-panels,
+#admin-shell div.overview-panels {
+  display: grid;
+  gap: var(--admin-spacing);
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  padding: 0 var(--admin-spacing);
+  width: 100%;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on overview-panels */
+.admin-shell .overview-panels.flex,
+#admin-shell .overview-panels.flex {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+}
+
+.admin-shell .overview-panels > * {
+  min-width: 0;
+}
+
+/* Panel */
+.admin-shell .panel,
+.admin-shell div.panel,
+#admin-shell .panel,
+#admin-shell div.panel {
+  background: var(--admin-surface-alt);
+  border: 1px solid var(--admin-border);
+  border-radius: 18px;
+  padding: 18px;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 16px;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on panel */
+.admin-shell .panel.flex,
+#admin-shell .panel.flex {
+  display: grid;
+  grid-template-rows: auto 1fr;
+}
+
+.admin-shell .panel h3 {
+  margin: 0;
+  padding: 0;
+}
+
+.admin-shell .panel-header,
+.admin-shell div.panel-header,
+#admin-shell .panel-header,
+#admin-shell div.panel-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on panel-header */
+.admin-shell .panel-header.flex,
+.admin-shell .panel-header.grid,
+#admin-shell .panel-header.flex,
+#admin-shell .panel-header.grid {
+  display: flex;
+  flex-direction: row;
+}
+
+.admin-shell .panel-header h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--admin-text);
+  margin: 0;
+}
+
+.admin-shell .activity-filters,
+.admin-shell div.activity-filters,
+#admin-shell .activity-filters,
+#admin-shell div.activity-filters {
+  display: inline-flex;
+  flex-direction: row;
+  gap: 8px;
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: 999px;
+  padding: 4px;
+  flex-wrap: nowrap;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on activity-filters */
+.admin-shell .activity-filters.flex,
+.admin-shell .activity-filters.grid,
+#admin-shell .activity-filters.flex,
+#admin-shell .activity-filters.grid {
+  display: inline-flex;
+  flex-direction: row;
+}
+
+.admin-shell .activity-filter-btn {
+  background: transparent;
+  border: none;
+  color: var(--admin-text-muted);
+  padding: 6px 14px;
+  font-size: 0.85rem;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.admin-shell .activity-filter-btn.active {
+  background: rgba(255, 107, 53, 0.16);
+  color: var(--admin-accent-strong);
+}
+
+.admin-shell .activity-filter-btn:hover {
+  color: var(--admin-accent-strong);
+}
+
+.admin-shell .panel-action {
+  background: transparent;
+  border: 1px solid var(--admin-border);
+  color: var(--admin-text-muted);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.admin-shell .panel-action:hover,
+.admin-shell .panel-action:focus-visible {
+  color: var(--admin-text);
+  border-color: var(--admin-accent);
+  outline: none;
+}
+
+/* Activity Feed */
+.admin-shell .activity-feed,
+.admin-shell ol.activity-feed,
+.admin-shell ul.activity-feed,
+#admin-shell .activity-feed,
+#admin-shell ol.activity-feed,
+#admin-shell ul.activity-feed {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+  max-height: 320px;
+  overflow: auto;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on activity-feed */
+.admin-shell .activity-feed.flex,
+.admin-shell .activity-feed.grid,
+#admin-shell .activity-feed.flex,
+#admin-shell .activity-feed.grid {
+  display: grid;
+}
+
+.admin-shell .activity-feed li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: 14px;
+  padding: 12px 16px;
+  font-size: 0.92rem;
+  cursor: pointer;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on activity-feed li */
+.admin-shell .activity-feed li.flex,
+.admin-shell .activity-feed li.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.admin-shell .activity-feed li.user {
+  border-left: 3px solid var(--admin-accent);
+}
+
+.admin-shell .activity-feed li.spec {
+  border-left: 3px solid var(--admin-success);
+}
+
+.admin-shell .activity-feed li.payment {
+  border-left: 3px solid var(--admin-warning);
+}
+
+.admin-shell .activity-feed .activity-placeholder {
+  justify-content: center;
+  border-style: dashed;
+  color: var(--admin-text-muted);
+}
+
+/* Source List */
+.admin-shell .source-list,
+.admin-shell ul.source-list,
+#admin-shell .source-list,
+#admin-shell ul.source-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 10px;
+  font-size: 0.95rem;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on source-list */
+.admin-shell .source-list.flex,
+.admin-shell .source-list.grid,
+#admin-shell .source-list.flex,
+#admin-shell .source-list.grid {
+  display: grid;
+}
+
+.admin-shell .source-list li {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on source-list li */
+.admin-shell .source-list li.flex,
+.admin-shell .source-list li.grid {
+  display: flex;
+  flex-direction: row;
+}
+
+.admin-shell .source-state {
+  padding: 4px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--admin-border);
+  font-size: 0.85rem;
+  color: var(--admin-text-muted);
+}
+
+.admin-shell .source-state.ready {
+  color: var(--admin-success);
+  border-color: rgba(65, 211, 158, 0.3);
+}
+
+.admin-shell .source-state.error {
+  color: var(--admin-critical);
+  border-color: rgba(255, 107, 107, 0.3);
+}
+
+.admin-shell .source-state.restricted {
+  color: var(--admin-warning);
+  border-color: rgba(243, 156, 61, 0.35);
+}
+
+.admin-shell .sync-actions,
+.admin-shell div.sync-actions,
+#admin-shell .sync-actions,
+#admin-shell div.sync-actions {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on sync-actions */
+.admin-shell .sync-actions.flex,
+.admin-shell .sync-actions.grid,
+#admin-shell .sync-actions.flex,
+#admin-shell .sync-actions.grid {
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-shell .sync-actions .action-btn {
+  align-self: flex-start;
+}
+
+.admin-shell .sync-note {
+  font-size: 0.85rem;
+  color: var(--admin-text-muted);
+}
+
+.admin-shell .sync-note.success {
+  color: var(--admin-success);
+}
+
+.admin-shell .sync-note.error {
+  color: var(--admin-critical);
+}
+
+.admin-shell .auto-refresh,
+.admin-shell div.auto-refresh,
+#admin-shell .auto-refresh,
+#admin-shell div.auto-refresh {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  color: var(--admin-text-muted);
+  box-sizing: border-box;
+}
+
+/* Override utility classes on auto-refresh */
+.admin-shell .auto-refresh.flex,
+.admin-shell .auto-refresh.grid,
+#admin-shell .auto-refresh.flex,
+#admin-shell .auto-refresh.grid {
+  display: flex;
+  flex-direction: row;
+}
+
+/* Table Wrapper */
+.admin-shell .table-wrapper,
+.admin-shell div.table-wrapper,
+#admin-shell .table-wrapper,
+#admin-shell div.table-wrapper {
+  overflow: auto;
+  overflow-x: auto;
+  overflow-y: auto;
+  border: 1px solid var(--admin-border);
+  border-radius: 16px;
+  background: var(--admin-surface-alt);
+  margin: 0 var(--admin-spacing);
+  width: calc(100% - calc(var(--admin-spacing) * 2));
+  max-width: 100%;
+  box-sizing: border-box;
+  display: block;
+}
+
+/* Override utility classes on table-wrapper */
+.admin-shell .table-wrapper.flex,
+.admin-shell .table-wrapper.grid,
+#admin-shell .table-wrapper.flex,
+#admin-shell .table-wrapper.grid {
+  display: block;
+}
+
+.admin-shell .data-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 720px;
+  table-layout: auto;
+  margin: 0;
+}
+
+.admin-shell .data-table thead {
+  background: var(--admin-surface-alt);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.82rem;
+  color: var(--admin-text-muted);
+}
+
+.admin-shell .data-table th,
+.admin-shell .data-table td {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--admin-border);
+  text-align: left;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.admin-shell .data-table tbody tr:hover {
+  background: var(--admin-hover-bg);
+}
+
+.admin-shell .data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.admin-shell .data-table .table-empty {
+  text-align: center;
+  color: var(--admin-text-muted);
+}
+
+.admin-shell .badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  background: var(--admin-surface-alt);
+  border: 1px solid var(--admin-border);
+  text-transform: capitalize;
+}
+
+.admin-shell .badge.pro {
+  color: var(--admin-accent);
+  border-color: rgba(128, 140, 255, 0.4);
+  background: rgba(128, 140, 255, 0.1);
+}
+
+.admin-shell .badge.free {
+  color: var(--admin-text-muted);
+}
+
+.admin-shell .table-actions,
+.admin-shell div.table-actions,
+#admin-shell .table-actions,
+#admin-shell div.table-actions {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on table-actions */
+.admin-shell .table-actions.flex,
+.admin-shell .table-actions.grid,
+#admin-shell .table-actions.flex,
+#admin-shell .table-actions.grid {
+  display: flex;
+  flex-direction: row;
+}
+
+/* Pagination */
+.admin-shell .pagination-wrapper,
+.admin-shell div.pagination-wrapper,
+#admin-shell .pagination-wrapper,
+#admin-shell div.pagination-wrapper {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 0;
+  margin-top: 16px;
+  border-top: 1px solid var(--admin-border);
+  flex-wrap: wrap;
+  gap: 16px;
+  margin: 16px var(--admin-spacing) 0;
+  width: calc(100% - calc(var(--admin-spacing) * 2));
+  box-sizing: border-box;
+}
+
+/* Override utility classes on pagination-wrapper */
+.admin-shell .pagination-wrapper.flex,
+.admin-shell .pagination-wrapper.grid,
+#admin-shell .pagination-wrapper.flex,
+#admin-shell .pagination-wrapper.grid {
+  display: flex;
+  flex-direction: row;
+}
+
+.admin-shell .pagination-info {
+  color: var(--admin-text-muted);
+  font-size: 0.9rem;
+}
+
+.admin-shell .pagination-controls,
+.admin-shell div.pagination-controls,
+#admin-shell .pagination-controls,
+#admin-shell div.pagination-controls {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on pagination-controls */
+.admin-shell .pagination-controls.flex,
+.admin-shell .pagination-controls.grid,
+#admin-shell .pagination-controls.flex,
+#admin-shell .pagination-controls.grid {
+  display: flex;
+  flex-direction: row;
+}
+
+.admin-shell .pagination-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--admin-border);
+  background: var(--admin-surface);
+  color: var(--admin-text);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.admin-shell .pagination-btn:hover:not(:disabled) {
+  border-color: var(--admin-accent);
+  background: rgba(255, 107, 53, 0.08);
+  color: var(--admin-accent-strong);
+}
+
+.admin-shell .pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.admin-shell .pagination-pages,
+.admin-shell div.pagination-pages,
+#admin-shell .pagination-pages,
+#admin-shell div.pagination-pages {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on pagination-pages */
+.admin-shell .pagination-pages.flex,
+.admin-shell .pagination-pages.grid,
+#admin-shell .pagination-pages.flex,
+#admin-shell .pagination-pages.grid {
+  display: flex;
+  flex-direction: row;
+}
+
+/* Quick Actions */
+.admin-shell .quick-actions-grid,
+.admin-shell div.quick-actions-grid,
+#admin-shell .quick-actions-grid,
+#admin-shell div.quick-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  width: 100%;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on quick-actions-grid */
+.admin-shell .quick-actions-grid.flex,
+#admin-shell .quick-actions-grid.flex {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+}
+
+.admin-shell .quick-actions-grid > * {
+  min-width: 0;
+}
+
+.admin-shell .quick-action-btn,
+.admin-shell button.quick-action-btn,
+#admin-shell .quick-action-btn,
+#admin-shell button.quick-action-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid var(--admin-border);
+  background: var(--admin-surface);
+  color: var(--admin-text);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+/* Override utility classes on quick-action-btn */
+.admin-shell .quick-action-btn.flex,
+.admin-shell .quick-action-btn.grid,
+#admin-shell .quick-action-btn.flex,
+#admin-shell .quick-action-btn.grid {
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-shell .quick-action-btn:hover {
+  border-color: var(--admin-accent);
+  background: rgba(255, 107, 53, 0.08);
+  transform: translateY(-2px);
+}
+
+.admin-shell .quick-action-btn i {
+  font-size: 1.5rem;
+  color: var(--admin-accent);
+}
+
+.admin-shell .quick-action-btn span {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+/* Logs Stream */
+.admin-shell .logs-stream,
+.admin-shell div.logs-stream,
+#admin-shell .logs-stream,
+#admin-shell div.logs-stream {
+  max-height: 440px;
+  overflow: auto;
+  border: 1px solid var(--admin-border);
+  border-radius: 16px;
+  background: var(--admin-surface-alt);
+  padding: 18px;
+  display: grid;
+  gap: 12px;
+  margin: 0 var(--admin-spacing);
+  box-sizing: border-box;
+}
+
+/* Override utility classes on logs-stream */
+.admin-shell .logs-stream.flex,
+.admin-shell .logs-stream.grid,
+#admin-shell .logs-stream.flex,
+#admin-shell .logs-stream.grid {
+  display: grid;
+}
+
+.admin-shell .log-entry,
+.admin-shell div.log-entry,
+#admin-shell .log-entry,
+#admin-shell div.log-entry {
+  display: grid;
+  gap: 4px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--admin-border);
+  background: var(--admin-surface);
+  font-size: 0.92rem;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on log-entry */
+.admin-shell .log-entry.flex,
+.admin-shell .log-entry.grid,
+#admin-shell .log-entry.flex,
+#admin-shell .log-entry.grid {
+  display: grid;
+}
+
+.admin-shell .log-entry.auth,
+.admin-shell .log-entry.user {
+  border-left: 3px solid var(--admin-accent);
+}
+
+.admin-shell .log-entry.spec {
+  border-left: 3px solid var(--admin-success);
+}
+
+.admin-shell .log-entry.payment {
+  border-left: 3px solid var(--admin-warning);
+}
+
+.admin-shell .logs-placeholder {
+  text-align: center;
+  color: var(--admin-text-muted);
+  font-size: 0.95rem;
+}
+
+/* Form Elements */
+.admin-shell .form-group,
+.admin-shell div.form-group,
+#admin-shell .form-group,
+#admin-shell div.form-group {
+  display: grid;
+  gap: 10px;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on form-group */
+.admin-shell .form-group.flex,
+.admin-shell .form-group.grid,
+#admin-shell .form-group.flex,
+#admin-shell .form-group.grid {
+  display: grid;
+}
+
+.admin-shell .form-group label {
+  font-weight: 500;
+}
+
+.admin-shell .form-group input,
+.admin-shell .form-group textarea {
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: 12px;
+  color: var(--admin-text);
+  padding: 12px 14px;
+  font-size: 0.95rem;
+  width: 100%;
+}
+
+.admin-shell .form-group small {
+  color: var(--admin-text-muted);
+  font-size: 0.82rem;
+}
+
+.admin-shell .form-actions,
+.admin-shell div.form-actions,
+#admin-shell .form-actions,
+#admin-shell div.form-actions {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 10px;
+  width: 100%;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on form-actions */
+.admin-shell .form-actions.flex,
+.admin-shell .form-actions.grid,
+#admin-shell .form-actions.flex,
+#admin-shell .form-actions.grid {
+  display: flex;
+  flex-direction: row;
+}
+
+.admin-shell .form-actions .primary {
+  border-radius: 12px;
+  padding: 10px 18px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid transparent;
+  font-size: 0.95rem;
+  transition: transform 0.2s ease;
+  background: linear-gradient(135deg, var(--admin-accent), var(--admin-accent-strong));
+  color: white;
+  cursor: pointer;
+}
+
+.admin-shell .form-actions .primary:hover {
+  transform: translateY(-1px);
+}
+
+.admin-shell .form-feedback {
+  min-height: 20px;
+  font-size: 0.9rem;
+  color: var(--admin-text-muted);
+}
+
+.admin-shell .form-feedback.success {
+  color: var(--admin-success);
+}
+
+.admin-shell .form-feedback.error {
+  color: var(--admin-critical);
+}
+
+/* Articles Management */
+.admin-shell .articles-management-section,
+.admin-shell div.articles-management-section,
+#admin-shell .articles-management-section,
+#admin-shell div.articles-management-section {
+  padding: 0 var(--admin-spacing);
+  box-sizing: border-box;
+}
+
+.admin-shell .articles-form-container,
+.admin-shell div.articles-form-container,
+#admin-shell .articles-form-container,
+#admin-shell div.articles-form-container {
+  margin-bottom: var(--admin-spacing);
+  box-sizing: border-box;
+}
+
+.admin-shell .articles-table-container,
+.admin-shell div.articles-table-container,
+#admin-shell .articles-table-container,
+#admin-shell div.articles-table-container {
+  margin-top: var(--admin-spacing);
+  box-sizing: border-box;
+}
+
+.admin-shell .articles-controls,
+.admin-shell div.articles-controls,
+#admin-shell .articles-controls,
+#admin-shell div.articles-controls {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on articles-controls */
+.admin-shell .articles-controls.flex,
+.admin-shell .articles-controls.grid,
+#admin-shell .articles-controls.flex,
+#admin-shell .articles-controls.grid {
+  display: flex;
+  flex-direction: row;
+}
+
+/* Chart Grid */
+.admin-shell .chart-grid,
+.admin-shell div.chart-grid,
+#admin-shell .chart-grid,
+#admin-shell div.chart-grid {
+  display: grid;
+  gap: var(--admin-spacing);
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  padding: 0 var(--admin-spacing);
+  width: 100%;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on chart-grid */
+.admin-shell .chart-grid.flex,
+#admin-shell .chart-grid.flex {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.admin-shell .chart-grid > * {
+  min-width: 0;
+}
+
+.admin-shell .chart-panel,
+.admin-shell section.chart-panel,
+.admin-shell div.chart-panel,
+#admin-shell .chart-panel,
+#admin-shell section.chart-panel,
+#admin-shell div.chart-panel {
+  background: var(--admin-surface-alt);
+  border: 1px solid var(--admin-border);
+  border-radius: 18px;
+  padding: 18px;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  min-height: 0;
+  position: relative;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on chart-panel */
+.admin-shell .chart-panel.flex,
+.admin-shell .chart-panel.grid,
+#admin-shell .chart-panel.flex,
+#admin-shell .chart-panel.grid {
+  display: grid;
+  grid-template-rows: auto 1fr;
+}
+
+.admin-shell .chart-panel header {
+  margin-bottom: 12px;
+  color: var(--admin-text-muted);
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.admin-shell .chart-panel canvas {
+  max-height: 250px;
+  height: 250px;
+  width: 100%;
+  display: block;
+}
+
+.admin-shell .range-switch,
+.admin-shell div.range-switch,
+#admin-shell .range-switch,
+#admin-shell div.range-switch {
+  display: inline-flex;
+  flex-direction: row;
+  border: 1px solid var(--admin-border);
+  border-radius: 999px;
+  overflow: hidden;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on range-switch */
+.admin-shell .range-switch.flex,
+.admin-shell .range-switch.grid,
+#admin-shell .range-switch.flex,
+#admin-shell .range-switch.grid {
+  display: inline-flex;
+  flex-direction: row;
+}
+
+.admin-shell .range-btn {
+  background: transparent;
+  border: none;
+  color: var(--admin-text-muted);
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: inherit;
+  margin: 0;
+}
+
+.admin-shell .range-btn.active {
+  background: rgba(128, 140, 255, 0.18);
+  color: var(--admin-text);
+}
+
+/* Spec Usage Summary */
+.admin-shell .spec-usage-summary,
+.admin-shell div.spec-usage-summary,
+#admin-shell .spec-usage-summary,
+#admin-shell div.spec-usage-summary {
+  padding: 0 var(--admin-spacing);
+  margin-bottom: var(--admin-spacing);
+  box-sizing: border-box;
+}
+
+.admin-shell .summary-cards,
+.admin-shell div.summary-cards,
+#admin-shell .summary-cards,
+#admin-shell div.summary-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  width: 100%;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on summary-cards */
+.admin-shell .summary-cards.flex,
+#admin-shell .summary-cards.flex {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.admin-shell .summary-cards > * {
+  min-width: 0;
+}
+
+.admin-shell .summary-card,
+.admin-shell article.summary-card,
+.admin-shell div.summary-card,
+#admin-shell .summary-card,
+#admin-shell article.summary-card,
+#admin-shell div.summary-card {
+  background: var(--admin-surface-alt);
+  border: 1px solid var(--admin-border);
+  border-radius: 18px;
+  padding: 18px;
+  display: grid;
+  gap: 8px;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on summary-card */
+.admin-shell .summary-card.flex,
+.admin-shell .summary-card.grid,
+#admin-shell .summary-card.flex,
+#admin-shell .summary-card.grid {
+  display: grid;
+}
+
+.admin-shell .summary-card h3 {
+  font-size: 0.9rem;
+  color: var(--admin-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 0;
+}
+
+.admin-shell .summary-value {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: var(--admin-text);
+  margin: 0;
+}
+
+/* Alerts Container */
+.admin-shell .alerts-container,
+.admin-shell div.alerts-container,
+#admin-shell .alerts-container,
+#admin-shell div.alerts-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 0 var(--admin-spacing);
+  width: 100%;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on alerts-container */
+.admin-shell .alerts-container.flex,
+.admin-shell .alerts-container.grid,
+#admin-shell .alerts-container.flex,
+#admin-shell .alerts-container.grid {
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-shell .alerts-list,
+.admin-shell div.alerts-list,
+.admin-shell ul.alerts-list,
+#admin-shell .alerts-list,
+#admin-shell div.alerts-list,
+#admin-shell ul.alerts-list {
+  display: grid;
+  gap: 12px;
+  width: 100%;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on alerts-list */
+.admin-shell .alerts-list.flex,
+.admin-shell .alerts-list.grid,
+#admin-shell .alerts-list.flex,
+#admin-shell .alerts-list.grid {
+  display: grid;
+}
+
+.admin-shell .alerts-list > * {
+  min-width: 0;
+}
+
+.admin-shell .alert-item,
+.admin-shell div.alert-item,
+#admin-shell .alert-item,
+#admin-shell div.alert-item {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px solid var(--admin-border);
+  background: var(--admin-surface-alt);
+  transition: all 0.2s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on alert-item */
+.admin-shell .alert-item.flex,
+.admin-shell .alert-item.grid,
+#admin-shell .alert-item.flex,
+#admin-shell .alert-item.grid {
+  display: flex;
+  flex-direction: row;
+}
+
+.admin-shell .alert-item:hover {
+  border-color: var(--admin-accent);
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.1);
+}
+
+.admin-shell .alert-item.critical {
+  border-left: 4px solid var(--admin-critical);
+}
+
+.admin-shell .alert-item.warning {
+  border-left: 4px solid var(--admin-warning);
+}
+
+.admin-shell .alert-item.info {
+  border-left: 4px solid var(--admin-accent);
+}
+
+.admin-shell .alert-icon {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.admin-shell .alert-content,
+.admin-shell div.alert-content,
+#admin-shell .alert-content,
+#admin-shell div.alert-content {
+  flex: 1;
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on alert-content */
+.admin-shell .alert-content.flex,
+.admin-shell .alert-content.grid,
+#admin-shell .alert-content.flex,
+#admin-shell .alert-content.grid {
+  display: grid;
+}
+
+.admin-shell .alert-title {
+  font-weight: 600;
+  color: var(--admin-text);
+  margin: 0;
+  padding: 0;
+}
+
+.admin-shell .alert-description {
+  font-size: 0.9rem;
+  color: var(--admin-text-muted);
+  margin: 0;
+  padding: 0;
+}
+
+.admin-shell .alert-meta,
+.admin-shell div.alert-meta,
+#admin-shell .alert-meta,
+#admin-shell div.alert-meta {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  font-size: 0.85rem;
+  color: var(--admin-text-muted);
+  margin: 4px 0 0 0;
+  padding: 0;
+  flex-wrap: wrap;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on alert-meta */
+.admin-shell .alert-meta.flex,
+.admin-shell .alert-meta.grid,
+#admin-shell .alert-meta.flex,
+#admin-shell .alert-meta.grid {
+  display: flex;
+  flex-direction: row;
+}
+
+.admin-shell .alerts-placeholder {
+  text-align: center;
+  padding: 40px;
+  color: var(--admin-text-muted);
+}
+
+/* Performance Metrics */
+.admin-shell .performance-metrics,
+.admin-shell div.performance-metrics,
+#admin-shell .performance-metrics,
+#admin-shell div.performance-metrics {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  margin-bottom: 24px;
+  padding: 0 var(--admin-spacing);
+  width: 100%;
+  margin-left: 0;
+  margin-right: 0;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on performance-metrics */
+.admin-shell .performance-metrics.flex,
+#admin-shell .performance-metrics.flex {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.admin-shell .performance-metrics > * {
+  min-width: 0;
+}
+
+/* Update Button */
+.admin-shell .update-btn {
+  margin-right: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  background: #f97316;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.admin-shell .update-btn:hover {
+  background: #ea580c;
+  transform: translateY(-1px);
+}
+
+.admin-shell .update-btn:active {
+  transform: translateY(0);
+}
+
+.admin-shell .update-btn i {
+  font-size: 0.875rem;
+}
+
+.admin-shell .update-btn.loading {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.admin-shell .update-btn.loading i {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Funnel Visualization */
+.admin-shell .funnel-container,
+.admin-shell div.funnel-container,
+#admin-shell .funnel-container,
+#admin-shell div.funnel-container {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 2rem;
+  margin-top: 2rem;
+  padding: 0 var(--admin-spacing);
+  box-sizing: border-box;
+}
+
+/* Override utility classes on funnel-container */
+.admin-shell .funnel-container.flex,
+#admin-shell .funnel-container.flex {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+}
+
+.admin-shell .funnel-visualization,
+.admin-shell div.funnel-visualization,
+#admin-shell .funnel-visualization,
+#admin-shell div.funnel-visualization {
+  background: var(--admin-surface);
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+}
+
+.admin-shell .funnel-steps,
+.admin-shell div.funnel-steps,
+#admin-shell .funnel-steps,
+#admin-shell div.funnel-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on funnel-steps */
+.admin-shell .funnel-steps.flex,
+.admin-shell .funnel-steps.grid,
+#admin-shell .funnel-steps.flex,
+#admin-shell .funnel-steps.grid {
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-shell .funnel-step {
+  position: relative;
+  width: 100%;
+}
+
+.admin-shell .funnel-step-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  color: white;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  min-height: 60px;
+}
+
+.admin-shell .funnel-step-bar:hover {
+  transform: translateX(4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.admin-shell .funnel-step-label {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.admin-shell .funnel-step-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.admin-shell .funnel-conversion {
+  margin-top: 0.5rem;
+  padding-left: 1.5rem;
+  font-size: 0.875rem;
+  color: var(--admin-text-muted);
+  font-weight: 500;
+}
+
+.admin-shell .funnel-metrics,
+.admin-shell div.funnel-metrics,
+#admin-shell .funnel-metrics,
+#admin-shell div.funnel-metrics {
+  background: var(--admin-surface);
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+}
+
+.admin-shell .funnel-metrics-grid,
+.admin-shell div.funnel-metrics-grid,
+#admin-shell .funnel-metrics-grid,
+#admin-shell div.funnel-metrics-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on funnel-metrics-grid */
+.admin-shell .funnel-metrics-grid.flex,
+#admin-shell .funnel-metrics-grid.flex {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+.admin-shell .funnel-metric,
+.admin-shell div.funnel-metric,
+#admin-shell .funnel-metric,
+#admin-shell div.funnel-metric {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: var(--admin-surface-alt);
+  border-radius: 8px;
+  border-left: 4px solid #3b82f6;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on funnel-metric */
+.admin-shell .funnel-metric.flex,
+.admin-shell .funnel-metric.grid,
+#admin-shell .funnel-metric.flex,
+#admin-shell .funnel-metric.grid {
+  display: flex;
+  flex-direction: row;
+}
+
+.admin-shell .funnel-metric:hover {
+  background: #f3f4f6;
+  transform: translateX(4px);
+}
+
+.admin-shell .funnel-metric.highlight {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-left-color: #764ba2;
+}
+
+.admin-shell .funnel-metric.highlight:hover {
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+}
+
+.admin-shell .funnel-metric .metric-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: inherit;
+}
+
+.admin-shell .funnel-metric .metric-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: inherit;
+}
+
+.admin-shell .funnel-placeholder,
+.admin-shell .funnel-metrics-placeholder {
+  text-align: center;
+  padding: 3rem;
+  color: var(--admin-text-muted);
+  font-size: 1rem;
+}
+
+/* Content Analytics */
+.admin-shell .content-analytics-grid,
+.admin-shell div.content-analytics-grid,
+#admin-shell .content-analytics-grid,
+#admin-shell div.content-analytics-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-top: 2rem;
+  padding: 0 var(--admin-spacing);
+  box-sizing: border-box;
+}
+
+/* Override utility classes on content-analytics-grid */
+.admin-shell .content-analytics-grid.flex,
+#admin-shell .content-analytics-grid.flex {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.admin-shell .content-panel,
+.admin-shell div.content-panel,
+#admin-shell .content-panel,
+#admin-shell div.content-panel {
+  background: var(--admin-surface);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+}
+
+.admin-shell .content-panel .panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #f3f4f6;
+}
+
+.admin-shell .content-panel .panel-header h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+.admin-shell .content-panel .panel-subtitle {
+  font-size: 0.875rem;
+  color: var(--admin-text-muted);
+  font-weight: 500;
+}
+
+.admin-shell .top-content-list,
+.admin-shell div.top-content-list,
+#admin-shell .top-content-list,
+#admin-shell div.top-content-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on top-content-list */
+.admin-shell .top-content-list.flex,
+.admin-shell .top-content-list.grid,
+#admin-shell .top-content-list.flex,
+#admin-shell .top-content-list.grid {
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-shell .top-content-item,
+.admin-shell div.top-content-item,
+#admin-shell .top-content-item,
+#admin-shell div.top-content-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--admin-surface-alt);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on top-content-item */
+.admin-shell .top-content-item.flex,
+.admin-shell .top-content-item.grid,
+#admin-shell .top-content-item.flex,
+#admin-shell .top-content-item.grid {
+  display: flex;
+  flex-direction: row;
+}
+
+.admin-shell .top-content-item:hover {
+  background: #f3f4f6;
+  border-color: var(--admin-border);
+  transform: translateX(4px);
+}
+
+.admin-shell .content-rank,
+.admin-shell div.content-rank,
+.admin-shell span.content-rank,
+#admin-shell .content-rank,
+#admin-shell div.content-rank,
+#admin-shell span.content-rank {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 50%;
+  font-weight: 700;
+  font-size: 0.875rem;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on content-rank */
+.admin-shell .content-rank.flex,
+.admin-shell .content-rank.grid,
+#admin-shell .content-rank.flex,
+#admin-shell .content-rank.grid {
+  display: flex;
+  flex-direction: row;
+}
+
+.admin-shell .content-info,
+.admin-shell div.content-info,
+#admin-shell .content-info,
+#admin-shell div.content-info {
+  flex: 1;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.admin-shell .content-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--admin-text);
+  margin: 0 0 0.5rem 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-shell .content-meta,
+.admin-shell div.content-meta,
+#admin-shell .content-meta,
+#admin-shell div.content-meta {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.875rem;
+  color: var(--admin-text-muted);
+  box-sizing: border-box;
+}
+
+/* Override utility classes on content-meta */
+.admin-shell .content-meta.flex,
+.admin-shell .content-meta.grid,
+#admin-shell .content-meta.flex,
+#admin-shell .content-meta.grid {
+  display: flex;
+  flex-direction: row;
+}
+
+.admin-shell .content-views,
+.admin-shell div.content-views,
+.admin-shell span.content-views,
+#admin-shell .content-views,
+#admin-shell div.content-views,
+#admin-shell span.content-views {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on content-views */
+.admin-shell .content-views.flex,
+.admin-shell .content-views.grid,
+#admin-shell .content-views.flex,
+#admin-shell .content-views.grid {
+  display: flex;
+  flex-direction: row;
+}
+
+.admin-shell .content-views i {
+  color: #3b82f6;
+}
+
+.admin-shell .content-total {
+  color: #9ca3af;
+}
+
+.admin-shell .content-actions,
+.admin-shell div.content-actions,
+#admin-shell .content-actions,
+#admin-shell div.content-actions {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on content-actions */
+.admin-shell .content-actions.flex,
+.admin-shell .content-actions.grid,
+#admin-shell .content-actions.flex,
+#admin-shell .content-actions.grid {
+  display: flex;
+  flex-direction: row;
+}
+
+.admin-shell .action-link,
+.admin-shell a.action-link,
+#admin-shell .action-link,
+#admin-shell a.action-link {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  color: var(--admin-text-muted);
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on action-link */
+.admin-shell .action-link.flex,
+.admin-shell .action-link.grid,
+#admin-shell .action-link.flex,
+#admin-shell .action-link.grid {
+  display: flex;
+  flex-direction: row;
+}
+
+.admin-shell .action-link:hover {
+  background: #f3f4f6;
+  color: #3b82f6;
+}
+
+.admin-shell .content-placeholder {
+  text-align: center;
+  padding: 3rem;
+  color: var(--admin-text-muted);
+  font-size: 1rem;
+}
+
+/* Modals */
+.admin-shell .modal,
+.admin-shell div.modal,
+#admin-shell .modal,
+#admin-shell div.modal {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  z-index: 90;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on modal */
+.admin-shell .modal.flex,
+.admin-shell .modal.grid,
+#admin-shell .modal.flex,
+#admin-shell .modal.grid {
+  display: grid;
+  place-items: center;
+}
+
+.admin-shell .modal.hidden {
+  display: none;
+}
+
+.admin-shell .modal-backdrop,
+.admin-shell div.modal-backdrop,
+#admin-shell .modal-backdrop,
+#admin-shell div.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  box-sizing: border-box;
+}
+
+.admin-shell .modal-content,
+.admin-shell div.modal-content,
+#admin-shell .modal-content,
+#admin-shell div.modal-content {
+  position: relative;
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: 24px;
+  width: min(820px, 92%);
+  max-height: 90vh;
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on modal-content */
+.admin-shell .modal-content.flex,
+.admin-shell .modal-content.grid,
+#admin-shell .modal-content.flex,
+#admin-shell .modal-content.grid {
+  display: grid;
+  grid-template-rows: auto 1fr;
+}
+
+.admin-shell .modal-content.large {
+  width: min(980px, 92%);
+}
+
+.admin-shell .modal-header,
+.admin-shell header.modal-header,
+#admin-shell .modal-header,
+#admin-shell header.modal-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--admin-border);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on modal-header */
+.admin-shell .modal-header.flex,
+.admin-shell .modal-header.grid,
+#admin-shell .modal-header.flex,
+#admin-shell .modal-header.grid {
+  display: flex;
+  flex-direction: row;
+}
+
+.admin-shell .modal-header h2 {
+  font-size: 1.2rem;
+  margin: 0;
+}
+
+.admin-shell .modal-actions,
+.admin-shell div.modal-actions,
+#admin-shell .modal-actions,
+#admin-shell div.modal-actions {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on modal-actions */
+.admin-shell .modal-actions.flex,
+.admin-shell .modal-actions.grid,
+#admin-shell .modal-actions.flex,
+#admin-shell .modal-actions.grid {
+  display: flex;
+  flex-direction: row;
+}
+
+.admin-shell .modal-body,
+.admin-shell div.modal-body,
+#admin-shell .modal-body,
+#admin-shell div.modal-body {
+  padding: 24px;
+  overflow: auto;
+  background: var(--admin-surface);
+  box-sizing: border-box;
+}
+
+.admin-shell .close-btn {
+  background: transparent;
+  border: none;
+  color: var(--admin-text-muted);
+  font-size: 1.2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.admin-shell .close-btn:hover {
+  color: var(--admin-text);
+}
+
+.admin-shell .modal-placeholder {
+  text-align: center;
+  color: var(--admin-text-muted);
+  padding: 30px 0;
+}
+
+/* Global Search */
+.admin-shell .global-search,
+.admin-shell div.global-search,
+#admin-shell .global-search,
+#admin-shell div.global-search {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on global-search */
+.admin-shell .global-search.flex,
+.admin-shell .global-search.grid,
+#admin-shell .global-search.flex,
+#admin-shell .global-search.grid {
+  display: grid;
+  place-items: center;
+}
+
+.admin-shell .global-search.hidden {
+  display: none;
+}
+
+.admin-shell .global-search-backdrop,
+.admin-shell div.global-search-backdrop,
+#admin-shell .global-search-backdrop,
+#admin-shell div.global-search-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  box-sizing: border-box;
+}
+
+.admin-shell .global-search-panel,
+.admin-shell div.global-search-panel,
+#admin-shell .global-search-panel,
+#admin-shell div.global-search-panel {
+  position: relative;
+  width: min(840px, 92%);
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: 24px;
+  padding: 26px;
+  display: grid;
+  gap: 18px;
+  box-shadow: 0 30px 70px rgba(32, 36, 60, 0.18);
+  box-sizing: border-box;
+}
+
+/* Override utility classes on global-search-panel */
+.admin-shell .global-search-panel.flex,
+.admin-shell .global-search-panel.grid,
+#admin-shell .global-search-panel.flex,
+#admin-shell .global-search-panel.grid {
+  display: grid;
+}
+
+.admin-shell .global-search-header,
+.admin-shell header.global-search-header,
+#admin-shell .global-search-header,
+#admin-shell header.global-search-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on global-search-header */
+.admin-shell .global-search-header.flex,
+.admin-shell .global-search-header.grid,
+#admin-shell .global-search-header.flex,
+#admin-shell .global-search-header.grid {
+  display: flex;
+  flex-direction: row;
+}
+
+.admin-shell .global-search-header h2 {
+  flex: 0 0 auto;
+  font-size: 1.1rem;
+  color: var(--admin-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 0;
+}
+
+.admin-shell .global-search-header input[type=search] {
+  flex: 1;
+  background: var(--admin-surface-alt);
+  border: 1px solid var(--admin-border);
+  border-radius: 14px;
+  padding: 12px 14px;
+  color: var(--admin-text);
+  font-size: 1rem;
+}
+
+.admin-shell .global-search-results,
+.admin-shell div.global-search-results,
+#admin-shell .global-search-results,
+#admin-shell div.global-search-results {
+  max-height: 420px;
+  overflow: auto;
+  display: grid;
+  gap: 12px;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on global-search-results */
+.admin-shell .global-search-results.flex,
+.admin-shell .global-search-results.grid,
+#admin-shell .global-search-results.flex,
+#admin-shell .global-search-results.grid {
+  display: grid;
+}
+
+.admin-shell .results-placeholder {
+  text-align: center;
+  color: var(--admin-text-muted);
+  padding: 40px 0;
+}
+
+/* Activity Detail */
+.admin-shell .activity-detail,
+.admin-shell aside.activity-detail,
+#admin-shell .activity-detail,
+#admin-shell aside.activity-detail {
+  position: fixed;
+  top: 96px;
+  right: 0;
+  width: 380px;
+  height: calc(100vh - 96px);
+  background: var(--admin-surface);
+  border-left: 1px solid var(--admin-border);
+  box-shadow: -4px 0 18px rgba(15, 23, 42, 0.05);
+  display: grid;
+  grid-template-rows: auto 1fr;
+  z-index: 30;
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on activity-detail */
+.admin-shell .activity-detail.flex,
+.admin-shell .activity-detail.grid,
+#admin-shell .activity-detail.flex,
+#admin-shell .activity-detail.grid {
+  display: grid;
+  grid-template-rows: auto 1fr;
+}
+
+.admin-shell .activity-detail:not(.hidden) {
+  transform: translateX(0);
+}
+
+.admin-shell .activity-detail.hidden {
+  display: none;
+}
+
+.admin-shell .activity-detail__header,
+.admin-shell header.activity-detail__header,
+#admin-shell .activity-detail__header,
+#admin-shell header.activity-detail__header {
+  padding: var(--admin-spacing);
+  border-bottom: 1px solid var(--admin-border);
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on activity-detail__header */
+.admin-shell .activity-detail__header.flex,
+.admin-shell .activity-detail__header.grid,
+#admin-shell .activity-detail__header.flex,
+#admin-shell .activity-detail__header.grid {
+  display: flex;
+  flex-direction: row;
+}
+
+.admin-shell .activity-detail__header h3 {
+  font-size: 1.1rem;
+  margin: 0 0 4px 0;
+}
+
+.admin-shell .activity-detail__header p {
+  color: var(--admin-text-muted);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.admin-shell .activity-detail__body,
+.admin-shell div.activity-detail__body,
+#admin-shell .activity-detail__body,
+#admin-shell div.activity-detail__body {
+  padding: var(--admin-spacing);
+  overflow: auto;
+  box-sizing: border-box;
+}
+
+.admin-shell .activity-detail__row,
+.admin-shell div.activity-detail__row,
+#admin-shell .activity-detail__row,
+#admin-shell div.activity-detail__row {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 18px;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on activity-detail__row */
+.admin-shell .activity-detail__row.flex,
+.admin-shell .activity-detail__row.grid,
+#admin-shell .activity-detail__row.flex,
+#admin-shell .activity-detail__row.grid {
+  display: grid;
+}
+
+.admin-shell .activity-detail__row dt {
+  font-size: 0.85rem;
+  color: var(--admin-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.admin-shell .activity-detail__row dd {
+  font-size: 0.95rem;
+  color: var(--admin-text);
+  margin: 0;
+}
+
+/* Feature Column in Spec Usage Table */
+.admin-shell .feature-column {
+  text-align: center;
+}
+
+/* Spec List */
+.admin-shell .spec-list,
+.admin-shell div.spec-list,
+.admin-shell ul.spec-list,
+#admin-shell .spec-list,
+#admin-shell div.spec-list,
+#admin-shell ul.spec-list {
+  display: grid;
+  gap: 12px;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on spec-list */
+.admin-shell .spec-list.flex,
+.admin-shell .spec-list.grid,
+#admin-shell .spec-list.flex,
+#admin-shell .spec-list.grid {
+  display: grid;
+}
+
+.admin-shell .spec-item {
+  border-radius: 16px;
+  border: 1px solid var(--admin-border);
+  background: rgba(255, 255, 255, 0.02);
+  padding: 16px;
+  display: grid;
+  gap: 8px;
+}
+
+.admin-shell .spec-item header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+}
+
+.admin-shell .spec-item header h3 {
+  font-size: 1rem;
+  margin: 0;
+}
+
+.admin-shell .spec-item .spec-meta,
+.admin-shell .spec-item div.spec-meta,
+#admin-shell .spec-item .spec-meta,
+#admin-shell .spec-item div.spec-meta {
+  font-size: 0.85rem;
+  color: var(--admin-text-muted);
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  flex-wrap: wrap;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on spec-meta */
+.admin-shell .spec-meta.flex,
+.admin-shell .spec-meta.grid,
+#admin-shell .spec-meta.flex,
+#admin-shell .spec-meta.grid {
+  display: flex;
+  flex-direction: row;
+}
+
+.admin-shell .spec-item .spec-actions,
+.admin-shell .spec-item div.spec-actions,
+#admin-shell .spec-item .spec-actions,
+#admin-shell .spec-item div.spec-actions {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  flex-wrap: wrap;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on spec-actions */
+.admin-shell .spec-actions.flex,
+.admin-shell .spec-actions.grid,
+#admin-shell .spec-actions.flex,
+#admin-shell .spec-actions.grid {
+  display: flex;
+  flex-direction: row;
+}
+
+.admin-shell .spec-item .spec-actions a {
+  border-radius: 10px;
+  border: 1px solid var(--admin-border);
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  color: var(--admin-text);
+}
+
+.admin-shell .spec-item .spec-preview {
+  font-size: 0.9rem;
+  color: var(--admin-text-muted);
+  line-height: 1.5;
+  max-height: 140px;
+  overflow: hidden;
+}
+
+/* Preview Article */
+.admin-shell .preview-article,
+.admin-shell article.preview-article,
+#admin-shell .preview-article,
+#admin-shell article.preview-article {
+  display: grid;
+  gap: 18px;
+  font-size: 1rem;
+  line-height: 1.6;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on preview-article */
+.admin-shell .preview-article.flex,
+.admin-shell .preview-article.grid,
+#admin-shell .preview-article.flex,
+#admin-shell .preview-article.grid {
+  display: grid;
+}
+
+.admin-shell .preview-article h1,
+.admin-shell .preview-article h2,
+.admin-shell .preview-article h3 {
+  color: var(--admin-text);
+}
+
+.admin-shell .preview-article pre {
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 14px;
+  padding: 14px;
+  overflow: auto;
+}
+
+.admin-shell .preview-article code {
+  font-family: "Courier New", Courier, monospace;
+}
+
+/* Retention Metrics */
+.admin-shell .retention-grid,
+.admin-shell div.retention-grid,
+#admin-shell .retention-grid,
+#admin-shell div.retention-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  box-sizing: border-box;
+}
+
+/* Override utility classes on retention-grid */
+.admin-shell .retention-grid.flex,
+#admin-shell .retention-grid.flex {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+.admin-shell .retention-card,
+.admin-shell div.retention-card,
+.admin-shell article.retention-card,
+#admin-shell .retention-card,
+#admin-shell div.retention-card,
+#admin-shell article.retention-card {
+  background: var(--admin-surface-alt);
+  border: 1px solid var(--admin-border);
+  border-radius: 18px;
+  padding: 20px;
+  display: grid;
+  gap: 12px;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on retention-card */
+.admin-shell .retention-card.flex,
+.admin-shell .retention-card.grid,
+#admin-shell .retention-card.flex,
+#admin-shell .retention-card.grid {
+  display: grid;
+}
+
+.admin-shell .retention-card h4 {
+  font-size: 0.95rem;
+  color: var(--admin-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 0;
+}
+
+.admin-shell .retention-value {
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--admin-text);
+}
+
+.admin-shell .retention-change {
+  font-size: 0.9rem;
+  color: var(--admin-text-muted);
+}
+
+.admin-shell .retention-change.positive {
+  color: var(--admin-success);
+}
+
+.admin-shell .retention-change.negative {
+  color: var(--admin-critical);
+}
+
+/* Funnel Chart */
+.admin-shell .funnel-chart,
+.admin-shell div.funnel-chart,
+#admin-shell .funnel-chart,
+#admin-shell div.funnel-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on funnel-chart */
+.admin-shell .funnel-chart.flex,
+.admin-shell .funnel-chart.grid,
+#admin-shell .funnel-chart.flex,
+#admin-shell .funnel-chart.grid {
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-shell .funnel-stage,
+.admin-shell div.funnel-stage,
+#admin-shell .funnel-stage,
+#admin-shell div.funnel-stage {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  border-radius: 12px;
+  background: var(--admin-surface-alt);
+  border: 1px solid var(--admin-border);
+  box-sizing: border-box;
+}
+
+/* Override utility classes on funnel-stage */
+.admin-shell .funnel-stage.flex,
+.admin-shell .funnel-stage.grid,
+#admin-shell .funnel-stage.flex,
+#admin-shell .funnel-stage.grid {
+  display: flex;
+  flex-direction: row;
+}
+
+.admin-shell .funnel-stage-label {
+  min-width: 120px;
+  font-weight: 600;
+  color: var(--admin-text);
+}
+
+.admin-shell .funnel-stage-bar {
+  flex: 1;
+  height: 40px;
+  background: var(--admin-border);
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.admin-shell .funnel-stage-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--admin-accent), var(--admin-accent-strong));
+  border-radius: 8px;
+  transition: width 0.5s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.admin-shell .funnel-stage-value {
+  min-width: 80px;
+  text-align: right;
+  font-weight: 600;
+  color: var(--admin-text);
+}
+
+.admin-shell .funnel-stage-percentage {
+  min-width: 60px;
+  text-align: right;
+  font-size: 0.9rem;
+  color: var(--admin-text-muted);
+}
+
+/* API Health Check Panel */
+.admin-shell .api-health-check,
+.admin-shell div.api-health-check,
+.admin-shell .panel.api-health-check,
+#admin-shell .api-health-check,
+#admin-shell div.api-health-check,
+#admin-shell .panel.api-health-check {
+  background: var(--admin-surface-alt);
+  border: 1px solid var(--admin-border);
+  border-radius: 18px;
+  padding: 18px;
+  display: grid;
+  gap: 16px;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on api-health-check */
+.admin-shell .api-health-check.flex,
+.admin-shell .api-health-check.grid,
+#admin-shell .api-health-check.flex,
+#admin-shell .api-health-check.grid {
+  display: grid;
+}
+
+.admin-shell .health-check-simple,
+.admin-shell div.health-check-simple,
+#admin-shell .health-check-simple,
+#admin-shell div.health-check-simple {
+  display: grid;
+  gap: 16px;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on health-check-simple */
+.admin-shell .health-check-simple.flex,
+.admin-shell .health-check-simple.grid,
+#admin-shell .health-check-simple.flex,
+#admin-shell .health-check-simple.grid {
+  display: grid;
+}
+
+.admin-shell .api-response-box {
+  width: 100%;
+  display: grid;
+  gap: 8px;
+}
+
+.admin-shell .api-response-header,
+.admin-shell div.api-response-header,
+#admin-shell .api-response-header,
+#admin-shell div.api-response-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  box-sizing: border-box;
+}
+
+/* Override utility classes on api-response-header */
+.admin-shell .api-response-header.flex,
+.admin-shell .api-response-header.grid,
+#admin-shell .api-response-header.flex,
+#admin-shell .api-response-header.grid {
+  display: flex;
+  flex-direction: row;
+}
+
+.admin-shell .api-response-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--admin-text-muted);
+}
+
+.admin-shell .api-response-header .action-btn.small {
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  gap: 6px;
+}
+
+.admin-shell .api-response-box textarea {
+  width: 100%;
+  min-height: 300px;
+  padding: 12px;
+  border: 1px solid var(--admin-border);
+  border-radius: 10px;
+  background: var(--admin-surface);
+  color: var(--admin-text);
+  font-family: "Monaco", "Menlo", "Courier New", monospace;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.admin-shell .api-response-box textarea:focus {
+  outline: none;
+  border-color: var(--admin-accent);
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .admin-shell {
+    grid-template-columns: 240px 1fr;
+  }
+  
+  .admin-shell .admin-sidebar {
+    width: 240px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .admin-shell .funnel-container {
+    grid-template-columns: 1fr;
+  }
+  
+  .admin-shell .content-analytics-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-shell {
+    grid-template-columns: 1fr;
+  }
+  
+  .admin-shell .admin-sidebar {
+    position: fixed;
+    left: -280px;
+    z-index: 100;
+    transition: left 0.3s ease;
+  }
+  
+  .admin-shell .overview-panels {
+    grid-template-columns: 1fr;
+  }
+  
+  .admin-shell .funnel-step-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .admin-shell .top-content-item {
+    flex-wrap: wrap;
+  }
+  
+  .admin-shell .activity-detail {
+    width: 100%;
+    top: 0;
+    height: 100vh;
+  }
+}

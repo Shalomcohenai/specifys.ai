@@ -57,6 +57,71 @@
     <link rel="stylesheet" href="/assets/css/utilities/spacing.css">
     <!-- Spec Viewer Page Specific Styles -->
     <link rel="stylesheet" href="/assets/css/pages/spec-viewer.css">
+    <!-- Spec Viewer Side Menu Styles -->
+    <link rel="stylesheet" href="/assets/css/pages/spec-viewer-side-menu.css">
+    
+    <!-- Inline Critical Side Menu CSS (fallback) -->
+    <style>
+      /* Critical side-menu styles - inline fallback */
+      aside.side-menu {
+        position: fixed !important;
+        left: 0 !important;
+        top: 60px !important;
+        bottom: 0 !important;
+        width: 60px !important;
+        background: #f5f5f5 !important;
+        box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1) !important;
+        z-index: 100 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        overflow: hidden !important;
+      }
+      aside.side-menu:hover {
+        width: 280px !important;
+      }
+      .side-menu-nav {
+        flex: 1 !important;
+        overflow-y: auto !important;
+        padding: 8px !important;
+        display: flex !important;
+        flex-direction: column !important;
+      }
+      .side-menu-button {
+        width: 100% !important;
+        padding: 14px !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 12px !important;
+        background: transparent !important;
+        border: none !important;
+        cursor: pointer !important;
+        border-radius: 8px !important;
+        font-size: 15px !important;
+        color: #666 !important;
+        text-align: left !important;
+      }
+      .side-menu-text {
+        opacity: 0 !important;
+        max-width: 0 !important;
+        overflow: hidden !important;
+        white-space: nowrap !important;
+      }
+      aside.side-menu:hover .side-menu-text {
+        opacity: 1 !important;
+        max-width: 200px !important;
+      }
+      .side-menu-item {
+        list-style: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+      .side-menu-item ul,
+      .side-menu-item li {
+        list-style: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+    </style>
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">

@@ -3,11 +3,10 @@
    ============================================
    Badge styles for status indicators, labels, etc.
 */
+
 .pro-badge {
   font-size: 1em;
   color: white;
   font-weight: 600;
   margin-left: 2px;
 }
-
-/*# sourceMappingURL=badges.css.map */

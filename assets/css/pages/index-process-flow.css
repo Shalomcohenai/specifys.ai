@@ -1,0 +1,116 @@
+/* ============================================
+   Index Page Process Flow Styles - Specifys.ai
+   ============================================
+   Styles for "How It Works" section on index.html
+   Extracted from main-compiled.css.backup.old
+*/
+
+/* Process Flow Container */
+.process-flow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 30px;
+  flex-wrap: wrap;
+  padding: 40px 20px;
+}
+
+/* Process Step */
+.process-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  flex: 1;
+  min-width: 200px;
+  max-width: 280px;
+}
+
+/* Process Icon */
+.process-icon {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #FF6B35, #FF8551);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 2rem;
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+  transition: all 0.3s ease;
+}
+
+.process-step:hover .process-icon {
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+}
+
+/* Process Step Heading */
+.process-step h4 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+  font-family: "Montserrat", sans-serif;
+}
+
+/* Process Arrow */
+.process-arrow {
+  font-size: 2rem;
+  color: #FF6B35;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  transition: transform 0.3s ease;
+}
+
+.process-flow:hover .process-arrow {
+  transform: translateX(5px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .process-flow {
+    flex-direction: column;
+    gap: 20px;
+    padding: 30px 15px;
+  }
+  
+  .process-arrow {
+    transform: rotate(90deg);
+    margin: 10px 0;
+  }
+  
+  .process-flow:hover .process-arrow {
+    transform: rotate(90deg) translateY(5px);
+  }
+  
+  .process-step {
+    max-width: 100%;
+    width: 100%;
+  }
+  
+  .process-icon {
+    width: 70px;
+    height: 70px;
+    font-size: 1.8rem;
+  }
+  
+  .process-step h4 {
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .process-icon {
+    width: 60px;
+    height: 60px;
+    font-size: 1.5rem;
+  }
+  
+  .process-step h4 {
+    font-size: 1.1rem;
+  }
+}

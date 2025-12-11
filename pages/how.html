@@ -53,9 +53,8 @@
     <link rel="stylesheet" href="/assets/css/utilities/text.css">
     <!-- Spacing Utilities -->
     <link rel="stylesheet" href="/assets/css/utilities/spacing.css">
-      
-    
-    
+    <!-- How Page Specific Styles -->
+    <link rel="stylesheet" href="/assets/css/pages/how.css">
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -391,107 +390,8 @@
 
     
     <!-- Firebase SDK & Auth -->
-    
-    <!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-
-<script>
-  // Firebase Configuration
-  const firebaseConfig = {
-    apiKey: "AIzaSyB9hr0IWM4EREzkKDxBxYoYinV6LJXWXV4",
-    authDomain: "specify-ai.firebaseapp.com",
-    projectId: "specify-ai",
-    storageBucket: "specify-ai.firebasestorage.app",
-    messagingSenderId: "734278787482",
-    appId: "1:734278787482:web:0e312fb6f197e849695a23",
-    measurementId: "G-4YR9LK63MR"
-  };
-
-  // Initialize Firebase
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db = firebase.firestore();
-</script>
-
-
-    <script>
-  // Auth UI functions
-  function updateAuthUI(user) {
-    const authButtons = document.getElementById('auth-buttons');
-    if (!authButtons) return;
-    
-    if (user) {
-      // User is logged in
-      const displayName = user.displayName || user.email.split('@')[0];
-      const firstLetter = displayName.charAt(0).toUpperCase();
-      
-      authButtons.innerHTML = `
-        <a href="/pages/profile.html" class="user-info" style="text-decoration: none;">
-          <div class="user-avatar">${firstLetter}</div>
-          <span>${displayName}</span>
-        </a>
-      `;
-    } else {
-      // User is not logged in
-      authButtons.innerHTML = `
-        <button class="auth-btn" onclick="showLoginModal()">Log in/Sign up</button>
-      `;
-    }
-  }
-
-  // Global auth functions
-  window.showLoginModal = function() {
-    if (typeof trackButtonClick !== 'undefined') {
-      trackButtonClick('Show Login', 'Authentication', 'header');
-    }
-    window.location.href = '/pages/auth.html';
-  };
-
-  window.showRegisterModal = function() {
-    if (typeof trackButtonClick !== 'undefined') {
-      trackButtonClick('Show Register', 'Authentication', 'header');
-    }
-    window.location.href = '/pages/auth.html';
-  };
-
-  window.logout = function() {
-    if (typeof trackAuthEvent !== 'undefined') {
-      trackAuthEvent('logout', 'email');
-    }
-    auth.signOut()
-      .then(() => {
-
-      })
-      .catch(error => {
-
-      });
-  };
-
-  // Listen to auth state changes
-  auth.onAuthStateChanged((user) => {
-    updateAuthUI(user);
-  });
-
-  // Initialize auth buttons with default state
-  document.addEventListener('DOMContentLoaded', function() {
-    const authButtons = document.getElementById('auth-buttons');
-    if (authButtons && !authButtons.innerHTML.trim()) {
-      authButtons.innerHTML = `
-        <button class="auth-btn login-btn">Log in/Sign up</button>
-      `;
-      
-      const loginBtn = authButtons.querySelector('.login-btn');
-      if (loginBtn) {
-        loginBtn.addEventListener('click', function(event) {
-          event.stopPropagation();
-          window.location.href = '/pages/auth.html';
-        });
-      }
-    }
-  });
-</script>
+    {% include firebase-init.html %}
+    {% include firebase-auth.html %}
 
 
     

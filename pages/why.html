@@ -48,8 +48,20 @@
     <link rel="stylesheet" href="/assets/css/utilities/text.css">
     <!-- Spacing Utilities -->
     <link rel="stylesheet" href="/assets/css/utilities/spacing.css">
+    <!-- Why Page Specific Styles -->
+    <link rel="stylesheet" href="/assets/css/pages/why.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- API Configuration -->
+    <script defer src="/assets/js/config.js"></script>
+    
+    <!-- API Client (must load after config.js) -->
+    <script defer src="/assets/js/api-client.js"></script>
+    
+    <!-- Firebase SDK & Auth -->
+    {% include firebase-init.html %}
+    {% include firebase-auth.html %}
 </head>
 <body>
     <header class="thematic-header" role="banner">

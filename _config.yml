@@ -56,6 +56,7 @@ exclude:
   - config/
   - backup-*
   - assets/css/main.scss
+  - assets/css/style.scss
 
 # Include files
 include:
@@ -80,19 +81,25 @@ include:
   - assets/css/utilities/_shadow.css
   - assets/css/utilities/_overflow.css
   - assets/css/pages/404.css
+  - assets/css/pages/about.css
   - assets/css/pages/academy.css
+  - assets/css/pages/admin-dashboard.css
   - assets/css/pages/auth.css
   - assets/css/pages/demo-spec.css
+  - assets/css/pages/how.css
   - assets/css/pages/index.css
+  - assets/css/pages/index-process-flow.css
+  - assets/css/pages/index-why-sections.css
   - assets/css/pages/maintenance.css
   - assets/css/pages/pricing.css
   - assets/css/pages/profile.css
   - assets/css/pages/spec-viewer.css
+  - assets/css/pages/spec-viewer-side-menu.css
   - assets/css/pages/toolpicker.css
+  - assets/css/pages/why.css
 
 # Sass settings
 sass:
-  sass_dir: assets/css
   style: compressed
 
 # Kramdown settings

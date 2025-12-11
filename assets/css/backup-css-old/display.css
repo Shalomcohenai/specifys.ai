@@ -4,6 +4,7 @@
    Utility classes for display properties
    Used to replace inline styles like style="display: none;"
 */
+
 /* Hide element */
 .hidden {
   display: none;
@@ -46,5 +47,3 @@
 .no-underline {
   text-decoration: none;
 }
-
-/*# sourceMappingURL=display.css.map */

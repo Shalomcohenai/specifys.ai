@@ -1,0 +1,265 @@
+/* ============================================
+   Index Page Why Sections Styles - Specifys.ai
+   ============================================
+   Styles for "The Promise That Falls Short" and "The Right Way to Build" sections
+   Extracted from main-compiled.css.backup.old
+*/
+
+/* Prompt Section (The Promise That Falls Short) */
+.why-section.prompt-section {
+  position: relative;
+  min-height: 600px;
+  overflow: hidden;
+}
+
+.prompt-animation-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.content-text-centered {
+  position: relative;
+  z-index: 2;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.content-text-centered .section-container {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 15px;
+  padding: 40px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+/* Planning Visual (The Right Way to Build) */
+.planning-visual {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  align-items: stretch;
+}
+
+.mermaid-diagram {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 15px;
+  padding: 30px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mermaid-diagram pre {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: none;
+  font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #333;
+}
+
+.variables-table {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 15px;
+  padding: 30px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  overflow-x: auto;
+}
+
+.variables-table table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0;
+}
+
+.variables-table thead {
+  background: linear-gradient(135deg, #FF6B35, #FF8551);
+  color: white;
+}
+
+.variables-table th {
+  padding: 15px 20px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 1rem;
+  font-family: "Montserrat", sans-serif;
+  border: none;
+}
+
+.variables-table td {
+  padding: 15px 20px;
+  border-bottom: 1px solid #e0e0e0;
+  font-size: 0.95rem;
+  color: #333;
+  font-family: "Inter", sans-serif;
+}
+
+.variables-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.variables-table tbody tr:hover {
+  background: rgba(255, 107, 53, 0.05);
+}
+
+/* Content Layout (used in both sections) */
+.content-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 50px;
+  align-items: center;
+  position: relative;
+  max-width: 1400px;
+  margin: 30px auto 0;
+  width: 100%;
+}
+
+.content-layout.reverse {
+  grid-template-columns: 1fr 1fr;
+}
+
+.content-layout.reverse .content-image {
+  order: 1;
+}
+
+.content-layout.reverse .content-text {
+  order: 2;
+}
+
+.content-image {
+  position: relative;
+  width: 100%;
+  min-height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s ease 0.7s, transform 0.8s ease 0.7s;
+}
+
+.content-layout.revealed .content-image,
+.content-layout .content-image {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.content-text {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.content-text .section-container {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s ease 0.4s, transform 0.8s ease 0.4s;
+}
+
+.content-layout.revealed .content-text .section-container,
+.content-layout .content-text .section-container {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.section-text {
+  font-size: 1.1rem;
+  line-height: 1.7;
+  color: #333;
+  font-family: "Inter", sans-serif;
+  margin-bottom: 15px;
+}
+
+.cta-container {
+  margin-top: 30px;
+  text-align: center;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .content-layout {
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
+  
+  .content-layout.reverse .content-image {
+    order: 1;
+  }
+  
+  .content-layout.reverse .content-text {
+    order: 2;
+  }
+  
+  .why-section.prompt-section {
+    min-height: 400px;
+  }
+  
+  .content-text-centered {
+    padding: 20px 15px;
+  }
+  
+  .content-text-centered .section-container {
+    padding: 30px 20px;
+  }
+  
+  .planning-visual {
+    flex-direction: column;
+  }
+  
+  .mermaid-diagram {
+    padding: 20px;
+    min-height: 200px;
+  }
+  
+  .variables-table {
+    padding: 20px;
+  }
+  
+  .variables-table th,
+  .variables-table td {
+    padding: 12px 15px;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .content-text-centered .section-container {
+    padding: 20px 15px;
+  }
+  
+  .mermaid-diagram {
+    padding: 15px;
+    min-height: 150px;
+  }
+  
+  .mermaid-diagram pre {
+    font-size: 12px;
+  }
+  
+  .variables-table {
+    padding: 15px;
+  }
+  
+  .variables-table th,
+  .variables-table td {
+    padding: 10px 12px;
+    font-size: 0.85rem;
+  }
+}

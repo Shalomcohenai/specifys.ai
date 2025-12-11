@@ -1,0 +1,352 @@
+/* ============================================
+   How Page Specific Styles - Specifys.ai
+   ============================================
+   Styles specific to the how.html page
+   Extracted from main-compiled.css.backup.old
+*/
+
+.how-intro {
+  font-size: 1.2rem;
+  color: #666;
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto 50px;
+  line-height: 1.7;
+  font-family: "Inter", sans-serif;
+}
+
+.process-flow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  margin: 0 auto 50px;
+  padding: 32px 40px;
+  background: linear-gradient(135deg, rgba(248, 248, 248, 0.95), rgba(233, 233, 233, 0.95));
+  border-radius: 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  max-width: 1100px;
+}
+
+.process-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  max-width: 240px;
+}
+
+.process-step h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #2f2f2f;
+  margin: 0;
+  font-family: "Montserrat", sans-serif;
+}
+
+.process-step p {
+  font-size: 0.98rem;
+  color: #555;
+  line-height: 1.6;
+  margin: 0;
+  font-family: "Inter", sans-serif;
+}
+
+.step-icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  color: #FF6B35;
+  font-size: 1.75rem;
+}
+
+.process-connector {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #999;
+  font-size: 1.4rem;
+}
+
+.process-connector .connector-line {
+  display: block;
+  width: 40px;
+  height: 2px;
+  background: linear-gradient(to right, rgba(153, 153, 153, 0.2), rgba(153, 153, 153, 0.6));
+}
+
+/* Track cards specific styles */
+.tracks-container {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  overflow-x: auto;
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+  max-width: 1100px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.track-card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+  flex: 1;
+  min-width: 280px;
+  display: flex;
+  flex-direction: column;
+}
+
+.track-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.track-card h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #FF6B35;
+  margin-bottom: 15px;
+  font-family: "Montserrat", sans-serif;
+}
+
+.track-card p {
+  font-size: 1rem;
+  color: #666;
+  margin-bottom: 20px;
+  line-height: 1.6;
+  font-family: "Inter", sans-serif;
+}
+
+.track-card ul {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 20px;
+  flex-grow: 1;
+}
+
+.track-card li {
+  font-size: 0.95rem;
+  color: #333;
+  margin-bottom: 10px;
+  position: relative;
+  padding-left: 20px;
+  font-family: "Inter", sans-serif;
+}
+
+.track-card li::before {
+  content: "\f058";
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+  color: #FF6B35;
+  position: absolute;
+  left: 0;
+  top: 2px;
+}
+
+/* Tools Section */
+.tools-section {
+  margin-top: 50px;
+  padding-top: 40px;
+  border-top: 2px solid #e9ecef;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.tools-section h2 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 20px;
+  font-size: 2rem;
+  font-family: "Montserrat", sans-serif;
+  font-weight: 700;
+}
+
+.tools-section > p {
+  text-align: center;
+  color: #666;
+  margin-bottom: 40px;
+  font-size: 1.1rem;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+  font-family: "Inter", sans-serif;
+  line-height: 1.6;
+}
+
+.tools-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 30px;
+  margin-top: 30px;
+  max-width: 1100px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.tool-card {
+  background: #fff;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.tool-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.tool-card.tools-map {
+  border-left: 5px solid #FF6B35;
+}
+
+.tool-card.tool-finder {
+  border-left: 5px solid #28a745;
+}
+
+.tool-card.spec-generator {
+  border-left: 5px solid #ffc107;
+}
+
+.tool-card.market-research {
+  border-left: 5px solid #dc3545;
+}
+
+.tool-icon {
+  font-size: 2.5rem;
+  margin-bottom: 20px;
+}
+
+.tool-icon.tools-map-icon {
+  color: #FF6B35;
+}
+
+.tool-icon.tool-finder-icon {
+  color: #28a745;
+}
+
+.tool-icon.spec-generator-icon {
+  color: #ffc107;
+}
+
+.tool-icon.market-research-icon {
+  color: #dc3545;
+}
+
+.tool-card h3 {
+  color: #333;
+  margin-bottom: 15px;
+  font-size: 1.4rem;
+  font-family: "Montserrat", sans-serif;
+  font-weight: 700;
+}
+
+.tool-card > p {
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 20px;
+  font-family: "Inter", sans-serif;
+}
+
+.tool-card ul {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 25px;
+}
+
+.tool-card li {
+  margin-bottom: 8px;
+  color: #333;
+  position: relative;
+  padding-left: 20px;
+  font-family: "Inter", sans-serif;
+}
+
+.tool-card li i.fa-check {
+  position: absolute;
+  left: 0;
+  top: 2px;
+  color: #FF6B35;
+}
+
+.tool-card.tools-map li i.fa-check {
+  color: #FF6B35;
+}
+
+.tool-card.tool-finder li i.fa-check {
+  color: #28a745;
+}
+
+.tool-card.spec-generator li i.fa-check {
+  color: #ffc107;
+}
+
+.tool-card.market-research li i.fa-check {
+  color: #dc3545;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .how-intro {
+    font-size: 1.1rem;
+    padding: 0 20px;
+  }
+  
+  .process-flow {
+    flex-direction: column;
+    padding: 28px 24px;
+  }
+  
+  .process-connector {
+    flex-direction: column;
+    gap: 6px;
+  }
+  
+  .process-connector .connector-line {
+    width: 2px;
+    height: 32px;
+    background: linear-gradient(to bottom, rgba(153, 153, 153, 0.2), rgba(153, 153, 153, 0.6));
+  }
+  
+  .tracks-container {
+    flex-direction: column;
+  }
+  
+  .track-card {
+    min-width: 100%;
+  }
+  
+  .tools-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .tool-card {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .process-step {
+    max-width: 100%;
+  }
+  
+  .tools-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .tool-card h3 {
+    font-size: 1.2rem;
+  }
+}

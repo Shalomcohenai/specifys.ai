@@ -1,0 +1,341 @@
+{
+  "timestamp": "2025-12-11T10:50:19.222405",
+  "base_url": "http://localhost:4000",
+  "backend_url": "https://specifys-ai.onrender.com",
+  "pages": {
+    "Blog": {
+      "url": "/blog/",
+      "name": "Blog",
+      "status": "passed",
+      "http_status": 200,
+      "css_files": [],
+      "js_files": [],
+      "errors": [],
+      "warnings": [
+        "Missing CSS files: main-compiled.css, tailwind-base-compiled.css, buttons.css, display.css, text.css, spacing.css",
+        "Console errors should be checked manually in browser"
+      ],
+      "links": []
+    },
+    "Article": {
+      "url": "/article.html",
+      "name": "Article",
+      "status": "passed",
+      "http_status": 200,
+      "css_files": [],
+      "js_files": [],
+      "errors": [],
+      "warnings": [
+        "Missing CSS files: main-compiled.css, tailwind-base-compiled.css, buttons.css, display.css, text.css, spacing.css",
+        "Console errors should be checked manually in browser"
+      ],
+      "links": []
+    },
+    "Articles": {
+      "url": "/pages/articles.html",
+      "name": "Articles",
+      "status": "passed",
+      "http_status": 200,
+      "css_files": [],
+      "js_files": [],
+      "errors": [],
+      "warnings": [
+        "Missing CSS files: main-compiled.css, tailwind-base-compiled.css, buttons.css, display.css, text.css, spacing.css",
+        "Console errors should be checked manually in browser"
+      ],
+      "links": []
+    },
+    "Academy": {
+      "url": "/academy.html",
+      "name": "Academy",
+      "status": "passed",
+      "http_status": 200,
+      "css_files": [],
+      "js_files": [],
+      "errors": [],
+      "warnings": [
+        "Missing CSS files: main-compiled.css, tailwind-base-compiled.css, buttons.css, display.css, text.css, spacing.css",
+        "Console errors should be checked manually in browser"
+      ],
+      "links": []
+    },
+    "Academy Category": {
+      "url": "/academy/category.html",
+      "name": "Academy Category",
+      "status": "passed",
+      "http_status": 200,
+      "css_files": [],
+      "js_files": [],
+      "errors": [],
+      "warnings": [
+        "Missing CSS files: main-compiled.css, tailwind-base-compiled.css, buttons.css, display.css, text.css, spacing.css",
+        "Console errors should be checked manually in browser"
+      ],
+      "links": []
+    },
+    "Academy Guide": {
+      "url": "/academy/guide.html",
+      "name": "Academy Guide",
+      "status": "passed",
+      "http_status": 200,
+      "css_files": [],
+      "js_files": [],
+      "errors": [],
+      "warnings": [
+        "Missing CSS files: main-compiled.css, tailwind-base-compiled.css, buttons.css, display.css, text.css, spacing.css",
+        "Console errors should be checked manually in browser"
+      ],
+      "links": []
+    },
+    "Dynamic Post": {
+      "url": "/dynamic-post/",
+      "name": "Dynamic Post",
+      "status": "passed",
+      "http_status": 200,
+      "css_files": [],
+      "js_files": [],
+      "errors": [],
+      "warnings": [
+        "Missing CSS files: main-compiled.css, tailwind-base-compiled.css, buttons.css, display.css, text.css, spacing.css",
+        "Console errors should be checked manually in browser"
+      ],
+      "links": []
+    },
+    "Tools Map": {
+      "url": "/tools/map/vibe-coding-tools-map.html",
+      "name": "Tools Map",
+      "status": "passed",
+      "http_status": 200,
+      "css_files": [],
+      "js_files": [],
+      "errors": [],
+      "warnings": [
+        "Missing CSS files: main-compiled.css, tailwind-base-compiled.css, buttons.css, display.css, text.css, spacing.css",
+        "Console errors should be checked manually in browser"
+      ],
+      "links": []
+    },
+    "Homepage": {
+      "url": "/",
+      "name": "Homepage",
+      "status": "passed",
+      "http_status": 200,
+      "css_files": [],
+      "js_files": [],
+      "errors": [],
+      "warnings": [
+        "Missing CSS files: main-compiled.css, tailwind-base-compiled.css, buttons.css, display.css, text.css, spacing.css",
+        "Console errors should be checked manually in browser"
+      ],
+      "links": [
+        "?N=D",
+        "?M=D",
+        "?S=D",
+        ".."
+      ]
+    },
+    "About": {
+      "url": "/pages/about.html",
+      "name": "About",
+      "status": "passed",
+      "http_status": 200,
+      "css_files": [],
+      "js_files": [],
+      "errors": [],
+      "warnings": [
+        "Missing CSS files: main-compiled.css, tailwind-base-compiled.css, buttons.css, display.css, text.css, spacing.css",
+        "Console errors should be checked manually in browser"
+      ],
+      "links": []
+    },
+    "Pricing": {
+      "url": "/pages/pricing.html",
+      "name": "Pricing",
+      "status": "passed",
+      "http_status": 200,
+      "css_files": [],
+      "js_files": [],
+      "errors": [],
+      "warnings": [
+        "Missing CSS files: main-compiled.css, tailwind-base-compiled.css, buttons.css, display.css, text.css, spacing.css",
+        "Console errors should be checked manually in browser"
+      ],
+      "links": []
+    },
+    "Auth": {
+      "url": "/pages/auth.html",
+      "name": "Auth",
+      "status": "passed",
+      "http_status": 200,
+      "css_files": [],
+      "js_files": [],
+      "errors": [],
+      "warnings": [
+        "Missing CSS files: main-compiled.css, tailwind-base-compiled.css, buttons.css, display.css, text.css, spacing.css",
+        "Console errors should be checked manually in browser"
+      ],
+      "links": []
+    },
+    "Profile": {
+      "url": "/pages/profile.html",
+      "name": "Profile",
+      "status": "passed",
+      "http_status": 200,
+      "css_files": [],
+      "js_files": [],
+      "errors": [],
+      "warnings": [
+        "Missing CSS files: main-compiled.css, tailwind-base-compiled.css, buttons.css, display.css, text.css, spacing.css",
+        "Console errors should be checked manually in browser"
+      ],
+      "links": []
+    },
+    "Spec Viewer": {
+      "url": "/pages/spec-viewer.html",
+      "name": "Spec Viewer",
+      "status": "passed",
+      "http_status": 200,
+      "css_files": [],
+      "js_files": [],
+      "errors": [],
+      "warnings": [
+        "Missing CSS files: main-compiled.css, tailwind-base-compiled.css, buttons.css, display.css, text.css, spacing.css",
+        "Console errors should be checked manually in browser"
+      ],
+      "links": []
+    },
+    "Demo Spec": {
+      "url": "/pages/demo-spec.html",
+      "name": "Demo Spec",
+      "status": "passed",
+      "http_status": 200,
+      "css_files": [],
+      "js_files": [],
+      "errors": [],
+      "warnings": [
+        "Missing CSS files: main-compiled.css, tailwind-base-compiled.css, buttons.css, display.css, text.css, spacing.css",
+        "Console errors should be checked manually in browser"
+      ],
+      "links": []
+    },
+    "How It Works": {
+      "url": "/pages/how.html",
+      "name": "How It Works",
+      "status": "passed",
+      "http_status": 200,
+      "css_files": [],
+      "js_files": [],
+      "errors": [],
+      "warnings": [
+        "Missing CSS files: main-compiled.css, tailwind-base-compiled.css, buttons.css, display.css, text.css, spacing.css",
+        "Console errors should be checked manually in browser"
+      ],
+      "links": []
+    },
+    "Why": {
+      "url": "/pages/why.html",
+      "name": "Why",
+      "status": "passed",
+      "http_status": 200,
+      "css_files": [],
+      "js_files": [],
+      "errors": [],
+      "warnings": [
+        "Missing CSS files: main-compiled.css, tailwind-base-compiled.css, buttons.css, display.css, text.css, spacing.css",
+        "Console errors should be checked manually in browser"
+      ],
+      "links": []
+    },
+    "Tool Picker": {
+      "url": "/pages/ToolPicker.html",
+      "name": "Tool Picker",
+      "status": "passed",
+      "http_status": 200,
+      "css_files": [],
+      "js_files": [],
+      "errors": [],
+      "warnings": [
+        "Missing CSS files: main-compiled.css, tailwind-base-compiled.css, buttons.css, display.css, text.css, spacing.css",
+        "Console errors should be checked manually in browser"
+      ],
+      "links": []
+    },
+    "404": {
+      "url": "/pages/404.html",
+      "name": "404",
+      "status": "passed",
+      "http_status": 200,
+      "css_files": [],
+      "js_files": [],
+      "errors": [],
+      "warnings": [
+        "Missing CSS files: main-compiled.css, tailwind-base-compiled.css, buttons.css, display.css, text.css, spacing.css",
+        "Console errors should be checked manually in browser"
+      ],
+      "links": []
+    },
+    "Maintenance": {
+      "url": "/pages/maintenance.html",
+      "name": "Maintenance",
+      "status": "passed",
+      "http_status": 200,
+      "css_files": [],
+      "js_files": [],
+      "errors": [],
+      "warnings": [
+        "Missing CSS files: main-compiled.css, tailwind-base-compiled.css, buttons.css, display.css, text.css, spacing.css",
+        "Console errors should be checked manually in browser"
+      ],
+      "links": []
+    },
+    "Admin Dashboard": {
+      "url": "/pages/admin-dashboard.html",
+      "name": "Admin Dashboard",
+      "status": "passed",
+      "http_status": 200,
+      "css_files": [],
+      "js_files": [],
+      "errors": [],
+      "warnings": [
+        "Missing CSS files: main-compiled.css, tailwind-base-compiled.css, buttons.css, display.css, text.css, spacing.css",
+        "Console errors should be checked manually in browser"
+      ],
+      "links": []
+    },
+    "Legacy Viewer": {
+      "url": "/pages/legacy-viewer.html",
+      "name": "Legacy Viewer",
+      "status": "passed",
+      "http_status": 200,
+      "css_files": [],
+      "js_files": [],
+      "errors": [],
+      "warnings": [
+        "Missing CSS files: main-compiled.css, tailwind-base-compiled.css, buttons.css, display.css, text.css, spacing.css",
+        "Console errors should be checked manually in browser"
+      ],
+      "links": []
+    },
+    "Academy Admin": {
+      "url": "/pages/admin/academy/index.html",
+      "name": "Academy Admin",
+      "status": "passed",
+      "http_status": 200,
+      "css_files": [],
+      "js_files": [],
+      "errors": [],
+      "warnings": [
+        "Missing CSS files: main-compiled.css, tailwind-base-compiled.css, buttons.css, display.css, text.css, spacing.css",
+        "Console errors should be checked manually in browser"
+      ],
+      "links": []
+    }
+  },
+  "issues": [],
+  "summary": {
+    "total": 23,
+    "passed": 23,
+    "failed": 0,
+    "warnings": 23
+  }
+}
