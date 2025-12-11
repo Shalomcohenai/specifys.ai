@@ -15,40 +15,56 @@ custom_js_modules:
 ---
 
 <main class="profile-container">
-    <!-- User Profile Header -->
-    <div class="profile-header">
-        <div class="profile-avatar-section">
-            <div class="avatar-placeholder" id="user-avatar">
-                <span id="avatar-initial">👤</span>
+    <!-- User Profile Dashboard -->
+    <div class="profile-dashboard">
+        <div class="profile-dashboard__content">
+            <!-- Personal Information Section -->
+            <div class="profile-dashboard__personal">
+                <div class="profile-dashboard__avatar">
+                    <div class="profile-dashboard__avatar-placeholder" id="user-avatar">
+                        <span id="avatar-initial" class="profile-dashboard__avatar-initial">👤</span>
+                    </div>
+                </div>
+                <div class="profile-dashboard__info">
+                    <h2 class="profile-dashboard__name" id="user-name">Loading...</h2>
+                    <p class="profile-dashboard__email" id="user-email">Loading...</p>
+                </div>
+                <div class="profile-dashboard__actions">
+                    <button class="profile-dashboard__btn profile-dashboard__btn--info" onclick="openPersonalInfoPanel()" title="Personal Information">
+                        <i class="fas fa-user-circle"></i>
+                        <span>Personal Info</span>
+                    </button>
+                    <button class="profile-dashboard__btn profile-dashboard__btn--admin hidden" id="admin-dashboard-btn" onclick="window.location.href='/pages/admin-dashboard.html'" title="Admin Dashboard">
+                        <i class="fas fa-user-shield"></i>
+                        <span>Admin Dashboard</span>
+                    </button>
+                    <button class="profile-dashboard__btn profile-dashboard__btn--logout" onclick="logout()" title="Sign Out">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Sign Out</span>
+                    </button>
+                </div>
             </div>
-            <div class="profile-actions-buttons">
-                <button class="personal-info-btn" onclick="openPersonalInfoPanel()" title="Personal Information">
-                    <i class="fas fa-user-circle"></i> Personal Info
-                </button>
-                <button class="admin-dashboard-btn hidden" id="admin-dashboard-btn" onclick="window.location.href='/pages/admin-dashboard.html'" title="Admin Dashboard">
-                    <i class="fas fa-user-shield"></i> Admin Dashboard
-                </button>
-                <button class="logout-btn-small" onclick="logout()" title="Sign Out">
-                    Sign Out
-                </button>
-            </div>
-        </div>
-        <div class="profile-info">
-            <h2 id="user-name">Loading...</h2>
-            <p id="user-email">Loading...</p>
-        </div>
-        <div class="profile-stats">
-            <div class="stat-item">
-                <div class="stat-number" id="specs-count">0</div>
-                <div class="stat-label">Specs</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-number" id="specs-remaining-count">—</div>
-                <div class="stat-label">Remaining Specification Credits</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-number" id="saved-tools-count">0</div>
-                <div class="stat-label">Tools</div>
+
+            <!-- Statistics Section -->
+            <div class="profile-dashboard__stats">
+                <div class="profile-dashboard__stat-card">
+                    <div class="profile-dashboard__stat-content">
+                        <div class="profile-dashboard__stat-number" id="specs-count">0</div>
+                        <div class="profile-dashboard__stat-label">Specs</div>
+                    </div>
+                </div>
+                <div class="profile-dashboard__stat-card profile-dashboard__stat-card--highlight">
+                    <div class="profile-dashboard__stat-content">
+                        <div class="profile-dashboard__stat-number" id="specs-remaining-count">—</div>
+                        <div class="profile-dashboard__stat-label">Remaining Specification Credits</div>
+                    </div>
+                </div>
+                <div class="profile-dashboard__stat-card">
+                    <div class="profile-dashboard__stat-content">
+                        <div class="profile-dashboard__stat-number" id="saved-tools-count">0</div>
+                        <div class="profile-dashboard__stat-label">Tools</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

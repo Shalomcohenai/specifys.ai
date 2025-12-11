@@ -6,7 +6,7 @@
   // Initialize when DOM is ready
   document.addEventListener('DOMContentLoaded', function() {
     initScrollReveal();
-    initPromptAnimation();
+    // initPromptAnimation(); // Disabled - removed background animations (dollars and prompts)
     initLogoJumpAnimation();
   });
 

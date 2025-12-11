@@ -43,6 +43,11 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
         const db = getFirestore(app);
         const googleProvider = new GoogleAuthProvider();
 
+        // Expose Firebase to global scope for credits-display.js compatibility
+        window.auth = auth;
+        window.db = db;
+        window.dispatchEvent(new Event('firebase-ready'));
+
         // Prevent concurrent user document creation
         let isCreatingUserDocument = false;
         let lastCreatedUserUid = null;

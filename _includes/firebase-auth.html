@@ -102,11 +102,9 @@
             window.clearEntitlementsCache();
           }
           
-          // Update credits display after a short delay to ensure Firestore is updated
+          // Update credits display (no force refresh, will use cache if available)
           if (typeof window.updateCreditsDisplay === 'function') {
-            setTimeout(() => {
-              window.updateCreditsDisplay({ showLoading: true });
-            }, 500);
+            window.updateCreditsDisplay({ forceRefresh: false });
           }
         }
       } else {

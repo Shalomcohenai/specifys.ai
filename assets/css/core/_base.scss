@@ -64,6 +64,16 @@ a:hover {
   text-decoration: underline;
 }
 
+/* Buttons should never have underline on hover */
+a.btn:hover,
+button.btn:hover,
+.btn:hover,
+a.btn-primary:hover,
+button.btn-primary:hover,
+.btn-primary:hover {
+  text-decoration: none;
+}
+
 a:focus {
   outline: 2px solid var(--primary-color);
   outline-offset: 2px;

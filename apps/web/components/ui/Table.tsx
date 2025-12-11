@@ -54,3 +54,4 @@ export function Table({ columns, data, className }: TableProps) {
 }
 
 
+

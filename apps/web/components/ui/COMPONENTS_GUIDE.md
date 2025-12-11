@@ -338,3 +338,4 @@ import { Container, SectionHeader, InfoCard } from '@/components/ui';
 5. **מודולריות**: כל קומפוננטה עצמאית וניתנת לשימוש חוזר
 
 
+

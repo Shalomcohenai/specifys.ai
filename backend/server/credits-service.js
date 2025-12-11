@@ -20,7 +20,7 @@ function generateTransactionId(source, orderId, userId) {
  * Grant credits to a user
  * @param {string} userId - Firebase user ID
  * @param {number} amount - Number of credits to grant (must be positive)
- * @param {string} source - Source of credits: 'admin', 'lemon_squeezy', 'manual', 'promotion', 'free_trial'
+ * @param {string} source - Source of credits: 'admin', 'lemon_squeezy', 'free_trial'
  * @param {Object} metadata - Additional metadata (orderId, variantId, etc.)
  * @returns {Promise<Object>} - Result with success status and details
  */
@@ -48,7 +48,7 @@ async function grantCredits(userId, amount, source, metadata = {}) {
       throw new Error(`Amount exceeds maximum allowed (${MAX_CREDITS_PER_GRANT})`);
     }
     
-    const validSources = ['admin', 'lemon_squeezy', 'manual', 'promotion', 'free_trial'];
+    const validSources = ['admin', 'lemon_squeezy', 'free_trial'];
     if (!validSources.includes(source)) {
       throw new Error(`Invalid source. Must be one of: ${validSources.join(', ')}`);
     }

@@ -25,6 +25,7 @@
   color: var(--text-white);
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
+  text-decoration: none;
 }
 
 .btn:focus {
@@ -63,6 +64,7 @@
 .btn-primary:hover {
   background: var(--button-hover);
   color: var(--text-white);
+  text-decoration: none;
 }
 
 .btn-secondary {
@@ -116,6 +118,7 @@
   background: var(--primary-color);
   border-color: var(--primary-color);
   color: var(--text-white);
+  text-decoration: none;
 }
 
 .btn-outline-secondary {
@@ -785,24 +788,24 @@ body.dark-mode .btn-secondary:hover {
 
 /* Dark mode milestone controls */
 body.dark-mode .milestone-count-controls .btn-outline-primary {
-  border-color: #007bff;
-  color: #007bff;
+  border-color: #FF6B35;
+  color: #FF6B35;
   background: transparent;
 }
 
 body.dark-mode .milestone-count-controls .btn-outline-primary:hover {
-  background: #007bff;
+  background: #FF6B35;
   color: white;
 }
 
 /* Modal button overrides */
 .btn-primary {
-  background: #007bff;
+  background: #FF6B35;
   color: white;
 }
 
 .btn-primary:hover {
-  background: #0056b3;
+  background: #FF8551;
 }
 
 .btn-secondary {
@@ -847,12 +850,12 @@ body.dark-mode .btn-secondary:hover {
 }
 
 .form-actions .btn-primary {
-  background: var(--primary-color, #0078d4);
+  background: var(--primary-color, #FF6B35);
   color: white;
 }
 
 .form-actions .btn-primary:hover {
-  background: var(--primary-color-dark, #0063b1);
+  background: var(--primary-hover, #FF8551);
 }
 
 .form-actions .btn:disabled {
@@ -993,5 +996,3 @@ body.dark-mode .btn-secondary:hover {
   background: var(--primary-light);
   color: var(--primary-color);
 }
-
-/*# sourceMappingURL=buttons.css.map */

@@ -56,7 +56,6 @@ exclude:
   - config/
   - backup-*
   - assets/css/main.scss
-  - assets/css/style.scss
 
 # Include files
 include:
@@ -65,7 +64,6 @@ include:
   - blog/  # Blog directory must be explicitly included
   # CSS files - must be explicitly listed (Jekyll doesn't support wildcards)
   - assets/css/main-compiled.css
-  - assets/css/tailwind-base-compiled.css
   - assets/css/components/badges.css
   - assets/css/components/buttons.css
   - assets/css/components/mermaid.css

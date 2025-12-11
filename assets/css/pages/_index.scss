@@ -210,7 +210,7 @@ body .logo a:hover .logo-dot {
   color: white;
   border: none;
   padding: 1rem 2.5rem;
-  border-radius: 50px;
+  border-radius: 5px;
   font-size: 1.2rem;
   font-weight: 600;
   cursor: pointer;
@@ -233,7 +233,7 @@ body .logo a:hover .logo-dot {
   justify-content: center;
   gap: 12px;
   background-color: #FF6B35;
-  border-radius: 30px;
+  border-radius: 5px;
   color: white;
   font-weight: 600;
   border: none;
@@ -954,21 +954,6 @@ body .logo a:hover .logo-dot {
   text-decoration: none;
 }
 
-.bottom-link::after {
-  content: "";
-  position: absolute;
-  bottom: -4px;
-  left: 0;
-  width: 0;
-  height: 2px;
-  background-color: #FF6B35;
-  transition: width 0.3s ease;
-}
-
-.bottom-link:hover::after {
-  width: 100%;
-}
-
 .separator {
   width: 1px;
   height: 20px;
@@ -981,7 +966,7 @@ body .logo a:hover .logo-dot {
   font-weight: 700;
   transition: all 0.2s;
   padding: 10px 20px;
-  border-radius: 100px;
+  border-radius: 5px;
   background: #cccccc; /* Gray by default, orange when active */
   border: 1px solid transparent;
   display: flex;
@@ -1215,7 +1200,7 @@ body .logo a:hover .logo-dot {
   color: #fff;
   text-decoration: none;
   padding: 0.5rem 1rem;
-  border-radius: 20px;
+  border-radius: 5px;
   font-size: 0.8rem;
   font-weight: 600;
   transition: all 0.3s ease;
@@ -1472,7 +1457,7 @@ body .logo a:hover .logo-dot {
   background: #28a745;
   color: white;
   padding: 3px 10px;
-  border-radius: 20px;
+  border-radius: 5px;
   font-size: 0.7rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -1791,7 +1776,7 @@ body .logo a:hover .logo-dot {
   background: #FF6B35;
   color: #fff;
   border: none;
-  border-radius: 30px;
+  border-radius: 5px;
   padding: 0.8rem 2rem;
   font-size: 1rem;
   font-weight: 700;
@@ -1918,7 +1903,7 @@ body .logo a:hover .logo-dot {
   background: #f0f0f0;
   color: #666;
   border: none;
-  border-radius: 25px;
+  border-radius: 5px;
   padding: 0.8rem 1.5rem;
   font-size: 0.95rem;
   font-weight: 600;
@@ -1934,7 +1919,7 @@ body .logo a:hover .logo-dot {
   background: #555;
   color: #fff;
   text-decoration: none;
-  border-radius: 25px;
+  border-radius: 5px;
   padding: 0.8rem 1.5rem;
   font-size: 0.95rem;
   font-weight: 600;
@@ -2041,7 +2026,7 @@ body .logo a:hover .logo-dot {
   background: #FF6B35;
   color: #fff;
   border: none;
-  border-radius: 25px;
+  border-radius: 5px;
   padding: 0.8rem 2rem;
   font-size: 0.95rem;
   font-weight: 600;
@@ -2417,10 +2402,14 @@ body .questions-display .typing-mode-toggle * {
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.8);
-  display: flex;
+  display: none; /* Hidden by default */
   align-items: center;
   justify-content: center;
   z-index: 99999;
+}
+
+.loading-overlay:not(.hidden) {
+  display: flex; /* Show only when not hidden */
 }
 
 .loading-content {

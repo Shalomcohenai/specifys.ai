@@ -1246,7 +1246,7 @@ async function generateSpecification() {
       window.clearEntitlementsCache();
     }
     if (typeof window.updateCreditsDisplay !== 'undefined') {
-      window.updateCreditsDisplay();
+      window.updateCreditsDisplay({ forceRefresh: true });
     }
     
     // Update store with credits (will be updated by credits-display.js)
@@ -1289,6 +1289,7 @@ async function generateSpecification() {
 function showLoadingOverlay() {
   const overlay = document.getElementById('loadingOverlay');
   if (overlay) {
+    overlay.classList.remove('hidden');
     overlay.style.display = 'flex';
   }
 }
@@ -1296,6 +1297,7 @@ function showLoadingOverlay() {
 function hideLoadingOverlay() {
   const overlay = document.getElementById('loadingOverlay');
   if (overlay) {
+    overlay.classList.add('hidden');
     overlay.style.display = 'none';
   }
 }
@@ -1429,6 +1431,9 @@ document.addEventListener('DOMContentLoaded', function() {
   // Clear any stale spec data when user arrives at fresh form
   localStorage.removeItem('currentSpecId');
   localStorage.removeItem('generatedOverviewContent');
+  
+  // Ensure loading overlay is hidden on page load
+  hideLoadingOverlay();
   
   checkFirstVisit();
   setupModernInput();

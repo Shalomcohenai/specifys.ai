@@ -8,6 +8,7 @@
 
   const STORAGE_KEY = 'specifys_last_credits';
   const STORAGE_TTL = 1000 * 60 * 60 * 24; // 24 hours
+  const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
   const CREDIT_CLASSES = ['unlimited', 'free', 'loading'];
 
   // Wait for Firebase to be available and initialized
@@ -75,6 +76,8 @@
     if (!elements) return;
 
     const { creditsDisplay, creditsText } = elements;
+    // Remove hidden class to show the element
+    creditsDisplay.classList.remove('hidden');
     creditsDisplay.style.display = 'flex';
     creditsText.textContent = state.text || '';
     creditsText.title = state.title || '';
@@ -129,11 +132,14 @@
   function saveCreditsState(userId, state) {
     if (!userId || !state) return;
     const bucket = getStorageBucket();
+    const now = Date.now();
     bucket[userId] = {
       text: state.text || '',
       title: state.title || '',
       variant: state.variant || 'credits',
-      savedAt: Date.now()
+      savedAt: now,
+      updatedAt: now,
+      lastFetchTimestamp: now
     };
     setStorageBucket(bucket);
   }
@@ -173,14 +179,33 @@
     }
 
     const userId = user.uid;
+    
+    // Check if we need to fetch from API or can use cache
+    const storedState = getStoredCreditsState(userId);
+    const now = Date.now();
+    const lastFetch = storedState?.lastFetchTimestamp || 0;
+    const shouldFetch = options.forceRefresh || (now - lastFetch) >= CACHE_DURATION;
+    
+    // If we have cached state and don't need to fetch, use it immediately
+    if (storedState && !shouldFetch && !options.showLoading) {
+      applyCreditsState(storedState);
+      return;
+    }
+    
     if (options.showLoading) {
       applyCreditsState(LOADING_STATE);
     }
+    
+    // Prevent concurrent updates
+    if (isUpdating && !options.forceRefresh) {
+      return;
+    }
+    isUpdating = true;
 
     try {
       // Use entitlements cache if available (performance optimization)
       let data;
-      if (typeof window.getEntitlements === 'function' && !options.forceRefresh) {
+      if (typeof window.getEntitlements === 'function' && !options.forceRefresh && !shouldFetch) {
         // Use cached entitlements (reduces API calls and CORS preflight overhead)
         data = await window.getEntitlements(false);
       } else {
@@ -255,12 +280,15 @@
           variant: 'loading'
         });
       }
+    } finally {
+      isUpdating = false;
     }
   }
 
   let activeUserId = null;
   let entitlementsUnsubscribe = null;
   let userUnsubscribe = null;
+  let isUpdating = false;
 
   /**
    * Check if user is new (created within last 5 minutes)
@@ -288,6 +316,25 @@
    * Update UI from entitlements and user data
    */
   function updateUIFromData(entitlements, userData) {
+    // Prevent updates if there's an active API update
+    if (isUpdating) {
+      return;
+    }
+    
+    // Check if we should update based on timestamp
+    const storedState = getStoredCreditsState(activeUserId);
+    const now = Date.now();
+    if (storedState && storedState.updatedAt) {
+      // Only update if this data is newer than what we have
+      // Firestore listeners might fire with stale data
+      const dataAge = now - (storedState.updatedAt || 0);
+      // If we have recent data (less than 1 second old), skip update from listener
+      // This prevents race conditions where listener fires before API response
+      if (dataAge < 1000) {
+        return;
+      }
+    }
+    
     let creditsState = null;
     
     if (entitlements?.unlimited) {
@@ -434,7 +481,12 @@
 
   function init() {
     waitForFirebase().then(async () => {
-      firebase.auth().onAuthStateChanged(async (user) => {
+      const auth = window.auth || (firebase && firebase.auth ? firebase.auth() : null);
+      if (!auth) {
+        console.warn('Auth not available in credits-display.js');
+        return;
+      }
+      auth.onAuthStateChanged(async (user) => {
         // Clean up existing listeners
         if (entitlementsUnsubscribe) {
           entitlementsUnsubscribe();
@@ -449,20 +501,49 @@
           activeUserId = user.uid;
           const storedState = getStoredCreditsState(user.uid);
           if (storedState) {
+            // Show cached state immediately
             applyCreditsState(storedState);
           } else {
+            // Only show loading if we don't have cached state
             applyCreditsState(LOADING_STATE);
           }
           
-          // Check if new user - wait a bit for documents to be created
+          // Check if new user - use polling instead of delay
           const isNewUser = await checkIfNewUser(user.uid);
           if (isNewUser) {
-            // Wait 1.5 seconds for documents to be created
-            await new Promise(resolve => setTimeout(resolve, 1500));
+            // Poll for documents to be created (max 5 seconds)
+            let pollCount = 0;
+            const maxPolls = 10; // 10 * 500ms = 5 seconds
+            const pollInterval = setInterval(async () => {
+              pollCount++;
+              const db = window.db || (firebase && firebase.firestore ? firebase.firestore() : null);
+              if (db) {
+                try {
+                  const [userDoc, entitlementsDoc] = await Promise.all([
+                    db.collection('users').doc(user.uid).get(),
+                    db.collection('entitlements').doc(user.uid).get()
+                  ]);
+                  
+                  if (userDoc.exists || entitlementsDoc.exists || pollCount >= maxPolls) {
+                    clearInterval(pollInterval);
+                    updateCreditsDisplayWithRetry();
+                  }
+                } catch (error) {
+                  console.warn('Error polling for user documents:', error);
+                  if (pollCount >= maxPolls) {
+                    clearInterval(pollInterval);
+                    updateCreditsDisplayWithRetry();
+                  }
+                }
+              } else if (pollCount >= maxPolls) {
+                clearInterval(pollInterval);
+                updateCreditsDisplayWithRetry();
+              }
+            }, 500);
+          } else {
+            // Not a new user - update immediately
+            updateCreditsDisplayWithRetry();
           }
-          
-          // Initial load with retry
-          updateCreditsDisplayWithRetry();
           
           // Initialize Firestore listeners for real-time updates
           initCreditsListeners(user.uid).catch((error) => {
@@ -477,42 +558,63 @@
         }
       });
 
-      if (auth) {
+      if (auth && typeof auth.onIdTokenChanged === 'function') {
         auth.onIdTokenChanged((user) => {
           if (user && user.uid === activeUserId) {
-            updateCreditsDisplay();
+            // Only update if token actually changed (not on every page load)
+            updateCreditsDisplay({ forceRefresh: false });
           }
         });
       }
 
-      document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible' && activeUserId) {
-          updateCreditsDisplay();
-        }
-      });
-
-      window.addEventListener('focus', () => {
-        if (activeUserId) {
-          updateCreditsDisplay();
-        }
-      });
-
-      const user = auth ? auth.currentUser : null;
+      const user = auth && auth.currentUser ? auth.currentUser : null;
       if (user) {
         activeUserId = user.uid;
         const storedState = getStoredCreditsState(user.uid);
         if (storedState) {
+          // Show cached state immediately
           applyCreditsState(storedState);
         } else {
+          // Only show loading if we don't have cached state
           applyCreditsState(LOADING_STATE);
         }
         
-        // Check if new user - wait a bit for documents to be created
+        // Check if new user - use polling instead of delay
         checkIfNewUser(user.uid).then(async (isNew) => {
           if (isNew) {
-            await new Promise(resolve => setTimeout(resolve, 1500));
+            // Poll for documents to be created (max 5 seconds)
+            let pollCount = 0;
+            const maxPolls = 10; // 10 * 500ms = 5 seconds
+            const pollInterval = setInterval(async () => {
+              pollCount++;
+              const db = window.db || (firebase && firebase.firestore ? firebase.firestore() : null);
+              if (db) {
+                try {
+                  const [userDoc, entitlementsDoc] = await Promise.all([
+                    db.collection('users').doc(user.uid).get(),
+                    db.collection('entitlements').doc(user.uid).get()
+                  ]);
+                  
+                  if (userDoc.exists || entitlementsDoc.exists || pollCount >= maxPolls) {
+                    clearInterval(pollInterval);
+                    updateCreditsDisplayWithRetry();
+                  }
+                } catch (error) {
+                  console.warn('Error polling for user documents:', error);
+                  if (pollCount >= maxPolls) {
+                    clearInterval(pollInterval);
+                    updateCreditsDisplayWithRetry();
+                  }
+                }
+              } else if (pollCount >= maxPolls) {
+                clearInterval(pollInterval);
+                updateCreditsDisplayWithRetry();
+              }
+            }, 500);
+          } else {
+            // Not a new user - update immediately
+            updateCreditsDisplayWithRetry();
           }
-          updateCreditsDisplayWithRetry();
           initCreditsListeners(user.uid).catch((error) => {
             console.warn('Error initializing credits listeners:', error);
           });
