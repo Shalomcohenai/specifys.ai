@@ -71,6 +71,14 @@ include:
   - assets/css/utilities/display.css
   - assets/css/utilities/spacing.css
   - assets/css/utilities/text.css
+  - assets/css/utilities/_responsive.css
+  - assets/css/utilities/_flexbox.css
+  - assets/css/utilities/_position.css
+  - assets/css/utilities/_width.css
+  - assets/css/utilities/_height.css
+  - assets/css/utilities/_border.css
+  - assets/css/utilities/_shadow.css
+  - assets/css/utilities/_overflow.css
   - assets/css/pages/404.css
   - assets/css/pages/academy.css
   - assets/css/pages/auth.css

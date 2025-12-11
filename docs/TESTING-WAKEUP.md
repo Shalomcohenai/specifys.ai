@@ -216,3 +216,4 @@
 - [תוכנית ההטמעה](../../.cursor/plans/server_wake-up_on_pricing_page_37748216.plan.md)
 - [Health Routes](../../backend/server/health-routes.js)
 - [Pricing Page](../../pages/pricing.html)
+

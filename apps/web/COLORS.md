@@ -105,3 +105,4 @@
 3. **רקעים**: השתמש ב-`bg-bg-secondary` לרקעים בהירים
 4. **קישורים**: השתמש ב-`text-primary` עם `hover:text-primary-hover`
 
+

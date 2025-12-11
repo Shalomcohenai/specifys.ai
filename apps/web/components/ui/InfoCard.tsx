@@ -36,3 +36,4 @@ export function InfoCard({ value, label, description, className }: InfoCardProps
   );
 }
 
+

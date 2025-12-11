@@ -399,3 +399,4 @@ router.get('/funnel', requireAdmin, async (req, res, next) => {
 });
 
 module.exports = router;
+
