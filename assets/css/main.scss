@@ -4,23 +4,66 @@
 // This file imports all CSS files in the correct order
 // Compile this to main-compiled.css for production use
 //
-// NOTE: All individual CSS files (core/, components/, pages/) have been
-// consolidated into main-compiled.css. This file is kept for reference
-// and future maintenance, but the compiled version (main-compiled.css)
-// is what's actually used in production.
-//
-// If you need to rebuild main-compiled.css, you would need to restore
-// the individual CSS files first, or merge their content directly here.
+// Compilation order is critical:
+// 1. Core (variables, reset, fonts, base) - must be first
+// 2. Layout (header, footer, containers)
+// 3. Components (buttons, badges, forms, etc.)
+// 4. Utilities (display, spacing, text, etc.)
 
 // ============================================
-// IMPORTANT: All CSS has been consolidated
+// 1. CORE - Base (must be first)
 // ============================================
-// The main-compiled.css file already contains all styles from:
-// - core/ (variables, fonts, reset, typography, base)
-// - components/ (buttons, header, footer, icons, mermaid, tables, live-brief-modal)
-// - pages/ (all 24 page-specific CSS files)
-// - blog.css
-//
-// This SCSS file is maintained for documentation purposes.
-// The actual compiled CSS is in main-compiled.css
+@import 'core/_variables';
+@import 'core/_reset';
+@import 'core/_fonts';
+@import 'core/_base';
 
+// ============================================
+// 2. LAYOUT - Layout
+// ============================================
+@import 'layout/_header';
+@import 'layout/_footer';
+@import 'layout/_containers';
+
+// ============================================
+// 3. COMPONENTS - Components
+// ============================================
+@import 'components/buttons';
+@import 'components/badges';
+@import 'components/mermaid';
+@import 'components/_forms';
+@import 'components/_tables';
+@import 'components/_modals';
+@import 'components/_cards';
+@import 'components/_icons';
+@import 'components/_live-brief';
+
+// ============================================
+// 4. UTILITIES - Utilities
+// ============================================
+@import 'utilities/display';
+@import 'utilities/spacing';
+@import 'utilities/text';
+@import 'utilities/_responsive';
+@import 'utilities/_flexbox';
+@import 'utilities/_position';
+@import 'utilities/_width';
+@import 'utilities/_height';
+@import 'utilities/_border';
+@import 'utilities/_shadow';
+@import 'utilities/_overflow';
+
+// ============================================
+// 5. PAGES - Page-specific styles
+// ============================================
+// Note: Most page-specific CSS is loaded separately via extra_css,
+// but index page styles are included here because they're critical
+// for the homepage layout
+@import 'pages/_index';
+
+// ============================================
+// NOTE: Other Pages CSS are NOT included here
+// ============================================
+// Other page-specific CSS files (pages/spec-viewer.css, etc.)
+// are loaded separately via extra_css in each page's front matter.
+// This keeps main-compiled.css smaller and allows per-page optimization.
