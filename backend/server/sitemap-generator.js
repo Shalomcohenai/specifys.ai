@@ -176,9 +176,3 @@ module.exports = {
     generateAndSaveSitemap
 };
 
-<<<<<<< Updated upstream
-=======
-
-
->>>>>>> Stashed changes
-

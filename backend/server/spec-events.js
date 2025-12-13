@@ -62,12 +62,3 @@ class SpecEventEmitter extends EventEmitter {
 
 module.exports = new SpecEventEmitter();
 
-
-
-
-<<<<<<< Updated upstream
-=======
-
-
->>>>>>> Stashed changes
-
