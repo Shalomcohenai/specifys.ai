@@ -608,11 +608,18 @@ async function consumeCredit(userId, specId) {
       let previousFreeCredits;
 
       if (!userDoc.exists) {
+        // New user gets 1 free credit
         previousFreeCredits = 1;
       } else if (typeof userData.free_specs_remaining === 'number') {
+        // Use actual value from database
         previousFreeCredits = Math.max(0, userData.free_specs_remaining);
       } else {
-        previousFreeCredits = 1;
+        // If free_specs_remaining doesn't exist, check if this is a new user
+        // Only give 1 credit to truly new users (created within last 5 minutes)
+        const isNewUser = userData.createdAt && (
+          (userData.createdAt.toDate ? userData.createdAt.toDate() : new Date(userData.createdAt)) > new Date(Date.now() - 5 * 60 * 1000)
+        );
+        previousFreeCredits = isNewUser ? 1 : 0; // Only new users get 1, others get 0
       }
 
       if (previousFreeCredits > 0) {
@@ -888,14 +895,30 @@ async function getEntitlements(userId) {
     if (!entitlementsDoc.exists) {
       // Entitlements don't exist - check if this is a new user
       let isNewUserCheck = false;
+      let userDataForCheck = null;
+      
       if (!userDoc.exists) {
         isNewUserCheck = true;
       } else {
-        const userData = userDoc.data();
-        if (userData.createdAt) {
-          const createdAt = userData.createdAt.toDate ? userData.createdAt.toDate() : new Date(userData.createdAt);
+        userDataForCheck = userDoc.data();
+        if (userDataForCheck.createdAt) {
+          const createdAt = userDataForCheck.createdAt.toDate ? userDataForCheck.createdAt.toDate() : new Date(userDataForCheck.createdAt);
           const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
           isNewUserCheck = createdAt > fiveMinutesAgo;
+        }
+      }
+      
+      // Check free_specs_remaining before setting spec_credits
+      // If user has consumed their free credit (free_specs_remaining = 0), don't give spec_credits
+      let specCreditsValue = 0;
+      if (isNewUserCheck) {
+        // Only give spec_credits if free_specs_remaining is not 0
+        if (userDataForCheck && typeof userDataForCheck.free_specs_remaining === 'number') {
+          // User exists and has free_specs_remaining field - use it
+          specCreditsValue = userDataForCheck.free_specs_remaining > 0 ? 1 : 0;
+        } else {
+          // User doesn't exist or doesn't have free_specs_remaining field - assume new user gets 1
+          specCreditsValue = 1;
         }
       }
       
@@ -903,7 +926,7 @@ async function getEntitlements(userId) {
       // But if this is a new user and entitlements don't exist, give 1 credit as fallback
       entitlements = {
         userId: userId,
-        spec_credits: isNewUserCheck ? 1 : 0,
+        spec_credits: specCreditsValue,
         unlimited: false,
         can_edit: false,
         preserved_credits: 0
@@ -916,6 +939,7 @@ async function getEntitlements(userId) {
     let user = null;
 
     if (!userDoc.exists) {
+      // New user gets 1 free credit
       await userRef.set({
         free_specs_remaining: 1,
         plan: 'free',
@@ -928,14 +952,54 @@ async function getEntitlements(userId) {
       };
     } else {
       const data = userDoc.data() || {};
+      // Only set free_specs_remaining to 1 if it's truly missing (new user scenario)
+      // If it's 0 (credit consumed), don't reset it to 1
       if (typeof data.free_specs_remaining !== 'number') {
+        // Check if this is a new user (created within last 5 minutes)
+        const isNewUser = data.createdAt && (
+          (data.createdAt.toDate ? data.createdAt.toDate() : new Date(data.createdAt)) > new Date(Date.now() - 5 * 60 * 1000)
+        );
+        const defaultValue = isNewUser ? 1 : 0; // Only give 1 credit to truly new users
         await userRef.set({
-          free_specs_remaining: 1,
+          free_specs_remaining: defaultValue,
           lastActive: admin.firestore.FieldValue.serverTimestamp()
         }, { merge: true });
-        data.free_specs_remaining = 1;
+        data.free_specs_remaining = defaultValue;
       }
       user = data;
+    }
+    
+    // Synchronize spec_credits with free_specs_remaining if entitlements document exists
+    // This fixes the case where consumeCredit updated free_specs_remaining to 0 but didn't update spec_credits
+    if (!shouldCreateEntitlements && entitlements && user) {
+      const freeSpecsRemaining = typeof user.free_specs_remaining === 'number' ? user.free_specs_remaining : 0;
+      const currentSpecCredits = typeof entitlements.spec_credits === 'number' ? entitlements.spec_credits : 0;
+      const hasUnlimited = entitlements.unlimited === true;
+      const hasPreservedCredits = typeof entitlements.preserved_credits === 'number' && entitlements.preserved_credits > 0;
+      
+      // If user doesn't have unlimited access and free_specs_remaining is 0,
+      // but spec_credits is 1 (and no preserved credits), then spec_credits should be 0
+      // This handles the case where a free credit was consumed but spec_credits wasn't updated
+      if (!hasUnlimited && freeSpecsRemaining === 0 && currentSpecCredits === 1 && !hasPreservedCredits) {
+        // Check if there are any purchased credits by looking at transactions
+        // If no purchased credits exist, then spec_credits should be 0
+        const transactionsRef = db.collection(TRANSACTIONS_COLLECTION);
+        const purchasedCreditsQuery = await transactionsRef
+          .where('userId', '==', userId)
+          .where('type', '==', 'purchase')
+          .limit(1)
+          .get();
+        
+        // If no purchased credits found, sync spec_credits to 0
+        if (purchasedCreditsQuery.empty) {
+          entitlements.spec_credits = 0;
+          await entitlementsRef.set({
+            ...entitlements,
+            spec_credits: 0,
+            updated_at: admin.firestore.FieldValue.serverTimestamp()
+          }, { merge: true });
+        }
+      }
     }
     
     // Create entitlements document if it doesn't exist

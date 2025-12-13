@@ -518,22 +518,13 @@ function jumpToQuestion(questionIndex) {
     // Update button state after restoring answer
     const sendBtn = document.getElementById('sendBtn');
     if (sendBtn) {
-      const textLength = textarea.value.trim().length;
-      const isLastQuestion = currentQuestionIndex === questions.length - 1;
-      const minLength = isLastQuestion ? 0 : 20;
-      
-      // Always keep button enabled for navigation, but change visual style
+      // All questions are optional - no minimum length required
+      // Always keep button enabled and active
       sendBtn.disabled = false;
       
-      if (textLength >= minLength) {
-        sendBtn.style.background = '#FF6B35';
-        sendBtn.style.cursor = 'pointer';
-        sendBtn.style.opacity = '1';
-      } else {
-        sendBtn.style.background = '#cccccc';
-        sendBtn.style.cursor = 'pointer';
-        sendBtn.style.opacity = '0.6';
-      }
+      sendBtn.style.background = '#FF6B35';
+      sendBtn.style.cursor = 'pointer';
+      sendBtn.style.opacity = '1';
       
       // Update button text
       if (sendBtn.querySelector('.send-text')) {
@@ -589,11 +580,8 @@ function nextQuestion() {
   const textarea = document.getElementById('mainInput');
   const answer = textarea.value.trim();
   
-  // Allow empty answer only on the last question
-  const isLastQuestion = currentQuestionIndex === questions.length - 1;
-  if (!isLastQuestion && !answer) return;
-  
-  // Save the answer (can be empty on last question)
+  // All questions are optional - allow empty answers
+  // Save the answer (can be empty for any question)
   answers[currentQuestionIndex] = answer;
   
   // Clear the textarea
@@ -644,19 +632,11 @@ function nextQuestion() {
         // Update button state to reflect new question
         const textarea = document.getElementById('mainInput');
         if (textarea && sendBtn) {
-          const textLength = textarea.value.trim().length;
-          const isLast = currentQuestionIndex >= questions.length - 1;
-          const minLength = isLast ? 0 : 20;
-          
-          if (textLength >= minLength) {
-            sendBtn.style.background = '#FF6B35';
-            sendBtn.style.cursor = 'pointer';
-            sendBtn.style.opacity = '1';
-          } else {
-            sendBtn.style.background = '#cccccc';
-            sendBtn.style.cursor = 'pointer';
-            sendBtn.style.opacity = '0.6';
-          }
+          // All questions are optional - no minimum length required
+          // Always show button as active
+          sendBtn.style.background = '#FF6B35';
+          sendBtn.style.cursor = 'pointer';
+          sendBtn.style.opacity = '1';
           
           // Update character limit for new question
           updateCharacterLimit();
@@ -722,24 +702,14 @@ function setupModernInput() {
   
   // Function to update button state based on text length
   function updateButtonState() {
-    const textLength = textarea.value.trim().length;
-    const isLastQuestion = currentQuestionIndex === questions.length - 1;
-    const minLength = isLastQuestion ? 0 : 20;
-    
-    // Always keep button enabled for navigation, but change visual style
+    // All questions are optional - no minimum length required
+    // Always keep button enabled and active
     sendBtn.disabled = false;
     
-    if (textLength >= minLength) {
-      // Orange (active) button
-      sendBtn.style.background = '#FF6B35';
-      sendBtn.style.cursor = 'pointer';
-      sendBtn.style.opacity = '1';
-    } else {
-      // Gray (less visible) button but still clickable
-      sendBtn.style.background = '#cccccc';
-      sendBtn.style.cursor = 'pointer';
-      sendBtn.style.opacity = '0.6';
-    }
+    // Always show as active (orange) button
+    sendBtn.style.background = '#FF6B35';
+    sendBtn.style.cursor = 'pointer';
+    sendBtn.style.opacity = '1';
     
     // Update character count
     updateCharacterLimit();
@@ -782,31 +752,9 @@ function setupModernInput() {
     // If on last question and trying to generate, check first 2 answers (question 3 is optional)
     const isLastQuestion = currentQuestionIndex === questions.length - 1;
     if (isLastQuestion) {
-      // Save current answer if exists
+      // Save current answer (all questions are optional)
       const currentAnswer = textarea.value.trim();
-      if (currentAnswer) {
-        answers[currentQuestionIndex] = currentAnswer;
-      }
-      
-      // Check if first 2 questions are answered
-      let allAnswered = true;
-      for (let i = 0; i < 2; i++) {
-        if (!answers[i] || answers[i].trim() === '') {
-          allAnswered = false;
-          break;
-        }
-      }
-      
-      if (!allAnswered) {
-        // Mark unanswered questions as error
-        markUnansweredQuestionsAsError();
-        // Temporarily shake the button or show error
-        sendBtn.style.animation = 'shake 0.5s';
-        setTimeout(() => {
-          sendBtn.style.animation = '';
-        }, 500);
-        return;
-      }
+      answers[currentQuestionIndex] = currentAnswer;
     }
     
     nextQuestion();
@@ -1061,15 +1009,12 @@ async function generateSpecification() {
       delete window.liveBriefSelectedPlatforms;
     }
     
-    // Check if answers exist and are valid (support both 3 and 4 answers for compatibility)
-    // Question 3 is optional, so we need at least 2 answers (questions 1 and 2)
-    if (!answers || answers.length < 2) {
-      hideLoadingOverlay();
-      alert('Error: Please provide answers to the first two questions before generating the specification.');
-      return;
+    // Check if answers exist (all questions are optional)
+    if (!answers || answers.length === 0) {
+      answers = [];
     }
     
-    // Ensure we have 3 answers (pad with empty string for question 3 if needed)
+    // Ensure we have 3 answers (pad with empty strings if needed)
     while (answers.length < 3) {
       answers.push('');
     }
@@ -1242,11 +1187,14 @@ async function generateSpecification() {
     }
     
     // Refresh credits display and clear cache
-    if (typeof window.clearEntitlementsCache !== 'undefined') {
-      window.clearEntitlementsCache();
+    // This is a trigger to update credits after spec creation
+    // Use new credits system
+    if (typeof window.clearCreditsCache === 'function') {
+      window.clearCreditsCache();
     }
     if (typeof window.updateCreditsDisplay !== 'undefined') {
-      window.updateCreditsDisplay({ forceRefresh: true });
+      // Update credits display immediately after spec creation (trigger-based update)
+      await window.updateCreditsDisplay({ forceRefresh: true });
     }
     
     // Update store with credits (will be updated by credits-display.js)

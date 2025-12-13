@@ -18,7 +18,7 @@ const academyRoutes = require('./academy-routes');
 const adminRoutes = require('./admin-routes');
 const analyticsRoutes = require('./analytics-routes');
 const lemonRoutes = require('./lemon-routes');
-const creditsRoutes = require('./credits-routes');
+// const creditsRoutes = require('./credits-routes'); // OLD - removed, using credits-v2-routes now
 // const healthRoutes = require('./health-routes'); // OLD - keep for rollback
 const healthRoutesTS = require('../dist/routes/health-routes'); // NEW - TypeScript compiled
 const healthRoutes = healthRoutesTS.default || healthRoutesTS; // Handle ES6 default export
@@ -331,10 +331,14 @@ const specsRoutes = require('./specs-routes');
 app.use('/api/specs', specsRoutes);
 logger.info({ type: 'route_mounted', path: '/api/specs' }, '[UNIFIED SERVER] ✅ Specs routes mounted');
 
-// Credits routes for credit management
-logger.info({ type: 'route_mount', path: '/api/credits', route: 'creditsRoutes' }, '[UNIFIED SERVER] 📌 Mounting credits routes');
-app.use('/api/credits', creditsRoutes);
-logger.info({ type: 'route_mounted', path: '/api/credits' }, '[UNIFIED SERVER] ✅ Credits routes mounted');
+// Credits routes for credit management (OLD - REMOVED)
+// Old routes have been removed. Use /api/v2/credits instead.
+
+// Credits V2 routes for new unified credit system
+logger.info({ type: 'route_mount', path: '/api/v2/credits', route: 'creditsV2Routes' }, '[UNIFIED SERVER] 📌 Mounting credits V2 routes');
+const creditsV2Routes = require('./credits-v2-routes');
+app.use('/api/v2/credits', creditsV2Routes);
+logger.info({ type: 'route_mounted', path: '/api/v2/credits' }, '[UNIFIED SERVER] ✅ Credits V2 routes mounted');
 
 // Chat routes for AI chat functionality
 logger.info({ type: 'route_mount', path: '/api/chat', route: 'chatRoutes' }, '[UNIFIED SERVER] 📌 Mounting chat routes');

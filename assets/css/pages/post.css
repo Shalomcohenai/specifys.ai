@@ -1,0 +1,643 @@
+/* ============================================
+   Blog Post Page Styles - Specifys.ai
+   ============================================
+   Styles for individual blog post pages
+   Following design guidelines from PAGE-CREATION-GUIDE.md
+*/
+
+/* ============================================
+   Reading Progress Bar
+   ============================================ */
+
+.reading-progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 0%;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary-color, #FF6B35), var(--primary-hover, #FF8551));
+  z-index: var(--z-header, 99999);
+  transition: width 0.1s ease-out;
+}
+
+/* ============================================
+   Breadcrumbs
+   ============================================ */
+
+.breadcrumbs {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--spacing-lg, 1.5rem) var(--spacing-lg, 1.5rem) var(--spacing-md, 1rem);
+  font-size: var(--font-size-sm, 0.875rem);
+  color: var(--text-secondary, #666);
+}
+
+.breadcrumbs a {
+  color: var(--text-secondary, #666);
+  text-decoration: none;
+  transition: color var(--transition-normal, 0.3s ease);
+}
+
+.breadcrumbs a:hover {
+  color: var(--primary-color, #FF6B35);
+  text-decoration: none;
+}
+
+.breadcrumbs .separator {
+  margin: 0 var(--spacing-xs, 0.25rem);
+  color: var(--text-muted, #999);
+}
+
+.breadcrumbs .current {
+  color: var(--text-color, #333);
+  font-weight: var(--font-weight-semibold, 600);
+}
+
+/* ============================================
+   Post Content Container
+   ============================================ */
+
+.post-content {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-lg, 1.5rem) var(--spacing-2xl, 3rem);
+  background: var(--bg-primary, #ffffff);
+}
+
+/* ============================================
+   Post Header
+   ============================================ */
+
+.post-header {
+  margin-bottom: var(--spacing-2xl, 3rem);
+  padding-bottom: var(--spacing-xl, 2rem);
+  border-bottom: 2px solid var(--border-light, #e9ecef);
+}
+
+.post-title {
+  font-size: clamp(var(--font-size-2xl, 1.5rem), 4vw, var(--font-size-4xl, 2.25rem));
+  font-weight: var(--font-weight-bold, 700);
+  line-height: var(--line-height-tight, 1.2);
+  color: var(--text-color, #333);
+  margin: 0 0 var(--spacing-lg, 1.5rem) 0;
+  font-family: 'Montserrat', sans-serif;
+  letter-spacing: -0.02em;
+}
+
+/* ============================================
+   Post Meta (Date, Author, Reading Time)
+   ============================================ */
+
+.post-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-lg, 1.5rem);
+  margin-bottom: var(--spacing-lg, 1.5rem);
+  font-size: var(--font-size-sm, 0.875rem);
+  color: var(--text-secondary, #666);
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs, 0.25rem);
+}
+
+.meta-item i {
+  font-size: var(--font-size-base, 1rem);
+  color: var(--primary-color, #FF6B35);
+  width: 18px;
+  text-align: center;
+}
+
+.post-date,
+.post-author,
+.reading-time {
+  color: var(--text-secondary, #666);
+}
+
+/* ============================================
+   Post Tags Header
+   ============================================ */
+
+.post-tags-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs, 0.25rem);
+  margin-bottom: var(--spacing-lg, 1.5rem);
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--spacing-xs, 0.25rem) var(--spacing-sm, 0.5rem);
+  background: var(--primary-light, #FFF4F0);
+  color: var(--primary-color, #FF6B35);
+  border-radius: var(--border-radius-sm, 0.25rem);
+  font-size: var(--font-size-xs, 0.75rem);
+  font-weight: var(--font-weight-semibold, 600);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ============================================
+   Post Description (Quote)
+   ============================================ */
+
+.post-description {
+  position: relative;
+  padding: var(--spacing-lg, 1.5rem);
+  padding-left: var(--spacing-2xl, 3rem);
+  background: var(--primary-light, #FFF4F0);
+  border-left: 4px solid var(--primary-color, #FF6B35);
+  border-radius: var(--border-radius-md, 0.5rem);
+  margin-bottom: var(--spacing-lg, 1.5rem);
+}
+
+.quote-icon {
+  position: absolute;
+  top: var(--spacing-lg, 1.5rem);
+  left: var(--spacing-lg, 1.5rem);
+  font-size: var(--font-size-2xl, 1.5rem);
+  color: var(--primary-color, #FF6B35);
+  opacity: 0.3;
+}
+
+.post-description p {
+  margin: 0;
+  font-size: var(--font-size-lg, 1.125rem);
+  line-height: var(--line-height-normal, 1.6);
+  color: var(--text-color, #333);
+  font-style: italic;
+}
+
+/* ============================================
+   Table of Contents
+   ============================================ */
+
+.table-of-contents {
+  background: var(--bg-secondary, #f5f5f5);
+  border: 1px solid var(--border-light, #e9ecef);
+  border-radius: var(--border-radius-lg, 1rem);
+  padding: var(--spacing-lg, 1.5rem);
+  margin-bottom: var(--spacing-xl, 2rem);
+}
+
+.table-of-contents h3 {
+  font-size: var(--font-size-lg, 1.125rem);
+  font-weight: var(--font-weight-bold, 700);
+  color: var(--text-color, #333);
+  margin: 0 0 var(--spacing-md, 1rem) 0;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.table-of-contents nav {
+  font-size: var(--font-size-sm, 0.875rem);
+}
+
+.table-of-contents nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.table-of-contents nav a {
+  color: var(--text-secondary, #666);
+  text-decoration: none;
+  display: block;
+  padding: var(--spacing-xs, 0.25rem) 0;
+  transition: color var(--transition-normal, 0.3s ease);
+}
+
+.table-of-contents nav a:hover {
+  color: var(--primary-color, #FF6B35);
+  text-decoration: none;
+}
+
+/* ============================================
+   Post Body Content
+   ============================================ */
+
+.post-body {
+  font-size: var(--font-size-base, 1rem);
+  line-height: var(--line-height-normal, 1.7);
+  color: var(--text-color, #333);
+  margin-bottom: var(--spacing-2xl, 3rem);
+}
+
+/* Typography within post body */
+.post-body h1,
+.post-body h2,
+.post-body h3,
+.post-body h4,
+.post-body h5,
+.post-body h6 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: var(--font-weight-bold, 700);
+  color: var(--text-color, #333);
+  margin-top: var(--spacing-2xl, 3rem);
+  margin-bottom: var(--spacing-lg, 1.5rem);
+  line-height: var(--line-height-tight, 1.2);
+  letter-spacing: -0.02em;
+}
+
+.post-body h1 {
+  font-size: var(--font-size-3xl, 1.875rem);
+}
+
+.post-body h2 {
+  font-size: var(--font-size-2xl, 1.5rem);
+}
+
+.post-body h3 {
+  font-size: var(--font-size-xl, 1.25rem);
+}
+
+.post-body h4 {
+  font-size: var(--font-size-lg, 1.125rem);
+}
+
+.post-body p {
+  margin-bottom: var(--spacing-lg, 1.5rem);
+}
+
+.post-body ul,
+.post-body ol {
+  margin-bottom: var(--spacing-lg, 1.5rem);
+  padding-left: var(--spacing-xl, 2rem);
+}
+
+.post-body li {
+  margin-bottom: var(--spacing-sm, 0.5rem);
+}
+
+.post-body a {
+  color: var(--primary-color, #FF6B35);
+  text-decoration: underline;
+  transition: color var(--transition-normal, 0.3s ease);
+}
+
+.post-body a:hover {
+  color: var(--primary-hover, #FF8551);
+  text-decoration: none;
+}
+
+.post-body strong {
+  font-weight: var(--font-weight-bold, 700);
+  color: var(--text-color, #333);
+}
+
+.post-body em {
+  font-style: italic;
+}
+
+.post-body blockquote {
+  margin: var(--spacing-xl, 2rem) 0;
+  padding: var(--spacing-lg, 1.5rem) var(--spacing-xl, 2rem);
+  border-left: 4px solid var(--primary-color, #FF6B35);
+  background: var(--primary-light, #FFF4F0);
+  border-radius: var(--border-radius-md, 0.5rem);
+  font-style: italic;
+  color: var(--text-secondary, #666);
+}
+
+.post-body code {
+  background: var(--bg-secondary, #f5f5f5);
+  padding: var(--spacing-xs, 0.25rem) var(--spacing-sm, 0.5rem);
+  border-radius: var(--border-radius-sm, 0.25rem);
+  font-family: 'Courier New', monospace;
+  font-size: 0.9em;
+  color: var(--primary-color, #FF6B35);
+}
+
+.post-body pre {
+  background: var(--bg-secondary, #f5f5f5);
+  padding: var(--spacing-lg, 1.5rem);
+  border-radius: var(--border-radius-md, 0.5rem);
+  overflow-x: auto;
+  margin-bottom: var(--spacing-lg, 1.5rem);
+  border: 1px solid var(--border-light, #e9ecef);
+}
+
+.post-body pre code {
+  background: none;
+  padding: 0;
+  color: var(--text-color, #333);
+  font-size: var(--font-size-sm, 0.875rem);
+}
+
+.post-body img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--border-radius-md, 0.5rem);
+  margin: var(--spacing-xl, 2rem) 0;
+  box-shadow: var(--shadow-md, 0 4px 8px rgba(0, 0, 0, 0.2));
+}
+
+.post-body hr {
+  border: none;
+  border-top: 2px solid var(--border-light, #e9ecef);
+  margin: var(--spacing-2xl, 3rem) 0;
+}
+
+/* ============================================
+   Post Footer
+   ============================================ */
+
+.post-footer {
+  margin-top: var(--spacing-2xl, 3rem);
+  padding-top: var(--spacing-xl, 2rem);
+  border-top: 2px solid var(--border-light, #e9ecef);
+}
+
+/* Share Section */
+.share-section {
+  margin-bottom: var(--spacing-xl, 2rem);
+  text-align: center;
+}
+
+.share-section h4 {
+  font-size: var(--font-size-lg, 1.125rem);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--text-color, #333);
+  margin-bottom: var(--spacing-md, 1rem);
+  font-family: 'Montserrat', sans-serif;
+}
+
+.share-buttons {
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-md, 1rem);
+  flex-wrap: wrap;
+}
+
+.share-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--border-radius-full, 50%);
+  color: var(--text-white, #ffffff);
+  text-decoration: none;
+  transition: all var(--transition-normal, 0.3s ease);
+  font-size: var(--font-size-lg, 1.125rem);
+  box-shadow: var(--shadow-sm, 0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.share-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md, 0 4px 8px rgba(0, 0, 0, 0.2));
+  text-decoration: none;
+}
+
+.share-btn.twitter {
+  background: #1DA1F2;
+}
+
+.share-btn.linkedin {
+  background: #0077B5;
+}
+
+.share-btn.facebook {
+  background: #4267B2;
+}
+
+.share-btn.copy {
+  background: var(--primary-color, #FF6B35);
+}
+
+.share-btn.copy:hover {
+  background: var(--primary-hover, #FF8551);
+}
+
+/* Post Tags Footer */
+.post-tags-footer {
+  margin-bottom: var(--spacing-xl, 2rem);
+}
+
+.post-tags-footer h4 {
+  font-size: var(--font-size-lg, 1.125rem);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--text-color, #333);
+  margin-bottom: var(--spacing-md, 1rem);
+  font-family: 'Montserrat', sans-serif;
+}
+
+.post-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs, 0.25rem);
+}
+
+/* Post Navigation */
+.post-navigation {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-lg, 1.5rem);
+  margin-bottom: var(--spacing-xl, 2rem);
+}
+
+.post-nav-link {
+  display: flex;
+  flex-direction: column;
+  padding: var(--spacing-lg, 1.5rem);
+  background: var(--bg-secondary, #f5f5f5);
+  border: 1px solid var(--border-light, #e9ecef);
+  border-radius: var(--border-radius-md, 0.5rem);
+  text-decoration: none;
+  transition: all var(--transition-normal, 0.3s ease);
+}
+
+.post-nav-link:hover {
+  background: var(--primary-light, #FFF4F0);
+  border-color: var(--primary-color, #FF6B35);
+  text-decoration: none;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm, 0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.post-nav-link.prev {
+  text-align: left;
+}
+
+.post-nav-link.next {
+  text-align: right;
+}
+
+.nav-label {
+  font-size: var(--font-size-xs, 0.75rem);
+  color: var(--text-muted, #999);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--spacing-xs, 0.25rem);
+}
+
+.nav-title {
+  font-size: var(--font-size-base, 1rem);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--text-color, #333);
+}
+
+.post-nav-link:hover .nav-title {
+  color: var(--primary-color, #FF6B35);
+}
+
+/* Back to Blog */
+.back-to-blog {
+  text-align: center;
+}
+
+.back-to-blog-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm, 0.5rem);
+  padding: var(--spacing-md, 1rem) var(--spacing-xl, 2rem);
+  background: var(--primary-color, #FF6B35);
+  color: var(--text-white, #ffffff);
+  text-decoration: none;
+  border-radius: var(--border-radius-md, 0.5rem);
+  font-size: var(--font-size-base, 1rem);
+  font-weight: var(--font-weight-semibold, 600);
+  transition: all var(--transition-normal, 0.3s ease);
+  box-shadow: var(--shadow-sm, 0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.back-to-blog-btn:hover {
+  background: var(--primary-hover, #FF8551);
+  color: var(--text-white, #ffffff);
+  text-decoration: none;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md, 0 4px 8px rgba(0, 0, 0, 0.2));
+}
+
+/* ============================================
+   Back to Top Button
+   ============================================ */
+
+.back-to-top {
+  position: fixed;
+  bottom: var(--spacing-xl, 2rem);
+  right: var(--spacing-xl, 2rem);
+  width: 48px;
+  height: 48px;
+  background: var(--primary-color, #FF6B35);
+  color: var(--text-white, #ffffff);
+  border: none;
+  border-radius: var(--border-radius-full, 50%);
+  cursor: pointer;
+  font-size: var(--font-size-lg, 1.125rem);
+  box-shadow: var(--shadow-md, 0 4px 8px rgba(0, 0, 0, 0.2));
+  transition: all var(--transition-normal, 0.3s ease);
+  opacity: 0;
+  visibility: hidden;
+  z-index: 1000;
+}
+
+.back-to-top.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.back-to-top:hover {
+  background: var(--primary-hover, #FF8551);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg, 0 6px 16px rgba(0, 0, 0, 0.15));
+}
+
+.back-to-top:focus {
+  outline: 2px solid var(--primary-color, #FF6B35);
+  outline-offset: 2px;
+}
+
+/* ============================================
+   Responsive Design
+   ============================================ */
+
+@media (max-width: 768px) {
+  .post-content {
+    padding: 0 var(--spacing-md, 1rem) var(--spacing-xl, 2rem);
+  }
+
+  .post-header {
+    margin-bottom: var(--spacing-xl, 2rem);
+    padding-bottom: var(--spacing-lg, 1.5rem);
+  }
+
+  .post-meta {
+    gap: var(--spacing-md, 1rem);
+  }
+
+  .post-body h1 {
+    font-size: var(--font-size-2xl, 1.5rem);
+  }
+
+  .post-body h2 {
+    font-size: var(--font-size-xl, 1.25rem);
+  }
+
+  .post-navigation {
+    grid-template-columns: 1fr;
+  }
+
+  .post-nav-link.next {
+    text-align: left;
+  }
+
+  .back-to-top {
+    bottom: var(--spacing-md, 1rem);
+    right: var(--spacing-md, 1rem);
+    width: 44px;
+    height: 44px;
+  }
+}
+
+@media (max-width: 480px) {
+  .breadcrumbs {
+    padding: var(--spacing-md, 1rem) var(--spacing-md, 1rem) var(--spacing-sm, 0.5rem);
+    font-size: var(--font-size-xs, 0.75rem);
+  }
+
+  .post-content {
+    padding: 0 var(--spacing-sm, 0.5rem) var(--spacing-lg, 1.5rem);
+  }
+
+  .post-title {
+    font-size: var(--font-size-2xl, 1.5rem);
+  }
+
+  .post-description {
+    padding: var(--spacing-md, 1rem);
+    padding-left: var(--spacing-xl, 2rem);
+  }
+
+  .quote-icon {
+    left: var(--spacing-md, 1rem);
+  }
+
+  .share-buttons {
+    gap: var(--spacing-sm, 0.5rem);
+  }
+
+  .share-btn {
+    width: 44px;
+    height: 44px;
+    font-size: var(--font-size-base, 1rem);
+  }
+}
+
+/* ============================================
+   Accessibility
+   ============================================ */
+
+.post-body a:focus,
+.share-btn:focus,
+.back-to-blog-btn:focus {
+  outline: 2px solid var(--primary-color, #FF6B35);
+  outline-offset: 2px;
+}
+
+.post-nav-link:focus {
+  outline: 2px solid var(--primary-color, #FF6B35);
+  outline-offset: 2px;
+}

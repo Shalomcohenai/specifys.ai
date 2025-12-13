@@ -29,9 +29,14 @@ class AcademyApp {
             if (user) {
                 this.loadUserProgress(user.uid);
             } else {
-                // Hide points button if not logged in
+                // Show 0 points if not logged in
                 const pointsBtn = document.getElementById('academy-points-btn');
-                if (pointsBtn) pointsBtn.style.display = 'none';
+                const pointsBtnText = document.getElementById('points-btn-text');
+                if (pointsBtn) pointsBtn.style.display = 'flex';
+                if (pointsBtnText) {
+                    pointsBtnText.textContent = '0';
+                    pointsBtnText.style.display = 'block';
+                }
             }
         });
 
@@ -61,20 +66,31 @@ class AcademyApp {
 
         if (!pointsBtn || !pointsModal) return;
 
-        // Show/hide button based on login status
+        // Always show button, but update points based on login status
+        pointsBtn.style.display = 'flex';
+        
         firebase.auth().onAuthStateChanged((user) => {
             if (user) {
-                pointsBtn.style.display = 'flex';
                 this.updatePointsButton();
             } else {
-                pointsBtn.style.display = 'none';
+                // Show 0 points if not logged in
+                const pointsBtnText = document.getElementById('points-btn-text');
+                if (pointsBtnText) {
+                    pointsBtnText.textContent = '0';
+                    pointsBtnText.style.display = 'block';
+                }
             }
         });
 
         // Open modal
         pointsBtn.addEventListener('click', () => {
-            this.updatePointsModal();
-            pointsModal.style.display = 'block';
+            if (this.currentUser) {
+                this.updatePointsModal();
+                pointsModal.style.display = 'block';
+            } else {
+                // Redirect to login if not logged in
+                window.location.href = '/pages/auth.html';
+            }
         });
 
         // Close modal
@@ -123,8 +139,178 @@ class AcademyApp {
         if (this.userProgress) {
             const points = this.userProgress.points || 0;
             pointsBtnText.textContent = points;
+            pointsBtnText.style.display = 'block';
         } else {
             pointsBtnText.textContent = '0';
+            pointsBtnText.style.display = 'block';
+        }
+    }
+    
+    async checkAnswers(guide) {
+        const questions = guide.questions;
+        const questionBlocks = document.querySelectorAll('.question-block');
+        let allAnswered = true;
+        const userAnswers = [];
+        let correctCount = 0;
+        
+        // Check if all questions are answered and collect answers
+        questions.forEach((q, qIndex) => {
+            const selected = document.querySelector(`input[name="question-${qIndex}"]:checked`);
+            if (!selected) {
+                allAnswered = false;
+                return;
+            }
+            const answerIndex = parseInt(selected.value);
+            userAnswers.push(answerIndex);
+            if (answerIndex === q.correctIndex) {
+                correctCount++;
+            }
+        });
+        
+        if (!allAnswered) {
+            alert('Please answer all questions before checking answers.');
+            return;
+        }
+        
+        // Mark all answers visually
+        questions.forEach((q, qIndex) => {
+            const selected = document.querySelector(`input[name="question-${qIndex}"]:checked`);
+            const questionBlock = questionBlocks[qIndex];
+            const options = questionBlock.querySelectorAll('.question-option');
+            
+            const answerIndex = parseInt(selected.value);
+            const isCorrect = answerIndex === q.correctIndex;
+            
+            // Mark all options
+            options.forEach((option, aIndex) => {
+                option.classList.remove('correct', 'incorrect');
+                if (aIndex === q.correctIndex) {
+                    option.classList.add('correct');
+                } else if (aIndex === answerIndex && !isCorrect) {
+                    option.classList.add('incorrect');
+                }
+            });
+        });
+        
+        // Check if all answers are correct and award points automatically
+        const allCorrect = correctCount === questions.length;
+        
+        if (allCorrect) {
+            // Calculate points based on guide level
+            let pointsPerAnswer = 5; // Default
+            if (guide.level === 'Beginner') {
+                pointsPerAnswer = 5;
+            } else if (guide.level === 'Intermediate') {
+                pointsPerAnswer = 10;
+            } else if (guide.level === 'Advanced') {
+                pointsPerAnswer = 15;
+            }
+            
+            // Only award points if answered ALL questions correctly
+            const pointsEarned = questions.length * pointsPerAnswer;
+            
+            // Check if already completed to avoid duplicate points
+            const isAlreadyCompleted = this.userProgress && this.userProgress.completedGuides && this.userProgress.completedGuides.includes(guide.id);
+            
+            if (!isAlreadyCompleted && this.currentUser) {
+                try {
+                    // Update user progress in Firestore
+                    const userRef = firebase.firestore().collection('users').doc(this.currentUser.uid);
+                    const userDoc = await userRef.get();
+                    
+                    const currentPoints = userDoc.exists ? (userDoc.data().academyPoints || 0) : 0;
+                    const currentCompleted = userDoc.exists ? (userDoc.data().completedGuides || []) : [];
+                    const currentAnswers = userDoc.exists ? (userDoc.data().academyAnswers || {}) : {};
+                    
+                    // Update data
+                    const updatedCompleted = [...currentCompleted];
+                    if (!updatedCompleted.includes(guide.id)) {
+                        updatedCompleted.push(guide.id);
+                    }
+                    
+                    const updatedAnswers = {
+                        ...currentAnswers,
+                        [guide.id]: {
+                            answers: userAnswers,
+                            score: correctCount,
+                            totalQuestions: questions.length,
+                            pointsEarned: pointsEarned,
+                            completedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        }
+                    };
+                    
+                    await userRef.set({
+                        academyPoints: currentPoints + pointsEarned,
+                        completedGuides: updatedCompleted,
+                        academyAnswers: updatedAnswers
+                    }, { merge: true });
+                    
+                    // Update local progress
+                    this.userProgress = {
+                        points: currentPoints + pointsEarned,
+                        completedGuides: updatedCompleted,
+                        answers: updatedAnswers
+                    };
+                    
+                    // Update points button
+                    this.updatePointsButton();
+                    
+                    // Show success message with points
+                    this.showCheckAnswersSuccess(guide, pointsEarned, correctCount, questions.length);
+                    
+                } catch (error) {
+                    console.error('Error awarding points:', error);
+                    // Still show the visual feedback even if saving fails
+                    this.showCheckAnswersFeedback(guide, correctCount, questions.length, 0);
+                }
+            } else {
+                // Already completed or not logged in - just show feedback
+                this.showCheckAnswersFeedback(guide, correctCount, questions.length, isAlreadyCompleted ? 0 : 0);
+            }
+        } else {
+            // Not all correct - just show feedback
+            this.showCheckAnswersFeedback(guide, correctCount, questions.length, 0);
+        }
+    }
+    
+    showCheckAnswersSuccess(guide, pointsEarned, correctCount, totalQuestions) {
+        const questionsResults = document.getElementById('questions-results');
+        const questionsActions = document.getElementById('questions-actions');
+        
+        if (questionsResults) {
+            questionsResults.classList.remove('hidden');
+            questionsResults.className = 'questions-results success';
+            questionsResults.innerHTML = `
+                <h3>🎉 Excellent! All Answers Correct!</h3>
+                <p>You got ${correctCount} out of ${totalQuestions} questions correct.</p>
+                <p class="points-earned">+${pointsEarned} points earned!</p>
+                <p>Total Academy Points: ${this.userProgress ? this.userProgress.points : 0}</p>
+            `;
+        }
+        
+        if (questionsActions) {
+            questionsActions.style.display = 'none';
+        }
+    }
+    
+    showCheckAnswersFeedback(guide, correctCount, totalQuestions, pointsEarned) {
+        const questionsResults = document.getElementById('questions-results');
+        const questionsActions = document.getElementById('questions-actions');
+        
+        if (questionsResults) {
+            questionsResults.classList.remove('hidden');
+            questionsResults.className = 'questions-results ' + (correctCount === totalQuestions ? 'success' : '');
+            questionsResults.innerHTML = `
+                <h3>Your Results</h3>
+                <p>You got ${correctCount} out of ${totalQuestions} questions correct.</p>
+                ${pointsEarned > 0 ? `<p class="points-earned">+${pointsEarned} points earned!</p>` : ''}
+                ${correctCount < totalQuestions ? '<p>Try again to get all answers correct and earn points!</p>' : ''}
+                ${this.userProgress ? `<p>Total Academy Points: ${this.userProgress.points}</p>` : ''}
+            `;
+        }
+        
+        if (questionsActions && correctCount === totalQuestions) {
+            questionsActions.style.display = 'none';
         }
     }
 
@@ -745,26 +931,32 @@ class AcademyApp {
             </div>
         `).join('');
 
-        // Add buttons container
+        // Add buttons container - always show if questions exist
         const questionsActions = document.getElementById('questions-actions');
-        questionsActions.style.display = 'flex';
-        questionsActions.innerHTML = '';
-        
-        // Add submit button
-        const submitBtn = document.createElement('button');
-        submitBtn.className = 'submit-questions-btn';
-        submitBtn.textContent = 'Submit Answers';
-        submitBtn.addEventListener('click', () => this.submitAnswers(guide));
-        questionsActions.appendChild(submitBtn);
-        
-        // Add back to category button
-        if (this.currentGuideCategoryId) {
-            const backBtn = document.createElement('a');
-            backBtn.className = 'back-to-category-btn';
-            backBtn.href = `/academy/category.html?category=${this.currentGuideCategoryId}`;
-            backBtn.innerHTML = '<i class="fas fa-arrow-left" aria-hidden="true"></i> Back to Category';
-            questionsActions.appendChild(backBtn);
+        if (questionsActions) {
+            questionsActions.classList.remove('hidden');
+            questionsActions.style.display = 'flex';
+            questionsActions.innerHTML = '';
+            
+            // Add check answers button (this will also award points if all correct)
+            const checkBtn = document.createElement('button');
+            checkBtn.className = 'check-answers-btn';
+            checkBtn.textContent = 'Check Answers';
+            checkBtn.addEventListener('click', () => this.checkAnswers(guide));
+            questionsActions.appendChild(checkBtn);
+            
+            // Add back to category button
+            if (this.currentGuideCategoryId) {
+                const backBtn = document.createElement('a');
+                backBtn.className = 'back-to-category-btn';
+                backBtn.href = `/academy/category.html?category=${this.currentGuideCategoryId}`;
+                backBtn.innerHTML = '<i class="fas fa-arrow-left" aria-hidden="true"></i> Back to Category';
+                questionsActions.appendChild(backBtn);
+            }
         }
+        
+        // Store guide for checkAnswers method
+        this.currentGuideForCheck = guide;
     }
 
     async submitAnswers(guide) {
@@ -858,8 +1050,12 @@ class AcademyApp {
     showQuestionResults(guide, savedAnswers, userAnswers = null) {
         const questionsContainer = document.getElementById('questions-container');
         const questionsResults = document.getElementById('questions-results');
+        const questionsActions = document.getElementById('questions-actions');
         
         questionsContainer.style.display = 'none';
+        if (questionsActions) {
+            questionsActions.style.display = 'none';
+        }
         questionsResults.style.display = 'block';
 
         const answers = userAnswers || savedAnswers.answers;
@@ -925,10 +1121,7 @@ class AcademyApp {
         const keywords = 'app development, learn programming, web development guides, API tutorials, database tutorials, security tutorials, app architecture, beginner programming, coding education, tech tutorials';
 
         this.updateMetaTags(title, description, keywords);
-        this.addBreadcrumbs([
-            { name: 'Home', url: '/' },
-            { name: 'Academy', url: '/academy.html' }
-        ]);
+        // Breadcrumbs removed per design requirements
         this.addMainPageStructuredData(categories, guides);
     }
 
@@ -938,11 +1131,7 @@ class AcademyApp {
         const keywords = `${category.title.toLowerCase()}, app development, programming guides, ${category.title.toLowerCase()} tutorials, learn ${category.title.toLowerCase()}, tech education`;
 
         this.updateMetaTags(title, description, keywords);
-        this.addBreadcrumbs([
-            { name: 'Home', url: '/' },
-            { name: 'Academy', url: '/academy.html' },
-            { name: category.title, url: `/academy/category.html?category=${category.id}` }
-        ]);
+        // Breadcrumbs removed per design requirements
         this.addCategoryPageStructuredData(category, guides);
     }
 
@@ -952,17 +1141,7 @@ class AcademyApp {
         const keywords = `${guide.title.toLowerCase()}, ${guide.level || 'Beginner'} guide, app development, programming tutorial, ${category ? category.title.toLowerCase() : ''}, learn coding`;
 
         this.updateMetaTags(title, description, keywords);
-        
-        const breadcrumbs = [
-            { name: 'Home', url: '/' },
-            { name: 'Academy', url: '/academy.html' }
-        ];
-        if (category) {
-            breadcrumbs.push({ name: category.title, url: `/academy/category.html?category=${category.id}` });
-        }
-        breadcrumbs.push({ name: guide.title, url: `/academy/guide.html?guide=${guide.id}` });
-        this.addBreadcrumbs(breadcrumbs);
-        
+        // Breadcrumbs removed per design requirements
         this.addGuidePageStructuredData(guide, category);
     }
 

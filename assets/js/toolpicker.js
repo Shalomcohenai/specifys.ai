@@ -1,15 +1,79 @@
 // ToolPicker page JavaScript
 document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.querySelector('.search-input');
+    const searchInput = document.querySelector('.search-input') || document.querySelector('#ideaInput');
     const searchButton = document.querySelector('.search-button');
     const charCounter = document.querySelector('.char-counter');
     const featuresSection = document.querySelector('.features-section');
     const comparisonSection = document.querySelector('.comparison-section');
     const comparisonTableBody = document.querySelector('.comparison-table-body');
     const errorMessage = document.querySelector('.error-message');
+    
+    // Debug: Log if elements are found
+    console.log('ToolPicker initialized:', {
+        searchInput: !!searchInput,
+        searchButton: !!searchButton,
+        charCounter: !!charCounter
+    });
+    
+    // Force textarea visibility and enable interaction if found
+    if (searchInput) {
+        searchInput.style.display = 'block';
+        searchInput.style.visibility = 'visible';
+        searchInput.style.opacity = '1';
+        searchInput.style.pointerEvents = 'auto';
+        searchInput.style.cursor = 'text';
+        searchInput.style.zIndex = '10';
+        searchInput.style.position = 'relative';
+        // Remove any disabled or readonly attributes
+        searchInput.removeAttribute('disabled');
+        searchInput.removeAttribute('readonly');
+        // Ensure it's focusable
+        searchInput.setAttribute('tabindex', '0');
+        
+        // Add click handler to ensure focus
+        searchInput.addEventListener('click', function(e) {
+            e.stopPropagation();
+            this.focus();
+        });
+        
+        // Add focus handler
+        searchInput.addEventListener('focus', function() {
+            this.style.pointerEvents = 'auto';
+            this.style.cursor = 'text';
+        });
+        
+        // Prevent any parent elements from blocking interaction
+        let parent = searchInput.parentElement;
+        while (parent && parent !== document.body) {
+            if (parent.style.pointerEvents === 'none') {
+                parent.style.pointerEvents = 'auto';
+            }
+            parent = parent.parentElement;
+        }
+        
+        // Make sure the textarea is not covered by any overlay
+        setTimeout(() => {
+            searchInput.focus();
+            searchInput.blur(); // Remove focus but keep it interactive
+        }, 100);
+    }
 
-    // Character counter
+    // Character counter - Initialize on page load
     if (searchInput && charCounter) {
+        // Initialize counter with current value
+        const initialCount = searchInput.value.length;
+        charCounter.textContent = `${initialCount}/2000 characters`;
+        
+        // Set initial color class
+        if (initialCount > 1800) {
+            charCounter.classList.add('text-danger');
+        } else if (initialCount > 1500) {
+            charCounter.classList.add('text-warning');
+        } else {
+            charCounter.classList.add('text-secondary');
+        }
+        
+        // Update counter on input
         searchInput.addEventListener('input', function() {
             const count = this.value.length;
             charCounter.textContent = `${count}/2000 characters`;

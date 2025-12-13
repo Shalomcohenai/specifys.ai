@@ -271,18 +271,9 @@ class QuestionFlowController {
     
     const isLastQuestion = this.state.isLastQuestion();
     
-    // If NOT last question - validate ONLY current question before moving to next
+    // If NOT last question - move to next question (no validation required)
     if (!isLastQuestion) {
-      const currentAnswer = this.state.getAnswer(currentIndex) || '';
-      const minLength = 20; // Minimum characters for questions 1 and 2 (not question 3)
-      
-      // Check minimum length for current question (only for questions 1 and 2, not question 3)
-      if (currentIndex < 2 && currentAnswer.trim().length < minLength) {
-        this.view.showErrorMessage(`Please provide at least ${minLength} characters for your answer.`);
-        return;
-      }
-      
-      // For question 1 (index 0), also check platform selection
+      // For question 1 (index 0), check platform selection
       if (currentIndex === 0) {
         const platforms = this.state.getSelectedPlatforms();
         if (!platforms.mobile && !platforms.web) {
@@ -305,21 +296,14 @@ class QuestionFlowController {
         }
       }
       
-      // All validations passed - move to next question
+      // Move to next question (no minimum length required)
       this.state.setCurrentQuestionIndex(currentIndex + 1);
       this.showCurrentQuestion();
       return;
     }
     
-    // If last question - validate first 2 questions before generating
+    // If last question - generate specification (no validation required)
     if (isLastQuestion) {
-      const validation = this.state.validateAnswers();
-      if (!validation.valid) {
-        this.view.markUnansweredErrors(this.state.getAllAnswers());
-        alert('Please answer the first two questions before generating your specification.');
-        return;
-      }
-      
       // Generate specification
       this.generateSpecification();
     }
@@ -452,19 +436,11 @@ class QuestionFlowController {
   
   // Generate specification
   async generateSpecification() {
-    // Final save of current answer (save even if empty - question 3 is optional)
+    // Final save of current answer (all questions are optional)
     const currentIndex = this.state.getCurrentQuestionIndex();
     const currentValue = this.view.getCurrentInputValue();
-    // Always save the answer, even if empty (for question 3)
+    // Always save the answer, even if empty
     this.state.setAnswer(currentIndex, currentValue.trim());
-    
-    // Validate all answers (only first 2 questions are required)
-    const validation = this.state.validateAnswers();
-    if (!validation.valid) {
-      this.view.markUnansweredErrors(this.state.getAllAnswers());
-      alert('Please answer the first two questions before generating the specification.');
-      return;
-    }
     
     // Set answers for generateSpecification function
     // Ensure we always have 3 answers (question 3 can be empty)

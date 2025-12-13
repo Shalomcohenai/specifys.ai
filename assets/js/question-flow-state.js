@@ -135,12 +135,7 @@ class QuestionFlowState {
   
   // Validation
   validateAnswers() {
-    // First 2 questions are required
-    for (let i = 0; i < 2; i++) {
-      if (!this.answers[i] || this.answers[i].trim() === '') {
-        return { valid: false, missingIndex: i };
-      }
-    }
+    // All questions are optional - no validation required
     return { valid: true };
   }
   

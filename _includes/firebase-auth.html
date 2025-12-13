@@ -122,9 +122,9 @@
         
         // If entitlements were created or updated, trigger credits refresh
         if (result.entitlements && (result.created || result.updated)) {
-          // Clear entitlements cache if it exists
-          if (typeof window.clearEntitlementsCache === 'function') {
-            window.clearEntitlementsCache();
+          // Clear credits cache (using new credits-v2 system)
+          if (typeof window.clearCreditsCache === 'function') {
+            window.clearCreditsCache();
           }
           
           // Update credits display (no force refresh, will use cache if available)

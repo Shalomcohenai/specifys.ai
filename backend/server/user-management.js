@@ -109,9 +109,9 @@ async function initializeUser(uid, userDataOverrides = {}) {
                 if (userDocToWrite.plan === undefined) {
                     userDocToWrite.plan = 'free';
                 }
-                if (typeof userDocToWrite.free_specs_remaining !== 'number') {
-                    userDocToWrite.free_specs_remaining = 1;
-                }
+                // Note: free_specs_remaining is now managed by user_credits collection
+                // Keep it for backward compatibility but don't set it here
+                // It will be migrated to user_credits.balances.free
             } else {
                 userDocToWrite.createdAt = existingUserData?.createdAt || authUser.creationTime || nowIso;
             }
@@ -123,44 +123,73 @@ async function initializeUser(uid, userDataOverrides = {}) {
                 }
             });
             
-            // Prepare entitlements document
-            const entitlementsDocToWrite = {
-                userId: uid,
-                unlimited: false,
-                can_edit: false,
-                updated_at: admin.firestore.FieldValue.serverTimestamp()
-            };
-            
-            // Only set spec_credits if entitlements don't exist
-            if (!entitlementsExist) {
-                // New user gets 1 credit, existing user without entitlements gets 0
-                entitlementsDocToWrite.spec_credits = !userExists ? 1 : 0;
-            }
-            
-            // Write both documents in the same transaction
+            // Write user document
             if (!userExists) {
                 transaction.set(userRef, userDocToWrite);
             } else if (Object.keys(userDocToWrite).length > 0) {
                 transaction.update(userRef, userDocToWrite);
             }
             
+            // Initialize user_credits using new system (outside transaction for now)
+            // Note: This will be handled by credits-v2-service which uses its own transaction
+            
+            // For backward compatibility, still create entitlements document if it doesn't exist
+            // but don't set spec_credits (that's now in user_credits)
             if (!entitlementsExist) {
+                const entitlementsDocToWrite = {
+                    userId: uid,
+                    unlimited: false,
+                    can_edit: false,
+                    updated_at: admin.firestore.FieldValue.serverTimestamp()
+                };
                 transaction.set(entitlementsRef, entitlementsDocToWrite);
             }
             
-            // Get final entitlements data
+            // Get final entitlements data (for backward compatibility)
             const finalEntitlements = entitlementsExist 
                 ? entitlementsDoc.data() 
-                : entitlementsDocToWrite;
+                : { userId: uid, unlimited: false, can_edit: false };
             
-            return {
-                created: !userExists || !entitlementsExist,
+            // Initialize user_credits if it doesn't exist (after transaction)
+            // This needs to be done outside the transaction because credits-v2-service uses its own transactions
+            const result = {
+                created: !userExists || !entitlementsExist || !creditsExist,
                 updated: userExists && entitlementsExist && Object.keys(userDocToWrite).length > 0,
-                unchanged: userExists && entitlementsExist && Object.keys(userDocToWrite).length === 0,
+                unchanged: userExists && entitlementsExist && creditsExist && Object.keys(userDocToWrite).length === 0,
                 user: { ...(existingUserData || {}), ...userDocToWrite },
                 entitlements: finalEntitlements
             };
+            
+            // Initialize credits after transaction commits
+            if (!creditsExist) {
+                // Use credits-v2-service to initialize (will be done after transaction)
+                result._needsCreditsInit = true;
+                result._isNewUser = !userExists;
+            }
+            
+            return result;
         });
+        
+        // Initialize user_credits if needed (after transaction)
+        if (result._needsCreditsInit) {
+            try {
+                const creditsV2Service = require('./credits-v2-service');
+                const credits = await creditsV2Service.getUserCredits(uid);
+                
+                // Grant 1 free credit to new users
+                if (result._isNewUser) {
+                    await creditsV2Service.grantCredits(uid, 1, 'promotion', {
+                        reason: 'New user welcome credit',
+                        creditType: 'free'
+                    });
+                }
+            } catch (creditsError) {
+                // Log but don't fail - credits will be initialized on first access
+                console.error(`[user-management] Error initializing credits for ${uid}:`, creditsError);
+            }
+        }
+        
+        return result;
     } catch (error) {
         throw error;
     }

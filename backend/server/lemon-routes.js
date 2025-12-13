@@ -16,7 +16,7 @@ const { verifyWebhookSignature, parseWebhookPayload } = require('./lemon-webhook
 const { recordTestPurchase, getTestPurchaseCount } = require('./lemon-credits-service');
 const { getProductByKey, getProductByVariantId, getProductKeyByVariantId } = require('./lemon-products-config');
 const { recordPurchase } = require('./lemon-purchase-service');
-const creditsService = require('./credits-service');
+const creditsV2Service = require('./credits-v2-service');
 const {
   resolveSubscription,
   upsertSubscriptionFromWebhook,
@@ -424,7 +424,7 @@ router.post('/subscription/cancel', express.json(), verifyFirebaseToken, async (
       cancelResponseBody?.data?.attributes?.ends_at_formatted ||
       resolvedEndsAt;
 
-    const disableResult = await creditsService.disableProSubscription(userId, {
+    const disableResult = await creditsV2Service.disableProSubscription(userId, {
       subscriptionId,
       cancelReason: reason,
       cancelMode: cancellationMode,
@@ -577,10 +577,10 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
             if (productConfig) {
               if (productConfig.type === 'one_time' && creditsToGrant && creditsToGrant > 0) {
                 try {
-                  await creditsService.grantCredits(
+                  await creditsV2Service.grantCredits(
                     orderData.userId,
                     creditsToGrant,
-                    'lemon_squeezy',
+                    'purchase',
                     {
                       orderId: orderData.orderId,
                       variantId: orderData.variantId,
@@ -598,7 +598,7 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
                 }
               } else if (productConfig.type === 'subscription') {
                 try {
-                  await creditsService.enableProSubscription(orderData.userId, {
+                  await creditsV2Service.enableProSubscription(orderData.userId, {
                     plan: 'pro',
                     orderId: orderData.orderId,
                     productId: orderData.productId,
@@ -683,7 +683,7 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
 
       if (isActive) {
         try {
-          await creditsService.enableProSubscription(subscriptionUserId, {
+          await creditsV2Service.enableProSubscription(subscriptionUserId, {
             plan: 'pro',
             orderId: subscriptionData.orderId || null,
             productId: subscriptionData.productId || productConfig?.product_id || null,
@@ -705,7 +705,7 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
         }
       } else if (isCancelled || (!isActive && subscriptionData.cancelAtPeriodEnd)) {
         try {
-          await creditsService.disableProSubscription(subscriptionUserId, {
+          await creditsV2Service.disableProSubscription(subscriptionUserId, {
             subscriptionId: subscriptionData.subscriptionId,
             cancelReason: 'webhook',
             cancelMode: subscriptionData.cancelAtPeriodEnd ? 'period_end' : 'immediate',

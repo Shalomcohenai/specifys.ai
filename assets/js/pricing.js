@@ -417,22 +417,58 @@ async function purchaseSpec(evt, productKey) {
 
         const token = await user.getIdToken();
 
-        const response = await fetch(`${API_BASE_URL}/lemon/checkout`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                productKey,
-                successPath: '/pages/pricing.html',
-                successQuery: { product: productKey }
-            })
-        });
+        // Retry logic for when server is sleeping (Render.com cold start)
+        let response;
+        let lastError;
+        const maxRetries = 3;
+        const retryDelay = 2000; // 2 seconds between retries
+        
+        for (let attempt = 0; attempt < maxRetries; attempt++) {
+            try {
+                if (attempt > 0) {
+                    // Update button text to show retry attempt
+                    updateButtonLoadingText(triggerButton, `Retrying... (${attempt}/${maxRetries - 1})`);
+                    await new Promise(resolve => setTimeout(resolve, retryDelay));
+                }
+                
+                response = await fetch(`${API_BASE_URL}/lemon/checkout`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        productKey,
+                        successPath: '/pages/pricing.html',
+                        successQuery: { product: productKey }
+                    })
+                });
 
-        if (!response.ok) {
-            const errorPayload = await response.json().catch(() => ({}));
-            throw new Error(errorPayload.error || 'Failed to start checkout');
+                if (response.ok) {
+                    break; // Success, exit retry loop
+                }
+                
+                // If it's a server error (5xx) or network error, retry
+                if (response.status >= 500 || response.status === 0) {
+                    lastError = new Error('Server is starting up, please wait...');
+                    continue; // Retry
+                }
+                
+                // For other errors (4xx), don't retry
+                const errorPayload = await response.json().catch(() => ({}));
+                throw new Error(errorPayload.error || 'Failed to start checkout');
+            } catch (error) {
+                lastError = error;
+                // If it's a network error or server error, retry
+                if (attempt < maxRetries - 1 && (error.message.includes('fetch') || error.message.includes('network') || !response || response.status >= 500)) {
+                    continue; // Retry
+                }
+                throw error; // Re-throw if not retryable or out of retries
+            }
+        }
+
+        if (!response || !response.ok) {
+            throw lastError || new Error('Failed to start checkout after multiple attempts');
         }
 
         const data = await response.json();
@@ -492,6 +528,9 @@ async function purchaseSpec(evt, productKey) {
         updateProductButtonsForUser(currentUser);
     }
 }
+
+// Expose purchaseSpec to global scope for inline onclick handlers
+window.purchaseSpec = purchaseSpec;
 
 // Track CTA function (if not already defined)
 function trackCTA(ctaName, location) {
@@ -574,30 +613,44 @@ if (document.readyState === 'loading') {
 async function wakeUpServer() {
     try {
         // Send a lightweight ping to the health endpoint to wake up the server
+        // API_BASE_URL already includes /api, so we just append /health
         const healthUrl = `${API_BASE_URL}/health`;
         
         // Use fetch with a timeout - we don't care about the response,
         // we just want to wake up the server
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+        const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout (longer for cold start)
         
-        fetch(healthUrl, {
-            method: 'GET',
-            headers: {
-                'User-Agent': 'Specifys-Pricing-Page/1.0'
-            },
-            signal: controller.signal
-        }).then(() => {
+        try {
+            const response = await fetch(healthUrl, {
+                method: 'GET',
+                headers: {
+                    'User-Agent': 'Specifys-Pricing-Page/1.0',
+                    'Accept': 'application/json'
+                },
+                signal: controller.signal,
+                // Don't wait for response body, just trigger the request
+                cache: 'no-cache'
+            });
+            
             clearTimeout(timeoutId);
-        }).catch(() => {
+            
+            // Server is awake (even if response is not 200, the server received the request)
+        } catch (fetchError) {
             clearTimeout(timeoutId);
-            // Silently ignore errors - we're just trying to wake up the server
-            // If it fails, the user will just wait a bit longer when clicking Buy Now
-        });
+            
+            // Network errors are expected if server is sleeping
+            // The request still helps wake up the server
+        }
     } catch (error) {
         // Silently ignore - this is just a preemptive wake-up call
+        // If it fails, the user will just wait a bit longer when clicking Buy Now
     }
 }
+
+// Wake up server immediately when script loads (don't wait for DOMContentLoaded)
+// This gives the server more time to wake up before user interacts
+wakeUpServer();
 
 document.addEventListener('DOMContentLoaded', () => {
     initProductButtons();

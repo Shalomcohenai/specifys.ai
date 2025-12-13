@@ -4,6 +4,319 @@
    Styles specific to the ToolPicker.html page
 */
 
+/* Tool Finder Section */
+.tool-finder-section {
+  margin: 2rem 0 !important;
+  padding: 2rem !important;
+  background: #ffffff !important;
+  border-radius: 12px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+  display: block !important;
+  visibility: visible !important;
+}
+
+.tool-finder-section textarea,
+.tool-finder-section #ideaInput {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  cursor: text !important;
+  z-index: 10 !important;
+  position: relative !important;
+}
+
+/* Ensure no overlay covers the textarea */
+.tool-finder-section::before,
+.tool-finder-section::after,
+.form-group::before,
+.form-group::after {
+  display: none !important;
+  pointer-events: none !important;
+}
+
+.search-instructions {
+  margin-bottom: 1.5rem;
+  color: var(--text-secondary, #666);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+/* Form Group - Force visibility */
+.form-group {
+  margin-bottom: 1.5rem !important;
+  display: block !important;
+  visibility: visible !important;
+}
+
+.tool-finder-section .form-group {
+  display: block !important;
+  visibility: visible !important;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--text-color, #333);
+}
+
+/* Textarea / Search Input - Force visibility and enable interaction */
+#ideaInput,
+.form-control,
+.search-input,
+textarea.form-control,
+textarea.search-input {
+  display: block !important;
+  visibility: visible !important;
+  width: 100% !important;
+  padding: 1rem !important;
+  border: 2px solid #e1e5e9 !important;
+  border-radius: 8px !important;
+  font-size: 1rem !important;
+  font-family: inherit !important;
+  background: #ffffff !important;
+  color: #333 !important;
+  transition: all 0.3s ease;
+  box-sizing: border-box !important;
+  resize: vertical;
+  min-height: 120px !important;
+  line-height: 1.6 !important;
+  opacity: 1 !important;
+  position: relative !important;
+  pointer-events: auto !important;
+  cursor: text !important;
+  user-select: text !important;
+  -webkit-user-select: text !important;
+  -moz-user-select: text !important;
+  -ms-user-select: text !important;
+}
+
+/* Ensure textarea is not disabled or readonly */
+#ideaInput:disabled,
+#ideaInput[readonly],
+.form-control:disabled,
+.form-control[readonly],
+.search-input:disabled,
+.search-input[readonly] {
+  background: #ffffff !important;
+  cursor: text !important;
+  pointer-events: auto !important;
+}
+
+.form-control:focus,
+.search-input:focus {
+  outline: none;
+  border-color: var(--primary-color, #FF6B35);
+  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+}
+
+.form-control::placeholder,
+.search-input::placeholder {
+  color: var(--text-secondary, #999);
+}
+
+/* Character Counter */
+.char-counter {
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  text-align: right;
+}
+
+.char-counter.text-secondary {
+  color: var(--text-secondary, #666);
+}
+
+.char-counter.text-warning {
+  color: #f59e0b;
+}
+
+.char-counter.text-danger {
+  color: #ef4444;
+  font-weight: 600;
+}
+
+/* Button Container */
+.button-container {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+/* Search Button */
+.search-button,
+.btn-primary {
+  padding: 0.875rem 2rem;
+  background: var(--primary-color, #FF6B35);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.search-button:hover,
+.btn-primary:hover {
+  background: var(--primary-hover, #FF8551);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+}
+
+.search-button:disabled,
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Icon styles - ensure white color */
+.search-button i,
+.search-button .fas,
+.search-button .fa,
+.btn-primary i,
+.btn-primary .fas,
+.btn-primary .fa {
+  font-size: 1rem;
+  color: white !important;
+}
+
+.search-button .fa-paper-plane,
+.btn-primary .fa-paper-plane,
+.search-button i.fa-paper-plane,
+.btn-primary i.fa-paper-plane {
+  color: white !important;
+}
+
+/* Hover states - keep icon white */
+.search-button:hover i,
+.search-button:hover .fas,
+.search-button:hover .fa,
+.btn-primary:hover i,
+.btn-primary:hover .fas,
+.btn-primary:hover .fa {
+  color: white !important;
+}
+
+.search-button:hover .fa-paper-plane,
+.btn-primary:hover .fa-paper-plane,
+.search-button:hover i.fa-paper-plane,
+.btn-primary:hover i.fa-paper-plane {
+  color: white !important;
+}
+
+/* Features Section */
+.features-section {
+  margin: 3rem 0;
+}
+
+.features-section h3 {
+  margin-bottom: 1.5rem;
+  color: var(--text-color, #333);
+}
+
+.features-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.feature-item {
+  padding: 0.5rem 1rem;
+  background: var(--primary-light, #FFF4F0);
+  color: var(--primary-color, #FF6B35);
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+/* Comparison Section */
+.comparison-section {
+  margin: 3rem 0;
+}
+
+.comparison-section h3 {
+  margin-bottom: 1.5rem;
+  color: var(--text-color, #333);
+}
+
+.table-container {
+  overflow-x: auto;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--bg-primary, #ffffff);
+}
+
+.table thead {
+  background: var(--primary-color, #FF6B35);
+  color: white;
+}
+
+.table th {
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+}
+
+.table td {
+  padding: 1rem;
+  border-bottom: 1px solid var(--light-gray, #e1e5e9);
+}
+
+.table tbody tr:hover {
+  background: var(--bg-secondary, #f9fafb);
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.column-highlight {
+  background: var(--primary-light, #FFF4F0) !important;
+}
+
+/* Error Message */
+.error-message {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  border-radius: 8px;
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+.error-message.hidden {
+  display: none;
+}
+
+/* Hidden Utility */
+.hidden {
+  display: none !important;
+}
+
+/* Visually Hidden (for accessibility) */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Impact Section */
 .impact-section {
   margin: 4rem 0;
 }

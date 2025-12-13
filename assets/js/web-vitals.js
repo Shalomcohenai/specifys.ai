@@ -9,10 +9,19 @@
   // Check if web-vitals library is available
   if (typeof getCLS === 'undefined' && typeof getFID === 'undefined' && typeof getLCP === 'undefined') {
     // Fallback: Load web-vitals from CDN if not available
+    // Use UMD version to avoid ES module syntax errors
     const script = document.createElement('script');
-    script.src = 'https://unpkg.com/web-vitals@3/dist/web-vitals.attribution.js';
+    script.src = 'https://unpkg.com/web-vitals@3/dist/web-vitals.attribution.umd.js';
     script.async = true;
     script.onload = initWebVitals;
+    script.onerror = function() {
+      // Fallback: try without attribution if UMD attribution fails
+      const fallbackScript = document.createElement('script');
+      fallbackScript.src = 'https://unpkg.com/web-vitals@3/dist/web-vitals.umd.js';
+      fallbackScript.async = true;
+      fallbackScript.onload = initWebVitals;
+      document.head.appendChild(fallbackScript);
+    };
     document.head.appendChild(script);
   } else {
     initWebVitals();

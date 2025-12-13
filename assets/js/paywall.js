@@ -209,9 +209,9 @@
 
       await openCheckoutOverlay(data.checkoutUrl, {
         onSuccess: () => {
-          // Clear cache to force refresh
-          if (typeof window.clearEntitlementsCache === 'function') {
-            window.clearEntitlementsCache();
+          // Clear cache to force refresh (using new credits system)
+          if (typeof window.clearCreditsCache === 'function') {
+            window.clearCreditsCache();
           }
           
           // Update credits display immediately
@@ -297,9 +297,10 @@
         };
       }
 
+      // Check free_specs_remaining - return 0 if not set, not 1
       const freeSpecs = typeof userData?.free_specs_remaining === 'number'
         ? Math.max(0, userData.free_specs_remaining)
-        : 1;
+        : 0; // Return 0 if not set, not 1
 
       if (freeSpecs > 0) {
         return {

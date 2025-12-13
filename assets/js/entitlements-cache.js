@@ -116,9 +116,10 @@
       return true;
     }
 
+    // Check free_specs_remaining - return 0 if not set, not 1
     const freeSpecs = typeof user?.free_specs_remaining === 'number' 
       ? Math.max(0, user.free_specs_remaining)
-      : 1;
+      : 0; // Return 0 if not set, not 1
 
     return freeSpecs > 0;
   }

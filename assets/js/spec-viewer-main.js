@@ -695,46 +695,135 @@ function renderComplexityScore(score) {
         return 'score-high';
     };
     
+    const getColor = (value) => {
+        if (value <= 40) return '#10B981'; // Green
+        if (value <= 70) return '#F59E0B'; // Orange
+        return '#EF4444'; // Red
+    };
+    
+    const getLevelLabel = (value) => {
+        if (value <= 40) return 'Low';
+        if (value <= 70) return 'Medium';
+        return 'High';
+    };
+    
+    // Calculate circular progress (SVG)
+    const circumference = 2 * Math.PI * 45; // radius = 45
+    const offset = circumference - (score.total / 100) * circumference;
+    const totalColor = getColor(score.total);
+    
     return `
         <div class="complexity-score-section">
             <div class="complexity-header">
                 <h3><i class="fa fa-chart-line"></i> Complexity Score</h3>
-                <div class="total-score-wrapper">
-                    <div class="total-score ${getColorClass(score.total)}" data-tooltip="Complexity Score indicates the technical complexity of the project. Higher score (70-100) = High complexity (more complex architecture, integrations, features). Lower score (0-40) = Low complexity (simpler project, easier to build). Medium score (41-69) = Moderate complexity.">${score.total}/100</div>
+            </div>
+            
+            <div class="complexity-main-display">
+                <div class="total-score-circle">
+                    <svg class="circular-chart" viewBox="0 0 100 100">
+                        <circle class="circle-bg" cx="50" cy="50" r="45"></circle>
+                        <circle 
+                            class="circle-progress" 
+                            cx="50" 
+                            cy="50" 
+                            r="45"
+                            style="stroke: ${totalColor}; stroke-dasharray: ${circumference}; stroke-dashoffset: ${offset};"
+                        ></circle>
+                    </svg>
+                    <div class="circle-content">
+                        <div class="circle-score ${getColorClass(score.total)}">${score.total}</div>
+                        <div class="circle-label">/ 100</div>
+                        <div class="circle-level ${getColorClass(score.total)}">${getLevelLabel(score.total)}</div>
+                    </div>
+                </div>
+                
+                <div class="complexity-legend">
+                    <div class="legend-item">
+                        <span class="legend-color score-low"></span>
+                        <span class="legend-text">Low (0-40)</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color score-medium"></span>
+                        <span class="legend-text">Medium (41-70)</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color score-high"></span>
+                        <span class="legend-text">High (71-100)</span>
+                    </div>
                 </div>
             </div>
             
             <div class="complexity-metrics">
                 <div class="metric-item" data-tooltip="Architecture complexity: Frontend only vs Full stack with backend and database">
-                    <div class="metric-label">Architecture</div>
-                    <div class="metric-bar">
-                        <div class="metric-fill ${getColorClass(score.architecture)}" style="width: ${score.architecture}%"></div>
+                    <div class="metric-header">
+                        <div class="metric-label">
+                            <i class="fa fa-sitemap"></i>
+                            <span>Architecture</span>
+                        </div>
+                        <div class="metric-value-wrapper">
+                            <span class="metric-value ${getColorClass(score.architecture)}">${score.architecture}</span>
+                            <span class="metric-level ${getColorClass(score.architecture)}">${getLevelLabel(score.architecture)}</span>
+                        </div>
                     </div>
-                    <div class="metric-value">${score.architecture}</div>
+                    <div class="metric-bar-container">
+                        <div class="metric-bar">
+                            <div class="metric-fill ${getColorClass(score.architecture)}" style="width: ${score.architecture}%; background: ${getColor(score.architecture)};"></div>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="metric-item" data-tooltip="Number of external integrations and third-party services (payment, email, storage, APIs)">
-                    <div class="metric-label">Integrations</div>
-                    <div class="metric-bar">
-                        <div class="metric-fill ${getColorClass(score.integrations)}" style="width: ${score.integrations}%"></div>
+                    <div class="metric-header">
+                        <div class="metric-label">
+                            <i class="fa fa-plug"></i>
+                            <span>Integrations</span>
+                        </div>
+                        <div class="metric-value-wrapper">
+                            <span class="metric-value ${getColorClass(score.integrations)}">${score.integrations}</span>
+                            <span class="metric-level ${getColorClass(score.integrations)}">${getLevelLabel(score.integrations)}</span>
+                        </div>
                     </div>
-                    <div class="metric-value">${score.integrations}</div>
+                    <div class="metric-bar-container">
+                        <div class="metric-bar">
+                            <div class="metric-fill ${getColorClass(score.integrations)}" style="width: ${score.integrations}%; background: ${getColor(score.integrations)};"></div>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="metric-item" data-tooltip="Functionality complexity based on number of features, screens, and user flow steps">
-                    <div class="metric-label">Functionality</div>
-                    <div class="metric-bar">
-                        <div class="metric-fill ${getColorClass(score.functionality)}" style="width: ${score.functionality}%"></div>
+                    <div class="metric-header">
+                        <div class="metric-label">
+                            <i class="fa fa-cogs"></i>
+                            <span>Functionality</span>
+                        </div>
+                        <div class="metric-value-wrapper">
+                            <span class="metric-value ${getColorClass(score.functionality)}">${score.functionality}</span>
+                            <span class="metric-level ${getColorClass(score.functionality)}">${getLevelLabel(score.functionality)}</span>
+                        </div>
                     </div>
-                    <div class="metric-value">${score.functionality}</div>
+                    <div class="metric-bar-container">
+                        <div class="metric-bar">
+                            <div class="metric-fill ${getColorClass(score.functionality)}" style="width: ${score.functionality}%; background: ${getColor(score.functionality)};"></div>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="metric-item" data-tooltip="User system complexity: authentication, user accounts, profiles, and user management">
-                    <div class="metric-label">User System</div>
-                    <div class="metric-bar">
-                        <div class="metric-fill ${getColorClass(score.userSystem)}" style="width: ${score.userSystem}%"></div>
+                    <div class="metric-header">
+                        <div class="metric-label">
+                            <i class="fa fa-users"></i>
+                            <span>User System</span>
+                        </div>
+                        <div class="metric-value-wrapper">
+                            <span class="metric-value ${getColorClass(score.userSystem)}">${score.userSystem}</span>
+                            <span class="metric-level ${getColorClass(score.userSystem)}">${getLevelLabel(score.userSystem)}</span>
+                        </div>
                     </div>
-                    <div class="metric-value">${score.userSystem}</div>
+                    <div class="metric-bar-container">
+                        <div class="metric-bar">
+                            <div class="metric-fill ${getColorClass(score.userSystem)}" style="width: ${score.userSystem}%; background: ${getColor(score.userSystem)};"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -4511,77 +4600,108 @@ async function approveOverview() {
         updateTabLoadingState('market', true);
         updateTabLoadingState('design', true);
         
-        // Start parallel generation via backend API
-        const token = await user.getIdToken();
-        const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai.onrender.com';
-        const response = await fetch(`${apiBaseUrl}/api/specs/${currentSpecData.id}/generate-all`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
+        // Start parallel generation directly via Cloudflare Worker (like retry functions)
+        showNotification('Starting parallel generation of Technical, Market, and Design specifications...', 'info');
+        
+        // Generate all three specifications in parallel
+        const generationPromises = [
+            generateTechnicalSpec().then(content => ({ type: 'technical', content })),
+            generateMarketSpec().then(content => ({ type: 'market', content })),
+            generateDesignSpec().then(content => ({ type: 'design', content }))
+        ];
+        
+        // Wait for all to complete (or fail)
+        const results = await Promise.allSettled(generationPromises);
+        
+        // Process results and update Firebase
+        // user is already defined above (line 4551), don't redeclare
+        const updates = {
+            status: {
+                ...currentSpecData.status,
+                overview: "ready"
             },
-            body: JSON.stringify({
-                overviewContent: currentSpecData.overview,
-                answers: currentSpecData.answers
-            })
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || 'Failed to start parallel generation');
-        }
-
-        const generationStatus = await response.json();
-        showNotification(generationStatus.message, 'info');
-
-        // Use Firestore listeners for real-time updates
-        window.SpecEvents.listenForSpecUpdates(currentSpecData.id, (updatedSpecData) => {
-            currentSpecData = { ...currentSpecData, ...updatedSpecData };
-            displaySpec(currentSpecData); // Re-render the entire spec viewer
-            // Update UI based on individual stage statuses
-            updateTabLoadingState('technical', updatedSpecData.status?.technical === 'generating');
-            updateTabLoadingState('market', updatedSpecData.status?.market === 'generating');
-            updateTabLoadingState('design', updatedSpecData.status?.design === 'generating');
-
-            if (updatedSpecData.status?.technical === 'ready') {
-                document.getElementById('technicalTab').disabled = false;
-                document.getElementById('mindmapTab').disabled = false;
-            }
-            if (updatedSpecData.status?.market === 'ready') {
-                document.getElementById('marketTab').disabled = false;
-            }
-            if (updatedSpecData.status?.design === 'ready') {
-                document.getElementById('designTab').disabled = false;
-                refreshTabsAfterDesignReady();
-            }
-            if (updatedSpecData.status?.technical === 'ready' && updatedSpecData.status?.market === 'ready') {
-                document.getElementById('diagramsTab').disabled = false;
-                const hasDiagrams = !!(updatedSpecData.diagrams && Array.isArray(updatedSpecData.diagrams.diagrams) && updatedSpecData.diagrams.diagrams.length > 0);
-                document.getElementById('generateDiagramsBtn').style.display = hasDiagrams ? 'none' : 'inline-block';
-            }
-
-            // Check if all are ready or errored to show final notification
-            const allDone = ['technical', 'market', 'design'].every(stage =>
-                updatedSpecData.status?.[stage] === 'ready' || updatedSpecData.status?.[stage] === 'error'
-            );
-
-            if (allDone) {
-                const allSuccessful = ['technical', 'market', 'design'].every(stage =>
-                    updatedSpecData.status?.[stage] === 'ready'
-                );
-                if (allSuccessful) {
-                    showNotification('All specifications generated successfully!', 'success');
-                } else {
-                    showNotification('Some specifications failed to generate. You can retry using the retry buttons.', 'error');
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        
+        results.forEach((result, index) => {
+            const type = ['technical', 'market', 'design'][index];
+            if (result.status === 'fulfilled') {
+                const { content } = result.value;
+                updates[type] = content;
+                updates.status[type] = 'ready';
+                
+                // Update local data
+                currentSpecData[type] = content;
+                currentSpecData.status[type] = 'ready';
+                
+                // Display the content
+                if (type === 'technical') {
+                    displayTechnical(content);
+                    document.getElementById('technicalTab').disabled = false;
+                    document.getElementById('mindmapTab').disabled = false;
+                } else if (type === 'market') {
+                    displayMarket(content);
+                    document.getElementById('marketTab').disabled = false;
+                } else if (type === 'design') {
+                    displayDesign(content);
+                    document.getElementById('designTab').disabled = false;
+                    refreshTabsAfterDesignReady();
                 }
-                hideApproveButton();
-                isLoading = false;
-                approveBtn.disabled = false;
-                approveBtn.innerHTML = '<i class="fa fa-check"></i> Approve Overview';
+                
+                updateTabLoadingState(type, false);
+                showNotification(`${type.charAt(0).toUpperCase() + type.slice(1)} specification generated successfully!`, 'success');
+            } else {
+                updates.status[type] = 'error';
+                currentSpecData.status[type] = 'error';
+                updateTabLoadingState(type, false);
+                showNotification(`Failed to generate ${type} specification: ${result.reason?.message || 'Unknown error'}`, 'error');
             }
         });
         
-        return; // Exit early - listeners will handle updates
+        // Update Firebase with all results
+        if (user && currentSpecData && currentSpecData.id) {
+            try {
+                await firebase.firestore().collection('specs').doc(currentSpecData.id).update(updates);
+                
+                // Update localStorage backup
+                localStorage.setItem(`specBackup_${currentSpecData.id}`, JSON.stringify(currentSpecData));
+                
+                // Update export checkboxes
+                updateExportCheckboxes();
+                
+                // Enable diagrams tab if technical and market are ready
+                if (updates.status.technical === 'ready' && updates.status.market === 'ready') {
+                    document.getElementById('diagramsTab').disabled = false;
+                    const hasDiagrams = !!(currentSpecData.diagrams && Array.isArray(currentSpecData.diagrams.diagrams) && currentSpecData.diagrams.diagrams.length > 0);
+                    document.getElementById('generateDiagramsBtn').style.display = hasDiagrams ? 'none' : 'inline-block';
+                }
+                
+                // Check if all are ready or errored to show final notification
+                const allDone = ['technical', 'market', 'design'].every(stage =>
+                    updates.status[stage] === 'ready' || updates.status[stage] === 'error'
+                );
+
+                if (allDone) {
+                    const allSuccessful = ['technical', 'market', 'design'].every(stage =>
+                        updates.status[stage] === 'ready'
+                    );
+                    if (allSuccessful) {
+                        showNotification('All specifications generated successfully!', 'success');
+                    } else {
+                        showNotification('Some specifications failed to generate. You can retry using the retry buttons.', 'error');
+                    }
+                    hideApproveButton();
+                }
+            } catch (error) {
+                console.error('Error updating Firebase:', error);
+                showNotification('Failed to update database, but specifications were generated locally.', 'error');
+            }
+        }
+        
+        // Re-enable button
+        isLoading = false;
+        approveBtn.disabled = false;
+        approveBtn.innerHTML = '<i class="fa fa-check"></i> Approve Overview';
         
     } catch (error) {
         showNotification(`Error initiating specification generation: ${error.message}`, 'error');

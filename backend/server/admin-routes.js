@@ -247,9 +247,9 @@ router.post('/users/:userId/credits', requireAdmin, async (req, res, next) => {
       return next(createError('Invalid amount', ERROR_CODES.INVALID_INPUT, 400));
     }
 
-    const { grantCredits } = require('./credits-service');
+    const creditsV2Service = require('./credits-v2-service');
     logger.debug({ requestId, userId, amount, reason }, '[admin-routes] Granting credits');
-    const result = await grantCredits(userId, amount, 'admin', { reason: reason || 'Admin manual grant' });
+    const result = await creditsV2Service.grantCredits(userId, amount, 'admin', { reason: reason || 'Admin manual grant' });
 
     logger.info({ 
       requestId, 
@@ -296,16 +296,29 @@ router.put('/users/:userId/plan', requireAdmin, async (req, res, next) => {
     const userRef = db.collection('users').doc(userId);
     await userRef.update({ plan, updatedAt: admin.firestore.FieldValue.serverTimestamp() });
 
-    // Update entitlements if switching to pro
+    // Update credits using new system if switching to pro
     if (plan === 'pro') {
-      logger.debug({ requestId, userId }, '[admin-routes] Updating entitlements for pro plan');
-      const entitlementsRef = db.collection('entitlements').doc(userId);
-      await entitlementsRef.set({
-        userId,
-        unlimited: true,
-        can_edit: true,
-        updated_at: admin.firestore.FieldValue.serverTimestamp()
-      }, { merge: true });
+      logger.debug({ requestId, userId }, '[admin-routes] Updating credits for pro plan');
+      const creditsV2Service = require('./credits-v2-service');
+      await creditsV2Service.enableProSubscription(userId, {
+        plan: 'pro',
+        subscriptionStatus: 'active',
+        metadata: {
+          source: 'admin',
+          adminUserId: req.adminUser?.uid
+        }
+      });
+    } else if (plan === 'free') {
+      logger.debug({ requestId, userId }, '[admin-routes] Disabling pro plan');
+      const creditsV2Service = require('./credits-v2-service');
+      await creditsV2Service.disableProSubscription(userId, {
+        plan: 'free',
+        cancelReason: 'admin_requested',
+        metadata: {
+          source: 'admin',
+          adminUserId: req.adminUser?.uid
+        }
+      });
     }
 
     logger.info({ requestId, userId, plan }, '[admin-routes] PUT /users/:userId/plan - Success');

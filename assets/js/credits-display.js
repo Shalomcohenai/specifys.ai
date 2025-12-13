@@ -186,7 +186,8 @@
     const shouldFetch = options.forceRefresh || (now - lastFetch) >= CACHE_DURATION;
     
     // If we have cached state and don't need to fetch, use it immediately
-    if (storedState && !shouldFetch && !options.showLoading) {
+    // BUT: If forceRefresh is true, always fetch fresh data (trigger-based update)
+    if (storedState && !shouldFetch && !options.showLoading && !options.forceRefresh) {
       applyCreditsState(storedState);
       return;
     }
@@ -203,12 +204,13 @@
 
     try {
       // Use entitlements cache if available (performance optimization)
+      // But skip cache if forceRefresh is true (trigger-based update after spec creation)
       let data;
       if (typeof window.getEntitlements === 'function' && !options.forceRefresh && !shouldFetch) {
         // Use cached entitlements (reduces API calls and CORS preflight overhead)
         data = await window.getEntitlements(false);
       } else {
-        // Fallback to direct API call if cache is not available
+        // Force refresh: always fetch fresh data from API (trigger-based update)
         const token = await user.getIdToken();
         const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai.onrender.com';
         data = await window.api.get('/api/specs/entitlements');
@@ -231,9 +233,10 @@
           variant: 'credits'
         };
       } else {
+        // Check free specs from users collection
         const freeSpecs = typeof userData?.free_specs_remaining === 'number'
           ? Math.max(0, userData.free_specs_remaining)
-          : 1;
+          : 0; // Return 0 if not set, not 1
         
         if (freeSpecs > 0) {
           creditsState = {
@@ -255,10 +258,11 @@
         saveCreditsState(userId, creditsState);
         
         // Update store with credits
+        // Important: Use ?? instead of || to handle 0 values correctly
         if (window.store) {
           const credits = entitlements?.unlimited 
             ? 'unlimited' 
-            : entitlements?.spec_credits || userData?.free_specs_remaining || 0;
+            : (typeof entitlements?.spec_credits === 'number' ? entitlements.spec_credits : (typeof userData?.free_specs_remaining === 'number' ? userData.free_specs_remaining : 0));
           window.store.set('credits', credits);
           window.store.set('entitlements', entitlements);
           window.store.set('user', userData);
@@ -332,9 +336,10 @@
         variant: 'credits'
       };
     } else {
+      // Check free specs from users collection
       const freeSpecs = typeof userData?.free_specs_remaining === 'number'
         ? Math.max(0, userData.free_specs_remaining)
-        : 1;
+        : 0; // Return 0 if not set, not 1
       
       if (freeSpecs > 0) {
         creditsState = {
@@ -362,6 +367,17 @@
       if (stateChanged) {
         applyCreditsState(creditsState);
         saveCreditsState(activeUserId, creditsState);
+        
+        // Update store with credits (trigger-based update from Firestore listeners)
+        // Important: Use explicit type checking instead of ?? to handle 0 values correctly
+        if (window.store) {
+          const credits = entitlements?.unlimited 
+            ? 'unlimited' 
+            : (typeof entitlements?.spec_credits === 'number' ? entitlements.spec_credits : (typeof userData?.free_specs_remaining === 'number' ? userData.free_specs_remaining : 0));
+          window.store.set('credits', credits);
+          window.store.set('entitlements', entitlements);
+          window.store.set('user', userData);
+        }
       }
     }
   }
@@ -386,30 +402,34 @@
       userUnsubscribe = null;
     }
 
+    // Helper function to update UI from Firestore data
+    const updateFromFirestore = async (entitlements, userData) => {
+      // Always update UI when Firestore data changes (including manual edits)
+      // This ensures manual Firebase edits are reflected immediately
+      updateUIFromData(entitlements, userData);
+    };
+
     // Listen to entitlements collection
     const entitlementsRef = db
       .collection('entitlements')
       .doc(userId);
     
     entitlementsUnsubscribe = entitlementsRef.onSnapshot(
-      (snapshot) => {
+      async (snapshot) => {
         const entitlements = snapshot.exists ? snapshot.data() : {};
         
         // Get user data to combine with entitlements
-        db
-          .collection('users')
-          .doc(userId)
-          .get()
-          .then((userSnap) => {
-            const userData = userSnap.exists ? userSnap.data() : {};
-            updateUIFromData(entitlements, userData);
-          })
-          .catch((error) => {
-            updateUIFromData(entitlements, null);
-          });
+        try {
+          const userSnap = await db.collection('users').doc(userId).get();
+          const userData = userSnap.exists ? userSnap.data() : {};
+          await updateFromFirestore(entitlements, userData);
+        } catch (error) {
+          updateUIFromData(entitlements, null);
+        }
       },
       (error) => {
-        // Error in entitlements listener
+        // Error in entitlements listener - fallback to API update
+        updateCreditsDisplayWithRetry({ forceRefresh: true });
       }
     );
 
@@ -419,26 +439,37 @@
       .doc(userId);
     
     userUnsubscribe = userRef.onSnapshot(
-      (snapshot) => {
+      async (snapshot) => {
         const userData = snapshot.exists ? snapshot.data() : {};
         
         // Get entitlements to combine with user data
-        db
-          .collection('entitlements')
-          .doc(userId)
-          .get()
-          .then((entSnap) => {
-            const entitlements = entSnap.exists ? entSnap.data() : {};
-            updateUIFromData(entitlements, userData);
-          })
-          .catch((error) => {
-            updateUIFromData({}, userData);
-          });
+        try {
+          const entSnap = await db.collection('entitlements').doc(userId).get();
+          const entitlements = entSnap.exists ? entSnap.data() : {};
+          await updateFromFirestore(entitlements, userData);
+        } catch (error) {
+          updateUIFromData({}, userData);
+        }
       },
       (error) => {
-        // Error in user listener
+        // Error in user listener - fallback to API update
+        updateCreditsDisplayWithRetry({ forceRefresh: true });
       }
     );
+    
+    // Immediately fetch current data to ensure UI is in sync with Firebase
+    // This catches any manual edits that happened before listeners were initialized
+    try {
+      const [entSnap, userSnap] = await Promise.all([
+        entitlementsRef.get(),
+        userRef.get()
+      ]);
+      const entitlements = entSnap.exists ? entSnap.data() : {};
+      const userData = userSnap.exists ? userSnap.data() : {};
+      await updateFromFirestore(entitlements, userData);
+    } catch (error) {
+      // If immediate fetch fails, listeners will still catch changes
+    }
   }
 
   /**
@@ -533,8 +564,16 @@
           }
           
           // Initialize Firestore listeners for real-time updates
-          initCreditsListeners(user.uid).catch((error) => {
-            // Error initializing credits listeners
+          // Listeners will update UI immediately when Firebase data changes (including manual edits)
+          initCreditsListeners(user.uid).then(() => {
+            // After listeners are initialized, do an immediate check to ensure UI is in sync
+            // This ensures manual Firebase edits are reflected immediately
+            updateCreditsDisplayWithRetry({ forceRefresh: false }).catch(() => {
+              // If update fails, listeners will still catch the change
+            });
+          }).catch((error) => {
+            // Error initializing credits listeners - fallback to API update
+            updateCreditsDisplayWithRetry({ forceRefresh: true });
           });
         } else {
           activeUserId = null;

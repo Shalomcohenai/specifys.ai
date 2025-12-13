@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { db, admin, auth } = require('./firebase-admin');
 const OpenAIStorageService = require('./openai-storage-service');
-const creditsService = require('./credits-service');
+const creditsV2Service = require('./credits-v2-service');
 const { createError, ERROR_CODES } = require('./error-handler');
 const { logger } = require('./logger');
 const { rateLimiters } = require('./security');
@@ -124,16 +124,32 @@ async function verifyFirebaseToken(req, res, next) {
 /**
  * Get user entitlements
  * GET /api/specs/entitlements
- * Note: This endpoint is kept for backward compatibility
- * New code should use /api/credits/entitlements
+ * DEPRECATED: This endpoint is deprecated. Use /api/v2/credits instead.
+ * Kept for backward compatibility during migration.
  */
 router.get('/entitlements', verifyFirebaseToken, async (req, res, next) => {
     try {
         const userId = req.user.uid;
-        const result = await creditsService.getEntitlements(userId);
+        // Use new credits system
+        const credits = await creditsV2Service.getUserCredits(userId);
+        const available = await creditsV2Service.getAvailableCredits(userId);
+        
+        // Convert to old format for backward compatibility
+        const result = {
+            entitlements: {
+                unlimited: available.unlimited || false,
+                spec_credits: available.unlimited ? 0 : (available.breakdown?.paid || 0),
+                can_edit: credits.permissions.canEdit || false,
+                preserved_credits: credits.subscription.preservedCredits || 0
+            },
+            user: {
+                free_specs_remaining: available.unlimited ? 0 : (available.breakdown?.free || 0)
+            }
+        };
+        
         res.json(result);
     } catch (error) {
-        logger.error({ error: error.message, userId }, 'Error fetching entitlements');
+        logger.error({ error: error.message, userId: req.user?.uid }, 'Error fetching entitlements');
         next(createError('Failed to fetch entitlements', ERROR_CODES.DATABASE_ERROR, 500, { details: error.message }));
     }
 });
@@ -142,7 +158,8 @@ router.get('/entitlements', verifyFirebaseToken, async (req, res, next) => {
  * Consume a credit when creating a spec
  * POST /api/specs/consume-credit
  * Body: { specId: string }
- * Note: Uses credits-service for atomic credit consumption with validation
+ * DEPRECATED: This endpoint is deprecated. Use /api/v2/credits/consume instead.
+ * Kept for backward compatibility during migration.
  * Rate limited to prevent abuse
  */
 router.post('/consume-credit', rateLimiters.creditConsumption, verifyFirebaseToken, async (req, res, next) => {
@@ -154,8 +171,8 @@ router.post('/consume-credit', rateLimiters.creditConsumption, verifyFirebaseTok
             return next(createError('specId is required', ERROR_CODES.MISSING_REQUIRED_FIELD, 400));
         }
 
-        // Use credits-service for atomic credit consumption
-        const result = await creditsService.consumeCredit(userId, specId);
+        // Use new credits V2 service
+        const result = await creditsV2Service.consumeCredit(userId, specId);
 
         res.json(result);
     } catch (error) {

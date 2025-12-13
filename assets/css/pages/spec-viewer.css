@@ -192,3 +192,489 @@ button[onclick*="openVisualizer"]:active {
 .chat-send-btn .fa {
   color: white !important;
 }
+
+/* Page intro section spacing and centering */
+.page-intro-section {
+  margin-top: 50px;
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+.page-intro-section .page-description {
+  max-width: 800px;
+  margin: 20px auto 0;
+  text-align: center;
+}
+
+/* Content spacing from header */
+.container {
+  margin-top: 30px;
+}
+
+/* Approval container styling */
+.approval-container {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 30px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.approval-message {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  color: #666;
+  font-size: 15px;
+  line-height: 1.6;
+  flex: 1;
+  min-width: 300px;
+}
+
+.approval-message i {
+  color: #FF6B35;
+  font-size: 18px;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.approval-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: nowrap;
+  flex-shrink: 0;
+}
+
+/* Specification content white background */
+.tab-content {
+  background: white;
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  margin-bottom: 30px;
+}
+
+.tab-content .content-header {
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.tab-content .content-header h2 {
+  margin: 0;
+  color: #FF6B35;
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+.tab-content .content-body {
+  color: #333;
+  line-height: 1.8;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .page-intro-section {
+    margin-top: 30px;
+    margin-bottom: 30px;
+  }
+  
+  .container {
+    margin-top: 20px;
+  }
+  
+  .approval-container {
+    padding: 20px;
+    margin-bottom: 20px;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .tab-content {
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  
+  .approval-message {
+    min-width: auto;
+  }
+  
+  .approval-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .approval-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* ============================================
+   Complexity Score Section Styles
+   ============================================ */
+
+.complexity-score-section {
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border-radius: 16px;
+  padding: 32px;
+  margin: 30px 0;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e9ecef;
+}
+
+.complexity-header {
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+.complexity-header h3 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 24px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.complexity-header h3 .fa {
+  color: #FF6B35;
+  font-size: 28px;
+}
+
+/* Main Display - Circular Chart */
+.complexity-main-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 40px;
+  padding: 24px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+}
+
+.total-score-circle {
+  position: relative;
+  width: 180px;
+  height: 180px;
+}
+
+.circular-chart {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.circle-bg {
+  fill: none;
+  stroke: #e9ecef;
+  stroke-width: 8;
+}
+
+.circle-progress {
+  fill: none;
+  stroke-width: 8;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1s ease-in-out;
+  animation: progressAnimation 1.5s ease-out;
+}
+
+@keyframes progressAnimation {
+  from {
+    stroke-dashoffset: 283;
+  }
+}
+
+.circle-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.circle-score {
+  font-size: 48px;
+  font-weight: 800;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.circle-score.score-low {
+  color: #10B981;
+}
+
+.circle-score.score-medium {
+  color: #F59E0B;
+}
+
+.circle-score.score-high {
+  color: #EF4444;
+}
+
+.circle-label {
+  font-size: 18px;
+  color: #6b7280;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.circle-level {
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 4px 12px;
+  border-radius: 12px;
+  display: inline-block;
+}
+
+.circle-level.score-low {
+  color: #10B981;
+  background: #d1fae5;
+}
+
+.circle-level.score-medium {
+  color: #F59E0B;
+  background: #fef3c7;
+}
+
+.circle-level.score-high {
+  color: #EF4444;
+  background: #fee2e2;
+}
+
+/* Legend */
+.complexity-legend {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.legend-color {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.legend-color.score-low {
+  background: #10B981;
+}
+
+.legend-color.score-medium {
+  background: #F59E0B;
+}
+
+.legend-color.score-high {
+  background: #EF4444;
+}
+
+.legend-text {
+  font-size: 14px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+/* Metrics */
+.complexity-metrics {
+  display: grid;
+  gap: 20px;
+}
+
+.metric-item {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border: 1px solid #e9ecef;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.metric-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.metric-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.metric-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+  color: #374151;
+  font-size: 16px;
+}
+
+.metric-label .fa {
+  color: #FF6B35;
+  font-size: 18px;
+  width: 20px;
+  text-align: center;
+}
+
+.metric-value-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.metric-value {
+  font-size: 24px;
+  font-weight: 700;
+  min-width: 50px;
+  text-align: right;
+}
+
+.metric-value.score-low {
+  color: #10B981;
+}
+
+.metric-value.score-medium {
+  color: #F59E0B;
+}
+
+.metric-value.score-high {
+  color: #EF4444;
+}
+
+.metric-level {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  white-space: nowrap;
+}
+
+.metric-level.score-low {
+  color: #10B981;
+  background: #d1fae5;
+}
+
+.metric-level.score-medium {
+  color: #F59E0B;
+  background: #fef3c7;
+}
+
+.metric-level.score-high {
+  color: #EF4444;
+  background: #fee2e2;
+}
+
+.metric-bar-container {
+  margin-top: 8px;
+}
+
+.metric-bar {
+  width: 100%;
+  height: 12px;
+  background: #e9ecef;
+  border-radius: 6px;
+  overflow: hidden;
+  position: relative;
+}
+
+.metric-fill {
+  height: 100%;
+  border-radius: 6px;
+  transition: width 1s ease-out;
+  position: relative;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.metric-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.metric-fill.score-low {
+  background: linear-gradient(90deg, #10B981, #34d399);
+}
+
+.metric-fill.score-medium {
+  background: linear-gradient(90deg, #F59E0B, #fbbf24);
+}
+
+.metric-fill.score-high {
+  background: linear-gradient(90deg, #EF4444, #f87171);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .complexity-score-section {
+    padding: 24px 20px;
+    margin: 20px 0;
+  }
+  
+  .complexity-main-display {
+    padding: 20px;
+  }
+  
+  .total-score-circle {
+    width: 150px;
+    height: 150px;
+  }
+  
+  .circle-score {
+    font-size: 40px;
+  }
+  
+  .complexity-legend {
+    gap: 16px;
+  }
+  
+  .metric-item {
+    padding: 16px;
+  }
+  
+  .metric-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .metric-value-wrapper {
+    width: 100%;
+    justify-content: space-between;
+  }
+}

@@ -43,7 +43,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
         const db = getFirestore(app);
         const googleProvider = new GoogleAuthProvider();
 
-        // Expose Firebase to global scope for credits-display.js compatibility
+        // Expose Firebase to global scope for credits-v2-display.js compatibility
         window.auth = auth;
         window.db = db;
         window.dispatchEvent(new Event('firebase-ready'));
@@ -891,15 +891,15 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
             const unlimited = !!ent.unlimited;
             let credits = 0;
 
-            // Same logic as header: check unlimited first, then spec_credits, then free_specs_remaining with fallback to 1
+            // Same logic as header: check unlimited first, then spec_credits, then free_specs_remaining with fallback to 0
             if (!unlimited) {
                 if (typeof ent.spec_credits === 'number' && ent.spec_credits > 0) {
                     credits = ent.spec_credits;
                 } else {
-                    // Use free_specs_remaining with fallback to 1 (same as header)
+                    // Use free_specs_remaining with fallback to 0 (not 1)
                     const freeSpecs = typeof user?.free_specs_remaining === 'number'
                         ? Math.max(0, user.free_specs_remaining)
-                        : 1;
+                        : 0; // Return 0 if not set, not 1
                     credits = freeSpecs;
                 }
 

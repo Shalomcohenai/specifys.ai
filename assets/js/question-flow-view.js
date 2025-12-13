@@ -223,20 +223,14 @@ class QuestionFlowView {
     const { sendBtn } = this.elements;
     if (!sendBtn) return;
     
-    const minLength = isLastQuestion ? 0 : 20;
-    const isValid = textLength >= minLength;
-    
+    // All questions are optional - no minimum length required
+    // Always enable the button (it's never disabled)
     sendBtn.disabled = false;
     
-    if (isValid) {
-      sendBtn.style.background = '#FF6B35';
-      sendBtn.style.cursor = 'pointer';
-      sendBtn.style.opacity = '1';
-    } else {
-      sendBtn.style.background = '#cccccc';
-      sendBtn.style.cursor = 'pointer';
-      sendBtn.style.opacity = '0.6';
-    }
+    // Always show button as active/enabled (orange) - no validation required
+    sendBtn.style.background = '#FF6B35';
+    sendBtn.style.cursor = 'pointer';
+    sendBtn.style.opacity = '1';
     
     // Update button text
     const sendText = sendBtn.querySelector('.send-text');
