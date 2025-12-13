@@ -79,7 +79,6 @@ async function initializeChat() {
         loadChatHistory();
         
     } catch (error) {
-        console.error('[Chat] Failed to initialize chat:', error);
         showNotification('Failed to initialize chat: ' + error.message, 'error');
     }
 }
@@ -162,8 +161,6 @@ async function sendChatMessage() {
         hideChatLoading();
         
     } catch (error) {
-        console.error('[Chat] Failed to send message:', error);
-        
         // Error recovery: Try to reinitialize chat if it might be a connection issue
         if (error.message.includes('Failed to initialize') || error.message.includes('Unauthorized')) {
             chatInitialized = false;
@@ -1304,4 +1301,3 @@ function downloadJiraCSV(csvContent, projectKey) {
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
 }
-</script>

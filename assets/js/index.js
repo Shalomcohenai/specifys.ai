@@ -1398,9 +1398,6 @@ async function triggerOpenAIUpload(specId) {
   } catch (error) {
     // Note: This is non-critical, so we don't throw - upload happens in background
     // Log error for debugging if needed
-    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-      console.warn('[triggerOpenAIUpload] Background upload failed:', error);
-    }
   }
 }
 

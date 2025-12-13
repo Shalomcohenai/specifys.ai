@@ -1299,7 +1299,6 @@ class MetricsCalculator {
       }
     } catch (error) {
       // Fallback to old method if analytics API fails
-      console.warn('[MetricsCalculator] Failed to load content stats from analytics API, using fallback:', error);
       
       // Fallback: Load articles views from API (backward compatibility)
       try {
@@ -1633,7 +1632,7 @@ class GlobalSearch {
       this.setBlogFeedback(`Editing ${post.title}`, "success");
       this.dom.blogForm?.scrollIntoView({ behavior: "smooth", block: "start" });
     } catch (error) {
-      console.error('[BlogEdit] Failed to load post:', error);
+      // Failed to load post
       this.setBlogFeedback(error.message || "Failed to load post for editing.", "error");
       this.exitBlogEditMode();
     }
@@ -2748,7 +2747,6 @@ class AdminDashboardApp {
   async calculateDailyArticlesViews() {
     try {
       if (!window.api) {
-        console.warn('[AdminDashboard] window.api not available, using fallback');
         return new Array(7).fill(0);
       }
       const response = await window.api.get('/api/analytics/content-stats?range=week');
@@ -2758,7 +2756,7 @@ class AdminDashboardApp {
         return new Array(7).fill(Math.floor(total / 7));
       }
     } catch (error) {
-      console.warn('[AdminDashboard] Failed to load daily articles views:', error);
+      // Failed to load daily articles views
     }
     return new Array(7).fill(0);
   }
@@ -2769,7 +2767,6 @@ class AdminDashboardApp {
   async calculateDailyGuidesViews() {
     try {
       if (!window.api) {
-        console.warn('[AdminDashboard] window.api not available, using fallback');
         return new Array(7).fill(0);
       }
       const response = await window.api.get('/api/analytics/content-stats?range=week');
@@ -2779,7 +2776,7 @@ class AdminDashboardApp {
         return new Array(7).fill(Math.floor(total / 7));
       }
     } catch (error) {
-      console.warn('[AdminDashboard] Failed to load daily guides views:', error);
+      // Failed to load daily guides views
     }
     return new Array(7).fill(0);
   }
@@ -4810,6 +4807,25 @@ class AdminDashboardApp {
         if (this.dom.quickActions.modal) {
           this.dom.quickActions.modal.classList.add("hidden");
         }
+        
+        // Clear entitlements cache to force refresh of credits display
+        // This ensures the user sees updated credits immediately
+        if (typeof window.clearEntitlementsCache === 'function') {
+          window.clearEntitlementsCache();
+        }
+        
+        // Clear stored credits state from localStorage
+        // This ensures the UI doesn't use stale cached data
+        if (typeof window.clearStoredCreditsState === 'function') {
+          window.clearStoredCreditsState();
+        }
+        
+        // Force refresh credits display if user is viewing their own profile
+        // This works even if the admin is viewing another user's data
+        if (typeof window.updateCreditsDisplay === 'function') {
+          window.updateCreditsDisplay({ forceRefresh: true });
+        }
+        
         this.refreshAllData();
       } else {
         const error = await response?.json().catch(() => ({}));
@@ -5625,7 +5641,6 @@ class AdminDashboardApp {
     
     try {
       if (!window.api) {
-        console.error('[AdminDashboard] window.api is not available. Make sure api-client.js is loaded.');
         this.dom.funnelVisualization.innerHTML = '<div class="funnel-placeholder">API client not loaded</div>';
         return;
       }
@@ -5638,7 +5653,6 @@ class AdminDashboardApp {
         this.dom.funnelMetrics.innerHTML = '<div class="funnel-metrics-placeholder">No conversion data available</div>';
       }
     } catch (error) {
-      console.error('[AdminDashboard] Failed to load funnel data:', error);
       this.dom.funnelVisualization.innerHTML = '<div class="funnel-placeholder">Error loading funnel data</div>';
       this.dom.funnelMetrics.innerHTML = '<div class="funnel-metrics-placeholder">Error loading conversion data</div>';
     } finally {
@@ -5752,7 +5766,7 @@ class AdminDashboardApp {
         this.dom.topGuidesList.innerHTML = '<div class="content-placeholder">Hidden</div>';
       }
     } catch (error) {
-      console.error('[AdminDashboard] Failed to load content analytics:', error);
+      // Failed to load content analytics
     } finally {
       // Remove loading state
       if (updateBtn) {
@@ -5770,7 +5784,6 @@ class AdminDashboardApp {
     
     try {
       if (!window.api) {
-        console.error('[AdminDashboard] window.api is not available. Make sure api-client.js is loaded.');
         this.dom.topArticlesList.innerHTML = '<div class="content-placeholder">API client not loaded</div>';
         return;
       }
@@ -5785,7 +5798,6 @@ class AdminDashboardApp {
         this.dom.topArticlesList.innerHTML = '<div class="content-placeholder">No articles data available</div>';
       }
     } catch (error) {
-      console.error('[AdminDashboard] Failed to load top articles:', error);
       this.dom.topArticlesList.innerHTML = '<div class="content-placeholder">Error loading articles</div>';
     }
   }
@@ -5833,7 +5845,6 @@ class AdminDashboardApp {
     
     try {
       if (!window.api) {
-        console.error('[AdminDashboard] window.api is not available. Make sure api-client.js is loaded.');
         this.dom.topGuidesList.innerHTML = '<div class="content-placeholder">API client not loaded</div>';
         return;
       }
@@ -5848,7 +5859,6 @@ class AdminDashboardApp {
         this.dom.topGuidesList.innerHTML = '<div class="content-placeholder">No guides data available</div>';
       }
     } catch (error) {
-      console.error('[AdminDashboard] Failed to load top guides:', error);
       this.dom.topGuidesList.innerHTML = '<div class="content-placeholder">Error loading guides</div>';
     }
   }

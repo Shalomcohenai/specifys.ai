@@ -6,6 +6,7 @@
   <title>Admin Dashboard · Specifys.ai</title>
   <meta name="description" content="Specifys.ai admin dashboard for live monitoring of users, payments, activity logs, blog publishing, and platform statistics.">
   <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#000000">
     <link rel="canonical" href="https://specifys-ai.com/pages/admin-dashboard.html">
   <meta property="og:title" content="Admin Dashboard · Specifys.ai">
   <meta property="og:description" content="Live users, payments, logs, blog publishing, and platform statistics for Specifys.ai.">
@@ -15,83 +16,110 @@
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <link rel="manifest" href="/site.webmanifest">
 
+    <!-- Preconnect to external resources -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-  <!-- CSS - Unified compiled CSS file -->
-  <link rel="stylesheet" href="/assets/css/main-compiled.css">
-  <!-- Components -->
-  <link rel="stylesheet" href="/assets/css/components/buttons.css">
-  <!-- Display Utilities -->
-  <link rel="stylesheet" href="/assets/css/utilities/display.css">
-  <!-- Text Utilities -->
-  <link rel="stylesheet" href="/assets/css/utilities/text.css">
-  <!-- Spacing Utilities -->
-  <link rel="stylesheet" href="/assets/css/utilities/spacing.css">
-  <!-- Admin Dashboard Page Specific Styles -->
-  <link rel="stylesheet" href="/assets/css/pages/admin-dashboard.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" referrerpolicy="no-referrer">
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+    
+    <!-- CSS - Unified compiled CSS file -->
+    <link rel="stylesheet" href="/assets/css/main-compiled.css">
+    <!-- Components -->
+    <link rel="stylesheet" href="/assets/css/components/buttons.css">
+    <!-- Display Utilities -->
+    <link rel="stylesheet" href="/assets/css/utilities/display.css">
+    <!-- Text Utilities -->
+    <link rel="stylesheet" href="/assets/css/utilities/text.css">
+    <!-- Spacing Utilities -->
+    <link rel="stylesheet" href="/assets/css/utilities/spacing.css">
+    <!-- Admin Dashboard Page Specific Styles -->
+    <link rel="stylesheet" href="/assets/css/pages/admin-dashboard.css">
+    
+    <!-- Font Awesome - Loaded asynchronously -->
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" referrerpolicy="no-referrer"></noscript>
+    
+    <!-- Fonts - Optimized loading -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
+    
+    <!-- Structured Data (JSON-LD) for SEO -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Admin Dashboard - Specifys.ai",
+      "description": "Admin dashboard for live monitoring of users, payments, activity logs, blog publishing, and platform statistics",
+      "applicationCategory": "AdministrativeApplication",
+      "operatingSystem": "Web",
+      "url": "https://specifys-ai.com/pages/admin-dashboard.html",
+      "provider": {
+        "@type": "Organization",
+        "name": "Specifys.ai",
+        "url": "https://specifys-ai.com"
+      }
+    }
+    </script>
 </head>
 <body>
+  <a href="#main-content" class="skip-to-main" aria-label="Skip to main content">Skip to main content</a>
   <div class="admin-shell" id="admin-shell">
-    <aside class="admin-sidebar" aria-label="Admin navigation">
+    <aside class="admin-sidebar" aria-label="Admin navigation" role="complementary">
       <div class="sidebar-brand">
         <span class="brand-name">Specifys<span class="accent">.</span>AI</span>
         <span class="brand-subtitle">Admin</span>
         </div>
 
       <nav class="sidebar-nav" id="sidebar-nav">
-        <button class="nav-link active" data-target="overview-section">
-          <span class="icon"><i class="fas fa-chart-line"></i></span>
+        <button class="nav-link active" data-target="overview-section" aria-label="Overview section">
+          <span class="icon" aria-hidden="true"><i class="fas fa-chart-line"></i></span>
           Overview
-                </button>
-        <button class="nav-link" data-target="users-section">
-          <span class="icon"><i class="fas fa-users"></i></span>
+        </button>
+        <button class="nav-link" data-target="users-section" aria-label="Users section">
+          <span class="icon" aria-hidden="true"><i class="fas fa-users"></i></span>
           Users
-                </button>
-        <button class="nav-link" data-target="payments-section">
-          <span class="icon"><i class="fas fa-credit-card"></i></span>
+        </button>
+        <button class="nav-link" data-target="payments-section" aria-label="Payments section">
+          <span class="icon" aria-hidden="true"><i class="fas fa-credit-card"></i></span>
           Payments
         </button>
-        <button class="nav-link" data-target="logs-section">
-          <span class="icon"><i class="fas fa-stream"></i></span>
+        <button class="nav-link" data-target="logs-section" aria-label="Live logs section">
+          <span class="icon" aria-hidden="true"><i class="fas fa-stream"></i></span>
           Live Logs
         </button>
-        <button class="nav-link" data-target="articles-section">
-          <span class="icon"><i class="fas fa-file-alt"></i></span>
+        <button class="nav-link" data-target="articles-section" aria-label="Articles management section">
+          <span class="icon" aria-hidden="true"><i class="fas fa-file-alt"></i></span>
           Articles
         </button>
-        <a href="/pages/admin/academy/index.html" class="nav-link">
-          <span class="icon"><i class="fas fa-graduation-cap"></i></span>
+        <a href="/pages/admin/academy/index.html" class="nav-link" aria-label="Academy management">
+          <span class="icon" aria-hidden="true"><i class="fas fa-graduation-cap"></i></span>
           Academy
         </a>
-        <button class="nav-link" data-target="stats-section">
-          <span class="icon"><i class="fas fa-chart-pie"></i></span>
+        <button class="nav-link" data-target="stats-section" aria-label="Statistics section">
+          <span class="icon" aria-hidden="true"><i class="fas fa-chart-pie"></i></span>
           Statistics
         </button>
-        <button class="nav-link" data-target="funnel-section">
-          <span class="icon"><i class="fas fa-filter"></i></span>
+        <button class="nav-link" data-target="funnel-section" aria-label="Funnel analysis section">
+          <span class="icon" aria-hidden="true"><i class="fas fa-filter"></i></span>
           Funnel Analysis
         </button>
-        <button class="nav-link" data-target="content-analytics-section">
-          <span class="icon"><i class="fas fa-newspaper"></i></span>
+        <button class="nav-link" data-target="content-analytics-section" aria-label="Content analytics section">
+          <span class="icon" aria-hidden="true"><i class="fas fa-newspaper"></i></span>
           Content Analytics
         </button>
-        <button class="nav-link" data-target="spec-usage-section">
-          <span class="icon"><i class="fas fa-list-check"></i></span>
+        <button class="nav-link" data-target="spec-usage-section" aria-label="Spec usage analytics section">
+          <span class="icon" aria-hidden="true"><i class="fas fa-list-check"></i></span>
           Spec Usage
         </button>
-        <button class="nav-link" data-target="alerts-section">
-          <span class="icon"><i class="fas fa-bell"></i></span>
+        <button class="nav-link" data-target="alerts-section" aria-label="Alerts and notifications section">
+          <span class="icon" aria-hidden="true"><i class="fas fa-bell"></i></span>
           Alerts
         </button>
-        <button class="nav-link" data-target="performance-section">
-          <span class="icon"><i class="fas fa-tachometer-alt"></i></span>
+        <button class="nav-link" data-target="performance-section" aria-label="Performance dashboard section">
+          <span class="icon" aria-hidden="true"><i class="fas fa-tachometer-alt"></i></span>
           Performance
         </button>
-        <button class="nav-link" data-target="contact-section">
-          <span class="icon"><i class="fas fa-envelope"></i></span>
+        <button class="nav-link" data-target="contact-section" aria-label="Contact submissions section">
+          <span class="icon" aria-hidden="true"><i class="fas fa-envelope"></i></span>
           Contact Submissions
         </button>
       </nav>
@@ -121,27 +149,27 @@
         </div>
             </div>
         <div class="topbar-actions">
-          <a href="/" class="action-btn home-btn" title="Back to homepage">
-            <i class="fas fa-home"></i>
-            Home
+          <a href="/" class="action-btn home-btn" title="Back to homepage" aria-label="Back to homepage">
+            <i class="fas fa-home" aria-hidden="true"></i>
+            <span>Home</span>
           </a>
-          <button class="action-btn" id="global-search-trigger" type="button">
-            <i class="fas fa-search"></i>
-            Search
-            <span class="hint">⌘/</span>
+          <button class="action-btn" id="global-search-trigger" type="button" aria-label="Open global search">
+            <i class="fas fa-search" aria-hidden="true"></i>
+            <span>Search</span>
+            <span class="hint" aria-label="Keyboard shortcut">⌘/</span>
           </button>
-          <button class="action-btn" id="manual-refresh-btn" type="button">
-                <i class="fas fa-sync-alt"></i>
-            Refresh
-            </button>
-          <button class="action-btn critical" id="sign-out-btn" type="button">
-            <i class="fas fa-sign-out-alt"></i>
-            Sign out
-            </button>
+          <button class="action-btn" id="manual-refresh-btn" type="button" aria-label="Refresh dashboard data">
+            <i class="fas fa-sync-alt" aria-hidden="true"></i>
+            <span>Refresh</span>
+          </button>
+          <button class="action-btn critical" id="sign-out-btn" type="button" aria-label="Sign out">
+            <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
+            <span>Sign out</span>
+          </button>
             </div>
       </header>
 
-      <main class="admin-content" id="admin-content">
+      <main class="admin-content" id="main-content" role="main">
         <section class="dashboard-section active" id="overview-section">
           <header class="section-header">
             <div>
@@ -193,14 +221,14 @@
               <div class="panel-header">
                 <h3>Recent activity</h3>
                 <div class="activity-filters" role="group" aria-label="Activity filters">
-                  <button class="activity-filter-btn active" data-filter="all" type="button">All</button>
-                  <button class="activity-filter-btn" data-filter="spec" type="button">Specs</button>
-                  <button class="activity-filter-btn" data-filter="payment" type="button">Purchases</button>
-                  <button class="activity-filter-btn" data-filter="user" type="button">Users</button>
+                  <button class="activity-filter-btn active" data-filter="all" type="button" aria-label="Show all activities" aria-pressed="true">All</button>
+                  <button class="activity-filter-btn" data-filter="spec" type="button" aria-label="Show spec activities" aria-pressed="false">Specs</button>
+                  <button class="activity-filter-btn" data-filter="payment" type="button" aria-label="Show purchase activities" aria-pressed="false">Purchases</button>
+                  <button class="activity-filter-btn" data-filter="user" type="button" aria-label="Show user activities" aria-pressed="false">Users</button>
             </div>
-                <button class="panel-action" id="toggle-activity-pause" type="button">
-                  <i class="fas fa-pause"></i>
-                  Pause stream
+                <button class="panel-action" id="toggle-activity-pause" type="button" aria-label="Pause or resume activity stream">
+                  <i class="fas fa-pause" aria-hidden="true"></i>
+                  <span>Pause stream</span>
             </button>
         </div>
               <ol class="activity-feed" id="activity-feed" aria-live="polite">
@@ -224,7 +252,7 @@
                 <span class="auto-refresh-next" id="auto-refresh-next">Scheduled in 24h</span>
               </div>
               <div class="sync-actions">
-                <button class="action-btn" id="sync-users-btn" type="button">
+                <button class="action-btn" id="sync-users-btn" type="button" aria-label="Sync users data">
                   <i class="fas fa-user-check"></i>
                   Sync users
                 </button>
@@ -237,14 +265,14 @@
                 <h3>System Health Check</h3>
               </div>
               <div class="health-check-simple">
-                <button class="action-btn" id="api-health-check-btn" type="button">
+                <button class="action-btn" id="api-health-check-btn" type="button" aria-label="Check API health status">
                   <i class="fas fa-heartbeat"></i>
                   Check System Health
                 </button>
                 <div class="api-response-box">
                   <div class="api-response-header">
                     <span class="api-response-label">Health Check Results</span>
-                    <button class="action-btn small" id="api-health-copy-btn" type="button" title="Copy logs">
+                    <button class="action-btn small" id="api-health-copy-btn" type="button" title="Copy logs" aria-label="Copy API health logs to clipboard">
                       <i class="fas fa-copy"></i>
                       Copy Logs
                     </button>
@@ -259,19 +287,19 @@
                 <h3>Quick Actions</h3>
               </div>
               <div class="quick-actions-grid">
-                <button class="quick-action-btn" id="quick-action-add-credits" type="button">
+                <button class="quick-action-btn" id="quick-action-add-credits" type="button" aria-label="Add credits to user">
                   <i class="fas fa-coins"></i>
                   <span>Add Credits</span>
                 </button>
-                <button class="quick-action-btn" id="quick-action-change-plan" type="button">
+                <button class="quick-action-btn" id="quick-action-change-plan" type="button" aria-label="Change user subscription plan">
                   <i class="fas fa-user-tag"></i>
                   <span>Change Plan</span>
                 </button>
-                <button class="quick-action-btn" id="quick-action-reset-password" type="button">
+                <button class="quick-action-btn" id="quick-action-reset-password" type="button" aria-label="Reset user password">
                   <i class="fas fa-key"></i>
                   <span>Reset Password</span>
                 </button>
-                <button class="quick-action-btn" id="quick-action-toggle-user" type="button">
+                <button class="quick-action-btn" id="quick-action-toggle-user" type="button" aria-label="Enable or disable user account">
                   <i class="fas fa-user-slash"></i>
                   <span>Disable/Enable User</span>
                 </button>
@@ -287,7 +315,9 @@
               <p>Sorted by creation date with plan, specs, and credits.</p>
                 </div>
             <div class="section-controls">
-              <input type="search" id="users-search" placeholder="Search by email or name" aria-label="Search users">
+              <label for="users-search" class="visually-hidden">Search users</label>
+              <input type="search" id="users-search" placeholder="Search by email or name" aria-label="Search users by email or name" aria-describedby="users-search-help">
+              <span id="users-search-help" class="visually-hidden">Type to search users by email or name</span>
               <select id="users-plan-filter" aria-label="Filter by plan">
                 <option value="all">All plans</option>
                 <option value="pro">Pro</option>
@@ -298,8 +328,11 @@
                 <option value="active">Active</option>
                 <option value="inactive">Inactive</option>
                     </select>
-              <input type="date" id="users-date-from" aria-label="Created from date" placeholder="From date">
-              <input type="date" id="users-date-to" aria-label="Created to date" placeholder="To date">
+              <label for="users-date-from" class="visually-hidden">Filter users created from date</label>
+              <input type="date" id="users-date-from" aria-label="Filter users created from date" placeholder="From date" aria-describedby="users-date-help">
+              <label for="users-date-to" class="visually-hidden">Filter users created to date</label>
+              <input type="date" id="users-date-to" aria-label="Filter users created to date" placeholder="To date" aria-describedby="users-date-help">
+              <span id="users-date-help" class="visually-hidden">Select date range to filter users by creation date</span>
               <button class="action-btn" id="export-users-btn" type="button">
                 <i class="fas fa-file-export"></i>
                 Export CSV
@@ -1049,10 +1082,11 @@
     </div>
   </div>
 
-  <script src="/assets/js/config.js"></script>
-  <script src="/assets/js/api-client.js"></script>
-  <script type="module" src="/assets/js/admin-dashboard.js"></script>
-  <script type="module" src="/assets/js/articles-manager.js"></script>
+  <!-- Core JavaScript - Loaded with defer for optimal performance -->
+  <script defer src="/assets/js/config.js"></script>
+  <script defer src="/assets/js/api-client.js"></script>
+  <script type="module" defer src="/assets/js/admin-dashboard.js"></script>
+  <script type="module" defer src="/assets/js/articles-manager.js"></script>
 </body>
 </html>
 

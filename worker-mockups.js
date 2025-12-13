@@ -69,7 +69,7 @@ function cors(res, origin = null) {
   } else {
     // Origin not allowed - don't set header (browser will block)
     // But for now, allow it with warning (can be tightened later)
-    console.warn(`[CORS] Origin not allowed: ${origin}`);
+    // Origin not allowed
     res.headers.set("Access-Control-Allow-Origin", "*");
   }
   res.headers.set("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
@@ -366,7 +366,7 @@ Return ONLY the HTML code, nothing else.`
           interactive: true
         });
       } catch (e) {
-        console.error(`Failed to generate mockup for ${screen.name}:`, e);
+        // Failed to generate mockup
         // Continue with other screens even if one fails
       }
     }

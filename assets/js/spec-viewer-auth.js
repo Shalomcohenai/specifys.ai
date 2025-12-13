@@ -121,4 +121,3 @@
     
     // Font Awesome icons initialization completed
   });
-</script>

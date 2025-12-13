@@ -112,21 +112,23 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize Firebase auth state listener
     firebase.auth().onAuthStateChanged(function(user) {
-        if (user) {
-            // Load spec after user authentication
-            if (urlSpecId) {
-                loadSpec(urlSpecId);
-            } else {
-                showError('No specification ID provided in URL');
-            }
-            
-            // Update edit button based on PRO access
-            updateEditButton();
-            // Update mockup tab based on PRO access
-            updateMockupTab();
-        } else {
+        if (!user) {
+            // User must be authenticated to view specs in spec-viewer
             showError('User must be authenticated to view specifications');
+            return;
         }
+        
+        // User is authenticated - load spec
+        if (urlSpecId) {
+            loadSpec(urlSpecId);
+        } else {
+            showError('No specification ID provided in URL');
+        }
+        
+        // Update edit button based on PRO access
+        updateEditButton();
+        // Update mockup tab based on PRO access
+        updateMockupTab();
         
         // Check if we need to show registration modal
         checkAuthenticationStatus(user);
@@ -328,8 +330,7 @@ async function loadSpec(specId) {
             throw new Error('No specification ID provided');
         }
         
-        
-        // Load from Firebase (user is always authenticated)
+        // Load from Firebase - user must be authenticated (checked in onAuthStateChanged)
         const user = firebase.auth().currentUser;
         if (!user) {
             throw new Error('User must be authenticated to view specifications');
@@ -343,15 +344,13 @@ async function loadSpec(specId) {
         const specData = doc.data();
         
         // Check if user has permission to view this spec
-        // Allow if: spec is public OR user owns it OR user is admin
+        // spec-viewer.html only shows specs to their owner or admin (not public specs)
         const adminEmails = ['specifysai@gmail.com', 'admin@specifys.ai', 'shalom@specifys.ai'];
-        const isPublic = specData.isPublic === true;
         const isOwner = specData.userId === user.uid;
         const isAdmin = adminEmails.includes(user.email);
         
-        if (!isPublic && !isOwner && !isAdmin) {
-
-            showError('You do not have permission to view this specification.');
+        if (!isOwner && !isAdmin) {
+            showError('You do not have permission to view this specification. You can only view specifications that you created.');
             return;
         }
         
@@ -3675,6 +3674,53 @@ function updateStorageStatus() {
     }
 }
 
+// Keyboard navigation for tabs
+document.addEventListener('keydown', function(e) {
+  // Only handle if we're on spec-viewer page
+  if (!document.querySelector('.side-menu-nav')) return;
+  
+  // Alt + number keys to switch tabs (Alt+1 = Overview, Alt+2 = Technical, etc.)
+  if (e.altKey && !e.shiftKey && !e.ctrlKey && !e.metaKey) {
+    const tabMap = {
+      '1': 'overview',
+      '2': 'technical',
+      '3': 'market',
+      '4': 'design',
+      '5': 'diagrams',
+      '6': 'prompts',
+      '7': 'chat',
+      '8': 'mockup',
+      '9': 'export'
+    };
+    
+    const tabName = tabMap[e.key];
+    if (tabName && typeof window.showTab === 'function') {
+      e.preventDefault();
+      const tabButton = document.getElementById(`${tabName}Tab`);
+      if (tabButton && !tabButton.disabled) {
+        window.showTab(tabName);
+        tabButton.focus();
+      }
+    }
+  }
+  
+  // Arrow keys for tab navigation when side menu is focused
+  const activeTab = document.querySelector('.side-menu-button.active');
+  if (activeTab && activeTab === document.activeElement) {
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      const tabs = Array.from(document.querySelectorAll('.side-menu-button:not([disabled])'));
+      const currentIndex = tabs.indexOf(activeTab);
+      
+      if (e.key === 'ArrowDown' && currentIndex < tabs.length - 1) {
+        tabs[currentIndex + 1].focus();
+      } else if (e.key === 'ArrowUp' && currentIndex > 0) {
+        tabs[currentIndex - 1].focus();
+      }
+    }
+  }
+});
+
 window.showTab = async function(tabName) {
     // Check PRO access for mockup tab
     if (tabName === 'mockup') {
@@ -3715,6 +3761,19 @@ window.showTab = async function(tabName) {
     const tabButton = document.getElementById(`${tabName}Tab`);
     if (tabButton && !tabButton.disabled) {
         tabButton.classList.add('active');
+        tabButton.setAttribute('aria-selected', 'true');
+        
+        // Update other tabs
+        document.querySelectorAll('.side-menu-button').forEach(btn => {
+            if (btn !== tabButton) {
+                btn.setAttribute('aria-selected', 'false');
+            }
+        });
+        
+        // Announce tab change to screen readers
+        if (window.focusManager) {
+            window.focusManager.announce(`Switched to ${tabName} tab`, 'polite');
+        }
     }
     
     // Hide notification dot for active tab and mark as viewed (except chat which is one-time)
@@ -3817,8 +3876,24 @@ function initializeAllSubsections() {
 // Toggle submenu
 window.toggleSubmenu = function(tabName) {
     const submenu = document.getElementById(`submenu-${tabName}`);
+    const expandButton = document.querySelector(`[onclick*="toggleSubmenu('${tabName}')"]`);
+    
     if (submenu) {
+        const isExpanded = submenu.classList.contains('expanded');
         submenu.classList.toggle('expanded');
+        
+        // Update aria-expanded
+        if (expandButton) {
+            expandButton.setAttribute('aria-expanded', !isExpanded);
+        }
+        
+        // Announce state change to screen readers
+        if (window.focusManager) {
+            window.focusManager.announce(
+                isExpanded ? `${tabName} submenu collapsed` : `${tabName} submenu expanded`,
+                'polite'
+            );
+        }
     }
 };
 
@@ -6836,6 +6911,3 @@ function updateDiagramsStatus(status) {
         statusElement.className = `status-value ${status}`;
     }
 }
-
-
-</script>

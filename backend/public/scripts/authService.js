@@ -23,6 +23,11 @@ async function createUserDocument(user, retryCount = 0) {
   const RETRY_DELAYS = [500, 1000, 2000]; // ms
   
   try {
+    // Verify user is still authenticated
+    if (!user) {
+      return; // User logged out, skip initialization
+    }
+    
     const token = await user.getIdToken();
     const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai.onrender.com';
     
@@ -35,6 +40,12 @@ async function createUserDocument(user, retryCount = 0) {
       body: JSON.stringify({})
     });
 
+    if (response.status === 404) {
+      // Endpoint doesn't exist - silently fail (might be development or endpoint not deployed)
+      // Don't retry on 404 - it won't help
+      return;
+    }
+
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.error || `HTTP ${response.status}`);
@@ -42,19 +53,27 @@ async function createUserDocument(user, retryCount = 0) {
 
     return await response.json();
   } catch (error) {
-    // Retry on failure
+    // Don't retry on network errors that suggest the endpoint doesn't exist
+    if (error.message && (error.message.includes('404') || error.message.includes('Failed to fetch'))) {
+      // Silently fail - endpoint might not be available
+      return;
+    }
+    
+    // Retry on other failures
     if (retryCount < MAX_RETRIES) {
       const delay = RETRY_DELAYS[retryCount] || 2000;
       await new Promise(resolve => setTimeout(resolve, delay));
       return createUserDocument(user, retryCount + 1);
     }
-    // Log error but don't throw - this shouldn't prevent login/registration
-    console.error('[createUserDocument] Failed to initialize user documents after retries:', {
-      uid: user?.uid,
-      email: user?.email,
-      error: error.message,
-      stack: error.stack
-    });
+    // Only log error if it's not a 404 or network error
+    if (!error.message || (!error.message.includes('404') && !error.message.includes('Failed to fetch'))) {
+      console.error('[createUserDocument] Failed to initialize user documents after retries:', {
+        uid: user?.uid,
+        email: user?.email,
+        error: error.message,
+        stack: error.stack
+      });
+    }
   }
 }
 

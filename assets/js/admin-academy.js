@@ -117,7 +117,7 @@ class AdminAcademy {
         ...doc.data()
       }));
     } catch (error) {
-      console.error('Error loading guides:', error);
+      // Error loading guides
     }
   }
 

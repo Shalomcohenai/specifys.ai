@@ -46,7 +46,7 @@
       await renderPost(post);
 
     } catch (error) {
-      console.error('Error loading post:', error);
+      // Error loading post
       showError('Error loading post. Please try again later.');
     }
   }

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     <meta name="theme-color" content="#000000">
     <title>Sign In / Register - Specifys.ai</title>
-    <meta name="description" content="Create account">
+    <meta name="description" content="Sign in or create a free account to start planning your app with AI-powered specifications, market research, and development tools.">
     <meta name="keywords" content="AI development tools, app specification generator, no-code platform, AI-powered planning, vibe coding, AI app builder, specification generator, market research tool, app planning tool, development tools, AI tools">
     <meta name="author" content="Specifys.ai">
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
@@ -20,7 +20,7 @@
     <!-- Open Graph -->
     <meta property="og:site_name" content="Specifys.ai">
     <meta property="og:title" content="Sign In / Register">
-    <meta property="og:description" content="Create account">
+    <meta property="og:description" content="Sign in or create a free account to start planning your app with AI-powered specifications, market research, and development tools.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://specifys-ai.com/pages/auth.html">
     <meta property="og:image" content="https://specifys-ai.com/assets/images/og-image.png">
@@ -34,7 +34,7 @@
     <meta name="twitter:site" content="@specifysai">
     <meta name="twitter:creator" content="@specifysai">
     <meta name="twitter:title" content="Sign In / Register">
-    <meta name="twitter:description" content="Create account">
+    <meta name="twitter:description" content="Sign in or create a free account to start planning your app with AI-powered specifications, market research, and development tools.">
     <meta name="twitter:image" content="https://specifys-ai.com/assets/images/og-image.png">
     
     <!-- Favicon -->
@@ -43,8 +43,6 @@
     
     <!-- CSS - Unified compiled CSS file -->
     <link rel="stylesheet" href="/assets/css/main-compiled.css">
-    <!-- Tailwind CSS - Processed via PostCSS -->
-    <link rel="stylesheet" href="/assets/css/tailwind-base-compiled.css">
     <!-- Components -->
     <link rel="stylesheet" href="/assets/css/components/buttons.css">
     <!-- Display Utilities -->
@@ -56,31 +54,38 @@
     <!-- Auth Page Specific Styles -->
     <link rel="stylesheet" href="/assets/css/pages/auth.css">
     
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    
-    <!-- CSS Monitoring Script -->
-    <script src="/assets/js/css-monitor.js"></script>
-    
-    <!-- Credits Configuration - Must load before auth scripts -->
-    <script src="/assets/js/credits-config.js"></script>
-    
-    <!-- Fonts - Optimized: Only Montserrat and Inter -->
+    <!-- Preconnect to external resources -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+    <link rel="dns-prefetch" href="https://www.gstatic.com">
+    
+    <!-- Font Awesome - Loaded asynchronously -->
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"></noscript>
+    
+    <!-- Fonts - Optimized loading -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
+    
+    <!-- CSS Monitoring Script - Deferred -->
+    <script defer src="/assets/js/css-monitor.js"></script>
+    
+    <!-- Credits Configuration - Must load before auth scripts -->
+    <script defer src="/assets/js/credits-config.js"></script>
     
     <!-- Removed heavy libraries: Mermaid, Marked, Highlight.js, jsPDF (not needed on auth page) -->
     
-    <!-- Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-RWBT69JCM7"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-RWBT69JCM7');
-</script>
+    <!-- Google Analytics - Deferred for better performance -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-RWBT69JCM7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-RWBT69JCM7', {
+        'send_page_view': true
+      });
+    </script>
     <!-- Analytics Events functions are available via includes/analytics-events.html -->
 <!-- Structured Data (JSON-LD) for SEO -->
 <script type="application/ld+json">
@@ -139,7 +144,8 @@
 
 
 <body class="page-default">
-        <main class="auth-page-layout">
+    <a href="#main-content" class="skip-to-main" aria-label="Skip to main content">Skip to main content</a>
+    <main class="auth-page-layout" id="main-content" role="main">
         <!-- Logo -->
         <div class="auth-logo">
             <a href="../index.html">Specifys.ai</a>
@@ -166,49 +172,59 @@
                     <p>Sign in to continue your app development journey</p>
                 </div>
 
-                <div class="auth-tabs">
-                    <button class="auth-tab active" onclick="switchTab('login')">Login</button>
-                    <button class="auth-tab" onclick="switchTab('register')">Register</button>
+                <div class="auth-tabs" role="tablist" aria-label="Authentication tabs">
+                    <button class="auth-tab active" data-tab="login" role="tab" aria-selected="true" aria-controls="login-form" id="login-tab">Login</button>
+                    <button class="auth-tab" data-tab="register" role="tab" aria-selected="false" aria-controls="register-form" id="register-tab">Register</button>
                 </div>
 
-                <div id="error-message" class="error-message hidden"></div>
-                <div id="success-message" class="success-message hidden"></div>
+                <div id="error-message" class="error-message hidden" role="alert" aria-live="assertive" aria-atomic="true"></div>
+                <div id="success-message" class="success-message hidden" role="status" aria-live="polite" aria-atomic="true"></div>
 
                 <!-- Login Form -->
-                <form id="login-form" class="auth-form active">
+                <form id="login-form" class="auth-form active" role="tabpanel" aria-labelledby="login-tab">
                     <div class="compact-form-group">
                         <label for="login-email">Email</label>
-                        <input type="email" id="login-email" required>
+                        <input type="email" id="login-email" required autocomplete="email" aria-required="true" aria-describedby="login-email-error login-email-help">
+                        <span id="login-email-error" class="visually-hidden" role="alert"></span>
+                        <span id="login-email-help" class="visually-hidden">Enter your email address</span>
                     </div>
                     <div class="compact-form-group">
                         <label for="login-password">Password</label>
-                        <input type="password" id="login-password" required>
+                        <input type="password" id="login-password" required autocomplete="current-password" aria-required="true" aria-describedby="login-password-error login-password-help">
+                        <span id="login-password-error" class="visually-hidden" role="alert"></span>
+                        <span id="login-password-help" class="visually-hidden">Enter your password</span>
                     </div>
-                    <button type="submit" class="compact-btn compact-btn-primary" id="login-btn">
+                    <button type="submit" class="compact-btn compact-btn-primary" id="login-btn" aria-label="Sign in to your account">
                         <span id="login-btn-text">Sign In</span>
                     </button>
                 </form>
 
                 <!-- Register Form -->
-                <form id="register-form" class="auth-form">
+                <form id="register-form" class="auth-form" role="tabpanel" aria-labelledby="register-tab">
                     <div class="compact-form-group">
                         <label for="register-email">Email</label>
-                        <input type="email" id="register-email" required>
+                        <input type="email" id="register-email" required autocomplete="email" aria-required="true" aria-describedby="register-email-error register-email-help">
+                        <span id="register-email-error" class="visually-hidden" role="alert"></span>
+                        <span id="register-email-help" class="visually-hidden">Enter your email address for registration</span>
                     </div>
                     <div class="compact-form-group">
                         <label for="register-password">Password</label>
-                        <input type="password" id="register-password" required minlength="6">
+                        <input type="password" id="register-password" required minlength="6" autocomplete="new-password" aria-required="true" aria-describedby="register-password-error register-password-help">
+                        <small class="field-hint" id="register-password-help">Minimum 6 characters</small>
+                        <span id="register-password-error" class="visually-hidden" role="alert"></span>
                     </div>
                     <div class="compact-form-group">
                         <label for="register-confirm">Confirm Password</label>
-                        <input type="password" id="register-confirm" required minlength="6">
+                        <input type="password" id="register-confirm" required minlength="6" autocomplete="new-password" aria-required="true" aria-describedby="register-confirm-error register-confirm-help">
+                        <span id="register-confirm-error" class="visually-hidden" role="alert"></span>
+                        <span id="register-confirm-help" class="visually-hidden">Re-enter your password to confirm</span>
                     </div>
                     
                     <!-- Newsletter Subscription Checkbox -->
                     <div class="checkbox-group">
                         <label class="checkbox-label">
-                            <input type="checkbox" id="newsletter-subscription" checked>
-                            <span class="checkmark"></span>
+                            <input type="checkbox" id="newsletter-subscription" checked aria-label="Subscribe to newsletter for updates about new AI tools">
+                            <span class="checkmark" aria-hidden="true"></span>
                             Send me updates about new AI tools
                         </label>
                     </div>
@@ -216,14 +232,14 @@
                     <!-- Privacy Policy Checkbox -->
                     <div class="checkbox-group" id="privacy-policy-group">
                         <label class="checkbox-label">
-                            <input type="checkbox" id="privacy-policy-agreement" required checked>
-                            <span class="checkmark"></span>
-                            I have read and agree to the <a href="#" class="privacy-link" onclick="openPrivacyModal(); return false;"> privacy policy</a>
+                            <input type="checkbox" id="privacy-policy-agreement" required checked aria-describedby="privacy-policy-error">
+                            <span class="checkmark" aria-hidden="true"></span>
+                            I have read and agree to the <a href="#" class="privacy-link" id="privacy-policy-link" aria-label="Read privacy policy"> privacy policy</a>
                         </label>
                     </div>
                     <div id="privacy-policy-error" class="checkbox-error" role="alert" aria-live="assertive"></div>
                     
-                    <button type="submit" class="compact-btn compact-btn-primary" id="register-btn">
+                    <button type="submit" class="compact-btn compact-btn-primary" id="register-btn" aria-label="Create a new account">
                         <span id="register-btn-text">Sign Up</span>
                     </button>
                 </form>
@@ -232,8 +248,8 @@
                     <span>or</span>
                 </div>
 
-                <button class="compact-btn compact-btn-google" onclick="loginWithGoogle()">
-                    <span>G</span> Continue with Google
+                <button class="compact-btn compact-btn-google" id="google-login-btn" type="button" aria-label="Continue with Google authentication">
+                    <span aria-hidden="true">G</span> Continue with Google
                 </button>
 
             </div>
@@ -241,11 +257,11 @@
     </main>
 
     <!-- Privacy Policy Modal -->
-    <div id="privacyModal" class="modal">
+    <div id="privacyModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="privacy-modal-title" aria-hidden="true">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title">Privacy Policy</h2>
-                <span class="close" onclick="closePrivacyModal()">&times;</span>
+                <h2 class="modal-title" id="privacy-modal-title">Privacy Policy</h2>
+                <button class="close" id="privacy-modal-close" type="button" aria-label="Close privacy policy modal">&times;</button>
             </div>
             <div class="modal-body">
                 <p><strong>Last updated:</strong> January 2025</p>
@@ -297,8 +313,8 @@
         </div>
     </div>
 
-    <script src="../assets/js/script.js"></script>
-    <script src="../assets/js/mobile-optimizations.js"></script>
+    <script defer src="../assets/js/script.js"></script>
+    <script defer src="../assets/js/mobile-optimizations.js"></script>
 
     <!-- Firebase SDK -->
     <script type="module">
@@ -432,6 +448,11 @@
             const RETRY_DELAYS = [500, 1000, 2000]; // ms
             
             try {
+                // Verify user is still authenticated
+                if (!user) {
+                    return; // User logged out, skip initialization
+                }
+                
                 const token = await user.getIdToken();
                 const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai.onrender.com';
                 
@@ -444,6 +465,12 @@
                     body: JSON.stringify({})
                 });
 
+                if (response.status === 404) {
+                    // Endpoint doesn't exist - silently return (might be development or endpoint not deployed)
+                    // Don't retry on 404 - it won't help
+                    return null;
+                }
+
                 if (!response.ok) {
                     const errorData = await response.json().catch(() => ({}));
                     throw new Error(errorData.error || `HTTP ${response.status}`);
@@ -452,13 +479,19 @@
                 const result = await response.json();
                 return result;
             } catch (error) {
-                // Retry on failure
+                // Don't retry on network errors that suggest the endpoint doesn't exist
+                if (error.message && (error.message.includes('404') || error.message.includes('Failed to fetch'))) {
+                    // Silently return - endpoint might not be available
+                    return null;
+                }
+                
+                // Retry on other failures
                 if (retryCount < MAX_RETRIES) {
                     const delay = RETRY_DELAYS[retryCount] || 2000;
                     await new Promise(resolve => setTimeout(resolve, delay));
                     return createUserDocument(user, retryCount + 1);
                 }
-                // Re-throw after max retries
+                // Re-throw after max retries (only for non-404 errors)
                 throw error;
             }
         }
@@ -466,12 +499,26 @@
         // Tab switching
         function switchTab(tab) {
             // Update tab buttons
-            document.querySelectorAll('.auth-tab').forEach(btn => btn.classList.remove('active'));
-            document.querySelector(`[onclick="switchTab('${tab}')"]`).classList.add('active');
+            document.querySelectorAll('.auth-tab').forEach(btn => {
+                btn.classList.remove('active');
+                btn.setAttribute('aria-selected', 'false');
+            });
+            const activeTab = document.querySelector(`[data-tab="${tab}"]`);
+            if (activeTab) {
+                activeTab.classList.add('active');
+                activeTab.setAttribute('aria-selected', 'true');
+            }
             
             // Update forms
-            document.querySelectorAll('.auth-form').forEach(form => form.classList.remove('active'));
-            document.getElementById(`${tab}-form`).classList.add('active');
+            document.querySelectorAll('.auth-form').forEach(form => {
+                form.classList.remove('active');
+                form.setAttribute('aria-hidden', 'true');
+            });
+            const activeForm = document.getElementById(`${tab}-form`);
+            if (activeForm) {
+                activeForm.classList.add('active');
+                activeForm.setAttribute('aria-hidden', 'false');
+            }
             
             // Clear messages
             hideMessages();
@@ -485,6 +532,44 @@
                 }
             }
         }
+        
+        // Setup tab event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabButtons = document.querySelectorAll('.auth-tab');
+            tabButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const tab = this.getAttribute('data-tab');
+                    if (tab) {
+                        switchTab(tab);
+                    }
+                });
+            });
+            
+            // Setup privacy policy link
+            const privacyLink = document.getElementById('privacy-policy-link');
+            if (privacyLink) {
+                privacyLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    openPrivacyModal();
+                });
+            }
+            
+            // Setup privacy modal close button
+            const privacyModalClose = document.getElementById('privacy-modal-close');
+            if (privacyModalClose) {
+                privacyModalClose.addEventListener('click', closePrivacyModal);
+            }
+            
+            // Setup Google login button
+            const googleLoginBtn = document.getElementById('google-login-btn');
+            if (googleLoginBtn) {
+                googleLoginBtn.addEventListener('click', function() {
+                    if (window.loginWithGoogle) {
+                        window.loginWithGoogle();
+                    }
+                });
+            }
+        });
 
         // Show/hide messages
         function showError(message) {
@@ -808,20 +893,45 @@
 
         // Privacy Modal Functions
         function openPrivacyModal() {
-            document.getElementById('privacyModal').style.display = 'block';
+            const modal = document.getElementById('privacyModal');
+            if (modal) {
+                modal.style.display = 'block';
+                modal.setAttribute('aria-hidden', 'false');
+                // Focus management
+                const closeBtn = document.getElementById('privacy-modal-close');
+                if (closeBtn) {
+                    closeBtn.focus();
+                }
+            }
         }
 
         function closePrivacyModal() {
-            document.getElementById('privacyModal').style.display = 'none';
-        }
-
-        // Close modal when clicking outside
-        window.onclick = function(event) {
             const modal = document.getElementById('privacyModal');
-            if (event.target == modal) {
+            if (modal) {
                 modal.style.display = 'none';
+                modal.setAttribute('aria-hidden', 'true');
             }
         }
+
+        // Close modal when clicking outside or pressing Escape
+        document.addEventListener('DOMContentLoaded', function() {
+            const modal = document.getElementById('privacyModal');
+            if (modal) {
+                // Click outside to close
+                window.addEventListener('click', function(event) {
+                    if (event.target === modal) {
+                        closePrivacyModal();
+                    }
+                });
+                
+                // Escape key to close
+                document.addEventListener('keydown', function(event) {
+                    if (event.key === 'Escape' && modal.style.display === 'block') {
+                        closePrivacyModal();
+                    }
+                });
+            }
+        });
 
         // Global functions
         window.switchTab = switchTab;

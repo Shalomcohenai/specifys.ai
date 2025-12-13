@@ -7,7 +7,7 @@ module.exports = {
   googleAppsScriptUrl: 'https://script.google.com/macros/s/AKfycbym3fu04RejAdA6GHKV9lMkT5dgkB9cxgY9yZ0hPkGxJzPrSrO3pT0XgooeL_z4_mtayQ/exec',
   
   // Production server URL (replace with your actual production server)
-  productionServerUrl: process.env.PRODUCTION_SERVER_URL || 'https://your-production-server.com',
+  productionServerUrl: process.env.PRODUCTION_SERVER_URL || 'https://specifys-ai.onrender.com',
   
   // CORS origins (allowed domains)
   allowedOrigins: [

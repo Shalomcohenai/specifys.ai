@@ -8,13 +8,12 @@ extra_css:
   - /assets/css/pages/profile.css
 extra_js:
   - /assets/js/script.js
-  - /assets/js/config.js
   - /assets/js/profile-scroll.js
 custom_js_modules:
   - /assets/js/profile.js
 ---
 
-<main class="profile-container">
+<main class="profile-container" id="main-content" role="main">
     <!-- User Profile Dashboard -->
     <div class="profile-dashboard">
         <div class="profile-dashboard__content">
@@ -29,17 +28,17 @@ custom_js_modules:
                     <h2 class="profile-dashboard__name" id="user-name">Loading...</h2>
                     <p class="profile-dashboard__email" id="user-email">Loading...</p>
                 </div>
-                <div class="profile-dashboard__actions">
-                    <button class="profile-dashboard__btn profile-dashboard__btn--info" onclick="openPersonalInfoPanel()" title="Personal Information">
-                        <i class="fas fa-user-circle"></i>
+                <div class="profile-dashboard__actions" role="group" aria-label="Profile actions">
+                    <button class="profile-dashboard__btn profile-dashboard__btn--info" onclick="openPersonalInfoPanel()" title="Personal Information" aria-label="Open personal information panel">
+                        <i class="fas fa-user-circle" aria-hidden="true"></i>
                         <span>Personal Info</span>
                     </button>
-                    <button class="profile-dashboard__btn profile-dashboard__btn--admin hidden" id="admin-dashboard-btn" onclick="window.location.href='/pages/admin-dashboard.html'" title="Admin Dashboard">
-                        <i class="fas fa-user-shield"></i>
+                    <button class="profile-dashboard__btn profile-dashboard__btn--admin hidden" id="admin-dashboard-btn" onclick="window.location.href='/pages/admin-dashboard.html'" title="Admin Dashboard" aria-label="Go to admin dashboard">
+                        <i class="fas fa-user-shield" aria-hidden="true"></i>
                         <span>Admin Dashboard</span>
                     </button>
-                    <button class="profile-dashboard__btn profile-dashboard__btn--logout" onclick="logout()" title="Sign Out">
-                        <i class="fas fa-sign-out-alt"></i>
+                    <button class="profile-dashboard__btn profile-dashboard__btn--logout" onclick="logout()" title="Sign Out" aria-label="Sign out of your account">
+                        <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
                         <span>Sign Out</span>
                     </button>
                 </div>
@@ -75,16 +74,20 @@ custom_js_modules:
         <div class="section-header">
             <h3>Workspace</h3>
             <div class="section-actions">
-                <button class="create-app-btn" onclick="goToCreateSpec()" title="Create New Specification">
-                    <i class="fas fa-plus"></i>
+                <button class="create-app-btn" onclick="goToCreateSpec()" title="Create New Specification" aria-label="Create a new specification">
+                    <i class="fas fa-plus" aria-hidden="true"></i>
+                    <span class="visually-hidden">Create New Specification</span>
                 </button>
             </div>
         </div>
 
         <!-- Search and Sort -->
-        <div class="workspace-controls">
-            <input type="text" id="workspace-search" placeholder="Search workspace items..." class="search-input">
-            <select id="workspace-sort" class="sort-select">
+        <div class="workspace-controls" role="search" aria-label="Workspace search and filter">
+            <label for="workspace-search" class="visually-hidden">Search workspace items</label>
+            <input type="text" id="workspace-search" placeholder="Search workspace items..." class="search-input" aria-label="Search workspace items" aria-describedby="workspace-search-help">
+            <span id="workspace-search-help" class="visually-hidden">Type to search your workspace items</span>
+            <label for="workspace-sort" class="visually-hidden">Sort workspace items</label>
+            <select id="workspace-sort" class="sort-select" aria-label="Sort workspace items by">
                 <option value="newest">Newest First</option>
                 <option value="oldest">Oldest First</option>
                 <option value="a-z">A-Z</option>

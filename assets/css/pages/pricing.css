@@ -92,7 +92,7 @@
 
 .pricing-card {
   background: white;
-  border: 2px solid #FFE8DC;
+  border: 2px solid #FF6B35;
   border-radius: 16px;
   padding: 40px;
   transition: all 0.3s ease;
@@ -108,6 +108,7 @@
   border-color: #FF6B35;
 }
 
+.pricing-card.single,
 .pricing-card.pack,
 .pricing-card.pro {
   border-color: #FF6B35;
@@ -175,12 +176,17 @@
 }
 
 /* Plan Details - Show/Hide */
-.plan-details {
-  display: none;
+.pricing-card.pro .plan-details {
+  display: none !important;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  visibility: hidden;
 }
 
-.plan-details.active {
-  display: block;
+.pricing-card.pro .plan-details.active {
+  display: block !important;
+  opacity: 1;
+  visibility: visible;
 }
 
 .plan-header {
@@ -190,6 +196,12 @@
 .plan-features {
   margin-bottom: 32px;
   flex-grow: 1;
+}
+
+/* Ensure consistent height for features list to prevent button movement when switching plans */
+/* Monthly has 7 items, yearly has 8 items - add padding to monthly to match yearly height */
+.pricing-card.pro #pro-monthly .plan-features {
+  padding-bottom: 40px; /* Approximate height of one list item to compensate for missing "17% Savings" item */
 }
 
 .plan-header h3 {
@@ -239,6 +251,36 @@
   margin: 8px 0;
   text-align: center;
   width: 100%;
+  min-height: 28px;
+  box-sizing: border-box;
+  line-height: 20px;
+}
+
+/* Reserve space for savings-badge area to prevent button movement when switching plans */
+/* Add invisible placeholder that mimics savings-badge in monthly view */
+.pricing-card.pro #pro-monthly .plan-cta::after {
+  content: '';
+  display: block;
+  min-height: 28px;
+  margin: 8px 0;
+  visibility: hidden;
+  pointer-events: none;
+  flex-shrink: 0;
+  order: 1; /* Place between price and button */
+}
+
+/* Set button order in monthly view so it comes after the spacer */
+.pricing-card.pro #pro-monthly .plan-cta .btn {
+  order: 2;
+}
+
+/* Ensure yearly view doesn't show the placeholder and resets button order */
+.pricing-card.pro #pro-yearly .plan-cta::after {
+  display: none;
+}
+
+.pricing-card.pro #pro-yearly .plan-cta .btn {
+  order: 0; /* Reset to default order */
 }
 
 .features-label {

@@ -161,23 +161,69 @@ function formatJSONContent(jsonData) {
                     html += '</tbody></table>';
                 }
             } else {
-                // Regular object - show as formatted list
-                html += '<ul>';
+                // Regular object - format recursively
+                html += '<div style="margin-left: 20px;">';
                 for (let subKey in value) {
                     if (value.hasOwnProperty(subKey)) {
                         const subValue = value[subKey];
                         if (subValue !== null && subValue !== undefined && subValue !== '') {
+                            html += '<div style="margin-bottom: 12px;">';
                             if (typeof subValue === 'string') {
-                                html += `<li><strong>${subKey}:</strong> ${subValue}</li>`;
+                                // Multi-line strings - preserve line breaks
+                                const formattedText = subValue.split('\n').map(line => line.trim()).filter(line => line).join('<br>');
+                                html += `<strong style="color: #6366F1;">${subKey.charAt(0).toUpperCase() + subKey.slice(1).replace(/([A-Z])/g, ' $1')}:</strong> `;
+                                html += `<span>${formattedText}</span>`;
                             } else if (Array.isArray(subValue)) {
-                                html += `<li><strong>${subKey}:</strong> ${subValue.join(', ')}</li>`;
+                                html += `<strong style="color: #6366F1;">${subKey.charAt(0).toUpperCase() + subKey.slice(1).replace(/([A-Z])/g, ' $1')}:</strong> `;
+                                html += '<ul style="margin-top: 8px; margin-bottom: 0;">';
+                                subValue.forEach(item => {
+                                    if (typeof item === 'string') {
+                                        html += `<li style="margin-bottom: 6px;">${item}</li>`;
+                                    } else if (typeof item === 'object') {
+                                        html += '<li style="margin-bottom: 6px;">';
+                                        for (let itemKey in item) {
+                                            const itemVal = item[itemKey];
+                                            if (typeof itemVal === 'string') {
+                                                html += `<strong>${itemKey}:</strong> ${itemVal} `;
+                                            } else if (Array.isArray(itemVal)) {
+                                                html += `<strong>${itemKey}:</strong> ${itemVal.join(', ')} `;
+                                            }
+                                        }
+                                        html += '</li>';
+                                    } else {
+                                        html += `<li>${item}</li>`;
+                                    }
+                                });
+                                html += '</ul>';
                             } else if (typeof subValue === 'object') {
-                                html += `<li><strong>${subKey}:</strong> <pre>${JSON.stringify(subValue, null, 2)}</pre></li>`;
+                                // Recursively format nested objects
+                                html += `<strong style="color: #6366F1;">${subKey.charAt(0).toUpperCase() + subKey.slice(1).replace(/([A-Z])/g, ' $1')}:</strong>`;
+                                html += '<div style="margin-left: 20px; margin-top: 8px; padding-left: 15px; border-left: 2px solid #e0e0e0;">';
+                                for (let nestedKey in subValue) {
+                                    const nestedValue = subValue[nestedKey];
+                                    if (nestedValue !== null && nestedValue !== undefined && nestedValue !== '') {
+                                        if (typeof nestedValue === 'string') {
+                                            const formattedNested = nestedValue.split('\n').map(line => line.trim()).filter(line => line).join('<br>');
+                                            html += `<div style="margin-bottom: 8px;"><strong>${nestedKey}:</strong> ${formattedNested}</div>`;
+                                        } else if (Array.isArray(nestedValue)) {
+                                            html += `<div style="margin-bottom: 8px;"><strong>${nestedKey}:</strong> `;
+                                            html += '<ul style="margin-top: 4px; margin-bottom: 0;">';
+                                            nestedValue.forEach(nestedItem => {
+                                                html += `<li>${typeof nestedItem === 'string' ? nestedItem : JSON.stringify(nestedItem)}</li>`;
+                                            });
+                                            html += '</ul></div>';
+                                        } else {
+                                            html += `<div style="margin-bottom: 8px;"><strong>${nestedKey}:</strong> ${JSON.stringify(nestedValue, null, 2)}</div>`;
+                                        }
+                                    }
+                                }
+                                html += '</div>';
                             }
+                            html += '</div>';
                         }
                     }
                 }
-                html += '</ul>';
+                html += '</div>';
             }
         }
         

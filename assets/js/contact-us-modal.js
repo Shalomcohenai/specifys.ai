@@ -168,7 +168,7 @@
       }, 2000);
       
     } catch (error) {
-      console.error('Error submitting contact form:', error);
+      // Error submitting contact form
       showStatus(statusEl, error.message || 'Failed to send message. Please try again.', 'error');
     } finally {
       // Reset button state

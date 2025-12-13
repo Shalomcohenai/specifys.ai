@@ -20,9 +20,11 @@ permalink: /academy/category.html
         <div class="category-search-section">
           <div class="search-wrapper">
             <i class="fas fa-search search-icon"></i>
-            <input type="search" id="academy-search-input" class="search-input" placeholder="Search guides in this category..." autocomplete="off">
+            <label for="academy-search-input" class="visually-hidden">Search guides in this category</label>
+            <input type="search" id="academy-search-input" class="search-input" placeholder="Search guides in this category..." autocomplete="off" aria-label="Search guides in this category" aria-describedby="academy-search-help">
+            <span id="academy-search-help" class="visually-hidden">Type to search guides in this category</span>
             <button class="search-clear hidden" id="search-clear" aria-label="Clear search">
-              <i class="fas fa-times"></i>
+              <i class="fas fa-times" aria-hidden="true"></i>
             </button>
           </div>
         </div>
@@ -39,7 +41,7 @@ permalink: /academy/category.html
         <div class="filters-container">
           <div class="filter-group level-filter-group">
             <label class="filter-label" for="level-select">Level:</label>
-            <select id="level-select" class="level-select" name="level">
+            <select id="level-select" class="level-select" name="level" aria-label="Filter guides by difficulty level">
               <option value="all">All Levels</option>
               <option value="Beginner">Beginner</option>
               <option value="Intermediate">Intermediate</option>
@@ -47,13 +49,13 @@ permalink: /academy/category.html
             </select>
           </div>
           <div class="filter-group topic-filter-group">
-            <button class="filter-toggle-btn" id="topic-filter-toggle" aria-expanded="false">
+            <button class="filter-toggle-btn" id="topic-filter-toggle" aria-expanded="false" aria-controls="topic-filters-collapsible" aria-label="Toggle topic filters">
               <span>Filter by Topic</span>
-              <i class="fas fa-chevron-down"></i>
+              <i class="fas fa-chevron-down" aria-hidden="true"></i>
             </button>
             <div class="topic-filters-collapsible hidden" id="topic-filters-collapsible">
               <div class="topic-filters" id="topic-filters">
-                <button class="filter-btn active" data-filter-type="topic" data-value="all">
+                <button class="filter-btn active" data-filter-type="topic" data-value="all" aria-label="Show all topics" aria-pressed="true">
                   All Topics
                 </button>
                 <!-- Topic buttons will be generated dynamically -->
@@ -76,13 +78,13 @@ permalink: /academy/category.html
 </button>
 
 <!-- Points Modal -->
-<div class="points-modal hidden" id="points-modal">
-  <div class="points-modal-backdrop" id="points-modal-backdrop"></div>
+<div class="points-modal hidden" id="points-modal" role="dialog" aria-modal="true" aria-labelledby="points-modal-title" aria-hidden="true">
+  <div class="points-modal-backdrop" id="points-modal-backdrop" aria-hidden="true"></div>
   <div class="points-modal-content">
     <div class="points-modal-header">
-      <h2>Your Academy Progress</h2>
-      <button class="points-modal-close" id="points-modal-close" aria-label="Close">
-        <i class="fas fa-times"></i>
+      <h2 id="points-modal-title">Your Academy Progress</h2>
+      <button class="points-modal-close" id="points-modal-close" aria-label="Close points modal">
+        <i class="fas fa-times" aria-hidden="true"></i>
       </button>
     </div>
     <div class="points-modal-body">

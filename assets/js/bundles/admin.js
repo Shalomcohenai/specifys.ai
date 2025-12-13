@@ -7,6 +7,4 @@
 // Note: This is a large file, kept as separate bundle for optimal loading
 import '../admin-dashboard.js';
 
-console.log('[Admin Bundle] Loaded');
-
 

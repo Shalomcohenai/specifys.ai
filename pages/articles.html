@@ -26,11 +26,11 @@ permalink: /pages/articles.html
           </div>
         </div>
         <div class="carousel-controls">
-          <button class="carousel-btn prev" id="carousel-prev" aria-label="Previous article">
-            <i class="fas fa-chevron-left"></i>
+          <button class="carousel-btn prev" id="carousel-prev" aria-label="Show previous article">
+            <i class="fas fa-chevron-left" aria-hidden="true"></i>
           </button>
-          <button class="carousel-btn next" id="carousel-next" aria-label="Next article">
-            <i class="fas fa-chevron-right"></i>
+          <button class="carousel-btn next" id="carousel-next" aria-label="Show next article">
+            <i class="fas fa-chevron-right" aria-hidden="true"></i>
           </button>
         </div>
         <div class="carousel-indicators" id="carousel-indicators"></div>
@@ -42,9 +42,9 @@ permalink: /pages/articles.html
   <section class="articles-latest">
     <div class="container">
       <h2 class="section-title">Latest Articles</h2>
-      <div class="articles-grid" id="articles-grid">
+      <div class="articles-grid" id="articles-grid" role="list" aria-label="Articles list">
         <!-- Articles will be loaded here -->
-        <div class="loading-placeholder">Loading articles...</div>
+        <div class="loading-placeholder" role="status" aria-live="polite">Loading articles...</div>
       </div>
       
       <!-- Pagination -->
@@ -53,12 +53,12 @@ permalink: /pages/articles.html
           <span id="pagination-info">Showing 0-0 of 0</span>
         </div>
         <div class="pagination-controls">
-          <button class="pagination-btn" id="pagination-prev" disabled>
-            <i class="fas fa-chevron-left"></i> Previous
+          <button class="pagination-btn" id="pagination-prev" disabled aria-label="Go to previous page">
+            <i class="fas fa-chevron-left" aria-hidden="true"></i> Previous
           </button>
-          <div class="pagination-pages" id="pagination-pages"></div>
-          <button class="pagination-btn" id="pagination-next" disabled>
-            Next <i class="fas fa-chevron-right"></i>
+          <nav class="pagination-pages" id="pagination-pages" aria-label="Article pagination" role="navigation"></nav>
+          <button class="pagination-btn" id="pagination-next" disabled aria-label="Go to next page">
+            Next <i class="fas fa-chevron-right" aria-hidden="true"></i>
           </button>
         </div>
       </div>

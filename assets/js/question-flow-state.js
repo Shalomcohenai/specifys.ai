@@ -176,7 +176,7 @@ class QuestionFlowState {
         try {
           callback(data);
         } catch (error) {
-          console.error(`Error in listener for ${event}:`, error);
+          // Error in listener
         }
       });
     }

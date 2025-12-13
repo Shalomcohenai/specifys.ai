@@ -7,6 +7,4 @@
 import '../post.js';
 import '../mermaid-simple.js';
 
-console.log('[Post Bundle] Loaded');
-
 

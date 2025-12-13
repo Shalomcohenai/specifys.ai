@@ -1,19 +1,19 @@
 <!-- Header -->
 <header class="thematic-header" role="banner">
-    <div class="header-center">
+    <nav class="header-center" aria-label="Main navigation">
         <div class="logo">
             <a href="{{ '/' | relative_url }}" aria-label="Specifys.ai homepage">
                 <span class="logo-text">Specifys<span class="logo-dot">.</span>AI</span>
             </a>
         </div>
-    </div>
-    <div class="header-right">
-        <div class="credits-display hidden" id="credits-display">
+    </nav>
+    <div class="header-right" role="complementary" aria-label="User account and credits">
+        <div class="credits-display hidden" id="credits-display" role="status" aria-live="polite" aria-atomic="true">
             <div class="credits-container">
-                <span id="credits-text">Credits: 0</span>
+                <span id="credits-text" aria-label="Available credits">Credits: 0</span>
             </div>
         </div>
-        <div class="auth-buttons" id="auth-buttons">
+        <div class="auth-buttons" id="auth-buttons" role="group" aria-label="Authentication buttons">
             <!-- Will be populated by auth system -->
         </div>
     </div>

@@ -20,30 +20,35 @@ extra_js:
   - /assets/js/index-mermaid.js
   - /assets/js/why.js
   - /assets/js/index-vanta.js
+defer_vanta: true
   - /assets/js/index-access-code.js
   - /assets/js/credits-display.js
 ---
 
 <!-- Access Code Modal -->
-<div class="access-code-modal" id="accessCodeModal">
+<div class="access-code-modal" id="accessCodeModal" role="dialog" aria-modal="true" aria-labelledby="access-code-title" aria-hidden="true">
     <div class="access-code-content">
         <div class="access-code-header">
-            <h3>🔒 Access Required</h3>
+            <h3 id="access-code-title">🔒 Access Required</h3>
         </div>
         <div class="access-code-body">
             <p>The site is under maintenance. Please enter the access code to continue.</p>
-            <input type="text" id="accessCodeInput" class="access-code-input" placeholder="Enter access code" maxlength="10" autocomplete="off">
-            <div class="access-code-error hidden" id="accessCodeError">Incorrect code. Please try again.</div>
+            <label for="accessCodeInput" class="visually-hidden">Access code</label>
+            <input type="text" id="accessCodeInput" class="access-code-input" placeholder="Enter access code" maxlength="10" autocomplete="off" aria-label="Enter access code" aria-describedby="access-code-error" aria-required="true">
+            <div class="access-code-error hidden" id="accessCodeError" role="alert" aria-live="assertive">Incorrect code. Please try again.</div>
         </div>
         <div class="access-code-actions">
-            <button class="access-code-btn" id="accessCodeSubmit">Enter</button>
+            <button class="access-code-btn" id="accessCodeSubmit" aria-label="Submit access code">Enter</button>
         </div>
     </div>
 </div>
 
+<!-- Skip to main content for accessibility -->
+<a href="#main-content" class="skip-to-main" aria-label="Skip to main content">Skip to main content</a>
+
 <!-- Hero Section -->
-<section class="hero-section">
-    <div id="vanta-net"></div>
+<section class="hero-section" aria-label="Hero section">
+    <div id="vanta-net" aria-hidden="true"></div>
     
     <!-- Hero Content -->
     <div class="hero-content" id="heroContent">
@@ -54,8 +59,8 @@ extra_js:
             </div>
         
         <div class="hero-button-container">
-            <button class="hero-cta-button-new" id="startButton">
-                <svg class="svgIcon" viewBox="0 0 512 512" height="1em" xmlns="http://www.w3.org/2000/svg">
+            <button class="hero-cta-button-new" id="startButton" aria-label="Start creating your app specification">
+                <svg class="svgIcon" viewBox="0 0 512 512" height="1em" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                     <path class="bell" d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zm50.7-186.9L162.4 380.6c-19.4 7.5-38.5-11.6-31-31l55.5-144.3c3.3-8.5 9.9-15.1 18.4-18.4l144.3-55.5c19.4-7.5 38.5 11.6 31 31L325.1 306.7c-3.2 8.5-9.9 15.1-18.4 18.4zM288 256a32 32 0 1 0 -64 0 32 32 0 1 0 64 0z" fill="white"/>
                 </svg>
                 Start
@@ -63,9 +68,9 @@ extra_js:
         </div>
         
         <!-- Spec Cards Showcase -->
-        <div class="spec-cards-showcase" id="specCardsShowcase">
-            <div class="spec-card-square" data-spec="overview">
-                <div class="spec-icon">
+        <div class="spec-cards-showcase" id="specCardsShowcase" role="list" aria-label="Specification features">
+            <div class="spec-card-square" data-spec="overview" role="listitem">
+                <div class="spec-icon" aria-hidden="true">
                     <i class="fa fa-file-alt"></i>
                 </div>
                 <div class="spec-content">
@@ -73,8 +78,8 @@ extra_js:
                     <p>Comprehensive app information including idea summary and core features</p>
                 </div>
             </div>
-            <div class="spec-card-square" data-spec="technical">
-                <div class="spec-icon">
+            <div class="spec-card-square" data-spec="technical" role="listitem">
+                <div class="spec-icon" aria-hidden="true">
                     <i class="fa fa-code"></i>
                 </div>
                 <div class="spec-content">
@@ -82,8 +87,8 @@ extra_js:
                     <p>Technical specifications including tech stack and API endpoints</p>
                 </div>
             </div>
-            <div class="spec-card-square" data-spec="market">
-                <div class="spec-icon">
+            <div class="spec-card-square" data-spec="market" role="listitem">
+                <div class="spec-icon" aria-hidden="true">
                     <i class="fa fa-chart-line"></i>
                 </div>
                 <div class="spec-content">
@@ -91,8 +96,8 @@ extra_js:
                     <p>Market analysis including competitors and monetization strategies</p>
                 </div>
             </div>
-            <div class="spec-card-square" data-spec="design">
-                <div class="spec-icon">
+            <div class="spec-card-square" data-spec="design" role="listitem">
+                <div class="spec-icon" aria-hidden="true">
                     <i class="fa fa-palette"></i>
                 </div>
                 <div class="spec-content">
@@ -100,8 +105,8 @@ extra_js:
                     <p>Visual design guidelines including color schemes and typography</p>
                 </div>
             </div>
-            <div class="spec-card-square" data-spec="diagrams">
-                <div class="spec-icon">
+            <div class="spec-card-square" data-spec="diagrams" role="listitem">
+                <div class="spec-icon" aria-hidden="true">
                     <i class="fa fa-project-diagram"></i>
                 </div>
                 <div class="spec-content">
@@ -109,8 +114,8 @@ extra_js:
                     <p>Visual diagrams including architecture and user flow charts</p>
                 </div>
             </div>
-            <div class="spec-card-square" data-spec="ai-chat">
-                <div class="spec-icon">
+            <div class="spec-card-square" data-spec="ai-chat" role="listitem">
+                <div class="spec-icon" aria-hidden="true">
                     <i class="fa fa-robot"></i>
                 </div>
                 <div class="spec-content">
@@ -152,48 +157,52 @@ extra_js:
     
     <!-- Modern Input Container -->
     <div class="modern-input-container hidden" id="modernInputContainer">
-        <div class="input-instruction">
+        <div class="input-instruction" id="input-instruction" role="status" aria-live="polite">
             Start typing, press Enter for next question, press Backspace for previous question
         </div>
         
         <div class="input-area">
+            <label for="mainInput" class="visually-hidden">Answer input</label>
             <textarea 
                 class="main-input" 
                 id="mainInput"
                 placeholder="Write your answer here..."
                 rows="1"
+                aria-label="Answer input"
+                aria-describedby="characterCount input-instruction"
+                maxlength="900"
             ></textarea>
             <div class="character-count-container">
-                <span class="character-count" id="characterCount">0 / 900</span>
+                <span class="character-count" id="characterCount" aria-live="polite">0 / 900</span>
             </div>
         </div>
         
         <div class="input-controls">
             <div class="left-controls">
-                <button class="control-btn hidden" title="Microphone" id="microphoneBtn">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <button class="control-btn hidden" title="Microphone" id="microphoneBtn" aria-label="Use microphone for voice input">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                         <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
                         <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
                         <line x1="12" y1="19" x2="12" y2="23"></line>
                         <line x1="8" y1="23" x2="16" y2="23"></line>
                     </svg>
                 </button>
-                <button class="control-btn" title="Lightbulb" id="lightbulbBtn">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <button class="control-btn" title="Lightbulb" id="lightbulbBtn" aria-label="Get suggestions">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                         <path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z"/>
                     </svg>
                 </button>
                 
-                <div class="separator"></div>
+                <div class="separator" aria-hidden="true"></div>
                 
-                <button class="control-btn" id="phoneBtn" data-tooltip="Click for mobile app">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <button class="control-btn" id="phoneBtn" data-tooltip="Click for mobile app" aria-label="Select mobile app type">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                         <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
                         <line x1="12" y1="18" x2="12.01" y2="18"></line>
                     </svg>
                 </button>
                 
-                <button class="control-btn" id="computerBtn" data-tooltip="Click for web app">
+                <button class="control-btn" id="computerBtn" data-tooltip="Click for web app" aria-label="Select web app type">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
                         <line x1="8" y1="21" x2="16" y2="21"></line>
@@ -206,15 +215,15 @@ extra_js:
                 
             </div>
             
-            <div class="progress-dots">
-                <div class="progress-dot" data-question="0" title="Question 1"></div>
-                <div class="progress-dot" data-question="1" title="Question 2"></div>
-                <div class="progress-dot" data-question="2" title="Question 3"></div>
+            <div class="progress-dots" role="progressbar" aria-label="Question progress" aria-valuenow="0" aria-valuemin="0" aria-valuemax="3">
+                <div class="progress-dot" data-question="0" title="Question 1" aria-label="Question 1"></div>
+                <div class="progress-dot" data-question="1" title="Question 2" aria-label="Question 2"></div>
+                <div class="progress-dot" data-question="2" title="Question 3" aria-label="Question 3"></div>
             </div>
             
-            <button class="send-btn" id="sendBtn">
+            <button class="send-btn" id="sendBtn" aria-label="Submit answer and proceed to next question">
                 <span class="send-text">Next</span>
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" height="20" width="20" class="send-arrow">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" height="20" width="20" class="send-arrow" aria-hidden="true">
                     <path stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m-7-7l7 7-7 7"></path>
                 </svg>
             </button>
@@ -341,35 +350,35 @@ graph TD
   <div class="section" style="--section-index: 0;">
     <h2>Discover Our Tools</h2>
     <p>Everything you need to build your app - from planning to deployment</p>
-    <div class="tools-showcase">
-      <div class="tool-square" data-tool="tools-map">
-        <div class="icon">
+    <div class="tools-showcase" role="list" aria-label="Available tools">
+      <div class="tool-square" data-tool="tools-map" role="listitem">
+        <div class="icon" aria-hidden="true">
           <i class="fa fa-map"></i>
         </div>
         <div class="content">
           <h3>Tools Map</h3>
           <p>Explore AI tools for developers</p>
-          <a href="/tools/map/vibe-coding-tools-map.html" class="tool-link" onclick="trackToolUsage('Tools Map', 'explore_now')">Explore Now</a>
+          <a href="/tools/map/vibe-coding-tools-map.html" class="tool-link" onclick="trackToolUsage('Tools Map', 'explore_now')" aria-label="Explore the Vibe Coding Tools Map">Explore Now</a>
         </div>
       </div>
-      <div class="tool-square" data-tool="tool-finder">
-        <div class="icon">
+      <div class="tool-square" data-tool="tool-finder" role="listitem">
+        <div class="icon" aria-hidden="true">
           <i class="fa fa-search"></i>
         </div>
         <div class="content">
           <h3>Tool Finder</h3>
           <p>Find perfect tools for your needs</p>
-          <a href="/pages/ToolPicker.html" class="tool-link" onclick="trackToolUsage('Tool Finder', 'find_now')">Find Now</a>
+          <a href="/pages/ToolPicker.html" class="tool-link" onclick="trackToolUsage('Tool Finder', 'find_now')" aria-label="Use the Tool Finder to find perfect tools">Find Now</a>
         </div>
       </div>
-      <div class="tool-square" data-tool="app-management">
-        <div class="icon">
+      <div class="tool-square" data-tool="app-management" role="listitem">
+        <div class="icon" aria-hidden="true">
           <i class="fa fa-cogs"></i>
         </div>
         <div class="content">
           <h3>App Management</h3>
           <p>Manage your apps & specs (Members)</p>
-          <a href="#startButton" class="tool-link" onclick="trackToolUsage('App Management', 'start_planning'); document.getElementById('startButton')?.scrollIntoView({ behavior: 'smooth' });">Start Here</a>
+          <a href="#startButton" class="tool-link" onclick="trackToolUsage('App Management', 'start_planning'); document.getElementById('startButton')?.scrollIntoView({ behavior: 'smooth' });" aria-label="Start planning your app">Start Here</a>
         </div>
       </div>
     </div>

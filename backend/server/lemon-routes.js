@@ -98,17 +98,6 @@ router.post('/checkout', express.json(), verifyFirebaseToken, async (req, res, n
       }));
     }
 
-    console.log('=== Lemon Checkout Request ===');
-    const requestLog = {
-      userId,
-      userEmail,
-      productKey,
-      variantId: variantIdToUse,
-      storeId,
-      successPath,
-      successQuery
-    };
-    console.log(JSON.stringify(requestLog, null, 2));
 
     // Create checkout via Lemon Squeezy API
     const checkoutUrl = `https://api.lemonsqueezy.com/v1/checkouts`;
@@ -191,9 +180,6 @@ router.post('/checkout', express.json(), verifyFirebaseToken, async (req, res, n
         errorData = await response.text();
       }
       
-      console.error('Lemon Squeezy API error:', JSON.stringify(errorData, null, 2));
-      console.error('Used variantId:', variantIdToUse);
-      console.error('Used storeId:', storeId);
       
       // Parse Lemon Squeezy error details
       let errorMessage = 'Failed to create checkout';
@@ -244,8 +230,6 @@ router.post('/checkout', express.json(), verifyFirebaseToken, async (req, res, n
       testMode: useTestMode
     });
 
-    console.log('✅ Lemon checkout created successfully:', {
-      checkoutId: responseData.data?.id,
       productKey,
       variantId: variantIdToUse,
       testMode: useTestMode
@@ -298,15 +282,6 @@ router.post('/subscription/cancel', express.json(), verifyFirebaseToken, async (
     const storeId = process.env.LEMON_SQUEEZY_STORE_ID || null;
     // Note: requestId is already defined above, don't override it
 
-    console.log('[LEMON][CANCEL] Start resolver', {
-      requestId,
-      userId,
-      userEmail,
-      lemonMode,
-      storeId,
-      cancelImmediately,
-      hasStoredId: !!subscriptionData.lemon_subscription_id
-    });
 
     const resolution = await resolveSubscription({
       db,
@@ -324,10 +299,6 @@ router.post('/subscription/cancel', express.json(), verifyFirebaseToken, async (
     });
 
     if (!resolution || !resolution.subscriptionId) {
-      console.warn('[LEMON][CANCEL] Resolver could not determine subscription ID', {
-        requestId,
-        attempts: resolution?.attempts || null
-      });
       logger.warn({ requestId, userId }, '[lemon-routes] Subscription not found');
       return next(createError('Subscription not found', ERROR_CODES.RESOURCE_NOT_FOUND, 404, {
         details: 'לא נמצא מנוי פעיל לחשבון זה או שקיימת חוסר התאמה בין מצב Test/Live, ה-API key או ה-store ID.',
@@ -345,19 +316,6 @@ router.post('/subscription/cancel', express.json(), verifyFirebaseToken, async (
       subscriptionAttributes.renews_at ||
       null;
 
-    console.log('[LEMON][CANCEL] Resolver result', {
-      requestId,
-      subscriptionId,
-      source: resolution.source,
-      resolvedStatus,
-      attempts: resolution.attempts
-    });
-
-    console.log('[LEMON][CANCEL] Proceeding with Lemon Squeezy cancellation', {
-      requestId,
-      subscriptionId,
-      cancelImmediately
-    });
 
     const cancelEndpoint = `https://api.lemonsqueezy.com/v1/subscriptions/${subscriptionId}`;
     const lemonHeaders = {
@@ -407,12 +365,6 @@ router.post('/subscription/cancel', express.json(), verifyFirebaseToken, async (
           }
         }
 
-        console.warn('[LEMON][CANCEL] Patch cancellation failed, attempting immediate delete', {
-          requestId,
-          subscriptionId,
-          status: cancelResponse.status,
-          body: patchErrorBody
-        });
 
         cancellationMode = 'immediate';
         cancelResponse = await fetch(cancelEndpoint, {
@@ -438,12 +390,6 @@ router.post('/subscription/cancel', express.json(), verifyFirebaseToken, async (
         ? errorDetails.errors.map((err) => err.detail || err.title).filter(Boolean).join(' | ')
         : null;
 
-      console.error('[LEMON][CANCEL] Lemon API cancellation failed', {
-        requestId,
-        subscriptionId,
-        status: cancelResponse.status,
-        body: errorDetails
-      });
 
       return res.status(cancelResponse.status || 500).json({
         error: 'Failed to cancel subscription with Lemon Squeezy',
@@ -469,10 +415,6 @@ router.post('/subscription/cancel', express.json(), verifyFirebaseToken, async (
         try {
           await subscriptionDocRef.set(updatePayload, { merge: true });
         } catch (backfillErr) {
-          console.warn('[LEMON][CANCEL] Failed to backfill subscription doc after cancellation', {
-            requestId,
-            error: backfillErr?.message || backfillErr
-          });
         }
       }
     }
@@ -532,11 +474,6 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
     const secret = process.env.LEMON_WEBHOOK_SECRET;
 
     if (!signature || !secret) {
-      console.error('❌ Missing webhook signature or secret');
-      console.error('Signature:', signature ? 'Present' : 'Missing');
-      console.error('Secret:', secret ? 'Present' : 'Missing');
-      console.error('Environment variable LEMON_WEBHOOK_SECRET is:', secret ? `Set (length: ${secret.length})` : 'NOT SET');
-      console.error('Please ensure LEMON_WEBHOOK_SECRET=testpassword123 is set in Render environment variables');
       logger.warn({}, '[lemon-routes] Webhook unauthorized - missing signature or secret');
       return next(createError('Unauthorized', ERROR_CODES.UNAUTHORIZED, 401));
     }
@@ -551,17 +488,12 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
       return next(createError('Invalid signature', ERROR_CODES.UNAUTHORIZED, 401));
     }
 
-    console.log('✅ Webhook signature verified');
-
     // Parse webhook payload
     const event = JSON.parse(payload);
-    console.log('Event name:', event.meta?.event_name);
-    console.log('Event type:', event.meta?.event_name);
     
     const parsed = parseWebhookPayload(event);
 
     if (!parsed) {
-      console.log('Unhandled webhook event:', event.meta?.event_name);
       return res.status(200).json({ received: true, handled: false });
     }
 
@@ -569,14 +501,6 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
     if (parsed.eventName === 'order_created') {
       const { orderData, customData } = parsed;
 
-      // Log full order data for debugging
-      console.log('=== Webhook Order Data ===');
-      console.log('Order ID:', orderData.orderId);
-      console.log('User ID:', orderData.userId);
-      console.log('Email:', orderData.email);
-      console.log('Test Mode:', orderData.testMode);
-      console.log('Variant ID:', orderData.variantId);
-      console.log('Full orderData:', JSON.stringify(orderData, null, 2));
 
       const allowTestPurchases = process.env.LEMON_ALLOW_TEST_WEBHOOKS === 'true' || process.env.LEMON_TEST_MODE !== 'false';
 
@@ -586,16 +510,12 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
 
       if (orderData.testMode) {
         if (!allowTestPurchases) {
-          console.log('⚠️ Ignoring test mode purchase (test mode disabled)');
           return res.status(200).json({ received: true, handled: false, reason: 'Test mode disabled' });
         }
-      } else {
-        console.log('Processing live purchase (testMode false)');
       }
 
       // Check if userId exists
       if (!orderData.userId) {
-        console.log('⚠️ Missing userId in order data, cannot record purchase');
         return res.status(200).json({ received: true, handled: false, reason: 'Missing userId' });
       }
 
@@ -619,7 +539,6 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
               }
             );
 
-            console.log(`✅ Test purchase recorded: Order ${orderData.orderId} for user ${orderData.userId}`);
           } else {
             const quantityOrdered = Number.isFinite(Number(orderData.quantity))
               ? Math.max(1, Number(orderData.quantity))
@@ -654,7 +573,6 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
               }
             });
 
-            console.log(`✅ Live purchase recorded: Order ${orderData.orderId} for user ${orderData.userId}`);
 
             if (productConfig) {
               if (productConfig.type === 'one_time' && creditsToGrant && creditsToGrant > 0) {
@@ -675,9 +593,7 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
                       transactionId: orderData.orderId ? `lemon_${orderData.orderId}` : undefined
                     }
                   );
-                  console.log(`✅ Granted ${creditsToGrant} credits to user ${orderData.userId} for order ${orderData.orderId}`);
                 } catch (creditError) {
-                  console.error('❌ Error granting credits from Lemon purchase:', creditError);
                   throw creditError;
                 }
               } else if (productConfig.type === 'subscription') {
@@ -699,26 +615,17 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
                       lemonCustomerId: orderData.customerId || null
                     }
                   });
-                  console.log(`✅ Pro subscription enabled for user ${orderData.userId} (order ${orderData.orderId})`);
                 } catch (subscriptionError) {
-                  console.error('❌ Error enabling subscription entitlements:', subscriptionError);
                   throw subscriptionError;
                 }
               } else {
-                console.log(`ℹ️ No entitlement changes configured for product ${resolvedProductKey}`);
-              }
-            } else {
-              console.log('ℹ️ Product configuration not found, skipping entitlement updates');
             }
           }
 
-          console.log(`✅ Webhook processed successfully (mode: ${orderData.testMode ? 'test' : 'live'}): Order ${orderData.orderId} for user ${orderData.userId}`);
         } catch (error) {
-          console.error('❌ Error recording purchase:', error);
           throw error;
         }
       } else {
-        console.log('⚠️ Missing orderId in order data, cannot record purchase');
         return res.status(200).json({ received: true, handled: false, reason: 'Missing orderId' });
       }
     }
@@ -736,32 +643,13 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
       const allowTestPurchases = process.env.LEMON_ALLOW_TEST_WEBHOOKS === 'true' || process.env.LEMON_TEST_MODE !== 'false';
 
       if (isTestEvent && !allowTestPurchases) {
-        console.log('[LEMON][WEBHOOK] Skipping test subscription event (test mode disabled)', {
-          webhookRequestId,
-          subscriptionId: subscriptionData.subscriptionId
-        });
         return res.status(200).json({ received: true, handled: false, reason: 'Test mode disabled' });
       }
 
       if (!subscriptionUserId) {
-        console.warn('[LEMON][WEBHOOK] Subscription event missing userId', {
-          webhookRequestId,
-          subscriptionId: subscriptionData.subscriptionId
-        });
         return res.status(200).json({ received: true, handled: false, reason: 'Missing userId' });
       }
 
-      console.log('[LEMON][WEBHOOK] Processing subscription event', {
-        webhookRequestId,
-        eventName: parsed.eventName,
-        subscriptionId: subscriptionData.subscriptionId,
-        status: subscriptionData.status,
-        cancelAtPeriodEnd: subscriptionData.cancelAtPeriodEnd,
-        endsAt: subscriptionData.endsAt,
-        variantId: subscriptionData.variantId,
-        storeId: subscriptionData.storeId,
-        customerId: subscriptionData.customerId
-      });
 
       const upsertResult = await upsertSubscriptionFromWebhook({
         db,
@@ -771,7 +659,7 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
         subscriptionRecord: subscriptionRecord || event.data,
         storeId: subscriptionData.storeId || null,
         mode: isTestEvent ? 'test' : 'live',
-        logger: console,
+        logger: logger,
         requestId: webhookRequestId
       });
 
@@ -813,15 +701,7 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
               webhookRequestId
             }
           });
-          console.log('[LEMON][WEBHOOK] Enabled Pro subscription from webhook', {
-            webhookRequestId,
-            subscriptionId: subscriptionData.subscriptionId
-          });
         } catch (enableErr) {
-          console.error('[LEMON][WEBHOOK] Failed to enable subscription entitlements from webhook', {
-            webhookRequestId,
-            error: enableErr?.message || enableErr
-          });
         }
       } else if (isCancelled || (!isActive && subscriptionData.cancelAtPeriodEnd)) {
         try {
@@ -834,19 +714,9 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
               webhookRequestId
             }
           });
-          console.log('[LEMON][WEBHOOK] Disabled subscription entitlements from webhook', {
-            webhookRequestId,
-            subscriptionId: subscriptionData.subscriptionId
-          });
         } catch (disableErr) {
-          console.error('[LEMON][WEBHOOK] Failed to disable subscription entitlements from webhook', {
-            webhookRequestId,
-            error: disableErr?.message || disableErr
-          });
         }
       } else {
-        console.log('[LEMON][WEBHOOK] Subscription event did not trigger entitlement change', {
-          webhookRequestId,
           status: subscriptionData.status
         });
       }

@@ -19,7 +19,6 @@ class SpecEventListener {
    */
   setupListeners(onUpdate) {
     if (!this.specId || !window.firebase || !window.firebase.firestore) {
-      console.warn('[SpecEventListener] Firebase not available or specId missing');
       return;
     }
 
@@ -34,11 +33,9 @@ class SpecEventListener {
         if (doc.exists) {
           const specData = doc.data();
           this.handleSpecUpdate(specData, onUpdate);
-        } else {
-          console.warn('[SpecEventListener] Spec document does not exist');
         }
       }, (error) => {
-        console.error('[SpecEventListener] Error listening to spec updates:', error);
+        // Error listening to spec updates
       });
   }
 
@@ -75,7 +72,7 @@ class SpecEventListener {
       try {
         callback(specData);
       } catch (error) {
-        console.error('[SpecEventListener] Error in onUpdate callback:', error);
+        // Error in onUpdate callback
       }
     });
   }
@@ -90,7 +87,7 @@ class SpecEventListener {
       try {
         callback(stage, content);
       } catch (error) {
-        console.error('[SpecEventListener] Error in onStageComplete callback:', error);
+        // Error in onStageComplete callback
       }
     });
   }
@@ -105,7 +102,7 @@ class SpecEventListener {
       try {
         callback(stage, error);
       } catch (error) {
-        console.error('[SpecEventListener] Error in onError callback:', error);
+        // Error in onError callback
       }
     });
   }

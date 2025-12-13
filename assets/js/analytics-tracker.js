@@ -43,7 +43,6 @@ async function trackPageView(page, metadata = {}) {
     }
   } catch (error) {
     // Silently fail - analytics is non-critical
-    console.debug('[Analytics] Failed to track page view:', error);
   }
 }
 
@@ -86,7 +85,6 @@ async function trackButtonClick(buttonId, context = {}) {
     }
   } catch (error) {
     // Silently fail - analytics is non-critical
-    console.debug('[Analytics] Failed to track button click:', error);
   }
 }
 
@@ -129,7 +127,6 @@ async function trackFunnelStep(step, userId = null, metadata = {}) {
     }
   } catch (error) {
     // Silently fail - analytics is non-critical
-    console.debug('[Analytics] Failed to track funnel step:', error);
   }
 }
 
@@ -172,7 +169,6 @@ async function trackEvent(type, entityId, entityType, metadata = {}) {
     }
   } catch (error) {
     // Silently fail - analytics is non-critical
-    console.debug('[Analytics] Failed to track event:', error);
   }
 }
 

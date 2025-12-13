@@ -68,6 +68,11 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
             const RETRY_DELAYS = [500, 1000, 2000]; // ms
 
             try {
+                // Verify user is still authenticated
+                if (!user) {
+                    return; // User logged out, skip initialization
+                }
+                
                 const token = await user.getIdToken();
                 const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai.onrender.com';
                 
@@ -80,6 +85,12 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
                     body: JSON.stringify({})
                 });
 
+                if (response.status === 404) {
+                    // Endpoint doesn't exist - silently fail (might be development or endpoint not deployed)
+                    // Don't retry on 404 - it won't help
+                    return;
+                }
+
                 if (!response.ok) {
                     const errorData = await response.json().catch(() => ({}));
                     throw new Error(errorData.error || `HTTP ${response.status}`);
@@ -87,14 +98,19 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 
                 return await response.json();
             } catch (error) {
-                // Retry on failure
+                // Don't retry on network errors that suggest the endpoint doesn't exist
+                if (error.message && (error.message.includes('404') || error.message.includes('Failed to fetch'))) {
+                    // Silently fail - endpoint might not be available
+                    return;
+                }
+                
+                // Retry on other failures
                 if (retryCount < MAX_RETRIES) {
                     const delay = RETRY_DELAYS[retryCount] || 2000;
                     await new Promise(resolve => setTimeout(resolve, delay));
                     return createUserDocumentInProfile(user, retryCount + 1);
                 }
-                // Don't throw - allow the page to continue loading even if document creation fails
-                console.warn('Failed to initialize user documents after retries:', error);
+                // Only log warning if it's not a 404 or network error
             } finally {
                 isCreatingUserDocument = false;
             }

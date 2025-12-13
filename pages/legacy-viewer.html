@@ -10,7 +10,6 @@ extra_css:
   - /assets/css/pages/legacy-viewer.css
 extra_js:
   - /assets/js/script.js
-  - /assets/js/config.js
   - /assets/js/lib-loader.js
   - https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js
   - https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js
@@ -23,9 +22,9 @@ extra_js:
 <main id="main-content" class="main-content">
     <div class="demo-container">
         <div class="demo-header">
-            <div class="legacy-banner">
+            <div class="legacy-banner" role="alert" aria-live="polite">
                 <h2>
-                    <i class="fas fa-exclamation-triangle"></i>
+                    <i class="fas fa-exclamation-triangle" aria-hidden="true"></i>
                     Legacy Specification Format
                 </h2>
                 <p>
@@ -43,7 +42,7 @@ extra_js:
             <!-- Specification Mode -->
             <div class="mode-section spec active" id="specificationSection">
                 <div class="mode-header">
-                    <div class="mode-icon spec">
+                    <div class="mode-icon spec" aria-hidden="true">
                         <i class="fas fa-dollar-sign"></i>
                     </div>
                     <div>
@@ -51,9 +50,9 @@ extra_js:
                         <p class="mode-description">Legacy specification document</p>
                     </div>
                 </div>
-                <div class="mode-content" id="specificationContent">
-                    <div class="loading-content">
-                        <i class="fas fa-spinner fa-spin loading-spinner"></i>
+                <div class="mode-content" id="specificationContent" role="region" aria-label="Specification content" aria-live="polite">
+                    <div class="loading-content" role="status" aria-live="polite">
+                        <i class="fas fa-spinner fa-spin loading-spinner" aria-hidden="true"></i>
                         Loading specification...
                     </div>
                 </div>
@@ -62,7 +61,7 @@ extra_js:
             <!-- Market Research Mode - Hidden -->
             <div class="mode-section research hidden" id="researchSection">
                 <div class="mode-header">
-                    <div class="mode-icon research">
+                    <div class="mode-icon research" aria-hidden="true">
                         <i class="fas fa-chart-line"></i>
                     </div>
                     <div>
@@ -70,9 +69,9 @@ extra_js:
                         <p class="mode-description">Legacy market research document</p>
                     </div>
                 </div>
-                <div class="mode-content" id="researchContent">
-                    <div class="loading-content">
-                        <i class="fas fa-spinner fa-spin loading-spinner"></i>
+                <div class="mode-content" id="researchContent" role="region" aria-label="Market research content" aria-live="polite">
+                    <div class="loading-content" role="status" aria-live="polite">
+                        <i class="fas fa-spinner fa-spin loading-spinner" aria-hidden="true"></i>
                         Loading market research...
                     </div>
                 </div>

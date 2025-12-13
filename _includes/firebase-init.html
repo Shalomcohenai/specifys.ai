@@ -19,5 +19,12 @@
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
   const db = firebase.firestore();
+  
+  // Make auth and db available globally
+  window.auth = auth;
+  window.db = db;
+  
+  // Dispatch firebase-ready event for other scripts
+  window.dispatchEvent(new Event('firebase-ready'));
 </script>
 

@@ -6,26 +6,24 @@ permalink: /pages/why.html
 extra_css:
   - /assets/css/pages/why.css
 extra_js:
-  - https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js
   - /assets/js/why.js
-requires_libs:
-  - mermaid
+defer_mermaid: true
 ---
 
-<main class="why-page">
+<main class="why-page" id="main-content" role="main">
     <!-- Section 1: Title -->
     <section class="why-section" data-section="0">
         <h1 class="section-title">Why?</h1>
         <p class="section-subtitle">Because you can't build a business with a single prompt.</p>
         <div class="content-layout">
             <div class="content-image">
-                <div class="vibe-coding-logos">
-                    <div class="logo-item"><div class="logo-placeholder">Base44</div></div>
-                    <div class="logo-item"><div class="logo-placeholder">Lovable</div></div>
-                    <div class="logo-item"><div class="logo-placeholder">v0</div></div>
-                    <div class="logo-item"><div class="logo-placeholder">Cursor</div></div>
-                    <div class="logo-item"><div class="logo-placeholder">Claude</div></div>
-                    <div class="logo-item"><div class="logo-placeholder">GPT</div></div>
+                <div class="vibe-coding-logos" role="list" aria-label="AI development tools">
+                    <div class="logo-item" role="listitem"><div class="logo-placeholder" aria-label="Base44">Base44</div></div>
+                    <div class="logo-item" role="listitem"><div class="logo-placeholder" aria-label="Lovable">Lovable</div></div>
+                    <div class="logo-item" role="listitem"><div class="logo-placeholder" aria-label="v0">v0</div></div>
+                    <div class="logo-item" role="listitem"><div class="logo-placeholder" aria-label="Cursor">Cursor</div></div>
+                    <div class="logo-item" role="listitem"><div class="logo-placeholder" aria-label="Claude">Claude</div></div>
+                    <div class="logo-item" role="listitem"><div class="logo-placeholder" aria-label="GPT">GPT</div></div>
                 </div>
             </div>
             <div class="content-text">
@@ -37,7 +35,7 @@ requires_libs:
                         <p class="section-text">That's when I realized what was missing: a planning phase. A way to describe the app, the user flow, the features, and the logic - before writing any code.</p>
                     </div>
                     <div class="cta-container">
-                        <a href="/" class="btn btn-primary">Start Planning</a>
+                        <a href="/" class="btn btn-primary" aria-label="Start planning your app with Specifys.ai">Start Planning</a>
                     </div>
                 </div>
             </div>
@@ -48,7 +46,7 @@ requires_libs:
     <section class="why-section prompt-section" data-section="1">
         <h2 class="section-title">The Promise That Falls Short</h2>
         <p class="section-subtitle">Every platform promises one prompt, but reality is different.</p>
-        <div class="prompt-animation-container" id="promptAnimationContainer">
+        <div class="prompt-animation-container" id="promptAnimationContainer" aria-label="Prompt animation demonstration" aria-live="polite">
             <!-- Credit counters and prompts will be generated dynamically -->
         </div>
         <div class="content-text-centered">
@@ -69,8 +67,8 @@ requires_libs:
         <div class="content-layout">
             <div class="content-image">
                 <div class="planning-visual">
-                    <div class="mermaid-diagram">
-                        <pre class="mermaid">
+                    <div class="mermaid-diagram" aria-label="Development process diagram">
+                        <pre class="mermaid" aria-hidden="true">
 graph TD
     A[Data Structures] --> B[Functions]
     B --> C[Logic Flow]
@@ -78,18 +76,18 @@ graph TD
                         </pre>
                     </div>
                     <div class="variables-table">
-                        <table>
+                        <table role="table" aria-label="Data structures example">
                             <thead>
-                                <tr>
-                                    <th>Variable</th>
-                                    <th>Type</th>
-                                    <th>Purpose</th>
+                                <tr role="row">
+                                    <th scope="col">Variable</th>
+                                    <th scope="col">Type</th>
+                                    <th scope="col">Purpose</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr><td>users</td><td>Array</td><td>Store user data</td></tr>
-                                <tr><td>products</td><td>Array</td><td>Store product info</td></tr>
-                                <tr><td>currentUser</td><td>Object</td><td>Active user session</td></tr>
+                            <tbody role="rowgroup">
+                                <tr role="row"><td>users</td><td>Array</td><td>Store user data</td></tr>
+                                <tr role="row"><td>products</td><td>Array</td><td>Store product info</td></tr>
+                                <tr role="row"><td>currentUser</td><td>Object</td><td>Active user session</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -102,7 +100,7 @@ graph TD
                     <p class="section-text">Then, you map out your functions - what each piece does, how they connect, the logic that makes everything work.</p>
                     <p class="section-text">Only after that foundation is solid do you build the layout - the UI that users actually see.</p>
                     <div class="cta-container">
-                        <a href="/" class="btn btn-primary">Start Planning</a>
+                        <a href="/" class="btn btn-primary" aria-label="Start planning your app with Specifys.ai">Start Planning</a>
                     </div>
                 </div>
             </div>
@@ -115,25 +113,25 @@ graph TD
         <p class="section-subtitle">Specifys.ai doesn't generate code. It generates a plan.</p>
         <div class="content-layout">
             <div class="content-image">
-                <div class="questions-box-preview">
+                    <div class="questions-box-preview" role="region" aria-label="Question interface preview">
                     <div class="questions-header-preview">
-                        <div class="current-question-preview">Describe your application</div>
-                        <div class="mode-toggle-preview">
+                        <div class="current-question-preview" aria-label="Current question">Describe your application</div>
+                        <div class="mode-toggle-preview" role="group" aria-label="Input mode selection">
                             <span class="mode-label-preview">Voice</span>
-                            <div class="toggle-switch-preview"></div>
+                            <div class="toggle-switch-preview" aria-hidden="true"></div>
                             <span class="mode-label-preview active">Typing</span>
                         </div>
                     </div>
-                    <div class="question-detail-preview">
+                    <div class="question-detail-preview" role="status" aria-live="polite">
                         Describe the main idea of your application - including core features, target audience, and the problem it solves
                     </div>
                     <div class="input-container-preview">
-                        <div class="input-instruction-preview">Type your answer here...</div>
+                        <div class="input-instruction-preview" aria-hidden="true">Type your answer here...</div>
                         <div class="input-area-preview">
-                            <textarea class="input-textarea-preview" placeholder="Start typing..."></textarea>
+                            <textarea class="input-textarea-preview" placeholder="Start typing..." aria-label="Answer input preview" aria-hidden="true"></textarea>
                         </div>
                         <div class="input-controls-preview">
-                            <button class="send-btn-preview">Send</button>
+                            <button class="send-btn-preview" aria-label="Send answer preview" aria-hidden="true">Send</button>
                         </div>
                     </div>
                 </div>
@@ -143,7 +141,7 @@ graph TD
                     <p class="section-text">We ask the right questions - about your users, your features, your data, your logic. We help you think through the foundation before you write a single line of code.</p>
                     <p class="section-text">The result? A clear specification that guides your development. A blueprint that makes sense. A plan you can actually build on.</p>
                     <div class="cta-container">
-                        <a href="/" class="btn btn-primary">Start Planning</a>
+                        <a href="/" class="btn btn-primary" aria-label="Start planning your app with Specifys.ai">Start Planning</a>
                     </div>
                 </div>
             </div>
@@ -156,19 +154,19 @@ graph TD
         <p class="section-subtitle">Answer questions, get a comprehensive specification.</p>
         <div class="content-layout reverse">
             <div class="content-image">
-                <div class="process-flow">
-                    <div class="process-step">
-                        <div class="process-icon"><i class="fas fa-edit"></i></div>
+                <div class="process-flow" role="list" aria-label="Process flow">
+                    <div class="process-step" role="listitem">
+                        <div class="process-icon" aria-hidden="true"><i class="fas fa-edit"></i></div>
                         <h4>Questions</h4>
                     </div>
-                    <div class="process-arrow"><i class="fas fa-arrow-right"></i></div>
-                    <div class="process-step">
-                        <div class="process-icon"><i class="fas fa-file-alt"></i></div>
+                    <div class="process-arrow" aria-hidden="true"><i class="fas fa-arrow-right"></i></div>
+                    <div class="process-step" role="listitem">
+                        <div class="process-icon" aria-hidden="true"><i class="fas fa-file-alt"></i></div>
                         <h4>Specification</h4>
                     </div>
-                    <div class="process-arrow"><i class="fas fa-arrow-right"></i></div>
-                    <div class="process-step">
-                        <div class="process-icon"><i class="fas fa-rocket"></i></div>
+                    <div class="process-arrow" aria-hidden="true"><i class="fas fa-arrow-right"></i></div>
+                    <div class="process-step" role="listitem">
+                        <div class="process-icon" aria-hidden="true"><i class="fas fa-rocket"></i></div>
                         <h4>Application</h4>
                     </div>
                 </div>
@@ -178,7 +176,7 @@ graph TD
                     <p class="section-text">Our AI analyzes your answers and generates a comprehensive specification - organized, structured, ready to guide development.</p>
                     <p class="section-text">You review, refine, and approve. Then you take that spec to any coding tool, any developer, any platform. They know exactly what to build.</p>
                     <div class="cta-container">
-                        <a href="/" class="btn btn-primary">Start Planning</a>
+                        <a href="/" class="btn btn-primary" aria-label="Start planning your app with Specifys.ai">Start Planning</a>
                     </div>
                 </div>
             </div>
@@ -189,82 +187,82 @@ graph TD
     <section class="why-section" data-section="5">
         <h2 class="section-title">What You Get</h2>
         <p class="section-subtitle">A complete specification across all areas of your app.</p>
-        <div class="spec-cards-showcase-orange">
-                <div class="spec-card-square-orange">
-                    <div class="spec-icon-orange">
+        <div class="spec-cards-showcase-orange" role="list" aria-label="Specification features">
+                <article class="spec-card-square-orange" role="listitem">
+                    <div class="spec-icon-orange" aria-hidden="true">
                         <i class="fas fa-book"></i>
                     </div>
                     <div class="spec-content-orange">
                         <h3>Overview</h3>
                         <p>Your app's story - Summary, Audience, Proposition, Features Overview, Journey Summary, Statement, User Flow, Descriptions</p>
                     </div>
-                </div>
-                <div class="spec-card-square-orange">
-                    <div class="spec-icon-orange">
+                </article>
+                <article class="spec-card-square-orange" role="listitem">
+                    <div class="spec-icon-orange" aria-hidden="true">
                         <i class="fas fa-cog"></i>
                     </div>
                     <div class="spec-content-orange">
                         <h3>Technical</h3>
                         <p>The foundation - Tech Stack, Data Structures, API Endpoints, Functions. The blueprint that makes everything work.</p>
                     </div>
-                </div>
-                <div class="spec-card-square-orange">
-                    <div class="spec-icon-orange">
+                </article>
+                <article class="spec-card-square-orange" role="listitem">
+                    <div class="spec-icon-orange" aria-hidden="true">
                         <i class="fas fa-chart-line"></i>
                     </div>
                     <div class="spec-content-orange">
                         <h3>Market Research</h3>
                         <p>Your competitive landscape - Competitors, Market Analysis, Opportunities. Who else is doing this, what gaps exist.</p>
                     </div>
-                </div>
-                <div class="spec-card-square-orange">
-                    <div class="spec-icon-orange">
+                </article>
+                <article class="spec-card-square-orange" role="listitem">
+                    <div class="spec-icon-orange" aria-hidden="true">
                         <i class="fas fa-paint-brush"></i>
                     </div>
                     <div class="spec-content-orange">
                         <h3>Design & Branding</h3>
                         <p>Visual identity - Colors, Typography, Style Guidelines. The look and feel that matches your vision.</p>
                     </div>
-                </div>
-                <div class="spec-card-square-orange">
-                    <div class="spec-icon-orange">
+                </article>
+                <article class="spec-card-square-orange" role="listitem">
+                    <div class="spec-icon-orange" aria-hidden="true">
                         <i class="fas fa-sitemap"></i>
                     </div>
                     <div class="spec-content-orange">
                         <h3>Diagrams</h3>
                         <p>Visual maps - User Flows, System Architecture, Relationships. See how everything connects.</p>
                     </div>
-                </div>
-                <div class="spec-card-square-orange">
-                    <div class="spec-icon-orange">
+                </article>
+                <article class="spec-card-square-orange" role="listitem">
+                    <div class="spec-icon-orange" aria-hidden="true">
                         <i class="fas fa-terminal"></i>
                     </div>
                     <div class="spec-content-orange">
                         <h3>Prompts</h3>
                         <p>Ready-to-use prompts for coding tools. Take your spec and turn it into code with the right instructions.</p>
                     </div>
-                </div>
-                <div class="spec-card-square-orange">
-                    <div class="spec-icon-orange">
+                </article>
+                <article class="spec-card-square-orange" role="listitem">
+                    <div class="spec-icon-orange" aria-hidden="true">
                         <i class="fas fa-robot"></i>
                     </div>
                     <div class="spec-content-orange">
                         <h3>AI Chat</h3>
                         <p>Interactive AI assistant to refine your specification. Ask questions, get clarifications, improve your plan.</p>
                     </div>
-                </div>
-                <div class="spec-card-square-orange">
-                    <div class="spec-icon-orange">
+                </article>
+                <article class="spec-card-square-orange" role="listitem">
+                    <div class="spec-icon-orange" aria-hidden="true">
                         <i class="fas fa-file-alt"></i>
                     </div>
                     <div class="spec-content-orange">
                         <h3>Export & Share</h3>
                         <p>Export your specification in multiple formats. Share with your team, developers, or stakeholders.</p>
                     </div>
-                </div>
+                </article>
             </div>
             <div class="cta-container cta-centered">
-                <a href="/" class="btn btn-primary">Start Planning</a>
+                <a href="/" class="btn btn-primary" aria-label="Start planning your app with Specifys.ai">Start Planning</a>
             </div>
     </section>
 
@@ -273,7 +271,7 @@ graph TD
         <h2 class="section-title">Start Building the Right Way</h2>
         <p class="section-subtitle">Stop jumping into code. Start with a plan.</p>
         <div class="cta-container-centered">
-            <a href="/" class="btn btn-primary">Start Planning</a>
+            <a href="/" class="btn btn-primary" aria-label="Start planning your app with Specifys.ai">Start Planning</a>
         </div>
     </section>
 </main>

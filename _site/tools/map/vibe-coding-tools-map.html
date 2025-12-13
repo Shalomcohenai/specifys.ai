@@ -4,8 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     <meta name="theme-color" content="#000000">
-    <title>Vibe Coding Tools Map - Specifys.ai - </title>
-    <meta name="description" content="">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Specifys.ai">
+    <title>Vibe Coding Tools Map - Specifys.ai - Specifys.ai</title>
+    <meta name="description" content="AI-powered app planning platform - Generate specifications, discover development tools, and plan your app smarter with AI-driven insights">
     <meta name="keywords" content="AI development tools, app specification generator, no-code platform, AI-powered planning, vibe coding, AI app builder, specification generator, market research tool, app planning tool, development tools, AI tools">
     <meta name="author" content="Specifys.ai">
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
@@ -19,18 +22,19 @@
     
     
     
-    <link rel="canonical" href="https://specifys-ai.com/tools/map/vibe-coding-tools-map.html">
+    <link rel="canonical" href="http://0.0.0.0:4000/tools/map/vibe-coding-tools-map.html">
     
     
     <!-- Open Graph -->
     <meta property="og:site_name" content="Specifys.ai">
     <meta property="og:title" content="Vibe Coding Tools Map - Specifys.ai">
-    <meta property="og:description" content="">
+    <meta property="og:description" content="AI-powered app planning platform - Generate specifications, discover development tools, and plan your app smarter with AI-driven insights">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="/tools/map/vibe-coding-tools-map.html">
-    <meta property="og:image" content="/assets/images/og-image.png">
+    <meta property="og:url" content="http://0.0.0.0:4000/tools/map/vibe-coding-tools-map.html">
+    <meta property="og:image" content="http://0.0.0.0:4000/assets/images/og-image.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Vibe Coding Tools Map - Specifys.ai - Specifys.ai">
     <meta property="og:locale" content="en_US">
     
     
@@ -39,8 +43,9 @@
     <meta name="twitter:site" content="@specifysai">
     <meta name="twitter:creator" content="@specifysai">
     <meta name="twitter:title" content="Vibe Coding Tools Map - Specifys.ai">
-    <meta name="twitter:description" content="">
-    <meta name="twitter:image" content="/assets/images/og-image.png">
+    <meta name="twitter:description" content="AI-powered app planning platform - Generate specifications, discover development tools, and plan your app smarter with AI-driven insights">
+    <meta name="twitter:image" content="http://0.0.0.0:4000/assets/images/og-image.png">
+    <meta name="twitter:image:alt" content="Vibe Coding Tools Map - Specifys.ai - Specifys.ai">
     
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
@@ -48,8 +53,6 @@
     
     <!-- CSS - Unified compiled CSS file -->
     <link rel="stylesheet" href="/assets/css/main-compiled.css">
-    <!-- Tailwind CSS - Processed via PostCSS -->
-    <link rel="stylesheet" href="/assets/css/tailwind-base-compiled.css">
     <!-- Components -->
     <link rel="stylesheet" href="/assets/css/components/buttons.css">
     <!-- Display Utilities -->
@@ -58,6 +61,8 @@
     <link rel="stylesheet" href="/assets/css/utilities/text.css">
     <!-- Spacing Utilities -->
     <link rel="stylesheet" href="/assets/css/utilities/spacing.css">
+    <!-- Visually Hidden Utility (for accessibility) -->
+    <link rel="stylesheet" href="/assets/css/utilities/visually-hidden.css">
     
       
         <link rel="stylesheet" href="/assets/css/pages/vibe-coding-tools-map.css">
@@ -75,6 +80,9 @@
     <!-- API Client (must load after config.js) -->
     <script defer src="/assets/js/api-client.js"></script>
     
+    <!-- Focus Manager (must load early for accessibility) -->
+    <script defer src="/assets/js/focus-manager.js"></script>
+    
     <!-- Components (must load before page-specific JS) -->
     <script type="module" src="/assets/js/components/base.js"></script>
     <script type="module" src="/assets/js/components/Modal.js"></script>
@@ -84,6 +92,9 @@
     
     <!-- Application Logger -->
     <script defer src="/assets/js/app-logger.js"></script>
+    
+    <!-- Web Vitals Tracking (for SEO performance monitoring) -->
+    <script defer src="/assets/js/web-vitals.js"></script>
     
     <!-- CSS Monitoring Script -->
     <script defer src="/assets/js/css-monitor.js"></script>
@@ -418,6 +429,17 @@ document.addEventListener('DOMContentLoaded', function() {
         "ratingCount": "250"
       },
       "description": "AI-powered app planning platform with specification generator, market research tools, and vibe coding tools map"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "http://0.0.0.0:4000/"
+        }
+      ]
     }
   ]
 }
@@ -433,14 +455,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Find all livereload scripts
                 const livereloadScripts = document.querySelectorAll('script[src*="livereload"], script[src*="35729"]');
                 livereloadScripts.forEach(function(script) {
-                    console.log('[LiveReload Remover] Removing livereload script:', script.src);
                     script.remove();
                 });
                 
                 // Also remove any livereload iframes
                 const livereloadIframes = document.querySelectorAll('iframe[src*="livereload"], iframe[src*="35729"]');
                 livereloadIframes.forEach(function(iframe) {
-                    console.log('[LiveReload Remover] Removing livereload iframe');
                     iframe.remove();
                 });
             }
@@ -464,7 +484,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     mutation.addedNodes.forEach(function(node) {
                         if (node.nodeType === 1) { // Element node
                             if (node.tagName === 'SCRIPT' && (node.src && (node.src.includes('livereload') || node.src.includes('35729')))) {
-                                console.log('[LiveReload Remover] Blocking new livereload script');
                                 node.remove();
                             }
                         }
@@ -494,20 +513,20 @@ document.addEventListener('DOMContentLoaded', function() {
     <!-- Header -->
     <!-- Header -->
 <header class="thematic-header" role="banner">
-    <div class="header-center">
+    <nav class="header-center" aria-label="Main navigation">
         <div class="logo">
             <a href="/" aria-label="Specifys.ai homepage">
                 <span class="logo-text">Specifys<span class="logo-dot">.</span>AI</span>
             </a>
         </div>
-    </div>
-    <div class="header-right">
-        <div class="credits-display" id="credits-display" style="display: none;">
+    </nav>
+    <div class="header-right" role="complementary" aria-label="User account and credits">
+        <div class="credits-display hidden" id="credits-display" role="status" aria-live="polite" aria-atomic="true">
             <div class="credits-container">
-                <span id="credits-text">Credits: 0</span>
+                <span id="credits-text" aria-label="Available credits">Credits: 0</span>
             </div>
         </div>
-        <div class="auth-buttons" id="auth-buttons">
+        <div class="auth-buttons" id="auth-buttons" role="group" aria-label="Authentication buttons">
             <!-- Will be populated by auth system -->
         </div>
     </div>
@@ -1580,29 +1599,29 @@ document.addEventListener('DOMContentLoaded', function() {
     
     <!-- Footer -->
     <!-- Footer -->
-<footer>
-  <div class="footer-content">
-    <div class="footer-links">
-      <a href="/pages/how.html" aria-label="Learn how specifys.ai works">How It Works</a>
-      <a href="/pages/about.html" aria-label="Learn more about specifys.ai">About Us</a>
-      <a href="/pages/why.html" aria-label="Why Specifys.ai">Why?</a>
-      <a href="/blog/" aria-label="Visit our blog">Blog</a>
-      <a href="/pages/articles.html" aria-label="Browse our articles">Articles</a>
-      <a href="/academy.html" aria-label="Visit Specifys Academy">Academy</a>
-      <a href="/tools/map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
-      <a href="/pages/ToolPicker.html" aria-label="Use our Tool Finder">Tool Finder</a>
-      <button class="contact-us-link" id="contact-us-btn" aria-label="Contact Us">
+<footer role="contentinfo">
+  <nav class="footer-content" aria-label="Footer navigation">
+    <div class="footer-links" role="list">
+      <a href="/pages/how.html" aria-label="Learn how specifys.ai works" role="listitem">How It Works</a>
+      <a href="/pages/about.html" aria-label="Learn more about specifys.ai" role="listitem">About Us</a>
+      <a href="/pages/why.html" aria-label="Why Specifys.ai" role="listitem">Why?</a>
+      <a href="/blog/" aria-label="Visit our blog" role="listitem">Blog</a>
+      <a href="/pages/articles.html" aria-label="Browse our articles" role="listitem">Articles</a>
+      <a href="/academy.html" aria-label="Visit Specifys Academy" role="listitem">Academy</a>
+      <a href="/tools/map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map" role="listitem">Vibe Coding Tools Map</a>
+      <a href="/pages/ToolPicker.html" aria-label="Use our Tool Finder" role="listitem">Tool Finder</a>
+      <button class="contact-us-link" id="contact-us-btn" aria-label="Contact Us" type="button" role="listitem">
         Contact Us
       </button>
     </div>
-    <span class="footer-divider">|</span>
-    <div class="footer-social">
-      <a href="https://www.linkedin.com/company/specifys-ai/" target="_blank" aria-label="Follow us on LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-      <a href="https://www.facebook.com/profile.php?id=61576402600129&locale=he_IL" target="_blank" aria-label="Follow us on Facebook"><i class="fab fa-facebook-f"></i></a>
-      <a href="mailto:specifysai@gmail.com" aria-label="Send us an email"><i class="fas fa-envelope"></i></a>
-      <a href="https://www.producthunt.com/products/specifys-ai" target="_blank" aria-label="Check us out on Product Hunt"><i class="fab fa-product-hunt"></i></a>
+    <span class="footer-divider" aria-hidden="true">|</span>
+    <div class="footer-social" role="list" aria-label="Social media links">
+      <a href="https://www.linkedin.com/company/specifys-ai/" target="_blank" aria-label="Follow us on LinkedIn" rel="noopener noreferrer" role="listitem"><i class="fab fa-linkedin-in" aria-hidden="true"></i></a>
+      <a href="https://www.facebook.com/profile.php?id=61576402600129&locale=he_IL" target="_blank" aria-label="Follow us on Facebook" rel="noopener noreferrer" role="listitem"><i class="fab fa-facebook-f" aria-hidden="true"></i></a>
+      <a href="mailto:specifysai@gmail.com" aria-label="Send us an email" role="listitem"><i class="fas fa-envelope" aria-hidden="true"></i></a>
+      <a href="https://www.producthunt.com/products/specifys-ai" target="_blank" aria-label="Check us out on Product Hunt" rel="noopener noreferrer" role="listitem"><i class="fab fa-product-hunt" aria-hidden="true"></i></a>
     </div>
-  </div>
+  </nav>
   <div class="footer-copyright">
     © 2025 specifys.ai. All rights reserved.
   </div>
@@ -1673,6 +1692,13 @@ document.addEventListener('DOMContentLoaded', function() {
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
   const db = firebase.firestore();
+  
+  // Make auth and db available globally
+  window.auth = auth;
+  window.db = db;
+  
+  // Dispatch firebase-ready event for other scripts
+  window.dispatchEvent(new Event('firebase-ready'));
 </script>
 
 
@@ -1722,32 +1748,31 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     auth.signOut()
       .then(() => {
-        console.log('Logged out successfully');
+        // Logged out successfully
       })
       .catch(error => {
-        console.error('Error logging out:', error);
+        // Error logging out
       });
   };
 
   // Listen to auth state changes (only after Firebase is initialized)
   function setupAuthListener() {
-    if (typeof auth === 'undefined' && typeof window.auth !== 'undefined') {
-      window.auth = window.auth;
-    }
+    // Get auth from window or local scope
+    const authInstance = window.auth || (typeof auth !== 'undefined' ? auth : null);
     
-    if (typeof auth === 'undefined') {
+    if (!authInstance) {
       setTimeout(setupAuthListener, 100);
       return;
     }
     
-    auth.onAuthStateChanged(async (user) => {
+    authInstance.onAuthStateChanged(async (user) => {
       updateAuthUI(user);
 
       // Ensure user document exists immediately for new users
       if (user && document.visibilityState === 'visible') {
         // Run immediately to ensure credits are available for new users
         ensureUserDocument(user).catch(error => {
-          console.warn('⚠️ Error ensuring user document:', error);
+          // Error ensuring user document
         });
       }
     });
@@ -1758,20 +1783,46 @@ document.addEventListener('DOMContentLoaded', function() {
     const RETRY_DELAYS = [500, 1000, 2000]; // ms
     
     try {
+      // Verify user is still authenticated before making the request
+      if (!user) {
+        return; // User logged out, skip initialization
+      }
+      
       const token = await user.getIdToken();
       const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : (window.API_BASE_URL || 'https://specifys-ai.onrender.com');
-      const response = await fetch(`${apiBaseUrl}/api/users/initialize`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({})
-      });
+      
+      // Use AbortController to handle errors more gracefully
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      
+      let response;
+      try {
+        response = await fetch(`${apiBaseUrl}/api/users/initialize`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({}),
+          signal: controller.signal
+        });
+      } catch (fetchError) {
+        clearTimeout(timeoutId);
+        // Handle network errors silently (404, CORS, network failures)
+        if (fetchError.name === 'AbortError' || 
+            fetchError.message.includes('Failed to fetch') || 
+            fetchError.message.includes('NetworkError') ||
+            fetchError.message.includes('Load failed')) {
+          // Silently fail - endpoint might not be available or network issue
+          return;
+        }
+        throw fetchError;
+      }
+      
+      clearTimeout(timeoutId);
 
       if (response.ok) {
         const result = await response.json();
-        console.log('✅ User documents initialized in Firestore', result);
         
         // If entitlements were created or updated, trigger credits refresh
         if (result.entitlements && (result.created || result.updated)) {
@@ -1780,24 +1831,49 @@ document.addEventListener('DOMContentLoaded', function() {
             window.clearEntitlementsCache();
           }
           
-          // Update credits display after a short delay to ensure Firestore is updated
+          // Update credits display (no force refresh, will use cache if available)
           if (typeof window.updateCreditsDisplay === 'function') {
-            setTimeout(() => {
-              window.updateCreditsDisplay({ showLoading: true });
-            }, 500);
+            window.updateCreditsDisplay({ forceRefresh: false });
           }
         }
+      } else if (response.status === 404) {
+        // Endpoint doesn't exist - silently fail (might be development or endpoint not deployed)
+        // Don't retry on 404 - it won't help
+        // Don't log to console to avoid noise
+        return;
       } else {
-        throw new Error(`HTTP ${response.status}`);
+        // Only throw for non-404 errors
+        const errorText = await response.text().catch(() => '');
+        throw new Error(`HTTP ${response.status}${errorText ? ': ' + errorText.substring(0, 100) : ''}`);
       }
     } catch (error) {
-      // Retry on failure
+      // Don't retry on network errors that suggest the endpoint doesn't exist
+      // Don't log 404 errors to console to avoid noise
+      const errorMessage = error.message || error.toString() || '';
+      if (errorMessage.includes('404') || 
+          errorMessage.includes('Failed to fetch') || 
+          errorMessage.includes('Not Found') ||
+          errorMessage.includes('NetworkError') ||
+          errorMessage.includes('Load failed') ||
+          error.name === 'AbortError') {
+        // Silently fail - endpoint might not be available
+        return;
+      }
+      
+      // Retry on other failures
       if (retryCount < MAX_RETRIES) {
         const delay = RETRY_DELAYS[retryCount] || 2000;
         await new Promise(resolve => setTimeout(resolve, delay));
         return ensureUserDocument(user, retryCount + 1);
       }
-      console.warn('⚠️ Error initializing user documents after retries:', error);
+      // Only log warning if it's not a 404 or network error
+      if (!errorMessage.includes('404') && 
+          !errorMessage.includes('Failed to fetch') &&
+          !errorMessage.includes('NetworkError') &&
+          !errorMessage.includes('Load failed') &&
+          error.name !== 'AbortError') {
+        // Error initializing user documents after retries
+      }
     }
   }
 
@@ -1809,10 +1885,27 @@ document.addEventListener('DOMContentLoaded', function() {
     window.addEventListener('firebase-ready', setupAuthListener);
   }
 
-  // Initialize auth buttons with default state
+  // Initialize auth buttons with default state (only if auth listener hasn't run yet)
   document.addEventListener('DOMContentLoaded', function() {
     const authButtons = document.getElementById('auth-buttons');
-    if (authButtons && !authButtons.innerHTML.trim()) {
+    if (!authButtons) return;
+    
+    // Check if auth is already initialized and set up listener immediately
+    const authInstance = window.auth || (typeof auth !== 'undefined' ? auth : null);
+    if (authInstance) {
+      // Auth is available, set up a one-time listener to check current state
+      // This ensures we get the auth state even if it's still loading
+      const unsubscribe = authInstance.onAuthStateChanged((user) => {
+        // Update UI with current auth state
+        updateAuthUI(user);
+        // Unsubscribe after first check
+        unsubscribe();
+      });
+      return;
+    }
+    
+    // Only set default if buttons are empty and we don't have auth yet
+    if (!authButtons.innerHTML.trim()) {
       authButtons.innerHTML = `
         <button class="auth-btn login-btn">Log in/Sign up</button>
       `;
@@ -1832,6 +1925,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     
     <!-- Extra JavaScript -->
+    
+    
+    <!-- Custom JavaScript Modules -->
     
     
 </body>

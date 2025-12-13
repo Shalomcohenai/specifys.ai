@@ -68,18 +68,18 @@ class LiveBriefModal {
     }
     // Create container structure (not a modal, but inline content)
     const containerHTML = `
-      <div id="liveBriefContainer" class="live-brief-container" style="display: none;">
+      <div id="liveBriefContainer" class="live-brief-container" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="live-brief-title" aria-hidden="true">
         <div class="live-brief-header">
-          <div class="mode-toggle-container">
-            <span class="mode-label active" data-mode="voice">Voice</span>
+          <div class="mode-toggle-container" role="group" aria-label="Input mode selection">
+            <span class="mode-label active" data-mode="voice" aria-label="Voice input mode">Voice</span>
             <label class="mode-toggle-switch">
-              <input type="checkbox" id="modeToggleSwitch">
-              <span class="toggle-slider"></span>
+              <input type="checkbox" id="modeToggleSwitch" aria-label="Toggle between voice and typing mode" aria-checked="false">
+              <span class="toggle-slider" aria-hidden="true"></span>
             </label>
-            <span class="mode-label" data-mode="typing">Typing</span>
+            <span class="mode-label" data-mode="typing" aria-label="Typing input mode">Typing</span>
           </div>
-          <h3 class="live-brief-title">Live Brief</h3>
-          <div class="question-detail" id="liveBriefQuestionDetail">
+          <h3 class="live-brief-title" id="live-brief-title">Live Brief</h3>
+          <div class="question-detail" id="liveBriefQuestionDetail" role="status" aria-live="polite">
             Describe the main idea of your application - including core features, target audience, and the problem it solves
           </div>
         </div>
@@ -87,28 +87,28 @@ class LiveBriefModal {
         <div class="live-brief-body">
           <div class="live-brief-microphone-container">
             <div class="live-brief-microphone-wrapper">
-              <div class="live-brief-ripple-ring"></div>
-              <div class="live-brief-ripple-ring"></div>
-              <div class="live-brief-ripple-ring"></div>
-              <div class="live-brief-microphone-icon" id="liveBriefMicrophone">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <div class="live-brief-ripple-ring" aria-hidden="true"></div>
+              <div class="live-brief-ripple-ring" aria-hidden="true"></div>
+              <div class="live-brief-ripple-ring" aria-hidden="true"></div>
+              <button class="live-brief-microphone-icon" id="liveBriefMicrophone" aria-label="Start voice recording" type="button" tabindex="0">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                   <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
                   <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
                   <line x1="12" y1="19" x2="12" y2="23"></line>
                   <line x1="8" y1="23" x2="16" y2="23"></line>
                 </svg>
-              </div>
+              </button>
             </div>
           </div>
           
           <div class="live-brief-summary-container">
-            <div id="liveBriefSummary" class="live-brief-summary-text"></div>
-            <div class="live-brief-language-indicator" id="liveBriefLanguageIndicator"></div>
+            <div id="liveBriefSummary" class="live-brief-summary-text" role="status" aria-live="polite" aria-atomic="true"></div>
+            <div class="live-brief-language-indicator" id="liveBriefLanguageIndicator" aria-label="Detected language" aria-live="polite"></div>
           </div>
         </div>
         
         <div class="live-brief-footer">
-          <button class="live-brief-btn live-brief-btn-primary" id="useThisBtn" disabled>Generate</button>
+          <button class="live-brief-btn live-brief-btn-primary" id="useThisBtn" disabled aria-label="Generate specification from live brief">Generate</button>
         </div>
       </div>
     `;

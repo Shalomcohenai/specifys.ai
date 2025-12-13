@@ -29,7 +29,6 @@ class SpecCache {
     // 1. Check memory cache
     const memory = this.memoryCache.get(specId);
     if (memory && !this.isExpired(memory, this.memoryTTL)) {
-      console.log(`[SpecCache] Cache HIT (memory) for specId: ${specId}`);
       return memory.data;
     }
 
@@ -39,7 +38,6 @@ class SpecCache {
       if (local) {
         const parsed = JSON.parse(local);
         if (!this.isExpired(parsed, this.localStorageTTL)) {
-          console.log(`[SpecCache] Cache HIT (localStorage) for specId: ${specId}`);
           // Update memory cache
           this.memoryCache.set(specId, parsed);
           return parsed.data;
@@ -49,12 +47,10 @@ class SpecCache {
         }
       }
     } catch (error) {
-      console.warn('[SpecCache] Error reading from localStorage:', error);
       // Continue to Firestore fetch
     }
 
     // 3. Fetch from Firestore
-    console.log(`[SpecCache] Cache MISS for specId: ${specId}, fetching from Firestore`);
     if (!fetchFromFirestore || typeof fetchFromFirestore !== 'function') {
       throw new Error('fetchFromFirestore function is required');
     }
@@ -93,7 +89,6 @@ class SpecCache {
       );
     } catch (error) {
       // localStorage might be full or disabled
-      console.warn('[SpecCache] Error writing to localStorage:', error);
       // Try to clear old entries
       this.cleanupLocalStorage();
     }
@@ -108,7 +103,7 @@ class SpecCache {
     try {
       localStorage.removeItem(this.localStorageKey + specId);
     } catch (error) {
-      console.warn('[SpecCache] Error removing from localStorage:', error);
+      // Error removing from localStorage
     }
   }
 
@@ -126,7 +121,7 @@ class SpecCache {
         }
       });
     } catch (error) {
-      console.warn('[SpecCache] Error clearing localStorage:', error);
+      // Error clearing localStorage
     }
   }
 
@@ -167,7 +162,7 @@ class SpecCache {
         }
       });
     } catch (error) {
-      console.warn('[SpecCache] Error during cleanup:', error);
+      // Error during cleanup
     }
   }
 

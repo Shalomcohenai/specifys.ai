@@ -8,6 +8,4 @@ import '../spec-formatter.js';
 import '../typingEffect.js';
 import '../mobile-optimizations.js';
 
-console.log('[Utils Bundle] Loaded');
-
 

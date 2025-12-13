@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Specifys.ai">
     <title>How It Works - Specifys.ai</title>
     <meta name="description" content="Learn how specifys.ai works to transform your app idea into reality.">
     <meta name="keywords" content="AI development tools, app specification generator, no-code platform, AI-powered planning, vibe coding, AI app builder, specification generator, market research tool, app planning tool, development tools, AI tools">
@@ -14,7 +17,12 @@
     
     <!-- Canonical URL -->
     
-    <link rel="canonical" href="https://specifys-ai.com/pages/how.html">
+    
+    
+    
+    
+    
+    <link rel="canonical" href="http://0.0.0.0:4000/pages/how.html">
     
     
     <!-- Open Graph -->
@@ -22,10 +30,11 @@
     <meta property="og:title" content="How It Works">
     <meta property="og:description" content="Learn how specifys.ai works to transform your app idea into reality.">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://specifys-ai.com/pages/how.html">
-    <meta property="og:image" content="https://specifys-ai.com/assets/images/og-image.png">
+    <meta property="og:url" content="http://0.0.0.0:4000/pages/how.html">
+    <meta property="og:image" content="http://0.0.0.0:4000/assets/images/og-image.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="How It Works - Specifys.ai">
     <meta property="og:locale" content="en_US">
     
     
@@ -35,7 +44,8 @@
     <meta name="twitter:creator" content="@specifysai">
     <meta name="twitter:title" content="How It Works">
     <meta name="twitter:description" content="Learn how specifys.ai works to transform your app idea into reality.">
-    <meta name="twitter:image" content="https://specifys-ai.com/assets/images/og-image.png">
+    <meta name="twitter:image" content="http://0.0.0.0:4000/assets/images/og-image.png">
+    <meta name="twitter:image:alt" content="How It Works - Specifys.ai">
     
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
@@ -43,8 +53,6 @@
     
     <!-- CSS - Unified compiled CSS file -->
     <link rel="stylesheet" href="/assets/css/main-compiled.css">
-    <!-- Tailwind CSS - Processed via PostCSS -->
-    <link rel="stylesheet" href="/assets/css/tailwind-base-compiled.css">
     <!-- Components -->
     <link rel="stylesheet" href="/assets/css/components/buttons.css">
     <!-- Display Utilities -->
@@ -53,15 +61,49 @@
     <link rel="stylesheet" href="/assets/css/utilities/text.css">
     <!-- Spacing Utilities -->
     <link rel="stylesheet" href="/assets/css/utilities/spacing.css">
+    <!-- Visually Hidden Utility (for accessibility) -->
+    <link rel="stylesheet" href="/assets/css/utilities/visually-hidden.css">
+    
+      
+        <link rel="stylesheet" href="/assets/css/pages/how.css">
       
     
     
     
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Font Awesome - Loaded asynchronously -->
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"></noscript>
+    
+    <!-- JavaScript - Core utilities loaded before core bundle -->
+    <script defer src="/assets/js/config.js"></script>
+    
+    <!-- API Client (must load after config.js) -->
+    <script defer src="/assets/js/api-client.js"></script>
+    
+    <!-- Focus Manager (must load early for accessibility) -->
+    <script defer src="/assets/js/focus-manager.js"></script>
+    
+    <!-- Components (must load before page-specific JS) -->
+    <script type="module" src="/assets/js/components/base.js"></script>
+    <script type="module" src="/assets/js/components/Modal.js"></script>
+    
+    <!-- State Management -->
+    <script defer src="/assets/js/store.js"></script>
+    
+    <!-- Application Logger -->
+    <script defer src="/assets/js/app-logger.js"></script>
+    
+    <!-- Web Vitals Tracking (for SEO performance monitoring) -->
+    <script defer src="/assets/js/web-vitals.js"></script>
     
     <!-- CSS Monitoring Script -->
-    <script src="/assets/js/css-monitor.js"></script>
+    <script defer src="/assets/js/css-monitor.js"></script>
+    
+    <!-- Security Utils -->
+    <script type="module" src="/assets/js/security-utils.js"></script>
+    
+    <!-- Core Bundle (if exists) -->
+    
     
     <!-- Fonts - Optimized: Only Montserrat and Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -69,7 +111,11 @@
     <link rel="dns-prefetch" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Removed heavy libraries: Mermaid, Marked, Highlight.js, jsPDF (not needed on how page) -->
+    <!-- Library Loader - for conditional loading of external libraries -->
+    <script src="/assets/js/lib-loader.js"></script>
+    
+    <!-- Conditional library loading based on page requirements -->
+    
     
     <!-- Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-RWBT69JCM7"></script>
@@ -79,8 +125,264 @@
   gtag('js', new Date());
   gtag('config', 'G-RWBT69JCM7');
 </script>
-    <!-- Analytics Events functions are available via includes/analytics-events.html -->
-<!-- Structured Data (JSON-LD) for SEO -->
+
+    <script>
+// Central Analytics Event Tracking System for Specifys.ai
+// This file contains reusable tracking functions for consistent analytics across the site
+
+// Check if gtag is available
+function isGtagAvailable() {
+  return typeof gtag !== 'undefined';
+}
+
+// Track button clicks with detailed categorization
+function trackButtonClick(buttonName, category, source, additionalData = {}) {
+  if (isGtagAvailable()) {
+    gtag('event', 'click', {
+      'event_category': category || 'Button Click',
+      'event_label': buttonName,
+      'event_source': source || 'unknown',
+      ...additionalData
+    });
+  }
+}
+
+// Track CTA (Call-to-Action) clicks
+function trackCTA(ctaName, location) {
+  if (isGtagAvailable()) {
+    gtag('event', 'cta_click', {
+      'event_category': 'CTA',
+      'event_label': ctaName,
+      'cta_location': location
+    });
+  }
+}
+
+// Track navigation events
+function trackNavigation(destination, source) {
+  if (isGtagAvailable()) {
+    gtag('event', 'navigation', {
+      'event_category': 'Navigation',
+      'event_label': destination,
+      'navigation_source': source
+    });
+  }
+}
+
+// Track tool usage
+function trackToolUsage(toolName, action) {
+  if (isGtagAvailable()) {
+    gtag('event', 'tool_usage', {
+      'event_category': 'Tools',
+      'event_label': toolName,
+      'tool_action': action
+    });
+  }
+}
+
+// Track form submissions
+function trackFormSubmit(formName, formType) {
+  if (isGtagAvailable()) {
+    gtag('event', 'form_submit', {
+      'event_category': 'Form',
+      'event_label': formName,
+      'form_type': formType
+    });
+  }
+}
+
+// Track user authentication events
+function trackAuthEvent(action, method) {
+  if (isGtagAvailable()) {
+    gtag('event', action, {
+      'event_category': 'Authentication',
+      'event_label': action,
+      'auth_method': method || 'email'
+    });
+  }
+}
+
+// Track downloads
+function trackDownload(fileName, fileType) {
+  if (isGtagAvailable()) {
+    gtag('event', 'download', {
+      'event_category': 'Downloads',
+      'event_label': fileName,
+      'file_type': fileType
+    });
+  }
+}
+
+// Track spec/result generations
+function trackGeneration(type, mode) {
+  if (isGtagAvailable()) {
+    gtag('event', 'generation_start', {
+      'event_category': 'Generation',
+      'event_label': type,
+      'generation_mode': mode
+    });
+  }
+}
+
+// Track generation completion
+function trackGenerationComplete(type, mode, success) {
+  if (isGtagAvailable()) {
+    gtag('event', 'generation_complete', {
+      'event_category': 'Generation',
+      'event_label': type,
+      'generation_mode': mode,
+      'success': success
+    });
+  }
+}
+
+// Track external link clicks
+function trackExternalLink(linkUrl, linkText) {
+  if (isGtagAvailable()) {
+    gtag('event', 'click', {
+      'event_category': 'External Link',
+      'event_label': linkText || linkUrl,
+      'link_url': linkUrl
+    });
+  }
+}
+
+// Track modal interactions
+function trackModal(modalName, action) {
+  if (isGtagAvailable()) {
+    gtag('event', 'modal_' + action, {
+      'event_category': 'Modal',
+      'event_label': modalName,
+      'modal_action': action
+    });
+  }
+}
+
+// Track FAQ interactions
+function trackFAQ(question, action) {
+  if (isGtagAvailable()) {
+    gtag('event', 'faq_' + action, {
+      'event_category': 'FAQ',
+      'event_label': question,
+      'faq_action': action
+    });
+  }
+}
+
+// Track search actions
+function trackSearch(searchTerm, searchType) {
+  if (isGtagAvailable()) {
+    gtag('event', 'search', {
+      'event_category': 'Search',
+      'search_term': searchTerm,
+      'search_type': searchType
+    });
+  }
+}
+
+// Track video/demo views
+function trackDemoView(demoName, viewDuration) {
+  if (isGtagAvailable()) {
+    gtag('event', 'demo_view', {
+      'event_category': 'Demo',
+      'event_label': demoName,
+      'view_duration': viewDuration
+    });
+  }
+}
+
+// Track user engagement time
+function trackEngagement(pageName, timeSpent) {
+  if (isGtagAvailable()) {
+    gtag('event', 'user_engagement', {
+      'event_category': 'Engagement',
+      'event_label': pageName,
+      'engagement_time_msec': timeSpent
+    });
+  }
+}
+
+// Track errors
+function trackError(errorType, errorMessage, errorLocation) {
+  if (isGtagAvailable()) {
+    gtag('event', 'error', {
+      'event_category': 'Error',
+      'event_label': errorType,
+      'error_message': errorMessage,
+      'error_location': errorLocation
+    });
+  }
+}
+
+// Track user preferences
+function trackPreference(preferenceName, preferenceValue) {
+  if (isGtagAvailable()) {
+    gtag('event', 'preference_change', {
+      'event_category': 'Preferences',
+      'event_label': preferenceName,
+      'preference_value': preferenceValue
+    });
+  }
+}
+
+// Track scroll depth
+let scrollDepthTracked = {25: false, 50: false, 75: false, 100: false};
+function initScrollTracking(pageName) {
+  window.addEventListener('scroll', function() {
+    const scrollPercent = Math.round((window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100);
+    
+    if (scrollPercent >= 25 && !scrollDepthTracked[25]) {
+      scrollDepthTracked[25] = true;
+      if (isGtagAvailable()) {
+        gtag('event', 'scroll', {
+          'event_category': 'Scroll Depth',
+          'event_label': pageName,
+          'scroll_depth': '25%'
+        });
+      }
+    }
+    if (scrollPercent >= 50 && !scrollDepthTracked[50]) {
+      scrollDepthTracked[50] = true;
+      if (isGtagAvailable()) {
+        gtag('event', 'scroll', {
+          'event_category': 'Scroll Depth',
+          'event_label': pageName,
+          'scroll_depth': '50%'
+        });
+      }
+    }
+    if (scrollPercent >= 75 && !scrollDepthTracked[75]) {
+      scrollDepthTracked[75] = true;
+      if (isGtagAvailable()) {
+        gtag('event', 'scroll', {
+          'event_category': 'Scroll Depth',
+          'event_label': pageName,
+          'scroll_depth': '75%'
+        });
+      }
+    }
+    if (scrollPercent >= 100 && !scrollDepthTracked[100]) {
+      scrollDepthTracked[100] = true;
+      if (isGtagAvailable()) {
+        gtag('event', 'scroll', {
+          'event_category': 'Scroll Depth',
+          'event_label': pageName,
+          'scroll_depth': '100%'
+        });
+      }
+    }
+  });
+}
+
+// Auto-initialize scroll tracking when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+  const pageName = document.title || window.location.pathname;
+  initScrollTracking(pageName);
+});
+</script>
+
+
+    <!-- Structured Data (JSON-LD) for SEO -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -127,37 +429,150 @@
         "ratingCount": "250"
       },
       "description": "AI-powered app planning platform with specification generator, market research tools, and vibe coding tools map"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "http://0.0.0.0:4000/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "How It Works",
+          "item": "http://0.0.0.0:4000/pages/how.html"
+        }
+      ]
+    },
+    {
+      "@type": "HowTo",
+      "name": "How Specifys.ai Works",
+      "description": "Learn how to use Specifys.ai to transform your app idea into a complete specification",
+      "step": [
+        {
+          "@type": "HowToStep",
+          "name": "Fill the Brief",
+          "text": "Capture your product goals, target users, and must-have features through a focused questionnaire."
+        },
+        {
+          "@type": "HowToStep",
+          "name": "Approve the Overview",
+          "text": "Review and approve the generated overview of your application."
+        },
+        {
+          "@type": "HowToStep",
+          "name": "Generate Full Specification",
+          "text": "Generate a complete specification document with technical details, market research, and design guidelines."
+        }
+      ]
     }
   ]
 }
 </script>
 
 
+    
+    <!-- Remove livereload script to prevent infinite reload loops -->
+    <script>
+        (function() {
+            // Remove livereload script immediately after page load
+            function removeLiveReload() {
+                // Find all livereload scripts
+                const livereloadScripts = document.querySelectorAll('script[src*="livereload"], script[src*="35729"]');
+                livereloadScripts.forEach(function(script) {
+                    script.remove();
+                });
+                
+                // Also remove any livereload iframes
+                const livereloadIframes = document.querySelectorAll('iframe[src*="livereload"], iframe[src*="35729"]');
+                livereloadIframes.forEach(function(iframe) {
+                    iframe.remove();
+                });
+            }
+            
+            // Remove immediately
+            removeLiveReload();
+            
+            // Remove on DOM ready
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', removeLiveReload);
+            }
+            
+            // Remove after a short delay (in case livereload adds itself)
+            setTimeout(removeLiveReload, 100);
+            setTimeout(removeLiveReload, 500);
+            setTimeout(removeLiveReload, 1000);
+            
+            // Watch for new livereload scripts being added
+            const observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    mutation.addedNodes.forEach(function(node) {
+                        if (node.nodeType === 1) { // Element node
+                            if (node.tagName === 'SCRIPT' && (node.src && (node.src.includes('livereload') || node.src.includes('35729')))) {
+                                node.remove();
+                            }
+                        }
+                    });
+                });
+            });
+            
+            // Observe document head for new scripts
+            observer.observe(document.head, {
+                childList: true,
+                subtree: true
+            });
+            
+            // Also observe document body
+            if (document.body) {
+                observer.observe(document.body, {
+                    childList: true,
+                    subtree: true
+                });
+            }
+        })();
+    </script>
 </head>
 
 
 <body>
     <!-- Header -->
+    <!-- Header -->
 <header class="thematic-header" role="banner">
-    <div class="header-center">
+    <nav class="header-center" aria-label="Main navigation">
         <div class="logo">
             <a href="/" aria-label="Specifys.ai homepage">
                 <span class="logo-text">Specifys<span class="logo-dot">.</span>AI</span>
             </a>
         </div>
-    </div>
-    <div class="header-right">
-        <div class="auth-buttons" id="auth-buttons">
+    </nav>
+    <div class="header-right" role="complementary" aria-label="User account and credits">
+        <div class="credits-display hidden" id="credits-display" role="status" aria-live="polite" aria-atomic="true">
+            <div class="credits-container">
+                <span id="credits-text" aria-label="Available credits">Credits: 0</span>
+            </div>
+        </div>
+        <div class="auth-buttons" id="auth-buttons" role="group" aria-label="Authentication buttons">
             <!-- Will be populated by auth system -->
         </div>
     </div>
 </header>
 
+<!-- Credits Display Script -->
+<script src="/assets/js/credits-display.js"></script>
+
+
+    
     <!-- Main Content -->
     <main id="main-content" class="main-content">
-        <p class="how-intro">Specifys.ai guides you from an initial idea to a production-ready specification with a structured, collaborative workflow and AI support at every step.</p>
+        <main class="how-page" id="main-content" role="main">
+  <article>
+    <h1 class="visually-hidden">How It Works</h1>
+    <p class="how-intro">Specifys.ai guides you from an initial idea to a production-ready specification with a structured, collaborative workflow and AI support at every step.</p>
 
-<section class="process-flow" aria-label="Specification process overview">
+    <section class="process-flow" aria-label="Specification process overview" role="region">
   <div class="process-step">
     <div class="step-icon" aria-hidden="true">
       <i class="fas fa-clipboard-list"></i>
@@ -187,171 +602,179 @@
       <i class="fas fa-box-open"></i>
     </div>
     <h3>3. Get Your Spec Package</h3>
-    <p>Receive a production-ready specification bundle with technical notes, UX flows, and supporting documentation.</p>
-  </div>
-</section>
+      <p>Receive a production-ready specification bundle with technical notes, UX flows, and supporting documentation.</p>
+    </div>
+  </section>
+  </article>
+</main>
 
-<div class="tracks-container">
-  <div class="track-card">
-    <h2>Non-Programmers</h2>
-    <p>Perfect when you need a developer-ready spec without touching code. Capture requirements in plain English and let AI handle the structure.</p>
-    <ul>
-      <li>Answer a guided brief that translates ideas into actionable requirements.</li>
-      <li>See AI-powered suggestions that fill gaps before you approve the overview.</li>
-      <li>Generate UX flows, user stories, and delivery notes tailored for handoff.</li>
-      <li>Export the full spec package to share with teams or collaborators.</li>
-    </ul>
-    <a href="/" class="btn" aria-label="Start creating your app specification" onclick="trackButtonClick('Start Non-Programmers Track', 'How It Works', 'track_card')">Start Non-Programmers Track</a>
-  </div>
-  <div class="track-card">
-    <h2>Entrepreneurs</h2>
-    <p>Ideal for validating concepts with investors, partners, or internal stakeholders through data-backed deliverables.</p>
-    <ul>
-      <li>Map your audience, positioning, and monetization strategy with targeted prompts.</li>
-      <li>Leverage AI to benchmark competitors and surface whitespace opportunities.</li>
-      <li>Review an executive overview before unlocking the full research report.</li>
-      <li>Download pitch-ready documents that align product, market, and roadmap.</li>
-    </ul>
-    <a href="/" class="btn" aria-label="Start researching your app idea" onclick="trackButtonClick('Start Entrepreneurs Track', 'How It Works', 'track_card')">Start Entrepreneurs Track</a>
-  </div>
-</div>
+  <section class="tracks-container" aria-label="User tracks">
+    <article class="track-card" role="article" aria-labelledby="non-programmers-title">
+      <h2 id="non-programmers-title">Non-Programmers</h2>
+      <p>Perfect when you need a developer-ready spec without touching code. Capture requirements in plain English and let AI handle the structure.</p>
+      <ul role="list">
+        <li>Answer a guided brief that translates ideas into actionable requirements.</li>
+        <li>See AI-powered suggestions that fill gaps before you approve the overview.</li>
+        <li>Generate UX flows, user stories, and delivery notes tailored for handoff.</li>
+        <li>Export the full spec package to share with teams or collaborators.</li>
+      </ul>
+      <a href="/" class="btn" aria-label="Start creating your app specification - Non-Programmers track" onclick="trackButtonClick('Start Non-Programmers Track', 'How It Works', 'track_card')">Start Non-Programmers Track</a>
+    </article>
+    <article class="track-card" role="article" aria-labelledby="entrepreneurs-title">
+      <h2 id="entrepreneurs-title">Entrepreneurs</h2>
+      <p>Ideal for validating concepts with investors, partners, or internal stakeholders through data-backed deliverables.</p>
+      <ul role="list">
+        <li>Map your audience, positioning, and monetization strategy with targeted prompts.</li>
+        <li>Leverage AI to benchmark competitors and surface whitespace opportunities.</li>
+        <li>Review an executive overview before unlocking the full research report.</li>
+        <li>Download pitch-ready documents that align product, market, and roadmap.</li>
+      </ul>
+      <a href="/" class="btn" aria-label="Start researching your app idea - Entrepreneurs track" onclick="trackButtonClick('Start Entrepreneurs Track', 'How It Works', 'track_card')">Start Entrepreneurs Track</a>
+    </article>
+  </section>
 
-<!-- Available Tools Section -->
-<div class="tools-section">
-  <h2>Available Tools</h2>
-  <p>Explore our powerful collection of AI-driven tools designed to support every aspect of your app development journey.</p>
-  
-  <div class="tools-grid">
+  <!-- Available Tools Section -->
+  <section class="tools-section" aria-label="Available tools">
+    <h2>Available Tools</h2>
+    <p>Explore our powerful collection of AI-driven tools designed to support every aspect of your app development journey.</p>
     
-    <!-- Vibe Coding Tools Map -->
-    <div class="tool-card tools-map">
-      <div class="tool-icon tools-map-icon">
-        <i class="fas fa-map-marked-alt"></i>
-      </div>
-      <h3>Vibe Coding Tools Map</h3>
-      <p>Navigate through our comprehensive map of AI-powered development tools.</p>
-      <ul>
-        <li>
-          <i class="fas fa-check"></i>
-          Curated collection of 100+ AI development tools
-        </li>
-        <li>
-          <i class="fas fa-check"></i>
-          Interactive filtering by category and features
-        </li>
-        <li>
-          <i class="fas fa-check"></i>
-          Detailed tool comparisons and recommendations
-        </li>
-      </ul>
-      <a href="/tools/map/vibe-coding-tools-map.html" class="btn" onclick="trackToolUsage('Vibe Coding Tools Map', 'explore_from_how')">Explore Tools Map</a>
+    <div class="tools-grid" role="list">
+      
+      <!-- Vibe Coding Tools Map -->
+      <article class="tool-card tools-map" role="listitem">
+        <div class="tool-icon tools-map-icon" aria-hidden="true">
+          <i class="fas fa-map-marked-alt"></i>
+        </div>
+        <h3>Vibe Coding Tools Map</h3>
+        <p>Navigate through our comprehensive map of AI-powered development tools.</p>
+        <ul role="list">
+          <li>
+            <i class="fas fa-check" aria-hidden="true"></i>
+            Curated collection of 100+ AI development tools
+          </li>
+          <li>
+            <i class="fas fa-check" aria-hidden="true"></i>
+            Interactive filtering by category and features
+          </li>
+          <li>
+            <i class="fas fa-check" aria-hidden="true"></i>
+            Detailed tool comparisons and recommendations
+          </li>
+        </ul>
+        <a href="/tools/map/vibe-coding-tools-map.html" class="btn" aria-label="Explore Vibe Coding Tools Map" onclick="trackToolUsage('Vibe Coding Tools Map', 'explore_from_how')">Explore Tools Map</a>
+      </article>
+
+      <!-- AI Tool Finder -->
+      <article class="tool-card tool-finder" role="listitem">
+        <div class="tool-icon tool-finder-icon" aria-hidden="true">
+          <i class="fas fa-search-plus"></i>
+        </div>
+        <h3>AI Tool Finder</h3>
+        <p>Our intelligent tool recommendation system analyzes your project requirements.</p>
+        <ul role="list">
+          <li>
+            <i class="fas fa-check" aria-hidden="true"></i>
+            Personalized tool recommendations
+          </li>
+          <li>
+            <i class="fas fa-check" aria-hidden="true"></i>
+            Skill level and project type matching
+          </li>
+          <li>
+            <i class="fas fa-check" aria-hidden="true"></i>
+            Direct integration with recommended tools
+          </li>
+        </ul>
+        <a href="/pages/ToolPicker.html" class="btn" aria-label="Find your tools with AI Tool Finder" onclick="trackToolUsage('Tool Finder', 'find_from_how')">Find Your Tools</a>
+      </article>
+
+      <!-- Specification Generator -->
+      <article class="tool-card spec-generator" role="listitem">
+        <div class="tool-icon spec-generator-icon" aria-hidden="true">
+          <i class="fas fa-dollar-sign"></i>
+        </div>
+        <h3>Smart Specification Generator</h3>
+        <p>Transform your app ideas into comprehensive, developer-ready specifications.</p>
+        <ul role="list">
+          <li>
+            <i class="fas fa-check" aria-hidden="true"></i>
+            Interactive questionnaire system
+          </li>
+          <li>
+            <i class="fas fa-check" aria-hidden="true"></i>
+            Technical and business requirement analysis
+          </li>
+          <li>
+            <i class="fas fa-check" aria-hidden="true"></i>
+            Export to multiple formats (PDF, JSON, Markdown)
+          </li>
+        </ul>
+        <a href="/" class="btn" aria-label="Generate specification for your app" onclick="trackButtonClick('Generate Specification', 'Tools', 'how_page')">Generate Specification</a>
+      </article>
+
+      <!-- Market Research Analyzer -->
+      <article class="tool-card market-research" role="listitem">
+        <div class="tool-icon market-research-icon" aria-hidden="true">
+          <i class="fas fa-chart-line"></i>
+        </div>
+        <h3>Market Research Analyzer</h3>
+        <p>Conduct comprehensive market research and competitive analysis.</p>
+        <ul role="list">
+          <li>
+            <i class="fas fa-check" aria-hidden="true"></i>
+            Competitive landscape analysis
+          </li>
+          <li>
+            <i class="fas fa-check" aria-hidden="true"></i>
+            Target audience identification
+          </li>
+          <li>
+            <i class="fas fa-check" aria-hidden="true"></i>
+            Investment-ready market reports
+          </li>
+        </ul>
+        <a href="/tools/processing-market.html" class="btn" aria-label="Analyze market for your app" onclick="trackButtonClick('Analyze Market', 'Tools', 'how_page')">Analyze Market</a>
+      </article>
+
     </div>
-
-    <!-- AI Tool Finder -->
-    <div class="tool-card tool-finder">
-      <div class="tool-icon tool-finder-icon">
-        <i class="fas fa-search-plus"></i>
-      </div>
-      <h3>AI Tool Finder</h3>
-      <p>Our intelligent tool recommendation system analyzes your project requirements.</p>
-      <ul>
-        <li>
-          <i class="fas fa-check"></i>
-          Personalized tool recommendations
-        </li>
-        <li>
-          <i class="fas fa-check"></i>
-          Skill level and project type matching
-        </li>
-        <li>
-          <i class="fas fa-check"></i>
-          Direct integration with recommended tools
-        </li>
-      </ul>
-      <a href="/pages/ToolPicker.html" class="btn" onclick="trackToolUsage('Tool Finder', 'find_from_how')">Find Your Tools</a>
-    </div>
-
-    <!-- Specification Generator -->
-    <div class="tool-card spec-generator">
-      <div class="tool-icon spec-generator-icon">
-        <i class="fas fa-dollar-sign"></i>
-      </div>
-      <h3>Smart Specification Generator</h3>
-      <p>Transform your app ideas into comprehensive, developer-ready specifications.</p>
-      <ul>
-        <li>
-          <i class="fas fa-check"></i>
-          Interactive questionnaire system
-        </li>
-        <li>
-          <i class="fas fa-check"></i>
-          Technical and business requirement analysis
-        </li>
-        <li>
-          <i class="fas fa-check"></i>
-          Export to multiple formats (PDF, JSON, Markdown)
-        </li>
-      </ul>
-      <a href="/" class="btn" onclick="trackButtonClick('Generate Specification', 'Tools', 'how_page')">Generate Specification</a>
-    </div>
-
-    <!-- Market Research Analyzer -->
-    <div class="tool-card market-research">
-      <div class="tool-icon market-research-icon">
-        <i class="fas fa-chart-line"></i>
-      </div>
-      <h3>Market Research Analyzer</h3>
-      <p>Conduct comprehensive market research and competitive analysis.</p>
-      <ul>
-        <li>
-          <i class="fas fa-check"></i>
-          Competitive landscape analysis
-        </li>
-        <li>
-          <i class="fas fa-check"></i>
-          Target audience identification
-        </li>
-        <li>
-          <i class="fas fa-check"></i>
-          Investment-ready market reports
-        </li>
-      </ul>
-      <a href="/tools/processing-market.html" class="btn" onclick="trackButtonClick('Analyze Market', 'Tools', 'how_page')">Analyze Market</a>
-    </div>
-
-  </div>
-</div>
-
+  </section>
 
     </main>
     
     <!-- Footer -->
     <!-- Footer -->
-<footer>
-  <div class="footer-content">
-    <div class="footer-links">
-      <a href="/pages/how.html" aria-label="Learn how specifys.ai works">How It Works</a>
-      <a href="/pages/about.html" aria-label="Learn more about specifys.ai">About Us</a>
-      <a href="/blog/" aria-label="Visit our blog">Blog</a>
-      <a href="/pages/articles.html" aria-label="Browse our articles">Articles</a>
-      <a href="/academy.html" aria-label="Visit Specifys Academy">Academy</a>
-      <a href="/tools/map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map">Vibe Coding Tools Map</a>
-      <a href="/pages/ToolPicker.html" aria-label="Use our Tool Finder">Tool Finder</a>
+<footer role="contentinfo">
+  <nav class="footer-content" aria-label="Footer navigation">
+    <div class="footer-links" role="list">
+      <a href="/pages/how.html" aria-label="Learn how specifys.ai works" role="listitem">How It Works</a>
+      <a href="/pages/about.html" aria-label="Learn more about specifys.ai" role="listitem">About Us</a>
+      <a href="/pages/why.html" aria-label="Why Specifys.ai" role="listitem">Why?</a>
+      <a href="/blog/" aria-label="Visit our blog" role="listitem">Blog</a>
+      <a href="/pages/articles.html" aria-label="Browse our articles" role="listitem">Articles</a>
+      <a href="/academy.html" aria-label="Visit Specifys Academy" role="listitem">Academy</a>
+      <a href="/tools/map/vibe-coding-tools-map.html" aria-label="Explore Vibe Coding Tools Map" role="listitem">Vibe Coding Tools Map</a>
+      <a href="/pages/ToolPicker.html" aria-label="Use our Tool Finder" role="listitem">Tool Finder</a>
+      <button class="contact-us-link" id="contact-us-btn" aria-label="Contact Us" type="button" role="listitem">
+        Contact Us
+      </button>
     </div>
-    <span class="footer-divider">|</span>
-    <div class="footer-social">
-      <a href="https://www.linkedin.com/company/specifys-ai/" target="_blank" aria-label="Follow us on LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-      <a href="https://www.facebook.com/profile.php?id=61576402600129&locale=he_IL" target="_blank" aria-label="Follow us on Facebook"><i class="fab fa-facebook-f"></i></a>
-      <a href="mailto:specifysai@gmail.com" aria-label="Send us an email"><i class="fas fa-envelope"></i></a>
-      <a href="https://www.producthunt.com/products/specifys-ai" target="_blank" aria-label="Check us out on Product Hunt"><i class="fab fa-product-hunt"></i></a>
+    <span class="footer-divider" aria-hidden="true">|</span>
+    <div class="footer-social" role="list" aria-label="Social media links">
+      <a href="https://www.linkedin.com/company/specifys-ai/" target="_blank" aria-label="Follow us on LinkedIn" rel="noopener noreferrer" role="listitem"><i class="fab fa-linkedin-in" aria-hidden="true"></i></a>
+      <a href="https://www.facebook.com/profile.php?id=61576402600129&locale=he_IL" target="_blank" aria-label="Follow us on Facebook" rel="noopener noreferrer" role="listitem"><i class="fab fa-facebook-f" aria-hidden="true"></i></a>
+      <a href="mailto:specifysai@gmail.com" aria-label="Send us an email" role="listitem"><i class="fas fa-envelope" aria-hidden="true"></i></a>
+      <a href="https://www.producthunt.com/products/specifys-ai" target="_blank" aria-label="Check us out on Product Hunt" rel="noopener noreferrer" role="listitem"><i class="fab fa-product-hunt" aria-hidden="true"></i></a>
     </div>
-  </div>
+  </nav>
   <div class="footer-copyright">
     © 2025 specifys.ai. All rights reserved.
   </div>
 </footer>
 
+<script src="/assets/js/contact-us-modal.js"></script>
+
     
+    <!-- Scroll to top button -->
     <!-- Scroll to top button -->
 <button class="icon-btn scroll-to-top" id="scrollToTop" aria-label="Scroll">
   <i class="fas fa-arrow-up"></i>
@@ -413,6 +836,13 @@
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
   const db = firebase.firestore();
+  
+  // Make auth and db available globally
+  window.auth = auth;
+  window.db = db;
+  
+  // Dispatch firebase-ready event for other scripts
+  window.dispatchEvent(new Event('firebase-ready'));
 </script>
 
 
@@ -462,22 +892,164 @@
     }
     auth.signOut()
       .then(() => {
-
+        // Logged out successfully
       })
       .catch(error => {
-
+        // Error logging out
       });
   };
 
-  // Listen to auth state changes
-  auth.onAuthStateChanged((user) => {
-    updateAuthUI(user);
-  });
+  // Listen to auth state changes (only after Firebase is initialized)
+  function setupAuthListener() {
+    // Get auth from window or local scope
+    const authInstance = window.auth || (typeof auth !== 'undefined' ? auth : null);
+    
+    if (!authInstance) {
+      setTimeout(setupAuthListener, 100);
+      return;
+    }
+    
+    authInstance.onAuthStateChanged(async (user) => {
+      updateAuthUI(user);
 
-  // Initialize auth buttons with default state
+      // Ensure user document exists immediately for new users
+      if (user && document.visibilityState === 'visible') {
+        // Run immediately to ensure credits are available for new users
+        ensureUserDocument(user).catch(error => {
+          // Error ensuring user document
+        });
+      }
+    });
+  }
+  
+  async function ensureUserDocument(user, retryCount = 0) {
+    const MAX_RETRIES = 3;
+    const RETRY_DELAYS = [500, 1000, 2000]; // ms
+    
+    try {
+      // Verify user is still authenticated before making the request
+      if (!user) {
+        return; // User logged out, skip initialization
+      }
+      
+      const token = await user.getIdToken();
+      const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : (window.API_BASE_URL || 'https://specifys-ai.onrender.com');
+      
+      // Use AbortController to handle errors more gracefully
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      
+      let response;
+      try {
+        response = await fetch(`${apiBaseUrl}/api/users/initialize`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({}),
+          signal: controller.signal
+        });
+      } catch (fetchError) {
+        clearTimeout(timeoutId);
+        // Handle network errors silently (404, CORS, network failures)
+        if (fetchError.name === 'AbortError' || 
+            fetchError.message.includes('Failed to fetch') || 
+            fetchError.message.includes('NetworkError') ||
+            fetchError.message.includes('Load failed')) {
+          // Silently fail - endpoint might not be available or network issue
+          return;
+        }
+        throw fetchError;
+      }
+      
+      clearTimeout(timeoutId);
+
+      if (response.ok) {
+        const result = await response.json();
+        
+        // If entitlements were created or updated, trigger credits refresh
+        if (result.entitlements && (result.created || result.updated)) {
+          // Clear entitlements cache if it exists
+          if (typeof window.clearEntitlementsCache === 'function') {
+            window.clearEntitlementsCache();
+          }
+          
+          // Update credits display (no force refresh, will use cache if available)
+          if (typeof window.updateCreditsDisplay === 'function') {
+            window.updateCreditsDisplay({ forceRefresh: false });
+          }
+        }
+      } else if (response.status === 404) {
+        // Endpoint doesn't exist - silently fail (might be development or endpoint not deployed)
+        // Don't retry on 404 - it won't help
+        // Don't log to console to avoid noise
+        return;
+      } else {
+        // Only throw for non-404 errors
+        const errorText = await response.text().catch(() => '');
+        throw new Error(`HTTP ${response.status}${errorText ? ': ' + errorText.substring(0, 100) : ''}`);
+      }
+    } catch (error) {
+      // Don't retry on network errors that suggest the endpoint doesn't exist
+      // Don't log 404 errors to console to avoid noise
+      const errorMessage = error.message || error.toString() || '';
+      if (errorMessage.includes('404') || 
+          errorMessage.includes('Failed to fetch') || 
+          errorMessage.includes('Not Found') ||
+          errorMessage.includes('NetworkError') ||
+          errorMessage.includes('Load failed') ||
+          error.name === 'AbortError') {
+        // Silently fail - endpoint might not be available
+        return;
+      }
+      
+      // Retry on other failures
+      if (retryCount < MAX_RETRIES) {
+        const delay = RETRY_DELAYS[retryCount] || 2000;
+        await new Promise(resolve => setTimeout(resolve, delay));
+        return ensureUserDocument(user, retryCount + 1);
+      }
+      // Only log warning if it's not a 404 or network error
+      if (!errorMessage.includes('404') && 
+          !errorMessage.includes('Failed to fetch') &&
+          !errorMessage.includes('NetworkError') &&
+          !errorMessage.includes('Load failed') &&
+          error.name !== 'AbortError') {
+        // Error initializing user documents after retries
+      }
+    }
+  }
+
+  // Wait for Firebase to be ready
+  if (typeof firebase !== 'undefined' && firebase.auth) {
+    // Firebase already loaded, wait a bit for initialization
+    setTimeout(setupAuthListener, 100);
+  } else {
+    window.addEventListener('firebase-ready', setupAuthListener);
+  }
+
+  // Initialize auth buttons with default state (only if auth listener hasn't run yet)
   document.addEventListener('DOMContentLoaded', function() {
     const authButtons = document.getElementById('auth-buttons');
-    if (authButtons && !authButtons.innerHTML.trim()) {
+    if (!authButtons) return;
+    
+    // Check if auth is already initialized and set up listener immediately
+    const authInstance = window.auth || (typeof auth !== 'undefined' ? auth : null);
+    if (authInstance) {
+      // Auth is available, set up a one-time listener to check current state
+      // This ensures we get the auth state even if it's still loading
+      const unsubscribe = authInstance.onAuthStateChanged((user) => {
+        // Update UI with current auth state
+        updateAuthUI(user);
+        // Unsubscribe after first check
+        unsubscribe();
+      });
+      return;
+    }
+    
+    // Only set default if buttons are empty and we don't have auth yet
+    if (!authButtons.innerHTML.trim()) {
       authButtons.innerHTML = `
         <button class="auth-btn login-btn">Log in/Sign up</button>
       `;
@@ -497,6 +1069,9 @@
     
     
     <!-- Extra JavaScript -->
+    
+    
+    <!-- Custom JavaScript Modules -->
     
     
 </body>

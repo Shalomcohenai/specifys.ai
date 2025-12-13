@@ -113,6 +113,116 @@
         "@type": "WebPage",
         "@id": "{{ page.url | absolute_url }}"
       }
+    }{% endif %}{% unless page.url == '/' or page.url == '/index.html' %},
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "{{ site.url | default: 'https://specifys-ai.com' }}/"
+        }{% if page.url contains '/pages/' %},
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "{{ page.title | default: 'Page' }}",
+          "item": "{{ page.url | absolute_url }}"
+        }{% elsif page.url contains '/blog/' or page.url contains '/academy/' %},
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "{{ page.title | default: 'Page' }}",
+          "item": "{{ page.url | absolute_url }}"
+        }{% endif %}
+      ]
+    }{% endunless %}{% if page.url == '/pages/pricing.html' %},
+    {
+      "@type": "Product",
+      "name": "Specifys.ai Plans",
+      "description": "Choose from Single Spec, 3-Pack, or Pro subscription plans for app specification generation",
+      "offers": [
+        {
+          "@type": "Offer",
+          "name": "Single Spec",
+          "price": "4.90",
+          "priceCurrency": "USD",
+          "availability": "https://schema.org/InStock",
+          "url": "https://specifys-ai.com/pages/pricing.html"
+        },
+        {
+          "@type": "Offer",
+          "name": "3-Pack",
+          "price": "9.90",
+          "priceCurrency": "USD",
+          "availability": "https://schema.org/InStock",
+          "url": "https://specifys-ai.com/pages/pricing.html"
+        },
+        {
+          "@type": "Offer",
+          "name": "Pro Monthly",
+          "price": "29.90",
+          "priceCurrency": "USD",
+          "priceSpecification": {
+            "@type": "UnitPriceSpecification",
+            "price": "29.90",
+            "priceCurrency": "USD",
+            "billingIncrement": "P1M"
+          },
+          "availability": "https://schema.org/InStock",
+          "url": "https://specifys-ai.com/pages/pricing.html"
+        },
+        {
+          "@type": "Offer",
+          "name": "Pro Yearly",
+          "price": "299.90",
+          "priceCurrency": "USD",
+          "priceSpecification": {
+            "@type": "UnitPriceSpecification",
+            "price": "299.90",
+            "priceCurrency": "USD",
+            "billingIncrement": "P1Y"
+          },
+          "availability": "https://schema.org/InStock",
+          "url": "https://specifys-ai.com/pages/pricing.html"
+        }
+      ]
+    }{% endif %}{% if page.url == '/pages/how.html' %},
+    {
+      "@type": "HowTo",
+      "name": "How Specifys.ai Works",
+      "description": "Learn how to use Specifys.ai to transform your app idea into a complete specification",
+      "step": [
+        {
+          "@type": "HowToStep",
+          "name": "Fill the Brief",
+          "text": "Capture your product goals, target users, and must-have features through a focused questionnaire."
+        },
+        {
+          "@type": "HowToStep",
+          "name": "Approve the Overview",
+          "text": "Review and approve the generated overview of your application."
+        },
+        {
+          "@type": "HowToStep",
+          "name": "Generate Full Specification",
+          "text": "Generate a complete specification document with technical details, market research, and design guidelines."
+        }
+      ]
+    }{% endif %}{% if page.url == '/pages/about.html' %},
+    {
+      "@type": "AboutPage",
+      "name": "About Specifys.ai",
+      "description": "Learn about Specifys.ai, our mission, and the story behind our AI-driven app specification platform",
+      "mainEntity": {
+        "@type": "Organization",
+        "name": "Specifys.ai",
+        "founder": {
+          "@type": "Person",
+          "name": "Specifys.ai Team"
+        },
+        "description": "AI-powered app planning and specification generation platform built to help creators and developers start smarter, not faster."
+      }
     }{% endif %}
   ]
 }

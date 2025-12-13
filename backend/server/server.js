@@ -634,7 +634,6 @@ async function saveToGoogleSheets(email, feedback, type, source) {
   } catch (error) {
 
     // Don't fail the entire request if Sheets fails
-    console.error('Failed to save feedback to Google Sheets:', error.message);
   }
 }
 
@@ -642,16 +641,6 @@ async function saveToGoogleSheets(email, feedback, type, source) {
 app.post('/api/generate-spec', rateLimiters.generation, async (req, res, next) => {
   const requestId = req.requestId || `req-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   const startTime = Date.now();
-  
-  console.log(`[${requestId}] ===== /api/generate-spec REQUEST START (server.js) =====`);
-  console.log(`[${requestId}] Timestamp: ${new Date().toISOString()}`);
-  console.log(`[${requestId}] IP: ${req.ip || req.connection.remoteAddress}`);
-  console.log(`[${requestId}] User-Agent: ${req.headers['user-agent'] || 'N/A'}`);
-  console.log(`[${requestId}] Request Body:`, {
-    hasUserInput: !!req.body.userInput,
-    userInputLength: req.body.userInput?.length || 0,
-    userInputPreview: req.body.userInput?.substring(0, 200) || 'N/A'
-  });
 
   const { userInput } = req.body;
 
@@ -673,23 +662,12 @@ app.post('/api/generate-spec', rateLimiters.generation, async (req, res, next) =
       }
     };
 
-    console.log(`[${requestId}] 📤 Preparing request to Cloudflare Worker`);
-    console.log(`[${requestId}] Worker URL: https://spspec.shalom-cohen-111.workers.dev/generate`);
-    console.log(`[${requestId}] Worker Payload:`, {
-      stage: workerPayload.stage,
-      locale: workerPayload.locale,
-      promptSystemLength: workerPayload.prompt.system.length,
-      promptDeveloperLength: workerPayload.prompt.developer.length,
-      promptUserLength: workerPayload.prompt.user.length,
-      promptUserPreview: workerPayload.prompt.user.substring(0, 200)
-    });
 
     const workerRequestStart = Date.now();
 
     // Forward request to Cloudflare Worker
     let response;
     try {
-      console.log(`[${requestId}] 🔄 Attempting to fetch from Cloudflare Worker...`);
       response = await fetch('https://spspec.shalom-cohen-111.workers.dev/generate', {
         method: 'POST',
         headers: {
@@ -697,46 +675,28 @@ app.post('/api/generate-spec', rateLimiters.generation, async (req, res, next) =
         },
         body: JSON.stringify(workerPayload),
       });
-      console.log(`[${requestId}] ✅ Fetch completed successfully`);
     } catch (fetchError) {
-      console.error(`[${requestId}] ❌ Fetch failed:`, {
-        message: fetchError.message,
-        name: fetchError.name,
-        stack: fetchError.stack,
-        cause: fetchError.cause
-      });
       throw new Error(`Failed to connect to Cloudflare Worker: ${fetchError.message}`);
     }
 
     const workerRequestTime = Date.now() - workerRequestStart;
-    console.log(`[${requestId}] ⏱️  Worker request took ${workerRequestTime}ms`);
-    console.log(`[${requestId}] 📥 Worker Response Status: ${response.status} ${response.statusText}`);
-    console.log(`[${requestId}] Worker Response Headers:`, {
-      'content-type': response.headers.get('content-type'),
-      'content-length': response.headers.get('content-length'),
-      'cf-ray': response.headers.get('cf-ray'),
-      'cf-request-id': response.headers.get('cf-request-id')
-    });
 
     // Read response body first (before checking ok) to see what Worker returned
     let responseBodyText = null;
     let responseBodyJson = null;
     try {
       responseBodyText = await response.text();
-      console.log(`[${requestId}] 📄 Worker Response Body (raw, first 500 chars):`, responseBodyText.substring(0, 500));
       try {
         responseBodyJson = JSON.parse(responseBodyText);
-        console.log(`[${requestId}] 📄 Worker Response Body (parsed):`, JSON.stringify(responseBodyJson, null, 2));
       } catch (jsonParseError) {
-        console.log(`[${requestId}] ⚠️  Worker response is not valid JSON:`, jsonParseError.message);
+        // Worker response is not valid JSON
       }
     } catch (readError) {
-      console.error(`[${requestId}] ❌ Failed to read Worker response body:`, readError.message);
+      // Failed to read Worker response body
     }
 
     // Check if response is OK
     if (!response.ok) {
-      console.log(`[${requestId}] ❌ Worker returned error status: ${response.status}`);
       let errorMessage = 'Failed to fetch specification';
       let errorDetails = null;
       
@@ -752,43 +712,25 @@ app.post('/api/generate-spec', rateLimiters.generation, async (req, res, next) =
             errorMessage = `[${responseBodyJson.error.code}] ${errorMessage}`;
           }
         }
-        console.log(`[${requestId}] Worker Error Data (from JSON):`, JSON.stringify(responseBodyJson, null, 2));
-        if (responseBodyJson.correlationId) {
-          console.log(`[${requestId}] Worker Correlation ID: ${responseBodyJson.correlationId}`);
-        }
       } else if (responseBodyText) {
         errorMessage = responseBodyText.substring(0, 500) || `HTTP ${response.status}: ${response.statusText}`;
         errorDetails = { text: responseBodyText };
-        console.log(`[${requestId}] Worker Error Text:`, responseBodyText.substring(0, 500));
       } else {
         errorMessage = `HTTP ${response.status}: ${response.statusText}`;
         errorDetails = { status: response.status, statusText: response.statusText };
-        console.log(`[${requestId}] Worker Error (no body):`, errorMessage);
       }
       
       const totalTime = Date.now() - startTime;
-      console.log(`[${requestId}] ===== /api/generate-spec REQUEST FAILED (${totalTime}ms) =====`);
       throw new Error(errorMessage);
     }
 
     // Response is OK, use the parsed JSON
     if (!responseBodyJson) {
       const totalTime = Date.now() - startTime;
-      console.error(`[${requestId}] ❌ Worker returned OK but response is not valid JSON`);
-      console.log(`[${requestId}] ===== /api/generate-spec REQUEST FAILED (${totalTime}ms) =====`);
       throw new Error('Worker returned invalid JSON response');
     }
     
     const data = responseBodyJson;
-    
-    console.log(`[${requestId}] ✅ Successfully received and parsed Worker response`);
-    console.log(`[${requestId}] Response Structure:`, {
-      hasOverview: !!data.overview,
-      hasSpecification: !!data.specification,
-      hasMeta: !!data.meta,
-      keys: Object.keys(data),
-      overviewKeys: data.overview ? Object.keys(data.overview) : null
-    });
     
     // Cloudflare Worker returns { overview: {...}, meta: {...} } format
     // Convert to { specification: ... } format for backward compatibility
@@ -796,20 +738,15 @@ app.post('/api/generate-spec', rateLimiters.generation, async (req, res, next) =
     if (data.overview) {
       // Worker returned structured data
       specification = JSON.stringify(data.overview);
-      console.log(`[${requestId}] 📝 Using 'overview' field, length: ${specification.length}`);
     } else if (data.specification) {
       // Already in expected format
       specification = data.specification;
-      console.log(`[${requestId}] 📝 Using 'specification' field, length: ${specification.length}`);
     } else {
       // Fallback - stringify entire response
       specification = JSON.stringify(data);
-      console.log(`[${requestId}] ⚠️  Using fallback (stringify entire response), length: ${specification.length}`);
     }
     
     const totalTime = Date.now() - startTime;
-    console.log(`[${requestId}] ✅ Successfully generated specification (${totalTime}ms total)`);
-    console.log(`[${requestId}] ===== /api/generate-spec REQUEST SUCCESS =====`);
     
     res.json({ specification });
   } catch (error) {
@@ -1100,22 +1037,6 @@ const server = app.listen(port, () => {
     }
   }, '[UNIFIED SERVER] 🚀 SERVER STARTED SUCCESSFULLY - All routes and middleware loaded');
   
-  // Also log to console for visibility
-  console.log('='.repeat(60));
-  console.log('🚀 SERVER STARTED SUCCESSFULLY (server/server.js)');
-  console.log('='.repeat(60));
-  console.log(`📅 Timestamp: ${new Date().toISOString()}`);
-  console.log(`🌐 Port: ${port}`);
-  console.log(`📦 Version: ${VERSION}`);
-  console.log(`🖥️  Node.js: ${process.version}`);
-  console.log(`📁 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🔧 OpenAI API Key: ${process.env.OPENAI_API_KEY ? '✅ Configured' : '❌ Not configured'}`);
-  console.log(`☁️  Cloudflare Worker: https://spspec.shalom-cohen-111.workers.dev/generate`);
-  console.log(`📍 Render URL: ${process.env.RENDER_URL || 'N/A'}`);
-  console.log('='.repeat(60));
-  console.log('📝 Structured logging enabled (Pino)');
-  console.log('📊 Error handling enabled');
-  console.log('='.repeat(60));
   
   
   // Check configuration
@@ -1229,12 +1150,4 @@ const server = app.listen(port, () => {
     }
   }, '❌ FAILED TO START SERVER (server/server.js)');
   
-  // Also log to console for visibility
-  console.error('='.repeat(60));
-  console.error('❌ FAILED TO START SERVER (server/server.js)');
-  console.error('='.repeat(60));
-  console.error(`Error: ${err.message}`);
-  console.error(`Code: ${err.code}`);
-  console.error(`Stack: ${err.stack}`);
-  console.error('='.repeat(60));
 });

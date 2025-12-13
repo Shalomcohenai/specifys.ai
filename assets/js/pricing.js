@@ -1,17 +1,33 @@
 // Pricing page JavaScript
 // Always use Render backend URL
-const API_BASE_URL = 'https://specifys-ai-store.onrender.com/api';
-
-let lemonConfigPromise = null;
-let lemonSdkPromise = null;
-const productButtons = Array.from(document.querySelectorAll('button[data-product-key]'));
-
-productButtons.forEach((btn) => {
-    if (!btn.dataset.originalLabel) {
-        const btnText = btn.querySelector('.btn-text');
-        btn.dataset.originalLabel = btnText ? btnText.textContent.trim() : btn.textContent.trim();
+// Prevent re-declaration errors by checking first
+(function() {
+    'use strict';
+    
+    // Check if already initialized to prevent double-loading
+    if (window.PRICING_JS_INITIALIZED) {
+        return; // Already loaded, skip
     }
-});
+    window.PRICING_JS_INITIALIZED = true;
+    
+    // Set API base URL
+    var API_BASE_URL = window.PRICING_API_BASE_URL || 'https://specifys-ai-store.onrender.com/api';
+    window.PRICING_API_BASE_URL = API_BASE_URL;
+    
+    var lemonConfigPromise = null;
+    var lemonSdkPromise = null;
+    var productButtons = [];
+
+// Initialize product buttons when DOM is ready
+function initProductButtons() {
+    productButtons = Array.from(document.querySelectorAll('button[data-product-key]'));
+    productButtons.forEach((btn) => {
+        if (!btn.dataset.originalLabel) {
+            const btnText = btn.querySelector('.btn-text');
+            btn.dataset.originalLabel = btnText ? btnText.textContent.trim() : btn.textContent.trim();
+        }
+    });
+}
 
 function setProductButtonsDisabled(disabled) {
     productButtons.forEach((btn) => {
@@ -495,17 +511,62 @@ function switchBilling(period) {
     const monthlyPlan = document.getElementById('pro-monthly');
     const yearlyPlan = document.getElementById('pro-yearly');
     
+    if (!monthlyBtn || !yearlyBtn || !monthlyPlan || !yearlyPlan) {
+        return;
+    }
+    
     if (period === 'monthly') {
         monthlyBtn.classList.add('active');
         yearlyBtn.classList.remove('active');
         monthlyPlan.classList.add('active');
         yearlyPlan.classList.remove('active');
-    } else {
+    } else if (period === 'yearly') {
         yearlyBtn.classList.add('active');
         monthlyBtn.classList.remove('active');
         yearlyPlan.classList.add('active');
         monthlyPlan.classList.remove('active');
     }
+}
+
+// Expose switchBilling to global scope for backward compatibility
+window.switchBilling = switchBilling;
+
+// Setup billing toggle using event delegation (works even if elements load later)
+let billingToggleSetup = false;
+function setupBillingToggle() {
+    // Only setup once to avoid duplicate listeners
+    if (billingToggleSetup) {
+        return;
+    }
+    
+    // Use event delegation on the document body
+    // This works even if elements are added dynamically
+    if (document.body) {
+        document.body.addEventListener('click', function(e) {
+            const clickedBtn = e.target.closest('.toggle-btn[data-billing]');
+            if (clickedBtn) {
+                e.preventDefault();
+                e.stopPropagation();
+                const billingPeriod = clickedBtn.getAttribute('data-billing');
+                if (billingPeriod) {
+                    switchBilling(billingPeriod);
+                }
+            }
+        });
+        billingToggleSetup = true;
+    }
+}
+
+// Initialize immediately (before DOMContentLoaded)
+// This ensures the function is available for inline handlers
+if (document.readyState === 'loading') {
+    // DOM is still loading, wait for it
+    document.addEventListener('DOMContentLoaded', function() {
+        setupBillingToggle();
+    });
+} else {
+    // DOM is already loaded, setup immediately
+    setupBillingToggle();
 }
 
 // Wake up the backend server when pricing page loads
@@ -539,8 +600,13 @@ async function wakeUpServer() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    initProductButtons();
     handleCheckoutRedirect();
     setProductButtonsDisabled(true);
+    
+    // Billing toggle is already set up above (before DOMContentLoaded)
+    // But ensure it's set up again in case DOM changed
+    setupBillingToggle();
     
     // Track page view
     if (typeof window.analyticsTracker !== 'undefined') {
@@ -565,3 +631,4 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+})(); // End of IIFE - prevents double-loading errors

@@ -13,7 +13,7 @@ export class Component {
     this.listeners = [];
     
     if (!this.element) {
-      console.warn('[Component] Element not found:', element);
+      // Element not found
     }
   }
 

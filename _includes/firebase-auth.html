@@ -44,32 +44,31 @@
     }
     auth.signOut()
       .then(() => {
-        console.log('Logged out successfully');
+        // Logged out successfully
       })
       .catch(error => {
-        console.error('Error logging out:', error);
+        // Error logging out
       });
   };
 
   // Listen to auth state changes (only after Firebase is initialized)
   function setupAuthListener() {
-    if (typeof auth === 'undefined' && typeof window.auth !== 'undefined') {
-      window.auth = window.auth;
-    }
+    // Get auth from window or local scope
+    const authInstance = window.auth || (typeof auth !== 'undefined' ? auth : null);
     
-    if (typeof auth === 'undefined') {
+    if (!authInstance) {
       setTimeout(setupAuthListener, 100);
       return;
     }
     
-    auth.onAuthStateChanged(async (user) => {
+    authInstance.onAuthStateChanged(async (user) => {
       updateAuthUI(user);
 
       // Ensure user document exists immediately for new users
       if (user && document.visibilityState === 'visible') {
         // Run immediately to ensure credits are available for new users
         ensureUserDocument(user).catch(error => {
-          console.warn('⚠️ Error ensuring user document:', error);
+          // Error ensuring user document
         });
       }
     });
@@ -80,20 +79,46 @@
     const RETRY_DELAYS = [500, 1000, 2000]; // ms
     
     try {
+      // Verify user is still authenticated before making the request
+      if (!user) {
+        return; // User logged out, skip initialization
+      }
+      
       const token = await user.getIdToken();
       const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : (window.API_BASE_URL || 'https://specifys-ai.onrender.com');
-      const response = await fetch(`${apiBaseUrl}/api/users/initialize`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({})
-      });
+      
+      // Use AbortController to handle errors more gracefully
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      
+      let response;
+      try {
+        response = await fetch(`${apiBaseUrl}/api/users/initialize`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({}),
+          signal: controller.signal
+        });
+      } catch (fetchError) {
+        clearTimeout(timeoutId);
+        // Handle network errors silently (404, CORS, network failures)
+        if (fetchError.name === 'AbortError' || 
+            fetchError.message.includes('Failed to fetch') || 
+            fetchError.message.includes('NetworkError') ||
+            fetchError.message.includes('Load failed')) {
+          // Silently fail - endpoint might not be available or network issue
+          return;
+        }
+        throw fetchError;
+      }
+      
+      clearTimeout(timeoutId);
 
       if (response.ok) {
         const result = await response.json();
-        console.log('✅ User documents initialized in Firestore', result);
         
         // If entitlements were created or updated, trigger credits refresh
         if (result.entitlements && (result.created || result.updated)) {
@@ -107,17 +132,44 @@
             window.updateCreditsDisplay({ forceRefresh: false });
           }
         }
+      } else if (response.status === 404) {
+        // Endpoint doesn't exist - silently fail (might be development or endpoint not deployed)
+        // Don't retry on 404 - it won't help
+        // Don't log to console to avoid noise
+        return;
       } else {
-        throw new Error(`HTTP ${response.status}`);
+        // Only throw for non-404 errors
+        const errorText = await response.text().catch(() => '');
+        throw new Error(`HTTP ${response.status}${errorText ? ': ' + errorText.substring(0, 100) : ''}`);
       }
     } catch (error) {
-      // Retry on failure
+      // Don't retry on network errors that suggest the endpoint doesn't exist
+      // Don't log 404 errors to console to avoid noise
+      const errorMessage = error.message || error.toString() || '';
+      if (errorMessage.includes('404') || 
+          errorMessage.includes('Failed to fetch') || 
+          errorMessage.includes('Not Found') ||
+          errorMessage.includes('NetworkError') ||
+          errorMessage.includes('Load failed') ||
+          error.name === 'AbortError') {
+        // Silently fail - endpoint might not be available
+        return;
+      }
+      
+      // Retry on other failures
       if (retryCount < MAX_RETRIES) {
         const delay = RETRY_DELAYS[retryCount] || 2000;
         await new Promise(resolve => setTimeout(resolve, delay));
         return ensureUserDocument(user, retryCount + 1);
       }
-      console.warn('⚠️ Error initializing user documents after retries:', error);
+      // Only log warning if it's not a 404 or network error
+      if (!errorMessage.includes('404') && 
+          !errorMessage.includes('Failed to fetch') &&
+          !errorMessage.includes('NetworkError') &&
+          !errorMessage.includes('Load failed') &&
+          error.name !== 'AbortError') {
+        // Error initializing user documents after retries
+      }
     }
   }
 
@@ -129,10 +181,27 @@
     window.addEventListener('firebase-ready', setupAuthListener);
   }
 
-  // Initialize auth buttons with default state
+  // Initialize auth buttons with default state (only if auth listener hasn't run yet)
   document.addEventListener('DOMContentLoaded', function() {
     const authButtons = document.getElementById('auth-buttons');
-    if (authButtons && !authButtons.innerHTML.trim()) {
+    if (!authButtons) return;
+    
+    // Check if auth is already initialized and set up listener immediately
+    const authInstance = window.auth || (typeof auth !== 'undefined' ? auth : null);
+    if (authInstance) {
+      // Auth is available, set up a one-time listener to check current state
+      // This ensures we get the auth state even if it's still loading
+      const unsubscribe = authInstance.onAuthStateChanged((user) => {
+        // Update UI with current auth state
+        updateAuthUI(user);
+        // Unsubscribe after first check
+        unsubscribe();
+      });
+      return;
+    }
+    
+    // Only set default if buttons are empty and we don't have auth yet
+    if (!authButtons.innerHTML.trim()) {
       authButtons.innerHTML = `
         <button class="auth-btn login-btn">Log in/Sign up</button>
       `;

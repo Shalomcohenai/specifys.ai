@@ -56,21 +56,9 @@
         keepalive: true // Keep request alive even if page unloads
       }).catch(err => {
         // Silently fail - don't spam console
-        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-          console.warn('[App Logger] Failed to send log:', err);
-        }
       });
-
-      // Also log to console in development
-      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        const emoji = logType.includes('error') ? '❌' : logType.includes('warn') ? '⚠️' : '✅';
-        console.log(`${emoji} [${logType}] ${message}`, data);
-      }
     } catch (error) {
       // Silently fail - don't break the app
-      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        console.warn('[App Logger] Error:', error);
-      }
     }
   }
 

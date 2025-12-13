@@ -12,6 +12,31 @@ const { logger } = require('./logger');
 const { getArticleViewsCount, getGuideViewsCount, recordPageView, recordEvent } = require('./analytics-service');
 
 /**
+ * Store Web Vitals metrics
+ * @param {Object} metric - Web Vitals metric data
+ */
+async function storeWebVital(metric) {
+  try {
+    const collection = db.collection('webVitals');
+    await collection.add({
+      name: metric.name,
+      value: metric.value,
+      id: metric.id,
+      rating: metric.rating,
+      delta: metric.delta,
+      navigationType: metric.navigationType,
+      url: metric.url,
+      timestamp: admin.firestore.FieldValue.serverTimestamp(),
+      userAgent: metric.userAgent,
+      createdAt: new Date()
+    });
+  } catch (error) {
+    logger.error({ error: error.message, stack: error.stack }, '[analytics-routes] Error storing web vital');
+    throw error;
+  }
+}
+
+/**
  * Get content stats (articles and guides views)
  * GET /api/analytics/content-stats
  */
@@ -395,6 +420,47 @@ router.get('/funnel', requireAdmin, async (req, res, next) => {
     next(createError('Failed to get funnel data', ERROR_CODES.DATABASE_ERROR, 500, {
       details: error.message
     }));
+  }
+});
+
+/**
+ * Store Web Vitals metrics (public endpoint - no auth required)
+ * POST /api/analytics/web-vitals
+ */
+router.post('/web-vitals', async (req, res, next) => {
+  const requestId = req.requestId || `web-vitals-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  logger.debug({ requestId, body: req.body }, '[analytics-routes] POST /web-vitals');
+  
+  try {
+    const { name, value, id, rating, delta, navigationType, url, userAgent } = req.body;
+    
+    if (!name || value === undefined) {
+      return next(createError('name and value are required', ERROR_CODES.MISSING_REQUIRED_FIELD, 400));
+    }
+    
+    // Store in Firestore
+    const collection = db.collection('webVitals');
+    await collection.add({
+      name,
+      value,
+      id: id || null,
+      rating: rating || null,
+      delta: delta || null,
+      navigationType: navigationType || null,
+      url: url || req.headers.referer || null,
+      userAgent: userAgent || req.get('user-agent') || null,
+      timestamp: admin.firestore.FieldValue.serverTimestamp(),
+      createdAt: new Date(),
+      ip: req.ip || req.connection.remoteAddress || null
+    });
+    
+    res.json({
+      success: true,
+      message: 'Web Vital recorded'
+    });
+  } catch (error) {
+    logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[analytics-routes] POST /web-vitals - Error');
+    next(createError('Failed to record web vital', ERROR_CODES.DATABASE_ERROR, 500));
   }
 });
 

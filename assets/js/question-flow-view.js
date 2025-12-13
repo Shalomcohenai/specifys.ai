@@ -76,7 +76,7 @@ class QuestionFlowView {
       container.style.transition = 'none';
       container.style.zIndex = '10';
     } else {
-      console.warn('QuestionFlowView: liveBriefContainer not found, ensuring it exists...');
+      // liveBriefContainer not found, ensuring it exists
       // If container doesn't exist, ensure Live Brief modal creates it
       if (window.liveBriefModal && !window.liveBriefModal.modal) {
         window.liveBriefModal.createModalHTML();

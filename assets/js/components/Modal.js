@@ -25,9 +25,23 @@ export class Modal extends Component {
   init() {
     if (!this.element) return;
 
+    // Set ARIA attributes
+    if (!this.element.hasAttribute('role')) {
+      this.element.setAttribute('role', 'dialog');
+    }
+    if (!this.element.hasAttribute('aria-modal')) {
+      this.element.setAttribute('aria-modal', 'true');
+    }
+    if (!this.element.hasAttribute('aria-hidden')) {
+      this.element.setAttribute('aria-hidden', 'true');
+    }
+
     // Find close button
     this.closeBtn = this.element.querySelector('.modal-close, [data-modal-close]');
     if (this.closeBtn) {
+      if (!this.closeBtn.hasAttribute('aria-label')) {
+        this.closeBtn.setAttribute('aria-label', 'Close dialog');
+      }
       this.on('click', () => this.close());
     }
 
@@ -61,7 +75,17 @@ export class Modal extends Component {
     
     this.element.style.display = 'flex';
     this.isOpen = true;
+    this.element.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
+    
+    // Trap focus if focus manager is available
+    if (window.focusManager) {
+      window.focusManager.trapFocus(this.element, {
+        initialFocus: this.closeBtn,
+        returnFocus: true,
+        escapeDeactivates: this.options.closeOnEscape
+      });
+    }
     
     // Trigger custom event
     this.element.dispatchEvent(new CustomEvent('modal:open', { 
@@ -69,7 +93,7 @@ export class Modal extends Component {
     }));
     
     // Focus first focusable element
-    const firstFocusable = this.element.querySelector(
+    const firstFocusable = this.closeBtn || this.element.querySelector(
       'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
     );
     if (firstFocusable) {
@@ -83,8 +107,14 @@ export class Modal extends Component {
   close() {
     if (!this.element) return;
     
+    // Release focus trap if focus manager is available
+    if (window.focusManager) {
+      window.focusManager.releaseFocus(this.element);
+    }
+    
     this.element.style.display = 'none';
     this.isOpen = false;
+    this.element.setAttribute('aria-hidden', 'true');
     document.body.style.overflow = '';
     
     // Trigger custom event

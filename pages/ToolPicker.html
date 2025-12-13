@@ -21,20 +21,23 @@ extra_js:
     </div>
     
     <div class="form-group">
+      <label for="ideaInput" class="visually-hidden">Describe your app idea</label>
       <textarea 
         id="ideaInput"
         class="form-control search-input" 
         placeholder="Describe your app" 
-        aria-label="Describe your app" 
+        aria-label="Describe your app idea for tool recommendations" 
+        aria-describedby="idea-input-help char-counter"
         maxlength="2000"
         rows="8"
       ></textarea>
-      <div class="char-counter text-secondary">0/2000 characters</div>
+      <span id="idea-input-help" class="visually-hidden">Describe your app's general idea, including features and functionalities. The more detailed, the better the recommendations.</span>
+      <div class="char-counter text-secondary" id="char-counter" aria-live="polite">0/2000 characters</div>
     </div>
     
     <div class="button-container">
-      <button class="btn btn-primary search-button">
-        <i class="fas fa-paper-plane"></i> Find Tools
+      <button class="btn btn-primary search-button" aria-label="Find recommended tools for your app">
+        <i class="fas fa-paper-plane" aria-hidden="true"></i> Find Tools
       </button>
     </div>
   </div>
@@ -47,23 +50,23 @@ extra_js:
   <div class="comparison-section hidden">
     <h3>Recommended Tools Comparison</h3>
     <div class="table-container">
-      <table class="table table-striped">
+      <table class="table table-striped" role="table" aria-label="Tool comparison table">
         <thead>
-          <tr>
-            <th>Feature</th>
-            <th>Tool 1</th>
-            <th>Tool 2</th>
-            <th>Tool 3</th>
+          <tr role="row">
+            <th scope="col">Feature</th>
+            <th scope="col">Tool 1</th>
+            <th scope="col">Tool 2</th>
+            <th scope="col">Tool 3</th>
           </tr>
         </thead>
-        <tbody class="comparison-table-body">
+        <tbody class="comparison-table-body" role="rowgroup">
           <!-- Dynamic content will be inserted here -->
         </tbody>
       </table>
     </div>
   </div>
 
-  <div class="alert alert-danger error-message hidden"></div>
+  <div class="alert alert-danger error-message hidden" role="alert" aria-live="assertive"></div>
 </div>
 
 <!-- Stats Section -->

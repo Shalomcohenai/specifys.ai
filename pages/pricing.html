@@ -11,7 +11,7 @@ extra_js:
   - /assets/js/pricing.js
 ---
 
-<div class="pricing-page">
+<main class="pricing-page" id="main-content" role="main">
     <!-- Hero Section -->
     <div class="pricing-hero">
         <div class="container">
@@ -27,9 +27,9 @@ extra_js:
             <div class="pricing-grid">
                 
                 <!-- Single Spec -->
-                <div class="pricing-card single">
+                <div class="pricing-card single" role="article" aria-labelledby="single-spec-title">
                     <div class="plan-header">
-                        <h3>Single Spec</h3>
+                        <h3 id="single-spec-title">Single Spec</h3>
                         <p class="plan-description">One additional specification</p>
                     </div>
                     <div class="plan-features">
@@ -48,20 +48,20 @@ extra_js:
                             <span class="amount">4.90</span>
                             <span class="period">one-time</span>
                         </div>
-                        <button class="btn btn-primary" data-product-key="single_spec" onclick="purchaseSpec(event, 'single_spec')">
+                        <button class="btn btn-primary" data-product-key="single_spec" onclick="purchaseSpec(event, 'single_spec')" aria-label="Purchase Single Spec plan for $4.90">
                             <span class="btn-content">
                                 <span class="btn-text">Buy Now</span>
-                                <span class="btn-spinner"></span>
+                                <span class="btn-spinner" aria-hidden="true"></span>
                             </span>
                         </button>
                     </div>
                 </div>
 
                 <!-- 3-Pack -->
-                <div class="pricing-card pack">
-                    <div class="plan-badge">Best Value</div>
+                <div class="pricing-card pack" role="article" aria-labelledby="three-pack-title">
+                    <div class="plan-badge" aria-label="Best value plan">Best Value</div>
                     <div class="plan-header">
-                        <h3>3-Pack</h3>
+                        <h3 id="three-pack-title">3-Pack</h3>
                         <p class="plan-description">Three specifications at a discount</p>
                     </div>
                     <div class="plan-features">
@@ -80,27 +80,27 @@ extra_js:
                             <span class="amount">9.90</span>
                             <span class="period">one-time</span>
                         </div>
-                        <button class="btn btn-primary highlight" data-product-key="three_pack" onclick="purchaseSpec(event, 'three_pack')">
+                        <button class="btn btn-primary highlight" data-product-key="three_pack" onclick="purchaseSpec(event, 'three_pack')" aria-label="Purchase 3-Pack plan for $9.90 - Best Value">
                             <span class="btn-content">
                                 <span class="btn-text">Buy Now</span>
-                                <span class="btn-spinner"></span>
+                                <span class="btn-spinner" aria-hidden="true"></span>
                             </span>
                         </button>
                     </div>
                 </div>
 
                 <!-- Pro Subscription -->
-                <div class="pricing-card pro">
-                    <div class="plan-badge">Pro</div>
+                <div class="pricing-card pro" role="article" aria-labelledby="pro-title">
+                    <div class="plan-badge" aria-label="Pro plan">Pro</div>
                     <div class="plan-header">
-                        <h3>Pro</h3>
+                        <h3 id="pro-title">Pro</h3>
                         <p class="plan-description">Unlimited specifications with editing</p>
                     </div>
                     
                     <!-- Billing Toggle -->
-                    <div class="billing-toggle">
-                        <button class="toggle-btn monthly active" onclick="switchBilling('monthly')">Monthly</button>
-                        <button class="toggle-btn yearly" onclick="switchBilling('yearly')">Yearly</button>
+                    <div class="billing-toggle" role="group" aria-label="Billing period selection">
+                        <button class="toggle-btn monthly active" data-billing="monthly" onclick="if(typeof switchBilling === 'function') { switchBilling('monthly'); } return false;" aria-label="Monthly billing" aria-pressed="true">Monthly</button>
+                        <button class="toggle-btn yearly" data-billing="yearly" onclick="if(typeof switchBilling === 'function') { switchBilling('yearly'); } return false;" aria-label="Yearly billing" aria-pressed="false">Yearly</button>
                     </div>
                     
                     <!-- Monthly Plan -->
@@ -122,10 +122,10 @@ extra_js:
                                 <span class="amount">29.90</span>
                                 <span class="period">per month</span>
                             </div>
-                            <button class="btn btn-primary" data-product-key="pro_monthly" onclick="purchaseSpec(event, 'pro_monthly')">
+                            <button class="btn btn-primary" data-product-key="pro_monthly" onclick="purchaseSpec(event, 'pro_monthly')" aria-label="Subscribe to Pro plan monthly for $29.90 per month">
                                 <span class="btn-content">
                                     <span class="btn-text">Subscribe Now</span>
-                                    <span class="btn-spinner"></span>
+                                    <span class="btn-spinner" aria-hidden="true"></span>
                                 </span>
                             </button>
                         </div>
@@ -152,10 +152,10 @@ extra_js:
                                 <span class="period">per year</span>
                             </div>
                             <div class="savings-badge">Save $58.30/year</div>
-                            <button class="btn btn-primary" data-product-key="pro_yearly" onclick="purchaseSpec(event, 'pro_yearly')">
+                            <button class="btn btn-primary" data-product-key="pro_yearly" onclick="purchaseSpec(event, 'pro_yearly')" aria-label="Subscribe to Pro plan yearly for $299.90 per year - Save $58.30">
                                 <span class="btn-content">
                                     <span class="btn-text">Subscribe Now</span>
-                                    <span class="btn-spinner"></span>
+                                    <span class="btn-spinner" aria-hidden="true"></span>
                                 </span>
                             </button>
                         </div>
@@ -210,4 +210,4 @@ extra_js:
             </div>
         </div>
     </div>
-</div>
+</main>

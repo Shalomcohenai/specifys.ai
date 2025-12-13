@@ -159,7 +159,7 @@ class SpecErrorHandler {
    */
   static displayErrorInUI(stage, errorInfo, container, onRetry) {
     if (!container) {
-      console.error('[SpecErrorHandler] Container element not provided');
+      // Container element not provided
       return;
     }
 

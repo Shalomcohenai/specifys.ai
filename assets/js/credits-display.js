@@ -54,7 +54,7 @@
           clearInterval(checkInterval);
           window.removeEventListener('firebase-ready', readyHandler);
           if (!checkFirebase()) {
-            console.warn('Firebase initialization timeout in credits-display.js');
+            // Firebase initialization timeout
           }
           resolve(); // Resolve anyway to prevent hanging
         }, 10000);
@@ -103,7 +103,6 @@
       if (!raw) return {};
       return JSON.parse(raw);
     } catch (error) {
-      console.warn('Failed to parse credits storage bucket:', error);
       return {};
     }
   }
@@ -112,7 +111,7 @@
     try {
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(bucket));
     } catch (error) {
-      console.warn('Failed to persist credits state:', error);
+      // Failed to persist credits state
     }
   }
 
@@ -266,7 +265,6 @@
         }
       }
     } catch (error) {
-      console.warn('Error updating credits display:', error);
       const storedState = getStoredCreditsState(userId);
       if (storedState) {
         applyCreditsState({
@@ -307,7 +305,7 @@
       }
       return false;
     } catch (error) {
-      console.warn('Error checking if new user:', error);
+      // Error checking if new user
       return false;
     }
   }
@@ -316,24 +314,8 @@
    * Update UI from entitlements and user data
    */
   function updateUIFromData(entitlements, userData) {
-    // Prevent updates if there's an active API update
-    if (isUpdating) {
-      return;
-    }
-    
-    // Check if we should update based on timestamp
-    const storedState = getStoredCreditsState(activeUserId);
-    const now = Date.now();
-    if (storedState && storedState.updatedAt) {
-      // Only update if this data is newer than what we have
-      // Firestore listeners might fire with stale data
-      const dataAge = now - (storedState.updatedAt || 0);
-      // If we have recent data (less than 1 second old), skip update from listener
-      // This prevents race conditions where listener fires before API response
-      if (dataAge < 1000) {
-        return;
-      }
-    }
+    // Allow Firestore listeners to update even during API updates
+    // This ensures real-time updates work correctly
     
     let creditsState = null;
     
@@ -369,9 +351,18 @@
       }
     }
 
+    // Only update if the state actually changed
+    // This prevents unnecessary UI updates and race conditions
     if (creditsState && activeUserId) {
-      applyCreditsState(creditsState);
-      saveCreditsState(activeUserId, creditsState);
+      const storedState = getStoredCreditsState(activeUserId);
+      const stateChanged = !storedState || 
+        storedState.text !== creditsState.text || 
+        storedState.variant !== creditsState.variant;
+      
+      if (stateChanged) {
+        applyCreditsState(creditsState);
+        saveCreditsState(activeUserId, creditsState);
+      }
     }
   }
 
@@ -382,7 +373,6 @@
     await waitForFirebase();
     const db = window.db || (firebase && firebase.firestore ? firebase.firestore() : null);
     if (!db) {
-      console.warn('Firestore not available for credits listeners');
       return;
     }
 
@@ -415,12 +405,11 @@
             updateUIFromData(entitlements, userData);
           })
           .catch((error) => {
-            console.warn('Error fetching user data for credits display:', error);
             updateUIFromData(entitlements, null);
           });
       },
       (error) => {
-        console.warn('Error in entitlements listener:', error);
+        // Error in entitlements listener
       }
     );
 
@@ -443,12 +432,11 @@
             updateUIFromData(entitlements, userData);
           })
           .catch((error) => {
-            console.warn('Error fetching entitlements for credits display:', error);
             updateUIFromData({}, userData);
           });
       },
       (error) => {
-        console.warn('Error in user listener:', error);
+        // Error in user listener
       }
     );
   }
@@ -483,7 +471,7 @@
     waitForFirebase().then(async () => {
       const auth = window.auth || (firebase && firebase.auth ? firebase.auth() : null);
       if (!auth) {
-        console.warn('Auth not available in credits-display.js');
+        // Auth not available
         return;
       }
       auth.onAuthStateChanged(async (user) => {
@@ -529,7 +517,6 @@
                     updateCreditsDisplayWithRetry();
                   }
                 } catch (error) {
-                  console.warn('Error polling for user documents:', error);
                   if (pollCount >= maxPolls) {
                     clearInterval(pollInterval);
                     updateCreditsDisplayWithRetry();
@@ -547,7 +534,7 @@
           
           // Initialize Firestore listeners for real-time updates
           initCreditsListeners(user.uid).catch((error) => {
-            console.warn('Error initializing credits listeners:', error);
+            // Error initializing credits listeners
           });
         } else {
           activeUserId = null;
@@ -600,7 +587,6 @@
                     updateCreditsDisplayWithRetry();
                   }
                 } catch (error) {
-                  console.warn('Error polling for user documents:', error);
                   if (pollCount >= maxPolls) {
                     clearInterval(pollInterval);
                     updateCreditsDisplayWithRetry();
@@ -616,7 +602,7 @@
             updateCreditsDisplayWithRetry();
           }
           initCreditsListeners(user.uid).catch((error) => {
-            console.warn('Error initializing credits listeners:', error);
+            // Error initializing credits listeners
           });
         });
       }
@@ -641,5 +627,16 @@
     init();
   }
 
+  /**
+   * Clear stored credits state for current user
+   * Called when credits are updated externally (e.g., by admin)
+   */
+  function clearStoredCreditsStateForCurrentUser() {
+    if (activeUserId) {
+      clearStoredCreditsState(activeUserId);
+    }
+  }
+
   window.updateCreditsDisplay = updateCreditsDisplay;
+  window.clearStoredCreditsState = clearStoredCreditsStateForCurrentUser;
 })();

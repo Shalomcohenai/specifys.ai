@@ -6,5 +6,3 @@
 // Import auth and entitlements utilities
 import '../entitlements-cache.js';
 import '../credits-display.js';
-
-console.log('[Auth Bundle] Loaded');

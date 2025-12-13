@@ -7,5 +7,3 @@
 import '../index.js';
 import '../paywall.js';
 import '../credits-display.js';
-
-console.log('[Home Bundle] Loaded');

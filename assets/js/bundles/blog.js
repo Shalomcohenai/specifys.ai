@@ -6,6 +6,4 @@
 // Import blog scripts
 import '../blog-manager.js';
 
-console.log('[Blog Bundle] Loaded');
-
 

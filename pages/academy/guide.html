@@ -43,7 +43,7 @@ permalink: /academy/guide.html
           </div>
           <div id="login-prompt" class="login-prompt hidden">
             <p><i class="fas fa-lock" aria-hidden="true"></i> Sign in to answer questions and earn points!</p>
-            <a href="/pages/auth.html" class="btn-primary">Sign In</a>
+            <a href="/pages/auth.html" class="btn-primary" aria-label="Sign in to answer questions and earn points">Sign In</a>
           </div>
           <div id="questions-results" class="questions-results hidden" role="status"></div>
         </section>
@@ -59,13 +59,13 @@ permalink: /academy/guide.html
 </button>
 
 <!-- Points Modal -->
-<div class="points-modal hidden" id="points-modal">
-  <div class="points-modal-backdrop" id="points-modal-backdrop"></div>
+<div class="points-modal hidden" id="points-modal" role="dialog" aria-modal="true" aria-labelledby="points-modal-title" aria-hidden="true">
+  <div class="points-modal-backdrop" id="points-modal-backdrop" aria-hidden="true"></div>
   <div class="points-modal-content">
     <div class="points-modal-header">
-      <h2>Your Academy Progress</h2>
-      <button class="points-modal-close" id="points-modal-close" aria-label="Close">
-        <i class="fas fa-times"></i>
+      <h2 id="points-modal-title">Your Academy Progress</h2>
+      <button class="points-modal-close" id="points-modal-close" aria-label="Close points modal">
+        <i class="fas fa-times" aria-hidden="true"></i>
       </button>
     </div>
     <div class="points-modal-body">

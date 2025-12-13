@@ -487,7 +487,6 @@ class QuestionFlowController {
     if (typeof generateSpecification === 'function') {
       generateSpecification();
     } else {
-      console.error('generateSpecification function not found');
       alert('Error: Could not generate specification.');
     }
   }
@@ -508,9 +507,6 @@ function initializeQuestionFlowController() {
       window.questionFlowState,
       window.questionFlowView
     );
-    console.log('✅ Question Flow Controller initialized');
-  } else {
-    console.warn('⚠️ Question Flow State or View not available');
   }
 }
 

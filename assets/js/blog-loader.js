@@ -9,21 +9,17 @@
   async function loadBlogPosts() {
     const container = document.getElementById('blog-posts-container');
     if (!container) {
-      console.warn('[Blog Loader] Container not found, skipping Firebase posts load');
       return;
     }
 
     try {
       // Fetch published posts from public API (no auth required)
-      console.log('[Blog Loader] Fetching new posts from Firebase:', `${API_BASE_URL}/api/blog/public/posts?limit=50`);
       const data = await window.api.get('/api/blog/public/posts?limit=50').catch((error) => {
-        console.error('[Blog Loader] API Error:', error);
         // Don't show error to user, just log it - legacy posts are already displayed
         return null;
       });
       
       if (!data) return;
-      console.log('[Blog Loader] Received data:', { success: data.success, postsCount: data.posts?.length || 0, total: data.total });
       const posts = data.posts || [];
 
       if (posts.length === 0) {
@@ -65,7 +61,6 @@
       container.innerHTML = html;
 
     } catch (error) {
-      console.error('Error loading blog posts:', error);
       container.innerHTML = `
         <div class="loading-placeholder" style="text-align: center; padding: 40px;">
           <p style="color: #dc3545;">Error loading blog posts. Please try again later.</p>

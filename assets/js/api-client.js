@@ -41,9 +41,6 @@
           headers['Authorization'] = `Bearer ${token}`;
         } catch (error) {
           // Silently fail - token might not be available yet
-          if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-            console.warn('[API Client] Failed to get auth token:', error);
-          }
         }
       }
 
