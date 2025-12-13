@@ -407,7 +407,12 @@ router.get('/funnel', requireAdmin, async (req, res, next) => {
       overallConversion: funnel.visitors > 0 ? (funnel.purchases / funnel.visitors * 100).toFixed(2) : '0.00'
     };
     
-    logger.info({ requestId, range, funnel, conversions }, '[analytics-routes] GET /funnel - Success');
+    logger.info({ 
+      requestId, 
+      range, 
+      funnel, 
+      conversions 
+    }, '[analytics-routes] GET /funnel - Success');
     
     res.json({
       success: true,
