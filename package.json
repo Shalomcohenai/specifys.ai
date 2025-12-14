@@ -2,14 +2,13 @@
   "name": "specifys-ai",
   "version": "1.2.4",
   "type": "module",
-  "main": "index.html",
   "workspaces": [
     "packages/*"
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js",
-    "dev": "cd server && npm run dev",
+    "start": "echo \"This is a frontend package. Use 'cd backend && npm start' to run the backend server.\" && exit 1",
+    "dev": "cd backend/server && npm run dev",
     "build:vite": "vite build",
     "dev:vite": "vite",
     "build:all": "npm run build:vite && bundle exec jekyll build",

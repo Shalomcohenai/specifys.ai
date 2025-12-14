@@ -1,3 +1,13 @@
+# Render deployment configuration for Specifys.ai
+# 
+# IMPORTANT: Do NOT create a service for the root directory!
+# The root directory contains the frontend (Jekyll site) which is served
+# by the backend server (specifys-backend) as static files.
+#
+# Services:
+# 1. specifys-backend - Main API server that also serves the frontend static files
+# 2. specifys-store - User system service (Firebase authentication)
+
 services:
   - type: web
     name: specifys-backend
