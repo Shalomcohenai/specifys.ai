@@ -276,7 +276,7 @@
 
     try {
       const token = await user.getIdToken();
-      const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai.onrender.com';
+      const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai-development.onrender.com';
       const data = await window.api.get('/api/specs/entitlements');
       const entitlements = data?.entitlements || {};
       const userData = data?.user || null;

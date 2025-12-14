@@ -11,7 +11,7 @@ from datetime import datetime
 import sys
 
 BASE_URL = "http://localhost:4000"
-BACKEND_URL = "https://specifys-ai.onrender.com"
+BACKEND_URL = "https://specifys-ai-development.onrender.com"
 
 # List of all pages to test
 PAGES_WITH_LAYOUT = [

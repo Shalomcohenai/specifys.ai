@@ -30,7 +30,7 @@ const config: Config = {
     'http://127.0.0.1:10000',
     'https://specifys-ai.com',
     'https://www.specifys-ai.com',
-    'https://specifys-ai.onrender.com'
+    'https://specifys-ai-development.onrender.com'
   ]
 };
 

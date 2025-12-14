@@ -13,7 +13,7 @@
 
   class ApiClient {
     constructor(baseUrl) {
-      this.baseUrl = baseUrl || (window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai.onrender.com');
+      this.baseUrl = baseUrl || (window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai-development.onrender.com');
       this.cache = new Map();
       this.retryConfig = {
         maxRetries: 3,

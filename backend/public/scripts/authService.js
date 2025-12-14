@@ -29,7 +29,7 @@ async function createUserDocument(user, retryCount = 0) {
     }
     
     const token = await user.getIdToken();
-    const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai.onrender.com';
+    const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai-development.onrender.com';
     
     const response = await fetch(`${apiBaseUrl}/api/users/initialize`, {
       method: 'POST',

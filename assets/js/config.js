@@ -52,12 +52,12 @@
 
   const API_CONFIG = {
     // Production backend URL - always use Render
-    production: 'https://specifys-ai.onrender.com', // Render backend URL
+    production: 'https://specifys-ai-development.onrender.com', // Render backend URL
 
     // Always return Render URL (no localhost support)
     get baseUrl() {
       // Always use Render backend - no localhost development
-      return this.production || 'https://specifys-ai.onrender.com';
+      return this.production || 'https://specifys-ai-development.onrender.com';
     }
   };
 
@@ -85,7 +85,7 @@
       }
       
       // Always return Render URL - no localhost support
-      return 'https://specifys-ai.onrender.com';
+      return 'https://specifys-ai-development.onrender.com';
   };
 
   // Version logging for frontend

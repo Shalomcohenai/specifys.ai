@@ -2,7 +2,7 @@
 
 **תאריך:** 2025-12-11  
 **בסיס URL:** http://localhost:4000  
-**Backend URL:** https://specifys-ai.onrender.com
+**Backend URL:** https://specifys-ai-development.onrender.com
 
 ---
 
@@ -220,7 +220,7 @@
 ### Backend API
 - **Health Endpoint:** ✅ עובד (`GET /api/health` - 200)
 - **Response:** `{"status":"healthy","timestamp":"...","service":"Specifys.AI Backend","version":"1.0.0"}`
-- **API Base URL:** ✅ מוגדר נכון ב-`assets/js/config.js` → `https://specifys-ai.onrender.com`
+- **API Base URL:** ✅ מוגדר נכון ב-`assets/js/config.js` → `https://specifys-ai-development.onrender.com`
 - **Authentication:** ⚠️ צריך בדיקה ידנית (דורש משתמש מחובר)
 
 ### Firebase Integration

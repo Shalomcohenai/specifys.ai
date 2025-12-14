@@ -581,12 +581,12 @@ function checkCheckoutSuccess() {
 
 **השגיאה:**
 ```
-Access to fetch at 'https://specifys-ai.onrender.com/api/lemon/counter' 
+Access to fetch at 'https://specifys-ai-development.onrender.com/api/lemon/counter' 
 from origin 'https://specifys-ai.com' has been blocked by CORS policy
 ```
 
 **הפתרון:**
-1. הוספנו את `https://specifys-ai.onrender.com` ל-`allowedOrigins`
+1. הוספנו את `https://specifys-ai-development.onrender.com` ל-`allowedOrigins`
 2. הזזנו את ה-CORS middleware להיות **לפני** routes ו-rate limiting
 3. הוספנו `Access-Control-Allow-Credentials: true`
 
@@ -1121,7 +1121,7 @@ app.use('/api/', otherRoutes);
    ```javascript
    // השתמש באותו קוד מ-test-system.js
    // אבל שנה את ה-URLs:
-   const API_BASE_URL = 'https://specifys-ai.onrender.com/api';
+   const API_BASE_URL = 'https://specifys-ai-development.onrender.com/api';
    const redirectUrl = `${FRONTEND_URL}/credits?purchase=success`;
    ```
 

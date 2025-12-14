@@ -212,7 +212,7 @@
       } else {
         // Force refresh: always fetch fresh data from API (trigger-based update)
         const token = await user.getIdToken();
-        const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai.onrender.com';
+        const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai-development.onrender.com';
         data = await window.api.get('/api/specs/entitlements');
       }
       
