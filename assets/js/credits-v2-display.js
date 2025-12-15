@@ -93,6 +93,32 @@
   let isUpdating = false;
 
   /**
+   * Check if user is authenticated and show loading state immediately
+   * This runs early, before waiting for dependencies, to provide instant feedback
+   */
+  function checkAndShowLoadingEarly() {
+    // Try to check if user is authenticated without waiting
+    let auth = null;
+    try {
+      auth = window.auth || (typeof firebase !== 'undefined' && firebase.auth ? firebase.auth() : null);
+    } catch (e) {
+      // Firebase might not be ready yet, that's okay
+      return;
+    }
+
+    if (!auth) {
+      return;
+    }
+
+    // Check if user is already authenticated
+    const user = auth.currentUser;
+    if (user) {
+      // Show loading state immediately
+      applyCreditsState(LOADING_STATE);
+    }
+  }
+
+  /**
    * Update credits display in header
    * @param {Object} options - Options for update
    * @param {boolean} options.showLoading - Show loading state
@@ -135,7 +161,10 @@
     isUpdating = true;
 
     try {
-      if (options.showLoading) {
+      // Always show loading state if not already shown (early check might have shown it)
+      // But don't override if we're already showing something
+      const currentDisplay = document.getElementById('credits-display');
+      if (!currentDisplay || currentDisplay.classList.contains('hidden')) {
         applyCreditsState(LOADING_STATE);
       }
 
@@ -184,6 +213,9 @@
       if (typeof firebase !== 'undefined' && firebase.auth) {
         firebase.auth().onAuthStateChanged((user) => {
           if (user) {
+            // Show loading state immediately when user logs in
+            applyCreditsState(LOADING_STATE);
+            // Then update with actual credits
             updateCreditsDisplay();
           } else {
             const creditsDisplay = document.getElementById('credits-display');
@@ -199,6 +231,9 @@
     // Subscribe to auth state changes
     auth.onAuthStateChanged((user) => {
       if (user) {
+        // Show loading state immediately when user logs in
+        applyCreditsState(LOADING_STATE);
+        // Then update with actual credits
         updateCreditsDisplay();
       } else {
         const creditsDisplay = document.getElementById('credits-display');
@@ -227,6 +262,18 @@
       window.CreditsV2Manager.clearCache();
     }
   };
+
+  // Check and show loading state early (before waiting for dependencies)
+  // This provides instant feedback to the user
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', checkAndShowLoadingEarly);
+  } else {
+    checkAndShowLoadingEarly();
+  }
+
+  // Also check after a short delay in case Firebase loads later
+  setTimeout(checkAndShowLoadingEarly, 50);
+  setTimeout(checkAndShowLoadingEarly, 200);
 
   // Initialize when DOM is ready
   if (document.readyState === 'loading') {
