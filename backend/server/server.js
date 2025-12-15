@@ -19,9 +19,7 @@ const adminRoutes = require('./admin-routes');
 const analyticsRoutes = require('./analytics-routes');
 const lemonRoutes = require('./lemon-routes');
 // const creditsRoutes = require('./credits-routes'); // OLD - removed, using credits-v2-routes now
-// const healthRoutes = require('./health-routes'); // OLD - keep for rollback
-const healthRoutesTS = require('../dist/routes/health-routes'); // NEW - TypeScript compiled
-const healthRoutes = healthRoutesTS.default || healthRoutesTS; // Handle ES6 default export
+const healthRoutes = require('./health-routes');
 const { requireAdmin, securityHeaders, rateLimiters } = require('./security');
 const { logError, getErrorLogs, getErrorSummary } = require('./error-logger');
 const { logCSCCrash, getCSCCrashLogs, getCSCCrashSummary } = require('./css-crash-logger');
@@ -853,9 +851,7 @@ Return ONLY valid Mermaid code, nothing else.`;
 
 // Import and mount stats routes
 logger.info({ type: 'route_mount', path: '/api/stats', route: 'statsRoutes' }, '[UNIFIED SERVER] 📌 Mounting stats routes');
-// const statsRoutes = require('./stats-routes'); // OLD - keep for rollback
-const statsRoutesTS = require('../dist/routes/stats-routes'); // NEW - TypeScript compiled
-const statsRoutes = statsRoutesTS.default || statsRoutesTS; // Handle ES6 default export
+const statsRoutes = require('./stats-routes');
 app.use('/api/stats', statsRoutes);
 logger.info({ type: 'route_mounted', path: '/api/stats' }, '[UNIFIED SERVER] ✅ Stats routes mounted');
 

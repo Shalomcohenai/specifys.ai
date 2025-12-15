@@ -46,7 +46,6 @@ STATIC_PAGES = [
 # CSS files that should be loaded
 REQUIRED_CSS = [
     "main-compiled.css",
-    "tailwind-base-compiled.css",
     "buttons.css",
     "display.css",
     "text.css",

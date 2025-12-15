@@ -1,5 +1,5 @@
 #!/bin/bash
-# API Testing Script for TypeScript Migration
+# API Testing Script
 # Usage: ./test-api.sh [base-url]
 
 BASE_URL=${1:-"http://localhost:3000"}

@@ -24,9 +24,6 @@ export default defineConfig({
     manifest: true,
     rollupOptions: {
       input: {
-        // CSS bundles (only Tailwind - main-compiled.css is built via Sass)
-        'tailwind': path.resolve(__dirname, 'assets/css/tailwind-base.css'),
-        
         // JS bundles
         'core': path.resolve(__dirname, 'assets/js/bundles/core.js'),
         'auth': path.resolve(__dirname, 'assets/js/bundles/auth.js'),
