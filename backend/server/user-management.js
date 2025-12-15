@@ -61,6 +61,46 @@ async function getUserByUid(uid) {
 }
 
 /**
+ * Determine if user is new based on Firebase Auth metadata and credits state
+ * @param {string} uid - User ID
+ * @param {Object} authUser - Firebase Auth user data (with creationTime)
+ * @param {Object} credits - Current credits data (or null if doesn't exist)
+ * @param {boolean|null} isNewUserFromClient - Client-provided flag (optional)
+ * @returns {boolean} - True if user is new
+ */
+function determineIfNewUser(uid, authUser, credits, isNewUserFromClient) {
+    // Priority 1: Client-provided flag (most reliable)
+    if (isNewUserFromClient === true) {
+        return true;
+    }
+    
+    // Priority 2: Check if credits don't exist (definitely new user)
+    if (!credits) {
+        return true;
+    }
+    
+    // Priority 3: Check if credits exist but are empty and user was created recently
+    const totalCredits = (credits.balances?.paid || 0) + 
+                         (credits.balances?.free || 0) + 
+                         (credits.balances?.bonus || 0);
+    
+    if (totalCredits === 0 && authUser.creationTime) {
+        const creationTime = authUser.creationTime instanceof Date 
+            ? authUser.creationTime 
+            : new Date(authUser.creationTime);
+        const now = new Date();
+        const minutesSinceCreation = (now - creationTime) / (1000 * 60);
+        
+        // If user was created in last 10 minutes and has no credits, likely new user
+        if (minutesSinceCreation <= 10) {
+            return true;
+        }
+    }
+    
+    return false;
+}
+
+/**
  * Initialize user documents (users + entitlements) in a single transaction
  * This ensures atomicity and prevents race conditions
  */
@@ -190,8 +230,10 @@ async function initializeUser(uid, userDataOverrides = {}, isNewUserFromClient =
                 console.log(`[user-management] User credits retrieved for ${uid}:`, JSON.stringify(credits, null, 2));
                 
                 // Grant 1 free credit to new users
-                // Use isNewUserFromClient if provided, otherwise use result._isNewUser
-                const finalIsNewUser = isNewUserFromClient !== null ? isNewUserFromClient : result._isNewUser;
+                // Use determineIfNewUser() to check if user is new based on Firebase Auth metadata and credits state
+                const finalIsNewUser = determineIfNewUser(uid, authUser, credits, isNewUserFromClient);
+                console.log(`[user-management] determineIfNewUser result for ${uid}:`, finalIsNewUser, 'isNewUserFromClient:', isNewUserFromClient, 'hasCredits:', !!credits, 'totalCredits:', credits ? ((credits.balances?.paid || 0) + (credits.balances?.free || 0) + (credits.balances?.bonus || 0)) : 0);
+                
                 if (finalIsNewUser) {
                     console.log(`[user-management] User ${uid} is NEW USER - Granting welcome credit...`);
                     const grantResult = await creditsV2Service.grantCredits(uid, 1, 'promotion', {
