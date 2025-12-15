@@ -156,13 +156,17 @@ function closeCreditPopup() {
 function checkForCreditPopup() {
   // Check if we should show the credit popup
   const showPopup = sessionStorage.getItem('showCreditPopup');
+  console.log('[index.js] checkForCreditPopup - showPopup:', showPopup);
   if (showPopup === 'true') {
+    console.log('[index.js] checkForCreditPopup - Showing credit popup');
     // Remove the flag
     sessionStorage.removeItem('showCreditPopup');
     // Show popup after a short delay to ensure page is loaded
     setTimeout(() => {
       showCreditPopup();
     }, 500);
+  } else {
+    console.log('[index.js] checkForCreditPopup - Not showing popup, showPopup is not "true"');
   }
 }
 

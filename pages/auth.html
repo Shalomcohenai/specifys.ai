@@ -495,6 +495,8 @@
                 }
 
                 const result = await response.json();
+                console.log('[auth.html] createUserDocument result:', result);
+                console.log('[auth.html] isNewUser:', result.isNewUser, 'created:', result.created);
                 return result;
             } catch (error) {
                 // Don't retry on network errors that suggest the endpoint doesn't exist
@@ -704,13 +706,19 @@
         async function registerWithEmail(email, password) {
             try {
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                console.log('[auth.html] registerWithEmail - user created, calling createUserDocument');
                 const result = await createUserDocument(userCredential.user);
+                console.log('[auth.html] registerWithEmail - createUserDocument result:', result);
                 // Check if this is a new user registration (not just created documents)
                 if (result && (result.isNewUser || result.created)) {
+                    console.log('[auth.html] registerWithEmail - Setting showCreditPopup flag');
                     sessionStorage.setItem('showCreditPopup', 'true');
+                } else {
+                    console.log('[auth.html] registerWithEmail - NOT setting showCreditPopup. isNewUser:', result?.isNewUser, 'created:', result?.created);
                 }
                 return userCredential.user;
             } catch (error) {
+                console.error('[auth.html] registerWithEmail error:', error);
                 throw new Error(getAuthErrorMessage(error.code));
             }
         }

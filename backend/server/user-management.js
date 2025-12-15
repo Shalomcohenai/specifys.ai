@@ -157,6 +157,7 @@ async function initializeUser(uid, userDataOverrides = {}) {
             // Determine if this is a new user - a new user is one where the user document didn't exist
             // This is the key indicator: if user document didn't exist, it's a new registration
             const isNewUser = !userExists;
+            console.log(`[user-management] User ${uid}: userExists=${userExists}, entitlementsExist=${entitlementsExist}, isNewUser=${isNewUser}`);
             
             // Initialize user_credits if it doesn't exist (after transaction)
             // This needs to be done outside the transaction because credits-v2-service uses its own transactions
@@ -172,6 +173,7 @@ async function initializeUser(uid, userDataOverrides = {}) {
             // For new users, we'll grant welcome credit
             result._needsCreditsInit = true;
             result._isNewUser = isNewUser;
+            console.log(`[user-management] User ${uid}: result._isNewUser=${result._isNewUser}, result.created=${result.created}`);
             
             return result;
         });
@@ -184,15 +186,22 @@ async function initializeUser(uid, userDataOverrides = {}) {
                 
                 // Grant 1 free credit to new users
                 if (result._isNewUser) {
-                    await creditsV2Service.grantCredits(uid, 1, 'promotion', {
+                    console.log(`[user-management] Granting welcome credit to new user ${uid}`);
+                    const grantResult = await creditsV2Service.grantCredits(uid, 1, 'promotion', {
                         reason: 'New user welcome credit',
                         creditType: 'free'
                     });
+                    console.log(`[user-management] Credit granted successfully:`, grantResult);
+                } else {
+                    console.log(`[user-management] User ${uid} is not new, skipping credit grant. isNewUser:`, result._isNewUser);
                 }
             } catch (creditsError) {
                 // Log but don't fail - credits will be initialized on first access
                 console.error(`[user-management] Error initializing credits for ${uid}:`, creditsError);
+                console.error(`[user-management] Error stack:`, creditsError.stack);
             }
+        } else {
+            console.log(`[user-management] Credits init not needed for user ${uid}`);
         }
         
         return result;

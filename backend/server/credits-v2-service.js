@@ -73,6 +73,10 @@ function selectCreditType(balances, priority = ['free', 'bonus', 'paid']) {
  * Determine credit type based on source
  */
 function determineCreditType(source, metadata) {
+  // If creditType is explicitly specified in metadata, use it
+  if (metadata && metadata.creditType) {
+    return metadata.creditType;
+  }
   if (source === 'admin' && metadata.creditType) {
     return metadata.creditType; // Allow admin to specify
   }

@@ -47,7 +47,7 @@ router.post('/initialize', verifyFirebaseToken, async (req, res, next) => {
 
         logger.debug({ requestId, userId, hasOverrides: Object.keys(userDataOverrides).length > 0 }, '[user-routes] Initializing user documents');
         const result = await initializeUser(userId, userDataOverrides);
-        logger.debug({ requestId, userId, created: result.created, updated: result.updated }, '[user-routes] User initialization completed');
+        logger.debug({ requestId, userId, created: result.created, updated: result.updated, isNewUser: result._isNewUser }, '[user-routes] User initialization completed');
 
         const statusMessage = result.created
             ? 'User documents initialized in Firestore'
