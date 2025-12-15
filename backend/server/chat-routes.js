@@ -149,6 +149,12 @@ router.post('/message', verifyFirebaseToken, async (req, res, next) => {
     const userId = req.user.uid;
     logger.debug({ requestId, specId, threadId, assistantId, hasMessage: !!message }, '[chat-routes] Processing message');
     
+    // Validate required fields
+    if (!message || !message.trim()) {
+      logger.error({ requestId }, '[chat-routes] Missing or empty message');
+      return next(createError('Message is required', ERROR_CODES.MISSING_REQUIRED_FIELD, 400, { requestId }));
+    }
+    
     // Verify ownership and get spec data
     const specData = await chatService.verifySpecOwnership(specId, userId);
     
@@ -167,11 +173,19 @@ router.post('/message', verifyFirebaseToken, async (req, res, next) => {
       }
     }
     
+    // Ensure thread exists - create if missing
+    let currentThreadId = threadId;
+    if (!currentThreadId) {
+      logger.info({ requestId, specId, userId }, '[chat-routes] Thread ID missing, creating new thread');
+      currentThreadId = await chatService.createThread(specId, userId, requestId);
+      logger.debug({ requestId, newThreadId: currentThreadId }, '[chat-routes] New thread created');
+    }
+    
     // Send message with retry
     const response = await retryWithBackoff(
       async () => {
         try {
-          return await openaiStorage.sendMessage(threadId, assistantId, message);
+          return await openaiStorage.sendMessage(currentThreadId, assistantId, message);
         } catch (error) {
           // If assistant is corrupted, try to recreate it
           if (isRetryableError(error) && specData.openaiFileId) {
@@ -203,11 +217,13 @@ router.post('/message', verifyFirebaseToken, async (req, res, next) => {
       response: response.response || response
     };
     
-    if (response.threadId) {
-      result.threadId = response.threadId;
-    }
+    // Always include threadId (either original or newly created)
+    result.threadId = response.threadId || currentThreadId;
+    
     if (response.assistantId) {
       result.assistantId = response.assistantId;
+    } else if (assistantId) {
+      result.assistantId = assistantId;
     }
     
     logger.info({ requestId, specId, userId }, '[chat-routes] POST /message - Success');

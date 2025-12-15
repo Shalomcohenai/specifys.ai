@@ -143,12 +143,16 @@ async function sendChatMessage() {
             return await response.json();
         }, 2, 1000);
         
-        // Update thread/assistant IDs if they changed (e.g., after assistant recreation)
-        if (data.threadId && data.threadId !== chatThreadId) {
-            chatThreadId = data.threadId;
+        // Update thread/assistant IDs if they changed (e.g., after assistant recreation or if missing)
+        if (data.threadId) {
+            if (!chatThreadId || data.threadId !== chatThreadId) {
+                chatThreadId = data.threadId;
+            }
         }
-        if (data.assistantId && data.assistantId !== chatAssistantId) {
-            chatAssistantId = data.assistantId;
+        if (data.assistantId) {
+            if (!chatAssistantId || data.assistantId !== chatAssistantId) {
+                chatAssistantId = data.assistantId;
+            }
         }
         
         // Add assistant response to UI
