@@ -154,8 +154,9 @@ async function initializeUser(uid, userDataOverrides = {}) {
                 ? entitlementsDoc.data() 
                 : { userId: uid, unlimited: false, can_edit: false };
             
-            // Determine if this is a new user (neither user nor entitlements existed)
-            const isNewUser = !userExists && !entitlementsExist;
+            // Determine if this is a new user - a new user is one where the user document didn't exist
+            // This is the key indicator: if user document didn't exist, it's a new registration
+            const isNewUser = !userExists;
             
             // Initialize user_credits if it doesn't exist (after transaction)
             // This needs to be done outside the transaction because credits-v2-service uses its own transactions

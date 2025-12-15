@@ -379,7 +379,7 @@
                     try {
                         const result = await createUserDocument(user);
                         // Check if this is a new user registration
-                        if (result && result.created) {
+                        if (result && (result.isNewUser || result.created)) {
                             sessionStorage.setItem('showCreditPopup', 'true');
                         }
                         
@@ -424,7 +424,7 @@
                     if (result && result.user) {
                         const createResult = await createUserDocument(result.user);
                         // Check if this is a new user registration
-                        if (createResult && createResult.created) {
+                        if (createResult && (createResult.isNewUser || createResult.created)) {
                             sessionStorage.setItem('showCreditPopup', 'true');
                         }
                         
@@ -439,7 +439,11 @@
                     const result = await getRedirectResult(auth);
                     
                     if (result && result.user) {
-                        await createUserDocument(result.user);
+                        const createResult = await createUserDocument(result.user);
+                        // Check if this is a new user registration
+                        if (createResult && (createResult.isNewUser || createResult.created)) {
+                            sessionStorage.setItem('showCreditPopup', 'true');
+                        }
                         showSuccess('Login successful! Redirecting to homepage...');
                         setTimeout(() => {
                             window.location.href = '../index.html';
@@ -701,8 +705,8 @@
             try {
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 const result = await createUserDocument(userCredential.user);
-                // This is always a new registration, so set flag for credit popup
-                if (result && result.created) {
+                // Check if this is a new user registration (not just created documents)
+                if (result && (result.isNewUser || result.created)) {
                     sessionStorage.setItem('showCreditPopup', 'true');
                 }
                 return userCredential.user;
@@ -746,7 +750,11 @@
                 
                 const result = await popupPromise;
                 
-                await createUserDocument(result.user);
+                const createResult = await createUserDocument(result.user);
+                // Check if this is a new user registration
+                if (createResult && (createResult.isNewUser || createResult.created)) {
+                    sessionStorage.setItem('showCreditPopup', 'true');
+                }
 
                 
                 return result.user;
@@ -892,7 +900,7 @@
                 .then(async (result) => {
                     const createResult = await createUserDocument(result.user);
                     // Check if this is a new user registration
-                    if (createResult && createResult.created) {
+                    if (createResult && (createResult.isNewUser || createResult.created)) {
                         sessionStorage.setItem('showCreditPopup', 'true');
                     }
                     

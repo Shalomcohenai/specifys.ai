@@ -78,6 +78,7 @@ router.post('/initialize', verifyFirebaseToken, async (req, res, next) => {
             created: result.created,
             updated: result.updated,
             unchanged: result.unchanged,
+            isNewUser: result._isNewUser || false, // Indicate if this is a new user registration
             timestamp: new Date().toISOString()
         });
 
