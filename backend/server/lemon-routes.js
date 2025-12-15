@@ -230,11 +230,6 @@ router.post('/checkout', express.json(), verifyFirebaseToken, async (req, res, n
       testMode: useTestMode
     });
 
-      productKey,
-      variantId: variantIdToUse,
-      testMode: useTestMode
-    });
-
   } catch (error) {
     const requestId = req.requestId || `lemon-checkout-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     logger.error({ requestId, userId: req.user?.uid, error: { message: error.message, stack: error.stack } }, '[lemon-routes] POST /checkout - Error');
@@ -618,7 +613,7 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
                 } catch (subscriptionError) {
                   throw subscriptionError;
                 }
-              } else {
+              }
             }
           }
 
@@ -716,9 +711,6 @@ router.post('/webhook', express.raw({ type: 'application/json', limit: '10mb' })
           });
         } catch (disableErr) {
         }
-      } else {
-          status: subscriptionData.status
-        });
       }
 
       return res.status(200).json({
