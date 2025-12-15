@@ -152,10 +152,8 @@
         timestamp: new Date().toISOString()
       });
       
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to send message');
+      if (!result || !result.success) {
+        throw new Error(result?.error || result?.message || 'Failed to send message');
       }
       
       // Success

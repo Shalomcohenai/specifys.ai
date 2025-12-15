@@ -54,6 +54,8 @@ async function verifyFirebaseToken(req, res, next) {
  * Creates a checkout session with Lemon Squeezy
  */
 router.post('/checkout', express.json(), verifyFirebaseToken, async (req, res, next) => {
+  const requestId = req.requestId || `checkout-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  
   try {
     const userId = req.user.uid;
     const userEmail = req.user.email;
@@ -64,13 +66,40 @@ router.post('/checkout', express.json(), verifyFirebaseToken, async (req, res, n
       quantity = 1
     } = req.body || {};
 
+    logger.info({ 
+      requestId, 
+      userId, 
+      userEmail, 
+      productKey, 
+      successPath, 
+      successQuery, 
+      quantity 
+    }, '[lemon-routes] POST /checkout - Request received');
+
     // Get Lemon Squeezy configuration
     const apiKey = process.env.LEMON_SQUEEZY_API_KEY;
     const storeId = process.env.LEMON_SQUEEZY_STORE_ID;
     const defaultVariantId = process.env.LEMON_SQUEEZY_VARIANT_ID;
 
+    logger.debug({ 
+      requestId, 
+      hasApiKey: !!apiKey, 
+      apiKeyLength: apiKey ? apiKey.length : 0,
+      hasStoreId: !!storeId, 
+      storeId: storeId,
+      hasDefaultVariantId: !!defaultVariantId,
+      defaultVariantId: defaultVariantId
+    }, '[lemon-routes] Environment variables check');
+
     if (!apiKey || !storeId) {
-      logger.error({ userId }, '[lemon-routes] Lemon Squeezy configuration missing');
+      logger.error({ 
+        requestId, 
+        userId, 
+        missingApiKey: !apiKey, 
+        missingStoreId: !storeId,
+        apiKeyLength: apiKey ? apiKey.length : 0,
+        storeId: storeId
+      }, '[lemon-routes] Lemon Squeezy configuration missing');
       return next(createError('Lemon Squeezy configuration missing', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, {
         details: 'Please configure LEMON_SQUEEZY_API_KEY and LEMON_SQUEEZY_STORE_ID in Render environment variables',
         missing: {
@@ -80,11 +109,32 @@ router.post('/checkout', express.json(), verifyFirebaseToken, async (req, res, n
       }));
     }
 
+    logger.debug({ requestId, productKey }, '[lemon-routes] Looking up product config');
     const productConfig = productKey ? getProductByKey(productKey) : null;
+    logger.debug({ 
+      requestId, 
+      productKey, 
+      foundProductConfig: !!productConfig,
+      productConfigVariantId: productConfig?.variant_id,
+      defaultVariantId 
+    }, '[lemon-routes] Product config lookup result');
+    
     const variantIdToUse = productConfig?.variant_id || defaultVariantId;
+    logger.debug({ 
+      requestId, 
+      variantIdToUse, 
+      source: productConfig?.variant_id ? 'productConfig' : 'defaultVariantId' 
+    }, '[lemon-routes] Variant ID resolution');
 
     if (!variantIdToUse) {
-      logger.error({ userId, productKey }, '[lemon-routes] Lemon Squeezy variant configuration missing');
+      logger.error({ 
+        requestId, 
+        userId, 
+        productKey, 
+        hasProductConfig: !!productConfig,
+        productConfigVariantId: productConfig?.variant_id,
+        defaultVariantId 
+      }, '[lemon-routes] Lemon Squeezy variant configuration missing');
       return next(createError('Lemon Squeezy variant configuration missing', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, {
         details: 'No variant ID provided. Ensure LEMON_SQUEEZY_VARIANT_ID is set or supply a valid productKey.',
         productKey
@@ -92,7 +142,7 @@ router.post('/checkout', express.json(), verifyFirebaseToken, async (req, res, n
     }
 
     if (productKey && !productConfig) {
-      logger.warn({ userId, productKey }, '[lemon-routes] Invalid product key');
+      logger.warn({ requestId, userId, productKey }, '[lemon-routes] Invalid product key');
       return next(createError('Invalid product key', ERROR_CODES.INVALID_INPUT, 400, {
         details: `Product key "${productKey}" not found in lemon-products configuration`
       }));
@@ -120,6 +170,7 @@ router.post('/checkout', express.json(), verifyFirebaseToken, async (req, res, n
     const successUrl = `${frontendUrl}${normalizedSuccessPath}?${successParams.toString()}`;
 
     const useTestMode = process.env.LEMON_TEST_MODE !== 'false';
+    logger.debug({ requestId, useTestMode, testModeEnv: process.env.LEMON_TEST_MODE }, '[lemon-routes] Test mode configuration');
 
     // According to Lemon Squeezy API documentation:
     // - checkout_data should be an object (not array)
@@ -162,36 +213,95 @@ router.post('/checkout', express.json(), verifyFirebaseToken, async (req, res, n
       }
     };
 
-    const response = await fetch(checkoutUrl, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Accept': 'application/vnd.api+json',
-        'Content-Type': 'application/vnd.api+json'
-      },
-      body: JSON.stringify(checkoutData)
-    });
+    logger.info({ 
+      requestId, 
+      userId, 
+      checkoutUrl, 
+      storeId, 
+      variantId: variantIdToUse, 
+      successUrl, 
+      useTestMode,
+      checkoutDataSize: JSON.stringify(checkoutData).length
+    }, '[lemon-routes] Calling Lemon Squeezy API to create checkout');
+
+    const fetchStartTime = Date.now();
+    let response;
+    try {
+      response = await fetch(checkoutUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Accept': 'application/vnd.api+json',
+          'Content-Type': 'application/vnd.api+json'
+        },
+        body: JSON.stringify(checkoutData)
+      });
+      const fetchDuration = Date.now() - fetchStartTime;
+      logger.debug({ 
+        requestId, 
+        status: response.status, 
+        statusText: response.statusText,
+        fetchDuration 
+      }, '[lemon-routes] Lemon Squeezy API response received');
+    } catch (fetchError) {
+      const fetchDuration = Date.now() - fetchStartTime;
+      logger.error({ 
+        requestId, 
+        userId, 
+        error: { 
+          message: fetchError.message, 
+          stack: fetchError.stack,
+          name: fetchError.name 
+        },
+        fetchDuration,
+        checkoutUrl
+      }, '[lemon-routes] Fetch error calling Lemon Squeezy API');
+      throw fetchError;
+    }
 
     if (!response.ok) {
       let errorData;
+      let errorText;
       try {
-        errorData = await response.json();
+        errorText = await response.text();
+        logger.debug({ requestId, errorTextLength: errorText.length }, '[lemon-routes] Error response text received');
+        try {
+          errorData = JSON.parse(errorText);
+          logger.debug({ requestId, errorData }, '[lemon-routes] Error response parsed as JSON');
+        } catch (parseError) {
+          errorData = errorText;
+          logger.debug({ requestId, parseError: parseError.message }, '[lemon-routes] Error response is not JSON, using as text');
+        }
       } catch (e) {
-        errorData = await response.text();
+        logger.error({ requestId, error: e.message }, '[lemon-routes] Failed to read error response');
+        errorData = { error: 'Failed to read error response', originalError: e.message };
       }
       
+      logger.error({ 
+        requestId, 
+        userId, 
+        status: response.status, 
+        statusText: response.statusText,
+        errorData, 
+        variantId: variantIdToUse, 
+        storeId,
+        apiKeyLength: apiKey ? apiKey.length : 0,
+        apiKeyPrefix: apiKey ? apiKey.substring(0, 10) + '...' : 'missing'
+      }, '[lemon-routes] Lemon Squeezy API returned error');
       
       // Parse Lemon Squeezy error details
       let errorMessage = 'Failed to create checkout';
       let errorDetails = errorData;
       
       if (errorData.errors && Array.isArray(errorData.errors)) {
+        logger.debug({ requestId, errorCount: errorData.errors.length }, '[lemon-routes] Parsing error array');
         const variantError = errorData.errors.find(err => 
           err.source?.pointer?.includes('variant') || 
           err.detail?.includes('variant')
         );
         
         if (variantError) {
+          logger.warn({ requestId, variantError }, '[lemon-routes] Variant error found in response');
           errorMessage = `Variant ID not found: ${variantIdToUse}`;
           errorDetails = {
             error: 'Variant does not exist',
@@ -200,22 +310,70 @@ router.post('/checkout', express.json(), verifyFirebaseToken, async (req, res, n
             storeId: storeId,
             hint: 'Please verify that LEMON_SQUEEZY_VARIANT_ID in Render matches a valid variant ID from your Lemon Squeezy dashboard'
           };
+        } else {
+          logger.debug({ requestId, firstError: errorData.errors[0] }, '[lemon-routes] First error in array (not variant-related)');
         }
       }
       
-      logger.error({ userId, errorData, variantId: variantIdToUse, storeId }, '[lemon-routes] Lemon Squeezy API error');
       return next(createError(errorMessage, ERROR_CODES.EXTERNAL_SERVICE_ERROR, response.status || 500, errorDetails));
     }
 
-    const responseData = await response.json();
+    let responseData;
+    try {
+      const responseText = await response.text();
+      logger.debug({ requestId, responseTextLength: responseText.length }, '[lemon-routes] Response text received');
+      responseData = JSON.parse(responseText);
+      logger.debug({ requestId, hasData: !!responseData.data, hasAttributes: !!responseData.data?.attributes }, '[lemon-routes] Response parsed successfully');
+    } catch (parseError) {
+      logger.error({ 
+        requestId, 
+        userId, 
+        parseError: { 
+          message: parseError.message, 
+          stack: parseError.stack 
+        } 
+      }, '[lemon-routes] Failed to parse response as JSON');
+      return next(createError('Invalid response from Lemon Squeezy API', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, {
+        details: parseError.message
+      }));
+    }
+    
     const checkoutUrlValue = responseData.data?.attributes?.url;
+    logger.debug({ 
+      requestId, 
+      hasCheckoutUrl: !!checkoutUrlValue, 
+      checkoutId: responseData.data?.id,
+      responseDataKeys: Object.keys(responseData),
+      dataKeys: responseData.data ? Object.keys(responseData.data) : []
+    }, '[lemon-routes] Extracting checkout URL from response');
 
     if (!checkoutUrlValue) {
-      logger.error({ userId }, '[lemon-routes] No checkout URL in response');
-      return next(createError('No checkout URL in response', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500));
+      logger.error({ 
+        requestId,
+        userId, 
+        responseData,
+        dataAttributes: responseData.data?.attributes,
+        dataKeys: responseData.data ? Object.keys(responseData.data) : []
+      }, '[lemon-routes] No checkout URL in response');
+      return next(createError('No checkout URL in response', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, {
+        details: 'Lemon Squeezy API response did not contain checkout URL',
+        responseStructure: {
+          hasData: !!responseData.data,
+          hasAttributes: !!responseData.data?.attributes,
+          attributesKeys: responseData.data?.attributes ? Object.keys(responseData.data.attributes) : []
+        }
+      }));
     }
 
-    logger.info({ userId, checkoutUrl: checkoutUrlValue }, '[lemon-routes] POST /checkout - Success');
+    logger.info({ 
+      requestId,
+      userId, 
+      checkoutUrl: checkoutUrlValue,
+      checkoutId: responseData.data?.id,
+      productKey,
+      testMode: useTestMode
+    }, '[lemon-routes] POST /checkout - Success');
+    
     res.json({
       success: true,
       checkoutUrl: checkoutUrlValue,
@@ -231,10 +389,23 @@ router.post('/checkout', express.json(), verifyFirebaseToken, async (req, res, n
     });
 
   } catch (error) {
-    const requestId = req.requestId || `lemon-checkout-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    logger.error({ requestId, userId: req.user?.uid, error: { message: error.message, stack: error.stack } }, '[lemon-routes] POST /checkout - Error');
+    logger.error({ 
+      requestId, 
+      userId: req.user?.uid, 
+      error: { 
+        message: error.message, 
+        stack: error.stack,
+        name: error.name,
+        code: error.code
+      },
+      body: req.body,
+      hasUser: !!req.user,
+      userEmail: req.user?.email
+    }, '[lemon-routes] POST /checkout - Unexpected error');
     next(createError('Failed to create checkout', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, {
-      details: error.message
+      details: error.message,
+      errorType: error.name,
+      errorCode: error.code
     }));
   }
 });

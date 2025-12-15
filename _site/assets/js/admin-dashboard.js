@@ -235,6 +235,7 @@ class DataAggregator {
       specsByUser: new Map(),
       purchases: [],
       activityLogs: [],
+      contactSubmissions: [],
     };
     
     // Unified activity events (generated from all sources)
@@ -855,6 +856,60 @@ class DataAggregator {
   }
   
   /**
+   * Subscribe to contact submissions collection
+   */
+  subscribeToContactSubmissions() {
+    try {
+      const contactQuery = query(
+        collection(this.db, 'contactSubmissions'),
+        orderBy('createdAt', 'desc'),
+        limit(100)
+      );
+      
+      const unsubContact = onSnapshot(
+        contactQuery,
+        (snapshot) => {
+          const submissions = snapshot.docs.map((docSnap) => {
+            const data = docSnap.data();
+            return {
+              id: docSnap.id,
+              email: data.email || '',
+              message: data.message || '',
+              userId: data.userId || null,
+              userName: data.userName || null,
+              status: data.status || 'new',
+              createdAt: utils.toDate(data.createdAt) || utils.toDate(data.timestamp) || new Date(),
+              timestamp: data.timestamp || new Date().toISOString()
+            };
+          });
+          
+          // Track new submissions for notifications
+          const previousIds = new Set(this.aggregatedData.contactSubmissions.map(s => s.id));
+          const newSubmissions = submissions.filter(s => !previousIds.has(s.id) && s.status === 'new');
+          
+          this.aggregatedData.contactSubmissions = submissions;
+          
+          // Notify about new submissions
+          if (newSubmissions.length > 0) {
+            this.notifyDataChange('contactSubmissions-new');
+          }
+          
+          this.notifyDataChange('contactSubmissions');
+        },
+        (error) => {
+          this.notifyDataChange('contactSubmissions-error');
+        }
+      );
+      
+      this.unsubscribeFns.push(unsubContact);
+      return unsubContact;
+    } catch (error) {
+      this.notifyDataChange('contactSubmissions-error');
+      return null;
+    }
+  }
+  
+  /**
    * Initialize all subscriptions
    */
   subscribeAll() {
@@ -863,6 +918,7 @@ class DataAggregator {
     this.subscribeToSpecs();
     this.subscribeToPurchases();
     this.subscribeToActivityLogs();
+    this.subscribeToContactSubmissions();
   }
   
   /**
@@ -1872,6 +1928,21 @@ class AdminDashboardApp {
       if (source === 'activityLogs-error') {
         this.markSourceError('activityLogs');
       }
+      if (source === 'contactSubmissions') {
+        this.store.contactSubmissions = aggregatedData.contactSubmissions || [];
+        if (this.dom.contactTable?.closest('.dashboard-section.active')) {
+          this.renderContactTable();
+        }
+        this.updateContactBadge();
+      }
+      if (source === 'contactSubmissions-new') {
+        // Show notification for new contact submissions
+        const newSubmissions = aggregatedData.contactSubmissions.filter(s => s.status === 'new');
+        if (newSubmissions.length > 0) {
+          this.showContactNotification(newSubmissions.length);
+        }
+        this.updateContactBadge();
+      }
       
       // Update funnel and content analytics when data changes
       if (this.dom.funnelVisualization?.closest('.dashboard-section.active')) {
@@ -1913,6 +1984,9 @@ class AdminDashboardApp {
       
       // Sync activity logs
       this.store.activity = [...agg.activityLogs];
+      
+      // Sync contact submissions
+      this.store.contactSubmissions = [...(agg.contactSubmissions || [])];
       
       // Sync manual activity (from unified activity events)
       this.store.manualActivity = this.dataAggregator.getActivityEvents()
@@ -2440,6 +2514,8 @@ class AdminDashboardApp {
     // Initialize auto refresh timer (will schedule for 24h from now if no manual refresh)
     this.updateAutoRefreshTimer();
     await this.fetchUserSyncStatus();
+    // Initialize contact badge
+    this.updateContactBadge();
     // Don't auto-load alerts and performance - user must click Update button
     // This prevents unnecessary API calls and reduces server load
   }
@@ -5315,6 +5391,13 @@ class AdminDashboardApp {
       const token = await auth.currentUser?.getIdToken();
       if (!token) return;
 
+      // First, try to use real-time data from DataAggregator
+      if (this.dataAggregator.aggregatedData.contactSubmissions.length > 0) {
+        this.store.contactSubmissions = [...this.dataAggregator.aggregatedData.contactSubmissions];
+        this.renderContactTable();
+        this.updateContactBadge();
+      }
+
       const apiBaseUrl = typeof window.getApiBaseUrl === "function"
         ? window.getApiBaseUrl()
         : "https://specifys-ai-development.onrender.com";
@@ -5329,6 +5412,7 @@ class AdminDashboardApp {
           createdAt: utils.toDate(sub.createdAt) || utils.toDate(sub.timestamp) || new Date()
         }));
         this.renderContactTable();
+        this.updateContactBadge();
       }
     } catch (error) {
       // Failed to load contact submissions
@@ -5442,6 +5526,15 @@ class AdminDashboardApp {
     if (submission) {
       submission.status = status;
     }
+    
+    // Also update in DataAggregator if it exists
+    const aggSubmission = this.dataAggregator.aggregatedData.contactSubmissions.find(s => s.id === id);
+    if (aggSubmission) {
+      aggSubmission.status = status;
+    }
+    
+    // Update badge
+    this.updateContactBadge();
   }
 
   viewContactMessage(id) {
@@ -5479,6 +5572,83 @@ class AdminDashboardApp {
     a.download = `contact-submissions-${new Date().toISOString().split("T")[0]}.csv`;
     a.click();
     URL.revokeObjectURL(url);
+  }
+
+  /**
+   * Update contact badge on nav button
+   */
+  updateContactBadge() {
+    const contactNavButton = document.querySelector('[data-target="contact-section"]');
+    if (!contactNavButton) return;
+    
+    const newCount = (this.store.contactSubmissions || []).filter(s => s.status === 'new').length;
+    
+    // Remove existing badge
+    const existingBadge = contactNavButton.querySelector('.nav-badge');
+    if (existingBadge) {
+      existingBadge.remove();
+    }
+    
+    // Add badge if there are new submissions
+    if (newCount > 0) {
+      const badge = document.createElement('span');
+      badge.className = 'nav-badge';
+      badge.textContent = newCount > 99 ? '99+' : newCount.toString();
+      badge.setAttribute('aria-label', `${newCount} new contact submissions`);
+      contactNavButton.appendChild(badge);
+    }
+  }
+
+  /**
+   * Show notification for new contact submissions
+   */
+  showContactNotification(count) {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = 'contact-notification';
+    notification.setAttribute('role', 'alert');
+    notification.innerHTML = `
+      <div class="notification-content">
+        <i class="fas fa-envelope"></i>
+        <div class="notification-text">
+          <strong>New Contact Message${count > 1 ? 's' : ''}</strong>
+          <span>${count} new message${count > 1 ? 's' : ''} from user${count > 1 ? 's' : ''}</span>
+        </div>
+        <button class="notification-close" aria-label="Close notification">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    `;
+    
+    // Add click handler to navigate to contact section
+    notification.addEventListener('click', (e) => {
+      if (!e.target.closest('.notification-close')) {
+        const contactNavButton = document.querySelector('[data-target="contact-section"]');
+        if (contactNavButton) {
+          contactNavButton.click();
+        }
+        notification.remove();
+      }
+    });
+    
+    // Add close handler
+    const closeBtn = notification.querySelector('.notification-close');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', () => {
+        notification.remove();
+      });
+    }
+    
+    // Add to page
+    document.body.appendChild(notification);
+    
+    // Auto-remove after 10 seconds
+    setTimeout(() => {
+      if (notification.parentNode) {
+        notification.classList.add('fade-out');
+        setTimeout(() => notification.remove(), 300);
+      }
+    }, 10000);
   }
 
   renderSpecUsageAnalytics() {
