@@ -4702,6 +4702,14 @@ async function approveOverview() {
                     );
                     if (allSuccessful) {
                         showNotification('All specifications generated successfully!', 'success');
+                        
+                        // Upload updated spec to OpenAI API for chat purposes (non-blocking)
+                        if (currentSpecData && currentSpecData.id) {
+                            triggerOpenAIUploadForSpec(currentSpecData.id).catch(err => {
+                                // Non-blocking - don't interrupt user experience
+                                console.warn('Failed to upload spec to OpenAI after generation:', err);
+                            });
+                        }
                     } else {
                         showNotification('Some specifications failed to generate. You can retry using the retry buttons.', 'error');
                     }
@@ -5056,6 +5064,11 @@ async function retryTechnical() {
                     },
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
+                
+                // Upload updated spec to OpenAI API for chat purposes (non-blocking)
+                triggerOpenAIUploadForSpec(currentSpecData.id).catch(err => {
+                    console.warn('Failed to upload spec to OpenAI after technical retry:', err);
+                });
             }
             
             // Update local data
@@ -5128,6 +5141,11 @@ async function retryMarket() {
                     },
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
+                
+                // Upload updated spec to OpenAI API for chat purposes (non-blocking)
+                triggerOpenAIUploadForSpec(currentSpecData.id).catch(err => {
+                    console.warn('Failed to upload spec to OpenAI after market retry:', err);
+                });
             }
             
             // Update local data
@@ -5193,6 +5211,11 @@ async function retryDesign() {
                     design: designContent,
                     'status.design': 'ready',
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // Upload updated spec to OpenAI API for chat purposes (non-blocking)
+                triggerOpenAIUploadForSpec(currentSpecData.id).catch(err => {
+                    console.warn('Failed to upload spec to OpenAI after design retry:', err);
                 });
             }
             
@@ -5724,6 +5747,11 @@ async function generateMockupSpec() {
                 'status.mockup': 'ready',
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             });
+            
+            // Upload updated spec to OpenAI API for chat purposes (non-blocking)
+            triggerOpenAIUploadForSpec(currentSpecData.id).catch(err => {
+                console.warn('Failed to upload spec to OpenAI after mockups generation:', err);
+            });
         }
         
         // Update local data
@@ -6038,6 +6066,13 @@ async function autoRepairBrokenDiagrams() {
                                             if (currentSpecData.diagrams) {
                                                 currentSpecData.diagrams.diagrams = diagramsData;
                                             }
+                                            
+                                            // Upload updated spec to OpenAI API for chat purposes (non-blocking)
+                                            triggerOpenAIUploadForSpec(currentSpecData.id).catch(err => {
+                                                // Non-blocking - don't interrupt user experience
+                                                console.warn('Failed to upload spec to OpenAI after diagram repair:', err);
+                                            });
+                                            
                                             showNotification(`Diagram "${diagram.title}" auto-repaired successfully after retry!`, 'success');
                                             return; // Success - exit early
                                         }
@@ -6178,6 +6213,12 @@ async function generateDiagrams() {
                     currentSpecData.diagrams = { generated: true, diagrams: diagramsData };
                     // Update export checkboxes when diagrams are ready
                     updateExportCheckboxes();
+                    
+                    // Upload updated spec to OpenAI API for chat purposes (non-blocking)
+                    triggerOpenAIUploadForSpec(currentSpecData.id).catch(err => {
+                        // Non-blocking - don't interrupt user experience
+                        console.warn('Failed to upload spec to OpenAI after diagrams generation:', err);
+                    });
                 } catch (error) {
 
                 }
@@ -6374,6 +6415,11 @@ async function generatePrompts() {
                     prompts: promptsData,
                     'status.prompts': 'ready',
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // Upload updated spec to OpenAI API for chat purposes (non-blocking)
+                triggerOpenAIUploadForSpec(currentSpecData.id).catch(err => {
+                    console.warn('Failed to upload spec to OpenAI after prompts generation:', err);
                 });
                 
                 // Update local spec data
