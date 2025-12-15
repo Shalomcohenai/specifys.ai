@@ -56,9 +56,18 @@
         return await fn();
       } catch (error) {
         if (retryCount < this.retryConfig.maxRetries) {
+          // Check if error has status (HTTP error) or is a network error
+          const isNetworkError = !error.status && (
+            error.message?.includes('Failed to fetch') ||
+            error.message?.includes('NetworkError') ||
+            error.message?.includes('Network request failed') ||
+            error.name === 'TypeError' ||
+            error.name === 'NetworkError'
+          );
+          
           const shouldRetry = 
-            error.status && 
-            this.retryConfig.retryableStatuses.includes(error.status);
+            (error.status && this.retryConfig.retryableStatuses.includes(error.status)) ||
+            isNetworkError;
           
           if (shouldRetry) {
             const delay = this.retryConfig.retryDelay * Math.pow(2, retryCount);
