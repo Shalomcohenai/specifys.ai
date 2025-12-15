@@ -380,7 +380,7 @@ router.get('/funnel', requireAdmin, async (req, res, next) => {
       if (type === 'purchase' || type === 'payment' || type === 'subscription') {
         funnel.purchases++;
       }
-    }
+    });
     
     funnel.visitors = uniqueVisitors.size;
     funnel.signups = uniqueSignups.size;
