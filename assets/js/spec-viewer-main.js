@@ -1471,6 +1471,12 @@ function openVisualizer(type) {
     const mobileTemplate = document.getElementById('mobile-template');
     const webTemplate = document.getElementById('web-template');
     
+    // Check if elements exist before accessing them
+    if (!modal || !title || !mobileTemplate || !webTemplate) {
+        console.warn('Color visualizer modal elements not found. The visualizer feature may not be available.');
+        return;
+    }
+    
     // Hide all templates
     mobileTemplate.style.display = 'none';
     webTemplate.style.display = 'none';
@@ -1499,6 +1505,12 @@ function applyColorsToTemplate(type) {
         document.getElementById('mobile-template') : 
         document.getElementById('web-template');
     
+    // Check if template exists before accessing it
+    if (!template) {
+        console.warn(`Template element for ${type} not found.`);
+        return;
+    }
+    
     // Helper function to get color value case-insensitive
     const getColor = (name) => {
         // Try with capitalized first
@@ -1525,7 +1537,10 @@ function applyColorsToTemplate(type) {
 }
 
 function closeVisualizer() {
-    document.getElementById('color-visualizer-modal').style.display = 'none';
+    const modal = document.getElementById('color-visualizer-modal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
 }
 
 // Close the modal when clicking outside
