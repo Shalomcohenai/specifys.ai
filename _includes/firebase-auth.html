@@ -119,6 +119,23 @@
 
       if (response.ok) {
         const result = await response.json();
+        console.log('[firebase-auth.html] ensureUserDocument - result:', result);
+        console.log('[firebase-auth.html] ensureUserDocument - isNewUser:', result.isNewUser, 'created:', result.created);
+        
+        // Check if this is a new user registration and set popup flag
+        if (result && (result.isNewUser || result.created)) {
+          console.log('[firebase-auth.html] ensureUserDocument - Setting showCreditPopup flag for new user');
+          sessionStorage.setItem('showCreditPopup', 'true');
+          console.log('[firebase-auth.html] ensureUserDocument - Verified showCreditPopup set:', sessionStorage.getItem('showCreditPopup'));
+          
+          // Also trigger checkForCreditPopup if it exists (for immediate display)
+          if (typeof checkForCreditPopup === 'function') {
+            console.log('[firebase-auth.html] ensureUserDocument - Calling checkForCreditPopup immediately');
+            setTimeout(() => {
+              checkForCreditPopup();
+            }, 1000);
+          }
+        }
         
         // If entitlements were created or updated, trigger credits refresh
         if (result.entitlements && (result.created || result.updated)) {
