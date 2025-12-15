@@ -495,8 +495,10 @@
                 }
 
                 const result = await response.json();
-                console.log('[auth.html] createUserDocument result:', result);
-                console.log('[auth.html] isNewUser:', result.isNewUser, 'created:', result.created);
+                console.log('[auth.html] createUserDocument - Full response:', JSON.stringify(result, null, 2));
+                console.log('[auth.html] createUserDocument - result.isNewUser:', result.isNewUser, 'type:', typeof result.isNewUser);
+                console.log('[auth.html] createUserDocument - result.created:', result.created, 'type:', typeof result.created);
+                console.log('[auth.html] createUserDocument - result.success:', result.success);
                 return result;
             } catch (error) {
                 // Don't retry on network errors that suggest the endpoint doesn't exist
@@ -706,15 +708,23 @@
         async function registerWithEmail(email, password) {
             try {
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                console.log('[auth.html] registerWithEmail - user created, calling createUserDocument');
+                console.log('[auth.html] registerWithEmail - user created, calling createUserDocument for user:', userCredential.user.uid);
                 const result = await createUserDocument(userCredential.user);
                 console.log('[auth.html] registerWithEmail - createUserDocument result:', result);
+                console.log('[auth.html] registerWithEmail - result type:', typeof result, 'is null:', result === null, 'is undefined:', result === undefined);
+                
                 // Check if this is a new user registration (not just created documents)
-                if (result && (result.isNewUser || result.created)) {
-                    console.log('[auth.html] registerWithEmail - Setting showCreditPopup flag');
-                    sessionStorage.setItem('showCreditPopup', 'true');
+                if (result) {
+                    console.log('[auth.html] registerWithEmail - result.isNewUser:', result.isNewUser, 'result.created:', result.created);
+                    if (result.isNewUser || result.created) {
+                        console.log('[auth.html] registerWithEmail - Setting showCreditPopup flag to true');
+                        sessionStorage.setItem('showCreditPopup', 'true');
+                        console.log('[auth.html] registerWithEmail - Verified showCreditPopup set:', sessionStorage.getItem('showCreditPopup'));
+                    } else {
+                        console.log('[auth.html] registerWithEmail - NOT setting showCreditPopup. isNewUser:', result.isNewUser, 'created:', result.created);
+                    }
                 } else {
-                    console.log('[auth.html] registerWithEmail - NOT setting showCreditPopup. isNewUser:', result?.isNewUser, 'created:', result?.created);
+                    console.warn('[auth.html] registerWithEmail - result is null/undefined, cannot determine if new user');
                 }
                 return userCredential.user;
             } catch (error) {
@@ -856,9 +866,16 @@
             
             try {
                 const user = await registerWithEmail(email, password);
+                console.log('[auth.html] Registration form - registerWithEmail completed for user:', user.uid);
+                
+                // Double-check that showCreditPopup is set before redirect
+                const popupFlag = sessionStorage.getItem('showCreditPopup');
+                console.log('[auth.html] Registration form - Before redirect, showCreditPopup:', popupFlag);
                 
                 showSuccess('Registration successful! Redirecting to homepage...');
                 setTimeout(() => {
+                    console.log('[auth.html] Registration form - Redirecting to index.html...');
+                    console.log('[auth.html] Registration form - Final check, showCreditPopup:', sessionStorage.getItem('showCreditPopup'));
                     window.location.href = '../index.html';
                 }, 1500);
             } catch (error) {

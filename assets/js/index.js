@@ -155,18 +155,31 @@ function closeCreditPopup() {
 
 function checkForCreditPopup() {
   // Check if we should show the credit popup
+  console.log('[index.js] checkForCreditPopup - Starting check...');
   const showPopup = sessionStorage.getItem('showCreditPopup');
-  console.log('[index.js] checkForCreditPopup - showPopup:', showPopup);
+  console.log('[index.js] checkForCreditPopup - showPopup value:', showPopup, 'type:', typeof showPopup);
+  console.log('[index.js] checkForCreditPopup - showPopup === "true":', showPopup === 'true');
+  console.log('[index.js] checkForCreditPopup - All sessionStorage keys:', Object.keys(sessionStorage));
+  
   if (showPopup === 'true') {
-    console.log('[index.js] checkForCreditPopup - Showing credit popup');
+    console.log('[index.js] checkForCreditPopup - ✅ Condition met! Showing credit popup');
     // Remove the flag
     sessionStorage.removeItem('showCreditPopup');
+    console.log('[index.js] checkForCreditPopup - Removed showCreditPopup from sessionStorage');
     // Show popup after a short delay to ensure page is loaded
     setTimeout(() => {
+      console.log('[index.js] checkForCreditPopup - Calling showCreditPopup()...');
       showCreditPopup();
     }, 500);
   } else {
-    console.log('[index.js] checkForCreditPopup - Not showing popup, showPopup is not "true"');
+    console.log('[index.js] checkForCreditPopup - ❌ NOT showing popup. showPopup value:', showPopup, 'is not "true"');
+    if (showPopup === null) {
+      console.log('[index.js] checkForCreditPopup - showCreditPopup was never set in sessionStorage');
+    } else if (showPopup === '') {
+      console.log('[index.js] checkForCreditPopup - showCreditPopup is empty string');
+    } else {
+      console.log('[index.js] checkForCreditPopup - showCreditPopup has unexpected value:', showPopup);
+    }
   }
 }
 

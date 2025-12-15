@@ -69,7 +69,7 @@ async function initializeUser(uid, userDataOverrides = {}) {
         const authUser = await getUserByUid(uid);
         const nowIso = new Date().toISOString();
         
-        return await db.runTransaction(async (transaction) => {
+        const result = await db.runTransaction(async (transaction) => {
             const userRef = db.collection('users').doc(uid);
             const entitlementsRef = db.collection('entitlements').doc(uid);
             
@@ -179,29 +179,35 @@ async function initializeUser(uid, userDataOverrides = {}) {
         });
         
         // Initialize user_credits if needed (after transaction)
-        if (result._needsCreditsInit) {
+        console.log(`[user-management] After transaction for user ${uid}: result exists:`, !!result, 'result._needsCreditsInit:', result?._needsCreditsInit, 'result._isNewUser:', result?._isNewUser);
+        
+        if (result && result._needsCreditsInit) {
+            console.log(`[user-management] Credits init needed for user ${uid}, proceeding...`);
             try {
                 const creditsV2Service = require('./credits-v2-service');
+                console.log(`[user-management] Getting user credits for ${uid}...`);
                 const credits = await creditsV2Service.getUserCredits(uid);
+                console.log(`[user-management] User credits retrieved for ${uid}:`, JSON.stringify(credits, null, 2));
                 
                 // Grant 1 free credit to new users
                 if (result._isNewUser) {
-                    console.log(`[user-management] Granting welcome credit to new user ${uid}`);
+                    console.log(`[user-management] User ${uid} is NEW USER - Granting welcome credit...`);
                     const grantResult = await creditsV2Service.grantCredits(uid, 1, 'promotion', {
                         reason: 'New user welcome credit',
                         creditType: 'free'
                     });
-                    console.log(`[user-management] Credit granted successfully:`, grantResult);
+                    console.log(`[user-management] Credit granted successfully to ${uid}:`, JSON.stringify(grantResult, null, 2));
                 } else {
-                    console.log(`[user-management] User ${uid} is not new, skipping credit grant. isNewUser:`, result._isNewUser);
+                    console.log(`[user-management] User ${uid} is NOT new user (isNewUser=${result._isNewUser}), skipping credit grant`);
                 }
             } catch (creditsError) {
                 // Log but don't fail - credits will be initialized on first access
-                console.error(`[user-management] Error initializing credits for ${uid}:`, creditsError);
+                console.error(`[user-management] ERROR initializing credits for ${uid}:`, creditsError);
+                console.error(`[user-management] Error message:`, creditsError.message);
                 console.error(`[user-management] Error stack:`, creditsError.stack);
             }
         } else {
-            console.log(`[user-management] Credits init not needed for user ${uid}`);
+            console.log(`[user-management] Credits init NOT needed for user ${uid}. result exists:`, !!result, 'result._needsCreditsInit:', result?._needsCreditsInit);
         }
         
         return result;

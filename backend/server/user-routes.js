@@ -47,7 +47,15 @@ router.post('/initialize', verifyFirebaseToken, async (req, res, next) => {
 
         logger.debug({ requestId, userId, hasOverrides: Object.keys(userDataOverrides).length > 0 }, '[user-routes] Initializing user documents');
         const result = await initializeUser(userId, userDataOverrides);
-        logger.debug({ requestId, userId, created: result.created, updated: result.updated, isNewUser: result._isNewUser }, '[user-routes] User initialization completed');
+        logger.debug({ 
+            requestId, 
+            userId, 
+            created: result.created, 
+            updated: result.updated, 
+            unchanged: result.unchanged,
+            isNewUser: result._isNewUser,
+            hasNeedsCreditsInit: !!result._needsCreditsInit
+        }, '[user-routes] User initialization completed');
 
         const statusMessage = result.created
             ? 'User documents initialized in Firestore'
@@ -70,7 +78,7 @@ router.post('/initialize', verifyFirebaseToken, async (req, res, next) => {
             }
         }
         
-        res.json({
+        const responseData = {
             success: true,
             message: statusMessage,
             user: result.user,
@@ -80,7 +88,16 @@ router.post('/initialize', verifyFirebaseToken, async (req, res, next) => {
             unchanged: result.unchanged,
             isNewUser: result._isNewUser || false, // Indicate if this is a new user registration
             timestamp: new Date().toISOString()
-        });
+        };
+        
+        logger.debug({ 
+            requestId, 
+            userId, 
+            isNewUser: responseData.isNewUser,
+            created: responseData.created
+        }, '[user-routes] Sending response to client');
+        
+        res.json(responseData);
 
     } catch (error) {
         logger.error({ 
