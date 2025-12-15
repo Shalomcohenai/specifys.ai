@@ -335,7 +335,8 @@
             onAuthStateChanged,
             GoogleAuthProvider,
             signInWithPopup,
-            getAuth
+            getAuth,
+            getAdditionalUserInfo
         } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
         import { getFirestore, doc, setDoc, serverTimestamp, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -377,10 +378,20 @@
 
                     
                     try {
-                        const result = await createUserDocument(user);
-                        // Check if this is a new user registration
-                        if (result && (result.isNewUser || result.created)) {
-                            sessionStorage.setItem('showCreditPopup', 'true');
+                        // Don't rely on server response for isNewUser here
+                        // This is a fallback for redirects, but getRedirectResult should handle it
+                        // Only set flag if not already set (to avoid overwriting flags set elsewhere)
+                        const existingFlag = sessionStorage.getItem('showCreditPopup');
+                        if (!existingFlag) {
+                            const result = await createUserDocument(user);
+                            // Only set flag if server says it's a new user AND no flag exists
+                            if (result && (result.isNewUser || result.created)) {
+                                console.log('[auth.html] onAuthStateChanged - Setting showCreditPopup flag (fallback)');
+                                sessionStorage.setItem('showCreditPopup', 'true');
+                            }
+                        } else {
+                            console.log('[auth.html] onAuthStateChanged - showCreditPopup flag already exists, not overwriting');
+                            await createUserDocument(user);
                         }
                         
                         showSuccess('Login successful! Redirecting to homepage...');
@@ -402,7 +413,7 @@
 
             
             try {
-                const { getRedirectResult } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
+                const { getRedirectResult, getAdditionalUserInfo } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
 
 
                 
@@ -422,9 +433,18 @@
                     loadingDiv.remove();
                     
                     if (result && result.user) {
-                        const createResult = await createUserDocument(result.user);
-                        // Check if this is a new user registration
-                        if (createResult && (createResult.isNewUser || createResult.created)) {
+                        // Check if this is a new user using Firebase Auth's additionalUserInfo
+                        const additionalUserInfo = getAdditionalUserInfo(result);
+                        const isNewUser = additionalUserInfo?.isNewUser === true;
+                        
+                        console.log('[auth.html] getRedirectResult (with loading) - isNewUser from Firebase Auth:', isNewUser);
+                        
+                        // Create user document (but don't rely on its response for isNewUser)
+                        await createUserDocument(result.user);
+                        
+                        // Set popup flag based on Firebase Auth's isNewUser
+                        if (isNewUser) {
+                            console.log('[auth.html] getRedirectResult (with loading) - Setting showCreditPopup flag for new user');
                             sessionStorage.setItem('showCreditPopup', 'true');
                         }
                         
@@ -439,11 +459,21 @@
                     const result = await getRedirectResult(auth);
                     
                     if (result && result.user) {
-                        const createResult = await createUserDocument(result.user);
-                        // Check if this is a new user registration
-                        if (createResult && (createResult.isNewUser || createResult.created)) {
+                        // Check if this is a new user using Firebase Auth's additionalUserInfo
+                        const additionalUserInfo = getAdditionalUserInfo(result);
+                        const isNewUser = additionalUserInfo?.isNewUser === true;
+                        
+                        console.log('[auth.html] getRedirectResult (without loading) - isNewUser from Firebase Auth:', isNewUser);
+                        
+                        // Create user document (but don't rely on its response for isNewUser)
+                        await createUserDocument(result.user);
+                        
+                        // Set popup flag based on Firebase Auth's isNewUser
+                        if (isNewUser) {
+                            console.log('[auth.html] getRedirectResult (without loading) - Setting showCreditPopup flag for new user');
                             sessionStorage.setItem('showCreditPopup', 'true');
                         }
+                        
                         showSuccess('Login successful! Redirecting to homepage...');
                         setTimeout(() => {
                             window.location.href = '../index.html';
@@ -709,23 +739,19 @@
             try {
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 console.log('[auth.html] registerWithEmail - user created, calling createUserDocument for user:', userCredential.user.uid);
-                const result = await createUserDocument(userCredential.user);
-                console.log('[auth.html] registerWithEmail - createUserDocument result:', result);
-                console.log('[auth.html] registerWithEmail - result type:', typeof result, 'is null:', result === null, 'is undefined:', result === undefined);
                 
-                // Check if this is a new user registration (not just created documents)
-                if (result) {
-                    console.log('[auth.html] registerWithEmail - result.isNewUser:', result.isNewUser, 'result.created:', result.created);
-                    if (result.isNewUser || result.created) {
-                        console.log('[auth.html] registerWithEmail - Setting showCreditPopup flag to true');
-                        sessionStorage.setItem('showCreditPopup', 'true');
-                        console.log('[auth.html] registerWithEmail - Verified showCreditPopup set:', sessionStorage.getItem('showCreditPopup'));
-                    } else {
-                        console.log('[auth.html] registerWithEmail - NOT setting showCreditPopup. isNewUser:', result.isNewUser, 'created:', result.created);
-                    }
-                } else {
-                    console.warn('[auth.html] registerWithEmail - result is null/undefined, cannot determine if new user');
-                }
+                // createUserWithEmailAndPassword always creates a new user, so this is always a new user
+                const isNewUser = true;
+                console.log('[auth.html] registerWithEmail - isNewUser (always true for registration):', isNewUser);
+                
+                // Create user document (but don't rely on its response for isNewUser)
+                await createUserDocument(userCredential.user);
+                
+                // Set popup flag - registration always means new user
+                console.log('[auth.html] registerWithEmail - Setting showCreditPopup flag to true');
+                sessionStorage.setItem('showCreditPopup', 'true');
+                console.log('[auth.html] registerWithEmail - Verified showCreditPopup set:', sessionStorage.getItem('showCreditPopup'));
+                
                 return userCredential.user;
             } catch (error) {
                 console.error('[auth.html] registerWithEmail error:', error);
@@ -768,9 +794,18 @@
                 
                 const result = await popupPromise;
                 
-                const createResult = await createUserDocument(result.user);
-                // Check if this is a new user registration
-                if (createResult && (createResult.isNewUser || createResult.created)) {
+                // Check if this is a new user using Firebase Auth's additionalUserInfo
+                const additionalUserInfo = getAdditionalUserInfo(result);
+                const isNewUser = additionalUserInfo?.isNewUser === true;
+                
+                console.log('[auth.html] signInWithGoogle - isNewUser from Firebase Auth:', isNewUser);
+                
+                // Create user document (but don't rely on its response for isNewUser)
+                await createUserDocument(result.user);
+                
+                // Set popup flag based on Firebase Auth's isNewUser
+                if (isNewUser) {
+                    console.log('[auth.html] signInWithGoogle - Setting showCreditPopup flag for new user');
                     sessionStorage.setItem('showCreditPopup', 'true');
                 }
 

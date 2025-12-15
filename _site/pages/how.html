@@ -895,9 +895,12 @@ function trackPreference(preferenceName, preferenceValue) {
         console.log('[firebase-auth.html] ensureUserDocument - result:', result);
         console.log('[firebase-auth.html] ensureUserDocument - isNewUser:', result.isNewUser, 'created:', result.created);
         
-        // Check if this is a new user registration and set popup flag
-        if (result && (result.isNewUser || result.created)) {
-          console.log('[firebase-auth.html] ensureUserDocument - Setting showCreditPopup flag for new user');
+        // Don't rely on server response for isNewUser - it may be incorrect if documents already exist
+        // Instead, only set the flag if it's not already set (to avoid overwriting flags set in auth.html)
+        // The flag should be set in auth.html using getAdditionalUserInfo or for registration
+        const existingFlag = sessionStorage.getItem('showCreditPopup');
+        if (!existingFlag && result && (result.isNewUser || result.created)) {
+          console.log('[firebase-auth.html] ensureUserDocument - Setting showCreditPopup flag for new user (no existing flag)');
           sessionStorage.setItem('showCreditPopup', 'true');
           console.log('[firebase-auth.html] ensureUserDocument - Verified showCreditPopup set:', sessionStorage.getItem('showCreditPopup'));
           
@@ -908,6 +911,8 @@ function trackPreference(preferenceName, preferenceValue) {
               checkForCreditPopup();
             }, 1000);
           }
+        } else if (existingFlag) {
+          console.log('[firebase-auth.html] ensureUserDocument - showCreditPopup flag already exists, not overwriting');
         }
         
         // If entitlements were created or updated, trigger credits refresh
