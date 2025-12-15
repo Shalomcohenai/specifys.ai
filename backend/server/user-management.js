@@ -82,15 +82,19 @@ async function initializeUser(uid, userDataOverrides = {}) {
             const userExists = userDoc.exists;
             const entitlementsExist = entitlementsDoc.exists;
             
-            // If both exist, return early (idempotency)
+            // If both exist, we still need to check user_credits (after transaction)
+            // So we'll return a result that indicates we should check credits
             if (userExists && entitlementsExist) {
-                return {
+                const result = {
                     created: false,
                     updated: false,
                     unchanged: true,
                     user: userDoc.data(),
-                    entitlements: entitlementsDoc.data()
+                    entitlements: entitlementsDoc.data(),
+                    _needsCreditsInit: true, // Still check credits in case they don't exist
+                    _isNewUser: false
                 };
+                return result;
             }
             
             // Prepare user document
@@ -150,22 +154,23 @@ async function initializeUser(uid, userDataOverrides = {}) {
                 ? entitlementsDoc.data() 
                 : { userId: uid, unlimited: false, can_edit: false };
             
+            // Determine if this is a new user (neither user nor entitlements existed)
+            const isNewUser = !userExists && !entitlementsExist;
+            
             // Initialize user_credits if it doesn't exist (after transaction)
             // This needs to be done outside the transaction because credits-v2-service uses its own transactions
             const result = {
-                created: !userExists || !entitlementsExist || !creditsExist,
+                created: !userExists || !entitlementsExist,
                 updated: userExists && entitlementsExist && Object.keys(userDocToWrite).length > 0,
-                unchanged: userExists && entitlementsExist && creditsExist && Object.keys(userDocToWrite).length === 0,
+                unchanged: userExists && entitlementsExist && Object.keys(userDocToWrite).length === 0,
                 user: { ...(existingUserData || {}), ...userDocToWrite },
                 entitlements: finalEntitlements
             };
             
-            // Initialize credits after transaction commits
-            if (!creditsExist) {
-                // Use credits-v2-service to initialize (will be done after transaction)
-                result._needsCreditsInit = true;
-                result._isNewUser = !userExists;
-            }
+            // Always check and initialize credits after transaction commits
+            // For new users, we'll grant welcome credit
+            result._needsCreditsInit = true;
+            result._isNewUser = isNewUser;
             
             return result;
         });
