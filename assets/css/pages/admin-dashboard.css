@@ -1191,8 +1191,8 @@ button.admin-shell .action-btn.grid,
 .admin-shell .data-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 720px;
-  table-layout: auto;
+  min-width: 600px;
+  table-layout: fixed;
   margin: 0;
 }
 
@@ -1206,11 +1206,73 @@ button.admin-shell .action-btn.grid,
 
 .admin-shell .data-table th,
 .admin-shell .data-table td {
-  padding: 14px 18px;
+  padding: 10px 12px;
   border-bottom: 1px solid var(--admin-border);
   text-align: left;
   vertical-align: middle;
+}
+
+/* Allow text wrapping for Title and Category columns */
+.admin-shell .data-table td:first-child,
+.admin-shell .data-table th:first-child {
+  white-space: normal;
+  word-wrap: break-word;
+  max-width: 200px;
+}
+
+.admin-shell .data-table td:nth-child(2),
+.admin-shell .data-table th:nth-child(2) {
+  white-space: normal;
+  word-wrap: break-word;
+  max-width: 150px;
+}
+
+/* Keep compact columns (Level, Questions, Views, Actions) on one line */
+.admin-shell .data-table td:nth-child(3),
+.admin-shell .data-table th:nth-child(3),
+.admin-shell .data-table td:nth-child(4),
+.admin-shell .data-table th:nth-child(4),
+.admin-shell .data-table td:nth-child(5),
+.admin-shell .data-table th:nth-child(5),
+.admin-shell .data-table td:nth-child(6),
+.admin-shell .data-table th:nth-child(6) {
   white-space: nowrap;
+  width: auto;
+}
+
+/* Specific widths for guides table columns */
+.admin-shell #guides-table {
+  table-layout: fixed;
+}
+
+.admin-shell #guides-table th:nth-child(1),
+.admin-shell #guides-table td:nth-child(1) {
+  width: 25%;
+}
+
+.admin-shell #guides-table th:nth-child(2),
+.admin-shell #guides-table td:nth-child(2) {
+  width: 15%;
+}
+
+.admin-shell #guides-table th:nth-child(3),
+.admin-shell #guides-table td:nth-child(3) {
+  width: 10%;
+}
+
+.admin-shell #guides-table th:nth-child(4),
+.admin-shell #guides-table td:nth-child(4) {
+  width: 8%;
+}
+
+.admin-shell #guides-table th:nth-child(5),
+.admin-shell #guides-table td:nth-child(5) {
+  width: 8%;
+}
+
+.admin-shell #guides-table th:nth-child(6),
+.admin-shell #guides-table td:nth-child(6) {
+  width: 34%;
 }
 
 .admin-shell .data-table tbody tr:hover {
@@ -3355,6 +3417,20 @@ button.admin-shell .action-btn.grid,
   border-radius: 12px;
   border: 1px solid var(--admin-border);
   background: var(--admin-surface);
+  max-width: 100%;
+}
+
+/* Ensure action buttons in table cells are compact */
+.admin-shell .data-table td:last-child {
+  white-space: nowrap;
+}
+
+.admin-shell .data-table td:last-child .action-btn {
+  margin-right: 6px;
+}
+
+.admin-shell .data-table td:last-child .action-btn:last-child {
+  margin-right: 0;
 }
 
 /* Section Header */
@@ -3543,9 +3619,10 @@ button.admin-shell .action-btn.grid,
 
 /* Table Action Buttons */
 .admin-shell .table-actions button,
-.admin-shell .table-actions a {
-  padding: 6px 12px;
-  font-size: 0.85rem;
+.admin-shell .table-actions a,
+.admin-shell .data-table td .action-btn {
+  padding: 6px 10px;
+  font-size: 0.8rem;
   border-radius: 6px;
   border: 1px solid var(--admin-border);
   background: var(--admin-surface);
@@ -3555,7 +3632,22 @@ button.admin-shell .action-btn.grid,
   text-decoration: none;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.admin-shell .data-table td .action-btn.small {
+  padding: 4px 8px;
+  font-size: 0.75rem;
+}
+
+/* Visit count styling */
+.admin-shell .data-table .visit-count {
+  font-weight: 600;
+  color: var(--admin-text);
+  display: inline-block;
+  min-width: 40px;
+  text-align: center;
 }
 
 .admin-shell .table-actions button:hover,

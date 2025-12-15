@@ -4486,6 +4486,7 @@ class AdminDashboardApp {
       let totalErrors = 0;
       let nextBatch = null;
       let batchNumber = 0;
+      let isCompleted = false;
 
       // Process in batches until complete
       do {
@@ -4523,9 +4524,10 @@ class AdminDashboardApp {
         totalAlreadySynced += result.alreadySynced || 0;
         totalErrors += result.errors || 0;
         nextBatch = result.nextBatch;
+        isCompleted = result.completed || false;
 
         // Show progress notification
-        if (result.completed) {
+        if (isCompleted) {
           const message = `Credits sync completed! Processed: ${totalProcessed}, Migrated: ${totalMigrated}, Already synced: ${totalAlreadySynced}, Errors: ${totalErrors}`;
           console.log('[Credits Sync]', message);
           alert(message);
@@ -4536,11 +4538,11 @@ class AdminDashboardApp {
         }
 
         // Small delay between batches to avoid overwhelming the server
-        if (nextBatch && !result.completed) {
+        if (nextBatch && !isCompleted) {
           await new Promise(resolve => setTimeout(resolve, 1000));
         }
 
-      } while (nextBatch && !result.completed);
+      } while (nextBatch && !isCompleted);
 
       // Refresh data after sync
       await this.refreshAllData("manual-credits-sync");
