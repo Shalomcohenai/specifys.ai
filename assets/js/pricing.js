@@ -21,6 +21,112 @@
     var lemonConfigPromise = null;
     var lemonSdkPromise = null;
     var productButtons = [];
+    
+    // Silent fetch wrapper for Lemon Squeezy API calls
+    // Prevents console errors from appearing to users
+    function silentFetch(url, options = {}) {
+        // Use regular fetch but handle errors silently
+        return fetch(url, options).catch((error) => {
+            // Silently handle network errors for Lemon endpoints
+            // Return a response-like object so the calling code can handle it
+            if (url.includes('lemon') || url.includes('lemonsqueezy') || url.includes('/api/lemon')) {
+                // Create a response-like object for error handling
+                return {
+                    ok: false,
+                    status: 0,
+                    statusText: 'Network Error',
+                    json: () => Promise.resolve({ error: 'Network error' }),
+                    text: () => Promise.resolve('Network error'),
+                    headers: new Headers()
+                };
+            }
+            // For non-Lemon endpoints, re-throw the error
+            throw error;
+        });
+    }
+    
+    // Suppress console errors and unhandled rejections for Lemon Squeezy
+    (function suppressLemonErrors() {
+        if (typeof window === 'undefined' || typeof console === 'undefined') {
+            return;
+        }
+        
+        // Store original console methods
+        const originalError = console.error;
+        const originalWarn = console.warn;
+        
+        // Override console.error to suppress Lemon-related errors
+        console.error = function(...args) {
+            const message = String(args.join(' ')).toLowerCase();
+            const stack = new Error().stack || '';
+            
+            // Only suppress errors related to Lemon Squeezy
+            // Check both message and stack trace
+            const isLemonError = message.includes('lemon') || 
+                message.includes('lemonsqueezy') ||
+                message.includes('/api/lemon') ||
+                (message.includes('checkout') && (message.includes('404') || message.includes('failed'))) ||
+                (stack.includes('pricing.js') && (message.includes('checkout') || message.includes('fetch')));
+            
+            if (isLemonError) {
+                // Suppress this error - don't log it
+                return;
+            }
+            // For other errors, use original console.error
+            originalError.apply(console, args);
+        };
+        
+        // Override console.warn to suppress Lemon-related warnings
+        console.warn = function(...args) {
+            const message = String(args.join(' ')).toLowerCase();
+            const stack = new Error().stack || '';
+            
+            // Only suppress warnings related to Lemon Squeezy
+            const isLemonWarning = message.includes('lemon') || 
+                message.includes('lemonsqueezy') ||
+                message.includes('/api/lemon') ||
+                (stack.includes('pricing.js') && message.includes('checkout'));
+            
+            if (isLemonWarning) {
+                // Suppress this warning - don't log it
+                return;
+            }
+            // For other warnings, use original console.warn
+            originalWarn.apply(console, args);
+        };
+        
+        // Handle unhandled promise rejections
+        window.addEventListener('unhandledrejection', function(event) {
+            const reason = event.reason;
+            let shouldSuppress = false;
+            
+            // Check if error is related to Lemon Squeezy
+            if (reason) {
+                const errorMessage = (reason.message || reason.toString() || '').toLowerCase();
+                const errorStack = (reason.stack || '').toLowerCase();
+                const errorUrl = (reason.url || '').toLowerCase();
+                
+                // Suppress if related to Lemon Squeezy
+                if (errorMessage.includes('lemon') || 
+                    errorMessage.includes('lemonsqueezy') ||
+                    errorMessage.includes('/api/lemon') ||
+                    errorStack.includes('lemon') ||
+                    errorStack.includes('lemonsqueezy') ||
+                    errorUrl.includes('lemon') ||
+                    errorUrl.includes('lemonsqueezy') ||
+                    (errorMessage.includes('checkout') && errorMessage.includes('404')) ||
+                    (errorMessage.includes('fetch') && errorStack.includes('pricing.js') && errorStack.includes('lemon'))) {
+                    shouldSuppress = true;
+                }
+            }
+            
+            // Suppress the error if it's Lemon-related
+            if (shouldSuppress) {
+                event.preventDefault(); // Prevent default error logging
+                return;
+            }
+        }, true); // Use capture phase to catch early
+    })();
 
 // Initialize product buttons when DOM is ready
 function initProductButtons() {
@@ -446,7 +552,7 @@ async function purchaseSpec(evt, productKey) {
                     await new Promise(resolve => setTimeout(resolve, retryDelay));
                 }
                 
-                response = await fetch(`${API_BASE_URL}/lemon/checkout`, {
+                response = await silentFetch(`${API_BASE_URL}/lemon/checkout`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

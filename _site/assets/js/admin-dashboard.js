@@ -4805,7 +4805,7 @@ class AdminDashboardApp {
           break;
       }
 
-      if (response?.ok) {
+      if (response?.success) {
         alert("Action completed successfully!");
         if (this.dom.quickActions.modal) {
           this.dom.quickActions.modal.classList.add("hidden");
@@ -4831,7 +4831,8 @@ class AdminDashboardApp {
         
         this.refreshAllData();
       } else {
-        const error = await response?.json().catch(() => ({}));
+        // response is already parsed JSON, not a Response object
+        const error = response || {};
         alert(`Error: ${error?.error || error?.message || "Failed to complete action"}`);
       }
     } catch (error) {
