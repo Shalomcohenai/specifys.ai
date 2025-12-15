@@ -126,7 +126,7 @@
         // Instead, only set the flag if it's not already set (to avoid overwriting flags set in auth.html)
         // The flag should be set in auth.html using getAdditionalUserInfo or for registration
         const existingFlag = sessionStorage.getItem('showCreditPopup');
-        if (!existingFlag && result && (result.isNewUser || result.created)) {
+        if (!existingFlag && result && result.isNewUser) {
           console.log('[firebase-auth.html] ensureUserDocument - Setting showCreditPopup flag for new user (no existing flag)');
           sessionStorage.setItem('showCreditPopup', 'true');
           console.log('[firebase-auth.html] ensureUserDocument - Verified showCreditPopup set:', sessionStorage.getItem('showCreditPopup'));

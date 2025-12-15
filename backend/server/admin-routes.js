@@ -401,6 +401,171 @@ router.put('/users/:userId/toggle', requireAdmin, async (req, res, next) => {
 });
 
 /**
+ * Delete user permanently (admin only)
+ * DELETE /api/admin/users/:userId
+ * This will delete the user from Firebase Auth and all related data from Firestore
+ */
+router.delete('/users/:userId', requireAdmin, async (req, res, next) => {
+  const requestId = logRouteCall(req, 'DELETE /users/:userId');
+  const { userId } = req.params;
+  logger.info({ 
+    requestId, 
+    userId,
+    adminEmail: req.adminUser?.email,
+    adminUserId: req.adminUser?.uid
+  }, '[admin-routes] DELETE /users/:userId - Deleting user permanently');
+  
+  try {
+    // Prevent admin from deleting themselves
+    if (userId === req.adminUser?.uid) {
+      logger.warn({ requestId, userId }, '[admin-routes] Admin attempted to delete themselves');
+      return next(createError('You cannot delete your own account', ERROR_CODES.INVALID_INPUT, 400));
+    }
+
+    // Get user info before deletion for logging
+    let userEmail = 'unknown';
+    try {
+      const userRecord = await admin.auth().getUser(userId);
+      userEmail = userRecord.email || userId;
+    } catch (error) {
+      logger.warn({ requestId, userId, error: error.message }, '[admin-routes] Could not fetch user record before deletion');
+    }
+
+    // Delete from Firebase Auth
+    logger.debug({ requestId, userId }, '[admin-routes] Deleting user from Firebase Auth');
+    await admin.auth().deleteUser(userId);
+
+    // Delete from Firestore collections
+    const batch = db.batch();
+    let deletedCount = 0;
+
+    // Delete user document
+    const userRef = db.collection('users').doc(userId);
+    const userDoc = await userRef.get();
+    if (userDoc.exists) {
+      batch.delete(userRef);
+      deletedCount++;
+    }
+
+    // Delete entitlements document
+    const entitlementsRef = db.collection('entitlements').doc(userId);
+    const entitlementsDoc = await entitlementsRef.get();
+    if (entitlementsDoc.exists) {
+      batch.delete(entitlementsRef);
+      deletedCount++;
+    }
+
+    // Delete subscriptions document
+    const subscriptionsRef = db.collection('subscriptions').doc(userId);
+    const subscriptionsDoc = await subscriptionsRef.get();
+    if (subscriptionsDoc.exists) {
+      batch.delete(subscriptionsRef);
+      deletedCount++;
+    }
+
+    // Delete user_credits document
+    const userCreditsRef = db.collection('user_credits').doc(userId);
+    const userCreditsDoc = await userCreditsRef.get();
+    if (userCreditsDoc.exists) {
+      batch.delete(userCreditsRef);
+      deletedCount++;
+    }
+
+    // Delete userTools document
+    const userToolsRef = db.collection('userTools').doc(userId);
+    const userToolsDoc = await userToolsRef.get();
+    if (userToolsDoc.exists) {
+      batch.delete(userToolsRef);
+      deletedCount++;
+    }
+
+    // Commit batch deletions
+    if (deletedCount > 0) {
+      await batch.commit();
+      logger.debug({ requestId, userId, deletedCount }, '[admin-routes] Deleted user documents from Firestore');
+    }
+
+    // Helper function to delete documents in batches (Firestore limit is 500 per batch)
+    const deleteInBatches = async (docs, collectionName) => {
+      const BATCH_SIZE = 500;
+      let deletedCount = 0;
+      
+      for (let i = 0; i < docs.length; i += BATCH_SIZE) {
+        const batch = db.batch();
+        const batchDocs = docs.slice(i, i + BATCH_SIZE);
+        
+        batchDocs.forEach(doc => {
+          batch.delete(doc.ref);
+        });
+        
+        await batch.commit();
+        deletedCount += batchDocs.length;
+        logger.debug({ requestId, userId, collectionName, batch: Math.floor(i / BATCH_SIZE) + 1, count: batchDocs.length }, `[admin-routes] Deleted batch of ${collectionName}`);
+      }
+      
+      return deletedCount;
+    };
+
+    // Delete all specs by this user
+    const specsSnapshot = await db.collection('specs').where('userId', '==', userId).get();
+    const deletedSpecsCount = !specsSnapshot.empty ? await deleteInBatches(specsSnapshot.docs, 'specs') : 0;
+    if (deletedSpecsCount > 0) {
+      logger.debug({ requestId, userId, specsCount: deletedSpecsCount }, '[admin-routes] Deleted all user specs');
+    }
+
+    // Delete all apps by this user
+    const appsSnapshot = await db.collection('apps').where('userId', '==', userId).get();
+    const deletedAppsCount = !appsSnapshot.empty ? await deleteInBatches(appsSnapshot.docs, 'apps') : 0;
+    if (deletedAppsCount > 0) {
+      logger.debug({ requestId, userId, appsCount: deletedAppsCount }, '[admin-routes] Deleted all user apps');
+    }
+
+    // Delete all market research by this user
+    const marketResearchSnapshot = await db.collection('marketResearch').where('userId', '==', userId).get();
+    const deletedMarketResearchCount = !marketResearchSnapshot.empty ? await deleteInBatches(marketResearchSnapshot.docs, 'marketResearch') : 0;
+    if (deletedMarketResearchCount > 0) {
+      logger.debug({ requestId, userId, marketResearchCount: deletedMarketResearchCount }, '[admin-routes] Deleted all user market research');
+    }
+
+    // Note: We don't delete purchases as they are historical records
+    // But we could optionally mark them as deleted or anonymize them
+
+    logger.info({ 
+      requestId, 
+      userId, 
+      userEmail,
+      deletedDocuments: deletedCount,
+      deletedSpecs: deletedSpecsCount,
+      deletedApps: deletedAppsCount,
+      deletedMarketResearch: deletedMarketResearchCount
+    }, '[admin-routes] DELETE /users/:userId - Success');
+
+    res.json({ 
+      success: true, 
+      userId,
+      userEmail,
+      deleted: {
+        documents: deletedCount,
+        specs: deletedSpecsCount,
+        apps: deletedAppsCount,
+        marketResearch: deletedMarketResearchCount
+      }
+    });
+  } catch (error) {
+    logger.error({ requestId, userId, error: { message: error.message, stack: error.stack } }, '[admin-routes] DELETE /users/:userId - Error');
+    
+    // Handle specific Firebase Auth errors
+    if (error.code === 'auth/user-not-found') {
+      return next(createError('User not found', ERROR_CODES.RESOURCE_NOT_FOUND, 404));
+    }
+    
+    next(createError('Failed to delete user', ERROR_CODES.DATABASE_ERROR, 500, {
+      details: error.message
+    }));
+  }
+});
+
+/**
  * Get errors (admin only)
  * GET /api/admin/errors
  */

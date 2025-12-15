@@ -70,8 +70,13 @@ async function getUserByUid(uid) {
  */
 function determineIfNewUser(uid, authUser, credits, isNewUserFromClient) {
     // Priority 1: Client-provided flag (most reliable)
+    // If client explicitly says it's a new user, trust it
     if (isNewUserFromClient === true) {
         return true;
+    }
+    // If client explicitly says it's NOT a new user, trust it (don't override)
+    if (isNewUserFromClient === false) {
+        return false;
     }
     
     // Priority 2: Check if credits don't exist (definitely new user)
@@ -124,8 +129,8 @@ async function initializeUser(uid, userDataOverrides = {}, isNewUserFromClient =
             
             // If both exist, we still need to check user_credits (after transaction)
             // So we'll return a result that indicates we should check credits
+            // Don't determine _isNewUser here - will be determined after we check credits
             if (userExists && entitlementsExist) {
-                const isNewUser = isNewUserFromClient !== null ? isNewUserFromClient : false;
                 const result = {
                     created: false,
                     updated: false,
@@ -133,7 +138,7 @@ async function initializeUser(uid, userDataOverrides = {}, isNewUserFromClient =
                     user: userDoc.data(),
                     entitlements: entitlementsDoc.data(),
                     _needsCreditsInit: true, // Still check credits in case they don't exist
-                    _isNewUser: isNewUser
+                    _isNewUser: null // Will be determined after checking credits
                 };
                 return result;
             }
@@ -211,9 +216,10 @@ async function initializeUser(uid, userDataOverrides = {}, isNewUserFromClient =
             
             // Always check and initialize credits after transaction commits
             // For new users, we'll grant welcome credit
+            // Note: _isNewUser will be determined after checking credits, not here
             result._needsCreditsInit = true;
-            result._isNewUser = isNewUser;
-            console.log(`[user-management] User ${uid}: result._isNewUser=${result._isNewUser}, result.created=${result.created}`);
+            result._isNewUser = null; // Will be determined after checking credits using determineIfNewUser()
+            console.log(`[user-management] User ${uid}: result._isNewUser will be determined after credits check, result.created=${result.created}`);
             
             return result;
         });
@@ -223,17 +229,23 @@ async function initializeUser(uid, userDataOverrides = {}, isNewUserFromClient =
         
         if (result && result._needsCreditsInit) {
             console.log(`[user-management] Credits init needed for user ${uid}, proceeding...`);
+            // Load credits service once for reuse
+            const creditsV2Service = require('./credits-v2-service');
             try {
-                const creditsV2Service = require('./credits-v2-service');
                 console.log(`[user-management] Getting user credits for ${uid}...`);
                 const credits = await creditsV2Service.getUserCredits(uid);
                 console.log(`[user-management] User credits retrieved for ${uid}:`, JSON.stringify(credits, null, 2));
                 
-                // Grant 1 free credit to new users
-                // Use determineIfNewUser() to check if user is new based on Firebase Auth metadata and credits state
+                // Determine if user is new based on Firebase Auth metadata and credits state
+                // This must be done AFTER getting credits, as credits state is part of the determination
                 const finalIsNewUser = determineIfNewUser(uid, authUser, credits, isNewUserFromClient);
                 console.log(`[user-management] determineIfNewUser result for ${uid}:`, finalIsNewUser, 'isNewUserFromClient:', isNewUserFromClient, 'hasCredits:', !!credits, 'totalCredits:', credits ? ((credits.balances?.paid || 0) + (credits.balances?.free || 0) + (credits.balances?.bonus || 0)) : 0);
                 
+                // Update result._isNewUser with the final determination
+                result._isNewUser = finalIsNewUser;
+                console.log(`[user-management] Updated result._isNewUser=${result._isNewUser} for user ${uid}`);
+                
+                // Grant 1 free credit to new users
                 if (finalIsNewUser) {
                     console.log(`[user-management] User ${uid} is NEW USER - Granting welcome credit...`);
                     const grantResult = await creditsV2Service.grantCredits(uid, 1, 'promotion', {
@@ -249,9 +261,35 @@ async function initializeUser(uid, userDataOverrides = {}, isNewUserFromClient =
                 console.error(`[user-management] ERROR initializing credits for ${uid}:`, creditsError);
                 console.error(`[user-management] Error message:`, creditsError.message);
                 console.error(`[user-management] Error stack:`, creditsError.stack);
+                
+                // If we couldn't determine _isNewUser due to error, use fallback logic
+                // Try to get credits anyway to determine if user is new (might succeed even if initialization failed)
+                if (result._isNewUser === null) {
+                    try {
+                        const creditsAfterError = await creditsV2Service.getUserCredits(uid).catch(() => null);
+                        const finalIsNewUser = determineIfNewUser(uid, authUser, creditsAfterError, isNewUserFromClient);
+                        result._isNewUser = finalIsNewUser;
+                        console.log(`[user-management] Fallback after error: result._isNewUser set to ${result._isNewUser} for user ${uid}`);
+                    } catch (fallbackError) {
+                        // If even fallback fails, use isNewUserFromClient or default to false
+                        result._isNewUser = isNewUserFromClient === true;
+                        console.log(`[user-management] Final fallback after error: result._isNewUser set to ${result._isNewUser} for user ${uid}`);
+                    }
+                }
             }
         } else {
             console.log(`[user-management] Credits init NOT needed for user ${uid}. result exists:`, !!result, 'result._needsCreditsInit:', result?._needsCreditsInit);
+            // If credits init is not needed but _isNewUser is still null, set default
+            if (result && result._isNewUser === null) {
+                result._isNewUser = isNewUserFromClient === true;
+                console.log(`[user-management] Fallback: result._isNewUser set to ${result._isNewUser} (credits init not needed)`);
+            }
+        }
+        
+        // Ensure _isNewUser is never null in the final result
+        if (result && result._isNewUser === null) {
+            result._isNewUser = false;
+            console.log(`[user-management] Final fallback: result._isNewUser set to false for user ${uid}`);
         }
         
         return result;

@@ -3101,6 +3101,9 @@ class AdminDashboardApp {
               ${user.email ? `<button class="table-action-btn" data-action="copy-email" data-email="${user.email}">
                 <i class="fas fa-copy"></i> Copy email
               </button>` : ""}
+              <button class="table-action-btn btn-danger" data-action="delete-user" data-user-id="${user.id}" data-user-email="${user.email || user.id}">
+                <i class="fas fa-trash"></i> Delete
+              </button>
             </div>
           </td>
         </tr>
@@ -3155,6 +3158,64 @@ class AdminDashboardApp {
           navigator.clipboard?.writeText(email);
           btn.classList.add("copied");
           setTimeout(() => btn.classList.remove("copied"), 1000);
+        });
+      });
+
+    this.dom.usersTable
+      .querySelectorAll('[data-action="delete-user"]')
+      .forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          const userId = btn.dataset.userId;
+          const userEmail = btn.dataset.userEmail;
+          if (!userId) return;
+          
+          // Confirm deletion
+          const confirmMessage = `Are you sure you want to permanently delete this user?\n\nUser: ${userEmail}\n\nThis will delete:\n- User account from Firebase Auth\n- All user data from Firestore\n- All specs, apps, and market research\n- All subscriptions and credits\n\nThis action cannot be undone!`;
+          
+          if (!confirm(confirmMessage)) {
+            return;
+          }
+          
+          // Double confirmation
+          if (!confirm(`Final confirmation: Delete user ${userEmail}?\n\nThis action is PERMANENT and cannot be undone.`)) {
+            return;
+          }
+          
+          // Disable button and show loading state
+          btn.disabled = true;
+          const originalHTML = btn.innerHTML;
+          btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting...';
+          
+          try {
+            const response = await window.api.delete(`/api/admin/users/${userId}`);
+            
+            if (response.success) {
+              // Show success message
+              alert(`User ${userEmail} has been permanently deleted.`);
+              
+              // Remove user from local store
+              this.store.removeUser(userId);
+              this.store.removeEntitlement(userId);
+              
+              // Remove the row from the table
+              const row = btn.closest('tr[data-user-id]');
+              if (row) {
+                row.remove();
+                // Update pagination if needed
+                this.renderUsersTable();
+              }
+              
+              // Refresh data
+              await this.dataAggregator.refresh();
+            } else {
+              throw new Error(response.error || response.message || 'Failed to delete user');
+            }
+          } catch (error) {
+            console.error('Error deleting user:', error);
+            alert(`Failed to delete user: ${error.message}`);
+            btn.disabled = false;
+            btn.innerHTML = originalHTML;
+          }
         });
       });
   }
