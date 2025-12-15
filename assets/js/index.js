@@ -77,6 +77,95 @@ function closeRegistrationModal() {
   }
 }
 
+// ===== CREDIT POPUP FOR NEW USERS =====
+function showCreditPopup() {
+  // Check if popup already exists
+  let popup = document.getElementById('creditPopup');
+  if (popup) {
+    popup.remove();
+  }
+
+  // Create popup element
+  popup = document.createElement('div');
+  popup.id = 'creditPopup';
+  popup.className = 'credit-popup';
+  
+  popup.innerHTML = `
+    <div class="credit-popup-content">
+      <button class="credit-popup-close" id="creditPopupClose" aria-label="Close">×</button>
+      <div class="credit-popup-icon">🎉</div>
+      <h3 class="credit-popup-title">Congratulations!</h3>
+      <p class="credit-popup-message">You received one credit to use - use it wisely!</p>
+      <div class="credit-popup-timer">
+        <span id="creditPopupTimer">5</span>
+      </div>
+    </div>
+  `;
+  
+  document.body.appendChild(popup);
+  
+  // Show popup with animation
+  setTimeout(() => {
+    popup.classList.add('show');
+  }, 100);
+  
+  // Timer countdown
+  let timeLeft = 5;
+  const timerElement = document.getElementById('creditPopupTimer');
+  const timerInterval = setInterval(() => {
+    timeLeft--;
+    if (timerElement) {
+      timerElement.textContent = timeLeft;
+    }
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      closeCreditPopup();
+    }
+  }, 1000);
+  
+  // Close button handler
+  const closeBtn = document.getElementById('creditPopupClose');
+  if (closeBtn) {
+    closeBtn.addEventListener('click', () => {
+      clearInterval(timerInterval);
+      closeCreditPopup();
+    });
+  }
+  
+  // Close on escape key
+  const escapeHandler = (e) => {
+    if (e.key === 'Escape') {
+      clearInterval(timerInterval);
+      closeCreditPopup();
+      document.removeEventListener('keydown', escapeHandler);
+    }
+  };
+  document.addEventListener('keydown', escapeHandler);
+}
+
+function closeCreditPopup() {
+  const popup = document.getElementById('creditPopup');
+  if (popup) {
+    popup.classList.remove('show');
+    setTimeout(() => {
+      popup.remove();
+    }, 300);
+  }
+}
+
+function checkForCreditPopup() {
+  // Check if we should show the credit popup
+  const showPopup = sessionStorage.getItem('showCreditPopup');
+  if (showPopup === 'true') {
+    // Remove the flag
+    sessionStorage.removeItem('showCreditPopup');
+    // Show popup after a short delay to ensure page is loaded
+    setTimeout(() => {
+      showCreditPopup();
+    }, 500);
+  }
+}
+
 // ===== FIRST VISIT CHECK =====
 function checkFirstVisit() {
   const hasVisited = localStorage.getItem('hasVisited');
@@ -1197,7 +1286,7 @@ async function generateSpecification() {
       await window.updateCreditsDisplay({ forceRefresh: true });
     }
     
-    // Update store with credits (will be updated by credits-display.js)
+    // Update store with credits (will be updated by credits-v2-display.js)
     if (window.store) {
       window.store.subscribe((newState, prevState) => {
         if (newState.credits !== prevState.credits) {
@@ -1381,6 +1470,7 @@ document.addEventListener('DOMContentLoaded', function() {
   hideLoadingOverlay();
   
   checkFirstVisit();
+  checkForCreditPopup();
   setupModernInput();
   checkAutoStart();
   

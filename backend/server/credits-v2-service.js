@@ -89,7 +89,97 @@ function determineCreditType(source, metadata) {
 }
 
 /**
+ * Migrate credits from old system (entitlements) to new system (user_credits)
+ * @param {string} userId - Firebase user ID
+ * @returns {Promise<Object>} - Migrated credits data
+ */
+async function migrateFromOldSystem(userId) {
+  logger.info({ userId }, '[CREDITS-V2] Migrating from old system');
+  
+  try {
+    // Get old entitlements
+    const entitlementsRef = db.collection('entitlements').doc(userId);
+    const entitlementsDoc = await entitlementsRef.get();
+    
+    if (!entitlementsDoc.exists) {
+      // No old data, return null to create default
+      return null;
+    }
+    
+    const entitlements = entitlementsDoc.data();
+    
+    // Get user data for free_specs_remaining
+    const userRef = db.collection(USERS_COLLECTION).doc(userId);
+    const userDoc = await userRef.get();
+    const userData = userDoc.exists ? userDoc.data() : {};
+    
+    // Calculate balances from old system
+    const paid = typeof entitlements.spec_credits === 'number' ? entitlements.spec_credits : 0;
+    const free = typeof userData.free_specs_remaining === 'number' ? userData.free_specs_remaining : 0;
+    const bonus = 0; // Start with 0 bonus credits
+    
+    // Determine subscription
+    const isUnlimited = entitlements.unlimited === true;
+    const subscriptionType = isUnlimited ? 'pro' : 'none';
+    const subscriptionStatus = isUnlimited ? 'active' : 'none';
+    
+    // Check if subscription document exists for expiration date
+    let subscriptionExpiresAt = null;
+    if (isUnlimited) {
+      const subscriptionDoc = await db.collection(SUBSCRIPTIONS_COLLECTION).doc(userId).get();
+      if (subscriptionDoc.exists) {
+        const subData = subscriptionDoc.data();
+        subscriptionExpiresAt = subData.current_period_end || null;
+      }
+    }
+    
+    // Create new credits document
+    const newCredits = {
+      userId: userId,
+      balances: {
+        paid: paid,
+        free: free,
+        bonus: bonus
+      },
+      subscription: {
+        type: subscriptionType,
+        status: subscriptionStatus,
+        expiresAt: subscriptionExpiresAt,
+        preservedCredits: typeof entitlements.preserved_credits === 'number' 
+          ? entitlements.preserved_credits 
+          : 0
+      },
+      permissions: {
+        canEdit: entitlements.can_edit === true,
+        canCreateUnlimited: isUnlimited
+      },
+      metadata: {
+        createdAt: entitlements.updated_at || admin.firestore.FieldValue.serverTimestamp(),
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        lastCreditGrant: null,
+        lastCreditConsume: null,
+        migratedFrom: 'entitlements',
+        migratedAt: admin.firestore.FieldValue.serverTimestamp()
+      }
+    };
+    
+    // Save to new collection
+    const creditsRef = db.collection(CREDITS_COLLECTION).doc(userId);
+    await creditsRef.set(newCredits);
+    
+    logger.info({ userId, paid, free, bonus, subscriptionType }, '[CREDITS-V2] Migration completed successfully');
+    
+    return newCredits;
+  } catch (error) {
+    logger.error({ userId, error: error.message }, '[CREDITS-V2] Error during migration');
+    // Don't throw - return null to create default instead
+    return null;
+  }
+}
+
+/**
  * Get user credits (single source of truth)
+ * Automatically migrates from old system if needed
  * @param {string} userId - Firebase user ID
  * @returns {Promise<Object>} - User credits data
  */
@@ -102,7 +192,15 @@ async function getUserCredits(userId) {
   const creditsDoc = await creditsRef.get();
   
   if (!creditsDoc.exists) {
-    // Create default credits for new user
+    // Try to migrate from old system
+    const migratedCredits = await migrateFromOldSystem(userId);
+    
+    if (migratedCredits) {
+      // Migration successful, return migrated data
+      return migratedCredits;
+    }
+    
+    // No old data found, create default credits for new user
     const defaultCredits = getDefaultCredits(userId);
     await creditsRef.set(defaultCredits);
     return defaultCredits;
@@ -221,6 +319,10 @@ async function consumeCredit(userId, specId, options = {}) {
     // Generate transaction ID
     const transactionId = generateTransactionId('consume', specId, userId);
     
+    // Ensure user_credits exists (will migrate from old system if needed)
+    // This must be done BEFORE the transaction to ensure migration happens
+    await getUserCredits(userId);
+    
     // Use Firestore transaction for atomic credit consumption
     const result = await db.runTransaction(async (transaction) => {
       // Check idempotency
@@ -250,13 +352,19 @@ async function consumeCredit(userId, specId, options = {}) {
         throw new Error('User already has a spec. Only one spec per user is allowed.');
       }
       
-      // Get user credits
+      // Get user credits (should exist now after migration)
       const creditsRef = db.collection(CREDITS_COLLECTION).doc(userId);
       const creditsDoc = await transaction.get(creditsRef);
       
-      const credits = creditsDoc.exists
-        ? creditsDoc.data()
-        : getDefaultCredits(userId);
+      if (!creditsDoc.exists) {
+        // This shouldn't happen if getUserCredits worked, but handle gracefully
+        logger.warn({ requestId, userId }, '[CREDITS-V2] user_credits document missing, creating default');
+        const defaultCredits = getDefaultCredits(userId);
+        transaction.set(creditsRef, defaultCredits);
+        throw new Error('Insufficient credits');
+      }
+      
+      const credits = creditsDoc.data();
       
       // Check subscription first
       if (credits.subscription.type === 'pro' && credits.subscription.status === 'active') {
@@ -433,6 +541,10 @@ async function grantCredits(userId, amount, source, metadata = {}) {
     // Generate transaction ID
     const transactionId = metadata.transactionId || generateTransactionId('grant', metadata.orderId, userId);
     
+    // Ensure user_credits exists (will migrate from old system if needed)
+    // This must be done BEFORE the transaction to ensure migration happens
+    await getUserCredits(userId);
+    
     // Use Firestore transaction for atomic credit grant
     const result = await db.runTransaction(async (transaction) => {
       // Check idempotency
@@ -458,13 +570,26 @@ async function grantCredits(userId, amount, source, metadata = {}) {
         };
       }
       
-      // Get user credits
+      // Get user credits (should exist now after migration)
       const creditsRef = db.collection(CREDITS_COLLECTION).doc(userId);
       const creditsDoc = await transaction.get(creditsRef);
       
-      const credits = creditsDoc.exists
-        ? creditsDoc.data()
-        : getDefaultCredits(userId);
+      if (!creditsDoc.exists) {
+        // This shouldn't happen if getUserCredits worked, but handle gracefully
+        logger.warn({ requestId, userId }, '[CREDITS-V2] user_credits document missing, creating default');
+        const defaultCredits = getDefaultCredits(userId);
+        transaction.set(creditsRef, defaultCredits);
+        return {
+          success: true,
+          creditsAdded: amount,
+          creditType: determineCreditType(source, metadata),
+          total: amount,
+          breakdown: defaultCredits.balances,
+          transactionId: transactionId
+        };
+      }
+      
+      const credits = creditsDoc.data();
       
       // Determine credit type
       const creditType = determineCreditType(source, metadata);

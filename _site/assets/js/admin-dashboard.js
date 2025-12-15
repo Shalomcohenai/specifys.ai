@@ -4811,16 +4811,12 @@ class AdminDashboardApp {
           this.dom.quickActions.modal.classList.add("hidden");
         }
         
-        // Clear entitlements cache to force refresh of credits display
+        // Clear CreditsV2Manager cache (new unified credits system)
         // This ensures the user sees updated credits immediately
-        if (typeof window.clearEntitlementsCache === 'function') {
-          window.clearEntitlementsCache();
-        }
-        
-        // Clear stored credits state from localStorage
-        // This ensures the UI doesn't use stale cached data
-        if (typeof window.clearStoredCreditsState === 'function') {
-          window.clearStoredCreditsState();
+        if (window.CreditsV2Manager) {
+          window.CreditsV2Manager.clearCache();
+        } else if (typeof window.clearCreditsCache === 'function') {
+          window.clearCreditsCache();
         }
         
         // Force refresh credits display if user is viewing their own profile

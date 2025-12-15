@@ -1,8 +1,6 @@
 /**
  * Auth Bundle - Authentication and entitlements
- * Includes: entitlements-cache.js, credits-display.js
+ * Note: Credits system moved to credits-v2-manager.js and credits-v2-display.js (loaded in header.html)
  */
 
-// Import auth and entitlements utilities
-import '../entitlements-cache.js';
-import '../credits-display.js';
+// Auth utilities only - credits system is handled by V2 system in header

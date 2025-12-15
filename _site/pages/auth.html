@@ -377,8 +377,11 @@
 
                     
                     try {
-                        await createUserDocument(user);
-
+                        const result = await createUserDocument(user);
+                        // Check if this is a new user registration
+                        if (result && result.created) {
+                            sessionStorage.setItem('showCreditPopup', 'true');
+                        }
                         
                         showSuccess('Login successful! Redirecting to homepage...');
                         setTimeout(() => {
@@ -419,8 +422,11 @@
                     loadingDiv.remove();
                     
                     if (result && result.user) {
-                        await createUserDocument(result.user);
-
+                        const createResult = await createUserDocument(result.user);
+                        // Check if this is a new user registration
+                        if (createResult && createResult.created) {
+                            sessionStorage.setItem('showCreditPopup', 'true');
+                        }
                         
                         showSuccess('Login successful! Redirecting to homepage...');
                         setTimeout(() => {
@@ -694,7 +700,11 @@
         async function registerWithEmail(email, password) {
             try {
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                await createUserDocument(userCredential.user);
+                const result = await createUserDocument(userCredential.user);
+                // This is always a new registration, so set flag for credit popup
+                if (result && result.created) {
+                    sessionStorage.setItem('showCreditPopup', 'true');
+                }
                 return userCredential.user;
             } catch (error) {
                 throw new Error(getAuthErrorMessage(error.code));
@@ -880,8 +890,11 @@
             
             popupPromise
                 .then(async (result) => {
-                    await createUserDocument(result.user);
-
+                    const createResult = await createUserDocument(result.user);
+                    // Check if this is a new user registration
+                    if (createResult && createResult.created) {
+                        sessionStorage.setItem('showCreditPopup', 'true');
+                    }
                     
                     showSuccess('Login successful! Redirecting to homepage...');
                     setTimeout(() => {
