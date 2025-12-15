@@ -678,3 +678,56 @@ button[onclick*="openVisualizer"]:active {
     justify-content: space-between;
   }
 }
+
+/* ===== BUTTON LOADING SPINNER ===== */
+.btn .loading-spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: buttonSpinnerRotate 0.8s linear infinite;
+  margin-right: 8px;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+/* Spinner animation for buttons (separate from general spin animation) */
+@keyframes buttonSpinnerRotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* ===== MERMAID DIAGRAM STYLES ===== */
+.mermaid-rendered {
+  width: 100%;
+  overflow: auto;
+  text-align: center;
+  padding: 20px;
+  background: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
+
+.mermaid-rendered svg {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+
+.diagram-content {
+  width: 100%;
+}
+
+.diagram-loading {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+  font-style: italic;
+}

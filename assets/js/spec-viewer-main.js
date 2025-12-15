@@ -6099,6 +6099,7 @@ async function generateDiagrams() {
         
         generateBtn.disabled = true;
         generateBtn.innerHTML = '<span class="loading-spinner"></span> Generating Diagrams...';
+        generateBtn.style.cursor = 'wait';
         
         // Keep the original background color and prevent it from changing (important to override any CSS)
         generateBtn.style.backgroundColor = originalBgColor || '';
@@ -6189,8 +6190,10 @@ async function generateDiagrams() {
             updateDiagramsStatus('ready');
             
             // Reset button before hiding (in case it's shown again)
+            generateBtn.disabled = false;
             generateBtn.innerHTML = 'Generate Diagrams';
             generateBtn.style.backgroundColor = '';
+            generateBtn.style.cursor = 'pointer';
             
             // Hide generate button
             generateBtn.style.display = 'none';
@@ -6212,11 +6215,12 @@ async function generateDiagrams() {
         
         // Reset button
         const generateBtn = document.getElementById('generateDiagramsBtn');
-        generateBtn.disabled = false;
-        generateBtn.innerHTML = 'Generate Diagrams';
-        
-        // Reset background color if it was changed
-        generateBtn.style.backgroundColor = '';
+        if (generateBtn) {
+            generateBtn.disabled = false;
+            generateBtn.innerHTML = 'Generate Diagrams';
+            generateBtn.style.backgroundColor = '';
+            generateBtn.style.cursor = 'pointer';
+        }
     } finally {
         isLoading = false;
     }
@@ -6235,6 +6239,7 @@ async function generatePrompts() {
         
         generateBtn.disabled = true;
         generateBtn.innerHTML = '<span class="loading-spinner"></span> Generating Prompts...';
+        generateBtn.style.cursor = 'wait';
         
         // Keep the original background color and prevent it from changing
         generateBtn.style.backgroundColor = originalBgColor || '';
@@ -6385,6 +6390,12 @@ async function generatePrompts() {
         // Display prompts
         displayPrompts(promptsData);
         
+        // Reset button before hiding (in case it's shown again)
+        generateBtn.disabled = false;
+        generateBtn.innerHTML = 'Generate Prompts';
+        generateBtn.style.backgroundColor = '';
+        generateBtn.style.cursor = 'pointer';
+        
         // Hide generate button
         generateBtn.style.display = 'none';
         
@@ -6416,6 +6427,7 @@ async function generatePrompts() {
             generateBtn.disabled = false;
             generateBtn.innerHTML = 'Generate Prompts';
             generateBtn.style.backgroundColor = '';
+            generateBtn.style.cursor = 'pointer';
         }
     }
 }
@@ -6643,53 +6655,89 @@ async function renderSingleDiagram(diagramData, containerId, isRefresh = false) 
         // Clear loading state
         container.innerHTML = '';
 
-        // Create Mermaid element
-        const mermaidElement = document.createElement('div');
-        mermaidElement.className = 'mermaid';
-        mermaidElement.id = `mermaid-${diagramData.id}`;
-        mermaidElement.textContent = diagramData.mermaidCode;
-        container.appendChild(mermaidElement);
-
-        // Initialize Mermaid
-        if (typeof mermaid !== 'undefined') {
+        // Wait for Mermaid to be available and initialized
+        let mermaidAvailable = false;
+        let attempts = 0;
+        const maxAttempts = 50; // Wait up to 5 seconds (50 * 100ms)
+        
+        // Try to load Mermaid if mermaidManager exists and can load it
+        if (window.mermaidManager && typeof mermaid === 'undefined') {
             try {
-                // Use mermaid.render() for specific element (more reliable than mermaid.run())
-                const uniqueId = `mermaid-render-${diagramData.id}-${Date.now()}`;
-                const { svg } = await mermaid.render(uniqueId, diagramData.mermaidCode);
-                
-                // Replace the mermaid element with the rendered SVG
-                mermaidElement.innerHTML = svg;
-                mermaidElement.className = 'mermaid-rendered';
-                
-                if (statusIndicator) statusIndicator.className = 'status-indicator ready';
-                if (statusText) statusText.textContent = 'Ready';
-
-                
-                // Hide repair and refresh buttons when diagram is working
-                hideDiagramControls(diagramData.id);
-                
-                // Mark diagram as valid in memory
-                diagramData._isValid = true;
-                diagramData._lastRenderAttempt = Date.now();
-                
-            } catch (initError) {
-
-                
-                // Store error info for debugging
-                diagramData._lastError = initError.message;
-                diagramData._isValid = false;
-                
-                throw initError;
+                await window.mermaidManager.loadMermaid();
+            } catch (loadErr) {
+                // Failed to load, will try to continue anyway
             }
-        } else {
-            // Fallback: show raw code if Mermaid not available
-            container.innerHTML = `<pre style="background: #f8f9fa; padding: 20px; border-radius: 4px; overflow-x: auto;">${diagramData.mermaidCode}</pre>`;
+        }
+        
+        while (attempts < maxAttempts) {
+            if (typeof mermaid !== 'undefined') {
+                // Try to initialize Mermaid if mermaidManager exists
+                if (window.mermaidManager && !window.mermaidManager.isInitialized) {
+                    await window.mermaidManager.initialize();
+                } else if (!window.mermaidManager && mermaid.initialize) {
+                    // Fallback: initialize with basic config if mermaidManager doesn't exist
+                    try {
+                        mermaid.initialize({
+                            startOnLoad: false,
+                            theme: 'base',
+                            themeVariables: {
+                                primaryColor: '#FF6B35',
+                                primaryTextColor: '#333333',
+                                primaryBorderColor: '#FF6B35',
+                                lineColor: '#333333',
+                                background: '#ffffff'
+                            }
+                        });
+                    } catch (initErr) {
+                        // Already initialized or error, continue
+                    }
+                }
+                mermaidAvailable = true;
+                break;
+            }
+            await new Promise(resolve => setTimeout(resolve, 100));
+            attempts++;
+        }
+
+        if (!mermaidAvailable) {
+            throw new Error('Mermaid library not loaded. Please refresh the page.');
+        }
+
+        // Generate unique ID for rendering
+        const uniqueId = `mermaid-render-${diagramData.id}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        
+        try {
+            // Render the diagram using mermaid.render()
+            const { svg } = await mermaid.render(uniqueId, diagramData.mermaidCode);
+            
+            // Create container for the rendered SVG
+            const mermaidContainer = document.createElement('div');
+            mermaidContainer.className = 'mermaid-rendered';
+            mermaidContainer.style.width = '100%';
+            mermaidContainer.style.overflow = 'auto';
+            mermaidContainer.innerHTML = svg;
+            
+            // Replace container content with rendered SVG
+            container.innerHTML = '';
+            container.appendChild(mermaidContainer);
+            
             if (statusIndicator) statusIndicator.className = 'status-indicator ready';
-            if (statusText) statusText.textContent = 'Ready (Raw)';
+            if (statusText) statusText.textContent = 'Ready';
 
             
-            // Mark as valid (displayed as text)
+            // Hide repair and refresh buttons when diagram is working
+            hideDiagramControls(diagramData.id);
+            
+            // Mark diagram as valid in memory
             diagramData._isValid = true;
+            diagramData._lastRenderAttempt = Date.now();
+                
+        } catch (renderError) {
+            // Store error info for debugging
+            diagramData._lastError = renderError.message;
+            diagramData._isValid = false;
+            
+            throw renderError;
         }
 
     } catch (error) {
