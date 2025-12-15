@@ -249,9 +249,20 @@
       applyCreditsState(displayState);
     });
 
+    // Check if we need to refresh credits on load (for new users)
+    const needsRefreshOnLoad = sessionStorage.getItem('refreshCreditsOnLoad') === 'true';
+    if (needsRefreshOnLoad) {
+      sessionStorage.removeItem('refreshCreditsOnLoad');
+    }
+    
     // Initial update
     if (auth.currentUser) {
-      updateCreditsDisplay();
+      if (needsRefreshOnLoad) {
+        // If we need to refresh for new user, use forceRefresh
+        updateCreditsDisplay({ forceRefresh: true });
+      } else {
+        updateCreditsDisplay();
+      }
     }
   }
 

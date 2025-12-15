@@ -383,15 +383,21 @@
                         // Only set flag if not already set (to avoid overwriting flags set elsewhere)
                         const existingFlag = sessionStorage.getItem('showCreditPopup');
                         if (!existingFlag) {
-                            const result = await createUserDocument(user);
+                            const result = await createUserDocument(user, null); // null כי אין לנו isNewUser כאן
                             // Only set flag if server says it's a new user AND no flag exists
                             if (result && (result.isNewUser || result.created)) {
                                 console.log('[auth.html] onAuthStateChanged - Setting showCreditPopup flag (fallback)');
                                 sessionStorage.setItem('showCreditPopup', 'true');
+                                // נקה cache
+                                if (typeof window.clearCreditsCache === 'function') {
+                                    window.clearCreditsCache();
+                                }
+                                // שמור flag לעדכון תצוגה ב-index.html
+                                sessionStorage.setItem('refreshCreditsOnLoad', 'true');
                             }
                         } else {
                             console.log('[auth.html] onAuthStateChanged - showCreditPopup flag already exists, not overwriting');
-                            await createUserDocument(user);
+                            await createUserDocument(user, null); // null כי אין לנו isNewUser כאן
                         }
                         
                         showSuccess('Login successful! Redirecting to homepage...');
@@ -440,12 +446,18 @@
                         console.log('[auth.html] getRedirectResult (with loading) - isNewUser from Firebase Auth:', isNewUser);
                         
                         // Create user document (but don't rely on its response for isNewUser)
-                        await createUserDocument(result.user);
+                        await createUserDocument(result.user, isNewUser);
                         
                         // Set popup flag based on Firebase Auth's isNewUser
                         if (isNewUser) {
                             console.log('[auth.html] getRedirectResult (with loading) - Setting showCreditPopup flag for new user');
                             sessionStorage.setItem('showCreditPopup', 'true');
+                            // נקה cache
+                            if (typeof window.clearCreditsCache === 'function') {
+                                window.clearCreditsCache();
+                            }
+                            // שמור flag לעדכון תצוגה ב-index.html
+                            sessionStorage.setItem('refreshCreditsOnLoad', 'true');
                         }
                         
                         showSuccess('Login successful! Redirecting to homepage...');
@@ -466,12 +478,18 @@
                         console.log('[auth.html] getRedirectResult (without loading) - isNewUser from Firebase Auth:', isNewUser);
                         
                         // Create user document (but don't rely on its response for isNewUser)
-                        await createUserDocument(result.user);
+                        await createUserDocument(result.user, isNewUser);
                         
                         // Set popup flag based on Firebase Auth's isNewUser
                         if (isNewUser) {
                             console.log('[auth.html] getRedirectResult (without loading) - Setting showCreditPopup flag for new user');
                             sessionStorage.setItem('showCreditPopup', 'true');
+                            // נקה cache
+                            if (typeof window.clearCreditsCache === 'function') {
+                                window.clearCreditsCache();
+                            }
+                            // שמור flag לעדכון תצוגה ב-index.html
+                            sessionStorage.setItem('refreshCreditsOnLoad', 'true');
                         }
                         
                         showSuccess('Login successful! Redirecting to homepage...');
@@ -491,7 +509,7 @@
 
         // Initialize user documents (users + entitlements) via API
         // Uses Firestore Transaction for atomicity
-        async function createUserDocument(user, retryCount = 0) {
+        async function createUserDocument(user, isNewUser = null, retryCount = 0) {
             const MAX_RETRIES = 3;
             const RETRY_DELAYS = [500, 1000, 2000]; // ms
             
@@ -504,13 +522,18 @@
                 const token = await user.getIdToken();
                 const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai-development.onrender.com';
                 
+                const requestBody = {};
+                if (isNewUser !== null) {
+                    requestBody.isNewUser = isNewUser;
+                }
+                
                 const response = await fetch(`${apiBaseUrl}/api/users/initialize`, {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({})
+                    body: JSON.stringify(requestBody)
                 });
 
                 if (response.status === 404) {
@@ -541,7 +564,7 @@
                 if (retryCount < MAX_RETRIES) {
                     const delay = RETRY_DELAYS[retryCount] || 2000;
                     await new Promise(resolve => setTimeout(resolve, delay));
-                    return createUserDocument(user, retryCount + 1);
+                    return createUserDocument(user, isNewUser, retryCount + 1);
                 }
                 // Re-throw after max retries (only for non-404 errors)
                 throw error;
@@ -745,11 +768,17 @@
                 console.log('[auth.html] registerWithEmail - isNewUser (always true for registration):', isNewUser);
                 
                 // Create user document (but don't rely on its response for isNewUser)
-                await createUserDocument(userCredential.user);
+                await createUserDocument(userCredential.user, true); // תמיד true ל-registration
                 
                 // Set popup flag - registration always means new user
                 console.log('[auth.html] registerWithEmail - Setting showCreditPopup flag to true');
                 sessionStorage.setItem('showCreditPopup', 'true');
+                // נקה cache
+                if (typeof window.clearCreditsCache === 'function') {
+                    window.clearCreditsCache();
+                }
+                // שמור flag לעדכון תצוגה ב-index.html
+                sessionStorage.setItem('refreshCreditsOnLoad', 'true');
                 console.log('[auth.html] registerWithEmail - Verified showCreditPopup set:', sessionStorage.getItem('showCreditPopup'));
                 
                 return userCredential.user;
@@ -762,7 +791,7 @@
         async function loginWithEmail(email, password) {
             try {
                 const userCredential = await signInWithEmailAndPassword(auth, email, password);
-                await createUserDocument(userCredential.user);
+                await createUserDocument(userCredential.user, null); // null כי אין לנו isNewUser כאן
                 return userCredential.user;
             } catch (error) {
                 throw new Error(getAuthErrorMessage(error.code));
@@ -801,12 +830,18 @@
                 console.log('[auth.html] signInWithGoogle - isNewUser from Firebase Auth:', isNewUser);
                 
                 // Create user document (but don't rely on its response for isNewUser)
-                await createUserDocument(result.user);
+                await createUserDocument(result.user, isNewUser);
                 
                 // Set popup flag based on Firebase Auth's isNewUser
                 if (isNewUser) {
                     console.log('[auth.html] signInWithGoogle - Setting showCreditPopup flag for new user');
                     sessionStorage.setItem('showCreditPopup', 'true');
+                    // נקה cache
+                    if (typeof window.clearCreditsCache === 'function') {
+                        window.clearCreditsCache();
+                    }
+                    // שמור flag לעדכון תצוגה ב-index.html
+                    sessionStorage.setItem('refreshCreditsOnLoad', 'true');
                 }
 
                 
@@ -958,10 +993,19 @@
             
             popupPromise
                 .then(async (result) => {
-                    const createResult = await createUserDocument(result.user);
+                    // Check if this is a new user using Firebase Auth's additionalUserInfo
+                    const additionalUserInfo = getAdditionalUserInfo(result);
+                    const isNewUser = additionalUserInfo?.isNewUser === true;
+                    const createResult = await createUserDocument(result.user, isNewUser);
                     // Check if this is a new user registration
-                    if (createResult && (createResult.isNewUser || createResult.created)) {
+                    if (isNewUser || (createResult && (createResult.isNewUser || createResult.created))) {
                         sessionStorage.setItem('showCreditPopup', 'true');
+                        // נקה cache
+                        if (typeof window.clearCreditsCache === 'function') {
+                            window.clearCreditsCache();
+                        }
+                        // שמור flag לעדכון תצוגה ב-index.html
+                        sessionStorage.setItem('refreshCreditsOnLoad', 'true');
                     }
                     
                     showSuccess('Login successful! Redirecting to homepage...');

@@ -64,7 +64,7 @@ async function getUserByUid(uid) {
  * Initialize user documents (users + entitlements) in a single transaction
  * This ensures atomicity and prevents race conditions
  */
-async function initializeUser(uid, userDataOverrides = {}) {
+async function initializeUser(uid, userDataOverrides = {}, isNewUserFromClient = null) {
     try {
         const authUser = await getUserByUid(uid);
         const nowIso = new Date().toISOString();
@@ -85,6 +85,7 @@ async function initializeUser(uid, userDataOverrides = {}) {
             // If both exist, we still need to check user_credits (after transaction)
             // So we'll return a result that indicates we should check credits
             if (userExists && entitlementsExist) {
+                const isNewUser = isNewUserFromClient !== null ? isNewUserFromClient : false;
                 const result = {
                     created: false,
                     updated: false,
@@ -92,7 +93,7 @@ async function initializeUser(uid, userDataOverrides = {}) {
                     user: userDoc.data(),
                     entitlements: entitlementsDoc.data(),
                     _needsCreditsInit: true, // Still check credits in case they don't exist
-                    _isNewUser: false
+                    _isNewUser: isNewUser
                 };
                 return result;
             }
@@ -154,9 +155,8 @@ async function initializeUser(uid, userDataOverrides = {}) {
                 ? entitlementsDoc.data() 
                 : { userId: uid, unlimited: false, can_edit: false };
             
-            // Determine if this is a new user - a new user is one where the user document didn't exist
-            // This is the key indicator: if user document didn't exist, it's a new registration
-            const isNewUser = !userExists;
+            // Determine if this is a new user - use isNewUserFromClient if provided, otherwise check if user document didn't exist
+            const isNewUser = isNewUserFromClient !== null ? isNewUserFromClient : !userExists;
             console.log(`[user-management] User ${uid}: userExists=${userExists}, entitlementsExist=${entitlementsExist}, isNewUser=${isNewUser}`);
             
             // Initialize user_credits if it doesn't exist (after transaction)
@@ -190,7 +190,9 @@ async function initializeUser(uid, userDataOverrides = {}) {
                 console.log(`[user-management] User credits retrieved for ${uid}:`, JSON.stringify(credits, null, 2));
                 
                 // Grant 1 free credit to new users
-                if (result._isNewUser) {
+                // Use isNewUserFromClient if provided, otherwise use result._isNewUser
+                const finalIsNewUser = isNewUserFromClient !== null ? isNewUserFromClient : result._isNewUser;
+                if (finalIsNewUser) {
                     console.log(`[user-management] User ${uid} is NEW USER - Granting welcome credit...`);
                     const grantResult = await creditsV2Service.grantCredits(uid, 1, 'promotion', {
                         reason: 'New user welcome credit',
@@ -198,7 +200,7 @@ async function initializeUser(uid, userDataOverrides = {}) {
                     });
                     console.log(`[user-management] Credit granted successfully to ${uid}:`, JSON.stringify(grantResult, null, 2));
                 } else {
-                    console.log(`[user-management] User ${uid} is NOT new user (isNewUser=${result._isNewUser}), skipping credit grant`);
+                    console.log(`[user-management] User ${uid} is NOT new user (finalIsNewUser=${finalIsNewUser}), skipping credit grant`);
                 }
             } catch (creditsError) {
                 // Log but don't fail - credits will be initialized on first access

@@ -1769,6 +1769,14 @@ function trackPreference(preferenceName, preferenceValue) {
           }
         } else if (existingFlag) {
           console.log('[firebase-auth.html] ensureUserDocument - showCreditPopup flag already exists, not overwriting');
+          // נקה cache
+          if (typeof window.clearCreditsCache === 'function') {
+            window.clearCreditsCache();
+          }
+          // עדכן תצוגה עם forceRefresh
+          if (typeof window.updateCreditsDisplay === 'function') {
+            window.updateCreditsDisplay({ forceRefresh: true });
+          }
         }
         
         // If entitlements were created or updated, trigger credits refresh

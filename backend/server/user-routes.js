@@ -44,9 +44,10 @@ router.post('/initialize', verifyFirebaseToken, async (req, res, next) => {
         logger.debug({ requestId, userId }, '[user-routes] Processing user initialization');
 
         const userDataOverrides = req.body && typeof req.body === 'object' ? req.body.userData || {} : {};
+        const isNewUserFromClient = req.body?.isNewUser === true;
 
-        logger.debug({ requestId, userId, hasOverrides: Object.keys(userDataOverrides).length > 0 }, '[user-routes] Initializing user documents');
-        const result = await initializeUser(userId, userDataOverrides);
+        logger.debug({ requestId, userId, hasOverrides: Object.keys(userDataOverrides).length > 0, isNewUserFromClient }, '[user-routes] Initializing user documents');
+        const result = await initializeUser(userId, userDataOverrides, isNewUserFromClient);
         logger.debug({ 
             requestId, 
             userId, 
