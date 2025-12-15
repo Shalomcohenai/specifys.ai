@@ -5,6 +5,17 @@
    Extracted from main-compiled.css.backup.old
 */
 
+/* Center section title and subtitle in all why-sections */
+.why-section .section-title,
+.why-section .section-subtitle {
+  width: 100%;
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  padding: 0 20px;
+}
+
 /* Prompt Section (The Promise That Falls Short) */
 .why-section.prompt-section {
   position: relative;
@@ -25,6 +36,28 @@
   overflow: hidden;
 }
 
+/* Center section title and subtitle in prompt-section */
+.why-section.prompt-section .section-title,
+.why-section.prompt-section .section-subtitle {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  padding: 0 20px;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.why-section.prompt-section .section-title.revealed,
+.why-section.prompt-section .section-subtitle.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 .content-text-centered {
   position: relative;
   z-index: 2;
@@ -32,6 +65,14 @@
   margin: 0 auto;
   padding: 40px 20px;
   text-align: center;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s ease 0.4s, transform 0.8s ease 0.4s;
+}
+
+.content-text-centered.revealed {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .content-text-centered .section-container {
@@ -155,10 +196,21 @@
   transition: opacity 0.8s ease 0.7s, transform 0.8s ease 0.7s;
 }
 
-.content-layout.revealed .content-image,
-.content-layout .content-image {
+.content-layout.revealed .content-image {
   opacity: 1;
   transform: translateY(0);
+}
+
+/* Fade in from left for content-image in content-layout (not prompt-section) */
+.why-section:not(.prompt-section) .content-layout .content-image {
+  opacity: 0 !important;
+  transform: translateX(-50px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.why-section:not(.prompt-section) .content-layout.revealed .content-image {
+  opacity: 1 !important;
+  transform: translateX(0);
 }
 
 .content-text {
@@ -173,10 +225,33 @@
   transition: opacity 0.8s ease 0.4s, transform 0.8s ease 0.4s;
 }
 
-.content-layout.revealed .content-text .section-container,
-.content-layout .content-text .section-container {
+.content-layout.revealed .content-text .section-container {
   opacity: 1;
   transform: translateY(0);
+}
+
+/* Fade in from right for content-text in content-layout (not prompt-section) */
+.why-section:not(.prompt-section) .content-layout .content-text {
+  opacity: 0 !important;
+  transform: translateX(50px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.why-section:not(.prompt-section) .content-layout.revealed .content-text {
+  opacity: 1 !important;
+  transform: translateX(0);
+}
+
+/* Also hide section-container inside content-text initially - it will animate with parent */
+.why-section:not(.prompt-section) .content-layout .content-text .section-container {
+  opacity: 0;
+  transform: translateX(50px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.why-section:not(.prompt-section) .content-layout.revealed .content-text .section-container {
+  opacity: 1;
+  transform: translateX(0);
 }
 
 .section-text {

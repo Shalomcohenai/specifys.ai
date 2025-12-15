@@ -6378,16 +6378,29 @@ async function generatePrompts() {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 180000); // 3 minutes timeout
         
-        const response = await fetch('https://promtmaker.shalom-cohen-111.workers.dev/generate', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(requestBody),
-            signal: controller.signal
-        });
-        
-        clearTimeout(timeoutId);
+        let response;
+        try {
+            response = await fetch('https://promtmaker.shalom-cohen-111.workers.dev/generate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestBody),
+                signal: controller.signal
+            });
+            
+            clearTimeout(timeoutId);
+        } catch (fetchError) {
+            clearTimeout(timeoutId);
+            
+            // Handle AbortError specifically
+            if (fetchError.name === 'AbortError' || fetchError.message?.includes('aborted')) {
+                throw new Error('Request timed out after 3 minutes. The prompts generation is taking longer than expected. Please try again.');
+            }
+            
+            // Re-throw other fetch errors
+            throw new Error(`Failed to connect to prompts API: ${fetchError.message}`);
+        }
         
         if (!response.ok) {
             const errorText = await response.text();
@@ -6452,14 +6465,27 @@ async function generatePrompts() {
         
     } catch (error) {
         // Error generating prompts
-        showNotification(`Failed to generate prompts: ${error.message}`, 'error');
+        // Provide user-friendly error message
+        let errorMessage = error.message;
+        
+        // Handle specific error types
+        if (error.name === 'AbortError' || error.message?.includes('aborted') || error.message?.includes('timed out')) {
+            errorMessage = 'Request timed out. The prompts generation is taking longer than expected. Please try again.';
+        } else if (error.message?.includes('Failed to connect')) {
+            errorMessage = 'Failed to connect to the prompts service. Please check your internet connection and try again.';
+        } else if (error.message?.includes('API Error')) {
+            // Keep API error messages as they are (they're already descriptive)
+            errorMessage = error.message;
+        }
+        
+        showNotification(`Failed to generate prompts: ${errorMessage}`, 'error');
         
         const container = document.getElementById('prompts-data');
         if (container) {
             container.innerHTML = `
                 <div class="prompt-error">
                     <h3><i class="fa fa-times-circle"></i> Error Generating Prompts</h3>
-                    <p>${escapeHtml(error.message)}</p>
+                    <p>${escapeHtml(errorMessage)}</p>
                     <button onclick="generatePrompts()" class="btn btn-primary" style="margin-top: 10px;">
                         <i class="fa fa-refresh"></i> Try Again
                     </button>

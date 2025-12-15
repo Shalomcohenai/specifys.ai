@@ -1805,9 +1805,40 @@ function initSectionTitlesFadeIn() {
     return;
   }
 
+  // Observer for why-section titles and subtitles - triggers when element enters viewport (delayed)
+  const whySectionTitleObserverOptions = {
+    root: null,
+    rootMargin: '0px 0px -200px 0px',
+    threshold: 0.1
+  };
+
+  const whySectionTitleObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('revealed');
+      }
+    });
+  }, whySectionTitleObserverOptions);
+
+  // Observer for why-section content - triggers when element enters viewport (delayed)
+  const whySectionContentObserverOptions = {
+    root: null,
+    rootMargin: '0px 0px -150px 0px',
+    threshold: 0.2
+  };
+
+  const whySectionContentObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('revealed');
+      }
+    });
+  }, whySectionContentObserverOptions);
+
+  // Observer for other section titles (extra-sections, etc.) - delayed
   const titleObserverOptions = {
     root: null,
-    rootMargin: '100px 0px -200px 0px',
+    rootMargin: '0px 0px -200px 0px',
     threshold: 0.1
   };
 
@@ -1819,10 +1850,10 @@ function initSectionTitlesFadeIn() {
     });
   }, titleObserverOptions);
 
-  // Observer for section content - reveals after title
+  // Observer for other section content - delayed
   const contentObserverOptions = {
     root: null,
-    rootMargin: '50px 0px -100px 0px',
+    rootMargin: '0px 0px -150px 0px',
     threshold: 0.2
   };
 
@@ -1834,28 +1865,50 @@ function initSectionTitlesFadeIn() {
     });
   }, contentObserverOptions);
 
-  // Observe all section titles and subtitles
-  const sectionTitles = document.querySelectorAll('.section-title, .section-subtitle');
-  if (sectionTitles.length === 0) {
-    // If no elements found, use fallback
-    revealAllFallback();
-    return;
-  }
-  
-  sectionTitles.forEach(function(title) {
-    titleObserver.observe(title);
+  // Observe why-section titles and subtitles with specific observer
+  const whySectionTitles = document.querySelectorAll('.why-section .section-title, .why-section .section-subtitle');
+  whySectionTitles.forEach(function(title) {
+    whySectionTitleObserver.observe(title);
   });
 
-  // Observe all section containers and content layouts for content reveal
+  // Observe why-section content-layout and content-text-centered with specific observer
+  // When content-layout enters viewport, it gets 'revealed' class which triggers animations on children
+  const whySectionContentLayouts = document.querySelectorAll('.why-section .content-layout, .why-section .content-text-centered');
+  whySectionContentLayouts.forEach(function(element) {
+    whySectionContentObserver.observe(element);
+  });
+
+  // Observe all other section titles and subtitles (extra-sections, etc.)
+  const sectionTitles = document.querySelectorAll('.section-title, .section-subtitle');
+  sectionTitles.forEach(function(title) {
+    // Skip if already observed by whySectionTitleObserver
+    if (!title.closest('.why-section')) {
+      titleObserver.observe(title);
+    }
+  });
+
+  // Observe h2 elements in .section (extra-sections) - they also need fade in
+  const extraSectionH2s = document.querySelectorAll('.extra-sections .section h2');
+  extraSectionH2s.forEach(function(h2) {
+    titleObserver.observe(h2);
+  });
+
+  // Observe all other section containers and content layouts
   const sectionContainers = document.querySelectorAll('.section-container, .content-layout, .content-text, .content-image, .section');
   sectionContainers.forEach(function(container) {
-    contentObserver.observe(container);
+    // Skip if already observed by whySectionContentObserver
+    if (!container.closest('.why-section')) {
+      contentObserver.observe(container);
+    }
   });
   
   // Also observe .content-layout specifically - it needs revealed class for children to show
   const contentLayouts = document.querySelectorAll('.content-layout');
   contentLayouts.forEach(function(layout) {
-    contentObserver.observe(layout);
+    // Skip if already observed
+    if (!layout.closest('.why-section')) {
+      contentObserver.observe(layout);
+    }
   });
   
   // Observe .section elements in .extra-sections - they need revealed class
@@ -1864,26 +1917,16 @@ function initSectionTitlesFadeIn() {
     contentObserver.observe(section);
   });
 
-  // Fallback: if after 2 seconds no elements were revealed, reveal them all
+  // Fallback: if after 10 seconds no elements were revealed (for accessibility), reveal them all
+  // This is only for edge cases where IntersectionObserver might not work
   setTimeout(function() {
-    const unrevealed = document.querySelectorAll('.section-title:not(.revealed), .section-subtitle:not(.revealed), .section-container:not(.revealed), .content-layout:not(.revealed), .content-image:not(.revealed), .content-text:not(.revealed), .content-text-centered:not(.revealed)');
+    const unrevealed = document.querySelectorAll('.section-title:not(.revealed), .section-subtitle:not(.revealed), .section-container:not(.revealed), .content-layout:not(.revealed), .content-image:not(.revealed), .content-text:not(.revealed), .content-text-centered:not(.revealed), .extra-sections .section:not(.revealed), .extra-sections .section h2:not(.revealed)');
     if (unrevealed.length > 0) {
       unrevealed.forEach(function(element) {
         element.classList.add('revealed');
       });
     }
-  }, 2000);
-  
-  // Additional fallback: reveal all content after 3 seconds to ensure everything shows
-  setTimeout(function() {
-    document.querySelectorAll('.section-title, .section-subtitle, .section-container, .content-layout, .content-image, .content-text, .content-text-centered, .section, .extra-sections .section').forEach(function(element) {
-      element.classList.add('revealed');
-    });
-    // Also reveal h2 inside .section
-    document.querySelectorAll('.section h2').forEach(function(h2) {
-      h2.classList.add('revealed');
-    });
-  }, 3000);
+  }, 10000);
 }
 
 function triggerPlatformHint() {
