@@ -259,7 +259,9 @@ class AcademyApp {
                     this.showCheckAnswersSuccess(guide, pointsEarned, correctCount, questions.length);
                     
                 } catch (error) {
-                    console.error('Error awarding points:', error);
+                    if (window.appLogger) {
+                        window.appLogger.logError(error, { context: 'Academy.awardPoints', guideId: guide.id });
+                    }
                     // Still show the visual feedback even if saving fails
                     this.showCheckAnswersFeedback(guide, correctCount, questions.length, 0);
                 }

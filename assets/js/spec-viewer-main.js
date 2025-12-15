@@ -4693,7 +4693,9 @@ async function approveOverview() {
                     hideApproveButton();
                 }
             } catch (error) {
-                console.error('Error updating Firebase:', error);
+                if (window.appLogger) {
+                    window.appLogger.logError(error, { context: 'SpecViewer.updateFirebase' });
+                }
                 showNotification('Failed to update database, but specifications were generated locally.', 'error');
             }
         }

@@ -1,5 +1,6 @@
 const { db, admin } = require('./firebase-admin');
 const crypto = require('crypto');
+const { logger } = require('./logger');
 
 const CREDITS_COLLECTION = 'user_credits';
 const LEDGER_COLLECTION = 'credit_ledger';
@@ -205,7 +206,7 @@ async function consumeCredit(userId, specId, options = {}) {
   const requestId = `consume-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   const startTime = Date.now();
   
-  console.log(`[CREDITS-V2] [${requestId}] Consume credit: userId=${userId}, specId=${specId}`);
+  logger.info({ requestId, userId, specId }, '[CREDITS-V2] Consume credit');
   
   try {
     // Validate inputs
@@ -228,7 +229,7 @@ async function consumeCredit(userId, specId, options = {}) {
       
       if (existingLedgerDoc.exists) {
         const existing = existingLedgerDoc.data();
-        console.log(`[CREDITS-V2] [${requestId}] Transaction already processed: ${transactionId}`);
+        logger.info({ requestId, transactionId }, '[CREDITS-V2] Transaction already processed (consume)');
         return {
           success: true,
           alreadyProcessed: true,
@@ -245,7 +246,7 @@ async function consumeCredit(userId, specId, options = {}) {
       
       if (!existingSpecsSnapshot.empty) {
         const existingSpecId = existingSpecsSnapshot.docs[0].id;
-        console.log(`[CREDITS-V2] [${requestId}] User ${userId} already has a spec: ${existingSpecId}`);
+        logger.warn({ requestId, userId, existingSpecId }, '[CREDITS-V2] User already has a spec');
         throw new Error('User already has a spec. Only one spec per user is allowed.');
       }
       
@@ -380,13 +381,12 @@ async function consumeCredit(userId, specId, options = {}) {
     });
     
     const totalTime = Date.now() - startTime;
-    console.log(`[CREDITS-V2] [${requestId}] ✅ Credit consumed successfully in ${totalTime}ms`);
-    console.log(`[CREDITS-V2] [${requestId}] Details: ${JSON.stringify(result)}`);
+    logger.info({ requestId, totalTime, result }, '[CREDITS-V2] Credit consumed successfully');
     
     return result;
   } catch (error) {
     const totalTime = Date.now() - startTime;
-    console.error(`[CREDITS-V2] [${requestId}] ❌ Error consuming credit (${totalTime}ms):`, error);
+    logger.error({ requestId, totalTime, error: error.message, stack: error.stack }, '[CREDITS-V2] Error consuming credit');
     
     if (error.message === 'Insufficient credits') {
       throw new Error('Insufficient credits');
@@ -412,7 +412,7 @@ async function grantCredits(userId, amount, source, metadata = {}) {
   const requestId = `grant-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   const startTime = Date.now();
   
-  console.log(`[CREDITS-V2] [${requestId}] Grant credits: userId=${userId}, amount=${amount}, source=${source}`);
+  logger.info({ requestId, userId, amount, source }, '[CREDITS-V2] Grant credits');
   
   try {
     // Validate inputs
@@ -441,7 +441,7 @@ async function grantCredits(userId, amount, source, metadata = {}) {
       
       if (existingLedgerDoc.exists) {
         const existing = existingLedgerDoc.data();
-        console.log(`[CREDITS-V2] [${requestId}] Transaction already processed: ${transactionId}`);
+        logger.info({ requestId, transactionId }, '[CREDITS-V2] Transaction already processed (grant)');
         
         // Get current credits to return actual state
         const creditsRef = db.collection(CREDITS_COLLECTION).doc(userId);
@@ -521,13 +521,12 @@ async function grantCredits(userId, amount, source, metadata = {}) {
     });
     
     const totalTime = Date.now() - startTime;
-    console.log(`[CREDITS-V2] [${requestId}] ✅ Credits granted successfully in ${totalTime}ms`);
-    console.log(`[CREDITS-V2] [${requestId}] Details: ${JSON.stringify(result)}`);
+    logger.info({ requestId, totalTime, result }, '[CREDITS-V2] Credits granted successfully');
     
     return result;
   } catch (error) {
     const totalTime = Date.now() - startTime;
-    console.error(`[CREDITS-V2] [${requestId}] ❌ Error granting credits (${totalTime}ms):`, error);
+    logger.error({ requestId, totalTime, error: error.message, stack: error.stack }, '[CREDITS-V2] Error granting credits');
     throw error;
   }
 }
@@ -544,7 +543,7 @@ async function refundCredit(userId, amount, reason, originalTransactionId = null
   const requestId = `refund-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   const startTime = Date.now();
   
-  console.log(`[CREDITS-V2] [${requestId}] Refund credit: userId=${userId}, amount=${amount}, reason=${reason}`);
+  logger.info({ requestId, userId, amount, reason }, '[CREDITS-V2] Refund credit');
   
   try {
     // Validate inputs
@@ -686,13 +685,12 @@ async function refundCredit(userId, amount, reason, originalTransactionId = null
     });
     
     const totalTime = Date.now() - startTime;
-    console.log(`[CREDITS-V2] [${requestId}] ✅ Credits refunded successfully in ${totalTime}ms`);
-    console.log(`[CREDITS-V2] [${requestId}] Details: ${JSON.stringify(result)}`);
+    logger.info({ requestId, totalTime, result }, '[CREDITS-V2] Credits refunded successfully');
     
     return result;
   } catch (error) {
     const totalTime = Date.now() - startTime;
-    console.error(`[CREDITS-V2] [${requestId}] ❌ Error refunding credits (${totalTime}ms):`, error);
+    logger.error({ requestId, totalTime, error: error.message, stack: error.stack }, '[CREDITS-V2] Error refunding credits');
     throw error;
   }
 }
@@ -765,7 +763,7 @@ async function enableProSubscription(userId, options = {}) {
   }
   
   const requestId = `pro-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-  console.log(`[CREDITS-V2] [${requestId}] Enabling Pro access for user ${userId}`);
+  logger.info({ requestId, userId }, '[CREDITS-V2] Enabling Pro access');
   
   const result = await db.runTransaction(async (transaction) => {
     const creditsRef = db.collection(CREDITS_COLLECTION).doc(userId);
@@ -826,7 +824,7 @@ async function enableProSubscription(userId, options = {}) {
     };
   });
   
-  console.log(`[CREDITS-V2] [${requestId}] ✅ Pro access enabled`);
+  logger.info({ requestId, userId, result }, '[CREDITS-V2] Pro access enabled');
   return result;
 }
 
@@ -846,7 +844,7 @@ async function disableProSubscription(userId, options = {}) {
   }
   
   const requestId = `disable-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-  console.log(`[CREDITS-V2] [${requestId}] Disabling Pro access for user ${userId}`);
+  logger.info({ requestId, userId }, '[CREDITS-V2] Disabling Pro access');
   
   const result = await db.runTransaction(async (transaction) => {
     const creditsRef = db.collection(CREDITS_COLLECTION).doc(userId);
@@ -891,7 +889,7 @@ async function disableProSubscription(userId, options = {}) {
     };
   });
   
-  console.log(`[CREDITS-V2] [${requestId}] ✅ Pro access disabled`);
+  logger.info({ requestId, userId, result }, '[CREDITS-V2] Pro access disabled');
   return result;
 }
 

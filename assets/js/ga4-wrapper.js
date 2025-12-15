@@ -88,8 +88,12 @@
     const def = schema[eventName];
     if (!def || !Array.isArray(def.required)) return;
     const missing = def.required.filter((key) => payload[key] === undefined || payload[key] === null || payload[key] === '');
-    if (missing.length) {
-      console.warn(`[analytics] Missing required fields for ${eventName}: ${missing.join(', ')}`);
+    if (missing.length && window.appLogger) {
+      window.appLogger.log('Warning', `Missing required fields for ${eventName}: ${missing.join(', ')}`, { 
+        context: 'GA4Wrapper.validate',
+        eventName,
+        missingFields: missing 
+      });
     }
   }
 

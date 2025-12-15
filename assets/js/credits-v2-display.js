@@ -103,7 +103,9 @@
     
     const manager = window.CreditsV2Manager;
     if (!manager) {
-      console.error('[CreditsV2Display] CreditsV2Manager not available');
+      if (window.appLogger) {
+        window.appLogger.log('Error', 'CreditsV2Manager not available', { context: 'CreditsV2Display.updateCreditsDisplay' });
+      }
       return;
     }
 
@@ -146,7 +148,9 @@
       // Apply to UI
       applyCreditsState(displayState);
     } catch (error) {
-      console.error('[CreditsV2Display] Error updating credits display:', error);
+      if (window.appLogger) {
+        window.appLogger.logError(error, { context: 'CreditsV2Display.updateCreditsDisplay' });
+      }
       
       // Show error state
       applyCreditsState({
@@ -167,7 +171,9 @@
     
     const manager = window.CreditsV2Manager;
     if (!manager) {
-      console.error('[CreditsV2Display] CreditsV2Manager not available');
+      if (window.appLogger) {
+        window.appLogger.log('Error', 'CreditsV2Manager not available', { context: 'CreditsV2Display.init' });
+      }
       return;
     }
 

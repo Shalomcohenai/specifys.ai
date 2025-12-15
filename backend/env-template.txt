@@ -1,30 +1,153 @@
+# ============================================
+# Specifys.ai Backend - Environment Variables Template
+# ============================================
+# 
+# הוראות:
+# 1. העתק קובץ זה ל-.env בתיקיית backend/
+# 2. מלא את כל הערכים הנדרשים (הסר את ה-placeholders)
+# 3. לעולם אל תעלה את קובץ .env ל-Git (הוא ב-.gitignore)
+# 4. ב-Render: הוסף את המשתנים ב-Dashboard > Environment
+#
+# ============================================
+
+# ============================================
 # Server Configuration
-PORT=3001
+# ============================================
+# Port - Render מגדיר אוטומטית, אבל אפשר override
+PORT=10000
 
+# Node Environment
+# Options: development, production, test
+NODE_ENV=production
+
+# Log Level
+# Options: debug, info, warn, error
+# Default: info (production), debug (development)
+LOG_LEVEL=info
+
+# ============================================
+# Render Configuration (Auto-set by Render)
+# ============================================
+# Render מגדיר את המשתנים הבאים אוטומטית:
+# - PORT (אם לא מוגדר)
+# - RENDER_EXTERNAL_URL (URL המלא של השירות)
+# - RENDER_URL (hostname בלבד)
+# 
+# אין צורך להגדיר אותם ידנית ב-Render Dashboard
+
+# ============================================
 # Firebase Configuration
+# ============================================
+# Firebase Project ID
 FIREBASE_PROJECT_ID=specify-ai
+
+# Firebase Storage Bucket
 FIREBASE_STORAGE_BUCKET=specify-ai.appspot.com
-FIREBASE_API_KEY=AIzaSyB9hr0IWM4EREzkKDxBxYoYinV6LJXWXV4
 
-# Firebase Service Account (choose ONE of the following methods):
-# Method 1: Use environment variable (recommended for production/Render)
-# Copy the entire JSON content from firebase-service-account.json and paste it here as a single line:
-# FIREBASE_SERVICE_ACCOUNT_KEY={"type":"service_account","project_id":"...","private_key":"...","client_email":"..."}
+# Firebase API Key (לשימוש frontend)
+# לא נדרש ב-backend, אבל יכול להיות שימושי
+# FIREBASE_API_KEY=AIzaSyB9hr0IWM4EREzkKDxBxYoYinV6LJXWXV4
 
-# Method 2: Use file path (for local development)
-# Place firebase-service-account.json in the backend/ directory and uncomment:
+# Firebase Service Account Key
+# שיטה 1 (מומלץ ל-production/Render):
+# העתק את כל התוכן מ-firebase-service-account.json והדבק כאן בשורה אחת:
+# FIREBASE_SERVICE_ACCOUNT_KEY={"type":"service_account","project_id":"specify-ai","private_key":"-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n","client_email":"..."}
+
+# שיטה 2 (לפיתוח מקומי):
 # FIREBASE_SERVICE_ACCOUNT_KEY_FILE=firebase-service-account.json
 
+# ============================================
 # Lemon Squeezy Configuration
+# ============================================
+# Lemon Squeezy API Key
+# קבל מ: https://app.lemonsqueezy.com/settings/api
 LEMON_SQUEEZY_API_KEY=your_lemon_squeezy_api_key_here
+
+# Lemon Squeezy Store ID
+# מצא ב: https://app.lemonsqueezy.com/settings/stores
 LEMON_SQUEEZY_STORE_ID=your_store_id_here
-LEMON_SQUEEZY_VARIANT_ID=your_variant_id_here
-LEMON_WEBHOOK_SECRET=testpassword123
 
-# Note: API_KEY is no longer used - all spec generation goes through Cloudflare Worker
-# OpenAI API key is only needed for chat/storage features (OPENAI_API_KEY)
+# Lemon Squeezy Webhook Secret
+# קבל מ: https://app.lemonsqueezy.com/settings/webhooks
+# חשוב: זה חיוני לאבטחת webhooks!
+LEMON_WEBHOOK_SECRET=your_webhook_secret_here
 
-# Email Configuration (for notifications)
+# ============================================
+# OpenAI Configuration
+# ============================================
+# OpenAI API Key
+# נדרש עבור:
+# - Chat features
+# - OpenAI Storage integration
+# - Live Brief transcription/summary
+# קבל מ: https://platform.openai.com/api-keys
+OPENAI_API_KEY=sk-your-openai-api-key-here
+
+# Enable OpenAI Storage Upload
+# Options: true, false
+# Default: false
+ENABLE_OPENAI_STORAGE=false
+
+# ============================================
+# Email Configuration (Optional)
+# ============================================
+# Gmail User (לשימוש עם Nodemailer)
 EMAIL_USER=your_gmail@gmail.com
+
+# Gmail App Password
+# יצירת App Password: https://myaccount.google.com/apppasswords
 EMAIL_APP_PASSWORD=your_gmail_app_password
+
+# Feedback Email Address
 FEEDBACK_EMAIL=feedback@yourdomain.com
+
+# ============================================
+# Google Sheets Configuration (Optional)
+# ============================================
+# Google Apps Script Webhook URL
+# לקבלת feedback ו-data tracking
+GOOGLE_SHEETS_WEBHOOK_URL=https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec
+
+# ============================================
+# Site Configuration (Optional)
+# ============================================
+# Base URL of the site
+# Default: https://specifys-ai.com
+BASE_URL=https://specifys-ai.com
+
+# Site URL (for sitemap generation)
+# Default: https://specifys-ai.com
+SITE_URL=https://specifys-ai.com
+
+# Production Server URL (for API calls)
+# Default: https://specifys-ai-development.onrender.com
+PRODUCTION_SERVER_URL=https://specifys-ai-development.onrender.com
+
+# ============================================
+# Notes
+# ============================================
+# 
+# 1. משתנים אופציונליים:
+#    - EMAIL_* - נדרש רק אם רוצים לשלוח emails
+#    - GOOGLE_SHEETS_* - נדרש רק אם רוצים לשלוח data ל-Google Sheets
+#    - OPENAI_API_KEY - נדרש רק אם רוצים להשתמש ב-Chat/Storage features
+#
+# 2. משתנים קריטיים (חובה):
+#    - FIREBASE_SERVICE_ACCOUNT_KEY (או FIREBASE_SERVICE_ACCOUNT_KEY_FILE)
+#    - FIREBASE_PROJECT_ID
+#    - FIREBASE_STORAGE_BUCKET
+#    - LEMON_SQUEEZY_API_KEY
+#    - LEMON_SQUEEZY_STORE_ID
+#    - LEMON_WEBHOOK_SECRET
+#
+# 3. ב-Render:
+#    - הוסף את כל המשתנים ב-Dashboard > Environment
+#    - עבור FIREBASE_SERVICE_ACCOUNT_KEY: הדבק את כל ה-JSON בשורה אחת
+#    - Render מגדיר אוטומטית: PORT, RENDER_EXTERNAL_URL, RENDER_URL
+#
+# 4. אבטחה:
+#    - לעולם אל תעלה את קובץ .env ל-Git
+#    - השתמש בערכים שונים ל-development ו-production
+#    - שמור את ה-webhook secret בטוח - זה קריטי לאבטחה!
+#
+# ============================================

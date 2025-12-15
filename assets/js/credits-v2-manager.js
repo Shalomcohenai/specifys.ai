@@ -130,7 +130,9 @@
 
         return data;
       } catch (error) {
-        console.error('[CreditsV2Manager] Error fetching credits:', error);
+        if (window.appLogger) {
+          window.appLogger.logError(error, { context: 'CreditsV2Manager.fetchCredits' });
+        }
         
         // If 404 and no cache, try fallback to old API
         if (error.message.includes('404') && !this.cache) {
@@ -181,7 +183,9 @@
               return data;
             }
           } catch (fallbackError) {
-            console.error('[CreditsV2Manager] Fallback also failed:', fallbackError);
+            if (window.appLogger) {
+              window.appLogger.logError(fallbackError, { context: 'CreditsV2Manager.fallbackAPI' });
+            }
           }
         }
         
@@ -243,7 +247,9 @@
           throw error;
         }
       } catch (error) {
-        console.error('[CreditsV2Manager] Error consuming credit:', error);
+        if (window.appLogger) {
+          window.appLogger.logError(error, { context: 'CreditsV2Manager.consumeCredit', specId });
+        }
         throw error;
       }
     }
@@ -316,7 +322,9 @@
         try {
           callback(data);
         } catch (error) {
-          console.error('[CreditsV2Manager] Error in listener:', error);
+          if (window.appLogger) {
+            window.appLogger.logError(error, { context: 'CreditsV2Manager.listener' });
+          }
         }
       });
     }
@@ -330,7 +338,9 @@
         const credits = await this.getCredits();
         return credits.unlimited || (credits.total && credits.total > 0);
       } catch (error) {
-        console.error('[CreditsV2Manager] Error checking access:', error);
+        if (window.appLogger) {
+          window.appLogger.logError(error, { context: 'CreditsV2Manager.hasAccess' });
+        }
         return false;
       }
     }

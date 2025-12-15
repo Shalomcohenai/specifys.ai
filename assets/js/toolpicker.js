@@ -8,12 +8,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const comparisonTableBody = document.querySelector('.comparison-table-body');
     const errorMessage = document.querySelector('.error-message');
     
-    // Debug: Log if elements are found
-    console.log('ToolPicker initialized:', {
-        searchInput: !!searchInput,
-        searchButton: !!searchButton,
-        charCounter: !!charCounter
-    });
+    // Debug: Log if elements are found (only in development)
+    if (window.appLogger && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+        window.appLogger.log('FeatureUsage', 'ToolPicker initialized', {
+            searchInput: !!searchInput,
+            searchButton: !!searchButton,
+            charCounter: !!charCounter
+        });
+    }
     
     // Force textarea visibility and enable interaction if found
     if (searchInput) {
