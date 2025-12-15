@@ -553,6 +553,147 @@ router.put('/contact-submissions/:id/status', requireAdmin, async (req, res, nex
   }
 });
 
+/**
+ * Sync credits for all users (admin only)
+ * POST /api/admin/credits/sync-all
+ * This endpoint migrates and syncs credits from old system (entitlements) to new system (user_credits)
+ * Processes users in batches to avoid overwhelming the server
+ */
+router.post('/credits/sync-all', requireAdmin, async (req, res, next) => {
+  const requestId = logRouteCall(req, 'POST /credits/sync-all');
+  logger.info({ 
+    requestId,
+    adminEmail: req.adminUser?.email,
+    adminUserId: req.adminUser?.uid,
+    options: req.body
+  }, '[admin-routes] POST /credits/sync-all - Starting credits sync for all users');
+  
+  try {
+    const creditsV2Service = require('./credits-v2-service');
+    const { batchSize = 10, startAfter = null, dryRun = false } = req.body || {};
+    
+    // Validate batch size
+    const validBatchSize = Math.min(Math.max(parseInt(batchSize) || 10, 1), 50);
+    
+    logger.info({ requestId, batchSize: validBatchSize, dryRun }, '[admin-routes] Credits sync parameters');
+    
+    // Get all users
+    let usersQuery = db.collection('users').orderBy(admin.firestore.FieldPath.documentId()).limit(validBatchSize);
+    
+    if (startAfter) {
+      const startAfterDoc = await db.collection('users').doc(startAfter).get();
+      if (startAfterDoc.exists) {
+        usersQuery = usersQuery.startAfter(startAfterDoc);
+      }
+    }
+    
+    const usersSnapshot = await usersQuery.get();
+    const users = usersSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+    
+    if (users.length === 0) {
+      logger.info({ requestId }, '[admin-routes] No more users to process');
+      return res.json({
+        success: true,
+        processed: 0,
+        migrated: 0,
+        alreadySynced: 0,
+        errors: 0,
+        nextBatch: null,
+        completed: true,
+        message: 'All users processed'
+      });
+    }
+    
+    const results = {
+      processed: 0,
+      migrated: 0,
+      alreadySynced: 0,
+      errors: 0,
+      errorDetails: []
+    };
+    
+    // Process each user
+    for (const user of users) {
+      try {
+        results.processed++;
+        
+        // Check if user already has credits in new system
+        const creditsRef = db.collection('user_credits').doc(user.id);
+        const creditsDoc = await creditsRef.get();
+        
+        if (creditsDoc.exists) {
+          // Already synced
+          results.alreadySynced++;
+          logger.debug({ requestId, userId: user.id }, '[admin-routes] User already has credits in new system');
+        } else {
+          // Need to migrate
+          if (!dryRun) {
+            // Call getUserCredits which will automatically migrate if needed
+            await creditsV2Service.getUserCredits(user.id);
+            results.migrated++;
+            logger.info({ requestId, userId: user.id }, '[admin-routes] Migrated user credits');
+          } else {
+            // Dry run - just check if migration is needed
+            const entitlementsRef = db.collection('entitlements').doc(user.id);
+            const entitlementsDoc = await entitlementsRef.get();
+            
+            if (entitlementsDoc.exists) {
+              results.migrated++;
+              logger.debug({ requestId, userId: user.id }, '[admin-routes] Would migrate user credits (dry run)');
+            } else {
+              results.alreadySynced++;
+              logger.debug({ requestId, userId: user.id }, '[admin-routes] User has no old credits to migrate (dry run)');
+            }
+          }
+        }
+      } catch (error) {
+        results.errors++;
+        results.errorDetails.push({
+          userId: user.id,
+          error: error.message
+        });
+        logger.error({ requestId, userId: user.id, error: error.message }, '[admin-routes] Error processing user');
+      }
+    }
+    
+    // Determine if there are more users to process
+    const lastUserId = users[users.length - 1].id;
+    const hasMore = users.length === validBatchSize;
+    
+    logger.info({ 
+      requestId, 
+      processed: results.processed,
+      migrated: results.migrated,
+      alreadySynced: results.alreadySynced,
+      errors: results.errors,
+      hasMore
+    }, '[admin-routes] POST /credits/sync-all - Batch completed');
+    
+    res.json({
+      success: true,
+      processed: results.processed,
+      migrated: results.migrated,
+      alreadySynced: results.alreadySynced,
+      errors: results.errors,
+      errorDetails: results.errorDetails.length > 0 ? results.errorDetails : undefined,
+      nextBatch: hasMore ? { startAfter: lastUserId, batchSize: validBatchSize } : null,
+      completed: !hasMore,
+      dryRun: dryRun,
+      message: dryRun 
+        ? `Dry run completed. Would migrate ${results.migrated} users.`
+        : `Processed ${results.processed} users. Migrated ${results.migrated}, already synced ${results.alreadySynced}.`
+    });
+  } catch (error) {
+    logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[admin-routes] POST /credits/sync-all - Error');
+    next(createError('Failed to sync credits', ERROR_CODES.DATABASE_ERROR, 500, {
+      details: error.message
+    }));
+  }
+});
+
 // Debug: Log all registered routes
 logger.info('[admin-routes] Admin routes initialized. Registered routes:');
 router.stack.forEach((layer) => {

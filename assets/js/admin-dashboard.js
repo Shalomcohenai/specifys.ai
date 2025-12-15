@@ -1928,6 +1928,7 @@ class AdminDashboardApp {
       sidebarLastSync: utils.dom("#sidebar-last-sync"),
       topbarStatus: utils.dom("#topbar-sync-status"),
       manualRefresh: utils.dom("#manual-refresh-btn"),
+      syncCreditsBtn: utils.dom("#sync-credits-btn"),
       signOut: utils.dom("#sign-out-btn"),
       overviewRange: utils.dom("#overview-range"),
       overviewMetrics: utils.dom("#overview-metrics"),
@@ -2260,6 +2261,7 @@ class AdminDashboardApp {
   bindInteractions() {
     this.dom.manualRefresh?.addEventListener("click", () => this.refreshAllData("manual"));
     this.dom.syncUsersButton?.addEventListener("click", () => this.syncUsersManually());
+    this.dom.syncCreditsBtn?.addEventListener("click", () => this.syncCreditsManually());
     this.dom.apiHealth.checkButton?.addEventListener("click", () => this.performApiHealthCheck());
     this.dom.apiHealth.copyButton?.addEventListener("click", () => this.copyHealthCheckLogs());
     this.dom.signOut?.addEventListener("click", async () => {
@@ -4445,6 +4447,113 @@ class AdminDashboardApp {
         button.innerHTML = originalLabel || '<i class="fas fa-user-check"></i> Sync users';
       }
       this.syncInProgress = false;
+    }
+  }
+
+  /**
+   * Sync credits for all users
+   * Migrates credits from old system (entitlements) to new system (user_credits)
+   * Processes users in batches
+   */
+  async syncCreditsManually() {
+    if (this.creditsSyncInProgress) {
+      return;
+    }
+
+    const button = this.dom.syncCreditsBtn;
+    const originalLabel = button?.innerHTML;
+
+    try {
+      this.creditsSyncInProgress = true;
+      if (button) {
+        button.disabled = true;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Syncing credits...';
+      }
+
+      const token = await this.getAuthToken();
+      if (!token) {
+        alert("Missing admin session. Please sign in again.");
+        return;
+      }
+
+      const apiBaseUrl = typeof window.getApiBaseUrl === "function"
+        ? window.getApiBaseUrl()
+        : "https://specifys-ai-development.onrender.com";
+
+      let totalProcessed = 0;
+      let totalMigrated = 0;
+      let totalAlreadySynced = 0;
+      let totalErrors = 0;
+      let nextBatch = null;
+      let batchNumber = 0;
+
+      // Process in batches until complete
+      do {
+        batchNumber++;
+        if (button) {
+          button.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Processing batch ${batchNumber}...`;
+        }
+
+        const response = await fetch(`${apiBaseUrl}/api/admin/credits/sync-all`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            batchSize: 10,
+            startAfter: nextBatch?.startAfter || null,
+            dryRun: false
+          })
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
+          throw new Error(errorData.message || `HTTP ${response.status}`);
+        }
+
+        const result = await response.json();
+
+        if (!result.success) {
+          throw new Error(result.message || 'Sync failed');
+        }
+
+        totalProcessed += result.processed || 0;
+        totalMigrated += result.migrated || 0;
+        totalAlreadySynced += result.alreadySynced || 0;
+        totalErrors += result.errors || 0;
+        nextBatch = result.nextBatch;
+
+        // Show progress notification
+        if (result.completed) {
+          const message = `Credits sync completed! Processed: ${totalProcessed}, Migrated: ${totalMigrated}, Already synced: ${totalAlreadySynced}, Errors: ${totalErrors}`;
+          console.log('[Credits Sync]', message);
+          alert(message);
+        } else {
+          const message = `Batch ${batchNumber}: Processed ${result.processed} users (${result.migrated} migrated, ${result.alreadySynced} already synced)`;
+          console.log('[Credits Sync]', message);
+          // Don't show alert for each batch, only log to console
+        }
+
+        // Small delay between batches to avoid overwhelming the server
+        if (nextBatch && !result.completed) {
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+
+      } while (nextBatch && !result.completed);
+
+      // Refresh data after sync
+      await this.refreshAllData("manual-credits-sync");
+
+    } catch (error) {
+      console.error('[Admin Dashboard] Credits sync error:', error);
+      alert(`Credits sync failed: ${error.message || error}`);
+    } finally {
+      if (button) {
+        button.disabled = false;
+        button.innerHTML = originalLabel || '<i class="fas fa-sync-alt"></i> Sync Credits';
+      }
+      this.creditsSyncInProgress = false;
     }
   }
 
