@@ -9,6 +9,8 @@ if (typeof globalThis.fetch === 'function') {
   // Fallback for older Node versions
   fetch = require('node-fetch');
 }
+// Lemon Squeezy official SDK
+const { lemonSqueezySetup, createCheckout } = require('@lemonsqueezy/lemonsqueezy.js');
 const { auth, db, admin } = require('./firebase-admin');
 const { createError, ERROR_CODES } = require('./error-handler');
 const { logger } = require('./logger');
@@ -216,95 +218,82 @@ router.post('/checkout', express.json(), verifyFirebaseToken, async (req, res, n
     logger.info({ 
       requestId, 
       userId, 
-      checkoutUrl, 
       storeId, 
       variantId: variantIdToUse, 
       successUrl, 
-      useTestMode,
-      checkoutDataSize: JSON.stringify(checkoutData).length
-    }, '[lemon-routes] Calling Lemon Squeezy API to create checkout');
+      useTestMode
+    }, '[lemon-routes] Calling Lemon Squeezy API to create checkout using official SDK');
+
+    // Setup Lemon Squeezy SDK
+    lemonSqueezySetup({ apiKey });
 
     const fetchStartTime = Date.now();
-    let response;
+    let checkoutResult;
     try {
-      response = await fetch(checkoutUrl, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Accept': 'application/vnd.api+json',
-          'Content-Type': 'application/vnd.api+json',
-          // Browser-like headers to bypass Cloudflare challenge
-          'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-          'Accept-Language': 'en-US,en;q=0.9',
-          'Accept-Encoding': 'gzip, deflate, br',
-          'Origin': 'https://app.lemonsqueezy.com',
-          'Referer': 'https://app.lemonsqueezy.com/',
-          'Sec-Fetch-Dest': 'empty',
-          'Sec-Fetch-Mode': 'cors',
-          'Sec-Fetch-Site': 'same-site'
-        },
-        body: JSON.stringify(checkoutData)
-      });
+      // Use official Lemon Squeezy SDK - handles Cloudflare challenges automatically
+      checkoutResult = await createCheckout(
+        storeId.toString(),
+        variantIdToUse.toString(),
+        {
+          checkoutData: {
+            email: userEmail,
+            custom: {
+              user_id: userId,
+              product_key: productKey,
+              variant_id: variantIdToUse
+            }
+          },
+          productOptions: {
+            redirectUrl: successUrl
+          },
+          checkoutOptions: {
+            embed: true // Enable overlay mode
+          },
+          testMode: useTestMode
+        }
+      );
+      
       const fetchDuration = Date.now() - fetchStartTime;
       logger.debug({ 
         requestId, 
-        status: response.status, 
-        statusText: response.statusText,
-        fetchDuration 
-      }, '[lemon-routes] Lemon Squeezy API response received');
-    } catch (fetchError) {
+        fetchDuration,
+        hasData: !!checkoutResult?.data,
+        hasError: !!checkoutResult?.error
+      }, '[lemon-routes] Lemon Squeezy SDK response received');
+    } catch (sdkError) {
       const fetchDuration = Date.now() - fetchStartTime;
       logger.error({ 
         requestId, 
         userId, 
         error: { 
-          message: fetchError.message, 
-          stack: fetchError.stack,
-          name: fetchError.name 
+          message: sdkError.message, 
+          stack: sdkError.stack,
+          name: sdkError.name 
         },
-        fetchDuration,
-        checkoutUrl
-      }, '[lemon-routes] Fetch error calling Lemon Squeezy API');
-      throw fetchError;
+        fetchDuration
+      }, '[lemon-routes] SDK error calling Lemon Squeezy API');
+      throw sdkError;
     }
 
-    if (!response.ok) {
-      let errorData;
-      let errorText;
-      try {
-        errorText = await response.text();
-        logger.debug({ requestId, errorTextLength: errorText.length }, '[lemon-routes] Error response text received');
-        try {
-          errorData = JSON.parse(errorText);
-          logger.debug({ requestId, errorData }, '[lemon-routes] Error response parsed as JSON');
-        } catch (parseError) {
-          errorData = errorText;
-          logger.debug({ requestId, parseError: parseError.message }, '[lemon-routes] Error response is not JSON, using as text');
-        }
-      } catch (e) {
-        logger.error({ requestId, error: e.message }, '[lemon-routes] Failed to read error response');
-        errorData = { error: 'Failed to read error response', originalError: e.message };
-      }
-      
+    // Check for SDK errors
+    if (checkoutResult?.error) {
       logger.error({ 
         requestId, 
         userId, 
-        status: response.status, 
-        statusText: response.statusText,
-        errorData, 
+        error: checkoutResult.error,
         variantId: variantIdToUse, 
         storeId,
         apiKeyLength: apiKey ? apiKey.length : 0,
         apiKeyPrefix: apiKey ? apiKey.substring(0, 10) + '...' : 'missing'
-      }, '[lemon-routes] Lemon Squeezy API returned error');
+      }, '[lemon-routes] Lemon Squeezy SDK returned error');
       
-      // Parse Lemon Squeezy error details
+      // Parse error details
       let errorMessage = 'Failed to create checkout';
-      let errorDetails = errorData;
+      let errorDetails = checkoutResult.error;
       
-      if (errorData.errors && Array.isArray(errorData.errors)) {
-        logger.debug({ requestId, errorCount: errorData.errors.length }, '[lemon-routes] Parsing error array');
-        const variantError = errorData.errors.find(err => 
+      if (checkoutResult.error.errors && Array.isArray(checkoutResult.error.errors)) {
+        logger.debug({ requestId, errorCount: checkoutResult.error.errors.length }, '[lemon-routes] Parsing error array');
+        const variantError = checkoutResult.error.errors.find(err => 
           err.source?.pointer?.includes('variant') || 
           err.detail?.includes('variant')
         );
@@ -320,56 +309,49 @@ router.post('/checkout', express.json(), verifyFirebaseToken, async (req, res, n
             hint: 'Please verify that LEMON_SQUEEZY_VARIANT_ID in Render matches a valid variant ID from your Lemon Squeezy dashboard'
           };
         } else {
-          logger.debug({ requestId, firstError: errorData.errors[0] }, '[lemon-routes] First error in array (not variant-related)');
+          logger.debug({ requestId, firstError: checkoutResult.error.errors[0] }, '[lemon-routes] First error in array (not variant-related)');
         }
       }
       
-      return next(createError(errorMessage, ERROR_CODES.EXTERNAL_SERVICE_ERROR, response.status || 500, errorDetails));
+      return next(createError(errorMessage, ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, errorDetails));
     }
 
-    let responseData;
-    try {
-      const responseText = await response.text();
-      logger.debug({ requestId, responseTextLength: responseText.length }, '[lemon-routes] Response text received');
-      responseData = JSON.parse(responseText);
-      logger.debug({ requestId, hasData: !!responseData.data, hasAttributes: !!responseData.data?.attributes }, '[lemon-routes] Response parsed successfully');
-    } catch (parseError) {
+    if (!checkoutResult?.data) {
       logger.error({ 
-        requestId, 
+        requestId,
         userId, 
-        parseError: { 
-          message: parseError.message, 
-          stack: parseError.stack 
-        } 
-      }, '[lemon-routes] Failed to parse response as JSON');
-      return next(createError('Invalid response from Lemon Squeezy API', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, {
-        details: parseError.message
+        checkoutResult
+      }, '[lemon-routes] No checkout data in SDK response');
+      return next(createError('No checkout data in response', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, {
+        details: 'Lemon Squeezy SDK response did not contain checkout data',
+        response: checkoutResult
       }));
     }
     
-    const checkoutUrlValue = responseData.data?.attributes?.url;
+    const checkoutUrlValue = checkoutResult.data.attributes?.url;
+    const checkoutId = checkoutResult.data.id;
+    
     logger.debug({ 
       requestId, 
       hasCheckoutUrl: !!checkoutUrlValue, 
-      checkoutId: responseData.data?.id,
-      responseDataKeys: Object.keys(responseData),
-      dataKeys: responseData.data ? Object.keys(responseData.data) : []
-    }, '[lemon-routes] Extracting checkout URL from response');
+      checkoutId: checkoutId,
+      dataKeys: checkoutResult.data ? Object.keys(checkoutResult.data) : []
+    }, '[lemon-routes] Extracting checkout URL from SDK response');
 
     if (!checkoutUrlValue) {
       logger.error({ 
         requestId,
         userId, 
-        responseData,
-        dataAttributes: responseData.data?.attributes,
-        dataKeys: responseData.data ? Object.keys(responseData.data) : []
-      }, '[lemon-routes] No checkout URL in response');
+        checkoutResult,
+        dataAttributes: checkoutResult.data?.attributes,
+        dataKeys: checkoutResult.data ? Object.keys(checkoutResult.data) : []
+      }, '[lemon-routes] No checkout URL in SDK response');
       return next(createError('No checkout URL in response', ERROR_CODES.EXTERNAL_SERVICE_ERROR, 500, {
-        details: 'Lemon Squeezy API response did not contain checkout URL',
+        details: 'Lemon Squeezy SDK response did not contain checkout URL',
         responseStructure: {
-          hasData: !!responseData.data,
-          hasAttributes: !!responseData.data?.attributes,
-          attributesKeys: responseData.data?.attributes ? Object.keys(responseData.data.attributes) : []
+          hasData: !!checkoutResult.data,
+          hasAttributes: !!checkoutResult.data?.attributes,
+          attributesKeys: checkoutResult.data?.attributes ? Object.keys(checkoutResult.data.attributes) : []
         }
       }));
     }
@@ -378,7 +360,7 @@ router.post('/checkout', express.json(), verifyFirebaseToken, async (req, res, n
       requestId,
       userId, 
       checkoutUrl: checkoutUrlValue,
-      checkoutId: responseData.data?.id,
+      checkoutId: checkoutId,
       productKey,
       testMode: useTestMode
     }, '[lemon-routes] POST /checkout - Success');
@@ -386,7 +368,7 @@ router.post('/checkout', express.json(), verifyFirebaseToken, async (req, res, n
     res.json({
       success: true,
       checkoutUrl: checkoutUrlValue,
-      checkoutId: responseData.data?.id,
+      checkoutId: checkoutId,
       product: productConfig ? {
         key: productKey,
         name: productConfig.name,
