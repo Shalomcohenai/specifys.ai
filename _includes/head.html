@@ -148,6 +148,8 @@
     
     {% include analytics.html %}
     {% include analytics-events.html %}
+    <script src="{{ '/assets/js/analytics-schema.js' | relative_url }}"></script>
+    <script src="{{ '/assets/js/ga4-wrapper.js' | relative_url }}"></script>
     {% include structured-data.html %}
     
     <!-- Remove livereload script to prevent infinite reload loops -->

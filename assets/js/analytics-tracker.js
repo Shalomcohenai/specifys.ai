@@ -33,7 +33,9 @@ async function trackPageView(page, metadata = {}) {
     });
     
     // Also track with Google Analytics if available
-    if (typeof gtag !== 'undefined') {
+    if (window.analytics && typeof window.analytics.page === 'function') {
+      window.analytics.page(page, metadata);
+    } else if (typeof gtag !== 'undefined') {
       gtag('event', 'page_view', {
         event_category: 'Navigation',
         event_label: page,
@@ -76,7 +78,9 @@ async function trackButtonClick(buttonId, context = {}) {
     });
     
     // Also track with Google Analytics if available
-    if (typeof gtag !== 'undefined') {
+    if (window.analytics && typeof window.analytics.trackButton === 'function') {
+      window.analytics.trackButton(buttonId, context);
+    } else if (typeof gtag !== 'undefined') {
       gtag('event', 'click', {
         event_category: 'Button Click',
         event_label: buttonId,
@@ -117,7 +121,14 @@ async function trackFunnelStep(step, userId = null, metadata = {}) {
     });
     
     // Also track with Google Analytics if available
-    if (typeof gtag !== 'undefined') {
+    if (window.analytics && typeof window.analytics.event === 'function') {
+      window.analytics.event('funnel_step', {
+        event_category: 'Funnel',
+        event_label: step,
+        funnel_step: step,
+        ...metadata
+      });
+    } else if (typeof gtag !== 'undefined') {
       gtag('event', 'funnel_step', {
         event_category: 'Funnel',
         event_label: step,
@@ -160,7 +171,13 @@ async function trackEvent(type, entityId, entityType, metadata = {}) {
     });
     
     // Also track with Google Analytics if available
-    if (typeof gtag !== 'undefined') {
+    if (window.analytics && typeof window.analytics.event === 'function') {
+      window.analytics.event(type, {
+        event_category: entityType,
+        event_label: entityId,
+        ...metadata
+      });
+    } else if (typeof gtag !== 'undefined') {
       gtag('event', type, {
         event_category: entityType,
         event_label: entityId,
