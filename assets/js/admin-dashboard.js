@@ -64,6 +64,9 @@ const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+// Make auth available globally for API client
+window.auth = auth;
+
 function loadExternalScript(src) {
   return new Promise((resolve, reject) => {
     if (document.querySelector(`script[data-loaded-src="${src}"]`)) {

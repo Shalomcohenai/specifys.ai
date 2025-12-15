@@ -28,8 +28,9 @@
     /**
      * Get authentication headers
      * Automatically adds Firebase token if user is authenticated
+     * @param {boolean} forceRefresh - Force token refresh
      */
-    async getAuthHeaders() {
+    async getAuthHeaders(forceRefresh = false) {
       const headers = {
         'Content-Type': 'application/json'
       };
@@ -37,7 +38,7 @@
       // Add Firebase token if user is authenticated
       if (window.auth && window.auth.currentUser) {
         try {
-          const token = await window.auth.currentUser.getIdToken();
+          const token = await window.auth.currentUser.getIdToken(forceRefresh);
           headers['Authorization'] = `Bearer ${token}`;
         } catch (error) {
           // Silently fail - token might not be available yet
@@ -147,6 +148,34 @@
         const interceptedResponse = await this.applyResponseInterceptors(response, finalConfig);
         
         if (!interceptedResponse.ok) {
+          // Handle 401 Unauthorized - try refreshing token once
+          if (interceptedResponse.status === 401 && window.auth && window.auth.currentUser && !options._tokenRefreshed) {
+            try {
+              // Refresh token and retry request
+              const refreshedHeaders = await this.getAuthHeaders(true);
+              const retryConfig = {
+                ...finalConfig,
+                headers: {
+                  ...refreshedHeaders,
+                  ...options.headers
+                }
+              };
+              options._tokenRefreshed = true; // Prevent infinite loop
+              
+              const retryResponse = await fetch(url, retryConfig);
+              if (retryResponse.ok) {
+                const contentType = retryResponse.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                  return await retryResponse.json();
+                } else {
+                  return await retryResponse.text();
+                }
+              }
+            } catch (refreshError) {
+              // Token refresh failed, continue with original error
+            }
+          }
+          
           // Try to parse error response
           let errorData = null;
           let errorMessage = `API Error: ${interceptedResponse.status} ${interceptedResponse.statusText}`;

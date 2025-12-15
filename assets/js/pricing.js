@@ -408,6 +408,12 @@ async function purchaseSpec(evt, productKey) {
         setButtonLoading(triggerButton, true);
         startLoadingTextRotation(triggerButton);
 
+        // Try to wake up server before starting purchase flow
+        updateButtonLoadingText(triggerButton, 'Checking server connection...');
+        await wakeUpServer().catch(() => {
+            // Ignore errors - we'll retry in the purchase flow
+        });
+
         const productsConfig = await getLemonProductsConfig();
         const product = productsConfig?.products?.[productKey];
 
@@ -424,14 +430,19 @@ async function purchaseSpec(evt, productKey) {
         // Retry logic for when server is sleeping (Render.com cold start)
         let response;
         let lastError;
-        const maxRetries = 3;
-        const retryDelay = 2000; // 2 seconds between retries
+        const maxRetries = 4; // Increased retries for cold start
+        const retryDelay = 4000; // 4 seconds between retries (longer for cold start)
         
         for (let attempt = 0; attempt < maxRetries; attempt++) {
             try {
                 if (attempt > 0) {
                     // Update button text to show retry attempt
-                    updateButtonLoadingText(triggerButton, `Retrying... (${attempt}/${maxRetries - 1})`);
+                    updateButtonLoadingText(triggerButton, `Server is waking up... (${attempt}/${maxRetries - 1})`);
+                    
+                    // Before retry, try to wake up the server
+                    await wakeUpServer();
+                    
+                    // Wait before retry (give server time to wake up)
                     await new Promise(resolve => setTimeout(resolve, retryDelay));
                 }
                 
@@ -452,27 +463,69 @@ async function purchaseSpec(evt, productKey) {
                     break; // Success, exit retry loop
                 }
                 
+                // Handle 404 as server sleeping (cold start) - retry
+                if (response.status === 404) {
+                    lastError = new Error('Server is starting up, please wait...');
+                    if (attempt < maxRetries - 1) {
+                        continue; // Retry
+                    }
+                    // Last attempt - try to get error message
+                    const errorPayload = await response.json().catch(() => ({}));
+                    throw new Error(errorPayload.error || 'Server endpoint not found. Please try again in a moment.');
+                }
+                
                 // If it's a server error (5xx) or network error, retry
                 if (response.status >= 500 || response.status === 0) {
                     lastError = new Error('Server is starting up, please wait...');
+                    if (attempt < maxRetries - 1) {
+                        continue; // Retry
+                    }
+                    // Last attempt - try to get error message
+                    const errorPayload = await response.json().catch(() => ({}));
+                    throw new Error(errorPayload.error || 'Server error. Please try again in a moment.');
+                }
+                
+                // For other 4xx errors (401, 403, etc.), don't retry
+                const errorPayload = await response.json().catch(() => ({}));
+                throw new Error(errorPayload.error || `Request failed (${response.status}). Please try again.`);
+            } catch (error) {
+                lastError = error;
+                
+                // Check if it's a retryable error
+                const isRetryable = 
+                    !response || // Network error
+                    response.status === 0 || // Network error
+                    response.status === 404 || // Server sleeping (cold start)
+                    response.status >= 500 || // Server error
+                    error.message.includes('fetch') || 
+                    error.message.includes('network') ||
+                    error.message.includes('Failed to fetch') ||
+                    error.name === 'TypeError' ||
+                    error.name === 'NetworkError';
+                
+                if (attempt < maxRetries - 1 && isRetryable) {
                     continue; // Retry
                 }
                 
-                // For other errors (4xx), don't retry
-                const errorPayload = await response.json().catch(() => ({}));
-                throw new Error(errorPayload.error || 'Failed to start checkout');
-            } catch (error) {
-                lastError = error;
-                // If it's a network error or server error, retry
-                if (attempt < maxRetries - 1 && (error.message.includes('fetch') || error.message.includes('network') || !response || response.status >= 500)) {
-                    continue; // Retry
-                }
-                throw error; // Re-throw if not retryable or out of retries
+                // Not retryable or out of retries
+                throw error;
             }
         }
 
         if (!response || !response.ok) {
-            throw lastError || new Error('Failed to start checkout after multiple attempts');
+            // Provide more specific error message
+            if (lastError) {
+                throw lastError;
+            }
+            
+            // Generic error with helpful message
+            if (response && response.status === 404) {
+                throw new Error('Server is starting up. Please wait a moment and try again.');
+            } else if (response && response.status >= 500) {
+                throw new Error('Server is temporarily unavailable. Please try again in a moment.');
+            } else {
+                throw new Error('Failed to start checkout. Please try again or contact support if the problem persists.');
+            }
         }
 
         const data = await response.json();
@@ -517,7 +570,22 @@ async function purchaseSpec(evt, productKey) {
             setButtonLoading(triggerButton, false);
             restoreButtonText(triggerButton);
         }
-        showPricingAlert(error.message || 'Error initiating purchase. Please try again.', 'error');
+        
+        // Provide user-friendly error messages
+        let errorMessage = error.message || 'Error initiating purchase. Please try again.';
+        
+        // Make error messages more user-friendly
+        if (errorMessage.includes('Server is starting up') || errorMessage.includes('waking up')) {
+            errorMessage = 'The server is starting up. Please wait a moment and click "Buy Now" again.';
+        } else if (errorMessage.includes('404') || errorMessage.includes('not found')) {
+            errorMessage = 'The server is temporarily unavailable. Please wait a moment and try again.';
+        } else if (errorMessage.includes('network') || errorMessage.includes('fetch')) {
+            errorMessage = 'Network error. Please check your internet connection and try again.';
+        } else if (errorMessage.includes('401') || errorMessage.includes('Unauthorized')) {
+            errorMessage = 'Please log in again to complete your purchase.';
+        }
+        
+        showPricingAlert(errorMessage, 'error');
     } finally {
         // Only clean up if checkout didn't open (to avoid double cleanup)
         if (!checkoutOpened) {
@@ -615,41 +683,65 @@ if (document.readyState === 'loading') {
 // Wake up the backend server when pricing page loads
 // This ensures the server is ready when user clicks "Buy Now"
 async function wakeUpServer() {
-    try {
-        // Send a lightweight ping to the health endpoint to wake up the server
-        // API_BASE_URL already includes /api, so we just append /health
-        const healthUrl = `${API_BASE_URL}/health`;
-        
-        // Use fetch with a timeout - we don't care about the response,
-        // we just want to wake up the server
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout (longer for cold start)
-        
+    const healthUrl = `${API_BASE_URL}/health`;
+    const maxRetries = 3;
+    const retryDelay = 3000; // 3 seconds between retries (longer for cold start)
+    
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
         try {
-            const response = await fetch(healthUrl, {
-                method: 'GET',
-                headers: {
-                    'User-Agent': 'Specifys-Pricing-Page/1.0',
-                    'Accept': 'application/json'
-                },
-                signal: controller.signal,
-                // Don't wait for response body, just trigger the request
-                cache: 'no-cache'
-            });
+            if (attempt > 0) {
+                // Wait before retry
+                await new Promise(resolve => setTimeout(resolve, retryDelay));
+            }
             
-            clearTimeout(timeoutId);
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
             
-            // Server is awake (even if response is not 200, the server received the request)
-        } catch (fetchError) {
-            clearTimeout(timeoutId);
-            
-            // Network errors are expected if server is sleeping
-            // The request still helps wake up the server
+            try {
+                const response = await fetch(healthUrl, {
+                    method: 'GET',
+                    headers: {
+                        'User-Agent': 'Specifys-Pricing-Page/1.0',
+                        'Accept': 'application/json'
+                    },
+                    signal: controller.signal,
+                    cache: 'no-cache'
+                });
+                
+                clearTimeout(timeoutId);
+                
+                // If we get any response (even 404/500), server is awake
+                // 404 might mean server is still starting, but it's responding
+                if (response.status === 200 || response.status === 404 || response.status >= 500) {
+                    // Server is responding (awake or waking up)
+                    return true;
+                }
+                
+                // For other status codes, consider it successful (server is awake)
+                return true;
+            } catch (fetchError) {
+                clearTimeout(timeoutId);
+                
+                // Network errors or timeouts - server might be sleeping
+                // Continue to retry if we have attempts left
+                if (attempt < maxRetries - 1) {
+                    continue;
+                }
+                
+                // Last attempt failed - server might be down, but that's OK
+                // The purchase flow will handle it with its own retry logic
+                return false;
+            }
+        } catch (error) {
+            // Unexpected error - continue to next retry if available
+            if (attempt < maxRetries - 1) {
+                continue;
+            }
+            return false;
         }
-    } catch (error) {
-        // Silently ignore - this is just a preemptive wake-up call
-        // If it fails, the user will just wait a bit longer when clicking Buy Now
     }
+    
+    return false; // All retries exhausted
 }
 
 // Wake up server immediately when script loads (don't wait for DOMContentLoaded)
