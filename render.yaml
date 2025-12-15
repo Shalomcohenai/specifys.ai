@@ -6,7 +6,6 @@
 #
 # Services:
 # 1. specifys-backend - Main API server that also serves the frontend static files
-# 2. specifys-store - User system service (Firebase authentication)
 
 services:
   - type: web
@@ -15,16 +14,6 @@ services:
     buildCommand: npm install
     startCommand: npm start
     rootDirectory: backend
-    envVars:
-      - key: NODE_ENV
-        value: production
-  
-  - type: web
-    name: specifys-store
-    env: node
-    buildCommand: npm install
-    startCommand: npm start
-    rootDirectory: backend/public
     envVars:
       - key: NODE_ENV
         value: production

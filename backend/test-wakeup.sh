@@ -2,7 +2,7 @@
 # Test script for server wake-up functionality
 # Usage: ./test-wakeup.sh [base-url]
 
-BASE_URL=${1:-"https://specifys-ai-store.onrender.com"}
+BASE_URL=${1:-"https://specifys-ai-development.onrender.com"}
 
 echo "🧪 Testing Server Wake-Up Functionality"
 echo "========================================"

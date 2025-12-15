@@ -5,7 +5,6 @@
 הפרויקט מורכב מ:
 1. **Frontend** (תיקיית שורש) - אתר Jekyll סטטי
 2. **Backend Server** (`backend/server/`) - שרת API שמגיש גם את ה-frontend
-3. **Public Server** (`backend/public/`) - שרת נוסף למערכת משתמשים
 
 ## 🚫 מה לא לעשות
 
@@ -25,15 +24,7 @@
 זה השרת הראשי שמגיש:
 - כל ה-API endpoints (`/api/*`)
 - את ה-frontend הסטטי (קבצי HTML, CSS, JS מהתיקייה הראשית)
-
-### 2. specifys-store
-- **Type**: Web Service
-- **Root Directory**: `backend/public`
-- **Build Command**: `npm install`
-- **Start Command**: `npm start`
-- **Environment**: Node
-
-זה שרת נוסף למערכת משתמשים.
+- כל שירותי החנות והתשלומים (Lemon Squeezy)
 
 ## 📝 הגדרת Render
 
@@ -48,7 +39,6 @@
 
 לאחר הפריסה, ודא:
 - `specifys-backend` רץ בהצלחה
-- `specifys-store` רץ בהצלחה
 - אין service שמנסה להריץ את התיקייה הראשית
 
 ## 🐛 פתרון בעיות

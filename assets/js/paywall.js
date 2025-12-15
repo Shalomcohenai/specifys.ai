@@ -6,8 +6,8 @@
 (function() {
   'use strict';
 
-  // Always use Render backend URL
-  const STORE_API_BASE_URL = 'https://specifys-ai-store.onrender.com/api';
+  // Use main backend server - get from config or fallback
+  const STORE_API_BASE_URL = (window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai-development.onrender.com') + '/api';
 
   let lemonConfigPromise = null;
   let lemonSdkPromise = null;

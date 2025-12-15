@@ -1033,7 +1033,8 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
                 setSubscriptionMessage('Processing cancellation…', 'info');
 
                 const token = await currentUser.getIdToken();
-                const response = await fetch('https://specifys-ai-store.onrender.com/api/lemon/subscription/cancel', {
+                const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai-development.onrender.com';
+                const response = await fetch(`${apiBaseUrl}/api/lemon/subscription/cancel`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

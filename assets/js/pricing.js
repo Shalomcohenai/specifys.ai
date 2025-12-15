@@ -10,8 +10,12 @@
     }
     window.PRICING_JS_INITIALIZED = true;
     
-    // Set API base URL
-    var API_BASE_URL = window.PRICING_API_BASE_URL || 'https://specifys-ai-store.onrender.com/api';
+    // Set API base URL - use main backend server
+    var API_BASE_URL = window.PRICING_API_BASE_URL || (window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai-development.onrender.com');
+    // Ensure it includes /api if not already present
+    if (!API_BASE_URL.endsWith('/api')) {
+        API_BASE_URL = API_BASE_URL + '/api';
+    }
     window.PRICING_API_BASE_URL = API_BASE_URL;
     
     var lemonConfigPromise = null;

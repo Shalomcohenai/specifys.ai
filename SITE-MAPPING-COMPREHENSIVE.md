@@ -224,7 +224,7 @@
 #### API Calls:
 - `GET /api/specs/entitlements` - קבלת entitlements
 - `GET /api/specs` - רשימת מפרטים
-- `POST https://specifys-ai-store.onrender.com/api/lemon/subscription/cancel` - ביטול מנוי
+- `POST /api/lemon/subscription/cancel` - ביטול מנוי
 
 ---
 

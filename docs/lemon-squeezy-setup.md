@@ -116,7 +116,7 @@ Events: בחר "Order Created" (או כל האירועים שאתה צריך)
 
 ### עדכון Rules
 
-1. ודא שיש את הקובץ \`backend/public/firestore.rules\`
+1. ודא שיש את הקובץ \`backend/firestore.rules\`
 2. ודא שהקובץ מכיל את ה-Rules הבאים:
 
 \`\`\`
