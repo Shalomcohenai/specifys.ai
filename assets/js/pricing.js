@@ -202,6 +202,39 @@ function handleCheckoutRedirect() {
     if (checkoutStatus === 'success') {
         const productLabel = productKey ? productKey.replace(/_/g, ' ') : 'purchase';
         showPricingAlert(`Purchase successful! Your ${productLabel} will be available shortly.`, 'success');
+        
+        // Refresh credits display after successful purchase
+        // The webhook should have processed by now, but we'll force refresh to ensure UI is updated
+        if (typeof window.updateCreditsDisplay === 'function') {
+            // Force refresh credits immediately
+            window.updateCreditsDisplay({ forceRefresh: true, showLoading: false });
+            
+            // Also refresh after a short delay to account for webhook processing time
+            // (webhooks can take a few seconds to process)
+            setTimeout(() => {
+                if (typeof window.updateCreditsDisplay === 'function') {
+                    window.updateCreditsDisplay({ forceRefresh: true, showLoading: false });
+                }
+            }, 3000); // 3 seconds - typical webhook processing time
+            
+            // One more refresh after longer delay to ensure credits are updated
+            setTimeout(() => {
+                if (typeof window.updateCreditsDisplay === 'function') {
+                    window.updateCreditsDisplay({ forceRefresh: true, showLoading: false });
+                }
+            }, 10000); // 10 seconds - final check
+        } else {
+            // Fallback: try to clear cache and wait for credits-v2-display to load
+            if (typeof window.clearCreditsCache === 'function') {
+                window.clearCreditsCache();
+            }
+            // Wait a bit and try again
+            setTimeout(() => {
+                if (typeof window.updateCreditsDisplay === 'function') {
+                    window.updateCreditsDisplay({ forceRefresh: true, showLoading: false });
+                }
+            }, 2000);
+        }
     } else if (checkoutStatus === 'cancel') {
         showPricingAlert('Checkout was cancelled. You can try again whenever you are ready.', 'info');
     }
