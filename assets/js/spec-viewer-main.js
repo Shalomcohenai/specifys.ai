@@ -3684,7 +3684,7 @@ function updateNotificationDot(type, status) {
     const notificationDot = document.getElementById(`${type}Notification`);
     if (!notificationDot) return;
     
-    // Show notification dot when status is "ready" and tab is not currently active
+    // Get tab button and check if active
     const tabButton = document.getElementById(`${type}Tab`);
     const isActive = tabButton && tabButton.classList.contains('active');
     
@@ -3698,20 +3698,51 @@ function updateNotificationDot(type, status) {
     const viewedTabs = getViewedTabs();
     const wasViewed = viewedTabs.has(type);
     
-    // For chat, always show notification if status is ready and not active (one-time notification)
-    // For other tabs, only show if not viewed yet
-    if (type === 'chat') {
-        if (actualStatus === 'ready' && !isActive) {
-            notificationDot.style.display = 'block';
+    // Remove all state classes
+    notificationDot.classList.remove('generating', 'notification', 'chat-notification');
+    if (tabButton) {
+        tabButton.classList.remove('viewed');
+    }
+    
+    // Handle different states
+    if (actualStatus === 'generating') {
+        // Generating state - blinking dot
+        notificationDot.classList.add('generating');
+        notificationDot.style.display = 'block';
+    } else if (actualStatus === 'ready') {
+        if (type === 'chat') {
+            // Chat - blinking notification if ready and not active
+            if (!isActive) {
+                notificationDot.classList.add('chat-notification');
+                notificationDot.style.display = 'block';
+            } else {
+                notificationDot.style.display = 'none';
+            }
         } else {
-            notificationDot.style.display = 'none';
+            // Other tabs - show notification dot if not viewed yet
+            if (!isActive && !wasViewed) {
+                notificationDot.classList.add('notification');
+                notificationDot.style.display = 'block';
+            } else {
+                notificationDot.style.display = 'none';
+            }
+            
+            // Mark as viewed if status is ready (spec exists)
+            if (wasViewed || isActive) {
+                if (tabButton) {
+                    tabButton.classList.add('viewed');
+                }
+            }
         }
     } else {
-        // For other tabs, show only if ready, not active, and not viewed yet
-        if (actualStatus === 'ready' && !isActive && !wasViewed) {
-            notificationDot.style.display = 'block';
-        } else {
-            notificationDot.style.display = 'none';
+        // No status or other status - hide dot
+        notificationDot.style.display = 'none';
+    }
+    
+    // If status is ready and was viewed, mark button as viewed
+    if (actualStatus === 'ready' && (wasViewed || isActive)) {
+        if (tabButton) {
+            tabButton.classList.add('viewed');
         }
     }
 }
@@ -3884,11 +3915,25 @@ window.showTab = async function(tabName) {
     const notificationDot = document.getElementById(`${tabName}Notification`);
     if (notificationDot) {
         notificationDot.style.display = 'none';
+        notificationDot.classList.remove('generating', 'notification', 'chat-notification');
     }
     
     // Mark tab as viewed (except chat - it's a one-time notification)
     if (tabName !== 'chat') {
         markTabAsViewed(tabName);
+        
+        // Mark button as viewed (icon turns orange)
+        if (tabButton) {
+            tabButton.classList.add('viewed');
+        }
+    }
+    
+    // Update notification dots after marking as viewed
+    if (currentSpecData && currentSpecData.status) {
+        const status = currentSpecData.status[tabName] || currentSpecData.status[tabName === 'mockup' ? 'mockup' : tabName];
+        if (status) {
+            updateNotificationDot(tabName, status);
+        }
     }
     
     // Update subsections for the active tab (but don't close other submenus)
@@ -4615,6 +4660,11 @@ async function approveOverview() {
         updateTabLoadingState('market', true);
         updateTabLoadingState('design', true);
         
+        // Update notification dots to show generating state
+        updateNotificationDot('technical', 'generating');
+        updateNotificationDot('market', 'generating');
+        updateNotificationDot('design', 'generating');
+        
         // Start parallel generation directly via Cloudflare Worker (like retry functions)
         showNotification('Starting parallel generation of Technical, Market, and Design specifications...', 'info');
         
@@ -4648,6 +4698,9 @@ async function approveOverview() {
                 // Update local data
                 currentSpecData[type] = content;
                 currentSpecData.status[type] = 'ready';
+                
+                // Update notification dot to show ready state
+                updateNotificationDot(type, 'ready');
                 
                 // Display the content
                 if (type === 'technical') {
@@ -6140,6 +6193,12 @@ async function generateDiagrams() {
         generateBtn.style.backgroundColor = originalBgColor || '';
         generateBtn.style.opacity = '1'; // Prevent opacity changes on disabled
         
+        // Update status to generating
+        if (currentSpecData && currentSpecData.status) {
+            currentSpecData.status.diagrams = 'generating';
+            updateNotificationDot('diagrams', 'generating');
+        }
+        
         // Starting diagram generation...
         
         // Check if technical spec exists
@@ -6229,6 +6288,10 @@ async function generateDiagrams() {
             
             // Update status
             updateDiagramsStatus('ready');
+            if (currentSpecData && currentSpecData.status) {
+                currentSpecData.status.diagrams = 'ready';
+                updateNotificationDot('diagrams', 'ready');
+            }
             
             // Reset button before hiding (in case it's shown again)
             generateBtn.disabled = false;
@@ -6285,6 +6348,12 @@ async function generatePrompts() {
         // Keep the original background color and prevent it from changing
         generateBtn.style.backgroundColor = originalBgColor || '';
         generateBtn.style.opacity = '1';
+        
+        // Update status to generating
+        if (currentSpecData && currentSpecData.status) {
+            currentSpecData.status.prompts = 'generating';
+            updateNotificationDot('prompts', 'generating');
+        }
         
         // Check if technical and design specs exist
         if (!currentSpecData.technical || currentSpecData.technical === 'error') {
@@ -6439,6 +6508,8 @@ async function generatePrompts() {
                 currentSpecData.prompts = promptsData;
                 currentSpecData.status = currentSpecData.status || {};
                 currentSpecData.status.prompts = 'ready';
+                // Update notification dot to show ready state
+                updateNotificationDot('prompts', 'ready');
                 // Update export checkboxes when prompts are ready
                 updateExportCheckboxes();
             } catch (error) {

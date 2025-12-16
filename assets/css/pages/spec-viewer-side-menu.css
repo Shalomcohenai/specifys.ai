@@ -181,6 +181,14 @@
   color: #FF6B35;
 }
 
+/* Icon turns orange when spec is viewed/exists */
+.side-menu-button.viewed i,
+.side-menu-button.viewed .fa,
+.side-menu-item.viewed .side-menu-button i,
+.side-menu-item.viewed .side-menu-button .fa {
+  color: #FF6B35;
+}
+
 .side-menu-button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
@@ -209,9 +217,28 @@
   border-radius: 50%;
   border: 2px solid #f5f5f5;
   z-index: 10;
-  animation: pulse 2s infinite;
   flex-shrink: 0;
   pointer-events: none;
+  display: none;
+}
+
+/* Generating state - blinking dot */
+.side-menu-notification-dot.generating {
+  display: block;
+  animation: pulseBlink 1.5s ease-in-out infinite;
+}
+
+/* Notification state - solid dot (new/unread) */
+.side-menu-notification-dot.notification {
+  display: block;
+  animation: none;
+}
+
+/* Chat notification - blinking orange dot */
+.side-menu-notification-dot.chat-notification {
+  display: block;
+  animation: pulseBlink 1.5s ease-in-out infinite;
+  background: #FF6B35;
 }
 
 @keyframes pulse {
@@ -222,6 +249,17 @@
   50% {
     opacity: 0.7;
     transform: scale(1.1);
+  }
+}
+
+@keyframes pulseBlink {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(0.9);
   }
 }
 
