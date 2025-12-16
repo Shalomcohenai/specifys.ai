@@ -680,6 +680,13 @@ button[onclick*="openVisualizer"]:active {
 }
 
 /* ===== BUTTON LOADING SPINNER ===== */
+/* Make buttons with spinners use flexbox for perfect alignment */
+.btn:has(.loading-spinner) {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .btn .loading-spinner {
   display: inline-block;
   width: 16px;
@@ -688,7 +695,7 @@ button[onclick*="openVisualizer"]:active {
   border-top-color: white;
   border-radius: 50%;
   animation: buttonSpinnerRotate 0.8s linear infinite;
-  margin-right: 8px;
+  margin-right: 0;
   vertical-align: middle;
   flex-shrink: 0;
 }
@@ -730,4 +737,465 @@ button[onclick*="openVisualizer"]:active {
   padding: 40px;
   color: #666;
   font-style: italic;
+}
+
+/* ============================================
+   Export Specification Tab Styles
+   ============================================ */
+
+/* Inner Tabs Navigation */
+.export-inner-tabs {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 32px;
+  border-bottom: 2px solid var(--border-light, #e9ecef);
+  padding-bottom: 0;
+}
+
+.export-inner-tab {
+  padding: 12px 24px;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  color: var(--text-secondary, #666);
+  font-size: var(--font-size-base, 1rem);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: var(--font-family-primary, 'Montserrat', sans-serif);
+  position: relative;
+  bottom: -2px;
+}
+
+.export-inner-tab:hover {
+  color: var(--primary-color, #FF6B35);
+  background: var(--primary-light, #FFF4F0);
+}
+
+.export-inner-tab.active {
+  color: var(--primary-color, #FF6B35);
+  border-bottom-color: var(--primary-color, #FF6B35);
+  background: transparent;
+}
+
+.export-inner-tab:focus {
+  outline: 2px solid var(--primary-color, #FF6B35);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Export Inner Content */
+.export-inner-content {
+  display: none;
+}
+
+.export-inner-content.active {
+  display: block;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Export Container */
+.export-container {
+  background: var(--bg-primary, #ffffff);
+  border-radius: 12px;
+  padding: 32px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border: 1px solid var(--border-light, #e9ecef);
+}
+
+/* Export Intro */
+.export-intro {
+  margin-bottom: 32px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border-light, #e9ecef);
+}
+
+.export-intro p {
+  margin: 0;
+  color: var(--text-color, #333);
+  font-size: var(--font-size-base, 1rem);
+  line-height: 1.6;
+}
+
+.export-intro p:first-child {
+  font-size: var(--font-size-lg, 1.125rem);
+  font-weight: 500;
+  margin-bottom: 12px;
+  color: var(--text-color, #333);
+}
+
+.export-intro p i {
+  color: var(--primary-color, #FF6B35);
+  margin-right: 8px;
+}
+
+.export-intro p strong {
+  color: var(--text-color, #333);
+  font-weight: 600;
+}
+
+/* Export Options Section */
+.export-options {
+  margin-bottom: 32px;
+}
+
+.export-section-header {
+  margin-bottom: 24px;
+  padding: 16px 20px;
+  background: var(--bg-primary, #ffffff);
+  border: 1px solid var(--border-light, #e9ecef);
+  border-radius: 8px;
+}
+
+.export-section-header .export-checkbox-label {
+  margin: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+}
+
+.export-section-header .export-checkbox-label:hover {
+  background: transparent;
+  border: none;
+  transform: none;
+  box-shadow: none;
+}
+
+.export-section-header .export-checkbox-label:has(input:checked) {
+  background: transparent;
+  border: none;
+}
+
+.export-section-header .export-checkbox-label:has(input:checked) span {
+  color: var(--text-color, #333);
+}
+
+.export-section-header .export-checkbox-label:has(input:checked) span i {
+  color: var(--text-secondary, #666);
+}
+
+.export-section-header .export-checkbox-label span {
+  font-size: var(--font-size-lg, 1.125rem);
+  color: var(--primary-color, #FF6B35);
+}
+
+.export-section-header .export-checkbox-label span strong {
+  color: var(--primary-color, #FF6B35);
+}
+
+/* Export Checkbox Labels */
+.export-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  margin: 0;
+  background: var(--bg-primary, #ffffff);
+  border: 1px solid var(--border-color, #dee2e6);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+  font-size: var(--font-size-base, 1rem);
+  color: var(--text-color, #333);
+}
+
+.export-checkbox-label:hover {
+  border-color: var(--primary-color, #FF6B35);
+}
+
+.export-checkbox-label:has(input:checked) {
+  background: var(--primary-color, #FF6B35);
+  border-color: transparent;
+}
+
+.export-checkbox-label:has(input:checked) span {
+  color: var(--text-white, #ffffff);
+}
+
+.export-checkbox-label span {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+
+.export-checkbox-label span i {
+  color: var(--text-secondary, #666);
+  font-size: var(--font-size-lg, 1.125rem);
+  width: 20px;
+  text-align: center;
+  transition: color 0.2s ease;
+}
+
+.export-checkbox-label:has(input:checked) span i {
+  color: var(--text-white, #ffffff);
+}
+
+.export-checkbox-label span strong {
+  font-weight: 600;
+  color: var(--text-color, #333);
+  transition: color 0.2s ease;
+}
+
+.export-checkbox-label:has(input:checked) span strong {
+  color: var(--text-white, #ffffff);
+}
+
+/* Export Checkbox Input */
+.export-checkbox {
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  cursor: pointer;
+  accent-color: var(--primary-color, #FF6B35);
+  flex-shrink: 0;
+  margin: 0;
+  position: relative;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  border: 2px solid var(--border-color, #dee2e6);
+  border-radius: 4px;
+  background-color: var(--bg-primary, #ffffff);
+  transition: all 0.2s ease;
+}
+
+.export-checkbox:checked {
+  background-color: var(--primary-color, #FF6B35);
+  border-color: transparent;
+}
+
+/* White checkmark when checked */
+.export-checkbox:checked::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: translate(-50%, -60%) rotate(45deg);
+}
+
+.export-checkbox:focus {
+  outline: 2px solid var(--primary-color, #FF6B35);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Export Sections List */
+.export-sections-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+@media (max-width: 768px) {
+  .export-sections-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Export Actions */
+.export-actions {
+  display: flex;
+  justify-content: flex-start;
+  gap: 16px;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border-light, #e9ecef);
+}
+
+.export-generate-btn {
+  padding: 12px 32px;
+  font-size: var(--font-size-base, 1rem);
+  font-weight: 600;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.export-generate-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+}
+
+.export-generate-btn:active {
+  transform: translateY(0);
+}
+
+.export-generate-btn i {
+  margin-right: 8px;
+  color: var(--text-white, #ffffff);
+}
+
+/* Export Progress */
+.export-progress {
+  margin-top: 24px;
+  padding: 20px;
+  background: var(--bg-secondary, #f5f5f5);
+  border-radius: 8px;
+  border: 1px solid var(--border-light, #e9ecef);
+}
+
+.export-progress.hidden {
+  display: none;
+}
+
+.progress-bar-container {
+  width: 100%;
+  height: 8px;
+  background: var(--light-gray, #e9ecef);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary-color, #FF6B35), #FF8551);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+  width: 0%;
+}
+
+.progress-text {
+  margin: 0;
+  color: var(--text-secondary, #666);
+  font-size: var(--font-size-sm, 0.875rem);
+  text-align: center;
+}
+
+/* ============================================
+   Jira Export Styles
+   ============================================ */
+
+.jira-export-options {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.jira-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.jira-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: var(--text-color, #333);
+  font-size: var(--font-size-base, 1rem);
+  font-family: var(--font-family-primary, 'Montserrat', sans-serif);
+}
+
+.jira-label i {
+  color: var(--primary-color, #FF6B35);
+  font-size: var(--font-size-lg, 1.125rem);
+}
+
+.jira-label .required {
+  color: var(--danger-color, #dc3545);
+  margin-left: 4px;
+}
+
+/* Jira Input & Select */
+.jira-input,
+.jira-select {
+  padding: 12px 16px;
+  border: 1px solid var(--border-color, #dee2e6);
+  border-radius: 8px;
+  font-size: var(--font-size-base, 1rem);
+  font-family: var(--font-family-secondary, 'Inter', sans-serif);
+  color: var(--text-color, #333);
+  background: var(--bg-primary, #ffffff);
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.jira-input:focus,
+.jira-select:focus {
+  outline: none;
+  border-color: var(--primary-color, #FF6B35);
+  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+}
+
+.jira-input::placeholder {
+  color: var(--text-muted, #999);
+}
+
+.jira-select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 40px;
+}
+
+.jira-select:hover {
+  border-color: var(--primary-color, #FF6B35);
+}
+
+.jira-help {
+  display: block;
+  margin-top: 4px;
+  font-size: var(--font-size-sm, 0.875rem);
+  color: var(--text-secondary, #666);
+  line-height: 1.4;
+}
+
+/* Responsive Design for Export Section */
+@media (max-width: 768px) {
+  .export-container {
+    padding: 24px 20px;
+  }
+
+  .export-inner-tabs {
+    flex-direction: column;
+    gap: 0;
+    border-bottom: none;
+  }
+
+  .export-inner-tab {
+    border-bottom: 1px solid var(--border-light, #e9ecef);
+    border-left: 3px solid transparent;
+    border-radius: 0;
+    bottom: 0;
+    text-align: left;
+  }
+
+  .export-inner-tab.active {
+    border-left-color: var(--primary-color, #FF6B35);
+    border-bottom-color: var(--border-light, #e9ecef);
+  }
+
+  .export-actions {
+    flex-direction: column;
+  }
+
+  .export-generate-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .jira-export-options {
+    gap: 20px;
+  }
 }
