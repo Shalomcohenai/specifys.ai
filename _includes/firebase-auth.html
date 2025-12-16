@@ -96,7 +96,7 @@
       
       // Use AbortController to handle errors more gracefully
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout (reduced from 10s for better UX)
       
       let response;
       try {
@@ -113,15 +113,20 @@
         });
       } catch (fetchError) {
         clearTimeout(timeoutId);
-        // Handle network errors silently (404, CORS, network failures)
+        // Log error for debugging but don't block user experience
+        console.warn('[firebase-auth.html] ensureUserDocument - API call failed:', fetchError.name, fetchError.message);
+        // Handle network errors gracefully - don't block user from using the site
         if (fetchError.name === 'AbortError' || 
             fetchError.message.includes('Failed to fetch') || 
             fetchError.message.includes('NetworkError') ||
             fetchError.message.includes('Load failed')) {
           // Silently fail - endpoint might not be available or network issue
+          // User can still use the site, credits will be initialized on next page load or when API is available
           return;
         }
-        throw fetchError;
+        // For other errors, log but don't throw (don't block user)
+        console.error('[firebase-auth.html] ensureUserDocument - Unexpected error:', fetchError);
+        return;
       }
       
       clearTimeout(timeoutId);
@@ -140,13 +145,8 @@
           sessionStorage.setItem('showCreditPopup', 'true');
           console.log('[firebase-auth.html] ensureUserDocument - Verified showCreditPopup set:', sessionStorage.getItem('showCreditPopup'));
           
-          // Also trigger checkForCreditPopup if it exists (for immediate display)
-          if (typeof checkForCreditPopup === 'function') {
-            console.log('[firebase-auth.html] ensureUserDocument - Calling checkForCreditPopup immediately');
-            setTimeout(() => {
-              checkForCreditPopup();
-            }, 1000);
-          }
+          // Note: checkForCreditPopup will be called from index.js after credit initialization
+          // No need to call it here to avoid duplicate calls
         } else if (existingFlag) {
           console.log('[firebase-auth.html] ensureUserDocument - showCreditPopup flag already exists, not overwriting');
           // נקה cache

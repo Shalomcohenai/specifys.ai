@@ -1478,24 +1478,6 @@ function checkAutoStart() {
 }
 
 // ===== CREDIT INITIALIZATION LOADING =====
-function showCreditInitLoading() {
-  const overlay = document.getElementById('creditInitLoadingOverlay');
-  if (overlay) {
-    overlay.classList.remove('hidden');
-    overlay.style.display = 'flex';
-    document.body.style.overflow = 'hidden'; // Prevent scrolling during loading
-  }
-}
-
-function hideCreditInitLoading() {
-  const overlay = document.getElementById('creditInitLoadingOverlay');
-  if (overlay) {
-    overlay.classList.add('hidden');
-    overlay.style.display = 'none';
-    document.body.style.overflow = ''; // Restore scrolling
-  }
-}
-
 async function initializeCreditsWithLoading() {
   // Wait for Firebase to be available
   if (typeof firebase === 'undefined' || !firebase.auth) {
@@ -1511,19 +1493,22 @@ async function initializeCreditsWithLoading() {
   
   console.log('[index.js] initializeCreditsWithLoading - Starting credit initialization for user:', user.uid);
   
-  // Show loading overlay
-  showCreditInitLoading();
-  
   try {
+    // Show loading state in credits button immediately (via updateCreditsDisplay)
+    // This uses the existing loading state in the header credits button
+    if (typeof window.updateCreditsDisplay === 'function') {
+      // This will show "Loading credits..." in the header button
+      await window.updateCreditsDisplay({ forceRefresh: false });
+    }
+    
     // Wait for ensureUserDocument to complete (it's called from firebase-auth.html)
     // Give it time to initialize user and credits
     console.log('[index.js] initializeCreditsWithLoading - Waiting for user initialization...');
     
-    // Wait 5 seconds as requested, during which initialization happens
-    await new Promise(resolve => setTimeout(resolve, 5000));
+    // Wait a short time for initialization, then refresh with forceRefresh
+    await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds for initialization
     
-    // After waiting, refresh credits display
-    console.log('[index.js] initializeCreditsWithLoading - Refreshing credits display...');
+    // Refresh credits with forceRefresh to get latest data
     if (typeof window.clearCreditsCache === 'function') {
       window.clearCreditsCache();
     }
@@ -1534,10 +1519,15 @@ async function initializeCreditsWithLoading() {
     console.log('[index.js] initializeCreditsWithLoading - ✅ Credit initialization complete');
   } catch (error) {
     console.error('[index.js] initializeCreditsWithLoading - Error:', error);
-  } finally {
-    // Hide loading overlay
-    hideCreditInitLoading();
-    console.log('[index.js] initializeCreditsWithLoading - Loading overlay hidden');
+    // Even on error, try to show credits (might be cached)
+    if (typeof window.updateCreditsDisplay === 'function') {
+      try {
+        await window.updateCreditsDisplay({ forceRefresh: false });
+      } catch (e) {
+        // Ignore secondary errors
+        console.error('[index.js] initializeCreditsWithLoading - Secondary error:', e);
+      }
+    }
   }
 }
 
@@ -1576,10 +1566,10 @@ document.addEventListener('DOMContentLoaded', function() {
   checkAuthAndInitialize();
   
   checkFirstVisit();
-  // Delay checkForCreditPopup until after credit initialization
+  // Delay checkForCreditPopup until after credit initialization (reduced delay since we removed overlay)
   setTimeout(() => {
     checkForCreditPopup();
-  }, 6000); // After 5 seconds + 1 second buffer
+  }, 3000); // After 2 seconds + 1 second buffer
   setupModernInput();
   checkAutoStart();
   
