@@ -1502,18 +1502,81 @@ async function initializeCreditsWithLoading() {
     }
     
     // Wait for ensureUserDocument to complete (it's called from firebase-auth.html)
-    // Give it time to initialize user and credits
+    // Poll until user is initialized or timeout
     console.log('[index.js] initializeCreditsWithLoading - Waiting for user initialization...');
     
-    // Wait a short time for initialization, then refresh with forceRefresh
-    await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds for initialization
+    let attempts = 0;
+    const maxAttempts = 20; // 20 attempts * 500ms = 10 seconds max
+    let userInitialized = false;
+    let lastError = null;
     
-    // Refresh credits with forceRefresh to get latest data
-    if (typeof window.clearCreditsCache === 'function') {
-      window.clearCreditsCache();
+    while (attempts < maxAttempts && !userInitialized) {
+      await new Promise(resolve => setTimeout(resolve, 500));
+      attempts++;
+      
+      // Try to get credits - if it succeeds, user is initialized
+      try {
+        if (typeof window.clearCreditsCache === 'function') {
+          window.clearCreditsCache();
+        }
+        if (typeof window.updateCreditsDisplay === 'function') {
+          // Try to update credits - if user is initialized, this will work
+          await window.updateCreditsDisplay({ forceRefresh: true });
+          userInitialized = true;
+          console.log('[index.js] initializeCreditsWithLoading - ✅ User initialized, credits loaded (attempt', attempts, ')');
+          break;
+        }
+      } catch (error) {
+        lastError = error;
+        // Check if error is about user not being initialized
+        const errorMessage = error.message || error.toString() || '';
+        const errorString = JSON.stringify(error).toLowerCase();
+        
+        if (errorMessage.includes('must be initialized') || 
+            errorMessage.includes('User credits not found') ||
+            errorMessage.includes('500') ||
+            errorString.includes('must be initialized') ||
+            errorString.includes('user credits not found')) {
+          // User not initialized yet, keep waiting
+          if (attempts % 4 === 0) { // Log every 2 seconds
+            console.log('[index.js] initializeCreditsWithLoading - Still waiting for user initialization... (attempt', attempts, '/', maxAttempts, ')');
+          }
+          continue;
+        }
+        // Other errors - might be network issues, but log and continue
+        if (attempts % 4 === 0) {
+          console.warn('[index.js] initializeCreditsWithLoading - Error checking credits (attempt', attempts, '):', error);
+        }
+      }
     }
-    if (typeof window.updateCreditsDisplay === 'function') {
-      await window.updateCreditsDisplay({ forceRefresh: true });
+    
+    if (!userInitialized) {
+      console.warn('[index.js] initializeCreditsWithLoading - ⚠️ User initialization timeout after', attempts, 'attempts');
+      if (lastError) {
+        console.warn('[index.js] initializeCreditsWithLoading - Last error:', lastError);
+      }
+      
+      // Try one more time with forceRefresh - maybe user was initialized in the meantime
+      if (typeof window.clearCreditsCache === 'function') {
+        window.clearCreditsCache();
+      }
+      if (typeof window.updateCreditsDisplay === 'function') {
+        try {
+          await window.updateCreditsDisplay({ forceRefresh: true });
+          console.log('[index.js] initializeCreditsWithLoading - ✅ Credits loaded on final attempt');
+        } catch (finalError) {
+          console.error('[index.js] initializeCreditsWithLoading - ❌ Final attempt failed:', finalError);
+          // Credits will show "unavailable" - user can refresh page
+        }
+      }
+    } else {
+      // User initialized successfully, do final refresh to ensure latest data
+      if (typeof window.clearCreditsCache === 'function') {
+        window.clearCreditsCache();
+      }
+      if (typeof window.updateCreditsDisplay === 'function') {
+        await window.updateCreditsDisplay({ forceRefresh: true });
+      }
     }
     
     console.log('[index.js] initializeCreditsWithLoading - ✅ Credit initialization complete');
