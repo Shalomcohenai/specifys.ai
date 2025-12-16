@@ -31,6 +31,7 @@ const firebaseConfig = {
 const COLLECTIONS = Object.freeze({
   USERS: "users",
   ENTITLEMENTS: "entitlements",
+  USER_CREDITS: "user_credits",
   SPECS: "specs",
   PURCHASES: "purchases",
   SUBSCRIPTIONS: "subscriptions",
@@ -231,6 +232,7 @@ class DataAggregator {
     this.aggregatedData = {
       users: new Map(),
       entitlements: new Map(),
+      userCredits: new Map(),
       specs: new Map(),
       specsByUser: new Map(),
       purchases: [],
@@ -536,6 +538,48 @@ class DataAggregator {
       
       this.unsubscribeFns.push(unsubEntitlements);
       return unsubEntitlements;
+    } catch (error) {
+      throw error;
+    }
+  }
+  
+  /**
+   * Subscribe to user_credits collection (new credits system)
+   */
+  subscribeToUserCredits() {
+    try {
+      const unsubUserCredits = onSnapshot(
+        collection(this.db, COLLECTIONS.USER_CREDITS),
+        (snapshot) => {
+          snapshot.docChanges().forEach((change) => {
+            if (change.type === "removed") {
+              this.aggregatedData.userCredits.delete(change.doc.id);
+            } else {
+              const data = change.doc.data();
+              const normalized = {
+                userId: change.doc.id,
+                balances: {
+                  free: data.balances?.free || 0,
+                  paid: data.balances?.paid || 0,
+                  bonus: data.balances?.bonus || 0
+                },
+                total: (data.balances?.free || 0) + (data.balances?.paid || 0) + (data.balances?.bonus || 0),
+                unlimited: data.subscription?.type !== 'none' && data.subscription?.status === 'active',
+                updatedAt: utils.toDate(data.metadata?.updatedAt),
+                metadata: data
+              };
+              this.aggregatedData.userCredits.set(change.doc.id, normalized);
+            }
+          });
+          this.notifyDataChange('userCredits');
+        },
+        (error) => {
+          this.notifyDataChange('userCredits-error');
+        }
+      );
+      
+      this.unsubscribeFns.push(unsubUserCredits);
+      return unsubUserCredits;
     } catch (error) {
       throw error;
     }
@@ -915,6 +959,7 @@ class DataAggregator {
   subscribeAll() {
     this.subscribeToUsers();
     this.subscribeToEntitlements();
+    this.subscribeToUserCredits();
     this.subscribeToSpecs();
     this.subscribeToPurchases();
     this.subscribeToActivityLogs();
@@ -941,6 +986,7 @@ class DataAggregator {
   reset() {
     this.aggregatedData.users.clear();
     this.aggregatedData.entitlements.clear();
+    this.aggregatedData.userCredits.clear();
     this.aggregatedData.specs.clear();
     this.aggregatedData.specsByUser.clear();
     this.aggregatedData.purchases = [];
@@ -1895,6 +1941,10 @@ class AdminDashboardApp {
       }
       if (source === 'entitlements') {
         this.markSourceReady('entitlements');
+        this.renderUsersTable();
+      }
+      if (source === 'userCredits') {
+        this.markSourceReady('userCredits');
         this.renderUsersTable();
       }
       if (source === 'specs') {
@@ -3065,18 +3115,30 @@ class AdminDashboardApp {
       const specCount = this.store.getSpecCount(user.id);
       const planBadge = `<span class="badge ${user.plan}">${user.plan}</span>`;
       
-      // Calculate credits: check entitlement first, then fallback to free_specs_remaining
+      // Calculate credits: check user_credits first (new system), then fallback to entitlements (old system)
       let credits = "—";
-      if (entitlement?.unlimited) {
-        credits = "Unlimited";
-      } else if (entitlement?.specCredits != null) {
-        credits = entitlement.specCredits;
-      } else if (user.freeSpecsRemaining != null) {
-        // Fallback to free_specs_remaining from user document
-        credits = user.freeSpecsRemaining;
+      const userCredits = this.dataAggregator.aggregatedData.userCredits.get(user.id);
+      
+      if (userCredits) {
+        // New system - use user_credits
+        if (userCredits.unlimited) {
+          credits = "Unlimited";
+        } else {
+          credits = userCredits.total;
+        }
       } else {
-        // If no credits info found, default to 0 for display
-        credits = 0;
+        // Fallback to old system
+        if (entitlement?.unlimited) {
+          credits = "Unlimited";
+        } else if (entitlement?.specCredits != null) {
+          credits = entitlement.specCredits;
+        } else if (user.freeSpecsRemaining != null) {
+          // Fallback to free_specs_remaining from user document
+          credits = user.freeSpecsRemaining;
+        } else {
+          // If no credits info found, default to 0 for display
+          credits = 0;
+        }
       }
       const isSelected = this.selectedUsers.has(user.id);
       rows.push(`
@@ -3829,16 +3891,28 @@ class AdminDashboardApp {
     const rows = this.store.getUsersSorted().map((user) => {
       const entitlement = this.store.getEntitlement(user.id);
       
-      // Calculate credits: check entitlement first, then fallback to free_specs_remaining
+      // Calculate credits: check user_credits first (new system), then fallback to entitlements (old system)
       let credits = "";
-      if (entitlement?.unlimited) {
-        credits = "Unlimited";
-      } else if (entitlement?.specCredits != null) {
-        credits = entitlement.specCredits;
-      } else if (user.freeSpecsRemaining != null) {
-        credits = user.freeSpecsRemaining;
+      const userCredits = this.dataAggregator.aggregatedData.userCredits.get(user.id);
+      
+      if (userCredits) {
+        // New system - use user_credits
+        if (userCredits.unlimited) {
+          credits = "Unlimited";
+        } else {
+          credits = userCredits.total;
+        }
       } else {
-        credits = 0;
+        // Fallback to old system
+        if (entitlement?.unlimited) {
+          credits = "Unlimited";
+        } else if (entitlement?.specCredits != null) {
+          credits = entitlement.specCredits;
+        } else if (user.freeSpecsRemaining != null) {
+          credits = user.freeSpecsRemaining;
+        } else {
+          credits = 0;
+        }
       }
       
       return [
