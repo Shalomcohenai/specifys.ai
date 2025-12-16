@@ -958,7 +958,7 @@ class DataAggregator {
    */
   subscribeAll() {
     this.subscribeToUsers();
-    this.subscribeToEntitlements();
+    // subscribeToEntitlements() removed - using new user_credits system only
     this.subscribeToUserCredits();
     this.subscribeToSpecs();
     this.subscribeToPurchases();
@@ -3116,11 +3116,12 @@ class AdminDashboardApp {
     // Build rows for current page
     const rows = [];
     for (const user of usersForPage) {
-      const entitlement = this.store.getEntitlement(user.id);
+      // Use new user_credits system instead of old entitlements
+      const userCredits = this.dataAggregator.aggregatedData.userCredits.get(user.id);
       const specCount = this.store.getSpecCount(user.id);
       const planBadge = `<span class="badge ${user.plan}">${user.plan}</span>`;
       
-      // Calculate credits: check user_credits first (new system), then fallback to entitlements (old system)
+      // Calculate credits: use new user_credits system only
       let credits = "—";
       const userCredits = this.dataAggregator.aggregatedData.userCredits.get(user.id);
       
@@ -3129,21 +3130,11 @@ class AdminDashboardApp {
         if (userCredits.unlimited) {
           credits = "Unlimited";
         } else {
-          credits = userCredits.total;
+          credits = userCredits.total || 0;
         }
       } else {
-        // Fallback to old system
-        if (entitlement?.unlimited) {
-          credits = "Unlimited";
-        } else if (entitlement?.specCredits != null) {
-          credits = entitlement.specCredits;
-        } else if (user.freeSpecsRemaining != null) {
-          // Fallback to free_specs_remaining from user document
-          credits = user.freeSpecsRemaining;
-        } else {
-          // If no credits info found, default to 0 for display
-          credits = 0;
-        }
+        // If no credits info found, default to 0 for display
+        credits = 0;
       }
       const isSelected = this.selectedUsers.has(user.id);
       rows.push(`
@@ -3894,30 +3885,22 @@ class AdminDashboardApp {
       "Email Verified"
     ];
     const rows = this.store.getUsersSorted().map((user) => {
-      const entitlement = this.store.getEntitlement(user.id);
-      
-      // Calculate credits: check user_credits first (new system), then fallback to entitlements (old system)
-      let credits = "";
+      // Use new user_credits system instead of old entitlements
       const userCredits = this.dataAggregator.aggregatedData.userCredits.get(user.id);
+      
+      // Calculate credits: use new user_credits system only
+      let credits = "";
       
       if (userCredits) {
         // New system - use user_credits
         if (userCredits.unlimited) {
           credits = "Unlimited";
         } else {
-          credits = userCredits.total;
+          credits = userCredits.total || 0;
         }
       } else {
-        // Fallback to old system
-        if (entitlement?.unlimited) {
-          credits = "Unlimited";
-        } else if (entitlement?.specCredits != null) {
-          credits = entitlement.specCredits;
-        } else if (user.freeSpecsRemaining != null) {
-          credits = user.freeSpecsRemaining;
-        } else {
-          credits = 0;
-        }
+        // If no credits info found, default to 0
+        credits = 0;
       }
       
       return [
@@ -3929,7 +3912,7 @@ class AdminDashboardApp {
         utils.formatDate(user.lastActive),
         this.store.getSpecCount(user.id),
         credits,
-        entitlement?.unlimited ? "yes" : "no",
+        userCredits?.unlimited ? "yes" : "no",
         user.emailVerified ? "yes" : "no"
       ]
         .map((value) => `"${String(value ?? "").replace(/"/g, '""')}"`)
@@ -5930,7 +5913,8 @@ class AdminDashboardApp {
     // Render table rows
     const rows = filteredSpecs.map((spec) => {
       const user = this.store.getUser(spec.userId);
-      const entitlement = this.store.getEntitlement(spec.userId);
+      // Use new user_credits system instead of old entitlements
+      const userCredits = this.dataAggregator.aggregatedData.userCredits.get(spec.userId);
       const specData = spec.metadata || {};
       const status = specData.status || {};
       
@@ -5953,9 +5937,9 @@ class AdminDashboardApp {
       const hasAiChat = !!(specData.openaiAssistantId || specData.chatThreadId || specData.openaiFileId);
       const hasExport = false; // Export is not tracked, but we can check if user has exported based on other indicators
       
-      // Check user type
-      const isPro = !!(entitlement?.unlimited || user?.plan === 'pro');
-      const hasCredits = !!(entitlement?.specCredits && entitlement.specCredits > 0);
+      // Check user type using new credits system
+      const isPro = !!(userCredits?.unlimited || user?.plan === 'pro');
+      const hasCredits = !!(userCredits && !userCredits.unlimited && userCredits.total > 0);
       
       // Build user info with badges
       let userInfo = user?.email || user?.displayName || spec.userId || "Unknown";

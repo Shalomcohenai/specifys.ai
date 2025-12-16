@@ -4203,27 +4203,25 @@ async function checkProAccess() {
             return false;
         }
         
-        // Check entitlements for unlimited access
-        const entitlementsDoc = await firebase.firestore().collection('entitlements').doc(user.uid).get();
-        if (entitlementsDoc.exists) {
-            const entitlements = entitlementsDoc.data();
-            if (entitlements.unlimited === true) {
+        // Use new credits API to check for unlimited access
+        try {
+            const data = await window.api.get('/api/v2/credits');
+            if (data && data.unlimited === true) {
                 return true;
             }
-        }
-        
-        // Also check user plan as fallback
-        const userDoc = await firebase.firestore().collection('users').doc(user.uid).get();
-        if (userDoc.exists) {
-            const userData = userDoc.data();
-            if (userData.plan === 'pro') {
-                return true;
+        } catch (apiError) {
+            // If API call fails, fallback to checking user plan
+            const userDoc = await firebase.firestore().collection('users').doc(user.uid).get();
+            if (userDoc.exists) {
+                const userData = userDoc.data();
+                if (userData.plan === 'pro') {
+                    return true;
+                }
             }
         }
         
         return false;
     } catch (error) {
-
         return false;
     }
 }

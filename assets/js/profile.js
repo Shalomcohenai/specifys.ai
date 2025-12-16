@@ -828,21 +828,40 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
             }
 
             try {
-                // Load entitlements
-                const entRef = doc(db, 'entitlements', currentUser.uid);
-                const entSnap = await getDoc(entRef);
-                currentEntitlements = entSnap.exists() ? entSnap.data() : null;
+                // Use new credits API instead of direct Firestore access
+                const creditsData = await window.api.get('/api/v2/credits');
+                
+                // Convert new format to old format for compatibility with existing UI code
+                // New format: { unlimited, total, breakdown: { paid, free, bonus }, subscription, permissions }
+                currentEntitlements = {
+                    unlimited: creditsData?.unlimited || false,
+                    spec_credits: creditsData?.unlimited ? 0 : (creditsData?.breakdown?.paid || 0),
+                    can_edit: creditsData?.permissions?.canEdit || false
+                };
 
-                // Load subscription
-                const subscriptionRef = doc(db, 'subscriptions', currentUser.uid);
-                const subscriptionSnap = await getDoc(subscriptionRef);
-                currentSubscription = subscriptionSnap.exists() ? subscriptionSnap.data() : null;
+                // Store subscription info from new API
+                if (creditsData?.subscription) {
+                    currentSubscription = {
+                        status: creditsData.subscription.status || 'none',
+                        type: creditsData.subscription.type || 'none',
+                        expiresAt: creditsData.subscription.expiresAt || null
+                    };
+                } else {
+                    // Fallback: Load subscription from Firestore if not in API response
+                    const subscriptionRef = doc(db, 'subscriptions', currentUser.uid);
+                    const subscriptionSnap = await getDoc(subscriptionRef);
+                    currentSubscription = subscriptionSnap.exists() ? subscriptionSnap.data() : null;
+                }
 
-                // Load user document (needed for free_specs_remaining)
+                // Load user document for plan info (still needed for display)
                 if (!currentUserProfileDoc || forceRefresh) {
                     const userRef = doc(db, 'users', currentUser.uid);
                     const userSnap = await getDoc(userRef);
                     currentUserProfileDoc = userSnap.exists() ? userSnap.data() : {};
+                    // Map free_specs_remaining from new system
+                    if (creditsData?.breakdown) {
+                        currentUserProfileDoc.free_specs_remaining = creditsData.breakdown.free || 0;
+                    }
                 }
             } catch (error) {
                 // Failed to load entitlements
@@ -891,9 +910,18 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
             const unlimited = !!ent.unlimited;
             let credits = 0;
 
-            // Same logic as header: check unlimited first, then spec_credits, then free_specs_remaining with fallback to 0
+            // New logic: use total from new credits system
+            // If unlimited, credits = 0 (displayed as ∞)
+            // Otherwise, calculate total from breakdown (paid + free + bonus)
             if (!unlimited) {
-                if (typeof ent.spec_credits === 'number' && ent.spec_credits > 0) {
+                // Try to get total from new format first
+                if (typeof ent.total === 'number') {
+                    credits = ent.total;
+                } else if (ent.breakdown) {
+                    // Calculate total from breakdown
+                    credits = (ent.breakdown.paid || 0) + (ent.breakdown.free || 0) + (ent.breakdown.bonus || 0);
+                } else if (typeof ent.spec_credits === 'number' && ent.spec_credits > 0) {
+                    // Fallback to old format
                     credits = ent.spec_credits;
                 } else {
                     // Use free_specs_remaining with fallback to 0 (not 1)

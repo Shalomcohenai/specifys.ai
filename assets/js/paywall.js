@@ -277,47 +277,43 @@
     try {
       const token = await user.getIdToken();
       const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai-development.onrender.com';
-      const data = await window.api.get('/api/specs/entitlements');
-      const entitlements = data?.entitlements || {};
-      const userData = data?.user || null;
+      // Use new credits API
+      const data = await window.api.get('/api/v2/credits');
+      
+      // New format: { unlimited, total, breakdown: { paid, free, bonus }, subscription, permissions }
+      const credits = data || {};
+      const unlimited = credits.unlimited || false;
+      const total = credits.total || 0;
+      const breakdown = credits.breakdown || { paid: 0, free: 0, bonus: 0 };
 
-      if (entitlements?.unlimited) {
+      if (unlimited) {
         return {
           hasAccess: true,
-          entitlements: entitlements,
+          entitlements: { unlimited: true },
           paywallData: null
         };
       }
 
-      if (typeof entitlements?.spec_credits === 'number' && entitlements.spec_credits > 0) {
+      if (total > 0) {
         return {
           hasAccess: true,
-          entitlements: entitlements,
-          paywallData: null
-        };
-      }
-
-      // Check free_specs_remaining - return 0 if not set, not 1
-      const freeSpecs = typeof userData?.free_specs_remaining === 'number'
-        ? Math.max(0, userData.free_specs_remaining)
-        : 0; // Return 0 if not set, not 1
-
-      if (freeSpecs > 0) {
-        return {
-          hasAccess: true,
-          entitlements: entitlements,
+          entitlements: { 
+            unlimited: false,
+            spec_credits: breakdown.paid || 0,
+            free_specs_remaining: breakdown.free || 0
+          },
           paywallData: null
         };
       }
 
       return {
         hasAccess: false,
-        entitlements: entitlements,
+        entitlements: { unlimited: false, spec_credits: 0, free_specs_remaining: 0 },
         paywallData: {
           reason: 'insufficient_credits',
           message: 'You have no remaining spec credits',
-          freeSpecs: freeSpecs,
-          specCredits: entitlements.spec_credits || 0,
+          freeSpecs: breakdown.free || 0,
+          specCredits: breakdown.paid || 0,
           unlimited: false
         }
       };
