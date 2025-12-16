@@ -3123,7 +3123,6 @@ class AdminDashboardApp {
       
       // Calculate credits: use new user_credits system only
       let credits = "—";
-      const userCredits = this.dataAggregator.aggregatedData.userCredits.get(user.id);
       
       if (userCredits) {
         // New system - use user_credits
