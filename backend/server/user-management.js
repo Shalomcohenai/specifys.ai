@@ -266,10 +266,45 @@ async function initializeUser(uid, userDataOverrides = {}, isNewUserFromClient =
                     console.log(`[user-management] User ${uid}: ⚠️ EXISTING USER - user_credits SET in transaction with 0 credits (fallback)`);
                 }
             } else {
-                console.log(`[user-management] User ${uid}: user_credits document already exists, using existing data`);
+                console.log(`[user-management] User ${uid}: user_credits document already exists, checking if update needed...`);
                 finalCredits = creditsDoc.data();
                 const existingTotal = (finalCredits.balances?.paid || 0) + (finalCredits.balances?.free || 0) + (finalCredits.balances?.bonus || 0);
-                console.log(`[user-management] User ${uid}: Existing credits - total=${existingTotal}, breakdown=`, finalCredits.balances);
+                const welcomeCreditGranted = finalCredits.metadata?.welcomeCreditGranted || false;
+                console.log(`[user-management] User ${uid}: Existing credits - total=${existingTotal}, breakdown=`, finalCredits.balances, `welcomeCreditGranted=${welcomeCreditGranted}`);
+                
+                // Check if credits exist but are default (0 credits) and user is new - update to give welcome credit
+                if (isNewUser && existingTotal === 0 && !welcomeCreditGranted) {
+                    console.log(`[user-management] User ${uid}: ⚠️ RACE CONDITION DETECTED - Credits exist but are default (0) for new user, updating to give welcome credit`);
+                    console.log(`[user-management] User ${uid}: Updating existing credits document to grant welcome credit...`);
+                    
+                    // Update existing credits to grant welcome credit
+                    transaction.update(creditsRef, {
+                        'balances.free': admin.firestore.FieldValue.increment(1),
+                        'metadata.welcomeCreditGranted': true,
+                        'metadata.lastCreditGrant': admin.firestore.FieldValue.serverTimestamp(),
+                        'metadata.updatedAt': admin.firestore.FieldValue.serverTimestamp()
+                    });
+                    
+                    // Update finalCredits to reflect the change
+                    finalCredits = {
+                        ...finalCredits,
+                        balances: {
+                            ...finalCredits.balances,
+                            free: (finalCredits.balances?.free || 0) + 1
+                        },
+                        metadata: {
+                            ...finalCredits.metadata,
+                            welcomeCreditGranted: true,
+                            lastCreditGrant: admin.firestore.FieldValue.serverTimestamp(),
+                            updatedAt: admin.firestore.FieldValue.serverTimestamp()
+                        }
+                    };
+                    
+                    console.log(`[user-management] User ${uid}: ✅ RACE CONDITION FIXED - Updated credits to grant 1 free welcome credit`);
+                    console.log(`[user-management] User ${uid}: Updated credits - total=${existingTotal + 1}, breakdown=`, finalCredits.balances);
+                } else {
+                    console.log(`[user-management] User ${uid}: Credits already properly initialized, no update needed`);
+                }
             }
             
             console.log(`[user-management] User ${uid}: Step 7 - Building result object...`);

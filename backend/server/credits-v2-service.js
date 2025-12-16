@@ -266,9 +266,22 @@ async function getUserCredits(userId, autoCreate = true) {
     
     logger.info({ userId }, '[CREDITS-V2] getUserCredits - No old data found for migration');
     
-    // No old data found
+    // No old data found - check if user is initialized before auto-creating
     if (autoCreate) {
-      logger.warn({ userId }, '[CREDITS-V2] getUserCredits - ⚠️ autoCreate=true, creating default credits (0) - user should be initialized via initializeUser');
+      // Check if user document exists - if not, user hasn't been initialized yet
+      // Don't create credits for uninitialized users to avoid race condition with initializeUser
+      logger.info({ userId }, '[CREDITS-V2] getUserCredits - Checking if user is initialized...');
+      const userRef = db.collection(USERS_COLLECTION).doc(userId);
+      const userDoc = await userRef.get();
+      
+      if (!userDoc.exists) {
+        logger.warn({ userId }, '[CREDITS-V2] getUserCredits - ⚠️ User not initialized yet, throwing error to force initialization (prevents race condition)');
+        // User not initialized - don't create credits, let initializeUser handle it
+        throw new Error(`User credits not found for user ${userId}. User must be initialized first via /api/users/initialize`);
+      }
+      
+      // User exists, safe to create default credits (for backward compatibility with existing users)
+      logger.warn({ userId }, '[CREDITS-V2] getUserCredits - ⚠️ autoCreate=true, user exists but credits don't, creating default credits (0)');
       // Create default credits (0 credits) - for backward compatibility
       // Note: New users should be initialized via initializeUser which creates credits with welcome credit
       const defaultCredits = getDefaultCredits(userId);

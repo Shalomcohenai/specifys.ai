@@ -1477,6 +1477,70 @@ function checkAutoStart() {
   }
 }
 
+// ===== CREDIT INITIALIZATION LOADING =====
+function showCreditInitLoading() {
+  const overlay = document.getElementById('creditInitLoadingOverlay');
+  if (overlay) {
+    overlay.classList.remove('hidden');
+    overlay.style.display = 'flex';
+    document.body.style.overflow = 'hidden'; // Prevent scrolling during loading
+  }
+}
+
+function hideCreditInitLoading() {
+  const overlay = document.getElementById('creditInitLoadingOverlay');
+  if (overlay) {
+    overlay.classList.add('hidden');
+    overlay.style.display = 'none';
+    document.body.style.overflow = ''; // Restore scrolling
+  }
+}
+
+async function initializeCreditsWithLoading() {
+  // Wait for Firebase to be available
+  if (typeof firebase === 'undefined' || !firebase.auth) {
+    console.log('[index.js] initializeCreditsWithLoading - Firebase not ready yet, waiting...');
+    setTimeout(initializeCreditsWithLoading, 100);
+    return;
+  }
+  
+  const user = firebase.auth().currentUser;
+  if (!user) {
+    return; // User not authenticated, skip
+  }
+  
+  console.log('[index.js] initializeCreditsWithLoading - Starting credit initialization for user:', user.uid);
+  
+  // Show loading overlay
+  showCreditInitLoading();
+  
+  try {
+    // Wait for ensureUserDocument to complete (it's called from firebase-auth.html)
+    // Give it time to initialize user and credits
+    console.log('[index.js] initializeCreditsWithLoading - Waiting for user initialization...');
+    
+    // Wait 5 seconds as requested, during which initialization happens
+    await new Promise(resolve => setTimeout(resolve, 5000));
+    
+    // After waiting, refresh credits display
+    console.log('[index.js] initializeCreditsWithLoading - Refreshing credits display...');
+    if (typeof window.clearCreditsCache === 'function') {
+      window.clearCreditsCache();
+    }
+    if (typeof window.updateCreditsDisplay === 'function') {
+      await window.updateCreditsDisplay({ forceRefresh: true });
+    }
+    
+    console.log('[index.js] initializeCreditsWithLoading - ✅ Credit initialization complete');
+  } catch (error) {
+    console.error('[index.js] initializeCreditsWithLoading - Error:', error);
+  } finally {
+    // Hide loading overlay
+    hideCreditInitLoading();
+    console.log('[index.js] initializeCreditsWithLoading - Loading overlay hidden');
+  }
+}
+
 // ===== EVENT LISTENERS =====
 document.addEventListener('DOMContentLoaded', function() {
   // Clear any stale spec data when user arrives at fresh form
@@ -1486,8 +1550,36 @@ document.addEventListener('DOMContentLoaded', function() {
   // Ensure loading overlay is hidden on page load
   hideLoadingOverlay();
   
+  // Check if user is authenticated and initialize credits with loading
+  // Wait for Firebase to be available
+  function checkAuthAndInitialize() {
+    if (typeof firebase === 'undefined' || !firebase.auth) {
+      setTimeout(checkAuthAndInitialize, 100);
+      return;
+    }
+    
+    const user = firebase.auth().currentUser;
+    if (user) {
+      console.log('[index.js] User authenticated, starting credit initialization with loading...');
+      initializeCreditsWithLoading();
+    } else {
+      // Listen for auth state changes
+      firebase.auth().onAuthStateChanged((user) => {
+        if (user) {
+          console.log('[index.js] User signed in, starting credit initialization with loading...');
+          initializeCreditsWithLoading();
+        }
+      });
+    }
+  }
+  
+  checkAuthAndInitialize();
+  
   checkFirstVisit();
-  checkForCreditPopup();
+  // Delay checkForCreditPopup until after credit initialization
+  setTimeout(() => {
+    checkForCreditPopup();
+  }, 6000); // After 5 seconds + 1 second buffer
   setupModernInput();
   checkAutoStart();
   
