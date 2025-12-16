@@ -281,7 +281,7 @@ async function getUserCredits(userId, autoCreate = true) {
       }
       
       // User exists, safe to create default credits (for backward compatibility with existing users)
-      logger.warn({ userId }, '[CREDITS-V2] getUserCredits - ⚠️ autoCreate=true, user exists but credits don't, creating default credits (0)');
+      logger.warn({ userId }, '[CREDITS-V2] getUserCredits - ⚠️ autoCreate=true, user exists but credits do not exist, creating default credits (0)');
       // Create default credits (0 credits) - for backward compatibility
       // Note: New users should be initialized via initializeUser which creates credits with welcome credit
       const defaultCredits = getDefaultCredits(userId);
