@@ -11,9 +11,22 @@
         checkInterval: 10000, // Check CSS state every 10 seconds
         sendInterval: 30000, // Send logs to backend every 30 seconds
         crashThreshold: 30000, // Consider it a crash if CSS broken for 30 seconds
-        backendEndpoint: '/api/admin/css-crash-logs',
+        backendEndpoint: '/api/admin/css-crash-logs', // Relative endpoint path
         enabled: true
     };
+
+    /**
+     * Get API base URL (same logic as app-logger.js)
+     */
+    function getApiBaseUrl() {
+        if (typeof window !== 'undefined' && window.getApiBaseUrl) {
+            return window.getApiBaseUrl();
+        }
+        if (typeof window !== 'undefined' && window.API_BASE_URL) {
+            return window.API_BASE_URL;
+        }
+        return 'https://specifys-ai-development.onrender.com';
+    }
 
     // State
     const state = {
@@ -546,8 +559,11 @@
      */
     async function sendLog(logData) {
         try {
+            // Use absolute URL to Render backend (not relative path for GitHub Pages)
+            const apiBaseUrl = getApiBaseUrl();
+            const fullEndpoint = `${apiBaseUrl}${CONFIG.backendEndpoint}`;
 
-            const response = await fetch(CONFIG.backendEndpoint, {
+            const response = await fetch(fullEndpoint, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -563,12 +579,14 @@
             });
             
             if (!response.ok) {
-
+                // Silently fail - don't spam console with errors
+                // The endpoint might be blocked or server might be down
             } else {
-
+                // Success - log was saved
             }
         } catch (error) {
-
+            // Silently fail - don't break the app if logging fails
+            // Network errors, CORS issues, etc. are expected in some scenarios
         }
     }
 
