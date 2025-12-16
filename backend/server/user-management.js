@@ -67,14 +67,15 @@ async function getUserByUid(uid) {
  * @param {Object} credits - Current credits data (or null if doesn't exist)
  * @param {boolean|null} isNewUserFromClient - Client-provided flag (optional)
  * @returns {boolean} - True if user is new
+ * 
+ * @deprecated This function is kept for backward compatibility.
+ * In initializeUser, we now determine isNewUser directly from document existence.
  */
 function determineIfNewUser(uid, authUser, credits, isNewUserFromClient) {
-    // Priority 1: Client-provided flag (most reliable)
-    // If client explicitly says it's a new user, trust it
+    // Priority 1: Client-provided flag (most reliable) - ALWAYS trust this
     if (isNewUserFromClient === true) {
         return true;
     }
-    // If client explicitly says it's NOT a new user, trust it (don't override)
     if (isNewUserFromClient === false) {
         return false;
     }
@@ -110,40 +111,68 @@ function determineIfNewUser(uid, authUser, credits, isNewUserFromClient) {
  * This ensures atomicity and prevents race conditions
  */
 async function initializeUser(uid, userDataOverrides = {}, isNewUserFromClient = null) {
+    const startTime = Date.now();
+    console.log(`[user-management] ========== START initializeUser ==========`);
+    console.log(`[user-management] User ${uid}: Starting initialization`);
+    console.log(`[user-management] User ${uid}: isNewUserFromClient=${isNewUserFromClient}, hasOverrides=${Object.keys(userDataOverrides).length > 0}`);
+    
     try {
+        console.log(`[user-management] User ${uid}: Step 1 - Getting auth user from Firebase Auth...`);
         const authUser = await getUserByUid(uid);
+        console.log(`[user-management] User ${uid}: Auth user retrieved - email=${authUser.email}, creationTime=${authUser.creationTime}`);
+        
         const nowIso = new Date().toISOString();
         
+        // Load credits service outside transaction for better performance
+        console.log(`[user-management] User ${uid}: Step 2 - Loading credits service...`);
+        const creditsV2Service = require('./credits-v2-service');
+        console.log(`[user-management] User ${uid}: Credits service loaded successfully`);
+        
+        console.log(`[user-management] User ${uid}: Step 3 - Starting Firestore transaction...`);
         const result = await db.runTransaction(async (transaction) => {
+            console.log(`[user-management] User ${uid}: Inside transaction - Getting document references...`);
             const userRef = db.collection('users').doc(uid);
             const entitlementsRef = db.collection('entitlements').doc(uid);
+            const creditsRef = db.collection('user_credits').doc(uid);
             
-            // Get both documents in parallel
-            const [userDoc, entitlementsDoc] = await Promise.all([
+            // Get all three documents in parallel
+            console.log(`[user-management] User ${uid}: Inside transaction - Fetching documents (users, entitlements, user_credits)...`);
+            const [userDoc, entitlementsDoc, creditsDoc] = await Promise.all([
                 transaction.get(userRef),
-                transaction.get(entitlementsRef)
+                transaction.get(entitlementsRef),
+                transaction.get(creditsRef)
             ]);
             
             const userExists = userDoc.exists;
             const entitlementsExist = entitlementsDoc.exists;
+            const creditsExist = creditsDoc.exists;
             
-            // If both exist, we still need to check user_credits (after transaction)
-            // So we'll return a result that indicates we should check credits
-            // Don't determine _isNewUser here - will be determined after we check credits
-            if (userExists && entitlementsExist) {
+            console.log(`[user-management] User ${uid}: Documents fetched - userExists=${userExists}, entitlementsExist=${entitlementsExist}, creditsExist=${creditsExist}`);
+            
+            // Determine if this is a new user - prioritize isNewUserFromClient flag
+            // If all three documents exist, user is definitely not new
+            const isNewUser = isNewUserFromClient === true || (!userExists || !entitlementsExist || !creditsExist);
+            console.log(`[user-management] User ${uid}: Determining isNewUser - isNewUserFromClient=${isNewUserFromClient}, calculated isNewUser=${isNewUser}`);
+            
+            // If all documents exist, user is not new
+            if (userExists && entitlementsExist && creditsExist) {
+                console.log(`[user-management] User ${uid}: All documents exist - user is NOT new, returning existing data`);
                 const result = {
                     created: false,
                     updated: false,
                     unchanged: true,
                     user: userDoc.data(),
                     entitlements: entitlementsDoc.data(),
-                    _needsCreditsInit: true, // Still check credits in case they don't exist
-                    _isNewUser: null // Will be determined after checking credits
+                    credits: creditsDoc.data(),
+                    _needsCreditsInit: false,
+                    _isNewUser: false
                 };
+                console.log(`[user-management] User ${uid}: Returning early - user already fully initialized`);
                 return result;
             }
             
             // Prepare user document
+            console.log(`[user-management] User ${uid}: Step 4 - Preparing user document...`);
             const existingUserData = userExists ? userDoc.data() : null;
             const userDocToWrite = {
                 email: authUser.email,
@@ -155,6 +184,7 @@ async function initializeUser(uid, userDataOverrides = {}, isNewUserFromClient =
             };
             
             if (!userExists) {
+                console.log(`[user-management] User ${uid}: Creating NEW user document`);
                 userDocToWrite.createdAt = authUser.creationTime || nowIso;
                 if (userDocToWrite.plan === undefined) {
                     userDocToWrite.plan = 'free';
@@ -163,6 +193,7 @@ async function initializeUser(uid, userDataOverrides = {}, isNewUserFromClient =
                 // Keep it for backward compatibility but don't set it here
                 // It will be migrated to user_credits.balances.free
             } else {
+                console.log(`[user-management] User ${uid}: Updating EXISTING user document`);
                 userDocToWrite.createdAt = existingUserData?.createdAt || authUser.creationTime || nowIso;
             }
             
@@ -173,19 +204,26 @@ async function initializeUser(uid, userDataOverrides = {}, isNewUserFromClient =
                 }
             });
             
+            console.log(`[user-management] User ${uid}: User document prepared - email=${userDocToWrite.email}, plan=${userDocToWrite.plan}`);
+            
             // Write user document
             if (!userExists) {
+                console.log(`[user-management] User ${uid}: Writing NEW user document to Firestore...`);
                 transaction.set(userRef, userDocToWrite);
+                console.log(`[user-management] User ${uid}: User document SET in transaction`);
             } else if (Object.keys(userDocToWrite).length > 0) {
+                console.log(`[user-management] User ${uid}: Updating EXISTING user document in Firestore...`);
                 transaction.update(userRef, userDocToWrite);
+                console.log(`[user-management] User ${uid}: User document UPDATED in transaction`);
+            } else {
+                console.log(`[user-management] User ${uid}: No changes to user document, skipping write`);
             }
-            
-            // Initialize user_credits using new system (outside transaction for now)
-            // Note: This will be handled by credits-v2-service which uses its own transaction
             
             // For backward compatibility, still create entitlements document if it doesn't exist
             // but don't set spec_credits (that's now in user_credits)
+            console.log(`[user-management] User ${uid}: Step 5 - Handling entitlements document...`);
             if (!entitlementsExist) {
+                console.log(`[user-management] User ${uid}: Creating NEW entitlements document...`);
                 const entitlementsDocToWrite = {
                     userId: uid,
                     unlimited: false,
@@ -193,6 +231,9 @@ async function initializeUser(uid, userDataOverrides = {}, isNewUserFromClient =
                     updated_at: admin.firestore.FieldValue.serverTimestamp()
                 };
                 transaction.set(entitlementsRef, entitlementsDocToWrite);
+                console.log(`[user-management] User ${uid}: Entitlements document SET in transaction`);
+            } else {
+                console.log(`[user-management] User ${uid}: Entitlements document already exists, skipping creation`);
             }
             
             // Get final entitlements data (for backward compatibility)
@@ -200,100 +241,100 @@ async function initializeUser(uid, userDataOverrides = {}, isNewUserFromClient =
                 ? entitlementsDoc.data() 
                 : { userId: uid, unlimited: false, can_edit: false };
             
-            // Determine if this is a new user - use isNewUserFromClient if provided, otherwise check if user document didn't exist
-            const isNewUser = isNewUserFromClient !== null ? isNewUserFromClient : !userExists;
-            console.log(`[user-management] User ${uid}: userExists=${userExists}, entitlementsExist=${entitlementsExist}, isNewUser=${isNewUser}`);
+            console.log(`[user-management] User ${uid}: Step 6 - Handling user_credits document...`);
+            console.log(`[user-management] User ${uid}: Document status - userExists=${userExists}, entitlementsExist=${entitlementsExist}, creditsExist=${creditsExist}, isNewUser=${isNewUser}`);
             
-            // Initialize user_credits if it doesn't exist (after transaction)
-            // This needs to be done outside the transaction because credits-v2-service uses its own transactions
+            // Initialize user_credits atomically in transaction
+            let finalCredits = null;
+            if (!creditsExist) {
+                console.log(`[user-management] User ${uid}: user_credits document does NOT exist, creating...`);
+                // If this is a new user (explicitly marked or missing documents), give welcome credit
+                if (isNewUser) {
+                    console.log(`[user-management] User ${uid}: Calling getInitialCreditsForNewUser() to create credits with 1 free credit...`);
+                    const initialCredits = creditsV2Service.getInitialCreditsForNewUser(uid);
+                    console.log(`[user-management] User ${uid}: Initial credits structure created - free=${initialCredits.balances.free}, paid=${initialCredits.balances.paid}, bonus=${initialCredits.balances.bonus}`);
+                    transaction.set(creditsRef, initialCredits);
+                    finalCredits = initialCredits;
+                    console.log(`[user-management] User ${uid}: ✅ NEW USER - user_credits SET in transaction with 1 free welcome credit`);
+                } else {
+                    console.log(`[user-management] User ${uid}: NOT a new user, calling getDefaultCredits() to create credits with 0 credits...`);
+                    // Fallback: create default credits (0 credits) for existing users
+                    const defaultCredits = creditsV2Service.getDefaultCredits(uid);
+                    console.log(`[user-management] User ${uid}: Default credits structure created - free=${defaultCredits.balances.free}, paid=${defaultCredits.balances.paid}, bonus=${defaultCredits.balances.bonus}`);
+                    transaction.set(creditsRef, defaultCredits);
+                    finalCredits = defaultCredits;
+                    console.log(`[user-management] User ${uid}: ⚠️ EXISTING USER - user_credits SET in transaction with 0 credits (fallback)`);
+                }
+            } else {
+                console.log(`[user-management] User ${uid}: user_credits document already exists, using existing data`);
+                finalCredits = creditsDoc.data();
+                const existingTotal = (finalCredits.balances?.paid || 0) + (finalCredits.balances?.free || 0) + (finalCredits.balances?.bonus || 0);
+                console.log(`[user-management] User ${uid}: Existing credits - total=${existingTotal}, breakdown=`, finalCredits.balances);
+            }
+            
+            console.log(`[user-management] User ${uid}: Step 7 - Building result object...`);
             const result = {
-                created: !userExists || !entitlementsExist,
-                updated: userExists && entitlementsExist && Object.keys(userDocToWrite).length > 0,
-                unchanged: userExists && entitlementsExist && Object.keys(userDocToWrite).length === 0,
+                created: !userExists || !entitlementsExist || !creditsExist,
+                updated: userExists && entitlementsExist && creditsExist && Object.keys(userDocToWrite).length > 0,
+                unchanged: userExists && entitlementsExist && creditsExist && Object.keys(userDocToWrite).length === 0,
                 user: { ...(existingUserData || {}), ...userDocToWrite },
-                entitlements: finalEntitlements
+                entitlements: finalEntitlements,
+                credits: finalCredits,
+                _needsCreditsInit: false, // Credits already initialized in transaction
+                _isNewUser: isNewUser
             };
             
-            // Always check and initialize credits after transaction commits
-            // For new users, we'll grant welcome credit
-            // Note: _isNewUser will be determined after checking credits, not here
-            result._needsCreditsInit = true;
-            result._isNewUser = null; // Will be determined after checking credits using determineIfNewUser()
-            console.log(`[user-management] User ${uid}: result._isNewUser will be determined after credits check, result.created=${result.created}`);
+            const totalCreditsInResult = result.credits ? 
+                ((result.credits.balances?.paid || 0) + (result.credits.balances?.free || 0) + (result.credits.balances?.bonus || 0)) : 0;
+            
+            console.log(`[user-management] User ${uid}: Result object built - created=${result.created}, updated=${result.updated}, unchanged=${result.unchanged}, isNewUser=${result._isNewUser}, totalCredits=${totalCreditsInResult}`);
+            console.log(`[user-management] User ${uid}: Transaction complete, isNewUser=${isNewUser}, creditsCreated=${!creditsExist}`);
+            console.log(`[user-management] User ${uid}: About to commit transaction...`);
             
             return result;
         });
         
-        // Initialize user_credits if needed (after transaction)
-        console.log(`[user-management] After transaction for user ${uid}: result exists:`, !!result, 'result._needsCreditsInit:', result?._needsCreditsInit, 'result._isNewUser:', result?._isNewUser);
+        const transactionTime = Date.now() - startTime;
+        console.log(`[user-management] User ${uid}: ✅ Transaction committed successfully in ${transactionTime}ms`);
         
-        if (result && result._needsCreditsInit) {
-            console.log(`[user-management] Credits init needed for user ${uid}, proceeding...`);
-            // Load credits service once for reuse
-            const creditsV2Service = require('./credits-v2-service');
-            try {
-                console.log(`[user-management] Getting user credits for ${uid}...`);
-                const credits = await creditsV2Service.getUserCredits(uid);
-                console.log(`[user-management] User credits retrieved for ${uid}:`, JSON.stringify(credits, null, 2));
-                
-                // Determine if user is new based on Firebase Auth metadata and credits state
-                // This must be done AFTER getting credits, as credits state is part of the determination
-                const finalIsNewUser = determineIfNewUser(uid, authUser, credits, isNewUserFromClient);
-                console.log(`[user-management] determineIfNewUser result for ${uid}:`, finalIsNewUser, 'isNewUserFromClient:', isNewUserFromClient, 'hasCredits:', !!credits, 'totalCredits:', credits ? ((credits.balances?.paid || 0) + (credits.balances?.free || 0) + (credits.balances?.bonus || 0)) : 0);
-                
-                // Update result._isNewUser with the final determination
-                result._isNewUser = finalIsNewUser;
-                console.log(`[user-management] Updated result._isNewUser=${result._isNewUser} for user ${uid}`);
-                
-                // Grant 1 free credit to new users
-                if (finalIsNewUser) {
-                    console.log(`[user-management] User ${uid} is NEW USER - Granting welcome credit...`);
-                    const grantResult = await creditsV2Service.grantCredits(uid, 1, 'promotion', {
-                        reason: 'New user welcome credit',
-                        creditType: 'free'
-                    });
-                    console.log(`[user-management] Credit granted successfully to ${uid}:`, JSON.stringify(grantResult, null, 2));
-                } else {
-                    console.log(`[user-management] User ${uid} is NOT new user (finalIsNewUser=${finalIsNewUser}), skipping credit grant`);
-                }
-            } catch (creditsError) {
-                // Log but don't fail - credits will be initialized on first access
-                console.error(`[user-management] ERROR initializing credits for ${uid}:`, creditsError);
-                console.error(`[user-management] Error message:`, creditsError.message);
-                console.error(`[user-management] Error stack:`, creditsError.stack);
-                
-                // If we couldn't determine _isNewUser due to error, use fallback logic
-                // Try to get credits anyway to determine if user is new (might succeed even if initialization failed)
-                if (result._isNewUser === null) {
-                    try {
-                        const creditsAfterError = await creditsV2Service.getUserCredits(uid).catch(() => null);
-                        const finalIsNewUser = determineIfNewUser(uid, authUser, creditsAfterError, isNewUserFromClient);
-                        result._isNewUser = finalIsNewUser;
-                        console.log(`[user-management] Fallback after error: result._isNewUser set to ${result._isNewUser} for user ${uid}`);
-                    } catch (fallbackError) {
-                        // If even fallback fails, use isNewUserFromClient or default to false
-                        result._isNewUser = isNewUserFromClient === true;
-                        console.log(`[user-management] Final fallback after error: result._isNewUser set to ${result._isNewUser} for user ${uid}`);
-                    }
-                }
-            }
-        } else {
-            console.log(`[user-management] Credits init NOT needed for user ${uid}. result exists:`, !!result, 'result._needsCreditsInit:', result?._needsCreditsInit);
-            // If credits init is not needed but _isNewUser is still null, set default
-            if (result && result._isNewUser === null) {
-                result._isNewUser = isNewUserFromClient === true;
-                console.log(`[user-management] Fallback: result._isNewUser set to ${result._isNewUser} (credits init not needed)`);
-            }
-        }
+        // Credits are now initialized atomically in the transaction above
+        // No need for post-transaction credit initialization
+        console.log(`[user-management] User ${uid}: Step 8 - Processing transaction result...`);
+        console.log(`[user-management] After transaction for user ${uid}: result exists:`, !!result, 'result._isNewUser:', result?._isNewUser, 'creditsCreated:', !!result?.credits);
         
         // Ensure _isNewUser is never null in the final result
         if (result && result._isNewUser === null) {
-            result._isNewUser = false;
-            console.log(`[user-management] Final fallback: result._isNewUser set to false for user ${uid}`);
+            console.log(`[user-management] User ${uid}: ⚠️ WARNING - result._isNewUser is null, applying fallback logic...`);
+            result._isNewUser = isNewUserFromClient === true || false;
+            console.log(`[user-management] User ${uid}: Fallback applied - result._isNewUser set to ${result._isNewUser}`);
         }
+        
+        // Log credits info for debugging
+        if (result && result.credits) {
+            const totalCredits = (result.credits.balances?.paid || 0) + 
+                                (result.credits.balances?.free || 0) + 
+                                (result.credits.balances?.bonus || 0);
+            console.log(`[user-management] User ${uid}: Final credits summary - total=${totalCredits}, breakdown=`, JSON.stringify(result.credits.balances));
+            console.log(`[user-management] User ${uid}: welcomeCreditGranted=${result.credits.metadata?.welcomeCreditGranted || false}`);
+        } else {
+            console.log(`[user-management] User ${uid}: ⚠️ WARNING - result.credits is missing!`);
+        }
+        
+        const totalTime = Date.now() - startTime;
+        console.log(`[user-management] User ${uid}: ========== END initializeUser (SUCCESS) - Total time: ${totalTime}ms ==========`);
+        console.log(`[user-management] User ${uid}: Returning result - created=${result.created}, isNewUser=${result._isNewUser}, hasCredits=${!!result.credits}`);
         
         return result;
     } catch (error) {
+        const totalTime = Date.now() - startTime;
+        // Log error with context
+        console.error(`[user-management] ========== ERROR in initializeUser for ${uid} (after ${totalTime}ms) ==========`);
+        console.error(`[user-management] User ${uid}: ERROR occurred during initialization`);
+        console.error(`[user-management] User ${uid}: Error type:`, error.constructor.name);
+        console.error(`[user-management] User ${uid}: Error message:`, error.message);
+        console.error(`[user-management] User ${uid}: Error stack:`, error.stack);
+        console.error(`[user-management] User ${uid}: Input parameters - isNewUserFromClient=${isNewUserFromClient}, hasOverrides=${Object.keys(userDataOverrides || {}).length > 0}`);
+        // Re-throw error - don't swallow it
         throw error;
     }
 }

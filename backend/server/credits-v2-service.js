@@ -18,10 +18,12 @@ function generateTransactionId(type, identifier, userId) {
 }
 
 /**
- * Get default credits structure for new user
+ * Get default credits structure (0 credits - for fallback/error cases)
  */
 function getDefaultCredits(userId) {
-  return {
+  logger.info({ userId }, '[CREDITS-V2] getDefaultCredits called - Creating default credits with 0 credits (fallback)');
+  
+  const creditsStructure = {
     userId: userId,
     balances: {
       paid: 0,
@@ -45,6 +47,48 @@ function getDefaultCredits(userId) {
       lastCreditConsume: null
     }
   };
+  
+  logger.info({ userId, freeCredits: 0, paidCredits: 0, bonusCredits: 0 }, '[CREDITS-V2] getDefaultCredits - Default credits structure created (0 credits)');
+  
+  return creditsStructure;
+}
+
+/**
+ * Get initial credits structure for new user (with 1 free welcome credit)
+ * This should be used when creating a new user during registration
+ */
+function getInitialCreditsForNewUser(userId) {
+  logger.info({ userId }, '[CREDITS-V2] getInitialCreditsForNewUser called - Creating initial credits with 1 free welcome credit');
+  
+  const creditsStructure = {
+    userId: userId,
+    balances: {
+      paid: 0,
+      free: 1,  // Welcome credit for new users
+      bonus: 0
+    },
+    subscription: {
+      type: 'none',
+      status: 'none',
+      expiresAt: null,
+      preservedCredits: 0
+    },
+    permissions: {
+      canEdit: false,
+      canCreateUnlimited: false
+    },
+    metadata: {
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      lastCreditGrant: admin.firestore.FieldValue.serverTimestamp(),
+      lastCreditConsume: null,
+      welcomeCreditGranted: true  // Flag to prevent duplicate grants
+    }
+  };
+  
+  logger.info({ userId, freeCredits: 1, paidCredits: 0, bonusCredits: 0 }, '[CREDITS-V2] getInitialCreditsForNewUser - Initial credits structure created successfully');
+  
+  return creditsStructure;
 }
 
 /**
@@ -187,30 +231,64 @@ async function migrateFromOldSystem(userId) {
  * @param {string} userId - Firebase user ID
  * @returns {Promise<Object>} - User credits data
  */
-async function getUserCredits(userId) {
+/**
+ * Get user credits from Firestore
+ * @param {string} userId - Firebase user ID
+ * @param {boolean} autoCreate - If true, creates default credits if not found (default: true for backward compatibility)
+ * @returns {Promise<Object>} - User credits data
+ * @throws {Error} - If credits don't exist and autoCreate is false
+ */
+async function getUserCredits(userId, autoCreate = true) {
+  logger.info({ userId, autoCreate }, '[CREDITS-V2] getUserCredits called');
+  
   if (!userId || typeof userId !== 'string') {
+    logger.error({ userId }, '[CREDITS-V2] getUserCredits - Invalid userId');
     throw new Error('Invalid userId');
   }
   
+  logger.debug({ userId }, '[CREDITS-V2] getUserCredits - Fetching credits document from Firestore...');
   const creditsRef = db.collection(CREDITS_COLLECTION).doc(userId);
   const creditsDoc = await creditsRef.get();
   
   if (!creditsDoc.exists) {
+    logger.warn({ userId }, '[CREDITS-V2] getUserCredits - Credits document does NOT exist');
+    logger.info({ userId }, '[CREDITS-V2] getUserCredits - Attempting migration from old system...');
+    
     // Try to migrate from old system
     const migratedCredits = await migrateFromOldSystem(userId);
     
     if (migratedCredits) {
-      // Migration successful, return migrated data
+      logger.info({ userId }, '[CREDITS-V2] getUserCredits - ✅ Migration successful, returning migrated credits');
+      const totalMigrated = calculateTotal(migratedCredits.balances);
+      logger.info({ userId, totalCredits: totalMigrated }, '[CREDITS-V2] getUserCredits - Migrated credits summary');
       return migratedCredits;
     }
     
-    // No old data found, create default credits for new user
-    const defaultCredits = getDefaultCredits(userId);
-    await creditsRef.set(defaultCredits);
-    return defaultCredits;
+    logger.info({ userId }, '[CREDITS-V2] getUserCredits - No old data found for migration');
+    
+    // No old data found
+    if (autoCreate) {
+      logger.warn({ userId }, '[CREDITS-V2] getUserCredits - ⚠️ autoCreate=true, creating default credits (0) - user should be initialized via initializeUser');
+      // Create default credits (0 credits) - for backward compatibility
+      // Note: New users should be initialized via initializeUser which creates credits with welcome credit
+      const defaultCredits = getDefaultCredits(userId);
+      logger.info({ userId }, '[CREDITS-V2] getUserCredits - Saving default credits to Firestore...');
+      await creditsRef.set(defaultCredits);
+      logger.info({ userId }, '[CREDITS-V2] getUserCredits - ✅ Default credits saved to Firestore');
+      return defaultCredits;
+    } else {
+      logger.error({ userId }, '[CREDITS-V2] getUserCredits - ❌ autoCreate=false, throwing error');
+      // Don't auto-create - throw error
+      throw new Error(`User credits not found for user ${userId}. User must be initialized first via /api/users/initialize`);
+    }
   }
   
-  return creditsDoc.data();
+  logger.info({ userId }, '[CREDITS-V2] getUserCredits - ✅ Credits document exists, returning existing data');
+  const creditsData = creditsDoc.data();
+  const totalCredits = calculateTotal(creditsData.balances);
+  logger.debug({ userId, totalCredits, breakdown: creditsData.balances }, '[CREDITS-V2] getUserCredits - Existing credits summary');
+  
+  return creditsData;
 }
 
 /**
@@ -1032,5 +1110,7 @@ module.exports = {
   enableProSubscription,
   disableProSubscription,
   selectCreditType,
-  calculateTotal
+  calculateTotal,
+  getInitialCreditsForNewUser,
+  getDefaultCredits
 };

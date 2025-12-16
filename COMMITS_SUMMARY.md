@@ -210,3 +210,4 @@ git checkout continue-from-phase2
 # לחזור לענף הנוכחי
 git checkout restore-commit-1f31504
 ```
+
