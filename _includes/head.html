@@ -1,4 +1,104 @@
 <head>
+    <!-- Suppress console logs immediately - runs before any other scripts -->
+    <script>
+        (function() {
+            'use strict';
+            // Check if console exists
+            if (typeof window === 'undefined' || typeof console === 'undefined') {
+                return;
+            }
+
+            // Function to check if logs should be enabled
+            function shouldEnableLogs() {
+                try {
+                    // Check localStorage setting (set by admin dashboard)
+                    const logsEnabled = localStorage.getItem('specifys_console_logs_enabled');
+                    if (logsEnabled === 'true') {
+                        return true;
+                    }
+                    
+                    // Check URL debug flag
+                    const search = window.location.search || '';
+                    const hash = window.location.hash || '';
+                    const debugFlagPattern = /(?:[?&#])(debug-console|debugConsole)=(?:1|true)/i;
+                    if (debugFlagPattern.test(`${search}${hash}`)) {
+                        return true;
+                    }
+                    
+                    // Check if we're on a dev host
+                    const hostname = (window.location.hostname || '').toLowerCase();
+                    const devHosts = new Set(['', 'localhost', '127.0.0.1', '::1']);
+                    const isDevHost =
+                        devHosts.has(hostname) ||
+                        hostname.endsWith('.local') ||
+                        hostname.endsWith('.localhost') ||
+                        hostname.endsWith('.lan') ||
+                        hostname.endsWith('.test');
+                    
+                    return isDevHost;
+                } catch (e) {
+                    // If localStorage is not available, default to hiding logs
+                    return false;
+                }
+            }
+
+            // Function to suppress console logs
+            function suppressConsoleLogs() {
+                try {
+                    // Save original console methods if not already saved
+                    window.__SPECIFYS_ORIGINAL_CONSOLE__ = window.__SPECIFYS_ORIGINAL_CONSOLE__ || {};
+
+                    const noop = function() {};
+                    const methods = ['log', 'info', 'debug', 'warn', 'error', 'trace', 'table', 'group', 'groupEnd', 'groupCollapsed', 'dir', 'dirxml', 'assert', 'time', 'timeEnd', 'count', 'clear', 'profile', 'profileEnd'];
+
+                    methods.forEach(function(method) {
+                        if (typeof console[method] === 'function') {
+                            // Save original if not already saved
+                            if (!window.__SPECIFYS_ORIGINAL_CONSOLE__[method]) {
+                                window.__SPECIFYS_ORIGINAL_CONSOLE__[method] = console[method].bind(console);
+                            }
+                            // Replace with noop
+                            console[method] = noop;
+                        }
+                    });
+                } catch (e) {
+                    // Silently fail if there's an error
+                }
+            }
+
+            // Function to restore console logs
+            function restoreConsoleLogs() {
+                try {
+                    if (window.__SPECIFYS_ORIGINAL_CONSOLE__) {
+                        const methods = ['log', 'info', 'debug', 'warn', 'error', 'trace', 'table', 'group', 'groupEnd', 'groupCollapsed', 'dir', 'dirxml', 'assert', 'time', 'timeEnd', 'count', 'clear', 'profile', 'profileEnd'];
+                        
+                        methods.forEach(function(method) {
+                            if (window.__SPECIFYS_ORIGINAL_CONSOLE__[method] && typeof console[method] !== 'undefined') {
+                                console[method] = window.__SPECIFYS_ORIGINAL_CONSOLE__[method];
+                            }
+                        });
+                    }
+                } catch (e) {
+                    // Silently fail if there's an error
+                }
+            }
+
+            // Initial check and setup
+            if (!shouldEnableLogs()) {
+                suppressConsoleLogs();
+            }
+
+            // Expose functions globally for admin dashboard to use
+            window.__SPECIFYS_CONSOLE_CONTROL__ = {
+                enable: restoreConsoleLogs,
+                disable: suppressConsoleLogs,
+                isEnabled: function() {
+                    return shouldEnableLogs();
+                }
+            };
+        })();
+    </script>
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     <meta name="theme-color" content="#000000">

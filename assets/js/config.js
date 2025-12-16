@@ -16,6 +16,16 @@
       return;
     }
 
+    // Check if logs are explicitly enabled via localStorage (set by admin dashboard)
+    try {
+      const logsEnabled = localStorage.getItem('specifys_console_logs_enabled');
+      if (logsEnabled === 'true') {
+        return; // Don't suppress if explicitly enabled
+      }
+    } catch (e) {
+      // localStorage not available, continue with normal checks
+    }
+
     const hostname = (window.location.hostname || '').toLowerCase();
     const search = window.location.search || '';
     const hash = window.location.hash || '';

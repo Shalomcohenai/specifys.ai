@@ -2054,6 +2054,8 @@ class AdminDashboardApp {
       manualRefresh: utils.dom("#manual-refresh-btn"),
       syncCreditsBtn: utils.dom("#sync-credits-btn"),
       signOut: utils.dom("#sign-out-btn"),
+      consoleLogsToggle: utils.dom("#console-logs-toggle"),
+      consoleLogsToggleText: utils.dom("#console-logs-toggle-text"),
       overviewRange: utils.dom("#overview-range"),
       overviewMetrics: utils.dom("#overview-metrics"),
       activityFeed: utils.dom("#activity-feed"),
@@ -2388,6 +2390,7 @@ class AdminDashboardApp {
     this.dom.syncCreditsBtn?.addEventListener("click", () => this.syncCreditsManually());
     this.dom.apiHealth.checkButton?.addEventListener("click", () => this.performApiHealthCheck());
     this.dom.apiHealth.copyButton?.addEventListener("click", () => this.copyHealthCheckLogs());
+    this.dom.consoleLogsToggle?.addEventListener("click", () => this.toggleConsoleLogs());
     this.dom.signOut?.addEventListener("click", async () => {
       try {
         await signOut(auth);
@@ -2566,6 +2569,8 @@ class AdminDashboardApp {
     await this.fetchUserSyncStatus();
     // Initialize contact badge
     this.updateContactBadge();
+    // Initialize console logs toggle
+    this.initConsoleLogsToggle();
     // Don't auto-load alerts and performance - user must click Update button
     // This prevents unnecessary API calls and reduces server load
   }
@@ -4664,6 +4669,75 @@ class AdminDashboardApp {
   /**
    * Sync credits for all users
    * Migrates credits from old system (entitlements) to new system (user_credits)
+  /**
+   * Toggle console logs visibility
+   */
+  toggleConsoleLogs() {
+    try {
+      const currentState = localStorage.getItem('specifys_console_logs_enabled');
+      const isEnabled = currentState === 'true';
+      const newState = !isEnabled;
+      
+      // Update localStorage
+      localStorage.setItem('specifys_console_logs_enabled', newState ? 'true' : 'false');
+      
+      // Update console state using global control functions
+      if (window.__SPECIFYS_CONSOLE_CONTROL__) {
+        if (newState) {
+          window.__SPECIFYS_CONSOLE_CONTROL__.enable();
+        } else {
+          window.__SPECIFYS_CONSOLE_CONTROL__.disable();
+        }
+      }
+      
+      // Update button text and visual state
+      if (this.dom.consoleLogsToggleText) {
+        this.dom.consoleLogsToggleText.textContent = `Logs: ${newState ? 'ON' : 'OFF'}`;
+      }
+      
+      if (this.dom.consoleLogsToggle) {
+        if (newState) {
+          this.dom.consoleLogsToggle.classList.add('active');
+          this.dom.consoleLogsToggle.classList.remove('inactive');
+        } else {
+          this.dom.consoleLogsToggle.classList.remove('active');
+          this.dom.consoleLogsToggle.classList.add('inactive');
+        }
+      }
+      
+      // Show feedback
+      console.log(`Console logs ${newState ? 'enabled' : 'disabled'}`);
+    } catch (error) {
+      console.error('Error toggling console logs:', error);
+    }
+  }
+
+  /**
+   * Initialize console logs toggle state
+   */
+  initConsoleLogsToggle() {
+    try {
+      const isEnabled = localStorage.getItem('specifys_console_logs_enabled') === 'true';
+      
+      if (this.dom.consoleLogsToggleText) {
+        this.dom.consoleLogsToggleText.textContent = `Logs: ${isEnabled ? 'ON' : 'OFF'}`;
+      }
+      
+      if (this.dom.consoleLogsToggle) {
+        if (isEnabled) {
+          this.dom.consoleLogsToggle.classList.add('active');
+          this.dom.consoleLogsToggle.classList.remove('inactive');
+        } else {
+          this.dom.consoleLogsToggle.classList.remove('active');
+          this.dom.consoleLogsToggle.classList.add('inactive');
+        }
+      }
+    } catch (error) {
+      // Silently fail if localStorage is not available
+    }
+  }
+
+   /**
    * Processes users in batches
    */
   async syncCreditsManually() {
