@@ -63,7 +63,8 @@
 <body>
   <a href="#main-content" class="skip-to-main" aria-label="Skip to main content">Skip to main content</a>
   <div class="admin-shell" id="admin-shell">
-    <aside class="admin-sidebar" aria-label="Admin navigation" role="complementary">
+    <div class="sidebar-backdrop" id="sidebar-backdrop" aria-hidden="true"></div>
+    <aside class="admin-sidebar" aria-label="Admin navigation" role="complementary" id="admin-sidebar">
       <div class="sidebar-brand">
         <span class="brand-name">Specifys<span class="accent">.</span>AI</span>
         <span class="brand-subtitle">Admin</span>
@@ -140,6 +141,9 @@
     <div class="admin-main">
       <header class="admin-topbar">
         <div class="topbar-left">
+          <button class="mobile-menu-toggle" id="mobile-menu-toggle" type="button" aria-label="Toggle menu" aria-expanded="false">
+            <i class="fas fa-bars" aria-hidden="true"></i>
+          </button>
           <div class="page-title">
             <h1>Admin Dashboard</h1>
             <p>Live control center for Specifys.ai</p>
@@ -149,6 +153,10 @@
         </div>
             </div>
         <div class="topbar-actions">
+          <button class="action-btn" id="console-logs-toggle" type="button" aria-label="Toggle console logs" title="Toggle console logs visibility">
+            <i class="fas fa-terminal" aria-hidden="true"></i>
+            <span id="console-logs-toggle-text">Logs: OFF</span>
+          </button>
           <a href="/" class="action-btn home-btn" title="Back to homepage" aria-label="Back to homepage">
             <i class="fas fa-home" aria-hidden="true"></i>
             <span>Home</span>

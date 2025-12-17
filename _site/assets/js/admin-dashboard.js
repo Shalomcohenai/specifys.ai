@@ -31,6 +31,7 @@ const firebaseConfig = {
 const COLLECTIONS = Object.freeze({
   USERS: "users",
   ENTITLEMENTS: "entitlements",
+  USER_CREDITS: "user_credits",
   SPECS: "specs",
   PURCHASES: "purchases",
   SUBSCRIPTIONS: "subscriptions",
@@ -231,6 +232,7 @@ class DataAggregator {
     this.aggregatedData = {
       users: new Map(),
       entitlements: new Map(),
+      userCredits: new Map(),
       specs: new Map(),
       specsByUser: new Map(),
       purchases: [],
@@ -536,6 +538,48 @@ class DataAggregator {
       
       this.unsubscribeFns.push(unsubEntitlements);
       return unsubEntitlements;
+    } catch (error) {
+      throw error;
+    }
+  }
+  
+  /**
+   * Subscribe to user_credits collection (new credits system)
+   */
+  subscribeToUserCredits() {
+    try {
+      const unsubUserCredits = onSnapshot(
+        collection(this.db, COLLECTIONS.USER_CREDITS),
+        (snapshot) => {
+          snapshot.docChanges().forEach((change) => {
+            if (change.type === "removed") {
+              this.aggregatedData.userCredits.delete(change.doc.id);
+            } else {
+              const data = change.doc.data();
+              const normalized = {
+                userId: change.doc.id,
+                balances: {
+                  free: data.balances?.free || 0,
+                  paid: data.balances?.paid || 0,
+                  bonus: data.balances?.bonus || 0
+                },
+                total: (data.balances?.free || 0) + (data.balances?.paid || 0) + (data.balances?.bonus || 0),
+                unlimited: data.subscription?.type !== 'none' && data.subscription?.status === 'active',
+                updatedAt: utils.toDate(data.metadata?.updatedAt),
+                metadata: data
+              };
+              this.aggregatedData.userCredits.set(change.doc.id, normalized);
+            }
+          });
+          this.notifyDataChange('userCredits');
+        },
+        (error) => {
+          this.notifyDataChange('userCredits-error');
+        }
+      );
+      
+      this.unsubscribeFns.push(unsubUserCredits);
+      return unsubUserCredits;
     } catch (error) {
       throw error;
     }
@@ -914,7 +958,8 @@ class DataAggregator {
    */
   subscribeAll() {
     this.subscribeToUsers();
-    this.subscribeToEntitlements();
+    // subscribeToEntitlements() removed - using new user_credits system only
+    this.subscribeToUserCredits();
     this.subscribeToSpecs();
     this.subscribeToPurchases();
     this.subscribeToActivityLogs();
@@ -941,6 +986,7 @@ class DataAggregator {
   reset() {
     this.aggregatedData.users.clear();
     this.aggregatedData.entitlements.clear();
+    this.aggregatedData.userCredits.clear();
     this.aggregatedData.specs.clear();
     this.aggregatedData.specsByUser.clear();
     this.aggregatedData.purchases = [];
@@ -1897,6 +1943,10 @@ class AdminDashboardApp {
         this.markSourceReady('entitlements');
         this.renderUsersTable();
       }
+      if (source === 'userCredits') {
+        this.markSourceReady('userCredits');
+        this.renderUsersTable();
+      }
       if (source === 'specs') {
         this.markSourceReady('specs');
         this.renderUsersTable();
@@ -1995,6 +2045,9 @@ class AdminDashboardApp {
 
     this.dom = {
       shell: utils.dom("#admin-shell"),
+      sidebar: utils.dom("#admin-sidebar"),
+      sidebarBackdrop: utils.dom("#sidebar-backdrop"),
+      mobileMenuToggle: utils.dom("#mobile-menu-toggle"),
       navButtons: utils.domAll(".nav-link"),
       sections: utils.domAll(".dashboard-section"),
       statusIndicator: utils.dom("#connection-indicator .dot"),
@@ -2004,6 +2057,8 @@ class AdminDashboardApp {
       manualRefresh: utils.dom("#manual-refresh-btn"),
       syncCreditsBtn: utils.dom("#sync-credits-btn"),
       signOut: utils.dom("#sign-out-btn"),
+      consoleLogsToggle: utils.dom("#console-logs-toggle"),
+      consoleLogsToggleText: utils.dom("#console-logs-toggle-text"),
       overviewRange: utils.dom("#overview-range"),
       overviewMetrics: utils.dom("#overview-metrics"),
       activityFeed: utils.dom("#activity-feed"),
@@ -2335,9 +2390,30 @@ class AdminDashboardApp {
   bindInteractions() {
     this.dom.manualRefresh?.addEventListener("click", () => this.refreshAllData("manual"));
     this.dom.syncUsersButton?.addEventListener("click", () => this.syncUsersManually());
+    // Mobile menu toggle
+    this.dom.mobileMenuToggle?.addEventListener("click", () => this.toggleMobileMenu());
+    this.dom.sidebarBackdrop?.addEventListener("click", () => this.closeMobileMenu());
+    
+    // Close mobile menu when clicking nav links
+    this.dom.navButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        if (window.innerWidth <= 768) {
+          this.closeMobileMenu();
+        }
+      });
+    });
+    
+    // Close mobile menu on window resize to desktop
+    window.addEventListener("resize", () => {
+      if (window.innerWidth > 768 && this.dom.sidebar?.classList.contains('mobile-open')) {
+        this.closeMobileMenu();
+      }
+    });
+    
     this.dom.syncCreditsBtn?.addEventListener("click", () => this.syncCreditsManually());
     this.dom.apiHealth.checkButton?.addEventListener("click", () => this.performApiHealthCheck());
     this.dom.apiHealth.copyButton?.addEventListener("click", () => this.copyHealthCheckLogs());
+    this.dom.consoleLogsToggle?.addEventListener("click", () => this.toggleConsoleLogs());
     this.dom.signOut?.addEventListener("click", async () => {
       try {
         await signOut(auth);
@@ -2516,6 +2592,8 @@ class AdminDashboardApp {
     await this.fetchUserSyncStatus();
     // Initialize contact badge
     this.updateContactBadge();
+    // Initialize console logs toggle
+    this.initConsoleLogsToggle();
     // Don't auto-load alerts and performance - user must click Update button
     // This prevents unnecessary API calls and reduces server load
   }
@@ -3061,19 +3139,21 @@ class AdminDashboardApp {
     // Build rows for current page
     const rows = [];
     for (const user of usersForPage) {
-      const entitlement = this.store.getEntitlement(user.id);
+      // Use new user_credits system instead of old entitlements
+      const userCredits = this.dataAggregator.aggregatedData.userCredits.get(user.id);
       const specCount = this.store.getSpecCount(user.id);
       const planBadge = `<span class="badge ${user.plan}">${user.plan}</span>`;
       
-      // Calculate credits: check entitlement first, then fallback to free_specs_remaining
+      // Calculate credits: use new user_credits system only
       let credits = "—";
-      if (entitlement?.unlimited) {
-        credits = "Unlimited";
-      } else if (entitlement?.specCredits != null) {
-        credits = entitlement.specCredits;
-      } else if (user.freeSpecsRemaining != null) {
-        // Fallback to free_specs_remaining from user document
-        credits = user.freeSpecsRemaining;
+      
+      if (userCredits) {
+        // New system - use user_credits
+        if (userCredits.unlimited) {
+          credits = "Unlimited";
+        } else {
+          credits = userCredits.total || 0;
+        }
       } else {
         // If no credits info found, default to 0 for display
         credits = 0;
@@ -3101,6 +3181,9 @@ class AdminDashboardApp {
               ${user.email ? `<button class="table-action-btn" data-action="copy-email" data-email="${user.email}">
                 <i class="fas fa-copy"></i> Copy email
               </button>` : ""}
+              <button class="table-action-btn btn-danger" data-action="delete-user" data-user-id="${user.id}" data-user-email="${user.email || user.id}">
+                <i class="fas fa-trash"></i> Delete
+              </button>
             </div>
           </td>
         </tr>
@@ -3155,6 +3238,64 @@ class AdminDashboardApp {
           navigator.clipboard?.writeText(email);
           btn.classList.add("copied");
           setTimeout(() => btn.classList.remove("copied"), 1000);
+        });
+      });
+
+    this.dom.usersTable
+      .querySelectorAll('[data-action="delete-user"]')
+      .forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          const userId = btn.dataset.userId;
+          const userEmail = btn.dataset.userEmail;
+          if (!userId) return;
+          
+          // Confirm deletion
+          const confirmMessage = `Are you sure you want to permanently delete this user?\n\nUser: ${userEmail}\n\nThis will delete:\n- User account from Firebase Auth\n- All user data from Firestore\n- All specs, apps, and market research\n- All subscriptions and credits\n\nThis action cannot be undone!`;
+          
+          if (!confirm(confirmMessage)) {
+            return;
+          }
+          
+          // Double confirmation
+          if (!confirm(`Final confirmation: Delete user ${userEmail}?\n\nThis action is PERMANENT and cannot be undone.`)) {
+            return;
+          }
+          
+          // Disable button and show loading state
+          btn.disabled = true;
+          const originalHTML = btn.innerHTML;
+          btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting...';
+          
+          try {
+            const response = await window.api.delete(`/api/admin/users/${userId}`);
+            
+            if (response.success) {
+              // Show success message
+              alert(`User ${userEmail} has been permanently deleted.`);
+              
+              // Remove user from local store
+              this.store.removeUser(userId);
+              this.store.removeEntitlement(userId);
+              
+              // Remove the row from the table
+              const row = btn.closest('tr[data-user-id]');
+              if (row) {
+                row.remove();
+                // Update pagination if needed
+                this.renderUsersTable();
+              }
+              
+              // Refresh data
+              await this.dataAggregator.refresh();
+            } else {
+              throw new Error(response.error || response.message || 'Failed to delete user');
+            }
+          } catch (error) {
+            console.error('Error deleting user:', error);
+            alert(`Failed to delete user: ${error.message}`);
+            btn.disabled = false;
+            btn.innerHTML = originalHTML;
+          }
         });
       });
   }
@@ -3766,17 +3907,21 @@ class AdminDashboardApp {
       "Email Verified"
     ];
     const rows = this.store.getUsersSorted().map((user) => {
-      const entitlement = this.store.getEntitlement(user.id);
+      // Use new user_credits system instead of old entitlements
+      const userCredits = this.dataAggregator.aggregatedData.userCredits.get(user.id);
       
-      // Calculate credits: check entitlement first, then fallback to free_specs_remaining
+      // Calculate credits: use new user_credits system only
       let credits = "";
-      if (entitlement?.unlimited) {
-        credits = "Unlimited";
-      } else if (entitlement?.specCredits != null) {
-        credits = entitlement.specCredits;
-      } else if (user.freeSpecsRemaining != null) {
-        credits = user.freeSpecsRemaining;
+      
+      if (userCredits) {
+        // New system - use user_credits
+        if (userCredits.unlimited) {
+          credits = "Unlimited";
+        } else {
+          credits = userCredits.total || 0;
+        }
       } else {
+        // If no credits info found, default to 0
         credits = 0;
       }
       
@@ -3789,7 +3934,7 @@ class AdminDashboardApp {
         utils.formatDate(user.lastActive),
         this.store.getSpecCount(user.id),
         credits,
-        entitlement?.unlimited ? "yes" : "no",
+        userCredits?.unlimited ? "yes" : "no",
         user.emailVerified ? "yes" : "no"
       ]
         .map((value) => `"${String(value ?? "").replace(/"/g, '""')}"`)
@@ -4529,6 +4674,120 @@ class AdminDashboardApp {
   /**
    * Sync credits for all users
    * Migrates credits from old system (entitlements) to new system (user_credits)
+  /**
+   * Toggle console logs visibility
+   */
+  toggleConsoleLogs() {
+    try {
+      const currentState = localStorage.getItem('specifys_console_logs_enabled');
+      const isEnabled = currentState === 'true';
+      const newState = !isEnabled;
+      
+      // Update localStorage
+      localStorage.setItem('specifys_console_logs_enabled', newState ? 'true' : 'false');
+      
+      // Update console state using global control functions
+      if (window.__SPECIFYS_CONSOLE_CONTROL__) {
+        if (newState) {
+          window.__SPECIFYS_CONSOLE_CONTROL__.enable();
+        } else {
+          window.__SPECIFYS_CONSOLE_CONTROL__.disable();
+        }
+      }
+      
+      // Update button text and visual state
+      if (this.dom.consoleLogsToggleText) {
+        this.dom.consoleLogsToggleText.textContent = `Logs: ${newState ? 'ON' : 'OFF'}`;
+      }
+      
+      if (this.dom.consoleLogsToggle) {
+        if (newState) {
+          this.dom.consoleLogsToggle.classList.add('active');
+          this.dom.consoleLogsToggle.classList.remove('inactive');
+        } else {
+          this.dom.consoleLogsToggle.classList.remove('active');
+          this.dom.consoleLogsToggle.classList.add('inactive');
+        }
+      }
+      
+      // Show feedback
+      console.log(`Console logs ${newState ? 'enabled' : 'disabled'}`);
+    } catch (error) {
+      console.error('Error toggling console logs:', error);
+    }
+  }
+
+  /**
+   * Initialize console logs toggle state
+   */
+  initConsoleLogsToggle() {
+    try {
+      const isEnabled = localStorage.getItem('specifys_console_logs_enabled') === 'true';
+      
+      if (this.dom.consoleLogsToggleText) {
+        this.dom.consoleLogsToggleText.textContent = `Logs: ${isEnabled ? 'ON' : 'OFF'}`;
+      }
+      
+      if (this.dom.consoleLogsToggle) {
+        if (isEnabled) {
+          this.dom.consoleLogsToggle.classList.add('active');
+          this.dom.consoleLogsToggle.classList.remove('inactive');
+        } else {
+          this.dom.consoleLogsToggle.classList.remove('active');
+          this.dom.consoleLogsToggle.classList.add('inactive');
+        }
+      }
+    } catch (error) {
+      // Silently fail if localStorage is not available
+    }
+  }
+
+  /**
+   * Toggle mobile menu
+   */
+  toggleMobileMenu() {
+    if (!this.dom.sidebar || !this.dom.sidebarBackdrop || !this.dom.mobileMenuToggle) {
+      return;
+    }
+    
+    const isOpen = this.dom.sidebar.classList.contains('mobile-open');
+    
+    if (isOpen) {
+      this.closeMobileMenu();
+    } else {
+      this.openMobileMenu();
+    }
+  }
+
+  /**
+   * Open mobile menu
+   */
+  openMobileMenu() {
+    if (!this.dom.sidebar || !this.dom.sidebarBackdrop || !this.dom.mobileMenuToggle) {
+      return;
+    }
+    
+    this.dom.sidebar.classList.add('mobile-open');
+    this.dom.sidebarBackdrop.classList.add('active');
+    this.dom.mobileMenuToggle.setAttribute('aria-expanded', 'true');
+    document.body.style.overflow = 'hidden';
+  }
+
+  /**
+   * Close mobile menu
+   */
+  closeMobileMenu() {
+    if (!this.dom.sidebar || !this.dom.sidebarBackdrop || !this.dom.mobileMenuToggle) {
+      return;
+    }
+    
+    this.dom.sidebar.classList.remove('mobile-open');
+    this.dom.sidebarBackdrop.classList.remove('active');
+    this.dom.mobileMenuToggle.setAttribute('aria-expanded', 'false');
+    document.body.style.overflow = '';
+  }
+
+   /**
    * Processes users in batches
    */
   async syncCreditsManually() {
@@ -5721,7 +5980,8 @@ class AdminDashboardApp {
     // Render table rows
     const rows = filteredSpecs.map((spec) => {
       const user = this.store.getUser(spec.userId);
-      const entitlement = this.store.getEntitlement(spec.userId);
+      // Use new user_credits system instead of old entitlements
+      const userCredits = this.dataAggregator.aggregatedData.userCredits.get(spec.userId);
       const specData = spec.metadata || {};
       const status = specData.status || {};
       
@@ -5744,9 +6004,9 @@ class AdminDashboardApp {
       const hasAiChat = !!(specData.openaiAssistantId || specData.chatThreadId || specData.openaiFileId);
       const hasExport = false; // Export is not tracked, but we can check if user has exported based on other indicators
       
-      // Check user type
-      const isPro = !!(entitlement?.unlimited || user?.plan === 'pro');
-      const hasCredits = !!(entitlement?.specCredits && entitlement.specCredits > 0);
+      // Check user type using new credits system
+      const isPro = !!(userCredits?.unlimited || user?.plan === 'pro');
+      const hasCredits = !!(userCredits && !userCredits.unlimited && userCredits.total > 0);
       
       // Build user info with badges
       let userInfo = user?.email || user?.displayName || spec.userId || "Unknown";
