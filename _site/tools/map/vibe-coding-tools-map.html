@@ -1,6 +1,106 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Suppress console logs immediately - runs before any other scripts -->
+    <script>
+        (function() {
+            'use strict';
+            // Check if console exists
+            if (typeof window === 'undefined' || typeof console === 'undefined') {
+                return;
+            }
+
+            // Function to check if logs should be enabled
+            function shouldEnableLogs() {
+                try {
+                    // Check localStorage setting (set by admin dashboard)
+                    const logsEnabled = localStorage.getItem('specifys_console_logs_enabled');
+                    if (logsEnabled === 'true') {
+                        return true;
+                    }
+                    
+                    // Check URL debug flag
+                    const search = window.location.search || '';
+                    const hash = window.location.hash || '';
+                    const debugFlagPattern = /(?:[?&#])(debug-console|debugConsole)=(?:1|true)/i;
+                    if (debugFlagPattern.test(`${search}${hash}`)) {
+                        return true;
+                    }
+                    
+                    // Check if we're on a dev host
+                    const hostname = (window.location.hostname || '').toLowerCase();
+                    const devHosts = new Set(['', 'localhost', '127.0.0.1', '::1']);
+                    const isDevHost =
+                        devHosts.has(hostname) ||
+                        hostname.endsWith('.local') ||
+                        hostname.endsWith('.localhost') ||
+                        hostname.endsWith('.lan') ||
+                        hostname.endsWith('.test');
+                    
+                    return isDevHost;
+                } catch (e) {
+                    // If localStorage is not available, default to hiding logs
+                    return false;
+                }
+            }
+
+            // Function to suppress console logs
+            function suppressConsoleLogs() {
+                try {
+                    // Save original console methods if not already saved
+                    window.__SPECIFYS_ORIGINAL_CONSOLE__ = window.__SPECIFYS_ORIGINAL_CONSOLE__ || {};
+
+                    const noop = function() {};
+                    const methods = ['log', 'info', 'debug', 'warn', 'error', 'trace', 'table', 'group', 'groupEnd', 'groupCollapsed', 'dir', 'dirxml', 'assert', 'time', 'timeEnd', 'count', 'clear', 'profile', 'profileEnd'];
+
+                    methods.forEach(function(method) {
+                        if (typeof console[method] === 'function') {
+                            // Save original if not already saved
+                            if (!window.__SPECIFYS_ORIGINAL_CONSOLE__[method]) {
+                                window.__SPECIFYS_ORIGINAL_CONSOLE__[method] = console[method].bind(console);
+                            }
+                            // Replace with noop
+                            console[method] = noop;
+                        }
+                    });
+                } catch (e) {
+                    // Silently fail if there's an error
+                }
+            }
+
+            // Function to restore console logs
+            function restoreConsoleLogs() {
+                try {
+                    if (window.__SPECIFYS_ORIGINAL_CONSOLE__) {
+                        const methods = ['log', 'info', 'debug', 'warn', 'error', 'trace', 'table', 'group', 'groupEnd', 'groupCollapsed', 'dir', 'dirxml', 'assert', 'time', 'timeEnd', 'count', 'clear', 'profile', 'profileEnd'];
+                        
+                        methods.forEach(function(method) {
+                            if (window.__SPECIFYS_ORIGINAL_CONSOLE__[method] && typeof console[method] !== 'undefined') {
+                                console[method] = window.__SPECIFYS_ORIGINAL_CONSOLE__[method];
+                            }
+                        });
+                    }
+                } catch (e) {
+                    // Silently fail if there's an error
+                }
+            }
+
+            // Initial check and setup
+            if (!shouldEnableLogs()) {
+                suppressConsoleLogs();
+            }
+
+            // Expose functions globally for admin dashboard to use
+            window.__SPECIFYS_CONSOLE_CONTROL__ = {
+                enable: restoreConsoleLogs,
+                disable: suppressConsoleLogs,
+                isEnabled: function() {
+                    return shouldEnableLogs();
+                }
+            };
+        })();
+    </script>
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     <meta name="theme-color" content="#000000">
@@ -1716,9 +1816,16 @@ function trackPreference(preferenceName, preferenceValue) {
       const token = await user.getIdToken();
       const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : (window.API_BASE_URL || 'https://specifys-ai-development.onrender.com');
       
+      // Check if user is new based on sessionStorage flag (set in auth.html during registration)
+      // This helps the server correctly identify new users even if documents were created by race condition
+      const showCreditPopup = sessionStorage.getItem('showCreditPopup') === 'true';
+      const isNewUser = showCreditPopup; // If showCreditPopup is set, user is likely new
+      
+      console.log('[firebase-auth.html] ensureUserDocument - Checking isNewUser flag:', { showCreditPopup, isNewUser });
+      
       // Use AbortController to handle errors more gracefully
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout (reduced from 10s for better UX)
       
       let response;
       try {
@@ -1728,20 +1835,27 @@ function trackPreference(preferenceName, preferenceValue) {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({}),
+          body: JSON.stringify({
+            isNewUser: isNewUser || undefined // Only send if true, let server determine otherwise
+          }),
           signal: controller.signal
         });
       } catch (fetchError) {
         clearTimeout(timeoutId);
-        // Handle network errors silently (404, CORS, network failures)
+        // Log error for debugging but don't block user experience
+        console.warn('[firebase-auth.html] ensureUserDocument - API call failed:', fetchError.name, fetchError.message);
+        // Handle network errors gracefully - don't block user from using the site
         if (fetchError.name === 'AbortError' || 
             fetchError.message.includes('Failed to fetch') || 
             fetchError.message.includes('NetworkError') ||
             fetchError.message.includes('Load failed')) {
           // Silently fail - endpoint might not be available or network issue
+          // User can still use the site, credits will be initialized on next page load or when API is available
           return;
         }
-        throw fetchError;
+        // For other errors, log but don't throw (don't block user)
+        console.error('[firebase-auth.html] ensureUserDocument - Unexpected error:', fetchError);
+        return;
       }
       
       clearTimeout(timeoutId);
@@ -1755,18 +1869,13 @@ function trackPreference(preferenceName, preferenceValue) {
         // Instead, only set the flag if it's not already set (to avoid overwriting flags set in auth.html)
         // The flag should be set in auth.html using getAdditionalUserInfo or for registration
         const existingFlag = sessionStorage.getItem('showCreditPopup');
-        if (!existingFlag && result && (result.isNewUser || result.created)) {
+        if (!existingFlag && result && result.isNewUser) {
           console.log('[firebase-auth.html] ensureUserDocument - Setting showCreditPopup flag for new user (no existing flag)');
           sessionStorage.setItem('showCreditPopup', 'true');
           console.log('[firebase-auth.html] ensureUserDocument - Verified showCreditPopup set:', sessionStorage.getItem('showCreditPopup'));
           
-          // Also trigger checkForCreditPopup if it exists (for immediate display)
-          if (typeof checkForCreditPopup === 'function') {
-            console.log('[firebase-auth.html] ensureUserDocument - Calling checkForCreditPopup immediately');
-            setTimeout(() => {
-              checkForCreditPopup();
-            }, 1000);
-          }
+          // Note: checkForCreditPopup will be called from index.js after credit initialization
+          // No need to call it here to avoid duplicate calls
         } else if (existingFlag) {
           console.log('[firebase-auth.html] ensureUserDocument - showCreditPopup flag already exists, not overwriting');
           // נקה cache

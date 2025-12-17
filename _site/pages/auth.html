@@ -997,8 +997,8 @@
                     const additionalUserInfo = getAdditionalUserInfo(result);
                     const isNewUser = additionalUserInfo?.isNewUser === true;
                     const createResult = await createUserDocument(result.user, isNewUser);
-                    // Check if this is a new user registration
-                    if (isNewUser || (createResult && (createResult.isNewUser || createResult.created))) {
+                    // Set popup flag if this is a new user (from Firebase Auth or server response as fallback)
+                    if (isNewUser || (createResult && createResult.isNewUser)) {
                         sessionStorage.setItem('showCreditPopup', 'true');
                         // נקה cache
                         if (typeof window.clearCreditsCache === 'function') {

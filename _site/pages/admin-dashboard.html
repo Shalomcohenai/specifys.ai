@@ -63,20 +63,11 @@
 <body>
   <a href="#main-content" class="skip-to-main" aria-label="Skip to main content">Skip to main content</a>
   <div class="admin-shell" id="admin-shell">
-    <div class="sidebar-backdrop" id="sidebar-backdrop" aria-hidden="true"></div>
-    <aside class="admin-sidebar" aria-label="Admin navigation" role="complementary" id="admin-sidebar">
-      <div class="sidebar-header">
-        <div class="sidebar-brand">
-          <span class="brand-name">Specifys<span class="accent">.</span>AI</span>
-          <span class="brand-subtitle">Admin</span>
+    <aside class="admin-sidebar" aria-label="Admin navigation" role="complementary">
+      <div class="sidebar-brand">
+        <span class="brand-name">Specifys<span class="accent">.</span>AI</span>
+        <span class="brand-subtitle">Admin</span>
         </div>
-        <button class="sidebar-close-btn mobile-only" id="sidebar-close-btn" type="button" aria-label="Close menu">
-          <i class="fas fa-times" aria-hidden="true"></i>
-        </button>
-        <button class="sidebar-toggle-btn desktop-only" id="sidebar-toggle-btn" type="button" aria-label="Toggle sidebar" title="Collapse/Expand sidebar">
-          <i class="fas fa-chevron-left" aria-hidden="true"></i>
-        </button>
-      </div>
 
       <nav class="sidebar-nav" id="sidebar-nav">
         <button class="nav-link active" data-target="overview-section" aria-label="Overview section">
@@ -149,9 +140,6 @@
     <div class="admin-main">
       <header class="admin-topbar">
         <div class="topbar-left">
-          <button class="mobile-menu-toggle" id="mobile-menu-toggle" type="button" aria-label="Toggle menu" aria-expanded="false">
-            <i class="fas fa-bars" aria-hidden="true"></i>
-          </button>
           <div class="page-title">
             <h1>Admin Dashboard</h1>
             <p>Live control center for Specifys.ai</p>
@@ -447,11 +435,17 @@
           <header class="section-header">
             <div>
               <h2>Live Logs</h2>
-              <p>Auth sessions, spec creation, and purchases in realtime.</p>
+              <p>Server logs from Render, auth sessions, spec creation, and purchases in realtime.</p>
                     </div>
             <div class="section-controls">
+              <button class="action-btn" id="refresh-render-logs-btn" type="button" aria-label="Refresh render logs">
+                <i class="fas fa-sync-alt"></i>
+                Refresh Logs
+              </button>
               <select id="logs-filter" aria-label="Filter log types">
                 <option value="all">All events</option>
+                <option value="error">Errors</option>
+                <option value="warn">Warnings</option>
                 <option value="auth">Auth</option>
                 <option value="spec">Specs</option>
                 <option value="payment">Payments</option>
