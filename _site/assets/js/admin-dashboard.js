@@ -2048,6 +2048,8 @@ class AdminDashboardApp {
       sidebar: utils.dom("#admin-sidebar"),
       sidebarBackdrop: utils.dom("#sidebar-backdrop"),
       mobileMenuToggle: utils.dom("#mobile-menu-toggle"),
+      sidebarCloseBtn: utils.dom("#sidebar-close-btn"),
+      sidebarToggleBtn: utils.dom("#sidebar-toggle-btn"),
       navButtons: utils.domAll(".nav-link"),
       sections: utils.domAll(".dashboard-section"),
       statusIndicator: utils.dom("#connection-indicator .dot"),
@@ -2392,7 +2394,11 @@ class AdminDashboardApp {
     this.dom.syncUsersButton?.addEventListener("click", () => this.syncUsersManually());
     // Mobile menu toggle
     this.dom.mobileMenuToggle?.addEventListener("click", () => this.toggleMobileMenu());
+    this.dom.sidebarCloseBtn?.addEventListener("click", () => this.closeMobileMenu());
     this.dom.sidebarBackdrop?.addEventListener("click", () => this.closeMobileMenu());
+    
+    // Desktop sidebar toggle (collapse/expand)
+    this.dom.sidebarToggleBtn?.addEventListener("click", () => this.toggleDesktopSidebar());
     
     // Close mobile menu when clicking nav links
     this.dom.navButtons.forEach(btn => {
@@ -2405,10 +2411,22 @@ class AdminDashboardApp {
     
     // Close mobile menu on window resize to desktop
     window.addEventListener("resize", () => {
-      if (window.innerWidth > 768 && this.dom.sidebar?.classList.contains('mobile-open')) {
-        this.closeMobileMenu();
+      if (window.innerWidth > 768) {
+        if (this.dom.sidebar?.classList.contains('mobile-open')) {
+          this.closeMobileMenu();
+        }
+        // Apply desktop sidebar state on resize
+        this.initDesktopSidebarState();
+      } else {
+        // Remove collapsed class on mobile
+        this.dom.shell?.classList.remove('sidebar-collapsed');
       }
     });
+    
+    // Initialize desktop sidebar state
+    if (window.innerWidth > 768) {
+      this.initDesktopSidebarState();
+    }
     
     this.dom.syncCreditsBtn?.addEventListener("click", () => this.syncCreditsManually());
     this.dom.apiHealth.checkButton?.addEventListener("click", () => this.performApiHealthCheck());
@@ -4785,6 +4803,83 @@ class AdminDashboardApp {
     this.dom.sidebarBackdrop.classList.remove('active');
     this.dom.mobileMenuToggle.setAttribute('aria-expanded', 'false');
     document.body.style.overflow = '';
+  }
+
+  /**
+   * Toggle desktop sidebar (collapse/expand)
+   */
+  toggleDesktopSidebar() {
+    if (!this.dom.shell || window.innerWidth <= 768) {
+      return;
+    }
+    
+    const isCollapsed = this.dom.shell.classList.contains('sidebar-collapsed');
+    
+    if (isCollapsed) {
+      this.expandDesktopSidebar();
+    } else {
+      this.collapseDesktopSidebar();
+    }
+  }
+
+  /**
+   * Collapse desktop sidebar
+   */
+  collapseDesktopSidebar() {
+    if (!this.dom.shell || !this.dom.sidebarToggleBtn || window.innerWidth <= 768) {
+      return;
+    }
+    
+    this.dom.shell.classList.add('sidebar-collapsed');
+    this.dom.sidebarToggleBtn?.classList.add('collapsed');
+    
+    // Save state to localStorage
+    try {
+      localStorage.setItem('specifys_sidebar_collapsed', 'true');
+    } catch (e) {
+      // Silently fail if localStorage is not available
+    }
+  }
+
+  /**
+   * Expand desktop sidebar
+   */
+  expandDesktopSidebar() {
+    if (!this.dom.shell || !this.dom.sidebarToggleBtn || window.innerWidth <= 768) {
+      return;
+    }
+    
+    this.dom.shell.classList.remove('sidebar-collapsed');
+    this.dom.sidebarToggleBtn?.classList.remove('collapsed');
+    
+    // Save state to localStorage
+    try {
+      localStorage.setItem('specifys_sidebar_collapsed', 'false');
+    } catch (e) {
+      // Silently fail if localStorage is not available
+    }
+  }
+
+  /**
+   * Initialize desktop sidebar state from localStorage
+   */
+  initDesktopSidebarState() {
+    if (!this.dom.shell || !this.dom.sidebarToggleBtn || window.innerWidth <= 768) {
+      return;
+    }
+    
+    try {
+      const isCollapsed = localStorage.getItem('specifys_sidebar_collapsed') === 'true';
+      if (isCollapsed) {
+        this.dom.shell.classList.add('sidebar-collapsed');
+        this.dom.sidebarToggleBtn?.classList.add('collapsed');
+      } else {
+        this.dom.shell.classList.remove('sidebar-collapsed');
+        this.dom.sidebarToggleBtn?.classList.remove('collapsed');
+      }
+    } catch (e) {
+      // Silently fail if localStorage is not available
+    }
   }
 
    /**

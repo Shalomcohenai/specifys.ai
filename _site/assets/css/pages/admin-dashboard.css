@@ -55,6 +55,13 @@ body:has(#admin-shell) {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  transition: grid-template-columns 0.3s ease;
+}
+
+/* Collapsed state for desktop */
+.admin-shell.sidebar-collapsed,
+#admin-shell.sidebar-collapsed {
+  grid-template-columns: 70px 1fr;
 }
 
 /* Override any utility classes that might interfere */
@@ -66,6 +73,13 @@ body:has(#admin-shell) {
   grid-template-columns: 280px 1fr;
 }
 
+.admin-shell.sidebar-collapsed.flex,
+.admin-shell.sidebar-collapsed.grid,
+#admin-shell.sidebar-collapsed.flex,
+#admin-shell.sidebar-collapsed.grid {
+  grid-template-columns: 70px 1fr;
+}
+
 /* Ensure admin-shell is always grid, even with utility classes */
 div.admin-shell.flex,
 div.admin-shell.grid,
@@ -73,6 +87,13 @@ div#admin-shell.flex,
 div#admin-shell.grid {
   display: grid;
   grid-template-columns: 280px 1fr;
+}
+
+div.admin-shell.sidebar-collapsed.flex,
+div.admin-shell.sidebar-collapsed.grid,
+div#admin-shell.sidebar-collapsed.flex,
+div#admin-shell.sidebar-collapsed.grid {
+  grid-template-columns: 70px 1fr;
 }
 
 /* Admin Sidebar - using higher specificity */
@@ -95,6 +116,129 @@ div#admin-shell.grid {
   width: 280px;
   flex-shrink: 0;
   box-sizing: border-box;
+  transition: width 0.3s ease;
+}
+
+/* Collapsed sidebar state (desktop) */
+@media (min-width: 769px) {
+  .admin-shell.sidebar-collapsed .admin-sidebar,
+  #admin-shell.sidebar-collapsed .admin-sidebar {
+    width: 70px;
+    padding: 16px 8px;
+  }
+  
+  .admin-shell.sidebar-collapsed .sidebar-header,
+  #admin-shell.sidebar-collapsed .sidebar-header {
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .admin-shell.sidebar-collapsed .sidebar-brand,
+  #admin-shell.sidebar-collapsed .sidebar-brand {
+    display: none;
+  }
+  
+  .admin-shell.sidebar-collapsed .sidebar-toggle-btn,
+  #admin-shell.sidebar-collapsed .sidebar-toggle-btn {
+    display: flex;
+    width: 100%;
+    margin-top: auto;
+    margin-bottom: 0;
+  }
+  
+  /* Ensure toggle button is always visible */
+  .admin-shell .sidebar-toggle-btn,
+  #admin-shell .sidebar-toggle-btn {
+    display: flex;
+    align-self: flex-end;
+  }
+  
+  /* Hide text in nav links when collapsed */
+  .admin-shell.sidebar-collapsed .nav-link > span:not(.icon),
+  #admin-shell.sidebar-collapsed .nav-link > span:not(.icon) {
+    opacity: 0;
+    width: 0;
+    overflow: hidden;
+    position: absolute;
+  }
+  
+  .admin-shell.sidebar-collapsed .nav-link,
+  #admin-shell.sidebar-collapsed .nav-link {
+    justify-content: center;
+    padding: 12px;
+  }
+  
+  .admin-shell.sidebar-collapsed .nav-link .icon,
+  #admin-shell.sidebar-collapsed .nav-link .icon {
+    margin: 0;
+  }
+  
+  /* Hide sidebar footer elements when collapsed */
+  .admin-shell.sidebar-collapsed .sidebar-footer .connection-indicator .label,
+  .admin-shell.sidebar-collapsed .sidebar-footer .sync-label,
+  .admin-shell.sidebar-collapsed .sidebar-footer .home-link span,
+  #admin-shell.sidebar-collapsed .sidebar-footer .connection-indicator .label,
+  #admin-shell.sidebar-collapsed .sidebar-footer .sync-label,
+  #admin-shell.sidebar-collapsed .sidebar-footer .home-link span {
+    display: none;
+  }
+  
+  .admin-shell.sidebar-collapsed .sidebar-footer .home-link,
+  #admin-shell.sidebar-collapsed .sidebar-footer .home-link {
+    justify-content: center;
+    padding: 10px;
+  }
+  
+  /* Show text on hover when collapsed */
+  .admin-shell.sidebar-collapsed .admin-sidebar:hover,
+  #admin-shell.sidebar-collapsed .admin-sidebar:hover {
+    width: 280px;
+    padding: var(--admin-spacing);
+  }
+  
+  .admin-shell.sidebar-collapsed .admin-sidebar:hover .sidebar-brand,
+  #admin-shell.sidebar-collapsed .admin-sidebar:hover .sidebar-brand {
+    display: flex;
+  }
+  
+  .admin-shell.sidebar-collapsed .admin-sidebar:hover .sidebar-header,
+  #admin-shell.sidebar-collapsed .admin-sidebar:hover .sidebar-header {
+    flex-direction: row;
+  }
+  
+  .admin-shell.sidebar-collapsed .admin-sidebar:hover .sidebar-toggle-btn,
+  #admin-shell.sidebar-collapsed .admin-sidebar:hover .sidebar-toggle-btn {
+    width: 32px;
+  }
+  
+  .admin-shell.sidebar-collapsed .admin-sidebar:hover .nav-link > span:not(.icon),
+  #admin-shell.sidebar-collapsed .admin-sidebar:hover .nav-link > span:not(.icon) {
+    opacity: 1;
+    width: auto;
+    position: relative;
+  }
+  
+  .admin-shell.sidebar-collapsed .admin-sidebar:hover .nav-link,
+  #admin-shell.sidebar-collapsed .admin-sidebar:hover .nav-link {
+    justify-content: flex-start;
+    padding: 12px 14px;
+  }
+  
+  .admin-shell.sidebar-collapsed .admin-sidebar:hover .sidebar-footer .connection-indicator .label,
+  .admin-shell.sidebar-collapsed .admin-sidebar:hover .sidebar-footer .sync-label,
+  .admin-shell.sidebar-collapsed .admin-sidebar:hover .sidebar-footer .home-link span,
+  #admin-shell.sidebar-collapsed .admin-sidebar:hover .sidebar-footer .connection-indicator .label,
+  #admin-shell.sidebar-collapsed .admin-sidebar:hover .sidebar-footer .sync-label,
+  #admin-shell.sidebar-collapsed .admin-sidebar:hover .sidebar-footer .home-link span {
+    display: block;
+  }
+  
+  .admin-shell.sidebar-collapsed .admin-sidebar:hover .sidebar-footer .home-link,
+  #admin-shell.sidebar-collapsed .admin-sidebar:hover .sidebar-footer .home-link {
+    justify-content: flex-start;
+    padding: 10px 12px;
+  }
 }
 
 /* Override utility classes on sidebar */
@@ -118,6 +262,22 @@ aside#admin-shell .admin-sidebar.grid,
   flex-direction: column;
 }
 
+/* Sidebar Header */
+.admin-shell .sidebar-header,
+.admin-shell div.sidebar-header,
+#admin-shell .sidebar-header,
+#admin-shell div.sidebar-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Sidebar Brand */
 .admin-shell .sidebar-brand,
 .admin-shell div.sidebar-brand,
 #admin-shell .sidebar-brand,
@@ -127,6 +287,7 @@ aside#admin-shell .admin-sidebar.grid,
   gap: 6px;
   color: var(--admin-text);
   box-sizing: border-box;
+  flex: 1;
 }
 
 /* Override utility classes on sidebar-brand */
@@ -153,6 +314,107 @@ aside#admin-shell .admin-sidebar.grid,
   color: var(--admin-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.12em;
+}
+
+/* Sidebar Close Button (Mobile) */
+.admin-shell .sidebar-close-btn,
+.admin-shell button.sidebar-close-btn,
+#admin-shell .sidebar-close-btn,
+#admin-shell button.sidebar-close-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  background: var(--admin-surface-alt);
+  border: 1px solid var(--admin-border);
+  border-radius: 8px;
+  color: var(--admin-text);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.admin-shell .sidebar-close-btn:hover,
+.admin-shell .sidebar-close-btn:focus {
+  background: var(--admin-hover-bg);
+  border-color: var(--admin-accent);
+  color: var(--admin-accent);
+  outline: none;
+}
+
+.admin-shell .sidebar-close-btn i {
+  font-size: 1.1rem;
+}
+
+/* Sidebar Toggle Button (Desktop) */
+.admin-shell .sidebar-toggle-btn,
+.admin-shell button.sidebar-toggle-btn,
+#admin-shell .sidebar-toggle-btn,
+#admin-shell button.sidebar-toggle-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: var(--admin-surface-alt);
+  border: 1px solid var(--admin-border);
+  border-radius: 8px;
+  color: var(--admin-text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.admin-shell .sidebar-toggle-btn:hover,
+.admin-shell .sidebar-toggle-btn:focus {
+  background: var(--admin-hover-bg);
+  border-color: var(--admin-accent);
+  color: var(--admin-accent);
+  outline: none;
+}
+
+.admin-shell .sidebar-toggle-btn i {
+  font-size: 0.9rem;
+  transition: transform 0.3s ease;
+}
+
+.admin-shell .sidebar-toggle-btn.collapsed i {
+  transform: rotate(180deg);
+}
+
+/* Desktop only classes */
+.desktop-only {
+  display: none;
+}
+
+@media (min-width: 769px) {
+  .desktop-only {
+    display: flex;
+  }
+  
+  .mobile-only {
+    display: none !important;
+  }
+  
+  /* Show sidebar toggle button on desktop */
+  .admin-shell .sidebar-toggle-btn,
+  #admin-shell .sidebar-toggle-btn {
+    display: flex;
+  }
+}
+
+/* Mobile only classes */
+@media (max-width: 768px) {
+  .mobile-only {
+    display: flex !important;
+  }
+  
+  .desktop-only {
+    display: none !important;
+  }
 }
 
 .admin-shell .sidebar-nav,
@@ -3414,6 +3676,15 @@ button.admin-shell .action-btn.grid,
   
   .admin-shell .admin-sidebar.mobile-open {
     left: 0;
+  }
+  
+  /* Sidebar close button visible on mobile */
+  .admin-shell .sidebar-close-btn.mobile-only {
+    display: flex;
+  }
+  
+  .admin-shell .sidebar-header {
+    margin-bottom: var(--admin-spacing);
   }
   
   /* Sidebar Backdrop */
