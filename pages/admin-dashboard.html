@@ -435,11 +435,17 @@
           <header class="section-header">
             <div>
               <h2>Live Logs</h2>
-              <p>Auth sessions, spec creation, and purchases in realtime.</p>
+              <p>Server logs from Render, auth sessions, spec creation, and purchases in realtime.</p>
                     </div>
             <div class="section-controls">
+              <button class="action-btn" id="refresh-render-logs-btn" type="button" aria-label="Refresh render logs">
+                <i class="fas fa-sync-alt"></i>
+                Refresh Logs
+              </button>
               <select id="logs-filter" aria-label="Filter log types">
                 <option value="all">All events</option>
+                <option value="error">Errors</option>
+                <option value="warn">Warnings</option>
                 <option value="auth">Auth</option>
                 <option value="spec">Specs</option>
                 <option value="payment">Payments</option>

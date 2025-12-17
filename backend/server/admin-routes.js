@@ -5,6 +5,7 @@ const { db, admin } = require('./firebase-admin');
 const { syncAllUsers, getLastUserSyncReport } = require('./user-management');
 const { createError, ERROR_CODES } = require('./error-handler');
 const { logger } = require('./logger');
+const { getRenderLogs, getRenderLogsSummary } = require('./render-logger');
 
 // Debug: Log all route registrations
 logger.info('[admin-routes] Initializing admin routes...');
@@ -598,6 +599,92 @@ router.get('/errors', requireAdmin, async (req, res, next) => {
   } catch (error) {
     logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[admin-routes] GET /errors - Error');
     next(createError('Failed to fetch errors', ERROR_CODES.DATABASE_ERROR, 500, {
+      details: error.message
+    }));
+  }
+});
+
+/**
+ * Get render logs (admin only)
+ * GET /api/admin/render-logs
+ * Query params: limit, level, userId, startDate, endDate
+ */
+router.get('/render-logs', requireAdmin, async (req, res, next) => {
+  const requestId = logRouteCall(req, 'GET /render-logs');
+  logger.info({ 
+    requestId,
+    method: req.method,
+    path: req.path,
+    query: req.query,
+    adminEmail: req.adminUser?.email,
+    adminUserId: req.adminUser?.uid
+  }, '[admin-routes] GET /render-logs - Fetching render logs');
+  
+  try {
+    const limit = parseInt(req.query.limit) || 100;
+    const level = req.query.level || null;
+    const userId = req.query.userId || null;
+    
+    // Parse date filters
+    let startDate = null;
+    let endDate = null;
+    if (req.query.startDate) {
+      startDate = new Date(req.query.startDate);
+    }
+    if (req.query.endDate) {
+      endDate = new Date(req.query.endDate);
+    }
+    
+    const logs = await getRenderLogs(limit, level, userId, startDate, endDate);
+    
+    logger.info({ requestId, count: logs.length }, '[admin-routes] GET /render-logs - Success');
+    res.json({ 
+      success: true, 
+      logs,
+      total: logs.length
+    });
+  } catch (error) {
+    logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[admin-routes] GET /render-logs - Error');
+    next(createError('Failed to fetch render logs', ERROR_CODES.DATABASE_ERROR, 500, {
+      details: error.message
+    }));
+  }
+});
+
+/**
+ * Get render logs summary (admin only)
+ * GET /api/admin/render-logs/summary
+ * Query params: startDate, endDate
+ */
+router.get('/render-logs/summary', requireAdmin, async (req, res, next) => {
+  const requestId = logRouteCall(req, 'GET /render-logs/summary');
+  logger.info({ 
+    requestId,
+    query: req.query,
+    adminEmail: req.adminUser?.email,
+    adminUserId: req.adminUser?.uid
+  }, '[admin-routes] GET /render-logs/summary - Fetching render logs summary');
+  
+  try {
+    let startDate = null;
+    let endDate = null;
+    if (req.query.startDate) {
+      startDate = new Date(req.query.startDate);
+    }
+    if (req.query.endDate) {
+      endDate = new Date(req.query.endDate);
+    }
+    
+    const summary = await getRenderLogsSummary(startDate, endDate);
+    
+    logger.info({ requestId, summary }, '[admin-routes] GET /render-logs/summary - Success');
+    res.json({ 
+      success: true, 
+      summary
+    });
+  } catch (error) {
+    logger.error({ requestId, error: { message: error.message, stack: error.stack } }, '[admin-routes] GET /render-logs/summary - Error');
+    next(createError('Failed to fetch render logs summary', ERROR_CODES.DATABASE_ERROR, 500, {
       details: error.message
     }));
   }

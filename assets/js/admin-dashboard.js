@@ -120,6 +120,12 @@ const utils = {
       minute: "2-digit"
     });
   },
+  escapeHtml(text) {
+    if (typeof text !== 'string') return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  },
   formatRelative(value) {
     const date = utils.toDate(value);
     if (!date) return "—";
@@ -1925,6 +1931,7 @@ class AdminDashboardApp {
       connections: 0,
       uptime: 100
     };
+    this.renderLogsData = []; // Store render logs from API
     
     // Setup data change callbacks
     this.dataAggregator.onDataChange((aggregatedData, source) => {
@@ -2477,6 +2484,26 @@ class AdminDashboardApp {
     this.dom.paymentsSearch?.addEventListener("input", utils.debounce(() => this.renderPaymentsTable(), 120));
     this.dom.paymentsRange?.addEventListener("change", () => this.renderPaymentsTable());
     this.dom.logsFilter?.addEventListener("change", () => this.renderLogs());
+    const refreshRenderLogsBtn = utils.dom("#refresh-render-logs-btn");
+    refreshRenderLogsBtn?.addEventListener("click", () => {
+      this.renderLogsData = []; // Clear cache
+      this.loadRenderLogs();
+    });
+    
+    // Load render logs when logs section is opened
+    const logsNavButton = utils.dom('[data-target="logs-section"]');
+    logsNavButton?.addEventListener("click", () => {
+      // Load logs if not already loaded
+      if (this.renderLogsData.length === 0) {
+        this.loadRenderLogs();
+      }
+    });
+    
+    // Also check if logs section is already active on page load
+    const logsSection = utils.dom("#logs-section");
+    if (logsSection?.classList.contains("active")) {
+      this.loadRenderLogs();
+    }
     if (this.dom.blogFields.description) {
       this.dom.blogFields.description.addEventListener("input", () => {
         const count = this.dom.blogFields.description.value.length;
@@ -3385,11 +3412,51 @@ class AdminDashboardApp {
       : `<tr><td colspan="6" class="table-empty">No payments in this range.</td></tr>`;
   }
 
-  renderLogs() {
+  async renderLogs() {
     if (!this.dom.logsStream) return;
+    
+    // Load render logs from API if not already loaded or if section is active
+    const logsSection = this.dom.logsStream.closest('.dashboard-section');
+    if (logsSection?.classList.contains('active') && this.renderLogsData.length === 0) {
+      await this.loadRenderLogs();
+    }
+    
     const filter = this.dom.logsFilter?.value ?? "all";
+    
+    // Combine activity events and render logs
     const events = this.store.getActivityMerged();
-    const filtered = filter === "all" ? events : events.filter((event) => event.type === filter);
+    const renderLogs = this.renderLogsData.map(log => ({
+      id: log.id,
+      type: log.level?.toLowerCase() || 'server',
+      title: log.message || 'Server log',
+      description: this.formatRenderLogDescription(log),
+      timestamp: log.timestamp ? (log.timestamp instanceof Date ? log.timestamp : new Date(log.timestamp)) : new Date(),
+      userId: log.userId,
+      userEmail: log.userEmail,
+      level: log.level,
+      path: log.path,
+      method: log.method,
+      statusCode: log.statusCode,
+      errorStack: log.errorStack
+    }));
+    
+    const allLogs = [...renderLogs, ...events];
+    
+    // Sort by timestamp (newest first)
+    allLogs.sort((a, b) => {
+      const timeA = a.timestamp?.getTime() || 0;
+      const timeB = b.timestamp?.getTime() || 0;
+      return timeB - timeA;
+    });
+    
+    const filtered = filter === "all" 
+      ? allLogs 
+      : allLogs.filter((log) => {
+          if (filter === 'error' || filter === 'warn') {
+            return log.level?.toLowerCase() === filter || log.type === filter;
+          }
+          return log.type === filter;
+        });
 
     if (!filtered.length) {
       this.dom.logsStream.innerHTML = `<div class="logs-placeholder">No log events yet.</div>`;
@@ -3397,21 +3464,74 @@ class AdminDashboardApp {
     }
 
     const html = filtered
+      .slice(0, 100) // Limit to 100 most recent logs
       .map(
-        (event) => `
-        <article class="log-entry ${event.type}">
-          <header>${event.title}</header>
-          <div>${event.description || ""}</div>
-          <footer class="log-meta">
-            <span>${event.type.toUpperCase()}</span>
-            <time>${utils.formatDate(event.timestamp)}</time>
-          </footer>
-        </article>
-      `
+        (log) => {
+          const userInfo = log.userEmail 
+            ? `<span class="log-user">${log.userEmail}</span>` 
+            : log.userId 
+            ? `<span class="log-user">User: ${log.userId.substring(0, 8)}...</span>` 
+            : '';
+          const pathInfo = log.path ? `<span class="log-path">${log.method || ''} ${log.path}</span>` : '';
+          const levelClass = (log.level || log.type || '').toLowerCase();
+          
+          return `
+            <article class="log-entry ${log.type} ${levelClass}" data-log-id="${log.id || ''}">
+              <header>
+                ${log.title || 'Server log'}
+                ${userInfo}
+                ${pathInfo}
+              </header>
+              <div>${log.description || ""}</div>
+              ${log.errorStack ? `<details class="log-stack"><summary>Stack trace</summary><pre>${utils.escapeHtml(log.errorStack)}</pre></details>` : ''}
+              <footer class="log-meta">
+                <span class="log-level">${(log.level || log.type || 'INFO').toUpperCase()}</span>
+                <time>${utils.formatDate(log.timestamp)}</time>
+              </footer>
+            </article>
+          `;
+        }
       )
       .join("");
     if (!this.isActivityPaused) {
       this.dom.logsStream.innerHTML = html;
+    }
+  }
+  
+  formatRenderLogDescription(log) {
+    let desc = '';
+    if (log.errorName) {
+      desc += `<strong>${utils.escapeHtml(log.errorName)}</strong>: `;
+    }
+    if (log.errorCode) {
+      desc += `[${utils.escapeHtml(log.errorCode)}] `;
+    }
+    if (log.statusCode) {
+      desc += `HTTP ${log.statusCode} `;
+    }
+    if (log.requestId) {
+      desc += `Request ID: ${log.requestId.substring(0, 8)}... `;
+    }
+    return desc || log.message || 'Server log entry';
+  }
+  
+  async loadRenderLogs() {
+    try {
+      if (!window.api) {
+        console.warn('[admin-dashboard] API client not available');
+        return;
+      }
+      
+      // Load last 100 render logs
+      const response = await window.api.get('/api/admin/render-logs?limit=100');
+      if (response && response.success && response.logs) {
+        this.renderLogsData = response.logs;
+        // Re-render logs section
+        this.renderLogs();
+      }
+    } catch (error) {
+      console.error('[admin-dashboard] Failed to load render logs:', error);
+      // Don't show error to user, just log it
     }
   }
 

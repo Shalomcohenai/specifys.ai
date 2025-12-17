@@ -1,15 +1,17 @@
 /**
  * Structured Logging Configuration
  * Uses Pino for fast, structured logging
+ * Also saves important logs to Firestore for admin dashboard
  */
 
 const pino = require('pino');
+const { saveRenderLog } = require('./render-logger');
 
 // Determine log level from environment or default to 'info'
 const logLevel = process.env.LOG_LEVEL || (process.env.NODE_ENV === 'production' ? 'info' : 'debug');
 
-// Create logger instance
-const logger = pino({
+// Create base Pino logger
+const baseLogger = pino({
   level: logLevel,
   transport: process.env.NODE_ENV === 'production' 
     ? undefined // In production, use default JSON output
@@ -33,6 +35,38 @@ const logger = pino({
     service: 'specifys-backend'
   }
 });
+
+// Wrap logger to intercept logs and save to Firestore
+const logger = {
+  error: (obj, msg) => {
+    baseLogger.error(obj, msg);
+    // Save to Firestore asynchronously (don't await to avoid blocking)
+    saveRenderLog('error', obj, msg).catch(() => {
+      // Silently fail - don't break logging
+    });
+  },
+  warn: (obj, msg) => {
+    baseLogger.warn(obj, msg);
+    // Save to Firestore asynchronously
+    saveRenderLog('warn', obj, msg).catch(() => {
+      // Silently fail - don't break logging
+    });
+  },
+  info: (obj, msg) => {
+    baseLogger.info(obj, msg);
+  },
+  debug: (obj, msg) => {
+    baseLogger.debug(obj, msg);
+  },
+  trace: (obj, msg) => {
+    baseLogger.trace(obj, msg);
+  },
+  child: (bindings) => {
+    return baseLogger.child(bindings);
+  },
+  level: baseLogger.level,
+  levels: baseLogger.levels
+};
 
 /**
  * Helper functions for common log operations
