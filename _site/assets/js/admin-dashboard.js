@@ -2045,11 +2045,6 @@ class AdminDashboardApp {
 
     this.dom = {
       shell: utils.dom("#admin-shell"),
-      sidebar: utils.dom("#admin-sidebar"),
-      sidebarBackdrop: utils.dom("#sidebar-backdrop"),
-      mobileMenuToggle: utils.dom("#mobile-menu-toggle"),
-      sidebarCloseBtn: utils.dom("#sidebar-close-btn"),
-      sidebarToggleBtn: utils.dom("#sidebar-toggle-btn"),
       navButtons: utils.domAll(".nav-link"),
       sections: utils.domAll(".dashboard-section"),
       statusIndicator: utils.dom("#connection-indicator .dot"),
@@ -2392,42 +2387,6 @@ class AdminDashboardApp {
   bindInteractions() {
     this.dom.manualRefresh?.addEventListener("click", () => this.refreshAllData("manual"));
     this.dom.syncUsersButton?.addEventListener("click", () => this.syncUsersManually());
-    // Mobile menu toggle
-    this.dom.mobileMenuToggle?.addEventListener("click", () => this.toggleMobileMenu());
-    this.dom.sidebarCloseBtn?.addEventListener("click", () => this.closeMobileMenu());
-    this.dom.sidebarBackdrop?.addEventListener("click", () => this.closeMobileMenu());
-    
-    // Desktop sidebar toggle (collapse/expand)
-    this.dom.sidebarToggleBtn?.addEventListener("click", () => this.toggleDesktopSidebar());
-    
-    // Close mobile menu when clicking nav links
-    this.dom.navButtons.forEach(btn => {
-      btn.addEventListener("click", () => {
-        if (window.innerWidth <= 768) {
-          this.closeMobileMenu();
-        }
-      });
-    });
-    
-    // Close mobile menu on window resize to desktop
-    window.addEventListener("resize", () => {
-      if (window.innerWidth > 768) {
-        if (this.dom.sidebar?.classList.contains('mobile-open')) {
-          this.closeMobileMenu();
-        }
-        // Apply desktop sidebar state on resize
-        this.initDesktopSidebarState();
-      } else {
-        // Remove collapsed class on mobile
-        this.dom.shell?.classList.remove('sidebar-collapsed');
-      }
-    });
-    
-    // Initialize desktop sidebar state
-    if (window.innerWidth > 768) {
-      this.initDesktopSidebarState();
-    }
-    
     this.dom.syncCreditsBtn?.addEventListener("click", () => this.syncCreditsManually());
     this.dom.apiHealth.checkButton?.addEventListener("click", () => this.performApiHealthCheck());
     this.dom.apiHealth.copyButton?.addEventListener("click", () => this.copyHealthCheckLogs());
@@ -4756,128 +4715,6 @@ class AdminDashboardApp {
         }
       }
     } catch (error) {
-      // Silently fail if localStorage is not available
-    }
-  }
-
-  /**
-   * Toggle mobile menu
-   */
-  toggleMobileMenu() {
-    if (!this.dom.sidebar || !this.dom.sidebarBackdrop || !this.dom.mobileMenuToggle) {
-      return;
-    }
-    
-    const isOpen = this.dom.sidebar.classList.contains('mobile-open');
-    
-    if (isOpen) {
-      this.closeMobileMenu();
-    } else {
-      this.openMobileMenu();
-    }
-  }
-
-  /**
-   * Open mobile menu
-   */
-  openMobileMenu() {
-    if (!this.dom.sidebar || !this.dom.sidebarBackdrop || !this.dom.mobileMenuToggle) {
-      return;
-    }
-    
-    this.dom.sidebar.classList.add('mobile-open');
-    this.dom.sidebarBackdrop.classList.add('active');
-    this.dom.mobileMenuToggle.setAttribute('aria-expanded', 'true');
-    document.body.style.overflow = 'hidden';
-  }
-
-  /**
-   * Close mobile menu
-   */
-  closeMobileMenu() {
-    if (!this.dom.sidebar || !this.dom.sidebarBackdrop || !this.dom.mobileMenuToggle) {
-      return;
-    }
-    
-    this.dom.sidebar.classList.remove('mobile-open');
-    this.dom.sidebarBackdrop.classList.remove('active');
-    this.dom.mobileMenuToggle.setAttribute('aria-expanded', 'false');
-    document.body.style.overflow = '';
-  }
-
-  /**
-   * Toggle desktop sidebar (collapse/expand)
-   */
-  toggleDesktopSidebar() {
-    if (!this.dom.shell || window.innerWidth <= 768) {
-      return;
-    }
-    
-    const isCollapsed = this.dom.shell.classList.contains('sidebar-collapsed');
-    
-    if (isCollapsed) {
-      this.expandDesktopSidebar();
-    } else {
-      this.collapseDesktopSidebar();
-    }
-  }
-
-  /**
-   * Collapse desktop sidebar
-   */
-  collapseDesktopSidebar() {
-    if (!this.dom.shell || !this.dom.sidebarToggleBtn || window.innerWidth <= 768) {
-      return;
-    }
-    
-    this.dom.shell.classList.add('sidebar-collapsed');
-    this.dom.sidebarToggleBtn?.classList.add('collapsed');
-    
-    // Save state to localStorage
-    try {
-      localStorage.setItem('specifys_sidebar_collapsed', 'true');
-    } catch (e) {
-      // Silently fail if localStorage is not available
-    }
-  }
-
-  /**
-   * Expand desktop sidebar
-   */
-  expandDesktopSidebar() {
-    if (!this.dom.shell || !this.dom.sidebarToggleBtn || window.innerWidth <= 768) {
-      return;
-    }
-    
-    this.dom.shell.classList.remove('sidebar-collapsed');
-    this.dom.sidebarToggleBtn?.classList.remove('collapsed');
-    
-    // Save state to localStorage
-    try {
-      localStorage.setItem('specifys_sidebar_collapsed', 'false');
-    } catch (e) {
-      // Silently fail if localStorage is not available
-    }
-  }
-
-  /**
-   * Initialize desktop sidebar state from localStorage
-   */
-  initDesktopSidebarState() {
-    if (!this.dom.shell || !this.dom.sidebarToggleBtn || window.innerWidth <= 768) {
-      return;
-    }
-    
-    try {
-      const isCollapsed = localStorage.getItem('specifys_sidebar_collapsed') === 'true';
-      if (isCollapsed) {
-        this.dom.shell.classList.add('sidebar-collapsed');
-        this.dom.sidebarToggleBtn?.classList.add('collapsed');
-      } else {
-        this.dom.shell.classList.remove('sidebar-collapsed');
-        this.dom.sidebarToggleBtn?.classList.remove('collapsed');
-      }
-    } catch (e) {
       // Silently fail if localStorage is not available
     }
   }
