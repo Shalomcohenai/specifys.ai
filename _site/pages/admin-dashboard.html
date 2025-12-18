@@ -227,22 +227,24 @@
           <div class="overview-panels">
             <div class="panel recent-activity">
               <div class="panel-header">
-                <h3>Recent activity</h3>
-                <div class="activity-filters" role="group" aria-label="Activity filters">
-                  <button class="activity-filter-btn active" data-filter="all" type="button" aria-label="Show all activities" aria-pressed="true">All</button>
-                  <button class="activity-filter-btn" data-filter="spec" type="button" aria-label="Show spec activities" aria-pressed="false">Specs</button>
-                  <button class="activity-filter-btn" data-filter="payment" type="button" aria-label="Show purchase activities" aria-pressed="false">Purchases</button>
-                  <button class="activity-filter-btn" data-filter="user" type="button" aria-label="Show user activities" aria-pressed="false">Users</button>
-            </div>
-                <button class="panel-action" id="toggle-activity-pause" type="button" aria-label="Pause or resume activity stream">
+                <div class="activity-header-top">
+                  <h3>Recent activity</h3>
+                  <div class="activity-filters" role="group" aria-label="Activity filters">
+                    <button class="activity-filter-btn active" data-filter="all" type="button" aria-label="Show all activities" aria-pressed="true">All</button>
+                    <button class="activity-filter-btn" data-filter="spec" type="button" aria-label="Show spec activities" aria-pressed="false">Specs</button>
+                    <button class="activity-filter-btn" data-filter="payment" type="button" aria-label="Show purchase activities" aria-pressed="false">Purchases</button>
+                    <button class="activity-filter-btn" data-filter="user" type="button" aria-label="Show user activities" aria-pressed="false">Users</button>
+                  </div>
+                </div>
+                <button class="panel-action pause-stream-btn" id="toggle-activity-pause" type="button" aria-label="Pause or resume activity stream">
                   <i class="fas fa-pause" aria-hidden="true"></i>
                   <span>Pause stream</span>
-            </button>
-        </div>
+                </button>
+              </div>
               <ol class="activity-feed" id="activity-feed" aria-live="polite">
                 <li class="activity-placeholder">Waiting for events…</li>
               </ol>
-                    </div>
+            </div>
 
             <div class="panel sync-status">
               <div class="panel-header">
@@ -251,7 +253,6 @@
               <ul class="source-list" id="source-status-list">
                 <li><span class="source-label">Users</span><span class="source-state" data-source="users">Pending</span></li>
                 <li><span class="source-label">Specs</span><span class="source-state" data-source="specs">Pending</span></li>
-                <li><span class="source-label">Entitlements</span><span class="source-state" data-source="entitlements">Pending</span></li>
                 <li><span class="source-label">Purchases</span><span class="source-state" data-source="purchases">Pending</span></li>
                 <li><span class="source-label">Activity logs</span><span class="source-state" data-source="activityLogs">Pending</span></li>
               </ul>

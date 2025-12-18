@@ -30,7 +30,6 @@ const firebaseConfig = {
 
 const COLLECTIONS = Object.freeze({
   USERS: "users",
-  ENTITLEMENTS: "entitlements",
   USER_CREDITS: "user_credits",
   SPECS: "specs",
   PURCHASES: "purchases",
@@ -237,7 +236,6 @@ class DataAggregator {
     // Central aggregated data store
     this.aggregatedData = {
       users: new Map(),
-      entitlements: new Map(),
       userCredits: new Map(),
       specs: new Map(),
       specsByUser: new Map(),
@@ -264,7 +262,8 @@ class DataAggregator {
     this.initialLoads = {
       users: true,
       specs: true,
-      purchases: true
+      purchases: true,
+      userCredits: true
     };
     
     // Track if events were generated from existing data
@@ -328,6 +327,7 @@ class DataAggregator {
     if (this.initialLoads.users === false && 
         this.initialLoads.specs === false && 
         this.initialLoads.purchases === false &&
+        this.initialLoads.userCredits === false &&
         !this._eventsGenerated) {
       // Generate events from existing data once all initial loads are complete
       this.generateEventsFromExistingData();
@@ -512,42 +512,7 @@ class DataAggregator {
     }
   }
   
-  /**
-   * Subscribe to entitlements collection
-   */
-  subscribeToEntitlements() {
-    try {
-      const unsubEntitlements = onSnapshot(
-        collection(this.db, COLLECTIONS.ENTITLEMENTS),
-        (snapshot) => {
-          snapshot.docChanges().forEach((change) => {
-            if (change.type === "removed") {
-              this.aggregatedData.entitlements.delete(change.doc.id);
-            } else {
-              const normalized = {
-                userId: change.doc.id,
-                specCredits: typeof change.doc.data().spec_credits === "number" ? change.doc.data().spec_credits : null,
-                unlimited: Boolean(change.doc.data().unlimited),
-                canEdit: Boolean(change.doc.data().can_edit),
-                updatedAt: utils.toDate(change.doc.data().updated_at),
-                metadata: change.doc.data()
-              };
-              this.aggregatedData.entitlements.set(change.doc.id, normalized);
-            }
-          });
-          this.notifyDataChange('entitlements');
-        },
-        (error) => {
-          this.notifyDataChange('entitlements-error');
-        }
-      );
-      
-      this.unsubscribeFns.push(unsubEntitlements);
-      return unsubEntitlements;
-    } catch (error) {
-      throw error;
-    }
-  }
+  // subscribeToEntitlements() removed - using user_credits system only
   
   /**
    * Subscribe to user_credits collection (new credits system)
@@ -557,26 +522,87 @@ class DataAggregator {
       const unsubUserCredits = onSnapshot(
         collection(this.db, COLLECTIONS.USER_CREDITS),
         (snapshot) => {
-          snapshot.docChanges().forEach((change) => {
-            if (change.type === "removed") {
-              this.aggregatedData.userCredits.delete(change.doc.id);
-            } else {
-              const data = change.doc.data();
+          const isInitialLoad = this.initialLoads.userCredits;
+          this.initialLoads.userCredits = false;
+          
+          if (isInitialLoad) {
+            // On initial load, process all docs
+            snapshot.docs.forEach((docSnap) => {
+              const data = docSnap.data();
+              const subscriptionType = data.subscription?.type || data.metadata?.subscription?.type;
+              const subscriptionStatus = data.subscription?.status || data.metadata?.subscription?.status;
               const normalized = {
-                userId: change.doc.id,
+                userId: docSnap.id,
                 balances: {
                   free: data.balances?.free || 0,
                   paid: data.balances?.paid || 0,
                   bonus: data.balances?.bonus || 0
                 },
                 total: (data.balances?.free || 0) + (data.balances?.paid || 0) + (data.balances?.bonus || 0),
-                unlimited: data.subscription?.type !== 'none' && data.subscription?.status === 'active',
+                unlimited: subscriptionType === 'pro' && subscriptionStatus === 'active',
                 updatedAt: utils.toDate(data.metadata?.updatedAt),
                 metadata: data
               };
-              this.aggregatedData.userCredits.set(change.doc.id, normalized);
-            }
-          });
+              this.aggregatedData.userCredits.set(docSnap.id, normalized);
+            });
+          } else {
+            // For subsequent updates, only process changes
+            snapshot.docChanges().forEach((change) => {
+              if (change.type === "removed") {
+                this.aggregatedData.userCredits.delete(change.doc.id);
+              } else {
+                const data = change.doc.data();
+                const previous = this.aggregatedData.userCredits.get(change.doc.id);
+                const previousSubscriptionType = previous ? (previous.metadata?.subscription?.type || (previous.unlimited ? 'pro' : 'none')) : 'none';
+                const previousSubscriptionStatus = previous ? (previous.metadata?.subscription?.status || (previous.unlimited ? 'active' : 'none')) : 'none';
+                const previousIsPro = previousSubscriptionType === 'pro' && previousSubscriptionStatus === 'active';
+                
+                const subscriptionType = data.subscription?.type || data.metadata?.subscription?.type;
+                const subscriptionStatus = data.subscription?.status || data.metadata?.subscription?.status;
+                const normalized = {
+                  userId: change.doc.id,
+                  balances: {
+                    free: data.balances?.free || 0,
+                    paid: data.balances?.paid || 0,
+                    bonus: data.balances?.bonus || 0
+                  },
+                  total: (data.balances?.free || 0) + (data.balances?.paid || 0) + (data.balances?.bonus || 0),
+                  unlimited: subscriptionType === 'pro' && subscriptionStatus === 'active',
+                  updatedAt: utils.toDate(data.metadata?.updatedAt),
+                  metadata: data
+                };
+                
+                const currentIsPro = subscriptionType === 'pro' && subscriptionStatus === 'active';
+                
+                // Create activity event if subscription status changed
+                if (previous && previousIsPro !== currentIsPro) {
+                  const user = this.aggregatedData.users.get(change.doc.id);
+                  if (user) {
+                    const eventType = currentIsPro ? 'subscription' : 'payment';
+                    const eventTitle = currentIsPro 
+                      ? 'Specifys Pro – Monthly' 
+                      : 'Subscription cancelled';
+                    const event = this.createActivityEvent(eventType, {
+                      id: change.doc.id,
+                      createdAt: normalized.updatedAt || utils.now(),
+                      productName: eventTitle,
+                      productType: 'subscription',
+                      userId: change.doc.id,
+                      email: user.email,
+                      plan: currentIsPro ? 'pro' : 'free'
+                    }, user);
+                    event.id = `subscription-${change.doc.id}-${Date.now()}`;
+                    this.activityEvents.unshift(event);
+                    this.activityEvents = utils.clampArray(this.activityEvents, MAX_ACTIVITY_EVENTS);
+                    this.saveActivityEventsToStorage();
+                  }
+                }
+                
+                this.aggregatedData.userCredits.set(change.doc.id, normalized);
+              }
+            });
+          }
+          
           this.notifyDataChange('userCredits');
         },
         (error) => {
@@ -726,40 +752,79 @@ class DataAggregator {
       const unsubPurchases = onSnapshot(
         purchasesQuery,
         (snapshot) => {
-          snapshot.docChanges().forEach((change) => {
-            if (change.type === "removed") {
-              this.aggregatedData.purchases = this.aggregatedData.purchases.filter(
-                (p) => p.id !== change.doc.id
-              );
-            } else {
-              const purchase = this.normalizePurchase(change.doc.id, change.doc.data());
+          const isInitialLoad = this.initialLoads.purchases;
+          this.initialLoads.purchases = false;
+          
+          if (isInitialLoad) {
+            // On initial load, process all docs and create activity for recent purchases (30 days)
+            const last30Days = Date.now() - (30 * 24 * 60 * 60 * 1000);
+            snapshot.docs.forEach((docSnap) => {
+              const purchase = this.normalizePurchase(docSnap.id, docSnap.data());
               const index = this.aggregatedData.purchases.findIndex((p) => p.id === purchase.id);
               
               if (index >= 0) {
                 this.aggregatedData.purchases[index] = purchase;
               } else {
-                this.aggregatedData.purchases.unshift(purchase);
+                this.aggregatedData.purchases.push(purchase);
               }
               
-              // Sort purchases
-              this.aggregatedData.purchases.sort(
-                (a, b) => (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0)
-              );
-              this.aggregatedData.purchases = utils.clampArray(this.aggregatedData.purchases, MAX_PURCHASES);
-              
-              // Create activity event for new purchases
-              if (change.type === "added" && !this.initialLoads.purchases) {
-                const user = this.aggregatedData.users.get(purchase.userId);
-                const eventType = purchase.productType === "subscription" ? "subscription" : "payment";
-                const event = this.createActivityEvent(eventType, purchase, user);
-                this.activityEvents.unshift(event);
-                this.activityEvents = utils.clampArray(this.activityEvents, MAX_ACTIVITY_EVENTS);
-                this.saveActivityEventsToStorage();
+              // Create activity event for purchases created in last 30 days
+              if (purchase.createdAt && purchase.createdAt.getTime() >= last30Days) {
+                const eventId = `purchase-${purchase.id}`;
+                const existingEventIds = new Set(this.activityEvents.map(e => e.id));
+                if (!existingEventIds.has(eventId)) {
+                  const user = this.aggregatedData.users.get(purchase.userId);
+                  const eventType = purchase.productType === "subscription" ? "subscription" : "payment";
+                  const event = this.createActivityEvent(eventType, purchase, user);
+                  event.id = eventId; // Use stable ID to avoid duplicates
+                  this.activityEvents.unshift(event);
+                  this.activityEvents = utils.clampArray(this.activityEvents, MAX_ACTIVITY_EVENTS);
+                  this.saveActivityEventsToStorage();
+                }
               }
-            }
-          });
+            });
+            
+            // Sort purchases after initial load
+            this.aggregatedData.purchases.sort(
+              (a, b) => (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0)
+            );
+            this.aggregatedData.purchases = utils.clampArray(this.aggregatedData.purchases, MAX_PURCHASES);
+          } else {
+            // For subsequent updates, only process changes
+            snapshot.docChanges().forEach((change) => {
+              if (change.type === "removed") {
+                this.aggregatedData.purchases = this.aggregatedData.purchases.filter(
+                  (p) => p.id !== change.doc.id
+                );
+              } else {
+                const purchase = this.normalizePurchase(change.doc.id, change.doc.data());
+                const index = this.aggregatedData.purchases.findIndex((p) => p.id === purchase.id);
+                
+                if (index >= 0) {
+                  this.aggregatedData.purchases[index] = purchase;
+                } else {
+                  this.aggregatedData.purchases.unshift(purchase);
+                }
+                
+                // Sort purchases
+                this.aggregatedData.purchases.sort(
+                  (a, b) => (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0)
+                );
+                this.aggregatedData.purchases = utils.clampArray(this.aggregatedData.purchases, MAX_PURCHASES);
+                
+                // Create activity event for new purchases
+                if (change.type === "added") {
+                  const user = this.aggregatedData.users.get(purchase.userId);
+                  const eventType = purchase.productType === "subscription" ? "subscription" : "payment";
+                  const event = this.createActivityEvent(eventType, purchase, user);
+                  this.activityEvents.unshift(event);
+                  this.activityEvents = utils.clampArray(this.activityEvents, MAX_ACTIVITY_EVENTS);
+                  this.saveActivityEventsToStorage();
+                }
+              }
+            });
+          }
           
-          this.initialLoads.purchases = false;
           this.notifyDataChange('purchases');
         },
         (error) => {
@@ -834,7 +899,7 @@ class DataAggregator {
    */
   generateEventsFromExistingData() {
     // Only generate events if all initial loads are complete
-    if (this.initialLoads.users || this.initialLoads.specs || this.initialLoads.purchases) {
+    if (this.initialLoads.users || this.initialLoads.specs || this.initialLoads.purchases || this.initialLoads.userCredits) {
       return; // Wait for all data to load
     }
     
@@ -991,7 +1056,6 @@ class DataAggregator {
    */
   reset() {
     this.aggregatedData.users.clear();
-    this.aggregatedData.entitlements.clear();
     this.aggregatedData.userCredits.clear();
     this.aggregatedData.specs.clear();
     this.aggregatedData.specsByUser.clear();
@@ -1050,7 +1114,6 @@ class DataAggregator {
 class DashboardDataStore {
   constructor() {
     this.users = new Map();
-    this.entitlements = new Map();
     this.specs = new Map();
     this.specsByUser = new Map();
     this.purchases = [];
@@ -1062,7 +1125,6 @@ class DashboardDataStore {
 
   reset() {
     this.users.clear();
-    this.entitlements.clear();
     this.specs.clear();
     this.specsByUser.clear();
     this.purchases = [];
@@ -1094,23 +1156,8 @@ class DashboardDataStore {
     this.users.delete(id);
   }
 
-  upsertEntitlement(id, data) {
-    const normalized = {
-      userId: id,
-      specCredits:
-        typeof data.spec_credits === "number" ? data.spec_credits : null,
-      unlimited: Boolean(data.unlimited),
-      canEdit: Boolean(data.can_edit),
-      updatedAt: utils.toDate(data.updated_at),
-      metadata: data
-    };
-    this.entitlements.set(id, normalized);
-    return normalized;
-  }
-
-  removeEntitlement(id) {
-    this.entitlements.delete(id);
-  }
+  // upsertEntitlement() removed - using user_credits system only
+  // removeEntitlement() removed - using user_credits system only
 
   upsertSpec(id, data) {
     const normalized = {
@@ -1265,9 +1312,7 @@ class DashboardDataStore {
     return this.users.get(userId) || null;
   }
 
-  getEntitlement(userId) {
-    return this.entitlements.get(userId) || null;
-  }
+  // getEntitlement() removed - using user_credits system only
 
   getSpecCount(userId) {
     const list = this.specsByUser.get(userId);
@@ -1317,9 +1362,25 @@ class MetricsCalculator {
     );
     const newUsers = usersInRange.length;
     
-    // Pro users
-    const proUsers = users.filter((user) => user.plan === "pro").length;
-    const proUsersInRange = usersInRange.filter((user) => user.plan === "pro").length;
+    // Pro users - check user_credits subscription (source of truth)
+    const proUsers = users.filter((user) => {
+      const userCredits = aggregatedData.userCredits.get(user.id);
+      if (userCredits) {
+        const subscriptionType = userCredits.metadata?.subscription?.type;
+        const subscriptionStatus = userCredits.metadata?.subscription?.status;
+        return (subscriptionType === 'pro' && subscriptionStatus === 'active') || userCredits.unlimited;
+      }
+      return user.plan === "pro";
+    }).length;
+    const proUsersInRange = usersInRange.filter((user) => {
+      const userCredits = aggregatedData.userCredits.get(user.id);
+      if (userCredits) {
+        const subscriptionType = userCredits.metadata?.subscription?.type;
+        const subscriptionStatus = userCredits.metadata?.subscription?.status;
+        return (subscriptionType === 'pro' && subscriptionStatus === 'active') || userCredits.unlimited;
+      }
+      return user.plan === "pro";
+    }).length;
     const proShare = totalUsers ? Math.round((proUsers / totalUsers) * 100) : 0;
     const proShareInRange = newUsers ? Math.round((proUsersInRange / newUsers) * 100) : 0;
     
@@ -1528,7 +1589,7 @@ class GlobalSearch {
         userResults.push({
           id: user.id,
           title: user.displayName || user.email || user.id || "Unknown",
-          subtitle: `${user.email || user.id || "No email"} • Plan: ${user.plan}`,
+          subtitle: `${user.email || user.id || "No email"} • Plan: ${user.plan || "free"}`,
           action: () => {
             const navButton = document.querySelector(
               '[data-target="users-section"]'
@@ -1946,13 +2007,19 @@ class AdminDashboardApp {
         this.updateOverview();
         this.renderActivityFeed();
       }
-      if (source === 'entitlements') {
-        this.markSourceReady('entitlements');
-        this.renderUsersTable();
-      }
+      // Entitlements removed - using user_credits system only
+      // if (source === 'entitlements') {
+      //   this.markSourceReady('entitlements');
+      //   this.renderUsersTable();
+      // }
       if (source === 'userCredits') {
         this.markSourceReady('userCredits');
         this.renderUsersTable();
+        this.updateOverview();
+        this.renderActivityFeed();
+      }
+      if (source === 'userCredits-error') {
+        this.markSourceError('userCredits');
       }
       if (source === 'specs') {
         this.markSourceReady('specs');
@@ -1973,6 +2040,10 @@ class AdminDashboardApp {
         this.renderLogs();
         this.updateStatistics();
         this.rebuildSearchIndex();
+        this.renderActivityFeed();
+      }
+      if (source === 'purchases-error') {
+        this.markSourceError('purchases');
       }
       if (source === 'activityLogs') {
         this.markSourceReady('activityLogs');
@@ -2020,11 +2091,7 @@ class AdminDashboardApp {
         this.store.users.set(id, user);
       });
       
-      // Sync entitlements
-      this.store.entitlements.clear();
-      agg.entitlements.forEach((entitlement, id) => {
-        this.store.entitlements.set(id, entitlement);
-      });
+      // Entitlements removed - using user_credits system only
       
       // Sync specs
       this.store.specs.clear();
@@ -2218,7 +2285,6 @@ class AdminDashboardApp {
 
     this.sourceState = {
       users: "pending",
-      entitlements: "pending",
       specs: "pending",
       purchases: "pending",
       activityLogs: "pending",
@@ -2955,6 +3021,7 @@ class AdminDashboardApp {
     // Subscribe to all data sources via DataAggregator
     try {
       this.dataAggregator.subscribeAll();
+      // Entitlements removed from UI - using user_credits system now
       
       // Mark sources as ready when data arrives (handled by callbacks in constructor)
       // The callbacks will handle marking sources ready and updating UI
@@ -3096,7 +3163,7 @@ class AdminDashboardApp {
         const haystack = [user.email, user.displayName, user.id].filter(Boolean).join(" ").toLowerCase();
         if (!haystack.includes(searchTerm)) continue;
       }
-      if (planFilter !== "all" && user.plan !== planFilter) continue;
+      if (planFilter !== "all" && (user.plan || "free") !== planFilter) continue;
       
       // Status filter (active/inactive based on lastActive)
       if (statusFilter !== "all") {
@@ -3146,7 +3213,31 @@ class AdminDashboardApp {
       // Use new user_credits system instead of old entitlements
       const userCredits = this.dataAggregator.aggregatedData.userCredits.get(user.id);
       const specCount = this.store.getSpecCount(user.id);
-      const planBadge = `<span class="badge ${user.plan}">${user.plan}</span>`;
+      
+      // Determine plan: check user_credits subscription first (source of truth), then user.plan, then default to free
+      let userPlan = "free";
+      
+      if (userCredits) {
+        // user_credits is the source of truth for subscription status
+        // Check subscription type and status directly from metadata
+        const subscriptionType = userCredits.metadata?.subscription?.type;
+        const subscriptionStatus = userCredits.metadata?.subscription?.status;
+        
+        if (subscriptionType === 'pro' && subscriptionStatus === 'active') {
+          userPlan = "pro";
+        } else if (userCredits.unlimited) {
+          // Fallback: if unlimited is true, user has Pro (backward compatibility)
+          userPlan = "pro";
+        } else if (user.plan) {
+          // Fallback to user.plan if user_credits doesn't have subscription info
+          userPlan = (user.plan || "free").toLowerCase();
+        }
+      } else if (user.plan) {
+        // If no user_credits data, use user.plan
+        userPlan = (user.plan || "free").toLowerCase();
+      }
+      const planDisplay = userPlan === "pro" ? "Pro" : "Free";
+      const planBadge = `<span class="badge ${userPlan}">${planDisplay}</span>`;
       
       // Calculate credits: use new user_credits system only
       let credits = "—";
@@ -3163,30 +3254,32 @@ class AdminDashboardApp {
         credits = 0;
       }
       const isSelected = this.selectedUsers.has(user.id);
+      const userEmail = user.email || "";
+      const userName = user.displayName || "";
       rows.push(`
         <tr data-user-id="${user.id}">
           <td>
             <input type="checkbox" data-user-id="${user.id}" ${isSelected ? "checked" : ""}>
           </td>
-          <td>
-            <div>${user.email || user.displayName || user.id || "Unknown"}</div>
-            <div class="meta-text">${user.email || user.id || "No email"}</div>
+          <td class="user-cell">
+            ${userName ? `<div class="user-name">${userName}</div>` : ""}
+            <div class="user-email">${userEmail || user.id || "No email"}</div>
           </td>
           <td>${utils.formatDate(user.createdAt)}</td>
-          <td>${planBadge}</td>
-          <td>${utils.formatNumber(specCount)}</td>
-          <td>${credits}</td>
-          <td>${utils.formatRelative(user.lastActive)}</td>
-          <td>
-            <div class="table-actions">
-              <button class="table-action-btn" data-action="view-specs" data-user-id="${user.id}">
-                <i class="fas fa-file-alt"></i> View specs
+          <td class="plan-cell">${planBadge}</td>
+          <td class="specs-cell">${utils.formatNumber(specCount)}</td>
+          <td class="credits-cell">${credits}</td>
+          <td class="last-active-cell">${utils.formatRelative(user.lastActive)}</td>
+          <td class="actions-cell">
+            <div class="table-actions-compact">
+              <button class="table-action-btn-icon" data-action="view-specs" data-user-id="${user.id}" title="View specs">
+                <i class="fas fa-file-alt"></i>
               </button>
-              ${user.email ? `<button class="table-action-btn" data-action="copy-email" data-email="${user.email}">
-                <i class="fas fa-copy"></i> Copy email
+              ${userEmail ? `<button class="table-action-btn-icon" data-action="copy-email" data-email="${userEmail}" title="Copy email">
+                <i class="fas fa-copy"></i>
               </button>` : ""}
-              <button class="table-action-btn btn-danger" data-action="delete-user" data-user-id="${user.id}" data-user-email="${user.email || user.id}">
-                <i class="fas fa-trash"></i> Delete
+              <button class="table-action-btn-icon btn-danger" data-action="delete-user" data-user-id="${user.id}" data-user-email="${userEmail || user.id}" title="Delete user">
+                <i class="fas fa-trash"></i>
               </button>
             </div>
           </td>
@@ -3279,7 +3372,6 @@ class AdminDashboardApp {
               
               // Remove user from local store
               this.store.removeUser(userId);
-              this.store.removeEntitlement(userId);
               
               // Remove the row from the table
               const row = btn.closest('tr[data-user-id]');
@@ -3637,18 +3729,16 @@ class AdminDashboardApp {
     
     const html = events.slice(0, 20).map((event) => {
       const user = event.meta?.userId ? this.store.getUser(event.meta.userId) : null;
-      const userLabel = event.meta?.email || event.meta?.userEmail || user?.email || event.meta?.userId || "";
-      const nameLabel = event.meta?.userName || user?.displayName || user?.email || event.meta?.userId || "Unknown user";
-      const badge = userLabel ? `<span class="activity-badge">${userLabel}</span>` : "";
+      const userEmail = event.meta?.email || event.meta?.userEmail || user?.email || "";
+      const userName = event.meta?.userName || user?.displayName || user?.email || event.meta?.userId || "Unknown user";
+      const emailBadge = userEmail ? `<span class="activity-badge">${userEmail}</span>` : "";
       const icon = this.getActivityIcon(event.type);
       return `
         <li class="activity-item ${event.type}" data-activity-id="${event.id}">
+          <span class="activity-icon"><i class="${icon}"></i></span>
           <div class="activity-item__info">
-            <span class="activity-item__title">
-              <span class="activity-icon"><i class="${icon}"></i></span>
-              ${event.title}
-            </span>
-            <span class="activity-item__meta">${nameLabel || "Unknown user"} ${badge}</span>
+            <span class="activity-item__title">${event.title}</span>
+            <span class="activity-item__meta">${userName} ${emailBadge}</span>
           </div>
           <time>${utils.formatRelative(event.timestamp)}</time>
         </li>
@@ -3669,7 +3759,16 @@ class AdminDashboardApp {
 
   updateCharts() {
     const users = this.store.getUsersSorted();
-    const proUsers = users.filter((user) => user.plan === "pro").length;
+    // Pro users - check user_credits subscription (source of truth)
+    const proUsers = users.filter((user) => {
+      const userCredits = this.dataAggregator.aggregatedData.userCredits.get(user.id);
+      if (userCredits) {
+        const subscriptionType = userCredits.metadata?.subscription?.type;
+        const subscriptionStatus = userCredits.metadata?.subscription?.status;
+        return (subscriptionType === 'pro' && subscriptionStatus === 'active') || userCredits.unlimited;
+      }
+      return user.plan === "pro";
+    }).length;
     const freeUsers = users.length - proUsers;
     if (this.charts.usersPlan) {
       this.charts.usersPlan.data.datasets[0].data = [proUsers, freeUsers];
@@ -3897,7 +3996,16 @@ class AdminDashboardApp {
 
     const users = this.store.getUsersSorted();
     const totalUsers = users.length;
-    const proUsers = users.filter(u => u.plan === "pro").length;
+    // Pro users - check user_credits subscription (source of truth)
+    const proUsers = users.filter((u) => {
+      const userCredits = this.dataAggregator.aggregatedData.userCredits.get(u.id);
+      if (userCredits) {
+        const subscriptionType = userCredits.metadata?.subscription?.type;
+        const subscriptionStatus = userCredits.metadata?.subscription?.status;
+        return (subscriptionType === 'pro' && subscriptionStatus === 'active') || userCredits.unlimited;
+      }
+      return u.plan === "pro";
+    }).length;
     const purchases = this.store.purchases;
     const totalPurchases = purchases.length;
 
@@ -4026,7 +4134,7 @@ class AdminDashboardApp {
         user.id,
         user.email,
         user.displayName,
-        user.plan,
+        user.plan || "free",
         utils.formatDate(user.createdAt),
         utils.formatDate(user.lastActive),
         this.store.getSpecCount(user.id),

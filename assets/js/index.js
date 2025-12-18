@@ -1507,7 +1507,7 @@ async function initializeCreditsWithLoading() {
     console.log('[index.js] initializeCreditsWithLoading - Waiting for user initialization...');
     
     let attempts = 0;
-    const maxAttempts = 20; // 20 attempts * 500ms = 10 seconds max
+    const maxAttempts = 10; // 10 attempts * 500ms = 5 seconds max (reduced from 20 for faster loading)
     let userInitialized = false;
     let lastError = null;
     
@@ -1539,13 +1539,13 @@ async function initializeCreditsWithLoading() {
             errorString.includes('must be initialized') ||
             errorString.includes('user credits not found')) {
           // User not initialized yet, keep waiting
-          if (attempts % 4 === 0) { // Log every 2 seconds
+          if (attempts % 2 === 0) { // Log every second (2 attempts * 500ms)
             console.log('[index.js] initializeCreditsWithLoading - Still waiting for user initialization... (attempt', attempts, '/', maxAttempts, ')');
           }
           continue;
         }
         // Other errors - might be network issues, but log and continue
-        if (attempts % 4 === 0) {
+        if (attempts % 2 === 0) { // Log every second
           console.warn('[index.js] initializeCreditsWithLoading - Error checking credits (attempt', attempts, '):', error);
         }
       }
@@ -1630,10 +1630,10 @@ document.addEventListener('DOMContentLoaded', function() {
   checkAuthAndInitialize();
   
   checkFirstVisit();
-  // Delay checkForCreditPopup until after credit initialization (reduced delay since we removed overlay)
+  // Delay checkForCreditPopup until after credit initialization (reduced delay for faster UX)
   setTimeout(() => {
     checkForCreditPopup();
-  }, 3000); // After 2 seconds + 1 second buffer
+  }, 1000); // Reduced from 3s to 1s for faster popup display
   setupModernInput();
   checkAutoStart();
   
@@ -1820,54 +1820,57 @@ document.addEventListener('DOMContentLoaded', function() {
     testimonialsObserver.observe(testimonialsGallery);
   }
   
-  // Load dynamic stats - deferred until page is interactive
-  function loadStatsWhenIdle() {
-    if ('requestIdleCallback' in window) {
-      requestIdleCallback(() => {
-        loadDynamicStats().then(() => {
-          // Intersection Observer for animations
-          const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-              if (entry.isIntersecting) {
-                const counter = entry.target.querySelector('.stat-number');
-                if (counter) {
-                  const target = parseInt(counter.dataset.target);
-                  animateCounter(counter, target);
-                  observer.unobserve(entry.target);
-                }
-              }
-            });
-          });
-          
-          const statsItems = document.querySelectorAll('.stat-item');
-          statsItems.forEach(item => observer.observe(item));
-        });
-      }, { timeout: 3000 });
-    } else {
+  // Load dynamic stats - lazy load only when stats section is visible (no delay)
+  function loadStatsWhenVisible() {
+    const statsSection = document.querySelector('.section[style*="--section-index: 1"]') || 
+                         document.querySelector('.stats-list')?.closest('.section');
+    
+    if (!statsSection) {
+      // Fallback: load after short delay if section not found
       setTimeout(() => {
         loadDynamicStats().then(() => {
-          // Intersection Observer for animations
-          const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-              if (entry.isIntersecting) {
-                const counter = entry.target.querySelector('.stat-number');
-                if (counter) {
-                  const target = parseInt(counter.dataset.target);
-                  animateCounter(counter, target);
-                  observer.unobserve(entry.target);
-                }
-              }
-            });
-          });
-          
-          const statsItems = document.querySelectorAll('.stat-item');
-          statsItems.forEach(item => observer.observe(item));
+          setupStatsAnimations();
         });
-      }, 3000);
+      }, 500);
+      return;
     }
+    
+    // Load stats only when section enters viewport
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          observer.disconnect();
+          // Load stats data
+          loadDynamicStats().then(() => {
+            setupStatsAnimations();
+          });
+        }
+      });
+    }, { rootMargin: '100px' }); // Start loading 100px before visible
+    
+    observer.observe(statsSection);
   }
   
-  loadStatsWhenIdle();
+  function setupStatsAnimations() {
+    // Intersection Observer for counter animations
+    const counterObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const counter = entry.target.querySelector('.stat-number');
+          if (counter) {
+            const target = parseInt(counter.dataset.target);
+            animateCounter(counter, target);
+            counterObserver.unobserve(entry.target);
+          }
+        }
+      });
+    }, { threshold: 0.1 });
+    
+    const statsItems = document.querySelectorAll('.stat-item');
+    statsItems.forEach(item => counterObserver.observe(item));
+  }
+  
+  loadStatsWhenVisible();
   
   const toolsSection = document.querySelector('.tools-showcase');
   if (toolsSection) {

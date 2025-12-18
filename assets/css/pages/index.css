@@ -933,6 +933,25 @@ body .logo a:hover .logo-dot {
   z-index: 2;
 }
 
+@media (max-width: 768px) {
+  .hero-bottom-links {
+    bottom: 20px;
+    gap: 30px;
+    padding: 0 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-bottom-links {
+    bottom: 15px;
+    gap: 25px;
+    padding: 0 10px;
+  }
+  .bottom-link {
+    font-size: 14px;
+  }
+}
+
 .bottom-link {
   color: #D4541F;
   font-size: 16px;
@@ -2099,8 +2118,13 @@ body .logo a:hover .logo-dot {
 }
 @media (max-width: 768px) {
   .hero-section {
-    min-height: 90vh;
-    padding: 4rem 0 2rem 0;
+    min-height: 100vh;
+    height: 100vh;
+    padding: 5rem 0 80px 0; /* Space for header and bottom links */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
   }
   .hero-cta-button-new {
     width: 140px;
@@ -2116,7 +2140,22 @@ body .logo a:hover .logo-dot {
     font-size: clamp(0.9rem, 2vw, 1rem);
   }
   .hero-button-container {
-    margin-bottom: 2.5rem;
+    margin-bottom: 2rem;
+  }
+  .hero-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 15px;
+  }
+  .hero-bottom-links {
+    position: relative;
+    bottom: auto;
+    left: auto;
+    transform: none;
+    margin-top: auto;
+    padding-bottom: 0;
   }
   .spec-cards-showcase {
     display: none; /* Hide icons container on mobile */
@@ -2189,8 +2228,13 @@ body .logo a:hover .logo-dot {
 }
 @media (max-width: 480px) {
   .hero-section {
-    min-height: 85vh;
-    padding: 3rem 0 1.5rem 0;
+    min-height: 100vh;
+    height: 100vh;
+    padding: 4.5rem 0 70px 0; /* Space for header and bottom links */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
   }
   .hero-cta-button-new {
     width: 130px;
@@ -2446,10 +2490,12 @@ body .questions-display .typing-mode-toggle * {
     align-items: center;
   }
   .hero-content {
+    flex: 1;
     width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     gap: 0;
     padding: 0 15px;
   }
@@ -2478,28 +2524,39 @@ body .questions-display .typing-mode-toggle * {
     max-width: 100%;
     padding: 20px 15px;
     margin: 20px 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
   }
   body .questions-display {
-    position: relative;
-    top: auto;
-    left: auto;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     transform: none;
     width: 100%;
     max-width: 100%;
     margin: 0;
-    padding: 100px 15px 30px 15px; /* More space for header and better spacing */
+    padding: 70px 15px 20px 15px;
+    background: #333;
+    z-index: 10;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
   }
   .questions-header {
     margin-bottom: 1.5rem;
     gap: 1.5rem;
+    flex-shrink: 0;
   }
   .current-question {
-    font-size: 28px;
+    font-size: 24px;
     margin-bottom: 0.5rem;
   }
   .question-detail {
-    font-size: 15px;
-    margin-top: 16px;
+    font-size: 14px;
+    margin-top: 12px;
     line-height: 1.6;
   }
   .modern-input-container {
@@ -2515,11 +2572,19 @@ body .questions-display .typing-mode-toggle * {
 }
 @media (max-width: 480px) {
   .hero-section {
-    padding-top: 90px;
-    padding-bottom: 1.5rem;
-    min-height: auto;
+    min-height: 100vh;
+    height: 100vh;
+    padding: 4.5rem 0 70px 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
   }
   .hero-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     padding: 0 10px;
   }
   .hero-main-title {
@@ -2532,7 +2597,15 @@ body .questions-display .typing-mode-toggle * {
     margin-bottom: 1rem;
   }
   .hero-button-container {
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .hero-bottom-links {
+    position: relative;
+    bottom: auto;
+    left: auto;
+    transform: none;
+    margin-top: auto;
+    padding-bottom: 0;
   }
   /* Using higher specificity in media query instead of !important */
   body .modern-input-container {
@@ -2544,28 +2617,39 @@ body .questions-display .typing-mode-toggle * {
     max-width: 100%;
     padding: 18px 12px;
     margin: 18px 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
   }
   body .questions-display {
-    position: relative;
-    top: auto;
-    left: auto;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     transform: none;
     width: 100%;
     max-width: 100%;
     margin: 0;
-    padding: 100px 10px 25px 10px; /* More space for header and better spacing */
+    padding: 65px 10px 15px 10px;
+    background: #333;
+    z-index: 10;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
   }
   .questions-header {
     margin-bottom: 1.25rem;
     gap: 1.25rem;
+    flex-shrink: 0;
   }
   .current-question {
-    font-size: 24px;
+    font-size: 22px;
     margin-bottom: 0.5rem;
   }
   .question-detail {
-    font-size: 14px;
-    margin-top: 14px;
+    font-size: 13px;
+    margin-top: 12px;
     line-height: 1.6;
   }
   .input-instruction {

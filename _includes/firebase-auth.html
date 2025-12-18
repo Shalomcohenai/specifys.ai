@@ -96,7 +96,7 @@
       
       // Use AbortController to handle errors more gracefully
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout (reduced from 10s for better UX)
+      const timeoutId = setTimeout(() => controller.abort(), 2500); // 2.5 second timeout (reduced from 5s for faster loading)
       
       let response;
       try {

@@ -55,13 +55,6 @@ body:has(#admin-shell) {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  transition: grid-template-columns 0.3s ease;
-}
-
-/* Collapsed state for desktop */
-.admin-shell.sidebar-collapsed,
-#admin-shell.sidebar-collapsed {
-  grid-template-columns: 70px 1fr;
 }
 
 /* Override any utility classes that might interfere */
@@ -73,13 +66,6 @@ body:has(#admin-shell) {
   grid-template-columns: 280px 1fr;
 }
 
-.admin-shell.sidebar-collapsed.flex,
-.admin-shell.sidebar-collapsed.grid,
-#admin-shell.sidebar-collapsed.flex,
-#admin-shell.sidebar-collapsed.grid {
-  grid-template-columns: 70px 1fr;
-}
-
 /* Ensure admin-shell is always grid, even with utility classes */
 div.admin-shell.flex,
 div.admin-shell.grid,
@@ -87,13 +73,6 @@ div#admin-shell.flex,
 div#admin-shell.grid {
   display: grid;
   grid-template-columns: 280px 1fr;
-}
-
-div.admin-shell.sidebar-collapsed.flex,
-div.admin-shell.sidebar-collapsed.grid,
-div#admin-shell.sidebar-collapsed.flex,
-div#admin-shell.sidebar-collapsed.grid {
-  grid-template-columns: 70px 1fr;
 }
 
 /* Admin Sidebar - using higher specificity */
@@ -116,129 +95,6 @@ div#admin-shell.sidebar-collapsed.grid {
   width: 280px;
   flex-shrink: 0;
   box-sizing: border-box;
-  transition: width 0.3s ease;
-}
-
-/* Collapsed sidebar state (desktop) */
-@media (min-width: 769px) {
-  .admin-shell.sidebar-collapsed .admin-sidebar,
-  #admin-shell.sidebar-collapsed .admin-sidebar {
-    width: 70px;
-    padding: 16px 8px;
-  }
-  
-  .admin-shell.sidebar-collapsed .sidebar-header,
-  #admin-shell.sidebar-collapsed .sidebar-header {
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-  }
-  
-  .admin-shell.sidebar-collapsed .sidebar-brand,
-  #admin-shell.sidebar-collapsed .sidebar-brand {
-    display: none;
-  }
-  
-  .admin-shell.sidebar-collapsed .sidebar-toggle-btn,
-  #admin-shell.sidebar-collapsed .sidebar-toggle-btn {
-    display: flex;
-    width: 100%;
-    margin-top: auto;
-    margin-bottom: 0;
-  }
-  
-  /* Ensure toggle button is always visible */
-  .admin-shell .sidebar-toggle-btn,
-  #admin-shell .sidebar-toggle-btn {
-    display: flex;
-    align-self: flex-end;
-  }
-  
-  /* Hide text in nav links when collapsed */
-  .admin-shell.sidebar-collapsed .nav-link > span:not(.icon),
-  #admin-shell.sidebar-collapsed .nav-link > span:not(.icon) {
-    opacity: 0;
-    width: 0;
-    overflow: hidden;
-    position: absolute;
-  }
-  
-  .admin-shell.sidebar-collapsed .nav-link,
-  #admin-shell.sidebar-collapsed .nav-link {
-    justify-content: center;
-    padding: 12px;
-  }
-  
-  .admin-shell.sidebar-collapsed .nav-link .icon,
-  #admin-shell.sidebar-collapsed .nav-link .icon {
-    margin: 0;
-  }
-  
-  /* Hide sidebar footer elements when collapsed */
-  .admin-shell.sidebar-collapsed .sidebar-footer .connection-indicator .label,
-  .admin-shell.sidebar-collapsed .sidebar-footer .sync-label,
-  .admin-shell.sidebar-collapsed .sidebar-footer .home-link span,
-  #admin-shell.sidebar-collapsed .sidebar-footer .connection-indicator .label,
-  #admin-shell.sidebar-collapsed .sidebar-footer .sync-label,
-  #admin-shell.sidebar-collapsed .sidebar-footer .home-link span {
-    display: none;
-  }
-  
-  .admin-shell.sidebar-collapsed .sidebar-footer .home-link,
-  #admin-shell.sidebar-collapsed .sidebar-footer .home-link {
-    justify-content: center;
-    padding: 10px;
-  }
-  
-  /* Show text on hover when collapsed */
-  .admin-shell.sidebar-collapsed .admin-sidebar:hover,
-  #admin-shell.sidebar-collapsed .admin-sidebar:hover {
-    width: 280px;
-    padding: var(--admin-spacing);
-  }
-  
-  .admin-shell.sidebar-collapsed .admin-sidebar:hover .sidebar-brand,
-  #admin-shell.sidebar-collapsed .admin-sidebar:hover .sidebar-brand {
-    display: flex;
-  }
-  
-  .admin-shell.sidebar-collapsed .admin-sidebar:hover .sidebar-header,
-  #admin-shell.sidebar-collapsed .admin-sidebar:hover .sidebar-header {
-    flex-direction: row;
-  }
-  
-  .admin-shell.sidebar-collapsed .admin-sidebar:hover .sidebar-toggle-btn,
-  #admin-shell.sidebar-collapsed .admin-sidebar:hover .sidebar-toggle-btn {
-    width: 32px;
-  }
-  
-  .admin-shell.sidebar-collapsed .admin-sidebar:hover .nav-link > span:not(.icon),
-  #admin-shell.sidebar-collapsed .admin-sidebar:hover .nav-link > span:not(.icon) {
-    opacity: 1;
-    width: auto;
-    position: relative;
-  }
-  
-  .admin-shell.sidebar-collapsed .admin-sidebar:hover .nav-link,
-  #admin-shell.sidebar-collapsed .admin-sidebar:hover .nav-link {
-    justify-content: flex-start;
-    padding: 12px 14px;
-  }
-  
-  .admin-shell.sidebar-collapsed .admin-sidebar:hover .sidebar-footer .connection-indicator .label,
-  .admin-shell.sidebar-collapsed .admin-sidebar:hover .sidebar-footer .sync-label,
-  .admin-shell.sidebar-collapsed .admin-sidebar:hover .sidebar-footer .home-link span,
-  #admin-shell.sidebar-collapsed .admin-sidebar:hover .sidebar-footer .connection-indicator .label,
-  #admin-shell.sidebar-collapsed .admin-sidebar:hover .sidebar-footer .sync-label,
-  #admin-shell.sidebar-collapsed .admin-sidebar:hover .sidebar-footer .home-link span {
-    display: block;
-  }
-  
-  .admin-shell.sidebar-collapsed .admin-sidebar:hover .sidebar-footer .home-link,
-  #admin-shell.sidebar-collapsed .admin-sidebar:hover .sidebar-footer .home-link {
-    justify-content: flex-start;
-    padding: 10px 12px;
-  }
 }
 
 /* Override utility classes on sidebar */
@@ -262,22 +118,6 @@ aside#admin-shell .admin-sidebar.grid,
   flex-direction: column;
 }
 
-/* Sidebar Header */
-.admin-shell .sidebar-header,
-.admin-shell div.sidebar-header,
-#admin-shell .sidebar-header,
-#admin-shell div.sidebar-header {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 8px;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-/* Sidebar Brand */
 .admin-shell .sidebar-brand,
 .admin-shell div.sidebar-brand,
 #admin-shell .sidebar-brand,
@@ -287,7 +127,6 @@ aside#admin-shell .admin-sidebar.grid,
   gap: 6px;
   color: var(--admin-text);
   box-sizing: border-box;
-  flex: 1;
 }
 
 /* Override utility classes on sidebar-brand */
@@ -314,107 +153,6 @@ aside#admin-shell .admin-sidebar.grid,
   color: var(--admin-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.12em;
-}
-
-/* Sidebar Close Button (Mobile) */
-.admin-shell .sidebar-close-btn,
-.admin-shell button.sidebar-close-btn,
-#admin-shell .sidebar-close-btn,
-#admin-shell button.sidebar-close-btn {
-  display: none;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  padding: 0;
-  background: var(--admin-surface-alt);
-  border: 1px solid var(--admin-border);
-  border-radius: 8px;
-  color: var(--admin-text);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  flex-shrink: 0;
-}
-
-.admin-shell .sidebar-close-btn:hover,
-.admin-shell .sidebar-close-btn:focus {
-  background: var(--admin-hover-bg);
-  border-color: var(--admin-accent);
-  color: var(--admin-accent);
-  outline: none;
-}
-
-.admin-shell .sidebar-close-btn i {
-  font-size: 1.1rem;
-}
-
-/* Sidebar Toggle Button (Desktop) */
-.admin-shell .sidebar-toggle-btn,
-.admin-shell button.sidebar-toggle-btn,
-#admin-shell .sidebar-toggle-btn,
-#admin-shell button.sidebar-toggle-btn {
-  display: none;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  padding: 0;
-  background: var(--admin-surface-alt);
-  border: 1px solid var(--admin-border);
-  border-radius: 8px;
-  color: var(--admin-text-muted);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  flex-shrink: 0;
-}
-
-.admin-shell .sidebar-toggle-btn:hover,
-.admin-shell .sidebar-toggle-btn:focus {
-  background: var(--admin-hover-bg);
-  border-color: var(--admin-accent);
-  color: var(--admin-accent);
-  outline: none;
-}
-
-.admin-shell .sidebar-toggle-btn i {
-  font-size: 0.9rem;
-  transition: transform 0.3s ease;
-}
-
-.admin-shell .sidebar-toggle-btn.collapsed i {
-  transform: rotate(180deg);
-}
-
-/* Desktop only classes */
-.desktop-only {
-  display: none;
-}
-
-@media (min-width: 769px) {
-  .desktop-only {
-    display: flex;
-  }
-  
-  .mobile-only {
-    display: none !important;
-  }
-  
-  /* Show sidebar toggle button on desktop */
-  .admin-shell .sidebar-toggle-btn,
-  #admin-shell .sidebar-toggle-btn {
-    display: flex;
-  }
-}
-
-/* Mobile only classes */
-@media (max-width: 768px) {
-  .mobile-only {
-    display: flex !important;
-  }
-  
-  .desktop-only {
-    display: none !important;
-  }
 }
 
 .admin-shell .sidebar-nav,
@@ -1135,6 +873,10 @@ button.admin-shell .action-btn.grid,
   box-sizing: border-box;
 }
 
+.admin-shell .panel.recent-activity {
+  background: var(--admin-surface);
+}
+
 /* Override utility classes on panel */
 .admin-shell .panel.flex,
 #admin-shell .panel.flex {
@@ -1152,11 +894,8 @@ button.admin-shell .action-btn.grid,
 #admin-shell .panel-header,
 #admin-shell div.panel-header {
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
   gap: 12px;
-  flex-wrap: wrap;
   width: 100%;
   box-sizing: border-box;
 }
@@ -1167,7 +906,7 @@ button.admin-shell .action-btn.grid,
 #admin-shell .panel-header.flex,
 #admin-shell .panel-header.grid {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
 }
 
 .admin-shell .panel-header h3 {
@@ -1177,17 +916,26 @@ button.admin-shell .action-btn.grid,
   margin: 0;
 }
 
+.admin-shell .activity-header-top {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
 .admin-shell .activity-filters,
 .admin-shell div.activity-filters,
 #admin-shell .activity-filters,
 #admin-shell div.activity-filters {
   display: inline-flex;
   flex-direction: row;
-  gap: 8px;
-  background: var(--admin-surface);
-  border: 1px solid var(--admin-border);
-  border-radius: 999px;
-  padding: 4px;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  padding: 0;
   flex-wrap: nowrap;
   box-sizing: border-box;
 }
@@ -1202,22 +950,24 @@ button.admin-shell .action-btn.grid,
 }
 
 .admin-shell .activity-filter-btn {
-  background: transparent;
+  background: var(--admin-surface);
   border: none;
   color: var(--admin-text-muted);
-  padding: 6px 14px;
-  font-size: 0.85rem;
+  padding: 6px 16px;
+  font-size: 0.9rem;
   border-radius: 999px;
   cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
 .admin-shell .activity-filter-btn.active {
-  background: rgba(255, 107, 53, 0.16);
-  color: var(--admin-accent-strong);
+  background: var(--admin-accent);
+  color: white;
 }
 
-.admin-shell .activity-filter-btn:hover {
-  color: var(--admin-accent-strong);
+.admin-shell .activity-filter-btn:hover:not(.active) {
+  color: var(--admin-text);
 }
 
 .admin-shell .panel-action {
@@ -1237,6 +987,28 @@ button.admin-shell .action-btn.grid,
 .admin-shell .panel-action:focus-visible {
   color: var(--admin-text);
   border-color: var(--admin-accent);
+  outline: none;
+}
+
+.admin-shell .pause-stream-btn {
+  background: #f5f5f5;
+  border: 1px solid #d1d5db;
+  color: var(--admin-text);
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  align-self: flex-start;
+  transition: all 0.2s ease;
+}
+
+.admin-shell .pause-stream-btn:hover,
+.admin-shell .pause-stream-btn:focus-visible {
+  background: #e5e7eb;
+  border-color: #9ca3af;
   outline: none;
 }
 
@@ -1266,25 +1038,31 @@ button.admin-shell .action-btn.grid,
 }
 
 .admin-shell .activity-feed li {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  display: flex;
+  flex-direction: row;
   align-items: center;
   gap: 12px;
   background: var(--admin-surface);
-  border: 1px solid var(--admin-border);
-  border-radius: 14px;
-  padding: 12px 16px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  padding: 14px 16px;
   font-size: 0.92rem;
   cursor: pointer;
   width: 100%;
   box-sizing: border-box;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease;
+}
+
+.admin-shell .activity-feed li:hover {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
 }
 
 /* Override utility classes on activity-feed li */
 .admin-shell .activity-feed li.flex,
 .admin-shell .activity-feed li.grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  display: flex;
+  flex-direction: row;
 }
 
 .admin-shell .activity-feed li.user {
@@ -1303,6 +1081,79 @@ button.admin-shell .action-btn.grid,
   justify-content: center;
   border-style: dashed;
   color: var(--admin-text-muted);
+}
+
+.admin-shell .activity-item__info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+}
+
+.admin-shell .activity-item__title {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+  color: var(--admin-text);
+  font-size: 0.95rem;
+}
+
+.admin-shell .activity-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.admin-shell .activity-icon i {
+  font-size: 1.1rem;
+}
+
+.admin-shell .activity-item.spec .activity-icon i {
+  color: var(--admin-success);
+}
+
+.admin-shell .activity-item.payment .activity-icon i,
+.admin-shell .activity-item.subscription .activity-icon i {
+  color: var(--admin-accent);
+}
+
+.admin-shell .activity-item.user .activity-icon i,
+.admin-shell .activity-item.auth .activity-icon i {
+  color: var(--admin-accent);
+}
+
+.admin-shell .activity-item__meta {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: var(--admin-text);
+  flex-wrap: wrap;
+}
+
+.admin-shell .activity-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  background: #f3f4f6;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  color: var(--admin-text);
+  font-weight: normal;
+}
+
+.admin-shell .activity-feed li time {
+  color: var(--admin-text-muted);
+  font-size: 0.85rem;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 /* Source List */
@@ -1453,9 +1304,53 @@ button.admin-shell .action-btn.grid,
 .admin-shell .data-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 600px;
-  table-layout: fixed;
+  min-width: 1000px;
+  table-layout: auto;
   margin: 0;
+}
+
+/* Users table specific styling */
+.admin-shell #users-table {
+  table-layout: auto;
+}
+
+.admin-shell #users-table th:nth-child(1) {
+  width: 40px;
+}
+
+.admin-shell #users-table th:nth-child(2) {
+  width: auto;
+  min-width: 180px;
+}
+
+.admin-shell #users-table th:nth-child(3) {
+  width: auto;
+  min-width: 140px;
+}
+
+.admin-shell #users-table th:nth-child(4) {
+  width: auto;
+  min-width: 80px;
+}
+
+.admin-shell #users-table th:nth-child(5) {
+  width: auto;
+  min-width: 70px;
+}
+
+.admin-shell #users-table th:nth-child(6) {
+  width: auto;
+  min-width: 80px;
+}
+
+.admin-shell #users-table th:nth-child(7) {
+  width: auto;
+  min-width: 100px;
+}
+
+.admin-shell #users-table th:nth-child(8) {
+  width: auto;
+  min-width: 120px;
 }
 
 .admin-shell .data-table thead {
@@ -1468,38 +1363,87 @@ button.admin-shell .action-btn.grid,
 
 .admin-shell .data-table th,
 .admin-shell .data-table td {
-  padding: 10px 12px;
+  padding: 12px 14px;
   border-bottom: 1px solid var(--admin-border);
   text-align: left;
   vertical-align: middle;
 }
 
-/* Allow text wrapping for Title and Category columns */
+/* Checkbox column */
 .admin-shell .data-table td:first-child,
 .admin-shell .data-table th:first-child {
-  white-space: normal;
-  word-wrap: break-word;
-  max-width: 200px;
+  width: 40px;
+  text-align: center;
+  padding: 12px 8px;
 }
 
-.admin-shell .data-table td:nth-child(2),
+/* User column - allow wrapping for email */
+.admin-shell .data-table td.user-cell,
 .admin-shell .data-table th:nth-child(2) {
   white-space: normal;
   word-wrap: break-word;
-  max-width: 150px;
+  word-break: break-word;
+  min-width: 180px;
+  max-width: 250px;
 }
 
-/* Keep compact columns (Level, Questions, Views, Actions) on one line */
+.admin-shell .data-table .user-name {
+  font-weight: 500;
+  color: var(--admin-text);
+  margin-bottom: 4px;
+  font-size: 0.9rem;
+}
+
+.admin-shell .data-table .user-email {
+  font-size: 0.85rem;
+  color: var(--admin-text-muted);
+  word-break: break-all;
+}
+
+/* Created column */
 .admin-shell .data-table td:nth-child(3),
-.admin-shell .data-table th:nth-child(3),
-.admin-shell .data-table td:nth-child(4),
-.admin-shell .data-table th:nth-child(4),
-.admin-shell .data-table td:nth-child(5),
-.admin-shell .data-table th:nth-child(5),
-.admin-shell .data-table td:nth-child(6),
+.admin-shell .data-table th:nth-child(3) {
+  white-space: nowrap;
+  min-width: 140px;
+}
+
+/* Plan column - ensure it's always visible */
+.admin-shell .data-table td.plan-cell,
+.admin-shell .data-table th:nth-child(4) {
+  white-space: nowrap;
+  min-width: 80px;
+  text-align: center;
+}
+
+/* Specs column */
+.admin-shell .data-table td.specs-cell,
+.admin-shell .data-table th:nth-child(5) {
+  white-space: nowrap;
+  text-align: center;
+  min-width: 70px;
+}
+
+/* Credits column */
+.admin-shell .data-table td.credits-cell,
 .admin-shell .data-table th:nth-child(6) {
   white-space: nowrap;
-  width: auto;
+  text-align: center;
+  min-width: 80px;
+}
+
+/* Last active column */
+.admin-shell .data-table td.last-active-cell,
+.admin-shell .data-table th:nth-child(7) {
+  white-space: nowrap;
+  min-width: 100px;
+}
+
+/* Actions column */
+.admin-shell .data-table td.actions-cell,
+.admin-shell .data-table th:nth-child(8) {
+  white-space: nowrap;
+  width: 120px;
+  text-align: center;
 }
 
 /* Specific widths for guides table columns */
@@ -1554,22 +1498,26 @@ button.admin-shell .action-btn.grid,
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 10px;
+  padding: 5px 12px;
   border-radius: 999px;
-  font-size: 0.82rem;
+  font-size: 0.8rem;
+  font-weight: 600;
   background: var(--admin-surface-alt);
   border: 1px solid var(--admin-border);
   text-transform: capitalize;
+  white-space: nowrap;
 }
 
 .admin-shell .badge.pro {
   color: var(--admin-accent);
-  border-color: rgba(128, 140, 255, 0.4);
-  background: rgba(128, 140, 255, 0.1);
+  border-color: rgba(255, 107, 53, 0.4);
+  background: rgba(255, 107, 53, 0.12);
 }
 
 .admin-shell .badge.free {
   color: var(--admin-text-muted);
+  background: var(--admin-surface-alt);
+  border-color: var(--admin-border);
 }
 
 .admin-shell .table-actions,
@@ -1590,6 +1538,55 @@ button.admin-shell .action-btn.grid,
 #admin-shell .table-actions.grid {
   display: flex;
   flex-direction: row;
+}
+
+/* Compact actions with icons only */
+.admin-shell .table-actions-compact {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-sizing: border-box;
+}
+
+.admin-shell .table-action-btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border-radius: 8px;
+  border: 1px solid var(--admin-border);
+  background: var(--admin-surface);
+  color: var(--admin-text);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.85rem;
+  box-sizing: border-box;
+}
+
+.admin-shell .table-action-btn-icon i {
+  font-size: 0.9rem;
+}
+
+.admin-shell .table-action-btn-icon:hover {
+  background: var(--admin-hover-bg);
+  border-color: var(--admin-accent);
+  color: var(--admin-accent);
+  transform: translateY(-1px);
+}
+
+.admin-shell .table-action-btn-icon.btn-danger {
+  color: var(--admin-critical);
+  border-color: rgba(220, 53, 69, 0.3);
+}
+
+.admin-shell .table-action-btn-icon.btn-danger:hover {
+  background: rgba(220, 53, 69, 0.1);
+  border-color: var(--admin-critical);
+  color: var(--admin-critical);
 }
 
 /* Pagination */
@@ -3614,195 +3611,22 @@ button.admin-shell .action-btn.grid,
   }
 }
 
-/* Mobile Menu Toggle Button - Hidden on desktop by default */
-.admin-shell .mobile-menu-toggle {
-  display: none;
-}
-
 @media (max-width: 768px) {
   .admin-shell {
     grid-template-columns: 1fr;
   }
   
-  /* Mobile Menu Toggle Button - Visible on mobile */
-  .admin-shell .mobile-menu-toggle {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    padding: 0;
-    margin-right: 12px;
-    background: var(--admin-surface);
-    border: 1px solid var(--admin-border);
-    border-radius: 8px;
-    color: var(--admin-text);
-    cursor: pointer;
-    transition: all 0.2s ease;
-    flex-shrink: 0;
-  }
-  
-  .admin-shell .mobile-menu-toggle:hover {
-    background: var(--admin-hover-bg);
-    border-color: var(--admin-accent);
-    color: var(--admin-accent);
-  }
-  
-  .admin-shell .mobile-menu-toggle:active {
-    transform: scale(0.95);
-  }
-  
-  .admin-shell .mobile-menu-toggle i {
-    font-size: 1.2rem;
-  }
-  
-  .admin-shell .mobile-menu-toggle[aria-expanded="true"] {
-    background: var(--admin-hover-bg);
-    border-color: var(--admin-accent);
-    color: var(--admin-accent);
-  }
-  
-  /* Sidebar Mobile Styles */
   .admin-shell .admin-sidebar {
     position: fixed;
     left: -280px;
-    top: 0;
     z-index: 100;
     transition: left 0.3s ease;
-    width: 280px;
-    max-width: 85vw;
-    box-shadow: 4px 0 24px rgba(15, 23, 42, 0.15);
   }
   
-  .admin-shell .admin-sidebar.mobile-open {
-    left: 0;
-  }
-  
-  /* Sidebar close button visible on mobile */
-  .admin-shell .sidebar-close-btn.mobile-only {
-    display: flex;
-  }
-  
-  .admin-shell .sidebar-header {
-    margin-bottom: var(--admin-spacing);
-  }
-  
-  /* Sidebar Backdrop */
-  .admin-shell .sidebar-backdrop {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 99;
-    backdrop-filter: blur(2px);
-  }
-  
-  .admin-shell .sidebar-backdrop.active {
-    display: block;
-  }
-  
-  /* Topbar adjustments for mobile */
-  .admin-shell .admin-topbar {
-    padding: 12px 16px;
-  }
-  
-  .admin-shell .topbar-left {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  
-  .admin-shell .topbar-actions {
-    gap: 8px;
-  }
-  
-  .admin-shell .topbar-actions .action-btn {
-    padding: 8px 12px;
-    font-size: 0.85rem;
-  }
-  
-  .admin-shell .topbar-actions .action-btn span:not(.hint) {
-    display: none;
-  }
-  
-  .admin-shell .page-title h1 {
-    font-size: 1.2rem;
-  }
-  
-  .admin-shell .page-title p {
-    font-size: 0.8rem;
-  }
-  
-  /* Metrics Grid - Single column on mobile */
-  .admin-shell .metrics-grid {
-    grid-template-columns: 1fr !important;
-    gap: 12px;
-  }
-  
-  /* Overview Panels - Single column */
   .admin-shell .overview-panels {
-    grid-template-columns: 1fr !important;
-    gap: 16px;
+    grid-template-columns: 1fr;
   }
   
-  /* Chart Grid - Single column */
-  .admin-shell .chart-grid {
-    grid-template-columns: 1fr !important;
-  }
-  
-  /* Stats Panels - Single column */
-  .admin-shell .stats-panels {
-    grid-template-columns: 1fr !important;
-  }
-  
-  /* Performance Metrics - Single column */
-  .admin-shell .performance-metrics {
-    grid-template-columns: 1fr !important;
-  }
-  
-  /* Spec Usage Summary - Single column */
-  .admin-shell .spec-usage-summary .summary-cards {
-    grid-template-columns: 1fr !important;
-  }
-  
-  /* Funnel Container - Single column */
-  .admin-shell .funnel-container {
-    grid-template-columns: 1fr !important;
-  }
-  
-  /* Content Analytics Grid - Single column */
-  .admin-shell .content-analytics-grid {
-    grid-template-columns: 1fr !important;
-  }
-  
-  /* Quick Actions Grid - Single column */
-  .admin-shell .quick-actions-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 12px;
-  }
-  
-  /* Retention Grid - Single column */
-  .admin-shell .retention-grid {
-    grid-template-columns: 1fr !important;
-  }
-  
-  /* Section Controls - Stack on mobile */
-  .admin-shell .section-controls {
-    flex-direction: column;
-    width: 100%;
-  }
-  
-  .admin-shell .section-controls > * {
-    width: 100%;
-  }
-  
-  /* Table responsive */
-  .admin-shell .table-wrapper {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-  
-  /* Funnel step bar - stack on mobile */
   .admin-shell .funnel-step-bar {
     flex-direction: column;
     align-items: flex-start;
@@ -3817,17 +3641,6 @@ button.admin-shell .action-btn.grid,
     width: 100%;
     top: 0;
     height: 100vh;
-  }
-  
-  /* Modal adjustments */
-  .admin-shell .modal-content {
-    width: 95% !important;
-    max-height: 95vh;
-  }
-  
-  /* Global Search adjustments */
-  .admin-shell .global-search-panel {
-    width: 95% !important;
   }
 }
 

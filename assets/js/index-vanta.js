@@ -223,12 +223,12 @@
     observer.observe(heroSection);
   }
   
-  // Fallback: Load after 5 seconds if user hasn't scrolled
+  // Fallback: Load after 2 seconds if user hasn't scrolled (reduced from 5s for faster loading)
   setTimeout(function() {
     if (!vantaLoaded && document.visibilityState === 'visible') {
       loadVantaOnDemand();
     }
-  }, 5000);
+  }, 2000);
   
   // Also load on user interaction
   var interactionEvents = ['click', 'scroll', 'touchstart', 'keydown'];

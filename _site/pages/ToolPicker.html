@@ -111,7 +111,9 @@
     <meta name="description" content="Find the perfect AI tools for your project">
     <meta name="keywords" content="AI development tools, app specification generator, no-code platform, AI-powered planning, vibe coding, AI app builder, specification generator, market research tool, app planning tool, development tools, AI tools">
     <meta name="author" content="Specifys.ai">
+    
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    
     
     <!-- Content Security Policy - Removed to fix Google Analytics/Ads issues -->
     
@@ -122,7 +124,7 @@
     
     
     
-    <link rel="canonical" href="http://0.0.0.0:4000/pages/ToolPicker.html">
+    <link rel="canonical" href="http://localhost:4000/pages/ToolPicker.html">
     
     
     <!-- Open Graph -->
@@ -130,8 +132,8 @@
     <meta property="og:title" content="Tool Finder">
     <meta property="og:description" content="Find the perfect AI tools for your project">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="http://0.0.0.0:4000/pages/ToolPicker.html">
-    <meta property="og:image" content="http://0.0.0.0:4000/assets/images/og-image.png">
+    <meta property="og:url" content="http://localhost:4000/pages/ToolPicker.html">
+    <meta property="og:image" content="http://localhost:4000/assets/images/og-image.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="Tool Finder - Specifys.ai">
@@ -144,7 +146,7 @@
     <meta name="twitter:creator" content="@specifysai">
     <meta name="twitter:title" content="Tool Finder">
     <meta name="twitter:description" content="Find the perfect AI tools for your project">
-    <meta name="twitter:image" content="http://0.0.0.0:4000/assets/images/og-image.png">
+    <meta name="twitter:image" content="http://localhost:4000/assets/images/og-image.png">
     <meta name="twitter:image:alt" content="Tool Finder - Specifys.ai">
     
     <!-- Favicon -->
@@ -461,13 +463,13 @@ function trackPreference(preferenceName, preferenceValue) {
           "@type": "ListItem",
           "position": 1,
           "name": "Home",
-          "item": "http://0.0.0.0:4000/"
+          "item": "http://localhost:4000/"
         },
         {
           "@type": "ListItem",
           "position": 2,
           "name": "Tool Finder",
-          "item": "http://0.0.0.0:4000/pages/ToolPicker.html"
+          "item": "http://localhost:4000/pages/ToolPicker.html"
         }
       ]
     }
@@ -857,7 +859,7 @@ function trackPreference(preferenceName, preferenceValue) {
       
       // Use AbortController to handle errors more gracefully
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout (reduced from 10s for better UX)
+      const timeoutId = setTimeout(() => controller.abort(), 2500); // 2.5 second timeout (reduced from 5s for faster loading)
       
       let response;
       try {
