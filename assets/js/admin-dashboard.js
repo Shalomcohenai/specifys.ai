@@ -1528,7 +1528,7 @@ class GlobalSearch {
         userResults.push({
           id: user.id,
           title: user.displayName || user.email || user.id || "Unknown",
-          subtitle: `${user.email || user.id || "No email"} • Plan: ${user.plan}`,
+          subtitle: `${user.email || user.id || "No email"} • Plan: ${user.plan || "free"}`,
           action: () => {
             const navButton = document.querySelector(
               '[data-target="users-section"]'
@@ -3096,7 +3096,7 @@ class AdminDashboardApp {
         const haystack = [user.email, user.displayName, user.id].filter(Boolean).join(" ").toLowerCase();
         if (!haystack.includes(searchTerm)) continue;
       }
-      if (planFilter !== "all" && user.plan !== planFilter) continue;
+      if (planFilter !== "all" && (user.plan || "free") !== planFilter) continue;
       
       // Status filter (active/inactive based on lastActive)
       if (statusFilter !== "all") {
@@ -3146,7 +3146,9 @@ class AdminDashboardApp {
       // Use new user_credits system instead of old entitlements
       const userCredits = this.dataAggregator.aggregatedData.userCredits.get(user.id);
       const specCount = this.store.getSpecCount(user.id);
-      const planBadge = `<span class="badge ${user.plan}">${user.plan}</span>`;
+      // Ensure plan is always displayed, default to "free" if missing
+      const userPlan = (user.plan || "free").toLowerCase();
+      const planBadge = `<span class="badge ${userPlan}">${userPlan}</span>`;
       
       // Calculate credits: use new user_credits system only
       let credits = "—";
@@ -4026,7 +4028,7 @@ class AdminDashboardApp {
         user.id,
         user.email,
         user.displayName,
-        user.plan,
+        user.plan || "free",
         utils.formatDate(user.createdAt),
         utils.formatDate(user.lastActive),
         this.store.getSpecCount(user.id),
