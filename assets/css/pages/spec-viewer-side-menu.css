@@ -414,11 +414,13 @@
     box-sizing: border-box;
     overflow-x: hidden;
     min-width: 0;
+    transition: none; /* No transition - content should never move */
   }
   
   .side-menu:hover ~ .content,
   .content.with-side-menu,
-  .side-menu.active ~ .content {
+  .side-menu.active ~ .content,
+  .content.menu-open {
     margin-left: 0;
     width: 100%;
     max-width: 100vw;
@@ -518,9 +520,10 @@
     min-height: 16px;
   }
   
-  /* Hide hover effect on mobile */
+  /* Disable hover effect on mobile - menu should only open via toggle button */
   .side-menu:hover {
-    width: 280px;
+    width: 0;
+    transform: translateX(-100%);
   }
   
   /* Content - No margin on mobile, always full width */
@@ -530,7 +533,7 @@
     max-width: 100%;
     box-sizing: border-box;
     overflow-x: hidden;
-    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: none; /* No transition - content should never move */
     position: relative;
     z-index: 1;
   }
