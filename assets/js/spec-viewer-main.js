@@ -510,7 +510,10 @@ function displaySpec(data) {
     
     hideLoading();
     hideError();
-    document.getElementById('content').style.display = 'block';
+    const content = document.getElementById('content');
+    if (content) {
+        content.style.display = 'block';
+    }
     
     // Extract app name from title (first word)
     const appName = data.title ? data.title.split(' ')[0] : '';
@@ -571,37 +574,64 @@ function displaySpec(data) {
         
         // Only enable other tabs if their specs are ready
         if (data.status?.technical === 'ready') {
-            document.getElementById('technicalTab').disabled = false;
+            const technicalTab = document.getElementById('technicalTab');
+            if (technicalTab) {
+                technicalTab.disabled = false;
+            }
             // Enable Mind Map tab when technical is ready
-            document.getElementById('mindmapTab').disabled = false;
+            const mindmapTab = document.getElementById('mindmapTab');
+            if (mindmapTab) {
+                mindmapTab.disabled = false;
+            }
         }
         if (data.status?.market === 'ready') {
-            document.getElementById('marketTab').disabled = false;
+            const marketTab = document.getElementById('marketTab');
+            if (marketTab) {
+                marketTab.disabled = false;
+            }
         }
         if (data.status?.design === 'ready') {
-            document.getElementById('designTab').disabled = false;
+            const designTab = document.getElementById('designTab');
+            if (designTab) {
+                designTab.disabled = false;
+            }
             // Enable mockup tab when design is ready (only for PRO users)
             checkProAccess().then(hasProAccess => {
                 if (hasProAccess) {
-                    document.getElementById('mockupTab').disabled = false;
+                    const mockupTab = document.getElementById('mockupTab');
+                    if (mockupTab) {
+                        mockupTab.disabled = false;
+                    }
                 }
             });
         }
         
         // Enable diagrams only if both technical and market are ready
         if (data.status?.technical === 'ready' && data.status?.market === 'ready') {
-            document.getElementById('diagramsTab').disabled = false;
+            const diagramsTab = document.getElementById('diagramsTab');
+            if (diagramsTab) {
+                diagramsTab.disabled = false;
+            }
             // Show Generate only if no diagrams yet
             const hasDiagrams = !!(data.diagrams && Array.isArray(data.diagrams.diagrams) && data.diagrams.diagrams.length > 0);
-            document.getElementById('generateDiagramsBtn').style.display = hasDiagrams ? 'none' : 'inline-block';
+            const generateDiagramsBtn = document.getElementById('generateDiagramsBtn');
+            if (generateDiagramsBtn) {
+                generateDiagramsBtn.style.display = hasDiagrams ? 'none' : 'inline-block';
+            }
         }
         
         // Enable prompts only if both technical and design are ready
         if (data.status?.technical === 'ready' && data.status?.design === 'ready') {
-            document.getElementById('promptsTab').disabled = false;
+            const promptsTab = document.getElementById('promptsTab');
+            if (promptsTab) {
+                promptsTab.disabled = false;
+            }
             // Show Generate only if no prompts yet
             const hasPrompts = !!(data.prompts && data.prompts.generated);
-            document.getElementById('generatePromptsBtn').style.display = hasPrompts ? 'none' : 'inline-block';
+            const generatePromptsBtn = document.getElementById('generatePromptsBtn');
+            if (generatePromptsBtn) {
+                generatePromptsBtn.style.display = hasPrompts ? 'none' : 'inline-block';
+            }
         }
         
         // Refresh tabs menu to ensure all tabs are properly enabled
@@ -663,7 +693,10 @@ function displayOverview(overview) {
     container.innerHTML += complexityHTML;
     
     // Update raw data
-    document.getElementById('raw-overview').textContent = JSON.stringify(overview, null, 2);
+    const rawOverview = document.getElementById('raw-overview');
+    if (rawOverview) {
+        rawOverview.textContent = JSON.stringify(overview, null, 2);
+    }
     
     // Mark tab as generated with orange icon
     const overviewTab = document.getElementById('overviewTab');
@@ -936,7 +969,10 @@ function displayTechnical(technical) {
     
     if (technical === 'error') {
         container.innerHTML = '<div class="locked-tab-message"><h3><i class="fa fa-exclamation-triangle"></i> Error Generating Technical Specification</h3><p>There was an error generating the technical specification. Please try again.</p></div>';
-        document.getElementById('retryTechnicalBtn').style.display = 'inline-block';
+        const retryTechnicalBtn = document.getElementById('retryTechnicalBtn');
+        if (retryTechnicalBtn) {
+            retryTechnicalBtn.style.display = 'inline-block';
+        }
         return;
     }
     
@@ -952,7 +988,10 @@ function displayTechnical(technical) {
     }, 100);
     
     // Update raw data
-    document.getElementById('raw-technical').textContent = JSON.stringify(technical, null, 2);
+    const rawTechnical = document.getElementById('raw-technical');
+    if (rawTechnical) {
+        rawTechnical.textContent = JSON.stringify(technical, null, 2);
+    }
     
     // Mark tab as generated with orange icon
     const technicalTab = document.getElementById('technicalTab');
@@ -971,7 +1010,10 @@ function displayMarket(market) {
     
     if (market === 'error') {
         container.innerHTML = '<div class="locked-tab-message"><h3><i class="fa fa-exclamation-triangle"></i> Error Generating Market Research</h3><p>There was an error generating the market research. Please try again.</p></div>';
-        document.getElementById('retryMarketBtn').style.display = 'inline-block';
+        const retryMarketBtn = document.getElementById('retryMarketBtn');
+        if (retryMarketBtn) {
+            retryMarketBtn.style.display = 'inline-block';
+        }
         return;
     }
     
@@ -987,7 +1029,10 @@ function displayMarket(market) {
     }, 100);
     
     // Update raw data
-    document.getElementById('raw-market').textContent = JSON.stringify(market, null, 2);
+    const rawMarket = document.getElementById('raw-market');
+    if (rawMarket) {
+        rawMarket.textContent = JSON.stringify(market, null, 2);
+    }
     
     // Mark tab as generated with orange icon
     const marketTab = document.getElementById('marketTab');
@@ -1307,7 +1352,10 @@ function displayDesign(design) {
     
     if (design === 'error') {
         container.innerHTML = '<div class="locked-tab-message"><h3><i class="fa fa-exclamation-triangle"></i> Error Generating Design Specification</h3><p>There was an error generating the design specification. Please try again.</p></div>';
-        document.getElementById('retryDesignBtn').style.display = 'inline-block';
+        const retryDesignBtn = document.getElementById('retryDesignBtn');
+        if (retryDesignBtn) {
+            retryDesignBtn.style.display = 'inline-block';
+        }
         return;
     }
     
@@ -1351,7 +1399,10 @@ function displayDesign(design) {
     container.innerHTML = finalContent;
     
     // Update raw data
-    document.getElementById('raw-design').textContent = JSON.stringify(design, null, 2);
+    const rawDesign = document.getElementById('raw-design');
+    if (rawDesign) {
+        rawDesign.textContent = JSON.stringify(design, null, 2);
+    }
     
     // Mark tab as generated with orange icon
     const designTab = document.getElementById('designTab');
@@ -1655,16 +1706,27 @@ document.addEventListener('keydown', function(e) {
 
 function displayRaw(data) {
     // Display individual sections
-    document.getElementById('raw-overview').textContent = data.overview ? JSON.stringify(data.overview, null, 2) : 'No overview data available';
-    document.getElementById('raw-technical').textContent = data.technical ? JSON.stringify(data.technical, null, 2) : 'No technical data available';
-    document.getElementById('raw-market').textContent = data.market ? JSON.stringify(data.market, null, 2) : 'No market data available';
-    document.getElementById('raw-design').textContent = data.design ? JSON.stringify(data.design, null, 2) : 'No design data available';
-    document.getElementById('raw-mockup').textContent = data.mockups ? JSON.stringify(data.mockups, null, 2) : 'No mockups data available';
-    document.getElementById('raw-diagrams').textContent = data.diagrams ? JSON.stringify(data.diagrams, null, 2) : 'No diagrams data available';
-    document.getElementById('raw-prompts').textContent = data.prompts ? JSON.stringify(data.prompts, null, 2) : 'No prompts data available';
+    const rawOverview = document.getElementById('raw-overview');
+    const rawTechnical = document.getElementById('raw-technical');
+    const rawMarket = document.getElementById('raw-market');
+    const rawDesign = document.getElementById('raw-design');
+    const rawMockup = document.getElementById('raw-mockup');
+    const rawDiagrams = document.getElementById('raw-diagrams');
+    const rawPrompts = document.getElementById('raw-prompts');
+    
+    if (rawOverview) rawOverview.textContent = data.overview ? JSON.stringify(data.overview, null, 2) : 'No overview data available';
+    if (rawTechnical) rawTechnical.textContent = data.technical ? JSON.stringify(data.technical, null, 2) : 'No technical data available';
+    if (rawMarket) rawMarket.textContent = data.market ? JSON.stringify(data.market, null, 2) : 'No market data available';
+    if (rawDesign) rawDesign.textContent = data.design ? JSON.stringify(data.design, null, 2) : 'No design data available';
+    if (rawMockup) rawMockup.textContent = data.mockups ? JSON.stringify(data.mockups, null, 2) : 'No mockups data available';
+    if (rawDiagrams) rawDiagrams.textContent = data.diagrams ? JSON.stringify(data.diagrams, null, 2) : 'No diagrams data available';
+    if (rawPrompts) rawPrompts.textContent = data.prompts ? JSON.stringify(data.prompts, null, 2) : 'No prompts data available';
     
     // Display complete data
-    document.getElementById('raw-complete').textContent = JSON.stringify(data, null, 2);
+    const rawComplete = document.getElementById('raw-complete');
+    if (rawComplete) {
+        rawComplete.textContent = JSON.stringify(data, null, 2);
+    }
 }
 
 
@@ -1746,7 +1808,10 @@ function displayDiagramsFromData(data) {
     autoRepairBrokenDiagrams();
     
     // Update raw data
-    document.getElementById('raw-diagrams').textContent = JSON.stringify(data.diagrams, null, 2);
+    const rawDiagrams = document.getElementById('raw-diagrams');
+    if (rawDiagrams) {
+        rawDiagrams.textContent = JSON.stringify(data.diagrams, null, 2);
+    }
 }
 
 function displayPromptsFromData(data) {
@@ -1794,7 +1859,10 @@ function displayPromptsFromData(data) {
     displayPrompts(data.prompts);
     
     // Update raw data
-    document.getElementById('raw-prompts').textContent = JSON.stringify(data.prompts, null, 2);
+    const rawPrompts = document.getElementById('raw-prompts');
+    if (rawPrompts) {
+        rawPrompts.textContent = JSON.stringify(data.prompts, null, 2);
+    }
 }
 
 function formatTextContent(content) {
@@ -4628,10 +4696,14 @@ async function saveOverviewEdit() {
 }
 
 function enableAllTabs() {
-    document.getElementById('technicalTab').disabled = false;
-    document.getElementById('marketTab').disabled = false;
-    document.getElementById('designTab').disabled = false;
-    document.getElementById('diagramsTab').disabled = false;
+    const technicalTab = document.getElementById('technicalTab');
+    const marketTab = document.getElementById('marketTab');
+    const designTab = document.getElementById('designTab');
+    const diagramsTab = document.getElementById('diagramsTab');
+    if (technicalTab) technicalTab.disabled = false;
+    if (marketTab) marketTab.disabled = false;
+    if (designTab) designTab.disabled = false;
+    if (diagramsTab) diagramsTab.disabled = false;
     // Enable chat tab after overview approval
     enableChatTab();
 }
@@ -4643,20 +4715,31 @@ function enableChatTabOnly() {
 }
 
 function disableTechnicalTabs() {
-    document.getElementById('technicalTab').disabled = true;
-    document.getElementById('mindmapTab').disabled = true;
-    document.getElementById('marketTab').disabled = true;
-    document.getElementById('designTab').disabled = true;
-    document.getElementById('diagramsTab').disabled = true;
+    const technicalTab = document.getElementById('technicalTab');
+    const mindmapTab = document.getElementById('mindmapTab');
+    const marketTab = document.getElementById('marketTab');
+    const designTab = document.getElementById('designTab');
+    const diagramsTab = document.getElementById('diagramsTab');
+    if (technicalTab) technicalTab.disabled = true;
+    if (mindmapTab) mindmapTab.disabled = true;
+    if (marketTab) marketTab.disabled = true;
+    if (designTab) designTab.disabled = true;
+    if (diagramsTab) diagramsTab.disabled = true;
     // Note: AI Chat tab is NOT disabled here - it stays enabled after overview approval
 }
 
 function showApproveButton() {
-    document.getElementById('approveBtn').style.display = 'inline-block';
+    const approveBtn = document.getElementById('approveBtn');
+    if (approveBtn) {
+        approveBtn.style.display = 'inline-block';
+    }
 }
 
 function hideApproveButton() {
-    document.getElementById('approveBtn').style.display = 'none';
+    const approveBtn = document.getElementById('approveBtn');
+    if (approveBtn) {
+        approveBtn.style.display = 'none';
+    }
     // Hide the entire approval container after approval
     const approvalContainer = document.getElementById('approval-container');
     if (approvalContainer) {
@@ -4744,8 +4827,10 @@ async function approveOverview() {
         
         isLoading = true;
         const approveBtn = document.getElementById('approveBtn');
-        approveBtn.disabled = true;
-        approveBtn.innerHTML = '<span class="loading-spinner"></span> Generating specifications...';
+        if (approveBtn) {
+            approveBtn.disabled = true;
+            approveBtn.innerHTML = '<span class="loading-spinner"></span> Generating specifications...';
+        }
         
         showNotification('Starting specification generation...', 'info');
         
@@ -4849,14 +4934,18 @@ async function approveOverview() {
                 // Display the content
                 if (type === 'technical') {
                     displayTechnical(content);
-                    document.getElementById('technicalTab').disabled = false;
-                    document.getElementById('mindmapTab').disabled = false;
+                    const technicalTab = document.getElementById('technicalTab');
+                    const mindmapTab = document.getElementById('mindmapTab');
+                    if (technicalTab) technicalTab.disabled = false;
+                    if (mindmapTab) mindmapTab.disabled = false;
                 } else if (type === 'market') {
                     displayMarket(content);
-                    document.getElementById('marketTab').disabled = false;
+                    const marketTab = document.getElementById('marketTab');
+                    if (marketTab) marketTab.disabled = false;
                 } else if (type === 'design') {
                     displayDesign(content);
-                    document.getElementById('designTab').disabled = false;
+                    const designTab = document.getElementById('designTab');
+                    if (designTab) designTab.disabled = false;
                     refreshTabsAfterDesignReady();
                 }
                 
@@ -4883,9 +4972,15 @@ async function approveOverview() {
                 
                 // Enable diagrams tab if technical and market are ready
                 if (updates.status.technical === 'ready' && updates.status.market === 'ready') {
-                    document.getElementById('diagramsTab').disabled = false;
+                    const diagramsTab = document.getElementById('diagramsTab');
+                    if (diagramsTab) {
+                        diagramsTab.disabled = false;
+                    }
                     const hasDiagrams = !!(currentSpecData.diagrams && Array.isArray(currentSpecData.diagrams.diagrams) && currentSpecData.diagrams.diagrams.length > 0);
-                    document.getElementById('generateDiagramsBtn').style.display = hasDiagrams ? 'none' : 'inline-block';
+                    const generateDiagramsBtn = document.getElementById('generateDiagramsBtn');
+                    if (generateDiagramsBtn) {
+                        generateDiagramsBtn.style.display = hasDiagrams ? 'none' : 'inline-block';
+                    }
                 }
                 
                 // Check if all are ready or errored to show final notification
@@ -4922,8 +5017,10 @@ async function approveOverview() {
         
         // Re-enable button
         isLoading = false;
-        approveBtn.disabled = false;
-        approveBtn.innerHTML = '<i class="fa fa-check"></i> Approve Overview';
+        if (approveBtn) {
+            approveBtn.disabled = false;
+            approveBtn.innerHTML = '<i class="fa fa-check"></i> Approve Overview';
+        }
         
     } catch (error) {
         showNotification(`Error initiating specification generation: ${error.message}`, 'error');
@@ -5242,8 +5339,11 @@ async function retryTechnical() {
     
     while (retryCount < maxRetries) {
         try {
-            document.getElementById('retryTechnicalBtn').disabled = true;
-            document.getElementById('retryTechnicalBtn').textContent = `⏳ Retrying... (${retryCount + 1}/${maxRetries})`;
+            const retryTechnicalBtn = document.getElementById('retryTechnicalBtn');
+            if (retryTechnicalBtn) {
+                retryTechnicalBtn.disabled = true;
+                retryTechnicalBtn.textContent = `⏳ Retrying... (${retryCount + 1}/${maxRetries})`;
+            }
             
             // Add loading animation
             updateTabLoadingState('technical', true);
@@ -5282,10 +5382,15 @@ async function retryTechnical() {
             updateStatus('technical', 'ready');
             updateTabLoadingState('technical', false);
             displayTechnical(technicalContent);
-            document.getElementById('retryTechnicalBtn').style.display = 'none';
+            if (retryTechnicalBtn) {
+                retryTechnicalBtn.style.display = 'none';
+            }
             
             // Enable Mind Map tab when technical is ready
-            document.getElementById('mindmapTab').disabled = false;
+            const mindmapTab = document.getElementById('mindmapTab');
+            if (mindmapTab) {
+                mindmapTab.disabled = false;
+            }
             
             showNotification('Technical specification generated successfully!', 'success');
 
@@ -5297,8 +5402,11 @@ async function retryTechnical() {
             
             if (retryCount >= maxRetries) {
                 // Final failure
-                document.getElementById('retryTechnicalBtn').disabled = false;
-                document.getElementById('retryTechnicalBtn').textContent = 'Retry';
+                const retryTechnicalBtn = document.getElementById('retryTechnicalBtn');
+                if (retryTechnicalBtn) {
+                    retryTechnicalBtn.disabled = false;
+                    retryTechnicalBtn.textContent = 'Retry';
+                }
                 updateTabLoadingState('technical', false);
                 
                 showNotification(`Failed to generate technical specification after ${maxRetries} attempts. ${error.message}`, 'error');
@@ -5319,8 +5427,11 @@ async function retryMarket() {
     
     while (retryCount < maxRetries) {
         try {
-            document.getElementById('retryMarketBtn').disabled = true;
-            document.getElementById('retryMarketBtn').textContent = `⏳ Retrying... (${retryCount + 1}/${maxRetries})`;
+            const retryMarketBtn = document.getElementById('retryMarketBtn');
+            if (retryMarketBtn) {
+                retryMarketBtn.disabled = true;
+                retryMarketBtn.textContent = `⏳ Retrying... (${retryCount + 1}/${maxRetries})`;
+            }
             
             // Add loading animation
             updateTabLoadingState('market', true);
@@ -5359,7 +5470,9 @@ async function retryMarket() {
             updateStatus('market', 'ready');
             updateTabLoadingState('market', false);
             displayMarket(marketContent);
-            document.getElementById('retryMarketBtn').style.display = 'none';
+            if (retryMarketBtn) {
+                retryMarketBtn.style.display = 'none';
+            }
             
             showNotification('Market research generated successfully!', 'success');
 
@@ -5371,8 +5484,11 @@ async function retryMarket() {
             
             if (retryCount >= maxRetries) {
                 // Final failure
-                document.getElementById('retryMarketBtn').disabled = false;
-                document.getElementById('retryMarketBtn').textContent = 'Retry';
+                const retryMarketBtn = document.getElementById('retryMarketBtn');
+                if (retryMarketBtn) {
+                    retryMarketBtn.disabled = false;
+                    retryMarketBtn.textContent = 'Retry';
+                }
                 updateTabLoadingState('market', false);
                 
                 showNotification(`Failed to generate market research after ${maxRetries} attempts. ${error.message}`, 'error');
@@ -5393,8 +5509,11 @@ async function retryDesign() {
     
     while (retryCount < maxRetries) {
         try {
-            document.getElementById('retryDesignBtn').disabled = true;
-            document.getElementById('retryDesignBtn').textContent = `⏳ Retrying... (${retryCount + 1}/${maxRetries})`;
+            const retryDesignBtn = document.getElementById('retryDesignBtn');
+            if (retryDesignBtn) {
+                retryDesignBtn.disabled = true;
+                retryDesignBtn.textContent = `⏳ Retrying... (${retryCount + 1}/${maxRetries})`;
+            }
             
             // Add loading animation
             updateTabLoadingState('design', true);
@@ -5430,7 +5549,9 @@ async function retryDesign() {
             updateStatus('design', 'ready');
             updateTabLoadingState('design', false);
             displayDesign(designContent);
-            document.getElementById('retryDesignBtn').style.display = 'none';
+            if (retryDesignBtn) {
+                retryDesignBtn.style.display = 'none';
+            }
             
             // Refresh tabs menu to enable Prompts tab if conditions are met
             refreshTabsAfterDesignReady();
@@ -5445,8 +5566,11 @@ async function retryDesign() {
             
             if (retryCount >= maxRetries) {
                 // Final failure
-                document.getElementById('retryDesignBtn').disabled = false;
-                document.getElementById('retryDesignBtn').textContent = 'Retry';
+                const retryDesignBtn = document.getElementById('retryDesignBtn');
+                if (retryDesignBtn) {
+                    retryDesignBtn.disabled = false;
+                    retryDesignBtn.textContent = 'Retry';
+                }
                 updateTabLoadingState('design', false);
                 
                 showNotification(`Failed to generate design specification after ${maxRetries} attempts. ${error.message}`, 'error');
@@ -5655,7 +5779,10 @@ function switchMockupScreen(index) {
     });
     
     // Update index display
-    document.getElementById('current-screen-index').textContent = index + 1;
+    const currentScreenIndex = document.getElementById('current-screen-index');
+    if (currentScreenIndex) {
+        currentScreenIndex.textContent = index + 1;
+    }
 }
 
 function prevMockupScreen() {
@@ -6084,17 +6211,24 @@ function updateMockupProgress(current, total, status) {
 }
 
 async function retryMockup() {
-    document.getElementById('retryMockupBtn').disabled = true;
-    document.getElementById('retryMockupBtn').textContent = '⏳ Retrying...';
-    
+    const retryMockupBtn = document.getElementById('retryMockupBtn');
+    if (retryMockupBtn) {
+        retryMockupBtn.disabled = true;
+        retryMockupBtn.textContent = '⏳ Retrying...';
+    }
+
     updateTabLoadingState('mockup', true);
-    
+
     try {
         await generateMockupSpec();
-        document.getElementById('retryMockupBtn').style.display = 'none';
+        if (retryMockupBtn) {
+            retryMockupBtn.style.display = 'none';
+        }
     } catch (error) {
-        document.getElementById('retryMockupBtn').disabled = false;
-        document.getElementById('retryMockupBtn').textContent = 'Retry';
+        if (retryMockupBtn) {
+            retryMockupBtn.disabled = false;
+            retryMockupBtn.textContent = 'Retry';
+        }
         showNotification(`Failed to generate mockups: ${error.message}`, 'error');
     } finally {
         updateTabLoadingState('mockup', false);
@@ -6102,24 +6236,37 @@ async function retryMockup() {
 }
 
 function showLoading() {
-    document.getElementById('loading').style.display = 'block';
-    document.getElementById('error').style.display = 'none';
-    document.getElementById('content').style.display = 'none';
+    const loading = document.getElementById('loading');
+    const error = document.getElementById('error');
+    const content = document.getElementById('content');
+    if (loading) loading.style.display = 'block';
+    if (error) error.style.display = 'none';
+    if (content) content.style.display = 'none';
 }
 
 function hideLoading() {
-    document.getElementById('loading').style.display = 'none';
+    const loading = document.getElementById('loading');
+    if (loading) {
+        loading.style.display = 'none';
+    }
 }
 
 function showError(message) {
-    document.getElementById('loading').style.display = 'none';
-    document.getElementById('error').style.display = 'block';
-    document.getElementById('error-message').textContent = message;
-    document.getElementById('content').style.display = 'none';
+    const loading = document.getElementById('loading');
+    const error = document.getElementById('error');
+    const errorMessage = document.getElementById('error-message');
+    const content = document.getElementById('content');
+    if (loading) loading.style.display = 'none';
+    if (error) error.style.display = 'block';
+    if (errorMessage) errorMessage.textContent = message;
+    if (content) content.style.display = 'none';
 }
 
 function hideError() {
-    document.getElementById('error').style.display = 'none';
+    const error = document.getElementById('error');
+    if (error) {
+        error.style.display = 'none';
+    }
 }
 
 function retryLoad() {
@@ -6681,7 +6828,10 @@ async function generatePrompts() {
         generateBtn.style.display = 'none';
         
         // Update raw data
-        document.getElementById('raw-prompts').textContent = JSON.stringify(promptsData, null, 2);
+        const rawPrompts = document.getElementById('raw-prompts');
+        if (rawPrompts) {
+            rawPrompts.textContent = JSON.stringify(promptsData, null, 2);
+        }
         
         showNotification('Prompts generated successfully!', 'success');
         

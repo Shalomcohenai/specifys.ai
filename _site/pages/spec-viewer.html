@@ -629,6 +629,14 @@ function trackPreference(preferenceName, preferenceValue) {
                 <div class="side-menu-submenu" id="submenu-technical" role="region" aria-label="Technical subsections"></div>
             </div>
             
+            <div class="side-menu-item hidden" data-tab="mindmap">
+                <button class="side-menu-button" onclick="showTab('mindmap')" id="mindmapTab" disabled aria-label="Mind Map section" aria-expanded="false">
+                    <i class="fa fa-project-diagram" aria-hidden="true"></i>
+                    <span class="side-menu-notification-dot hidden" id="mindmapNotification" aria-label="New content available"></span>
+                    <span class="side-menu-text">Mind Map</span>
+                </button>
+            </div>
+            
             <div class="side-menu-item" data-tab="market">
                 <button class="side-menu-button" onclick="showTab('market')" id="marketTab" disabled aria-label="Market Research section" aria-expanded="false">
                     <i class="fa fa-bar-chart" aria-hidden="true"></i>
@@ -772,6 +780,13 @@ function trackPreference(preferenceName, preferenceValue) {
                     </button>
                 </div>
                 <div id="technical-data" class="content-body"></div>
+            </div>
+            
+            <div id="mindmap-content" class="tab-content hidden">
+                <div class="content-header">
+                    <h2><i class="fa fa-project-diagram"></i> Mind Map</h2>
+                </div>
+                <div id="mindmap-data" class="content-body"></div>
             </div>
             
             <div id="market-content" class="tab-content hidden">
