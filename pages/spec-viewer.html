@@ -85,14 +85,6 @@ custom_js_modules:
                 <div class="side-menu-submenu" id="submenu-technical" role="region" aria-label="Technical subsections"></div>
             </div>
             
-            <div class="side-menu-item hidden" data-tab="mindmap">
-                <button class="side-menu-button" onclick="showTab('mindmap')" id="mindmapTab" disabled aria-label="Mind Map section">
-                    <i class="fa fa-project-diagram" aria-hidden="true"></i>
-                    <span class="side-menu-notification-dot hidden" id="mindmapNotification" aria-label="New content available"></span>
-                    <span class="side-menu-text">Mind Map</span>
-                </button>
-            </div>
-            
             <div class="side-menu-item" data-tab="market">
                 <button class="side-menu-button" onclick="showTab('market')" id="marketTab" disabled aria-label="Market Research section" aria-expanded="false">
                     <i class="fa fa-bar-chart" aria-hidden="true"></i>
@@ -236,21 +228,6 @@ custom_js_modules:
                     </button>
                 </div>
                 <div id="technical-data" class="content-body"></div>
-            </div>
-            
-            <div id="mindmap-content" class="tab-content hidden">
-                <div class="content-header">
-                    <h2><i class="fa fa-project-diagram"></i> Mind Map</h2>
-                    <button id="generateMindMapBtn" class="btn btn-primary retry-btn" onclick="generateMindMap()" aria-label="Generate mind map visualization">
-                        <i class="fa fa-magic" aria-hidden="true"></i> Generate Mind Map
-                    </button>
-                    <button id="retryMindMapBtn" class="btn btn-secondary retry-btn hidden" onclick="retryMindMap()" aria-label="Regenerate mind map">
-                        <i class="fa fa-refresh" aria-hidden="true"></i> Regenerate
-                    </button>
-                </div>
-                <div id="mindmap-data" class="content-body">
-                    <div id="mindmap-container"></div>
-                </div>
             </div>
             
             <div id="market-content" class="tab-content hidden">
