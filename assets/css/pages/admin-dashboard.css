@@ -873,6 +873,10 @@ button.admin-shell .action-btn.grid,
   box-sizing: border-box;
 }
 
+.admin-shell .panel.recent-activity {
+  background: var(--admin-surface);
+}
+
 /* Override utility classes on panel */
 .admin-shell .panel.flex,
 #admin-shell .panel.flex {
@@ -890,11 +894,8 @@ button.admin-shell .action-btn.grid,
 #admin-shell .panel-header,
 #admin-shell div.panel-header {
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
   gap: 12px;
-  flex-wrap: wrap;
   width: 100%;
   box-sizing: border-box;
 }
@@ -905,7 +906,7 @@ button.admin-shell .action-btn.grid,
 #admin-shell .panel-header.flex,
 #admin-shell .panel-header.grid {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
 }
 
 .admin-shell .panel-header h3 {
@@ -915,17 +916,26 @@ button.admin-shell .action-btn.grid,
   margin: 0;
 }
 
+.admin-shell .activity-header-top {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
 .admin-shell .activity-filters,
 .admin-shell div.activity-filters,
 #admin-shell .activity-filters,
 #admin-shell div.activity-filters {
   display: inline-flex;
   flex-direction: row;
-  gap: 8px;
-  background: var(--admin-surface);
-  border: 1px solid var(--admin-border);
-  border-radius: 999px;
-  padding: 4px;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  padding: 0;
   flex-wrap: nowrap;
   box-sizing: border-box;
 }
@@ -940,22 +950,24 @@ button.admin-shell .action-btn.grid,
 }
 
 .admin-shell .activity-filter-btn {
-  background: transparent;
+  background: var(--admin-surface);
   border: none;
   color: var(--admin-text-muted);
-  padding: 6px 14px;
-  font-size: 0.85rem;
+  padding: 6px 16px;
+  font-size: 0.9rem;
   border-radius: 999px;
   cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
 .admin-shell .activity-filter-btn.active {
-  background: rgba(255, 107, 53, 0.16);
-  color: var(--admin-accent-strong);
+  background: var(--admin-accent);
+  color: white;
 }
 
-.admin-shell .activity-filter-btn:hover {
-  color: var(--admin-accent-strong);
+.admin-shell .activity-filter-btn:hover:not(.active) {
+  color: var(--admin-text);
 }
 
 .admin-shell .panel-action {
@@ -975,6 +987,28 @@ button.admin-shell .action-btn.grid,
 .admin-shell .panel-action:focus-visible {
   color: var(--admin-text);
   border-color: var(--admin-accent);
+  outline: none;
+}
+
+.admin-shell .pause-stream-btn {
+  background: #f5f5f5;
+  border: 1px solid #d1d5db;
+  color: var(--admin-text);
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  align-self: flex-start;
+  transition: all 0.2s ease;
+}
+
+.admin-shell .pause-stream-btn:hover,
+.admin-shell .pause-stream-btn:focus-visible {
+  background: #e5e7eb;
+  border-color: #9ca3af;
   outline: none;
 }
 
@@ -1004,25 +1038,31 @@ button.admin-shell .action-btn.grid,
 }
 
 .admin-shell .activity-feed li {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  display: flex;
+  flex-direction: row;
   align-items: center;
   gap: 12px;
   background: var(--admin-surface);
-  border: 1px solid var(--admin-border);
-  border-radius: 14px;
-  padding: 12px 16px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  padding: 14px 16px;
   font-size: 0.92rem;
   cursor: pointer;
   width: 100%;
   box-sizing: border-box;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease;
+}
+
+.admin-shell .activity-feed li:hover {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
 }
 
 /* Override utility classes on activity-feed li */
 .admin-shell .activity-feed li.flex,
 .admin-shell .activity-feed li.grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  display: flex;
+  flex-direction: row;
 }
 
 .admin-shell .activity-feed li.user {
@@ -1041,6 +1081,79 @@ button.admin-shell .action-btn.grid,
   justify-content: center;
   border-style: dashed;
   color: var(--admin-text-muted);
+}
+
+.admin-shell .activity-item__info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+}
+
+.admin-shell .activity-item__title {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+  color: var(--admin-text);
+  font-size: 0.95rem;
+}
+
+.admin-shell .activity-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.admin-shell .activity-icon i {
+  font-size: 1.1rem;
+}
+
+.admin-shell .activity-item.spec .activity-icon i {
+  color: var(--admin-success);
+}
+
+.admin-shell .activity-item.payment .activity-icon i,
+.admin-shell .activity-item.subscription .activity-icon i {
+  color: var(--admin-accent);
+}
+
+.admin-shell .activity-item.user .activity-icon i,
+.admin-shell .activity-item.auth .activity-icon i {
+  color: var(--admin-accent);
+}
+
+.admin-shell .activity-item__meta {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: var(--admin-text);
+  flex-wrap: wrap;
+}
+
+.admin-shell .activity-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  background: #f3f4f6;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  color: var(--admin-text);
+  font-weight: normal;
+}
+
+.admin-shell .activity-feed li time {
+  color: var(--admin-text-muted);
+  font-size: 0.85rem;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 /* Source List */
@@ -1191,9 +1304,53 @@ button.admin-shell .action-btn.grid,
 .admin-shell .data-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 600px;
-  table-layout: fixed;
+  min-width: 1000px;
+  table-layout: auto;
   margin: 0;
+}
+
+/* Users table specific styling */
+.admin-shell #users-table {
+  table-layout: auto;
+}
+
+.admin-shell #users-table th:nth-child(1) {
+  width: 40px;
+}
+
+.admin-shell #users-table th:nth-child(2) {
+  width: auto;
+  min-width: 180px;
+}
+
+.admin-shell #users-table th:nth-child(3) {
+  width: auto;
+  min-width: 140px;
+}
+
+.admin-shell #users-table th:nth-child(4) {
+  width: auto;
+  min-width: 80px;
+}
+
+.admin-shell #users-table th:nth-child(5) {
+  width: auto;
+  min-width: 70px;
+}
+
+.admin-shell #users-table th:nth-child(6) {
+  width: auto;
+  min-width: 80px;
+}
+
+.admin-shell #users-table th:nth-child(7) {
+  width: auto;
+  min-width: 100px;
+}
+
+.admin-shell #users-table th:nth-child(8) {
+  width: auto;
+  min-width: 120px;
 }
 
 .admin-shell .data-table thead {
@@ -1206,38 +1363,87 @@ button.admin-shell .action-btn.grid,
 
 .admin-shell .data-table th,
 .admin-shell .data-table td {
-  padding: 10px 12px;
+  padding: 12px 14px;
   border-bottom: 1px solid var(--admin-border);
   text-align: left;
   vertical-align: middle;
 }
 
-/* Allow text wrapping for Title and Category columns */
+/* Checkbox column */
 .admin-shell .data-table td:first-child,
 .admin-shell .data-table th:first-child {
-  white-space: normal;
-  word-wrap: break-word;
-  max-width: 200px;
+  width: 40px;
+  text-align: center;
+  padding: 12px 8px;
 }
 
-.admin-shell .data-table td:nth-child(2),
+/* User column - allow wrapping for email */
+.admin-shell .data-table td.user-cell,
 .admin-shell .data-table th:nth-child(2) {
   white-space: normal;
   word-wrap: break-word;
-  max-width: 150px;
+  word-break: break-word;
+  min-width: 180px;
+  max-width: 250px;
 }
 
-/* Keep compact columns (Level, Questions, Views, Actions) on one line */
+.admin-shell .data-table .user-name {
+  font-weight: 500;
+  color: var(--admin-text);
+  margin-bottom: 4px;
+  font-size: 0.9rem;
+}
+
+.admin-shell .data-table .user-email {
+  font-size: 0.85rem;
+  color: var(--admin-text-muted);
+  word-break: break-all;
+}
+
+/* Created column */
 .admin-shell .data-table td:nth-child(3),
-.admin-shell .data-table th:nth-child(3),
-.admin-shell .data-table td:nth-child(4),
-.admin-shell .data-table th:nth-child(4),
-.admin-shell .data-table td:nth-child(5),
-.admin-shell .data-table th:nth-child(5),
-.admin-shell .data-table td:nth-child(6),
+.admin-shell .data-table th:nth-child(3) {
+  white-space: nowrap;
+  min-width: 140px;
+}
+
+/* Plan column - ensure it's always visible */
+.admin-shell .data-table td.plan-cell,
+.admin-shell .data-table th:nth-child(4) {
+  white-space: nowrap;
+  min-width: 80px;
+  text-align: center;
+}
+
+/* Specs column */
+.admin-shell .data-table td.specs-cell,
+.admin-shell .data-table th:nth-child(5) {
+  white-space: nowrap;
+  text-align: center;
+  min-width: 70px;
+}
+
+/* Credits column */
+.admin-shell .data-table td.credits-cell,
 .admin-shell .data-table th:nth-child(6) {
   white-space: nowrap;
-  width: auto;
+  text-align: center;
+  min-width: 80px;
+}
+
+/* Last active column */
+.admin-shell .data-table td.last-active-cell,
+.admin-shell .data-table th:nth-child(7) {
+  white-space: nowrap;
+  min-width: 100px;
+}
+
+/* Actions column */
+.admin-shell .data-table td.actions-cell,
+.admin-shell .data-table th:nth-child(8) {
+  white-space: nowrap;
+  width: 120px;
+  text-align: center;
 }
 
 /* Specific widths for guides table columns */
@@ -1292,22 +1498,26 @@ button.admin-shell .action-btn.grid,
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 10px;
+  padding: 5px 12px;
   border-radius: 999px;
-  font-size: 0.82rem;
+  font-size: 0.8rem;
+  font-weight: 600;
   background: var(--admin-surface-alt);
   border: 1px solid var(--admin-border);
   text-transform: capitalize;
+  white-space: nowrap;
 }
 
 .admin-shell .badge.pro {
   color: var(--admin-accent);
-  border-color: rgba(128, 140, 255, 0.4);
-  background: rgba(128, 140, 255, 0.1);
+  border-color: rgba(255, 107, 53, 0.4);
+  background: rgba(255, 107, 53, 0.12);
 }
 
 .admin-shell .badge.free {
   color: var(--admin-text-muted);
+  background: var(--admin-surface-alt);
+  border-color: var(--admin-border);
 }
 
 .admin-shell .table-actions,
@@ -1328,6 +1538,55 @@ button.admin-shell .action-btn.grid,
 #admin-shell .table-actions.grid {
   display: flex;
   flex-direction: row;
+}
+
+/* Compact actions with icons only */
+.admin-shell .table-actions-compact {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-sizing: border-box;
+}
+
+.admin-shell .table-action-btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border-radius: 8px;
+  border: 1px solid var(--admin-border);
+  background: var(--admin-surface);
+  color: var(--admin-text);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.85rem;
+  box-sizing: border-box;
+}
+
+.admin-shell .table-action-btn-icon i {
+  font-size: 0.9rem;
+}
+
+.admin-shell .table-action-btn-icon:hover {
+  background: var(--admin-hover-bg);
+  border-color: var(--admin-accent);
+  color: var(--admin-accent);
+  transform: translateY(-1px);
+}
+
+.admin-shell .table-action-btn-icon.btn-danger {
+  color: var(--admin-critical);
+  border-color: rgba(220, 53, 69, 0.3);
+}
+
+.admin-shell .table-action-btn-icon.btn-danger:hover {
+  background: rgba(220, 53, 69, 0.1);
+  border-color: var(--admin-critical);
+  color: var(--admin-critical);
 }
 
 /* Pagination */

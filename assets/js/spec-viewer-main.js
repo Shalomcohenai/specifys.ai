@@ -453,7 +453,7 @@ function displaySpec(data) {
     displayTechnical(data.technical);
     displayMarket(data.market);
     displayDesign(data.design);
-    displayMockup(data.mockups);
+    displayMockup(data.mockups).catch(err => console.error('Error displaying mockup:', err));
     displayDiagramsFromData(data);
     displayPromptsFromData(data);
     displayRaw(data);
@@ -5316,9 +5316,16 @@ async function retryDesign() {
 }
 
 // ---------- Mockup Functions ----------
-function displayMockup(mockupData) {
+async function displayMockup(mockupData) {
     const container = document.getElementById('mockup-data');
     if (!container) return;
+    
+    // Check PRO access first - prevent unauthorized access
+    const hasProAccess = await checkProAccess();
+    if (!hasProAccess) {
+        container.innerHTML = '<div class="locked-tab-message"><h3><i class="fa fa-lock"></i> Frontend Mockups</h3><p>Mockup feature is available for PRO users only. Please upgrade to PRO to access mockups.</p></div>';
+        return;
+    }
     
     let generateSection = document.getElementById('mockup-generate-section');
     let viewerSection = document.getElementById('mockup-viewer-section');
@@ -5362,7 +5369,7 @@ function displayMockup(mockupData) {
             viewerSection.style.display = 'none';
         } else {
             // Design not ready, show locked message
-            container.innerHTML = '<div class="locked-tab-message"><h3><i class="fa fa-lock"></i> Frontend Mockups</h3><p>Please approve the Overview and generate Design specification first to create mockups.</p></div>';
+            container.innerHTML = '<div class="locked-tab-message"><h3><i class="fa fa-lock"></i> Frontend Mockups</h3><p>Please approve the Overview and generate Design specification first to create mockups. <strong>Note: Mockup feature is available for PRO users only.</strong></p></div>';
         }
         return;
     }
@@ -5755,7 +5762,7 @@ async function generateMockupSpec() {
                 // Update UI incrementally
                 updateMockupProgress(i + 1, mockupBatchManager.screens.length, `Completed: ${screen.name}`);
                 // Show partial results
-                displayMockup({
+                await displayMockup({
                     mockups: mockupBatchManager.mockups,
                     meta: {
                         partial: true,
@@ -5819,7 +5826,7 @@ async function generateMockupSpec() {
         // Update UI
         updateStatus('mockup', 'ready');
         updateTabLoadingState('mockup', false);
-        displayMockup(finalMockupData);
+        await displayMockup(finalMockupData);
         
         // Mark tab as generated (only enable for PRO users)
         const mockupTab = document.getElementById('mockupTab');

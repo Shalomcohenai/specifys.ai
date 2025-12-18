@@ -3148,7 +3148,8 @@ class AdminDashboardApp {
       const specCount = this.store.getSpecCount(user.id);
       // Ensure plan is always displayed, default to "free" if missing
       const userPlan = (user.plan || "free").toLowerCase();
-      const planBadge = `<span class="badge ${userPlan}">${userPlan}</span>`;
+      const planDisplay = userPlan === "pro" ? "Pro" : "Free";
+      const planBadge = `<span class="badge ${userPlan}">${planDisplay}</span>`;
       
       // Calculate credits: use new user_credits system only
       let credits = "—";
@@ -3165,30 +3166,32 @@ class AdminDashboardApp {
         credits = 0;
       }
       const isSelected = this.selectedUsers.has(user.id);
+      const userEmail = user.email || "";
+      const userName = user.displayName || "";
       rows.push(`
         <tr data-user-id="${user.id}">
           <td>
             <input type="checkbox" data-user-id="${user.id}" ${isSelected ? "checked" : ""}>
           </td>
-          <td>
-            <div>${user.email || user.displayName || user.id || "Unknown"}</div>
-            <div class="meta-text">${user.email || user.id || "No email"}</div>
+          <td class="user-cell">
+            ${userName ? `<div class="user-name">${userName}</div>` : ""}
+            <div class="user-email">${userEmail || user.id || "No email"}</div>
           </td>
           <td>${utils.formatDate(user.createdAt)}</td>
-          <td>${planBadge}</td>
-          <td>${utils.formatNumber(specCount)}</td>
-          <td>${credits}</td>
-          <td>${utils.formatRelative(user.lastActive)}</td>
-          <td>
-            <div class="table-actions">
-              <button class="table-action-btn" data-action="view-specs" data-user-id="${user.id}">
-                <i class="fas fa-file-alt"></i> View specs
+          <td class="plan-cell">${planBadge}</td>
+          <td class="specs-cell">${utils.formatNumber(specCount)}</td>
+          <td class="credits-cell">${credits}</td>
+          <td class="last-active-cell">${utils.formatRelative(user.lastActive)}</td>
+          <td class="actions-cell">
+            <div class="table-actions-compact">
+              <button class="table-action-btn-icon" data-action="view-specs" data-user-id="${user.id}" title="View specs">
+                <i class="fas fa-file-alt"></i>
               </button>
-              ${user.email ? `<button class="table-action-btn" data-action="copy-email" data-email="${user.email}">
-                <i class="fas fa-copy"></i> Copy email
+              ${userEmail ? `<button class="table-action-btn-icon" data-action="copy-email" data-email="${userEmail}" title="Copy email">
+                <i class="fas fa-copy"></i>
               </button>` : ""}
-              <button class="table-action-btn btn-danger" data-action="delete-user" data-user-id="${user.id}" data-user-email="${user.email || user.id}">
-                <i class="fas fa-trash"></i> Delete
+              <button class="table-action-btn-icon btn-danger" data-action="delete-user" data-user-id="${user.id}" data-user-email="${userEmail || user.id}" title="Delete user">
+                <i class="fas fa-trash"></i>
               </button>
             </div>
           </td>
@@ -3639,18 +3642,16 @@ class AdminDashboardApp {
     
     const html = events.slice(0, 20).map((event) => {
       const user = event.meta?.userId ? this.store.getUser(event.meta.userId) : null;
-      const userLabel = event.meta?.email || event.meta?.userEmail || user?.email || event.meta?.userId || "";
-      const nameLabel = event.meta?.userName || user?.displayName || user?.email || event.meta?.userId || "Unknown user";
-      const badge = userLabel ? `<span class="activity-badge">${userLabel}</span>` : "";
+      const userEmail = event.meta?.email || event.meta?.userEmail || user?.email || "";
+      const userName = event.meta?.userName || user?.displayName || user?.email || event.meta?.userId || "Unknown user";
+      const emailBadge = userEmail ? `<span class="activity-badge">${userEmail}</span>` : "";
       const icon = this.getActivityIcon(event.type);
       return `
         <li class="activity-item ${event.type}" data-activity-id="${event.id}">
+          <span class="activity-icon"><i class="${icon}"></i></span>
           <div class="activity-item__info">
-            <span class="activity-item__title">
-              <span class="activity-icon"><i class="${icon}"></i></span>
-              ${event.title}
-            </span>
-            <span class="activity-item__meta">${nameLabel || "Unknown user"} ${badge}</span>
+            <span class="activity-item__title">${event.title}</span>
+            <span class="activity-item__meta">${userName} ${emailBadge}</span>
           </div>
           <time>${utils.formatRelative(event.timestamp)}</time>
         </li>
