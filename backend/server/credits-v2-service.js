@@ -335,17 +335,45 @@ async function getUserCredits(userId, autoCreate = true) {
           renewalDate = renewsAt || currentPeriodEnd;
         }
         
+        // Calculate renewal date from purchase date + billing interval if not available
+        let calculatedRenewalDate = renewalDate;
+        if (!calculatedRenewalDate && subData.billing_interval) {
+          // Try purchase_date first, then created_at, then updated_at
+          let purchaseDate = null;
+          if (subData.purchase_date) {
+            purchaseDate = subData.purchase_date.toDate ? subData.purchase_date.toDate() : new Date(subData.purchase_date);
+          } else if (subData.created_at) {
+            purchaseDate = subData.created_at.toDate ? subData.created_at.toDate() : new Date(subData.created_at);
+          } else if (subData.updated_at) {
+            purchaseDate = subData.updated_at.toDate ? subData.updated_at.toDate() : new Date(subData.updated_at);
+          }
+          
+          if (purchaseDate && !isNaN(purchaseDate.getTime())) {
+            const billingInterval = subData.billing_interval.toLowerCase();
+            const renewalDateCalc = new Date(purchaseDate);
+            
+            if (billingInterval === 'month' || billingInterval === 'monthly') {
+              renewalDateCalc.setMonth(renewalDateCalc.getMonth() + 1);
+            } else if (billingInterval === 'year' || billingInterval === 'yearly' || billingInterval === 'annual') {
+              renewalDateCalc.setFullYear(renewalDateCalc.getFullYear() + 1);
+            }
+            
+            calculatedRenewalDate = renewalDateCalc;
+          }
+        }
+        
         // Merge subscription details
         creditsData.subscription = {
           ...creditsData.subscription,
-          renewsAt: renewsAt,
+          renewsAt: renewsAt || calculatedRenewalDate,
           endsAt: endsAt,
           cancelAtPeriodEnd: cancelAtPeriodEnd,
           lastOrderTotal: subData.last_order_total || null,
           currency: subData.currency || 'USD',
           billingInterval: subData.billing_interval || null,
+          purchaseDate: subData.purchase_date || null,
           // Use the determined renewal date
-          expiresAt: renewalDate || creditsData.subscription.expiresAt || null
+          expiresAt: calculatedRenewalDate || renewalDate || creditsData.subscription.expiresAt || null
         };
         logger.info({ 
           userId, 
@@ -1077,6 +1105,9 @@ async function enableProSubscription(userId, options = {}) {
     
     transaction.set(creditsRef, creditsUpdate, { merge: true });
     
+    // Calculate purchase date (use current timestamp if not provided)
+    const purchaseDate = admin.firestore.FieldValue.serverTimestamp();
+    
     // Update subscription document
     const subscriptionData = {
       userId,
@@ -1092,6 +1123,7 @@ async function enableProSubscription(userId, options = {}) {
       last_order_total: typeof total === 'number' ? total : null,
       currency: currency || 'USD',
       cancel_at_period_end: !!cancelAtPeriodEnd,
+      purchase_date: purchaseDate, // Store purchase date for renewal calculation
       updated_at: admin.firestore.FieldValue.serverTimestamp()
     };
     

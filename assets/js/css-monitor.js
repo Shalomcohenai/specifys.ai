@@ -17,15 +17,31 @@
 
     /**
      * Get API base URL (same logic as app-logger.js)
+     * Detects production vs development and uses appropriate URL
      */
     function getApiBaseUrl() {
+        // First try to get from global function (from config.js)
         if (typeof window !== 'undefined' && window.getApiBaseUrl) {
             return window.getApiBaseUrl();
         }
         if (typeof window !== 'undefined' && window.API_BASE_URL) {
             return window.API_BASE_URL;
         }
-        return 'https://specifys-ai-development.onrender.com';
+        
+        // Detect production vs development based on hostname
+        const hostname = window.location.hostname;
+        const isProduction = hostname === 'specifys-ai.com' || 
+                            hostname === 'www.specifys-ai.com' ||
+                            hostname.endsWith('.specifys-ai.com');
+        
+        // Use production backend URL for production, development URL for dev
+        if (isProduction) {
+            // Production: use the same backend URL (Render service)
+            return 'https://specifys-ai-development.onrender.com';
+        } else {
+            // Development: use development backend
+            return 'https://specifys-ai-development.onrender.com';
+        }
     }
 
     // State
@@ -44,7 +60,9 @@
         mutationCount: 0, // Track mutation rate
         lastMutationBatch: Date.now(),
         lastCrashTime: 0, // Track crash frequency
-        crashCount: 0 // Count crashes in short time
+        crashCount: 0, // Count crashes in short time
+        pendingLogs: new Set(), // Track logs that are being sent to prevent duplicates
+        sendLogDebounce: null // Debounce timer for sendLog
     };
 
     /**
@@ -541,12 +559,26 @@
         };
         
         // Send immediately for critical crashes (but not in dev mode)
+        // Use debounce to prevent multiple rapid sends
         if (!isDevelopment && (crashType.includes('critical') || crashType === 'css_crash_detected')) {
-            sendLog(crashLog);
+            // Clear any existing debounce timer
+            if (state.sendLogDebounce) {
+                clearTimeout(state.sendLogDebounce);
+            }
+            // Debounce critical logs by 500ms to batch rapid crashes
+            state.sendLogDebounce = setTimeout(() => {
+                sendLog(crashLog);
+                state.sendLogDebounce = null;
+            }, 500);
         } else if (!isDevelopment) {
             // Queue for batch sending (only in production)
-            state.crashLogs = state.crashLogs || [];
-            state.crashLogs.push(crashLog);
+            // Check if this log is already in queue to prevent duplicates
+            const logKey = getLogKey(crashLog);
+            const isDuplicate = (state.crashLogs || []).some(log => getLogKey(log) === logKey);
+            if (!isDuplicate) {
+                state.crashLogs = state.crashLogs || [];
+                state.crashLogs.push(crashLog);
+            }
         }
         
         if (!isDevelopment) {
@@ -555,9 +587,32 @@
     }
 
     /**
-     * Send logs to backend
+     * Create a unique key for a log to prevent duplicates
+     */
+    function getLogKey(logData) {
+        return `${logData.crashType || 'log'}-${logData.timestamp || Date.now()}-${JSON.stringify(logData.details || {}).substring(0, 50)}`;
+    }
+
+    /**
+     * Send logs to backend with debouncing and duplicate prevention
      */
     async function sendLog(logData) {
+        // Create unique key for this log
+        const logKey = getLogKey(logData);
+        
+        // Check if this log is already being sent or was recently sent
+        if (state.pendingLogs.has(logKey)) {
+            return; // Already sending this log
+        }
+        
+        // Mark as pending
+        state.pendingLogs.add(logKey);
+        
+        // Remove from pending after 5 seconds (in case of error)
+        setTimeout(() => {
+            state.pendingLogs.delete(logKey);
+        }, 5000);
+        
         try {
             // Use absolute URL to Render backend (not relative path for GitHub Pages)
             const apiBaseUrl = getApiBaseUrl();
@@ -583,10 +638,16 @@
                 // The endpoint might be blocked or server might be down
             } else {
                 // Success - log was saved
+                state.lastSendTime = Date.now();
             }
         } catch (error) {
             // Silently fail - don't break the app if logging fails
             // Network errors, CORS issues, etc. are expected in some scenarios
+        } finally {
+            // Remove from pending after a short delay
+            setTimeout(() => {
+                state.pendingLogs.delete(logKey);
+            }, 1000);
         }
     }
 
@@ -668,13 +729,21 @@
     }
 
     /**
-     * Periodic log sending
+     * Periodic log sending with duplicate prevention
      */
     function startPeriodicSending() {
         setInterval(() => {
             if (state.crashLogs && state.crashLogs.length > 0) {
-                state.crashLogs.forEach(log => sendLog(log));
+                // Send logs one at a time with small delay to prevent overwhelming server
+                const logsToSend = [...state.crashLogs];
                 state.crashLogs = [];
+                
+                logsToSend.forEach((log, index) => {
+                    // Stagger sends by 100ms to prevent rapid-fire requests
+                    setTimeout(() => {
+                        sendLog(log);
+                    }, index * 100);
+                });
             }
         }, CONFIG.sendInterval);
     }

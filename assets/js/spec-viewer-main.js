@@ -3882,15 +3882,49 @@ window.showTab = async function(tabName) {
     if (tabContent) {
         tabContent.style.display = 'block';
         
-        // Scroll to top of the tab content
-        setTimeout(() => {
-            const contentHeader = tabContent.querySelector('.content-header');
-            if (contentHeader) {
-                contentHeader.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            } else {
-                tabContent.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-        }, 100);
+        // Scroll to the tab content header (not the page title)
+        // Use requestAnimationFrame to ensure the element is rendered before scrolling
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                const contentHeader = tabContent.querySelector('.content-header');
+                if (contentHeader) {
+                    // Calculate absolute position from top of document
+                    let offsetTop = 0;
+                    let element = contentHeader;
+                    
+                    // Traverse up the DOM tree to calculate absolute position
+                    while (element) {
+                        offsetTop += element.offsetTop;
+                        element = element.offsetParent;
+                    }
+                    
+                    // Add small offset to account for any fixed headers
+                    const scrollOffset = 20;
+                    
+                    // Scroll to the header position
+                    window.scrollTo({ 
+                        top: Math.max(0, offsetTop - scrollOffset), 
+                        behavior: 'smooth' 
+                    });
+                } else {
+                    // Fallback: scroll to tab content
+                    let offsetTop = 0;
+                    let element = tabContent;
+                    
+                    while (element) {
+                        offsetTop += element.offsetTop;
+                        element = element.offsetParent;
+                    }
+                    
+                    const scrollOffset = 20;
+                    
+                    window.scrollTo({ 
+                        top: Math.max(0, offsetTop - scrollOffset), 
+                        behavior: 'smooth' 
+                    });
+                }
+            });
+        });
     }
     
     // Add active class to selected button

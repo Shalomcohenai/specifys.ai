@@ -831,21 +831,12 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
                 // Use new credits API instead of direct Firestore access
                 const creditsData = await window.api.get('/api/v2/credits');
                 
-                // Load credit history to get total consumed
-                let creditsHistory = null;
-                try {
-                    creditsHistory = await window.api.get('/api/v2/credits/history');
-                } catch (historyError) {
-                    console.warn('[Profile] Failed to load credit history:', historyError);
-                }
-                
                 // Convert new format to old format for compatibility with existing UI code
                 // New format: { unlimited, total, breakdown: { paid, free, bonus }, subscription, permissions }
                 currentEntitlements = {
                     unlimited: creditsData?.unlimited || false,
                     spec_credits: creditsData?.unlimited ? 0 : (creditsData?.breakdown?.paid || 0),
-                    can_edit: creditsData?.permissions?.canEdit || false,
-                    creditsHistory: creditsHistory // Store history for display
+                    can_edit: creditsData?.permissions?.canEdit || false
                 };
 
                 // Store subscription info from new API
@@ -982,17 +973,32 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
             if (unlimited && sub) {
                 // Determine renewal date
                 let renewalDate = null;
-                console.log('[Profile] Determining renewal date - cancelAtPeriodEnd:', sub.cancelAtPeriodEnd, 'endsAt:', sub.endsAt, 'renewsAt:', sub.renewsAt, 'expiresAt:', sub.expiresAt);
                 
                 if (sub.cancelAtPeriodEnd) {
                     // Canceled subscription - show end date (endsAt or expiresAt)
                     renewalDate = sub.endsAt || sub.expiresAt;
                 } else {
-                    // Active subscription - show renewal date (renewsAt or expiresAt)
+                    // Active subscription - show renewal date
+                    // Priority: renewsAt > expiresAt > calculated from purchase date
                     renewalDate = sub.renewsAt || sub.expiresAt;
+                    
+                    // If still no date, calculate from purchase date + billing interval
+                    if (!renewalDate && sub.billingInterval && sub.purchaseDate) {
+                        const purchaseDate = sub.purchaseDate.toDate ? sub.purchaseDate.toDate() : new Date(sub.purchaseDate);
+                        if (!isNaN(purchaseDate.getTime())) {
+                            const billingInterval = (sub.billingInterval || '').toLowerCase();
+                            const calculatedDate = new Date(purchaseDate);
+                            
+                            if (billingInterval === 'month' || billingInterval === 'monthly') {
+                                calculatedDate.setMonth(calculatedDate.getMonth() + 1);
+                            } else if (billingInterval === 'year' || billingInterval === 'yearly' || billingInterval === 'annual') {
+                                calculatedDate.setFullYear(calculatedDate.getFullYear() + 1);
+                            }
+                            
+                            renewalDate = calculatedDate;
+                        }
+                    }
                 }
-                
-                console.log('[Profile] Final renewal date:', renewalDate);
 
                 // Format renewal date
                 if (renewalDate) {
@@ -1036,14 +1042,14 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
                     }
                 }
 
-                // Determine renewal cost
+                // Determine renewal cost - always show last order total (or $0 if canceled)
                 let renewalCost = null;
                 if (sub.cancelAtPeriodEnd) {
                     // Canceled subscription - show $0
                     renewalCost = 0;
-                } else if (sub.lastOrderTotal !== null && sub.lastOrderTotal !== undefined) {
-                    // Active subscription - show last order total
-                    renewalCost = sub.lastOrderTotal;
+                } else {
+                    // Active subscription - show last order total (same as purchase cost)
+                    renewalCost = sub.lastOrderTotal !== null && sub.lastOrderTotal !== undefined ? sub.lastOrderTotal : null;
                 }
 
                 // Format renewal cost
@@ -1088,24 +1094,13 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
                 }
             }
 
-            // Update credits used
+            // Update credits used - use the same count as specs-count in dashboard
             const infoCreditsUsedEl = document.getElementById('info-credits-used');
             if (infoCreditsUsedEl) {
-                const creditsHistory = ent?.creditsHistory;
-                if (unlimited) {
-                    // For Pro users, show total consumed if available, otherwise "Unlimited"
-                    if (creditsHistory?.summary?.totalConsumed !== undefined && creditsHistory.summary.totalConsumed > 0) {
-                        const totalConsumed = creditsHistory.summary.totalConsumed;
-                        infoCreditsUsedEl.textContent = `${totalConsumed} specification${totalConsumed === 1 ? '' : 's'} created`;
-                    } else {
-                        infoCreditsUsedEl.textContent = 'Unlimited';
-                    }
-                } else if (creditsHistory?.summary?.totalConsumed !== undefined) {
-                    const totalConsumed = creditsHistory.summary.totalConsumed;
-                    infoCreditsUsedEl.textContent = `${totalConsumed} specification${totalConsumed === 1 ? '' : 's'} created`;
-                } else {
-                    infoCreditsUsedEl.textContent = '0 specifications created';
-                }
+                // Get specs count from dashboard (same as specs-count element)
+                const specsCountEl = document.getElementById('specs-count');
+                const specsCount = specsCountEl ? parseInt(specsCountEl.textContent) || 0 : 0;
+                infoCreditsUsedEl.textContent = `${specsCount} specification${specsCount === 1 ? '' : 's'} created`;
             }
 
             const noteEl = document.getElementById('subscription-note');
@@ -2479,15 +2474,8 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
                 document.getElementById('cancelSubBtn').style.display = 'none';
 
                 await loadEntitlements(true);
-                // Ensure credits history is loaded for display
-                if (currentEntitlements && !currentEntitlements.creditsHistory) {
-                    try {
-                        const creditsHistory = await window.api.get('/api/v2/credits/history');
-                        currentEntitlements.creditsHistory = creditsHistory;
-                    } catch (historyError) {
-                        console.warn('[Profile] Failed to load credit history in loadPersonalInfo:', historyError);
-                    }
-                }
+                // Ensure workspace is loaded so specs-count is available
+                await loadWorkspace();
                 updateEntitlementUI();
 
             } catch (error) {

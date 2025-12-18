@@ -30,6 +30,26 @@ async function saveRenderLog(level, logData, message) {
     const errorStack = logData.error?.stack || logData.stack || null;
     const errorCode = logData.error?.code || logData.errorCode || logData.code || null;
     
+    // Helper function to remove undefined values recursively
+    function removeUndefined(obj) {
+      if (obj === null || typeof obj !== 'object') {
+        return obj;
+      }
+      if (Array.isArray(obj)) {
+        return obj.map(removeUndefined).filter(item => item !== undefined);
+      }
+      const cleaned = {};
+      for (const [key, value] of Object.entries(obj)) {
+        if (value !== undefined) {
+          cleaned[key] = removeUndefined(value);
+        }
+      }
+      return cleaned;
+    }
+
+    // Clean logData to remove undefined values
+    const cleanedLogData = removeUndefined(logData);
+
     // Build log document
     const logDoc = {
       level: level.toUpperCase(),
@@ -48,11 +68,11 @@ async function saveRenderLog(level, logData, message) {
       ip: logData.ip || null,
       userAgent: logData.userAgent || null,
       origin: logData.origin || null,
-      // Store full log data for debugging
-      fullData: logData
+      // Store cleaned log data for debugging (without undefined values)
+      fullData: cleanedLogData
     };
 
-    // Save to Firestore
+    // Save to Firestore with ignoreUndefinedProperties
     await db.collection('renderLogs').add(logDoc);
   } catch (error) {
     // Don't throw - we don't want logging failures to break the app

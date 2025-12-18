@@ -228,7 +228,13 @@
       return;
     }
 
-    // Subscribe to auth state changes
+    // Track if we've already initialized to prevent duplicate subscriptions
+    if (window.__creditsV2DisplayInitialized) {
+      return;
+    }
+    window.__creditsV2DisplayInitialized = true;
+
+    // Subscribe to auth state changes (only once)
     auth.onAuthStateChanged((user) => {
       if (user) {
         // Show loading state immediately when user logs in
@@ -255,13 +261,20 @@
       sessionStorage.removeItem('refreshCreditsOnLoad');
     }
     
-    // Initial update
-    if (auth.currentUser) {
+    // Initial update - only if user is authenticated
+    const currentUser = auth.currentUser;
+    if (currentUser) {
       if (needsRefreshOnLoad) {
         // If we need to refresh for new user, use forceRefresh
         updateCreditsDisplay({ forceRefresh: true });
       } else {
         updateCreditsDisplay();
+      }
+    } else {
+      // Hide credits display if user is not authenticated
+      const creditsDisplay = document.getElementById('credits-display');
+      if (creditsDisplay) {
+        creditsDisplay.style.display = 'none';
       }
     }
   }
@@ -286,13 +299,20 @@
   setTimeout(checkAndShowLoadingEarly, 50);
   setTimeout(checkAndShowLoadingEarly, 200);
 
-  // Initialize when DOM is ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
+  // Initialize when DOM is ready (only once)
+  let initCalled = false;
+  function safeInit() {
+    if (initCalled) return;
+    initCalled = true;
     init();
   }
 
-  // Also initialize after a short delay to ensure all scripts are loaded
-  setTimeout(init, 100);
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', safeInit);
+  } else {
+    safeInit();
+  }
+
+  // Also initialize after a short delay to ensure all scripts are loaded (only once)
+  setTimeout(safeInit, 100);
 })();

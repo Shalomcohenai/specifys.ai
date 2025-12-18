@@ -1,5 +1,6 @@
 const path = require('path');
 const express = require('express');
+const compression = require('compression');
 // Use built-in fetch for Node.js 18+ or fallback to node-fetch
 let fetch;
 if (typeof globalThis.fetch === 'function') {
@@ -80,6 +81,21 @@ logger.info({ type: 'trust_proxy_set' }, '[UNIFIED SERVER] ✅ Trust proxy enabl
 // Apply security headers (must be before other middleware)
 app.use(securityHeaders);
 logger.info({ type: 'security_headers_applied' }, '[UNIFIED SERVER] ✅ Security headers applied');
+
+// Compression middleware - compress responses (must be before static files)
+app.use(compression({
+  filter: (req, res) => {
+    // Compress all responses except if explicitly disabled
+    if (req.headers['x-no-compression']) {
+      return false;
+    }
+    // Use compression for all text-based content
+    return compression.filter(req, res);
+  },
+  level: 6, // Balance between compression and CPU usage
+  threshold: 1024 // Only compress responses larger than 1KB
+}));
+logger.info({ type: 'compression_enabled' }, '[UNIFIED SERVER] ✅ Compression middleware enabled');
 
 // CORS middleware to allow requests from your frontend
 // Must be before routes and rate limiting
@@ -974,11 +990,31 @@ app.get('/pages/articles.html', (req, res) => {
 });
 
 // Serve root static files AFTER blog routes to avoid conflicts
-app.use(express.static(staticRootPath));
-logger.info({ type: 'static_mounted', path: '/', directory: staticRootPath }, '[UNIFIED SERVER] ✅ Root static files mounted');
+// Configure static files with caching headers for better performance
+app.use(express.static(staticRootPath, {
+  maxAge: '1y', // Cache for 1 year
+  etag: true, // Enable ETag for cache validation
+  lastModified: true, // Enable Last-Modified headers
+  immutable: false, // Set to true for files with hash in name (e.g., main-[hash].css)
+  setHeaders: (res, path) => {
+    // Set longer cache for CSS/JS files
+    if (path.match(/\.(css|js|woff|woff2|ttf|eot|svg|png|jpg|jpeg|gif|ico|webp)$/)) {
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    }
+    // Set shorter cache for HTML files
+    if (path.match(/\.html?$/)) {
+      res.setHeader('Cache-Control', 'public, max-age=3600, must-revalidate');
+    }
+  }
+}));
+logger.info({ type: 'static_mounted', path: '/', directory: staticRootPath }, '[UNIFIED SERVER] ✅ Root static files mounted with caching');
 
 // Serve blog posts from _site/2025 directory structure
-app.use('/2025', express.static(postsStaticPath));
+app.use('/2025', express.static(postsStaticPath, {
+  maxAge: '1y',
+  etag: true,
+  lastModified: true
+}));
 logger.info({ type: 'static_mounted', path: '/2025', directory: postsStaticPath }, '[UNIFIED SERVER] ✅ Blog posts static files mounted');
 
 // Note: Admin endpoints are defined above

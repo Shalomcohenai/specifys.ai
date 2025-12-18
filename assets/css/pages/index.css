@@ -2119,12 +2119,7 @@ body .logo a:hover .logo-dot {
     margin-bottom: 2.5rem;
   }
   .spec-cards-showcase {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 6px;
-    border-radius: 12px;
-    margin: 2rem auto 0 auto;
-    width: 95%;
-    max-width: 500px;
+    display: none; /* Hide icons container on mobile */
   }
   .spec-card-square .spec-icon {
     font-size: 2rem;
@@ -2215,12 +2210,7 @@ body .logo a:hover .logo-dot {
     margin-bottom: 1rem;
   }
   .spec-cards-showcase {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 4px;
-    border-radius: 10px;
-    margin: 1.5rem auto 0 auto;
-    width: 98%;
-    max-width: 400px;
+    display: none; /* Hide icons container on mobile */
   }
   .spec-card-square .spec-icon {
     font-size: 1.8rem;
