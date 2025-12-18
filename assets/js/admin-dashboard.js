@@ -258,6 +258,9 @@ class DataAggregator {
     // Callbacks for data changes
     this.onDataChangeCallbacks = [];
     
+    // Track errors for each source
+    this.sourceErrors = new Map();
+    
     // Track initial loads
     this.initialLoads = {
       users: true,
@@ -322,7 +325,17 @@ class DataAggregator {
   /**
    * Notify all callbacks of data changes
    */
-  notifyDataChange(source) {
+  notifyDataChange(source, error = null) {
+    // Store error if provided
+    if (error && source.endsWith('-error')) {
+      const sourceKey = source.replace('-error', '');
+      this.sourceErrors.set(sourceKey, error);
+    } else if (!source.endsWith('-error')) {
+      // Clear error when source is ready
+      const sourceKey = source;
+      this.sourceErrors.delete(sourceKey);
+    }
+    
     // Check if initial loads are complete and generate events from existing data
     if (this.initialLoads.users === false && 
         this.initialLoads.specs === false && 
@@ -336,11 +349,18 @@ class DataAggregator {
     
     this.onDataChangeCallbacks.forEach(callback => {
       try {
-        callback(this.aggregatedData, source);
+        callback(this.aggregatedData, source, error);
       } catch (error) {
         // Error in data change callback
       }
     });
+  }
+  
+  /**
+   * Get error for a specific source
+   */
+  getSourceError(sourceKey) {
+    return this.sourceErrors.get(sourceKey) || null;
   }
   
   /**
@@ -501,14 +521,17 @@ class DataAggregator {
           this.notifyDataChange('users');
         },
         (error) => {
-          this.notifyDataChange('users-error');
+          console.error('[DataAggregator] Error subscribing to users:', error);
+          this.notifyDataChange('users-error', error);
         }
       );
       
       this.unsubscribeFns.push(unsubUsers);
       return unsubUsers;
     } catch (error) {
-      throw error;
+      console.error('[DataAggregator] Failed to subscribe to users:', error);
+      this.notifyDataChange('users-error', error);
+      return null;
     }
   }
   
@@ -606,14 +629,17 @@ class DataAggregator {
           this.notifyDataChange('userCredits');
         },
         (error) => {
-          this.notifyDataChange('userCredits-error');
+          console.error('[DataAggregator] Error subscribing to userCredits:', error);
+          this.notifyDataChange('userCredits-error', error);
         }
       );
       
       this.unsubscribeFns.push(unsubUserCredits);
       return unsubUserCredits;
     } catch (error) {
-      throw error;
+      console.error('[DataAggregator] Failed to subscribe to userCredits:', error);
+      this.notifyDataChange('userCredits-error');
+      return null;
     }
   }
   
@@ -727,14 +753,17 @@ class DataAggregator {
           this.notifyDataChange('specs');
         },
         (error) => {
-          this.notifyDataChange('specs-error');
+          console.error('[DataAggregator] Error subscribing to specs:', error);
+          this.notifyDataChange('specs-error', error);
         }
       );
       
       this.unsubscribeFns.push(unsubSpecs);
       return unsubSpecs;
     } catch (error) {
-      throw error;
+      console.error('[DataAggregator] Failed to subscribe to specs:', error);
+      this.notifyDataChange('specs-error', error);
+      return null;
     }
   }
   
@@ -828,14 +857,17 @@ class DataAggregator {
           this.notifyDataChange('purchases');
         },
         (error) => {
-          this.notifyDataChange('purchases-error');
+          console.error('[DataAggregator] Error subscribing to purchases:', error);
+          this.notifyDataChange('purchases-error', error);
         }
       );
       
       this.unsubscribeFns.push(unsubPurchases);
       return unsubPurchases;
     } catch (error) {
-      throw error;
+      console.error('[DataAggregator] Failed to subscribe to purchases:', error);
+      this.notifyDataChange('purchases-error');
+      return null;
     }
   }
   
@@ -874,9 +906,11 @@ class DataAggregator {
         },
         (error) => {
           if (error?.code === "permission-denied") {
+            console.warn('[DataAggregator] Permission denied for activityLogs:', error);
             this.notifyDataChange('activityLogs-restricted');
           } else {
-            this.notifyDataChange('activityLogs-error');
+            console.error('[DataAggregator] Error subscribing to activityLogs:', error);
+            this.notifyDataChange('activityLogs-error', error);
           }
         }
       );
@@ -887,7 +921,7 @@ class DataAggregator {
       if (error?.code === "permission-denied") {
         this.notifyDataChange('activityLogs-restricted');
       } else {
-        this.notifyDataChange('activityLogs-error');
+        this.notifyDataChange('activityLogs-error', error);
       }
       return null;
     }
@@ -1012,14 +1046,15 @@ class DataAggregator {
           this.notifyDataChange('contactSubmissions');
         },
         (error) => {
-          this.notifyDataChange('contactSubmissions-error');
+          console.error('[DataAggregator] Error subscribing to contactSubmissions:', error);
+          this.notifyDataChange('contactSubmissions-error', error);
         }
       );
       
       this.unsubscribeFns.push(unsubContact);
       return unsubContact;
     } catch (error) {
-      this.notifyDataChange('contactSubmissions-error');
+      this.notifyDataChange('contactSubmissions-error', error);
       return null;
     }
   }
@@ -2007,6 +2042,10 @@ class AdminDashboardApp {
         this.updateOverview();
         this.renderActivityFeed();
       }
+      if (source === 'users-error') {
+        const error = this.dataAggregator.getSourceError('users');
+        this.markSourceError('users', error);
+      }
       // Entitlements removed - using user_credits system only
       // if (source === 'entitlements') {
       //   this.markSourceReady('entitlements');
@@ -2019,7 +2058,8 @@ class AdminDashboardApp {
         this.renderActivityFeed();
       }
       if (source === 'userCredits-error') {
-        this.markSourceError('userCredits');
+        const error = this.dataAggregator.getSourceError('userCredits');
+        this.markSourceError('userCredits', error);
       }
       if (source === 'specs') {
         this.markSourceReady('specs');
@@ -2033,6 +2073,10 @@ class AdminDashboardApp {
           this.renderSpecUsageAnalytics();
         }
       }
+      if (source === 'specs-error') {
+        const error = this.dataAggregator.getSourceError('specs');
+        this.markSourceError('specs', error);
+      }
       if (source === 'purchases') {
         this.markSourceReady('purchases');
         this.renderPaymentsTable();
@@ -2043,7 +2087,8 @@ class AdminDashboardApp {
         this.renderActivityFeed();
       }
       if (source === 'purchases-error') {
-        this.markSourceError('purchases');
+        const error = this.dataAggregator.getSourceError('purchases');
+        this.markSourceError('purchases', error);
       }
       if (source === 'activityLogs') {
         this.markSourceReady('activityLogs');
@@ -2054,7 +2099,8 @@ class AdminDashboardApp {
         this.markSourceRestricted('activityLogs', 'Requires elevated Firebase permissions.');
       }
       if (source === 'activityLogs-error') {
-        this.markSourceError('activityLogs');
+        const error = this.dataAggregator.getSourceError('activityLogs');
+        this.markSourceError('activityLogs', error);
       }
       if (source === 'contactSubmissions') {
         this.store.contactSubmissions = aggregatedData.contactSubmissions || [];
@@ -2062,6 +2108,10 @@ class AdminDashboardApp {
           this.renderContactTable();
         }
         this.updateContactBadge();
+      }
+      if (source === 'contactSubmissions-error') {
+        const error = this.dataAggregator.getSourceError('contactSubmissions');
+        this.markSourceError('contactSubmissions', error);
       }
       if (source === 'contactSubmissions-new') {
         // Show notification for new contact submissions
@@ -3027,7 +3077,9 @@ class AdminDashboardApp {
       // The callbacks will handle marking sources ready and updating UI
       
     } catch (error) {
-      // Failed to subscribe to data sources
+      console.error('[AdminDashboard] Failed to subscribe to data sources:', error);
+      // Mark all sources as error if subscription fails completely
+      this.updateAllSources("error");
     }
 
     // Blog queue (via API)
@@ -3062,7 +3114,10 @@ class AdminDashboardApp {
     this.sourceState[key] = "error";
     this.renderSourceStates();
     if (error) {
-      // Source error
+      // Store error message for display
+      const errorMessage = error?.message || error?.code || String(error || 'Unknown error');
+      this.sourceMessages[key] = errorMessage;
+      console.error(`[AdminDashboard] Source error for ${key}:`, error);
     }
     this.updateConnectionStatus();
   }
