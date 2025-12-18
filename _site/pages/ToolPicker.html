@@ -750,11 +750,43 @@ function trackPreference(preferenceName, preferenceValue) {
   // Initialize Firebase
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
-  const db = firebase.firestore();
   
-  // Make auth and db available globally
+  // Delay Firestore initialization to prevent IndexedDB blocking main thread
+  // Firestore will be initialized on-demand when needed (lazy loading)
+  // This improves initial page load performance by avoiding IndexedDB creation during startup
+  let dbInitialized = false;
+  let dbInstance = null;
+  
+  const getFirestore = function() {
+    if (!dbInitialized) {
+      dbInitialized = true;
+      
+      // Defer Firestore initialization until after page is interactive
+      // This prevents IndexedDB from blocking the main thread during initial page load
+      // Initialize immediately but defer the actual IndexedDB creation
+      dbInstance = firebase.firestore();
+      window.db = dbInstance;
+      
+      // Note: firebase.firestore() creates IndexedDB synchronously in compat mode
+      // However, by using lazy loading (only initializing when window.db is accessed),
+      // we ensure it's not created during initial page load unless actually needed
+      // The actual IndexedDB operations happen asynchronously in the background
+      
+      return dbInstance;
+    }
+    return dbInstance || window.db;
+  };
+  
+  // Make auth available globally immediately (needed for auth checks)
   window.auth = auth;
-  window.db = db;
+  
+  // Make db a getter that initializes on first access (lazy loading)
+  // This prevents IndexedDB from being created during initial page load
+  Object.defineProperty(window, 'db', {
+    get: getFirestore,
+    configurable: true,
+    enumerable: true
+  });
   
   // Dispatch firebase-ready event for other scripts
   window.dispatchEvent(new Event('firebase-ready'));
