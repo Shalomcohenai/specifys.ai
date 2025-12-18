@@ -85,7 +85,95 @@ const urlSpecId = urlParams.get('id');
 
 
 
+// Mobile Side Menu Toggle
+function initMobileSideMenu() {
+    const sideMenuToggle = document.getElementById('sideMenuToggle');
+    const sideMenu = document.getElementById('sideMenu');
+    const content = document.querySelector('.content');
+    
+    if (!sideMenuToggle || !sideMenu) return;
+    
+    // Create overlay for mobile
+    let overlay = document.querySelector('.side-menu-overlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.className = 'side-menu-overlay';
+        document.body.appendChild(overlay);
+    }
+    
+    function toggleMenu() {
+        const isOpen = sideMenu.classList.contains('active');
+        
+        if (isOpen) {
+            // Close menu
+            sideMenu.classList.remove('active');
+            sideMenuToggle.setAttribute('aria-expanded', 'false');
+            overlay.classList.remove('active');
+            if (content) {
+                content.classList.remove('menu-open');
+            }
+            document.body.style.overflow = '';
+        } else {
+            // Open menu
+            sideMenu.classList.add('active');
+            sideMenuToggle.setAttribute('aria-expanded', 'true');
+            overlay.classList.add('active');
+            if (content) {
+                content.classList.add('menu-open');
+            }
+            document.body.style.overflow = 'hidden';
+        }
+    }
+    
+    // Toggle button click
+    sideMenuToggle.addEventListener('click', function(e) {
+        e.stopPropagation();
+        toggleMenu();
+    });
+    
+    // Close menu when clicking overlay
+    overlay.addEventListener('click', function() {
+        if (sideMenu.classList.contains('active')) {
+            toggleMenu();
+        }
+    });
+    
+    // Close menu when clicking outside on mobile
+    document.addEventListener('click', function(e) {
+        if (window.innerWidth <= 768) {
+            if (sideMenu.classList.contains('active') && 
+                !sideMenu.contains(e.target) && 
+                !sideMenuToggle.contains(e.target)) {
+                toggleMenu();
+            }
+        }
+    });
+    
+    // Close menu on escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && sideMenu.classList.contains('active')) {
+            toggleMenu();
+        }
+    });
+    
+    // Close menu when clicking a menu item on mobile
+    const menuItems = sideMenu.querySelectorAll('.side-menu-button');
+    menuItems.forEach(item => {
+        item.addEventListener('click', function() {
+            if (window.innerWidth <= 768) {
+                setTimeout(() => {
+                    if (sideMenu.classList.contains('active')) {
+                        toggleMenu();
+                    }
+                }, 300);
+            }
+        });
+    });
+}
+
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize mobile side menu
+    initMobileSideMenu();
     // Initialize Mermaid with custom theme
     try {
         if (typeof mermaid !== 'undefined') {

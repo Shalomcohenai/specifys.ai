@@ -7,22 +7,22 @@
 
 /* Side Menu Container */
 .side-menu {
-  position: fixed !important;
-  left: 0 !important;
-  top: 60px !important; /* Header height */
-  bottom: 0 !important;
-  width: 60px !important;
-  background: #f5f5f5 !important;
-  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1) !important;
-  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  overflow: hidden !important;
-  z-index: 100 !important;
-  display: flex !important;
-  flex-direction: column !important;
+  position: fixed;
+  left: 0;
+  top: 60px; /* Header height */
+  bottom: 0;
+  width: 60px;
+  background: #f5f5f5;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
 }
 
 .side-menu:hover {
-  width: 280px !important;
+  width: 280px;
 }
 
 /* User Section */
@@ -127,41 +127,41 @@
 
 /* Navigation */
 .side-menu-nav {
-  flex: 1 !important;
-  overflow-y: auto !important;
-  padding: 8px !important;
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 4px !important;
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .side-menu-item {
-  margin-bottom: 4px !important;
-  list-style: none !important;
+  margin-bottom: 4px;
+  list-style: none;
 }
 
 .side-menu-button {
-  width: 100% !important;
-  padding: 14px !important;
-  display: flex !important;
-  align-items: center !important;
-  gap: 12px !important;
-  background: transparent !important;
-  border: none !important;
-  cursor: pointer !important;
-  border-radius: 8px !important;
-  transition: all 0.2s ease !important;
-  font-family: var(--font-primary, "Inter", sans-serif) !important;
-  font-weight: 500 !important;
-  font-size: 15px !important;
-  color: #666 !important;
-  position: relative !important;
-  justify-content: flex-start !important;
-  flex-wrap: nowrap !important;
-  height: auto !important;
-  min-height: 44px !important;
-  box-sizing: border-box !important;
-  text-align: left !important;
+  width: 100%;
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  font-family: var(--font-primary, "Inter", sans-serif);
+  font-weight: 500;
+  font-size: 15px;
+  color: #666;
+  position: relative;
+  justify-content: flex-start;
+  flex-wrap: nowrap;
+  height: auto;
+  min-height: 44px;
+  box-sizing: border-box;
+  text-align: left;
 }
 
 .side-menu-button:hover:not(:disabled) {
@@ -264,24 +264,24 @@
 }
 
 .side-menu-text {
-  opacity: 0 !important;
-  max-width: 0 !important;
-  overflow: hidden !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  flex: 1 !important;
-  text-align: left !important;
-  white-space: nowrap !important;
-  display: flex !important;
-  align-items: center !important;
-  line-height: 1.5 !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  height: auto !important;
+  opacity: 0;
+  max-width: 0;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  flex: 1;
+  text-align: left;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  line-height: 1.5;
+  margin: 0;
+  padding: 0;
+  height: auto;
 }
 
 .side-menu:hover .side-menu-text {
-  opacity: 1 !important;
-  max-width: 200px !important;
+  opacity: 1;
+  max-width: 200px;
 }
 
 .side-menu-expand-sub {
@@ -388,20 +388,103 @@
   margin-left: 280px; /* Expanded side menu width */
 }
 
+/* Mobile Toggle Button */
+.side-menu-toggle-mobile {
+  display: none;
+}
+
 /* Mobile responsive */
 @media (max-width: 768px) {
+  /* Toggle Button - Visible on mobile */
+  .side-menu-toggle-mobile {
+    display: flex;
+    position: fixed;
+    left: 0;
+    top: 60px;
+    width: 44px;
+    height: 44px;
+    background: #FF6B35;
+    color: white;
+    border: none;
+    border-radius: 0 8px 8px 0;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    z-index: 1001;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .side-menu-toggle-mobile:hover {
+    background: #FF8551;
+  }
+  
+  .side-menu-toggle-mobile i {
+    font-size: 18px;
+    transition: transform 0.3s ease;
+  }
+  
+  .side-menu-toggle-mobile[aria-expanded="true"] i {
+    transform: rotate(180deg);
+  }
+  
+  /* Side Menu - Collapsed by default on mobile */
   .side-menu {
     width: 0;
     overflow: hidden;
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
   
+  /* Side Menu - Expanded when active */
   .side-menu.active {
     width: 280px;
+    transform: translateX(0);
     z-index: 1000;
+    box-shadow: 2px 0 12px rgba(0, 0, 0, 0.2);
   }
   
+  /* Hide hover effect on mobile */
+  .side-menu:hover {
+    width: 280px;
+  }
+  
+  /* Content - No margin on mobile, always full width */
   .content {
     margin-left: 0;
+    width: 100%;
+    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  /* Content stays full width even when menu is open (menu is overlay) */
+  .content.menu-open {
+    margin-left: 0;
+    width: 100%;
+  }
+  
+  /* Ensure content is not hidden behind menu */
+  .content {
+    position: relative;
+    z-index: 1;
+  }
+  
+  /* Overlay when menu is open */
+  .side-menu-overlay {
+    display: none;
+    position: fixed;
+    top: 60px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  .side-menu-overlay.active {
+    display: block;
+    opacity: 1;
   }
 }
 

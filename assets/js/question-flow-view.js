@@ -112,14 +112,16 @@ class QuestionFlowView {
     const { modernInputContainer, questionsDisplay } = this.elements;
     
     if (modernInputContainer) {
-      modernInputContainer.style.display = 'block';
+      modernInputContainer.classList.remove('hidden');
+      modernInputContainer.style.display = 'flex';
       modernInputContainer.style.visibility = 'visible';
       modernInputContainer.style.opacity = '1';
       modernInputContainer.style.transition = 'none';
     }
     
     if (questionsDisplay) {
-      questionsDisplay.style.display = 'block';
+      questionsDisplay.classList.remove('hidden');
+      questionsDisplay.style.display = 'flex';
       questionsDisplay.style.visibility = 'visible';
       questionsDisplay.style.opacity = '1';
       questionsDisplay.style.transition = 'none';
