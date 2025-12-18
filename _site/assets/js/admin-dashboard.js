@@ -326,11 +326,15 @@ class DataAggregator {
    * Notify all callbacks of data changes
    */
   notifyDataChange(source, error = null) {
-    // Store error if provided
+    // Store error if provided (but not for restricted sources)
     if (error && source.endsWith('-error')) {
       const sourceKey = source.replace('-error', '');
       this.sourceErrors.set(sourceKey, error);
-    } else if (!source.endsWith('-error')) {
+    } else if (source.endsWith('-restricted')) {
+      // Clear error for restricted sources (they're not errors, just restricted)
+      const sourceKey = source.replace('-restricted', '');
+      this.sourceErrors.delete(sourceKey);
+    } else if (!source.endsWith('-error') && !source.endsWith('-restricted')) {
       // Clear error when source is ready
       const sourceKey = source;
       this.sourceErrors.delete(sourceKey);
@@ -629,16 +633,30 @@ class DataAggregator {
           this.notifyDataChange('userCredits');
         },
         (error) => {
-          console.error('[DataAggregator] Error subscribing to userCredits:', error);
-          this.notifyDataChange('userCredits-error', error);
+          // Mark initial load as complete even on error
+          this.initialLoads.userCredits = false;
+          if (error?.code === "permission-denied") {
+            console.warn('[DataAggregator] Permission denied for userCredits:', error);
+            this.notifyDataChange('userCredits-restricted', error);
+          } else {
+            console.error('[DataAggregator] Error subscribing to userCredits:', error);
+            this.notifyDataChange('userCredits-error', error);
+          }
         }
       );
       
       this.unsubscribeFns.push(unsubUserCredits);
       return unsubUserCredits;
     } catch (error) {
-      console.error('[DataAggregator] Failed to subscribe to userCredits:', error);
-      this.notifyDataChange('userCredits-error');
+      // Mark initial load as complete even on error
+      this.initialLoads.userCredits = false;
+      if (error?.code === "permission-denied") {
+        console.warn('[DataAggregator] Permission denied for userCredits:', error);
+        this.notifyDataChange('userCredits-restricted', error);
+      } else {
+        console.error('[DataAggregator] Failed to subscribe to userCredits:', error);
+        this.notifyDataChange('userCredits-error', error);
+      }
       return null;
     }
   }
@@ -932,10 +950,12 @@ class DataAggregator {
    * Creates events from users, specs, and purchases created in the last 7 days
    */
   generateEventsFromExistingData() {
-    // Only generate events if all initial loads are complete
-    if (this.initialLoads.users || this.initialLoads.specs || this.initialLoads.purchases || this.initialLoads.userCredits) {
-      return; // Wait for all data to load
+    // Only generate events if all critical initial loads are complete
+    // userCredits is optional - if it fails, we can still generate events using user.plan
+    if (this.initialLoads.users || this.initialLoads.specs || this.initialLoads.purchases) {
+      return; // Wait for critical data to load
     }
+    // Note: userCredits is optional - if it fails, we'll use user.plan as fallback
     
     const thirtyDaysAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
     const existingEventIds = new Set(this.activityEvents.map(e => e.id));
@@ -1046,15 +1066,28 @@ class DataAggregator {
           this.notifyDataChange('contactSubmissions');
         },
         (error) => {
-          console.error('[DataAggregator] Error subscribing to contactSubmissions:', error);
-          this.notifyDataChange('contactSubmissions-error', error);
+          // Mark initial load as complete even on error (contactSubmissions doesn't block other data)
+          if (error?.code === "permission-denied") {
+            console.warn('[DataAggregator] Permission denied for contactSubmissions:', error);
+            this.notifyDataChange('contactSubmissions-restricted', error);
+          } else {
+            console.error('[DataAggregator] Error subscribing to contactSubmissions:', error);
+            this.notifyDataChange('contactSubmissions-error', error);
+          }
         }
       );
       
       this.unsubscribeFns.push(unsubContact);
       return unsubContact;
     } catch (error) {
-      this.notifyDataChange('contactSubmissions-error', error);
+      // Mark initial load as complete even on error (contactSubmissions doesn't block other data)
+      if (error?.code === "permission-denied") {
+        console.warn('[DataAggregator] Permission denied for contactSubmissions:', error);
+        this.notifyDataChange('contactSubmissions-restricted', error);
+      } else {
+        console.error('[DataAggregator] Failed to subscribe to contactSubmissions:', error);
+        this.notifyDataChange('contactSubmissions-error', error);
+      }
       return null;
     }
   }
@@ -2057,6 +2090,13 @@ class AdminDashboardApp {
         this.updateOverview();
         this.renderActivityFeed();
       }
+      if (source === 'userCredits-restricted') {
+        this.markSourceRestricted('userCredits', 'Requires elevated Firebase permissions.');
+        // Still render data even if userCredits is restricted - use user.plan as fallback
+        this.renderUsersTable();
+        this.updateOverview();
+        this.renderActivityFeed();
+      }
       if (source === 'userCredits-error') {
         const error = this.dataAggregator.getSourceError('userCredits');
         this.markSourceError('userCredits', error);
@@ -2108,6 +2148,10 @@ class AdminDashboardApp {
           this.renderContactTable();
         }
         this.updateContactBadge();
+      }
+      if (source === 'contactSubmissions-restricted') {
+        this.markSourceRestricted('contactSubmissions', 'Requires elevated Firebase permissions.');
+        // Contact submissions are optional - data should still display
       }
       if (source === 'contactSubmissions-error') {
         const error = this.dataAggregator.getSourceError('contactSubmissions');
