@@ -3,6 +3,7 @@ layout: default
 title: "Specification Viewer - Specifys.ai"
 description: "View, edit, and manage your app specifications with AI-powered insights. Includes technical specs, market research, design guidelines, diagrams, and development prompts."
 permalink: /pages/spec-viewer.html
+robots: noindex, follow
 custom_firebase: true
 page_class: spec-viewer-page
 extra_css:
@@ -173,6 +174,13 @@ custom_js_modules:
             Review, edit, and approve each section to build a complete project blueprint.
         </p>
     </div>
+    
+    <!-- Fallback content for SEO (hidden when JS loads) -->
+    <noscript>
+        <div class="container" style="padding: 2rem;">
+            <p>Please enable JavaScript to view your specifications. This page allows you to view, edit, and manage your app specifications with AI-powered insights.</p>
+        </div>
+    </noscript>
     
 <div class="container">
 

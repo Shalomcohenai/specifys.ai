@@ -1133,6 +1133,18 @@ class AcademyApp {
         const keywords = `${category.title.toLowerCase()}, app development, programming guides, ${category.title.toLowerCase()} tutorials, learn ${category.title.toLowerCase()}, tech education`;
 
         this.updateMetaTags(title, description, keywords);
+        
+        // Update canonical URL with query params
+        const baseUrl = window.location.origin;
+        const categoryUrl = `${baseUrl}/academy/category.html?category=${category.id}`;
+        let canonical = document.querySelector('link[rel="canonical"]');
+        if (!canonical) {
+            canonical = document.createElement('link');
+            canonical.setAttribute('rel', 'canonical');
+            document.head.appendChild(canonical);
+        }
+        canonical.setAttribute('href', categoryUrl);
+        
         // Breadcrumbs removed per design requirements
         this.addCategoryPageStructuredData(category, guides);
     }
@@ -1143,6 +1155,18 @@ class AcademyApp {
         const keywords = `${guide.title.toLowerCase()}, ${guide.level || 'Beginner'} guide, app development, programming tutorial, ${category ? category.title.toLowerCase() : ''}, learn coding`;
 
         this.updateMetaTags(title, description, keywords);
+        
+        // Update canonical URL with query params
+        const baseUrl = window.location.origin;
+        const guideUrl = `${baseUrl}/academy/guide.html?guide=${guide.id}`;
+        let canonical = document.querySelector('link[rel="canonical"]');
+        if (!canonical) {
+            canonical = document.createElement('link');
+            canonical.setAttribute('rel', 'canonical');
+            document.head.appendChild(canonical);
+        }
+        canonical.setAttribute('href', guideUrl);
+        
         // Breadcrumbs removed per design requirements
         this.addGuidePageStructuredData(guide, category);
     }

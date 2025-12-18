@@ -109,7 +109,11 @@
     <meta name="description" content="{% if page.description %}{{ page.description }}{% else %}{{ site.description }}{% endif %}">
     <meta name="keywords" content="AI development tools, app specification generator, no-code platform, AI-powered planning, vibe coding, AI app builder, specification generator, market research tool, app planning tool, development tools, AI tools">
     <meta name="author" content="Specifys.ai">
+    {% if page.robots %}
+    <meta name="robots" content="{{ page.robots }}">
+    {% else %}
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    {% endif %}
     
     <!-- Content Security Policy - Removed to fix Google Analytics/Ads issues -->
     
