@@ -6600,13 +6600,33 @@ class AdminDashboardApp {
   }
 }
 
-document.addEventListener("DOMContentLoaded", async () => {
-  try {
-    await loadExternalScript("https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js");
-    ChartLib = window.Chart || null;
-  } catch (error) {
-    // Chart.js failed to load
+async function loadChartJsWithFallback() {
+  const cdnSources = [
+    "https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js",
+    "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js",
+    "https://unpkg.com/chart.js@4.4.4/dist/chart.umd.min.js"
+  ];
+
+  for (const src of cdnSources) {
+    try {
+      await loadExternalScript(src);
+      if (window.Chart) {
+        ChartLib = window.Chart;
+        console.log("Chart.js loaded successfully from:", src);
+        return true;
+      }
+    } catch (error) {
+      console.warn("Failed to load Chart.js from:", src, error);
+      continue;
+    }
   }
+  
+  console.error("Chart.js failed to load from all CDN sources. Charts will not be available.");
+  return false;
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
+  await loadChartJsWithFallback();
   window.adminDashboard = new AdminDashboardApp();
 });
 
