@@ -4,6 +4,62 @@
    Styles specific to the spec-viewer.html page
 */
 
+/* Prevent horizontal overflow on spec-viewer page */
+body.spec-viewer-page,
+html:has(body.spec-viewer-page) {
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100%;
+  position: relative;
+}
+
+/* Fix header display - using same approach as demo-spec-page */
+.spec-viewer-page .thematic-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  min-height: 60px;
+  padding: 15px 20px;
+  overflow-x: hidden;
+}
+
+/* Ensure header-right doesn't take 100% width on spec-viewer page */
+.spec-viewer-page .thematic-header .header-right {
+  flex: 1;
+  min-width: 0;
+  justify-content: flex-end;
+  width: auto;
+  max-width: 100%;
+}
+
+/* Alternative: if spec-viewer-page class is not available, use body specificity */
+body:has(.side-menu) .thematic-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  min-height: 60px;
+  padding: 15px 20px;
+  overflow-x: hidden;
+}
+
+body:has(.side-menu) .thematic-header .header-right {
+  flex: 1;
+  min-width: 0;
+  justify-content: flex-end;
+  width: auto;
+  max-width: 100%;
+}
+
 /* Orange icons for generated tabs */
 /* Using higher specificity instead of !important */
 .tab-button.generated .fa {
@@ -198,17 +254,35 @@ button[onclick*="openVisualizer"]:active {
   margin-top: 50px;
   margin-bottom: 40px;
   text-align: center;
+  width: 100%;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  padding-left: 20px;
+  padding-right: 20px;
 }
 
 .page-intro-section .page-description {
   max-width: 800px;
   margin: 20px auto 0;
   text-align: center;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* Content spacing from header */
 .container {
   margin-top: 30px;
+  width: 100%;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  padding-left: 20px;
+  padding-right: 20px;
 }
 
 /* Approval container styling */
@@ -224,6 +298,10 @@ button[onclick*="openVisualizer"]:active {
   justify-content: space-between;
   gap: 24px;
   flex-wrap: wrap;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 .approval-message {
@@ -258,6 +336,12 @@ button[onclick*="openVisualizer"]:active {
   padding: 30px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   margin-bottom: 30px;
+  width: 100%;
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 .tab-content .content-header {
@@ -276,6 +360,12 @@ button[onclick*="openVisualizer"]:active {
 .tab-content .content-body {
   color: #333;
   line-height: 1.8;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 /* Responsive adjustments */
@@ -283,10 +373,26 @@ button[onclick*="openVisualizer"]:active {
   .page-intro-section {
     margin-top: 30px;
     margin-bottom: 30px;
+    width: 100%;
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    padding-left: 15px;
+    padding-right: 15px;
   }
   
   .container {
     margin-top: 20px;
+    width: 100%;
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    padding-left: 15px;
+    padding-right: 15px;
   }
   
   .approval-container {
@@ -294,11 +400,19 @@ button[onclick*="openVisualizer"]:active {
     margin-bottom: 20px;
     flex-direction: column;
     align-items: stretch;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
   }
   
   .tab-content {
     padding: 20px;
     margin-bottom: 20px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
   }
   
   .approval-message {

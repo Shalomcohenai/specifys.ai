@@ -11,6 +11,7 @@
   border-bottom: 1px solid var(--border-color);
   z-index: var(--z-header);
   transition: background var(--transition-normal), border-color var(--transition-normal);
+  overflow-x: hidden;
 }
 
 /* Header sections */
@@ -39,8 +40,11 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  justify-content: space-between;
-  width: 100%;
+  justify-content: flex-end;
+  flex: 1;
+  min-width: 0;
+  position: relative;
+  z-index: 1;
 }
 
 /* Logo styles - Specifys.AI */
@@ -74,7 +78,8 @@
   position: relative;
   z-index: var(--z-modal);
   order: 1; /* User info on the left */
-  margin-right: auto;
+  margin-right: 0;
+  flex-shrink: 0;
 }
 
 .auth-btn {
@@ -151,7 +156,8 @@
   display: flex;
   align-items: center;
   order: 2; /* Always on the right */
-  margin-left: auto;
+  margin-left: 0.5rem;
+  flex-shrink: 0;
 }
 
 .credits-container {
@@ -195,6 +201,7 @@
     padding: 8px 12px;
     height: 56px;
     align-items: center;
+    overflow-x: hidden;
   }
   .logo a {
     font-size: 1.1rem;
@@ -204,10 +211,13 @@
   }
   .header-right {
     gap: 0.5rem;
-    justify-content: space-between;
-    width: 100%;
+    justify-content: flex-end;
+    flex: 1;
+    min-width: 0;
     margin-left: 0;
     align-items: center;
+    width: auto;
+    max-width: 100%;
   }
   .header-center {
     order: 1;
@@ -220,8 +230,9 @@
   .auth-buttons {
     gap: 0.5rem;
     order: 1;
-    margin-right: auto;
+    margin-right: 0;
     align-items: center;
+    flex-shrink: 0;
   }
   .auth-btn {
     padding: 8px 12px;
@@ -243,10 +254,11 @@
   }
   .thematic-header .header-right .credits-display {
     order: 2;
-    margin-left: auto;
+    margin-left: 0.5rem;
     margin-right: 0;
     display: flex;
     align-items: center;
+    flex-shrink: 0;
   }
   .thematic-header .header-right .credits-display.hidden {
     display: none !important;
@@ -275,6 +287,7 @@
     padding: 8px 8px;
     height: 56px;
     align-items: center;
+    overflow-x: hidden;
   }
   .logo a {
     font-size: 1rem;
@@ -283,10 +296,13 @@
     font-size: 1rem;
   }
   .header-right {
-    justify-content: space-between;
-    width: 100%;
+    justify-content: flex-end;
+    flex: 1;
+    min-width: 0;
     margin-left: 0;
     align-items: center;
+    width: auto;
+    max-width: 100%;
   }
   .header-center {
     align-items: center;
@@ -297,8 +313,9 @@
   }
   .auth-buttons {
     order: 1;
-    margin-right: auto;
+    margin-right: 0;
     align-items: center;
+    flex-shrink: 0;
   }
   .user-info {
     padding: 5px 8px;
@@ -318,10 +335,11 @@
   }
   .thematic-header .header-right .credits-display {
     order: 2;
-    margin-left: auto;
+    margin-left: 0.5rem;
     margin-right: 0;
     display: flex;
     align-items: center;
+    flex-shrink: 0;
   }
   .thematic-header .header-right .credits-display.hidden {
     display: none !important;

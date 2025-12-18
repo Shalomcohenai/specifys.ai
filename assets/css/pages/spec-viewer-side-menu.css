@@ -390,6 +390,11 @@
   transition: none; /* No transition - content stays fixed */
   position: relative;
   z-index: 1;
+  width: calc(100% - 60px);
+  max-width: calc(1200px - 60px);
+  margin-right: auto;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 /* Content should never move when menu expands - menu is overlay */
@@ -421,7 +426,7 @@
 
 /* Mobile responsive */
 @media (max-width: 768px) {
-  /* Toggle Button - Visible on mobile */
+  /* Toggle Button - Visible on mobile, stays fixed when scrolling */
   .side-menu-toggle-mobile {
     display: flex;
     position: fixed;
@@ -439,6 +444,8 @@
     z-index: 1001;
     box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    /* Stays in place when scrolling */
+    will-change: transform;
   }
   
   .side-menu-toggle-mobile:hover {
@@ -465,9 +472,11 @@
   /* Side Menu - Expanded when active */
   .side-menu.active {
     width: 280px;
+    max-width: 85vw; /* Prevent overflow on very small screens */
     transform: translateX(0);
     z-index: 1000;
     box-shadow: 2px 0 12px rgba(0, 0, 0, 0.2);
+    overflow-x: hidden;
   }
   
   /* Show text labels when menu is active on mobile */
@@ -510,19 +519,21 @@
   .content {
     margin-left: 0;
     width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
     transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    z-index: 1;
   }
   
   /* Content stays full width even when menu is open (menu is overlay) */
   .content.menu-open {
     margin-left: 0;
     width: 100%;
-  }
-  
-  /* Ensure content is not hidden behind menu */
-  .content {
-    position: relative;
-    z-index: 1;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
   }
   
   /* Overlay when menu is open */
