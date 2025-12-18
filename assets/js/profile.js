@@ -1314,29 +1314,13 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
             }
 
             toolsContainer.innerHTML = tools.map(tool => `
-                <div class="app-card" data-tool-id="${tool.id}">
-                    <div class="app-card-header">
-                        <h4 class="app-card-title">
-                            <span class="spec-link">${tool.name || 'Unknown Tool'}</span>
-                        </h4>
-                        <div class="app-card-actions">
-                            <button class="btn-icon" onclick="removeSavedTool('${tool.id}')" title="Remove from saved tools">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                            ${tool.link && tool.link !== '#' ? `<button class="btn-icon" onclick="window.open('${tool.link}', '_blank')" title="Visit tool website"><i class="fas fa-external-link-alt"></i></button>` : ''}
-                        </div>
-                    </div>
-                    <div class="app-card-content">
-                        <div class="app-stats-minimal">
-                            <div class="app-stat-minimal">
-                                <i class="fas fa-wrench"></i>
-                                <span>Tool</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="app-card-footer">
-                        <small>Saved: ${new Date(tool.addedAt).toLocaleDateString()}</small>
-                    </div>
+                <div class="saved-tool-card" data-tool-id="${tool.id}">
+                    <div class="saved-tool-date">${new Date(tool.addedAt).toLocaleDateString()}</div>
+                    <div class="saved-tool-name">${tool.name || 'Unknown Tool'}</div>
+                    ${tool.link && tool.link !== '#' ? `<a href="${tool.link}" target="_blank" class="saved-tool-link" onclick="event.stopPropagation();">Use Tool</a>` : '<span class="saved-tool-link disabled">No link</span>'}
+                    <button class="saved-tool-remove" onclick="removeSavedTool('${tool.id}')" title="Remove from saved tools">
+                        <i class="fas fa-times"></i>
+                    </button>
                 </div>
             `).join('');
         }
@@ -1645,29 +1629,13 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
             }
 
             toolsContainer.innerHTML = tools.map(tool => `
-                <div class="app-card" data-tool-id="${tool.id}">
-                    <div class="app-card-header">
-                        <h4 class="app-card-title">
-                            <span class="spec-link">${tool.name || 'Unknown Tool'}</span>
-                        </h4>
-                        <div class="app-card-actions">
-                            <button class="btn-icon" onclick="removeSavedTool('${tool.id}')" title="Remove from saved tools">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                            ${tool.link && tool.link !== '#' ? `<button class="btn-icon" onclick="window.open('${tool.link}', '_blank')" title="Visit tool website"><i class="fas fa-external-link-alt"></i></button>` : ''}
-                        </div>
-                    </div>
-                    <div class="app-card-content">
-                        <div class="app-stats-minimal">
-                            <div class="app-stat-minimal">
-                                <i class="fas fa-wrench"></i>
-                                <span>Tool</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="app-card-footer">
-                        <small>Saved: ${new Date(tool.addedAt).toLocaleDateString()}</small>
-                    </div>
+                <div class="saved-tool-card" data-tool-id="${tool.id}">
+                    <div class="saved-tool-date">${new Date(tool.addedAt).toLocaleDateString()}</div>
+                    <div class="saved-tool-name">${tool.name || 'Unknown Tool'}</div>
+                    ${tool.link && tool.link !== '#' ? `<a href="${tool.link}" target="_blank" class="saved-tool-link" onclick="event.stopPropagation();">Use Tool</a>` : '<span class="saved-tool-link disabled">No link</span>'}
+                    <button class="saved-tool-remove" onclick="removeSavedTool('${tool.id}')" title="Remove from saved tools">
+                        <i class="fas fa-times"></i>
+                    </button>
                 </div>
             `).join('');
         }

@@ -1120,3 +1120,163 @@ body .panel-action-btn:hover {
     padding: 16px !important;
   }
 }
+
+/* ============================================
+   Saved Tools - Compact Square Cards
+   ============================================ */
+
+/* Grid layout for saved tools - small squares */
+#tools-container.apps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+/* Compact saved tool card */
+.saved-tool-card {
+  position: relative;
+  background: white;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 0.75rem;
+  min-height: 150px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.saved-tool-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  border-color: #FF6B35;
+}
+
+/* Date at the top */
+.saved-tool-date {
+  font-size: 0.7rem;
+  color: #999;
+  margin-bottom: 0.5rem;
+  text-align: left;
+}
+
+/* Tool name */
+.saved-tool-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.75rem;
+  line-height: 1.3;
+  flex: 1;
+  word-wrap: break-word;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+/* Link to use tool */
+.saved-tool-link {
+  display: block;
+  font-size: 0.75rem;
+  color: #FF6B35;
+  text-decoration: none;
+  padding: 0.4rem 0.5rem;
+  border: 1px solid #FF6B35;
+  border-radius: 4px;
+  text-align: center;
+  transition: all 0.2s ease;
+  margin-top: auto;
+}
+
+.saved-tool-link:hover {
+  background: #FF6B35;
+  color: white;
+}
+
+.saved-tool-link.disabled {
+  color: #999;
+  border-color: #ddd;
+  cursor: not-allowed;
+  background: #f5f5f5;
+}
+
+/* Remove button */
+.saved-tool-remove {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 20px;
+  height: 20px;
+  border: none;
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  opacity: 0;
+  font-size: 0.7rem;
+  padding: 0;
+}
+
+.saved-tool-card:hover .saved-tool-remove {
+  opacity: 1;
+}
+
+.saved-tool-remove:hover {
+  background: rgba(239, 68, 68, 0.2);
+  transform: scale(1.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  #tools-container.apps-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 0.75rem;
+  }
+  
+  .saved-tool-card {
+    min-height: 130px;
+    padding: 0.6rem;
+  }
+  
+  .saved-tool-name {
+    font-size: 0.8rem;
+  }
+  
+  .saved-tool-link {
+    font-size: 0.7rem;
+    padding: 0.35rem 0.4rem;
+  }
+}
+
+@media (max-width: 480px) {
+  #tools-container.apps-grid {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 0.5rem;
+  }
+  
+  .saved-tool-card {
+    min-height: 120px;
+    padding: 0.5rem;
+  }
+  
+  .saved-tool-date {
+    font-size: 0.65rem;
+  }
+  
+  .saved-tool-name {
+    font-size: 0.75rem;
+  }
+  
+  .saved-tool-link {
+    font-size: 0.65rem;
+    padding: 0.3rem 0.35rem;
+  }
+}
