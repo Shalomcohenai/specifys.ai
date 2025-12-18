@@ -983,13 +983,33 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 
                 // Format renewal date
                 if (renewalDate) {
-                    const date = renewalDate.toDate ? renewalDate.toDate() : new Date(renewalDate);
-                    if (renewalDateEl) {
-                        renewalDateEl.textContent = date.toLocaleDateString('en-US', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric'
-                        });
+                    let date;
+                    // Handle Firestore Timestamp
+                    if (renewalDate.toDate && typeof renewalDate.toDate === 'function') {
+                        date = renewalDate.toDate();
+                    } 
+                    // Handle Firestore Timestamp from API (serialized format)
+                    else if (renewalDate._seconds) {
+                        date = new Date(renewalDate._seconds * 1000 + (renewalDate._nanoseconds || 0) / 1000000);
+                    }
+                    // Handle ISO string or Date object
+                    else {
+                        date = new Date(renewalDate);
+                    }
+                    
+                    // Validate date
+                    if (isNaN(date.getTime())) {
+                        if (renewalDateEl) {
+                            renewalDateEl.textContent = '-';
+                        }
+                    } else {
+                        if (renewalDateEl) {
+                            renewalDateEl.textContent = date.toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric'
+                            });
+                        }
                     }
                     if (renewalRowEl) {
                         renewalRowEl.style.display = 'flex';
