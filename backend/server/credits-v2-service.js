@@ -171,13 +171,22 @@ async function migrateFromOldSystem(userId) {
     const subscriptionType = isUnlimited ? 'pro' : 'none';
     const subscriptionStatus = isUnlimited ? 'active' : 'none';
     
-    // Check if subscription document exists for expiration date
+    // Check if subscription document exists for expiration date and other details
     let subscriptionExpiresAt = null;
+    let subscriptionDetails = {};
     if (isUnlimited) {
       const subscriptionDoc = await db.collection(SUBSCRIPTIONS_COLLECTION).doc(userId).get();
       if (subscriptionDoc.exists) {
         const subData = subscriptionDoc.data();
-        subscriptionExpiresAt = subData.current_period_end || null;
+        subscriptionExpiresAt = subData.renews_at || subData.current_period_end || null;
+        subscriptionDetails = {
+          renewsAt: subData.renews_at || null,
+          endsAt: subData.ends_at || null,
+          cancelAtPeriodEnd: subData.cancel_at_period_end || false,
+          lastOrderTotal: subData.last_order_total || null,
+          currency: subData.currency || 'USD',
+          billingInterval: subData.billing_interval || null
+        };
       }
     }
     
@@ -195,7 +204,8 @@ async function migrateFromOldSystem(userId) {
         expiresAt: subscriptionExpiresAt,
         preservedCredits: typeof entitlements.preserved_credits === 'number' 
           ? entitlements.preserved_credits 
-          : 0
+          : 0,
+        ...subscriptionDetails
       },
       permissions: {
         canEdit: entitlements.can_edit === true,
@@ -300,6 +310,32 @@ async function getUserCredits(userId, autoCreate = true) {
   const creditsData = creditsDoc.data();
   const totalCredits = calculateTotal(creditsData.balances);
   logger.debug({ userId, totalCredits, breakdown: creditsData.balances }, '[CREDITS-V2] getUserCredits - Existing credits summary');
+  
+  // Enrich subscription data with details from subscriptions collection
+  if (creditsData.subscription && creditsData.subscription.type === 'pro') {
+    try {
+      const subscriptionDoc = await db.collection(SUBSCRIPTIONS_COLLECTION).doc(userId).get();
+      if (subscriptionDoc.exists) {
+        const subData = subscriptionDoc.data();
+        
+        // Merge subscription details
+        creditsData.subscription = {
+          ...creditsData.subscription,
+          renewsAt: subData.renews_at || null,
+          endsAt: subData.ends_at || null,
+          cancelAtPeriodEnd: subData.cancel_at_period_end || false,
+          lastOrderTotal: subData.last_order_total || null,
+          currency: subData.currency || 'USD',
+          billingInterval: subData.billing_interval || null,
+          // Use renews_at if available, otherwise use current_period_end, otherwise use expiresAt
+          expiresAt: subData.renews_at || subData.current_period_end || creditsData.subscription.expiresAt || null
+        };
+      }
+    } catch (error) {
+      logger.warn({ userId, error: error.message }, '[CREDITS-V2] getUserCredits - Failed to fetch subscription details');
+      // Continue without subscription details
+    }
+  }
   
   return creditsData;
 }

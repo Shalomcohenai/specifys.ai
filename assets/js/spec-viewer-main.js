@@ -90,6 +90,7 @@ document.addEventListener('DOMContentLoaded', function() {
     try {
         if (typeof mermaid !== 'undefined') {
             mermaid.initialize({
+                startOnLoad: false, // Prevent automatic rendering - we render diagrams manually
                 theme: 'base',
                 themeVariables: {
                     primaryColor: '#FF6B35',
@@ -6583,6 +6584,18 @@ async function generatePrompts() {
 function displayDiagrams(diagramsArray) {
     const container = document.getElementById('diagrams-data');
     
+    // Safety check: ensure container exists and is the correct one
+    if (!container) {
+        console.error('diagrams-data container not found');
+        return;
+    }
+    
+    // Ensure we're only displaying in the diagrams-data container, not anywhere else
+    if (container.id !== 'diagrams-data') {
+        console.error('Invalid container for diagrams display');
+        return;
+    }
+    
     if (!diagramsArray || diagramsArray.length === 0) {
         container.innerHTML = '<div class="diagram-error"><h3><i class="fa fa-times-circle"></i> No Diagrams Generated</h3><p>Failed to generate diagrams. Please try again.</p></div>';
         return;
@@ -6614,12 +6627,12 @@ function displayDiagrams(diagramsArray) {
         const header = document.createElement('div');
         header.className = 'diagram-header';
         header.innerHTML = `
-            <div style="flex: 1;">
+            <div class="diagram-header-content">
                 <h3>${escapeHtml(diagram.title)}</h3>
                 ${diagram.description ? `<p class="diagram-description" style="color: #666; font-size: 14px; line-height: 1.6; margin-top: 8px; margin-bottom: 0;">${escapeHtml(diagram.description)}</p>` : ''}
             </div>
             <div class="diagram-controls">
-                <button onclick="openFullscreen('${diagram.id}')" class="btn-icon" title="Fullscreen">
+                <button onclick="openFullscreen('${diagram.id}')" class="btn-icon diagram-fullscreen-btn" title="Fullscreen">
                     <i class="fa fa-expand"></i>
                 </button>
                 <button onclick="refreshDiagram('${diagram.id}')" class="btn-icon hidden" title="Refresh">
@@ -6965,8 +6978,8 @@ function openFullscreen(diagramId) {
     currentPanY = 0;
     updateTransform();
     
-    // Show modal
-    modal.style.display = 'flex';
+    // Show modal - remove hidden class
+    modal.classList.remove('hidden');
     
     // Remove any existing listeners first to avoid duplicates
     document.removeEventListener('keydown', handleEscKey);
@@ -6992,7 +7005,7 @@ function closeFullscreen() {
 
     const modal = document.getElementById('fullscreenModal');
     if (modal) {
-        modal.style.display = 'none';
+        modal.classList.add('hidden');
     }
     
     // Remove event listeners

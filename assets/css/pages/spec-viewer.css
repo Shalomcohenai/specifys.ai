@@ -739,6 +739,138 @@ button[onclick*="openVisualizer"]:active {
   font-style: italic;
 }
 
+/* Diagram Container */
+.diagram-container {
+  margin-bottom: 30px;
+  padding: 24px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e0e0e0;
+}
+
+/* Diagram Header and Controls */
+.diagram-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.diagram-header-content {
+  flex: 1;
+}
+
+.diagram-header h3 {
+  margin: 0;
+  color: #333;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.diagram-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.diagram-controls .btn-icon.diagram-fullscreen-btn {
+  background: transparent;
+  border: none;
+  color: #666;
+  padding: 8px;
+  width: auto;
+  height: auto;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.diagram-controls .btn-icon.diagram-fullscreen-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: #333;
+  transform: none;
+  box-shadow: none;
+  outline: none;
+}
+
+.diagram-controls .btn-icon.diagram-fullscreen-btn:active {
+  transform: none;
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.diagram-controls .btn-icon.diagram-fullscreen-btn:focus {
+  outline: 2px solid rgba(0, 0, 0, 0.1);
+  outline-offset: 2px;
+}
+
+.diagram-controls .btn-icon.diagram-fullscreen-btn i {
+  color: inherit;
+  font-size: 18px;
+}
+
+/* Fullscreen Modal */
+.fullscreen-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.95);
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+}
+
+.fullscreen-modal.hidden {
+  display: none;
+}
+
+.fullscreen-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.fullscreen-header h3 {
+  margin: 0;
+  color: white;
+  font-size: 1.5rem;
+}
+
+.fullscreen-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.fullscreen-content {
+  flex: 1;
+  overflow: auto;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mermaid-fullscreen {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mermaid-fullscreen svg {
+  max-width: 100%;
+  max-height: 100%;
+}
+
 /* ============================================
    Export Specification Tab Styles
    ============================================ */

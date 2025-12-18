@@ -844,7 +844,13 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
                     currentSubscription = {
                         status: creditsData.subscription.status || 'none',
                         type: creditsData.subscription.type || 'none',
-                        expiresAt: creditsData.subscription.expiresAt || null
+                        expiresAt: creditsData.subscription.expiresAt || null,
+                        renewsAt: creditsData.subscription.renewsAt || null,
+                        endsAt: creditsData.subscription.endsAt || null,
+                        cancelAtPeriodEnd: creditsData.subscription.cancelAtPeriodEnd || false,
+                        lastOrderTotal: creditsData.subscription.lastOrderTotal || null,
+                        currency: creditsData.subscription.currency || 'USD',
+                        billingInterval: creditsData.subscription.billingInterval || null
                     };
                 } else {
                     // Fallback: Load subscription from Firestore if not in API response
@@ -953,6 +959,89 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
             if (statusEl) {
                 statusEl.textContent = unlimited ? 'Active' : 'Free tier';
                 statusEl.className = `status-badge ${unlimited ? 'active' : 'free'}`;
+            }
+
+            // Update renewal date and cost for Pro users
+            const renewalRowEl = document.getElementById('renewal-row');
+            const costRowEl = document.getElementById('cost-row');
+            const renewalDateEl = document.getElementById('info-renewal-date');
+            const renewalCostEl = document.getElementById('info-renewal-cost');
+
+            if (unlimited && sub) {
+                // Determine renewal date
+                let renewalDate = null;
+                if (sub.cancelAtPeriodEnd && sub.endsAt) {
+                    // Canceled subscription - show end date
+                    renewalDate = sub.endsAt;
+                } else if (sub.renewsAt) {
+                    // Active subscription - show renewal date
+                    renewalDate = sub.renewsAt;
+                } else if (sub.expiresAt) {
+                    // Fallback to expiresAt
+                    renewalDate = sub.expiresAt;
+                }
+
+                // Format renewal date
+                if (renewalDate) {
+                    const date = renewalDate.toDate ? renewalDate.toDate() : new Date(renewalDate);
+                    if (renewalDateEl) {
+                        renewalDateEl.textContent = date.toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                        });
+                    }
+                    if (renewalRowEl) {
+                        renewalRowEl.style.display = 'flex';
+                    }
+                } else {
+                    if (renewalDateEl) {
+                        renewalDateEl.textContent = '-';
+                    }
+                    if (renewalRowEl) {
+                        renewalRowEl.style.display = 'flex';
+                    }
+                }
+
+                // Determine renewal cost
+                let renewalCost = null;
+                if (sub.cancelAtPeriodEnd) {
+                    // Canceled subscription - show $0
+                    renewalCost = 0;
+                } else if (sub.lastOrderTotal !== null && sub.lastOrderTotal !== undefined) {
+                    // Active subscription - show last order total
+                    renewalCost = sub.lastOrderTotal;
+                }
+
+                // Format renewal cost
+                if (renewalCost !== null) {
+                    const currency = sub.currency || 'USD';
+                    const formatter = new Intl.NumberFormat('en-US', {
+                        style: 'currency',
+                        currency: currency
+                    });
+                    if (renewalCostEl) {
+                        renewalCostEl.textContent = formatter.format(renewalCost);
+                    }
+                    if (costRowEl) {
+                        costRowEl.style.display = 'flex';
+                    }
+                } else {
+                    if (renewalCostEl) {
+                        renewalCostEl.textContent = '-';
+                    }
+                    if (costRowEl) {
+                        costRowEl.style.display = 'flex';
+                    }
+                }
+            } else {
+                // Not Pro user - hide renewal info
+                if (renewalRowEl) {
+                    renewalRowEl.style.display = 'none';
+                }
+                if (costRowEl) {
+                    costRowEl.style.display = 'none';
+                }
             }
 
             const infoSpecsEl = document.getElementById('info-specs');
