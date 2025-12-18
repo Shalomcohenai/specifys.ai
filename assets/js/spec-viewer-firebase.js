@@ -13,3 +13,6 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
+
+// Expose auth globally for api-client.js
+window.auth = auth;
