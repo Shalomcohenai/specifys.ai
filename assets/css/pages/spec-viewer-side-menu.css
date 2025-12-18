@@ -408,14 +408,22 @@
   .content {
     margin-left: 0;
     width: 100%;
+    max-width: 100vw;
     position: relative;
     z-index: 1;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    min-width: 0;
   }
   
   .side-menu:hover ~ .content,
   .content.with-side-menu,
   .side-menu.active ~ .content {
     margin-left: 0;
+    width: 100%;
+    max-width: 100vw;
+    box-sizing: border-box;
+    overflow-x: hidden;
   }
 }
 

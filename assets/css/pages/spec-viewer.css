@@ -9,8 +9,10 @@ body.spec-viewer-page,
 html:has(body.spec-viewer-page) {
   overflow-x: hidden;
   width: 100%;
-  max-width: 100%;
+  max-width: 100vw;
   position: relative;
+  box-sizing: border-box;
+  min-width: 0;
 }
 
 /* Fix header display - using same approach as demo-spec-page */
@@ -299,9 +301,12 @@ button[onclick*="openVisualizer"]:active {
   gap: 24px;
   flex-wrap: wrap;
   width: 100%;
-  max-width: 100%;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
   box-sizing: border-box;
   overflow-x: hidden;
+  min-width: 0;
 }
 
 .approval-message {
@@ -366,6 +371,99 @@ button[onclick*="openVisualizer"]:active {
   overflow-x: hidden;
   word-wrap: break-word;
   overflow-wrap: break-word;
+  min-width: 0;
+}
+
+/* Ensure all child elements within content-body respect container width */
+.tab-content .content-body > * {
+  max-width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+/* Tables - make them responsive */
+.tab-content .content-body table {
+  width: 100%;
+  max-width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  font-size: 16px;
+  box-sizing: border-box;
+  table-layout: auto;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.tab-content .content-body table th,
+.tab-content .content-body table td {
+  padding: 12px;
+  text-align: left;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 0; /* Force table cells to respect width */
+}
+
+/* Pre and code blocks - allow horizontal scroll within them */
+.tab-content .content-body pre {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  box-sizing: border-box;
+  word-wrap: normal;
+  overflow-wrap: normal;
+  white-space: pre;
+}
+
+.tab-content .content-body code {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Images - make them responsive */
+.tab-content .content-body img {
+  max-width: 100%;
+  height: auto;
+  box-sizing: border-box;
+}
+
+/* Divs and other block elements */
+.tab-content .content-body div {
+  max-width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+/* Lists */
+.tab-content .content-body ul,
+.tab-content .content-body ol {
+  max-width: 100%;
+  box-sizing: border-box;
+  padding-left: 20px;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Paragraphs */
+.tab-content .content-body p {
+  max-width: 100%;
+  box-sizing: border-box;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Headings */
+.tab-content .content-body h1,
+.tab-content .content-body h2,
+.tab-content .content-body h3,
+.tab-content .content-body h4,
+.tab-content .content-body h5,
+.tab-content .content-body h6 {
+  max-width: 100%;
+  box-sizing: border-box;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 /* Responsive adjustments */
@@ -374,25 +472,27 @@ button[onclick*="openVisualizer"]:active {
     margin-top: 30px;
     margin-bottom: 30px;
     width: 100%;
-    max-width: 100%;
-    margin-left: auto;
-    margin-right: auto;
+    max-width: 100vw;
+    margin-left: 0;
+    margin-right: 0;
     box-sizing: border-box;
     overflow-x: hidden;
     padding-left: 15px;
     padding-right: 15px;
+    min-width: 0;
   }
   
   .container {
     margin-top: 20px;
     width: 100%;
-    max-width: 100%;
-    margin-left: auto;
-    margin-right: auto;
+    max-width: 100vw;
+    margin-left: 0;
+    margin-right: 0;
     box-sizing: border-box;
     overflow-x: hidden;
     padding-left: 15px;
     padding-right: 15px;
+    min-width: 0;
   }
   
   .approval-container {
@@ -401,18 +501,55 @@ button[onclick*="openVisualizer"]:active {
     flex-direction: column;
     align-items: stretch;
     width: 100%;
-    max-width: 100%;
+    max-width: 100vw;
     box-sizing: border-box;
     overflow-x: hidden;
+    min-width: 0;
   }
   
   .tab-content {
     padding: 20px;
     margin-bottom: 20px;
     width: 100%;
-    max-width: 100%;
+    max-width: 100vw;
     box-sizing: border-box;
     overflow-x: hidden;
+    min-width: 0;
+    margin-left: 0;
+    margin-right: 0;
+  }
+  
+  /* Content body mobile adjustments */
+  .tab-content .content-body {
+    padding: 0;
+    width: 100%;
+    max-width: 100vw;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    min-width: 0;
+  }
+  
+  /* Tables on mobile - make them scrollable within container */
+  .tab-content .content-body table {
+    width: 100%;
+    max-width: 100%;
+    font-size: 14px;
+    table-layout: fixed; /* Force table to respect width */
+  }
+  
+  .tab-content .content-body table th,
+  .tab-content .content-body table td {
+    padding: 8px;
+    word-break: break-word;
+    overflow-wrap: break-word;
+  }
+  
+  /* Pre blocks on mobile - allow scroll within them */
+  .tab-content .content-body pre {
+    font-size: 12px;
+    padding: 15px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
   
   .approval-message {
