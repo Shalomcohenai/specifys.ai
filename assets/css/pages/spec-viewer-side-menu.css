@@ -415,6 +415,8 @@
     overflow-x: hidden;
     min-width: 0;
     transition: none; /* No transition - content should never move */
+    contain: layout; /* Isolate content to prevent layout shifts */
+    isolation: isolate; /* Create new stacking context */
   }
   
   .side-menu:hover ~ .content,
@@ -426,6 +428,8 @@
     max-width: 100vw;
     box-sizing: border-box;
     overflow-x: hidden;
+    contain: layout; /* Ensure containment in all states */
+    isolation: isolate; /* Maintain isolation */
   }
 }
 
@@ -536,6 +540,8 @@
     transition: none; /* No transition - content should never move */
     position: relative;
     z-index: 1;
+    contain: layout; /* Isolate content to prevent layout shifts */
+    isolation: isolate; /* Create new stacking context */
   }
   
   /* Content stays full width even when menu is open (menu is overlay) */
@@ -545,6 +551,8 @@
     max-width: 100%;
     box-sizing: border-box;
     overflow-x: hidden;
+    contain: layout; /* Ensure containment even when menu is open */
+    isolation: isolate; /* Maintain isolation */
   }
   
   /* Overlay when menu is open */
