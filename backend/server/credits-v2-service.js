@@ -315,21 +315,48 @@ async function getUserCredits(userId, autoCreate = true) {
   if (creditsData.subscription && creditsData.subscription.type === 'pro') {
     try {
       const subscriptionDoc = await db.collection(SUBSCRIPTIONS_COLLECTION).doc(userId).get();
+      logger.debug({ userId, exists: subscriptionDoc.exists }, '[CREDITS-V2] getUserCredits - Checking subscriptions collection');
       if (subscriptionDoc.exists) {
         const subData = subscriptionDoc.data();
+        logger.debug({ userId, subDataKeys: Object.keys(subData) }, '[CREDITS-V2] getUserCredits - Subscription data keys from Firestore');
+        
+        // Determine renewal/end date - prioritize renews_at, then ends_at, then current_period_end
+        const renewsAt = subData.renews_at || null;
+        const endsAt = subData.ends_at || null;
+        const currentPeriodEnd = subData.current_period_end || null;
+        
+        // For active subscriptions: use renews_at or current_period_end
+        // For canceled subscriptions: use ends_at or current_period_end
+        const cancelAtPeriodEnd = subData.cancel_at_period_end || false;
+        let renewalDate = null;
+        if (cancelAtPeriodEnd) {
+          renewalDate = endsAt || currentPeriodEnd;
+        } else {
+          renewalDate = renewsAt || currentPeriodEnd;
+        }
         
         // Merge subscription details
         creditsData.subscription = {
           ...creditsData.subscription,
-          renewsAt: subData.renews_at || null,
-          endsAt: subData.ends_at || null,
-          cancelAtPeriodEnd: subData.cancel_at_period_end || false,
+          renewsAt: renewsAt,
+          endsAt: endsAt,
+          cancelAtPeriodEnd: cancelAtPeriodEnd,
           lastOrderTotal: subData.last_order_total || null,
           currency: subData.currency || 'USD',
           billingInterval: subData.billing_interval || null,
-          // Use renews_at if available, otherwise use current_period_end, otherwise use expiresAt
-          expiresAt: subData.renews_at || subData.current_period_end || creditsData.subscription.expiresAt || null
+          // Use the determined renewal date
+          expiresAt: renewalDate || creditsData.subscription.expiresAt || null
         };
+        logger.info({ 
+          userId, 
+          renewsAt: renewsAt ? 'exists' : 'null',
+          endsAt: endsAt ? 'exists' : 'null',
+          currentPeriodEnd: currentPeriodEnd ? 'exists' : 'null',
+          cancelAtPeriodEnd,
+          finalExpiresAt: creditsData.subscription.expiresAt ? 'exists' : 'null'
+        }, '[CREDITS-V2] getUserCredits - Enriched subscription data');
+      } else {
+        logger.warn({ userId }, '[CREDITS-V2] getUserCredits - No subscription document found in subscriptions collection');
       }
     } catch (error) {
       logger.warn({ userId, error: error.message }, '[CREDITS-V2] getUserCredits - Failed to fetch subscription details');

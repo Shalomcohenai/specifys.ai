@@ -831,12 +831,21 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
                 // Use new credits API instead of direct Firestore access
                 const creditsData = await window.api.get('/api/v2/credits');
                 
+                // Load credit history to get total consumed
+                let creditsHistory = null;
+                try {
+                    creditsHistory = await window.api.get('/api/v2/credits/history');
+                } catch (historyError) {
+                    console.warn('[Profile] Failed to load credit history:', historyError);
+                }
+                
                 // Convert new format to old format for compatibility with existing UI code
                 // New format: { unlimited, total, breakdown: { paid, free, bonus }, subscription, permissions }
                 currentEntitlements = {
                     unlimited: creditsData?.unlimited || false,
                     spec_credits: creditsData?.unlimited ? 0 : (creditsData?.breakdown?.paid || 0),
-                    can_edit: creditsData?.permissions?.canEdit || false
+                    can_edit: creditsData?.permissions?.canEdit || false,
+                    creditsHistory: creditsHistory // Store history for display
                 };
 
                 // Store subscription info from new API
@@ -852,6 +861,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
                         currency: creditsData.subscription.currency || 'USD',
                         billingInterval: creditsData.subscription.billingInterval || null
                     };
+                    console.log('[Profile] Subscription data from API:', currentSubscription);
                 } else {
                     // Fallback: Load subscription from Firestore if not in API response
                     const subscriptionRef = doc(db, 'subscriptions', currentUser.uid);
@@ -967,19 +977,22 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
             const renewalDateEl = document.getElementById('info-renewal-date');
             const renewalCostEl = document.getElementById('info-renewal-cost');
 
+            console.log('[Profile] updateEntitlementUI - unlimited:', unlimited, 'sub:', sub);
+
             if (unlimited && sub) {
                 // Determine renewal date
                 let renewalDate = null;
-                if (sub.cancelAtPeriodEnd && sub.endsAt) {
-                    // Canceled subscription - show end date
-                    renewalDate = sub.endsAt;
-                } else if (sub.renewsAt) {
-                    // Active subscription - show renewal date
-                    renewalDate = sub.renewsAt;
-                } else if (sub.expiresAt) {
-                    // Fallback to expiresAt
-                    renewalDate = sub.expiresAt;
+                console.log('[Profile] Determining renewal date - cancelAtPeriodEnd:', sub.cancelAtPeriodEnd, 'endsAt:', sub.endsAt, 'renewsAt:', sub.renewsAt, 'expiresAt:', sub.expiresAt);
+                
+                if (sub.cancelAtPeriodEnd) {
+                    // Canceled subscription - show end date (endsAt or expiresAt)
+                    renewalDate = sub.endsAt || sub.expiresAt;
+                } else {
+                    // Active subscription - show renewal date (renewsAt or expiresAt)
+                    renewalDate = sub.renewsAt || sub.expiresAt;
                 }
+                
+                console.log('[Profile] Final renewal date:', renewalDate);
 
                 // Format renewal date
                 if (renewalDate) {
@@ -1072,6 +1085,26 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
                     infoSpecsEl.textContent = 'No specification credits available';
                 } else {
                     infoSpecsEl.textContent = `${credits} specification ${credits === 1 ? 'credit' : 'credits'} available`;
+                }
+            }
+
+            // Update credits used
+            const infoCreditsUsedEl = document.getElementById('info-credits-used');
+            if (infoCreditsUsedEl) {
+                const creditsHistory = ent?.creditsHistory;
+                if (unlimited) {
+                    // For Pro users, show total consumed if available, otherwise "Unlimited"
+                    if (creditsHistory?.summary?.totalConsumed !== undefined && creditsHistory.summary.totalConsumed > 0) {
+                        const totalConsumed = creditsHistory.summary.totalConsumed;
+                        infoCreditsUsedEl.textContent = `${totalConsumed} specification${totalConsumed === 1 ? '' : 's'} created`;
+                    } else {
+                        infoCreditsUsedEl.textContent = 'Unlimited';
+                    }
+                } else if (creditsHistory?.summary?.totalConsumed !== undefined) {
+                    const totalConsumed = creditsHistory.summary.totalConsumed;
+                    infoCreditsUsedEl.textContent = `${totalConsumed} specification${totalConsumed === 1 ? '' : 's'} created`;
+                } else {
+                    infoCreditsUsedEl.textContent = '0 specifications created';
                 }
             }
 
@@ -2446,6 +2479,15 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
                 document.getElementById('cancelSubBtn').style.display = 'none';
 
                 await loadEntitlements(true);
+                // Ensure credits history is loaded for display
+                if (currentEntitlements && !currentEntitlements.creditsHistory) {
+                    try {
+                        const creditsHistory = await window.api.get('/api/v2/credits/history');
+                        currentEntitlements.creditsHistory = creditsHistory;
+                    } catch (historyError) {
+                        console.warn('[Profile] Failed to load credit history in loadPersonalInfo:', historyError);
+                    }
+                }
                 updateEntitlementUI();
 
             } catch (error) {

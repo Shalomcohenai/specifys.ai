@@ -1156,7 +1156,7 @@ body .panel-action-btn:hover {
 
 /* Date at the top */
 .saved-tool-date {
-  font-size: 0.7rem;
+  font-size: 0.85rem;
   color: #999;
   margin-bottom: 0.5rem;
   text-align: left;
@@ -1164,7 +1164,7 @@ body .panel-action-btn:hover {
 
 /* Tool name */
 .saved-tool-name {
-  font-size: 0.85rem;
+  font-size: 1rem;
   font-weight: 600;
   color: #333;
   margin-bottom: 0.75rem;
@@ -1181,11 +1181,13 @@ body .panel-action-btn:hover {
 /* Link to use tool */
 .saved-tool-link {
   display: block;
-  font-size: 0.75rem;
-  color: #FF6B35;
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: white;
+  background: #FF6B35;
   text-decoration: none;
-  padding: 0.4rem 0.5rem;
-  border: 1px solid #FF6B35;
+  padding: 0.5rem 0.75rem;
+  border: none;
   border-radius: 4px;
   text-align: center;
   transition: all 0.2s ease;
@@ -1193,15 +1195,17 @@ body .panel-action-btn:hover {
 }
 
 .saved-tool-link:hover {
-  background: #FF6B35;
+  background: #FF8551;
   color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(255, 107, 53, 0.3);
 }
 
 .saved-tool-link.disabled {
   color: #999;
-  border-color: #ddd;
-  cursor: not-allowed;
   background: #f5f5f5;
+  cursor: not-allowed;
+  font-weight: normal;
 }
 
 /* Remove button */
@@ -1246,13 +1250,17 @@ body .panel-action-btn:hover {
     padding: 0.6rem;
   }
   
-  .saved-tool-name {
+  .saved-tool-date {
     font-size: 0.8rem;
   }
   
+  .saved-tool-name {
+    font-size: 0.95rem;
+  }
+  
   .saved-tool-link {
-    font-size: 0.7rem;
-    padding: 0.35rem 0.4rem;
+    font-size: 0.85rem;
+    padding: 0.45rem 0.6rem;
   }
 }
 
@@ -1268,15 +1276,15 @@ body .panel-action-btn:hover {
   }
   
   .saved-tool-date {
-    font-size: 0.65rem;
-  }
-  
-  .saved-tool-name {
     font-size: 0.75rem;
   }
   
+  .saved-tool-name {
+    font-size: 0.9rem;
+  }
+  
   .saved-tool-link {
-    font-size: 0.65rem;
-    padding: 0.3rem 0.35rem;
+    font-size: 0.8rem;
+    padding: 0.4rem 0.5rem;
   }
 }

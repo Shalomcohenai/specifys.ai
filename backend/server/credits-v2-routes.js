@@ -292,10 +292,13 @@ router.get('/history', verifyFirebaseToken, async (req, res, next) => {
     const credits = await creditsV2Service.getUserCredits(userId);
     const available = await creditsV2Service.getAvailableCredits(userId);
     
-    // Get recent transactions
-    const ledger = await creditsV2Service.getCreditLedger(userId, { limit: 10 });
+    // Get all consume transactions to calculate total consumed
+    const consumeLedger = await creditsV2Service.getCreditLedger(userId, { type: 'consume', limit: 1000 });
     
-    // Calculate summary
+    // Get recent transactions for display (last 10)
+    const recentLedger = await creditsV2Service.getCreditLedger(userId, { limit: 10 });
+    
+    // Calculate summary - use all consume transactions for accurate total
     const summary = {
       current: available,
       totalGranted: 0,
@@ -303,11 +306,19 @@ router.get('/history', verifyFirebaseToken, async (req, res, next) => {
       totalRefunded: 0
     };
     
-    ledger.transactions.forEach(transaction => {
+    // Calculate total consumed from all consume transactions
+    consumeLedger.transactions.forEach(transaction => {
+      if (transaction.type === 'consume') {
+        // For consume, amount is usually negative or 1, we want the absolute value
+        const consumed = Math.abs(transaction.amount || 1);
+        summary.totalConsumed += consumed;
+      }
+    });
+    
+    // Calculate granted and refunded from recent transactions (for display)
+    recentLedger.transactions.forEach(transaction => {
       if (transaction.type === 'grant') {
         summary.totalGranted += transaction.amount || 0;
-      } else if (transaction.type === 'consume') {
-        summary.totalConsumed += transaction.amount || 0;
       } else if (transaction.type === 'refund') {
         summary.totalRefunded += transaction.amount || 0;
       }
