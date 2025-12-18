@@ -73,31 +73,12 @@
 
   // Initialize auth buttons with default state
   document.addEventListener('DOMContentLoaded', function() {
-    // Handle side menu hover to adjust content margins
+    // Handle side menu hover to close submenus when menu collapses
     const sideMenu = document.getElementById('sideMenu');
-    const container = document.querySelector('.container');
-    const pageIntroSection = document.querySelector('.page-intro-section');
     
     if (sideMenu) {
-      // Menu expanded (hover) - 280px menu + 20px spacing = 300px
-      sideMenu.addEventListener('mouseenter', () => {
-        if (container) {
-          container.style.marginLeft = '300px';
-        }
-        if (pageIntroSection) {
-          pageIntroSection.style.marginLeft = '300px';
-        }
-      });
-      
-      // Menu collapsed (closed) - 60px menu + 30px spacing = 90px
+      // Close all submenus when menu collapses
       sideMenu.addEventListener('mouseleave', () => {
-        if (container) {
-          container.style.marginLeft = '90px';
-        }
-        if (pageIntroSection) {
-          pageIntroSection.style.marginLeft = '90px';
-        }
-        // Close all submenus when menu collapses
         document.querySelectorAll('.side-menu-submenu').forEach(submenu => {
           submenu.classList.remove('expanded');
         });

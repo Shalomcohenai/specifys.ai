@@ -567,11 +567,26 @@
     z-index: 999;
     opacity: 0;
     transition: opacity 0.3s ease;
+    touch-action: pan-y; /* Allow vertical scrolling on overlay */
   }
   
   .side-menu-overlay.active {
     display: block;
     opacity: 1;
+  }
+  
+  /* Ensure content can scroll even when menu is open on mobile */
+  body:has(.side-menu.active) {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Allow scrolling on main content area */
+  .container,
+  .page-intro-section,
+  .content {
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
   }
 }
 

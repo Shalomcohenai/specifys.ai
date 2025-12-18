@@ -112,7 +112,11 @@ function initMobileSideMenu() {
             if (content) {
                 content.classList.remove('menu-open');
             }
+            // Restore scrolling - use both methods for compatibility
             document.body.style.overflow = '';
+            document.body.style.position = '';
+            document.body.style.width = '';
+            document.documentElement.style.overflow = '';
         } else {
             // Open menu
             sideMenu.classList.add('active');
@@ -121,7 +125,8 @@ function initMobileSideMenu() {
             if (content) {
                 content.classList.add('menu-open');
             }
-            document.body.style.overflow = 'hidden';
+            // Don't prevent scrolling - allow users to scroll even with menu open
+            // This provides better UX on mobile
         }
     }
     
