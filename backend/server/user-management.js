@@ -186,12 +186,21 @@ async function initializeUser(uid, userDataOverrides = {}, isNewUserFromClient =
             // Prepare user document
             console.log(`[user-management] User ${uid}: Step 4 - Preparing user document...`);
             const existingUserData = userExists ? userDoc.data() : null;
+            
+            // Always update lastActive if user signs in (use lastSignInTime from Auth)
+            // If no lastSignInTime, use existing lastActive or current time
+            const lastActiveValue = authUser.lastSignInTime 
+                ? (authUser.lastSignInTime instanceof Date 
+                    ? authUser.lastSignInTime.toISOString() 
+                    : new Date(authUser.lastSignInTime).toISOString())
+                : (existingUserData?.lastActive || nowIso);
+            
             const userDocToWrite = {
                 email: authUser.email,
                 displayName: authUser.displayName || (authUser.email ? authUser.email.split('@')[0] : ''),
                 emailVerified: authUser.emailVerified,
                 disabled: authUser.disabled,
-                lastActive: authUser.lastSignInTime || existingUserData?.lastActive || nowIso,
+                lastActive: lastActiveValue,
                 ...userDataOverrides
             };
             
@@ -207,6 +216,10 @@ async function initializeUser(uid, userDataOverrides = {}, isNewUserFromClient =
             } else {
                 console.log(`[user-management] User ${uid}: Updating EXISTING user document`);
                 userDocToWrite.createdAt = existingUserData?.createdAt || authUser.creationTime || nowIso;
+                // Ensure lastActive is always updated for existing users when they sign in
+                if (authUser.lastSignInTime) {
+                    userDocToWrite.lastActive = lastActiveValue;
+                }
             }
             
             // Remove undefined values

@@ -988,6 +988,7 @@ async function enableProSubscription(userId, options = {}) {
   const result = await db.runTransaction(async (transaction) => {
     const creditsRef = db.collection(CREDITS_COLLECTION).doc(userId);
     const subscriptionRef = db.collection(SUBSCRIPTIONS_COLLECTION).doc(userId);
+    const userRef = db.collection(USERS_COLLECTION).doc(userId);
     
     const creditsDoc = await transaction.get(creditsRef);
     const credits = creditsDoc.exists
@@ -1037,6 +1038,9 @@ async function enableProSubscription(userId, options = {}) {
     
     transaction.set(subscriptionRef, subscriptionData, { merge: true });
     
+    // Update users.plan to 'pro'
+    transaction.update(userRef, { plan: 'pro' });
+    
     return {
       previouslyUnlimited: alreadyUnlimited,
       previousCredits: currentCredits,
@@ -1069,6 +1073,7 @@ async function disableProSubscription(userId, options = {}) {
   const result = await db.runTransaction(async (transaction) => {
     const creditsRef = db.collection(CREDITS_COLLECTION).doc(userId);
     const subscriptionRef = db.collection(SUBSCRIPTIONS_COLLECTION).doc(userId);
+    const userRef = db.collection(USERS_COLLECTION).doc(userId);
     
     const creditsDoc = await transaction.get(creditsRef);
     const credits = creditsDoc.exists
@@ -1102,6 +1107,9 @@ async function disableProSubscription(userId, options = {}) {
       cancelled_at: admin.firestore.FieldValue.serverTimestamp(),
       updated_at: admin.firestore.FieldValue.serverTimestamp()
     }, { merge: true });
+    
+    // Update users.plan to 'free'
+    transaction.update(userRef, { plan: 'free' });
     
     return {
       restoredCredits: creditsToRestore,

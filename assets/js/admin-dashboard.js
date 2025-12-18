@@ -2955,6 +2955,8 @@ class AdminDashboardApp {
     // Subscribe to all data sources via DataAggregator
     try {
       this.dataAggregator.subscribeAll();
+      // Mark entitlements as deprecated since we're using user_credits now
+      this.markSourceRestricted('entitlements', 'Deprecated - using user_credits system');
       
       // Mark sources as ready when data arrives (handled by callbacks in constructor)
       // The callbacks will handle marking sources ready and updating UI
