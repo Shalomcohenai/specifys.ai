@@ -21,6 +21,12 @@
   flex-direction: column;
 }
 
+/* Menu floats over content - doesn't push it */
+.side-menu:hover {
+  width: 280px;
+  z-index: 101; /* Higher z-index when expanded to float over content */
+}
+
 .side-menu:hover {
   width: 280px;
 }
@@ -376,16 +382,36 @@
 }
 
 /* Content area adjustment for side menu */
+/* On desktop, content should stay fixed - menu floats over it */
 .content {
   flex: 1;
   min-width: 0;
-  margin-left: 60px; /* Side menu width */
-  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-left: 60px; /* Side menu collapsed width */
+  transition: none; /* No transition - content stays fixed */
+  position: relative;
+  z-index: 1;
 }
 
+/* Content should never move when menu expands - menu is overlay */
 .side-menu:hover ~ .content,
 .content.with-side-menu {
-  margin-left: 280px; /* Expanded side menu width */
+  margin-left: 60px; /* Keep same margin - menu floats over */
+}
+
+/* On mobile, content should never move - menu is overlay */
+@media (max-width: 768px) {
+  .content {
+    margin-left: 0;
+    width: 100%;
+    position: relative;
+    z-index: 1;
+  }
+  
+  .side-menu:hover ~ .content,
+  .content.with-side-menu,
+  .side-menu.active ~ .content {
+    margin-left: 0;
+  }
 }
 
 /* Mobile Toggle Button */
@@ -442,6 +468,37 @@
     transform: translateX(0);
     z-index: 1000;
     box-shadow: 2px 0 12px rgba(0, 0, 0, 0.2);
+  }
+  
+  /* Show text labels when menu is active on mobile */
+  .side-menu.active .side-menu-text {
+    opacity: 1;
+    max-width: 200px;
+  }
+  
+  .side-menu.active .side-menu-user-name {
+    opacity: 1;
+    max-width: 200px;
+  }
+  
+  .side-menu.active .side-menu-search-input {
+    opacity: 1;
+    max-width: 100%;
+  }
+  
+  .side-menu.active .side-menu-search-icon {
+    left: auto;
+    right: 16px;
+    transform: none;
+    font-size: 12px;
+  }
+  
+  .side-menu.active .side-menu-expand-sub {
+    opacity: 1;
+    width: 16px;
+    height: 16px;
+    min-width: 16px;
+    min-height: 16px;
   }
   
   /* Hide hover effect on mobile */

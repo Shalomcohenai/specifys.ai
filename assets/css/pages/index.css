@@ -933,6 +933,11 @@ body .logo a:hover .logo-dot {
   z-index: 2;
 }
 
+/* Hide bottom links when questions are shown */
+.hero-section:has(.questions-display:not(.hidden)) .hero-bottom-links {
+  display: none;
+}
+
 @media (max-width: 768px) {
   .hero-bottom-links {
     bottom: 20px;
@@ -2554,6 +2559,13 @@ body .questions-display .typing-mode-toggle * {
     flex-direction: column;
     min-height: auto;
   }
+  /* Ensure hidden class works on mobile */
+  body .questions-display.hidden {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
   body .hero-section:has(.questions-display:not(.hidden)) .modern-input-container:not(.hidden) {
     display: flex;
     opacity: 1;
@@ -2660,6 +2672,13 @@ body .questions-display .typing-mode-toggle * {
     display: flex;
     flex-direction: column;
     min-height: auto;
+  }
+  /* Ensure hidden class works on mobile */
+  body .questions-display.hidden {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
   }
   body .hero-section:has(.questions-display:not(.hidden)) .modern-input-container:not(.hidden) {
     display: flex;

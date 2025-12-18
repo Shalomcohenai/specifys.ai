@@ -194,6 +194,7 @@
   .thematic-header {
     padding: 8px 12px;
     height: 56px;
+    align-items: center;
   }
   .logo a {
     font-size: 1.1rem;
@@ -206,14 +207,21 @@
     justify-content: space-between;
     width: 100%;
     margin-left: 0;
+    align-items: center;
   }
   .header-center {
     order: 1;
+    align-items: center;
+  }
+  .header-center .logo {
+    display: flex;
+    align-items: center;
   }
   .auth-buttons {
     gap: 0.5rem;
     order: 1;
     margin-right: auto;
+    align-items: center;
   }
   .auth-btn {
     padding: 8px 12px;
@@ -238,18 +246,23 @@
     margin-left: auto;
     margin-right: 0;
     display: flex;
+    align-items: center;
   }
   .thematic-header .header-right .credits-display.hidden {
-    display: none;
+    display: none !important;
   }
   .thematic-header .header-right .credits-display:not(.hidden) {
-    display: flex;
+    display: flex !important;
+    align-items: center;
   }
   .credits-container {
     padding: 6px 10px;
     font-size: 11px;
     min-height: 36px;
     min-width: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
   .credits-container span {
     white-space: nowrap;
@@ -261,6 +274,7 @@
   .thematic-header {
     padding: 8px 8px;
     height: 56px;
+    align-items: center;
   }
   .logo a {
     font-size: 1rem;
@@ -272,10 +286,19 @@
     justify-content: space-between;
     width: 100%;
     margin-left: 0;
+    align-items: center;
+  }
+  .header-center {
+    align-items: center;
+  }
+  .header-center .logo {
+    display: flex;
+    align-items: center;
   }
   .auth-buttons {
     order: 1;
     margin-right: auto;
+    align-items: center;
   }
   .user-info {
     padding: 5px 8px;
@@ -298,18 +321,23 @@
     margin-left: auto;
     margin-right: 0;
     display: flex;
+    align-items: center;
   }
   .thematic-header .header-right .credits-display.hidden {
-    display: none;
+    display: none !important;
   }
   .thematic-header .header-right .credits-display:not(.hidden) {
-    display: flex;
+    display: flex !important;
+    align-items: center;
   }
   .credits-container {
     padding: 5px 8px;
     font-size: 10px;
     min-height: 32px;
     min-width: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
   .credits-container span {
     white-space: nowrap;

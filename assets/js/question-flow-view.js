@@ -127,6 +127,12 @@ class QuestionFlowView {
       questionsDisplay.style.transition = 'none';
       questionsDisplay.style.pointerEvents = 'auto';
     }
+    
+    // Hide bottom links when questions are shown
+    const bottomLinks = document.querySelector('.hero-bottom-links');
+    if (bottomLinks) {
+      bottomLinks.style.display = 'none';
+    }
   }
   
   hideTypingMode() {
@@ -146,6 +152,12 @@ class QuestionFlowView {
       questionsDisplay.style.opacity = '0';
       questionsDisplay.style.transition = 'none';
       questionsDisplay.classList.remove('fade-in');
+    }
+    
+    // Show bottom links when questions are hidden
+    const bottomLinks = document.querySelector('.hero-bottom-links');
+    if (bottomLinks) {
+      bottomLinks.style.display = 'flex';
     }
   }
   

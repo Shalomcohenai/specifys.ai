@@ -159,13 +159,19 @@ function initMobileSideMenu() {
     // Close menu when clicking a menu item on mobile
     const menuItems = sideMenu.querySelectorAll('.side-menu-button');
     menuItems.forEach(item => {
-        item.addEventListener('click', function() {
+        item.addEventListener('click', function(e) {
+            // Don't close if clicking on expand submenu button
+            if (e.target.closest('.side-menu-expand-sub')) {
+                return;
+            }
+            
             if (window.innerWidth <= 768) {
+                // Close menu immediately after click
                 setTimeout(() => {
                     if (sideMenu.classList.contains('active')) {
                         toggleMenu();
                     }
-                }, 300);
+                }, 100);
             }
         });
     });
@@ -3946,6 +3952,23 @@ document.addEventListener('keydown', function(e) {
 });
 
 window.showTab = async function(tabName) {
+    // Close mobile menu if open
+    if (window.innerWidth <= 768) {
+        const sideMenu = document.getElementById('sideMenu');
+        const sideMenuToggle = document.getElementById('sideMenuToggle');
+        const overlay = document.querySelector('.side-menu-overlay');
+        
+        if (sideMenu && sideMenu.classList.contains('active')) {
+            sideMenu.classList.remove('active');
+            if (sideMenuToggle) {
+                sideMenuToggle.setAttribute('aria-expanded', 'false');
+            }
+            if (overlay) {
+                overlay.classList.remove('active');
+            }
+            document.body.style.overflow = '';
+        }
+    }
     // Check PRO access for mockup tab
     if (tabName === 'mockup') {
         const hasProAccess = await checkProAccess();
