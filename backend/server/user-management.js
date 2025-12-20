@@ -154,34 +154,30 @@ async function initializeUser(uid, userDataOverrides = {}, isNewUserFromClient =
             const isNewUser = isNewUserFromClient === true || (!userExists || !entitlementsExist || !creditsExist);
             console.log(`[user-management] User ${uid}: Determining isNewUser - isNewUserFromClient=${isNewUserFromClient}, calculated isNewUser=${isNewUser}`);
             
-            // If all documents exist, check if we need to fix credits for new users (race condition fix)
-            if (userExists && entitlementsExist && creditsExist) {
-                // Check if this is a new user with default (0) credits - need to grant welcome credit
+            // If all documents exist AND user is NOT new (client didn't say it's new), return early
+            // This optimization prevents unnecessary processing for existing users
+            if (userExists && entitlementsExist && creditsExist && isNewUserFromClient !== true) {
+                // User is fully initialized and client confirmed it's NOT a new user, return early
                 const existingCredits = creditsDoc.data();
-                const existingTotal = (existingCredits.balances?.paid || 0) + (existingCredits.balances?.free || 0) + (existingCredits.balances?.bonus || 0);
-                const welcomeCreditGranted = existingCredits.metadata?.welcomeCreditGranted || false;
-                
-                // If client says user is new AND credits are 0 AND welcome credit not granted, fix it
-                if (isNewUserFromClient === true && existingTotal === 0 && !welcomeCreditGranted) {
-                    console.log(`[user-management] User ${uid}: ⚠️ RACE CONDITION DETECTED - All documents exist but user is new with 0 credits, fixing...`);
-                    // Continue to credit update logic below instead of returning early
-                } else {
-                    // User is fully initialized and credits are correct, return early
-                    console.log(`[user-management] User ${uid}: All documents exist - user is NOT new, returning existing data`);
+                console.log(`[user-management] User ${uid}: All documents exist and user is NOT new (isNewUserFromClient !== true), returning existing data`);
                 const result = {
                     created: false,
                     updated: false,
                     unchanged: true,
                     user: userDoc.data(),
                     entitlements: entitlementsDoc.data(),
-                        credits: existingCredits,
-                        _needsCreditsInit: false,
-                        _isNewUser: false
+                    credits: existingCredits,
+                    _needsCreditsInit: false,
+                    _isNewUser: false
                 };
-                    console.log(`[user-management] User ${uid}: Returning early - user already fully initialized`);
+                console.log(`[user-management] User ${uid}: Returning early - user already fully initialized`);
                 return result;
-                }
             }
+            
+            // If we reach here, either:
+            // 1. Some documents don't exist (new user)
+            // 2. All documents exist BUT isNewUserFromClient === true (race condition - need to check/update credits)
+            // Continue to process user documents and credits below
             
             // Prepare user document
             console.log(`[user-management] User ${uid}: Step 4 - Preparing user document...`);
@@ -295,12 +291,14 @@ async function initializeUser(uid, userDataOverrides = {}, isNewUserFromClient =
                 finalCredits = creditsDoc.data();
                 const existingTotal = (finalCredits.balances?.paid || 0) + (finalCredits.balances?.free || 0) + (finalCredits.balances?.bonus || 0);
                 const welcomeCreditGranted = finalCredits.metadata?.welcomeCreditGranted || false;
-                console.log(`[user-management] User ${uid}: Existing credits - total=${existingTotal}, breakdown=`, finalCredits.balances, `welcomeCreditGranted=${welcomeCreditGranted}`);
+                console.log(`[user-management] User ${uid}: Existing credits - total=${existingTotal}, breakdown=`, finalCredits.balances, `welcomeCreditGranted=${welcomeCreditGranted}, isNewUser=${isNewUser}, isNewUserFromClient=${isNewUserFromClient}`);
                 
-                // Check if credits exist but are default (0 credits) and user is new - update to give welcome credit
-                if (isNewUser && existingTotal === 0 && !welcomeCreditGranted) {
-                    console.log(`[user-management] User ${uid}: ⚠️ RACE CONDITION DETECTED - Credits exist but are default (0) for new user, updating to give welcome credit`);
-                    console.log(`[user-management] User ${uid}: Updating existing credits document to grant welcome credit...`);
+                // If this is a new user (explicitly marked by client), ensure they have welcome credit
+                // This handles race conditions where documents were created before credits were granted
+                if (isNewUser && !welcomeCreditGranted) {
+                    // New user but welcome credit not granted - grant it now
+                    console.log(`[user-management] User ${uid}: ⚠️ NEW USER DETECTED - Credits exist but welcome credit not granted, updating to give welcome credit`);
+                    console.log(`[user-management] User ${uid}: Current total=${existingTotal}, will grant 1 free credit`);
                     
                     // Update existing credits to grant welcome credit
                     transaction.update(creditsRef, {
@@ -325,8 +323,32 @@ async function initializeUser(uid, userDataOverrides = {}, isNewUserFromClient =
                         }
                     };
                     
-                    console.log(`[user-management] User ${uid}: ✅ RACE CONDITION FIXED - Updated credits to grant 1 free welcome credit`);
+                    console.log(`[user-management] User ${uid}: ✅ WELCOME CREDIT GRANTED - Updated credits to grant 1 free welcome credit`);
                     console.log(`[user-management] User ${uid}: Updated credits - total=${existingTotal + 1}, breakdown=`, finalCredits.balances);
+                } else if (isNewUser && welcomeCreditGranted && existingTotal === 0) {
+                    // Edge case: welcome credit was marked as granted but credits are 0
+                    // This shouldn't happen, but handle it gracefully
+                    console.log(`[user-management] User ${uid}: ⚠️ EDGE CASE - New user with welcomeCreditGranted=true but total=0, granting credit anyway`);
+                    transaction.update(creditsRef, {
+                        'balances.free': admin.firestore.FieldValue.increment(1),
+                        'metadata.lastCreditGrant': admin.firestore.FieldValue.serverTimestamp(),
+                        'metadata.updatedAt': admin.firestore.FieldValue.serverTimestamp()
+                    });
+                    
+                    finalCredits = {
+                        ...finalCredits,
+                        balances: {
+                            ...finalCredits.balances,
+                            free: (finalCredits.balances?.free || 0) + 1
+                        },
+                        metadata: {
+                            ...finalCredits.metadata,
+                            lastCreditGrant: admin.firestore.FieldValue.serverTimestamp(),
+                            updatedAt: admin.firestore.FieldValue.serverTimestamp()
+                        }
+                    };
+                    
+                    console.log(`[user-management] User ${uid}: ✅ EDGE CASE FIXED - Granted 1 free credit`);
                 } else {
                     console.log(`[user-management] User ${uid}: Credits already properly initialized, no update needed`);
                 }
