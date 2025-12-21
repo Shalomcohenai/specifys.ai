@@ -12,6 +12,7 @@ import { OverviewView } from './views/OverviewView.js';
 import { UsersView } from './views/UsersView.js';
 import { PaymentsView } from './views/PaymentsView.js';
 import { LogsView } from './views/LogsView.js';
+import { AnalyticsView } from './views/AnalyticsView.js';
 
 class NewAdminDashboard {
   constructor() {
@@ -367,6 +368,9 @@ class NewAdminDashboard {
       
       // Logs view
       this.views.set('logs-section', new LogsView(this.dataManager, this.stateManager));
+      
+      // Analytics view
+      this.views.set('analytics-section', new AnalyticsView(this.dataManager, this.stateManager));
       
       // Show overview view immediately
       const overviewView = this.views.get('overview-section');

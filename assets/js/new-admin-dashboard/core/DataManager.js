@@ -268,7 +268,7 @@ export class DataManager {
   }
   
   /**
-   * Load specs
+   * Load specs - OPTIMIZED with limit
    */
   async loadSpecs() {
     this.loadingStates.specs = true;
@@ -336,7 +336,7 @@ export class DataManager {
         {
           orderByField: 'createdAt',
           orderDirection: 'desc',
-          limitCount: 2000
+          limitCount: 500 // REDUCED from 2000 for performance
         }
       );
     } catch (error) {
@@ -348,7 +348,7 @@ export class DataManager {
   }
   
   /**
-   * Load purchases
+   * Load purchases - OPTIMIZED with limit
    */
   async loadPurchases() {
     this.loadingStates.purchases = true;
@@ -376,6 +376,11 @@ export class DataManager {
               // Sort by date
               this.data.purchases.sort((a, b) => (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0));
               
+              // Keep only last 200 purchases in memory
+              if (this.data.purchases.length > 200) {
+                this.data.purchases = this.data.purchases.slice(0, 200);
+              }
+              
               // Create activity event for new purchases
               if (change.type === 'added' && !isInitial) {
                 const user = this.data.users.get(purchase.userId);
@@ -402,7 +407,7 @@ export class DataManager {
         {
           orderByField: 'createdAt',
           orderDirection: 'desc',
-          limitCount: 250
+          limitCount: 200 // REDUCED from 250 for performance
         }
       );
     } catch (error) {
@@ -414,7 +419,7 @@ export class DataManager {
   }
   
   /**
-   * Load activity logs
+   * Load activity logs - OPTIMIZED with limit
    */
   async loadActivityLogs() {
     this.loadingStates.activityLogs = true;
@@ -430,6 +435,11 @@ export class DataManager {
             timestamp: this.toDate(doc.data().timestamp) || new Date()
           }));
           
+          // Keep only last 100 logs in memory
+          if (this.data.activityLogs.length > 100) {
+            this.data.activityLogs = this.data.activityLogs.slice(0, 100);
+          }
+          
           this.loadingStates.activityLogs = false;
           this.errors.delete('activityLogs');
           this.emit('data', { source: 'activityLogs', data: this.data.activityLogs });
@@ -438,7 +448,7 @@ export class DataManager {
         {
           orderByField: 'timestamp',
           orderDirection: 'desc',
-          limitCount: 200
+          limitCount: 100 // REDUCED from 200 for performance
         }
       );
     } catch (error) {

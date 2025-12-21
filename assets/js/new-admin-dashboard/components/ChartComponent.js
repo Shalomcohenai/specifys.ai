@@ -90,11 +90,18 @@ export class ChartComponent {
     }
     
     if (newData.datasets) {
+      // If datasets array provided, replace all
       this.chart.data.datasets = newData.datasets;
     } else if (newData.data) {
       // Update first dataset data
       if (this.chart.data.datasets[0]) {
         this.chart.data.datasets[0].data = newData.data;
+      } else {
+        // Create dataset if doesn't exist
+        this.chart.data.datasets = [{
+          data: newData.data,
+          ...this.config.data?.datasets?.[0] || {}
+        }];
       }
     }
     

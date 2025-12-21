@@ -1,5 +1,6 @@
 /**
- * Users View - User management and display
+ * Users View - Complete user management
+ * Redesigned with quick summary, filters, and full control
  */
 
 import { helpers } from '../utils/helpers.js';
@@ -11,6 +12,7 @@ export class UsersView {
     this.table = null;
     this.currentPage = 1;
     this.perPage = 25;
+    this.selectedUsers = new Set();
     
     this.init();
   }
@@ -37,24 +39,75 @@ export class UsersView {
     if (searchInput) {
       searchInput.addEventListener('input', helpers.debounce(() => {
         this.currentPage = 1;
+        this.updateSummary();
         this.render();
       }, 300));
     }
     
-    // Plan filter
+    // Filters
     const planFilter = helpers.dom('#users-plan-filter');
     if (planFilter) {
       planFilter.addEventListener('change', () => {
         this.currentPage = 1;
+        this.updateSummary();
         this.render();
       });
     }
     
-    // Export button
+    const statusFilter = helpers.dom('#users-status-filter');
+    if (statusFilter) {
+      statusFilter.addEventListener('change', () => {
+        this.currentPage = 1;
+        this.updateSummary();
+        this.render();
+      });
+    }
+    
+    const dateFrom = helpers.dom('#users-date-from');
+    const dateTo = helpers.dom('#users-date-to');
+    if (dateFrom) {
+      dateFrom.addEventListener('change', () => {
+        this.currentPage = 1;
+        this.updateSummary();
+        this.render();
+      });
+    }
+    if (dateTo) {
+      dateTo.addEventListener('change', () => {
+        this.currentPage = 1;
+        this.updateSummary();
+        this.render();
+      });
+    }
+    
+    // Select all
+    const selectAll = helpers.dom('#users-select-all');
+    if (selectAll) {
+      selectAll.addEventListener('change', (e) => {
+        this.toggleSelectAll(e.target.checked);
+      });
+    }
+    
+    // Export buttons
     const exportBtn = helpers.dom('#export-users-btn');
     if (exportBtn) {
       exportBtn.addEventListener('click', () => {
         this.exportCSV();
+      });
+    }
+    
+    const exportPdfBtn = helpers.dom('#export-users-pdf-btn');
+    if (exportPdfBtn) {
+      exportPdfBtn.addEventListener('click', () => {
+        this.exportPDF();
+      });
+    }
+    
+    // Bulk actions
+    const bulkActionsBtn = helpers.dom('#bulk-actions-btn');
+    if (bulkActionsBtn) {
+      bulkActionsBtn.addEventListener('click', () => {
+        this.showBulkActions();
       });
     }
   }
@@ -64,75 +117,65 @@ export class UsersView {
    */
   setupDataSubscriptions() {
     this.dataManager.on('data', ({ source, data }) => {
-      if (source === 'users' || source === 'userCredits') {
+      if (source === 'users' || source === 'userCredits' || source === 'specs') {
+        this.updateSummary();
         this.render();
       }
     });
   }
   
   /**
-   * Render users table
+   * Update summary cards
    */
-  render() {
-    if (!this.table) return;
-    
+  updateSummary() {
     const allData = this.dataManager.getAllData();
     let users = allData.users;
     
-    // Apply filters
-    users = this.filterUsers(users, allData.userCredits);
+    // Apply filters (but not pagination)
+    users = this.filterUsers(users, allData.userCredits, false);
     
-    // Pagination
-    const totalPages = Math.ceil(users.length / this.perPage);
-    const startIndex = (this.currentPage - 1) * this.perPage;
-    const endIndex = startIndex + this.perPage;
-    const pageUsers = users.slice(startIndex, endIndex);
+    // Total users
+    const totalUsers = users.length;
+    this.updateSummaryValue('summary-total-users', totalUsers);
     
-    if (pageUsers.length === 0) {
-      this.table.innerHTML = '<tr><td colspan="8" class="table-empty">No users found</td></tr>';
-      return;
+    // Pro users
+    const proUsers = users.filter(u => {
+      const userCredits = allData.userCredits.find(uc => uc.userId === u.id);
+      return userCredits?.unlimited || u.plan === 'pro';
+    }).length;
+    this.updateSummaryValue('summary-pro-users', proUsers);
+    
+    // Active users (30 days)
+    const thirtyDaysAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
+    const activeUsers = users.filter(u => {
+      if (!u.lastActive) return false;
+      return u.lastActive.getTime() >= thirtyDaysAgo;
+    }).length;
+    this.updateSummaryValue('summary-active-users', activeUsers);
+    
+    // New users (7 days)
+    const sevenDaysAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
+    const newUsers = users.filter(u => {
+      if (!u.createdAt) return false;
+      return u.createdAt.getTime() >= sevenDaysAgo;
+    }).length;
+    this.updateSummaryValue('summary-new-users', newUsers);
+  }
+  
+  /**
+   * Update summary value
+   */
+  updateSummaryValue(id, value) {
+    const element = helpers.dom(`#${id}`);
+    if (element) {
+      element.textContent = value.toLocaleString();
     }
-    
-    // Render table
-    const html = pageUsers.map(user => {
-      const userCredits = allData.userCredits.find(uc => uc.userId === user.id);
-      const specCount = allData.specsByUser[user.id]?.length || 0;
-      const credits = userCredits?.total || 0;
-      const plan = userCredits?.unlimited ? 'Pro' : (user.plan || 'Free');
-      
-      return `
-        <tr>
-          <td><input type="checkbox" class="user-checkbox" data-user-id="${user.id}"></td>
-          <td>
-            <div class="user-info">
-              <div class="user-name">${this.escapeHtml(user.displayName)}</div>
-              <div class="user-email">${this.escapeHtml(user.email)}</div>
-            </div>
-          </td>
-          <td>${helpers.formatDate(user.createdAt)}</td>
-          <td><span class="plan-badge plan-${plan.toLowerCase()}">${plan}</span></td>
-          <td>${specCount}</td>
-          <td>${credits}</td>
-          <td>${helpers.formatRelative(user.lastActive)}</td>
-          <td>
-            <button class="action-btn small" data-user-id="${user.id}">
-              <i class="fas fa-edit"></i>
-            </button>
-          </td>
-        </tr>
-      `;
-    }).join('');
-    
-    this.table.innerHTML = html;
-    
-    // Render pagination
-    this.renderPagination(totalPages);
   }
   
   /**
    * Filter users
    */
-  filterUsers(users, userCredits) {
+  filterUsers(users, userCredits, applyDateFilter = true) {
     // Search filter
     const searchInput = helpers.dom('#users-search');
     const searchTerm = searchInput?.value.trim().toLowerCase() || '';
@@ -158,6 +201,45 @@ export class UsersView {
       });
     }
     
+    // Status filter
+    const statusFilter = helpers.dom('#users-status-filter');
+    const statusValue = statusFilter?.value || 'all';
+    
+    if (statusValue !== 'all') {
+      const thirtyDaysAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
+      users = users.filter(user => {
+        if (statusValue === 'active') {
+          return user.lastActive && user.lastActive.getTime() >= thirtyDaysAgo;
+        } else {
+          return !user.lastActive || user.lastActive.getTime() < thirtyDaysAgo;
+        }
+      });
+    }
+    
+    // Date filter
+    if (applyDateFilter) {
+      const dateFrom = helpers.dom('#users-date-from');
+      const dateTo = helpers.dom('#users-date-to');
+      
+      if (dateFrom?.value) {
+        const fromDate = new Date(dateFrom.value);
+        fromDate.setHours(0, 0, 0, 0);
+        users = users.filter(user => {
+          if (!user.createdAt) return false;
+          return user.createdAt >= fromDate;
+        });
+      }
+      
+      if (dateTo?.value) {
+        const toDate = new Date(dateTo.value);
+        toDate.setHours(23, 59, 59, 999);
+        users = users.filter(user => {
+          if (!user.createdAt) return false;
+          return user.createdAt <= toDate;
+        });
+      }
+    }
+    
     // Sort by creation date
     users.sort((a, b) => (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0));
     
@@ -165,9 +247,153 @@ export class UsersView {
   }
   
   /**
+   * Render users table
+   */
+  render() {
+    if (!this.table) return;
+    
+    const allData = this.dataManager.getAllData();
+    let users = allData.users;
+    
+    // Apply filters
+    users = this.filterUsers(users, allData.userCredits);
+    
+    // Pagination
+    const totalPages = Math.ceil(users.length / this.perPage);
+    const startIndex = (this.currentPage - 1) * this.perPage;
+    const endIndex = startIndex + this.perPage;
+    const pageUsers = users.slice(startIndex, endIndex);
+    
+    if (pageUsers.length === 0) {
+      this.table.innerHTML = '<tr><td colspan="8" class="table-empty">No users found</td></tr>';
+      this.renderPagination(0, 0);
+      return;
+    }
+    
+    // Render table
+    const html = pageUsers.map(user => {
+      const userCredits = allData.userCredits.find(uc => uc.userId === user.id);
+      const specCount = allData.specsByUser[user.id]?.length || 0;
+      const credits = userCredits?.total || 0;
+      const plan = userCredits?.unlimited ? 'Pro' : (user.plan || 'Free');
+      const isSelected = this.selectedUsers.has(user.id);
+      
+      return `
+        <tr data-user-id="${user.id}">
+          <td>
+            <input type="checkbox" class="user-checkbox" data-user-id="${user.id}" ${isSelected ? 'checked' : ''}>
+          </td>
+          <td>
+            <div class="user-info">
+              <div class="user-name">${this.escapeHtml(user.displayName)}</div>
+              <div class="user-email">${this.escapeHtml(user.email)}</div>
+            </div>
+          </td>
+          <td>${helpers.formatDate(user.createdAt)}</td>
+          <td><span class="plan-badge plan-${plan.toLowerCase()}">${plan}</span></td>
+          <td>${specCount}</td>
+          <td>${credits}</td>
+          <td>${helpers.formatRelative(user.lastActive)}</td>
+          <td>
+            <div class="action-buttons">
+              <button class="action-btn small" data-user-id="${user.id}" data-action="edit" title="Edit user">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="action-btn small" data-user-id="${user.id}" data-action="view" title="View details">
+                <i class="fas fa-eye"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+    
+    this.table.innerHTML = html;
+    
+    // Add checkbox listeners
+    this.table.querySelectorAll('.user-checkbox').forEach(checkbox => {
+      checkbox.addEventListener('change', (e) => {
+        const userId = e.target.dataset.userId;
+        if (e.target.checked) {
+          this.selectedUsers.add(userId);
+        } else {
+          this.selectedUsers.delete(userId);
+        }
+        this.updateBulkActions();
+      });
+    });
+    
+    // Add action button listeners
+    this.table.querySelectorAll('[data-action]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const action = e.currentTarget.dataset.action;
+        const userId = e.currentTarget.dataset.userId;
+        this.handleUserAction(action, userId);
+      });
+    });
+    
+    // Render pagination
+    this.renderPagination(users.length, totalPages);
+  }
+  
+  /**
+   * Toggle select all
+   */
+  toggleSelectAll(checked) {
+    const allCheckboxes = this.table.querySelectorAll('.user-checkbox');
+    allCheckboxes.forEach(checkbox => {
+      checkbox.checked = checked;
+      const userId = checkbox.dataset.userId;
+      if (checked) {
+        this.selectedUsers.add(userId);
+      } else {
+        this.selectedUsers.delete(userId);
+      }
+    });
+    this.updateBulkActions();
+  }
+  
+  /**
+   * Update bulk actions button
+   */
+  updateBulkActions() {
+    const count = this.selectedUsers.size;
+    const bulkBtn = helpers.dom('#bulk-actions-btn');
+    const countSpan = helpers.dom('#bulk-selected-count');
+    
+    if (bulkBtn && countSpan) {
+      countSpan.textContent = count;
+      if (count > 0) {
+        bulkBtn.style.display = 'flex';
+      } else {
+        bulkBtn.style.display = 'none';
+      }
+    }
+  }
+  
+  /**
+   * Handle user action
+   */
+  handleUserAction(action, userId) {
+    console.log(`[UsersView] Action: ${action} for user: ${userId}`);
+    // TODO: Implement edit/view actions
+  }
+  
+  /**
+   * Show bulk actions
+   */
+  showBulkActions() {
+    const count = this.selectedUsers.size;
+    if (count === 0) return;
+    
+    // TODO: Show bulk actions modal
+    console.log(`[UsersView] Bulk actions for ${count} users`);
+  }
+  
+  /**
    * Render pagination
    */
-  renderPagination(totalPages) {
+  renderPagination(totalUsers, totalPages) {
     const paginationWrapper = helpers.dom('#users-pagination');
     if (!paginationWrapper) return;
     
@@ -192,7 +418,7 @@ export class UsersView {
     
     const html = `
       <div class="pagination-info">
-        <span>Page ${currentPage} of ${totalPages}</span>
+        <span>Showing ${((currentPage - 1) * this.perPage) + 1}-${Math.min(currentPage * this.perPage, totalUsers)} of ${totalUsers}</span>
       </div>
       <div class="pagination-controls">
         <button class="pagination-btn" ${currentPage === 1 ? 'disabled' : ''} data-page="${currentPage - 1}">
@@ -217,7 +443,7 @@ export class UsersView {
     paginationWrapper.querySelectorAll('.pagination-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const page = parseInt(btn.dataset.page);
-        if (page && page !== currentPage) {
+        if (page && page !== currentPage && !btn.disabled) {
           this.currentPage = page;
           this.render();
         }
@@ -266,6 +492,14 @@ export class UsersView {
   }
   
   /**
+   * Export to PDF (placeholder)
+   */
+  exportPDF() {
+    console.log('[UsersView] PDF export not yet implemented');
+    // TODO: Implement PDF export
+  }
+  
+  /**
    * Escape HTML
    */
   escapeHtml(text) {
@@ -278,6 +512,7 @@ export class UsersView {
    * Show view
    */
   show() {
+    this.updateSummary();
     this.render();
   }
   
@@ -288,4 +523,3 @@ export class UsersView {
     // Cleanup if needed
   }
 }
-

@@ -74,9 +74,9 @@
           <span class="icon"><i class="fas fa-graduation-cap"></i></span>
           <span class="text">Academy</span>
         </a>
-        <button class="nav-link" data-target="stats-section" aria-label="Statistics section">
+        <button class="nav-link" data-target="analytics-section" aria-label="Analytics section">
           <span class="icon"><i class="fas fa-chart-pie"></i></span>
-          <span class="text">Statistics</span>
+          <span class="text">Analytics</span>
         </button>
         <button class="nav-link" data-target="funnel-section" aria-label="Funnel analysis section">
           <span class="icon"><i class="fas fa-filter"></i></span>
@@ -167,112 +167,98 @@
                 <i class="fas fa-sync-alt"></i>
                 <span>Sync Credits</span>
               </button>
-              <select id="overview-range" aria-label="Overview range">
-                <option value="day">Last 24 hours</option>
-                <option value="week" selected>Last 7 days</option>
-                <option value="month">Last 30 days</option>
-              </select>
+              <button class="action-btn" id="refresh-data-btn" type="button">
+                <i class="fas fa-refresh"></i>
+                <span>Refresh</span>
+              </button>
             </div>
           </header>
 
-          <!-- Metrics Grid -->
-          <div class="metrics-grid" id="overview-metrics">
-            <article class="metric-card" data-metric="users-total">
-              <div class="metric-header">
-                <h3>Total Users</h3>
-                <div class="metric-trend positive">
-                  <i class="fas fa-arrow-up"></i>
-                  <span>+12%</span>
+          <!-- Main Metrics - 4 Large Cards -->
+          <div class="main-metrics-grid">
+            <article class="main-metric-card" data-metric="users-active-now">
+              <div class="main-metric-header">
+                <div class="main-metric-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">
+                  <i class="fas fa-users"></i>
+                </div>
+                <div class="main-metric-info">
+                  <h3>Active Users Now</h3>
+                  <p class="main-metric-subtitle">Last 15 minutes</p>
                 </div>
               </div>
-              <div class="metric-value">
-                <span class="value" id="metric-users-total">0</span>
+              <div class="main-metric-value">
+                <span class="value" id="metric-active-now">0</span>
+                <span class="main-metric-change" id="metric-active-now-change">
+                  <i class="fas fa-arrow-up"></i>
+                  <span>0%</span>
+                </span>
               </div>
-              <canvas class="metric-chart" data-metric="users-total" height="80"></canvas>
+              <div class="main-metric-chart-wrapper">
+                <canvas class="main-metric-chart" id="chart-active-now" height="60"></canvas>
+              </div>
             </article>
 
-            <article class="metric-card" data-metric="users-live">
-              <div class="metric-header">
-                <h3>Live Users</h3>
-                <div class="metric-trend neutral">
-                  <i class="fas fa-circle"></i>
-                  <span>Now</span>
+            <article class="main-metric-card" data-metric="users-new-today">
+              <div class="main-metric-header">
+                <div class="main-metric-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
+                  <i class="fas fa-user-plus"></i>
+                </div>
+                <div class="main-metric-info">
+                  <h3>New Users Today</h3>
+                  <p class="main-metric-subtitle">Registered today</p>
                 </div>
               </div>
-              <div class="metric-value">
-                <span class="value" id="metric-users-live">0</span>
+              <div class="main-metric-value">
+                <span class="value" id="metric-new-today">0</span>
+                <span class="main-metric-change" id="metric-new-today-change">
+                  <i class="fas fa-arrow-up"></i>
+                  <span>0%</span>
+                </span>
               </div>
-              <canvas class="metric-chart" data-metric="users-live" height="80"></canvas>
+              <div class="main-metric-chart-wrapper">
+                <canvas class="main-metric-chart" id="chart-new-today" height="60"></canvas>
+              </div>
             </article>
 
-            <article class="metric-card" data-metric="users-pro">
-              <div class="metric-header">
-                <h3>Pro Users</h3>
-                <div class="metric-trend positive">
-                  <i class="fas fa-arrow-up"></i>
-                  <span>+5%</span>
+            <article class="main-metric-card" data-metric="specs-created-today">
+              <div class="main-metric-header">
+                <div class="main-metric-icon" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;">
+                  <i class="fas fa-file-alt"></i>
+                </div>
+                <div class="main-metric-info">
+                  <h3>Specs Created Today</h3>
+                  <p class="main-metric-subtitle">Created today</p>
                 </div>
               </div>
-              <div class="metric-value">
-                <span class="value" id="metric-users-pro">0</span>
+              <div class="main-metric-value">
+                <span class="value" id="metric-specs-today">0</span>
+                <span class="main-metric-change" id="metric-specs-today-change">
+                  <i class="fas fa-arrow-up"></i>
+                  <span>0%</span>
+                </span>
               </div>
-              <canvas class="metric-chart" data-metric="users-pro" height="80"></canvas>
+              <div class="main-metric-chart-wrapper">
+                <canvas class="main-metric-chart" id="chart-specs-today" height="60"></canvas>
+              </div>
             </article>
 
-            <article class="metric-card" data-metric="specs-total">
-              <div class="metric-header">
-                <h3>Specs Created</h3>
-                <div class="metric-trend positive">
-                  <i class="fas fa-arrow-up"></i>
-                  <span>+8%</span>
+            <article class="main-metric-card" data-metric="purchases-today">
+              <div class="main-metric-header">
+                <div class="main-metric-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
+                  <i class="fas fa-shopping-cart"></i>
+                </div>
+                <div class="main-metric-info">
+                  <h3>Purchases Today</h3>
+                  <p class="main-metric-subtitle">Revenue today</p>
                 </div>
               </div>
-              <div class="metric-value">
-                <span class="value" id="metric-specs-total">0</span>
+              <div class="main-metric-value">
+                <span class="value" id="metric-purchases-today">0</span>
+                <span class="main-metric-amount" id="metric-revenue-today">$0</span>
               </div>
-              <canvas class="metric-chart" data-metric="specs-total" height="80"></canvas>
-            </article>
-
-            <article class="metric-card" data-metric="revenue-total">
-              <div class="metric-header">
-                <h3>Revenue</h3>
-                <div class="metric-trend positive">
-                  <i class="fas fa-arrow-up"></i>
-                  <span>+15%</span>
-                </div>
+              <div class="main-metric-chart-wrapper">
+                <canvas class="main-metric-chart" id="chart-purchases-today" height="60"></canvas>
               </div>
-              <div class="metric-value">
-                <span class="value" id="metric-revenue-total">$0</span>
-              </div>
-              <canvas class="metric-chart" data-metric="revenue-total" height="80"></canvas>
-            </article>
-
-            <article class="metric-card" data-metric="articles-read">
-              <div class="metric-header">
-                <h3>Articles Read</h3>
-                <div class="metric-trend positive">
-                  <i class="fas fa-arrow-up"></i>
-                  <span>+20%</span>
-                </div>
-              </div>
-              <div class="metric-value">
-                <span class="value" id="metric-articles-read">0</span>
-              </div>
-              <canvas class="metric-chart" data-metric="articles-read" height="80"></canvas>
-            </article>
-
-            <article class="metric-card" data-metric="guides-read">
-              <div class="metric-header">
-                <h3>Guides Views</h3>
-                <div class="metric-trend positive">
-                  <i class="fas fa-arrow-up"></i>
-                  <span>+10%</span>
-                </div>
-              </div>
-              <div class="metric-value">
-                <span class="value" id="metric-guides-read">0</span>
-              </div>
-              <canvas class="metric-chart" data-metric="guides-read" height="80"></canvas>
             </article>
           </div>
 
@@ -296,16 +282,45 @@
             <div class="panel sync-status">
               <div class="panel-header">
                 <h3>Data Sources</h3>
+                <button class="action-btn small" id="refresh-sources-btn" type="button" title="Refresh all sources">
+                  <i class="fas fa-sync-alt"></i>
+                </button>
               </div>
               <ul class="source-list" id="source-status-list">
-                <li><span class="source-label">Users</span><span class="source-state" data-source="users">Pending</span></li>
-                <li><span class="source-label">Specs</span><span class="source-state" data-source="specs">Pending</span></li>
-                <li><span class="source-label">Purchases</span><span class="source-state" data-source="purchases">Pending</span></li>
-                <li><span class="source-label">Activity logs</span><span class="source-state" data-source="activityLogs">Pending</span></li>
+                <li>
+                  <span class="source-label">
+                    <i class="fas fa-users"></i>
+                    Users
+                  </span>
+                  <span class="source-state pending" data-source="users">Pending</span>
+                </li>
+                <li>
+                  <span class="source-label">
+                    <i class="fas fa-file-alt"></i>
+                    Specs
+                  </span>
+                  <span class="source-state pending" data-source="specs">Pending</span>
+                </li>
+                <li>
+                  <span class="source-label">
+                    <i class="fas fa-credit-card"></i>
+                    Purchases
+                  </span>
+                  <span class="source-state pending" data-source="purchases">Pending</span>
+                </li>
+                <li>
+                  <span class="source-label">
+                    <i class="fas fa-stream"></i>
+                    Activity Logs
+                  </span>
+                  <span class="source-state pending" data-source="activityLogs">Pending</span>
+                </li>
               </ul>
-              <div class="auto-refresh">
-                <span>Auto refresh</span>
-                <span class="auto-refresh-next" id="auto-refresh-next">Scheduled in 24h</span>
+              <div class="sync-info">
+                <div class="sync-time">
+                  <i class="fas fa-clock"></i>
+                  <span>Last sync: <span id="last-sync-time">Never</span></span>
+                </div>
               </div>
             </div>
           </div>
@@ -315,34 +330,113 @@
         <section class="dashboard-section" id="users-section">
           <header class="section-header">
             <div>
-              <h2>Users</h2>
-              <p>Manage and monitor user accounts</p>
+              <h2>Users Management</h2>
+              <p>Complete control over user accounts</p>
             </div>
             <div class="section-controls">
-              <input type="search" id="users-search" placeholder="Search users...">
-              <select id="users-plan-filter">
-                <option value="all">All plans</option>
-                <option value="pro">Pro</option>
-                <option value="free">Free</option>
-              </select>
               <button class="action-btn" id="export-users-btn" type="button">
                 <i class="fas fa-file-export"></i>
                 <span>Export CSV</span>
               </button>
+              <button class="action-btn" id="export-users-pdf-btn" type="button">
+                <i class="fas fa-file-pdf"></i>
+                <span>Export PDF</span>
+              </button>
             </div>
           </header>
+
+          <!-- Quick Summary -->
+          <div class="users-summary-grid">
+            <div class="summary-card">
+              <div class="summary-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">
+                <i class="fas fa-users"></i>
+              </div>
+              <div class="summary-content">
+                <div class="summary-label">Total Users</div>
+                <div class="summary-value" id="summary-total-users">0</div>
+              </div>
+            </div>
+            <div class="summary-card">
+              <div class="summary-icon" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;">
+                <i class="fas fa-crown"></i>
+              </div>
+              <div class="summary-content">
+                <div class="summary-label">Pro Users</div>
+                <div class="summary-value" id="summary-pro-users">0</div>
+              </div>
+            </div>
+            <div class="summary-card">
+              <div class="summary-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
+                <i class="fas fa-user-check"></i>
+              </div>
+              <div class="summary-content">
+                <div class="summary-label">Active (30 days)</div>
+                <div class="summary-value" id="summary-active-users">0</div>
+              </div>
+            </div>
+            <div class="summary-card">
+              <div class="summary-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
+                <i class="fas fa-user-plus"></i>
+              </div>
+              <div class="summary-content">
+                <div class="summary-label">New (7 days)</div>
+                <div class="summary-value" id="summary-new-users">0</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Filters and Search -->
+          <div class="users-filters">
+            <div class="search-box">
+              <i class="fas fa-search"></i>
+              <input type="search" id="users-search" placeholder="Search by email or name...">
+            </div>
+            <select id="users-plan-filter">
+              <option value="all">All Plans</option>
+              <option value="pro">Pro</option>
+              <option value="free">Free</option>
+            </select>
+            <select id="users-status-filter">
+              <option value="all">All Status</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+            <input type="date" id="users-date-from" placeholder="From date">
+            <input type="date" id="users-date-to" placeholder="To date">
+          </div>
+
+          <!-- Quick Actions -->
+          <div class="quick-actions-bar">
+            <button class="action-btn" id="bulk-actions-btn" type="button" style="display: none;">
+              <i class="fas fa-tasks"></i>
+              <span>Bulk Actions (<span id="bulk-selected-count">0</span>)</span>
+            </button>
+            <div class="quick-actions-spacer"></div>
+            <button class="action-btn" id="add-credits-quick-btn" type="button">
+              <i class="fas fa-plus-circle"></i>
+              <span>Add Credits</span>
+            </button>
+            <button class="action-btn" id="change-plan-quick-btn" type="button">
+              <i class="fas fa-exchange-alt"></i>
+              <span>Change Plan</span>
+            </button>
+          </div>
+
+          <!-- Users Table -->
           <div class="table-wrapper">
             <table class="data-table" id="users-table">
               <thead>
                 <tr>
-                  <th><input type="checkbox" id="users-select-all"></th>
+                  <th style="width: 40px;">
+                    <input type="checkbox" id="users-select-all" aria-label="Select all users">
+                  </th>
                   <th>User</th>
                   <th>Created</th>
                   <th>Plan</th>
                   <th>Specs</th>
                   <th>Credits</th>
                   <th>Last Active</th>
-                  <th>Actions</th>
+                  <th style="width: 120px;">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -352,6 +446,8 @@
               </tbody>
             </table>
           </div>
+
+          <!-- Pagination -->
           <div class="pagination-wrapper" id="users-pagination"></div>
         </section>
 
@@ -424,16 +520,110 @@
           </div>
         </section>
 
-        <!-- Statistics Section -->
-        <section class="dashboard-section" id="stats-section">
+        <!-- Analytics Section -->
+        <section class="dashboard-section" id="analytics-section">
           <header class="section-header">
             <div>
-              <h2>Statistics</h2>
-              <p>Detailed analytics and insights</p>
+              <h2>Analytics</h2>
+              <p>Detailed data analysis and insights</p>
+            </div>
+            <div class="section-controls">
+              <select id="analytics-range">
+                <option value="7">Last 7 days</option>
+                <option value="30" selected>Last 30 days</option>
+                <option value="90">Last 90 days</option>
+              </select>
             </div>
           </header>
-          <div class="stats-content">
-            <p>Statistics coming soon...</p>
+
+          <!-- Charts Grid -->
+          <div class="analytics-charts-grid">
+            <div class="chart-panel">
+              <div class="chart-header">
+                <h3>User Growth</h3>
+                <p>New users over time</p>
+              </div>
+              <div class="chart-container">
+                <canvas id="chart-user-growth" height="200"></canvas>
+              </div>
+            </div>
+
+            <div class="chart-panel">
+              <div class="chart-header">
+                <h3>Specs Created</h3>
+                <p>Specs created over time</p>
+              </div>
+              <div class="chart-container">
+                <canvas id="chart-specs-growth" height="200"></canvas>
+              </div>
+            </div>
+
+            <div class="chart-panel">
+              <div class="chart-header">
+                <h3>Revenue Trend</h3>
+                <p>Revenue over time</p>
+              </div>
+              <div class="chart-container">
+                <canvas id="chart-revenue-trend" height="200"></canvas>
+              </div>
+            </div>
+
+            <div class="chart-panel">
+              <div class="chart-header">
+                <h3>User Distribution</h3>
+                <p>Pro vs Free users</p>
+              </div>
+              <div class="chart-container">
+                <canvas id="chart-user-distribution" height="200"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Data Tables -->
+          <div class="analytics-tables-grid">
+            <div class="table-panel">
+              <div class="table-panel-header">
+                <h3>Top Users by Specs</h3>
+              </div>
+              <div class="table-wrapper">
+                <table class="data-table" id="top-users-specs-table">
+                  <thead>
+                    <tr>
+                      <th>User</th>
+                      <th>Specs</th>
+                      <th>Plan</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td colspan="3" class="table-empty">Loading...</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="table-panel">
+              <div class="table-panel-header">
+                <h3>Top Users by Purchases</h3>
+              </div>
+              <div class="table-wrapper">
+                <table class="data-table" id="top-users-purchases-table">
+                  <thead>
+                    <tr>
+                      <th>User</th>
+                      <th>Purchases</th>
+                      <th>Total Revenue</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td colspan="3" class="table-empty">Loading...</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </section>
 

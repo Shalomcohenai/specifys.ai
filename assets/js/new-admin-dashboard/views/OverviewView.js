@@ -1,8 +1,9 @@
 /**
- * Overview View - Main dashboard overview with metrics and activity
+ * Overview View - Redesigned from scratch
+ * Shows: Active users now, New users today, Specs created today, Purchases today
  */
 
-import { MetricCard } from '../components/MetricCard.js';
+import { ChartComponent } from '../components/ChartComponent.js';
 import { MetricsCalculator } from '../core/MetricsCalculator.js';
 import { helpers } from '../utils/helpers.js';
 
@@ -11,7 +12,7 @@ export class OverviewView {
     this.dataManager = dataManager;
     this.stateManager = stateManager;
     this.metricsCalculator = new MetricsCalculator(dataManager);
-    this.metricCards = new Map();
+    this.charts = new Map();
     this.activityFeed = null;
     
     this.init();
@@ -21,8 +22,8 @@ export class OverviewView {
    * Initialize view
    */
   init() {
-    // Initialize metric cards
-    this.initMetricCards();
+    // Initialize charts
+    this.initCharts();
     
     // Initialize activity feed
     this.initActivityFeed();
@@ -35,18 +36,85 @@ export class OverviewView {
   }
   
   /**
-   * Initialize metric cards
+   * Initialize charts
    */
-  initMetricCards() {
-    const metricElements = helpers.domAll('.metric-card');
+  initCharts() {
+    const chartIds = ['chart-active-now', 'chart-new-today', 'chart-specs-today', 'chart-purchases-today'];
     
-    metricElements.forEach(element => {
-      const metricKey = element.dataset.metric;
-      if (metricKey) {
-        const metricCard = new MetricCard(element, this.dataManager, this.stateManager);
-        this.metricCards.set(metricKey, metricCard);
+    chartIds.forEach(chartId => {
+      const canvas = helpers.dom(`#${chartId}`);
+      if (canvas && window.Chart) {
+        // Set fixed size
+        canvas.style.width = '100%';
+        canvas.style.height = '60px';
+        canvas.width = canvas.offsetWidth;
+        canvas.height = 60;
+        
+        const chart = new ChartComponent(canvas, {
+          type: 'line',
+          data: {
+            labels: this.getLast7DaysLabels(),
+            datasets: [{
+              label: chartId,
+              data: new Array(7).fill(0),
+              borderColor: this.getChartColor(chartId),
+              backgroundColor: this.getChartColor(chartId, 0.1),
+              borderWidth: 2,
+              fill: true,
+              tension: 0.4,
+              pointRadius: 0,
+              pointHoverRadius: 4
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: { enabled: true }
+            },
+            scales: {
+              x: {
+                display: false
+              },
+              y: {
+                display: false,
+                beginAtZero: true
+              }
+            }
+          }
+        });
+        
+        this.charts.set(chartId, chart);
       }
     });
+  }
+  
+  /**
+   * Get chart color
+   */
+  getChartColor(chartId, alpha = 1) {
+    const colors = {
+      'chart-active-now': `rgba(59, 130, 246, ${alpha})`,
+      'chart-new-today': `rgba(16, 185, 129, ${alpha})`,
+      'chart-specs-today': `rgba(139, 92, 246, ${alpha})`,
+      'chart-purchases-today': `rgba(245, 158, 11, ${alpha})`
+    };
+    return colors[chartId] || `rgba(99, 102, 241, ${alpha})`;
+  }
+  
+  /**
+   * Get last 7 days labels
+   */
+  getLast7DaysLabels() {
+    const labels = [];
+    const today = new Date();
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date(today);
+      date.setDate(date.getDate() - i);
+      labels.push(date.toLocaleDateString('en-US', { weekday: 'short' }));
+    }
+    return labels;
   }
   
   /**
@@ -73,12 +141,11 @@ export class OverviewView {
    * Setup event listeners
    */
   setupEventListeners() {
-    // Overview range selector
-    const rangeSelector = helpers.dom('#overview-range');
-    if (rangeSelector) {
-      rangeSelector.addEventListener('change', (e) => {
-        this.stateManager.setState('overviewRange', e.target.value);
-        this.updateMetrics();
+    // Refresh button
+    const refreshBtn = helpers.dom('#refresh-data-btn');
+    if (refreshBtn) {
+      refreshBtn.addEventListener('click', () => {
+        this.updateAll();
       });
     }
   }
@@ -91,8 +158,8 @@ export class OverviewView {
     ['users', 'userCredits', 'specs', 'purchases', 'activityLogs'].forEach(source => {
       this.dataManager.on('data', ({ source: dataSource, data }) => {
         if (dataSource === source) {
-          this.updateMetrics();
-          if (source === 'activityLogs' || source === 'users' || source === 'purchases') {
+          this.updateAll();
+          if (dataSource === 'activityLogs' || dataSource === 'users' || dataSource === 'purchases') {
             this.renderActivityFeed();
           }
         }
@@ -108,65 +175,170 @@ export class OverviewView {
   /**
    * Update all metrics
    */
-  updateMetrics() {
-    try {
-      const allData = this.dataManager.getAllData();
-      const range = this.stateManager.getState('overviewRange') || 'week';
-      const metrics = this.metricsCalculator.calculateOverviewMetrics(range);
+  updateAll() {
+    const allData = this.dataManager.getAllData();
+    
+    // Calculate today's date
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayEnd = new Date(today);
+    todayEnd.setHours(23, 59, 59, 999);
+    
+    // Calculate yesterday
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayEnd = new Date(yesterday);
+    yesterdayEnd.setHours(23, 59, 59, 999);
+    
+    // 1. Active Users Now (last 15 minutes)
+    const fifteenMinutesAgo = Date.now() - (15 * 60 * 1000);
+    const activeNow = allData.users.filter(u => 
+      u.lastActive && u.lastActive.getTime() >= fifteenMinutesAgo
+    ).length;
+    
+    const activeYesterday = allData.users.filter(u => {
+      if (!u.lastActive) return false;
+      const lastActive = u.lastActive.getTime();
+      return lastActive >= yesterday.getTime() && lastActive <= yesterdayEnd.getTime();
+    }).length;
+    
+    const activeChange = activeYesterday > 0 
+      ? Math.round(((activeNow - activeYesterday) / activeYesterday) * 100)
+      : 0;
+    
+    this.updateMetric('metric-active-now', activeNow);
+    this.updateChange('metric-active-now-change', activeChange);
+    this.updateChart('chart-active-now', this.calculateDailyData(allData.users, 'lastActive', today));
+    
+    // 2. New Users Today
+    const newToday = allData.users.filter(u => {
+      if (!u.createdAt) return false;
+      const created = u.createdAt.getTime();
+      return created >= today.getTime() && created <= todayEnd.getTime();
+    }).length;
+    
+    const newYesterday = allData.users.filter(u => {
+      if (!u.createdAt) return false;
+      const created = u.createdAt.getTime();
+      return created >= yesterday.getTime() && created <= yesterdayEnd.getTime();
+    }).length;
+    
+    const newChange = newYesterday > 0
+      ? Math.round(((newToday - newYesterday) / newYesterday) * 100)
+      : 0;
+    
+    this.updateMetric('metric-new-today', newToday);
+    this.updateChange('metric-new-today-change', newChange);
+    this.updateChart('chart-new-today', this.calculateDailyData(allData.users, 'createdAt', today));
+    
+    // 3. Specs Created Today
+    const specsToday = allData.specs.filter(s => {
+      if (!s.createdAt) return false;
+      const created = s.createdAt.getTime();
+      return created >= today.getTime() && created <= todayEnd.getTime();
+    }).length;
+    
+    const specsYesterday = allData.specs.filter(s => {
+      if (!s.createdAt) return false;
+      const created = s.createdAt.getTime();
+      return created >= yesterday.getTime() && created <= yesterdayEnd.getTime();
+    }).length;
+    
+    const specsChange = specsYesterday > 0
+      ? Math.round(((specsToday - specsYesterday) / specsYesterday) * 100)
+      : 0;
+    
+    this.updateMetric('metric-specs-today', specsToday);
+    this.updateChange('metric-specs-today-change', specsChange);
+    this.updateChart('chart-specs-today', this.calculateDailyData(allData.specs, 'createdAt', today));
+    
+    // 4. Purchases Today
+    const purchasesToday = allData.purchases.filter(p => {
+      if (!p.createdAt) return false;
+      const created = p.createdAt.getTime();
+      return created >= today.getTime() && created <= todayEnd.getTime();
+    });
+    
+    const purchasesCount = purchasesToday.length;
+    const revenueToday = purchasesToday.reduce((sum, p) => sum + (p.total || 0), 0);
+    
+    this.updateMetric('metric-purchases-today', purchasesCount);
+    this.updateMetric('metric-revenue-today', revenueToday, true);
+    this.updateChart('chart-purchases-today', this.calculateDailyData(allData.purchases, 'createdAt', today, 'total'));
+  }
+  
+  /**
+   * Calculate daily data for last 7 days
+   */
+  calculateDailyData(data, dateField, today, valueField = null) {
+    const dailyData = new Array(7).fill(0);
+    
+    data.forEach(item => {
+      const itemDate = item[dateField];
+      if (!itemDate) return;
       
-      console.log('[OverviewView] Updating metrics:', metrics);
+      const date = new Date(itemDate);
+      date.setHours(0, 0, 0, 0);
+      const daysAgo = Math.floor((today - date) / (1000 * 60 * 60 * 24));
       
-      // Update metric values
-      const valueElements = {
-        'users-total': helpers.dom('#metric-users-total'),
-        'users-live': helpers.dom('#metric-users-live'),
-        'users-pro': helpers.dom('#metric-users-pro'),
-        'specs-total': helpers.dom('#metric-specs-total'),
-        'revenue-total': helpers.dom('#metric-revenue-total')
-      };
+      if (daysAgo >= 0 && daysAgo < 7) {
+        const value = valueField ? (item[valueField] || 0) : 1;
+        dailyData[6 - daysAgo] += value;
+      }
+    });
+    
+    return dailyData;
+  }
+  
+  /**
+   * Update metric value
+   */
+  updateMetric(id, value, isCurrency = false) {
+    const element = helpers.dom(`#${id}`);
+    if (element) {
+      if (isCurrency) {
+        element.textContent = helpers.formatCurrency(value);
+      } else {
+        element.textContent = value.toLocaleString();
+      }
+    }
+  }
+  
+  /**
+   * Update change indicator
+   */
+  updateChange(id, change) {
+    const element = helpers.dom(`#${id}`);
+    if (element) {
+      const icon = element.querySelector('i');
+      const span = element.querySelector('span');
       
-      if (valueElements['users-total']) {
-        valueElements['users-total'].textContent = metrics.totalUsers.toLocaleString();
+      if (change > 0) {
+        icon.className = 'fas fa-arrow-up';
+        element.style.color = 'var(--success)';
+        element.style.background = 'rgba(16, 185, 129, 0.1)';
+        span.textContent = `+${change}%`;
+      } else if (change < 0) {
+        icon.className = 'fas fa-arrow-down';
+        element.style.color = 'var(--error)';
+        element.style.background = 'rgba(239, 68, 68, 0.1)';
+        span.textContent = `${change}%`;
+      } else {
+        icon.className = 'fas fa-minus';
+        element.style.color = 'var(--text-tertiary)';
+        element.style.background = 'var(--gray-100)';
+        span.textContent = '0%';
       }
-      if (valueElements['users-live']) {
-        valueElements['users-live'].textContent = metrics.liveUsers.toLocaleString();
-      }
-      if (valueElements['users-pro']) {
-        valueElements['users-pro'].textContent = metrics.proUsers.toLocaleString();
-      }
-      if (valueElements['specs-total']) {
-        valueElements['specs-total'].textContent = metrics.specsTotal.toLocaleString();
-      }
-      if (valueElements['revenue-total']) {
-        valueElements['revenue-total'].textContent = helpers.formatCurrency(metrics.revenueRange);
-      }
-      
-      // Update each metric card chart
-      this.metricCards.forEach((card, key) => {
-        let data = [];
-        
-        switch (key) {
-          case 'users-total':
-          case 'users-live':
-          case 'users-pro':
-            data = allData.users;
-            break;
-          case 'specs-total':
-            data = allData.specs;
-            break;
-          case 'revenue-total':
-            data = allData.purchases;
-            break;
-          default:
-            data = [];
-        }
-        
-        if (card && typeof card.update === 'function') {
-          card.update(data);
-        }
-      });
-    } catch (error) {
-      console.error('[OverviewView] Error updating metrics:', error);
+    }
+  }
+  
+  /**
+   * Update chart
+   */
+  updateChart(chartId, data) {
+    const chart = this.charts.get(chartId);
+    if (chart) {
+      chart.updateData({ data });
     }
   }
   
@@ -184,7 +356,7 @@ export class OverviewView {
       return;
     }
     
-    const html = events.slice(0, 20).map(event => {
+    const html = events.slice(0, 10).map(event => {
       const icon = this.getActivityIcon(event.type);
       const time = helpers.formatRelative(event.timestamp);
       
@@ -230,21 +402,12 @@ export class OverviewView {
    */
   show() {
     console.log('[OverviewView] Showing view');
-    
-    // Make sure elements exist
-    if (!this.activityFeed) {
-      this.activityFeed = helpers.dom('#activity-feed');
-    }
-    
-    // Update metrics
-    this.updateMetrics();
-    
-    // Render activity feed
+    this.updateAll();
     this.renderActivityFeed();
     
-    // Force update after a short delay to ensure data is loaded
+    // Force update after a short delay
     setTimeout(() => {
-      this.updateMetrics();
+      this.updateAll();
       this.renderActivityFeed();
     }, 500);
   }
@@ -256,4 +419,3 @@ export class OverviewView {
     // Cleanup if needed
   }
 }
-

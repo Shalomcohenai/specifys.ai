@@ -45,10 +45,16 @@ export class MetricCard {
   }
   
   /**
-   * Initialize chart
+   * Initialize chart - FIXED SIZE
    */
   initChart(canvas) {
     const color = this.getMetricColor(this.metricKey);
+    
+    // Set fixed size for chart
+    canvas.style.width = '100%';
+    canvas.style.height = '60px';
+    canvas.width = canvas.offsetWidth;
+    canvas.height = 60;
     
     this.chart = new ChartComponent(canvas, {
       type: 'bar',
@@ -59,32 +65,34 @@ export class MetricCard {
           data: new Array(7).fill(0),
           backgroundColor: color,
           borderRadius: 4,
-          borderSkipped: false
+          borderSkipped: false,
+          barThickness: 8,
+          maxBarThickness: 12
         }]
       },
       options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { enabled: true }
+        },
         scales: {
           x: {
             display: true,
             grid: { display: false },
             ticks: {
-              font: { size: 10 },
-              color: '#6b7280',
-              maxRotation: 0
+              font: { size: 9 },
+              color: '#9ca3af',
+              maxRotation: 0,
+              maxTicksLimit: 7
             }
           },
           y: {
-            display: true,
+            display: false, // Hide Y axis for cleaner look
             beginAtZero: true,
-            grid: {
-              color: 'rgba(0, 0, 0, 0.05)',
-              drawBorder: false
-            },
-            ticks: {
-              font: { size: 10 },
-              color: '#6b7280',
-              precision: 0
-            }
+            grid: { display: false },
+            ticks: { display: false }
           }
         }
       }
