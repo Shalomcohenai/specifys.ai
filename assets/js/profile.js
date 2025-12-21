@@ -2056,8 +2056,10 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
             const adminDashboardBtn = document.getElementById('admin-dashboard-btn');
             if (adminDashboardBtn) {
                 if (isAdmin) {
+                    adminDashboardBtn.classList.remove('hidden');
                     adminDashboardBtn.style.display = 'block';
                 } else {
+                    adminDashboardBtn.classList.add('hidden');
                     adminDashboardBtn.style.display = 'none';
                 }
             }

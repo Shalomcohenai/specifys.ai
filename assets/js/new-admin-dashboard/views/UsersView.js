@@ -274,12 +274,34 @@ export class UsersView {
       // Get credits directly from user document - free_specs_remaining field
       // Credits are stored in: users/{userId}/free_specs_remaining
       let credits = 0;
-      if (user.freeSpecsRemaining !== null && user.freeSpecsRemaining !== undefined) {
+      
+      // Priority 1: Check normalized field (from DataManager.normalizeUser)
+      if (typeof user.freeSpecsRemaining === 'number') {
         credits = user.freeSpecsRemaining;
-      } else if (user.metadata?.free_specs_remaining !== null && user.metadata?.free_specs_remaining !== undefined) {
-        credits = user.metadata.free_specs_remaining;
-      } else {
-        credits = 0;
+      } 
+      // Priority 2: Check metadata (raw Firebase data) - this is the source of truth
+      else if (user.metadata) {
+        // Check if free_specs_remaining exists in metadata
+        if (typeof user.metadata.free_specs_remaining === 'number') {
+          credits = user.metadata.free_specs_remaining;
+        }
+        // Try parsing if it's a string or other type
+        else if (user.metadata.free_specs_remaining !== null && user.metadata.free_specs_remaining !== undefined) {
+          const parsed = Number(user.metadata.free_specs_remaining);
+          if (!isNaN(parsed) && isFinite(parsed)) {
+            credits = parsed;
+          }
+        }
+      }
+      
+      // Debug log for first few users to troubleshoot
+      if (pageUsers.indexOf(user) < 3) {
+        console.log(`[UsersView] User ${user.email} credits:`, {
+          credits,
+          freeSpecsRemaining: user.freeSpecsRemaining,
+          metadata_free_specs_remaining: user.metadata?.free_specs_remaining,
+          metadata_keys: user.metadata ? Object.keys(user.metadata) : []
+        });
       }
       
       const specCount = allData.specsByUser[user.id]?.length || 0;

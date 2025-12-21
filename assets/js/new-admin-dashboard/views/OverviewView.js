@@ -27,6 +27,10 @@ export class OverviewView {
     
     // Setup data subscriptions
     this.setupDataSubscriptions();
+    
+    // Initialize metric descriptions
+    const range = this.stateManager.getState('overviewRange') || 'week';
+    this.updateMetricDescriptions(range);
   }
   
   /**
@@ -39,9 +43,34 @@ export class OverviewView {
       rangeSelect.addEventListener('change', (e) => {
         const range = e.target.value;
         this.stateManager.setState('overviewRange', range);
+        this.updateMetricDescriptions(range);
         this.updateMetrics();
       });
     }
+  }
+  
+  /**
+   * Update metric descriptions based on selected range
+   */
+  updateMetricDescriptions(range) {
+    const descriptions = {
+      day: 'Today',
+      week: 'Last 7 days',
+      month: 'Last 30 days'
+    };
+    
+    const description = descriptions[range] || descriptions.week;
+    
+    // Update all metric descriptions
+    const activeDesc = helpers.dom('#metric-active-description');
+    const newDesc = helpers.dom('#metric-new-description');
+    const specsDesc = helpers.dom('#metric-specs-description');
+    const purchasesDesc = helpers.dom('#metric-purchases-description');
+    
+    if (activeDesc) activeDesc.textContent = description;
+    if (newDesc) newDesc.textContent = description;
+    if (specsDesc) specsDesc.textContent = description;
+    if (purchasesDesc) purchasesDesc.textContent = description;
   }
   
   /**

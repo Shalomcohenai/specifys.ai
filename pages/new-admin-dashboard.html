@@ -114,8 +114,8 @@ custom_js_modules:
               <i class="fas fa-users"></i>
             </div>
             <div class="metric-header-text">
-              <h3>Active Users Now</h3>
-              <p>Last 15 minutes</p>
+              <h3>Active Users</h3>
+              <p id="metric-active-description">Last 7 days</p>
             </div>
           </div>
           <div class="metric-card-body">
@@ -136,8 +136,8 @@ custom_js_modules:
               <i class="fas fa-user-plus"></i>
             </div>
             <div class="metric-header-text">
-              <h3>New Users Today</h3>
-              <p>Registered today</p>
+              <h3>New Users</h3>
+              <p id="metric-new-description">Last 7 days</p>
             </div>
           </div>
           <div class="metric-card-body">
@@ -158,8 +158,8 @@ custom_js_modules:
               <i class="fas fa-file-alt"></i>
             </div>
             <div class="metric-header-text">
-              <h3>Specs Created Today</h3>
-              <p>Created today</p>
+              <h3>Specs Created</h3>
+              <p id="metric-specs-description">Last 7 days</p>
             </div>
           </div>
           <div class="metric-card-body">
@@ -180,8 +180,8 @@ custom_js_modules:
               <i class="fas fa-shopping-cart"></i>
             </div>
             <div class="metric-header-text">
-              <h3>Purchases Today</h3>
-              <p>Revenue today</p>
+              <h3>Purchases</h3>
+              <p id="metric-purchases-description">Last 7 days</p>
             </div>
           </div>
           <div class="metric-card-body">
@@ -451,6 +451,76 @@ custom_js_modules:
             <canvas id="analytics-chart-funnel" height="250"></canvas>
           </div>
           <div class="funnel-details" id="funnel-details"></div>
+        </div>
+      </div>
+
+      <!-- Revenue Analytics -->
+      <div class="analytics-charts-grid">
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3>Revenue by Product</h3>
+            <p>Revenue breakdown by product type</p>
+          </div>
+          <div class="chart-wrapper">
+            <canvas id="analytics-chart-revenue-by-product" height="250"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3>ARPU Trend</h3>
+            <p>Average Revenue Per User over time</p>
+          </div>
+          <div class="chart-wrapper">
+            <canvas id="analytics-chart-arpu" height="250"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Retention & Conversion Analytics -->
+      <div class="analytics-charts-grid">
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3>Retention Rate</h3>
+            <p>User retention by days</p>
+          </div>
+          <div class="chart-wrapper">
+            <canvas id="analytics-chart-retention" height="250"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3>Time to First Purchase</h3>
+            <p>Days from signup to first purchase</p>
+          </div>
+          <div class="chart-wrapper">
+            <canvas id="analytics-chart-time-to-purchase" height="250"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Key Metrics Cards -->
+      <div class="analytics-metrics-grid">
+        <div class="metric-card-small">
+          <div class="metric-label">ARPU</div>
+          <div class="metric-value-large" id="metric-arpu-value">$0.00</div>
+          <div class="metric-description">Average Revenue Per User</div>
+        </div>
+        <div class="metric-card-small">
+          <div class="metric-label">Retention (7d)</div>
+          <div class="metric-value-large" id="metric-retention-7d-value">0%</div>
+          <div class="metric-description">Users active after 7 days</div>
+        </div>
+        <div class="metric-card-small">
+          <div class="metric-label">Retention (30d)</div>
+          <div class="metric-value-large" id="metric-retention-30d-value">0%</div>
+          <div class="metric-description">Users active after 30 days</div>
+        </div>
+        <div class="metric-card-small">
+          <div class="metric-label">Avg Time to Purchase</div>
+          <div class="metric-value-large" id="metric-time-to-purchase-value">0d</div>
+          <div class="metric-description">Average days to first purchase</div>
         </div>
       </div>
 

@@ -109,8 +109,8 @@ export class AcademyView {
       : null;
     
     this.updateSummaryValue('stat-total-guides', totalGuides);
-    this.updateSummaryValue('stat-guides-views', totalViews);
-    this.updateSummaryValue('stat-guides-views-7d', views7d);
+    this.updateSummaryValue('stat-academy-views', totalViews);
+    this.updateSummaryValue('stat-academy-views-7d', views7d);
     
     const topGuideEl = helpers.dom('#stat-top-guide');
     if (topGuideEl) {

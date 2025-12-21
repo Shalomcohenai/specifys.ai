@@ -96,6 +96,39 @@ export class AnalyticsView {
     
     // Conversion Funnel Chart
     this.initFunnelChart('analytics-chart-funnel');
+    
+    // Revenue by Product Chart
+    this.initChart('analytics-chart-revenue-by-product', 'doughnut', {
+      label: 'Revenue by Product',
+      backgroundColor: [
+        'rgba(59, 130, 246, 0.8)',
+        'rgba(16, 185, 129, 0.8)',
+        'rgba(139, 92, 246, 0.8)',
+        'rgba(245, 158, 11, 0.8)',
+        'rgba(239, 68, 68, 0.8)'
+      ]
+    });
+    
+    // ARPU Trend Chart
+    this.initChart('analytics-chart-arpu', 'line', {
+      label: 'ARPU',
+      borderColor: 'rgb(59, 130, 246)',
+      backgroundColor: 'rgba(59, 130, 246, 0.1)'
+    });
+    
+    // Retention Rate Chart
+    this.initChart('analytics-chart-retention', 'bar', {
+      label: 'Retention Rate',
+      backgroundColor: 'rgba(16, 185, 129, 0.8)',
+      borderColor: 'rgb(16, 185, 129)'
+    });
+    
+    // Time to Purchase Chart
+    this.initChart('analytics-chart-time-to-purchase', 'bar', {
+      label: 'Days to Purchase',
+      backgroundColor: 'rgba(139, 92, 246, 0.8)',
+      borderColor: 'rgb(139, 92, 246)'
+    });
   }
   
   /**
@@ -110,6 +143,12 @@ export class AnalyticsView {
     canvas.style.height = '250px';
     
     const ctx = canvas.getContext('2d');
+    
+    // Handle backgroundColor - can be array for doughnut charts
+    const backgroundColor = Array.isArray(config.backgroundColor) 
+      ? config.backgroundColor 
+      : (config.backgroundColor || config.borderColor);
+    
     const chart = new window.Chart(ctx, {
       type: type,
       data: {
@@ -118,8 +157,8 @@ export class AnalyticsView {
           label: config.label,
           data: [],
           borderColor: config.borderColor,
-          backgroundColor: config.backgroundColor || config.borderColor,
-          borderWidth: 2,
+          backgroundColor: backgroundColor,
+          borderWidth: type === 'doughnut' ? 0 : 2,
           fill: type === 'line',
           tension: type === 'line' ? 0.4 : 0
         }]
@@ -130,10 +169,19 @@ export class AnalyticsView {
         plugins: {
           legend: {
             display: type !== 'doughnut',
-            position: 'top'
+            position: type === 'doughnut' ? 'bottom' : 'top'
           },
           tooltip: {
-            enabled: true
+            enabled: true,
+            callbacks: type === 'doughnut' ? {
+              label: (context) => {
+                const label = context.label || '';
+                const value = context.parsed || 0;
+                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                return `${label}: ${helpers.formatCurrency(value)} (${percentage}%)`;
+              }
+            } : undefined
           }
         },
         scales: type !== 'doughnut' ? {
@@ -144,7 +192,12 @@ export class AnalyticsView {
             beginAtZero: true,
             grid: {
               color: 'rgba(0, 0, 0, 0.05)'
-            }
+            },
+            ticks: type === 'line' && config.label === 'ARPU' ? {
+              callback: function(value) {
+                return '$' + value.toFixed(2);
+              }
+            } : undefined
           }
         } : {}
       }
@@ -649,6 +702,377 @@ export class AnalyticsView {
     }).join('');
     
     table.innerHTML = html;
+  }
+  
+  /**
+   * Update revenue by product chart
+   */
+  updateRevenueByProduct(purchases, startDate, endDate) {
+    const productRevenue = {
+      'Single Spec': 0,
+      '3-Pack': 0,
+      'Pro Monthly': 0,
+      'Pro Yearly': 0,
+      'Other': 0
+    };
+    
+    purchases.forEach(purchase => {
+      if (!purchase.createdAt) return;
+      const created = purchase.createdAt instanceof Date ? purchase.createdAt.getTime() : new Date(purchase.createdAt).getTime();
+      if (created < startDate.getTime() || created > endDate.getTime()) return;
+      
+      const productName = (purchase.productName || '').toLowerCase();
+      const revenue = purchase.total || 0;
+      
+      if (productName.includes('single')) {
+        productRevenue['Single Spec'] += revenue;
+      } else if (productName.includes('3-pack') || productName.includes('three')) {
+        productRevenue['3-Pack'] += revenue;
+      } else if (productName.includes('monthly')) {
+        productRevenue['Pro Monthly'] += revenue;
+      } else if (productName.includes('yearly') || productName.includes('annual')) {
+        productRevenue['Pro Yearly'] += revenue;
+      } else {
+        productRevenue['Other'] += revenue;
+      }
+    });
+    
+    const chart = this.charts.get('analytics-chart-revenue-by-product');
+    if (chart) {
+      chart.data.labels = Object.keys(productRevenue);
+      chart.data.datasets[0].data = Object.values(productRevenue);
+      chart.update('none');
+    }
+  }
+  
+  /**
+   * Update ARPU trend chart
+   */
+  updateARPUTrend(users, purchases, startDate, endDate) {
+    const { labels, data } = this.calculateDailyARPU(users, purchases, startDate, endDate);
+    const chart = this.charts.get('analytics-chart-arpu');
+    if (chart) {
+      chart.data.labels = labels;
+      chart.data.datasets[0].data = data;
+      chart.update('none');
+    }
+  }
+  
+  /**
+   * Calculate daily ARPU
+   */
+  calculateDailyARPU(users, purchases, startDate, endDate) {
+    const labels = [];
+    const data = [];
+    const current = new Date(startDate);
+    
+    while (current <= endDate) {
+      const dateStr = current.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      labels.push(dateStr);
+      
+      const dayStart = new Date(current);
+      dayStart.setHours(0, 0, 0, 0);
+      const dayEnd = new Date(current);
+      dayEnd.setHours(23, 59, 59, 999);
+      
+      // Users who signed up by this day
+      const usersByDay = users.filter(user => {
+        if (!user.createdAt) return false;
+        const created = user.createdAt instanceof Date ? user.createdAt.getTime() : new Date(user.createdAt).getTime();
+        return created <= dayEnd.getTime();
+      }).length;
+      
+      // Revenue from purchases up to this day
+      const revenueByDay = purchases
+        .filter(p => {
+          if (!p.createdAt) return false;
+          const created = p.createdAt instanceof Date ? p.createdAt.getTime() : new Date(p.createdAt).getTime();
+          return created <= dayEnd.getTime();
+        })
+        .reduce((sum, p) => sum + (p.total || 0), 0);
+      
+      const arpu = usersByDay > 0 ? revenueByDay / usersByDay : 0;
+      data.push(arpu);
+      
+      current.setDate(current.getDate() + 1);
+    }
+    
+    return { labels, data };
+  }
+  
+  /**
+   * Update retention rate chart
+   */
+  updateRetentionRate(users, startDate, endDate) {
+    const retentionData = this.calculateRetentionRate(users, startDate, endDate);
+    const chart = this.charts.get('analytics-chart-retention');
+    if (chart) {
+      chart.data.labels = retentionData.labels;
+      chart.data.datasets[0].data = retentionData.data;
+      chart.update('none');
+    }
+  }
+  
+  /**
+   * Calculate retention rate
+   */
+  calculateRetentionRate(users, startDate, endDate) {
+    const now = Date.now();
+    const day1 = now - (1 * 24 * 60 * 60 * 1000);
+    const day7 = now - (7 * 24 * 60 * 60 * 1000);
+    const day14 = now - (14 * 24 * 60 * 60 * 1000);
+    const day30 = now - (30 * 24 * 60 * 60 * 1000);
+    const day60 = now - (60 * 24 * 60 * 60 * 1000);
+    const day90 = now - (90 * 24 * 60 * 60 * 1000);
+    
+    // Users who signed up in the range
+    const newUsers = users.filter(user => {
+      if (!user.createdAt) return false;
+      const created = user.createdAt instanceof Date ? user.createdAt.getTime() : new Date(user.createdAt).getTime();
+      return created >= startDate.getTime() && created <= endDate.getTime();
+    });
+    
+    const totalNewUsers = newUsers.length;
+    if (totalNewUsers === 0) {
+      return {
+        labels: ['Day 1', 'Day 7', 'Day 14', 'Day 30', 'Day 60', 'Day 90'],
+        data: [0, 0, 0, 0, 0, 0]
+      };
+    }
+    
+    // Calculate retention for each period
+    const retention1d = newUsers.filter(u => {
+      if (!u.lastActive) return false;
+      const lastActive = u.lastActive instanceof Date ? u.lastActive.getTime() : new Date(u.lastActive).getTime();
+      return lastActive >= day1;
+    }).length;
+    
+    const retention7d = newUsers.filter(u => {
+      if (!u.lastActive) return false;
+      const lastActive = u.lastActive instanceof Date ? u.lastActive.getTime() : new Date(u.lastActive).getTime();
+      return lastActive >= day7;
+    }).length;
+    
+    const retention14d = newUsers.filter(u => {
+      if (!u.lastActive) return false;
+      const lastActive = u.lastActive instanceof Date ? u.lastActive.getTime() : new Date(u.lastActive).getTime();
+      return lastActive >= day14;
+    }).length;
+    
+    const retention30d = newUsers.filter(u => {
+      if (!u.lastActive) return false;
+      const lastActive = u.lastActive instanceof Date ? u.lastActive.getTime() : new Date(u.lastActive).getTime();
+      return lastActive >= day30;
+    }).length;
+    
+    const retention60d = newUsers.filter(u => {
+      if (!u.lastActive) return false;
+      const lastActive = u.lastActive instanceof Date ? u.lastActive.getTime() : new Date(u.lastActive).getTime();
+      return lastActive >= day60;
+    }).length;
+    
+    const retention90d = newUsers.filter(u => {
+      if (!u.lastActive) return false;
+      const lastActive = u.lastActive instanceof Date ? u.lastActive.getTime() : new Date(u.lastActive).getTime();
+      return lastActive >= day90;
+    }).length;
+    
+    return {
+      labels: ['Day 1', 'Day 7', 'Day 14', 'Day 30', 'Day 60', 'Day 90'],
+      data: [
+        (retention1d / totalNewUsers * 100).toFixed(1),
+        (retention7d / totalNewUsers * 100).toFixed(1),
+        (retention14d / totalNewUsers * 100).toFixed(1),
+        (retention30d / totalNewUsers * 100).toFixed(1),
+        (retention60d / totalNewUsers * 100).toFixed(1),
+        (retention90d / totalNewUsers * 100).toFixed(1)
+      ]
+    };
+  }
+  
+  /**
+   * Update time to purchase chart
+   */
+  updateTimeToPurchase(users, purchases) {
+    const timeToPurchaseData = this.calculateTimeToPurchase(users, purchases);
+    const chart = this.charts.get('analytics-chart-time-to-purchase');
+    if (chart) {
+      chart.data.labels = timeToPurchaseData.labels;
+      chart.data.datasets[0].data = timeToPurchaseData.data;
+      chart.update('none');
+    }
+  }
+  
+  /**
+   * Calculate time to purchase distribution
+   */
+  calculateTimeToPurchase(users, purchases) {
+    // Group purchases by user
+    const userPurchases = new Map();
+    purchases.forEach(purchase => {
+      if (!purchase.userId) return;
+      const existing = userPurchases.get(purchase.userId) || [];
+      existing.push(purchase);
+      userPurchases.set(purchase.userId, existing);
+    });
+    
+    // Calculate days from signup to first purchase for each user
+    const daysToPurchase = [];
+    userPurchases.forEach((userPurchasesList, userId) => {
+      const user = users.find(u => u.id === userId);
+      if (!user || !user.createdAt) return;
+      
+      // Find first purchase
+      const firstPurchase = userPurchasesList
+        .filter(p => p.createdAt)
+        .sort((a, b) => {
+          const timeA = a.createdAt instanceof Date ? a.createdAt.getTime() : new Date(a.createdAt).getTime();
+          const timeB = b.createdAt instanceof Date ? b.createdAt.getTime() : new Date(b.createdAt).getTime();
+          return timeA - timeB;
+        })[0];
+      
+      if (!firstPurchase) return;
+      
+      const signupTime = user.createdAt instanceof Date ? user.createdAt.getTime() : new Date(user.createdAt).getTime();
+      const purchaseTime = firstPurchase.createdAt instanceof Date ? firstPurchase.createdAt.getTime() : new Date(firstPurchase.createdAt).getTime();
+      const days = Math.floor((purchaseTime - signupTime) / (24 * 60 * 60 * 1000));
+      
+      if (days >= 0) {
+        daysToPurchase.push(days);
+      }
+    });
+    
+    // Group into buckets: 0, 1, 2-7, 8-14, 15-30, 31-60, 61-90, 90+
+    const buckets = {
+      '0 days': 0,
+      '1 day': 0,
+      '2-7 days': 0,
+      '8-14 days': 0,
+      '15-30 days': 0,
+      '31-60 days': 0,
+      '61-90 days': 0,
+      '90+ days': 0
+    };
+    
+    daysToPurchase.forEach(days => {
+      if (days === 0) buckets['0 days']++;
+      else if (days === 1) buckets['1 day']++;
+      else if (days >= 2 && days <= 7) buckets['2-7 days']++;
+      else if (days >= 8 && days <= 14) buckets['8-14 days']++;
+      else if (days >= 15 && days <= 30) buckets['15-30 days']++;
+      else if (days >= 31 && days <= 60) buckets['31-60 days']++;
+      else if (days >= 61 && days <= 90) buckets['61-90 days']++;
+      else buckets['90+ days']++;
+    });
+    
+    return {
+      labels: Object.keys(buckets),
+      data: Object.values(buckets)
+    };
+  }
+  
+  /**
+   * Update key metrics cards
+   */
+  updateKeyMetrics(users, purchases) {
+    // Calculate ARPU
+    const totalRevenue = purchases.reduce((sum, p) => sum + (p.total || 0), 0);
+    const totalUsers = users.length;
+    const arpu = totalUsers > 0 ? totalRevenue / totalUsers : 0;
+    
+    // Calculate retention rates
+    const now = Date.now();
+    const day7 = now - (7 * 24 * 60 * 60 * 1000);
+    const day30 = now - (30 * 24 * 60 * 60 * 1000);
+    
+    // Users who signed up 7+ days ago
+    const users7dAgo = users.filter(user => {
+      if (!user.createdAt) return false;
+      const created = user.createdAt instanceof Date ? user.createdAt.getTime() : new Date(user.createdAt).getTime();
+      return created <= day7;
+    });
+    
+    // Users who signed up 30+ days ago
+    const users30dAgo = users.filter(user => {
+      if (!user.createdAt) return false;
+      const created = user.createdAt instanceof Date ? user.createdAt.getTime() : new Date(user.createdAt).getTime();
+      return created <= day30;
+    });
+    
+    // Active users in last 7 days
+    const active7d = users7dAgo.filter(user => {
+      if (!user.lastActive) return false;
+      const lastActive = user.lastActive instanceof Date ? user.lastActive.getTime() : new Date(user.lastActive).getTime();
+      return lastActive >= day7;
+    }).length;
+    
+    // Active users in last 30 days
+    const active30d = users30dAgo.filter(user => {
+      if (!user.lastActive) return false;
+      const lastActive = user.lastActive instanceof Date ? user.lastActive.getTime() : new Date(user.lastActive).getTime();
+      return lastActive >= day30;
+    }).length;
+    
+    const retention7d = users7dAgo.length > 0 ? (active7d / users7dAgo.length * 100) : 0;
+    const retention30d = users30dAgo.length > 0 ? (active30d / users30dAgo.length * 100) : 0;
+    
+    // Calculate average time to purchase
+    const userPurchases = new Map();
+    purchases.forEach(purchase => {
+      if (!purchase.userId) return;
+      const existing = userPurchases.get(purchase.userId) || [];
+      existing.push(purchase);
+      userPurchases.set(purchase.userId, existing);
+    });
+    
+    const daysToPurchase = [];
+    userPurchases.forEach((userPurchasesList, userId) => {
+      const user = users.find(u => u.id === userId);
+      if (!user || !user.createdAt) return;
+      
+      const firstPurchase = userPurchasesList
+        .filter(p => p.createdAt)
+        .sort((a, b) => {
+          const timeA = a.createdAt instanceof Date ? a.createdAt.getTime() : new Date(a.createdAt).getTime();
+          const timeB = b.createdAt instanceof Date ? b.createdAt.getTime() : new Date(b.createdAt).getTime();
+          return timeA - timeB;
+        })[0];
+      
+      if (!firstPurchase) return;
+      
+      const signupTime = user.createdAt instanceof Date ? user.createdAt.getTime() : new Date(user.createdAt).getTime();
+      const purchaseTime = firstPurchase.createdAt instanceof Date ? firstPurchase.createdAt.getTime() : new Date(firstPurchase.createdAt).getTime();
+      const days = Math.floor((purchaseTime - signupTime) / (24 * 60 * 60 * 1000));
+      
+      if (days >= 0) {
+        daysToPurchase.push(days);
+      }
+    });
+    
+    const avgTimeToPurchase = daysToPurchase.length > 0
+      ? daysToPurchase.reduce((sum, days) => sum + days, 0) / daysToPurchase.length
+      : 0;
+    
+    // Update UI
+    const arpuEl = helpers.dom('#metric-arpu-value');
+    if (arpuEl) {
+      arpuEl.textContent = helpers.formatCurrency(arpu);
+    }
+    
+    const retention7dEl = helpers.dom('#metric-retention-7d-value');
+    if (retention7dEl) {
+      retention7dEl.textContent = `${retention7d.toFixed(1)}%`;
+    }
+    
+    const retention30dEl = helpers.dom('#metric-retention-30d-value');
+    if (retention30dEl) {
+      retention30dEl.textContent = `${retention30d.toFixed(1)}%`;
+    }
+    
+    const timeToPurchaseEl = helpers.dom('#metric-time-to-purchase-value');
+    if (timeToPurchaseEl) {
+      timeToPurchaseEl.textContent = `${Math.round(avgTimeToPurchase)}d`;
+    }
   }
   
   /**

@@ -76,6 +76,18 @@ export class DataManager {
    * Normalize user data
    */
   normalizeUser(id, data) {
+    // Get free_specs_remaining - check both direct field and ensure it's a number
+    let freeSpecsRemaining = null;
+    if (typeof data.free_specs_remaining === 'number') {
+      freeSpecsRemaining = data.free_specs_remaining;
+    } else if (data.free_specs_remaining !== null && data.free_specs_remaining !== undefined) {
+      // Try to parse if it's a string
+      const parsed = parseInt(data.free_specs_remaining, 10);
+      if (!isNaN(parsed)) {
+        freeSpecsRemaining = parsed;
+      }
+    }
+    
     return {
       id,
       email: data.email || '',
@@ -86,7 +98,7 @@ export class DataManager {
       newsletterSubscription: Boolean(data.newsletterSubscription),
       disabled: Boolean(data.disabled),
       emailVerified: Boolean(data.emailVerified),
-      freeSpecsRemaining: typeof data.free_specs_remaining === 'number' ? data.free_specs_remaining : null,
+      freeSpecsRemaining: freeSpecsRemaining,
       metadata: data
     };
   }
@@ -222,7 +234,19 @@ export class DataManager {
             if (change.type === 'removed') {
               this.data.users.delete(change.doc.id);
             } else {
-              const user = this.normalizeUser(change.doc.id, change.doc.data());
+              const rawData = change.doc.data();
+              const user = this.normalizeUser(change.doc.id, rawData);
+              
+              // Debug: Log first few users to check credits
+              if (this.data.users.size < 3) {
+                console.log(`[DataManager] Normalized user ${user.email}:`, {
+                  id: user.id,
+                  freeSpecsRemaining: user.freeSpecsRemaining,
+                  raw_free_specs_remaining: rawData.free_specs_remaining,
+                  rawData_keys: Object.keys(rawData)
+                });
+              }
+              
               this.data.users.set(change.doc.id, user);
               
               // Create activity event for new users
