@@ -135,15 +135,72 @@ export class DataManager {
   }
   
   /**
-   * Normalize currency
+   * Normalize currency - handles cents to dollars conversion
+   * If value >= 1000, it's likely in cents, so divide by 100
    */
   normalizeCurrency(value, context = {}) {
-    if (typeof value === 'number') return value;
-    if (typeof value === 'string') {
-      const num = parseFloat(value.replace(/[^0-9.-]+/g, ''));
-      return isNaN(num) ? 0 : num;
+    if (value === null || value === undefined) {
+      return this.lookupProductPrice(context) ?? 0;
     }
-    return 0;
+    
+    const numeric = typeof value === "number" ? value : Number(value);
+    if (!Number.isFinite(numeric) || numeric <= 0) {
+      const lookedUp = this.lookupProductPrice(context);
+      return lookedUp ?? 0;
+    }
+    
+    // If value >= 1000, it's likely in cents (e.g., 2990 = $29.90)
+    if (Math.abs(numeric) >= 1000) {
+      return Number((numeric / 100).toFixed(2));
+    }
+    
+    // Try to lookup from product key/name
+    const lookedUp = this.lookupProductPrice(context);
+    if (lookedUp) return lookedUp;
+    
+    // If numeric >= 50 or divisible by 10, might be cents
+    if (numeric >= 50 || numeric % 10 === 0) {
+      // Check if it matches common product prices in cents
+      const commonPrices = [490, 990, 2990, 29900]; // $4.90, $9.90, $29.90, $299.00
+      if (commonPrices.includes(numeric)) {
+        return Number((numeric / 100).toFixed(2));
+      }
+    }
+    
+    return Number(numeric.toFixed(2));
+  }
+  
+  /**
+   * Lookup product price from context
+   */
+  lookupProductPrice(context) {
+    const PRODUCT_PRICE_MAP = {
+      single_spec: 4.90,
+      three_pack: 9.90,
+      pro_monthly: 29.90,
+      pro_yearly: 299.00
+    };
+    
+    const key =
+      context?.productKey ||
+      context?.product_key ||
+      context?.metadata?.productKey ||
+      context?.metadata?.product_key ||
+      context?.metadata?.customData?.product_key ||
+      context?.metadata?.customData?.productKey;
+    
+    if (key && PRODUCT_PRICE_MAP[key]) {
+      return PRODUCT_PRICE_MAP[key];
+    }
+    
+    const name = (context?.productName || context?.metadata?.productName || "").toLowerCase();
+    if (!name) return null;
+    if (name.includes("single")) return PRODUCT_PRICE_MAP.single_spec;
+    if (name.includes("3-pack") || name.includes("three")) return PRODUCT_PRICE_MAP.three_pack;
+    if (name.includes("monthly")) return PRODUCT_PRICE_MAP.pro_monthly;
+    if (name.includes("yearly") || name.includes("annual")) return PRODUCT_PRICE_MAP.pro_yearly;
+    
+    return null;
   }
   
   /**

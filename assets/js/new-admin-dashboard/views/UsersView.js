@@ -35,7 +35,7 @@ export class UsersView {
    */
   setupEventListeners() {
     // Search
-    const searchInput = helpers.dom('#users-search');
+    const searchInput = helpers.dom('#users-search-input');
     if (searchInput) {
       searchInput.addEventListener('input', helpers.debounce(() => {
         this.currentPage = 1;
@@ -45,7 +45,7 @@ export class UsersView {
     }
     
     // Filters
-    const planFilter = helpers.dom('#users-plan-filter');
+    const planFilter = helpers.dom('#users-plan-filter-select');
     if (planFilter) {
       planFilter.addEventListener('change', () => {
         this.currentPage = 1;
@@ -54,7 +54,7 @@ export class UsersView {
       });
     }
     
-    const statusFilter = helpers.dom('#users-status-filter');
+    const statusFilter = helpers.dom('#users-status-filter-select');
     if (statusFilter) {
       statusFilter.addEventListener('change', () => {
         this.currentPage = 1;
@@ -63,8 +63,8 @@ export class UsersView {
       });
     }
     
-    const dateFrom = helpers.dom('#users-date-from');
-    const dateTo = helpers.dom('#users-date-to');
+    const dateFrom = helpers.dom('#users-date-from-input');
+    const dateTo = helpers.dom('#users-date-to-input');
     if (dateFrom) {
       dateFrom.addEventListener('change', () => {
         this.currentPage = 1;
@@ -129,37 +129,36 @@ export class UsersView {
    */
   updateSummary() {
     const allData = this.dataManager.getAllData();
-    let users = allData.users;
+    const allUsers = allData.users || [];
     
-    // Apply filters (but not pagination)
-    users = this.filterUsers(users, allData.userCredits, false);
+    // Total users - ALL users, no filters
+    const totalUsers = allUsers.length;
+    this.updateSummaryValue('stat-total-users', totalUsers);
     
-    // Total users
-    const totalUsers = users.length;
-    this.updateSummaryValue('summary-total-users', totalUsers);
-    
-    // Pro users
-    const proUsers = users.filter(u => {
+    // Pro users - check from userCredits
+    const proUsers = allUsers.filter(u => {
       const userCredits = allData.userCredits.find(uc => uc.userId === u.id);
       return userCredits?.unlimited || u.plan === 'pro';
     }).length;
-    this.updateSummaryValue('summary-pro-users', proUsers);
+    this.updateSummaryValue('stat-pro-users', proUsers);
     
-    // Active users (30 days)
+    // Active users (30 days) - users active in last 30 days
     const thirtyDaysAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
-    const activeUsers = users.filter(u => {
+    const activeUsers = allUsers.filter(u => {
       if (!u.lastActive) return false;
-      return u.lastActive.getTime() >= thirtyDaysAgo;
+      const lastActive = u.lastActive instanceof Date ? u.lastActive.getTime() : new Date(u.lastActive).getTime();
+      return lastActive >= thirtyDaysAgo;
     }).length;
-    this.updateSummaryValue('summary-active-users', activeUsers);
+    this.updateSummaryValue('stat-active-users', activeUsers);
     
-    // New users (7 days)
+    // New users (7 days) - users created in last 7 days
     const sevenDaysAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
-    const newUsers = users.filter(u => {
+    const newUsers = allUsers.filter(u => {
       if (!u.createdAt) return false;
-      return u.createdAt.getTime() >= sevenDaysAgo;
+      const created = u.createdAt instanceof Date ? u.createdAt.getTime() : new Date(u.createdAt).getTime();
+      return created >= sevenDaysAgo;
     }).length;
-    this.updateSummaryValue('summary-new-users', newUsers);
+    this.updateSummaryValue('stat-new-users', newUsers);
   }
   
   /**
@@ -177,18 +176,18 @@ export class UsersView {
    */
   filterUsers(users, userCredits, applyDateFilter = true) {
     // Search filter
-    const searchInput = helpers.dom('#users-search');
+    const searchInput = helpers.dom('#users-search-input');
     const searchTerm = searchInput?.value.trim().toLowerCase() || '';
     
     if (searchTerm) {
       users = users.filter(user => {
-        const haystack = `${user.email} ${user.displayName} ${user.id}`.toLowerCase();
+        const haystack = `${user.email || ''} ${user.displayName || ''} ${user.id || ''}`.toLowerCase();
         return haystack.includes(searchTerm);
       });
     }
     
     // Plan filter
-    const planFilter = helpers.dom('#users-plan-filter');
+    const planFilter = helpers.dom('#users-plan-filter-select');
     const planValue = planFilter?.value || 'all';
     
     if (planValue !== 'all') {
@@ -202,24 +201,26 @@ export class UsersView {
     }
     
     // Status filter
-    const statusFilter = helpers.dom('#users-status-filter');
+    const statusFilter = helpers.dom('#users-status-filter-select');
     const statusValue = statusFilter?.value || 'all';
     
     if (statusValue !== 'all') {
       const thirtyDaysAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
       users = users.filter(user => {
+        if (!user.lastActive) return statusValue === 'inactive';
+        const lastActive = user.lastActive instanceof Date ? user.lastActive.getTime() : new Date(user.lastActive).getTime();
         if (statusValue === 'active') {
-          return user.lastActive && user.lastActive.getTime() >= thirtyDaysAgo;
+          return lastActive >= thirtyDaysAgo;
         } else {
-          return !user.lastActive || user.lastActive.getTime() < thirtyDaysAgo;
+          return lastActive < thirtyDaysAgo;
         }
       });
     }
     
     // Date filter
     if (applyDateFilter) {
-      const dateFrom = helpers.dom('#users-date-from');
-      const dateTo = helpers.dom('#users-date-to');
+      const dateFrom = helpers.dom('#users-date-from-input');
+      const dateTo = helpers.dom('#users-date-to-input');
       
       if (dateFrom?.value) {
         const fromDate = new Date(dateFrom.value);
@@ -272,22 +273,27 @@ export class UsersView {
     
     // Render table
     const html = pageUsers.map(user => {
-      // Find user credits - check both userId and direct id match
-      const userCredits = allData.userCredits.find(uc => 
-        uc.userId === user.id || uc.id === user.id
-      );
+      // Find user credits - the document ID in user_credits IS the userId
+      // DataManager stores it as: Map where key = userId, value = { userId, balances, total, unlimited }
+      const userCredits = allData.userCredits.find(uc => uc.userId === user.id);
       
-      // Calculate credits - use total if available, otherwise calculate from balances
+      // Also try to get from the Map directly if available
+      // The user_credits collection uses userId as document ID
+      // So we need to check the actual data structure
       let credits = 0;
       if (userCredits) {
         if (userCredits.unlimited) {
           credits = 'Unlimited';
         } else {
-          credits = userCredits.total || 
-            ((userCredits.balances?.free || 0) + 
-             (userCredits.balances?.paid || 0) + 
-             (userCredits.balances?.bonus || 0));
+          // Calculate total from balances
+          const free = userCredits.balances?.free || 0;
+          const paid = userCredits.balances?.paid || 0;
+          const bonus = userCredits.balances?.bonus || 0;
+          credits = userCredits.total !== undefined ? userCredits.total : (free + paid + bonus);
         }
+      } else {
+        // If no credits found, check if user has free_specs_remaining
+        credits = user.free_specs_remaining || 0;
       }
       
       const specCount = allData.specsByUser[user.id]?.length || 0;
@@ -317,6 +323,9 @@ export class UsersView {
               </button>
               <button class="action-btn small" data-user-id="${user.id}" data-action="view" title="View details">
                 <i class="fas fa-eye"></i>
+              </button>
+              <button class="action-btn small critical" data-user-id="${user.id}" data-action="delete" title="Delete user">
+                <i class="fas fa-trash"></i>
               </button>
             </div>
           </td>
@@ -392,7 +401,86 @@ export class UsersView {
    */
   handleUserAction(action, userId) {
     console.log(`[UsersView] Action: ${action} for user: ${userId}`);
-    // TODO: Implement edit/view actions
+    
+    switch (action) {
+      case 'edit':
+        this.editUser(userId);
+        break;
+      case 'view':
+        this.viewUser(userId);
+        break;
+      case 'delete':
+        this.deleteUser(userId);
+        break;
+      default:
+        console.warn(`[UsersView] Unknown action: ${action}`);
+    }
+  }
+  
+  /**
+   * Edit user
+   */
+  editUser(userId) {
+    // TODO: Implement edit user modal
+    console.log(`[UsersView] Edit user: ${userId}`);
+    alert('Edit user functionality coming soon');
+  }
+  
+  /**
+   * View user details
+   */
+  viewUser(userId) {
+    // TODO: Implement view user modal
+    console.log(`[UsersView] View user: ${userId}`);
+    alert('View user details functionality coming soon');
+  }
+  
+  /**
+   * Delete user
+   */
+  async deleteUser(userId) {
+    const allData = this.dataManager.getAllData();
+    const user = allData.users.find(u => u.id === userId);
+    
+    if (!user) {
+      alert('User not found');
+      return;
+    }
+    
+    // Confirm deletion
+    const confirmed = confirm(
+      `Are you sure you want to delete user "${user.email || user.displayName || userId}"?\n\n` +
+      `This action cannot be undone. All user data including specs and purchases will be permanently deleted.`
+    );
+    
+    if (!confirmed) return;
+    
+    try {
+      // Get Firebase service
+      const { firebaseService } = await import('../core/FirebaseService.js');
+      
+      // Delete user document
+      await firebaseService.deleteDocument('users', userId);
+      
+      // Also delete user_credits if exists
+      try {
+        await firebaseService.deleteDocument('user_credits', userId);
+      } catch (error) {
+        console.warn('[UsersView] Could not delete user_credits:', error);
+        // Continue even if credits deletion fails
+      }
+      
+      // Show success message
+      alert(`User "${user.email || user.displayName || userId}" has been deleted successfully.`);
+      
+      // Refresh the view
+      this.updateSummary();
+      this.render();
+      
+    } catch (error) {
+      console.error('[UsersView] Error deleting user:', error);
+      alert(`Error deleting user: ${error.message}`);
+    }
   }
   
   /**
@@ -530,6 +618,33 @@ export class UsersView {
   show() {
     this.updateSummary();
     this.render();
+    
+    // Setup action listeners after render
+    setTimeout(() => {
+      this.setupActionListeners();
+    }, 100);
+  }
+  
+  /**
+   * Setup action listeners
+   */
+  setupActionListeners() {
+    if (!this.table) return;
+    
+    // Add action button listeners
+    this.table.querySelectorAll('[data-action]').forEach(btn => {
+      // Remove existing listeners by cloning
+      const newBtn = btn.cloneNode(true);
+      btn.parentNode.replaceChild(newBtn, btn);
+      
+      // Add new listener
+      newBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const action = e.currentTarget.dataset.action;
+        const userId = e.currentTarget.dataset.userId;
+        this.handleUserAction(action, userId);
+      });
+    });
   }
   
   /**

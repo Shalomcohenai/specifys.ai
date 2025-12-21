@@ -13,6 +13,10 @@ import { UsersView } from './views/UsersView.js';
 import { PaymentsView } from './views/PaymentsView.js';
 import { LogsView } from './views/LogsView.js';
 import { AnalyticsView } from './views/AnalyticsView.js';
+import { ArticlesView } from './views/ArticlesView.js';
+import { AcademyView } from './views/AcademyView.js';
+import { ArticlesView } from './views/ArticlesView.js';
+import { AcademyView } from './views/AcademyView.js';
 
 class NewAdminDashboard {
   constructor() {
@@ -231,6 +235,12 @@ class NewAdminDashboard {
       
       // Logs view
       this.views.set('logs', new LogsView(this.dataManager, this.stateManager));
+      
+      // Articles view
+      this.views.set('articles', new ArticlesView(this.dataManager, this.stateManager));
+      
+      // Academy view
+      this.views.set('academy', new AcademyView(this.dataManager, this.stateManager));
       
     } catch (error) {
       console.error('[NewAdminDashboard] Error initializing views:', error);

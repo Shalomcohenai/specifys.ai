@@ -1,5 +1,6 @@
 /**
- * Logs View - Live activity and error logs
+ * Logs View - Complete live activity and error logs
+ * Shows activity logs and render logs from API
  */
 
 import { helpers } from '../utils/helpers.js';
@@ -9,8 +10,9 @@ export class LogsView {
   constructor(dataManager, stateManager) {
     this.dataManager = dataManager;
     this.stateManager = stateManager;
-    this.logsStream = null;
+    this.logsContainer = null;
     this.renderLogsData = [];
+    this.currentFilter = 'all';
     
     this.init();
   }
@@ -19,13 +21,16 @@ export class LogsView {
    * Initialize view
    */
   init() {
-    this.logsStream = helpers.dom('#logs-stream');
+    this.logsContainer = helpers.dom('#logs-container');
     
     // Setup event listeners
     this.setupEventListeners();
     
     // Subscribe to data changes
     this.setupDataSubscriptions();
+    
+    // Load render logs from API
+    this.loadRenderLogs();
   }
   
   /**
@@ -33,9 +38,10 @@ export class LogsView {
    */
   setupEventListeners() {
     // Logs filter
-    const logsFilter = helpers.dom('#logs-filter');
-    if (logsFilter) {
-      logsFilter.addEventListener('change', () => {
+    const filterSelect = helpers.dom('#logs-filter-select');
+    if (filterSelect) {
+      filterSelect.addEventListener('change', (e) => {
+        this.currentFilter = e.target.value;
         this.render();
       });
     }
@@ -45,7 +51,7 @@ export class LogsView {
    * Setup data subscriptions
    */
   setupDataSubscriptions() {
-    this.dataManager.on('data', ({ source, data }) => {
+    this.dataManager.on('data', ({ source }) => {
       if (source === 'activityLogs') {
         this.render();
       }
@@ -57,131 +63,43 @@ export class LogsView {
    */
   async loadRenderLogs() {
     try {
-      const response = await apiService.get('/api/admin/render-logs?limit=100');
-      if (response && response.success && response.logs) {
-        this.renderLogsData = response.logs.map(log => ({
-          id: log.id,
-          type: log.level?.toLowerCase() || 'server',
-          title: log.message || 'Server log',
-          description: this.formatRenderLogDescription(log),
+      const apiBaseUrl = window.getApiBaseUrl ? window.getApiBaseUrl() : 'https://specifys-ai-development.onrender.com';
+      const response = await window.api.get(`${apiBaseUrl}/api/logs/render`);
+      
+      if (response && Array.isArray(response)) {
+        this.renderLogsData = response.map(log => ({
+          id: log.id || log._id,
+          level: log.level || 'info',
+          message: log.message || log.title || 'Log entry',
+          description: log.description || log.path || '',
           timestamp: log.timestamp ? new Date(log.timestamp) : new Date(),
-          userId: log.userId,
-          userEmail: log.userEmail,
-          level: log.level,
-          path: log.path,
-          method: log.method,
-          statusCode: log.statusCode,
-          errorStack: log.errorStack
+          userId: log.userId || null,
+          userEmail: log.userEmail || null,
+          path: log.path || '',
+          method: log.method || '',
+          statusCode: log.statusCode || null,
+          errorStack: log.errorStack || null
         }));
+        
+        // Sort by timestamp (newest first)
+        this.renderLogsData.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+        
         this.render();
       }
     } catch (error) {
       console.error('[LogsView] Error loading render logs:', error);
+      // Continue with activity logs only
+      this.render();
     }
-  }
-  
-  /**
-   * Format render log description
-   */
-  formatRenderLogDescription(log) {
-    let desc = '';
-    if (log.errorName) {
-      desc += `<strong>${this.escapeHtml(log.errorName)}</strong>: `;
-    }
-    if (log.errorCode) {
-      desc += `[${this.escapeHtml(log.errorCode)}] `;
-    }
-    if (log.statusCode) {
-      desc += `HTTP ${log.statusCode} `;
-    }
-    if (log.requestId) {
-      desc += `Request ID: ${log.requestId.substring(0, 8)}... `;
-    }
-    return desc || log.message || 'Server log entry';
-  }
-  
-  /**
-   * Render logs
-   */
-  async render() {
-    if (!this.logsStream) return;
-    
-    // Load render logs if section is active and not loaded
-    const logsSection = this.logsStream.closest('.dashboard-section');
-    if (logsSection?.classList.contains('active') && this.renderLogsData.length === 0) {
-      await this.loadRenderLogs();
-    }
-    
-    const allData = this.dataManager.getAllData();
-    let logs = [...allData.activityLogs, ...this.renderLogsData];
-    
-    // Apply filter
-    const logsFilter = helpers.dom('#logs-filter');
-    const filter = logsFilter?.value || 'all';
-    
-    if (filter !== 'all') {
-      logs = logs.filter(log => {
-        const level = (log.level || log.type || '').toLowerCase();
-        return level === filter.toLowerCase();
-      });
-    }
-    
-    // Sort by timestamp
-    logs.sort((a, b) => {
-      const timeA = a.timestamp?.getTime() || 0;
-      const timeB = b.timestamp?.getTime() || 0;
-      return timeB - timeA;
-    });
-    
-    if (logs.length === 0) {
-      this.logsStream.innerHTML = '<div class="log-placeholder">No logs found</div>';
-      return;
-    }
-    
-    // Render logs
-    const html = logs.slice(0, 100).map(log => {
-      const level = (log.level || log.type || 'info').toLowerCase();
-      const timestamp = helpers.formatDate(log.timestamp);
-      const relativeTime = helpers.formatRelative(log.timestamp);
-      const userInfo = log.userEmail 
-        ? `<div class="log-user">User: ${this.escapeHtml(log.userEmail)}</div>` 
-        : log.userId 
-        ? `<div class="log-user">User ID: ${log.userId.substring(0, 8)}...</div>` 
-        : '';
-      const pathInfo = log.path ? `<div class="log-path">${log.method || ''} ${log.path}</div>` : '';
-      
-      return `
-        <div class="log-entry log-${level}">
-          <div class="log-header">
-            <span class="log-level">${level.toUpperCase()}</span>
-            <time class="log-time" title="${timestamp}">${relativeTime}</time>
-          </div>
-          <div class="log-title">${this.escapeHtml(log.title || 'Log entry')}</div>
-          ${log.description ? `<div class="log-description">${this.escapeHtml(log.description)}</div>` : ''}
-          ${userInfo}
-          ${pathInfo}
-          ${log.errorStack ? `<details class="log-stack"><summary>Stack trace</summary><pre>${this.escapeHtml(log.errorStack)}</pre></details>` : ''}
-        </div>
-      `;
-    }).join('');
-    
-    this.logsStream.innerHTML = html;
-  }
-  
-  /**
-   * Escape HTML
-   */
-  escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
   }
   
   /**
    * Show view
    */
-  async show() {
-    await this.render();
+  show() {
+    this.render();
+    // Reload render logs when showing
+    this.loadRenderLogs();
   }
   
   /**
@@ -190,5 +108,160 @@ export class LogsView {
   hide() {
     // Cleanup if needed
   }
+  
+  /**
+   * Update view
+   */
+  update() {
+    this.render();
+  }
+  
+  /**
+   * Render logs
+   */
+  render() {
+    if (!this.logsContainer) return;
+    
+    const allData = this.dataManager.getAllData();
+    const activityLogs = allData.activityLogs || [];
+    
+    // Combine activity logs and render logs
+    const allLogs = [
+      ...this.renderLogsData.map(log => ({
+        id: log.id,
+        type: log.level?.toLowerCase() || 'info',
+        title: log.message || 'Log entry',
+        description: this.formatLogDescription(log),
+        timestamp: log.timestamp,
+        userId: log.userId,
+        userEmail: log.userEmail,
+        level: log.level
+      })),
+      ...activityLogs.map(log => ({
+        id: log.id || `log-${Date.now()}-${Math.random()}`,
+        type: log.type || log.level?.toLowerCase() || 'info',
+        title: log.title || log.message || 'Activity',
+        description: log.description || log.path || '',
+        timestamp: log.timestamp || log.createdAt || new Date(),
+        userId: log.userId || log.meta?.userId,
+        userEmail: log.userEmail || log.meta?.userEmail,
+        level: log.level || 'info'
+      }))
+    ];
+    
+    // Sort by timestamp (newest first)
+    allLogs.sort((a, b) => {
+      const timeA = a.timestamp instanceof Date ? a.timestamp.getTime() : new Date(a.timestamp).getTime();
+      const timeB = b.timestamp instanceof Date ? b.timestamp.getTime() : new Date(b.timestamp).getTime();
+      return timeB - timeA;
+    });
+    
+    // Apply filter
+    let filteredLogs = allLogs;
+    if (this.currentFilter !== 'all') {
+      filteredLogs = allLogs.filter(log => {
+        if (this.currentFilter === 'error') return log.type === 'error' || log.level === 'error';
+        if (this.currentFilter === 'warning') return log.type === 'warning' || log.level === 'warning';
+        if (this.currentFilter === 'info') return log.type === 'info' || log.level === 'info';
+        return true;
+      });
+    }
+    
+    // Limit to 100 most recent
+    const displayLogs = filteredLogs.slice(0, 100);
+    
+    if (displayLogs.length === 0) {
+      this.logsContainer.innerHTML = '<div class="logs-empty">No logs found</div>';
+      return;
+    }
+    
+    const html = displayLogs.map(log => {
+      const logClass = this.getLogClass(log.type || log.level);
+      const icon = this.getLogIcon(log.type || log.level);
+      const time = this.formatRelativeTime(log.timestamp);
+      
+      return `
+        <div class="log-entry ${logClass}">
+          <div class="log-header">
+            <span class="log-level">${(log.level || log.type || 'info').toUpperCase()}</span>
+            <span class="log-time">${time}</span>
+          </div>
+          <div class="log-title">${this.escapeHtml(log.title)}</div>
+          ${log.description ? `<div class="log-description">${this.escapeHtml(log.description)}</div>` : ''}
+          ${log.userEmail ? `<div class="log-user">User: ${this.escapeHtml(log.userEmail)}</div>` : ''}
+          ${log.path ? `<div class="log-path">Path: ${this.escapeHtml(log.path)}</div>` : ''}
+        </div>
+      `;
+    }).join('');
+    
+    this.logsContainer.innerHTML = html;
+  }
+  
+  /**
+   * Format log description
+   */
+  formatLogDescription(log) {
+    const parts = [];
+    if (log.method && log.path) {
+      parts.push(`${log.method} ${log.path}`);
+    }
+    if (log.statusCode) {
+      parts.push(`Status: ${log.statusCode}`);
+    }
+    return parts.join(' • ') || log.description || '';
+  }
+  
+  /**
+   * Get log CSS class
+   */
+  getLogClass(level) {
+    if (level === 'error') return 'log-error';
+    if (level === 'warning') return 'log-warning';
+    if (level === 'info') return 'log-info';
+    return '';
+  }
+  
+  /**
+   * Get log icon
+   */
+  getLogIcon(level) {
+    if (level === 'error') return 'fas fa-exclamation-circle';
+    if (level === 'warning') return 'fas fa-exclamation-triangle';
+    if (level === 'info') return 'fas fa-info-circle';
+    return 'fas fa-circle';
+  }
+  
+  /**
+   * Format relative time
+   */
+  formatRelativeTime(timestamp) {
+    if (!timestamp) return 'Just now';
+    
+    const time = timestamp instanceof Date ? timestamp.getTime() : new Date(timestamp).getTime();
+    const now = Date.now();
+    const diff = now - time;
+    
+    if (diff < 60000) return 'Just now';
+    if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
+    if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
+    if (diff < 604800000) return `${Math.floor(diff / 86400000)}d ago`;
+    
+    return new Date(time).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+  
+  /**
+   * Escape HTML
+   */
+  escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
 }
-

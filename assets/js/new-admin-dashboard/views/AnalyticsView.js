@@ -34,7 +34,7 @@ export class AnalyticsView {
    * Setup event listeners
    */
   setupEventListeners() {
-    const rangeSelect = helpers.dom('#analytics-range');
+    const rangeSelect = helpers.dom('#analytics-range-select');
     if (rangeSelect) {
       rangeSelect.addEventListener('change', (e) => {
         this.range = parseInt(e.target.value);
@@ -58,29 +58,34 @@ export class AnalyticsView {
    * Initialize charts
    */
   initCharts() {
+    if (!window.Chart) {
+      console.warn('[AnalyticsView] Chart.js not loaded');
+      return;
+    }
+    
     // User Growth Chart
-    this.initChart('chart-user-growth', 'line', {
+    this.initChart('analytics-chart-users', 'line', {
       label: 'New Users',
       borderColor: 'rgb(59, 130, 246)',
       backgroundColor: 'rgba(59, 130, 246, 0.1)'
     });
     
     // Specs Growth Chart
-    this.initChart('chart-specs-growth', 'line', {
+    this.initChart('analytics-chart-specs', 'line', {
       label: 'Specs Created',
       borderColor: 'rgb(139, 92, 246)',
       backgroundColor: 'rgba(139, 92, 246, 0.1)'
     });
     
     // Revenue Trend Chart
-    this.initChart('chart-revenue-trend', 'line', {
+    this.initChart('analytics-chart-revenue', 'line', {
       label: 'Revenue',
       borderColor: 'rgb(245, 158, 11)',
       backgroundColor: 'rgba(245, 158, 11, 0.1)'
     });
     
     // User Distribution Chart
-    this.initChart('chart-user-distribution', 'doughnut', {
+    this.initChart('analytics-chart-distribution', 'doughnut', {
       label: 'User Distribution',
       backgroundColor: [
         'rgba(139, 92, 246, 0.8)',
@@ -98,18 +103,21 @@ export class AnalyticsView {
     
     // Set size
     canvas.style.width = '100%';
-    canvas.style.height = '200px';
-    canvas.width = canvas.offsetWidth;
-    canvas.height = 200;
+    canvas.style.height = '250px';
     
-    const chartConfig = {
+    const ctx = canvas.getContext('2d');
+    const chart = new window.Chart(ctx, {
       type: type,
       data: {
         labels: [],
         datasets: [{
           label: config.label,
           data: [],
-          ...config
+          borderColor: config.borderColor,
+          backgroundColor: config.backgroundColor || config.borderColor,
+          borderWidth: 2,
+          fill: type === 'line',
+          tension: type === 'line' ? 0.4 : 0
         }]
       },
       options: {
@@ -136,9 +144,8 @@ export class AnalyticsView {
           }
         } : {}
       }
-    };
+    });
     
-    const chart = new ChartComponent(canvas, chartConfig);
     this.charts.set(canvasId, chart);
   }
   
@@ -169,9 +176,11 @@ export class AnalyticsView {
    */
   updateUserGrowthChart(users, startDate, endDate) {
     const { labels, data } = this.calculateDailyData(users, 'createdAt', startDate, endDate);
-    const chart = this.charts.get('chart-user-growth');
+    const chart = this.charts.get('analytics-chart-users');
     if (chart) {
-      chart.updateData({ labels, datasets: [{ data }] });
+      chart.data.labels = labels;
+      chart.data.datasets[0].data = data;
+      chart.update('none');
     }
   }
   
@@ -180,9 +189,11 @@ export class AnalyticsView {
    */
   updateSpecsGrowthChart(specs, startDate, endDate) {
     const { labels, data } = this.calculateDailyData(specs, 'createdAt', startDate, endDate);
-    const chart = this.charts.get('chart-specs-growth');
+    const chart = this.charts.get('analytics-chart-specs');
     if (chart) {
-      chart.updateData({ labels, datasets: [{ data }] });
+      chart.data.labels = labels;
+      chart.data.datasets[0].data = data;
+      chart.update('none');
     }
   }
   
@@ -191,9 +202,11 @@ export class AnalyticsView {
    */
   updateRevenueTrendChart(purchases, startDate, endDate) {
     const { labels, data } = this.calculateDailyRevenue(purchases, startDate, endDate);
-    const chart = this.charts.get('chart-revenue-trend');
+    const chart = this.charts.get('analytics-chart-revenue');
     if (chart) {
-      chart.updateData({ labels, datasets: [{ data }] });
+      chart.data.labels = labels;
+      chart.data.datasets[0].data = data;
+      chart.update('none');
     }
   }
   
@@ -213,14 +226,11 @@ export class AnalyticsView {
       }
     });
     
-    const chart = this.charts.get('chart-user-distribution');
+    const chart = this.charts.get('analytics-chart-distribution');
     if (chart) {
-      chart.updateData({
-        labels: ['Pro', 'Free'],
-        datasets: [{
-          data: [proCount, freeCount]
-        }]
-      });
+      chart.data.labels = ['Pro', 'Free'];
+      chart.data.datasets[0].data = [proCount, freeCount];
+      chart.update('none');
     }
   }
   

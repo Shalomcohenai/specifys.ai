@@ -375,6 +375,22 @@ export class FirebaseService {
   getCollections() {
     return COLLECTIONS;
   }
+  
+  /**
+   * Get Firestore database instance
+   */
+  getDb() {
+    return this.db;
+  }
+  
+  /**
+   * Delete document
+   */
+  async deleteDocument(collectionName, documentId) {
+    const { doc, deleteDoc } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
+    const docRef = doc(this.db, collectionName, documentId);
+    await deleteDoc(docRef);
+  }
 }
 
 // Export singleton instance

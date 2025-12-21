@@ -1,5 +1,6 @@
 /**
- * Payments View - Payment and transaction management
+ * Payments View - Complete payment and transaction management
+ * Shows all purchases with correct prices
  */
 
 import { helpers } from '../utils/helpers.js';
@@ -9,6 +10,7 @@ export class PaymentsView {
     this.dataManager = dataManager;
     this.stateManager = stateManager;
     this.table = null;
+    this.currentRange = 'week';
     
     this.init();
   }
@@ -30,18 +32,11 @@ export class PaymentsView {
    * Setup event listeners
    */
   setupEventListeners() {
-    // Search
-    const searchInput = helpers.dom('#payments-search');
-    if (searchInput) {
-      searchInput.addEventListener('input', helpers.debounce(() => {
-        this.render();
-      }, 300));
-    }
-    
     // Range filter
-    const rangeFilter = helpers.dom('#payments-range');
-    if (rangeFilter) {
-      rangeFilter.addEventListener('change', () => {
+    const rangeSelect = helpers.dom('#payments-range-select');
+    if (rangeSelect) {
+      rangeSelect.addEventListener('change', (e) => {
+        this.currentRange = e.target.value;
         this.render();
       });
     }
@@ -51,97 +46,11 @@ export class PaymentsView {
    * Setup data subscriptions
    */
   setupDataSubscriptions() {
-    this.dataManager.on('data', ({ source, data }) => {
+    this.dataManager.on('data', ({ source }) => {
       if (source === 'purchases') {
         this.render();
       }
     });
-  }
-  
-  /**
-   * Render payments table
-   */
-  render() {
-    if (!this.table) return;
-    
-    const allData = this.dataManager.getAllData();
-    let purchases = allData.purchases;
-    
-    // Apply filters
-    purchases = this.filterPurchases(purchases);
-    
-    if (purchases.length === 0) {
-      this.table.innerHTML = '<tr><td colspan="5" class="table-empty">No payments found</td></tr>';
-      return;
-    }
-    
-    // Render table
-    const html = purchases.slice(0, 100).map(purchase => {
-      const user = allData.users.find(u => u.id === purchase.userId);
-      const userName = user?.displayName || purchase.email || 'Unknown';
-      
-      return `
-        <tr>
-          <td>${helpers.formatDate(purchase.createdAt)}</td>
-          <td>
-            <div class="user-info">
-              <div class="user-name">${this.escapeHtml(userName)}</div>
-              <div class="user-email">${this.escapeHtml(purchase.email || '')}</div>
-            </div>
-          </td>
-          <td>${this.escapeHtml(purchase.productName)}</td>
-          <td>${helpers.formatCurrency(purchase.total, purchase.currency)}</td>
-          <td><span class="status-badge status-${purchase.status}">${purchase.status}</span></td>
-        </tr>
-      `;
-    }).join('');
-    
-    this.table.innerHTML = html;
-  }
-  
-  /**
-   * Filter purchases
-   */
-  filterPurchases(purchases) {
-    // Search filter
-    const searchInput = helpers.dom('#payments-search');
-    const searchTerm = searchInput?.value.trim().toLowerCase() || '';
-    
-    if (searchTerm) {
-      purchases = purchases.filter(purchase => {
-        const haystack = `${purchase.email} ${purchase.productName} ${purchase.userId}`.toLowerCase();
-        return haystack.includes(searchTerm);
-      });
-    }
-    
-    // Range filter
-    const rangeFilter = helpers.dom('#payments-range');
-    const range = rangeFilter?.value || 'all';
-    
-    if (range !== 'all') {
-      const ranges = {
-        week: 7 * 24 * 60 * 60 * 1000,
-        month: 30 * 24 * 60 * 60 * 1000
-      };
-      const threshold = Date.now() - (ranges[range] || 0);
-      purchases = purchases.filter(p => 
-        p.createdAt && p.createdAt.getTime() >= threshold
-      );
-    }
-    
-    // Sort by date
-    purchases.sort((a, b) => (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0));
-    
-    return purchases;
-  }
-  
-  /**
-   * Escape HTML
-   */
-  escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
   }
   
   /**
@@ -157,5 +66,86 @@ export class PaymentsView {
   hide() {
     // Cleanup if needed
   }
+  
+  /**
+   * Update view
+   */
+  update() {
+    this.render();
+  }
+  
+  /**
+   * Render payments table
+   */
+  render() {
+    if (!this.table) return;
+    
+    const allData = this.dataManager.getAllData();
+    let purchases = allData.purchases || [];
+    
+    // Apply range filter
+    if (this.currentRange !== 'all') {
+      const now = Date.now();
+      const ranges = {
+        week: 7 * 24 * 60 * 60 * 1000,
+        month: 30 * 24 * 60 * 60 * 1000
+      };
+      const threshold = now - (ranges[this.currentRange] || ranges.week);
+      
+      purchases = purchases.filter(p => {
+        if (!p.createdAt) return false;
+        const created = p.createdAt instanceof Date ? p.createdAt.getTime() : new Date(p.createdAt).getTime();
+        return created >= threshold;
+      });
+    }
+    
+    // Sort by date (newest first)
+    purchases.sort((a, b) => {
+      const timeA = a.createdAt instanceof Date ? a.createdAt.getTime() : new Date(a.createdAt).getTime();
+      const timeB = b.createdAt instanceof Date ? b.createdAt.getTime() : new Date(b.createdAt).getTime();
+      return timeB - timeA;
+    });
+    
+    if (purchases.length === 0) {
+      this.table.innerHTML = '<tr><td colspan="5" class="table-empty-state">No payments found</td></tr>';
+      return;
+    }
+    
+    // Render table
+    const html = purchases.map(purchase => {
+      const date = purchase.createdAt instanceof Date ? purchase.createdAt : new Date(purchase.createdAt);
+      const formattedDate = helpers.formatDate(date);
+      const formattedAmount = helpers.formatCurrency(purchase.total || 0, purchase.currency || 'USD');
+      const status = purchase.status || 'paid';
+      const statusClass = status === 'paid' ? 'status-paid' : 
+                         status === 'refunded' ? 'status-failed' : 
+                         'status-pending';
+      
+      return `
+        <tr>
+          <td>${formattedDate}</td>
+          <td>
+            <div class="user-info">
+              <div class="user-email">${this.escapeHtml(purchase.email || purchase.userId || 'Unknown')}</div>
+            </div>
+          </td>
+          <td>${this.escapeHtml(purchase.productName || 'Purchase')}</td>
+          <td>${formattedAmount}</td>
+          <td><span class="status-badge ${statusClass}">${status}</span></td>
+        </tr>
+      `;
+    }).join('');
+    
+    this.table.innerHTML = html;
+  }
+  
+  /**
+   * Escape HTML
+   */
+  escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
 }
-
