@@ -291,6 +291,7 @@ aside#admin-shell .admin-sidebar.grid,
   width: 100%;
   white-space: nowrap;
   justify-content: flex-start;
+  position: relative;
 }
 
 .admin-shell .sidebar-footer .home-link:hover,
@@ -308,6 +309,7 @@ aside#admin-shell .admin-sidebar.grid,
   align-items: center;
   gap: 8px;
   box-sizing: border-box;
+  position: relative;
 }
 
 /* Override utility classes on connection-indicator */
@@ -3613,14 +3615,143 @@ button.admin-shell .action-btn.grid,
 
 @media (max-width: 768px) {
   .admin-shell {
-    grid-template-columns: 1fr;
+    grid-template-columns: 70px 1fr;
   }
   
   .admin-shell .admin-sidebar {
-    position: fixed;
-    left: -280px;
+    width: 70px;
+    padding: 12px 8px;
+    position: sticky;
+    left: 0;
     z-index: 100;
-    transition: left 0.3s ease;
+  }
+  
+  /* Hide text in sidebar on mobile, show only icons */
+  .admin-shell .sidebar-brand .brand-name,
+  .admin-shell .sidebar-brand .brand-subtitle {
+    display: none;
+  }
+  
+  /* Show only icon in nav links on mobile */
+  .admin-shell .sidebar-nav .nav-link {
+    justify-content: center;
+    padding: 12px;
+    position: relative;
+  }
+  
+  .admin-shell .sidebar-nav .nav-link > span:not(.icon) {
+    display: none;
+  }
+  
+  /* Tooltip for nav links on mobile */
+  .admin-shell .sidebar-nav .nav-link::after {
+    content: attr(aria-label);
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    margin-left: 12px;
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+  
+  .admin-shell .sidebar-nav .nav-link:hover::after,
+  .admin-shell .sidebar-nav .nav-link:active::after,
+  .admin-shell .sidebar-nav .nav-link:focus::after,
+  .admin-shell .sidebar-nav .nav-link.show-tooltip::after {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  
+  /* Sidebar footer adjustments for mobile */
+  .admin-shell .sidebar-footer {
+    font-size: 0.75rem;
+  }
+  
+  .admin-shell .sidebar-footer .connection-indicator {
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  
+  .admin-shell .sidebar-footer .connection-indicator .label,
+  .admin-shell .sidebar-footer .sync-label {
+    display: none;
+  }
+  
+  .admin-shell .sidebar-footer .home-link {
+    justify-content: center;
+    padding: 10px;
+  }
+  
+  .admin-shell .sidebar-footer .home-link span {
+    display: none;
+  }
+  
+  /* Tooltip for sidebar footer elements */
+  .admin-shell .sidebar-footer .connection-indicator::after {
+    content: attr(title);
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    margin-left: 12px;
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+  
+  .admin-shell .sidebar-footer .connection-indicator:hover::after,
+  .admin-shell .sidebar-footer .connection-indicator:active::after,
+  .admin-shell .sidebar-footer .connection-indicator:focus::after,
+  .admin-shell .sidebar-footer .connection-indicator.show-tooltip::after {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  
+  .admin-shell .sidebar-footer .home-link::after {
+    content: "Back to site";
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    margin-left: 12px;
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+  
+  .admin-shell .sidebar-footer .home-link:hover::after,
+  .admin-shell .sidebar-footer .home-link:active::after,
+  .admin-shell .sidebar-footer .home-link:focus::after,
+  .admin-shell .sidebar-footer .home-link.show-tooltip::after {
+    opacity: 1;
+    pointer-events: auto;
   }
   
   .admin-shell .overview-panels {

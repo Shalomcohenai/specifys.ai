@@ -233,6 +233,16 @@ class DataAggregator {
     this.db = db;
     this.unsubscribeFns = [];
     
+    // Track which sources are currently subscribed
+    this.activeSubscriptions = new Set();
+    
+    // Retry configuration
+    this.retryConfig = {
+      maxRetries: 3,
+      retryDelay: 1000, // Start with 1 second
+      retryDelays: new Map() // Track retry delays per source
+    };
+    
     // Central aggregated data store
     this.aggregatedData = {
       users: new Map(),
@@ -531,6 +541,7 @@ class DataAggregator {
       );
       
       this.unsubscribeFns.push(unsubUsers);
+      this.activeSubscriptions.add('users');
       return unsubUsers;
     } catch (error) {
       console.error('[DataAggregator] Failed to subscribe to users:', error);
@@ -646,6 +657,7 @@ class DataAggregator {
       );
       
       this.unsubscribeFns.push(unsubUserCredits);
+      this.activeSubscriptions.add('userCredits');
       return unsubUserCredits;
     } catch (error) {
       // Mark initial load as complete even on error
@@ -777,6 +789,7 @@ class DataAggregator {
       );
       
       this.unsubscribeFns.push(unsubSpecs);
+      this.activeSubscriptions.add('specs');
       return unsubSpecs;
     } catch (error) {
       console.error('[DataAggregator] Failed to subscribe to specs:', error);
@@ -881,6 +894,7 @@ class DataAggregator {
       );
       
       this.unsubscribeFns.push(unsubPurchases);
+      this.activeSubscriptions.add('purchases');
       return unsubPurchases;
     } catch (error) {
       console.error('[DataAggregator] Failed to subscribe to purchases:', error);
@@ -934,6 +948,7 @@ class DataAggregator {
       );
       
       this.unsubscribeFns.push(unsubActivity);
+      this.activeSubscriptions.add('activityLogs');
       return unsubActivity;
     } catch (error) {
       if (error?.code === "permission-denied") {
@@ -1078,6 +1093,7 @@ class DataAggregator {
       );
       
       this.unsubscribeFns.push(unsubContact);
+      this.activeSubscriptions.add('contactSubmissions');
       return unsubContact;
     } catch (error) {
       // Mark initial load as complete even on error (contactSubmissions doesn't block other data)
@@ -1094,15 +1110,56 @@ class DataAggregator {
   
   /**
    * Initialize all subscriptions
+   * Only subscribes to sources that aren't already active
    */
   subscribeAll() {
-    this.subscribeToUsers();
+    // Only subscribe if not already subscribed to avoid duplicate connections
+    if (!this.activeSubscriptions.has('users')) {
+      this.subscribeToUsers();
+    }
     // subscribeToEntitlements() removed - using new user_credits system only
-    this.subscribeToUserCredits();
-    this.subscribeToSpecs();
-    this.subscribeToPurchases();
-    this.subscribeToActivityLogs();
-    this.subscribeToContactSubmissions();
+    if (!this.activeSubscriptions.has('userCredits')) {
+      this.subscribeToUserCredits();
+    }
+    if (!this.activeSubscriptions.has('specs')) {
+      this.subscribeToSpecs();
+    }
+    if (!this.activeSubscriptions.has('purchases')) {
+      this.subscribeToPurchases();
+    }
+    if (!this.activeSubscriptions.has('activityLogs')) {
+      this.subscribeToActivityLogs();
+    }
+    if (!this.activeSubscriptions.has('contactSubmissions')) {
+      this.subscribeToContactSubmissions();
+    }
+  }
+  
+  /**
+   * Retry subscription with exponential backoff
+   */
+  async retrySubscription(sourceName, subscribeFn, retryCount = 0) {
+    const delay = this.retryConfig.retryDelays.get(sourceName) || this.retryConfig.retryDelay;
+    
+    try {
+      const result = subscribeFn();
+      // Reset retry delay on success
+      this.retryConfig.retryDelays.set(sourceName, this.retryConfig.retryDelay);
+      return result;
+    } catch (error) {
+      if (retryCount < this.retryConfig.maxRetries) {
+        const nextDelay = delay * Math.pow(2, retryCount); // Exponential backoff
+        this.retryConfig.retryDelays.set(sourceName, nextDelay);
+        
+        console.warn(`[DataAggregator] Retrying ${sourceName} subscription (attempt ${retryCount + 1}/${this.retryConfig.maxRetries}) after ${nextDelay}ms`);
+        
+        await new Promise(resolve => setTimeout(resolve, nextDelay));
+        return this.retrySubscription(sourceName, subscribeFn, retryCount + 1);
+      } else {
+        console.error(`[DataAggregator] Failed to subscribe to ${sourceName} after ${this.retryConfig.maxRetries} attempts`);
+        throw error;
+      }
+    }
   }
   
   /**
@@ -1117,6 +1174,16 @@ class DataAggregator {
       }
     });
     this.unsubscribeFns = [];
+    this.activeSubscriptions.clear();
+  }
+  
+  /**
+   * Unsubscribe from a specific source
+   */
+  unsubscribeSource(sourceName) {
+    // Find and remove unsubscribe function for this source
+    // Note: This is a simplified approach - in production you might want to track source->unsub mapping
+    this.activeSubscriptions.delete(sourceName);
   }
   
   /**
@@ -2035,6 +2102,20 @@ class AdminDashboardApp {
     this.nextAutoRefreshAt = null;
     this.lastManualRefresh = null; // Track last manual refresh time
     this.syncInProgress = false;
+    
+    // Track if critical data has been loaded (for charts)
+    this.criticalDataLoaded = {
+      users: false,
+      specs: false,
+      purchases: false,
+      userCredits: false
+    };
+    
+    // Debounced update for overview charts
+    this.debouncedUpdateOverview = utils.debounce(() => {
+      this.updateOverview();
+    }, 300);
+    
     this.charts = {
       usersPlan: null,
       specsTimeline: null,
@@ -2070,9 +2151,11 @@ class AdminDashboardApp {
       // Mark source as ready
       if (source === 'users') {
         this.markSourceReady('users');
+        this.criticalDataLoaded.users = true;
         this.renderUsersTable();
         this.rebuildSearchIndex();
-        this.updateOverview();
+        // Use debounced update for better performance
+        this.debouncedUpdateOverview();
         this.renderActivityFeed();
       }
       if (source === 'users-error') {
@@ -2086,15 +2169,17 @@ class AdminDashboardApp {
       // }
       if (source === 'userCredits') {
         this.markSourceReady('userCredits');
+        this.criticalDataLoaded.userCredits = true;
         this.renderUsersTable();
-        this.updateOverview();
+        this.debouncedUpdateOverview();
         this.renderActivityFeed();
       }
       if (source === 'userCredits-restricted') {
         this.markSourceRestricted('userCredits', 'Requires elevated Firebase permissions.');
         // Still render data even if userCredits is restricted - use user.plan as fallback
+        this.criticalDataLoaded.userCredits = true; // Mark as loaded even if restricted
         this.renderUsersTable();
-        this.updateOverview();
+        this.debouncedUpdateOverview();
         this.renderActivityFeed();
       }
       if (source === 'userCredits-error') {
@@ -2103,9 +2188,10 @@ class AdminDashboardApp {
       }
       if (source === 'specs') {
         this.markSourceReady('specs');
+        this.criticalDataLoaded.specs = true;
         this.renderUsersTable();
         this.rebuildSearchIndex();
-        this.updateOverview();
+        this.debouncedUpdateOverview();
         this.renderActivityFeed();
         this.renderLogs();
         this.updateStatistics();
@@ -2119,8 +2205,9 @@ class AdminDashboardApp {
       }
       if (source === 'purchases') {
         this.markSourceReady('purchases');
+        this.criticalDataLoaded.purchases = true;
         this.renderPaymentsTable();
-        this.updateOverview();
+        this.debouncedUpdateOverview();
         this.renderLogs();
         this.updateStatistics();
         this.rebuildSearchIndex();
@@ -2411,7 +2498,75 @@ class AdminDashboardApp {
 
     this.bindNavigation();
     this.bindInteractions();
+    this.setupMobileTooltips();
     this.setupAuthGate();
+  }
+  
+  /**
+   * Setup mobile tooltips for sidebar navigation
+   */
+  setupMobileTooltips() {
+    // Only setup on mobile devices
+    if (window.innerWidth > 768) return;
+    
+    const navLinks = this.dom.navButtons || [];
+    navLinks.forEach(link => {
+      let touchTimeout;
+      
+      // Show tooltip on touch
+      link.addEventListener('touchstart', (e) => {
+        clearTimeout(touchTimeout);
+        link.classList.add('show-tooltip');
+      });
+      
+      // Hide tooltip after touch ends
+      link.addEventListener('touchend', () => {
+        touchTimeout = setTimeout(() => {
+          link.classList.remove('show-tooltip');
+        }, 2000); // Hide after 2 seconds
+      });
+      
+      // Hide tooltip when clicking outside
+      link.addEventListener('click', () => {
+        setTimeout(() => {
+          link.classList.remove('show-tooltip');
+        }, 500);
+      });
+    });
+    
+    // Setup for connection indicator
+    const connectionIndicator = utils.dom("#connection-indicator");
+    if (connectionIndicator) {
+      let touchTimeout;
+      
+      connectionIndicator.addEventListener('touchstart', () => {
+        clearTimeout(touchTimeout);
+        connectionIndicator.classList.add('show-tooltip');
+      });
+      
+      connectionIndicator.addEventListener('touchend', () => {
+        touchTimeout = setTimeout(() => {
+          connectionIndicator.classList.remove('show-tooltip');
+        }, 2000);
+      });
+    }
+    
+    // Setup for home link
+    const homeLink = utils.dom(".home-link");
+    if (homeLink) {
+      let touchTimeout;
+      
+      homeLink.addEventListener('touchstart', () => {
+        clearTimeout(touchTimeout);
+        homeLink.classList.add('show-tooltip');
+      });
+      
+      homeLink.addEventListener('touchend', () => {
+        touchTimeout = setTimeout(() => {
+          homeLink.classList.remove('show-tooltip');
+        }, 2000);
+      });
+    }
   }
 
   bindNavigation() {
@@ -2760,6 +2915,14 @@ class AdminDashboardApp {
     this.initConsoleLogsToggle();
     // Don't auto-load alerts and performance - user must click Update button
     // This prevents unnecessary API calls and reduces server load
+    
+    // Force update overview after a short delay to ensure data is loaded
+    // This handles the case where data arrives before charts are initialized
+    setTimeout(() => {
+      if (this.criticalDataLoaded.users && this.criticalDataLoaded.specs && this.criticalDataLoaded.purchases) {
+        this.updateOverview();
+      }
+    }, 1000);
   }
 
   initializeCharts() {
@@ -3105,14 +3268,23 @@ class AdminDashboardApp {
   }
 
   async subscribeToSources() {
-    // Use new DataAggregator instead of old Firebase listeners
-    this.dataAggregator.unsubscribeAll();
-    this.dataAggregator.reset();
-    this.store.reset();
-    this.specsInitialLoad = true; // Reset for reconnection
-    this.updateAllSources("pending");
+    // Check if we already have active subscriptions - if so, don't disconnect
+    const hasActiveSubscriptions = this.dataAggregator.activeSubscriptions.size > 0;
+    
+    if (!hasActiveSubscriptions) {
+      // Only reset if we don't have active subscriptions
+      this.dataAggregator.unsubscribeAll();
+      this.dataAggregator.reset();
+      this.store.reset();
+      this.specsInitialLoad = true; // Reset for reconnection
+      this.updateAllSources("pending");
+    } else {
+      // We have active subscriptions - just update status to show we're checking
+      this.updateConnectionState("pending", "Checking connection…");
+    }
 
     // Subscribe to all data sources via DataAggregator
+    // subscribeAll will only subscribe to sources that aren't already active
     try {
       this.dataAggregator.subscribeAll();
       // Entitlements removed from UI - using user_credits system now
@@ -3196,16 +3368,38 @@ class AdminDashboardApp {
 
   updateConnectionStatus() {
     const states = Object.values(this.sourceState);
-    if (states.every((state) => state === "ready" || state === "restricted")) {
+    const criticalSources = ['users', 'specs', 'purchases'];
+    const criticalStates = criticalSources.map(key => this.sourceState[key] || 'pending');
+    
+    // Check if critical sources are ready
+    const criticalReady = criticalStates.every((state) => state === "ready" || state === "restricted");
+    
+    if (criticalReady && states.every((state) => state === "ready" || state === "restricted" || state === "pending")) {
       this.updateConnectionState("online", "Realtime sync active");
       const now = utils.now();
       if (this.dom.sidebarLastSync) {
         this.dom.sidebarLastSync.textContent = utils.formatDate(now);
       }
+      // Update topbar status with more detailed info
+      if (this.dom.topbarStatus) {
+        const readyCount = states.filter(s => s === "ready").length;
+        const totalCount = states.length;
+        if (readyCount === totalCount) {
+          this.dom.topbarStatus.textContent = "All data sources connected";
+        } else {
+          this.dom.topbarStatus.textContent = `${readyCount}/${totalCount} data sources ready`;
+        }
+      }
     } else if (states.some((state) => state === "error")) {
-      this.updateConnectionState("offline", "Connection issues detected");
+      const errorCount = states.filter(s => s === "error").length;
+      this.updateConnectionState("offline", `Connection issues detected (${errorCount} error${errorCount > 1 ? 's' : ''})`);
     } else {
-      this.updateConnectionState("pending", "Connecting…");
+      const pendingCount = states.filter(s => s === "pending").length;
+      if (pendingCount > 0) {
+        this.updateConnectionState("pending", `Connecting… (${pendingCount} source${pendingCount > 1 ? 's' : ''} pending)`);
+      } else {
+        this.updateConnectionState("pending", "Connecting…");
+      }
     }
   }
 
@@ -3229,6 +3423,11 @@ class AdminDashboardApp {
     }
     if (this.dom.topbarStatus) {
       this.dom.topbarStatus.textContent = label;
+    }
+    // Update title attribute for mobile tooltip
+    const connectionIndicator = utils.dom("#connection-indicator");
+    if (connectionIndicator) {
+      connectionIndicator.setAttribute("title", label);
     }
   }
 
@@ -3728,6 +3927,16 @@ class AdminDashboardApp {
 
   async updateOverview() {
     const overviewRange = this.dom.overviewRange?.value ?? "week";
+    
+    // Check if we have critical data loaded - if not, wait for it
+    const hasCriticalData = this.criticalDataLoaded.users && 
+                            this.criticalDataLoaded.specs && 
+                            this.criticalDataLoaded.purchases;
+    
+    if (!hasCriticalData) {
+      // Data not ready yet, charts will be updated when data arrives
+      return;
+    }
     
     // Calculate daily data for last 7 days
     const dailyUsers = this.calculateDailyUsers();
@@ -4625,8 +4834,25 @@ class AdminDashboardApp {
       this.lastManualRefresh = Date.now();
     }
     
+    // Reset critical data flags if doing a full refresh
+    if (reason === "manual") {
+      this.criticalDataLoaded = {
+        users: false,
+        specs: false,
+        purchases: false,
+        userCredits: false
+      };
+    }
+    
     await this.subscribeToSources();
     this.updateAutoRefreshTimer();
+    
+    // Force update overview after refresh to ensure charts are updated
+    setTimeout(() => {
+      if (this.criticalDataLoaded.users && this.criticalDataLoaded.specs && this.criticalDataLoaded.purchases) {
+        this.updateOverview();
+      }
+    }, 500);
   }
 
   updateAutoRefreshTimer() {
